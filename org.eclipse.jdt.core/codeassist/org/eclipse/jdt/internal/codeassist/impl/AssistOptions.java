@@ -48,10 +48,10 @@ public class AssistOptions {
 		"org.eclipse.jdt.core.codeComplete.camelCaseMatch"; 	//$NON-NLS-1$
 	public static final String OPTION_SuggestStaticImports =
 		"org.eclipse.jdt.core.codeComplete.suggestStaticImports"; 	//$NON-NLS-1$
-	
+
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
-	
+
 	public boolean checkVisibility = false;
 	public boolean checkDeprecation = false;
 	public boolean checkForbiddenReference = false;
@@ -68,14 +68,14 @@ public class AssistOptions {
 	public char[][] localSuffixes = null;
 	public char[][] argumentSuffixes = null;
 
-	/** 
+	/**
 	 * Initializing the assist options with default settings
 	 */
 	public AssistOptions() {
 		// Initializing the assist options with default settings
 	}
 
-	/** 
+	/**
 	 * Initializing the assist options with external settings
 	 */
 	public AssistOptions(Map settings) {
@@ -105,7 +105,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.fieldPrefixes = this.splitAndTrimOn(',', stringValue.toCharArray());
+					this.fieldPrefixes = splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.fieldPrefixes = null;
 				}
@@ -115,7 +115,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.staticFieldPrefixes = this.splitAndTrimOn(',', stringValue.toCharArray());
+					this.staticFieldPrefixes = splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.staticFieldPrefixes = null;
 				}
@@ -125,7 +125,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.localPrefixes = this.splitAndTrimOn(',', stringValue.toCharArray());
+					this.localPrefixes = splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.localPrefixes = null;
 				}
@@ -135,7 +135,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.argumentPrefixes = this.splitAndTrimOn(',', stringValue.toCharArray());
+					this.argumentPrefixes = splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.argumentPrefixes = null;
 				}
@@ -145,7 +145,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.fieldSuffixes = this.splitAndTrimOn(',', stringValue.toCharArray());
+					this.fieldSuffixes = splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.fieldSuffixes = null;
 				}
@@ -155,7 +155,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.staticFieldSuffixes = this.splitAndTrimOn(',', stringValue.toCharArray());
+					this.staticFieldSuffixes = splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.staticFieldSuffixes = null;
 				}
@@ -165,7 +165,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.localSuffixes = this.splitAndTrimOn(',', stringValue.toCharArray());
+					this.localSuffixes = splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.localSuffixes = null;
 				}
@@ -175,7 +175,7 @@ public class AssistOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					this.argumentSuffixes = this.splitAndTrimOn(',', stringValue.toCharArray());
+					this.argumentSuffixes = splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.argumentSuffixes = null;
 				}
@@ -217,12 +217,12 @@ public class AssistOptions {
 			}
 		}
 	}
-	
+
 	private char[][] splitAndTrimOn(char divider, char[] arrayToSplit) {
 		char[][] result = CharOperation.splitAndTrimOn(',', arrayToSplit);
-		
+
 		int length = result.length;
-		
+
 		int resultCount = 0;
 		for (int i = 0; i < length; i++) {
 			if(result[i].length != 0) {

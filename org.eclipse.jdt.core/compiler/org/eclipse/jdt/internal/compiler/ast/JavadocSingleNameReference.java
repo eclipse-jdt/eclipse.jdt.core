@@ -32,7 +32,7 @@ public class JavadocSingleNameReference extends SingleNameReference {
 	 * Resolve without warnings
 	 */
 	public void resolve(BlockScope scope, boolean warn, boolean considerParamRefAsUsage) {
-		
+
 		LocalVariableBinding variableBinding = scope.findVariable(this.token);
 		if (variableBinding != null && variableBinding.isValidBinding() && ((variableBinding.tagBits & TagBits.IsArgument) != 0)) {
 			this.binding = variableBinding;

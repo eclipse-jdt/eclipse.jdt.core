@@ -45,7 +45,7 @@ public void tearDown() throws Exception {
  */
 public void testCUAndImportContainer() throws JavaModelException {
 	IPackageFragment pkg = getPackage("/P/p");
-	ICompilationUnit cu= pkg.createCompilationUnit("HelloImports.java", 
+	ICompilationUnit cu= pkg.createCompilationUnit("HelloImports.java",
 		("package p;\n" +
 		"\n" +
 		"import java.util.Enumeration;\n" +
@@ -60,9 +60,9 @@ public void testCUAndImportContainer() throws JavaModelException {
 	assertCreation(cu);
 	assertDeltas(
 		"Unexpected delta",
-		"P[*]: {CHILDREN}\n" + 
-		"	<project root>[*]: {CHILDREN}\n" + 
-		"		p[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	<project root>[*]: {CHILDREN}\n" +
+		"		p[*]: {CHILDREN}\n" +
 		"			HelloImports.java[+]: {}"
 	);
 	IImportDeclaration[] imprts= cu.getImports();
@@ -83,22 +83,22 @@ public void testDefaultCU() throws CoreException {
 	assertCreation(type);
 	assertDeltas(
 		"Unexpected delta",
-			"P[*]: {CHILDREN}\n" + 
-			"	<project root>[*]: {CHILDREN}\n" + 
-			"		p[*]: {CHILDREN}\n" + 
-			"			Default.java[+]: {}\n" + 
-			"\n" + 
-			"P[*]: {CHILDREN}\n" + 
-			"	<project root>[*]: {CHILDREN}\n" + 
-			"		p[*]: {CHILDREN}\n" + 
-			"			Default.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
+			"P[*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		p[*]: {CHILDREN}\n" +
+			"			Default.java[+]: {}\n" +
+			"\n" +
+			"P[*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		p[*]: {CHILDREN}\n" +
+			"			Default.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
 			"				Default[+]: {}"
 	);
 	// CU should have a package statement and type
 	assertElementDescendants(
 		"Unexpected children",
-		"Default.java\n" + 
-		"  package p\n" + 
+		"Default.java\n" +
+		"  package p\n" +
 		"  class Default",
 		cu);
 
@@ -139,7 +139,7 @@ public void testForce() throws JavaModelException, IOException {
 	File folder = pkg.getResource().getLocation().toFile();
 	new File(folder, "X.java").createNewFile();
 	ICompilationUnit cu = pkg.createCompilationUnit(
-		"X.java", 
+		"X.java",
 		"package p;\n" +
 		"public class X {\n" +
 		"}",
@@ -148,9 +148,9 @@ public void testForce() throws JavaModelException, IOException {
 	assertCreation(cu);
 	assertDeltas(
 		"Unexpected delta",
-		"P[*]: {CHILDREN}\n" + 
-		"	<project root>[*]: {CHILDREN}\n" + 
-		"		p[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	<project root>[*]: {CHILDREN}\n" +
+		"		p[*]: {CHILDREN}\n" +
 		"			X.java[+]: {}"
 	);
 }
@@ -195,7 +195,7 @@ public void testNullContents() {
  */
 public void testSimpleCreation() throws JavaModelException {
 	IPackageFragment pkg = getPackage("/P/p");
-	ICompilationUnit cu= pkg.createCompilationUnit("HelloWorld.java", 
+	ICompilationUnit cu= pkg.createCompilationUnit("HelloWorld.java",
 		("package p;\n" +
 		"\n" +
 		"public class HelloWorld {\n" +
@@ -207,9 +207,9 @@ public void testSimpleCreation() throws JavaModelException {
 	assertCreation(cu);
 	assertDeltas(
 		"Unexpected delta",
-		"P[*]: {CHILDREN}\n" + 
-		"	<project root>[*]: {CHILDREN}\n" + 
-		"		p[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	<project root>[*]: {CHILDREN}\n" +
+		"		p[*]: {CHILDREN}\n" +
 		"			HelloWorld.java[+]: {}"
 	);
 }

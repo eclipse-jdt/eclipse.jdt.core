@@ -32,36 +32,36 @@ public class DependencyTests extends BuilderTests {
 	public void testAbstractMethod() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "p1", "Indicted", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public abstract class Indicted {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		IPath collaboratorPath =  env.addClass(root, "p2", "Collaborator", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
 			"public class Collaborator extends Indicted{\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild(projectPath);
 		expectingNoProblems();
-		
+
 		env.addClass(root, "p1", "Indicted", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public abstract class Indicted {\n"+ //$NON-NLS-1$
 			"   public abstract void foo();\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(collaboratorPath);
 		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "The type Collaborator must implement the inherited abstract method Indicted.foo()", collaboratorPath, 38, 50, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -123,7 +123,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {\n"+ //$NON-NLS-1$
@@ -210,7 +210,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {\n"+ //$NON-NLS-1$
@@ -355,7 +355,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {\n"+ //$NON-NLS-1$
@@ -418,7 +418,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {\n"+ //$NON-NLS-1$
@@ -545,7 +545,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {\n"+ //$NON-NLS-1$
@@ -608,7 +608,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {\n"+ //$NON-NLS-1$
@@ -683,7 +683,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {\n"+ //$NON-NLS-1$
@@ -774,7 +774,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {\n"+ //$NON-NLS-1$
@@ -902,7 +902,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root3 = env.addPackageFragmentRoot(project3Path, "src"); //$NON-NLS-1$
 		env.setOutputFolder(project3Path, "bin"); //$NON-NLS-1$
-	
+
 		IPath bPath = env.addClass(root3, "p3", "B", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n"+ //$NON-NLS-1$
 			"import p2.A;\n" +
@@ -939,7 +939,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A extends Secondary {}\n"+ //$NON-NLS-1$
@@ -968,7 +968,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {}\n" //$NON-NLS-1$
@@ -1016,7 +1016,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {}\n" //$NON-NLS-1$
@@ -1157,7 +1157,7 @@ public class DependencyTests extends BuilderTests {
 
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A<T> {}\n" //$NON-NLS-1$
@@ -1211,22 +1211,22 @@ public void test0100() throws JavaModelException {
 	env.addClass(rootPath, "a", "N1",
 		"package a;\n" +
 		"public class N1 {\n" +
-		"  public void foo() {}\n" + 
-		"  /** @deprecated */\n" + 
+		"  public void foo() {}\n" +
+		"  /** @deprecated */\n" +
 		"  public class N2 {" +
 		"    public void foo() {}" +
 		"    public class N3 {" +
 		"      public void foo() {}" +
 		"    }" +
 		"  }" +
-		"  void bar() {}\n" + 
+		"  void bar() {}\n" +
 		"}\n"
 	);
-	String M1Contents = 
+	String M1Contents =
 		"package p;\n" +
 		"public class M1 {\n" +
-		"  public void foo() {}\n" + 
-		"  /** @deprecated */\n" + 
+		"  public void foo() {}\n" +
+		"  /** @deprecated */\n" +
 		"  public class M2 {" +
 		"    public void foo() {}" +
 		"    public class M3 {" +
@@ -1236,25 +1236,25 @@ public void test0100() throws JavaModelException {
 		"  void bar() {\n" +
 		"    a.N1.N2.N3 m = null;\n" +
 		"    m.foo();\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n";
 	IPath M1Path = env.addClass(rootPath, "p", "M1", M1Contents);
 	fullBuild(projectPath);
 	expectingOnlyProblemsFor(new IPath[] {M1Path});
-	expectingSpecificProblemFor(M1Path, 
-		new Problem("", "The type N1.N2.N3 is deprecated", 
+	expectingSpecificProblemFor(M1Path,
+		new Problem("", "The type N1.N2.N3 is deprecated",
 			M1Path, 190, 200, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
-	expectingSpecificProblemFor(M1Path, 
-		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated", 
+	expectingSpecificProblemFor(M1Path,
+		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated",
 			M1Path, 215, 222, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 	M1Path = env.addClass(rootPath, "p", "M1", M1Contents);
 	incrementalBuild(projectPath);
 	expectingOnlyProblemsFor(new IPath[] {M1Path});
-	expectingSpecificProblemFor(M1Path, 
-		new Problem("", "The type N1.N2.N3 is deprecated", 
+	expectingSpecificProblemFor(M1Path,
+		new Problem("", "The type N1.N2.N3 is deprecated",
 			M1Path, 190, 200, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
-	expectingSpecificProblemFor(M1Path, 
-		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated", 
+	expectingSpecificProblemFor(M1Path,
+		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated",
 			M1Path, 215, 222, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 }
 }

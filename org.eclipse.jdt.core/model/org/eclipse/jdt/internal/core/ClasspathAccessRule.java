@@ -17,15 +17,15 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 
 public class ClasspathAccessRule extends AccessRule implements IAccessRule {
-	
+
 	public ClasspathAccessRule(IPath pattern, int kind) {
 		this(pattern.toString().toCharArray(), toProblemId(kind));
 	}
-	
+
 	public ClasspathAccessRule(char[] pattern, int problemId) {
 		super(pattern, problemId);
 	}
-	
+
 	private static int toProblemId(int kind) {
 		boolean ignoreIfBetter = (kind & IAccessRule.IGNORE_IF_BETTER) != 0;
 		switch (kind & ~IAccessRule.IGNORE_IF_BETTER) {

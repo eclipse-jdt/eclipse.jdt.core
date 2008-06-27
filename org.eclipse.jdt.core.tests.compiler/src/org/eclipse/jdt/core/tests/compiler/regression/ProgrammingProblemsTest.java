@@ -25,7 +25,7 @@ import junit.framework.Test;
  * dedicated test class (aka NullReferenceTest). */
 public class ProgrammingProblemsTest extends AbstractRegressionTest {
 
-public ProgrammingProblemsTest(String name) { 
+public ProgrammingProblemsTest(String name) {
     super(name);
 }
 
@@ -35,14 +35,14 @@ public ProgrammingProblemsTest(String name) {
   	// -Dcompliance=1.4 (for example) to lower it if needed
   	static {
 //    	TESTS_NAMES = new String[] { "test001" };
-//    	TESTS_NUMBERS = new int[] { 1 };   
-//  	TESTS_RANGE = new int[] { 1, -1 }; 
+//    	TESTS_NUMBERS = new int[] { 1 };
+//  	TESTS_RANGE = new int[] { 1, -1 };
   	}
 
 public static Test suite() {
     return buildAllCompliancesTestSuite(testClass());
 }
-  
+
 public static Class testClass() {
     return ProgrammingProblemsTest.class;
 }
@@ -57,13 +57,13 @@ void runTest(
 		String expectedOutputString,
 		boolean forceExecution,
 		String[] classLib,
-		boolean shouldFlushOutputDirectory, 
-		String[] vmArguments, 
+		boolean shouldFlushOutputDirectory,
+		String[] vmArguments,
 		Map customOptions,
 		ICompilerRequestor clientRequestor,
 		boolean skipJavac) {
 	Map compilerOptions = customOptions;
-	if (errorOptions != null || warningOptions != null || 
+	if (errorOptions != null || warningOptions != null ||
 			ignoreOptions != null) {
 		if (compilerOptions == null) {
 			compilerOptions = new HashMap();
@@ -91,8 +91,8 @@ void runTest(
 		"" /* expectedErrorString */,
 		forceExecution,
 		classLib,
-		shouldFlushOutputDirectory, 
-		vmArguments, 
+		shouldFlushOutputDirectory,
+		vmArguments,
 		compilerOptions,
 		clientRequestor,
 		skipJavac);
@@ -103,9 +103,9 @@ public void test0001_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo(boolean b) {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo(boolean b) {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -116,8 +116,8 @@ public void test0001_unread_parameters() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		false /* skipJavac */);
@@ -128,9 +128,9 @@ public void test0002_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo(boolean b) {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo(boolean b) {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -139,17 +139,17 @@ public void test0002_unread_parameters() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\r\n" + 
-		"	public void foo(boolean b) {\r\n" + 
-		"	                        ^\n" + 
-		"The parameter b is never read\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\r\n" +
+		"	public void foo(boolean b) {\r\n" +
+		"	                        ^\n" +
+		"The parameter b is never read\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -159,15 +159,15 @@ public void test0002_unread_parameters() {
 // @param disables by default
 public void test0003_unread_parameters() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
 			CompilerOptions.ENABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"/** @param b mute warning **/\n" + 
-			"  public void foo(boolean b) {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"/** @param b mute warning **/\n" +
+			"  public void foo(boolean b) {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -180,8 +180,8 @@ public void test0003_unread_parameters() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -191,17 +191,17 @@ public void test0003_unread_parameters() {
 // @param disabling can be disabled
 public void test0004_unread_parameters() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
 			CompilerOptions.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"/** @param b mute warning **/\n" + 
-			"  public void foo(boolean b) {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"/** @param b mute warning **/\n" +
+			"  public void foo(boolean b) {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -210,17 +210,17 @@ public void test0004_unread_parameters() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo(boolean b) {\n" + 
-		"	                        ^\n" + 
-		"The parameter b is never read\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public void foo(boolean b) {\n" +
+		"	                        ^\n" +
+		"The parameter b is never read\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -232,13 +232,13 @@ public void test0005_unread_parameters() {
 		runTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
+				"public class X {\n" +
 				"@SuppressWarnings(\"unused\")\n" + // most specific token
-				"  public void foo(boolean b) {\n" + 
-				"  }\n" + 
+				"  public void foo(boolean b) {\n" +
+				"  }\n" +
 				"@SuppressWarnings(\"all\")\n" + // least specific token
-				"  public void foo(int i) {\n" + 
-				"  }\n" + 
+				"  public void foo(int i) {\n" +
+				"  }\n" +
 				"}\n"
 				},
 			null /* errorOptions */,
@@ -251,8 +251,8 @@ public void test0005_unread_parameters() {
 			"" /* expectedOutputString */,
 			false /* forceExecution */,
 			null /* classLib */,
-			true /* shouldFlushOutputDirectory */, 
-			null /* vmArguments */, 
+			true /* shouldFlushOutputDirectory */,
+			null /* vmArguments */,
 			null /* customOptions */,
 			null /* clientRequestor */,
 			true /* skipJavac */);
@@ -264,9 +264,9 @@ public void test0006_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo(boolean b) {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo(boolean b) {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		new String[] {
@@ -275,17 +275,17 @@ public void test0006_unread_parameters() {
 		null /* warningOptions */,
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\r\n" + 
-		"	public void foo(boolean b) {\r\n" + 
-		"	                        ^\n" + 
-		"The parameter b is never read\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\r\n" +
+		"	public void foo(boolean b) {\r\n" +
+		"	                        ^\n" +
+		"The parameter b is never read\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -296,10 +296,10 @@ public void test0007_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" + 
-			"public class X {\n" + 
-			"  public void foo() throws IOException {\n" + 
-			"  }\n" + 
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public void foo() throws IOException {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -310,8 +310,8 @@ public void test0007_declared_thrown_checked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		false /* skipJavac */);
@@ -322,10 +322,10 @@ public void test0008_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" + 
-			"public class X {\n" + 
-			"  public void foo() throws IOException {\n" + 
-			"  }\n" + 
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public void foo() throws IOException {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -334,38 +334,38 @@ public void test0008_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo() throws IOException {\n" + 
-		"	                         ^^^^^^^^^^^\n" + 
-		"The declared exception IOException is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public void foo() throws IOException {\n" +
+		"	                         ^^^^^^^^^^^\n" +
+		"The declared exception IOException is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
 
-// disabling the reporting of unnecessary declaration of thrown checked 
+// disabling the reporting of unnecessary declaration of thrown checked
 // exceptions using the Javadoc
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=73244
 // @throws disables by default
 public void test0009_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
 			CompilerOptions.ENABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" + 
-			"public class X {\n" + 
-			"/** @throws IOException mute warning **/\n" + 
-			"  public void foo() throws IOException {\n" + 
-			"  }\n" + 
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"/** @throws IOException mute warning **/\n" +
+			"  public void foo() throws IOException {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -378,31 +378,31 @@ public void test0009_declared_thrown_checked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
 
-// disabling the reporting of unnecessary declaration of thrown checked 
+// disabling the reporting of unnecessary declaration of thrown checked
 // exceptions using the Javadoc
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=73244
 // @throws disabling can be disabled
 public void test0010_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
 			CompilerOptions.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" + 
-			"public class X {\n" + 
-			"/** @throws IOException mute warning **/\n" + 
-			"  public void foo() throws IOException {\n" + 
-			"  }\n" + 
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"/** @throws IOException mute warning **/\n" +
+			"  public void foo() throws IOException {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -411,34 +411,34 @@ public void test0010_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	public void foo() throws IOException {\n" + 
-		"	                         ^^^^^^^^^^^\n" + 
-		"The declared exception IOException is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 4)\n" +
+		"	public void foo() throws IOException {\n" +
+		"	                         ^^^^^^^^^^^\n" +
+		"The declared exception IOException is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
 
-// disabling the reporting of unnecessary declaration of thrown checked 
+// disabling the reporting of unnecessary declaration of thrown checked
 // exceptions using SuppressWarnings
 public void test0011_declared_thrown_checked_exceptions() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		runTest(
 			new String[] {
 				"X.java",
-				"import java.io.IOException;\n" + 
-				"public class X {\n" + 
+				"import java.io.IOException;\n" +
+				"public class X {\n" +
 				"@SuppressWarnings(\"all\")\n" + // no specific token
-				"  public void foo() throws IOException {\n" + 
-				"  }\n" + 
+				"  public void foo() throws IOException {\n" +
+				"  }\n" +
 				"}\n"
 				},
 			null /* errorOptions */,
@@ -451,8 +451,8 @@ public void test0011_declared_thrown_checked_exceptions() {
 			"" /* expectedOutputString */,
 			false /* forceExecution */,
 			null /* classLib */,
-			true /* shouldFlushOutputDirectory */, 
-			null /* vmArguments */, 
+			true /* shouldFlushOutputDirectory */,
+			null /* vmArguments */,
 			null /* customOptions */,
 			null /* clientRequestor */,
 			true /* skipJavac */);
@@ -464,10 +464,10 @@ public void test0012_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" + 
-			"public class X {\n" + 
-			"  public void foo() throws IOException {\n" + 
-			"  }\n" + 
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public void foo() throws IOException {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		new String[] {
@@ -476,39 +476,39 @@ public void test0012_declared_thrown_checked_exceptions() {
 		null /* warningOptions */,
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public void foo() throws IOException {\n" + 
-		"	                         ^^^^^^^^^^^\n" + 
-		"The declared exception IOException is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public void foo() throws IOException {\n" +
+		"	                         ^^^^^^^^^^^\n" +
+		"The declared exception IOException is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
 
-// disabling the reporting of unnecessary declaration of thrown checked 
+// disabling the reporting of unnecessary declaration of thrown checked
 // exceptions using the Javadoc
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=73244
 // @throws disables by default, but only exact matches work
 public void test0013_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
 			CompilerOptions.ENABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" + 
-			"import java.io.EOFException;\n" + 
-			"public class X {\n" + 
-			"/** @throws EOFException does not mute warning for IOException **/\n" + 
-			"  public void foo() throws IOException {\n" + 
-			"  }\n" + 
+			"import java.io.IOException;\n" +
+			"import java.io.EOFException;\n" +
+			"public class X {\n" +
+			"/** @throws EOFException does not mute warning for IOException **/\n" +
+			"  public void foo() throws IOException {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -517,70 +517,70 @@ public void test0013_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 5)\n" + 
-		"	public void foo() throws IOException {\n" + 
-		"	                         ^^^^^^^^^^^\n" + 
-		"The declared exception IOException is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 5)\n" +
+		"	public void foo() throws IOException {\n" +
+		"	                         ^^^^^^^^^^^\n" +
+		"The declared exception IOException is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
-// interaction between errors and warnings 
+// interaction between errors and warnings
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=203721
 public void test0014_declared_thrown_checked_exceptions_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" + 
-			"public class X {\n" + 
-			"  void foo(int unused) throws IOException {}\n" + 
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  void foo(int unused) throws IOException {}\n" +
 			"}\n"
 			},
 		new String[] {
-			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException				
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
 			} /* errorOptions */,
 		new String[] {
 			CompilerOptions.OPTION_ReportUnusedParameter
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	void foo(int unused) throws IOException {}\n" + 
-		"	             ^^^^^^\n" + 
-		"The parameter unused is never read\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	void foo(int unused) throws IOException {}\n" + 
-		"	                            ^^^^^^^^^^^\n" + 
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	void foo(int unused) throws IOException {}\n" +
+		"	             ^^^^^^\n" +
+		"The parameter unused is never read\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	void foo(int unused) throws IOException {}\n" +
+		"	                            ^^^^^^^^^^^\n" +
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
-// interaction between errors and warnings 
+// interaction between errors and warnings
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=203721
 // variant: both warnings show up
 public void test0015_declared_thrown_checked_exceptions_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" + 
-			"public class X {\n" + 
-			"  void foo(int unused) throws IOException {}\n" + 
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  void foo(int unused) throws IOException {}\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -590,22 +590,22 @@ public void test0015_declared_thrown_checked_exceptions_unread_parameters() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	void foo(int unused) throws IOException {}\n" + 
-		"	             ^^^^^^\n" + 
-		"The parameter unused is never read\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 3)\n" + 
-		"	void foo(int unused) throws IOException {}\n" + 
-		"	                            ^^^^^^^^^^^\n" + 
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	void foo(int unused) throws IOException {}\n" +
+		"	             ^^^^^^\n" +
+		"The parameter unused is never read\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 3)\n" +
+		"	void foo(int unused) throws IOException {}\n" +
+		"	                            ^^^^^^^^^^^\n" +
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -616,9 +616,9 @@ public void test0016_unread_parameters_constructor() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public X(boolean b) {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public X(boolean b) {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		new String[] {
@@ -627,17 +627,17 @@ public void test0016_unread_parameters_constructor() {
 		null /* warningOptions */,
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	public X(boolean b) {\n" + 
-		"	                 ^\n" + 
-		"The parameter b is never read\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	public X(boolean b) {\n" +
+		"	                 ^\n" +
+		"The parameter b is never read\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -649,15 +649,15 @@ public void test0017_shadowing_package_visible_methods() {
 		new String[] {
 			"p/X.java",
 			"package p;\n" +
-			"public class X {\n" + 
-			"  void foo() {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"  }\n" +
 			"}\n",
 			"q/Y.java",
 			"package q;\n" +
-			"public class Y extends p.X {\n" + 
-			"  void foo() {\n" + 
-			"  }\n" + 
+			"public class Y extends p.X {\n" +
+			"  void foo() {\n" +
+			"  }\n" +
 			"}\n",
 			},
 		null /* errorOptions */,
@@ -666,17 +666,17 @@ public void test0017_shadowing_package_visible_methods() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in q\\Y.java (at line 3)\n" + 
-		"	void foo() {\n" + 
-		"	     ^^^^^\n" + 
-		"The method Y.foo() does not override the inherited method from X since it is private to a different package\n" + 
+		"----------\n" +
+		"1. WARNING in q\\Y.java (at line 3)\n" +
+		"	void foo() {\n" +
+		"	     ^^^^^\n" +
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		new ICompilerRequestor() {
 			public void acceptResult(CompilationResult result) {
@@ -693,9 +693,9 @@ public void test0018_declared_thrown_unchecked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws ArithmeticException {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws ArithmeticException {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -706,8 +706,8 @@ public void test0018_declared_thrown_unchecked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -717,9 +717,9 @@ public void test0019_declared_thrown_unchecked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws RuntimeException {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws RuntimeException {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -730,8 +730,8 @@ public void test0019_declared_thrown_unchecked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -741,9 +741,9 @@ public void test0020_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws Exception {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws Exception {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -754,8 +754,8 @@ public void test0020_declared_thrown_checked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -765,9 +765,9 @@ public void test0021_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws Throwable {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws Throwable {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -778,8 +778,8 @@ public void test0021_declared_thrown_checked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -791,14 +791,14 @@ public void test0021_declared_thrown_checked_exceptions() {
 // suppressed the warning
 public void test0022_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws ArithmeticException {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws ArithmeticException {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -811,8 +811,8 @@ public void test0022_declared_thrown_unchecked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -824,14 +824,14 @@ public void test0022_declared_thrown_unchecked_exceptions() {
 // suppressed the warning for unchecked exceptions, using Exception instead
 public void test0023_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE, 
+	customOptions.put(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws Exception {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws Exception {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -840,17 +840,17 @@ public void test0023_declared_thrown_unchecked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public void foo() throws Exception {\n" + 
-		"	                         ^^^^^^^^^\n" + 
-		"The declared exception Exception is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	public void foo() throws Exception {\n" +
+		"	                         ^^^^^^^^^\n" +
+		"The declared exception Exception is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -861,14 +861,14 @@ public void test0023_declared_thrown_unchecked_exceptions() {
 // suppressed the warning
 public void test0024_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws RuntimeException {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws RuntimeException {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -881,8 +881,8 @@ public void test0024_declared_thrown_unchecked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -894,14 +894,14 @@ public void test0024_declared_thrown_unchecked_exceptions() {
 // unchecked exceptions
 public void test0025_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws Exception {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws Exception {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -910,17 +910,17 @@ public void test0025_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public void foo() throws Exception {\n" + 
-		"	                         ^^^^^^^^^\n" + 
-		"The declared exception Exception is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	public void foo() throws Exception {\n" +
+		"	                         ^^^^^^^^^\n" +
+		"The declared exception Exception is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -932,14 +932,14 @@ public void test0025_declared_thrown_checked_exceptions() {
 // unchecked exceptions
 public void test0026_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws Throwable {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws Throwable {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -948,40 +948,40 @@ public void test0026_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public void foo() throws Throwable {\n" + 
-		"	                         ^^^^^^^^^\n" + 
-		"The declared exception Throwable is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	public void foo() throws Throwable {\n" +
+		"	                         ^^^^^^^^^\n" +
+		"The declared exception Throwable is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
-// disabling the reporting of unnecessary declaration of thrown unchecked 
+// disabling the reporting of unnecessary declaration of thrown unchecked
 // exceptions using the Javadoc
 // @throws disables by default
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions, using Exception instead
 public void test0027_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
 			CompilerOptions.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"/** @throws Exception mute warning **/\n" + 
-			"  public void foo() throws Exception {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"/** @throws Exception mute warning **/\n" +
+			"  public void foo() throws Exception {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -994,33 +994,33 @@ public void test0027_declared_thrown_unchecked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
-// disabling the reporting of unnecessary declaration of thrown unchecked 
+// disabling the reporting of unnecessary declaration of thrown unchecked
 // exceptions using the Javadoc
 // @throws disabling can be disabled
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions, using Exception instead
 public void test0028_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
 			CompilerOptions.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference,
 			CompilerOptions.DISABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"/** @throws Exception mute warning **/\n" + 
-			"  public void foo() throws Exception {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"/** @throws Exception mute warning **/\n" +
+			"  public void foo() throws Exception {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -1029,38 +1029,38 @@ public void test0028_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo() throws Exception {\n" + 
-		"	                         ^^^^^^^^^\n" + 
-		"The declared exception Exception is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public void foo() throws Exception {\n" +
+		"	                         ^^^^^^^^^\n" +
+		"The declared exception Exception is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
-// disabling the reporting of unnecessary declaration of thrown unchecked 
+// disabling the reporting of unnecessary declaration of thrown unchecked
 // exceptions using SuppressWarnings
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions, using Exception instead
 public void test0029_declared_thrown_checked_exceptions() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map customOptions = new HashMap();
-		customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+		customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 				CompilerOptions.DISABLED);
 		runTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
+				"public class X {\n" +
 				"@SuppressWarnings(\"all\")\n" + // no specific token
-				"  public void foo() throws Exception {\n" + 
-				"  }\n" + 
+				"  public void foo() throws Exception {\n" +
+				"  }\n" +
 				"}\n"
 				},
 			null /* errorOptions */,
@@ -1073,8 +1073,8 @@ public void test0029_declared_thrown_checked_exceptions() {
 			"" /* expectedOutputString */,
 			false /* forceExecution */,
 			null /* classLib */,
-			true /* shouldFlushOutputDirectory */, 
-			null /* vmArguments */, 
+			true /* shouldFlushOutputDirectory */,
+			null /* vmArguments */,
 			customOptions,
 			null /* clientRequestor */,
 			true /* skipJavac */);
@@ -1086,14 +1086,14 @@ public void test0029_declared_thrown_checked_exceptions() {
 // suppressed the error for unchecked exceptions, using Exception instead
 public void test0030_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws Exception {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws Exception {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		new String[] {
@@ -1102,40 +1102,40 @@ public void test0030_declared_thrown_checked_exceptions() {
 		null /* warningOptions */,
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	public void foo() throws Exception {\n" + 
-		"	                         ^^^^^^^^^\n" + 
-		"The declared exception Exception is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	public void foo() throws Exception {\n" +
+		"	                         ^^^^^^^^^\n" +
+		"The declared exception Exception is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
-// disabling the reporting of unnecessary declaration of thrown unchecked 
+// disabling the reporting of unnecessary declaration of thrown unchecked
 // exceptions using the Javadoc
 // @throws disables by default, but only exact matches work
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions, using Exception instead
 public void test0031_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
 			CompilerOptions.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"/** @throws Throwable does not mute warning for Exception **/\n" + 
-			"  public void foo() throws Exception {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"/** @throws Throwable does not mute warning for Exception **/\n" +
+			"  public void foo() throws Exception {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -1144,17 +1144,17 @@ public void test0031_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo() throws Exception {\n" + 
-		"	                         ^^^^^^^^^\n" + 
-		"The declared exception Exception is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public void foo() throws Exception {\n" +
+		"	                         ^^^^^^^^^\n" +
+		"The declared exception Exception is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -1165,14 +1165,14 @@ public void test0031_declared_thrown_checked_exceptions() {
 // suppressed the warning for unchecked exceptions
 public void test0032_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws Error {\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public void foo() throws Error {\n" +
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -1185,8 +1185,8 @@ public void test0032_declared_thrown_checked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -1197,20 +1197,20 @@ public void test0032_declared_thrown_checked_exceptions() {
 // suppressed the warning for unchecked exceptions, using Exception instead
 public void test0033_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
+			"public class X {\n" +
 			"  public void foo() throws Exception {\n" +
 			"    if (bar()) {\n" +
 			"      throw new Exception();\n" +
-			"    }\n" + 
-			"  }\n" + 
+			"    }\n" +
+			"  }\n" +
 			"  boolean bar() {\n" +
 			"    return true;\n" +
-			"  }\n" + 
+			"  }\n" +
 			"}\n"
 			},
 		null /* errorOptions */,
@@ -1223,8 +1223,8 @@ public void test0033_declared_thrown_checked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -1234,22 +1234,22 @@ public void test0033_declared_thrown_checked_exceptions() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 public void test0034_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public static final class MyError extends Error {\n" + 
-			"    private static final long serialVersionUID = 1L;\n" + 
-			"  }\n" + 
-			"  public void foo() throws Throwable {\n" + 
-			"    try {\n" + 
-			"      bar();\n" + 
-			"    } catch (MyError e) {\n" + 
-			"    }\n" + 
-			"  }\n" + 
-			"  private void bar() {}\n" + 
+			"public class X {\n" +
+			"  public static final class MyError extends Error {\n" +
+			"    private static final long serialVersionUID = 1L;\n" +
+			"  }\n" +
+			"  public void foo() throws Throwable {\n" +
+			"    try {\n" +
+			"      bar();\n" +
+			"    } catch (MyError e) {\n" +
+			"    }\n" +
+			"  }\n" +
+			"  private void bar() {}\n" +
 			"}"
 			},
 		null /* errorOptions */,
@@ -1258,17 +1258,17 @@ public void test0034_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 5)\n" + 
-		"	public void foo() throws Throwable {\n" + 
-		"	                         ^^^^^^^^^\n" + 
-		"The declared exception Throwable is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 5)\n" +
+		"	public void foo() throws Throwable {\n" +
+		"	                         ^^^^^^^^^\n" +
+		"The declared exception Throwable is not actually thrown by the method foo() from type X\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -1276,18 +1276,18 @@ public void test0034_declared_thrown_checked_exceptions() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 public void test0035_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public static final class MyError extends Error {\n" + 
-			"    private static final long serialVersionUID = 1L;\n" + 
-			"  }\n" + 
-			"  public void foo() throws Throwable {\n" + 
-			"    throw new MyError();\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public static final class MyError extends Error {\n" +
+			"    private static final long serialVersionUID = 1L;\n" +
+			"  }\n" +
+			"  public void foo() throws Throwable {\n" +
+			"    throw new MyError();\n" +
+			"  }\n" +
 			"}"
 			},
 		null /* errorOptions */,
@@ -1300,8 +1300,8 @@ public void test0035_declared_thrown_checked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -1311,16 +1311,16 @@ public void test0036_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  public static class E1 extends Exception {\n" + 
-			"    private static final long serialVersionUID = 1L;\n" + 
-			"  }\n" + 
-			"  public static class E2 extends E1 {\n" + 
-			"    private static final long serialVersionUID = 1L;\n" + 
-			"  }\n" + 
-			"  public void foo() throws E1 {\n" + 
-			"    throw new E2();\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public static class E1 extends Exception {\n" +
+			"    private static final long serialVersionUID = 1L;\n" +
+			"  }\n" +
+			"  public static class E2 extends E1 {\n" +
+			"    private static final long serialVersionUID = 1L;\n" +
+			"  }\n" +
+			"  public void foo() throws E1 {\n" +
+			"    throw new E2();\n" +
+			"  }\n" +
 			"}"
 			},
 		null /* errorOptions */,
@@ -1333,8 +1333,8 @@ public void test0036_declared_thrown_checked_exceptions() {
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
+		true /* shouldFlushOutputDirectory */,
+		null /* vmArguments */,
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
@@ -1344,59 +1344,59 @@ public void test0037() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		boolean b1 = args == args;\n" + 
-			"		boolean b2 = args != args;\n" + 
-			"		boolean b3 = b1 == b1;\n" + 
-			"		boolean b4 = b1 != b1;\n" + 
-			"		boolean b5 = b1 && b1;\n" + 
-			"		boolean b6 = b1 || b1;\n" + 
-			"		\n" + 
-			"		boolean b7 = foo() == foo();\n" + 
-			"		boolean b8 = foo() != foo();\n" + 
-			"		boolean b9 = foo() && foo();\n" + 
-			"		boolean b10 = foo() || foo();\n" + 
-			"	}\n" + 
-			"	static boolean foo() { return true; }\n" + 
-			"	Zork z;\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b1 = args == args;\n" +
+			"		boolean b2 = args != args;\n" +
+			"		boolean b3 = b1 == b1;\n" +
+			"		boolean b4 = b1 != b1;\n" +
+			"		boolean b5 = b1 && b1;\n" +
+			"		boolean b6 = b1 || b1;\n" +
+			"		\n" +
+			"		boolean b7 = foo() == foo();\n" +
+			"		boolean b8 = foo() != foo();\n" +
+			"		boolean b9 = foo() && foo();\n" +
+			"		boolean b10 = foo() || foo();\n" +
+			"	}\n" +
+			"	static boolean foo() { return true; }\n" +
+			"	Zork z;\n" +
 			"}\n"
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	boolean b1 = args == args;\n" + 
-			"	             ^^^^^^^^^^^^\n" + 
-			"Comparing identical expressions\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 4)\n" + 
-			"	boolean b2 = args != args;\n" + 
-			"	             ^^^^^^^^^^^^\n" + 
-			"Comparing identical expressions\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 5)\n" + 
-			"	boolean b3 = b1 == b1;\n" + 
-			"	             ^^^^^^^^\n" + 
-			"Comparing identical expressions\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 6)\n" + 
-			"	boolean b4 = b1 != b1;\n" + 
-			"	             ^^^^^^^^\n" + 
-			"Comparing identical expressions\n" + 
-			"----------\n" + 
-			"5. WARNING in X.java (at line 7)\n" + 
-			"	boolean b5 = b1 && b1;\n" + 
-			"	             ^^^^^^^^\n" + 
-			"Comparing identical expressions\n" + 
-			"----------\n" + 
-			"6. WARNING in X.java (at line 8)\n" + 
-			"	boolean b6 = b1 || b1;\n" + 
-			"	             ^^^^^^^^\n" + 
-			"Comparing identical expressions\n" + 
-			"----------\n" + 
-			"7. ERROR in X.java (at line 16)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	boolean b1 = args == args;\n" +
+			"	             ^^^^^^^^^^^^\n" +
+			"Comparing identical expressions\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" +
+			"	boolean b2 = args != args;\n" +
+			"	             ^^^^^^^^^^^^\n" +
+			"Comparing identical expressions\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 5)\n" +
+			"	boolean b3 = b1 == b1;\n" +
+			"	             ^^^^^^^^\n" +
+			"Comparing identical expressions\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 6)\n" +
+			"	boolean b4 = b1 != b1;\n" +
+			"	             ^^^^^^^^\n" +
+			"Comparing identical expressions\n" +
+			"----------\n" +
+			"5. WARNING in X.java (at line 7)\n" +
+			"	boolean b5 = b1 && b1;\n" +
+			"	             ^^^^^^^^\n" +
+			"Comparing identical expressions\n" +
+			"----------\n" +
+			"6. WARNING in X.java (at line 8)\n" +
+			"	boolean b6 = b1 || b1;\n" +
+			"	             ^^^^^^^^\n" +
+			"Comparing identical expressions\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 16)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 }
 }

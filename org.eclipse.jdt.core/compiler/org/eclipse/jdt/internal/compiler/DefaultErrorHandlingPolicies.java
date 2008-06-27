@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler;
 
 public class DefaultErrorHandlingPolicies {
- 
+
 /*
  * Accumulate all problems, then exit without proceeding.
  *

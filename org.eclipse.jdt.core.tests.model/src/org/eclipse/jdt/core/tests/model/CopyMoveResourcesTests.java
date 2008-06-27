@@ -33,19 +33,19 @@ public CopyMoveResourcesTests(String name) {
 public IJavaElement copyPositive(IJavaElement element, IJavaElement container, IJavaElement sibling, String rename, boolean force) throws JavaModelException {
 	try {
 		startDeltas();
-		
+
 		// if forcing, ensure that a name collision exists
 		if (force) {
 			IJavaElement collision = generateHandle(element, rename, container);
 			assertTrue("Collision does not exist", collision.exists());
 		}
-	
+
 		// copy
 	 	((ISourceManipulation) element).copy(container, sibling, rename, force, null);
-	
+
 		// ensure the original element still exists
 		assertTrue("The original element must still exist", element.exists());
-	
+
 		// generate the new element	handle
 		IJavaElement copy = generateHandle(element, rename, container);
 		assertTrue("Copy should exist", copy.exists());
@@ -100,7 +100,7 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, IJavaElement[] siblings, String[] names, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	try {
 		startDeltas();
-		
+
 		// if forcing, ensure that a name collision exists
 		int i;
 		if (force) {
@@ -115,10 +115,10 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 				assertTrue("Collision does not exist", collision.exists());
 			}
 		}
-	
+
 		// move
 		getJavaModel().move(elements, destinations, siblings, names, force, monitor);
-	
+
 		for (i = 0; i < elements.length; i++) {
 			IJavaElement element = elements[i];
 			IJavaElement moved = null;
@@ -133,7 +133,7 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 					assertTrue("The original element must not exist", !element.exists());
 			}
 			assertTrue("Moved element should exist", moved.exists());
-	
+
 			IJavaElement container = destinations[i];
 			if (container.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
 				if (container.getElementName().equals("")) {
@@ -194,7 +194,7 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
  */
 public void setUp() throws Exception {
 	super.setUp();
-	
+
 	this.createJavaProject("P", new String[] {"src", "src2"}, "bin");
 }
 static {
@@ -208,7 +208,7 @@ public static Test suite() {
  */
 public void tearDown() throws Exception {
 	this.deleteProject("P");
-	
+
 	super.tearDown();
 }
 /**
@@ -228,7 +228,7 @@ public void testCopyCU() throws CoreException {
 	IPackageFragment pkgDest = getPackage("/P/src/p2");
 
 	copyPositive(cuSource, pkgDest, null, null, false);
-	
+
 	ICompilationUnit cu= pkgDest.getCompilationUnit("X.java");
 	assertTrue("Package declaration not updated for copied cu", cu.getPackageDeclaration("p2").exists());
 }
@@ -247,11 +247,11 @@ public void testCopyCUAndType() throws CoreException {
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
 	copyNegative(
-		new IJavaElement[]{cuSource, cuSource.getType("X")}, 
-		new IJavaElement[]{cuSource.getParent(), cuSource}, 
-		null, 
-		new String[]{"Y.java", "Y"}, 
-		false, 
+		new IJavaElement[]{cuSource, cuSource.getType("X")},
+		new IJavaElement[]{cuSource.getParent(), cuSource},
+		null,
+		new String[]{"Y.java", "Y"},
+		false,
 		IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
 }
 /**
@@ -293,7 +293,7 @@ public void testCopyCUFromDefaultToNonDefault() throws CoreException {
 	IPackageFragment pkgDest = getPackage("/P/src/p");
 
 	copyPositive(cuSource, pkgDest, null, null, false);
-	
+
 	ICompilationUnit cu= pkgDest.getCompilationUnit("X.java");
 	assertTrue("Package declaration not updated for copied cu", cu.getPackageDeclaration("p").exists());
 }
@@ -336,12 +336,12 @@ public void testCopyCUReadOnly() throws CoreException {
 		);
 		Util.setReadOnly(file, true);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
-	
+
 		this.createFolder("/P/src/p2");
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
-	
+
 		copyPositive(cuSource, pkgDest, null, null, false);
-		
+
 		file2 = getFile("/P/src/p2/X.java");
 		assertTrue("Destination cu should be read-only", file2.isReadOnly());
 	} finally {
@@ -510,11 +510,11 @@ public void testCopyReadOnlyPackageFragment() throws CoreException {
 		Util.setReadOnly(pkgSource.getResource(), true);
 		pkg2 = getPackage("/P/src/p1/p2/p3");
 		Util.setReadOnly(pkg2.getResource(), true);
-	
+
 		IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
-	
+
 		copyPositive(pkg2, rootDest, null, null, false);
-		
+
 		assertTrue("Not readOnly", Util.isReadOnly(getPackage("/P/src2/p1").getResource()));
 		assertTrue("Is readOnly", !Util.isReadOnly(getPackage("/P/src2/p1/p2").getResource()));
 		assertTrue("Not readOnly", Util.isReadOnly(getPackage("/P/src2/p1/p2/p3").getResource()));
@@ -560,10 +560,10 @@ public void testCopyWorkingCopy() throws CoreException {
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
-	
+
 		this.createFolder("/P/src/p2");
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
-	
+
 		copyPositive(copy, pkgDest, null, null, false);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
@@ -585,7 +585,7 @@ public void testCopyWorkingCopyDestination() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
-	
+
 		createFolder("/P/src/p2");
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 		createFile(
@@ -597,7 +597,7 @@ public void testCopyWorkingCopyDestination() throws CoreException {
 		);
 		copy = getCompilationUnit("/P/src/p2/X.java");
 		copy.becomeWorkingCopy(null);
-	
+
 		copyPositive(cuSource, pkgDest, null, null, true/*force*/);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
@@ -618,7 +618,7 @@ public void testCopyWorkingCopyForce() throws CoreException {
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
-	
+
 		this.createFolder("/P/src/p2");
 		this.createFile(
 			"/P/src/p2/X.java",
@@ -627,7 +627,7 @@ public void testCopyWorkingCopyForce() throws CoreException {
 			"}"
 		);
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
-	
+
 		copyPositive(copy, pkgDest, null, null, true);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
@@ -649,10 +649,10 @@ public void testCopyWorkingCopyRename() throws CoreException {
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
-	
+
 		this.createFolder("/P/src/p2");
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
-	
+
 		copyPositive(copy, pkgDest, null, "Y.java", false);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
@@ -674,7 +674,7 @@ public void testCopyWorkingCopyRenameForce() throws CoreException {
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
-	
+
 		this.createFolder("/P/src/p2");
 		this.createFile(
 			"/P/src/p2/Y.java",
@@ -683,7 +683,7 @@ public void testCopyWorkingCopyRenameForce() throws CoreException {
 			"}"
 		);
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
-	
+
 		copyPositive(copy, pkgDest, null, "Y.java", true);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
@@ -704,7 +704,7 @@ public void testCopyWorkingCopyWithCollision() throws CoreException {
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
-	
+
 		this.createFolder("/P/src/p2");
 		this.createFile(
 			"/P/src/p2/X.java",
@@ -713,7 +713,7 @@ public void testCopyWorkingCopyWithCollision() throws CoreException {
 			"}"
 		);
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
-	
+
 		copyNegative(copy, pkgDest, null, null, false, IJavaModelStatusConstants.NAME_COLLISION);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
@@ -734,7 +734,7 @@ public void testCopyWorkingCopyWithInvalidDestination() throws CoreException {
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
-	
+
 		copyNegative(copy, cuSource, null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
@@ -757,7 +757,7 @@ public void testMoveCU() throws CoreException {
 	IPackageFragment pkgDest = getPackage("/P/src/p2");
 
 	movePositive(cuSource, pkgDest, null, null, false);
-	
+
 	ICompilationUnit cu= pkgDest.getCompilationUnit("X.java");
 	assertTrue("Package declaration not updated for copied cu", cu.getPackageDeclaration("p2").exists());
 }
@@ -776,11 +776,11 @@ public void testMoveCUAndType() throws CoreException {
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
 	moveNegative(
-		new IJavaElement[]{cuSource, cuSource.getType("X")}, 
-		new IJavaElement[]{cuSource.getParent(), cuSource}, 
-		null, 
-		new String[]{"Y.java", "Y"}, 
-		false, 
+		new IJavaElement[]{cuSource, cuSource.getType("X")},
+		new IJavaElement[]{cuSource.getParent(), cuSource},
+		null,
+		new String[]{"Y.java", "Y"},
+		false,
 		IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
 }
 /**
@@ -952,11 +952,11 @@ public void testMoveReadOnlyPackageFragment() throws CoreException {
 		Util.setReadOnly(pkgSource.getResource(), true);
 		pkg2 = getPackage("/P/src/p1/p2/p3");
 		Util.setReadOnly(pkg2.getResource(), true);
-	
+
 		IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
-	
+
 		movePositive(pkg2, rootDest, null, null, false);
-		
+
 		assertTrue("Not readOnly", Util.isReadOnly(getPackage("/P/src2/p1").getResource()));
 		assertTrue("Is readOnly", !Util.isReadOnly(getPackage("/P/src2/p1/p2").getResource()));
 		assertTrue("Not readOnly", Util.isReadOnly(getPackage("/P/src2/p1/p2/p3").getResource()));
@@ -1002,10 +1002,10 @@ public void testMoveWorkingCopy() throws CoreException {
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
-	
+
 		this.createFolder("/P/src/p2");
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
-	
+
 		moveNegative(copy, pkgDest, null, null, false, IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
@@ -1029,10 +1029,10 @@ public void testMoveWorkingCopy2() throws CoreException {
 		);
 		copy = getCompilationUnit("/P/src/p1/X.java");
 		copy.becomeWorkingCopy(null);
-	
+
 		this.createFolder("/P/src/p2");
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
-	
+
 		movePositive(copy, pkgDest, null, null, false);
 		assertTrue("Should not have unsaved changes", !copy.getBuffer().hasUnsavedChanges());
 	} finally {

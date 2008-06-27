@@ -17,8 +17,8 @@ package org.eclipse.jdt.internal.compiler;
  *	to be a real error (that is, not a warning),
  * 2. should it proceed once it has gathered all problems
  *
- * The intent is that one can supply its own policy to implement 
- * some interactive error handling strategy where some UI would 
+ * The intent is that one can supply its own policy to implement
+ * some interactive error handling strategy where some UI would
  * display problems and ask user if he wants to proceed or not.
  */
 

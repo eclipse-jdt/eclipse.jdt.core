@@ -31,13 +31,13 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 		super(Math.max(leftPattern.getMatchRule(), rightPattern.getMatchRule()));
 		((InternalSearchPattern)this).kind = OR_PATTERN;
 		((InternalSearchPattern)this).mustResolve = ((InternalSearchPattern) leftPattern).mustResolve || ((InternalSearchPattern) rightPattern).mustResolve;
-	
+
 		SearchPattern[] leftPatterns = leftPattern instanceof OrPattern ? ((OrPattern) leftPattern).patterns : null;
 		SearchPattern[] rightPatterns = rightPattern instanceof OrPattern ? ((OrPattern) rightPattern).patterns : null;
 		int leftSize = leftPatterns == null ? 1 : leftPatterns.length;
 		int rightSize = rightPatterns == null ? 1 : rightPatterns.length;
 		this.patterns = new SearchPattern[leftSize + rightSize];
-	
+
 		if (leftPatterns == null)
 			this.patterns[0] = leftPattern;
 		else
@@ -48,9 +48,9 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 			System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
 
 		// Store erasure match
-		matchCompatibility = 0;
+		this.matchCompatibility = 0;
 		for (int i = 0, length = this.patterns.length; i < length; i++) {
-			matchCompatibility |= ((JavaSearchPattern) this.patterns[i]).matchCompatibility;
+			this.matchCompatibility |= ((JavaSearchPattern) this.patterns[i]).matchCompatibility;
 		}
 	}
 	void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
@@ -80,7 +80,7 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 
 	/**
 	 * Returns whether the pattern has one or several package declaration or not.
-	 * 
+	 *
 	 * @return <code>true</code> if one at least of the stored pattern is a package declaration
 	 * 	pattern ({@link PackageDeclarationPattern}), <code>false</code> otherwise.
 	 */

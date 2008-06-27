@@ -26,12 +26,12 @@ public class FloatLiteral extends NumberLiteral {
 	public void computeConstant() {
 		Float computedValue;
 		try {
-			computedValue = Float.valueOf(String.valueOf(source));
+			computedValue = Float.valueOf(String.valueOf(this.source));
 		} catch (NumberFormatException e) {
 			// hex floating point literal
 			// being rejected by 1.4 libraries where Float.valueOf(...) doesn't handle hex decimal floats
 			try {
-				float v = FloatUtil.valueOfHexFloatLiteral(source);
+				float v = FloatUtil.valueOfHexFloatLiteral(this.source);
 				if (v == Float.POSITIVE_INFINITY) {
 					// error: the number is too large to represent
 					return;
@@ -40,8 +40,8 @@ public class FloatLiteral extends NumberLiteral {
 					// error: the number is too small to represent
 					return;
 				}
-				value = v;
-				constant = FloatConstant.fromValue(v);
+				this.value = v;
+				this.constant = FloatConstant.fromValue(v);
 			} catch (NumberFormatException e1) {
 				// if the computation of the constant fails
 			}
@@ -58,8 +58,8 @@ public class FloatLiteral extends NumberLiteral {
 			// a true 0 only has '0' and '.' in mantissa
 			// 1.0e-5000d is non-zero, but underflows to 0
 			boolean isHexaDecimal = false;
-			label : for (int i = 0; i < source.length; i++) { //it is welled formated so just test against '0' and potential . D d  
-				switch (source[i]) {
+			label : for (int i = 0; i < this.source.length; i++) { //it is welled formated so just test against '0' and potential . D d
+				switch (this.source[i]) {
 					case '0' :
 					case '.' :
 						break;
@@ -88,8 +88,8 @@ public class FloatLiteral extends NumberLiteral {
 				}
 			}
 		}
-		value = floatValue;
-		constant = FloatConstant.fromValue(value);
+		this.value = floatValue;
+		this.constant = FloatConstant.fromValue(this.value);
 	}
 	/**
 	 * Code generation for float literal
@@ -101,7 +101,7 @@ public class FloatLiteral extends NumberLiteral {
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		int pc = codeStream.position;
 		if (valueRequired) {
-			codeStream.generateConstant(constant, implicitConversion);
+			codeStream.generateConstant(this.constant, this.implicitConversion);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}

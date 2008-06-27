@@ -27,7 +27,7 @@ public class FormatterCommentParser extends JavadocParser implements IJavaDocTag
 	char[][] htmlTags;
 	int htmlTagsPtr = -1;
 	private boolean invalidTagName;
-	
+
 public FormatterCommentParser(long sourceLevel) {
 	super(null);
 	this.kind = FORMATTER_COMMENT_PARSER | TEXT_PARSE;
@@ -120,7 +120,7 @@ protected Object createTypeReference(int primitiveToken) {
 	if (size == 0) return null;
 	int start = (int) (this.identifierPositionStack[this.identifierPtr] >>> 32);
 	int lineStart = this.scanner.getLineNumber(start);
-	if (size == 1) { 
+	if (size == 1) {
 		return new FormatJavadocReference(this.identifierPositionStack[this.identifierPtr], lineStart);
 	}
 	long[] positions = new long[size];
@@ -248,7 +248,7 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return false;
 				int ptr = this.htmlTagsPtr;
 	    		while (!CharOperation.equals(htmlTag, identifier, false)) {
-	    			if (htmlTagsPtr <= 0) {
+	    			if (this.htmlTagsPtr <= 0) {
 	    				// consider the closing tag as invalid
 	    				this.htmlTagsPtr = ptr;
 	    				return false;
@@ -355,7 +355,7 @@ protected boolean parseReturn() {
  */
 protected boolean parseTag(int previousPosition) throws InvalidInputException {
 	int ptr = this.astPtr;
-	
+
 	// Read tag name
 	this.tagSourceStart = previousPosition;
 	this.scanner.startPosition = this.index;
@@ -366,13 +366,13 @@ protected boolean parseTag(int previousPosition) throws InvalidInputException {
 		case '}':
 			// tag name is empty
 			this.tagSourceEnd = previousPosition;
-			if (textStart == -1) this.textStart = previousPosition;
+			if (this.textStart == -1) this.textStart = previousPosition;
 			return true;
-		default: 
+		default:
 			if (ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
 				// tag name is empty
 				this.tagSourceEnd = previousPosition;
-				if (textStart == -1) this.textStart = previousPosition;
+				if (this.textStart == -1) this.textStart = previousPosition;
 				return true;
 			}
 			break;
@@ -531,7 +531,7 @@ protected boolean parseTag(int previousPosition) throws InvalidInputException {
 	consumeToken();
 	this.textStart = -1;
 
-	// the javadoc parser may not create tag for some valid tags: force tag creation for such tag. 
+	// the javadoc parser may not create tag for some valid tags: force tag creation for such tag.
 	if (valid) {
 		switch (this.tagValue) {
 			case TAG_INHERITDOC_VALUE:
@@ -602,7 +602,7 @@ protected boolean pushSeeRef(Object statement) {
 	} else {
 		pushOnAstStack(block, true);
 	}
-	
+
 	return true;
 }
 
@@ -614,7 +614,7 @@ protected void pushText(int start, int end) {
 }
 
 private void pushText(int start, int end, int htmlIndex, int htmlDepth) {
-	
+
 	// Search previous tag on which to add the text element
 	FormatJavadocBlock previousBlock = null;
 	int previousStart = start;
@@ -626,7 +626,7 @@ private void pushText(int start, int end, int htmlIndex, int htmlDepth) {
 		previousBlock = (FormatJavadocBlock) this.astStack[this.astPtr];
 		previousStart = previousBlock.sourceStart;
 	}
-	
+
 	// If we're in a inline tag, then retrieve previous tag in its fragments
 	if (this.inlineTagStarted) {
 		if (previousBlock.nodes == null) {
@@ -656,7 +656,7 @@ private void pushText(int start, int end, int htmlIndex, int htmlDepth) {
 
 /*
  * (non-Javadoc)
- * 
+ *
  * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushThrowName(java.lang.Object)
  */
 protected boolean pushThrowName(Object typeRef) {

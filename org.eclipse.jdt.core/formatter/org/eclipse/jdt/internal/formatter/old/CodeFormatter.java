@@ -24,12 +24,12 @@ import org.eclipse.text.edits.TextEdit;
  * <li>Use the method <code>void format(aString)</code>
  * on this instance to format <code>aString</code>.
  * It will return the formatted string.</ul>
- * @deprecated 
+ * @deprecated
 */
 public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICodeFormatter {
 
 	private Map options;
-	
+
 	public CodeFormatter(Map options) {
 		if (options == null) {
 			this.options = JavaCore.getOptions();
@@ -37,7 +37,7 @@ public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICode
 			this.options = options;
 		}
 	}
-	
+
 	public String format(String string, int indentLevel, int[] positions, String lineSeparator) {
 		// initialize the new formatter with old options
 		Map newOptions = DefaultCodeFormatterConstants.getEclipse21Settings();
@@ -130,7 +130,7 @@ public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICode
 		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ARRAY_INITIALIZER, JavaCore.INSERT);
 		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER, JavaCore.INSERT);
 		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER, JavaCore.INSERT);
-		
+
 		DefaultCodeFormatter defaultCodeFormatter = new DefaultCodeFormatter(newOptions);
 		TextEdit textEdit = defaultCodeFormatter.format(org.eclipse.jdt.core.formatter.CodeFormatter.K_UNKNOWN, string, 0, string.length(), indentLevel, lineSeparator);
 		if (positions != null && textEdit != null) {
@@ -161,5 +161,5 @@ public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICode
 			}
 		}
 		return org.eclipse.jdt.internal.core.util.Util.editedString(string, textEdit);
-	}	
+	}
 }

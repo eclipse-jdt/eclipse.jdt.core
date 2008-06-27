@@ -27,7 +27,7 @@ public class OpenableElementInfo extends JavaElementInfo {
 	public boolean isStructureKnown() {
 		return this.isStructureKnown;
 	}
-	
+
 	/**
 	 * Sets whether the structure of this element known
 	 * @see IJavaElement#isStructureKnown()

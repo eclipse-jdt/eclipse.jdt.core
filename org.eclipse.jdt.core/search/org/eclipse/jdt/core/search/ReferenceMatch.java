@@ -24,7 +24,7 @@ public abstract class ReferenceMatch extends SearchMatch {
 
 /**
  * Creates a new reference match.
- * 
+ *
  * @param enclosingElement the inner-most enclosing member that references this java element
  * @param accuracy one of {@link #A_ACCURATE} or {@link #A_INACCURATE}
  * @param offset the offset the match starts at, or -1 if unknown
@@ -42,10 +42,10 @@ public ReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, i
 /**
  * Returns the local element of this search match, or <code>null</code> if none.
  * A local element is the inner-most element that contains the reference and that is
- * not reachable by navigating from the root of the {@link IJavaModel} using 
+ * not reachable by navigating from the root of the {@link IJavaModel} using
  * {@link IParent#getChildren()}.
  * <p>
- * Known element types for local elements are {@link IJavaElement#ANNOTATION}, 
+ * Known element types for local elements are {@link IJavaElement#ANNOTATION},
  * {@link IJavaElement#LOCAL_VARIABLE} and {@link IJavaElement#TYPE_PARAMETER}.<br>
  * However clients should not assume that this set of element types is closed as
  * other types of elements may be returned in the future, e.g. if new types
@@ -102,7 +102,7 @@ public ReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, i
  * Or a local element may be an {@link ITypeParameter} that extends the referenced
  * type. For example,
  * <ul>
- * 	<li>searching for the references to the type <code>Test</code> in 
+ * 	<li>searching for the references to the type <code>Test</code> in
  * 		<pre>
  *         public class X&lt; T extends Test&gt; {
  *         }</pre>
@@ -110,9 +110,9 @@ public ReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, i
  * 		is the {@link ITypeParameter} '<code>T</code>'.<br><br>
  * </ul>
  * </p>
- * 
+ *
  * @return the local element of this search match, or <code>null</code> if none.
- * 
+ *
  * @since 3.4
  */
 final public IJavaElement getLocalElement() {
@@ -121,7 +121,7 @@ final public IJavaElement getLocalElement() {
 
 /**
  * Return the stored local element.
- * 
+ *
  * @see org.eclipse.jdt.core.search.ReferenceMatch#getLocalElement()
  */
 protected IJavaElement localElement() {

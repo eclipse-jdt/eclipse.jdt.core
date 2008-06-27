@@ -40,7 +40,7 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 		TEST_CLASSES.add(MethodInvocationCompletionTest.class);
 		TEST_CLASSES.add(NameReferenceCompletionTest.class);
 		TEST_CLASSES.add(ReferenceTypeCompletionTest.class);
-		
+
 		TEST_CLASSES_1_5.add(GenericsCompletionParserTest.class);
 		TEST_CLASSES_1_5.add(EnumCompletionParserTest.class);
 		TEST_CLASSES_1_5.add(AnnotationCompletionParserTest.class);
@@ -54,7 +54,7 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 		ArrayList testClasses = new ArrayList();
 
 		testClasses.addAll(RunCompletionParserTests.TEST_CLASSES);
-		
+
 		TestSuite all = new TestSuite(TestAll.class.getName());
 		int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {

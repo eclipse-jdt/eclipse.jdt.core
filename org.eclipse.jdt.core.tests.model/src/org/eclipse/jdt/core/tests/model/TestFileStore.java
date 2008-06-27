@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -23,9 +23,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public class TestFileStore extends FileStore {
-	
+
 	URI uri;
-	
+
 	public TestFileStore(URI uri) {
 		this.uri = uri;
 	}
@@ -53,7 +53,7 @@ public class TestFileStore extends FileStore {
 	public IFileStore getParent() {
 		return new TestFileStore(this.uri);
 	}
-	
+
 	public IFileStore mkdir(int options, IProgressMonitor monitor) throws CoreException {
 		return new TestFileStore(this.uri);
 	}
@@ -62,7 +62,7 @@ public class TestFileStore extends FileStore {
 			throws CoreException {
 		return null;
 	}
-	
+
 	public OutputStream openOutputStream(int options, IProgressMonitor monitor)
 			throws CoreException {
 		return new OutputStream() {

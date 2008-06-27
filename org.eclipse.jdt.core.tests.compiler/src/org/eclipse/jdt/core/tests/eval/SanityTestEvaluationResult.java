@@ -55,14 +55,14 @@ public static Class testClass() {
  * Sanity test of IEvaluationResult.getEvaluationType()
  */
 public void testGetEvaluationType() {
-	int evaluationType = result.getEvaluationType();
+	int evaluationType = this.result.getEvaluationType();
 	assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, evaluationType);
 }
 /**
  * Sanity test of IEvaluationResult.getProblems()
  */
 public void testGetProblems() {
-	CategorizedProblem[] problems = result.getProblems();
+	CategorizedProblem[] problems = this.result.getProblems();
 	assertTrue("Problems", problems == null || problems.length == 0);
 }
 /**
@@ -89,24 +89,24 @@ public void testGetValueTypeName() {
  * Sanity test of IEvaluationResult.hasErrors()
  */
 public void testHasErrors() {
-	assertTrue("Result has no errors", !result.hasErrors());
+	assertTrue("Result has no errors", !this.result.hasErrors());
 }
 /**
  * Sanity test of IEvaluationResult.hasProblems()
  */
 public void testHasProblems() {
-	assertTrue("Result has no problems", !result.hasProblems());
+	assertTrue("Result has no problems", !this.result.hasProblems());
 }
 /**
  * Sanity test of IEvaluationResult.hasValue()
  */
 public void testHasValue() {
-	assertTrue("Result has a value", result.hasValue());
+	assertTrue("Result has a value", this.result.hasValue());
 }
 /**
  * Sanity test of IEvaluationResult.hasWarnings()
  */
 public void testHasWarnings() {
-	assertTrue("Result has no warnings", !result.hasWarnings());
+	assertTrue("Result has no warnings", !this.result.hasWarnings());
 }
 }

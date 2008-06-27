@@ -57,7 +57,7 @@ public abstract class Engine implements ITypeRequestor {
 	 * Add an additional binary type
 	 */
 	public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
-		lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
+		this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
 	}
 
 	/**
@@ -66,10 +66,10 @@ public abstract class Engine implements ITypeRequestor {
 	public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
 		CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit =
-			this.getParser().dietParse(sourceUnit, result);
+			getParser().dietParse(sourceUnit, result);
 
-		lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
-		lookupEnvironment.completeTypeBindings(parsedUnit, true);
+		this.lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
+		this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
 	}
 
 	/**
@@ -85,12 +85,12 @@ public abstract class Engine implements ITypeRequestor {
 				SourceTypeConverter.FIELD_AND_METHOD // need field and methods
 				| SourceTypeConverter.MEMBER_TYPE, // need member types
 				// no need for field initialization
-				lookupEnvironment.problemReporter,
+				this.lookupEnvironment.problemReporter,
 				result);
 
 		if (unit != null) {
-			lookupEnvironment.buildTypeBindings(unit, accessRestriction);
-			lookupEnvironment.completeTypeBindings(unit, true);
+			this.lookupEnvironment.buildTypeBindings(unit, accessRestriction);
+			this.lookupEnvironment.completeTypeBindings(unit, true);
 		}
 	}
 
@@ -100,7 +100,7 @@ public abstract class Engine implements ITypeRequestor {
 		ImportBinding[] importBindings = this.unitScope.imports;
 		int length = importBindings == null ? 0 : importBindings.length;
 
-		this.currentPackageName = CharOperation.concatWith(unitScope.fPackage.compoundName, '.');
+		this.currentPackageName = CharOperation.concatWith(this.unitScope.fPackage.compoundName, '.');
 
 		for (int i = 0; i < length; i++) {
 			ImportBinding importBinding = importBindings[i];
@@ -134,11 +134,11 @@ public abstract class Engine implements ITypeRequestor {
 		int modifiers) {
 
 		// If there are no types defined into the current CU yet.
-		if (unitScope == null)
+		if (this.unitScope == null)
 			return true;
 
 		if(!this.importCachesInitialized) {
-			this.initializeImportCaches();
+			initializeImportCaches();
 		}
 
 		for (int i = 0; i < this.importCacheCount; i++) {
@@ -310,7 +310,7 @@ public abstract class Engine implements ITypeRequestor {
 	}
 
 	protected void reset(boolean resetLookupEnvironment) {
-		if (resetLookupEnvironment) lookupEnvironment.reset();
+		if (resetLookupEnvironment) this.lookupEnvironment.reset();
 	}
 
 	public static char[] getTypeSignature(TypeBinding typeBinding) {
@@ -320,10 +320,10 @@ public abstract class Engine implements ITypeRequestor {
 		}
 		return result;
 	}
-	
+
 	public static char[] getSignature(MethodBinding methodBinding) {
 		char[] result = null;
-		
+
 		int oldMod = methodBinding.modifiers;
 		//TODO remove the next line when method from binary type will be able to generate generic signature
 		methodBinding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
@@ -332,18 +332,18 @@ public abstract class Engine implements ITypeRequestor {
 			result = methodBinding.signature();
 		}
 		methodBinding.modifiers = oldMod;
-		
+
 		if (result != null) {
 			result = CharOperation.replaceOnCopy(result, '/', '.');
 		}
 		return result;
 	}
-	
+
 	public static char[] getSignature(TypeBinding typeBinding) {
 		char[] result = null;
-		
+
 		result = typeBinding.genericTypeSignature();
-		
+
 		if (result != null) {
 			result = CharOperation.replaceOnCopy(result, '/', '.');
 		}

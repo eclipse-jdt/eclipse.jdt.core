@@ -30,7 +30,7 @@ public class SourceIndexerRequestor implements ISourceElementRequestor, IIndexCo
 	char[][] enclosingTypeNames = new char[5][];
 	int depth = 0;
 	int methodDepth = 0;
-	
+
 public SourceIndexerRequestor(SourceIndexer indexer) {
 	this.indexer = indexer;
 }
@@ -139,7 +139,7 @@ public void acceptUnknownReference(char[] name, int sourcePosition) {
  */
 public char[][] enclosingTypeNames(){
 
-	if (depth == 0) return null;
+	if (this.depth == 0) return null;
 
 	char[][] qualification = new char[this.depth][];
 	System.arraycopy(this.enclosingTypeNames, 0, qualification, 0, this.depth);
@@ -150,10 +150,10 @@ private void enterAnnotationType(TypeInfo typeInfo) {
 	if (this.methodDepth > 0) {
 		typeNames = ONE_ZERO_CHAR;
 	} else {
-		typeNames = this.enclosingTypeNames();
+		typeNames = enclosingTypeNames();
 	}
-	this.indexer.addAnnotationTypeDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames, typeInfo.secondary);
-	this.pushTypeName(typeInfo.name);	
+	this.indexer.addAnnotationTypeDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, typeInfo.secondary);
+	pushTypeName(typeInfo.name);
 }
 
 private void enterClass(TypeInfo typeInfo) {
@@ -161,7 +161,7 @@ private void enterClass(TypeInfo typeInfo) {
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (typeInfo.superclass != null) {
 		typeInfo.superclass = getSimpleName(typeInfo.superclass);
-		
+
 		// add implicit constructor reference to default constructor
 		this.indexer.addConstructorReference(typeInfo.superclass, 0);
 	}
@@ -175,7 +175,7 @@ private void enterClass(TypeInfo typeInfo) {
 		// set specific ['0'] value for local and anonymous to be able to filter them
 		typeNames = ONE_ZERO_CHAR;
 	} else {
-		typeNames = this.enclosingTypeNames();
+		typeNames = enclosingTypeNames();
 	}
 	char[][] typeParameterSignatures = null;
 	if (typeInfo.typeParameters != null) {
@@ -187,7 +187,7 @@ private void enterClass(TypeInfo typeInfo) {
 		}
 	}
 	this.indexer.addClassDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, typeInfo.superclass, typeInfo.superinterfaces, typeParameterSignatures, typeInfo.secondary);
-	this.pushTypeName(typeInfo.name);
+	pushTypeName(typeInfo.name);
 }
 /**
  * @see ISourceElementRequestor#enterCompilationUnit()
@@ -208,16 +208,16 @@ private void enterEnum(TypeInfo typeInfo) {
 		for (int i = 0, length = typeInfo.superinterfaces.length; i < length; i++){
 			typeInfo.superinterfaces[i] = getSimpleName(typeInfo.superinterfaces[i]);
 		}
-	}	
+	}
 	char[][] typeNames;
 	if (this.methodDepth > 0) {
 		typeNames = ONE_ZERO_CHAR;
 	} else {
-		typeNames = this.enclosingTypeNames();
+		typeNames = enclosingTypeNames();
 	}
 	char[] superclass = typeInfo.superclass == null ? CharOperation.concatWith(TypeConstants.JAVA_LANG_ENUM, '.'): typeInfo.superclass;
-	this.indexer.addEnumDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames, superclass, typeInfo.superinterfaces, typeInfo.secondary);
-	this.pushTypeName(typeInfo.name);	
+	this.indexer.addEnumDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, superclass, typeInfo.superinterfaces, typeInfo.secondary);
+	pushTypeName(typeInfo.name);
 }
 /**
  * @see ISourceElementRequestor#enterField(ISourceElementRequestor.FieldInfo)
@@ -238,12 +238,12 @@ private void enterInterface(TypeInfo typeInfo) {
 		for (int i = 0, length = typeInfo.superinterfaces.length; i < length; i++){
 			typeInfo.superinterfaces[i] = getSimpleName(typeInfo.superinterfaces[i]);
 		}
-	}	
+	}
 	char[][] typeNames;
 	if (this.methodDepth > 0) {
 		typeNames = ONE_ZERO_CHAR;
 	} else {
-		typeNames = this.enclosingTypeNames();
+		typeNames = enclosingTypeNames();
 	}
 	char[][] typeParameterSignatures = null;
 	if (typeInfo.typeParameters != null) {
@@ -254,8 +254,8 @@ private void enterInterface(TypeInfo typeInfo) {
 			typeParameterSignatures[i] = Signature.createTypeParameterSignature(typeParameterInfo.name, typeParameterInfo.bounds);
 		}
 	}
-	this.indexer.addInterfaceDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames, typeInfo.superinterfaces, typeParameterSignatures, typeInfo.secondary);
-	this.pushTypeName(typeInfo.name);	
+	this.indexer.addInterfaceDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, typeInfo.superinterfaces, typeParameterSignatures, typeInfo.secondary);
+	pushTypeName(typeInfo.name);
 }
 /**
  * @see ISourceElementRequestor#enterMethod(ISourceElementRequestor.MethodInfo)
@@ -273,13 +273,13 @@ public void enterType(TypeInfo typeInfo) {
 		case TypeDeclaration.CLASS_DECL:
 			enterClass(typeInfo);
 			break;
-		case TypeDeclaration.ANNOTATION_TYPE_DECL: 
+		case TypeDeclaration.ANNOTATION_TYPE_DECL:
 			enterAnnotationType(typeInfo);
 			break;
 		case TypeDeclaration.INTERFACE_DECL:
 			enterInterface(typeInfo);
 			break;
-		case TypeDeclaration.ENUM_DECL: 
+		case TypeDeclaration.ENUM_DECL:
 			enterEnum(typeInfo);
 			break;
 	}
@@ -354,20 +354,20 @@ private char[] getSimpleName(char[] typeName) {
 	return  CharOperation.subarray(typeName, lastDot + 1, lastGenericStart);
 }
 public void popTypeName() {
-	if (depth > 0) {
-		enclosingTypeNames[--depth] = null;
+	if (this.depth > 0) {
+		this.enclosingTypeNames[--this.depth] = null;
 	} else if (JobManager.VERBOSE) {
 		// dump a trace so it can be tracked down
 		try {
-			enclosingTypeNames[-1] = null;
+			this.enclosingTypeNames[-1] = null;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 	}
 }
 public void pushTypeName(char[] typeName) {
-	if (depth == enclosingTypeNames.length)
-		System.arraycopy(enclosingTypeNames, 0, enclosingTypeNames = new char[depth*2][], 0, depth);
-	enclosingTypeNames[depth++] = typeName;
+	if (this.depth == this.enclosingTypeNames.length)
+		System.arraycopy(this.enclosingTypeNames, 0, this.enclosingTypeNames = new char[this.depth*2][], 0, this.depth);
+	this.enclosingTypeNames[this.depth++] = typeName;
 }
 }

@@ -12,8 +12,8 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.ISourceRange;
 
-/** 
- * Element info for ISourceReference elements. 
+/**
+ * Element info for ISourceReference elements.
  */
 /* package */ class SourceRefElementInfo extends JavaElementInfo {
 	protected int sourceRangeStart, sourceRangeEnd;
@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.ISourceRange;
  * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getDeclarationSourceEnd()
  */
 public int getDeclarationSourceEnd() {
-	return sourceRangeEnd;
+	return this.sourceRangeEnd;
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getDeclarationSourceStart()
@@ -31,15 +31,15 @@ public int getDeclarationSourceEnd() {
  * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getDeclarationSourceStart()
  */
 public int getDeclarationSourceStart() {
-	return sourceRangeStart;
+	return this.sourceRangeStart;
 }
 protected ISourceRange getSourceRange() {
-	return new SourceRange(sourceRangeStart, sourceRangeEnd - sourceRangeStart + 1);
+	return new SourceRange(this.sourceRangeStart, this.sourceRangeEnd - this.sourceRangeStart + 1);
 }
 protected void setSourceRangeEnd(int end) {
-	sourceRangeEnd = end;
+	this.sourceRangeEnd = end;
 }
 protected void setSourceRangeStart(int start) {
-	sourceRangeStart = start;
+	this.sourceRangeStart = start;
 }
 }

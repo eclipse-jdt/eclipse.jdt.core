@@ -25,25 +25,25 @@ private LongConstant(long value) {
 	this.value = value;
 }
 public byte byteValue() {
-	return (byte) value;
+	return (byte) this.value;
 }
 public char charValue() {
-	return (char) value;
+	return (char) this.value;
 }
 public double doubleValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public float floatValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public int intValue() {
-	return (int) value;
+	return (int) this.value;
 }
 public long longValue() {
-	return value; 
+	return this.value;
 }
 public short shortValue() {
-	return (short) value;
+	return (short) this.value;
 }
 public String stringValue() {
 	//spec 15.17.11
@@ -51,7 +51,7 @@ public String stringValue() {
 }
 public String toString(){
 
-	return "(long)" + value ; } //$NON-NLS-1$
+	return "(long)" + this.value ; } //$NON-NLS-1$
 public int typeID() {
 	return T_long;
 }

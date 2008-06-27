@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.util.IConstantPool;
 
 /**
  * Default implementation of AnnotationDefaultAttribute.
- * 
+ *
  * @since 3.0
  */
 public class AnnotationDefaultAttribute extends ClassFileAttribute
@@ -25,7 +25,7 @@ public class AnnotationDefaultAttribute extends ClassFileAttribute
 			IAnnotationDefaultAttribute {
 
 	private IAnnotationComponentValue memberValue;
-	
+
 	/**
 	 * Constructor for AnnotationDefaultAttribute.
 	 * @param classFileBytes
@@ -41,7 +41,7 @@ public class AnnotationDefaultAttribute extends ClassFileAttribute
 		super(classFileBytes, constantPool, offset);
 		this.memberValue = new AnnotationComponentValue(classFileBytes, constantPool, offset + 6);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationDefaultAttribute#getMemberValue()
 	 */

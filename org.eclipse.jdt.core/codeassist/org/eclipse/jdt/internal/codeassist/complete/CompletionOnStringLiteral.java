@@ -53,7 +53,7 @@ public class CompletionOnStringLiteral extends StringLiteral {
 	public TypeBinding resolveType(BlockScope scope) {
 		throw new CompletionNodeFound(this, null, scope);
 	}
-	
+
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<CompletionOnString:"); //$NON-NLS-1$
 		output = super.printExpression(indent, output);

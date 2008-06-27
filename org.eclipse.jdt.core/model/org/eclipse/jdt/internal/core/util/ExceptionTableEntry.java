@@ -29,7 +29,7 @@ public class ExceptionTableEntry
 	private int handlerPC;
 	private int catchTypeIndex;
 	private char[] catchType;
-	
+
 	ExceptionTableEntry(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		this.startPC = u2At(classFileBytes, 0, offset);
 		this.endPC = u2At(classFileBytes, 2, offset);

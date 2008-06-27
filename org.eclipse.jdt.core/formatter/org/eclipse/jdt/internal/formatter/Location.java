@@ -29,15 +29,15 @@ public class Location {
 
 	// chunk management
 	public int lastNumberOfNewLines;
-	
+
 	// edits management
 	int editsIndex;
 	OptimizedReplaceEdit textEdit;
-	
+
 	public Location(Scribe scribe, int sourceRestart){
 		update(scribe, sourceRestart);
 	}
-	
+
 	public void update(Scribe scribe, int sourceRestart){
 		this.outputColumn = scribe.column;
 		this.outputLine = scribe.line;
@@ -49,6 +49,6 @@ public class Location {
 		this.editsIndex = scribe.editsIndex;
 		this.nlsTagCounter = scribe.nlsTagCounter;
 		this.numberOfIndentations = scribe.numberOfIndentations;
-		textEdit = scribe.getLastEdit();
+		this.textEdit = scribe.getLastEdit();
 	}
 }

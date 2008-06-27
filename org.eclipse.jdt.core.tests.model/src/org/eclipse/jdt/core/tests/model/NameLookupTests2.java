@@ -28,7 +28,7 @@ import junit.framework.Test;
  * IJavaEllementDeltas.
  */
 public class NameLookupTests2 extends ModifyingResourceTests {
-	
+
 public NameLookupTests2(String name) {
 	super(name);
 }
@@ -54,23 +54,23 @@ public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
 	try {
 		IJavaProject p1 = createJavaProject("P1", new String[] {"src1"}, "bin");
 		IJavaProject p2 = createJavaProject("P2", new String[] {}, "");
-		IClasspathEntry[] classpath = 
+		IClasspathEntry[] classpath =
 			new IClasspathEntry[] {
 				JavaCore.newProjectEntry(new Path("/P1"))
 			};
 		p2.setRawClasspath(classpath, null);
-		
+
 		IPackageFragment[] res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue("Should get no package fragment", res == null);
-		
-		IClasspathEntry[] classpath2 = 
+
+		IClasspathEntry[] classpath2 =
 			new IClasspathEntry[] {
 				JavaCore.newSourceEntry(new Path("/P1/src1")),
 				JavaCore.newSourceEntry(new Path("/P1/src2"))
 			};
 		p1.setRawClasspath(classpath2, null);
 		createFolder("/P1/src2/p1");
-		
+
 		res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue(
 			"Should get 'p1' package fragment",
@@ -87,17 +87,17 @@ public void testAddPackageFragment() throws CoreException {
 	try {
 		createJavaProject("P1", new String[] {"src1"}, "bin");
 		IJavaProject p2 = createJavaProject("P2", new String[] {}, "");
-		IClasspathEntry[] classpath = 
+		IClasspathEntry[] classpath =
 			new IClasspathEntry[] {
 				JavaCore.newProjectEntry(new Path("/P1"))
 			};
 		p2.setRawClasspath(classpath, null);
-		
+
 		IPackageFragment[] res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue("Should get no package fragment", res == null);
-		
+
 		createFolder("/P1/src1/p1");
-		
+
 		res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue(
 			"Should get 'p1' package fragment",
@@ -118,15 +118,15 @@ public void testAddPackageFragment2() throws CoreException {
 	try {
 		JavaProject project = (JavaProject)createJavaProject("P", new String[] {"src"}, "bin");
 		createFolder("/P/src/p1");
-		
+
 		IPackageFragment[] pkgs = getNameLookup(project).findPackageFragments("p1", false);
 		assertElementsEqual(
 			"Didn't find p1",
 			"p1 [in src [in P]]",
 			pkgs);
-		
+
 		createFolder("/P/src/p2");
-	
+
 		pkgs = getNameLookup(project).findPackageFragments("p2", false);
 		assertElementsEqual(
 			"Didn't find p2",
@@ -145,28 +145,28 @@ public void testDuplicateTypesInWorkingCopies() throws CoreException {
 	this.workingCopies = new ICompilationUnit[3];
 	try {
 		JavaProject project = (JavaProject)createJavaProject("P");
-		workingCopies[0] = getWorkingCopy(
-			"/P/X.java", 
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/X.java",
 			"public class X {\n" +
 			"}\n" +
 			"class Other {\n" +
 			"}"
 		);
-		workingCopies[1] = getWorkingCopy(
-			"/P/Y.java", 
+		this.workingCopies[1] = getWorkingCopy(
+			"/P/Y.java",
 			"public class Y {\n" +
 			"}\n" +
 			"class Other {\n" +
 			"}"
 		);
-		workingCopies[2] = getWorkingCopy(
-			"/P/Z.java", 
+		this.workingCopies[2] = getWorkingCopy(
+			"/P/Z.java",
 			"public class Z {\n" +
 			"}\n" +
 			"class Other {\n" +
 			"}"
 		);
-		NameLookup nameLookup = project.newNameLookup(workingCopies);
+		NameLookup nameLookup = project.newNameLookup(this.workingCopies);
 		IType type = nameLookup.findType("Other", false, NameLookup.ACCEPT_ALL); // TODO (jerome) should use seekTypes
 		assertTypesEqual(
 			"Unepexted types",
@@ -185,13 +185,13 @@ public void testDuplicateTypesInWorkingCopies() throws CoreException {
 public void testFindDefaultPackageFragmentInNonDefaultRoot() throws CoreException {
 	try {
 		JavaProject project = (JavaProject)createJavaProject("P", new String[] {"src"}, "bin");
-		
+
 		IPackageFragment pkg = getNameLookup(project).findPackageFragment(new Path("/P/src"));
 		assertElementsEqual(
 			"Didn't find default package",
 			"<default> [in src [in P]]",
 			new IJavaElement[] {pkg});
-		
+
 	} finally {
 		deleteProject("P");
 	}
@@ -204,16 +204,16 @@ public void testNameLookupFindPackageFragmentAfterCreation() throws CoreExceptio
 	try {
 		final IJavaProject p1 = createJavaProject("P1");
 		final JavaProject p2 = (JavaProject) createJavaProject("P2", new String[] {""}, new String[0], new String[] {"/P1"}, "");
-		
+
 		// populate namelookup for p2
 		getNameLookup(p2);
-		
+
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
 			public void run(IProgressMonitor monitor) throws CoreException {
 				p1.getPackageFragmentRoot(p1.getProject()).createPackageFragment("pkg", false/*don't force*/, monitor);
 				IPackageFragment[] pkgs = getNameLookup(p2).findPackageFragments("pkg", false/*exact match*/);
 				assertElementsEqual(
-					"Unexpected package fragments", 
+					"Unexpected package fragments",
 					"pkg [in <project root> [in P1]]",
 					pkgs);
 			}
@@ -233,13 +233,13 @@ public void testFindPackageFragmentWithWorkingCopy() throws CoreException {
 	try {
 		JavaProject project = (JavaProject)createJavaProject("P");
 		createFolder("/P/p1");
-		workingCopies[0] = getWorkingCopy(
-			"/P/p1/X.java", 
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/p1/X.java",
 			"package p1;\n" +
 			"public class X {\n" +
 			"}"
 		);
-		NameLookup nameLookup = project.newNameLookup(workingCopies);
+		NameLookup nameLookup = project.newNameLookup(this.workingCopies);
 		IJavaElement[] pkgs = nameLookup.findPackageFragments("p1", false/*not a partial match*/);
 		assertElementsEqual(
 			"Unexpected packages",
@@ -256,7 +256,7 @@ public void testFindPackageFragmentWithWorkingCopy() throws CoreException {
 public void testFindBinaryTypeWithDollarName() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P");
-		addLibrary(project, "lib.jar", "libsrc.zip", 
+		addLibrary(project, "lib.jar", "libsrc.zip",
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -266,11 +266,11 @@ public void testFindBinaryTypeWithDollarName() throws CoreException, IOException
 				"    }\n" +
 				"  }\n" +
 				"}"
-			}, 
+			},
 			"1.4");
 		IType type = getNameLookup((JavaProject) project).findType("p.X$$1", false, NameLookup.ACCEPT_ALL);
 		assertTypesEqual(
-			"Unexpected type", 
+			"Unexpected type",
 			"p.X$$1\n",
 			new IType[] {type});
 	} finally {
@@ -289,7 +289,7 @@ public void testFindBinaryTypeWithSameNameAsMember() throws CoreException, IOExc
 		createFile("/P/lib/p/X$X.class", "");
 		IType type = getNameLookup((JavaProject) project).findType("p.X", false, NameLookup.ACCEPT_ALL);
 		assertTypesEqual(
-			"Unexpected type", 
+			"Unexpected type",
 			"p.X\n",
 			new IType[] {type});
 	} finally {
@@ -306,7 +306,7 @@ public void testFindTypeWithUnrelatedWorkingCopy() throws Exception {
 		createJavaProject("P1");
 		createFolder("/P1/p");
 		createFile(
-			"/P1/p/X.java", 
+			"/P1/p/X.java",
 			"package p;\n" +
 			"public class X {\n" +
 			"}"

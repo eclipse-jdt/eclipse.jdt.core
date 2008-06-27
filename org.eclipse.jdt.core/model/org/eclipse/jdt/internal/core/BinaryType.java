@@ -40,13 +40,13 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 
 public class BinaryType extends BinaryMember implements IType, SuffixConstants {
-	
+
 	private static final IField[] NO_FIELDS = new IField[0];
 	private static final IMethod[] NO_METHODS = new IMethod[0];
 	private static final IType[] NO_TYPES = new IType[0];
 	private static final IInitializer[] NO_INITIALIZERS = new IInitializer[0];
 	public static final String EMPTY_JAVADOC = org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING;
-	
+
 protected BinaryType(JavaElement parent, String name) {
 	super(parent, name);
 }
@@ -97,14 +97,14 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	String source = getClassFile().getSource();
 	if (source != null && insertion > -1 && insertion < source.length()) {
 		// code complete
-		
+
 		char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
 		char[] suffix =  CharOperation.concat(new char[]{'}'}, source.substring(insertion).toCharArray());
 		char[] fakeSource = CharOperation.concat(prefix, snippet, suffix);
-		
-		BasicCompilationUnit cu = 
+
+		BasicCompilationUnit cu =
 			new BasicCompilationUnit(
-				fakeSource, 
+				fakeSource,
 				null,
 				getElementName(),
 				project); // use project to retrieve corresponding .java IFile
@@ -178,7 +178,7 @@ public IJavaElement[] getChildrenForCategory(String category) throws JavaModelEx
 	if (mapper != null) {
 		// ensure the class file's buffer is open so that categories are computed
 		((ClassFile)getClassFile()).getBuffer();
-		
+
 		HashMap categories = mapper.categories;
 		IJavaElement[] result = new IJavaElement[length];
 		int index = 0;
@@ -200,7 +200,7 @@ public IJavaElement[] getChildrenForCategory(String category) throws JavaModelEx
 			System.arraycopy(result, 0, result = new IJavaElement[index], 0, index);
 		return result;
 	}
-	return NO_ELEMENTS;	
+	return NO_ELEMENTS;
 }
 protected ClassFileInfo getClassFileInfo() throws JavaModelException {
 	ClassFile cf = (ClassFile)this.parent;
@@ -210,7 +210,7 @@ protected ClassFileInfo getClassFileInfo() throws JavaModelException {
  * @see IMember#getDeclaringType()
  */
 public IType getDeclaringType() {
-	IClassFile classFile = this.getClassFile();
+	IClassFile classFile = getClassFile();
 	if (classFile.isOpen()) {
 		try {
 			char[] enclosingTypeName = ((IBinaryType) getElementInfo()).getEnclosingTypeName();
@@ -218,20 +218,20 @@ public IType getDeclaringType() {
 				return null;
 			}
 		 	enclosingTypeName = ClassFile.unqualifiedName(enclosingTypeName);
-		 	
-			// workaround problem with class files compiled with javac 1.1.* 
+
+			// workaround problem with class files compiled with javac 1.1.*
 			// that return a non-null enclosing type name for local types defined in anonymous (e.g. A$1$B)
-			if (classFile.getElementName().length() > enclosingTypeName.length+1 
+			if (classFile.getElementName().length() > enclosingTypeName.length+1
 					&& Character.isDigit(classFile.getElementName().charAt(enclosingTypeName.length+1))) {
 				return null;
-			} 
-			
+			}
+
 			return getPackageFragment().getClassFile(new String(enclosingTypeName) + SUFFIX_STRING_class).getType();
 		} catch (JavaModelException npe) {
 			return null;
 		}
 	} else {
-		// cannot access .class file without opening it 
+		// cannot access .class file without opening it
 		// and getDeclaringType() is supposed to be a handle-only method,
 		// so default to assuming $ is an enclosing type separator
 		String classFileName = classFile.getElementName();
@@ -250,9 +250,9 @@ public IType getDeclaringType() {
 		} else {
 			String enclosingName = classFileName.substring(0, lastDollar);
 			String enclosingClassFileName = enclosingName + SUFFIX_STRING_class;
-			return 
+			return
 				new BinaryType(
-					(JavaElement)this.getPackageFragment().getClassFile(enclosingClassFileName),
+					(JavaElement)getPackageFragment().getClassFile(enclosingClassFileName),
 					Util.localTypeName(enclosingName, enclosingName.lastIndexOf('$'), enclosingName.length()));
 		}
 	}
@@ -477,7 +477,7 @@ public String getSuperclassTypeSignature() throws JavaModelException {
 			int count = 1;
 			while (count > 0 && ++index < signatureLength) {
 				switch (genericSignature[index]) {
-					case '<': 
+					case '<':
 						count++;
 						break;
 					case '>':
@@ -563,7 +563,7 @@ public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 			int count = 1;
 			while (count > 0 && ++index < signatureLength) {
 				switch (genericSignature[index]) {
-					case '<': 
+					case '<':
 						count++;
 						break;
 					case '>':
@@ -619,9 +619,9 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
 public String[] getTypeParameterSignatures() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
 	char[] genericSignature = info.getGenericSignature();
-	if (genericSignature == null) 
+	if (genericSignature == null)
 		return CharOperation.NO_STRINGS;
-	
+
 	char[] dotBaseSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
 	char[][] typeParams = Signature.getTypeParameters(dotBaseSignature);
 	return CharOperation.toStrings(typeParams);
@@ -760,7 +760,7 @@ public ITypeHierarchy newSupertypeHierarchy(
 	ICompilationUnit[] workingCopies,
 	IProgressMonitor monitor)
 	throws JavaModelException {
-	
+
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
 	op.runOperation(monitor);
 	return op.getResult();
@@ -779,7 +779,7 @@ public ITypeHierarchy newSupertypeHierarchy(
 	IWorkingCopy[] workingCopies,
 	IProgressMonitor monitor)
 	throws JavaModelException {
-	
+
 	ICompilationUnit[] copies;
 	if (workingCopies == null) {
 		copies = null;
@@ -813,7 +813,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
  */
 public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
 	if (project == null) {
-		throw new IllegalArgumentException(Messages.hierarchy_nullProject); 
+		throw new IllegalArgumentException(Messages.hierarchy_nullProject);
 	}
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 	ICompilationUnit[] projectWCs = null;
@@ -832,9 +832,9 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
 		}
 	}
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
-		this, 
+		this,
 		projectWCs,
-		project, 
+		project,
 		true);
 	op.runOperation(monitor);
 	return op.getResult();
@@ -844,7 +844,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
  * @return a type hierarchy for this type containing
- * 
+ *
  * @see IType#newTypeHierarchy(IProgressMonitor monitor)
  * @deprecated
  */
@@ -888,11 +888,11 @@ public ITypeHierarchy newTypeHierarchy(
 	WorkingCopyOwner owner,
 	IProgressMonitor monitor)
 	throws JavaModelException {
-		
+
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
 	op.runOperation(monitor);
-	return op.getResult();	
+	return op.getResult();
 }
 public JavaElement resolved(Binding binding) {
 	SourceRefElement resolvedHandle = new ResolvedBinaryType(this.parent, this.name, new String(binding.computeUniqueKey()));
@@ -938,7 +938,7 @@ public String sourceFileName(IBinaryType info) {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
-	buffer.append(this.tabString(tab));
+	buffer.append(tabString(tab));
 	if (info == null) {
 		toStringName(buffer);
 		buffer.append(" (not open)"); //$NON-NLS-1$
@@ -946,11 +946,11 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 		toStringName(buffer);
 	} else {
 		try {
-			if (this.isAnnotation()) {
+			if (isAnnotation()) {
 				buffer.append("@interface "); //$NON-NLS-1$
-			} else if (this.isEnum()) {
+			} else if (isEnum()) {
 				buffer.append("enum "); //$NON-NLS-1$
-			} else if (this.isInterface()) {
+			} else if (isInterface()) {
 				buffer.append("interface "); //$NON-NLS-1$
 			} else {
 				buffer.append("class "); //$NON-NLS-1$
@@ -973,11 +973,11 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 	final int indexOfStartOfClassData = contents.indexOf(JavadocConstants.START_OF_CLASS_DATA);
 	if (indexOfStartOfClassData == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	int indexOfNextSummary = contents.indexOf(JavadocConstants.NESTED_CLASS_SUMMARY);
-	if (this.isEnum() && indexOfNextSummary == -1) {
+	if (isEnum() && indexOfNextSummary == -1) {
 		// try to find enum constant summary start
 		indexOfNextSummary = contents.indexOf(JavadocConstants.ENUM_CONSTANT_SUMMARY);
 	}
-	if (this.isAnnotation() && indexOfNextSummary == -1) {
+	if (isAnnotation() && indexOfNextSummary == -1) {
 		// try to find required enum constant summary start
 		indexOfNextSummary = contents.indexOf(JavadocConstants.ANNOTATION_TYPE_REQUIRED_MEMBER_SUMMARY);
 		if (indexOfNextSummary == -1) {
@@ -1015,11 +1015,11 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 	}
 	if (indexOfFirstParagraph != -1 && indexOfFirstParagraph < indexOfNextSummary) {
 		start = indexOfFirstParagraph;
-	}	
+	}
 	return contents.substring(start, indexOfNextSummary);
 }
 public String getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
-	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
+	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());
 	String cachedJavadoc = null;
 	synchronized (projectInfo.javadocCache) {
 		cachedJavadoc = (String) projectInfo.javadocCache.get(this);
@@ -1036,9 +1036,9 @@ public String getJavadocContents(IProgressMonitor monitor) throws JavaModelExcep
 	if (!(pathBuffer.charAt(pathBuffer.length() - 1) == '/')) {
 		pathBuffer.append('/');
 	}
-	IPackageFragment pack= this.getPackageFragment();
+	IPackageFragment pack= getPackageFragment();
 	String typeQualifiedName = null;
-	if (this.isMember()) {
+	if (isMember()) {
 		IType currentType = this;
 		StringBuffer typeName = new StringBuffer();
 		while (currentType != null) {
@@ -1050,11 +1050,11 @@ public String getJavadocContents(IProgressMonitor monitor) throws JavaModelExcep
 		}
 		typeQualifiedName = new String(typeName.toString());
 	} else {
-		typeQualifiedName = this.getElementName();
+		typeQualifiedName = getElementName();
 	}
-	
+
 	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(JavadocConstants.HTML_EXTENSION);
-	
+
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	final String contents = getURLContents(String.valueOf(pathBuffer));
 	synchronized (projectInfo.javadocCache) {

@@ -49,17 +49,17 @@ public static Test suite() {
 
 	/* completion tests */
 	testClasses.addAll(RunCompletionParserTests.TEST_CLASSES);
-	
+
 	/* selection tests */
 	testClasses.add(ExplicitConstructorInvocationSelectionTest.class);
 	testClasses.add(SelectionTest.class);
 	testClasses.add(SelectionTest2.class);
 	testClasses.add(SelectionJavadocTest.class);
-	
+
 	/* recovery tests */
 	testClasses.add(DietRecoveryTest.class);
 	testClasses.add(StatementRecoveryTest.class);
-	
+
 	/* source element parser tests */
 	testClasses.add(SourceElementParserTest.class);
 
@@ -71,7 +71,7 @@ public static Test suite() {
 	testClasses.add(DualParseSyntaxErrorTest.class);
 	testClasses.add(ParserTest.class);
 	testClasses.add(ComplianceDiagnoseTest.class);
-	
+
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {

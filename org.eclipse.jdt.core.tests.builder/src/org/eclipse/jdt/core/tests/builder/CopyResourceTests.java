@@ -19,11 +19,11 @@ import org.eclipse.jdt.core.tests.util.Util;
  * Basic tests of the image builder.
  */
 public class CopyResourceTests extends BuilderTests {
-	
+
 	public CopyResourceTests(String name) {
 		super(name);
 	}
-	
+
 	public static Test suite() {
 		return buildTestSuite(CopyResourceTests.class);
 	}
@@ -312,7 +312,7 @@ public class CopyResourceTests extends BuilderTests {
 		expectingPresenceOf(zBinPath);
 		try {
 			byte[] contents = new byte[testContents.length()];
-			java.io.InputStream stream = zFile.getContents(); 
+			java.io.InputStream stream = zFile.getContents();
 			stream.read(contents);
 			stream.close();
 			assumeEquals("File was not copied", testContents, new String(contents)); //$NON-NLS-1$
@@ -335,7 +335,7 @@ public class CopyResourceTests extends BuilderTests {
 		expectingPresenceOf(zBinPath);
 		try {
 			byte[] contents = new byte[testContents.length()];
-			java.io.InputStream stream = zFile.getContents(); 
+			java.io.InputStream stream = zFile.getContents();
 			stream.read(contents);
 			stream.close();
 			assumeEquals("File was not copied", testContents, new String(contents)); //$NON-NLS-1$

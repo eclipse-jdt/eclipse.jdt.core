@@ -32,7 +32,7 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
 /**
- * 
+ *
  * @since 2.1
  */
 public class SortCompilationUnitElementsTests extends ModifyingResourceTests {
@@ -44,7 +44,7 @@ public SortCompilationUnitElementsTests(String name) {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	this.createFolder("/P/src/p"); //$NON-NLS-1$
 }
@@ -256,7 +256,7 @@ public void test001() throws CoreException {
 			"}\n";//$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 public void test002() throws CoreException {
@@ -322,7 +322,7 @@ public void test002() throws CoreException {
 			"}"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 /**
@@ -420,7 +420,7 @@ public void test003() throws CoreException {
 			"}\n"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 /**
@@ -503,7 +503,7 @@ public void test004() throws CoreException {
 			"}\n"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 public void test005() throws CoreException {
@@ -531,7 +531,7 @@ public void test005() throws CoreException {
 			"}"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 public void test006() throws CoreException {
@@ -563,7 +563,7 @@ public void test006() throws CoreException {
 			"}"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 public void test007() throws CoreException {
@@ -595,7 +595,7 @@ public void test007() throws CoreException {
 			"}"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 
@@ -628,7 +628,7 @@ public void test008() throws CoreException {
 			"}"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 /**
@@ -730,7 +730,7 @@ public void test009() throws CoreException {
 		ICompilationUnit unit = this.getCompilationUnit("/P/src/p/X.java"); //$NON-NLS-1$
 		sortUnit(unit, expectedResult, false);
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 public void test010() throws CoreException {
@@ -820,7 +820,7 @@ public void test010() throws CoreException {
 			"}"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/SuperReference.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/SuperReference.java"); //$NON-NLS-1$
+		deleteFile("/P/src/SuperReference.java"); //$NON-NLS-1$
 	}
 }
 public void test011() throws CoreException {
@@ -878,7 +878,7 @@ public void test011() throws CoreException {
 			"}\r\n"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/BaseTypes.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/BaseTypes.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/BaseTypes.java"); //$NON-NLS-1$
 	}
 }
 public void test012() throws CoreException {
@@ -924,7 +924,7 @@ public void test012() throws CoreException {
 			"}"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40954
@@ -957,7 +957,7 @@ public void test013() throws CoreException {
 			"}"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 /**
@@ -968,22 +968,22 @@ public void test014() throws CoreException {
 		this.createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
-			"  int j;\n" + 
+			"  int j;\n" +
 			"  \n" +
-			"  // start of static field declaration\n" + 
-			"  static int i; // end of static field declaration\n" + 
+			"  // start of static field declaration\n" +
+			"  static int i; // end of static field declaration\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"public class X {\n" +
-			"  // start of static field declaration\n" + 
-			"  static int i; // end of static field declaration\n" + 
+			"  // start of static field declaration\n" +
+			"  static int i; // end of static field declaration\n" +
 			"  \n" +
-			"  int j;\n" + 
+			"  int j;\n" +
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 /**
@@ -994,15 +994,15 @@ public void test015() throws CoreException {
 		this.createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
-			"  int j;\n" + 
+			"  int j;\n" +
 			"  \n" +
 			"  /** some Java doc */\n" +
 			"  \n" +
-			"  // start of static field declaration\n" + 
-			"  static int i; // end of static field declaration\n" + 
+			"  // start of static field declaration\n" +
+			"  static int i; // end of static field declaration\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"public class X {\n" +
 			"  /** some Java doc */\n" +
 			"  \n" +
@@ -1013,7 +1013,7 @@ public void test015() throws CoreException {
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 /**
@@ -1023,81 +1023,81 @@ public void test016() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" + 
-			"   \n" + 
-			"   public void c() {\n" + 
-			"      \n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void b() {\n" + 
-			"      \n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void a() {\n" + 
-			"      class E {\n" + 
-			"         // this is the line that breaks the Sort Members.\n" + 
-			"         // comment this fix the problem.\n" + 
-			"         int x, y;\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      \n" + 
-			"      new Object() {\n" + 
-			"         // it breaks in an anonymous class also.\n" + 
-			"         // comment this fix the problem.\n" + 
-			"         int x, y;\n" + 
-			"      }; \n" + 
-			"      \n" + 
-			"      \n" + 
-			"      class D {\n" + 
-			"         // this appears to break also.\n" + 
-			"      }\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   private class F {\n" + 
-			"      // but this works fine\n" + 
-			"      int x, y;\n" + 
-			"   }\n" + 
+			"public class X {\n" +
+			"   \n" +
+			"   public void c() {\n" +
+			"      \n" +
+			"   }\n" +
+			"   \n" +
+			"   public void b() {\n" +
+			"      \n" +
+			"   }\n" +
+			"   \n" +
+			"   public void a() {\n" +
+			"      class E {\n" +
+			"         // this is the line that breaks the Sort Members.\n" +
+			"         // comment this fix the problem.\n" +
+			"         int x, y;\n" +
+			"      }\n" +
+			"      \n" +
+			"      \n" +
+			"      new Object() {\n" +
+			"         // it breaks in an anonymous class also.\n" +
+			"         // comment this fix the problem.\n" +
+			"         int x, y;\n" +
+			"      }; \n" +
+			"      \n" +
+			"      \n" +
+			"      class D {\n" +
+			"         // this appears to break also.\n" +
+			"      }\n" +
+			"   }\n" +
+			"   \n" +
+			"   private class F {\n" +
+			"      // but this works fine\n" +
+			"      int x, y;\n" +
+			"   }\n" +
 			"}"
 		);
-		String expectedResult = 
-			"public class X {\n" + 
-			"   \n" + 
-			"   private class F {\n" + 
-			"      // but this works fine\n" + 
-			"      int x, y;\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void a() {\n" + 
-			"      class E {\n" + 
-			"         // this is the line that breaks the Sort Members.\n" + 
-			"         // comment this fix the problem.\n" + 
-			"         int x, y;\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      \n" + 
-			"      new Object() {\n" + 
-			"         // it breaks in an anonymous class also.\n" + 
-			"         // comment this fix the problem.\n" + 
-			"         int x, y;\n" + 
-			"      }; \n" + 
-			"      \n" + 
-			"      \n" + 
-			"      class D {\n" + 
-			"         // this appears to break also.\n" + 
-			"      }\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void b() {\n" + 
-			"      \n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void c() {\n" + 
-			"      \n" + 
-			"   }\n" + 
+		String expectedResult =
+			"public class X {\n" +
+			"   \n" +
+			"   private class F {\n" +
+			"      // but this works fine\n" +
+			"      int x, y;\n" +
+			"   }\n" +
+			"   \n" +
+			"   public void a() {\n" +
+			"      class E {\n" +
+			"         // this is the line that breaks the Sort Members.\n" +
+			"         // comment this fix the problem.\n" +
+			"         int x, y;\n" +
+			"      }\n" +
+			"      \n" +
+			"      \n" +
+			"      new Object() {\n" +
+			"         // it breaks in an anonymous class also.\n" +
+			"         // comment this fix the problem.\n" +
+			"         int x, y;\n" +
+			"      }; \n" +
+			"      \n" +
+			"      \n" +
+			"      class D {\n" +
+			"         // this appears to break also.\n" +
+			"      }\n" +
+			"   }\n" +
+			"   \n" +
+			"   public void b() {\n" +
+			"      \n" +
+			"   }\n" +
+			"   \n" +
+			"   public void c() {\n" +
+			"      \n" +
+			"   }\n" +
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 /**
@@ -1107,106 +1107,106 @@ public void test017() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" + 
-			"   \n" + 
-			"   public void c() {\n" + 
-			"      \n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void b() {\n" + 
-			"      \n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void a() {\n" + 
-			"      class E {\n" + 
-			"         // this is the line that breaks the Sort Members.\n" + 
-			"         // comment this fix the problem.\n" + 
-			"         int x, y; // my comment\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      \n" + 
-			"      new Object() {\n" + 
-			"         // it breaks in an anonymous class also.\n" + 
-			"         // comment this fix the problem.\n" + 
-			"         int x, y; // my comment\n" + 
-			"      }; \n" + 
-			"      \n" + 
-			"      \n" + 
-			"      class D {\n" + 
-			"         // this appears to break also.\n" + 
-			"      }\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   private class F {\n" + 
-			"      // but this works fine\n" + 
-			"      int x, y;\n" + 
-			"   }\n" + 
+			"public class X {\n" +
+			"   \n" +
+			"   public void c() {\n" +
+			"      \n" +
+			"   }\n" +
+			"   \n" +
+			"   public void b() {\n" +
+			"      \n" +
+			"   }\n" +
+			"   \n" +
+			"   public void a() {\n" +
+			"      class E {\n" +
+			"         // this is the line that breaks the Sort Members.\n" +
+			"         // comment this fix the problem.\n" +
+			"         int x, y; // my comment\n" +
+			"      }\n" +
+			"      \n" +
+			"      \n" +
+			"      new Object() {\n" +
+			"         // it breaks in an anonymous class also.\n" +
+			"         // comment this fix the problem.\n" +
+			"         int x, y; // my comment\n" +
+			"      }; \n" +
+			"      \n" +
+			"      \n" +
+			"      class D {\n" +
+			"         // this appears to break also.\n" +
+			"      }\n" +
+			"   }\n" +
+			"   \n" +
+			"   private class F {\n" +
+			"      // but this works fine\n" +
+			"      int x, y;\n" +
+			"   }\n" +
 			"}"
 		);
-		String expectedResult = 
-			"public class X {\n" + 
-			"   \n" + 
-			"   private class F {\n" + 
-			"      // but this works fine\n" + 
-			"      int x, y;\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void a() {\n" + 
-			"      class E {\n" + 
-			"         // this is the line that breaks the Sort Members.\n" + 
-			"         // comment this fix the problem.\n" + 
-			"         int x, y; // my comment\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      \n" + 
-			"      new Object() {\n" + 
-			"         // it breaks in an anonymous class also.\n" + 
-			"         // comment this fix the problem.\n" + 
-			"         int x, y; // my comment\n" + 
-			"      }; \n" + 
-			"      \n" + 
-			"      \n" + 
-			"      class D {\n" + 
-			"         // this appears to break also.\n" + 
-			"      }\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void b() {\n" + 
-			"      \n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void c() {\n" + 
-			"      \n" + 
-			"   }\n" + 
+		String expectedResult =
+			"public class X {\n" +
+			"   \n" +
+			"   private class F {\n" +
+			"      // but this works fine\n" +
+			"      int x, y;\n" +
+			"   }\n" +
+			"   \n" +
+			"   public void a() {\n" +
+			"      class E {\n" +
+			"         // this is the line that breaks the Sort Members.\n" +
+			"         // comment this fix the problem.\n" +
+			"         int x, y; // my comment\n" +
+			"      }\n" +
+			"      \n" +
+			"      \n" +
+			"      new Object() {\n" +
+			"         // it breaks in an anonymous class also.\n" +
+			"         // comment this fix the problem.\n" +
+			"         int x, y; // my comment\n" +
+			"      }; \n" +
+			"      \n" +
+			"      \n" +
+			"      class D {\n" +
+			"         // this appears to break also.\n" +
+			"      }\n" +
+			"   }\n" +
+			"   \n" +
+			"   public void b() {\n" +
+			"      \n" +
+			"   }\n" +
+			"   \n" +
+			"   public void c() {\n" +
+			"      \n" +
+			"   }\n" +
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 public void test018() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" + 
-			"   public void c() {\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void b() {\n" + 
-			"   }\n" + 
+			"public class X {\n" +
+			"   public void c() {\n" +
+			"   }\n" +
+			"   \n" +
+			"   public void b() {\n" +
+			"   }\n" +
 			"}"
 		);
-		String expectedResult = 
-			"public class X {\n" + 
-			"   public void b() {\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void c() {\n" + 
-			"   }\n" + 
+		String expectedResult =
+			"public class X {\n" +
+			"   public void b() {\n" +
+			"   }\n" +
+			"   \n" +
+			"   public void c() {\n" +
+			"   }\n" +
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=80036
@@ -1214,17 +1214,17 @@ public void test019() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public enum X {\n" + 
-			"	Z, A, C, B;\n" + 
+			"public enum X {\n" +
+			"	Z, A, C, B;\n" +
 			"}"
 		);
-		String expectedResult = 
-			"public enum X {\n" + 
-			"	A, B, C, Z;\n" + 
+		String expectedResult =
+			"public enum X {\n" +
+			"	A, B, C, Z;\n" +
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=80036
@@ -1242,7 +1242,7 @@ public void test020() throws CoreException {
 			"	public Object field;\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"public enum X {\n" +
 			"	A , B, C;\n" +
 			"	\n" +
@@ -1254,7 +1254,7 @@ public void test020() throws CoreException {
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=80036
@@ -1280,7 +1280,7 @@ public void test021() throws CoreException {
 			"	public void method2() { }\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"public class X {\n" +
 			"\n" +
 			"	public enum Card {\n" +
@@ -1300,7 +1300,7 @@ public void test021() throws CoreException {
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=80036
@@ -1476,7 +1476,7 @@ public void test022() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"/*******************************************************************************" +
 			" * Copyright (c) 2000, 2006 IBM Corporation and others." +
 			" * All rights reserved. This program and the accompanying materials" +
@@ -1646,7 +1646,7 @@ public void test022() throws CoreException {
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/BuildUtilities.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/BuildUtilities.java");
+		deleteFile("/P/src/BuildUtilities.java");
 	}
 }
 // Sorting annotation type declaration
@@ -1654,15 +1654,15 @@ public void test023() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public @interface X {\n" + 
-			"	String name();\n" + 
-			"	int id() default 0;\n" + 
-			"	String value;\n" + 
-			"	static int GlobalID;\n" + 
+			"public @interface X {\n" +
+			"	String name();\n" +
+			"	int id() default 0;\n" +
+			"	String value;\n" +
+			"	static int GlobalID;\n" +
 			"}\n" +
 			"class A {}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"class A {}\n" +
 			"public @interface X {\n" +
 			"	static int GlobalID;\n" +
@@ -1672,7 +1672,7 @@ public void test023() throws CoreException {
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=81329
@@ -1692,7 +1692,7 @@ public void test024() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"public class X {\n" +
 			"	void bar() {\n" +
 			"	}\n" +
@@ -1706,7 +1706,7 @@ public void test024() throws CoreException {
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=81329
@@ -1735,7 +1735,7 @@ public void test025() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"interface Jpf {\n" +
 			"	@interface Action {\n" +
 			"		ValidatableProperty[] validatableProperties();\n" +
@@ -1758,7 +1758,7 @@ public void test025() throws CoreException {
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=95388
@@ -1779,7 +1779,7 @@ public void test026() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"public class X {\n" +
 			"	void a() {\n" +
 			"	}\n" +
@@ -1794,7 +1794,7 @@ public void test026() throws CoreException {
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=96583
@@ -1819,7 +1819,7 @@ public void test027() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"public final class X\n" +
 			"{\n" +
 			"	static\n" +
@@ -1838,7 +1838,7 @@ public void test027() throws CoreException {
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101453
@@ -1855,7 +1855,7 @@ public void test028() throws CoreException {
 			"int i;\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"public final class X\n" +
 			"{\n" +
 			"/** JavaDoc comment1 */\n" +
@@ -1878,7 +1878,7 @@ public void test028() throws CoreException {
 			}
 		});
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=101885
@@ -1886,13 +1886,13 @@ public void test029() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public enum X {\n" + 
-			"	Z, A, C, B;\n" + 
+			"public enum X {\n" +
+			"	Z, A, C, B;\n" +
 			"}"
 		);
-		String expectedResult = 
-			"public enum X {\n" + 
-			"	Z, A, C, B;\n" + 
+		String expectedResult =
+			"public enum X {\n" +
+			"	Z, A, C, B;\n" +
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
 			public int compare(Object o1, Object o2) {
@@ -1904,7 +1904,7 @@ public void test029() throws CoreException {
 			}
 		});
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113722
@@ -1922,7 +1922,7 @@ public void test030() throws CoreException {
 			"	public <K,E> I<K<K,E> bar3(C<T,K> c, C<T,E> c2);\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"public interface I<T> {\n" +
 			"	public I<T> foo(A<T> A);\n" +
 			"	public <S> I<S> foo2(C<T,S> c);\n" +
@@ -1934,7 +1934,7 @@ public void test030() throws CoreException {
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/I.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/I.java");
+		deleteFile("/P/src/I.java");
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113722
@@ -1952,7 +1952,7 @@ public void test031() throws CoreException {
 			"	public <K,E> I<K<K,E>> bar3(C<T,K> c, C<T,E> c2);\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"public interface I<T> {\n" +
 			"	public <K> J<T> bar2(C<T,K> c);\n" +
 			"	public <K> I<K<K,T>> bar3(C<T,K> c);\n" +
@@ -1964,7 +1964,7 @@ public void test031() throws CoreException {
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/I.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/I.java");
+		deleteFile("/P/src/I.java");
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113722
@@ -1978,7 +1978,7 @@ public void test032() throws CoreException {
 			"	<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);\n" +
 			"}"
 		);
-		String expectedResult = 
+		String expectedResult =
 			"import java.util.*;\n" +
 			"public interface X<T> {\n" +
 			"	<K> List<Map<K,T> foo(Map<T,K> m);\n" +
@@ -1986,23 +1986,23 @@ public void test032() throws CoreException {
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171066
 public void test033() throws CoreException {
 	ICompilationUnit unit = null;
-	
+
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public enum X {\n" + 
-			"	Z, A, C, B;\n" + 
+			"public enum X {\n" +
+			"	Z, A, C, B;\n" +
 			"}"
 		);
-		String expectedResult = 
-			"public enum X {\n" + 
-			"	A, B, C, Z;\n" + 
+		String expectedResult =
+			"public enum X {\n" +
+			"	A, B, C, Z;\n" +
 			"}";
 		unit = this.getCompilationUnit("/P/src/X.java");
 		unit.becomeWorkingCopy(null);
@@ -2041,7 +2041,7 @@ public void test033() throws CoreException {
 		}
 		assertEquals("Different output", expectedResult, document.get());
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 		if (unit != null) {
 			unit.discardWorkingCopy();
 		}
@@ -2053,8 +2053,8 @@ public void test034() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public enum X {\n" + 
-			"	Z, A, C, B;\n" + 
+			"public enum X {\n" +
+			"	Z, A, C, B;\n" +
 			"}"
 		);
 		unit = this.getCompilationUnit("/P/src/X.java");
@@ -2079,7 +2079,7 @@ public void test034() throws CoreException {
 		TextEdit edit = CompilationUnitSorter.sort(ast , comparator, 0, null, new NullProgressMonitor());
 		assertNull("Should be null", edit);
 	} finally {
-		this.deleteFile("/P/src/X.java");
+		deleteFile("/P/src/X.java");
 		if (unit != null) {
 			unit.discardWorkingCopy();
 		}

@@ -22,10 +22,10 @@ public char[] superQualification;
 public char[] superSimpleName;
 public char superClassOrInterface;
 
-// set to CLASS_SUFFIX for only matching classes 
+// set to CLASS_SUFFIX for only matching classes
 // set to INTERFACE_SUFFIX for only matching interfaces
 // set to TYPE_SUFFIX for matching both classes and interfaces
-public char typeSuffix; 
+public char typeSuffix;
 public char[] pkgName;
 public char[] simpleName;
 public char[] enclosingTypeName;
@@ -80,7 +80,7 @@ public static char[] createIndexKey(
 	char[] enclosingTypeName = CharOperation.concatWith(enclosingTypeNames, '$');
 	if (superQualification != null && CharOperation.equals(superQualification, packageName))
 		packageName = ONE_ZERO; // save some space
-	
+
 	char[] typeParameters = CharOperation.NO_CHAR;
 	int typeParametersLength = 0;
 	if (typeParameterSignatures != null) {
@@ -230,10 +230,10 @@ public char[][] getIndexCategories() {
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	SuperTypeReferencePattern pattern = (SuperTypeReferencePattern) decodedPattern;
-	if (this.superRefKind == ONLY_SUPER_CLASSES && pattern.enclosingTypeName != ONE_ZERO/*not an anonymous*/) 
+	if (this.superRefKind == ONLY_SUPER_CLASSES && pattern.enclosingTypeName != ONE_ZERO/*not an anonymous*/)
 		// consider enumerations as classes, reject interfaces and annotations
-		if (pattern.superClassOrInterface == INTERFACE_SUFFIX 
-			|| pattern.superClassOrInterface == ANNOTATION_TYPE_SUFFIX) 
+		if (pattern.superClassOrInterface == INTERFACE_SUFFIX
+			|| pattern.superClassOrInterface == ANNOTATION_TYPE_SUFFIX)
 			return false;
 
 	if (pattern.superQualification != null)
@@ -283,8 +283,8 @@ protected StringBuffer print(StringBuffer output) {
 			output.append("SuperClassReferencePattern: <"); //$NON-NLS-1$
 			break;
 	}
-	if (superSimpleName != null) 
-		output.append(superSimpleName);
+	if (this.superSimpleName != null)
+		output.append(this.superSimpleName);
 	else
 		output.append("*"); //$NON-NLS-1$
 	output.append(">"); //$NON-NLS-1$

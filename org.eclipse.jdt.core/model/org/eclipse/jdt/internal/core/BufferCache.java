@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.core.util.LRUCache;
  * An LRU cache of <code>IBuffers</code>.
  */
 public class BufferCache extends OverflowingLRUCache {
-	
+
 	private ThreadLocal buffersToClose = new ThreadLocal();
 /**
  * Constructs a new buffer cache of the given size.
@@ -42,7 +42,7 @@ public BufferCache(int size, int overflow) {
  */
 protected boolean close(LRUCacheEntry entry) {
 	IBuffer buffer= (IBuffer) entry.value;
-	
+
 	// prevent buffer that have unsaved changes or working copy buffer to be removed
 	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=39311
 	if (!((Openable)buffer.getOwner()).canBufferBeRemovedFromCache(buffer)) {

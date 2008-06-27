@@ -89,7 +89,7 @@ public class GenericXMLWriter extends PrintWriter {
 	}
 	public void printTag(String name, HashMap parameters, boolean insertTab, boolean insertNewLine, boolean closeTag) {
 		if (insertTab) {
-			this.printTabulation();
+			printTabulation();
 		}
 		this.print('<');
 		this.print(name);

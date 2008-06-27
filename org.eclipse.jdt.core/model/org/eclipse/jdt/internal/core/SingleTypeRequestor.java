@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 
 /**
- * The SingleTypeRequestor is an IJavaElementRequestor that 
+ * The SingleTypeRequestor is an IJavaElementRequestor that
  * only accepts one result element and then cancels.
  */
 /* package */ class SingleTypeRequestor implements IJavaElementRequestor {
@@ -41,7 +41,7 @@ public void acceptInitializer(IInitializer initializer) {
  * @see IJavaElementRequestor
  */
 public void acceptMemberType(IType type) {
-	element= type;
+	this.element= type;
 }
 /**
  * @see IJavaElementRequestor
@@ -59,25 +59,25 @@ public void acceptPackageFragment(IPackageFragment packageFragment) {
  * @see IJavaElementRequestor
  */
 public void acceptType(IType type) {
-	element= type;
+	this.element= type;
 }
 /**
  * Returns the type accepted by this requestor, or <code>null</code>
  * if no type has been accepted.
  */
 public IType getType() {
-	return element;
+	return this.element;
 }
 /**
  * @see IJavaElementRequestor
  */
 public boolean isCanceled() {
-	return element != null;
+	return this.element != null;
 }
 /**
  * Reset the state of this requestor
  */
 public void reset() {
-	element= null;
+	this.element= null;
 }
 }

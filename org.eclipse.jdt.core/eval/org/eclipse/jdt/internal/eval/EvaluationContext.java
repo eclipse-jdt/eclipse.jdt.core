@@ -62,7 +62,7 @@ public class EvaluationContext implements EvaluationConstants, SuffixConstants {
 	int[] localVariableModifiers;
 	char[][] localVariableTypeNames;
 	char[][] localVariableNames;
-	
+
 	/* can 'this' be used in this context */
 	boolean isStatic;
 	boolean isConstructorCall;
@@ -91,12 +91,12 @@ public GlobalVariable[] allVariables() {
  * Computes a completion at the specified position of the given code snippet.
  * (Note that this evaluation context's VM doesn't need to be running.)
  *
- *  @param environment 
+ *  @param environment
  *      used to resolve type/package references and search for types/packages
  *      based on partial names.
  *
- *  @param requestor 
- *      since the engine might produce answers of various forms, the engine 
+ *  @param requestor
+ *      since the engine might produce answers of various forms, the engine
  *      is associated with a requestor able to accept all possible completions.
  *
  *  @param options
@@ -116,20 +116,20 @@ public void complete(char[] codeSnippet, int completionPosition, SearchableEnvir
 				// Do nothing
 			}
 		};
-		this.evaluateVariables(environment, options, variableRequestor, new DefaultProblemFactory(Locale.getDefault()));
+		evaluateVariables(environment, options, variableRequestor, new DefaultProblemFactory(Locale.getDefault()));
 	} catch (InstallException e) {
 		// Do nothing
 	}
 	final char[] className = "CodeSnippetCompletion".toCharArray(); //$NON-NLS-1$
 	final CodeSnippetToCuMapper mapper = new CodeSnippetToCuMapper(
-		codeSnippet, 
-		this.packageName, 
-		this.imports, 
-		className, 
+		codeSnippet,
+		this.packageName,
+		this.imports,
+		className,
 		this.installedVars == null ? null : this.installedVars.className,
-		this.localVariableNames, 
-		this.localVariableTypeNames, 
-		this.localVariableModifiers, 
+		this.localVariableNames,
+		this.localVariableTypeNames,
+		this.localVariableModifiers,
 		this.declaringTypeName,
 		this.lineSeparator
 	);
@@ -147,16 +147,16 @@ public void complete(char[] codeSnippet, int completionPosition, SearchableEnvir
 			return null;
 		}
 	};
-	
+
 	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options, project, owner);
-	
+
 	if (this.installedVars != null) {
-		IBinaryType binaryType = this.getRootCodeSnippetBinary();
+		IBinaryType binaryType = getRootCodeSnippetBinary();
 		if (binaryType != null) {
 			engine.lookupEnvironment.cacheBinaryType(binaryType, null /*no access restriction*/);
 		}
-		
-		ClassFile[] classFiles = installedVars.classFiles;
+
+		ClassFile[] classFiles = this.installedVars.classFiles;
 		for (int i = 0; i < classFiles.length; i++) {
 			ClassFile classFile = classFiles[i];
 			IBinaryType binary = null;
@@ -168,7 +168,7 @@ public void complete(char[] codeSnippet, int completionPosition, SearchableEnvir
 			engine.lookupEnvironment.cacheBinaryType(binary, null /*no access restriction*/);
 		}
 	}
-	
+
 	engine.complete(sourceUnit, mapper.startPosOffset + completionPosition, mapper.startPosOffset, null/*extended context isn't computed*/);
 }
 /**
@@ -208,7 +208,7 @@ private void deployCodeSnippetClassIfNeeded(IRequestor requestor) {
 						return EvaluationConstants.ROOT_COMPOUND_NAME;
 					}
 				}
-			}, 
+			},
 			null);
 	}
 }
@@ -217,16 +217,16 @@ private void deployCodeSnippetClassIfNeeded(IRequestor requestor) {
  * @exception org.eclipse.jdt.internal.eval.InstallException if the code snippet class files could not be deployed.
  */
 public void evaluate(
-	char[] codeSnippet, 
+	char[] codeSnippet,
 	char[][] contextLocalVariableTypeNames,
-	char[][] contextLocalVariableNames, 
+	char[][] contextLocalVariableNames,
 	int[] contextLocalVariableModifiers,
 	char[] contextDeclaringTypeName,
 	boolean contextIsStatic,
 	boolean contextIsConstructorCall,
-	INameEnvironment environment, 
-	Map options, 
-	final IRequestor requestor, 
+	INameEnvironment environment,
+	Map options,
+	final IRequestor requestor,
 	IProblemFactory problemFactory) throws InstallException {
 
 	// Initialialize context
@@ -237,7 +237,7 @@ public void evaluate(
 	this.isStatic = contextIsStatic;
 	this.isConstructorCall = contextIsConstructorCall;
 
-	this.deployCodeSnippetClassIfNeeded(requestor);
+	deployCodeSnippetClassIfNeeded(requestor);
 
 	try {
 		// Install new variables if needed
@@ -257,16 +257,16 @@ public void evaluate(
 		if (this.varsChanged) {
 			evaluateVariables(environment, options, forwardingRequestor, problemFactory);
 		}
-		
+
 		// Compile code snippet if there was no errors while evaluating the variables
 		if (!forwardingRequestor.hasErrors) {
-			Evaluator evaluator = 
+			Evaluator evaluator =
 				new CodeSnippetEvaluator(
 					codeSnippet,
-					this, 
+					this,
 					environment,
-					options, 
-					requestor, 
+					options,
+					requestor,
 					problemFactory);
 			ClassFile[] classes = null;
 			if (TIMING) {
@@ -279,7 +279,7 @@ public void evaluate(
 			// Send code snippet on target
 			if (classes != null && classes.length > 0) {
 				char[] simpleClassName = evaluator.getClassName();
-				char[] pkgName = this.getPackageName();
+				char[] pkgName = getPackageName();
 				char[] qualifiedClassName =
 					pkgName.length == 0 ?
 						simpleClassName :
@@ -373,7 +373,7 @@ public void evaluateVariable(GlobalVariable variable, INameEnvironment environme
  * @exception org.eclipse.jdt.internal.eval.InstallException if the code snippet class files could not be deployed.
  */
 public void evaluateVariables(INameEnvironment environment, Map options, IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
-	this.deployCodeSnippetClassIfNeeded(requestor);
+	deployCodeSnippetClassIfNeeded(requestor);
 	VariablesEvaluator evaluator = new VariablesEvaluator(this, environment, options, requestor, problemFactory);
 	ClassFile[] classes = evaluator.getClasses();
 	if (classes != null) {
@@ -393,7 +393,7 @@ public void evaluateVariables(INameEnvironment environment, Map options, IReques
 					return -1;
 				}
 			});
-			
+
 			// Send classes
 			if (!requestor.acceptClassFiles(classes, null)) {
 				throw new InstallException();
@@ -402,7 +402,7 @@ public void evaluateVariables(INameEnvironment environment, Map options, IReques
 			// Remember that the variables have been installed
 			int count = this.variableCount;
 			GlobalVariable[] variablesCopy = new GlobalVariable[count];
-			System.arraycopy(this.variables, 0, variablesCopy, 0, count); 
+			System.arraycopy(this.variables, 0, variablesCopy, 0, count);
 			this.installedVars = new VariablesInfo(evaluator.getPackageName(), evaluator.getClassName(), classes, variablesCopy, count);
 			VAR_CLASS_COUNTER++;
 		}
@@ -503,7 +503,7 @@ public char[][] getImports() {
 }
 /**
  * Returns the dot-separated name of the package code snippets are run into.
- * Returns an empty array for the default package. This is the default if 
+ * Returns an empty array for the default package. This is the default if
  * the package name has never been set.
  */
 public char[] getPackageName() {
@@ -519,8 +519,8 @@ IBinaryType getRootCodeSnippetBinary() {
 	return this.codeSnippetBinary;
 }
 public char[] getVarClassName() {
-	if (installedVars == null) return CharOperation.NO_CHAR;
-	return CharOperation.concat(installedVars.packageName, installedVars.className, '.');
+	if (this.installedVars == null) return CharOperation.NO_CHAR;
+	return CharOperation.concat(this.installedVars.packageName, this.installedVars.className, '.');
 }
 /**
  * Creates a new global variable with the given name, type and initializer.
@@ -542,40 +542,40 @@ public GlobalVariable newVariable(char[] typeName, char[] name, char[] initializ
  * (Note that this evaluation context's VM doesn't need to be running.)
  *  @param codeSnippet char[]
  * 		The code snipper source
- * 
+ *
  *  @param selectionSourceStart int
- * 
+ *
  *  @param selectionSourceEnd int
- * 
+ *
  *  @param environment org.eclipse.jdt.internal.core.SearchableEnvironment
  *      used to resolve type/package references and search for types/packages
  *      based on partial names.
  *
  *  @param requestor org.eclipse.jdt.internal.codeassist.ISelectionRequestor
- *      since the engine might produce answers of various forms, the engine 
+ *      since the engine might produce answers of various forms, the engine
  *      is associated with a requestor able to accept all possible selections.
  *
  *  @param options java.util.Map
  *		set of options used to configure the code assist engine.
  */
-public void select( 
+public void select(
 	char[] codeSnippet,
 	int selectionSourceStart,
 	int selectionSourceEnd,
-	SearchableEnvironment environment, 
+	SearchableEnvironment environment,
 	ISelectionRequestor requestor,
 	Map options) {
-		
+
 	final char[] className = "CodeSnippetSelection".toCharArray(); //$NON-NLS-1$
 	final CodeSnippetToCuMapper mapper = new CodeSnippetToCuMapper(
-		codeSnippet, 
-		this.packageName, 
-		this.imports, 
-		className, 
+		codeSnippet,
+		this.packageName,
+		this.imports,
+		className,
 		this.installedVars == null ? null : this.installedVars.className,
-		this.localVariableNames, 
-		this.localVariableTypeNames, 
-		this.localVariableModifiers, 
+		this.localVariableNames,
+		this.localVariableTypeNames,
+		this.localVariableModifiers,
 		this.declaringTypeName,
 		this.lineSeparator
 	);

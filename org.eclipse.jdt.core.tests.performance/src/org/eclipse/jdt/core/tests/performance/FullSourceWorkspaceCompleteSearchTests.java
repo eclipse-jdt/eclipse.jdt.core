@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.core.search.processing.IJob;
  * Performance test suite which covers all main search requests:
  * <ul>
  * </ul>
- * 
+ *
  * Note that this test suite was not supposed to be included in releng performance tests
  * as it would take too much time to be run...
  */
@@ -149,7 +149,7 @@ class	 Measuring implements IJob {
 	 * Execute the current job, answer whether it was successful.
 	 */
 	public boolean execute(IProgressMonitor progress) {
-		if (start) {
+		if (this.start) {
 			startMeasuring();
 		} else {
 			stopMeasuring();
@@ -168,9 +168,9 @@ protected void search(String patternString, int searchFor, int limitTo, JavaSear
 		? SearchPattern.R_PATTERN_MATCH
 		: SearchPattern.R_EXACT_MATCH;
 	SearchPattern pattern = SearchPattern.createPattern(
-		patternString, 
+		patternString,
 		searchFor,
-		limitTo, 
+		limitTo,
 		matchMode | SearchPattern.R_CASE_SENSITIVE);
 	new SearchEngine().search(
 		pattern,
@@ -182,8 +182,8 @@ protected void search(String patternString, int searchFor, int limitTo, JavaSear
 
 protected void search(IJavaElement element, int limitTo, JavaSearchResultCollector resultCollector) throws CoreException {
 	SearchPattern pattern = SearchPattern.createPattern(
-		element, 
-		limitTo, 
+		element,
+		limitTo,
 		SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	new SearchEngine().search(
 		pattern,
@@ -237,7 +237,7 @@ public void testSearchStringTypeDeclarations() throws CoreException {
 		search(name, TYPE, DECLARATIONS, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -262,7 +262,7 @@ public void testSearchStringTypeReferences() throws CoreException {
 		search(name, TYPE, REFERENCES, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -291,7 +291,7 @@ public void testSearchJavaElementTypeDeclarations() throws CoreException {
 		search(type, DECLARATIONS, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -320,7 +320,7 @@ public void testSearchJavaElementTypeReferences() throws CoreException {
 		search(type, REFERENCES, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -358,7 +358,7 @@ public void testSearchStringFieldDeclarations() throws CoreException {
 		search(name, FIELD, DECLARATIONS, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -386,7 +386,7 @@ public void testSearchStringFieldReferences() throws CoreException {
 		search(name, FIELD, REFERENCES, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -419,7 +419,7 @@ public void testSearchJavaElementFieldDeclarations() throws CoreException {
 		search(field, DECLARATIONS, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -452,7 +452,7 @@ public void testSearchJavaElementFieldReferences() throws CoreException {
 		search(field, REFERENCES, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -490,7 +490,7 @@ public void testSearchStringMethodDeclarations() throws CoreException {
 		search(name, METHOD, DECLARATIONS, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -518,7 +518,7 @@ public void testSearchStringMethodReferences() throws CoreException {
 		search(name, METHOD, REFERENCES, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -551,7 +551,7 @@ public void testSearchJavaElementMethodDeclarations() throws CoreException {
 		search(method, DECLARATIONS, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -584,7 +584,7 @@ public void testSearchJavaElementMethodReferences() throws CoreException {
 		search(method, REFERENCES, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -622,7 +622,7 @@ public void testSearchStringConstructorDeclarations() throws CoreException {
 		search(name, CONSTRUCTOR, DECLARATIONS, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -650,7 +650,7 @@ public void testSearchStringConstructorReferences() throws CoreException {
 		search(name, CONSTRUCTOR, REFERENCES, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -683,7 +683,7 @@ public void testSearchJavaElementConstructorDeclarations() throws CoreException 
 		search(constructor, DECLARATIONS, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -716,7 +716,7 @@ public void testSearchJavaElementConstructorReferences() throws CoreException {
 		search(constructor, REFERENCES, resultCollector);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();

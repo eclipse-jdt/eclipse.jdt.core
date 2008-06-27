@@ -60,44 +60,44 @@ public SourceType(
 	this.source = source;
 }
 protected void addField(SourceField sourceField) {
-	if (fields == null) {
-		fields = new SourceField[4];
+	if (this.fields == null) {
+		this.fields = new SourceField[4];
 	}
 
-	if (numberOfFields == fields.length) {
+	if (this.numberOfFields == this.fields.length) {
 		System.arraycopy(
-			fields, 
-			0, 
-			fields = new SourceField[numberOfFields * 2], 
-			0, 
-			numberOfFields); 
+			this.fields,
+			0,
+			this.fields = new SourceField[this.numberOfFields * 2],
+			0,
+			this.numberOfFields);
 	}
-	fields[numberOfFields++] = sourceField;
+	this.fields[this.numberOfFields++] = sourceField;
 }
 protected void addMemberType(SourceType sourceMemberType) {
-	if(memberTypes == null) {
-		memberTypes = new SourceType[4];
+	if(this.memberTypes == null) {
+		this.memberTypes = new SourceType[4];
 	}
 
-	if(numberOfMemberTypes == memberTypes.length) {
-		System.arraycopy(memberTypes, 0, memberTypes = new SourceType[numberOfMemberTypes * 2], 0, numberOfMemberTypes);
+	if(this.numberOfMemberTypes == this.memberTypes.length) {
+		System.arraycopy(this.memberTypes, 0, this.memberTypes = new SourceType[this.numberOfMemberTypes * 2], 0, this.numberOfMemberTypes);
 	}
-	memberTypes[numberOfMemberTypes++] = sourceMemberType;
+	this.memberTypes[this.numberOfMemberTypes++] = sourceMemberType;
 }
 protected void addMethod(SourceMethod sourceMethod) {
-	if (methods == null) {
-		methods = new SourceMethod[4];
+	if (this.methods == null) {
+		this.methods = new SourceMethod[4];
 	}
 
-	if (numberOfMethods == methods.length) {
+	if (this.numberOfMethods == this.methods.length) {
 		System.arraycopy(
-			methods, 
-			0, 
-			methods = new SourceMethod[numberOfMethods * 2], 
-			0, 
-			numberOfMethods); 
+			this.methods,
+			0,
+			this.methods = new SourceMethod[this.numberOfMethods * 2],
+			0,
+			this.numberOfMethods);
 	}
-	methods[numberOfMethods++] = sourceMethod;
+	this.methods[this.numberOfMethods++] = sourceMethod;
 }
 public String displayModifiers() {
 	StringBuffer buffer = new StringBuffer();
@@ -124,95 +124,95 @@ public String displayModifiers() {
 }
 public String getActualName() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append(source, nameSourceStart, nameSourceEnd - nameSourceStart + 1);
+	buffer.append(this.source, this.nameSourceStart, this.nameSourceEnd - this.nameSourceStart + 1);
 	return buffer.toString();
 }
 public int getDeclarationSourceEnd() {
-	return declarationEnd;
+	return this.declarationEnd;
 }
 public int getDeclarationSourceStart() {
-	return declarationStart;
+	return this.declarationStart;
 }
 public char[] getEnclosingTypeName() {
-	return enclosingTypeName;
+	return this.enclosingTypeName;
 }
 public SourceField[] getFields() {
-	if (fields != null && fields.length != numberOfFields) {
-		System.arraycopy(fields, 0, fields = new SourceField[numberOfFields], 0, numberOfFields);
+	if (this.fields != null && this.fields.length != this.numberOfFields) {
+		System.arraycopy(this.fields, 0, this.fields = new SourceField[this.numberOfFields], 0, this.numberOfFields);
 	}
-	return fields;
+	return this.fields;
 }
 public char[] getFileName() {
-	return fileName;
+	return this.fileName;
 }
 public char[][] getImports() {
-	if (imports == null) return null;
-	int importLength = imports.length;
+	if (this.imports == null) return null;
+	int importLength = this.imports.length;
 	char[][] importNames = new char[importLength][];
 	for (int i = 0, max = importLength; i < max; i++) {
-		importNames[i] = imports[i].name;
+		importNames[i] = this.imports[i].name;
 	}
 	return importNames;
 }
 public char[][] getInterfaceNames() {
-	return interfaceNames;
+	return this.interfaceNames;
 }
 public SourceType[] getMemberTypes() {
-	if (memberTypes != null && memberTypes.length != numberOfMemberTypes) {
+	if (this.memberTypes != null && this.memberTypes.length != this.numberOfMemberTypes) {
 		System.arraycopy(
-			memberTypes, 
-			0, 
-			memberTypes = new SourceType[numberOfMemberTypes], 
-			0, 
-			numberOfMemberTypes); 
+			this.memberTypes,
+			0,
+			this.memberTypes = new SourceType[this.numberOfMemberTypes],
+			0,
+			this.numberOfMemberTypes);
 	}
-	return memberTypes;
+	return this.memberTypes;
 }
 public SourceMethod[] getMethods() {
-	if (methods != null && methods.length != numberOfMethods) {
-		System.arraycopy(methods, 0, methods = new SourceMethod[numberOfMethods], 0, numberOfMethods);
+	if (this.methods != null && this.methods.length != this.numberOfMethods) {
+		System.arraycopy(this.methods, 0, this.methods = new SourceMethod[this.numberOfMethods], 0, this.numberOfMethods);
 	}
-	return methods;
+	return this.methods;
 }
 public int getModifiers() {
-	return modifiers;
+	return this.modifiers;
 }
 public char[] getName() {
-	return name;
+	return this.name;
 }
 public int getNameSourceEnd() {
-	return nameSourceEnd;
+	return this.nameSourceEnd;
 }
 public int getNameSourceStart() {
-	return nameSourceStart;
+	return this.nameSourceStart;
 }
 public char[] getPackageName() {
-	return packageName.name;
+	return this.packageName.name;
 }
 public char[] getQualifiedName() {
-	if (qualifiedName == null) {
+	if (this.qualifiedName == null) {
 		StringBuffer temp = new StringBuffer();
-		temp.append(packageName);
+		temp.append(this.packageName);
 		temp.append('.');
-		temp.append(name);
-		qualifiedName = temp.toString().toCharArray();
+		temp.append(this.name);
+		this.qualifiedName = temp.toString().toCharArray();
 	}
-	return qualifiedName;
+	return this.qualifiedName;
 }
 public char[] getSuperclassName() {
-	return superclassName;
+	return this.superclassName;
 }
 public boolean isBinaryType() {
 	return false;
 }
 public boolean isClass() {
-	return (modifiers & ClassFileConstants.AccInterface) == 0;
+	return (this.modifiers & ClassFileConstants.AccInterface) == 0;
 }
 public boolean isInterface() {
-	return (modifiers & ClassFileConstants.AccInterface) == ClassFileConstants.AccInterface;
+	return (this.modifiers & ClassFileConstants.AccInterface) == ClassFileConstants.AccInterface;
 }
 public void setDeclarationSourceEnd(int position) {
-	declarationEnd = position;
+	this.declarationEnd = position;
 }
 public void setDefaultConstructor(String s) {
 	this.defaultConstructor = s;
@@ -221,7 +221,7 @@ public void setImports(SourceImport[] imports) {
 	this.imports = imports;
 }
 public void setPackage(SourcePackage sourcePackage) {
-	packageName = sourcePackage;
+	this.packageName = sourcePackage;
 }
 public void setSuperclass(char[] superclassName) {
 	this.superclassName = superclassName;
@@ -243,12 +243,12 @@ public String toString() {
 public String toString(int tab) {
 
 	StringBuffer buffer = new StringBuffer();
-	if (packageName != null) {
-		buffer.append(tabString(tab)).append(packageName);
+	if (this.packageName != null) {
+		buffer.append(tabString(tab)).append(this.packageName);
 	}
-	if (imports != null) {
-		for (int i = 0, max = imports.length; i < max; i++) {
-			buffer.append(tabString(tab)).append(imports[i]);
+	if (this.imports != null) {
+		for (int i = 0, max = this.imports.length; i < max; i++) {
+			buffer.append(tabString(tab)).append(this.imports[i]);
 		}
 	}
 	buffer.append(tabString(tab));
@@ -256,33 +256,33 @@ public String toString(int tab) {
 	if (displayModifiers != null) {
 		buffer.append(displayModifiers).append(" ");
 	}
-	buffer.append(isInterface() ? "interface " : "class ").append(name).append(" ");
-	if (superclassName != null) {
-		buffer.append("extends ").append(superclassName).append(" ");
+	buffer.append(isInterface() ? "interface " : "class ").append(this.name).append(" ");
+	if (this.superclassName != null) {
+		buffer.append("extends ").append(this.superclassName).append(" ");
 	}
-	if (interfaceNames != null) {
+	if (this.interfaceNames != null) {
 		buffer.append("implements ");
-		for (int i = 0, max = interfaceNames.length; i < max; i++) {
-			buffer.append(interfaceNames[i]).append(", ");
+		for (int i = 0, max = this.interfaceNames.length; i < max; i++) {
+			buffer.append(this.interfaceNames[i]).append(", ");
 		}
 	}
 	buffer.append("{\n");
-	if (memberTypes != null) {
-		for (int i = 0, max = numberOfMemberTypes; i < max; i++) {
-			buffer.append(memberTypes[i].toString(tab + 1)).append("\n");
+	if (this.memberTypes != null) {
+		for (int i = 0, max = this.numberOfMemberTypes; i < max; i++) {
+			buffer.append(this.memberTypes[i].toString(tab + 1)).append("\n");
 		}
 	}
-	if (fields != null) {
-		for (int i = 0, max = numberOfFields; i < max; i++) {
-			buffer.append(fields[i].toString(tab + 1)).append("\n");
+	if (this.fields != null) {
+		for (int i = 0, max = this.numberOfFields; i < max; i++) {
+			buffer.append(this.fields[i].toString(tab + 1)).append("\n");
 		}
 	}
-	if (defaultConstructor != null) {
-			buffer.append(tabString(tab + 1)).append(defaultConstructor);		
+	if (this.defaultConstructor != null) {
+			buffer.append(tabString(tab + 1)).append(this.defaultConstructor);
 	}
-	if (methods != null) {
-		for (int i = 0, max = numberOfMethods; i < max; i++) {
-			buffer.append(methods[i].toString(tab + 1)).append("\n");
+	if (this.methods != null) {
+		for (int i = 0, max = this.numberOfMethods; i < max; i++) {
+			buffer.append(this.methods[i].toString(tab + 1)).append("\n");
 		}
 	}
 	buffer.append(tabString(tab)).append("}");

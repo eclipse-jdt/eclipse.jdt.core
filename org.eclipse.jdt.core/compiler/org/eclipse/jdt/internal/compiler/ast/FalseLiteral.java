@@ -23,7 +23,7 @@ public FalseLiteral(int s , int e) {
 	super(s,e);
 }
 public void computeConstant() {
-	constant = BooleanConstant.fromValue(false);
+	this.constant = BooleanConstant.fromValue(false);
 }
 /**
  * Code generation for false literal
@@ -58,7 +58,7 @@ public TypeBinding literalType(BlockScope scope) {
 	return TypeBinding.BOOLEAN;
 }
 /**
- * 
+ *
  */
 public char[] source() {
 	return source;

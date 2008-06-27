@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /*
- * Special unchecked exception type used 
+ * Special unchecked exception type used
  * to abort from the compilation process
  *
  * should only be thrown from within problem handlers.
@@ -27,13 +27,13 @@ public class AbortCompilation extends RuntimeException {
 	public CompilationResult compilationResult;
 	public Throwable exception;
 	public CategorizedProblem problem;
-	
+
 	/* special fields used to abort silently (e.g. when cancelling build process) */
 	public boolean isSilent;
 	public RuntimeException silentException;
 
 	private static final long serialVersionUID = -2047226595083244852L; // backward compatible
-	
+
 	public AbortCompilation() {
 		// empty
 	}
@@ -55,7 +55,7 @@ public class AbortCompilation extends RuntimeException {
 		this.isSilent = isSilent;
 		this.silentException = silentException;
 	}
-	
+
 	public void updateContext(InvocationSite invocationSite, CompilationResult unitResult) {
 		if (this.problem == null) return;
 		if (this.problem.getSourceStart() != 0 || this.problem.getSourceEnd() != 0) return;

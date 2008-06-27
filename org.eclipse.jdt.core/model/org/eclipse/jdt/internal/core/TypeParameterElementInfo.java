@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 public class TypeParameterElementInfo extends SourceRefElementInfo {
-	
+
 	/*
 	 * The start position of this type parameter's name in the its
 	 * openable's buffer.

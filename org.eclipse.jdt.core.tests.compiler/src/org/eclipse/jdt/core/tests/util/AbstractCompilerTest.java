@@ -46,9 +46,9 @@ public class AbstractCompilerTest extends TestCase {
 
 	/**
 	 * Build a test suite made of test suites for all possible running VM compliances .
-	 * 
+	 *
 	 * @see #buildUniqueComplianceTestSuite(Class, long) for test suite children content.
-	 * 
+	 *
 	 * @param evaluationTestClass The main test suite to build.
 	 * @return built test suite (see {@link TestSuite}
 	 */
@@ -78,9 +78,9 @@ public class AbstractCompilerTest extends TestCase {
 
 	/**
 	 * Build a test suite made of test suites for all possible running VM compliances .
-	 * 
+	 *
 	 * @see #buildComplianceTestSuite(List, Class, long) for test suite children content.
-	 * 
+	 *
 	 * @param testSuiteClass The main test suite to build.
 	 * @param setupClass The compiler setup to class to use to bundle given tets suites tests.
 	 * @param testClasses The list of test suites to include in main test suite.
@@ -111,9 +111,9 @@ public class AbstractCompilerTest extends TestCase {
 	 * Build a test suite for a compliance and a list of test suites.
 	 * Returned test suite has only one child: {@link RegressionTestSetup} test suite.
 	 * Name of returned suite is the given compliance level.
-	 * 
+	 *
 	 * @see #buildComplianceTestSuite(List, Class, long) for child test suite content.
-	 * 
+	 *
 	 * @param complianceLevel The compliance level used for this test suite.
 	 * @param testClasses The list of test suites to include in main test suite.
 	 * @return built test suite (see {@link TestSuite}
@@ -126,7 +126,7 @@ public class AbstractCompilerTest extends TestCase {
 	 * Build a test suite for a compliance and a list of test suites.
 	 * Children of returned test suite are setup test suites (see {@link CompilerTestSetup}).
 	 * Name of returned suite is the given compliance level.
-	 * 
+	 *
 	 * @param complianceLevel The compliance level used for this test suite.
 	 * @param testClasses The list of test suites to include in main test suite.
 	 * @return built test suite (see {@link TestSuite}
@@ -167,7 +167,7 @@ public class AbstractCompilerTest extends TestCase {
 	 * Returned test suite has only one child: {@link RegressionTestSetup} test suite.
 	 * Name of returned suite is the name of given test suite class.
 	 * The test suite will be run iff the compliance is at least the specified one.
-	 * 
+	 *
 	 * @param minimalCompliance The unqie compliance level used for this test suite.
 	 * @param evaluationTestClass The test suite to run.
 	 * @return built test suite (see {@link TestSuite}
@@ -222,7 +222,7 @@ public class AbstractCompilerTest extends TestCase {
 	 * Build a regression test setup suite for a compliance and a test suite to run.
 	 * Returned test suite has only one child: {@link RegressionTestSetup} test suite.
 	 * Name of returned suite is the name of given test suite class.
-	 * 
+	 *
 	 * @param uniqueCompliance The unique compliance level used for this test suite.
 	 * @param evaluationTestClass The test suite to run.
 	 * @return built test suite (see {@link TestSuite}
@@ -355,7 +355,7 @@ public class AbstractCompilerTest extends TestCase {
 	}
 
 	/*
-	 * Returns a test suite including the tests defined by the given classes for the given complianceLevel 
+	 * Returns a test suite including the tests defined by the given classes for the given complianceLevel
 	 * (see AbstractCompilerTest for valid values) and using the given setup class (CompilerTestSetup or a subclass)
 	 */
 	public static Test suiteForComplianceLevel(long complianceLevel, Class setupClass, ArrayList testClasses) {
@@ -375,7 +375,7 @@ public class AbstractCompilerTest extends TestCase {
 		}
 		if (suite == null)
 			return null;
-		
+
 		// add tests
 		Class testClass;
 		if (testClasses.size() == 1) {
@@ -420,11 +420,11 @@ public class AbstractCompilerTest extends TestCase {
 		return suite;
 	}
 
-	
+
 	public static boolean isJRELevel(int compliance) {
 		return (AbstractCompilerTest.getPossibleComplianceLevels() & compliance) != 0;
 	}
-	
+
 	public AbstractCompilerTest(String name) {
 		super(name);
 	}
@@ -471,15 +471,15 @@ public class AbstractCompilerTest extends TestCase {
 	protected String testName() {
 		return super.getName();
 	}
-	
+
 	// Output files management
 	protected IPath outputRootDirectoryPath = new Path(Util.getOutputDirectory());
 	protected File outputTestDirectory;
 
 	/**
-	 * Create a test specific output directory as a subdirectory of 
-	 * outputRootDirectory, given a subdirectory path. The whole 
-	 * subtree is created as needed. outputTestDirectoryPath is 
+	 * Create a test specific output directory as a subdirectory of
+	 * outputRootDirectory, given a subdirectory path. The whole
+	 * subtree is created as needed. outputTestDirectoryPath is
 	 * modified according to the latest call to this method.
 	 * @param suffixPath a valid relative path for the subdirectory
 	 */
@@ -510,8 +510,8 @@ public class AbstractCompilerTest extends TestCase {
 			Util.writeToFile(contents, file.getPath());
 		}
 	}
-	
-	// Summary display		
+
+	// Summary display
 	// Used by AbstractRegressionTest for javac comparison tests
 	protected static Map TESTS_COUNTERS = new HashMap();
 }

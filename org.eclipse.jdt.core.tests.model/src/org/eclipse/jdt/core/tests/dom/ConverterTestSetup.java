@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public abstract class ConverterTestSetup extends AbstractASTTests {
-	
+
 	protected AST ast;
 	static List TEST_SUITES = null;
 	static boolean PROJECT_SETUP = false;
@@ -59,7 +59,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 * Reset the jar placeholder and delete project.
 	 */
 	public void tearDownSuite() throws Exception {
-		ast = null;
+		this.ast = null;
 		if (TEST_SUITES == null) {
 			this.deleteProject("Converter"); //$NON-NLS-1$
 			this.deleteProject("Converter15"); //$NON-NLS-1$
@@ -116,7 +116,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			boolean bindingsRecovery) {
 		return runConversion(astInternalJLS2(), unit, resolveBindings, false, bindingsRecovery);
 	}
-	
+
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
 		return runConversion(astInternalJLS2(), unit, resolveBindings);
 	}
@@ -410,7 +410,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
 		return runJLS3Conversion(unit, resolveBindings, checkJLS2, false);
 	}
-	
+
 	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2, boolean bindingRecovery) {
 
 		// Create parser

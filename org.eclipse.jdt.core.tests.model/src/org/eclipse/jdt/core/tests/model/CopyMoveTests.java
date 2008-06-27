@@ -21,7 +21,7 @@ public CopyMoveTests(String name) {
 	super(name);
 }
 /**
- * Attempts to copy the element with optional 
+ * Attempts to copy the element with optional
  * forcing. The operation should fail with the failure code.
  */
 public void copyNegative(IJavaElement element, IJavaElement destination, IJavaElement sibling, String rename, boolean force, int failureCode) {
@@ -35,7 +35,7 @@ public void copyNegative(IJavaElement element, IJavaElement destination, IJavaEl
 	return;
 }
 /**
- * Attempts to copy the elements with optional 
+ * Attempts to copy the elements with optional
  * forcing. The operation should fail with the failure code.
  */
 public void copyNegative(IJavaElement[] elements, IJavaElement[] destinations, IJavaElement[] siblings, String[] renames, boolean force, int failureCode) {
@@ -63,17 +63,17 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 	IJavaElement copy;
 	try {
 		startDeltas();
-		
+
 		// copy
 	 	((ISourceManipulation) element).copy(container, sibling, rename, force, null);
-	
+
 		// ensure the original element still exists
 		assertTrue("The original element must still exist", element.exists());
-	
+
 		// generate the new element	handle
 		copy = generateHandle(element, rename, container);
 		assertTrue("Copy should exist", copy.exists());
-	
+
 		//ensure correct position
 		if (element.getElementType() > IJavaElement.COMPILATION_UNIT) {
 			ensureCorrectPositioning((IParent) container, sibling, copy);
@@ -202,7 +202,7 @@ protected boolean isMainType(IJavaElement element, IJavaElement parent) {
 	return false;
 }
 /**
- * Attempts to move the element with optional 
+ * Attempts to move the element with optional
  * forcing. The operation should fail with the failure code.
  */
 public void moveNegative(IJavaElement element, IJavaElement destination, IJavaElement sibling, String rename, boolean force, int failureCode) {
@@ -216,7 +216,7 @@ public void moveNegative(IJavaElement element, IJavaElement destination, IJavaEl
 	return;
 }
 /**
- * Attempts to move the element with optional 
+ * Attempts to move the element with optional
  * forcing. The operation should fail with the failure code.
  */
 public void moveNegative(IJavaElement[] elements, IJavaElement[] destinations, IJavaElement[] siblings, String[] renames, boolean force, int failureCode) {
@@ -276,7 +276,7 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 
 	try {
 		startDeltas();
-		
+
 		// move
 		getJavaModel().move(elements, destinations, siblings, names, force, monitor);
 		for (i = 0; i < elements.length; i++) {
@@ -305,7 +305,7 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 				}
 			}
 			assertTrue("Moved element should exist", moved.exists());
-	
+
 			//ensure correct position
 			if (element.getElementType() > IJavaElement.COMPILATION_UNIT) {
 				if (siblings != null && siblings.length > 0) {
@@ -315,7 +315,7 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 				IJavaElement container = destinations[i];
 				if (container.getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT) {
 				} else { // ensure package name is correct
-	
+
 					if (container.getElementName().equals("")) {
 						// default package - should be no package decl
 						IJavaElement[] children = ((ICompilationUnit) moved).getChildren();

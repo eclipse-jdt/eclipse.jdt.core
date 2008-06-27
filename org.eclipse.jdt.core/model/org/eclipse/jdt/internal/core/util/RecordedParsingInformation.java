@@ -22,14 +22,14 @@ public class RecordedParsingInformation {
 	public int problemsCount;
 	public int[] lineEnds;
 	public int[][] commentPositions;
-	
+
 	public RecordedParsingInformation(CategorizedProblem[] problems, int[] lineEnds, int[][] commentPositions) {
 		this.problems = problems;
 		this.lineEnds = lineEnds;
 		this.commentPositions = commentPositions;
 		this.problemsCount = problems != null ? problems.length : 0;
 	}
-	
+
 	void updateRecordedParsingInformation(CompilationResult compilationResult) {
 		if (compilationResult.problems != null) {
 			this.problems = compilationResult.problems;

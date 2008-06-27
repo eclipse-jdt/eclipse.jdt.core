@@ -13,23 +13,23 @@ package org.eclipse.jdt.core.util;
 /**
  * Description of a runtime visible parameter annotations attribute as described in the JVM specification
  * (added in J2SE 1.5).
- * 
- * This interface may be implemented by clients. 
- *  
+ *
+ * This interface may be implemented by clients.
+ *
  * @since 3.0
  */
 public interface IRuntimeVisibleParameterAnnotationsAttribute extends IClassFileAttribute {
 
 	/**
 	 * Answer back the number of parameters as described in the JVM specifications.
-	 * 
+	 *
 	 * @return the number of parameters
 	 */
 	int getParametersNumber();
 
 	/**
 	 * Answer back the parameter annotations. Answers an empty collection if none.
-	 * 
+	 *
 	 * @return the parameter annotations. Answers an empty collection if none.
 	 */
 	IParameterAnnotation[] getParameterAnnotations();

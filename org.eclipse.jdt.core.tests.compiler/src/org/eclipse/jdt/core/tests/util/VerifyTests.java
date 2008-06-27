@@ -16,10 +16,10 @@ import java.net.*;
 import java.util.*;
 
 /******************************************************
- * 
+ *
  * IMPORTANT NOTE: If modifying this class, copy the source to TestVerifier#getVerifyTestsCode()
  * (see this method for details)
- * 
+ *
  ******************************************************/
 
 public class VerifyTests {
@@ -37,7 +37,7 @@ public class VerifyTests {
  * loader. They will be shared across test runs.
  * <p>
  * The list of excluded package paths is specified in
- * a properties file "excluded.properties" that is located in 
+ * a properties file "excluded.properties" that is located in
  * the same place as the TestCaseClassLoader class.
  * <p>
  * <b>Known limitation:</b> the VerifyClassLoader cannot load classes
@@ -48,7 +48,7 @@ public class VerifyTests {
 public class VerifyClassLoader extends ClassLoader {
 	/** scanned class path */
 	private String[] pathItems;
-	
+
 	/** excluded paths */
 	private String[] excluded= {};
 
@@ -60,7 +60,7 @@ public class VerifyClassLoader extends ClassLoader {
 		super();
 		String classPath= System.getProperty("java.class.path");
 		String separator= System.getProperty("path.separator");
-		
+
 		// first pass: count elements
 		StringTokenizer st= new StringTokenizer(classPath, separator);
 		int i= 0;
@@ -69,11 +69,11 @@ public class VerifyClassLoader extends ClassLoader {
 			i++;
 		}
 		// second pass: split
-		pathItems= new String[i];
+		this.pathItems= new String[i];
 		st= new StringTokenizer(classPath, separator);
 		i= 0;
 		while (st.hasMoreTokens()) {
-			pathItems[i++]= st.nextToken();
+			this.pathItems[i++]= st.nextToken();
 		}
 
 	}
@@ -88,18 +88,18 @@ public class VerifyClassLoader extends ClassLoader {
 		// They always need to be excluded so that they are loaded by the system class loader
 		if (name.startsWith("java"))
 			return true;
-			
+
 		// exclude the user defined package paths
-		for (int i= 0; i < excluded.length; i++) {
-			if (name.startsWith(excluded[i])) {
+		for (int i= 0; i < this.excluded.length; i++) {
+			if (name.startsWith(this.excluded[i])) {
 				return true;
 			}
 		}
-		return false;	
+		return false;
 	}
 	public synchronized Class loadClass(String name, boolean resolve)
 		throws ClassNotFoundException {
-			
+
 		Class c= findLoadedClass(name);
 		if (c != null)
 			return c;
@@ -120,7 +120,7 @@ public class VerifyClassLoader extends ClassLoader {
 			throw new ClassNotFoundException();
 		byte data[]= loadClassData(file);
 		c= defineClass(name, data, 0, data.length);
-		if (resolve) 
+		if (resolve)
 			resolveClass(c);
 		return c;
 	}
@@ -129,7 +129,7 @@ public class VerifyClassLoader extends ClassLoader {
 		try {
 			//System.out.println("loading: "+f.getPath());
 			stream = new FileInputStream(f);
-			
+
 			try {
 				byte[] b= new byte[stream.available()];
 				stream.read(b);
@@ -155,12 +155,12 @@ public class VerifyClassLoader extends ClassLoader {
 	 * Locate the given file.
 	 * @return Returns null if file couldn't be found.
 	 */
-	private File locate(String fileName) { 
+	private File locate(String fileName) {
 		if (fileName != null) {
 			fileName= fileName.replace('.', '/')+".class";
 			File path= null;
-			for (int i= 0; i < pathItems.length; i++) {
-				path= new File(pathItems[i], fileName);
+			for (int i= 0; i < this.pathItems.length; i++) {
+				path= new File(this.pathItems[i], fileName);
 				if (path.exists())
 					return path;
 			}
@@ -168,7 +168,7 @@ public class VerifyClassLoader extends ClassLoader {
 		return null;
 	}
 }
-	
+
 public void loadAndRun(String className) throws Throwable {
 	//System.out.println("Loading " + className + "...");
 	Class testClass = new VerifyClassLoader().loadClass(className);

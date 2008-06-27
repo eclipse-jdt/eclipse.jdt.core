@@ -28,12 +28,12 @@ public CompletionWithMissingTypesTests2(String name) {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	setUpJavaProject("Completion");
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("Completion");
-	
+
 	super.tearDownSuite();
 }
 
@@ -79,7 +79,7 @@ public void test0001() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -92,7 +92,7 @@ public void test0001() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX.java",
@@ -108,7 +108,7 @@ public void test0001() throws Exception {
 				"public class XX {\n"+
 				"  void foo() {}\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -133,19 +133,19 @@ public void test0001() throws Exception {
 			"    x.fo\n"+
 			"  }\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "x.fo";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("x.fo") + "x.".length();
 		int end1 = start1 + "fo".length();
@@ -173,7 +173,7 @@ public void test0002() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -186,7 +186,7 @@ public void test0002() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX.java",
@@ -202,7 +202,7 @@ public void test0002() throws Exception {
 				"public class XX {\n"+
 				"  void foo() {}\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -227,19 +227,19 @@ public void test0002() throws Exception {
 			"    x.fo\n"+
 			"  }\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "x.fo";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("x.fo") + "x.".length();
 		int end1 = start1 + "fo".length();

@@ -86,21 +86,21 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#getCharacters()
 		 */
 		public char[] getCharacters() {
-			return contents;
+			return this.contents;
 		}
 
 		/*
 		 * @see IBuffer#getContents()
 		 */
 		public String getContents() {
-			return new String(contents);
+			return new String(this.contents);
 		}
 
 		/*
 		 * @see IBuffer#getLength()
 		 */
 		public int getLength() {
-			return contents.length;
+			return this.contents.length;
 		}
 
 		/*

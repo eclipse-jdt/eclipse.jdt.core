@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.problem;
 
 /*
- * Special unchecked exception type used 
+ * Special unchecked exception type used
  * to denote implementation that should never be reached.
  *
  *	(internal only)

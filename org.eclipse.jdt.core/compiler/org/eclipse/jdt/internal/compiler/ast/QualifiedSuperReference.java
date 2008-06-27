@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class QualifiedSuperReference extends QualifiedThisReference {
-	
+
 	public QualifiedSuperReference(TypeReference name, int pos, int sourceEnd) {
 		super(name, pos, sourceEnd);
 	}
@@ -31,9 +31,9 @@ public class QualifiedSuperReference extends QualifiedThisReference {
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
-		return qualification.print(0, output).append(".super"); //$NON-NLS-1$
+		return this.qualification.print(0, output).append(".super"); //$NON-NLS-1$
 	}
-	
+
 	public TypeBinding resolveType(BlockScope scope) {
 
 		if ((this.bits & ParenthesizedMASK) != 0) {
@@ -41,14 +41,14 @@ public class QualifiedSuperReference extends QualifiedThisReference {
 			return null;
 		}
 		super.resolveType(scope);
-		if (currentCompatibleType == null)
+		if (this.currentCompatibleType == null)
 			return null; // error case
 
-		if (currentCompatibleType.id == T_JavaLangObject) {
+		if (this.currentCompatibleType.id == T_JavaLangObject) {
 			scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 			return null;
 		}
-		return this.resolvedType = currentCompatibleType.superclass();
+		return this.resolvedType = this.currentCompatibleType.superclass();
 	}
 
 	public void traverse(
@@ -56,7 +56,7 @@ public class QualifiedSuperReference extends QualifiedThisReference {
 		BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
-			qualification.traverse(visitor, blockScope);
+			this.qualification.traverse(visitor, blockScope);
 		}
 		visitor.endVisit(this, blockScope);
 	}
@@ -65,7 +65,7 @@ public class QualifiedSuperReference extends QualifiedThisReference {
 			ClassScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
-			qualification.traverse(visitor, blockScope);
+			this.qualification.traverse(visitor, blockScope);
 		}
 		visitor.endVisit(this, blockScope);
 	}

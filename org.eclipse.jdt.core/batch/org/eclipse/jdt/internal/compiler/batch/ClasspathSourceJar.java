@@ -21,15 +21,15 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class ClasspathSourceJar extends ClasspathJar {
 	private String encoding;
 
-	public ClasspathSourceJar(File file, boolean closeZipFileAtEnd, 
-			AccessRuleSet accessRuleSet, String encoding, 
+	public ClasspathSourceJar(File file, boolean closeZipFileAtEnd,
+			AccessRuleSet accessRuleSet, String encoding,
 			String destinationPath) {
 		super(file, closeZipFileAtEnd, accessRuleSet, destinationPath);
 		this.encoding = encoding;
 	}
 
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
-		if (!isPackage(qualifiedPackageName)) 
+		if (!isPackage(qualifiedPackageName))
 			return null; // most common case
 
 		ZipEntry sourceEntry = this.zipFile.getEntry(qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java);
@@ -39,7 +39,7 @@ public class ClasspathSourceJar extends ClasspathJar {
 						new CompilationUnit(
 								Util.getInputStreamAsCharArray(this.zipFile.getInputStream(sourceEntry),
 										-1, this.encoding),
-						qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java, 
+						qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java,
 						this.encoding, this.destinationPath),
 						fetchAccessRestriction(qualifiedBinaryFileName));
 			} catch (IOException e) {

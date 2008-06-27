@@ -37,7 +37,7 @@ public void setUp() throws Exception {
 		IFile file = this.createFile("P/txt/X.java",
 			"public class X {\n" +
 			"}");
-		ICompilationUnit cu = (ICompilationUnit)JavaCore.create(file);	
+		ICompilationUnit cu = (ICompilationUnit)JavaCore.create(file);
 		this.workingCopy = cu.getWorkingCopy(null);
 	} catch (CoreException e) {
 		e.printStackTrace();
@@ -64,18 +64,18 @@ public void testCommitWorkingCopy1() throws CoreException {
 	IBuffer workingCopyBuffer = this.workingCopy.getBuffer();
 	assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
 
-	String newContents = 
+	String newContents =
 		"public class X {\n" +
 		"  public void foo() {\n" +
 		"  }\n" +
 		"}";
 	workingCopyBuffer.setContents(newContents);
 	this.workingCopy.commitWorkingCopy(false, null);
-	
+
 	IFile originalFile = (IFile)primary.getResource();
 	assertSourceEquals(
-		"Unexpected contents", 
-		newContents, 
+		"Unexpected contents",
+		newContents,
 		new String(Util.getResourceContentsAsCharArray(originalFile)));
 }
 /*
@@ -100,7 +100,7 @@ public void testCommitWorkingCopy2() throws CoreException {
 	}
 }
 /*
- * Ensure that a working copy outside the classpath does not exist 
+ * Ensure that a working copy outside the classpath does not exist
  * (but can still be opened).
  */
 public void testExistence()  {
@@ -111,7 +111,7 @@ public void testGetSource() throws CoreException {
 	try {
 		this.createJavaProject("P1", new String[] {}, "bin");
 		this.createFolder("/P1/src/junit/test");
-		String source = 
+		String source =
 			"package junit.test;\n" +
 			"public class X {\n" +
 			"}";
@@ -224,12 +224,12 @@ public void testSimpleProject() throws CoreException {
 public void testPrimaryExistence() {
 	ICompilationUnit primary = this.workingCopy.getPrimary();
 	assertTrue(
-		"Primary compilation unit should not exist", 
+		"Primary compilation unit should not exist",
 		!primary.exists());
 }
 public void testPrimaryParentExistence() {
 	assertTrue(
-		"Primary compilation unit's parent should not exist", 
+		"Primary compilation unit's parent should not exist",
 		!this.workingCopy.getPrimary().getParent().exists());
 }
 public void testIsOpen() {
@@ -241,23 +241,23 @@ public void testIsOpen() {
 public void testPrimaryIsOpen() {
 	ICompilationUnit original = this.workingCopy.getPrimary();
 	assertTrue(
-		"Primary compilation should not be opened", 
+		"Primary compilation should not be opened",
 		!original.isOpen());
 }
 // 31799 - asking project options on non-Java project populates the perProjectInfo cache incorrectly
 public void testIsOnClasspath() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
-		this.createProject("SimpleProject");
+		createProject("SimpleProject");
 		this.createFolder("/SimpleProject/src/junit/test");
-		String source = 
+		String source =
 			"package junit.test;\n" +
 			"public class X {\n" +
 			"}";
 		IFile file = this.createFile("/SimpleProject/src/junit/test/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
 		copy = cu.getWorkingCopy(null);
-		
+
 		// working creation will cause it to open, and thus request project options
 		boolean isOnClasspath = copy.getJavaProject().isOnClasspath(copy);
 		assertTrue("working copy shouldn't answer to isOnClasspath", !isOnClasspath);
@@ -273,31 +273,31 @@ public void testReconcileAndCommit1() throws CoreException {
 	try {
 		this.createJavaProject("JavaProject", new String[] {"src"}, "bin");
 		this.createFolder("/JavaProject/src/native.1");
-		String source = 
+		String source =
 			"class X {}";
 		IFile file = this.createFile("/JavaProject/src/native.1/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
 		copy = cu.getWorkingCopy(null);
-		
+
 		IBuffer workingCopyBuffer = copy.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
-		String newContents = 
+		String newContents =
 			"public class X {\n" +
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}";
-			
+
 		workingCopyBuffer.setContents(newContents);
 		copy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 		copy.commitWorkingCopy(true, null);
-		
+
 		IFile originalFile = (IFile)cu.getResource();
 		assertSourceEquals(
-			"Unexpected contents", 
-			newContents, 
+			"Unexpected contents",
+			newContents,
 			new String(Util.getResourceContentsAsCharArray(originalFile)));
 	} catch(JavaModelException e) {
-		e.printStackTrace();		
+		e.printStackTrace();
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
@@ -309,34 +309,34 @@ public void testReconcileAndCommit1() throws CoreException {
 public void testReconcileAndCommit2() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
-		this.createProject("SimpleProject");
+		createProject("SimpleProject");
 		this.createFolder("/SimpleProject/src/native.1");
-		String source = 
+		String source =
 			"class X {}";
 		IFile file = this.createFile("/SimpleProject/src/native.1/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
 		copy = cu.getWorkingCopy(null);
-		
+
 		IBuffer workingCopyBuffer = copy.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
-		String newContents = 
+		String newContents =
 			"public class X {\n" +
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}";
-			
+
 		workingCopyBuffer.setContents(newContents);
 		copy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 		copy.commitWorkingCopy(true, null);
 		IFile originalFile = (IFile)cu.getResource();
 		assertSourceEquals(
-			"Unexpected contents", 
-			newContents, 
+			"Unexpected contents",
+			newContents,
 			new String(Util.getResourceContentsAsCharArray(originalFile)));
 
 		assertTrue("buffer should not have been saved successfully", workingCopyBuffer.hasUnsavedChanges());
 	} catch(JavaModelException e) {
-		e.printStackTrace();		
+		e.printStackTrace();
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
@@ -347,34 +347,34 @@ public void testReconcileAndCommit2() throws CoreException {
 public void testReconcileAndCommit3() throws CoreException {
 	ICompilationUnit primary = null;
 	try {
-		this.createProject("SimpleProject");
+		createProject("SimpleProject");
 		this.createFolder("/SimpleProject/src/native.1");
-		String source = 
+		String source =
 			"class X {}";
 		IFile file = this.createFile("/SimpleProject/src/native.1/X.java", source);
 		primary = JavaCore.createCompilationUnitFrom(file);
 		primary.becomeWorkingCopy(null);
-		
+
 		IBuffer workingCopyBuffer = primary.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
-		String newContents = 
+		String newContents =
 			"public class X {\n" +
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}";
-			
+
 		workingCopyBuffer.setContents(newContents);
 		primary.reconcile(ICompilationUnit.NO_AST, true, null, null);
 		primary.commitWorkingCopy(true, null);
 		IFile originalFile = (IFile)primary.getResource();
 		assertSourceEquals(
-			"Unexpected contents", 
-			newContents, 
+			"Unexpected contents",
+			newContents,
 			new String(Util.getResourceContentsAsCharArray(originalFile)));
 
 		assertTrue("buffer should have been saved successfully", !workingCopyBuffer.hasUnsavedChanges());
 	} catch(JavaModelException e) {
-		e.printStackTrace();		
+		e.printStackTrace();
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
 		if (primary != null) primary.discardWorkingCopy();
@@ -385,34 +385,34 @@ public void testReconcileAndCommit3() throws CoreException {
 public void testReconcileAndCommit4() throws CoreException {
 	ICompilationUnit primary = null;
 	try {
-		this.createProject("SimpleProject");
+		createProject("SimpleProject");
 		this.createFolder("/SimpleProject/src/native.1");
-		String source = 
+		String source =
 			"class X {}";
 		IFile file = this.createFile("/SimpleProject/src/native.1/some invalid name.java", source);
 		primary = JavaCore.createCompilationUnitFrom(file);
 		primary.becomeWorkingCopy(null);
-		
+
 		IBuffer workingCopyBuffer = primary.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
-		String newContents = 
+		String newContents =
 			"public class X {\n" +
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}";
-			
+
 		workingCopyBuffer.setContents(newContents);
 		primary.reconcile(ICompilationUnit.NO_AST, true, null, null);
 		primary.commitWorkingCopy(true, null);
 		IFile originalFile = (IFile)primary.getResource();
 		assertSourceEquals(
-			"Unexpected contents", 
-			newContents, 
+			"Unexpected contents",
+			newContents,
 			new String(Util.getResourceContentsAsCharArray(originalFile)));
 
 		assertTrue("buffer should have been saved successfully", !workingCopyBuffer.hasUnsavedChanges());
 	} catch(JavaModelException e) {
-		e.printStackTrace();		
+		e.printStackTrace();
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
 		if (primary != null) primary.discardWorkingCopy();
@@ -426,32 +426,32 @@ public void testReconcileAndCommit5() throws CoreException {
 	try {
 		this.createJavaProject("JavaProject", new String[] {"src"}, "bin");
 		this.createFolder("/JavaProject/src/p");
-		String source = 
+		String source =
 			"package p; \n" +
 			"public class X {}";
 		IFile file = this.createFile("/JavaProject/src/invalid unit name.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
 		copy = cu.getWorkingCopy(null);
-		
+
 		IBuffer workingCopyBuffer = copy.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
-		String newContents = 
+		String newContents =
 			"public class X {\n" +
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}";
-			
+
 		workingCopyBuffer.setContents(newContents);
 		copy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 		copy.commitWorkingCopy(true, null);
-		
+
 		IFile originalFile = (IFile)cu.getResource();
 		assertSourceEquals(
-			"Unexpected contents", 
-			newContents, 
+			"Unexpected contents",
+			newContents,
 			new String(Util.getResourceContentsAsCharArray(originalFile)));
 	} catch(JavaModelException e) {
-		e.printStackTrace();		
+		e.printStackTrace();
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();

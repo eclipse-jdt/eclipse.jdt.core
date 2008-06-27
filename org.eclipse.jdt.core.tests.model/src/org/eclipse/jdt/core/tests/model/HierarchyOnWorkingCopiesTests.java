@@ -43,23 +43,23 @@ public void testSimpleSubTypeHierarchy() throws CoreException {
 		"}";
 	this.copy.getBuffer().setContents(newContents);
 	this.copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	
+
 	IFile file = null;
 	try {
 		file = this.createFile(
-			"P/src/x/y/B.java", 
+			"P/src/x/y/B.java",
 			"package x.y;\n" +
 			"public class B {\n" +
 			"}");
-	
+
 		IType type = this.getCompilationUnit("P/src/x/y/B.java").getType("B");
 		ITypeHierarchy h = type.newTypeHierarchy(new ICompilationUnit[] {this.copy}, null);
 
 		assertHierarchyEquals(
-			"Focus: B [in B.java [in x.y [in src [in P]]]]\n" + 
-			"Super types:\n" + 
-			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-			"Sub types:\n" + 
+			"Focus: B [in B.java [in x.y [in src [in P]]]]\n" +
+			"Super types:\n" +
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
+			"Sub types:\n" +
 			"  A [in [Working copy] A.java [in x.y [in src [in P]]]]\n",
 			h);
 	} finally {
@@ -79,23 +79,23 @@ public void testSimpleSuperTypeHierarchy() throws CoreException {
 		"}";
 	this.copy.getBuffer().setContents(newContents);
 	this.copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	
+
 	IFile file = null;
 	try {
 		file = this.createFile(
-			"P/src/x/y/C.java", 
+			"P/src/x/y/C.java",
 			"package x.y;\n" +
 			"public class C extends B {\n" +
 			"}");
-	
+
 		IType type = this.getCompilationUnit("P/src/x/y/C.java").getType("C");
 		ITypeHierarchy h = type.newSupertypeHierarchy(new ICompilationUnit[] {this.copy}, null);
 
 		assertHierarchyEquals(
-			"Focus: C [in C.java [in x.y [in src [in P]]]]\n" + 
-			"Super types:\n" + 
-			"  B [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
-			"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"Focus: C [in C.java [in x.y [in src [in P]]]]\n" +
+			"Super types:\n" +
+			"  B [in [Working copy] A.java [in x.y [in src [in P]]]]\n" +
+			"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
 			"Sub types:\n",
 			h);
 	} finally {

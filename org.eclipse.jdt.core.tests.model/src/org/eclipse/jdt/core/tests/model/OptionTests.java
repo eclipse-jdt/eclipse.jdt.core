@@ -27,12 +27,12 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.osgi.service.prefs.BackingStoreException;
 
 public class OptionTests extends ModifyingResourceTests {
-	
+
 	int eventCount = 0;
-	
+
 class TestPropertyListener implements IEclipsePreferences.IPreferenceChangeListener {
 	public void preferenceChange(PreferenceChangeEvent event) {
-		eventCount++;
+		OptionTests.this.eventCount++;
 	}
 }
 
@@ -44,7 +44,7 @@ static {
 //		TESTS_RANGE = new int[] { 4, -1 };
 }
 public static Test suite() {
-	return buildModelTestSuite(OptionTests.class);	
+	return buildModelTestSuite(OptionTests.class);
 }
 
 protected void tearDown() throws Exception {
@@ -59,21 +59,21 @@ protected void tearDown() throws Exception {
  */
 public void test01() throws CoreException {
 	try {
-		IJavaProject projectA = 
+		IJavaProject projectA =
 			this.createJavaProject(
-				"A", 
+				"A",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-		IJavaProject projectB = 
+		IJavaProject projectB =
 			this.createJavaProject(
-				"B", 
+				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-				
+
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "8.0");
@@ -85,18 +85,18 @@ public void test01() throws CoreException {
 		options.put(JavaCore.COMPILER_COMPLIANCE, "10.0");
 		projectA.setOptions(options);
 
-		// check project A custom options		
+		// check project A custom options
 		assertEquals("projA:unexpected custom value for deprecation option", JavaCore.ENABLED, projectA.getOption(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, true));
 		assertEquals("projA:unexpected custom value for compliance option", "10.0", projectA.getOption(JavaCore.COMPILER_COMPLIANCE, true));
 		assertEquals("projA:unexpected inherited value1 for hidden-catch option", JavaCore.ERROR, projectA.getOption(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK, true));
-		
+
 		// check project B custom options	(should be none, indicating it sees global ones only)
 		assertEquals("projB:unexpected custom value for deprecation option", JavaCore.DISABLED, projectB.getOption(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, true));
 		assertEquals("projB:unexpected custom value for compliance option", "8.0", projectB.getOption(JavaCore.COMPILER_COMPLIANCE, true));
 		assertEquals("projB:unexpected inherited value for hidden-catch option", JavaCore.ERROR, projectB.getOption(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK, true));
 
 		// flush custom options - project A should revert to global ones
-		projectA.setOptions(null); 
+		projectA.setOptions(null);
 		assertEquals("projA:unexpected reverted value for deprecation option", JavaCore.DISABLED, projectA.getOption(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, true));
 		assertEquals("projA:unexpected reverted value for compliance option", "8.0", projectA.getOption(JavaCore.COMPILER_COMPLIANCE, true));
 		assertEquals("projA:unexpected inherited value2 for hidden-catch option", JavaCore.ERROR, projectA.getOption(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK, true));
@@ -112,35 +112,35 @@ public void test01() throws CoreException {
  */
 public void test02() throws CoreException {
 	try {
-		IJavaProject projectA = 
+		IJavaProject projectA =
 			this.createJavaProject(
-				"A", 
+				"A",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-		IJavaProject projectB = 
+		IJavaProject projectB =
 			this.createJavaProject(
-				"B", 
+				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-				
+
 		String globalEncoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.CORE_ENCODING, "custom");
 		projectA.setOptions(options);
 
-		// check project A custom options		
+		// check project A custom options
 		assertEquals("projA:unexpected custom encoding", "custom", projectA.getOption(JavaCore.CORE_ENCODING, true));
-		
+
 		// check project B custom options	(should be none, indicating it sees global ones only)
 		assertEquals("projB:unexpected custom encoding", globalEncoding, projectB.getOption(JavaCore.CORE_ENCODING, true));
 
 		// flush custom options - project A should revert to global ones
-		projectA.setOptions(null); 
+		projectA.setOptions(null);
 		assertEquals("projA:unexpected reverted encoding", globalEncoding, projectA.getOption(JavaCore.CORE_ENCODING, true));
 
 	} finally {
@@ -154,21 +154,21 @@ public void test02() throws CoreException {
  */
 public void test03() throws CoreException {
 	try {
-		IJavaProject projectA = 
+		IJavaProject projectA =
 			this.createJavaProject(
-				"A", 
+				"A",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-		IJavaProject projectB = 
+		IJavaProject projectB =
 			this.createJavaProject(
-				"B", 
+				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-				
+
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "8.0");
@@ -180,18 +180,18 @@ public void test03() throws CoreException {
 		options.put(JavaCore.COMPILER_COMPLIANCE, "10.0");
 		projectA.setOptions(options);
 
-		// check project A custom options		
+		// check project A custom options
 		assertEquals("projA:unexpected custom value for deprecation option", JavaCore.ENABLED, projectA.getOption(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, false));
 		assertEquals("projA:unexpected custom value for compliance option", "10.0", projectA.getOption(JavaCore.COMPILER_COMPLIANCE, false));
 		assertEquals("projA:unexpected inherited value1 for hidden-catch option", null, projectA.getOption(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK, false));
-		
+
 		// check project B custom options	(should be none, indicating it sees global ones only)
 		assertEquals("projB:unexpected custom value for deprecation option", null, projectB.getOption(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, false));
 		assertEquals("projB:unexpected custom value for compliance option", null, projectB.getOption(JavaCore.COMPILER_COMPLIANCE, false));
 		assertEquals("projB:unexpected inherited value for hidden-catch option", null, projectB.getOption(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK, false));
 
 		// flush custom options - project A should revert to global ones
-		projectA.setOptions(null); 
+		projectA.setOptions(null);
 		assertEquals("projA:unexpected reverted value for deprecation option", null, projectA.getOption(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, false));
 		assertEquals("projA:unexpected reverted value for compliance option", null, projectA.getOption(JavaCore.COMPILER_COMPLIANCE, false));
 		assertEquals("projA:unexpected inherited value2 for hidden-catch option", null, projectA.getOption(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK, false));
@@ -206,21 +206,21 @@ public void test03() throws CoreException {
  */
 public void test04() throws CoreException {
 	try {
-		IJavaProject projectA = 
+		IJavaProject projectA =
 			this.createJavaProject(
-				"A", 
+				"A",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-		IJavaProject projectB = 
+		IJavaProject projectB =
 			this.createJavaProject(
-				"B", 
+				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-				
+
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "8.0");
@@ -232,18 +232,18 @@ public void test04() throws CoreException {
 		options.put(JavaCore.COMPILER_COMPLIANCE, "10.0");
 		projectA.setOptions(options);
 
-		// check project A custom options		
+		// check project A custom options
 		assertEquals("projA:unexpected custom value for deprecation option", JavaCore.ENABLED, projectA.getOptions(true).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 		assertEquals("projA:unexpected custom value for compliance option", "10.0", projectA.getOptions(true).get(JavaCore.COMPILER_COMPLIANCE));
 		assertEquals("projA:unexpected inherited value1 for hidden-catch option", JavaCore.ERROR, projectA.getOptions(true).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
-		
+
 		// check project B custom options	(should be none, indicating it sees global ones only)
 		assertEquals("projB:unexpected custom value for deprecation option", JavaCore.DISABLED, projectB.getOptions(true).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 		assertEquals("projB:unexpected custom value for compliance option", "8.0", projectB.getOptions(true).get(JavaCore.COMPILER_COMPLIANCE));
 		assertEquals("projB:unexpected inherited value for hidden-catch option", JavaCore.ERROR, projectB.getOptions(true).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
 
 		// flush custom options - project A should revert to global ones
-		projectA.setOptions(null); 
+		projectA.setOptions(null);
 		assertEquals("projA:unexpected reverted value for deprecation option", JavaCore.DISABLED, projectA.getOptions(true).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 		assertEquals("projA:unexpected reverted value for compliance option", "8.0", projectA.getOptions(true).get(JavaCore.COMPILER_COMPLIANCE));
 		assertEquals("projA:unexpected inherited value2 for hidden-catch option", JavaCore.ERROR, projectA.getOptions(true).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
@@ -259,35 +259,35 @@ public void test04() throws CoreException {
  */
 public void test05() throws CoreException {
 	try {
-		IJavaProject projectA = 
+		IJavaProject projectA =
 			this.createJavaProject(
-				"A", 
+				"A",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-		IJavaProject projectB = 
+		IJavaProject projectB =
 			this.createJavaProject(
-				"B", 
+				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-				
+
 		String globalEncoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.CORE_ENCODING, "custom");
 		projectA.setOptions(options);
 
-		// check project A custom options		
+		// check project A custom options
 		assertEquals("projA:unexpected custom encoding", "custom", projectA.getOptions(true).get(JavaCore.CORE_ENCODING));
-		
+
 		// check project B custom options	(should be none, indicating it sees global ones only)
 		assertEquals("projB:unexpected custom encoding", globalEncoding, projectB.getOptions(true).get(JavaCore.CORE_ENCODING));
 
 		// flush custom options - project A should revert to global ones
-		projectA.setOptions(null); 
+		projectA.setOptions(null);
 		assertEquals("projA:unexpected reverted encoding", globalEncoding, projectA.getOptions(true).get(JavaCore.CORE_ENCODING));
 
 	} finally {
@@ -301,21 +301,21 @@ public void test05() throws CoreException {
  */
 public void test06() throws CoreException {
 	try {
-		IJavaProject projectA = 
+		IJavaProject projectA =
 			this.createJavaProject(
-				"A", 
+				"A",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-		IJavaProject projectB = 
+		IJavaProject projectB =
 			this.createJavaProject(
-				"B", 
+				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
 				"");
-				
+
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "8.0");
@@ -327,18 +327,18 @@ public void test06() throws CoreException {
 		options.put(JavaCore.COMPILER_COMPLIANCE, "10.0");
 		projectA.setOptions(options);
 
-		// check project A custom options		
+		// check project A custom options
 		assertEquals("projA:unexpected custom value for deprecation option", JavaCore.ENABLED, projectA.getOptions(false).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 		assertEquals("projA:unexpected custom value for compliance option", "10.0", projectA.getOptions(false).get(JavaCore.COMPILER_COMPLIANCE));
 		assertEquals("projA:unexpected inherited value1 for hidden-catch option", null, projectA.getOptions(false).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
-		
+
 		// check project B custom options	(should be none, indicating it sees global ones only)
 		assertEquals("projB:unexpected custom value for deprecation option", null, projectB.getOptions(false).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 		assertEquals("projB:unexpected custom value for compliance option", null, projectB.getOptions(false).get(JavaCore.COMPILER_COMPLIANCE));
 		assertEquals("projB:unexpected inherited value for hidden-catch option", null, projectB.getOptions(false).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
 
 		// flush custom options - project A should revert to global ones
-		projectA.setOptions(null); 
+		projectA.setOptions(null);
 		assertEquals("projA:unexpected reverted value for deprecation option", null, projectA.getOptions(false).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 		assertEquals("projA:unexpected reverted value for compliance option", null, projectA.getOptions(false).get(JavaCore.COMPILER_COMPLIANCE));
 		assertEquals("projA:unexpected inherited value2 for hidden-catch option", null, projectA.getOptions(false).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
@@ -358,7 +358,7 @@ public void test07() throws CoreException {
 		this.eventCount = 0;
 		JavaProject projectA = (JavaProject)
 			this.createJavaProject(
-				"A", 
+				"A",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
@@ -368,20 +368,20 @@ public void test07() throws CoreException {
 		IEclipsePreferences eclipsePreferences = projectA.getEclipsePreferences();
 		TestPropertyListener listener = new TestPropertyListener();
 		eclipsePreferences.addPreferenceChangeListener(listener);
-	
+
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.ENABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "10.0");
 		projectA.setOptions(options);
 
-		// check project A custom options		
+		// check project A custom options
 		assertEquals("projA:unexpected custom value for deprecation option", JavaCore.ENABLED, projectA.getOptions(false).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 		assertEquals("projA:unexpected custom value for compliance option", "10.0", projectA.getOptions(false).get(JavaCore.COMPILER_COMPLIANCE));
 		assertEquals("projA:unexpected inherited value1 for hidden-catch option", null, projectA.getOptions(false).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
 //		assertTrue("projA:preferences should not be reset", preferences == projectA.getPreferences());
 		assertTrue("projA:preferences should not be reset", eclipsePreferences == projectA.getEclipsePreferences());
-		assertTrue("projA:preferences property listener has been lost", eventCount == 2);
-	
+		assertTrue("projA:preferences property listener has been lost", this.eventCount == 2);
+
 		// change custom options to have one less
 		options.clear();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.ENABLED);
@@ -391,7 +391,7 @@ public void test07() throws CoreException {
 		assertEquals("projA:unexpected inherited value1 for hidden-catch option", null, projectA.getOptions(false).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
 //		assertTrue("projA:preferences should not be reset", preferences == projectA.getPreferences());
 		assertTrue("projA:preferences should not be reset", eclipsePreferences == projectA.getEclipsePreferences());
-		assertTrue("projA:preferences property listener has been lost", eventCount == 3);
+		assertTrue("projA:preferences property listener has been lost", this.eventCount == 3);
 	} finally {
 		this.deleteProject("A");
 	}
@@ -402,9 +402,9 @@ public void test07() throws CoreException {
  */
 public void test08() throws CoreException {
 	try {
-		IJavaProject projectA = 
+		IJavaProject projectA =
 			this.createJavaProject(
-				"A", 
+				"A",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
@@ -413,13 +413,13 @@ public void test08() throws CoreException {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_TASK_TAGS, "TODO:");
 		JavaCore.setOptions(options);
-		
 
-		// check project A custom options		
+
+		// check project A custom options
 		assertEquals("1#projA:unexpected custom value for task tags option", null, projectA.getOption(JavaCore.COMPILER_TASK_TAGS, false));
 		assertEquals("1#projA:unexpected custom value for inherited task tags option", "TODO:", projectA.getOption(JavaCore.COMPILER_TASK_TAGS, true));
 		assertEquals("1#workspace:unexpected custom value for task tags option", "TODO:", JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
-		
+
 		// change custom options to have one less
 		options.clear();
 		options.put(JavaCore.COMPILER_TASK_TAGS, "");
@@ -453,18 +453,18 @@ public void test09() throws CoreException {
 //		preferences.addPropertyChangeListener(new TestPropertyListener());
 		IEclipsePreferences eclipsePreferences = projectA.getEclipsePreferences();
 		eclipsePreferences.addPreferenceChangeListener(new TestPropertyListener());
-	
+
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.ENABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "10.0");
 		projectA.setOptions(options);
 
-		// check project A custom options		
+		// check project A custom options
 		assertEquals("projA:unexpected custom value for deprecation option", JavaCore.ENABLED, projectA.getOptions(true).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 		assertEquals("projA:unexpected custom value for compliance option", "10.0", projectA.getOptions(true).get(JavaCore.COMPILER_COMPLIANCE));
 		assertTrue("projA:preferences should not be reset", eclipsePreferences == projectA.getEclipsePreferences());
-		assertEquals("projA:preferences property listener has been lost", 2, eventCount);
-	
+		assertEquals("projA:preferences property listener has been lost", 2, this.eventCount);
+
 		// delete/create project A and verify that options are well reset
 		this.deleteProject("A");
 		projectA = (JavaProject) this.createJavaProject("A", new String[] {}, "");
@@ -486,7 +486,7 @@ public void test10() throws CoreException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	IEclipsePreferences preferences = manager.getInstancePreferences();
 	assertEquals(
-		"Should find variable TEST in preferences", 
+		"Should find variable TEST in preferences",
 		"testing",
 		preferences.get(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST", "null"));
 }
@@ -501,7 +501,7 @@ public void test11() throws CoreException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	IEclipsePreferences preferences = manager.getInstancePreferences();
 	assertEquals(
-		"Should not find variable TEST in preferences", 
+		"Should not find variable TEST in preferences",
 		"null",
 		preferences.get(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST", "null"));
 }
@@ -530,7 +530,7 @@ public void test12() throws CoreException {
 public void testBug68993() throws CoreException, BackingStoreException {
 	try {
 		JavaProject projectA = (JavaProject) this.createJavaProject(
-			"A", 
+			"A",
 			new String[] {}, // source folders
 			new String[] {}, // lib folders
 			new String[] {}, // projects
@@ -603,7 +603,7 @@ public void testBug100393b() throws CoreException, BackingStoreException {
 public void testBug125360() throws CoreException, BackingStoreException {
 	try {
 		JavaProject project = (JavaProject) createJavaProject(
-			"P", 
+			"P",
 			new String[] {}, // source folders
 			new String[] {}, // lib folders
 			new String[] {}, // projects
@@ -630,8 +630,8 @@ public void testBug131707() throws CoreException {
 		for (int i = 0, length = variableNames.length; i < length; i++) {
 			if ("MY_DEFAULT_LIB".equals(variableNames[i])) {
 				assertEquals(
-					"Unexpected value for MY_DEFAULT_LIB", 
-					new Path("c:\\temp\\lib.jar"), 
+					"Unexpected value for MY_DEFAULT_LIB",
+					new Path("c:\\temp\\lib.jar"),
 					JavaCore.getClasspathVariable("MY_DEFAULT_LIB"));
 				return;
 			}

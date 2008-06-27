@@ -50,7 +50,7 @@ import com.ibm.icu.text.Collator;
  * (public, protected, private, default)</li>
  * <li>constructors, arranged by parameter order and access modifier
  * (public, protected, private, default)</li>
- * <li>methods, arranged by alphabetically by name and parameter order and 
+ * <li>methods, arranged by alphabetically by name and parameter order and
  * access modifier (public, protected, private, default)</li>
  * </p>
  */
@@ -65,11 +65,11 @@ class DefaultJavaElementComparator implements Comparator {
 	private static final int INITIALIZER_CATEGORY = 6;
 	private static final int CONSTRUCTOR_CATEGORY = 7;
 	private static final int METHOD_CATEGORY = 8;
-	
+
 	private Collator collator;
-	
+
 	private int[] categories;
-	
+
 	/**
 	 * Creates an instance that sorts the various categories of body
 	 * declarations in the following order:
@@ -105,7 +105,7 @@ class DefaultJavaElementComparator implements Comparator {
 	 * Creates an instance that arranges the various categories of body
 	 * declarations.
 	 * This constructor is used to specify customized values for the different categories.
-	 * They are a convinient way to distinguish AST nodes. 
+	 * They are a convinient way to distinguish AST nodes.
 	 * The lower a value is, the higher the node will appear in the sorted
 	 * compilation unit.
 	 * <p>
@@ -122,7 +122,7 @@ class DefaultJavaElementComparator implements Comparator {
 	 * <li>methods (9)</li>
 	 * </ol>
 	 * </p>
-	 * 
+	 *
 	 * @param staticTypeCategory the given value for the static type category
 	 * @param staticFieldCategory the given value for the static field category
 	 * @param staticInitializerCategory the given value for the static initializer category
@@ -158,12 +158,12 @@ class DefaultJavaElementComparator implements Comparator {
 	}
 
 	/**
-	 * This method is used to retrieve the category for a body declaration node according to the 
+	 * This method is used to retrieve the category for a body declaration node according to the
 	 * preferences passed at the creation of the comparator.
-	 * 
+	 *
 	 * @param node the given node
 	 * @return the category corresponding to the given node
-	 * 
+	 *
 	 * @since 2.1
 	 */
 	private int getCategory(BodyDeclaration node) {
@@ -228,7 +228,7 @@ class DefaultJavaElementComparator implements Comparator {
 		BodyDeclaration node2 = (BodyDeclaration) o2;
 		int category1 = getCategory(node1);
 		int category2 = getCategory(node2);
-		
+
 		if (category1 != category2) {
 			return category1 - category2;
 		}
@@ -303,7 +303,7 @@ class DefaultJavaElementComparator implements Comparator {
 		}
 		return null; // should never happen
 	}
-	
+
 	private String buildSignature(Name name) {
 		if (name.isSimpleName()) {
 			return ((SimpleName) name).getIdentifier();

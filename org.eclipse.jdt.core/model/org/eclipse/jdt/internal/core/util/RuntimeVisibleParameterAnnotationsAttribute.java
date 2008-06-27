@@ -25,7 +25,7 @@ public class RuntimeVisibleParameterAnnotationsAttribute
 	private static final IParameterAnnotation[] NO_ENTRIES = new IParameterAnnotation[0];
 	private int parametersNumber;
 	private IParameterAnnotation[] parameterAnnotations;
-	
+
 	/**
 	 * Constructor for RuntimeVisibleParameterAnnotations.
 	 * @param classFileBytes

@@ -107,7 +107,7 @@ public int getDebugPortNumber() {
 	return this.debugPort;
 }
 /**
- * Returns an input stream that is connected to the standard error 
+ * Returns an input stream that is connected to the standard error
  * (<code>System.err</code>) of this target VM.
  * Bytes that are written to <code>System.err</code> by the target
  * program become available in the input stream.
@@ -117,7 +117,7 @@ public int getDebugPortNumber() {
  * Note 2: Two calls to this method return the same identical input stream.
  * <p>
  * See also <code>java.lang.Process.getErrorStream()</code>.
- * 
+ *
  * @return an input stream connected to the target VM's <code>System.err</code>.
  * @exception TargetException if the target VM is not reachable.
  */
@@ -126,8 +126,8 @@ public InputStream getErrorStream() throws TargetException {
 		throw new TargetException("The VM is not running");
 	return this.process.getErrorStream();
 }
-/** 
- * Returns an input stream that is connected to the standard output 
+/**
+ * Returns an input stream that is connected to the standard output
  * (<code>System.out</code>) of this target VM.
  * Bytes that are written to <code>System.out</code> by the target
  * program become available in the input stream.
@@ -148,9 +148,9 @@ public InputStream getInputStream() throws TargetException {
 	return new VMInputStream(this.process, this.process.getInputStream());
 }
 /**
- * Returns an output stream that is connected to the standard input 
+ * Returns an output stream that is connected to the standard input
  * (<code>System.in</code>) of this target VM.
- * Bytes that are written to the output stream by a client become available to the target 
+ * Bytes that are written to the output stream by a client become available to the target
  * program in <code>System.in</code>.
  * <p>
  * Note 1: This stream is usually buffered.
@@ -170,7 +170,7 @@ public OutputStream getOutputStream() throws TargetException {
 /**
  * Returns whether this target VM is still running.
  * <p>
- * Note: This operation may require contacting the target VM to find out 
+ * Note: This operation may require contacting the target VM to find out
  *       if it is still running.
  */
 public boolean isRunning() {
@@ -187,7 +187,7 @@ public boolean isRunning() {
 	return !hasExited;
 }
 /**
- * Shuts down this target VM. 
+ * Shuts down this target VM.
  * This causes the VM to exit. This operation is ignored
  * if the VM has already shut down.
  *
@@ -197,7 +197,7 @@ public synchronized void shutDown() throws TargetException {
 	if (this.process != null) {
 		this.process.destroy();
 		this.process = null;
-		this.cleanupTargetPath();
+		cleanupTargetPath();
 	}
 }
 }

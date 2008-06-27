@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
  * @see org.eclipse.jdt.core.search.TypeNameRequestor
  */
 public interface IRestrictedAccessTypeRequestor {
-	
+
 	public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access);
 
 }

@@ -58,8 +58,8 @@ public class ASTConverter16Test extends ConverterTestSetup {
 	 */
 	public void test0001() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"	public static final double VAR = 0x0.0000000000001P-1022;\n" + 
+			"public class X {\n" +
+			"	public static final double VAR = 0x0.0000000000001P-1022;\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter16/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(

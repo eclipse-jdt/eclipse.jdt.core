@@ -37,19 +37,19 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
 public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
-	
+
 	/** @deprecated using deprecated code */
 	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
 
 	protected IJavaProject javaProject;
 	protected IPackageFragmentRoot sourceFolder;
-	
+
 	private Hashtable oldOptions;
 
 	public ASTRewritingModifyingTest(String name) {
 		super(name);
 	}
-	
+
 	public static Test suite() {
 		TestSuite suite =  new TestSuite(ASTRewritingModifyingTest.class.getName());
 		suite.addTest(ASTRewritingModifyingOtherTest.suite());
@@ -60,19 +60,19 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		suite.addTest(ASTRewritingModifyingCopyTest.suite());
 		return suite;
 	}
-	
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		
-		javaProject = createJavaProject("P", new String[] {"src"}, "bin");
-		sourceFolder = this.getPackageFragmentRoot("P", "src");
-		
+
+		this.javaProject = createJavaProject("P", new String[] {"src"}, "bin");
+		this.sourceFolder = getPackageFragmentRoot("P", "src");
+
 		Hashtable options = JavaCore.getOptions();
 		this.oldOptions = (Hashtable)options.clone();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
 		JavaCore.setOptions(options);
-		
+
 		waitUntilIndexesReady();
 	}
 	public void tearDownSuite() throws Exception {
@@ -95,7 +95,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 			throw new IllegalArgumentException();
 		}
 	}
-	
+
 	public CompilationUnit createCU(char[] source) {
 		if (source == null) {
 			throw new IllegalArgumentException();
@@ -105,23 +105,23 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		ASTNode result = c.createAST(null);
 		return (CompilationUnit) result;
 	}
-	
+
 	public String evaluateRewrite(ICompilationUnit cu, CompilationUnit astRoot)  throws CoreException, MalformedTreeException, BadLocationException {
 		return evaluateRewrite(cu.getSource(), astRoot, cu.getJavaProject().getOptions(true));
 	}
-	
+
 	public String evaluateRewrite(String source, CompilationUnit astRoot)  throws MalformedTreeException, BadLocationException {
 		return evaluateRewrite(source, astRoot, getJavaProject("Rewrite").getOptions(true));
 	}
 	public String evaluateRewrite(String source, CompilationUnit astRoot, Map options)  throws MalformedTreeException, BadLocationException {
 		IDocument doc = new Document(source);
-		
+
 		TextEdit changes = astRoot.rewrite(doc, options);
 		changes.apply(doc);
 		return doc.get();
 	}
-	
-	public static void assertEqualString(String actual, String expected) {	
+
+	public static void assertEqualString(String actual, String expected) {
 		try {
 			StringAsserts.assertEqualString(actual, expected);
 		} catch (ComparisonFailure e) {
@@ -129,7 +129,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 			throw e;
 		}
 	}
-	
+
 	public static String displayActual(String inputString, int indent) {
 		int length = inputString.length();
 		StringBuffer buffer = new StringBuffer(length);
@@ -166,10 +166,10 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 					buffer.append("buf.append(\"");
 				}
 				continue;
-			}	
+			}
 
 			StringBuffer tokenBuffer = new StringBuffer();
-			for (int i = 0; i < token.length(); i++){ 
+			for (int i = 0; i < token.length(); i++){
 				char c = token.charAt(i);
 				switch (c) {
 					case '\r' :

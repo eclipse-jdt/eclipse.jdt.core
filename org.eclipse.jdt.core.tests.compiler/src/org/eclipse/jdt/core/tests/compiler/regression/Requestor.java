@@ -30,7 +30,7 @@ public class Requestor extends Assert implements ICompilerRequestor {
 	public ICompilerRequestor clientRequestor;
 	public boolean showCategory = false;
 	public boolean showWarningToken = false;
-	
+
 public Requestor(boolean forceOutputGeneration, ICompilerRequestor clientRequestor, boolean showCategory, boolean showWarningToken) {
 	this.forceOutputGeneration = forceOutputGeneration;
 	this.clientRequestor = clientRequestor;
@@ -46,16 +46,16 @@ public void acceptResult(CompilationResult compilationResult) {
 	}
 }
 protected void outputClassFiles(CompilationResult unitResult) {
-	if ((unitResult != null) && (!unitResult.hasErrors() || forceOutputGeneration)) {
+	if ((unitResult != null) && (!unitResult.hasErrors() || this.forceOutputGeneration)) {
 		ClassFile[] classFiles = unitResult.getClassFiles();
-		if (outputPath != null) {
+		if (this.outputPath != null) {
 			for (int i = 0, fileCount = classFiles.length; i < fileCount; i++) {
 				// retrieve the key and the corresponding classfile
 				ClassFile classFile = classFiles[i];
-				String relativeName = 
+				String relativeName =
 					new String(classFile.fileName()).replace('/', File.separatorChar) + ".class";
 				try {
-					org.eclipse.jdt.internal.compiler.util.Util.writeToDisk(true, outputPath, relativeName, classFile);
+					org.eclipse.jdt.internal.compiler.util.Util.writeToDisk(true, this.outputPath, relativeName, classFile);
 				} catch(IOException e) {
 					e.printStackTrace();
 				}

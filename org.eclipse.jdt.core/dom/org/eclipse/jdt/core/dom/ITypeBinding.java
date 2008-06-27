@@ -105,7 +105,7 @@ public interface ITypeBinding extends IBinding {
 	/**
 	 * Returns a list of bindings representing all the fields declared
 	 * as members of this class, interface, or enum type.
-	 * 
+	 *
 	 * <p>These include public, protected, default (package-private) access,
 	 * and private fields declared by the class, but excludes inherited fields.
 	 * Synthetic fields may or may not be included. Fields from binary types that
@@ -373,7 +373,7 @@ public interface ITypeBinding extends IBinding {
 	 * the package of the enclosing type, or, if the type name is the name of a
 	 * {@linkplain AST#resolveWellKnownType(String) well-known type},
 	 * the package of the matching well-known type.</p>
-	 * 
+	 *
 	 * @return the binding for the package in which this class, interface,
 	 * enum, or annotation type is declared, or <code>null</code> if this type
 	 * binding represents a primitive type, an array type, the null type,

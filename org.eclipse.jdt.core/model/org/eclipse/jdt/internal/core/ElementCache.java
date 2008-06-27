@@ -18,9 +18,9 @@ import org.eclipse.jdt.internal.core.util.LRUCache;
  * An LRU cache of <code>JavaElements</code>.
  */
 public class ElementCache extends OverflowingLRUCache {
-	
+
 	IJavaElement spaceLimitParent = null;
-	
+
 /**
  * Constructs a new element cache of the given size.
  */
@@ -61,11 +61,11 @@ protected boolean close(LRUCacheEntry entry) {
 protected void ensureSpaceLimit(Object info, IJavaElement parent) {
 	// ensure the children can be put without closing other elements
 	int childrenSize = ((JavaElementInfo) info).children.length;
-	int spaceNeeded = 1 + (int)((1 + loadFactor) * (childrenSize + overflow));
-	if (spaceLimit < spaceNeeded) {
+	int spaceNeeded = 1 + (int)((1 + this.loadFactor) * (childrenSize + this.overflow));
+	if (this.spaceLimit < spaceNeeded) {
 		// parent is being opened with more children than the space limit
 		shrink(); // remove overflow
-		setSpaceLimit(spaceNeeded); 
+		setSpaceLimit(spaceNeeded);
 		this.spaceLimitParent = parent;
 	}
 }

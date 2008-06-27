@@ -37,7 +37,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class BatchASTCreationTests extends AbstractASTTests {
-	
+
 	public class TestASTRequestor extends ASTRequestor {
 		public ArrayList asts = new ArrayList();
 		public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
@@ -46,7 +46,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		public void acceptBinding(String bindingKey, IBinding binding) {
 		}
 	}
-	
+
 	class BindingResolver extends TestASTRequestor {
 		private ArrayList bindingKeys = new ArrayList();
 		int index = -1;
@@ -61,12 +61,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			for (int i = 0, length = nodes.length; i < length; i++) {
 				IBinding binding = resolveBinding(nodes[i]);
 				String bindingKey = binding == null ? "null" : binding.getKey();
-				
+
 				// case of a capture binding
 				if (bindingKey.indexOf('!') != -1 && binding.getKind() == IBinding.METHOD) {
 					bindingKey = ((IMethodBinding) binding).getReturnType().getKey();
 				}
-				
+
 				this.bindingKeys.add(bindingKey);
 			}
 		}
@@ -74,7 +74,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			super.acceptBinding(key, binding);
 			this.foundKeys.add(binding == null ? "null" : binding.getKey());
 		}
-		
+
 		public String[] getBindingKeys() {
 			int length = this.bindingKeys.size();
 			String[] result = new String[length];
@@ -89,7 +89,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			return result;
 		}
 	}
-	
+
 	public WorkingCopyOwner owner = new WorkingCopyOwner() {};
 
 	public BatchASTCreationTests(String name) {
@@ -99,7 +99,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		return buildModelTestSuite(BatchASTCreationTests.class);
 	}
-	
+
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
@@ -113,31 +113,31 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		super.setUpSuite();
 		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 	}
-	
+
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
 		super.tearDownSuite();
 	}
-	
+
 	/*
-	 * Resolves the given cus and binding key as a batch. 
+	 * Resolves the given cus and binding key as a batch.
 	 * While resolving, for the ASTNode that is marked, ensures that its binding key is the expected one.
 	 * Ensures that the returned binding corresponds to the expected key.
 	 */
 	private void assertRequestedBindingFound(String[] pathAndSources, final String expectedKey) throws JavaModelException {
 		assertRequestedBindingsFound(pathAndSources, new String[] {expectedKey});
 	}
-		
+
 	/*
-	 * Resolves the given cus and binding key as a batch. 
+	 * Resolves the given cus and binding key as a batch.
 	 * While resolving, for the ASTNode that is marked, ensures that its binding key is the expected one.
 	 * Ensures that the returned binding corresponds to the expected key.
 	 */
-	private void assertRequestedBindingsFound(String[] pathAndSources, final String[] expectedKeys) throws JavaModelException {		
+	private void assertRequestedBindingsFound(String[] pathAndSources, final String[] expectedKeys) throws JavaModelException {
 		BindingResolver resolver = requestBindings(pathAndSources, expectedKeys);
-		
+
 		assertStringsEqual("Unexpected binding for marked node", expectedKeys, resolver.getBindingKeys());
-		
+
 		assertStringsEqual("Unexpected binding found by acceptBinding", expectedKeys, resolver.getFoundKeys());
 	}
 
@@ -188,7 +188,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			} finally {
 				discardWorkingCopies(dummyWorkingCopies);
 			}
-			
+
 			String expectedKey = toString(expectedKeys);
 			String actualKey = requestor.getCreatedKeys();
 			if (!expectedKey.equals(actualKey)) {
@@ -222,17 +222,17 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				public boolean isActive() {
 					return true;
 				}
-			} 
+			}
 			: null;
 		MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
 		this.owner = newWorkingCopyOwner(problemRequestor);
 		return createWorkingCopies(markerInfos, this.owner);
 	}
-	
+
 	private void resolveASTs(ICompilationUnit[] cus, TestASTRequestor requestor) {
 		resolveASTs(cus, new String[0], requestor, getJavaProject("P"), this.owner);
 	}
-	
+
 	private BindingResolver requestBindings(String[] pathAndSources, final String[] expectedKeys) throws JavaModelException {
 		ICompilationUnit[] copies = null;
 		try {
@@ -246,7 +246,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		}
 	}
 
-	
+
 	/*
 	 * Tests the batch creation of 2 ASTs without resolving.
 	 */
@@ -264,18 +264,18 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		TestASTRequestor requestor = new TestASTRequestor();
 		createASTs(this.workingCopies, requestor);
 		assertASTNodesEqual(
-			"package p1;\n" + 
-			"public class X extends Y {\n" + 
-			"}\n" + 
-			"\n" + 
-			"package p1;\n" + 
-			"public class Y {\n" + 
-			"}\n" + 
+			"package p1;\n" +
+			"public class X extends Y {\n" +
+			"}\n" +
+			"\n" +
+			"package p1;\n" +
+			"public class Y {\n" +
+			"}\n" +
 			"\n",
 			requestor.asts
 		);
 	}
-	
+
 	/*
 	 * Tests the batch creation of 2 ASTs with resolving.
 	 */
@@ -293,19 +293,19 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
 		TestASTRequestor requestor = new TestASTRequestor();
 		resolveASTs(this.workingCopies, requestor);
-		
+
 		assertASTNodesEqual(
-			"package p1;\n" + 
-			"public class X extends Y {\n" + 
-			"}\n" + 
-			"\n" + 
-			"package p1;\n" + 
-			"public class Y {\n" + 
-			"}\n" + 
+			"package p1;\n" +
+			"public class X extends Y {\n" +
+			"}\n" +
+			"\n" +
+			"package p1;\n" +
+			"public class Y {\n" +
+			"}\n" +
 			"\n",
 			requestor.asts
 		);
-		
+
 		// compare the bindings coming from the 2 ASTs
 		Type superX = (Type) findNode((CompilationUnit) requestor.asts.get(0), markerInfos[0]);
 		TypeDeclaration typeY = (TypeDeclaration) findNode((CompilationUnit) requestor.asts.get(1), markerInfos[1]);
@@ -334,11 +334,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			});
 			TestASTRequestor requestor = new TestASTRequestor();
 			resolveASTs(this.workingCopies, requestor);
-			
+
 			assertASTNodesEqual(
-				"package p1;\n" + 
-				"public class X extends Y {\n" + 
-				"}\n" + 
+				"package p1;\n" +
+				"public class X extends Y {\n" +
+				"}\n" +
 				"\n",
 				requestor.asts
 			);
@@ -347,7 +347,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			discardWorkingCopies(otherWorkingCopies);
 		}
 	}
-	
+
 	/*
 	 * Ensures that a package binding can be retrieved using its key.
 	 */
@@ -358,7 +358,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"/*start*/package p1;/*end*/\n" +
 				"public class X {\n" +
 				"}",
-			}, 
+			},
 			"p1");
 	}
 
@@ -376,7 +376,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"package p1;\n" +
 				"public class Y {\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X;");
 	}
 
@@ -394,10 +394,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"package p1;\n" +
 				"/*start*/public class Y {\n" +
 				"}/*end*/",
-			}, 
+			},
 			"Lp1/Y;");
 	}
-	
+
 	/*
 	 * Ensures that a member type binding can be retrieved using its key.
 	 */
@@ -410,7 +410,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  /*start*/class Member {\n" +
 				"  }/*end*/" +
 				"}",
-			}, 
+			},
 			"Lp1/X$Member;");
 	}
 
@@ -428,7 +428,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"    }/*end*/" +
 				"  }\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X$Member1$Member2;");
 	}
 	/*
@@ -445,7 +445,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"    }/*end*/;" +
 				"  }\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X$52;");
 	}
 	/*
@@ -462,7 +462,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"    }/*end*/;" +
 				"  }\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X$54$Y;");
 	}
 
@@ -476,7 +476,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"package p1;\n" +
 				"public class X {\n" +
 				"}",
-			}, 
+			},
 			"p1");
 	}
 
@@ -515,7 +515,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/Y;");
 	}
-	
+
 	/*
 	 * Ensures that a member type binding can be created using its key in ASTRequestor#createBindings.
 	 */
@@ -549,7 +549,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/X$Member1$Member2;");
 	}
-	
+
 	/*
 	 * Ensures that an anonymous type binding can be created using its key in ASTRequestor#createBindings.
 	 */
@@ -567,7 +567,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/X$52;");
 	}
-	
+
 	/*
 	 * Ensures that a local type binding can be created using its key in ASTRequestor#createBindings.
 	 */
@@ -585,7 +585,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/X$54$Y;");
 	}
-	
+
 	/*
 	 * Ensures that a method binding can be created using its key in ASTRequestor#createBindings.
 	 */
@@ -601,7 +601,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/X;.foo()V");
 	}
-	
+
 	/*
 	 * Ensures that a method binding can be created using its key in ASTRequestor#createBindings.
 	 */
@@ -617,7 +617,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/X;.foo(Ljava/lang/Object;)V");
 	}
-	
+
 	/*
 	 * Ensures that a method binding can be created using its key in ASTRequestor#createBindings.
 	 */
@@ -655,7 +655,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public void test022() throws CoreException {
 		assertBindingCreated(new String[0],"I");
 	}
-	
+
 	/*
 	 * Ensures that an array binding can be created using its key in ASTRequestor#createBindings.
 	 */
@@ -669,15 +669,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"[Lp1/X;");
 	}
-	
+
 	/*
 	 * Ensures that an array binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test024() throws CoreException {
 		assertBindingCreated(new String[0],"[[I");
 	}
-	
-	/* 
+
+	/*
 	 * Ensures that a method binding in an anonymous type with several kind of parameters can be created using its key in ASTRequestor#createBindings
 	 */
 	public void test025() throws CoreException {
@@ -699,7 +699,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"Lp1/X$68;.bar(ILp1/X;[[Ljava/lang/String;[Lp1/X$Y;ZLjava/lang/Object;)V"
 		);
 	}
-	
+
 	/*
 	 * Ensures that a generic type binding can be created using its key in ASTRequestor#createBindings.
 	 */
@@ -799,8 +799,8 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/X<Ljava/lang/Error;Ljava/lang/Exception;>.Y<>;");
 	}
-	
-	/* 
+
+	/*
 	 * Ensures that a parameterized method binding can be created using its key in ASTRequestor#createBindings
 	 */
 	public void test032() throws CoreException {
@@ -816,7 +816,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"Lp1/X;.foo<T:Ljava/lang/Object;>()V");
 	}
 
-	/* 
+	/*
 	 * Ensures that a local variable binding can be created using its key in ASTRequestor#createBindings
 	 */
 	public void test033() throws CoreException {
@@ -833,7 +833,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"Lp1/X;.foo()V#i");
 	}
 
-	/* 
+	/*
 	 * Ensures that a local variable binding can be created using its key in ASTRequestor#createBindings
 	 */
 	public void test034() throws CoreException {
@@ -988,7 +988,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/X<Lp1/X;-Ljava/lang/Error;Lp1/X;*Ljava/lang/String;Lp1/X;+Ljava/lang/Object;>;.foo()V");
 	}
-	
+
 	/*
 	 * Ensures that requesting 2 bindings and an AST for the same compilation unit reports the 2 bindings.
 	 */
@@ -1002,20 +1002,20 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}"
 			);
 			BindingRequestor requestor = new BindingRequestor();
-			String[] bindingKeys = 
+			String[] bindingKeys =
 				new String[] {
 					"LX;",
 					"LX;.field)I"
 				};
 			resolveASTs(
-				new ICompilationUnit[] {workingCopy}, 
+				new ICompilationUnit[] {workingCopy},
 				bindingKeys,
 				requestor,
 				getJavaProject("P"),
 				workingCopy.getOwner()
 			);
 			assertBindingsEqual(
-				"LX;\n" + 
+				"LX;\n" +
 				"LX;.field)I",
 				requestor.getBindings(bindingKeys));
 		} finally {
@@ -1038,7 +1038,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/X<Lp1/X;-Lp1/X;:TT;>;");
 	}
-	
+
 	/*
 	 * Ensures that a binary parameterized type binding (where the parameters contain wildcard with a super bound) can be created using its key in ASTRequestor#createBindings.
 	 * (regression test for 83499 ClassCastException when restoring ITypeBinding from key)
@@ -1054,7 +1054,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Ljava/lang/Class<Lp1/X;+Lp1/X;:TE;>;");
 	}
-	
+
 	/*
 	 * Ensures that restoring a second key that references a type in a first key doesn't throw a NPE
 	 * (regression test for bug 83499 NPE when restoring ITypeBinding from key)
@@ -1090,7 +1090,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {},
 			"[Ljava/lang/Class<Ljava/lang/Object;>;");
 	}
-	
+
 	/*
 	 * Ensures that the null type binding can be created using its key in batch creation.
 	 */
@@ -1099,7 +1099,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {},
 			new String[] {"N"});
 		assertBindingsEqual(
-				"N", 
+				"N",
 				bindings);
 	}
 
@@ -1111,7 +1111,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {},
 			new String[] {"[Ljava/lang/Object;"});
 		assertBindingsEqual(
-				"[Ljava/lang/Object;", 
+				"[Ljava/lang/Object;",
 				bindings);
 	}
 
@@ -1123,10 +1123,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {},
 			new String[] {"Ljava/lang/Class<TT;>;:TT;"});
 		assertBindingsEqual(
-				"Ljava/lang/Class;:TT;", 
+				"Ljava/lang/Class;:TT;",
 				bindings);
 	}
-	
+
 	/*
 	 * Ensures that a parameterized type binding with a wildcard that extends an array the can be created using its key in batch creation.
 	 */
@@ -1135,10 +1135,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {},
 			new String[] {"Ljava/lang/Class<Ljava/lang/Class<TT;>;+[Ljava/lang/Object;>;"});
 		assertBindingsEqual(
-				"Ljava/lang/Class<Ljava/lang/Class;+[Ljava/lang/Object;>;", 
+				"Ljava/lang/Class<Ljava/lang/Class;+[Ljava/lang/Object;>;",
 				bindings);
 	}
-	
+
 	/*
 	 * Ensures that attempting to create a top level type that doesn't exist using its key i in batch creation.
 	 * returns null.
@@ -1148,10 +1148,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {},
 			new String[] {"Lp1/DoesNotExist;"});
 		assertBindingsEqual(
-				"<null>", 
+				"<null>",
 				bindings);
 	}
-	
+
 	/*
 	 * Ensures that a secondary type binding can be created using its key in ASTRequestor#createBindings.
 	 */
@@ -1213,11 +1213,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"    }\n" +
 				"  }\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X$89;"
 		);
 	}
-	
+
 	/*
 	 * Ensures that a parameterized generic method binding can be created using its key in ASTRequestor#createBindings.
 	 */
@@ -1276,7 +1276,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"<null>",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that a type parameter binding can be created using its key in batch creation.
 	 * (regression test for bug 87050 ASTParser#createASTs(..) cannot resolve method type parameter binding from key)
@@ -1290,10 +1290,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  </*start*/T/*end*/> void foo(T t) {\n" +
 				"  }" +
 				"}",
-			}, 
+			},
 			"Lp1/X;.foo<T:Ljava/lang/Object;>(TT;)V:TT;");
 	}
-	
+
 	/*
 	 * Ensures that a capture binding can be created using its key in batch creation.
 	 */
@@ -1302,15 +1302,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {
 				"/P/p1/X.java",
 				"package p1;\n" +
-				"public class X<T> {\n" + 
-				"    Object foo(X<?> list) {\n" + 
-				"       return /*start*/list.get()/*end*/;\n" + 
-				"    }\n" + 
-				"    T get() {\n" + 
-				"    	return null;\n" + 
-				"    }\n" + 
+				"public class X<T> {\n" +
+				"    Object foo(X<?> list) {\n" +
+				"       return /*start*/list.get()/*end*/;\n" +
+				"    }\n" +
+				"    T get() {\n" +
+				"    	return null;\n" +
+				"    }\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X;&!Lp1/X;*77;"
 		);
 	}
@@ -1322,13 +1322,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/xy/Cap.java",
-				"package xy;\n" + 
-				"import java.util.Vector;\n" + 
-				"public class Cap {\n" + 
-				"	{\n" + 
-				"		Vector<?> v= null;\n" + 
-				"		/*start*/v.get(0)/*end*/;\n" + 
-				"	}\n" + 
+				"package xy;\n" +
+				"import java.util.Vector;\n" +
+				"public class Cap {\n" +
+				"	{\n" +
+				"		Vector<?> v= null;\n" +
+				"		/*start*/v.get(0)/*end*/;\n" +
+				"	}\n" +
 				"}",
 				"/P/java/util/Vector.java",
 				"package java.util;\n" +
@@ -1337,7 +1337,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"    return null;\n" +
 				"  }\n" +
 				"}"
-			}, 
+			},
 			"Lxy/Cap;&!Ljava/util/Vector;*82;"
 		);
 	}
@@ -1350,15 +1350,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {
 				"/P/p1/X.java",
 				"package p1;\n" +
-				"public class X {\n" + 
-				"    /*start*/<T> X() {\n" + 
-				"    }/*end*/\n" + 
+				"public class X {\n" +
+				"    /*start*/<T> X() {\n" +
+				"    }/*end*/\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X;.<T:Ljava/lang/Object;>()V"
 		);
 	}
-	
+
 	/*
 	 * Ensures that an array binding whose leaf type is a type variable binding can be created using its key in batch creation.
 	 * (regression test for bug 94206 CCE in BindingKeyResolver when restoring array type of method type parameter)
@@ -1368,16 +1368,16 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {
 				"/P/p1/X.java",
 				"package p1;\n" +
-				"public class X {\n" + 
-				"  <T> /*start*/T[]/*end*/ foo(T[] a) {\n" + 
+				"public class X {\n" +
+				"  <T> /*start*/T[]/*end*/ foo(T[] a) {\n" +
 				"    return null;\n" +
-				"  }\n" + 
+				"  }\n" +
 				"}",
-			}, 
+			},
 			"[Lp1/X;.foo<T:Ljava/lang/Object;>([TT;)[TT;:TT;"
 		);
 	}
-	
+
 	/*
 	 * Ensures that a raw method binding can be created using its key in batch creation.
 	 * (regression test for bug 87749 different IMethodBindings of generic method have equal getKey())
@@ -1387,27 +1387,27 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {
 				"/P/p1/X.java",
 				"package p1;\n" +
-				"public class X {\n" + 
-				"	public static <T extends Y<? super T>> void foo(Z<T> z) {\n" + 
-				"    }\n" + 
-				"    /**\n" + 
-				"     * @see #foo(Z)\n" + 
-				"     */\n" + 
-				"    void bar() {\n" + 
-				"        /*start*/foo(new W())/*end*/;\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"class Y<T> {\n" + 
-				"}\n" + 
-				"class Z<T> {\n" + 
-				"}\n" + 
-				"class W<T> extends Z<T> {\n" + 
+				"public class X {\n" +
+				"	public static <T extends Y<? super T>> void foo(Z<T> z) {\n" +
+				"    }\n" +
+				"    /**\n" +
+				"     * @see #foo(Z)\n" +
+				"     */\n" +
+				"    void bar() {\n" +
+				"        /*start*/foo(new W())/*end*/;\n" +
+				"    }\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"}\n" +
+				"class Z<T> {\n" +
+				"}\n" +
+				"class W<T> extends Z<T> {\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X;.foo<T:Lp1/Y<-TT;>;>(Lp1/Z<TT;>;)V%<>"
 		);
 	}
-	
+
 	/*
 	 * Ensures that a parameterized type binding with a capture binding in its arguments can be created using its key in batch creation.
 	 * (regression test for bug 94092 ASTParser#createASTs(..) restores wrong bindings from capture keys)
@@ -1417,18 +1417,18 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {
 				"/P/p1/X.java",
 				"package p1;\n" +
-				"/*start1*/public class X {\n" + 
-				"	Object o= null;\n" + 
-				"	Y<?> field;\n" + 
-				"	void foo() {\n" + 
-				"		/*start2*/o = field/*end2*/;\n" + 
-				"	}\n" + 
+				"/*start1*/public class X {\n" +
+				"	Object o= null;\n" +
+				"	Y<?> field;\n" +
+				"	void foo() {\n" +
+				"		/*start2*/o = field/*end2*/;\n" +
+				"	}\n" +
 				"}/*end1*/\n",
 				"/P/p1/Y.java",
 				"package p1;\n" +
-				"public class Y<T> {\n" + 
+				"public class Y<T> {\n" +
 				"}",
-			}, 
+			},
 			new String[] {
 				"Lp1/X;",
 				"Lp1/X;&Lp1/Y<!Lp1/Y;*83;>;",
@@ -1445,13 +1445,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {
 				"/P/p1/X.java",
 				"package p1;\n" +
-				"public class X {\n" + 
-				"  <T> void foo(/*start*/Y<T>/*end*/ y) {\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y<E> {\n" + 
+				"public class X {\n" +
+				"  <T> void foo(/*start*/Y<T>/*end*/ y) {\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y<E> {\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X~Y<Lp1/X;:1TT;>;"
 		);
 	}
@@ -1473,7 +1473,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}"
 			);
 			primaryWorkingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-			
+
 			// working copy for the test's owner with a method foo()
 			ownedWorkingcopy = getWorkingCopy(
 				"/P/p1/X.java",
@@ -1483,17 +1483,17 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}",
 				this.owner
 			);
-			
+
 			// create bindings
 			assertRequestedBindingFound(
 				new String[] {
 					"/P/p1/Y.java",
 					"package p1;\n" +
-					"public class Y {\n" + 
+					"public class Y {\n" +
 					"  void bar() {\n" +
 					"    /*start*/new X().foo()/*end*/;\n" +
 					"}",
-				}, 
+				},
 				"Lp1/X;.foo()V"
 			);
 		} finally {
@@ -1503,7 +1503,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				ownedWorkingcopy.discardWorkingCopy();
 		}
 	}
-	
+
 	/*
 	 * Ensures that the declaring class of a member parameterized type binding with a raw enclosing type is correct
 	 */
@@ -1517,7 +1517,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"  /*start*/Y<K, V>/*end*/ field;\n" +
 				"}"
-			}, 
+			},
 			new String[] {"Lp1/X$Y<Lp1/X;:TK;Lp1/X;:TV;>;"}
 		);
 		assertBindingEquals(
@@ -1553,14 +1553,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 					"public class Z extends p.Y {\n" +
 					"  /*start*/p.X.Member/*end*/ field;\n" +
 					"}"
-				}, 
+				},
 				"Lp/X$Member<>;"
 			);
 		} finally {
 			deleteProject("P1");
 		}
 	}
-	
+
 	/*
 	 * Ensures that requesting a CU needing a constant in a previously processed CU doesn't throw an NPE
 	 * (regression test for bug 111822 DOMParser.createASTs() NPE at FieldReference.getConstantFor(FieldReference.java:408))
@@ -1569,22 +1569,22 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		this.workingCopies = createWorkingCopies(new String[] {
 			"/P/pkg/RefAnnoAndClassWithAnno.java",
 			"package pkg;\n" +
-			"public class RefMyAnnoAndClassWithAnno {\n" + 
-			"	final Class anno = MyAnno.class;\n" + 
-			"	final Class withAnno = ClassWithAnnotation.class;\n" + 
+			"public class RefMyAnnoAndClassWithAnno {\n" +
+			"	final Class anno = MyAnno.class;\n" +
+			"	final Class withAnno = ClassWithAnnotation.class;\n" +
 			"}",
 			"/P/pkg/MyAnno.java",
 			"package pkg;\n" +
-			"public @interface MyAnno {\n" + 
-			"	public enum EnumColor{\n" + 
-			"		BLUE, RED, WHITE;\n" + 
-			"	}\n" + 
-			"	EnumColor aEnum();\n" + 
+			"public @interface MyAnno {\n" +
+			"	public enum EnumColor{\n" +
+			"		BLUE, RED, WHITE;\n" +
+			"	}\n" +
+			"	EnumColor aEnum();\n" +
 			"}",
 			"/P/pkg/ClassWithAnnotation.java",
 			"package pkg;\n" +
-			"import pkg.MyAnno.EnumColor;\n" + 
-			"@MyAnno(aEnum = EnumColor.BLUE)\n" + 
+			"import pkg.MyAnno.EnumColor;\n" +
+			"@MyAnno(aEnum = EnumColor.BLUE)\n" +
 			"public class ClassWithAnnotation {}"
 		});
 		String key = BindingKey.createTypeBindingKey("pkg.RefMyAnnoAndClassWithAnno");
@@ -1615,11 +1615,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
 		TestASTRequestor requestor = new TestASTRequestor();
 		resolveASTs(new ICompilationUnit[] {this.workingCopies[0]}, requestor);
-		
+
 		// get the binding for Y
 		Type y = (Type) findNode((CompilationUnit) requestor.asts.get(0), markerInfos[0]);
 		ITypeBinding yBinding = y.resolveBinding();
-		
+
 		// ensure that the fields for Y are not resolved
 		assertBindingsEqual("", yBinding.getDeclaredFields());
 	}
@@ -1653,12 +1653,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		}
 		Requestor requestor = new Requestor();
 		resolveASTs(new ICompilationUnit[] {this.workingCopies[0]}, requestor);
-		
+
 		assertEquals("Unexpected constant value", new Integer(5), requestor.constantValue);
 	}
-	
+
 	/*
-	 * Ensures that the declaring method of a local variable binding retrieved using its key 
+	 * Ensures that the declaring method of a local variable binding retrieved using its key
 	 * is not null
 	 * (regression test for bug 129804 Local variable bindings from ASTParser#createASTs(.., String[], .., ..) have no declaring method)
 	 */
@@ -1666,10 +1666,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		IVariableBinding[] bindings = createVariableBindings(
 			new String[] {
 				"/P/X.java",
-				"public class X {\n" + 
-				"    void m() {\n" + 
-				"        Object o;\n" + 
-				"    }\n" + 
+				"public class X {\n" +
+				"    void m() {\n" +
+				"        Object o;\n" +
+				"    }\n" +
 				"}"
 			},
 			new String[] {
@@ -1680,12 +1680,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"LX;.m()V",
 			bindings[0].getDeclaringMethod());
 	}
-	
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159631
 public void test073() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P072", new String[] {}, Util.getJavaClassLibs(), "", "1.5");
-		ICompilationUnit compilationUnits[] = new ICompilationUnit[3]; 
+		ICompilationUnit compilationUnits[] = new ICompilationUnit[3];
 		compilationUnits[0] = getWorkingCopy(
 			"P072/X.java",
 			"public class X {\n" +
@@ -1709,10 +1709,10 @@ public void test073() throws CoreException, IOException {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(project);
-		class Requestor extends ASTRequestor {			
+		class Requestor extends ASTRequestor {
 		}
 		parser.createASTs(compilationUnits, new String[0], new Requestor(), null);
-		// will throw an unexpected NPE, until the bug is fixed 
+		// will throw an unexpected NPE, until the bug is fixed
 	} finally {
 		deleteProject("P072");
 	}
@@ -1727,22 +1727,22 @@ public void test074_Bug155003() throws CoreException {
 	assertBindingCreated(
 		new String[] {
 			"/P/X.java",
-			"public class X {\n" + 
-			"    public void foo() throws InterruptedException, IllegalMonitorStateException {\n" + 
-			"    }\n" + 
-			"    void test() throws InterruptedException, IllegalMonitorStateException {\n" + 
-			"    	/*start*/foo()/*end*/;\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"    public void foo() throws InterruptedException, IllegalMonitorStateException {\n" +
+			"    }\n" +
+			"    void test() throws InterruptedException, IllegalMonitorStateException {\n" +
+			"    	/*start*/foo()/*end*/;\n" +
+			"    }\n" +
 			"}",
 		},
 		"LX;.foo()V|Ljava/lang/InterruptedException;|Ljava/lang/IllegalMonitorStateException;"
 	);
-	String content = "public class X {\n" + 
-			"    public void foo() throws InterruptedException, IllegalMonitorStateException {\n" + 
-			"    }\n" + 
-			"    void test() throws InterruptedException, IllegalMonitorStateException {\n" + 
-			"    	/*start*/foo()/*end*/;\n" + 
-			"    }\n" + 
+	String content = "public class X {\n" +
+			"    public void foo() throws InterruptedException, IllegalMonitorStateException {\n" +
+			"    }\n" +
+			"    void test() throws InterruptedException, IllegalMonitorStateException {\n" +
+			"    	/*start*/foo()/*end*/;\n" +
+			"    }\n" +
 			"}";
 	this.workingCopies = createWorkingCopies(new String[] { "/P/X.java", content }, true /*resolve*/);
 	ASTNode node = buildAST(content, this.workingCopies[0]);
@@ -1750,19 +1750,19 @@ public void test074_Bug155003() throws CoreException {
 	IBinding binding = resolveBinding(node);
 	BindingKey bindingKey = new BindingKey(binding.getKey());
 	assertStringsEqual("Unexpected thrown exceptions",
-		"Ljava.lang.InterruptedException;\n" + 
+		"Ljava.lang.InterruptedException;\n" +
 		"Ljava.lang.IllegalMonitorStateException;\n",
 		bindingKey.getThrownExceptions()
 	);
 }
 public void test075_Bug155003() throws CoreException {
-	String content = "public class X<T> {\n" + 
-		"	<U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {\n" + 
-		"		return null;\n" + 
-		"	}\n" + 
-		"	void test() throws Exception {\n" + 
-		"		/*start*/foo(this)/*end*/;\n" + 
-		"	}\n" + 
+	String content = "public class X<T> {\n" +
+		"	<U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {\n" +
+		"		return null;\n" +
+		"	}\n" +
+		"	void test() throws Exception {\n" +
+		"		/*start*/foo(this)/*end*/;\n" +
+		"	}\n" +
 		"}";
 	this.workingCopies = createWorkingCopies(new String[] { "/P/X.java", content }, true /*resolve*/);
 	ASTNode node = buildAST(content, this.workingCopies[0]);
@@ -1770,19 +1770,19 @@ public void test075_Bug155003() throws CoreException {
 	IBinding binding = resolveBinding(node);
 	BindingKey bindingKey = new BindingKey(binding.getKey());
 	assertStringsEqual("Unexpected thrown exceptions",
-		"Ljava.lang.RuntimeException;\n" + 
+		"Ljava.lang.RuntimeException;\n" +
 		"TU;\n",
 		bindingKey.getThrownExceptions()
 	);
 }
 public void test076_Bug155003() throws CoreException {
-	String content = "public class X<T> {\n" + 
-		"	<K, V> V bar(K key, V value) throws Exception {\n" + 
-		"		return value;\n" + 
-		"	}\n" + 
-		"	void test() throws Exception {\n" + 
-		"		/*start*/bar(\"\", \"\")/*end*/;\n" + 
-		"	}\n" + 
+	String content = "public class X<T> {\n" +
+		"	<K, V> V bar(K key, V value) throws Exception {\n" +
+		"		return value;\n" +
+		"	}\n" +
+		"	void test() throws Exception {\n" +
+		"		/*start*/bar(\"\", \"\")/*end*/;\n" +
+		"	}\n" +
 		"}";
 	this.workingCopies = createWorkingCopies(new String[] { "/P/X.java", content }, true /*resolve*/);
 	ASTNode node = buildAST(content, this.workingCopies[0]);
@@ -1798,23 +1798,23 @@ public void test076_Bug155003() throws CoreException {
 /**
  * @bug 163647: [model] Thrown exceptions are not found in method binding key which have a capture as declaring class
  * @test Ensure that thrown exceptions are added in method unique key (not in signature)
- * 			even when declaring class is a capture 
+ * 			even when declaring class is a capture
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=163647"
  */
 public void test077_Bug163647() throws CoreException {
-	String content = 	"public class Test {\n" + 
-		"    public X<? extends Object> getX() { return null; }\n" + 
-		"    public void bar() {\n" + 
-		"		try {\n" + 
-		"			/*start*/getX().foo()/*end*/;\n" + 
-		"		} catch (Exception e) {\n" + 
-		"			// skip\n" + 
-		"		}\n" + 
-		"    }\n" + 
-		"}\n" + 
-		"class X<T> {\n" + 
-		"    public void foo() throws CloneNotSupportedException, IllegalMonitorStateException, InterruptedException {\n" + 
-		"    }\n" + 
+	String content = 	"public class Test {\n" +
+		"    public X<? extends Object> getX() { return null; }\n" +
+		"    public void bar() {\n" +
+		"		try {\n" +
+		"			/*start*/getX().foo()/*end*/;\n" +
+		"		} catch (Exception e) {\n" +
+		"			// skip\n" +
+		"		}\n" +
+		"    }\n" +
+		"}\n" +
+		"class X<T> {\n" +
+		"    public void foo() throws CloneNotSupportedException, IllegalMonitorStateException, InterruptedException {\n" +
+		"    }\n" +
 		"}";
 	this.workingCopies = createWorkingCopies(new String[] { "/P/Test.java", content }, true /*resolve*/);
 	ASTNode node = buildAST(content, this.workingCopies[0]);
@@ -1822,8 +1822,8 @@ public void test077_Bug163647() throws CoreException {
 	IBinding binding = resolveBinding(node);
 	BindingKey bindingKey = new BindingKey(binding.getKey());
 	assertStringsEqual("Unexpected thrown exceptions",
-		"Ljava.lang.CloneNotSupportedException;\n" + 
-		"Ljava.lang.IllegalMonitorStateException;\n" + 
+		"Ljava.lang.CloneNotSupportedException;\n" +
+		"Ljava.lang.IllegalMonitorStateException;\n" +
 		"Ljava.lang.InterruptedException;\n",
 		bindingKey.getThrownExceptions()
 	);
@@ -1832,26 +1832,26 @@ public void test077_Bug163647() throws CoreException {
 public void test078() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P078", new String[] {}, Util.getJavaClassLibs(), "", "1.5");
-		ICompilationUnit compilationUnits[] = new ICompilationUnit[1]; 
+		ICompilationUnit compilationUnits[] = new ICompilationUnit[1];
 		compilationUnits[0] = getWorkingCopy(
 			"P078/Test.java",
-			"import java.util.*;\n" + 
-			"public class Test {\n" + 
-			"        public interface ExtraIterator<T> extends Iterator {\n" + 
-			"                public void extra();\n" + 
-			"        }\n" + 
-			"        public class Test2<T> implements ExtraIterator<T> {\n" + 
-			"            public boolean hasNext() {\n" + 
-			"                return false;\n" + 
+			"import java.util.*;\n" +
+			"public class Test {\n" +
+			"        public interface ExtraIterator<T> extends Iterator {\n" +
+			"                public void extra();\n" +
+			"        }\n" +
+			"        public class Test2<T> implements ExtraIterator<T> {\n" +
+			"            public boolean hasNext() {\n" +
+			"                return false;\n" +
 			"            }\n" +
-			"            public T next() {\n" + 
-			"                return null;\n" + 
+			"            public T next() {\n" +
+			"                return null;\n" +
 			"            }\n" +
-			"            public void remove() {\n" + 
+			"            public void remove() {\n" +
 			"            }\n" +
-			"            public void extra() {\n" + 
-			"            }\n" + 
-			"        }\n" + 
+			"            public void extra() {\n" +
+			"            }\n" +
+			"        }\n" +
 			"}");
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
@@ -1892,22 +1892,22 @@ public void test079() throws CoreException, IOException {
 		createFile("/P079/src/test/Test.java",
 				"package test;\n" +
 				"import java.util.*;\n" +
-				"interface ExtraIterator<T> extends Iterator {\n" + 
-				"        public void extra();\n" + 
-				"}\n" + 
-				"public class Test<T> implements ExtraIterator<T> {\n" + 
-				"    public boolean hasNext() {\n" + 
-				"        return false;\n" + 
+				"interface ExtraIterator<T> extends Iterator {\n" +
+				"        public void extra();\n" +
+				"}\n" +
+				"public class Test<T> implements ExtraIterator<T> {\n" +
+				"    public boolean hasNext() {\n" +
+				"        return false;\n" +
 				"    }\n" +
-				"    public T next() {\n" + 
-				"        return null;\n" + 
+				"    public T next() {\n" +
+				"        return null;\n" +
 				"    }\n" +
-				"    public void remove() {\n" + 
+				"    public void remove() {\n" +
 				"    }\n" +
-				"    public void extra() {\n" + 
-				"    }\n" + 
+				"    public void extra() {\n" +
+				"    }\n" +
 				"}");
-		ICompilationUnit compilationUnits[] = new ICompilationUnit[1]; 
+		ICompilationUnit compilationUnits[] = new ICompilationUnit[1];
 		compilationUnits[0] = getCompilationUnit("P079", "src", "test", "Test.java");
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
@@ -1947,25 +1947,25 @@ public void test080() throws CoreException, IOException {
 		createFolder("/" + projectName + "/src/test");
 		createFile("/" + projectName + "/src/test/Test.java",
 				"package test;\n" +
-				"import java.util.*;\n" + 
-				"public class Test {\n" + 
-				"        public interface ExtraIterator<T> extends Iterator {\n" + 
-				"                public void extra();\n" + 
-				"        }\n" + 
-				"        public class Test2<T> implements ExtraIterator<T> {\n" + 
-				"            public boolean hasNext() {\n" + 
-				"                return false;\n" + 
+				"import java.util.*;\n" +
+				"public class Test {\n" +
+				"        public interface ExtraIterator<T> extends Iterator {\n" +
+				"                public void extra();\n" +
+				"        }\n" +
+				"        public class Test2<T> implements ExtraIterator<T> {\n" +
+				"            public boolean hasNext() {\n" +
+				"                return false;\n" +
 				"            }\n" +
-				"            public T next() {\n" + 
-				"                return null;\n" + 
+				"            public T next() {\n" +
+				"                return null;\n" +
 				"            }\n" +
-				"            public void remove() {\n" + 
+				"            public void remove() {\n" +
 				"            }\n" +
-				"            public void extra() {\n" + 
-				"            }\n" + 
-				"        }\n" + 
+				"            public void extra() {\n" +
+				"            }\n" +
+				"        }\n" +
 				"}");
-		ICompilationUnit compilationUnits[] = new ICompilationUnit[1]; 
+		ICompilationUnit compilationUnits[] = new ICompilationUnit[1];
 		compilationUnits[0] = getCompilationUnit(projectName, "src", "test", "Test.java");
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
@@ -2067,11 +2067,11 @@ public void test082() throws CoreException, IOException {
 				"package p1;\n" +
 				"/*start*/class Y {\n" +
 				"}/*end*/",
-			}, 
+			},
 			"Lp1/X~Y;");
 	}
-	
-	/* 
+
+	/*
 	 * Ensures that a duplicate local variable binding can be created using its key in ASTRequestor#createBindings
 	 * (regression test for bug 149590 [model] bindings for duplicate local variables share same key)
 	 */
@@ -2105,7 +2105,7 @@ public void test082() throws CoreException, IOException {
 				"package p1;\n" +
 				"public @interface MyAnnot {\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X;@Lp1/MyAnnot;");
 	}
 
@@ -2125,7 +2125,7 @@ public void test082() throws CoreException, IOException {
 				"package p1;\n" +
 				"public @interface MyAnnot {\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X;.field)I@Lp1/MyAnnot;");
 	}
 
@@ -2146,11 +2146,11 @@ public void test082() throws CoreException, IOException {
 				"package p1;\n" +
 				"public @interface MyAnnot {\n" +
 				"}",
-			}, 
+			},
 			"Lp1/X;.foo()V@Lp1/MyAnnot;");
 	}
 
-	/* 
+	/*
 	 * Ensures that a parameterized type with 2 arguments referring to the same cu that contains an anonymous type with a non-default constructor
 	 * can be created using its key in ASTRequestor#createBindings
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=236445 )
@@ -2159,25 +2159,25 @@ public void test082() throws CoreException, IOException {
 		assertBindingCreated(
 			new String[] {
 				"/P/A.java",
-				"public class A {\n" + 
-				"	public void foo(C c) {\n" + 
-				"		c.bar(B //|<---Ctrl+Space after B\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"class B<V, E> {\n" + 
+				"public class A {\n" +
+				"	public void foo(C c) {\n" +
+				"		c.bar(B //|<---Ctrl+Space after B\n" +
+				"	}\n" +
+				"}\n" +
+				"class B<V, E> {\n" +
 				"}",
 				"/P/C.java",
-				"public class C {\n" + 
-				"	public <V, E> void bar(B<V, E> code) {\n" + 
-				"		new D(null) {};  \n" + 
-				"	}\n" + 
-				"}\n" + 
-				"class D {\n" + 
-				"	D(Object o) {}\n" + 
+				"public class C {\n" +
+				"	public <V, E> void bar(B<V, E> code) {\n" +
+				"		new D(null) {};  \n" +
+				"	}\n" +
+				"}\n" +
+				"class D {\n" +
+				"	D(Object o) {}\n" +
 				"}"
 			},
 			"LA~B<LC;:1TV;LC;:1TE;>;");
 	}
 
-	
+
 }

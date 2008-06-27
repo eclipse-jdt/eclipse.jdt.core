@@ -41,14 +41,14 @@ public void test001() {
 			"import static java.lang.annotation.RetentionPolicy.*;\n" +
 			"import java.lang.annotation.Retention;\n" +
 			"import java.lang.annotation.Target;\n" +
-			"@Target({TYPE, FIELD, METHOD,\r\n" + 
-			"         PARAMETER, CONSTRUCTOR,\r\n" + 
-			"         LOCAL_VARIABLE, PACKAGE})\r\n" + 
-			"@Retention(CLASS)\r\n" + 
-			"public @interface X\r\n" + 
-			"{\r\n" + 
-			"    String[] value() default {};\r\n" + 
-			"    String justification() default \"\";\r\n" + 
+			"@Target({TYPE, FIELD, METHOD,\r\n" +
+			"         PARAMETER, CONSTRUCTOR,\r\n" +
+			"         LOCAL_VARIABLE, PACKAGE})\r\n" +
+			"@Retention(CLASS)\r\n" +
+			"public @interface X\r\n" +
+			"{\r\n" +
+			"    String[] value() default {};\r\n" +
+			"    String justification() default \"\";\r\n" +
 			"}"
 		},
 		"",
@@ -79,26 +79,26 @@ public void test002() {
 			"}",
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" + 
-		"	                                  ^^^^^^^^^^^^^\n" + 
-		"Unnecessary $NON-NLS$ tag\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	String s5 = \"test3\";\n" + 
-		"	            ^^^^^^^\n" + 
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	String s6 = \"test4\";\n" + 
-		"	            ^^^^^^^\n" + 
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 10)\n" + 
-		"	System.out.println(\"test5\");\n" + 
-		"	                   ^^^^^^^\n" + 
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" +
+		"	                                  ^^^^^^^^^^^^^\n" +
+		"Unnecessary $NON-NLS$ tag\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	String s5 = \"test3\";\n" +
+		"	            ^^^^^^^\n" +
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 9)\n" +
+		"	String s6 = \"test4\";\n" +
+		"	            ^^^^^^^\n" +
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 10)\n" +
+		"	System.out.println(\"test5\");\n" +
+		"	                   ^^^^^^^\n" +
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -123,26 +123,26 @@ public void test003() {
 			"}",
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" + 
-		"	                                  ^^^^^^^^^^^^^\n" + 
-		"Unnecessary $NON-NLS$ tag\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	String s5 = null;//$NON-NLS-1$\n" + 
-		"	                 ^^^^^^^^^^^^^\n" + 
-		"Unnecessary $NON-NLS$ tag\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	String s6 = \"test4\";\n" + 
-		"	            ^^^^^^^\n" + 
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 10)\n" + 
-		"	System.out.println(\"test5\");\n" + 
-		"	                   ^^^^^^^\n" + 
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" +
+		"	                                  ^^^^^^^^^^^^^\n" +
+		"Unnecessary $NON-NLS$ tag\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	String s5 = null;//$NON-NLS-1$\n" +
+		"	                 ^^^^^^^^^^^^^\n" +
+		"Unnecessary $NON-NLS$ tag\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 9)\n" +
+		"	String s6 = \"test4\";\n" +
+		"	            ^^^^^^^\n" +
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 10)\n" +
+		"	System.out.println(\"test5\");\n" +
+		"	                   ^^^^^^^\n" +
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -167,11 +167,11 @@ public void test004() {
 			"}",
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" + 
-		"	                                  ^^^^^^^^^^^^^\n" + 
-		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" +
+		"	                                  ^^^^^^^^^^^^^\n" +
+		"Unnecessary $NON-NLS$ tag\n" +
 		"----------\n",
 		null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
@@ -192,11 +192,11 @@ public void test005() {
 			"}",
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	String s6 = \"SUCCESS\";\n" + 
-		"	            ^^^^^^^^^\n" + 
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	String s6 = \"SUCCESS\";\n" +
+		"	            ^^^^^^^^^\n" +
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }

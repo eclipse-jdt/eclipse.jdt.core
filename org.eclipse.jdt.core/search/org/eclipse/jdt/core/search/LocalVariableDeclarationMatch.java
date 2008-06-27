@@ -19,14 +19,14 @@ import org.eclipse.jdt.core.IJavaElement;
  * <p>
  * This class is intended to be instantiated and subclassed by clients.
  * </p>
- * 
+ *
  * @since 3.0
  */
 public class LocalVariableDeclarationMatch extends SearchMatch {
 
 	/**
 	 * Creates a new local variable declaration match.
-	 * 
+	 *
 	 * @param element the local variable declaration
 	 * @param accuracy one of A_ACCURATE or A_INACCURATE
 	 * @param offset the offset the match starts at, or -1 if unknown

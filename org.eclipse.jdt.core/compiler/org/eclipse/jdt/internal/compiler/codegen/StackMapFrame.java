@@ -40,10 +40,10 @@ public StackMapFrame(int initialLocalSize) {
 	this.numberOfDifferentLocals = -1;
 }
 public int getFrameType(StackMapFrame prevFrame) {
-	final int offsetDelta = this.getOffsetDelta(prevFrame);
+	final int offsetDelta = getOffsetDelta(prevFrame);
 	switch(this.numberOfStackItems) {
 		case 0 :
-			switch(this.numberOfDifferentLocals(prevFrame)) {
+			switch(numberOfDifferentLocals(prevFrame)) {
 				case 0 :
 					return offsetDelta <= 63 ? SAME_FRAME : SAME_FRAME_EXTENDED;
 				case 1 :
@@ -57,7 +57,7 @@ public int getFrameType(StackMapFrame prevFrame) {
 			}
 			break;
 		case 1 :
-			switch(this.numberOfDifferentLocals(prevFrame)) {
+			switch(numberOfDifferentLocals(prevFrame)) {
 				case 0 :
 					return offsetDelta <= 63 ? SAME_LOCALS_1_STACK_ITEMS : SAME_LOCALS_1_STACK_ITEMS_EXTENDED;
 			}
@@ -142,7 +142,7 @@ public int numberOfDifferentLocals(StackMapFrame prevFrame) {
 	int prevLocalsLength = prevLocals == null ? 0 : prevLocals.length;
 	int currentLocalsLength = currentLocals == null ? 0 : currentLocals.length;
 	int prevNumberOfLocals = prevFrame.getNumberOfLocals();
-	int currentNumberOfLocals = this.getNumberOfLocals();
+	int currentNumberOfLocals = getNumberOfLocals();
 
 	int result = 0;
 	if (prevNumberOfLocals == 0) {

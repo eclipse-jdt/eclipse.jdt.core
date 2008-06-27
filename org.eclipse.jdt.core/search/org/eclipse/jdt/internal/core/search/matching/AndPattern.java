@@ -54,7 +54,7 @@ public AndPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 		System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
 
 	// Store erasure match
-	matchCompatibility = getMatchRule() & MATCH_COMPATIBILITY_MASK;
+	this.matchCompatibility = getMatchRule() & MATCH_COMPATIBILITY_MASK;
 
 	this.current = 0;
 }

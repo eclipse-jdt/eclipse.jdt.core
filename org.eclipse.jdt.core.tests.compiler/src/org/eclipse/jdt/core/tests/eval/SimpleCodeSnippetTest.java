@@ -31,12 +31,12 @@ public class SimpleCodeSnippetTest
 
     void runCodeSnippet()
                  throws TargetException, InstallException {
-        this.startEvaluationContext();
+        startEvaluationContext();
 
         char[] snippet = getCodeSnippetSource();
         INameEnvironment env = getEnv();
-        this.context.evaluate(snippet, env, null, this.requestor, 
+        this.context.evaluate(snippet, env, null, this.requestor,
                               getProblemFactory());
-        this.stopEvaluationContext();
+        stopEvaluationContext();
     }
 }

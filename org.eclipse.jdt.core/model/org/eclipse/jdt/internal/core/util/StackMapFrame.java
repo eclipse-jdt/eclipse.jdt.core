@@ -28,10 +28,10 @@ public class StackMapFrame extends ClassFileStruct implements IStackMapFrame {
 	private IVerificationTypeInfo[] locals;
 	private IVerificationTypeInfo[] stackItems;
 	private int offsetDelta;
-	
+
 	/**
 	 * Constructor for StackMapFrame.
-	 * 
+	 *
 	 * @param classFileBytes
 	 * @param constantPool
 	 * @param offset
@@ -41,7 +41,7 @@ public class StackMapFrame extends ClassFileStruct implements IStackMapFrame {
 			byte[] classFileBytes,
 			IConstantPool constantPool,
 			int offset) throws ClassFormatException {
-		
+
 		final int type = u1At(classFileBytes, 0, offset);
 		this.frameType = type;
 		switch(type) {
@@ -88,7 +88,7 @@ public class StackMapFrame extends ClassFileStruct implements IStackMapFrame {
 				this.numberOfLocals = diffLocals;
 				this.locals = new IVerificationTypeInfo[diffLocals];
 				for (int i = 0; i < diffLocals; i++) {
-					VerificationInfo verificationInfo = new VerificationInfo(classFileBytes, constantPool, offset + readOffset);
+					VerificationInfo verificationInfo = new VerificationInfo(classFileBytes, constantPool, offset + this.readOffset);
 					this.locals[i] = verificationInfo;
 					this.readOffset += verificationInfo.sizeInBytes();
 				}
@@ -109,7 +109,7 @@ public class StackMapFrame extends ClassFileStruct implements IStackMapFrame {
 				} else {
 					this.locals = EMPTY_LOCALS_OR_STACK_ITEMS;
 				}
-				int tempStackItems = u2At(classFileBytes, readOffset, offset);
+				int tempStackItems = u2At(classFileBytes, this.readOffset, offset);
 				this.readOffset += 2;
 				this.numberOfStackItems = tempStackItems;
 				if (tempStackItems != 0) {

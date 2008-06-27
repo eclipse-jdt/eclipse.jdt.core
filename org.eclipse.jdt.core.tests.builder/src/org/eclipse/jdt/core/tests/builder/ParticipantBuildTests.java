@@ -48,14 +48,14 @@ public class ParticipantBuildTests extends BuilderTests {
 		int id;
 		char[] filename;
 		ParticipantProblem(String message, String filename) {
-			this.message = message; 
-			id = counter ++;
+			this.message = message;
+			this.id = this.counter ++;
 			this.filename = filename.toCharArray();
 		}
 		public String[] getArguments() { return new String[0]; }
-		public int getID() { return id; }
-		public String getMessage() { return message; }
-		public char[] getOriginatingFileName() { return filename; }
+		public int getID() { return this.id; }
+		public String getMessage() { return this.message; }
+		public char[] getOriginatingFileName() { return this.filename; }
 		public int getSourceStart() { return 0; }
 		public int getSourceEnd() { return 0; }
 		public int getSourceLineNumber() { return 1; }
@@ -78,7 +78,7 @@ public class ParticipantBuildTests extends BuilderTests {
 		p.setUnitName(file.getFile().getName());
 		return (CompilationUnit) p.createAST(null);
 	}
-	
+
 	public void testBuildStarting() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -222,20 +222,20 @@ public class ParticipantBuildTests extends BuilderTests {
 		fullBuild(projectPath);
 		expectingNoProblems();
 	}
-	
+
 	/*
 	 * Ensure that participants problems are correctly managed by the Java builder
 	 * (regression test for bug 134345 Problems from CompilationParticipants do not get cleaned up unless there are Java errors)
 	 */
 	public void testParticipantProblems() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); 
+		IPath projectPath = env.addProject("Project", "1.5");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		env.removePackageFragmentRoot(projectPath, ""); 
+		env.removePackageFragmentRoot(projectPath, "");
 		IPath root = env.addPackageFragmentRoot(projectPath, "src");
 		env.setOutputFolder(projectPath, "bin");
 
-		env.addClass(root, "p", "X", 
-			"package p;\n" + 
+		env.addClass(root, "p", "X",
+			"package p;\n" +
 			"public class X { /* generate problem*/ }"
 			);
 
@@ -253,9 +253,9 @@ public class ParticipantBuildTests extends BuilderTests {
 
 		fullBuild(projectPath);
 		expectingParticipantProblems(projectPath, "Participant problem");
-		
-		env.addClass(root, "p", "X", 
-			"package p;\n" + 
+
+		env.addClass(root, "p", "X",
+			"package p;\n" +
 			"public class X { }"
 			);
 		incrementalBuild(projectPath);
@@ -345,7 +345,7 @@ public class ParticipantBuildTests extends BuilderTests {
 				try {
 					IFolder folder = (IFolder) genedType.getParent();
 					if(!folder.exists())
-						folder.create(true, true, null);				
+						folder.create(true, true, null);
 					genedType.create(new ByteArrayInputStream("package p1.p2; public class GeneratedType { public static void method(){} }".getBytes()), true, null); //$NON-NLS-1$
 				} catch (CoreException e) {
 					e.printStackTrace();
@@ -441,24 +441,24 @@ public class ParticipantBuildTests extends BuilderTests {
 		fullBuild(projectPath);
 		expectingNoProblems();
 	}
-	
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
 // Checking the GENERATED_BY attribute
 public void test1001() throws JavaModelException {
-	IPath projectPath = env.addProject("Project", "1.5"); 
+	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	env.removePackageFragmentRoot(projectPath, ""); 
+	env.removePackageFragmentRoot(projectPath, "");
 	IPath root = env.addPackageFragmentRoot(projectPath, "src");
 	env.setOutputFolder(projectPath, "bin");
-	env.addClass(root, "p", "X", 
-		"package p;\n" + 
+	env.addClass(root, "p", "X",
+		"package p;\n" +
 		"public class X { /* generate problem*/ }"
 		);
 	new BuildTestParticipant() {
 		public void buildStarting(BuildContext[] files, boolean isBatch) {
 			for (int i = 0, total = files.length; i < total; i++) {
 				BuildContext context = files[i];
-				if (CharOperation.indexOf("generate problem".toCharArray(), 
+				if (CharOperation.indexOf("generate problem".toCharArray(),
 						context.getContents(), true) != -1) {
 					context.recordNewProblems(new CategorizedProblem[] {
 							new ParticipantProblem("Participant problem", context.getFile().getFullPath().toString())});
@@ -475,13 +475,13 @@ public void test1001() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
 // Checking the GENERATED_BY attribute
 public void test1002() throws JavaModelException {
-	IPath projectPath = env.addProject("Project", "1.5"); 
+	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	env.removePackageFragmentRoot(projectPath, ""); 
+	env.removePackageFragmentRoot(projectPath, "");
 	IPath root = env.addPackageFragmentRoot(projectPath, "src");
 	env.setOutputFolder(projectPath, "bin");
-	env.addClass(root, "p", "X", 
-		"package p;\n" + 
+	env.addClass(root, "p", "X",
+		"package p;\n" +
 		"public class X { /* generate problem*/ }"
 		);
 	final String specificGeneratedBy = "specific";
@@ -489,7 +489,7 @@ public void test1002() throws JavaModelException {
 		public void buildStarting(BuildContext[] files, boolean isBatch) {
 			for (int i = 0, total = files.length; i < total; i++) {
 				BuildContext context = files[i];
-				if (CharOperation.indexOf("generate problem".toCharArray(), 
+				if (CharOperation.indexOf("generate problem".toCharArray(),
 						context.getContents(), true) != -1) {
 					context.recordNewProblems(new CategorizedProblem[] {
 							new ParticipantProblem("Participant problem", context.getFile().getFullPath().toString()) {

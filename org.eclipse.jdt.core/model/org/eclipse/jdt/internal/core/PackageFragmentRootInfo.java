@@ -48,9 +48,9 @@ public PackageFragmentRootInfo() {
 	this.nonJavaResources = null;
 }
 /**
- * Starting at this folder, create non-java resources for this package fragment root 
+ * Starting at this folder, create non-java resources for this package fragment root
  * and add them to the non-java resources collection.
- * 
+ *
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
 static Object[] computeFolderNonJavaResources(IPackageFragmentRoot root, IContainer folder, char[][] inclusionPatterns, char[][] exclusionPatterns) throws JavaModelException {
@@ -69,22 +69,22 @@ static Object[] computeFolderNonJavaResources(IPackageFragmentRoot root, IContai
 				switch (member.getType()) {
 					case IResource.FILE :
 						String fileName = member.getName();
-					
+
 						// ignore .java files that are not excluded
-						if (Util.isValidCompilationUnitName(fileName, sourceLevel, complianceLevel) && !Util.isExcluded(member, inclusionPatterns, exclusionPatterns)) 
+						if (Util.isValidCompilationUnitName(fileName, sourceLevel, complianceLevel) && !Util.isExcluded(member, inclusionPatterns, exclusionPatterns))
 							continue nextResource;
 						// ignore .class files
-						if (Util.isValidClassFileName(fileName, sourceLevel, complianceLevel)) 
+						if (Util.isValidClassFileName(fileName, sourceLevel, complianceLevel))
 							continue nextResource;
 						// ignore .zip or .jar file on classpath
-						if (isClasspathEntry(member.getFullPath(), classpath)) 
+						if (isClasspathEntry(member.getFullPath(), classpath))
 							continue nextResource;
 						break;
 
 					case IResource.FOLDER :
 						// ignore valid packages or excluded folders that correspond to a nested pkg fragment root
 						if (Util.isValidFolderNameForPackage(member.getName(), sourceLevel, complianceLevel)
-								&& (!Util.isExcluded(member, inclusionPatterns, exclusionPatterns) 
+								&& (!Util.isExcluded(member, inclusionPatterns, exclusionPatterns)
 										|| isClasspathEntry(member.getFullPath(), classpath)))
 							continue nextResource;
 						break;
@@ -94,7 +94,7 @@ static Object[] computeFolderNonJavaResources(IPackageFragmentRoot root, IContai
 					System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 0, nonJavaResourcesCounter);
 				}
 				nonJavaResources[nonJavaResourcesCounter++] = member;
-			}	
+			}
 		}
 		if (ExternalFoldersManager.isInternalPathForExternalFolder(folder.getFullPath())) {
 			IJarEntryResource[] jarEntryResources = new IJarEntryResource[nonJavaResourcesCounter];
@@ -119,10 +119,10 @@ private Object[] computeNonJavaResources(IResource underlyingResource, PackageFr
 		// the underlying resource may be a folder or a project (in the case that the project folder
 		// is actually the package fragment root)
 		if (underlyingResource.getType() == IResource.FOLDER || underlyingResource.getType() == IResource.PROJECT) {
-			resources = 
+			resources =
 				computeFolderNonJavaResources(
-					handle, 
-					(IContainer) underlyingResource,  
+					handle,
+					(IContainer) underlyingResource,
 					handle.fullInclusionPatternChars(),
 					handle.fullExclusionPatternChars());
 		}
@@ -137,7 +137,7 @@ private Object[] computeNonJavaResources(IResource underlyingResource, PackageFr
 synchronized Object[] getNonJavaResources(IJavaProject project, IResource underlyingResource, PackageFragmentRoot handle) {
 	Object[] resources = this.nonJavaResources;
 	if (resources == null) {
-		resources = this.computeNonJavaResources(underlyingResource, handle);
+		resources = computeNonJavaResources(underlyingResource, handle);
 		this.nonJavaResources = resources;
 	}
 	return resources;

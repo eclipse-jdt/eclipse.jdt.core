@@ -54,19 +54,19 @@ protected int indexOf(String projectName, IJavaProject[] projects) {
  * (regression test for bug 18698 Seeing non-java projects in package view)
  */
 public void testAddFileToNonJavaProject() throws CoreException {
-	IJavaModel model = this.getJavaModel();
+	IJavaModel model = getJavaModel();
 	IJavaProject[] projects = model.getJavaProjects();
 	assertTrue(
 		"Project P should not be present already",
-		this.indexOf("P", projects) == -1
+		indexOf("P", projects) == -1
 	);
 	try {
-		this.createProject("P");
+		createProject("P");
 		this.createFile("/P/toto.txt", "");
 		projects = model.getJavaProjects();
 		assertTrue(
 			"Project P should not be present",
-			this.indexOf("P", projects) == -1
+			indexOf("P", projects) == -1
 		);
 	} finally {
 		this.deleteProject("P");
@@ -95,26 +95,26 @@ public void testContains1() throws CoreException {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 
 		// .java file
-		IFile file = this.getFile("/P/X.java");
+		IFile file = getFile("/P/X.java");
 		assertTrue("/P/X.java should be in model", getJavaModel().contains(file));
 
 		// .class file
-		file = this.getFile("/P/X.class");
+		file = getFile("/P/X.class");
 		assertTrue("/P/X.class should not be in model", !getJavaModel().contains(file));
 
 		// non-Java resource
-		file = this.getFile("/P/read.txt");
+		file = getFile("/P/read.txt");
 		assertTrue("/P/read.txt should be in model", getJavaModel().contains(file));
 
 		// package
 		IFolder folder = this.getFolder("/P/p");
 		assertTrue("/P/p should be in model", getJavaModel().contains(folder));
-		
+
 		// resource in closed project
 		file = this.createFile("/P/X.java", "");
 		project.getProject().close(null);
 		assertTrue("/P/X.java should be in model (even if project is closed)", getJavaModel().contains(file));
-		
+
 	} finally {
 		this.deleteProject("P");
 	}
@@ -130,7 +130,7 @@ public void testContains2() throws CoreException {
 		assertTrue("/P1 should be in model", getJavaModel().contains(project));
 
 		// non-Java project
-		project = this.createProject("P2");
+		project = createProject("P2");
 		assertTrue("/P2 should be in model", getJavaModel().contains(project));
 	} finally {
 		this.deleteProject("P1");
@@ -175,7 +175,7 @@ public void testContains4() throws CoreException {
 		// .java file
 		IFile file = this.createFile("/P/X.java", "");
 		assertTrue("/P/X.java should be in model", getJavaModel().contains(file));
-		
+
 		// .class file
 		file = this.createFile("/P/X.class", "");
 		assertTrue("/P/X.class should be in model", getJavaModel().contains(file));
@@ -187,15 +187,15 @@ public void testContains4() throws CoreException {
 		// non-Java resource folder
 		IFolder folder = this.createFolder("/P/p");
 		assertTrue("/P/p should be in model", getJavaModel().contains(folder));
-		
+
 		// bin folder
 		folder = this.getFolder("/P/bin");
 		assertTrue("/P/bin should not be in model", !getJavaModel().contains(folder));
-		
+
 		// classfile in bin folder
 		file = this.createFile("/P/bin/X.class", "");
 		assertTrue("/P/bin/X.class should not be in model", !getJavaModel().contains(file));
-		
+
 		// resource file in bin folder
 		this.createFolder("/P/bin/image");
 		file = this.createFile("/P/bin/image/ok.gif", "");
@@ -220,7 +220,7 @@ public void testContains5() throws CoreException {
 		this.createFolder("/P/src/image");
 		file = this.createFile("/P/src/image/ok.gif", "");
 		assertTrue("/P/src/image/ok.gif should not be in model", getJavaModel().contains(file));
-		
+
 		// .class file in bin
 		file = this.createFile("/P/bin/X.class", "");
 		assertTrue("/P/bin/X.class should not be in model", !getJavaModel().contains(file));
@@ -261,7 +261,7 @@ public void testContains6() throws CoreException {
 		this.createFolder("/P/image");
 		file = this.createFile("/P/image/ok.gif", "");
 		assertTrue("/P/image/ok.gif should not be in model", getJavaModel().contains(file));
-		
+
 		// .class file in bin
 		file = this.createFile("/P/bin/X.class", "");
 		assertTrue("/P/bin/X.class should not be in model", !getJavaModel().contains(file));
@@ -315,7 +315,7 @@ public void testFindLineSeparator01() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFile(
-			"/P/X.java", 
+			"/P/X.java",
 			"public class X {\n" +
 			"}"
 		);
@@ -333,7 +333,7 @@ public void testFindLineSeparator02() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFile(
-			"/P/X.java", 
+			"/P/X.java",
 			"public class X {\r\n" +
 			"}"
 		);
@@ -351,7 +351,7 @@ public void testFindLineSeparator03() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFile(
-			"/P/X.java", 
+			"/P/X.java",
 			""
 		);
 		ICompilationUnit cu = getCompilationUnit("/P/X.java");
@@ -387,24 +387,24 @@ public void testGetJavaProject() {
  * and that it is removed from this list when deleted.
  */
 public void testGetJavaProjects1() throws CoreException {
-	IJavaModel model = this.getJavaModel();
+	IJavaModel model = getJavaModel();
 	IJavaProject[] projects = model.getJavaProjects();
 	assertTrue(
 		"Project P should not be present already",
-		this.indexOf("P", projects) == -1
+		indexOf("P", projects) == -1
 	);
 	try {
 		this.createJavaProject("P", new String[] {}, "");
 		projects = model.getJavaProjects();
 		assertTrue(
 			"Project P should be present",
-			this.indexOf("P", projects) != -1
+			indexOf("P", projects) != -1
 		);
 		this.deleteProject("P");
 		projects = model.getJavaProjects();
 		assertTrue(
 			"Project P should not be present any longer",
-			this.indexOf("P", projects) == -1
+			indexOf("P", projects) == -1
 		);
 	} finally {
 		this.deleteProject("P");
@@ -414,18 +414,18 @@ public void testGetJavaProjects1() throws CoreException {
  * Ensure that a non-java project that is added does not appears in the list of known java project.
  */
 public void testGetJavaProjects2() throws CoreException {
-	IJavaModel model = this.getJavaModel();
+	IJavaModel model = getJavaModel();
 	IJavaProject[] projects = model.getJavaProjects();
 	assertTrue(
 		"Project P should not be present already",
-		this.indexOf("P", projects) == -1
+		indexOf("P", projects) == -1
 	);
 	try {
-		this.createProject("P");
+		createProject("P");
 		projects = model.getJavaProjects();
 		assertTrue(
 			"Project P should not be present",
-			this.indexOf("P", projects) == -1
+			indexOf("P", projects) == -1
 		);
 	} finally {
 		this.deleteProject("P");
@@ -436,7 +436,7 @@ public void testGetJavaProjects2() throws CoreException {
  */
 public void testGetNonJavaResources() throws CoreException {
 	try {
-		IJavaModel model = this.getJavaModel();
+		IJavaModel model = getJavaModel();
 
 		this.createJavaProject("JP", new String[]{}, "");
 		assertResourceNamesEqual(
@@ -444,13 +444,13 @@ public void testGetNonJavaResources() throws CoreException {
 			"",
 			model.getNonJavaResources());
 
-		this.createProject("SP1");
+		createProject("SP1");
 		assertResourceNamesEqual(
 			"Unexpected non-Java resources after creation of SP1",
 			"SP1",
 			model.getNonJavaResources());
-		
-		this.createProject("SP2");
+
+		createProject("SP2");
 		assertResourceNamesEqual(
 			"Unexpected non-Java resources after creation of SP2",
 			"SP1\n" +
@@ -528,18 +528,18 @@ public void testInitializeAfterLoad() throws CoreException {
 public void testInitializeAfterLoad2() throws CoreException {
 	try {
 		createJavaProject(
-				"P1", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P1",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		createFile("/P1/lib.jar", "");
 		createJavaProject(
-				"P2", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		createFile("/P2/lib.jar", "");
-		
+
 		simulateExitRestart();
 		final NullProgressMonitor progressMonitor = new NullProgressMonitor();
 		class CancellingInitializer extends DefaultContainerInitializer {
@@ -549,11 +549,11 @@ public void testInitializeAfterLoad2() throws CoreException {
 			}
 			public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 				super.initialize(containerPath, project);
-				if (--count == 0)
+				if (--this.count == 0)
 					progressMonitor.setCanceled(true);
 				else
 					assertFalse("Should have canceled initializeAfterLoad()", true);
-					
+
 			}
 		}
 		CancellingInitializer initializer = new CancellingInitializer(new String[] {"P1", "/P1/lib.jar", "P2", "/P2/lib.jar"});
@@ -566,7 +566,7 @@ public void testInitializeAfterLoad2() throws CoreException {
 			ContainerInitializer.setInitializer(null);
 		}
 		assertExceptionEquals(
-			"Unexpected exception", 
+			"Unexpected exception",
 			"org.eclipse.core.runtime.OperationCanceledException",
 			actual);
 	} finally {

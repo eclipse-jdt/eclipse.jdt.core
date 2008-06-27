@@ -41,10 +41,10 @@ public class BuilderTests extends TestCase {
 	}
 
 	protected void cleanBuild() {
-		debugRequestor.clearResult();
-		debugRequestor.activate();
+		this.debugRequestor.clearResult();
+		this.debugRequestor.activate();
 		env.cleanBuild();
-		debugRequestor.deactivate();
+		this.debugRequestor.deactivate();
 	}
 
 	/** Execute the given class. Expecting output and error must be specified.
@@ -147,18 +147,18 @@ public class BuilderTests extends TestCase {
 	/** Verifies that given classes have been compiled.
 	 */
 	protected void expectingCompiledClasses(String[] expected) {
-		String[] actual = debugRequestor.getCompiledClasses();
+		String[] actual = this.debugRequestor.getCompiledClasses();
 		org.eclipse.jdt.internal.core.util.Util.sort(actual);
 		org.eclipse.jdt.internal.core.util.Util.sort(expected);
 		expectingCompiling(actual, expected, "unexpected recompiled units"); //$NON-NLS-1$
 	}
-	
-	/** 
-	 * Verifies that the given classes and no others have been compiled, 
+
+	/**
+	 * Verifies that the given classes and no others have been compiled,
 	 * but permits the classes to have been compiled more than once.
 	 */
 	protected void expectingUniqueCompiledClasses(String[] expected) {
-		String[] actual = debugRequestor.getCompiledClasses();
+		String[] actual = this.debugRequestor.getCompiledClasses();
 		org.eclipse.jdt.internal.core.util.Util.sort(actual);
 		// Eliminate duplicate entries
 		int dups = 0;
@@ -181,7 +181,7 @@ public class BuilderTests extends TestCase {
 	/** Verifies that given classes have been compiled in the specified order.
 	 */
 	protected void expectingCompilingOrder(String[] expected) {
-		expectingCompiling(debugRequestor.getCompiledClasses(), expected, "unexpected compiling order"); //$NON-NLS-1$
+		expectingCompiling(this.debugRequestor.getCompiledClasses(), expected, "unexpected compiling order"); //$NON-NLS-1$
 	}
 
 	private void expectingCompiling(String[] actual, String[] expected, String message) {
@@ -385,37 +385,37 @@ public class BuilderTests extends TestCase {
 	/** Batch builds the workspace.
 	 */
 	protected void fullBuild() {
-		debugRequestor.clearResult();
-		debugRequestor.activate();
+		this.debugRequestor.clearResult();
+		this.debugRequestor.activate();
 		env.fullBuild();
-		debugRequestor.deactivate();
+		this.debugRequestor.deactivate();
 	}
 
 	/** Batch builds the given project.
 	 */
 	protected void fullBuild(IPath projectPath) {
-		debugRequestor.clearResult();
-		debugRequestor.activate();
+		this.debugRequestor.clearResult();
+		this.debugRequestor.activate();
 		env.fullBuild(projectPath);
-		debugRequestor.deactivate();
+		this.debugRequestor.deactivate();
 	}
 
 	/** Incrementally builds the given project.
 	 */
 	protected void incrementalBuild(IPath projectPath) {
-		debugRequestor.clearResult();
-		debugRequestor.activate();
+		this.debugRequestor.clearResult();
+		this.debugRequestor.activate();
 		env.incrementalBuild(projectPath);
-		debugRequestor.deactivate();
+		this.debugRequestor.deactivate();
 	}
 
 	/** Incrementally builds the workspace.
 	 */
 	protected void incrementalBuild() {
-		debugRequestor.clearResult();
-		debugRequestor.activate();
+		this.debugRequestor.clearResult();
+		this.debugRequestor.activate();
 		env.incrementalBuild();
-		debugRequestor.deactivate();
+		this.debugRequestor.deactivate();
 	}
 
 	protected void printProblems() {
@@ -454,8 +454,8 @@ public class BuilderTests extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		debugRequestor = new EfficiencyCompilerRequestor();
-		Compiler.DebugRequestor = debugRequestor;
+		this.debugRequestor = new EfficiencyCompilerRequestor();
+		Compiler.DebugRequestor = this.debugRequestor;
 		if (env == null) {
 			env = new TestingEnvironment();
 			env.openEmptyWorkspace();

@@ -19,9 +19,9 @@ import org.eclipse.jdt.core.JavaModelException;
  * and signal the working copy addition through a delta.
  */
 public class BecomeWorkingCopyOperation extends JavaModelOperation {
-	
+
 	IProblemRequestor problemRequestor;
-	
+
 	/*
 	 * Creates a BecomeWorkingCopyOperation for the given working copy.
 	 * perOwnerWorkingCopies map is not null if the working copy is a shared working copy.
@@ -50,7 +50,7 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 				addDelta(delta);
 			} else {
 				// report an ADDED delta
-				JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
+				JavaElementDelta delta = new JavaElementDelta(getJavaModel());
 				delta.added(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
 				addDelta(delta);
 			}

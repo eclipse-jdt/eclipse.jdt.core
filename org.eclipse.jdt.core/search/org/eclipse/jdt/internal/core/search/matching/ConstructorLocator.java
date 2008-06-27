@@ -191,17 +191,17 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		constructorBinding = alloc.binding;
 	} else if (reference instanceof TypeDeclaration || reference instanceof FieldDeclaration) {
 		super.matchReportReference(reference, element, elementBinding, accuracy, locator);
-		if (match != null) return;
+		if (this.match != null) return;
 	}
 
 	// Create search match
-	match = locator.newMethodReferenceMatch(element, elementBinding, accuracy, -1, -1, true, isSynthetic, reference);
+	this.match = locator.newMethodReferenceMatch(element, elementBinding, accuracy, -1, -1, true, isSynthetic, reference);
 
 	// Look to refine accuracy
 	if (constructorBinding instanceof ParameterizedGenericMethodBinding) { // parameterized generic method
 		// Update match regarding constructor type arguments
 		ParameterizedGenericMethodBinding parameterizedMethodBinding = (ParameterizedGenericMethodBinding) constructorBinding;
-		match.setRaw(parameterizedMethodBinding.isRaw);
+		this.match.setRaw(parameterizedMethodBinding.isRaw);
 		TypeBinding[] typeBindings = parameterizedMethodBinding.isRaw ? null : parameterizedMethodBinding.typeArguments;
 		updateMatch(typeBindings, locator, this.pattern.constructorArguments, this.pattern.hasConstructorParameters());
 
@@ -219,7 +219,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 				updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
 			}
 		} else if (this.pattern.hasTypeArguments()) {
-			match.setRule(SearchPattern.R_ERASURE_MATCH);
+			this.match.setRule(SearchPattern.R_ERASURE_MATCH);
 		}
 
 		// Update match regarding constructor parameters
@@ -235,35 +235,35 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 				updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
 			}
 		} else if (this.pattern.hasTypeArguments()) {
-			match.setRule(SearchPattern.R_ERASURE_MATCH);
+			this.match.setRule(SearchPattern.R_ERASURE_MATCH);
 		}
 
 		// Update match regarding constructor parameters
 		// TODO ? (frederic)
 	} else if (this.pattern.hasConstructorArguments()) { // binding has no type params, compatible erasure if pattern does
-		match.setRule(SearchPattern.R_ERASURE_MATCH);
+		this.match.setRule(SearchPattern.R_ERASURE_MATCH);
 	}
 
 	// See whether it is necessary to report or not
-	if (match.getRule() == 0) return; // impossible match
-	boolean report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
+	if (this.match.getRule() == 0) return; // impossible match
+	boolean report = (this.isErasureMatch && this.match.isErasure()) || (this.isEquivalentMatch && this.match.isEquivalent()) || this.match.isExact();
 	if (!report) return;
 
 	// Report match
 	int offset = reference.sourceStart;
-	match.setOffset(offset);
-	match.setLength(reference.sourceEnd - offset + 1);
+	this.match.setOffset(offset);
+	this.match.setLength(reference.sourceEnd - offset + 1);
 	if (reference instanceof FieldDeclaration) { // enum declaration
 		FieldDeclaration enumConstant  = (FieldDeclaration) reference;
 		if (enumConstant.initialization instanceof QualifiedAllocationExpression) {
-			locator.reportAccurateEnumConstructorReference(match, enumConstant, (QualifiedAllocationExpression) enumConstant.initialization);
+			locator.reportAccurateEnumConstructorReference(this.match, enumConstant, (QualifiedAllocationExpression) enumConstant.initialization);
 			return;
 		}
 	}
-	locator.report(match);
+	locator.report(this.match);
 }
 public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, Binding binding, int accuracy, int length, MatchLocator locator) {
-	match = null;
+	this.match = null;
 	int offset = reference.sourceStart;
 	if (this.pattern.findReferences) {
 		if (reference instanceof TypeDeclaration) {
@@ -273,18 +273,18 @@ public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, 
 				for (int i = 0, max = methods.length; i < max; i++) {
 					AbstractMethodDeclaration method = methods[i];
 					boolean synthetic = method.isDefaultConstructor() && method.sourceStart < type.bodyStart;
-					match = locator.newMethodReferenceMatch(element, binding, accuracy, offset, length, method.isConstructor(), synthetic, method);
+					this.match = locator.newMethodReferenceMatch(element, binding, accuracy, offset, length, method.isConstructor(), synthetic, method);
 				}
 			}
 		} else if (reference instanceof ConstructorDeclaration) {
 			ConstructorDeclaration constructor = (ConstructorDeclaration) reference;
 			ExplicitConstructorCall call = constructor.constructorCall;
 			boolean synthetic = call != null && call.isImplicitSuper();
-			match = locator.newMethodReferenceMatch(element, binding, accuracy, offset, length, constructor.isConstructor(), synthetic, constructor);
+			this.match = locator.newMethodReferenceMatch(element, binding, accuracy, offset, length, constructor.isConstructor(), synthetic, constructor);
 		}
 	}
-	if (match != null) {
-		return match;
+	if (this.match != null) {
+		return this.match;
 	}
 	// super implementation...
     return locator.newDeclarationMatch(element, binding, accuracy, reference.sourceStart, length);

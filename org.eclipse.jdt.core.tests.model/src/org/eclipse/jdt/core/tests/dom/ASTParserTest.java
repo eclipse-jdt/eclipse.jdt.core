@@ -21,13 +21,13 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 
-public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase { 
+public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
 	/** @deprecated using deprecated code */
 	public static Test suite() {
 		// TODO (frederic) use buildList + setAstLevel(init) instead...
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTParserTest.class.getName());
-		
+
 		Class c = ASTParserTest.class;
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
@@ -37,8 +37,8 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 			}
 		}
 		return suite;
-	}	
-	
+	}
+
 	AST ast;
 	ASTParser parser;
 	int API_LEVEL;
@@ -47,18 +47,18 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 		super(name);
 		this.API_LEVEL = apiLevel;
 	}
-	
+
 	protected void setUp() throws Exception {
 		super.setUp();
-		ast = AST.newAST(this.API_LEVEL);
-		parser = ASTParser.newParser(this.API_LEVEL);
+		this.ast = AST.newAST(this.API_LEVEL);
+		this.parser = ASTParser.newParser(this.API_LEVEL);
 	}
-	
+
 	protected void tearDown() throws Exception {
-		ast = null;
+		this.ast = null;
 		super.tearDown();
 	}
-	
+
 	/** @deprecated using deprecated code */
 	public String getName() {
 		String name = super.getName();
@@ -67,12 +67,12 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 				name = "JLS2 - " + name;
 				break;
 			case AST.JLS3:
-				name = "JLS3 - " + name; 
+				name = "JLS3 - " + name;
 				break;
 		}
 		return name;
 	}
-	
+
 	public void testKConstants() {
 		assertTrue(ASTParser.K_EXPRESSION == 1);
 		assertTrue(ASTParser.K_STATEMENTS == 2);
@@ -82,35 +82,35 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 
 	public void testSetting() {
 		// for now, just slam some values in
-	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
-	    parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
-	    parser.setKind(ASTParser.K_EXPRESSION);
-	    parser.setKind(ASTParser.K_STATEMENTS);
-	    
-	    parser.setSource(new char[0]);
-	    parser.setSource((char[]) null);
-	    parser.setSource((ICompilationUnit) null);
-	    parser.setSource((IClassFile) null);
-	    
-	    parser.setResolveBindings(false);
-	    parser.setResolveBindings(true);
-	    
-	    parser.setSourceRange(0, -1);
-	    parser.setSourceRange(0, 1);
-	    parser.setSourceRange(1, 0);
-	    parser.setSourceRange(1, -1);
-	    
-	    parser.setWorkingCopyOwner(null);
+	    this.parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    this.parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+	    this.parser.setKind(ASTParser.K_EXPRESSION);
+	    this.parser.setKind(ASTParser.K_STATEMENTS);
 
-	    parser.setUnitName(null);
-	    parser.setUnitName("Foo.java"); //$NON-NLS-1$
+	    this.parser.setSource(new char[0]);
+	    this.parser.setSource((char[]) null);
+	    this.parser.setSource((ICompilationUnit) null);
+	    this.parser.setSource((IClassFile) null);
 
-	    parser.setProject(null);
+	    this.parser.setResolveBindings(false);
+	    this.parser.setResolveBindings(true);
 
-	    parser.setFocalPosition(-1);
-	    parser.setFocalPosition(0);
+	    this.parser.setSourceRange(0, -1);
+	    this.parser.setSourceRange(0, 1);
+	    this.parser.setSourceRange(1, 0);
+	    this.parser.setSourceRange(1, -1);
 
-	    parser.setCompilerOptions(null);
-	    parser.setCompilerOptions(new HashMap());
+	    this.parser.setWorkingCopyOwner(null);
+
+	    this.parser.setUnitName(null);
+	    this.parser.setUnitName("Foo.java"); //$NON-NLS-1$
+
+	    this.parser.setProject(null);
+
+	    this.parser.setFocalPosition(-1);
+	    this.parser.setFocalPosition(0);
+
+	    this.parser.setCompilerOptions(null);
+	    this.parser.setCompilerOptions(new HashMap());
 	}
 }

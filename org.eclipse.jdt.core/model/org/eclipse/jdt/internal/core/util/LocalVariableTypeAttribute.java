@@ -25,7 +25,7 @@ public class LocalVariableTypeAttribute
 	private static final ILocalVariableTypeTableEntry[] NO_ENTRIES = new ILocalVariableTypeTableEntry[0];
 	private int localVariableTypeTableLength;
 	private ILocalVariableTypeTableEntry[] localVariableTypeTableEntries;
-	
+
 	/**
 	 * Constructor for LocalVariableTypeAttribute.
 	 * @param classFileBytes

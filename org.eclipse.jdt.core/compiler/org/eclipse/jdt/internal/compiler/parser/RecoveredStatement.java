@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 /**
- * Internal statement structure for parsing recovery 
+ * Internal statement structure for parsing recovery
  */
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
@@ -23,11 +23,11 @@ public RecoveredStatement(Statement statement, RecoveredElement parent, int brac
 	super(parent, bracketBalance);
 	this.statement = statement;
 }
-/* 
+/*
  * Answer the associated parsed structure
  */
 public ASTNode parseTree(){
-	return statement;
+	return this.statement;
 }
 /*
  * Answer the very source end of the corresponding parse node
@@ -36,19 +36,19 @@ public int sourceEnd(){
 	return this.statement.sourceEnd;
 }
 public String toString(int tab){
-	return tabString(tab) + "Recovered statement:\n" + statement.print(tab + 1, new StringBuffer(10)); //$NON-NLS-1$
+	return tabString(tab) + "Recovered statement:\n" + this.statement.print(tab + 1, new StringBuffer(10)); //$NON-NLS-1$
 }
 public Statement updatedStatement(){
-	return statement;
+	return this.statement;
 }
 public void updateParseTree(){
-	this.updatedStatement();
+	updatedStatement();
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
 public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
-	if (this.statement.sourceEnd == 0)	
+	if (this.statement.sourceEnd == 0)
 		this.statement.sourceEnd = bodyEnd;
 }
 }

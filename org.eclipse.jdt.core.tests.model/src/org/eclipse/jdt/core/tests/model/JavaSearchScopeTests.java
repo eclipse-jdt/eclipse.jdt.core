@@ -58,8 +58,8 @@ public void testSources() throws CoreException {
 		IJavaProject project = createJavaProject("P");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	/P\n" + 
+			"JavaSearchScope on [\n" +
+			"	/P\n" +
 			"]",
 			scope);
 	} finally {
@@ -75,8 +75,8 @@ public void testApplicationLibrairiesExternalJar() throws CoreException {
 		IJavaProject project = createJavaProject("P");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	"+  getExternalJCLPath().toOSString() +"\n" + 
+			"JavaSearchScope on [\n" +
+			"	"+  getExternalJCLPath().toOSString() +"\n" +
 			"]",
 			scope);
 	} finally {
@@ -94,9 +94,9 @@ public void testApplicationLibrairiesJarAndClassFolder() throws CoreException {
 		createFolder("/P/classfolder");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	/P/classfolder\n" + 
-			"	/P/internal.jar\n" + 
+			"JavaSearchScope on [\n" +
+			"	/P/classfolder\n" +
+			"	/P/internal.jar\n" +
 			"]",
 			scope);
 	} finally {
@@ -108,9 +108,9 @@ public void testApplicationLibrairiesNonExistingJarAndClassFolder() throws CoreE
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"/P/internal.jar", "/P/classfolder"}, "bin");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	/P/classfolder\n" + 
-			"	/P/internal.jar\n" + 
+			"JavaSearchScope on [\n" +
+			"	/P/classfolder\n" +
+			"	/P/internal.jar\n" +
 			"]",
 			scope);
 	} finally {
@@ -128,8 +128,8 @@ public void testApplicationLibrairiesClasspathVariable() throws CoreException {
 		createFile("/P/lib.jar", new byte[0]);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	/P/lib.jar\n" + 
+			"JavaSearchScope on [\n" +
+			"	/P/lib.jar\n" +
 			"]",
 			scope);
 	} finally {
@@ -143,8 +143,8 @@ public void testApplicationLibrairiesNonExistingClasspathVariable() throws CoreE
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"TEST_LIB"}, "");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	/P/lib.jar\n" + 
+			"JavaSearchScope on [\n" +
+			"	/P/lib.jar\n" +
 			"]",
 			scope);
 	} finally {
@@ -162,8 +162,8 @@ public void testApplicationLibrairiesClasspathContainer() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	/P/lib.jar\n" + 
+			"JavaSearchScope on [\n" +
+			"	/P/lib.jar\n" +
 			"]",
 			scope);
 	} finally {
@@ -189,8 +189,8 @@ public void testSystemLibraries() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SYSTEM_LIBRARIES);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	/P/lib.jar\n" + 
+			"JavaSearchScope on [\n" +
+			"	/P/lib.jar\n" +
 			"]",
 			scope);
 	} finally {
@@ -207,9 +207,9 @@ public void testSourcesOrDirectReferencedProjects() throws CoreException {
 		IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {}, new String[] {"/P1"}, "bin");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	/P1\n" + 
-			"	/P2/src\n" + 
+			"JavaSearchScope on [\n" +
+			"	/P1\n" +
+			"	/P2/src\n" +
 			"]",
 			scope);
 	} finally {
@@ -228,9 +228,9 @@ public void testSourcesOrContainerReferencedProjects() throws CoreException {
 		IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	/P1\n" + 
-			"	/P2/src\n" + 
+			"JavaSearchScope on [\n" +
+			"	/P1\n" +
+			"	/P2/src\n" +
 			"]",
 			scope);
 	} finally {
@@ -856,19 +856,19 @@ public void testBug101022() throws CoreException {
 			"/P1/src/Test.java",
 			"public class Test {\n" +
 			"	protected void foo() {}\n" +
-			"}" 
+			"}"
 		);
 		createFile(
 			"/P1/test/Test.java",
 			"public class Test {\n" +
 			"	protected void foo() {}\n" +
-			"}" 
+			"}"
 		);
 		createFile(
 			"/P1/test2/Test.java",
 			"public class Test {\n" +
 			"	protected void foo() {}\n" +
-			"}" 
+			"}"
 		);
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFolder("/P1/test"));
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
@@ -894,26 +894,26 @@ public void testBug101426() throws CoreException {
 		createFile(
 			"/P1/src/Test.java",
 			"public interface ITest {\n" +
-			"}" 
+			"}"
 		);
 		createFile(
 			"/P1/test/Test.java",
 			"public class Test {\n" +
 			"	ITest test;\n" +
-			"}" 
+			"}"
 		);
 		createFile(
 			"/P1/test2/Test.java",
 			"public class Test2 {\n" +
 			"	ITest test;\n" +
-			"}" 
+			"}"
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		search("ITest", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"test/Test.java [in P1] Test.test [ITest]\n" + 
+			"test/Test.java [in P1] Test.test [ITest]\n" +
 			"test2/Test.java [in P1] Test2.test [ITest]",
 			resultCollector);
 	}
@@ -962,7 +962,7 @@ public void testBug101777() throws CoreException {
  * Bug 119203: Search doesn't work with imported plugin
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=119203"
  * WARNING: Fix for this bug has been disabled due to bad regression
- * 
+ *
  * Bug 127048: [search] References to Java element 'CorrectionEngine' not found
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=127048"
  */
@@ -972,13 +972,13 @@ public void testBug119203() throws CoreException {
 		createFile(
 			"/P1/src/Test.java",
 			"public class Test {\n" +
-			"}" 
+			"}"
 		);
 		createFile(
 			"/P1/src/X.java",
 			"public class X {\n" +
 			"	Test test;\n" +
-			"}" 
+			"}"
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1004,13 +1004,13 @@ public void testBug179199() throws CoreException {
 		createFile(
 			"/P1/src/Test.java",
 			"public class Test {\n" +
-			"}" 
+			"}"
 		);
 		createFile(
 			"/P1/src/X.java",
 			"public class X {\n" +
 			"	Test test;\n" +
-			"}" 
+			"}"
 		);
 		waitUntilIndexesReady();
 
@@ -1025,7 +1025,7 @@ public void testBug179199() throws CoreException {
 		IndexManager indexManager = JavaModelManager.getIndexManager();
 		indexManager.indexLibrary(new Path("/P1/bin"), project.getProject());
 		waitUntilIndexesReady();
-		
+
 		// Search for all types
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
@@ -1039,7 +1039,7 @@ public void testBug179199() throws CoreException {
 			collector,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null);
-		
+
 		// Verify results
 		assertSearchResults(
 			"Test (not open) [in Test.class [in <default> [in bin [in P1]]]]",

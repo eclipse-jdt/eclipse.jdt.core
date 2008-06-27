@@ -15,22 +15,22 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 
 public class JdtCorePerformanceMeterPlugin extends Plugin {
-	
+
 	private static final String PLUGIN_ID= "com.ibm.zrh.eclipse.test.performance.yourkit"; //$NON-NLS-1$
 	private static JdtCorePerformanceMeterPlugin DEFAULT;
-	
+
 	public JdtCorePerformanceMeterPlugin() {
 		DEFAULT= this;
 	}
-	
+
 	public static JdtCorePerformanceMeterPlugin getDefault() {
 		return DEFAULT;
 	}
-	
+
 	public static void log(IStatus status) {
 		getDefault().getLog().log(status);
 	}
-	
+
 	public static void log(Throwable e) {
 		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, "Internal error", e)); //$NON-NLS-1$
 	}

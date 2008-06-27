@@ -33,7 +33,7 @@ public class TestCase extends PerformanceTestCase {
 	// Filters
 	public static final String METHOD_PREFIX = "test";
 	public  static String RUN_ONLY_ID = "ONLY_";
-	
+
 	// Ordering
 	public static final int NO_ORDER = 0;
 	public static final int ALPHABETICAL_SORT = 1;
@@ -182,7 +182,7 @@ public class TestCase extends PerformanceTestCase {
 	 * Flag telling if current test is the first of TestSuite it belongs or not.
 	 */
 	private boolean first;
-	
+
 	/**
 	 * Flag telling whether test execution must stop on failure or not.
 	 * Default is true;
@@ -228,7 +228,7 @@ public static void assertStringEquals(String message, String expected, String ac
 		formatted.append(actualWithLineSeparators);
 		formatted.append("\n--------- Difference is ----------\n"); //$NON-NLS-1$
 		throw new ComparisonFailure(formatted.toString(),
-			    expectedWithLineSeparators, 
+			    expectedWithLineSeparators,
 			    actualWithLineSeparators);
 	} else {
 		formatted.append("\n----------- Expected ------------\n"); //$NON-NLS-1$
@@ -265,11 +265,11 @@ protected void assumeEquals(String msg, String expected, String actual) {
 		System.out.println("Expected output is:");
 		System.out.println(Util.displayString(cf.getExpected(), 2));
 		System.out.println();
-		if (abortOnFailure) {
+		if (this.abortOnFailure) {
 			throw cf;
 		}
 	} catch (AssertionFailedError afe) {
-		if (abortOnFailure) {
+		if (this.abortOnFailure) {
 			throw afe;
 		}
 		printAssertionFailure(afe);
@@ -286,7 +286,7 @@ protected void assumeEquals(String msg, int expected, int actual) {
 	try {
 		assertEquals(msg, expected, actual);
 	} catch (AssertionFailedError afe) {
-		if (abortOnFailure) {
+		if (this.abortOnFailure) {
 			throw afe;
 		}
 		printAssertionFailure(afe);
@@ -303,7 +303,7 @@ protected void assumeEquals(String msg, long expected, long actual) {
 	try {
 		assertEquals(msg, expected, actual);
 	} catch (AssertionFailedError afe) {
-		if (abortOnFailure) {
+		if (this.abortOnFailure) {
 			throw afe;
 		}
 		printAssertionFailure(afe);
@@ -320,7 +320,7 @@ protected void assumeTrue(String msg, boolean cond) {
 	try {
 		assertTrue(msg, cond);
 	} catch (AssertionFailedError afe) {
-		if (abortOnFailure) {
+		if (this.abortOnFailure) {
 			throw afe;
 		}
 		printAssertionFailure(afe);
@@ -387,7 +387,7 @@ private void printAssertionFailure(AssertionFailedError afe) {
  * 	}
  * </pre>
  * This test suite will have only test "testONLY_100" put in test suite while running it.
- * 
+ *
  * Note that these 2 mechanisms should be reset while executing "global" test suites.
  * For example:
  * <pre>
@@ -407,7 +407,7 @@ private void printAssertionFailure(AssertionFailedError afe) {
  * </pre>
  * This will insure you that all tests will be put in TestAll test suite, even if static variables
  * values are set or some methods start as testONLY_...
- * 
+ *
  * @param evaluationTestClass the test suite class
  * @return a list ({@link List}) of tests ({@link Test}).
  */
@@ -420,7 +420,7 @@ public static List buildTestsList(Class evaluationTestClass) {
  * <br>
  * Differ from {@link #buildTestsList(Class)} in the fact that one
  * can specify level of recursion in hierarchy to find additional tests.
- * 
+ *
  * @param evaluationTestClass the test suite class
  * @param inheritedDepth level of recursion in top-level hierarchy to find other tests
  * @return a {@link List list} of {@link Test tests}.
@@ -465,9 +465,9 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
  * </pre>
  * Returned list will have 5 tests if inheritedDepth is equals to 1 instead of
  * 3 if it was 0 as while calling by {@link #buildTestsList(Class)}.
- * 
+ *
  * @see #buildTestsList(Class) for complete explanation of subsets mechanisms.
- * 
+ *
  * @param evaluationTestClass the test suite class
  * @param inheritedDepth level of recursion in top-level hierarchy to find other tests
  * @param ordering kind of sort use for the list (see {@link #ORDERING} for possible values)
@@ -611,11 +611,11 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth,
  * Build a test suite with all tests computed from public methods starting with "test"
  * found in the given test class.
  * Test suite name is the name of the given test class.
- * 
+ *
  * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
- * 
+ *
  * @param evaluationTestClass
- * @return a {@link Test test suite} 
+ * @return a {@link Test test suite}
  */
 public static Test buildTestSuite(Class evaluationTestClass) {
 	return buildTestSuite(evaluationTestClass, null); //$NON-NLS-1$
@@ -625,12 +625,12 @@ public static Test buildTestSuite(Class evaluationTestClass) {
  * Build a test suite with all tests computed from public methods starting with "test"
  * found in the given test class.
  * Test suite name is the given name.
- * 
+ *
  * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
- * 
+ *
  * @param evaluationTestClass
  * @param suiteName
- * @return a test suite ({@link Test}) 
+ * @return a test suite ({@link Test})
  */
 public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
 	TestSuite suite = new TestSuite(suiteName==null?evaluationTestClass.getName():suiteName);
@@ -686,7 +686,7 @@ protected static String showLineSeparators(String string) {
 	for (int i = 0; i < length; i++) {
 		char car = string.charAt(i);
 		switch (car) {
-			case '\n': 
+			case '\n':
 				buffer.append("\\n\n"); //$NON-NLS-1$
 				break;
 			case '\r':
@@ -766,24 +766,24 @@ public void commitMeasurements() {
 
 /**
  * Return whether current test is on a new {@link Test test} class or not.
- * 
+ *
  * @return <code>true</code> if it's the first test of a {@link TestSuite},
  * 	<code>false</code> otherwise.
  */
 protected boolean isFirst() {
-	return first;
+	return this.first;
 }
 
 protected void setUp() throws Exception {
 	super.setUp();
 
 	// Store test class and its name when changing
-	first = false;
+	this.first = false;
 	boolean isFirstTestRun = CURRENT_CLASS == null;
 	if (isFirstTestRun || CURRENT_CLASS != getClass()) {
 		if (CURRENT_CLASS != null && RUN_GC) clean();
 		CURRENT_CLASS = getClass();
-		first = true;
+		this.first = true;
 		CURRENT_CLASS_NAME = getClass().getName();
 		CURRENT_CLASS_NAME = CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.indexOf(".tests.")+7, CURRENT_CLASS_NAME.length());
 	}
@@ -850,7 +850,7 @@ protected void tearDown() throws Exception {
 
 	// Memory storage if specified
 	if (STORE_MEMORY != null && MEM_LOG_FILE != null) {
-		if ((first || ALL_TESTS_LOG) && MEM_LOG_FILE.exists()) {
+		if ((this.first || ALL_TESTS_LOG) && MEM_LOG_FILE.exists()) {
 			PrintStream stream = new PrintStream(new FileOutputStream(MEM_LOG_FILE, true));
 			stream.print(CURRENT_CLASS_NAME);
 			stream.print('\t');

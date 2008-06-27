@@ -25,7 +25,7 @@ public class ModelUpdater {
 	HashSet projectsToUpdate = new HashSet();
 
 	/**
-	 * Adds the given child handle to its parent's cache of children. 
+	 * Adds the given child handle to its parent's cache of children.
 	 */
 	protected void addToParentInfo(Openable child) {
 
@@ -72,13 +72,13 @@ public class ModelUpdater {
 		} else {
 			addToParentInfo(element);
 
-			// Force the element to be closed as it might have been opened 
+			// Force the element to be closed as it might have been opened
 			// before the resource modification came in and it might have a new child
 			// For example, in an IWorkspaceRunnable:
 			// 1. create a package fragment p using a java model operation
 			// 2. open package p
 			// 3. add file X.java in folder p
-			// When the resource delta comes in, only the addition of p is notified, 
+			// When the resource delta comes in, only the addition of p is notified,
 			// but the package p is already opened, thus its children are not recomputed
 			// and it appears empty.
 			close(element);
@@ -151,7 +151,7 @@ public class ModelUpdater {
 	 */
 	public void processJavaDelta(IJavaElementDelta delta) {
 		try {
-			this.traverseDelta(delta, null, null); // traverse delta
+			traverseDelta(delta, null, null); // traverse delta
 
 			// reset project caches of projects that were affected
 			Iterator iterator = this.projectsToUpdate.iterator();
@@ -167,7 +167,7 @@ public class ModelUpdater {
 	/**
 	 * Removes the given element from its parents cache of children. If the
 	 * element does not have a parent, or the parent is not currently open,
-	 * this has no effect. 
+	 * this has no effect.
 	 */
 	protected void removeFromParentInfo(Openable child) {
 
@@ -232,7 +232,7 @@ public class ModelUpdater {
 			IJavaElementDelta[] children = delta.getAffectedChildren();
 			for (int i = 0; i < children.length; i++) {
 				IJavaElementDelta childDelta = children[i];
-				this.traverseDelta(childDelta, root, project);
+				traverseDelta(childDelta, root, project);
 			}
 		}
 	}

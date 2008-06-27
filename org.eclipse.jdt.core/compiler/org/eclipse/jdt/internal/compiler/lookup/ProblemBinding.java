@@ -47,9 +47,9 @@ public final int kind() {
 */
 
 public final int problemId() {
-	return problemId;
+	return this.problemId;
 }
 public char[] readableName() {
-	return name;
+	return this.name;
 }
 }

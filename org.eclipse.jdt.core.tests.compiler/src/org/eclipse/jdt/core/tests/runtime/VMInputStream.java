@@ -62,7 +62,7 @@ public int read(byte b[]) throws IOException {
 	// Make sure the byte array is initialized (value of 0 is used in the workaround below)
 	for (int i=0;i<b.length;i++)
 		b[i]=0;
-		
+
 	int read;
 	try {
 		read = this.input.read(b);

@@ -36,7 +36,7 @@ public class CompletionOnJavadocParamNameReference extends JavadocSingleNameRefe
 
 	/**
 	 * Get completion node flags.
-	 * 
+	 *
 	 * @return int Flags of the javadoc completion node.
 	 */
 	public int getCompletionFlags() {

@@ -24,12 +24,12 @@ import org.eclipse.jdt.core.compiler.IProblem;
  */
 public class CompletionRequestorWrapper extends CompletionRequestor {
 	private static boolean DECODE_SIGNATURE = false;
-	
+
 	private org.eclipse.jdt.core.ICompletionRequestor requestor;
 	public CompletionRequestorWrapper(org.eclipse.jdt.core.ICompletionRequestor requestor) {
 		this.requestor = requestor;
 	}
-	
+
 	public void accept(CompletionProposal proposal) {
 		switch(proposal.getKind()) {
 			case CompletionProposal.KEYWORD:
@@ -108,7 +108,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 							Signature.getSignatureSimpleName(proposal.getDeclarationSignature()),
 							proposal.getName(),
 							Signature.getSignatureQualifier(proposal.getSignature()),
-							Signature.getSignatureSimpleName(proposal.getSignature()), 
+							Signature.getSignatureSimpleName(proposal.getSignature()),
 							proposal.getCompletion(),
 							proposal.getFlags(),
 							proposal.getReplaceStart(),
@@ -204,7 +204,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 				if(DECODE_SIGNATURE) {
 					this.requestor.acceptAnonymousType(
 							Signature.getSignatureQualifier(proposal.getDeclarationSignature()),
-							Signature.getSignatureSimpleName(proposal.getDeclarationSignature()), 
+							Signature.getSignatureSimpleName(proposal.getDeclarationSignature()),
 							getParameterPackages(proposal.getSignature()),
 							getParameterTypes(proposal.getSignature()),
 							proposal.findParameterNames(null) == null ? CharOperation.NO_CHAR_CHAR : proposal.findParameterNames(null),
@@ -307,14 +307,14 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 					}
 				}
 				break;
-				
+
 		}
 	}
-	
+
 	public void completionFailure(IProblem problem) {
 		this.requestor.acceptError(problem);
 	}
-	
+
 	private char[][] getParameterPackages(char[] methodSignature) {
 		char[][] parameterQualifiedTypes = Signature.getParameterTypes(methodSignature);
 		int length = parameterQualifiedTypes == null ? 0 : parameterQualifiedTypes.length;
@@ -325,7 +325,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 
 		return parameterPackages;
 	}
-	
+
 	private char[][] getParameterTypes(char[] methodSignature) {
 		char[][] parameterQualifiedTypes = Signature.getParameterTypes(methodSignature);
 		int length = parameterQualifiedTypes == null ? 0 : parameterQualifiedTypes.length;

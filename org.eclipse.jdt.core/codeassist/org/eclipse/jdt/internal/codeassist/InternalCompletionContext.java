@@ -27,29 +27,29 @@ public class InternalCompletionContext {
 	protected char[][] expectedTypesSignatures;
 	protected char[][] expectedTypesKeys;
 	protected int javadoc;
-	
+
 	protected int offset = -1;
 	protected int tokenStart = -1;
 	protected int tokenEnd = -1;
 	protected char[] token = null;
 	protected int tokenKind;
 	protected int tokenLocation;
-	
+
 	protected boolean isExtended;
 	protected InternalExtendedCompletionContext extendedContext;
-	
+
 	protected void setExpectedTypesKeys(char[][] expectedTypesKeys) {
 		this.expectedTypesKeys = expectedTypesKeys;
 	}
-	
+
 	protected void setExpectedTypesSignatures(char[][] expectedTypesSignatures) {
 		this.expectedTypesSignatures = expectedTypesSignatures;
 	}
-	
+
 	protected void setExtended() {
 		this.isExtended = true;
 	}
-	
+
 	protected void setExtendedData(
 			ITypeRoot typeRoot,
 			CompilationUnitDeclaration compilationUnitDeclaration,
@@ -74,7 +74,7 @@ public class InternalCompletionContext {
 	protected void setJavadoc(int javadoc) {
 		this.javadoc = javadoc;
 	}
-	
+
 	protected void setOffset(int offset) {
 		this.offset = offset;
 	}
@@ -86,7 +86,7 @@ public class InternalCompletionContext {
 	protected void setTokenKind(int tokenKind) {
 		this.tokenKind = tokenKind;
 	}
-	
+
 	protected void setTokenLocation(int tokenLocation) {
 		this.tokenLocation = tokenLocation;
 	}
@@ -98,7 +98,7 @@ public class InternalCompletionContext {
 	protected void setTokenRange(int start, int end, int endOfEmptyToken) {
 		this.tokenStart = start;
 		this.tokenEnd = endOfEmptyToken > end ? endOfEmptyToken : end;
-		
+
 		// Work around for bug 132558 (https://bugs.eclipse.org/bugs/show_bug.cgi?id=132558).
 		// completionLocation can be -1 if the completion occur at the start of a file or
 		// the start of a code snippet but this API isn't design to support negative position.

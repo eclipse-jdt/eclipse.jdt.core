@@ -26,16 +26,16 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	// Coverage tests
 	/**
 	 * Exception raised when unexpected behavior is detected during coverage
-	 * tests. 
+	 * tests.
 	 */
 	public static class AssertionFailedException extends RuntimeException {
 		private static final long serialVersionUID = 1827352841030089703L;
-		
+
 	public AssertionFailedException(String message) {
 		super(message);
 	}
 	}
-	
+
 	// Coverage tests need that the code be instrumented. The following flag
 	// controls whether the instrumented code is compiled in or not, and whether
 	// the coverage tests methods run or not.
@@ -46,9 +46,9 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	// assignment bits - first segment
 	public long definiteInits;
 	public long potentialInits;
-	
+
 	// null bits - first segment
-	public long 
+	public long
 		nullBit1,
 		nullBit2,
 		nullBit3,
@@ -70,8 +70,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		1101	pot. n & prot. n
 		1110	prot. null
 		1111	prot. non null
- */	
-		
+ */
+
 	// extra segments
 	public static final int extraLength = 6;
 	public long extra[][];
@@ -90,18 +90,18 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
 		return this;
 	if (inits == DEAD_END)
 		return this;
-	UnconditionalFlowInfo otherInits = inits.unconditionalInits();		
+	UnconditionalFlowInfo otherInits = inits.unconditionalInits();
 
-	// union of definitely assigned variables, 
+	// union of definitely assigned variables,
 	this.definiteInits |= otherInits.definiteInits;
 	// union of potentially set ones
 	this.potentialInits |= otherInits.potentialInits;
 	// combine null information
 	boolean thisHadNulls = (this.tagBits & NULL_FLAG_MASK) != 0,
 		otherHasNulls = (otherInits.tagBits & NULL_FLAG_MASK) != 0;
-	long 
-		a1, a2, a3, a4, 
-		na1, na2, na3, na4, 
+	long
+		a1, a2, a3, a4,
+		na1, na2, na3, na4,
 		b1, b2, b3, b4,
 		nb1, nb2, nb3, nb4;
 	if (otherHasNulls) {
@@ -116,11 +116,11 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
 		}
 		else {
 			this.nullBit1 = (b1 = otherInits.nullBit1)
-                				| (a1 = this.nullBit1) & ((a3 = this.nullBit3) 
-                					& (a4 = this.nullBit4) & (nb2 = ~(b2 = otherInits.nullBit2)) 
+                				| (a1 = this.nullBit1) & ((a3 = this.nullBit3)
+                					& (a4 = this.nullBit4) & (nb2 = ~(b2 = otherInits.nullBit2))
                 					& (nb4 = ~(b4 = otherInits.nullBit4))
-                        		| ((na4 = ~a4) | (na3 = ~a3)) 
-                        			& ((na2 = ~(a2 = this.nullBit2)) & nb2 
+                        		| ((na4 = ~a4) | (na3 = ~a3))
+                        			& ((na2 = ~(a2 = this.nullBit2)) & nb2
                         				| a2 & (nb3 = ~(b3 = otherInits.nullBit3)) & nb4));
 			this.nullBit2  = b2 & (nb4 | nb3)
                     			| na3 & na4 & b2
@@ -142,7 +142,7 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
                                   				| na3 & a4 & b2 & b3)
                           			| na1 & (b4	| (a4 | a2) & b2 & b3))
                       			| (na1 & (na3 & nb3 | na2 & nb2)
-                      				| a1 & (nb2 & nb3 | a2 & a3)) & b4;	
+                      				| a1 & (nb2 & nb3 | a2 & a3)) & b4;
 			if (coverageTestFlag && coverageTestId == 2) {
 			  this.nullBit4 = ~0;
 			}
@@ -156,11 +156,11 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
 			if (otherInits.extra != null) {
 				// both sides have extra storage
 				int length, otherLength;
-				if ((length = this.extra[0].length) < 
+				if ((length = this.extra[0].length) <
 						(otherLength = otherInits.extra[0].length)) {
 					// current storage is shorter -> grow current
 					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0, 
+						System.arraycopy(this.extra[j], 0,
 							(this.extra[j] = new long[otherLength]), 0, length);
 					}
 					mergeLimit = length;
@@ -175,20 +175,20 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
 						throw new AssertionFailedException("COVERAGE 4"); //$NON-NLS-1$
 					}
 				}
-			} 
+			}
 		} else if (otherInits.extra != null) {
 			// no storage here, but other has extra storage.
 			// shortcut regular copy because array copy is better
 			int otherLength;
 			this.extra = new long[extraLength][];
-			System.arraycopy(otherInits.extra[0], 0, 
-				(this.extra[0] = new long[otherLength = 
-					otherInits.extra[0].length]), 0, otherLength);			
-			System.arraycopy(otherInits.extra[1], 0, 
+			System.arraycopy(otherInits.extra[0], 0,
+				(this.extra[0] = new long[otherLength =
+					otherInits.extra[0].length]), 0, otherLength);
+			System.arraycopy(otherInits.extra[1], 0,
 				(this.extra[1] = new long[otherLength]), 0, otherLength);
 			if (otherHasNulls) {
 				for (int j = 2; j < extraLength; j++) {
-					System.arraycopy(otherInits.extra[j], 0, 
+					System.arraycopy(otherInits.extra[j], 0,
 						(this.extra[j] = new long[otherLength]), 0, otherLength);
 				}
 				if (coverageTestFlag && coverageTestId == 5) {
@@ -197,7 +197,7 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
 			}
 			else {
 				for (int j = 2; j < extraLength; j++) {
-					this.extra[j] = new long[otherLength];			
+					this.extra[j] = new long[otherLength];
 				}
 				if (coverageTestFlag && coverageTestId == 6) {
 					throw new AssertionFailedException("COVERAGE 6"); //$NON-NLS-1$
@@ -227,11 +227,11 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
 		}
 		for (i = 0; i < mergeLimit; i++) {
 			this.extra[1 + 1][i] = (b1 = otherInits.extra[1 + 1][i])
-                				| (a1 = this.extra[1 + 1][i]) & ((a3 = this.extra[3 + 1][i]) 
-                					& (a4 = this.extra[4 + 1][i]) & (nb2 = ~(b2 = otherInits.extra[2 + 1][i])) 
+                				| (a1 = this.extra[1 + 1][i]) & ((a3 = this.extra[3 + 1][i])
+                					& (a4 = this.extra[4 + 1][i]) & (nb2 = ~(b2 = otherInits.extra[2 + 1][i]))
                 					& (nb4 = ~(b4 = otherInits.extra[4 + 1][i]))
-                        		| ((na4 = ~a4) | (na3 = ~a3)) 
-                        			& ((na2 = ~(a2 = this.extra[2 + 1][i])) & nb2 
+                        		| ((na4 = ~a4) | (na3 = ~a3))
+                        			& ((na2 = ~(a2 = this.extra[2 + 1][i])) & nb2
                         				| a2 & (nb3 = ~(b3 = otherInits.extra[3 + 1][i])) & nb4));
 			this.extra[2 + 1][i]  = b2 & (nb4 | nb3)
                     			| na3 & na4 & b2
@@ -253,7 +253,7 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
                                   				| na3 & a4 & b2 & b3)
                           			| na1 & (b4	| (a4 | a2) & b2 & b3))
                       			| (na1 & (na3 & nb3 | na2 & nb2)
-                      				| a1 & (nb2 & nb3 | a2 & a3)) & b4;	
+                      				| a1 & (nb2 & nb3 | a2 & a3)) & b4;
 			if (coverageTestFlag && coverageTestId == 7) {
 			  this.extra[5][i] = ~0;
 			}
@@ -288,7 +288,7 @@ public FlowInfo addPotentialInitializationsFrom(FlowInfo inits) {
 			if ((length = this.extra[0].length) < (otherLength = otherInits.extra[0].length)) {
 				// current storage is shorter -> grow current
 				for (int j = 0; j < extraLength; j++) {
-					System.arraycopy(this.extra[j], 0, 
+					System.arraycopy(this.extra[j], 0,
 						(this.extra[j] = new long[otherLength]), 0, length);
 				}
 				for (; i < length; i++) {
@@ -297,7 +297,7 @@ public FlowInfo addPotentialInitializationsFrom(FlowInfo inits) {
 				for (; i < otherLength; i++) {
 					this.extra[1][i] = otherInits.extra[1][i];
 				}
-			} 
+			}
 			else {
 				// current storage is longer
 				for (; i < otherLength; i++) {
@@ -305,27 +305,27 @@ public FlowInfo addPotentialInitializationsFrom(FlowInfo inits) {
 				}
 			}
 		}
-	} 
+	}
 	else if (otherInits.extra != null) {
 		// no storage here, but other has extra storage.
 		int otherLength = otherInits.extra[0].length;
 		this.extra = new long[extraLength][];
 		for (int j = 0; j < extraLength; j++) {
-			this.extra[j] = new long[otherLength];			
+			this.extra[j] = new long[otherLength];
 		}
-		System.arraycopy(otherInits.extra[1], 0, this.extra[1], 0, 
+		System.arraycopy(otherInits.extra[1], 0, this.extra[1], 0,
 			otherLength);
 	}
-	this.addPotentialNullInfoFrom(otherInits);
+	addPotentialNullInfoFrom(otherInits);
 	return this;
 }
 
 /**
  * Compose other inits over this flow info, then return this. The operation
- * semantics are to wave into this flow info the consequences upon null 
- * information of a possible path into the operations that resulted into 
- * otherInits. The fact that this path may be left unexecuted under peculiar 
- * conditions results into less specific results than 
+ * semantics are to wave into this flow info the consequences upon null
+ * information of a possible path into the operations that resulted into
+ * otherInits. The fact that this path may be left unexecuted under peculiar
+ * conditions results into less specific results than
  * {@link #addInitializationsFrom(FlowInfo) addInitializationsFrom}; moreover,
  * only the null information is affected.
  * @param otherInits other null inits to compose over this
@@ -341,17 +341,17 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 	// if we get here, otherInits has some null info
 	boolean thisHadNulls = (this.tagBits & NULL_FLAG_MASK) != 0,
 		thisHasNulls = false;
-	long a1, a2, a3, a4,  
-		na1, na2, na3, na4, 
+	long a1, a2, a3, a4,
+		na1, na2, na3, na4,
 		b1, b2, b3, b4,
 		nb1, nb2, nb3, nb4;
 	if (thisHadNulls) {
-		this.nullBit1  = (a1 = this.nullBit1) 
-								& ((a3 = this.nullBit3) & (a4 = this.nullBit4) 
-									& ((nb2 = ~(b2 = otherInits.nullBit2)) 
-										& (nb4 = ~(b4 = otherInits.nullBit4)) 
+		this.nullBit1  = (a1 = this.nullBit1)
+								& ((a3 = this.nullBit3) & (a4 = this.nullBit4)
+									& ((nb2 = ~(b2 = otherInits.nullBit2))
+										& (nb4 = ~(b4 = otherInits.nullBit4))
 											| (b1 = otherInits.nullBit1) & (b3 = otherInits.nullBit3))
-                			| (na2 = ~(a2 = this.nullBit2)) 
+                			| (na2 = ~(a2 = this.nullBit2))
                 				& (b1 & b3 | ((na4 = ~a4) | (na3 = ~a3)) & nb2)
                 			| a2 & ((na4 | na3) & ((nb3 = ~b3) & nb4 | b1 & b2)));
 		this.nullBit2 = b2 & (nb3 | (nb1 = ~b1))
@@ -375,8 +375,8 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 		}
 	} else {
   		this.nullBit1 = 0;
-  		this.nullBit2 = (b2 = otherInits.nullBit2) 
-  							& ((nb3 = ~(b3 = otherInits.nullBit3)) | 
+  		this.nullBit2 = (b2 = otherInits.nullBit2)
+  							& ((nb3 = ~(b3 = otherInits.nullBit3)) |
   								(nb1 = ~(b1 = otherInits.nullBit1)));
   		this.nullBit3 = b3 & (nb1 | (nb2 = ~b2));
   		this.nullBit4 = ~b1 & ~b3 & (b4 = otherInits.nullBit4) | ~b2 & (b1 & ~b3 | ~b1 & b4);
@@ -408,7 +408,7 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 							mergeLimit);
 				}
 				if (! thisHadNulls) {
-    				mergeLimit = 0; 
+    				mergeLimit = 0;
     				// will do with a copy -- caveat: only valid because definite assignment bits copied above
         			if (coverageTestFlag && coverageTestId == 12) {
 						throw new AssertionFailedException("COVERAGE 12"); //$NON-NLS-1$
@@ -419,12 +419,12 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 		// PREMATURE skip operations for fields
 		int i;
 		for (i = 0 ; i < mergeLimit ; i++) {
-    		this.extra[1 + 1][i]  = (a1 = this.extra[1 + 1][i]) 
-    								& ((a3 = this.extra[3 + 1][i]) & (a4 = this.extra[4 + 1][i]) 
-    									& ((nb2 = ~(b2 = otherInits.extra[2 + 1][i])) 
-    										& (nb4 = ~(b4 = otherInits.extra[4 + 1][i])) 
+    		this.extra[1 + 1][i]  = (a1 = this.extra[1 + 1][i])
+    								& ((a3 = this.extra[3 + 1][i]) & (a4 = this.extra[4 + 1][i])
+    									& ((nb2 = ~(b2 = otherInits.extra[2 + 1][i]))
+    										& (nb4 = ~(b4 = otherInits.extra[4 + 1][i]))
     											| (b1 = otherInits.extra[1 + 1][i]) & (b3 = otherInits.extra[3 + 1][i]))
-                    			| (na2 = ~(a2 = this.extra[2 + 1][i])) 
+                    			| (na2 = ~(a2 = this.extra[2 + 1][i]))
                     				& (b1 & b3 | ((na4 = ~a4) | (na3 = ~a3)) & nb2)
                     			| a2 & ((na4 | na3) & ((nb3 = ~b3) & nb4 | b1 & b2)));
     		this.extra[2 + 1][i] = b2 & (nb3 | (nb1 = ~b1))
@@ -449,8 +449,8 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 		}
 		for (; i < copyLimit; i++) {
     		this.extra[1 + 1][i] = 0;
-    		this.extra[2 + 1][i] = (b2 = otherInits.extra[2 + 1][i]) 
-    							& ((nb3 = ~(b3 = otherInits.extra[3 + 1][i])) | 
+    		this.extra[2 + 1][i] = (b2 = otherInits.extra[2 + 1][i])
+    							& ((nb3 = ~(b3 = otherInits.extra[3 + 1][i])) |
     								(nb1 = ~(b1 = otherInits.extra[1 + 1][i])));
     		this.extra[3 + 1][i] = b3 & (nb1 | (nb2 = ~b2));
     		this.extra[4 + 1][i] = ~b1 & ~b3 & (b4 = otherInits.extra[4 + 1][i]) | ~b2 & (b1 & ~b3 | ~b1 & b4);
@@ -463,16 +463,16 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 		}
 	}
 	if (thisHasNulls) {
-		this.tagBits |= NULL_FLAG_MASK; 
+		this.tagBits |= NULL_FLAG_MASK;
 	}
 	else {
-		this.tagBits &= NULL_FLAG_MASK; 
+		this.tagBits &= NULL_FLAG_MASK;
 	}
 	return this;
 }
 
 final public boolean cannotBeDefinitelyNullOrNonNull(LocalVariableBinding local) {
-	if ((this.tagBits & NULL_FLAG_MASK) == 0 || 
+	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
@@ -480,7 +480,7 @@ final public boolean cannotBeDefinitelyNullOrNonNull(LocalVariableBinding local)
 	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 		// use bits
 		return (
-			(~this.nullBit1 
+			(~this.nullBit1
 					& (this.nullBit2 & this.nullBit3 | this.nullBit4)
 				| ~this.nullBit2 & ~this.nullBit3 & this.nullBit4)
 			& (1L << position)) != 0;
@@ -490,20 +490,20 @@ final public boolean cannotBeDefinitelyNullOrNonNull(LocalVariableBinding local)
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
 			this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
 	long a2, a3, a4;
 	return (
-			(~this.extra[2][vectorIndex] 
+			(~this.extra[2][vectorIndex]
 					& ((a2 = this.extra[3][vectorIndex]) & (a3 = this.extra[4][vectorIndex]) | (a4 = this.extra[5][vectorIndex]))
 				| ~a2 & ~a3 & a4)
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
 final public boolean cannotBeNull(LocalVariableBinding local) {
-	if ((this.tagBits & NULL_FLAG_MASK) == 0 || 
+	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
@@ -519,7 +519,7 @@ final public boolean cannotBeNull(LocalVariableBinding local) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
 			this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
@@ -530,7 +530,7 @@ final public boolean cannotBeNull(LocalVariableBinding local) {
 }
 
 final public boolean canOnlyBeNull(LocalVariableBinding local) {
-	if ((this.tagBits & NULL_FLAG_MASK) == 0 || 
+	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
@@ -546,7 +546,7 @@ final public boolean canOnlyBeNull(LocalVariableBinding local) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
 			this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
@@ -565,7 +565,7 @@ public FlowInfo copy() {
 	copy.definiteInits = this.definiteInits;
 	copy.potentialInits = this.potentialInits;
 	boolean hasNullInfo = (this.tagBits & NULL_FLAG_MASK) != 0;
-	if (hasNullInfo) { 
+	if (hasNullInfo) {
 		copy.nullBit1 = this.nullBit1;
 		copy.nullBit2 = this.nullBit2;
 		copy.nullBit3 = this.nullBit3;
@@ -576,14 +576,14 @@ public FlowInfo copy() {
 	if (this.extra != null) {
 		int length;
 		copy.extra = new long[extraLength][];
-		System.arraycopy(this.extra[0], 0, 
-			(copy.extra[0] = new long[length = this.extra[0].length]), 0, 
+		System.arraycopy(this.extra[0], 0,
+			(copy.extra[0] = new long[length = this.extra[0].length]), 0,
 			length);
-		System.arraycopy(this.extra[1], 0, 
+		System.arraycopy(this.extra[1], 0,
 			(copy.extra[1] = new long[length]), 0, length);
 		if (hasNullInfo) {
 			for (int j = 2; j < extraLength; j++) {
-				System.arraycopy(this.extra[j], 0, 
+				System.arraycopy(this.extra[j], 0,
 					(copy.extra[j] = new long[length]), 0, length);
 			}
 		}
@@ -598,7 +598,7 @@ public FlowInfo copy() {
 
 /**
  * Discard definite inits and potential inits from this, then return this.
- * The returned flow info only holds null related information. 
+ * The returned flow info only holds null related information.
  * @return this flow info, minus definite inits and potential inits
  */
 public UnconditionalFlowInfo discardInitializationInfo() {
@@ -629,7 +629,7 @@ public UnconditionalFlowInfo discardNonFieldInitializations() {
 		this.nullBit2 &= mask;
 		this.nullBit3 &= mask;
 		this.nullBit4 &= mask;
-	} 
+	}
 	// use extra vector
 	if (this.extra == null) {
 		return this; // if vector not yet allocated, then not initialized
@@ -638,7 +638,7 @@ public UnconditionalFlowInfo discardNonFieldInitializations() {
 	if ((vectorIndex = (limit / BitCacheSize) - 1) >= length) {
 		return this; // not enough room yet
 	}
-	if (vectorIndex >= 0) { 
+	if (vectorIndex >= 0) {
 		// else we only have complete non field array items left
 		long mask = (1L << (limit % BitCacheSize))-1;
 		for (int j = 0; j < extraLength; j++) {
@@ -669,27 +669,27 @@ public FlowInfo initsWhenTrue() {
 final private boolean isDefinitelyAssigned(int position) {
 	if (position < BitCacheSize) {
 		// use bits
-		return (this.definiteInits & (1L << position)) != 0; 
+		return (this.definiteInits & (1L << position)) != 0;
 	}
 	// use extra vector
 	if (this.extra == null)
 		return false; // if vector not yet allocated, then not initialized
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) 
+	if ((vectorIndex = (position / BitCacheSize) - 1)
 			>= this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
-	return ((this.extra[0][vectorIndex]) & 
+	return ((this.extra[0][vectorIndex]) &
 				(1L << (position % BitCacheSize))) != 0;
 }
 
 final public boolean isDefinitelyAssigned(FieldBinding field) {
-	// Mirrored in CodeStream.isDefinitelyAssigned(..) 
+	// Mirrored in CodeStream.isDefinitelyAssigned(..)
 	// do not want to complain in unreachable code
-	if ((this.tagBits & UNREACHABLE) != 0) { 
+	if ((this.tagBits & UNREACHABLE) != 0) {
 		return true;
 	}
-	return isDefinitelyAssigned(field.id); 
+	return isDefinitelyAssigned(field.id);
 }
 
 final public boolean isDefinitelyAssigned(LocalVariableBinding local) {
@@ -702,11 +702,11 @@ final public boolean isDefinitelyAssigned(LocalVariableBinding local) {
 
 final public boolean isDefinitelyNonNull(LocalVariableBinding local) {
 	// do not want to complain in unreachable code
-	if ((this.tagBits & UNREACHABLE) != 0 || 
+	if ((this.tagBits & UNREACHABLE) != 0 ||
 			(this.tagBits & NULL_FLAG_MASK) == 0) {
 		return false;
 	}
-	if ((local.type.tagBits & TagBits.IsBaseType) != 0 || 
+	if ((local.type.tagBits & TagBits.IsBaseType) != 0 ||
 			local.constant() != Constant.NotAConstant) { // String instances
 		return true;
 	}
@@ -720,7 +720,7 @@ final public boolean isDefinitelyNonNull(LocalVariableBinding local) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1)  
+	if ((vectorIndex = (position / BitCacheSize) - 1)
 			>= this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
@@ -731,8 +731,8 @@ final public boolean isDefinitelyNonNull(LocalVariableBinding local) {
 
 final public boolean isDefinitelyNull(LocalVariableBinding local) {
 	// do not want to complain in unreachable code
-	if ((this.tagBits & UNREACHABLE) != 0 || 
-			(this.tagBits & NULL_FLAG_MASK) == 0 || 
+	if ((this.tagBits & UNREACHABLE) != 0 ||
+			(this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
@@ -747,7 +747,7 @@ final public boolean isDefinitelyNull(LocalVariableBinding local) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
 			this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
@@ -758,7 +758,7 @@ final public boolean isDefinitelyNull(LocalVariableBinding local) {
 
 final public boolean isDefinitelyUnknown(LocalVariableBinding local) {
 	// do not want to complain in unreachable code
-	if ((this.tagBits & UNREACHABLE) != 0 || 
+	if ((this.tagBits & UNREACHABLE) != 0 ||
 			(this.tagBits & NULL_FLAG_MASK) == 0) {
 		return false;
 	}
@@ -772,7 +772,7 @@ final public boolean isDefinitelyUnknown(LocalVariableBinding local) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
 			this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
@@ -795,16 +795,16 @@ final private boolean isPotentiallyAssigned(int position) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) 
+	if ((vectorIndex = (position / BitCacheSize) - 1)
 			>= this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
-	return ((this.extra[1][vectorIndex]) & 
+	return ((this.extra[1][vectorIndex]) &
 			(1L << (position % BitCacheSize))) != 0;
 }
 
 final public boolean isPotentiallyAssigned(FieldBinding field) {
-	return isPotentiallyAssigned(field.id); 
+	return isPotentiallyAssigned(field.id);
 }
 
 final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
@@ -816,7 +816,7 @@ final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 }
 
 final public boolean isPotentiallyNonNull(LocalVariableBinding local) {
-	if ((this.tagBits & NULL_FLAG_MASK) == 0 || 
+	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
@@ -831,7 +831,7 @@ final public boolean isPotentiallyNonNull(LocalVariableBinding local) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
 			this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
@@ -841,7 +841,7 @@ final public boolean isPotentiallyNonNull(LocalVariableBinding local) {
 }
 
 final public boolean isPotentiallyNull(LocalVariableBinding local) {
-	if ((this.tagBits & NULL_FLAG_MASK) == 0 || 
+	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
@@ -856,7 +856,7 @@ final public boolean isPotentiallyNull(LocalVariableBinding local) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
 			this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
@@ -867,13 +867,13 @@ final public boolean isPotentiallyNull(LocalVariableBinding local) {
 
 final public boolean isPotentiallyUnknown(LocalVariableBinding local) {
 	// do not want to complain in unreachable code
-	if ((this.tagBits & UNREACHABLE) != 0 || 
+	if ((this.tagBits & UNREACHABLE) != 0 ||
 			(this.tagBits & NULL_FLAG_MASK) == 0) {
 		return false;
 	}
 	int position = local.id + this.maxFieldCount;
 	if (position < BitCacheSize) { // use bits
-		return (this.nullBit4 
+		return (this.nullBit4
 			& (~this.nullBit1 | ~this.nullBit2 & ~this.nullBit3)
 			& (1L << position)) != 0;
 	}
@@ -882,13 +882,13 @@ final public boolean isPotentiallyUnknown(LocalVariableBinding local) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
 			this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
 	return (this.extra[5][vectorIndex]
-	        & (~this.extra[2][vectorIndex] 
-	            | ~this.extra[3][vectorIndex] & ~this.extra[4][vectorIndex]) 
+	        & (~this.extra[2][vectorIndex]
+	            | ~this.extra[3][vectorIndex] & ~this.extra[4][vectorIndex])
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
@@ -907,18 +907,18 @@ final public boolean isProtectedNonNull(LocalVariableBinding local) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
 		this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
-	return (this.extra[2][vectorIndex] 
+	return (this.extra[2][vectorIndex]
 	            & this.extra[4][vectorIndex]
 	            & this.extra[5][vectorIndex]
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
 final public boolean isProtectedNull(LocalVariableBinding local) {
-	if ((this.tagBits & NULL_FLAG_MASK) == 0 || 
+	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
@@ -934,7 +934,7 @@ final public boolean isProtectedNull(LocalVariableBinding local) {
 		return false; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex;
-	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
 			this.extra[0].length) {
 		return false; // if not enough room in vector, then not initialized
 	}
@@ -953,7 +953,7 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 		// position is zero-based
 		if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 			// use bits
-			if (((mask = 1L << position) 
+			if (((mask = 1L << position)
 				& (a1 = this.nullBit1)
 				& (na2 = ~(a2 = this.nullBit2))
 				& ~(a3 = this.nullBit3)
@@ -972,11 +972,11 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 			  	}
 			}
 			this.nullBit1 |= mask;
-			this.nullBit3 |= mask; 
+			this.nullBit3 |= mask;
 			if (coverageTestFlag && coverageTestId == 15) {
 			  	this.nullBit4 = ~0;
 			}
-		} 
+		}
 		else {
 			// use extra vector
 			int vectorIndex = (position / BitCacheSize) - 1;
@@ -995,8 +995,8 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 				if (vectorIndex >= (oldLength = this.extra[0].length)) {
 					int newLength = vectorIndex + 1;
 					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0, 
-							(this.extra[j] = new long[newLength]), 0, 
+						System.arraycopy(this.extra[j], 0,
+							(this.extra[j] = new long[newLength]), 0,
 							oldLength);
 					}
 					if (coverageTestFlag && coverageTestId == 17) {
@@ -1005,7 +1005,7 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 				}
 			}
 			// MACRO :'b,'es/nullBit\(.\)/extra[\1 + 1][vectorIndex]/gc
-			if (((mask = 1L << (position % BitCacheSize)) 
+			if (((mask = 1L << (position % BitCacheSize))
   				& (a1 = this.extra[1 + 1][vectorIndex])
   				& (na2 = ~(a2 = this.extra[2 + 1][vectorIndex]))
   				& ~(a3 = this.extra[3 + 1][vectorIndex])
@@ -1024,7 +1024,7 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
   			  	}
   			}
   			this.extra[1 + 1][vectorIndex] |= mask;
-  			this.extra[3 + 1][vectorIndex] |= mask; 
+  			this.extra[3 + 1][vectorIndex] |= mask;
 			if (coverageTestFlag && coverageTestId == 18) {
 			  	this.extra[5][vectorIndex] = ~0;
 			}
@@ -1042,7 +1042,7 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
 		if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 			// use bits
 			if (((mask = 1L << position) & this.nullBit1) != 0) {
-  			  	if ((mask  
+  			  	if ((mask
   			  		& (~this.nullBit2 | this.nullBit3
   			  			| ~this.nullBit4)) != 0) {
   			  	  	this.nullBit4 &= ~mask;
@@ -1058,11 +1058,11 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
     			}
 			}
 			this.nullBit1 |= mask;
-			this.nullBit2 |= mask; 
+			this.nullBit2 |= mask;
 			if (coverageTestFlag && coverageTestId == 19) {
 			  	this.nullBit4 = ~0;
 			}
-		} 
+		}
 		else {
 			// use extra vector
 			int vectorIndex = (position / BitCacheSize) - 1;
@@ -1082,7 +1082,7 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
 				if (vectorIndex >= (oldLength = this.extra[0].length)) {
 					int newLength = vectorIndex + 1;
 					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0, 
+						System.arraycopy(this.extra[j], 0,
 							(this.extra[j] = new long[newLength]), 0,
 							oldLength);
 					}
@@ -1092,7 +1092,7 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
 				}
 			}
 			if ((mask & this.extra[1 + 1][vectorIndex]) != 0) {
-  			  	if ((mask  
+  			  	if ((mask
   			  		& (~this.extra[2 + 1][vectorIndex] | this.extra[3 + 1][vectorIndex]
   			  			| ~this.extra[4 + 1][vectorIndex])) != 0) {
   			  	  	this.extra[4 + 1][vectorIndex] &= ~mask;
@@ -1108,7 +1108,7 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
     			}
 			}
 			this.extra[1 + 1][vectorIndex] |= mask;
-			this.extra[2 + 1][vectorIndex] |= mask; 
+			this.extra[2 + 1][vectorIndex] |= mask;
 		}
 	}
 }
@@ -1117,7 +1117,7 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
  * Record a definite assignment at a given position.
  */
 final private void markAsDefinitelyAssigned(int position) {
-	
+
 	if (this != DEAD_END) {
 		// position is zero-based
 		if (position < BitCacheSize) {
@@ -1125,7 +1125,7 @@ final private void markAsDefinitelyAssigned(int position) {
 			long mask;
 			this.definiteInits |= (mask = 1L << position);
 			this.potentialInits |= mask;
-		} 
+		}
 		else {
 			// use extra vector
 			int vectorIndex = (position / BitCacheSize) - 1;
@@ -1135,19 +1135,19 @@ final private void markAsDefinitelyAssigned(int position) {
 				for (int j = 0; j < extraLength; j++) {
 					this.extra[j] = new long[length];
 				}
-			} 
+			}
 			else {
 				int oldLength; // might need to grow the arrays
 				if (vectorIndex >= (oldLength = this.extra[0].length)) {
 					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0, 
-							(this.extra[j] = new long[vectorIndex + 1]), 0, 
+						System.arraycopy(this.extra[j], 0,
+							(this.extra[j] = new long[vectorIndex + 1]), 0,
 							oldLength);
 					}
 				}
 			}
 			long mask;
-			this.extra[0][vectorIndex] |= 
+			this.extra[0][vectorIndex] |=
 				(mask = 1L << (position % BitCacheSize));
 			this.extra[1][vectorIndex] |= mask;
 		}
@@ -1181,11 +1181,11 @@ public void markAsDefinitelyNonNull(LocalVariableBinding local) {
     		if (coverageTestFlag && coverageTestId == 22) {
     		  	this.nullBit1 = 0;
     		}
-    	} 
+    	}
     	else {
     		// use extra vector
     		int vectorIndex ;
-    		this.extra[2][vectorIndex = (position / BitCacheSize) - 1] 
+    		this.extra[2][vectorIndex = (position / BitCacheSize) - 1]
     		    |= (mask = 1L << (position % BitCacheSize));
     		this.extra[4][vectorIndex] |= mask;
     		this.extra[3][vectorIndex] &= (mask = ~mask);
@@ -1214,11 +1214,11 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
     		if (coverageTestFlag && coverageTestId == 24) {
     		  	this.nullBit4 = ~0;
     		}
-    	} 
+    	}
     	else {
     		// use extra vector
     		int vectorIndex ;
-    		this.extra[2][vectorIndex = (position / BitCacheSize) - 1] 
+    		this.extra[2][vectorIndex = (position / BitCacheSize) - 1]
     		    |= (mask = 1L << (position % BitCacheSize));
     		this.extra[3][vectorIndex] |= mask;
     		this.extra[4][vectorIndex] &= (mask = ~mask);
@@ -1254,11 +1254,11 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 			if (coverageTestFlag && coverageTestId == 26) {
 			  	this.nullBit4 = 0;
 			}
-		} 
+		}
 		else {
 			// use extra vector
 			int vectorIndex ;
-			this.extra[2][vectorIndex = (position / BitCacheSize) - 1] 
+			this.extra[2][vectorIndex = (position / BitCacheSize) - 1]
 			    |= (mask = 1L << (position % BitCacheSize));
 			this.extra[5][vectorIndex] |= mask;
 			this.extra[3][vectorIndex] &= (mask = ~mask);
@@ -1282,9 +1282,9 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 			throw new AssertionFailedException("COVERAGE 29"); //$NON-NLS-1$
 		}
 		return (UnconditionalFlowInfo) otherInits.copy(); // make sure otherInits won't be affected
-	} 
-	
-	// intersection of definitely assigned variables, 
+	}
+
+	// intersection of definitely assigned variables,
 	this.definiteInits &= otherInits.definiteInits;
 	// union of potentially set ones
 	this.potentialInits |= otherInits.potentialInits;
@@ -1294,20 +1294,20 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 		thisHasNulls = (this.tagBits & NULL_FLAG_MASK) != 0,
 		otherHasNulls = (otherInits.tagBits & NULL_FLAG_MASK) != 0,
 		thisHadNulls = thisHasNulls;
-	long 
-		a1, a2, a3, a4,  
-		na1, na2, na3, na4, 
+	long
+		a1, a2, a3, a4,
+		na1, na2, na3, na4,
 		nb1, nb2, nb3, nb4,
 		b1, b2, b3, b4;
 	if (thisHadNulls) {
     	if (otherHasNulls) {
-    		this.nullBit1 = (a2 = this.nullBit2) & (a3 = this.nullBit3) 
-    							& (a4 = this.nullBit4) & (b1 = otherInits.nullBit1) 
+    		this.nullBit1 = (a2 = this.nullBit2) & (a3 = this.nullBit3)
+    							& (a4 = this.nullBit4) & (b1 = otherInits.nullBit1)
     							& (nb2 = ~(b2 = otherInits.nullBit2))
-                  			| (a1 = this.nullBit1) & (b1 & (a3 & a4 & (b3 = otherInits.nullBit3) 
+                  			| (a1 = this.nullBit1) & (b1 & (a3 & a4 & (b3 = otherInits.nullBit3)
                   													& (b4 = otherInits.nullBit4)
-                  												| (na2 = ~a2) & nb2 
-                  													& ((nb4 = ~b4) | (na4 = ~a4) 
+                  												| (na2 = ~a2) & nb2
+                  													& ((nb4 = ~b4) | (na4 = ~a4)
                   															| (na3 = ~a3) & (nb3 = ~b3))
                   												| a2 & b2 & ((na4 | na3) & (nb4	| nb3)))
                   											| na2 & b2 & b3 & b4);
@@ -1330,7 +1330,7 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
     		if (coverageTestFlag && coverageTestId == 30) {
     		  	this.nullBit4 = ~0;
     		}
-    	} else { // other has no null info 
+    	} else { // other has no null info
     		a1 = this.nullBit1;
       		this.nullBit1 = 0;
       		this.nullBit2 = (a2 = this.nullBit2) & (na3 = ~(a3 = this.nullBit3) | (na1 = ~a1));
@@ -1363,11 +1363,11 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 			if (otherInits.extra != null) {
 				// both sides have extra storage
 				int length, otherLength;
-				if ((length = this.extra[0].length) < 
+				if ((length = this.extra[0].length) <
 						(otherLength = otherInits.extra[0].length)) {
-					// current storage is shorter -> grow current 
+					// current storage is shorter -> grow current
 					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0, 
+						System.arraycopy(this.extra[j], 0,
 							(this.extra[j] = new long[otherLength]), 0, length);
 					}
 					mergeLimit = length;
@@ -1375,7 +1375,7 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 					if (coverageTestFlag && coverageTestId == 33) {
 						throw new AssertionFailedException("COVERAGE 33"); //$NON-NLS-1$
 					}
-				} 
+				}
 				else {
 					// current storage is longer
 					mergeLimit = otherLength;
@@ -1384,14 +1384,14 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 						throw new AssertionFailedException("COVERAGE 34"); //$NON-NLS-1$
 					}
 				}
-			} 
+			}
 			else {
 				resetLimit = this.extra[0].length;
 				if (coverageTestFlag && coverageTestId == 35) {
 					throw new AssertionFailedException("COVERAGE 35"); //$NON-NLS-1$
 				}
 			}
-		} 
+		}
 		else if (otherInits.extra != null) {
 			// no storage here, but other has extra storage.
 			int otherLength = otherInits.extra[0].length;
@@ -1399,7 +1399,7 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 			for (int j = 0; j < extraLength; j++) {
 				this.extra[j] = new long[otherLength];
 			}
-			System.arraycopy(otherInits.extra[1], 0, 
+			System.arraycopy(otherInits.extra[1], 0,
 				this.extra[1], 0, otherLength);
 			copyLimit = otherLength;
 			if (coverageTestFlag && coverageTestId == 36) {
@@ -1431,13 +1431,13 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 		}
 		// compose nulls
 		for (i = 0; i < mergeLimit; i++) {
-    		this.extra[1 + 1][i] = (a2 = this.extra[2 + 1][i]) & (a3 = this.extra[3 + 1][i]) 
-    							& (a4 = this.extra[4 + 1][i]) & (b1 = otherInits.extra[1 + 1][i]) 
+    		this.extra[1 + 1][i] = (a2 = this.extra[2 + 1][i]) & (a3 = this.extra[3 + 1][i])
+    							& (a4 = this.extra[4 + 1][i]) & (b1 = otherInits.extra[1 + 1][i])
     							& (nb2 = ~(b2 = otherInits.extra[2 + 1][i]))
-                  			| (a1 = this.extra[1 + 1][i]) & (b1 & (a3 & a4 & (b3 = otherInits.extra[3 + 1][i]) 
+                  			| (a1 = this.extra[1 + 1][i]) & (b1 & (a3 & a4 & (b3 = otherInits.extra[3 + 1][i])
                   													& (b4 = otherInits.extra[4 + 1][i])
-                  												| (na2 = ~a2) & nb2 
-                  													& ((nb4 = ~b4) | (na4 = ~a4) 
+                  												| (na2 = ~a2) & nb2
+                  													& ((nb4 = ~b4) | (na4 = ~a4)
                   															| (na3 = ~a3) & (nb3 = ~b3))
                   												| a2 & b2 & ((na4 | na3) & (nb4	| nb3)))
                   											| na2 & b2 & b3 & b4);
@@ -1527,10 +1527,10 @@ public UnconditionalFlowInfo nullInfoLessUnconditionalCopy() {
 	if (this.extra != null) {
 		int length;
 		copy.extra = new long[extraLength][];
-		System.arraycopy(this.extra[0], 0, 
-			(copy.extra[0] = 
+		System.arraycopy(this.extra[0], 0,
+			(copy.extra[0] =
 				new long[length = this.extra[0].length]), 0, length);
-		System.arraycopy(this.extra[1], 0, 
+		System.arraycopy(this.extra[1], 0,
 			(copy.extra[1] = new long[length]), 0, length);
 		for (int j = 2; j < extraLength; j++) {
 			copy.extra[j] = new long[length];
@@ -1553,12 +1553,12 @@ public FlowInfo setReachMode(int reachMode) {
 			// see InitializationTest#test090 (and others)
 			this.potentialInits = 0;
 			if (this.extra != null) {
-				for (int i = 0, length = this.extra[0].length; 
+				for (int i = 0, length = this.extra[0].length;
 						i < length; i++) {
 					this.extra[1][i] = 0;
 				}
 			}
-		}				
+		}
 		this.tagBits |= UNREACHABLE;
 	}
 	return this;
@@ -1584,8 +1584,8 @@ public String toString(){
 				nullS = ", null:[" + this.nullBit1 //$NON-NLS-1$
 					+ this.nullBit2 + this.nullBit3 + this.nullBit4;
 			int i, ceil;
-			for (i = 0, ceil = this.extra[0].length > 3 ? 
-								3 : 
+			for (i = 0, ceil = this.extra[0].length > 3 ?
+								3 :
 								this.extra[0].length;
 				i < ceil; i++) {
 				def += "," + this.extra[0][i]; //$NON-NLS-1$
@@ -1598,7 +1598,7 @@ public String toString(){
 				pot += ",..."; //$NON-NLS-1$
 				nullS += ",..."; //$NON-NLS-1$
 			}
-			return def + pot 
+			return def + pot
 				+ "], reachable:" + ((this.tagBits & UNREACHABLE) == 0) //$NON-NLS-1$
 				+ nullS
 				+ "]>"; //$NON-NLS-1$
@@ -1615,8 +1615,8 @@ public String toString(){
 			String def = "FlowInfo<def:[" + this.definiteInits, //$NON-NLS-1$
 				pot = "], pot:[" + this.potentialInits; //$NON-NLS-1$
 			int i, ceil;
-			for (i = 0, ceil = this.extra[0].length > 3 ? 
-								3 : 
+			for (i = 0, ceil = this.extra[0].length > 3 ?
+								3 :
 								this.extra[0].length;
 				i < ceil; i++) {
 				def += "," + this.extra[0][i]; //$NON-NLS-1$
@@ -1626,7 +1626,7 @@ public String toString(){
 				def += ",..."; //$NON-NLS-1$
 				pot += ",..."; //$NON-NLS-1$
 			}
-			return def + pot 
+			return def + pot
 				+ "], reachable:" + ((this.tagBits & UNREACHABLE) == 0) //$NON-NLS-1$
 				+ ", no null info>"; //$NON-NLS-1$
 		}
@@ -1636,7 +1636,7 @@ public String toString(){
 public UnconditionalFlowInfo unconditionalCopy() {
 	return (UnconditionalFlowInfo) copy();
 }
-	
+
 public UnconditionalFlowInfo unconditionalFieldLessCopy() {
 	// TODO (maxime) may consider leveraging null contribution verification as it is done in copy
 	UnconditionalFlowInfo copy = new UnconditionalFlowInfo();
@@ -1651,13 +1651,13 @@ public UnconditionalFlowInfo unconditionalFieldLessCopy() {
 		copy.nullBit2 = this.nullBit2 & mask;
 		copy.nullBit3 = this.nullBit3 & mask;
 		copy.nullBit4 = this.nullBit4 & mask;
-	} 
+	}
 	// use extra vector
 	if (this.extra == null) {
 		return copy; // if vector not yet allocated, then not initialized
 	}
 	int vectorIndex, length, copyStart;
-	if ((vectorIndex = (limit / BitCacheSize) - 1) >= 
+	if ((vectorIndex = (limit / BitCacheSize) - 1) >=
 			(length = this.extra[0].length)) {
 		return copy; // not enough room yet
 	}
@@ -1666,8 +1666,8 @@ public UnconditionalFlowInfo unconditionalFieldLessCopy() {
 	if ((copyStart = vectorIndex + 1) < length) {
 		int copyLength = length - copyStart;
 		for (int j = 0; j < extraLength; j++) {
-			System.arraycopy(this.extra[j], copyStart, 
-				(copy.extra[j] = new long[length]), copyStart, 
+			System.arraycopy(this.extra[j], copyStart,
+				(copy.extra[j] = new long[length]), copyStart,
 				copyLength);
 		}
 	}
@@ -1679,7 +1679,7 @@ public UnconditionalFlowInfo unconditionalFieldLessCopy() {
 	if (vectorIndex >= 0) {
 		mask = ~((1L << (limit % BitCacheSize))-1);
 		for (int j = 0; j < extraLength; j++) {
-			copy.extra[j][vectorIndex] = 
+			copy.extra[j][vectorIndex] =
 				this.extra[j][vectorIndex] & mask;
 		}
 	}

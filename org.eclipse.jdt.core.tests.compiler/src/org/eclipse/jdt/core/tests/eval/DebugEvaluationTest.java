@@ -36,7 +36,7 @@ import com.sun.jdi.VirtualMachine;
 public class DebugEvaluationTest extends EvaluationTest {
 	class DebugRequestor extends Requestor {
 		public boolean acceptClassFiles(org.eclipse.jdt.internal.compiler.ClassFile[] classFiles, char[] codeSnippetClassName) {
-			if (jdiStackFrame == null) {
+			if (DebugEvaluationTest.this.jdiStackFrame == null) {
 				return super.acceptClassFiles(classFiles, codeSnippetClassName);
 			}
 			// Send but don't run
@@ -44,13 +44,13 @@ public class DebugEvaluationTest extends EvaluationTest {
 
 			// Run if needed
 			if (codeSnippetClassName != null) {
-				boolean success = jdiStackFrame.run(new String(codeSnippetClassName));
+				boolean success = DebugEvaluationTest.this.jdiStackFrame.run(new String(codeSnippetClassName));
 				if (success) {
-					TargetInterface.Result result = target.getResult();
+					TargetInterface.Result result = DebugEvaluationTest.this.target.getResult();
 					if (result.displayString == null) {
-						this.acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, null, null));
+						acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, null, null));
 					} else {
-						this.acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, result.displayString, result.typeName));
+						acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, result.displayString, result.typeName));
 					}
 				}
 				return success;
@@ -58,12 +58,12 @@ public class DebugEvaluationTest extends EvaluationTest {
 			return true;
 		}
 	}
-	
+
 	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory() + File.separator + "source";
-	
+
 	public JDIStackFrame jdiStackFrame;
 	VirtualMachine jdiVM;
-	
+
 	public DebugEvaluationTest(String name) {
 		super(name);
 	}
@@ -174,14 +174,14 @@ public class DebugEvaluationTest extends EvaluationTest {
 		String userCode =
 			"";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode);
-		
+
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return 1;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -189,9 +189,9 @@ public class DebugEvaluationTest extends EvaluationTest {
 				stackFrame.declaringTypeName(),
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -221,7 +221,7 @@ public void test002() {
 		String userCode =
 			"new A002().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"A002",
@@ -230,7 +230,7 @@ public void test002() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return this;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				null, // local var type names
 				null, // local var names
@@ -238,9 +238,9 @@ public void test002() {
 				stackFrame.declaringTypeName(),
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -273,7 +273,7 @@ public void test003() {
 		String userCode =
 			"new A003().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"A003",
@@ -282,7 +282,7 @@ public void test003() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return this;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -290,9 +290,9 @@ public void test003() {
 				null, // declaring type -- NO DELEGATE THIS
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -316,14 +316,14 @@ public void test004() {
 		"  }\n" +
 		"};";
 	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
+		this.jdiVM,
 		this,
 		userCode);
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "return thread;".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -331,9 +331,9 @@ public void test004() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -362,7 +362,7 @@ public void test005() {
 		String userCode =
 			"new A005().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"A005",
@@ -372,7 +372,7 @@ public void test005() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return x;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -380,9 +380,9 @@ public void test005() {
 				stackFrame.declaringTypeName(),
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -414,7 +414,7 @@ public void test006() {
 		String userCode =
 			"new A006().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"A006",
@@ -424,7 +424,7 @@ public void test006() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return x + new Object(){ int foo(){ return 17; }}.foo();".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -432,9 +432,9 @@ public void test006() {
 				stackFrame.declaringTypeName(),
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -466,7 +466,7 @@ public void test007() {
 		String userCode =
 			"new A007().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"A007",
@@ -476,7 +476,7 @@ public void test007() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return X;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -484,9 +484,9 @@ public void test007() {
 				stackFrame.declaringTypeName(),
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -518,7 +518,7 @@ public void test008() {
 		String userCode =
 			"new A008().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"A008",
@@ -528,7 +528,7 @@ public void test008() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return x + new Object(){ int foo(int x){ return x; }}.foo(14);".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -536,9 +536,9 @@ public void test008() {
 				stackFrame.declaringTypeName(),
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -560,14 +560,14 @@ public void test009() {
 	String userCode =
 		"String s = \"test009\";\n";
 	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
+		this.jdiVM,
 		this,
 		userCode);
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "s".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -575,9 +575,9 @@ public void test009() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -610,7 +610,7 @@ public void test010() {
 			"};\n" +
 			"a.foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"A010",
@@ -620,7 +620,7 @@ public void test010() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return this;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -628,9 +628,9 @@ public void test010() {
 				stackFrame.declaringTypeName(),
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -654,14 +654,14 @@ public void test011() {
 		"java.util.Vector v = new java.util.Vector();\n" +
 		"v.addElement(s);\n";
 	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
+		this.jdiVM,
 		this,
 		userCode);
-	
+
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "return v;".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -669,9 +669,9 @@ public void test011() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -692,14 +692,14 @@ public void test012() {
 		"java.util.Date date = cal.getGregorianChange();\n" +
 		"date.toString();";
 	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
+		this.jdiVM,
 		this,
 		userCode);
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "date = new java.util.Date();".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -707,9 +707,9 @@ public void test012() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -717,7 +717,7 @@ public void test012() {
 	requestor = new DebugRequestor();
 	snippet = "return date.after(cal.getGregorianChange());".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -725,9 +725,9 @@ public void test012() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -748,14 +748,14 @@ public void test012() {
 public void _test013() {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
+		this.jdiVM,
 		this,
 		userCode);
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "i = -1;".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -763,9 +763,9 @@ public void _test013() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -773,7 +773,7 @@ public void _test013() {
 	requestor = new DebugRequestor();
 	snippet = "return i != 0;".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -781,9 +781,9 @@ public void _test013() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -804,14 +804,14 @@ public void _test013() {
 public void _test014() {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
+		this.jdiVM,
 		this,
 		userCode);
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "i++;".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -819,9 +819,9 @@ public void _test014() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -829,7 +829,7 @@ public void _test014() {
 	requestor = new DebugRequestor();
 	snippet = "return i!= 0;".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -837,9 +837,9 @@ public void _test014() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -860,14 +860,14 @@ public void _test014() {
 public void _test015() {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
+		this.jdiVM,
 		this,
 		userCode);
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "java.lang.System.setOut(new java.io.PrintStream(new java.io.OutputStream()));".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -875,18 +875,18 @@ public void _test015() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
-	}	
+	}
 
 	requestor = new DebugRequestor();
 	snippet = "return java.lang.System.out != null;".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -894,9 +894,9 @@ public void _test015() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -914,14 +914,14 @@ public void _test015() {
 public void test016() {
 	String userCode = "";
 	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
+		this.jdiVM,
 		this,
 		userCode);
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "java.lang.System.setOut(null);".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -929,9 +929,9 @@ public void test016() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -939,7 +939,7 @@ public void test016() {
 	requestor = new DebugRequestor();
 	snippet = "return java.lang.System.out == null;".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -947,9 +947,9 @@ public void test016() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -1004,7 +1004,7 @@ public void test017() {
 			+ "}\n"
 			+ "return primes[i-1];").toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -1045,7 +1045,7 @@ public void test018() {
 		String userCode =
 			"new A018().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"A018",
@@ -1055,7 +1055,7 @@ public void test018() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "x = 5;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1063,9 +1063,9 @@ public void test018() {
 				stackFrame.declaringTypeName(),
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -1073,7 +1073,7 @@ public void test018() {
 		requestor = new DebugRequestor();
 		snippet = "return x;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1081,9 +1081,9 @@ public void test018() {
 				stackFrame.declaringTypeName(),
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -1115,7 +1115,7 @@ public void _test019() {
 		String userCode =
 			"new A019().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"A019",
@@ -1125,7 +1125,7 @@ public void _test019() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return super.clone().equals(this);".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1133,9 +1133,9 @@ public void _test019() {
 				stackFrame.declaringTypeName(),
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -1182,7 +1182,7 @@ public void test020() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return foo();".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1241,7 +1241,7 @@ public void test021() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "o = bar2();".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1259,7 +1259,7 @@ public void test021() {
 		requestor = new DebugRequestor();
 		snippet = "return o;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1296,7 +1296,7 @@ public void test022() {
 				+ "\tpublic String s = null;\n"
 				+ "}";
 		compileAndDeploy(sourceB22, "B22");
-		
+
 		String sourceA22 =
 			"public class A22 {\n"
 				+ "\tpublic B22 b = new B22();\n"
@@ -1324,7 +1324,7 @@ public void test022() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "b.s = \"toto\"".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1348,7 +1348,7 @@ public void test022() {
 		requestor = new DebugRequestor();
 		snippet = "return b.s;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1387,13 +1387,13 @@ public void test023() {
 				+ "}";
 		compileAndDeploy(sourceC23, "C23");
 
-		
+
 		String sourceB23 =
 			"public class B23 {\n"
 				+ "\tpublic C23 c = new C23();\n"
 				+ "}";
 		compileAndDeploy(sourceB23, "B23");
-		
+
 		String sourceA23 =
 			"public class A23 {\n"
 				+ "\tpublic B23 b = new B23();\n"
@@ -1421,7 +1421,7 @@ public void test023() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "b.c.c = \"toto\"".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1445,7 +1445,7 @@ public void test023() {
 		requestor = new DebugRequestor();
 		snippet = "return b.c.c;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1469,7 +1469,7 @@ public void test023() {
 		assertEquals("Value", "toto".toCharArray(), result.getValueDisplayString());
 		assertEquals("Type", "java.lang.String".toCharArray(), result.getValueTypeName());
 	} finally {
-		removeTempClass("C23");     
+		removeTempClass("C23");
 		removeTempClass("B23");
 		removeTempClass("A23");
 	}
@@ -1485,13 +1485,13 @@ public void test024() {
 				+ "}";
 		compileAndDeploy(sourceC24, "C24");
 
-		
+
 		String sourceB24 =
 			"public class B24 {\n"
 				+ "\tpublic C24 c = new C24();\n"
 				+ "}";
 		compileAndDeploy(sourceB24, "B24");
-		
+
 		String sourceA24 =
 			"public class A24 {\n"
 				+ "\tpublic B24 b = new B24();\n"
@@ -1519,7 +1519,7 @@ public void test024() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "b.c.tab[3] = 8".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1543,7 +1543,7 @@ public void test024() {
 		requestor = new DebugRequestor();
 		snippet = "return b.c.tab[3];".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1567,7 +1567,7 @@ public void test024() {
 		assertEquals("Value", "8".toCharArray(), result.getValueDisplayString());
 		assertEquals("Type", "int".toCharArray(), result.getValueTypeName());
 	} finally {
-		removeTempClass("C24");     
+		removeTempClass("C24");
 		removeTempClass("B24");
 		removeTempClass("A24");
 	}
@@ -1604,7 +1604,7 @@ public void test025() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "tabString[1] = \"toto\"".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1628,7 +1628,7 @@ public void test025() {
 		requestor = new DebugRequestor();
 		snippet = "return tabString[1];".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1681,12 +1681,12 @@ public void test026() {
 				-1);
 
 		DebugRequestor requestor = new DebugRequestor();
-		char[] snippet = 
+		char[] snippet =
 			("int[] tab = new int[1];\n"
 			+ "tab[0] = foo();\n"
 			+ "tab[0]").toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1731,7 +1731,7 @@ public void test027() {
 				+ "\t\t} else {\n"
 				+ "\t\t\treturn 4;\n"
 				+ "\t\t}\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "}";
 		compileAndDeploy(sourceA27, "A27");
 
@@ -1746,14 +1746,14 @@ public void test027() {
 				-1);
 
 		DebugRequestor requestor = new DebugRequestor();
-		char[] snippet = 
+		char[] snippet =
 			("int[] tab = new int[] { 1, 2, 3, 4, 5};\n"
 			+ "switch(foo()) {\n"
 			+ "case 1 : return -1;\n"
 			+ "case 2 : return tab[bar2(foo())];\n"
 			+ "default: return -5;}").toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1798,7 +1798,7 @@ public void test028() {
 				+ "\t\t} else {\n"
 				+ "\t\t\treturn 4;\n"
 				+ "\t\t}\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "}";
 		compileAndDeploy(sourceA28, "A28");
 
@@ -1813,7 +1813,7 @@ public void test028() {
 				-1);
 
 		DebugRequestor requestor = new DebugRequestor();
-		char[] snippet = 
+		char[] snippet =
 			("int[] tab = new int[] { 1, 2, 3, 4, 5};\n"
 			+ "int i =3;\n"
 			+ "switch(foo()) {\n"
@@ -1822,7 +1822,7 @@ public void test028() {
 			+ "}\n"
 			+ "return tab[i++];").toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1867,7 +1867,7 @@ public void test029() {
 				+ "\t\t} else {\n"
 				+ "\t\t\treturn 4;\n"
 				+ "\t\t}\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "}";
 		compileAndDeploy(sourceA29, "A29");
 
@@ -1882,7 +1882,7 @@ public void test029() {
 				-1);
 
 		DebugRequestor requestor = new DebugRequestor();
-		char[] snippet = 
+		char[] snippet =
 			("int[] tab = new int[] { 1, 2, 3, 4, 5};\n"
 			+ "int i =3;\n"
 			+ "switch(foo()) {\n"
@@ -1891,7 +1891,7 @@ public void test029() {
 			+ "}\n"
 			+ "return tab[++i];").toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1936,7 +1936,7 @@ public void test030() {
 				+ "\t\t} else {\n"
 				+ "\t\t\treturn 4;\n"
 				+ "\t\t}\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "}";
 		compileAndDeploy(sourceA30, "A30");
 
@@ -1951,7 +1951,7 @@ public void test030() {
 				-1);
 
 		DebugRequestor requestor = new DebugRequestor();
-		char[] snippet = 
+		char[] snippet =
 			("try {\n"
 			+ "int[] tab = new int[] { 1, 2, 3, 4};\n"
 			+ "int i =3;\n"
@@ -1964,7 +1964,7 @@ public void test030() {
 			+ "return -2;\n"
 			+ "}").toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -1976,7 +1976,7 @@ public void test030() {
 				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
-		} catch (InstallException e) { 
+		} catch (InstallException e) {
 			assertTrue("One targetException : ArrayIndexOutOfBoundsException " + e.getMessage(), true);
 		}
 		assertTrue(
@@ -2017,7 +2017,7 @@ public void test031() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return i;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2029,7 +2029,7 @@ public void test031() {
 				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
-		} catch (InstallException e) { 
+		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
 		assertTrue(
@@ -2078,7 +2078,7 @@ public void test032() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return new B32().j;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2090,7 +2090,7 @@ public void test032() {
 				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
-		} catch (InstallException e) { 
+		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
 		assertTrue(
@@ -2109,7 +2109,7 @@ public void test032() {
 		}
 		assertEquals("Unexpected errors",
 			"The field B32.j is not visible|",
-			buffer == null ? "none" : buffer.toString());       
+			buffer == null ? "none" : buffer.toString());
 	} finally {
 		removeTempClass("B32");
 		removeTempClass("A32");
@@ -2152,7 +2152,7 @@ public void test033() {
 			final Map compilerOptions = getCompilerOptions();
 			compilerOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2164,7 +2164,7 @@ public void test033() {
 				compilerOptions,
 				requestor,
 				getProblemFactory());
-		} catch (InstallException e) { 
+		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
 		assertTrue(
@@ -2201,7 +2201,7 @@ public void test034() {
 			("l = 100L;\n" +
 			"return l;").toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2254,7 +2254,7 @@ public void test035() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return i;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2266,7 +2266,7 @@ public void test035() {
 				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
-		} catch (InstallException e) { 
+		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
 		assertTrue(
@@ -2303,7 +2303,7 @@ public void test036() {
 			("l+=4;\n" +
 			"return l;").toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2352,7 +2352,7 @@ public void test037() {
 			("l++;\n" +
 			"return l;").toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2399,7 +2399,7 @@ public void test038() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return l++;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2446,7 +2446,7 @@ public void test039() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return A39.i;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2493,7 +2493,7 @@ public void test040() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return A40.tab.length;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2540,7 +2540,7 @@ public void test041() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return A41.tab.length;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2587,7 +2587,7 @@ public void test042() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return ++A42.Counter;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2634,7 +2634,7 @@ public void test043() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "A43.Counter++; return A43.Counter;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2681,7 +2681,7 @@ public void test044() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "int j = A44.Counter++; return A44.Counter + j;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2728,7 +2728,7 @@ public void test045() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "int j = ++A45.Counter; return A45.Counter + j;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2775,7 +2775,7 @@ public void test046() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "int j = ++A46.Counter; return A46.Counter + j;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2810,7 +2810,7 @@ public void test047() {
 		String sourceA47 =
 			"public class A47 {\n"
 				+ "\tstatic private A47 instance = new A47();\n"
-				+ "\tstatic private int Counter = 2;\n"             
+				+ "\tstatic private int Counter = 2;\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -2823,7 +2823,7 @@ public void test047() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return A47.instance.Counter;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2859,7 +2859,7 @@ public void test048() {
 		String sourceA48 =
 			"public class A48 {\n"
 				+ "\tstatic private A48 instance = new A48();\n"
-				+ "\tstatic private int Counter = 2;\n"             
+				+ "\tstatic private int Counter = 2;\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -2872,7 +2872,7 @@ public void test048() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return new A48().instance.Counter;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2908,7 +2908,7 @@ public void test049() {
 		String sourceA49 =
 			"public class A49 {\n"
 				+ "\tstatic private A49 instance = new A49();\n"
-				+ "\tstatic private int Counter = 2;\n"             
+				+ "\tstatic private int Counter = 2;\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -2921,7 +2921,7 @@ public void test049() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return ++(new A49().Counter);".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -2957,7 +2957,7 @@ public void test050() {
 		String sourceA50 =
 			"public class A50 {\n"
 				+ "\tstatic private A50 instance = new A50();\n"
-				+ "\tstatic private int Counter = 2;\n"             
+				+ "\tstatic private int Counter = 2;\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -2970,7 +2970,7 @@ public void test050() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "A50 a = new A50(); a.Counter = 5; return a.Counter;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3006,7 +3006,7 @@ public void test051() {
 		String sourceA51 =
 			"public class A51 {\n"
 				+ "\tstatic private A51 instance = new A51();\n"
-				+ "\tstatic private int Counter = 2;\n"             
+				+ "\tstatic private int Counter = 2;\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3019,7 +3019,7 @@ public void test051() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "Counter = 5; return Counter;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3055,7 +3055,7 @@ public void test052() {
 		String sourceA52 =
 			"public class A52 {\n"
 				+ "\tstatic private A52 instance = new A52();\n"
-				+ "\tstatic private int Counter = 2;\n"             
+				+ "\tstatic private int Counter = 2;\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3068,7 +3068,7 @@ public void test052() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "this.Counter = 5; return this.Counter;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3104,7 +3104,7 @@ public void test053() {
 		String sourceA53 =
 			"public class A53 {\n"
 				+ "\tstatic private A53 instance = new A53();\n"
-				+ "\tstatic private int Counter = 2;\n"             
+				+ "\tstatic private int Counter = 2;\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3117,7 +3117,7 @@ public void test053() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "this.Counter++; return this.Counter;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3153,7 +3153,7 @@ public void test054() {
 		String sourceA54 =
 			"public class A54 {\n"
 				+ "\tstatic private A54 instance = new A54();\n"
-				+ "\tstatic private long Counter = 2L;\n"               
+				+ "\tstatic private long Counter = 2L;\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3166,7 +3166,7 @@ public void test054() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "this.Counter++; return this.Counter;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3200,9 +3200,9 @@ public void test055() {
 	try {
 		String sourceA55 =
 			"public class A55 {\n"
-				+ "\tprivate int foo() {;\n"                
+				+ "\tprivate int foo() {;\n"
 				+ "\t\treturn 3;\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3215,7 +3215,7 @@ public void test055() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return foo();".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3249,9 +3249,9 @@ public void test056() {
 	try {
 		String sourceA56 =
 			"public class A56 {\n"
-				+ "\tprivate Integer foo() {;\n"                
+				+ "\tprivate Integer foo() {;\n"
 				+ "\t\treturn new Integer(3);\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3264,7 +3264,7 @@ public void test056() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return foo().intValue();".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3298,9 +3298,9 @@ public void test057() {
 	try {
 		String sourceA57 =
 			"public class A57 {\n"
-				+ "\tprivate Integer foo(int i) {;\n"               
+				+ "\tprivate Integer foo(int i) {;\n"
 				+ "\t\treturn new Integer(i);\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3313,7 +3313,7 @@ public void test057() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return foo(3).intValue();".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3349,7 +3349,7 @@ public void test058() {
 			"public class A58 {\n"
 				+ "\tprivate Integer foo(int i, int[] tab) {;\n"
 				+ "\t\treturn new Integer(i + tab.length);\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3362,7 +3362,7 @@ public void test058() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "int[] tab = new int[] {1,2,3};return foo(0, tab).intValue();".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3398,7 +3398,7 @@ public void test059() {
 			"public class A59 {\n"
 				+ "\tprivate Integer foo(int i, Object[][] tab) {;\n"
 				+ "\t\treturn new Integer(i + tab.length);\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3411,7 +3411,7 @@ public void test059() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "Object[][] tab = new Object[0][0];return foo(3, tab).intValue();".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3450,7 +3450,7 @@ public void test060() {
 				+ "\t}\n"
 				+ "\tprivate A60(int i) {;\n"
 				+ "\t\tthis.i = i;\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3463,7 +3463,7 @@ public void test060() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return new A60(3).i;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3502,7 +3502,7 @@ public void test061() {
 				+ "\t}\n"
 				+ "\tprivate A61(int[] tab) {;\n"
 				+ "\t\tthis.i = tab.length;\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -3515,7 +3515,7 @@ public void test061() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return new A61(new int[] {1,2,3}).i;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3561,7 +3561,7 @@ public void test062() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "1 + 1".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3605,7 +3605,7 @@ public void testNegative001() {
 		String userCode =
 			"new ANegative001().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"ANegative001",
@@ -3615,7 +3615,7 @@ public void testNegative001() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return this.x;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3623,9 +3623,9 @@ public void testNegative001() {
 				stackFrame.declaringTypeName(),
 				true, // force is static
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -3665,7 +3665,7 @@ public void testNegative002() {
 		String userCode =
 			"new ANegative002().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"ANegative002",
@@ -3675,7 +3675,7 @@ public void testNegative002() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return x;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3683,9 +3683,9 @@ public void testNegative002() {
 				stackFrame.declaringTypeName(),
 				true, // force is static
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -3725,7 +3725,7 @@ public void testNegative003() {
 		String userCode =
 			"new ANegative003().foo();";
 		JDIStackFrame stackFrame = new JDIStackFrame(
-			this.jdiVM, 
+			this.jdiVM,
 			this,
 			userCode,
 			"ANegative003",
@@ -3735,7 +3735,7 @@ public void testNegative003() {
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return zork;".toCharArray();
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3743,9 +3743,9 @@ public void testNegative003() {
 				stackFrame.declaringTypeName(),
 				true, // force is static
 				stackFrame.isConstructorCall(),
-				getEnv(), 
-				getCompilerOptions(), 
-				requestor, 
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
@@ -3774,14 +3774,14 @@ public void testNegative003() {
 public void testNegative004() {
 	String userCode = "";
 	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
+		this.jdiVM,
 		this,
 		userCode);
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "java.lang.System.out = null;".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -3789,9 +3789,9 @@ public void testNegative004() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
@@ -3841,7 +3841,7 @@ public void test063() {
 		compilerOpts.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_2);
 
 		try {
-			context.evaluate(
+			this.context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
 				stackFrame.localVariableNames(),
@@ -3874,14 +3874,14 @@ public void test063() {
 public void testNegative005() {
 	String userCode = "";
 	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
+		this.jdiVM,
 		this,
 		userCode);
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "run()".toCharArray();
 	try {
-		context.evaluate(
+		this.context.evaluate(
 			snippet,
 			stackFrame.localVariableTypeNames(),
 			stackFrame.localVariableNames(),
@@ -3889,9 +3889,9 @@ public void testNegative005() {
 			stackFrame.declaringTypeName(),
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getCompilerOptions(), 
-			requestor, 
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);

@@ -41,13 +41,13 @@ public void test1FTZ849() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:fred.x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    X o;\n" + 
+		"    X o;\n" +
 		"    <CompleteOnName:fred.x>;\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -58,10 +58,10 @@ public void test1FTZ849() {
 	);
 }
 /*
- * Completion in a field initializer with no syntax error. 
+ * Completion in a field initializer with no syntax error.
  */
 public void test1FUUP73() {
-	this.runTestCheckDietParse(
+	runTestCheckDietParse(
 		// compilationUnit:
 		"public class A {					\n" +
 		"	String s = \"hello\";			\n" +
@@ -74,8 +74,8 @@ public void test1FUUP73() {
 		"public class A {\n" +
 		"  String s;\n" +
 		"  Object o = <CompleteOnName:s>;\n" +
-		"  public A() {\n" + 
-		"  }\n" + 
+		"  public A() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"s",
@@ -84,7 +84,7 @@ public void test1FUUP73() {
 		// test name
 		"<1FUUP73>"
 	);
-	this.runTestCheckDietParse(
+	runTestCheckDietParse(
 		// compilationUnit:
 		"public class A {					\n" +
 		"	String s = \"hello\";			\n" +
@@ -97,8 +97,8 @@ public void test1FUUP73() {
 		"public class A {\n" +
 		"  String s;\n" +
 		"  Object o = <CompleteOnName:s.c>;\n" +
-		"  public A() {\n" + 
-		"  }\n" + 
+		"  public A() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"c",
@@ -125,13 +125,13 @@ public void test1FVRQQA_1() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:e.to>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    Enumeration e;\n" + 
+		"    Enumeration e;\n" +
 		"    <CompleteOnName:e.to>;\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"to",
@@ -157,13 +157,13 @@ public void test1FVRQQA_2() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:e.has>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    Enumeration e;\n" + 
+		"    Enumeration e;\n" +
 		"    <CompleteOnName:e.has>;\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"has",
@@ -198,19 +198,19 @@ public void test1FVT66Q_1() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:codeAss>",
 		// expectedUnitDisplayString:
-		"package test;\n" + 
-		"public class Test {\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    final int codeAssistTarget;\n" + 
-		"    Thread t;\n" + 
-		"    new Thread() {\n" + 
-		"      public void run() {\n" + 
-		"        <CompleteOnName:codeAss>;\n" + 
-		"      }\n" + 
-		"    };\n" + 
-		"  }\n" + 
+		"package test;\n" +
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    final int codeAssistTarget;\n" +
+		"    Thread t;\n" +
+		"    new Thread() {\n" +
+		"      public void run() {\n" +
+		"        <CompleteOnName:codeAss>;\n" +
+		"      }\n" +
+		"    };\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"codeAss",
@@ -245,15 +245,15 @@ public void test1FVT66Q_2() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:codeA>",
 		// expectedUnitDisplayString:
-		"package test;\n" + 
-		"public class Test {\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    final int codeAssistTarget;\n" + 
-		"    Thread t;\n" + 
-		"    <CompleteOnName:codeA>;\n" + 
-		"  }\n" + 
+		"package test;\n" +
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    final int codeAssistTarget;\n" +
+		"    Thread t;\n" +
+		"    <CompleteOnName:codeA>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"codeA",
@@ -283,16 +283,16 @@ public void test1G8DE30() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    new Runnable() {\n" + 
-		"      public void run() {\n" + 
-		"        <CompleteOnName:>;\n" + 
-		"      }\n" + 
-		"    };\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    new Runnable() {\n" +
+		"      public void run() {\n" +
+		"        <CompleteOnName:>;\n" +
+		"      }\n" +
+		"    };\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -303,7 +303,7 @@ public void test1G8DE30() {
 	);
 }
 /*
- * Completion on an empty name reference. 
+ * Completion on an empty name reference.
  */
 public void testEmptyNameReference() {
 	this.runTestCheckMethodParse(
@@ -319,13 +319,13 @@ public void testEmptyNameReference() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    int i;\n" + 
+		"    int i;\n" +
 		"    <CompleteOnName:>;\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -336,7 +336,7 @@ public void testEmptyNameReference() {
 	);
 }
 /*
- * Completion on an empty name reference after a cast. 
+ * Completion on an empty name reference after a cast.
  */
 public void testEmptyNameReferenceAfterCast() {
 	this.runTestCheckMethodParse(
@@ -352,12 +352,12 @@ public void testEmptyNameReferenceAfterCast() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    X x = (X) <CompleteOnName:>;\n" + 
-		"  }\n" + 
+		"    X x = (X) <CompleteOnName:>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -368,7 +368,7 @@ public void testEmptyNameReferenceAfterCast() {
 	);
 }
 /*
- * Completion on an empty name reference after + operator. 
+ * Completion on an empty name reference after + operator.
  */
 public void testEmptyNameReferenceAfterPlus() {
 	this.runTestCheckMethodParse(
@@ -384,12 +384,12 @@ public void testEmptyNameReferenceAfterPlus() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnName:>;\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnName:>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -400,7 +400,7 @@ public void testEmptyNameReferenceAfterPlus() {
 	);
 }
 /*
- * Completion on an empty name reference in an array dimension. 
+ * Completion on an empty name reference in an array dimension.
  */
 public void testEmptyNameReferenceInArrayDim() {
 	this.runTestCheckMethodParse(
@@ -416,12 +416,12 @@ public void testEmptyNameReferenceInArrayDim() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnName:>;\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnName:>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -432,7 +432,7 @@ public void testEmptyNameReferenceInArrayDim() {
 	);
 }
 /*
- * Completion on an empty name reference in inner class. 
+ * Completion on an empty name reference in inner class.
  */
 public void testEmptyNameReferenceInInnerClass() {
 	this.runTestCheckMethodParse(
@@ -452,18 +452,18 @@ public void testEmptyNameReferenceInInnerClass() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
+		"class X {\n" +
+		"  X() {\n" +
 		"  }\n" +
-		"  void foo() {\n" + 
-		"    class Y {\n" + 
-		"      Y() {\n" + 
-		"      }\n" + 
-		"      void bar() {\n" + 
-		"        <CompleteOnName:>;\n" + 
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"  void foo() {\n" +
+		"    class Y {\n" +
+		"      Y() {\n" +
+		"      }\n" +
+		"      void bar() {\n" +
+		"        <CompleteOnName:>;\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -474,7 +474,7 @@ public void testEmptyNameReferenceInInnerClass() {
 	);
 }
 /*
- * Completion in the statement following an if expression. 
+ * Completion in the statement following an if expression.
  */
 public void testInIfThenStatement() {
 	this.runTestCheckMethodParse(
@@ -491,13 +491,13 @@ public void testInIfThenStatement() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    if (bar())\n" + 
+		"    if (bar())\n" +
 		"        <CompleteOnName:>;\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -508,10 +508,10 @@ public void testInIfThenStatement() {
 	);
 }
 /*
- * Completion on a name reference inside an inner class in a field initializer. 
+ * Completion on a name reference inside an inner class in a field initializer.
  */
 public void testInnerClassFieldInitializer() {
-	this.runTestCheckDietParse(
+	runTestCheckDietParse(
 		// compilationUnit:
 		"class Bar {								\n" +
 		"	Object o = new Object() {				\n" +
@@ -543,10 +543,10 @@ public void testInnerClassFieldInitializer() {
 	);
 }
 /*
- * Completion on an empty name reference inside an invocation in a field initializer. 
+ * Completion on an empty name reference inside an invocation in a field initializer.
  */
 public void testInvocationFieldInitializer() {
-	this.runTestCheckDietParse(
+	runTestCheckDietParse(
 		// compilationUnit:
 		"class Bar {								\n" +
 		"	String s = fred(1 + );					\n" +
@@ -560,10 +560,10 @@ public void testInvocationFieldInitializer() {
 		// expectedUnitDisplayString:
 		"class Bar {\n" +
 		"  String s = (1 + <CompleteOnName:>);\n" +
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -579,7 +579,7 @@ public void testInvocationFieldInitializer() {
  */
 public void testMethodInvocationAnonymousInnerClass() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	void foo() {								\n" +
 		"		primary().bizz(							\n" +
@@ -587,7 +587,7 @@ public void testMethodInvocationAnonymousInnerClass() {
 		"				void fuzz() {					\n" +
 		"					x.y.z						\n" +
 		"				}								\n" +
-		"			}									\n"	+			
+		"			}									\n"	+
 		"		);										\n" +
 		"	}											\n" +
 		"}												\n",
@@ -596,16 +596,16 @@ public void testMethodInvocationAnonymousInnerClass() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:x.>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    new X() {\n" + 
-		"      void fuzz() {\n" + 
-		"        <CompleteOnName:x.>;\n" + 
-		"      }\n" + 
-		"    };\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    new X() {\n" +
+		"      void fuzz() {\n" +
+		"        <CompleteOnName:x.>;\n" +
+		"      }\n" +
+		"    };\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -616,8 +616,8 @@ public void testMethodInvocationAnonymousInnerClass() {
 	);
 }
 /*
- * Completion on a qualified name reference, where the cursor is in the 
- * first type reference. 
+ * Completion on a qualified name reference, where the cursor is in the
+ * first type reference.
  */
 public void testQualifiedNameReferenceShrinkAll() {
 	this.runTestCheckMethodParse(
@@ -633,13 +633,13 @@ public void testQualifiedNameReferenceShrinkAll() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:a>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    int i;\n" + 
+		"    int i;\n" +
 		"    <CompleteOnName:a>;\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"a",
@@ -654,7 +654,7 @@ public void testQualifiedNameReferenceShrinkAll() {
  */
 public void testQualifiedNameReferenceShrinkAllButOne() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
 		"	public class InnerBar {						\n" +
@@ -672,20 +672,20 @@ public void testQualifiedNameReferenceShrinkAllButOne() {
 		// expectedUnitDisplayString:
 		"class Bar {\n" +
 		"  public class InnerBar {\n" +
-		"    public InnerBar() {\n" + 
-		"    }\n" + 
+		"    public InnerBar() {\n" +
+		"    }\n" +
 		"  }\n" +
 		"  public class SubInnerBar extends InnerBar {\n" +
-		"    SubInnerBar() {\n" + 
-		"      super();\n" + 
+		"    SubInnerBar() {\n" +
+		"      super();\n" +
 		"      <CompleteOnName:Bar.>;\n" +
 		"    }\n" +
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -696,7 +696,7 @@ public void testQualifiedNameReferenceShrinkAllButOne() {
 	);
 }
 /*
- * Completion on a qualified name reference, where the cursor is right after the first dot. 
+ * Completion on a qualified name reference, where the cursor is right after the first dot.
  */
 public void testQualifiedNameReferenceShrinkAllButOne2() {
 	this.runTestCheckMethodParse(
@@ -712,13 +712,13 @@ public void testQualifiedNameReferenceShrinkAllButOne2() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:a.>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    int i;\n" + 
+		"    int i;\n" +
 		"    <CompleteOnName:a.>;\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -729,12 +729,12 @@ public void testQualifiedNameReferenceShrinkAllButOne2() {
 	);
 }
 /*
- * Completion on a qualified name reference,where the cursor is right after the end 
- * of the last name reference.  
+ * Completion on a qualified name reference,where the cursor is right after the end
+ * of the last name reference.
  */
 public void testQualifiedNameReferenceShrinkNone() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
 		"	public class InnerBar {						\n" +
@@ -750,22 +750,22 @@ public void testQualifiedNameReferenceShrinkNone() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:Bar.x.x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  public class InnerBar {\n" + 
-		"    public InnerBar() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public class SubInnerBar extends InnerBar {\n" + 
-		"    SubInnerBar() {\n" + 
-		"      super();\n" + 
-		"      <CompleteOnName:Bar.x.x>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  public class InnerBar {\n" +
+		"    public InnerBar() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public class SubInnerBar extends InnerBar {\n" +
+		"    SubInnerBar() {\n" +
+		"      super();\n" +
+		"      <CompleteOnName:Bar.x.x>;\n" +
+		"    }\n" +
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -776,8 +776,8 @@ public void testQualifiedNameReferenceShrinkNone() {
 	);
 }
 /*
- * Completion on a qualified name reference, where the cursor is right after the end 
- * of the last type reference. 
+ * Completion on a qualified name reference, where the cursor is right after the end
+ * of the last type reference.
  */
 public void testQualifiedNameReferenceShrinkNone2() {
 	this.runTestCheckMethodParse(
@@ -793,13 +793,13 @@ public void testQualifiedNameReferenceShrinkNone2() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:a.b.c.X>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    int i;\n" + 
+		"    int i;\n" +
 		"    <CompleteOnName:a.b.c.X>;\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"X",
@@ -810,12 +810,12 @@ public void testQualifiedNameReferenceShrinkNone2() {
 	);
 }
 /*
- * Completion on a qualified name reference, where the cursor is right after the 
+ * Completion on a qualified name reference, where the cursor is right after the
  * last dot.
  */
 public void testQualifiedNameReferenceShrinkOne() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
 		"	public class InnerBar {						\n" +
@@ -833,20 +833,20 @@ public void testQualifiedNameReferenceShrinkOne() {
 		// expectedUnitDisplayString:
 		"class Bar {\n" +
 		"  public class InnerBar {\n" +
-		"    public InnerBar() {\n" + 
-		"    }\n" + 
+		"    public InnerBar() {\n" +
+		"    }\n" +
 		"  }\n" +
 		"  public class SubInnerBar extends InnerBar {\n" +
-		"    SubInnerBar() {\n" + 
-		"      super();\n" + 
+		"    SubInnerBar() {\n" +
+		"      super();\n" +
 		"      <CompleteOnName:Bar.x.>;\n" +
 		"    }\n" +
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -857,8 +857,8 @@ public void testQualifiedNameReferenceShrinkOne() {
 	);
 }
 /*
- * Completion on a qualified name reference, where the cursor is right after the 
- * last dot. 
+ * Completion on a qualified name reference, where the cursor is right after the
+ * last dot.
  */
 public void testQualifiedNameReferenceShrinkOne2() {
 	this.runTestCheckMethodParse(
@@ -874,13 +874,13 @@ public void testQualifiedNameReferenceShrinkOne2() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:a.b.c.>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    int i;\n" + 
+		"    int i;\n" +
 		"    <CompleteOnName:a.b.c.>;\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -891,27 +891,27 @@ public void testQualifiedNameReferenceShrinkOne2() {
 	);
 }
 /*
- * Completion on a qualified name reference that contains a unicode. 
+ * Completion on a qualified name reference that contains a unicode.
  */
 public void testUnicode() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
-		"class X {					\n" + 
-		"	void foo() {			\n" + 
+		"class X {					\n" +
+		"	void foo() {			\n" +
 		"		bar.\\u005ax 		\n" +
-		"	}						\n" + 
+		"	}						\n" +
 		"}							\n",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:bar.Zx>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnName:bar.Zx>;\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnName:bar.Zx>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"Zx",

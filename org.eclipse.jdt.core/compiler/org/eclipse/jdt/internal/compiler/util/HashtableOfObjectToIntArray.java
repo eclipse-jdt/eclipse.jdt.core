@@ -14,7 +14,7 @@ package org.eclipse.jdt.internal.compiler.util;
  * Hashtable of {Object --> int[] }
  */
 public final class HashtableOfObjectToIntArray implements Cloneable {
-	
+
 	// to avoid using Enumerations, walk the individual tables skipping nulls
 	public Object[] keyTable;
 	public int[][] valueTable;
@@ -103,7 +103,7 @@ public final class HashtableOfObjectToIntArray implements Cloneable {
 		this.valueTable[index] = value;
 
 		// assumes the threshold is never equal to the size of the table
-		if (++elementSize > threshold)
+		if (++this.elementSize > this.threshold)
 			rehash();
 		return value;
 	}
@@ -115,7 +115,7 @@ public final class HashtableOfObjectToIntArray implements Cloneable {
 		while ((currentKey = this.keyTable[index]) != null) {
 			if (currentKey.equals(key)) {
 				int[] value = this.valueTable[index];
-				elementSize--;
+				this.elementSize--;
 				this.keyTable[index] = null;
 				rehash();
 				return value;
@@ -129,7 +129,7 @@ public final class HashtableOfObjectToIntArray implements Cloneable {
 
 	private void rehash() {
 
-		HashtableOfObjectToIntArray newHashtable = new HashtableOfObjectToIntArray(elementSize * 2);		// double the number of expected elements
+		HashtableOfObjectToIntArray newHashtable = new HashtableOfObjectToIntArray(this.elementSize * 2);		// double the number of expected elements
 		Object currentKey;
 		for (int i = this.keyTable.length; --i >= 0;)
 			if ((currentKey = this.keyTable[i]) != null)
@@ -141,9 +141,9 @@ public final class HashtableOfObjectToIntArray implements Cloneable {
 	}
 
 	public int size() {
-		return elementSize;
+		return this.elementSize;
 	}
-	
+
 	public String toString() {
 		String s = ""; //$NON-NLS-1$
 		Object key;

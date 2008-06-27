@@ -49,30 +49,30 @@ public abstract class CommentTestCase extends SuiteOfTestCases {
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		userOptions= null;
+		this.userOptions= null;
 	}
-	
+
 	protected abstract int getCommentKind();
 
 	protected Map getUserOptions() {
-		return userOptions;
+		return this.userOptions;
 	}
-	
+
 	protected void setUserOption(String name, String value) {
-		if (userOptions == null)
-			userOptions= new HashMap();
-		
-		userOptions.put(name, value);
+		if (this.userOptions == null)
+			this.userOptions= new HashMap();
+
+		this.userOptions.put(name, value);
 	}
-	
+
 	protected void setUserOption(Map options) {
-		if (userOptions == null) {
-			userOptions= options;
+		if (this.userOptions == null) {
+			this.userOptions= options;
 		} else {
-			userOptions.putAll(options);
+			this.userOptions.putAll(options);
 		}
-	}	
-	
+	}
+
 	protected final String testFormat(String text) {
 		return testFormat(text, 0, text.length());
 	}

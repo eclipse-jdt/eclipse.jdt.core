@@ -35,7 +35,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public JavaSearchJavadocTests(String name) {
 		super(name);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#setUpSuite()
 	 */
@@ -50,7 +50,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
 	 */
 	public void tearDown() throws Exception {
-		JAVA_PROJECT.setOptions(originalOptions);
+		JAVA_PROJECT.setOptions(this.originalOptions);
 		super.tearDown();
 	}
 	private void setJavadocOptions() {
@@ -78,20 +78,20 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocTypeDeclaration() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		search(
-				type, 
+				type,
 				DECLARATIONS,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
 				"src/j1/JavadocSearched.java j1.JavadocSearched [JavadocSearched] EXACT_MATCH OUTSIDE_JAVADOC",
 				this.resultCollector);
 	}
 	public void testJavadocTypeStringDeclaration() throws CoreException {
-		search( 
+		search(
 				"JavadocSearched",
 				TYPE,
-				DECLARATIONS, 
-				getJavaSearchScope(), 
+				DECLARATIONS,
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
 				"src/j1/JavadocSearched.java j1.JavadocSearched [JavadocSearched] EXACT_MATCH OUTSIDE_JAVADOC",
@@ -101,9 +101,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		setJavadocOptions();
 		search(
-				type, 
+				type,
 				DECLARATIONS,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
 				"src/j1/JavadocSearched.java j1.JavadocSearched [JavadocSearched] EXACT_MATCH OUTSIDE_JAVADOC",
@@ -118,9 +118,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IField field = type.getField("javadocSearchedVar");
 		search(
-				field, 
+				field,
 				DECLARATIONS,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
 				"src/j1/JavadocSearched.java j1.JavadocSearched.javadocSearchedVar [javadocSearchedVar] EXACT_MATCH OUTSIDE_JAVADOC",
@@ -128,10 +128,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocFieldStringDeclaration() throws CoreException {
 		search(
-				"javadocSearchedVar", 
+				"javadocSearchedVar",
 				FIELD,
 				DECLARATIONS,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
 				"src/j1/JavadocSearched.java j1.JavadocSearched.javadocSearchedVar [javadocSearchedVar] EXACT_MATCH OUTSIDE_JAVADOC",
@@ -142,9 +142,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IField field = type.getField("javadocSearchedVar");
 		setJavadocOptions();
 		search(
-				field, 
+				field,
 				DECLARATIONS,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
 				"src/j1/JavadocSearched.java j1.JavadocSearched.javadocSearchedVar [javadocSearchedVar] EXACT_MATCH OUTSIDE_JAVADOC",
@@ -159,9 +159,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IMethod method = type.getMethod("javadocSearchedMethod", null);
 		search(
-				method, 
+				method,
 				DECLARATIONS,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
 				"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod() [javadocSearchedMethod] EXACT_MATCH OUTSIDE_JAVADOC",
@@ -171,9 +171,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 		search(
-				method, 
+				method,
 				DECLARATIONS,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
 				"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod(String) [javadocSearchedMethod] EXACT_MATCH OUTSIDE_JAVADOC",
@@ -181,13 +181,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocMethodStringDeclaration() throws CoreException {
 		search(
-				"javadocSearchedMethod", 
+				"javadocSearchedMethod",
 				METHOD,
 				DECLARATIONS,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod() [javadocSearchedMethod] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+				"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod() [javadocSearchedMethod] EXACT_MATCH OUTSIDE_JAVADOC\n" +
 				"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod(String) [javadocSearchedMethod] EXACT_MATCH OUTSIDE_JAVADOC",
 				this.resultCollector);
 	}
@@ -196,9 +196,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		setJavadocOptions();
 		IMethod method = type.getMethod("javadocSearchedMethod", null);
 		search(
-				method, 
+				method,
 				DECLARATIONS,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
 				"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod() [javadocSearchedMethod] EXACT_MATCH OUTSIDE_JAVADOC",
@@ -209,9 +209,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		setJavadocOptions();
 		IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 		search(
-				method, 
+				method,
 				DECLARATIONS,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
 				"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod(String) [javadocSearchedMethod] EXACT_MATCH OUTSIDE_JAVADOC",
@@ -225,16 +225,16 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocTypeReference() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		search(
-				type, 
+				type,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [j1.JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [j1.JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [j1.JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
@@ -245,17 +245,17 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocTypeStringReference() throws CoreException {
 		search(
-				"JavadocSearched", 
+				"JavadocSearched",
 				TYPE,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
@@ -268,16 +268,16 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		setJavadocOptions();
 		search(
-				type, 
+				type,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [j1.JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [j1.JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [j1.JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
@@ -289,17 +289,17 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocTypeStringReferenceWithJavadoc() throws CoreException {
 		setJavadocOptions();
 		search(
-				"JavadocSearched", 
+				"JavadocSearched",
 				TYPE,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH INSIDE_JAVADOC\n"+
@@ -312,9 +312,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		disableJavadocOptions();
 		search(
-				type, 
+				type,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults("", this.resultCollector);
 	}
@@ -327,26 +327,26 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IField field = type.getField("javadocSearchedVar");
 		search(
-				field, 
+				field,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedVar] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
 	public void testJavadocFieldStringReference() throws CoreException {
 		search(
-				"javadocSearchedVar", 
+				"javadocSearchedVar",
 				FIELD,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedVar] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
@@ -355,37 +355,37 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IField field = type.getField("javadocSearchedVar");
 		setJavadocOptions();
 		search(
-				field, 
+				field,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedVar] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
 	public void testJavadocFieldStringReferenceWithJavadoc() throws CoreException {
 		setJavadocOptions();
 		search(
-				"javadocSearchedVar", 
+				"javadocSearchedVar",
 				FIELD,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedVar] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
 	public void testJavadocFieldStringReferenceWithJavadocDisabled() throws CoreException {
 		disableJavadocOptions();
 		search(
-				"javadocSearchedVar", 
+				"javadocSearchedVar",
 				FIELD,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults("", this.resultCollector);
 	}
@@ -398,12 +398,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IMethod method = type.getMethod("javadocSearchedMethod", null);
 		search(
-				method, 
+				method,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod()] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod()] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod()] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
@@ -411,26 +411,26 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 		search(
-				method, 
+				method,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod(int)] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod(String)] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
 	public void testJavadocMethodStringReference() throws CoreException {
 		search(
-				"javadocSearchedMethod", 
+				"javadocSearchedMethod",
 				METHOD,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod()] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod()] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod()] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod(int)] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod()] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod(String)] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
@@ -439,12 +439,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		setJavadocOptions();
 		IMethod method = type.getMethod("javadocSearchedMethod", null);
 		search(
-				method, 
+				method,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod()] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod()] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod()] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
@@ -453,27 +453,27 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		setJavadocOptions();
 		IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 		search(
-				method, 
+				method,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod(int)] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod(String)] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
 	public void testJavadocMethodStringReferenceWithJavadoc() throws CoreException {
 		setJavadocOptions();
 		search(
-				"javadocSearchedMethod", 
+				"javadocSearchedMethod",
 				METHOD,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod()] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod()] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod()] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod(int)] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod()] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod(String)] EXACT_MATCH INSIDE_JAVADOC",
 				this.resultCollector);
 	}
@@ -482,9 +482,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 		disableJavadocOptions();
 		search(
-				method, 
+				method,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults("", this.resultCollector);
 	}
@@ -497,12 +497,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IMethod method = type.getMethod("JavadocSearched", null);
 		search(
-				method, 
+				method,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched()] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
@@ -510,26 +510,26 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IMethod method = type.getMethod("JavadocSearched", new String[] { "QString;" });
 		search(
-				method, 
+				method,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched(String)] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
 	public void testJavadocConstructorStringReference() throws CoreException {
 		search(
-				"JavadocSearched", 
+				"JavadocSearched",
 				CONSTRUCTOR,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched()] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched(int)] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched()] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched(String)] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
@@ -538,12 +538,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		setJavadocOptions();
 		IMethod method = type.getMethod("JavadocSearched", null);
 		search(
-				method, 
+				method,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched()] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
@@ -552,27 +552,27 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		setJavadocOptions();
 		IMethod method = type.getMethod("JavadocSearched", new String[] { "QString;" });
 		search(
-				method, 
+				method,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults(
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched(String)] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
 	public void testJavadocConstructorStringReferenceWithJavadoc() throws CoreException {
 		setJavadocOptions();
 		search(
-			"JavadocSearched", 
+			"JavadocSearched",
 			CONSTRUCTOR,
 			REFERENCES,
-			getJavaSearchScope(), 
+			getJavaSearchScope(),
 			this.resultCollector);
 		assertSearchResults(
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched()] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched()] POTENTIAL_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched(int)] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched()] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched(String)] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
@@ -581,61 +581,61 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IMethod method = type.getMethod("JavadocSearched", null);
 		disableJavadocOptions();
 		search(
-				method, 
+				method,
 				REFERENCES,
-				getJavaSearchScope(), 
+				getJavaSearchScope(),
 				this.resultCollector);
 		assertSearchResults("");
 	}
 	private void setUpJavadocTypeParameterReferences() throws CoreException {
-		workingCopies = new ICompilationUnit[1];
-		workingCopies[0] = getWorkingCopy("/JavaSearch15/src/b81190/Test.java",
-			"package b81190;\n" + 
-			"/**\n" + 
-			" * @param <T1> First class type parameter\n" + 
-			" * @param <T2> Second class type parameter\n" + 
-			" * @param <T3> Last class type parameter\n" + 
-			" */\n" + 
-			"public class Test<T1, T2, T3> {\n" + 
-			"	/**\n" + 
-			"	 * @param <U> Method type parameter\n" + 
-			"	 * @param x Method parameter\n" + 
-			"	 */\n" + 
-			"	<U> void generic(U x, T1 t) {\n" + 
-			"		Object o = x;\n" + 
-			"		o.toString();\n" + 
-			"	}\n" + 
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearch15/src/b81190/Test.java",
+			"package b81190;\n" +
+			"/**\n" +
+			" * @param <T1> First class type parameter\n" +
+			" * @param <T2> Second class type parameter\n" +
+			" * @param <T3> Last class type parameter\n" +
+			" */\n" +
+			"public class Test<T1, T2, T3> {\n" +
+			"	/**\n" +
+			"	 * @param <U> Method type parameter\n" +
+			"	 * @param x Method parameter\n" +
+			"	 */\n" +
+			"	<U> void generic(U x, T1 t) {\n" +
+			"		Object o = x;\n" +
+			"		o.toString();\n" +
+			"	}\n" +
 			"}\n"
 		);
 	}
 	public void testJavadocTypeParameterReferences01() throws CoreException {
 		setUpJavadocTypeParameterReferences();
-		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
-		ITypeParameter typeParam = selectTypeParameter(workingCopies[0], "T1", 2);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+		ITypeParameter typeParam = selectTypeParameter(this.workingCopies[0], "T1", 2);
 		search(typeParam, REFERENCES, scope);
 		assertSearchResults(
-			"src/b81190/Test.java b81190.Test [T1] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b81190/Test.java b81190.Test [T1] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/b81190/Test.java void b81190.Test.generic(U, T1) [T1] EXACT_MATCH OUTSIDE_JAVADOC"
 		);
 	}
 	public void testJavadocTypeParameterReferences02() throws CoreException {
 		setUpJavadocTypeParameterReferences();
-		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
-		ITypeParameter typeParam = selectTypeParameter(workingCopies[0], "U", 2);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+		ITypeParameter typeParam = selectTypeParameter(this.workingCopies[0], "U", 2);
 		search(typeParam, REFERENCES, scope);
 		assertSearchResults(
-			"src/b81190/Test.java void b81190.Test.generic(U, T1) [U] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b81190/Test.java void b81190.Test.generic(U, T1) [U] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/b81190/Test.java void b81190.Test.generic(U, T1) [U] EXACT_MATCH OUTSIDE_JAVADOC"
 		);
 	}
 	// Local variables references in Javadoc have been fixed while implementing 81190
 	public void testJavadocParameterReferences01() throws CoreException {
 		setUpJavadocTypeParameterReferences();
-		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
-		ILocalVariable local = selectLocalVariable(workingCopies[0], "x", 2);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+		ILocalVariable local = selectLocalVariable(this.workingCopies[0], "x", 2);
 		search(local, REFERENCES, scope);
 		assertSearchResults(
-			"src/b81190/Test.java void b81190.Test.generic(U, T1) [x] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b81190/Test.java void b81190.Test.generic(U, T1) [x] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/b81190/Test.java void b81190.Test.generic(U, T1) [x] EXACT_MATCH OUTSIDE_JAVADOC"
 		);
 	}
@@ -650,15 +650,15 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		setJavadocOptions();
 		IMethod method = type.getMethod("Y", new String[] { "I" });
 		search(
-			method, 
+			method,
 			REFERENCES,
-			getJavaSearchScope(), 
+			getJavaSearchScope(),
 			this.resultCollector);
 		assertSearchResults(
 			"test47909.jar void j3.X.bar() EXACT_MATCH OUTSIDE_JAVADOC",
 			this.resultCollector);
 	}
-	
+
 	/**
 	 * Test fix for bug 47968.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47968">47968</a>
@@ -668,28 +668,28 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j2", "Bug47968.java").getType("Bug47968");
 		setJavadocOptions();
 		search(
-			type, 
+			type,
 			REFERENCES,
-			getJavaSearchScope(), 
+			getJavaSearchScope(),
 			this.resultCollector);
 		assertSearchResults(
 			// These matches were not found before...
-			"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
 			// ...end
-			"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
 	}
@@ -698,14 +698,14 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		setJavadocOptions();
 		IField field = type.getField("x");
 		search(
-			field, 
+			field,
 			REFERENCES,
-			getJavaSearchScope(), 
+			getJavaSearchScope(),
 			this.resultCollector);
 		assertSearchResults(
 			"src/j2/Bug47968s.java j2.Bug47968s [x] EXACT_MATCH INSIDE_JAVADOC\n" + // This match was not found before...
-			"src/j2/Bug47968s.java j2.Bug47968s.y [x] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s() [x] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j2/Bug47968s.java j2.Bug47968s.y [x] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s() [x] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/j2/Bug47968s.java void j2.Bug47968s.bar() [x] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
 	}
@@ -714,14 +714,14 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		setJavadocOptions();
 		IMethod method = type.getMethod("foo", new String[] { "I" });
 		search(
-			method, 
+			method,
 			REFERENCES,
-			getJavaSearchScope(), 
+			getJavaSearchScope(),
 			this.resultCollector);
 		assertSearchResults(
 			"src/j2/Bug47968s.java j2.Bug47968s [foo(int)] EXACT_MATCH INSIDE_JAVADOC\n" + // This match was not found before...
-			"src/j2/Bug47968s.java j2.Bug47968s.y [foo(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s() [foo(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j2/Bug47968s.java j2.Bug47968s.y [foo(int)] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s() [foo(int)] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/j2/Bug47968s.java void j2.Bug47968s.bar() [foo(int)] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
 	}
@@ -730,14 +730,14 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		setJavadocOptions();
 		IMethod method = type.getMethod("Bug47968", new String[] { "QString;" });
 		search(
-			method, 
+			method,
 			REFERENCES,
-			getJavaSearchScope(), 
+			getJavaSearchScope(),
 			this.resultCollector);
 		assertSearchResults(
 			"src/j2/Bug47968s.java j2.Bug47968s [Bug47968(String)] EXACT_MATCH INSIDE_JAVADOC\n" + // This match was not found before...
-			"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968(String)] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968(String)] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968(String)] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968(String)] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968(String)] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
 	}
@@ -758,8 +758,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		type = getCompilationUnit("JavaSearch", "src", "j4", "TT47209.java").getType("TM47209");
 		search(type,  REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-			"src/j4/TT47209.java j4.TT47209 [TT47209] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j4/TF47209.java j4.TF47209.f47209 [TF47209] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j4/TT47209.java j4.TT47209 [TT47209] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j4/TF47209.java j4.TF47209.f47209 [TF47209] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j4/TC47209.java j4.TC47209(String) [TC47209] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j4/TM47209.java void j4.TM47209.m47209(int) [TM47209] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
@@ -775,8 +775,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		type = getCompilationUnit("JavaSearch", "src", "j4", "FT47209.java").getType("FM47209");
 		search(type,  REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-			"src/j4/FT47209.java j4.FT47209 [FT47209] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j4/FF47209.java j4.FF47209.f47209 [FF47209] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j4/FT47209.java j4.FT47209 [FT47209] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j4/FF47209.java j4.FF47209.f47209 [FF47209] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j4/FC47209.java j4.FC47209(String) [FC47209] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j4/FM47209.java void j4.FM47209.m47209(int) [FM47209] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
@@ -792,8 +792,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		type = getCompilationUnit("JavaSearch", "src", "j4", "MT47209.java").getType("MM47209");
 		search(type,  REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-			"src/j4/MT47209.java j4.MT47209 [MT47209] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j4/MF47209.java j4.MF47209.f47209 [MF47209] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j4/MT47209.java j4.MT47209 [MT47209] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j4/MF47209.java j4.MF47209.f47209 [MF47209] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j4/MC47209.java j4.MC47209(String) [MC47209] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j4/MM47209.java void j4.MM47209.m47209(int) [MM47209] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
@@ -809,8 +809,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		type = getCompilationUnit("JavaSearch", "src", "j4", "CT47209.java").getType("CM47209");
 		search(type,  REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-			"src/j4/CT47209.java j4.CT47209 [CT47209] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j4/CF47209.java j4.CF47209.f47209 [CF47209] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j4/CT47209.java j4.CT47209 [CT47209] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j4/CF47209.java j4.CF47209.f47209 [CF47209] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j4/CC47209.java j4.CC47209(String) [CC47209] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j4/CM47209.java void j4.CM47209.m47209(int) [CM47209] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
@@ -862,9 +862,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j6", "Bug54962.java").getPackageDeclaration("j6");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§.BUG54962] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§.Bug54962] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§.BUG54962] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§.Bug54962] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j7/qua/li/fied/Bug54962a.java [import §|j6|§.Bug54962;] EXACT_MATCH OUTSIDE_JAVADOC",
 			this.resultCollector);
 	}
@@ -876,8 +876,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j7.qua.li.fied", "Bug54962a.java").getPackageDeclaration("j7.qua.li.fied");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§.BUG54962a] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§.BUG54962a] EXACT_MATCH INSIDE_JAVADOC\n" +
 				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§.Bug54962a] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
 	}
@@ -893,8 +893,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "p71267", "Test.java").getPackageDeclaration("p71267");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-			"src/p71267/Test.java p71267.Test [p71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/p71267/Test.java p71267.Test [p71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/p71267/Test.java p71267.Test [p71267] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/p71267/Test.java p71267.Test [p71267] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/p71267/q71267/Test.java p71267.q71267.Test [p71267] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
 	}
@@ -904,11 +904,11 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "p71267.q71267", "Test.java").getPackageDeclaration("p71267.q71267");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-			"src/p71267/q71267/Test.java p71267.q71267.Test [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/p71267/q71267/Test.java p71267.q71267.Test [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/p71267/q71267/Test.java p71267.q71267.Test.field [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/p71267/q71267/Test.java p71267.q71267.Test.field [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/p71267/q71267/Test.java void p71267.q71267.Test.method() [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/p71267/q71267/Test.java p71267.q71267.Test [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/p71267/q71267/Test.java p71267.q71267.Test [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/p71267/q71267/Test.java p71267.q71267.Test.field [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/p71267/q71267/Test.java p71267.q71267.Test.field [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" +
+			"src/p71267/q71267/Test.java void p71267.q71267.Test.method() [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/p71267/q71267/Test.java void p71267.q71267.Test.method() [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
 	}
@@ -918,22 +918,22 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83285"
 	 */
 	public void testBug83285() throws CoreException {
-		resultCollector.showRule = true;
-		workingCopies = new ICompilationUnit[1];
-		workingCopies[0] = getWorkingCopy("/JavaSearch/src/b83285/A.java",
-			"package b83285;\n" + 
-			"class A { }\n" + 
-			"class C {\n" + 
-			"    /**\n" + 
-			"     * Link {@link #C(String)} was also wrongly warned...\n" + 
-			"     */\n" + 
-			"    private String fGerman;\n" + 
-			"    public C(String german) {\n" + 
-			"        fGerman = german;\n" + 
-			"    }\n" + 
+		this.resultCollector.showRule = true;
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/b83285/A.java",
+			"package b83285;\n" +
+			"class A { }\n" +
+			"class C {\n" +
+			"    /**\n" +
+			"     * Link {@link #C(String)} was also wrongly warned...\n" +
+			"     */\n" +
+			"    private String fGerman;\n" +
+			"    public C(String german) {\n" +
+			"        fGerman = german;\n" +
+			"    }\n" +
 			"}"
 			);
-		IMethod[] methods = workingCopies[0].getType("C").getMethods();
+		IMethod[] methods = this.workingCopies[0].getType("C").getMethods();
 		assertEquals("Invalid number of methods", 1, methods.length);
 		search(methods[0], REFERENCES, getJavaSearchScope());
 		assertSearchResults(
@@ -941,68 +941,68 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		);
 	}
 	public void testBug83285a() throws CoreException {
-		resultCollector.showRule = true;
-		workingCopies = new ICompilationUnit[1];
-		workingCopies[0] = getWorkingCopy("/JavaSearch/src/b83285/A.java",
-			"package b83285;\n" + 
-			"class A {\n" + 
-			"	A(char c) {}\n" + 
-			"}\n" + 
-			"class B {\n" + 
-			"	B(Exception ex) {}\n" + 
-			"	void foo() {} \n" + 
-			"	class C { \n" + 
-			"	    /**\n" + 
-			"	     * Link {@link #B(Exception)} OK\n" + 
-			"	     * Link {@link #C(String)} OK\n" + 
-			"	     * Link {@link #foo()} OK\n" + 
-			"	     * Link {@link #bar()} OK\n" + 
-			"	     */\n" + 
-			"	    public C(String str) {}\n" + 
-			"		void bar() {}\n" + 
-			"	}\n" + 
+		this.resultCollector.showRule = true;
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/b83285/A.java",
+			"package b83285;\n" +
+			"class A {\n" +
+			"	A(char c) {}\n" +
+			"}\n" +
+			"class B {\n" +
+			"	B(Exception ex) {}\n" +
+			"	void foo() {} \n" +
+			"	class C { \n" +
+			"	    /**\n" +
+			"	     * Link {@link #B(Exception)} OK\n" +
+			"	     * Link {@link #C(String)} OK\n" +
+			"	     * Link {@link #foo()} OK\n" +
+			"	     * Link {@link #bar()} OK\n" +
+			"	     */\n" +
+			"	    public C(String str) {}\n" +
+			"		void bar() {}\n" +
+			"	}\n" +
 			"}"
 		);
-		IMethod[] methods = workingCopies[0].getType("B").getMethods();
+		IMethod[] methods = this.workingCopies[0].getType("B").getMethods();
 		assertEquals("Invalid number of methods", 2, methods.length);
 		for (int i=0,l=methods.length; i<l; i++) {
 			search(methods[i], REFERENCES, getJavaSearchScope());
 		}
 		assertSearchResults(
-			"src/b83285/A.java b83285.B$C(String) [B(Exception)] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83285/A.java b83285.B$C(String) [B(Exception)] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/b83285/A.java b83285.B$C(String) [foo()] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
 	public void testBug83285b() throws CoreException {
-		resultCollector.showRule = true;
-		workingCopies = new ICompilationUnit[1];
-		workingCopies[0] = getWorkingCopy("/JavaSearch/src/b83285/A.java",
-			"package b83285;\n" + 
-			"class A {\n" + 
-			"	A(char c) {}\n" + 
-			"}\n" + 
-			"class B {\n" + 
-			"	B(Exception ex) {}\n" + 
-			"	void foo() {} \n" + 
-			"	class C { \n" + 
-			"	    /**\n" + 
-			"	     * Link {@link #B(Exception)} OK\n" + 
-			"	     * Link {@link #C(String)} OK\n" + 
-			"	     * Link {@link #foo()} OK\n" + 
-			"	     * Link {@link #bar()} OK\n" + 
-			"	     */\n" + 
-			"	    public C(String str) {}\n" + 
-			"		void bar() {}\n" + 
-			"	}\n" + 
+		this.resultCollector.showRule = true;
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/b83285/A.java",
+			"package b83285;\n" +
+			"class A {\n" +
+			"	A(char c) {}\n" +
+			"}\n" +
+			"class B {\n" +
+			"	B(Exception ex) {}\n" +
+			"	void foo() {} \n" +
+			"	class C { \n" +
+			"	    /**\n" +
+			"	     * Link {@link #B(Exception)} OK\n" +
+			"	     * Link {@link #C(String)} OK\n" +
+			"	     * Link {@link #foo()} OK\n" +
+			"	     * Link {@link #bar()} OK\n" +
+			"	     */\n" +
+			"	    public C(String str) {}\n" +
+			"		void bar() {}\n" +
+			"	}\n" +
 			"}"
 		);
-		IMethod[] methods = workingCopies[0].getType("B").getType("C").getMethods();
+		IMethod[] methods = this.workingCopies[0].getType("B").getType("C").getMethods();
 		assertEquals("Invalid number of methods", 2, methods.length);
 		for (int i=0,l=methods.length; i<l; i++) {
 			search(methods[i], REFERENCES, getJavaSearchScope());
 		}
 		assertSearchResults(
-			"src/b83285/A.java b83285.B$C(String) [C(String)] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83285/A.java b83285.B$C(String) [C(String)] EXACT_MATCH INSIDE_JAVADOC\n" +
 			"src/b83285/A.java b83285.B$C(String) [bar()] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}

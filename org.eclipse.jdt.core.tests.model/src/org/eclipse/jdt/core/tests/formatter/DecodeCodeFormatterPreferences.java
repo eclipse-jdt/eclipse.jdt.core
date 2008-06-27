@@ -32,7 +32,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import com.ibm.icu.util.StringTokenizer;
 
 public class DecodeCodeFormatterPreferences extends DefaultHandler {
-	
+
 	private boolean record;
 	private Map entries;
 	private String profileName;
@@ -111,7 +111,7 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 		}
 		return null;
 	}
-	
+
 	DecodeCodeFormatterPreferences(String profileName) {
 		this.profileName = profileName;
 	}
@@ -121,19 +121,19 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 	 */
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
-		
+
 		int attributesLength = attributes.getLength();
 		if ("profile".equals(qName)) {
 			for (int i = 0; i < attributesLength; i++) {
-				if ("name".equals(attributes.getQName(i)) && profileName.equals(attributes.getValue(i))) {
-					record = true;
-					entries = new HashMap();
+				if ("name".equals(attributes.getQName(i)) && this.profileName.equals(attributes.getValue(i))) {
+					this.record = true;
+					this.entries = new HashMap();
 					break;
 				}
 			}
-		} else if ("setting".equals(qName) && record) {
+		} else if ("setting".equals(qName) && this.record) {
 			if (attributesLength == 2) {
-				entries.put(attributes.getValue(0), attributes.getValue(1));
+				this.entries.put(attributes.getValue(0), attributes.getValue(1));
 			}
 		}
 	}
@@ -142,14 +142,14 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 	 */
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-		if ("profile".equals(qName) && record) {
-			record = false;
+		if ("profile".equals(qName) && this.record) {
+			this.record = false;
 		}
 	}
 	/**
 	 * @return Returns the entries.
 	 */
 	public Map getEntries() {
-		return entries;
+		return this.entries;
 	}
 }

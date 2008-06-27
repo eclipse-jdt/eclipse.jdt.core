@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 class CascadingMethodInvocationFragmentBuilder
 	extends ASTVisitor {
-		
+
 	ArrayList fragmentsList;
 
 	CascadingMethodInvocationFragmentBuilder() {

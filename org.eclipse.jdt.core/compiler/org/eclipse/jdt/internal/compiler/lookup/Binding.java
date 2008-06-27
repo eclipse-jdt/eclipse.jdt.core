@@ -30,7 +30,7 @@ public abstract class Binding {
 	public static final int GENERIC_TYPE = TYPE | ASTNode.Bit12;
 	public static final int TYPE_PARAMETER = TYPE | ASTNode.Bit13;
 	public static final int INTERSECTION_TYPE = TYPE | ASTNode.Bit14;
-	
+
 	// Shared binding collections
 	public static final TypeBinding[] NO_TYPES = new TypeBinding[0];
 	public static final TypeBinding[] NO_PARAMETERS = new TypeBinding[0];
@@ -65,7 +65,7 @@ public abstract class Binding {
 	public char[] computeUniqueKey(boolean isLeaf) {
 		return null;
 	}
-	
+
 	/**
 	 * Compute the tagbits for standard annotations. For source types, these could require
 	 * lazily resolving corresponding annotation nodes, in case of forward references.
@@ -74,7 +74,7 @@ public abstract class Binding {
 	public long getAnnotationTagBits() {
 		return 0;
 	}
-	
+
 	/**
 	 * Compute the tag bits for @Deprecated annotations, avoiding resolving
 	 * entire annotation if not necessary.
@@ -82,7 +82,7 @@ public abstract class Binding {
 	 */
 	public void initializeDeprecatedAnnotationTagBits() {
 		// empty block
-	}	
+	}
 
 	/* API
 	* Answer true if the receiver is not a problem binding
@@ -103,7 +103,7 @@ public abstract class Binding {
 	*/
 	public abstract char[] readableName();
 	/* Shorter printable representation of the receiver (no qualified type)
-	 */	
+	 */
 	public char[] shortReadableName(){
 		return readableName();
 	}

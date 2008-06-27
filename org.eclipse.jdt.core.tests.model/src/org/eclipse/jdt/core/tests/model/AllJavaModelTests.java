@@ -27,63 +27,63 @@ public AllJavaModelTests(String name) {
 }
 private static Class[] getAllTestClasses() {
 	Class[] classes = new Class[] {
-	
+
 		// Enter each test here, grouping the tests that are related
-			
+
 		// Binding key tests
 		BindingKeyTests.class,
 
 		// creation of method
 		CreateMembersTests.class,
-		
+
 		// Java Naming convention tests
 		JavaConventionTests.class,
-	
+
 		// Project & Root API unit tests
 		JavaProjectTests.class,
-	
+
 		// Compilation unit tests
 		CompilationUnitTests.class,
-	
+
 		// Source attachment tests
 		AttachSourceTests.class,
-		
+
 		// Attached javadoc tests
 		AttachedJavadocTests.class,
-	
+
 		// Java search tests
 		RunJavaSearchTests.class,
-			
+
 		// Working copy tests
 		WorkingCopyTests.class,
 		WorkingCopyNotInClasspathTests.class,
 		HierarchyOnWorkingCopiesTests.class,
-		
+
 		// test IJavaModel
 		JavaModelTests.class,
-	
+
 		// tests to check the encoding
 		EncodingTests.class,
-		
+
 		// test class name with special names like names containing '$'
 		ClassNameTests.class,
-		
+
 		// IBuffer tests
 		BufferTests.class,
-	
+
 		// Name lookup tests
 		NameLookupTests2.class,
-	
+
 		// Classpath and output location tests
 		ClasspathTests.class,
-	
+
 		// Delta tests
 		JavaElementDeltaTests.class,
 		ExternalJarDeltaTests.class,
-	
+
 		// Java element existence tests
 		ExistenceTests.class,
-		
+
 		// Support for "open on" feature tests
 		ResolveTests.class,
 		ResolveTests2.class,
@@ -92,104 +92,104 @@ private static Class[] getAllTestClasses() {
 
 		// Support for completion tests
 		RunCompletionModelTests.class,
-		
+
 		// Prefix and suffix tests
 		NamingConventionTests.class,
-		
+
 		// Code correction tests
 		CodeCorrectionTests.class,
-		
+
 		// Options tests
 		OptionTests.class,
-		
+
 		// Type hierarchy tests
 		TypeHierarchyTests.class,
 		TypeHierarchyNotificationTests.class,
 		TypeHierarchySerializationTests.class,
-		
+
 		// Resolve type tests
 		TypeResolveTests.class,
-	
+
 		// Reconciler tests
 		ReconcilerTests.class,
 		ReconcilerStatementsRecoveryTests.class,
-		
+
 		// Copy and move operation tests
 		CopyMoveElementsTests.class,
 		CopyMoveResourcesTests.class,
-	
+
 		// Rename tests
 		RenameTests.class,
-		
+
 		// Exclusion patterns tests
 		ExclusionPatternsTests.class,
-		
+
 		// Inclusion patterns tests
 		InclusionPatternsTests.class,
-		
+
 		// Access restrictions tests
 		AccessRestrictionsTests.class,
-		
+
 		// Signature tests
 		SignatureTests.class,
-		
+
 		// Variable initializers and container initializers tests
 		ClasspathInitializerTests.class,
-	
+
 		// Java Model Factory tests
 		FactoryTests.class,
-				
+
 		// Java Element persistence tests
 		MementoTests.class,
-		
+
 		// Java Element sorting tests
 		SortCompilationUnitElementsTests.class,
-	
+
 		// Package fragment root manipulation tests
 		RootManipulationsTests.class,
-		
+
 		// Owverflowing cache tests
 		OverflowingCacheTests.class,
-		
+
 		// Working copy owner tests
 		WorkingCopyOwnerTests.class,
-	
+
 		// Delete Java element tests
 		DeleteTests.class,
-		
+
 		// Local element tests
 		LocalElementTests.class,
-		
+
 		// Get source tests
 		GetSourceTests.class,
-			
+
 		// Create packages tests
 		CreatePackageTests.class,
-	
+
 		// Create compilation units tests
 		CreateCompilationUnitTests.class,
-		
+
 		// Create search participant tests
 		SearchParticipantTests.class,
-		
+
 		// Class file tests
 		ClassFileTests.class,
-		
+
 		// Java-like extensions tests
 		JavaLikeExtensionsTests.class,
-		
+
 		// Creation of imports
 		CreateImportsTests.class,
 	};
-	
+
 	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();
-	
+
 	int classesLength = classes.length;
 	int deprecatedClassesLength = deprecatedClasses.length;
 	Class[] result = new Class[classesLength + deprecatedClassesLength];
 	System.arraycopy(classes, 0, result, 0, classesLength);
 	System.arraycopy(deprecatedClasses, 0, result, classesLength, deprecatedClassesLength);
-	
+
 	return result;
 }
 
@@ -200,7 +200,7 @@ private static Class[] getDeprecatedJDOMTestClasses() {
 	return new Class[] {
 		//Create type source tests
 		CreateTypeSourceExamplesTests.class,
-	
+
 		//Create method source tests
 		CreateMethodSourceExamplesTests.class,
 	};
@@ -219,7 +219,7 @@ public static Test suite() {
 	TestCase.TESTS_NUMBERS = null;
 	TestCase.TESTS_RANGE = null;
 	TestCase.RUN_ONLY_ID = null;
-	
+
 	for (int i = 0, length = classes.length; i < length; i++) {
 		Class clazz = classes[i];
 		Method suiteMethod;

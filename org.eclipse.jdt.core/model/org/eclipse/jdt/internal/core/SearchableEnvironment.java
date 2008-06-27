@@ -27,18 +27,18 @@ import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 
 /**
  *	This class provides a <code>SearchableBuilderEnvironment</code> for code assist which
- *	uses the Java model as a search tool.  
+ *	uses the Java model as a search tool.
  */
 public class SearchableEnvironment
 	implements INameEnvironment, IJavaSearchConstants {
-	
+
 	public NameLookup nameLookup;
 	protected ICompilationUnit unitToSkip;
 	protected org.eclipse.jdt.core.ICompilationUnit[] workingCopies;
 
 	protected JavaProject project;
 	protected IJavaSearchScope searchScope;
-	
+
 	protected boolean checkAccessRestrictions;
 
 	/**
@@ -46,7 +46,7 @@ public class SearchableEnvironment
 	 */
 	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies) throws JavaModelException {
 		this.project = project;
-		this.checkAccessRestrictions = 
+		this.checkAccessRestrictions =
 			!JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
 			|| !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true));
 		this.workingCopies = workingCopies;
@@ -111,7 +111,7 @@ public class SearchableEnvironment
 					// find all siblings (other types declared in same unit, since may be used for name resolution)
 					IType[] types = sourceType.getHandle().getCompilationUnit().getTypes();
 					ISourceType[] sourceTypes = new ISourceType[types.length];
-	
+
 					// in the resulting collection, ensure the requested type is the first one
 					sourceTypes[0] = sourceType;
 					int length = types.length;
@@ -187,10 +187,10 @@ public class SearchableEnvironment
 					// implements interface method
 				}
 				public boolean isCanceled() {
-					return isCanceled;
+					return this.isCanceled;
 				}
 				public void setCanceled(boolean value) {
-					isCanceled = value;
+					this.isCanceled = value;
 				}
 				public void setTaskName(String n) {
 					// implements interface method
@@ -235,7 +235,7 @@ public class SearchableEnvironment
 				convertSearchFilterToModelFilter(searchFor));
 		}
 	}
-	
+
 	/**
 	 * Returns all types whose simple name matches with the given <code>name</code>.
 	 */
@@ -244,7 +244,7 @@ public class SearchableEnvironment
 			new SearchableEnvironmentRequestor(storage, this.unitToSkip, this.project, this.nameLookup);
 		this.nameLookup.seekTypes(name, null, false, type, requestor);
 	}
-	
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.INameEnvironment#findType(char[][])
 	 */
@@ -297,7 +297,7 @@ public class SearchableEnvironment
 		/*
 			if (true){
 				findTypes(new String(prefix), storage, NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
-				return;		
+				return;
 			}
 		*/
 		try {
@@ -347,10 +347,10 @@ public class SearchableEnvironment
 					// implements interface method
 				}
 				public boolean isCanceled() {
-					return isCanceled;
+					return this.isCanceled;
 				}
 				public void setCanceled(boolean value) {
-					isCanceled = value;
+					this.isCanceled = value;
 				}
 				public void setTaskName(String name) {
 					// implements interface method
@@ -429,14 +429,14 @@ public class SearchableEnvironment
 		if (this.searchScope == null) {
 			// Create search scope with visible entry on the project's classpath
 			if(this.checkAccessRestrictions) {
-				this.searchScope = BasicSearchEngine.createJavaSearchScope(new IJavaElement[] {project});
+				this.searchScope = BasicSearchEngine.createJavaSearchScope(new IJavaElement[] {this.project});
 			} else {
 				this.searchScope = BasicSearchEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
 			}
 		}
 		return this.searchScope;
 	}
-	
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.INameEnvironment#isPackage(char[][], char[])
 	 */
@@ -472,7 +472,7 @@ public class SearchableEnvironment
 		}
 		return result.toString();
 	}
-	
+
 	public void cleanup() {
 		// nothing to do
 	}

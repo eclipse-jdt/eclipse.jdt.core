@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class ExternalJavaProject extends JavaProject {
-	
+
 	/*
 	 * Note this name can be surfaced in the UI (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=128258)
 	 */
@@ -33,7 +33,7 @@ public class ExternalJavaProject extends JavaProject {
 			// getPerProjectInfo() never throws JavaModelException for an ExternalJavaProject
 		}
 	}
-	
+
 	public boolean equals(Object o) {
 		return this == o;
 	}
@@ -42,14 +42,14 @@ public class ExternalJavaProject extends JavaProject {
 		// external project never exists
 		return false;
 	}
-	
+
 	public String getOption(String optionName, boolean inheritJavaCoreOptions) {
 		if (JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE.equals(optionName)
 				|| JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE.equals(optionName))
 			return JavaCore.IGNORE;
 		return super.getOption(optionName, inheritJavaCoreOptions);
 	}
-	
+
 	public boolean isOnClasspath(IJavaElement element) {
 		// since project is external, no element is on classpath (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=61013#c16)
 		return false;

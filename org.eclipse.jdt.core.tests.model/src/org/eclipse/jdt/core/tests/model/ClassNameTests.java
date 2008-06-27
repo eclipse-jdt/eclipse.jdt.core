@@ -65,7 +65,7 @@ protected void setUp() throws Exception {
 		TEST_PROJECT = createJavaProject("TestProject", sourceFolders, new String[] {"JCL_LIB"}, "bin");
 		createFolder("/TestProject/src0/org/eclipse/jdt/core/test0");
 		createFile(
-			"/TestProject/src0/org/eclipse/jdt/core/test0/Foo.java", 
+			"/TestProject/src0/org/eclipse/jdt/core/test0/Foo.java",
 			"package org.eclipse.jdt.core.test0;\n" +
 			"public class Foo {\n" +
 			"	class InFoo {}\n" +
@@ -75,7 +75,7 @@ protected void setUp() throws Exception {
 			"}\n"
 		);
 		createFile(
-			"/TestProject/src1/Foo.java", 
+			"/TestProject/src1/Foo.java",
 			"public class Foo {\n" +
 			"	class InFoo {}\n" +
 			"}\n" +
@@ -86,7 +86,7 @@ protected void setUp() throws Exception {
 		int length = SF_LENGTH - 1;
 		createFolder("/TestProject/src"+length+"/org/eclipse/jdt/core/test"+length);
 		createFile(
-			"/TestProject/src"+length+"/org/eclipse/jdt/core/test"+length+"/Foo.java", 
+			"/TestProject/src"+length+"/org/eclipse/jdt/core/test"+length+"/Foo.java",
 			"package org.eclipse.jdt.core.test"+length+";\n" +
 			"public class Foo {\n" +
 			"}\n" +
@@ -94,7 +94,7 @@ protected void setUp() throws Exception {
 			"}\n"
 		);
 		createFile(
-			"/TestProject/src"+length+"/org/eclipse/jdt/core/test"+length+"/Test.java", 
+			"/TestProject/src"+length+"/org/eclipse/jdt/core/test"+length+"/Test.java",
 			"package org.eclipse.jdt.core.test"+length+";\n" +
 			"public class Test {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -556,7 +556,7 @@ public void testFindTypeWithDot() throws JavaModelException, CoreException {
 		IJavaProject javaProject = createJavaProject("P", new String[] {""}, "");
 		this.createFolder("/P/p");
 		this.createFile(
-			"/P/p/X.java", 
+			"/P/p/X.java",
 			"package p;\n" +
 			"public class X {\n" +
 			"  public class Y {\n" +
@@ -1121,7 +1121,7 @@ public void testFindSecondaryType_Bug72179() throws JavaModelException, CoreExce
 		IJavaProject javaProject = createJavaProject("P", new String[] {""}, "");
 		createFolder("/P/p1");
 		createFile(
-			"/P/p1/jc.java", 
+			"/P/p1/jc.java",
 			"package p1;\n" +
 			"class jc008{}\n" +
 			"class jc009{}\n" +
@@ -1187,16 +1187,16 @@ public void testBug152841() throws Exception{
 		IJavaProject project= createJavaProject("P", new String[] { "src" }, new String[] { "JCL_LIB" }, "bin");
 		IPackageFragmentRoot root = (IPackageFragmentRoot) project.getChildren()[0];
 		IPackageFragment pack= root.createPackageFragment("p", true, null);
-	
+
 		String source= "package p;\n" +
 		"//use Object\n" +
 		"class A {\n" +
 		"	public void foo(){};\n" +
 		"}";
 		pack.createCompilationUnit("A.java", source, true, null);
-		
+
 		source= "package p;\n" +
-		"\n" + 
+		"\n" +
 		"class Test{\n" +
 		"	void test(){\n" +
 		"		A a= new A();\n" +
@@ -1207,12 +1207,12 @@ public void testBug152841() throws Exception{
 		"	}\n" +
 		"}";
 		ICompilationUnit cu= pack.createCompilationUnit("Test.java", source, true, null);
-	
+
 		ASTParser parser= ASTParser.newParser(AST.JLS3);
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.createAST(null);
-						
+
 		source= "package p;\n" +
 		"//use C\n" +
 		"interface I{}\n" +
@@ -1228,14 +1228,14 @@ public void testBug152841() throws Exception{
 		"		c.toString();\n" +
 		"	}\n" +
 		"}";
-	
+
 		ICompilationUnit unit= pack.createCompilationUnit("I.java", source, true, null);
 		IType type= project.findType("p.I", (IProgressMonitor) null);
 		assertNotNull(type);
-		
+
 		// C exists
 		assertTrue(unit.getType("C").exists());
-		
+
 		// but can't be found
 		type= project.findType("p.C", (IProgressMonitor) null);
 		assertNotNull(type);

@@ -13,24 +13,24 @@ package org.eclipse.jdt.internal.compiler.ast;
 public abstract class NumberLiteral extends Literal {
 
 	char[] source;
-	
+
 	public NumberLiteral(char[] token, int s, int e) {
-		
+
 		this(s,e) ;
-		source = token ;
+		this.source = token ;
 	}
-	
+
 	public NumberLiteral(int s, int e) {
 		super (s,e) ;
 	}
-	
+
 	public boolean isValidJavaStatement(){
 
 		return false ;
 	}
-	
+
 	public char[] source(){
 
-		return source;
+		return this.source;
 	}
 }

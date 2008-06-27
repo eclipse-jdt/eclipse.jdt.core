@@ -40,7 +40,7 @@ class AddFolderToIndex extends IndexRequest {
 	public boolean execute(IProgressMonitor progressMonitor) {
 
 		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
-		if (!project.isAccessible()) return true; // nothing to do
+		if (!this.project.isAccessible()) return true; // nothing to do
 		IResource folder = this.project.getParent().findMember(this.folderPath);
 		if (folder == null || folder.getType() == IResource.FILE) return true; // nothing to do, source folder was removed
 
@@ -78,14 +78,14 @@ class AddFolderToIndex extends IndexRequest {
 								case IResource.FILE :
 									if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
 										IResource resource = proxy.requestResource();
-										if (!Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
+										if (!Util.isExcluded(resource, AddFolderToIndex.this.inclusionPatterns, AddFolderToIndex.this.exclusionPatterns))
 											indexManager.addSource((IFile)resource, container, parser);
 									}
 									return false;
 								case IResource.FOLDER :
-									if (exclusionPatterns != null && inclusionPatterns == null) {
+									if (AddFolderToIndex.this.exclusionPatterns != null && AddFolderToIndex.this.inclusionPatterns == null) {
 										// if there are inclusion patterns then we must walk the children
-										if (Util.isExcluded(proxy.requestFullPath(), inclusionPatterns, exclusionPatterns, true)) 
+										if (Util.isExcluded(proxy.requestFullPath(), AddFolderToIndex.this.inclusionPatterns, AddFolderToIndex.this.exclusionPatterns, true))
 										    return false;
 									}
 							}

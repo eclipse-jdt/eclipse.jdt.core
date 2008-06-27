@@ -18,11 +18,11 @@ import org.eclipse.jdt.core.JavaModelException;
 public class VariablesInitializer extends ClasspathVariableInitializer {
 
 	public static ITestInitializer initializer;
-	
+
 	public static interface ITestInitializer {
 		public void initialize(String variable) throws JavaModelException;
 	}
-	
+
 	public static void reset() {
 		initializer = null;
 		String[] varNames = JavaCore.getClasspathVariableNames();
@@ -36,7 +36,7 @@ public class VariablesInitializer extends ClasspathVariableInitializer {
 	public static void setInitializer(ITestInitializer initializer) {
 		VariablesInitializer.initializer = initializer;
 	}
-	
+
 	public void initialize(String variable) {
 		if (initializer == null) return;
 		try {

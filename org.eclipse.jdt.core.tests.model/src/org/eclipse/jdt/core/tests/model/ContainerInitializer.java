@@ -18,21 +18,21 @@ import org.eclipse.jdt.core.IJavaProject;
 
 public class ContainerInitializer extends ClasspathContainerInitializer {
 	public static ITestInitializer initializer;
-	
+
 	public static interface ITestInitializer {
 		public void initialize(IPath containerPath, IJavaProject project) throws CoreException;
 		public boolean allowFailureContainer();
 	}
-	
+
 	public static void setInitializer(ITestInitializer initializer) {
 		ContainerInitializer.initializer = initializer;
 	}
-	
+
 	public IClasspathContainer getFailureContainer(IPath containerPath, IJavaProject project) {
 		if (initializer == null || !initializer.allowFailureContainer()) return null;
 		return super.getFailureContainer(containerPath, project);
 	}
-	
+
 	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 		if (initializer == null) return;
 		initializer.initialize(containerPath, project);

@@ -9,7 +9,7 @@
  *    mkaufman@bea.com - initial API as ICompilationParticipant
  *    IBM - changed from interface ICompilationParticipant to abstract class CompilationParticipant
  *    IBM - rewrote specification
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.core.compiler;
@@ -20,16 +20,16 @@ import org.eclipse.jdt.core.IJavaProject;
  * A compilation participant is notified of events occuring during the compilation process.
  * The compilation process not only involves generating .class files (i.e. building), it also involves
  * cleaning the output directory, reconciling a working copy, etc.
- * So the notified events are the result of a build action, a clean action, a reconcile operation 
+ * So the notified events are the result of a build action, a clean action, a reconcile operation
  * (for a working copy), etc.
  * <p>
  * Code that participates in the build should in general be implemented with a separate Builder,
- * rather than a CompilationParticipant. It is only necessary to use a CompilationParticipant if 
- * the build step needs to interact with the Java build, for instance by creating additional 
- * Java source files that must themselves in turn be compiled. 
+ * rather than a CompilationParticipant. It is only necessary to use a CompilationParticipant if
+ * the build step needs to interact with the Java build, for instance by creating additional
+ * Java source files that must themselves in turn be compiled.
  * <p>
  * Clients wishing to participate in the compilation process must subclass this class, and implement
- * {@link #isActive(IJavaProject)}, {@link #aboutToBuild(IJavaProject)}, 
+ * {@link #isActive(IJavaProject)}, {@link #aboutToBuild(IJavaProject)},
  * {@link #reconcile(ReconcileContext)}, etc.
 * </p><p>
  * This class is intended to be subclassed by clients.
@@ -97,7 +97,7 @@ public void cleanStarting(IJavaProject project) {
  * <p>
  * Default is to return <code>false</code>.
  * </p><p>
- * For efficiency, participants that are not interested in the 
+ * For efficiency, participants that are not interested in the
  * given project should return <code>false</code> for that project.
  * </p>
  * @param project the project to participate in

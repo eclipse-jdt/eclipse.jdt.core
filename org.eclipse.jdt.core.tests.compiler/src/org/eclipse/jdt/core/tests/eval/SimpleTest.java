@@ -48,12 +48,12 @@ public class SimpleTest {
 		int globalProblemCount = 0;
 		public boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassName) {
 			try {
-				target.sendClasses(codeSnippetClassName != null, classFiles);
+				SimpleTest.this.target.sendClasses(codeSnippetClassName != null, classFiles);
 			} catch (TargetException e) {
 				return false;
 			}
 			if (codeSnippetClassName != null) {
-				TargetInterface.Result result = target.getResult();
+				TargetInterface.Result result = SimpleTest.this.target.getResult();
 				if (result.displayString == null) {
 					System.out.println("(No explicit return value)");
 				} else {
@@ -70,7 +70,7 @@ public class SimpleTest {
 							IBinaryField[] fields = new ClassFileReader(classFiles[i].getBytes(), null).getFields();
 							if (fields != null) {
 								for (int j = 0; j < fields.length; j++) {
-									TargetInterface.Result result = target.getResult();
+									TargetInterface.Result result = SimpleTest.this.target.getResult();
 									if (result.displayString == null) {
 										System.out.println("(No explicit return value)");
 									} else {
@@ -86,20 +86,20 @@ public class SimpleTest {
 						}
 					}
 				}
-			} 
+			}
 			return true;
 		}
 		public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int fragmentKind) {
 			int localErrorCount = 0;
-			globalProblemCount++;
+			this.globalProblemCount++;
 			char[] source = fragmentSource;
 			if (localErrorCount == 0)
 				System.out.println("----------");
 			if (fragmentKind == EvaluationResult.T_INTERNAL) {
-				System.out.print(globalProblemCount + (problem.isError() ? ". INTERNAL ERROR" : ". INTERNAL WARNING"));
+				System.out.print(this.globalProblemCount + (problem.isError() ? ". INTERNAL ERROR" : ". INTERNAL WARNING"));
 				System.out.print(" in generated compilation unit");
 			} else {
-				System.out.print(globalProblemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
+				System.out.print(this.globalProblemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
 				System.out.print(" in ");
 				switch (fragmentKind) {
 					case EvaluationResult.T_PACKAGE:
@@ -167,7 +167,7 @@ protected String errorReportSource(DefaultProblem problem, char[] source) {
 	final char TAB = '\t';
 	//the next code tries to underline the token.....
 	//it assumes (for a good display) that token source does not
-	//contain any \r \n. This is false on statements ! 
+	//contain any \r \n. This is false on statements !
 	//(the code still works but the display is not optimal !)
 
 	//compute the how-much-char we are displaying around the inaccurate token
@@ -215,11 +215,11 @@ protected String errorReportSource(DefaultProblem problem, char[] source) {
 		underneath[pos++] = MARK;
 	//resize underneathto remove 'null' chars
 	System.arraycopy(underneath, 0, underneath = new char[pos], 0, pos);
-	return 
-		((problem.getSourceLineNumber() > 0) ? 
+	return
+		((problem.getSourceLineNumber() > 0) ?
 			(" (at line " + String.valueOf(problem.getSourceLineNumber()) + ")") :
 			""
-		) + 
+		) +
 		"\n\t" + new String(extract) + "\n\t" + new String(underneath);
 }
 protected GlobalVariable findVar(char[] varName) {
@@ -233,7 +233,7 @@ protected GlobalVariable findVar(char[] varName) {
 	return null;
 }
 protected INameEnvironment getEnv() {
-	
+
 	return new FileSystem(COMPILATION_CLASSPATH, new String[0], null);
 }
 protected IProblemFactory getProblemFactory() {
@@ -261,13 +261,13 @@ protected void startEvaluationContext() throws TargetException {
 					}
 					if (read != -1) {
 						System.out.print((char)read);
-					}	
+					}
 				}
 			} catch (TargetException e) {
 			}
 		}
 	}).start();
-	
+
 	(new Thread() {
 		public void run() {
 			try {
@@ -281,7 +281,7 @@ protected void startEvaluationContext() throws TargetException {
 					}
 					if (read != -1) {
 						System.out.print((char)read);
-					}	
+					}
 				}
 			} catch (TargetException e) {
 			}
@@ -295,7 +295,7 @@ protected void startEvaluationContext() throws TargetException {
 }
 protected void stopEvaluationContext() {
 	try {
-		this.target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed. 
+		this.target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed.
 		int retry = 0;
 		while (this.launchedVM.isRunning() && (++retry < 20)) {
 			try {

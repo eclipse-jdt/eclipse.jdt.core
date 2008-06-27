@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
  * occurs within such a block mitigates whatever we know about the previous
  * null status of involved variables. NullInfoRegistry handles that
  * by negating upstream definite information that clashes with what a given
- * statement contends about the same variable. It also implements 
+ * statement contends about the same variable. It also implements
  * {@link #mitigateNullInfoOf(FlowInfo) mitigateNullInfo} so as to elaborate the
  * flow info presented in input of finally blocks.
  */
@@ -90,16 +90,16 @@ public NullInfoRegistry add(NullInfoRegistry other) {
 		if (this.extra == null) {
 			this.extra = new long[extraLength][];
 			for (int i = 2, length = other.extra[2].length; i < extraLength; i++) {
-				System.arraycopy(other.extra[i], 0, 
+				System.arraycopy(other.extra[i], 0,
 					(this.extra[i] = new long[length]), 0, length);
 			}
 		} else {
 			int length = this.extra[2].length, otherLength = other.extra[2].length;
 			if (otherLength > length) {
 				for (int i = 2; i < extraLength; i++) {
-					System.arraycopy(this.extra[i], 0, 
+					System.arraycopy(this.extra[i], 0,
 						(this.extra[i] = new long[otherLength]), 0, length);
-					System.arraycopy(other.extra[i], length, 
+					System.arraycopy(other.extra[i], length,
 						this.extra[i], length, otherLength - length);
 				}
 			} else if (otherLength < length) {
@@ -127,7 +127,7 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
     		if (coverageTestFlag && coverageTestId == 290) {
     		  	this.nullBit1 = 0;
     		}
-    	} 
+    	}
     	else {
     		// use extra vector
 			int vectorIndex = (position / BitCacheSize) - 1;
@@ -137,13 +137,13 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 				for (int j = 2; j < extraLength; j++) {
 					this.extra[j] = new long[length];
 				}
-			} 
+			}
 			else {
 				int oldLength; // might need to grow the arrays
 				if (vectorIndex >= (oldLength = this.extra[2].length)) {
 					for (int j = 2; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0, 
-							(this.extra[j] = new long[vectorIndex + 1]), 0, 
+						System.arraycopy(this.extra[j], 0,
+							(this.extra[j] = new long[vectorIndex + 1]), 0,
 							oldLength);
 					}
 				}
@@ -168,7 +168,7 @@ public void markAsDefinitelyNonNull(LocalVariableBinding local) {
     		if (coverageTestFlag && coverageTestId == 290) {
     		  	this.nullBit1 = 0;
     		}
-    	} 
+    	}
     	else {
     		// use extra vector
 			int vectorIndex = (position / BitCacheSize) - 1;
@@ -178,13 +178,13 @@ public void markAsDefinitelyNonNull(LocalVariableBinding local) {
 				for (int j = 2; j < extraLength; j++) {
 					this.extra[j] = new long[length];
 				}
-			} 
+			}
 			else {
 				int oldLength; // might need to grow the arrays
 				if (vectorIndex >= (oldLength = this.extra[2].length)) {
 					for (int j = 2; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0, 
-							(this.extra[j] = new long[vectorIndex + 1]), 0, 
+						System.arraycopy(this.extra[j], 0,
+							(this.extra[j] = new long[vectorIndex + 1]), 0,
 							oldLength);
 					}
 				}
@@ -210,7 +210,7 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
     		if (coverageTestFlag && coverageTestId == 290) {
     		  	this.nullBit1 = 0;
     		}
-    	} 
+    	}
     	else {
     		// use extra vector
 			int vectorIndex = (position / BitCacheSize) - 1;
@@ -220,13 +220,13 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
 				for (int j = 2; j < extraLength; j++) {
 					this.extra[j] = new long[length];
 				}
-			} 
+			}
 			else {
 				int oldLength; // might need to grow the arrays
 				if (vectorIndex >= (oldLength = this.extra[2].length)) {
 					for (int j = 2; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0, 
-							(this.extra[j] = new long[vectorIndex + 1]), 0, 
+						System.arraycopy(this.extra[j], 0,
+							(this.extra[j] = new long[vectorIndex + 1]), 0,
 							oldLength);
 					}
 				}
@@ -251,7 +251,7 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
     		if (coverageTestFlag && coverageTestId == 290) {
     		  	this.nullBit1 = 0;
     		}
-    	} 
+    	}
     	else {
     		// use extra vector
 			int vectorIndex = (position / BitCacheSize) - 1;
@@ -261,13 +261,13 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 				for (int j = 2; j < extraLength; j++) {
 					this.extra[j] = new long[length];
 				}
-			} 
+			}
 			else {
 				int oldLength; // might need to grow the arrays
 				if (vectorIndex >= (oldLength = this.extra[2].length)) {
 					for (int j = 2; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0, 
-							(this.extra[j] = new long[vectorIndex + 1]), 0, 
+						System.arraycopy(this.extra[j], 0,
+							(this.extra[j] = new long[vectorIndex + 1]), 0,
 							oldLength);
 					}
 				}
@@ -281,7 +281,7 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 }
 
 /**
- * Mitigate the definite and protected info of flowInfo, depending on what 
+ * Mitigate the definite and protected info of flowInfo, depending on what
  * this null info registry knows about potential assignments and messages
  * sends involving locals. May return flowInfo unchanged, or a modified,
  * fresh copy of flowInfo.
@@ -298,7 +298,7 @@ public UnconditionalFlowInfo mitigateNullInfoOf(FlowInfo flowInfo) {
 	boolean newCopy = false;
 	UnconditionalFlowInfo source = flowInfo.unconditionalInits();
 	// clear incompatible protections
-	m1 = (s1 = source.nullBit1) & (s3 = source.nullBit3) 
+	m1 = (s1 = source.nullBit1) & (s3 = source.nullBit3)
 				& (s4 = source.nullBit4)
 			// prot. non null
 		& ((a2 = this.nullBit2) | (a4 = this.nullBit4));
@@ -312,7 +312,7 @@ public UnconditionalFlowInfo mitigateNullInfoOf(FlowInfo flowInfo) {
 	// TODO (maxime) code extensive implementation tests
 	m3 = s1	& (s2 & (ns3 = ~s3) & (ns4 = ~s4) & (a3 | a4)
 				| (ns2 = ~s2) & s3 & ns4 & (a2 | a4)
-				| ns2 & ns3 & s4 & (a2 | a3)); 
+				| ns2 & ns3 & s4 & (a2 | a3));
 	if ((m = (m1 | m2 | m3)) != 0) {
 		newCopy = true;
 		source = source.unconditionalCopy();
@@ -327,14 +327,14 @@ public UnconditionalFlowInfo mitigateNullInfoOf(FlowInfo flowInfo) {
 			length = sourceLength;
 		}
 		for (int i = 0; i < length; i++) {
-        	m1 = (s1 = source.extra[1 + 1][i]) & (s3 = source.extra[3 + 1][i]) 
+        	m1 = (s1 = source.extra[1 + 1][i]) & (s3 = source.extra[3 + 1][i])
         				& (s4 = source.extra[4 + 1][i])
         		& ((a2 = this.extra[2 + 1][i]) | (a4 = this.extra[4 + 1][i]));
         	m2 = s1 & (s2 = this.extra[2 + 1][i]) & (s3 ^ s4)
         		& ((a3 = this.extra[3 + 1][i]) | a4);
         	m3 = s1	& (s2 & (ns3 = ~s3) & (ns4 = ~s4) & (a3 | a4)
         				| (ns2 = ~s2) & s3 & ns4 & (a2 | a4)
-        				| ns2 & ns3 & s4 & (a2 | a3)); 
+        				| ns2 & ns3 & s4 & (a2 | a3));
         	if ((m = (m1 | m2 | m3)) != 0) {
         	  	if (! newCopy) {
             		newCopy = true;
@@ -360,8 +360,8 @@ public String toString(){
 		String nullS = "NullInfoRegistry<[" + this.nullBit1 //$NON-NLS-1$
 			+ this.nullBit2 + this.nullBit3 + this.nullBit4;
 			int i, ceil;
-			for (i = 0, ceil = this.extra[0].length > 3 ? 
-								3 : 
+			for (i = 0, ceil = this.extra[0].length > 3 ?
+								3 :
 								this.extra[0].length;
 				i < ceil; i++) {
 				nullS += "," + this.extra[2][i] //$NON-NLS-1$

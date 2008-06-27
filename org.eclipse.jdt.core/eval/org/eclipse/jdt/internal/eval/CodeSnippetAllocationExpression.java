@@ -36,8 +36,8 @@ public CodeSnippetAllocationExpression(EvaluationContext evaluationContext) {
 	this.evaluationContext = evaluationContext;
 }
 public void generateCode(
-	BlockScope currentScope, 
-	CodeStream codeStream, 
+	BlockScope currentScope,
+	CodeStream codeStream,
 	boolean valueRequired) {
 
 	int pc = codeStream.position;
@@ -93,18 +93,18 @@ public void generateCode(
 				codeStream.aastore();
 				if (i < argsLength - 1) {
 					codeStream.dup();
-				}	
+				}
 			}
 		} else {
 			codeStream.generateInlinedValue(0);
-			codeStream.newArray(currentScope.createArrayType(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT, 3), 1));			
+			codeStream.newArray(currentScope.createArrayType(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT, 3), 1));
 		}
 		codeStream.invokeJavaLangReflectConstructorNewInstance();
 		codeStream.checkcast(allocatedType);
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
-/* Inner emulation consists in either recording a dependency 
+/* Inner emulation consists in either recording a dependency
  * link only, or performing one level of propagation.
  *
  * Dependency mechanism is used whenever dealing with source target
@@ -166,7 +166,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					}
 					if (this.type != null && !this.type.resolvedType.isValidBinding()) {
 						return null;
-					}					
+					}
 					scope.problemReporter().invalidConstructor(this, this.binding);
 					return this.resolvedType;
 				}
@@ -176,11 +176,11 @@ public TypeBinding resolveType(BlockScope scope) {
 				}
 				if (this.type != null && !this.type.resolvedType.isValidBinding()) {
 					return null;
-				}				
+				}
 				scope.problemReporter().invalidConstructor(this, this.binding);
 				return this.resolvedType;
 			}
-			CodeSnippetScope localScope = new CodeSnippetScope(scope);			
+			CodeSnippetScope localScope = new CodeSnippetScope(scope);
 			MethodBinding privateBinding = localScope.getConstructor((ReferenceBinding)this.delegateThis.type, argumentTypes, this);
 			if (!privateBinding.isValidBinding()) {
 				if (this.binding.declaringClass == null) {
@@ -188,19 +188,19 @@ public TypeBinding resolveType(BlockScope scope) {
 				}
 				if (this.type != null && !this.type.resolvedType.isValidBinding()) {
 					return null;
-				}				
+				}
 				scope.problemReporter().invalidConstructor(this, this.binding);
 				return this.resolvedType;
 			} else {
 				this.binding = privateBinding;
-			}				
+			}
 		} else {
 			if (this.binding.declaringClass == null) {
 				this.binding.declaringClass = allocatedType;
 			}
 			if (this.type != null && !this.type.resolvedType.isValidBinding()) {
 				return null;
-			}			
+			}
 			scope.problemReporter().invalidConstructor(this, this.binding);
 			return this.resolvedType;
 		}
@@ -208,17 +208,17 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (isMethodUseDeprecated(this.binding, scope, true)) {
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 	}
-	if (arguments != null) {
-		for (int i = 0; i < arguments.length; i++) {
-		    TypeBinding parameterType = binding.parameters[i];
+	if (this.arguments != null) {
+		for (int i = 0; i < this.arguments.length; i++) {
+		    TypeBinding parameterType = this.binding.parameters[i];
 		    TypeBinding argumentType = argumentTypes[i];
-			arguments[i].computeConversion(scope, parameterType, argumentType);
+			this.arguments[i].computeConversion(scope, parameterType, argumentType);
 			if (argumentType.needsUncheckedConversion(parameterType)) {
-				scope.problemReporter().unsafeTypeConversion(arguments[i], argumentType, parameterType);
+				scope.problemReporter().unsafeTypeConversion(this.arguments[i], argumentType, parameterType);
 			}
 		}
 		if (argsContainCast) {
-			CastExpression.checkNeedForArgumentCasts(scope, null, allocatedType, binding, this.arguments, argumentTypes, this);
+			CastExpression.checkNeedForArgumentCasts(scope, null, allocatedType, this.binding, this.arguments, argumentTypes, this);
 		}
 	}
 	if (allocatedType.isRawType() && this.binding.hasSubstitutedParameters()) {

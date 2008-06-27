@@ -24,7 +24,7 @@ char[] getName();
  * Return {@link EnumConstantSignature} if value is an enum constant.
  * Return {@link IBinaryAnnotation} for annotation type.
  * Return {@link Object}[] for array type.
- * 
+ *
  * @return the value of this member value pair
  */
 Object getValue();

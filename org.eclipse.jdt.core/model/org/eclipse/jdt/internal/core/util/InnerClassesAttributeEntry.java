@@ -45,14 +45,14 @@ public class InnerClassesAttributeEntry
 			}
 			this.innerClassName = constantPoolEntry.getClassInfoName();
 		}
-		if (outerClassNameIndex != 0) {
+		if (this.outerClassNameIndex != 0) {
 			constantPoolEntry = constantPool.decodeEntry(this.outerClassNameIndex);
 			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Class) {
 				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 			}
 			this.outerClassName = constantPoolEntry.getClassInfoName();
 		}
-		if (innerNameIndex != 0) {
+		if (this.innerNameIndex != 0) {
 			constantPoolEntry = constantPool.decodeEntry(this.innerNameIndex);
 			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);

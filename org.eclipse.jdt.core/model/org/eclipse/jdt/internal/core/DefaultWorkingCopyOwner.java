@@ -19,11 +19,11 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
  * It also defines the PRIMARY working copy owner that is used by JDT/Core.
  */
 public class DefaultWorkingCopyOwner extends WorkingCopyOwner {
-	
+
 	public WorkingCopyOwner primaryBufferProvider;
-		
+
 	public static final DefaultWorkingCopyOwner PRIMARY =  new DefaultWorkingCopyOwner();
-	
+
 	private DefaultWorkingCopyOwner() {
 		// only one instance can be created
 	}

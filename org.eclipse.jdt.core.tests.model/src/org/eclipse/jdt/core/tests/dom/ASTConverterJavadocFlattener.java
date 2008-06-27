@@ -23,29 +23,29 @@ public class ASTConverterJavadocFlattener extends ASTVisitor {
 	private StringBuffer buffer;
 	private int indent = 0;
 	private String comment;
-		
+
 /**
  * Creates a new AST printer.
  */
 ASTConverterJavadocFlattener(String comment) {
-	buffer = new StringBuffer();
+	this.buffer = new StringBuffer();
 	this.comment = comment;
 }
 
 /**
  * Returns the string accumulated in the visit.
  *
- * @return the serialized 
+ * @return the serialized
  */
 public String getResult() {
-	return buffer.toString();
+	return this.buffer.toString();
 }
 
 /**
  * Resets this printer so that it can be used again.
  */
 public void reset() {
-	buffer.setLength(0);
+	this.buffer.setLength(0);
 }
 
 /*
@@ -53,7 +53,7 @@ public void reset() {
  */
 public boolean visit(ArrayType node) {
 	node.getComponentType().accept(this);
-	buffer.append("[]");//$NON-NLS-1$
+	this.buffer.append("[]");//$NON-NLS-1$
 	return false;
 }
 
@@ -62,7 +62,7 @@ public boolean visit(ArrayType node) {
  * @since 3.0
  */
 public boolean visit(BlockComment node) {
-	buffer.append(comment);
+	this.buffer.append(this.comment);
 	return false;
 }
 
@@ -82,7 +82,7 @@ public boolean visit(Javadoc javadoc) {
 
 private void printIndent() {
 	for (int i=0; i<this.indent; i++) {
-		buffer.append('\t');
+		this.buffer.append('\t');
 	}
 }
 
@@ -99,7 +99,7 @@ private void printNewLine() {
  * @since 3.0
  */
 public boolean visit(LineComment node) {
-	buffer.append(comment);
+	this.buffer.append(this.comment);
 	return false;
 }
 
@@ -111,7 +111,7 @@ public boolean visit(MemberRef node) {
 	if (node.getQualifier() != null) {
 		node.getQualifier().accept(this);
 	}
-	buffer.append("#");//$NON-NLS-1$
+	this.buffer.append("#");//$NON-NLS-1$
 	node.getName().accept(this);
 	return true;
 }
@@ -124,17 +124,17 @@ public boolean visit(MethodRef node) {
 	if (node.getQualifier() != null) {
 		node.getQualifier().accept(this);
 	}
-	buffer.append("#");//$NON-NLS-1$
+	this.buffer.append("#");//$NON-NLS-1$
 	node.getName().accept(this);
-	buffer.append("(");//$NON-NLS-1$
+	this.buffer.append("(");//$NON-NLS-1$
 	for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
 		MethodRefParameter e = (MethodRefParameter) it.next();
 		e.accept(this);
 		if (it.hasNext()) {
-			buffer.append(",");//$NON-NLS-1$
+			this.buffer.append(",");//$NON-NLS-1$
 		}
 	}
-	buffer.append(")");//$NON-NLS-1$
+	this.buffer.append(")");//$NON-NLS-1$
 	return true;
 }
 
@@ -145,7 +145,7 @@ public boolean visit(MethodRef node) {
 public boolean visit(MethodRefParameter node) {
 	node.getType().accept(this);
 	if (node.getName() != null) {
-		buffer.append(" ");//$NON-NLS-1$
+		this.buffer.append(" ");//$NON-NLS-1$
 		node.getName().accept(this);
 	}
 	return true;
@@ -196,7 +196,7 @@ public boolean visit(TagElement node) {
  * @since 3.0
  */
 public boolean visit(TextElement node) {
-	buffer.append(node.getText());
+	this.buffer.append(node.getText());
 	return false;
 }
 
@@ -204,7 +204,7 @@ public boolean visit(TextElement node) {
  * @see ASTVisitor#visit(PrimitiveType)
  */
 public boolean visit(PrimitiveType node) {
-	buffer.append(node.getPrimitiveTypeCode().toString());
+	this.buffer.append(node.getPrimitiveTypeCode().toString());
 	return false;
 }
 
@@ -213,7 +213,7 @@ public boolean visit(PrimitiveType node) {
  */
 public boolean visit(QualifiedName node) {
 	node.getQualifier().accept(this);
-	buffer.append(".");//$NON-NLS-1$
+	this.buffer.append(".");//$NON-NLS-1$
 	node.getName().accept(this);
 	return false;
 }
@@ -222,7 +222,7 @@ public boolean visit(QualifiedName node) {
  * @see ASTVisitor#visit(SimpleName)
  */
 public boolean visit(SimpleName node) {
-	buffer.append(node.getIdentifier());
+	this.buffer.append(node.getIdentifier());
 	return false;
 }
 

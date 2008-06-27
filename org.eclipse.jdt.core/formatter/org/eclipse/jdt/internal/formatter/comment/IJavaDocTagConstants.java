@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.formatter.comment;
 
 /**
  * Javadoc tag constants.
- * 
+ *
  * @since 3.0
  */
 public interface IJavaDocTagConstants {
@@ -110,7 +110,7 @@ public interface IJavaDocTagConstants {
 
 	public static final char[] LINK_TAG_PREFIX= LINK_TAG_PREFIX_STRING.toCharArray();
 
-	
+
 	/** Comment root tags */
 	public static final char[][] COMMENT_ROOT_TAGS= new char[][] {
 			"@deprecated".toCharArray(), //$NON-NLS-1$
@@ -121,7 +121,7 @@ public interface IJavaDocTagConstants {
 
 	/** Tag prefix of comment tags */
 	public static final char COMMENT_TAG_PREFIX= '@';
-	
+
 	/** BLOCK COMMENTS */
 	public static final String BLOCK_HEADER = "/*"; //$NON-NLS-1$
 	public static final int BLOCK_HEADER_LENGTH = BLOCK_HEADER.length();
@@ -135,10 +135,10 @@ public interface IJavaDocTagConstants {
 	/** LINE COMMENTS */
 	public static final String LINE_COMMENT_PREFIX = "// "; //$NON-NLS-1$
 	public static final int LINE_COMMENT_PREFIX_LENGTH = LINE_COMMENT_PREFIX.length();
-	
+
 	/** JAVADOC STAR */
 	public static final String JAVADOC_STAR = "*"; //$NON-NLS-1$
-	
+
 	/*
 	 *  Tags IDs
 	 */

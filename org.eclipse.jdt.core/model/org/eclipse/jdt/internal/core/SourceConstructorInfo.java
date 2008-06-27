@@ -14,22 +14,22 @@ package org.eclipse.jdt.internal.core;
  * Element info for constructor from source.
  */
 public class SourceConstructorInfo extends SourceMethodElementInfo {
-	
+
 	private static final char[] RETURN_TYPE_NAME = new char[]{'v', 'o','i', 'd'};
-	
+
 	public boolean isAnnotationMethod() {
 		// a constructor cannot be an annotation method
 		return false;
 	}
-	
+
 	public boolean isConstructor() {
 		return true;
 	}
-	
+
 	public char[] getReturnTypeName() {
 		return RETURN_TYPE_NAME;
 	}
-	
+
 	protected void setReturnType(char[] type) {
 		// ignore (always void)
 	}

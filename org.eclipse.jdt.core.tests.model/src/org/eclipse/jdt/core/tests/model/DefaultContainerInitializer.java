@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class DefaultContainerInitializer implements ContainerInitializer.ITestInitializer {
-	
+
 	public static class DefaultContainer implements IClasspathContainer {
 		char[][] libPaths;
 		public DefaultContainer(char[][] libPaths) {
@@ -52,20 +52,20 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 			return new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
 		}
 	}
-	
+
 	Map containerValues;
 	CoreException exception;
-	
+
 	/*
 	 * values is [<project name>, <lib path>[,<lib path>]* ]*
 	 */
 	public DefaultContainerInitializer(String[] values) {
-		containerValues = new HashMap();
+		this.containerValues = new HashMap();
 		for (int i = 0; i < values.length; i+=2) {
 			final String projectName = values[i];
 			final char[][] libPaths = CharOperation.splitOn(',', values[i+1].toCharArray());
-			containerValues.put(
-				projectName, 
+			this.containerValues.put(
+				projectName,
 				newContainer(libPaths)
 			);
 		}
@@ -77,12 +77,12 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 		return true;
 	}
 	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
-		if (containerValues == null) return;
+		if (this.containerValues == null) return;
 		try {
 			JavaCore.setClasspathContainer(
-				containerPath, 
+				containerPath,
 				new IJavaProject[] {project},
-				new IClasspathContainer[] {(IClasspathContainer)containerValues.get(project.getElementName())}, 
+				new IClasspathContainer[] {(IClasspathContainer)this.containerValues.get(project.getElementName())},
 				null);
 		} catch (CoreException e) {
 			this.exception = e;

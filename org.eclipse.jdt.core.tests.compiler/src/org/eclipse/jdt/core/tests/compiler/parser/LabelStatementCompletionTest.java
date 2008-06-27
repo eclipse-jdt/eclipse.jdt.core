@@ -54,27 +54,27 @@ public void test1FTEO9L() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:new CCHelper().n>",
 		// expectedUnitDisplayString:
-		"package p;\n" + 
-		"class CCHelper {\n" + 
-		"  class Member1 {\n" + 
-		"    Member1() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  class Member2 {\n" + 
-		"    Member2() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  CCHelper() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"public class CC {\n" + 
-		"  public CC() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:new CCHelper().n>;\n" + 
-		"  }\n" + 
+		"package p;\n" +
+		"class CCHelper {\n" +
+		"  class Member1 {\n" +
+		"    Member1() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  class Member2 {\n" +
+		"    Member2() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  CCHelper() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n" +
+		"public class CC {\n" +
+		"  public CC() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMemberAccess:new CCHelper().n>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"n",
@@ -92,27 +92,27 @@ public void test1FTEO9L() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:CC>",
 		// expectedUnitDisplayString:
-		"package p;\n" + 
-		"class CCHelper {\n" + 
-		"  class Member1 {\n" + 
-		"    Member1() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  class Member2 {\n" + 
-		"    Member2() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  CCHelper() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"public class CC {\n" + 
-		"  public CC() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    new CCHelper().new <CompleteOnType:CC>();\n" + 
-		"  }\n" + 
+		"package p;\n" +
+		"class CCHelper {\n" +
+		"  class Member1 {\n" +
+		"    Member1() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  class Member2 {\n" +
+		"    Member2() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  CCHelper() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n" +
+		"public class CC {\n" +
+		"  public CC() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    new CCHelper().new <CompleteOnType:CC>();\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"CC",
@@ -131,27 +131,27 @@ public void test1FTEO9L() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:new CCHelper().new CCHelper().n>",
 		// expectedUnitDisplayString:
-		"package p;\n" + 
-		"class CCHelper {\n" + 
-		"  class Member1 {\n" + 
-		"    Member1() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  class Member2 {\n" + 
-		"    Member2() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  CCHelper() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"public class CC {\n" + 
-		"  public CC() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:new CCHelper().new CCHelper().n>;\n" + 
-		"  }\n" + 
+		"package p;\n" +
+		"class CCHelper {\n" +
+		"  class Member1 {\n" +
+		"    Member1() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  class Member2 {\n" +
+		"    Member2() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  CCHelper() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n" +
+		"public class CC {\n" +
+		"  public CC() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMemberAccess:new CCHelper().new CCHelper().n>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"n",
@@ -170,27 +170,27 @@ public void test1FTEO9L() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:M>",
 		// expectedUnitDisplayString:
-		"package p;\n" + 
-		"class CCHelper {\n" + 
-		"  class Member1 {\n" + 
-		"    Member1() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  class Member2 {\n" + 
-		"    Member2() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  CCHelper() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"public class CC {\n" + 
-		"  public CC() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    new CCHelper().new CCHelper().new <CompleteOnType:M>();\n" + 
-		"  }\n" + 
+		"package p;\n" +
+		"class CCHelper {\n" +
+		"  class Member1 {\n" +
+		"    Member1() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  class Member2 {\n" +
+		"    Member2() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  CCHelper() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n" +
+		"public class CC {\n" +
+		"  public CC() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    new CCHelper().new CCHelper().new <CompleteOnType:M>();\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"M",
@@ -205,7 +205,7 @@ public void test1FTEO9L() {
  */
 public void testInCaseWithIdentifier() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {										\n" +
 		"	void foo() {									\n" +
 		"		label1: {									\n" +
@@ -220,16 +220,16 @@ public void testInCaseWithIdentifier() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    {\n" +
 		"      {\n" +
 		"        <CompleteOnName:X>;\n" +
 		"      }\n" +
 		"    }\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"X",
@@ -246,7 +246,7 @@ public void testInCaseWithIdentifier() {
  */
 public void testInCaseWithNumberConstant() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {										\n" +
 		"	void foo() {									\n" +
 		"		label1: {									\n" +
@@ -261,16 +261,16 @@ public void testInCaseWithNumberConstant() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    {\n" +
 		"      {\n" +
 		"        <CompleteOnName:X>;\n" +
 		"      }\n" +
 		"    }\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"X",
@@ -287,7 +287,7 @@ public void testInCaseWithNumberConstant() {
  */
 public void testInLabeledInnerClass() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	void foo() {								\n" +
 		"		label1: {								\n" +
@@ -306,9 +306,9 @@ public void testInLabeledInnerClass() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    {\n" +
 		"      Object o;\n" +
@@ -320,7 +320,7 @@ public void testInLabeledInnerClass() {
 		"        }\n" +
 		"      };\n" +
 		"    }\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"X",
@@ -338,7 +338,7 @@ public void testInLabeledInnerClass() {
  */
 public void testInLabeledInnerClassWithErrorBefore() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	void foo() {								\n" +
 		"		int i == 2; \n" +
@@ -358,22 +358,22 @@ public void testInLabeledInnerClassWithErrorBefore() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int i;\n" + 
-		"    {\n" + 
-		"      Object o;\n" + 
-		"      new Object() {\n" + 
-		"        void fred() {\n" + 
-		"          {\n" + 
-		"            <CompleteOnName:X>;\n" + 
-		"          }\n" + 
-		"        }\n" + 
-		"      };\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    int i;\n" +
+		"    {\n" +
+		"      Object o;\n" +
+		"      new Object() {\n" +
+		"        void fred() {\n" +
+		"          {\n" +
+		"            <CompleteOnName:X>;\n" +
+		"          }\n" +
+		"        }\n" +
+		"      };\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"X",
@@ -390,7 +390,7 @@ public void testInLabeledInnerClassWithErrorBefore() {
  */
 public void testOneLevelDeep() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	void foo() {								\n" +
 		"		label1: X o = new Object();				\n" +
@@ -401,12 +401,12 @@ public void testOneLevelDeep() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnName:X>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnName:X>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"X",
@@ -423,7 +423,7 @@ public void testOneLevelDeep() {
  */
 public void testSecondLabel() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	void foo() {								\n" +
 		"		label1: buzz();							\n" +
@@ -435,12 +435,12 @@ public void testSecondLabel() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnName:X>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnName:X>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"X",
@@ -457,7 +457,7 @@ public void testSecondLabel() {
  */
 public void testTwoLevelDeep() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	void foo() {								\n" +
 		"		label1: {								\n" +
@@ -470,14 +470,14 @@ public void testTwoLevelDeep() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:X>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    {\n" + 
-		"      <CompleteOnName:X>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    {\n" +
+		"      <CompleteOnName:X>;\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"X",

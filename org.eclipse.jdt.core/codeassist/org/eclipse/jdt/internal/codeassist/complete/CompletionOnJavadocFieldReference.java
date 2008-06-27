@@ -75,7 +75,7 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 
 	/**
 	 * Get completion node flags.
-	 * 
+	 *
 	 * @return int Flags of the javadoc completion node.
 	 */
 	public int getCompletionFlags() {
@@ -90,7 +90,7 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 		if (this.token != null) {
 			return super.internalResolveType(scope);
 		}
-		
+
 		// Resolve only receiver
 		if (this.receiver == null) {
 			this.receiverType = scope.enclosingSourceType();

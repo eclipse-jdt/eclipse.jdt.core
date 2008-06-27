@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.compiler;
 /**
  * Generic option description, which can be modified independently from the
  * component it belongs to.
- * 
+ *
  * @deprecated backport 1.0 internal functionality
  */
 
@@ -36,9 +36,9 @@ public class ConfigurableOption {
 	private int currentValueIndex;
 	private String[] possibleValues;
 
-	// special value for <possibleValues> indicating that 
+	// special value for <possibleValues> indicating that
 	// the <currentValueIndex> is the actual value
-	public final static String[] NoDiscreteValue = {}; 
+	public final static String[] NoDiscreteValue = {};
 /**
  * INTERNAL USE ONLY
  *
@@ -47,68 +47,68 @@ public class ConfigurableOption {
  * @param loc java.util.Locale
  */
 public ConfigurableOption(
-	String componentName, 
-	String optionName, 
-	Locale loc, 
+	String componentName,
+	String optionName,
+	Locale loc,
 	int currentValueIndex) {
 
 	this.componentName = componentName;
 	this.optionName = optionName;
 	this.currentValueIndex = currentValueIndex;
-		
+
 	ResourceBundle resource = null;
 	try {
 		String location = componentName.substring(0, componentName.lastIndexOf('.'));
 		resource = ResourceBundle.getBundle(location + ".options", loc); //$NON-NLS-1$
 	} catch (MissingResourceException e) {
-		category = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
-		name = "Missing ressources entries for"+ componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
-		description = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
-		possibleValues = CharOperation.NO_STRINGS;
-		id = -1;
+		this.category = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
+		this.name = "Missing ressources entries for"+ componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
+		this.description = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
+		this.possibleValues = CharOperation.NO_STRINGS;
+		this.id = -1;
 	}
 	if (resource == null) return;
 	try {
-		id = Integer.parseInt(resource.getString(optionName + ".number")); //$NON-NLS-1$
+		this.id = Integer.parseInt(resource.getString(optionName + ".number")); //$NON-NLS-1$
 	} catch (MissingResourceException e) {
-		id = -1;
+		this.id = -1;
 	} catch (NumberFormatException e) {
-		id = -1;
+		this.id = -1;
 	}
 	try {
-		category = resource.getString(optionName + ".category"); //$NON-NLS-1$
+		this.category = resource.getString(optionName + ".category"); //$NON-NLS-1$
 	} catch (MissingResourceException e) {
-		category = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
+		this.category = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	try {
-		name = resource.getString(optionName + ".name"); //$NON-NLS-1$
+		this.name = resource.getString(optionName + ".name"); //$NON-NLS-1$
 	} catch (MissingResourceException e) {
-		name = "Missing ressources entries for"+ componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
+		this.name = "Missing ressources entries for"+ componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	try {
 		StringTokenizer tokenizer = new StringTokenizer(resource.getString(optionName + ".possibleValues"), "|"); //$NON-NLS-1$ //$NON-NLS-2$
 		int numberOfValues = Integer.parseInt(tokenizer.nextToken());
 		if(numberOfValues == -1){
-			possibleValues = NoDiscreteValue;
+			this.possibleValues = NoDiscreteValue;
 		} else {
-			possibleValues = new String[numberOfValues];
+			this.possibleValues = new String[numberOfValues];
 			int index = 0;
 			while (tokenizer.hasMoreTokens()) {
-				possibleValues[index] = tokenizer.nextToken();
+				this.possibleValues[index] = tokenizer.nextToken();
 				index++;
 			}
 		}
 	} catch (MissingResourceException e) {
-		possibleValues = CharOperation.NO_STRINGS;
+		this.possibleValues = CharOperation.NO_STRINGS;
 	} catch (NoSuchElementException e) {
-		possibleValues = CharOperation.NO_STRINGS;
+		this.possibleValues = CharOperation.NO_STRINGS;
 	} catch (NumberFormatException e) {
-		possibleValues = CharOperation.NO_STRINGS;
+		this.possibleValues = CharOperation.NO_STRINGS;
 	}
 	try {
-		description = resource.getString(optionName + ".description");  //$NON-NLS-1$
+		this.description = resource.getString(optionName + ".description");  //$NON-NLS-1$
 	} catch (MissingResourceException e) {
-		description = "Missing ressources entries for"+ componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
+		this.description = "Missing ressources entries for"+ componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
 /**
@@ -116,7 +116,7 @@ public ConfigurableOption(
  * @return java.lang.String
  */
 public String getCategory() {
-	return category;
+	return this.category;
 }
 /**
  * Return a String that identifies the component owner (typically the qualified
@@ -127,7 +127,7 @@ public String getCategory() {
  * @return java.lang.String
  */
 public String getComponentName() {
-	return componentName;
+	return this.componentName;
 }
 /**
  * Answer the index (in possibleValues array) of the current setting for this
@@ -139,7 +139,7 @@ public String getComponentName() {
  * @return int
  */
 public int getCurrentValueIndex() {
-	return currentValueIndex;
+	return this.currentValueIndex;
 }
 /**
  * Return an String that represents the localized description of the receiver.
@@ -147,7 +147,7 @@ public int getCurrentValueIndex() {
  * @return java.lang.String
  */
 public String getDescription() {
-	return description;
+	return this.description;
 }
 /**
  * Internal ID which allows the configurable component to identify this particular option.
@@ -155,21 +155,21 @@ public String getDescription() {
  * @return int
  */
 public int getID() {
-	return id;
+	return this.id;
 }
 /**
  * Return a String that represents the localized name of the receiver.
  * @return java.lang.String
  */
 public String getName() {
-	return name;
+	return this.name;
 }
 /**
  * Return an array of String that represents the localized possible values of the receiver.
  * @return java.lang.String[]
  */
 public String[] getPossibleValues() {
-	return possibleValues;
+	return this.possibleValues;
 }
 /**
  * Change the index (in possibleValues array) of the current setting for this
@@ -179,35 +179,35 @@ public String[] getPossibleValues() {
  * actual value (e.g. max line lenght set to 80).
  */
 public void setValueIndex(int newIndex) {
-	currentValueIndex = newIndex;
+	this.currentValueIndex = newIndex;
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("Configurable option for "); //$NON-NLS-1$ 
-	buffer.append(this.componentName).append("\n"); //$NON-NLS-1$ 
+	buffer.append("Configurable option for "); //$NON-NLS-1$
+	buffer.append(this.componentName).append("\n"); //$NON-NLS-1$
 	buffer.append("- category:			").append(this.category).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 	buffer.append("- name:				").append(this.name).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 	/* display current value */
-	buffer.append("- current value:	"); //$NON-NLS-1$ 
-	if (possibleValues == NoDiscreteValue){
+	buffer.append("- current value:	"); //$NON-NLS-1$
+	if (this.possibleValues == NoDiscreteValue){
 		buffer.append(this.currentValueIndex);
 	} else {
 		buffer.append(this.possibleValues[this.currentValueIndex]);
 	}
-	buffer.append("\n"); //$NON-NLS-1$ 
-	
+	buffer.append("\n"); //$NON-NLS-1$
+
 	/* display possible values */
-	if (possibleValues != NoDiscreteValue){
-		buffer.append("- possible values:	["); //$NON-NLS-1$ 
-		for (int i = 0, max = possibleValues.length; i < max; i++) {
+	if (this.possibleValues != NoDiscreteValue){
+		buffer.append("- possible values:	["); //$NON-NLS-1$
+		for (int i = 0, max = this.possibleValues.length; i < max; i++) {
 			if (i != 0)
-				buffer.append(", "); //$NON-NLS-1$ 
-			buffer.append(possibleValues[i]);
+				buffer.append(", "); //$NON-NLS-1$
+			buffer.append(this.possibleValues[i]);
 		}
-		buffer.append("]\n"); //$NON-NLS-1$ 
-		buffer.append("- curr. val. index:	").append(currentValueIndex).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("]\n"); //$NON-NLS-1$
+		buffer.append("- curr. val. index:	").append(this.currentValueIndex).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	buffer.append("- description:		").append(description).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append("- description:		").append(this.description).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 	return buffer.toString();
 }
 	/**
@@ -215,6 +215,6 @@ public String toString() {
 	 * @return Returns a String
 	 */
 	public String getOptionName() {
-		return optionName;
+		return this.optionName;
 	}
 }

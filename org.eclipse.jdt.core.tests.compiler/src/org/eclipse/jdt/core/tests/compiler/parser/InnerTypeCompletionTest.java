@@ -44,9 +44,9 @@ public void testAnonymousFirstMethod() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    Object o;\n" +
 		"    new Object() {\n" +
@@ -56,7 +56,7 @@ public void testAnonymousFirstMethod() {
 		"      void fuzz() {\n" +
 		"      }\n" +
 		"    };\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -86,9 +86,9 @@ public void testAnonymousNoStatementBefore() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    Object o;\n" +
 		"    new Object() {\n" +
@@ -96,7 +96,7 @@ public void testAnonymousNoStatementBefore() {
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
 		"    };\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -128,9 +128,9 @@ public void testAnonymousOneFieldBefore() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    Object o;\n" +
 		"    new Object() {\n" +
@@ -139,7 +139,7 @@ public void testAnonymousOneFieldBefore() {
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
 		"    };\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -170,9 +170,9 @@ public void testAnonymousOneStatementBefore() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    int i;\n" +
 		"    Object o;\n" +
@@ -181,7 +181,7 @@ public void testAnonymousOneStatementBefore() {
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
 		"    };\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -213,9 +213,9 @@ public void testAnonymousSecondMethod() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    Object o;\n" +
 		"    new Object() {\n" +
@@ -225,7 +225,7 @@ public void testAnonymousSecondMethod() {
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
 		"    };\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -257,9 +257,9 @@ public void testLocalTypeFirstMethod() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    class InnerBar {\n" +
 		"      InnerBar() {\n" +
@@ -270,7 +270,7 @@ public void testLocalTypeFirstMethod() {
 		"      void fuzz() {\n" +
 		"      }\n" +
 		"    }\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -300,9 +300,9 @@ public void testLocalTypeNoStatementBefore() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    class InnerBar {\n" +
 		"      InnerBar() {\n" +
@@ -311,7 +311,7 @@ public void testLocalTypeNoStatementBefore() {
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
 		"    }\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -343,9 +343,9 @@ public void testLocalTypeOneFieldBefore() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    class InnerBar {\n" +
 		"      int field;\n" +
@@ -355,7 +355,7 @@ public void testLocalTypeOneFieldBefore() {
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
 		"    }\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -386,9 +386,9 @@ public void testLocalTypeOneStatementBefore() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    int i;\n" +
 		"    class InnerBar {\n" +
@@ -398,7 +398,7 @@ public void testLocalTypeOneStatementBefore() {
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
 		"    }\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -430,9 +430,9 @@ public void testLocalTypeSecondMethod() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    class InnerBar {\n" +
 		"      InnerBar() {\n" +
@@ -443,7 +443,7 @@ public void testLocalTypeSecondMethod() {
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
 		"    }\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",

@@ -25,7 +25,7 @@ public class JavadocParser extends AbstractCommentParser {
 
 	// Public fields
 	public Javadoc docComment;
-	
+
 	// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
 	// Store param references for tag with invalid syntax
 	private int invalidParamReferencesPtr = -1;
@@ -34,11 +34,11 @@ public class JavadocParser extends AbstractCommentParser {
 	// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=153399
 	// Store value tag positions
 	private long validValuePositions, invalidValuePositions;
-	
+
 	// returns whether this JavadocParser should report errors or not (overrides reportProblems)
 	// see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=192449"
 	public boolean shouldReportProblems = true;
-	
+
 	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
 		this.kind = COMPIL_PARSER | TEXT_VERIF;
@@ -46,7 +46,7 @@ public class JavadocParser extends AbstractCommentParser {
 
 	/* (non-Javadoc)
 	 * Returns true if tag @deprecated is present in javadoc comment.
-	 * 
+	 *
 	 * If javadoc checking is enabled, will also construct an Javadoc node, which will be stored into Parser.javadoc
 	 * slot for being consumed later on.
 	 */
@@ -61,11 +61,11 @@ public class JavadocParser extends AbstractCommentParser {
 
 		// Init javadoc if necessary
 		if (this.checkDocComment) {
-			this.docComment = new Javadoc(javadocStart, javadocEnd);
+			this.docComment = new Javadoc(this.javadocStart, this.javadocEnd);
 		} else {
 			this.docComment = null;
 		}
-		
+
 		// If there's no tag in javadoc, return without parsing it
 		if (this.firstTagPosition == 0) {
 			switch (this.kind & PARSER_KIND) {
@@ -85,22 +85,22 @@ public class JavadocParser extends AbstractCommentParser {
 				this.lineEnds = this.scanner.lineEnds;
 				commentParse();
 			} else {
-				
+
 				// Parse comment
 				Scanner sourceScanner = this.sourceParser.scanner;
-				int firstLineNumber = Util.getLineNumber(javadocStart, sourceScanner.lineEnds, 0, sourceScanner.linePtr);
-				int lastLineNumber = Util.getLineNumber(javadocEnd, sourceScanner.lineEnds, 0, sourceScanner.linePtr);
-				this.index = javadocStart +3;
-	
+				int firstLineNumber = Util.getLineNumber(this.javadocStart, sourceScanner.lineEnds, 0, sourceScanner.linePtr);
+				int lastLineNumber = Util.getLineNumber(this.javadocEnd, sourceScanner.lineEnds, 0, sourceScanner.linePtr);
+				this.index = this.javadocStart +3;
+
 				// scan line per line, since tags must be at beginning of lines only
 				this.deprecated = false;
 				nextLine : for (int line = firstLineNumber; line <= lastLineNumber; line++) {
 					int lineStart = line == firstLineNumber
-							? javadocStart + 3 // skip leading /**
+							? this.javadocStart + 3 // skip leading /**
 							: this.sourceParser.scanner.getLineStart(line);
 					this.index = lineStart;
 					this.lineEnd = line == lastLineNumber
-							? javadocEnd - 2 // remove trailing * /
+							? this.javadocEnd - 2 // remove trailing * /
 							: this.sourceParser.scanner.getLineEnd(line);
 					nextCharacter : while (this.index < this.lineEnd) {
 						char c = readChar(); // consider unicodes
@@ -340,7 +340,7 @@ public class JavadocParser extends AbstractCommentParser {
 	protected boolean parseThrows() {
 		boolean valid = super.parseThrows();
 		if (valid && this.reportProblems && verifyEndLine(this.scanner.currentPosition)) {
-			// retrieve last identifier position (valid as, in the super method, we already parsed an identifier)			
+			// retrieve last identifier position (valid as, in the super method, we already parsed an identifier)
 			int start = (int) (this.identifierPositionStack[0] >>> 32);
 			int end = (int) this.identifierPositionStack[this.identifierPtr];
 			this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
@@ -367,7 +367,7 @@ public class JavadocParser extends AbstractCommentParser {
 
 
 	protected void parseSimpleTag() {
-		
+
 		// Read first char
 		// readChar() code is inlined to balance additional method call in checkDeprectation(int)
 		char first = this.source[this.index++];
@@ -407,7 +407,7 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
-	
+
 		// Read tag name
 		int currentPosition = this.index;
 		int token = readTokenAndConsume();
@@ -426,7 +426,7 @@ public class JavadocParser extends AbstractCommentParser {
 		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
 		this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
 		char[] tagName = this.scanner.getCurrentIdentifierSource();
-	
+
 		// Try to get tag name other than java identifier
 		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
 		if (this.scanner.currentCharacter != ' ' && !ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
@@ -483,7 +483,7 @@ public class JavadocParser extends AbstractCommentParser {
 		if ((this.kind & FORMATTER_COMMENT_PARSER) != 0) {
 			this.tagSourceStart = previousPosition;
 		}
-	
+
 		// Decide which parse to perform depending on tag name
 		this.tagValue = TAG_OTHERS_VALUE;
 		boolean alreadyParsedTag = false;
@@ -664,7 +664,7 @@ public class JavadocParser extends AbstractCommentParser {
 		}
 		return valid;
 	}
-	
+
 	/*
 	 * Parse @param tag declaration and flag missing description if corresponding option is enabled
 	 */
@@ -676,7 +676,7 @@ public class JavadocParser extends AbstractCommentParser {
 			int end = (int) this.identifierPositionStack[this.identifierPtr];
 			this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
 			return false;
-		}	
+		}
 		return valid;
 	}
 
@@ -828,7 +828,7 @@ public class JavadocParser extends AbstractCommentParser {
 		if (this.returnStatement != null) {
 			this.docComment.returnStatement = (JavadocReturnStatement) this.returnStatement;
 		}
-		
+
 		// Copy array of invalid syntax param tags
 		if (this.invalidParamReferencesPtr >= 0) {
 			this.docComment.invalidParameters = new JavadocSingleNameReference[this.invalidParamReferencesPtr+1];
@@ -885,7 +885,7 @@ public class JavadocParser extends AbstractCommentParser {
 					break;
 			}
 		}
-		
+
 		// Resize param tag references arrays
 		if (paramRefPtr == 0) { // there's no type parameters references
 			this.docComment.paramTypeParameters = null;

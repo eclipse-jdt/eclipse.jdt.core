@@ -33,7 +33,7 @@ class RemoveFromIndex extends IndexRequest {
 
 		try {
 			monitor.enterWrite(); // ask permission to write
-			index.remove(resourceName);
+			index.remove(this.resourceName);
 		} finally {
 			monitor.exitWrite(); // free write lock
 		}

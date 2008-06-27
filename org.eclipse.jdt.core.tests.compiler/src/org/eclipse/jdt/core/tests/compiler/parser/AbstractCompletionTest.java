@@ -42,16 +42,16 @@ public AbstractCompletionTest(String testName){
  * DietParse with completionNode check
  */
 public void checkDietParse(
-	char[] source, 
-	int cursorLocation, 
-	String expectedCompletion, 
-	String expectedUnitToString, 
+	char[] source,
+	int cursorLocation,
+	String expectedCompletion,
+	String expectedUnitToString,
 	String expectedCompletionIdentifier,
 	String expectedReplacedSource,
 	String testName) {
 	this.checkDietParse(
-		source, 
-		cursorLocation, 
+		source,
+		cursorLocation,
 		expectedCompletion,
 		null,
 		expectedUnitToString,
@@ -63,26 +63,26 @@ public void checkDietParse(
  * DietParse with completionNode check
  */
 public void checkDietParse(
-	char[] source, 
-	int cursorLocation, 
-	String expectedCompletion, 
+	char[] source,
+	int cursorLocation,
+	String expectedCompletion,
 	String expectedParentCompletion,
-	String expectedUnitToString, 
+	String expectedUnitToString,
 	String expectedCompletionIdentifier,
 	String expectedReplacedSource,
 	String testName) {
 
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	CompletionParser parser = 
+	CompletionParser parser =
 		new CompletionParser(
 			new ProblemReporter(
-				DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-				options, 
+				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+				options,
 				new DefaultProblemFactory(Locale.getDefault())),
 			false);
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
-	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
+	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);
 
 	CompilationUnitDeclaration unit = parser.dietParse(sourceUnit, compilationResult, cursorLocation);
 
@@ -100,27 +100,27 @@ public void checkDietParse(
  * Parse a method with completionNode check
  */
 public void checkMethodParse(
-		char[] source, 
-		int cursorLocation, 
-		String expectedCompletion, 
+		char[] source,
+		int cursorLocation,
+		String expectedCompletion,
 		String expectedParentCompletion,
-		String expectedUnitToString, 
-		String expectedCompletionIdentifier, 
+		String expectedUnitToString,
+		String expectedCompletionIdentifier,
 		String expectedReplacedSource,
 		String[] expectedLabels,
 		String testName) {
 
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	CompletionParser parser = 
+	CompletionParser parser =
 		new CompletionParser(
 			new ProblemReporter(
-				DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-				options, 
+				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+				options,
 				new DefaultProblemFactory(Locale.getDefault())),
 			false);
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
-	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
+	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);
 
 	CompilationUnitDeclaration unit = parser.dietParse(sourceUnit, compilationResult, cursorLocation);
 
@@ -135,7 +135,7 @@ public void checkMethodParse(
 			}
 		}
 	}
-	
+
 	if (foundMethod != null) {
 		if (foundMethod instanceof AbstractMethodDeclaration) {
 			parser.parseBlockStatements((AbstractMethodDeclaration)foundMethod, unit);
@@ -155,7 +155,7 @@ public void checkMethodParse(
 			}
 		}
 	}
-	
+
 	checkParse(
 			expectedCompletion,
 			expectedParentCompletion,
@@ -170,17 +170,17 @@ public void checkMethodParse(
  * Parse a method with completionNode check
  */
 public void checkMethodParse(
-		char[] source, 
-		int cursorLocation, 
-		String expectedCompletion, 
-		String expectedUnitToString, 
-		String expectedCompletionIdentifier, 
-		String expectedReplacedSource, 
+		char[] source,
+		int cursorLocation,
+		String expectedCompletion,
+		String expectedUnitToString,
+		String expectedCompletionIdentifier,
+		String expectedReplacedSource,
 		String testName) {
 
 	this.checkMethodParse(
-		source, 
-		cursorLocation, 
+		source,
+		cursorLocation,
 		expectedCompletion,
 		null,
 		expectedUnitToString,
@@ -193,18 +193,18 @@ public void checkMethodParse(
  * Parse a method with completionNode check
  */
 public void checkMethodParse(
-		char[] source, 
-		int cursorLocation, 
+		char[] source,
+		int cursorLocation,
 		String expectedCompletion,
-		String expectedParentCompletion, 
-		String expectedUnitToString, 
-		String expectedCompletionIdentifier, 
-		String expectedReplacedSource, 
+		String expectedParentCompletion,
+		String expectedUnitToString,
+		String expectedCompletionIdentifier,
+		String expectedReplacedSource,
 		String testName) {
 
 	this.checkMethodParse(
-		source, 
-		cursorLocation, 
+		source,
+		cursorLocation,
 		expectedCompletion,
 		expectedParentCompletion,
 		expectedUnitToString,
@@ -217,18 +217,18 @@ public void checkMethodParse(
  * Parse a method with completionNode check
  */
 public void checkMethodParse(
-		char[] source, 
-		int cursorLocation, 
-		String expectedCompletion, 
-		String expectedUnitToString, 
-		String expectedCompletionIdentifier, 
+		char[] source,
+		int cursorLocation,
+		String expectedCompletion,
+		String expectedUnitToString,
+		String expectedCompletionIdentifier,
 		String expectedReplacedSource,
 		String[] expectedLabels,
 		String testName) {
-		
+
 	this.checkMethodParse(
-		source, 
-		cursorLocation, 
+		source,
+		cursorLocation,
 		expectedCompletion,
 		null,
 		expectedUnitToString,
@@ -246,26 +246,26 @@ private void checkParse(
 		String testName,
 		CompletionParser parser,
 		CompilationUnitDeclaration unit) {
-	String computedCompletion = parser.assistNode == null 
+	String computedCompletion = parser.assistNode == null
 									? NONE
 									: parser.assistNode.toString();
-	
+
 	String computedParentCompletion = NULL;
 	if (expectedParentCompletion != null) {
-		computedParentCompletion = parser.assistNodeParent == null 
+		computedParentCompletion = parser.assistNodeParent == null
 								? NONE
 								: parser.assistNodeParent.toString();
 	}
-	
+
 	String computedUnitToString = unit.toString();
 	//System.out.println(computedUnitToString);
 	//System.out.println(Util.displayString(computedUnitToString));
 	//System.out.println(expectedUnitToString);
-	
+
 	if (!expectedCompletion.equals(computedCompletion)) {
 		System.out.println(Util.displayString(computedCompletion));
 	}
-	
+
 	if(expectedParentCompletion != null) {
 		if (!expectedParentCompletion.equals(computedParentCompletion)) {
 			System.out.println(Util.displayString(computedParentCompletion));
@@ -275,28 +275,28 @@ private void checkParse(
 	if (!expectedUnitToString.equals(computedUnitToString)) {
 		System.out.println(Util.displayString(computedUnitToString));
 	}
-	
+
 	String computedCompletionIdentifier = NULL;
 	if (expectedCompletionIdentifier != null){
 		char[] chars = ((CompletionScanner)parser.scanner).completionIdentifier;
 		computedCompletionIdentifier = chars == null ? NONE : new String(chars);
 	}
-	
+
 	String computedReplacedSource = NULL;
 	if (expectedReplacedSource != null){
 		char[] chars = null;
 		if (parser.assistNode != null){
 			chars = CharOperation.subarray(
-				parser.scanner.source, 
-				parser.assistNode.sourceStart, 
+				parser.scanner.source,
+				parser.assistNode.sourceStart,
 				parser.assistNode.sourceEnd + 1);
 		} else {
 			if (parser.assistIdentifier() != null){
-				if (((CompletionScanner)parser.scanner).completedIdentifierEnd 
+				if (((CompletionScanner)parser.scanner).completedIdentifierEnd
 					>= ((CompletionScanner)parser.scanner).completedIdentifierStart){
 					chars = CharOperation.subarray(
-						parser.scanner.source, 
-						((CompletionScanner)parser.scanner).completedIdentifierStart, 
+						parser.scanner.source,
+						((CompletionScanner)parser.scanner).completedIdentifierStart,
 						((CompletionScanner)parser.scanner).completedIdentifierEnd + 1);
 				}
 			}
@@ -318,9 +318,9 @@ private void checkParse(
 					computedReplacedSource));
 }
 private String concatResults(
-		String completionNode, 
+		String completionNode,
 		String parentCompletionNode,
-		String unitToString, 
+		String unitToString,
 		String completionIdentifier,
 		String replacedSource) {
 	StringBuffer buffer = new StringBuffer();
@@ -373,62 +373,62 @@ private ASTNode findMethod(TypeDeclaration type, int cursorLocation) {
  * Runs the given test that checks that diet completion parsing returns the given completion.
  */
 protected void runTestCheckDietParse(
-		String compilationUnit, 
-		String completeBehind, 
+		String compilationUnit,
+		String completeBehind,
 		String expectedCompletionNodeToString,
 		String expectedUnitDisplayString,
 		String expectedCompletionIdentifier,
 		String expectedReplacedSource,
 		String testName) {
-			
+
 	int cursorLocation = compilationUnit.indexOf(completeBehind) + completeBehind.length() - 1;
 	this.checkDietParse(
-		compilationUnit.toCharArray(), 
+		compilationUnit.toCharArray(),
 		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		expectedCompletionIdentifier,
 		expectedReplacedSource,
-		testName); 
+		testName);
 }
 /**
  * Runs the given test that checks that method completion parsing returns the given completion.
  */
 protected void runTestCheckMethodParse(
-		String compilationUnit, 
-		String completeBehind, 
+		String compilationUnit,
+		String completeBehind,
 		String expectedCompletionNodeToString,
 		String expectedUnitDisplayString,
 		String expectedCompletionIdentifier,
 		String expectedReplacedSource,
 		String[] expectedLabels,
 		String testName) {
-			
+
 	int completeBehindStart = compilationUnit.indexOf(completeBehind);
 	assertTrue("completeBehind string not found", completeBehindStart >= 0);
 	int cursorLocation = completeBehindStart + completeBehind.length() - 1;
 	this.checkMethodParse(
-		compilationUnit.toCharArray(), 
+		compilationUnit.toCharArray(),
 		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		expectedCompletionIdentifier,
 		expectedReplacedSource,
 		expectedLabels,
-		testName); 
+		testName);
 }
 /**
  * Runs the given test that checks that method completion parsing returns the given completion.
  */
 protected void runTestCheckMethodParse(
-		String compilationUnit, 
-		String completeBehind, 
+		String compilationUnit,
+		String completeBehind,
 		String expectedCompletionNodeToString,
 		String expectedUnitDisplayString,
 		String expectedCompletionIdentifier,
 		String expectedReplacedSource,
 		String testName) {
-			
+
 	this.runTestCheckMethodParse(
 		compilationUnit,
 		completeBehind,
@@ -437,6 +437,6 @@ protected void runTestCheckMethodParse(
 		expectedCompletionIdentifier,
 		expectedReplacedSource,
 		null,
-		testName); 
+		testName);
 }
 }

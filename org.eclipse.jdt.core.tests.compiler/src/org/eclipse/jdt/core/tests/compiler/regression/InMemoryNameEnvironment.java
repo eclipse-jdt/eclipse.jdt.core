@@ -47,11 +47,11 @@ public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	HashtableOfObject cus = (HashtableOfObject)this.compilationUnits.get(CharOperation.concatWith(packageName, '.'));
 	if (cus == null) {
-		return this.findTypeFromClassLibs(typeName, packageName);
+		return findTypeFromClassLibs(typeName, packageName);
 	}
 	CompilationUnit unit = (CompilationUnit)cus.get(typeName);
 	if (unit == null) {
-		return this.findTypeFromClassLibs(typeName, packageName);
+		return findTypeFromClassLibs(typeName, packageName);
 	}
 	return new NameEnvironmentAnswer(unit, null /*no access restriction*/);
 }
@@ -66,9 +66,9 @@ private NameEnvironmentAnswer findTypeFromClassLibs(char[] typeName, char[][] pa
 }
 public boolean isPackage(char[][] parentPackageName, char[] packageName) {
 	char[] pkg = CharOperation.concatWith(parentPackageName, packageName, '.');
-	return 
-		this.compilationUnits.get(pkg) != null || 
-		this.isPackageFromClassLibs(parentPackageName, packageName);
+	return
+		this.compilationUnits.get(pkg) != null ||
+		isPackageFromClassLibs(parentPackageName, packageName);
 }
 public boolean isPackageFromClassLibs(char[][] parentPackageName, char[] packageName) {
 	for (int i = 0; i < this.classLibs.length; i++) {
@@ -77,7 +77,7 @@ public boolean isPackageFromClassLibs(char[][] parentPackageName, char[] package
 		}
 	}
 	return false;
-} 
+}
 public void cleanup() {
 	for (int i = 0, max = this.classLibs.length; i < max; i++) {
 		this.classLibs[i].cleanup();

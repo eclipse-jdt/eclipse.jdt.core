@@ -31,13 +31,13 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClasspathJar extends ClasspathLocation {
-	
+
 protected File file;
 protected ZipFile zipFile;
 protected boolean closeZipFileAtEnd;
 protected Hashtable packageCache;
 
-public ClasspathJar(File file, boolean closeZipFileAtEnd, 
+public ClasspathJar(File file, boolean closeZipFileAtEnd,
 		AccessRuleSet accessRuleSet, String destinationPath) {
 	super(accessRuleSet, destinationPath);
 	this.file = file;
@@ -54,7 +54,7 @@ public static class ManifestAnalyzer {
 		READING_JAR = 4,
 		CONTINUING = 5,
 		SKIP_LINE = 6;
-	private static final char[] CLASSPATH_HEADER_TOKEN = 
+	private static final char[] CLASSPATH_HEADER_TOKEN =
 		"Class-Path:".toCharArray(); //$NON-NLS-1$
 	private int ClasspathSectionsCount;
 	private ArrayList calledFilesNames;
@@ -129,7 +129,7 @@ public static class ManifestAnalyzer {
 						state = START;
 					}
 					break;
-				case READING_JAR:	
+				case READING_JAR:
 					if (currentChar == -1) {
 						return false;
 					} else if (currentChar == '\n') {
@@ -149,7 +149,7 @@ public static class ManifestAnalyzer {
 					currentJarToken.setLength(0);
 					break;
 			}
-		}	
+		}
 	}
 	public int getClasspathSectionsCount() {
 		return this.ClasspathSectionsCount;
@@ -173,16 +173,16 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 			boolean success = MANIFEST_ANALYZER.analyzeManifestContents(reader);
 			List calledFileNames = MANIFEST_ANALYZER.getCalledFileNames();
 			if (problemReporter != null) {
-				if (!success || 
+				if (!success ||
 						MANIFEST_ANALYZER.getClasspathSectionsCount() == 1 &&  calledFileNames == null) {
-					problemReporter.invalidClasspathSection(this.getPath());
+					problemReporter.invalidClasspathSection(getPath());
 				} else if (MANIFEST_ANALYZER.getClasspathSectionsCount() > 1) {
-					problemReporter.multipleClasspathSections(this.getPath());				
+					problemReporter.multipleClasspathSections(getPath());
 				}
 			}
 			if (calledFileNames != null) {
 				Iterator calledFilesIterator = calledFileNames.iterator();
-				String directoryPath = this.getPath();
+				String directoryPath = getPath();
 				int lastSeparator = directoryPath.lastIndexOf(File.separatorChar);
 				directoryPath = directoryPath.substring(0, lastSeparator + 1); // potentially empty (see bug 214731)
 				while (calledFilesIterator.hasNext()) {
@@ -207,7 +207,7 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
 }
 public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
-	if (!isPackage(qualifiedPackageName)) 
+	if (!isPackage(qualifiedPackageName))
 		return null; // most common case
 
 	try {
@@ -222,7 +222,7 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	return null;
 }
 public char[][][] findTypeNames(String qualifiedPackageName) {
-	if (!isPackage(qualifiedPackageName)) 
+	if (!isPackage(qualifiedPackageName))
 		return null; // most common case
 
 	ArrayList answers = new ArrayList();
@@ -285,7 +285,7 @@ public boolean isPackage(String qualifiedPackageName) {
 }
 public void reset() {
 	if (this.zipFile != null && this.closeZipFileAtEnd) {
-		try { 
+		try {
 			this.zipFile.close();
 		} catch(IOException e) {
 			// ignore

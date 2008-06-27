@@ -22,62 +22,62 @@ public class EfficiencyTests extends BuilderTests {
 	public EfficiencyTests(String name) {
 		super(name);
 	}
-	
+
 	public static Test suite() {
 		return buildTestSuite(EfficiencyTests.class);
 	}
-	
+
 	public void testEfficiency() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "p1", "Indicted", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public abstract class Indicted {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(root, "p2", "Collaborator", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
 			"public class Collaborator extends Indicted{\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild(projectPath);
-		
+
 		env.addClass(root, "p1", "Indicted", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public abstract class Indicted {\n"+ //$NON-NLS-1$
 			"   public abstract void foo();\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild(projectPath);
 
 		expectingCompiledClasses(new String[]{"p2.Collaborator", "p1.Indicted"}); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingCompilingOrder(new String[]{"p1.Indicted", "p2.Collaborator"}); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	public void testMethodAddition() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -85,14 +85,14 @@ public class EfficiencyTests extends BuilderTests {
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
 			"public class Y extends X{\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		env.addClass(root, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
@@ -101,7 +101,7 @@ public class EfficiencyTests extends BuilderTests {
 			);
 
 		fullBuild(projectPath);
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -111,7 +111,7 @@ public class EfficiencyTests extends BuilderTests {
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild(projectPath);
 
 		expectingCompiledClasses(new String[]{"p1.X", "p2.Y"}); //$NON-NLS-1$ //$NON-NLS-2$
@@ -123,13 +123,13 @@ public class EfficiencyTests extends BuilderTests {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -137,14 +137,14 @@ public class EfficiencyTests extends BuilderTests {
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
 			"public class Y extends X{\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		env.addClass(root, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
@@ -153,7 +153,7 @@ public class EfficiencyTests extends BuilderTests {
 			);
 
 		fullBuild(projectPath);
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -163,7 +163,7 @@ public class EfficiencyTests extends BuilderTests {
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild(projectPath);
 
 		expectingCompiledClasses(new String[]{"p1.X", "p1.X$1"}); //$NON-NLS-1$ //$NON-NLS-2$
@@ -175,13 +175,13 @@ public class EfficiencyTests extends BuilderTests {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -192,14 +192,14 @@ public class EfficiencyTests extends BuilderTests {
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
 			"public class Y extends X{\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		env.addClass(root, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
@@ -208,7 +208,7 @@ public class EfficiencyTests extends BuilderTests {
 			);
 
 		fullBuild(projectPath);
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -221,7 +221,7 @@ public class EfficiencyTests extends BuilderTests {
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild(projectPath);
 
 		expectingCompiledClasses(new String[]{"p1.X", "p1.X$1", "p1.X$2"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -233,13 +233,13 @@ public class EfficiencyTests extends BuilderTests {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -249,14 +249,14 @@ public class EfficiencyTests extends BuilderTests {
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
 			"public class Y extends X{\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		env.addClass(root, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
@@ -265,7 +265,7 @@ public class EfficiencyTests extends BuilderTests {
 			);
 
 		fullBuild(projectPath);
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -273,7 +273,7 @@ public class EfficiencyTests extends BuilderTests {
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild(projectPath);
 
 		expectingCompiledClasses(new String[]{"p1.X"}); //$NON-NLS-1$
@@ -285,13 +285,13 @@ public class EfficiencyTests extends BuilderTests {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -304,14 +304,14 @@ public class EfficiencyTests extends BuilderTests {
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
 			"public class Y extends X{\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		env.addClass(root, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
@@ -320,7 +320,7 @@ public class EfficiencyTests extends BuilderTests {
 			);
 
 		fullBuild(projectPath);
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -331,7 +331,7 @@ public class EfficiencyTests extends BuilderTests {
 			"	}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild(projectPath);
 
 		expectingCompiledClasses(new String[]{"p1.X", "p1.X$1"}); //$NON-NLS-1$ //$NON-NLS-2$
@@ -343,13 +343,13 @@ public class EfficiencyTests extends BuilderTests {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -365,16 +365,16 @@ public class EfficiencyTests extends BuilderTests {
 			"}\n" //$NON-NLS-1$
 			);
 		fullBuild(projectPath);
-		
+
 		env.addClass(root, "p2", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"public class Z {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild(projectPath);
 
 		expectingCompiledClasses(new String[]{"p1.X", "p2.Y","p2.Z"}); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingCompilingOrder(new String[]{"p2.Z", "p2.Y", "p1.X" }); //$NON-NLS-1$ //$NON-NLS-2$
-	}	
+	}
 }

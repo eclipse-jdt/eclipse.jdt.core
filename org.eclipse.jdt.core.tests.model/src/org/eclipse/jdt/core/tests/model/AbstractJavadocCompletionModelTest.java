@@ -101,7 +101,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	/** R_DEFAULT+R_RESOLVED<br>+R_INTERESTING+R_CASE+R_UNQUALIFIED<br>+R_NON_RESTRICTED+R_EXACT_EXPECTED_TYPE<br>
 	 * +R_INLINE_TAG<br>= 83 */
 	protected static final int R_DRICUNREETIT = R_DRICUNREET+R_INLINE_TAG;
-	
+
 	// Store all relevance values in array
 	private static final int[] RELEVANCES = {
 		JAVADOC_RELEVANCE,
@@ -179,7 +179,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 				System.err.println(WRITE_DIR+" does NOT exist and cannot be created!!!");
 				writeDir = null;
 			}
-			
+
 		}
 		WRITE_DIR_FILE = writeDir;
 	}
@@ -294,7 +294,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	protected void completeInJavadoc(String[] sources, boolean showPositions, String completeBehind) throws JavaModelException {
 		completeInJavadoc(sources, showPositions, completeBehind, 1, null);
 	}
-	
+
 	protected void completeInJavadoc(String[] sources, boolean showPositions, String completeBehind, int occurencePosition) throws JavaModelException {
 		completeInJavadoc(sources, showPositions, completeBehind, occurencePosition, null);
 	}
@@ -310,10 +310,10 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 			this.workingCopies[i] = getWorkingCopy(sources[i*2], sources[i*2+1]);
 			if (WRITE_DIR != null) 	writeFiles(sources);
 		}
-		
+
 		// Wait for indexes
 		waitUntilIndexesReady();
-		
+
 		// Complete
 		this.requestor = new CompletionTestsRequestor2(true, false, showPositions);
 		if (ignoreList != null) {
@@ -343,7 +343,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 		}
 		assertTrue("We should have found "+occurencePosition+" occurence(s) of '"+this.replacedText+"' in:\n"+source, this.completionStart>0);
 		this.cursorLocation =  this.completionStart + cursorPos;
-		this.workingCopies[0].codeComplete(this.cursorLocation, requestor, this.wcOwner);
+		this.workingCopies[0].codeComplete(this.cursorLocation, this.requestor, this.wcOwner);
 		assertNoProblem(sources[0]);
 
 		// Store replacement info
@@ -448,7 +448,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 
 		// Get write directory path
 		if (WRITE_DIR_FILE == null) return;
-		
+
 		// Get test name
 		String testName = getName();
 		int idx = testName.indexOf(" - ");
@@ -456,18 +456,18 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 			testName = testName.substring(idx+3);
 		}
 //		testName = "Test"+testName.substring(4);
-		
+
 		// Write sources to dir
 		int length = sources.length / 2;
 		String[][] names = new String[length][3];
 		for (int i=0; i<length; i++) {
-			
+
 			// Get pathes
 			IPath filePath = new Path(sources[2*i]).removeFirstSegments(2); // remove project and source folder
 			IPath dirPath = filePath.removeLastSegments(1);
 			String fileDir = dirPath.toString();
 			String typeName = filePath.removeFileExtension().lastSegment();
-			
+
 			// Create package dir or delete files if already exist
 			File packageDir = new File(WRITE_DIR_FILE, fileDir);
 			if (!PACKAGE_FILES.contains(packageDir)) {
@@ -481,7 +481,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 					continue;
 				}
 			}
-			
+
 			// Store names info
 			names[i][0] = typeName;
 			String fileName = (typeName.length() <= 3) ? typeName : typeName.substring(0, typeName.length()-3);
@@ -489,7 +489,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 			names[i][1] = fileName;
 			names[i][2] = packageDir.getAbsolutePath()+"\\"+fileName+".java";
 		}
-			
+
 		// Write modified contents
 		for (int i=0; i<length; i++) {
 			String contents = sources[2*i+1];

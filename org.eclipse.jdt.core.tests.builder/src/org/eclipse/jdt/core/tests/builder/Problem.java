@@ -36,7 +36,7 @@ public class Problem implements Comparable {
 //			System.out.println(")");
 //		}
 	}
-	
+
 	public Problem(IMarker marker){
 		this.location = marker.getAttribute(IMarker.LOCATION, ""); //$NON-NLS-1$
 		this.message = marker.getAttribute(IMarker.MESSAGE, ""); //$NON-NLS-1$
@@ -48,14 +48,14 @@ public class Problem implements Comparable {
 		this.severity = marker.getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	}
 	public int getCategoryId() {
-		return categoryId;
+		return this.categoryId;
 	}
-	
+
 /**
  * Return the IMarker.SOURCE_ID attribute of the underlying marker if any.
  * Value null denotes a problem created from explicit structural attributes
  * (instead of using a source marker). Value "missing" denotes that the marker
- * used to initialize the problem had no IMarker.SOURCE_ID attribute. 
+ * used to initialize the problem had no IMarker.SOURCE_ID attribute.
  * @return the IMarker.SOURCE_ID attribute of the underlying marker if any
  */
 public String getSourceId() {
@@ -66,23 +66,23 @@ public String getSourceId() {
 	 * @return Returns a String
 	 */
 	public String getLocation() {
-		return location;
+		return this.location;
 	}
 	/**
 	 * Gets the message.
 	 * @return Returns a String
 	 */
 	public String getMessage() {
-		return message;
+		return this.message;
 	}
 	/**
 	 * Gets the resourcePath.
 	 * @return Returns a IPath
 	 */
 	public IPath getResourcePath() {
-		return resourcePath;
+		return this.resourcePath;
 	}
-	
+
 public int getSeverity() {
 	return this.severity;
 }
@@ -90,33 +90,33 @@ public int getSeverity() {
 	public int getStart() {
 		return this.start;
 	}
-	
+
 	public int getEnd() {
 		return this.end;
 	}
-	
+
 	public String toString(){
 // ignore locations since the builder no longer finds exact Java elements
-//		return "Problem : " + message + " [ resource : <" + resourcePath + "> location <"+ location + "> ]"; 
-		return 
-			"Problem : " 
-			+ message 
-			+ " [ resource : <" 
-			+ resourcePath 
-			+ ">" 
+//		return "Problem : " + message + " [ resource : <" + resourcePath + "> location <"+ location + "> ]";
+		return
+			"Problem : "
+			+ this.message
+			+ " [ resource : <"
+			+ this.resourcePath
+			+ ">"
 			+ (" range : <" + this.start + "," + this.end + ">")
 			+ (" category : <" + this.categoryId + ">")
 			+ (" severity : <" + this.severity + ">")
 			+ "]";
 	}
-	
+
 	public boolean equals(Object o){
 		if(o instanceof Problem){
-			return this.toString().equals(o.toString());
+			return toString().equals(o.toString());
 		}
 		return false;
 	}
-	
+
 	public int compareTo(Object o) {
 		if(o instanceof Problem){
 			Problem problem = (Problem) o;
@@ -133,7 +133,7 @@ public int getSeverity() {
 			}
 			return this.getMessage().compareTo(problem.getMessage());
 			*/
-			return this.toString().compareTo(problem.toString());
+			return toString().compareTo(problem.toString());
 		}
 		return -1;
 	}

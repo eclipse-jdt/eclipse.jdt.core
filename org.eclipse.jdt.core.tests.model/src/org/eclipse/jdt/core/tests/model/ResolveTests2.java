@@ -28,12 +28,12 @@ public ResolveTests2(String name) {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	setUpJavaProject("Resolve");
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("Resolve");
-	
+
 	super.tearDownSuite();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227822
@@ -45,27 +45,27 @@ public void testBug227822a() throws Exception {
 			new String[]{"src"},
 			new String[]{},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/Test.java",
 				"package a;\n"+
-				"public class Test {\n" + 
+				"public class Test {\n" +
 				"  java.lang.Object var;\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do code select
 		ICompilationUnit cu= getCompilationUnit("P1", "src", "a", "Test.java");
-		
+
 		String str = cu.getSource();
-		
+
 		String selection = "java.lang.Object";
 		int start = str.lastIndexOf(selection);
 		int length = selection.length();
 		IJavaElement[] elements = cu.codeSelect(start, length);
-		
+
 		assertElementsEqual(
 			"Unexpected elements",
 			"",
@@ -84,27 +84,27 @@ public void testBug227822b() throws Exception {
 			new String[]{"src"},
 			new String[]{},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/Test.java",
 				"package a;\n"+
-				"public class Test {\n" + 
+				"public class Test {\n" +
 				"  javaz.lang.Objectz var;\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do code select
 		ICompilationUnit cu= getCompilationUnit("P1", "src", "a", "Test.java");
-		
+
 		String str = cu.getSource();
-		
+
 		String selection = "javaz.lang.Objectz";
 		int start = str.lastIndexOf(selection);
 		int length = selection.length();
 		IJavaElement[] elements = cu.codeSelect(start, length);
-		
+
 		assertElementsEqual(
 			"Unexpected elements",
 			"",
@@ -123,27 +123,27 @@ public void testBug227822c() throws Exception {
 			new String[]{"src"},
 			new String[]{},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/Test.java",
 				"package a;\n"+
-				"public class Test {\n" + 
+				"public class Test {\n" +
 				"  java var;\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do code select
 		ICompilationUnit cu= getCompilationUnit("P1", "src", "a", "Test.java");
-		
+
 		String str = cu.getSource();
-		
+
 		String selection = "java";
 		int start = str.lastIndexOf(selection);
 		int length = selection.length();
 		IJavaElement[] elements = cu.codeSelect(start, length);
-		
+
 		assertElementsEqual(
 			"Unexpected elements",
 			"",
@@ -162,27 +162,27 @@ public void testBug227822d() throws Exception {
 			new String[]{"src"},
 			new String[]{},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/Test.java",
 				"package a;\n"+
-				"public class Test {\n" + 
+				"public class Test {\n" +
 				"  javaz var;\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do code select
 		ICompilationUnit cu= getCompilationUnit("P1", "src", "a", "Test.java");
-		
+
 		String str = cu.getSource();
-		
+
 		String selection = "javaz";
 		int start = str.lastIndexOf(selection);
 		int length = selection.length();
 		IJavaElement[] elements = cu.codeSelect(start, length);
-		
+
 		assertElementsEqual(
 			"Unexpected elements",
 			"",

@@ -18,9 +18,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class EfficiencyCompilerRequestor implements IDebugRequestor {
 	private boolean isActive = false;
-	
+
 	private Vector compiledClasses = new Vector(10);
-	
+
 	public void acceptDebugResult(CompilationResult result){
 		ClassFile[] classFiles = result.getClassFiles();
 		Util.sort(classFiles, new Util.Comparer() {
@@ -32,31 +32,31 @@ public class EfficiencyCompilerRequestor implements IDebugRequestor {
 		});
 		for (int i = 0; i < classFiles.length; i++) {
 			String className = new String(classFiles[i].fileName());
-			compiledClasses.addElement(className.replace('/', '.'));
+			this.compiledClasses.addElement(className.replace('/', '.'));
 		}
 	}
-	
+
 	String[] getCompiledClasses(){
-		return (String [])compiledClasses.toArray(new String[0]);
+		return (String [])this.compiledClasses.toArray(new String[0]);
 	}
-	
+
 	public void clearResult(){
-		compiledClasses.clear();
+		this.compiledClasses.clear();
 	}
-	
+
 	public void reset() {
 	    // do nothing by default
 	}
-	
+
 	public void activate() {
-		isActive = true;
+		this.isActive = true;
 	}
-	
+
 	public void deactivate() {
-		isActive = false;
+		this.isActive = false;
 	}
-	
+
 	public boolean isActive() {
-		return isActive;
+		return this.isActive;
 	}
 }

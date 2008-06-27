@@ -25,7 +25,7 @@ public class RuntimeVisibleAnnotationsAttribute
 	private static final IAnnotation[] NO_ENTRIES = new IAnnotation[0];
 	private int annotationsNumber;
 	private IAnnotation[] annotations;
-	
+
 	/**
 	 * Constructor for RuntimeVisibleAnnotations.
 	 * @param classFileBytes

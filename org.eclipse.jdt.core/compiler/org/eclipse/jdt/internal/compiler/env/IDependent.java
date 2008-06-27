@@ -27,7 +27,7 @@ public interface IDependent {
  * e.g.
  *  "c:\\source\\com\\p\\X.java" or
  *  "/com/p/Y.java".
- * 
+ *
  * The path to the zip or jar file (optional) must be separated
  * from the actual path part by JAR_FILE_ENTRY_SEPARATOR,
  * e.g.
@@ -35,8 +35,8 @@ public interface IDependent {
  *  "/lib/some.zip|/com/q/Y.class".
  *
  * The proper file name includes the suffix extension (e.g.&nbsp;".java")
- * e.g.&nbsp;"c:/org/eclipse/jdt/internal/compileri/env/IDependent.java" 
- * 
+ * e.g.&nbsp;"c:/org/eclipse/jdt/internal/compileri/env/IDependent.java"
+ *
  * Return null if no file defines the type.
  */
 

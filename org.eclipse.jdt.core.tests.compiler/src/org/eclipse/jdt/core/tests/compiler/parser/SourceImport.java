@@ -24,32 +24,32 @@ public class SourceImport {
  * @param onDemand boolean
  */
 public SourceImport(
-	int declarationSourceStart, 
-	int declarationSourceEnd, 
-	char[] name, 
+	int declarationSourceStart,
+	int declarationSourceEnd,
+	char[] name,
 	boolean onDemand,
 	int modifiers,
 	char[] source) {
 
 	this.declarationSourceStart = declarationSourceStart;
-	this.declarationSourceEnd = declarationSourceEnd; 
+	this.declarationSourceEnd = declarationSourceEnd;
 	this.name = name;
 	this.onDemand = onDemand;
 	this.modifiers = modifiers;
 	this.source = source;
 }
 /**
- * 
+ *
  * @return java.lang.String
  */
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer
 		.append(
-			source, 
-			declarationSourceStart, 
-			declarationSourceEnd - declarationSourceStart + 1)
-		.append("\n"); 
+			this.source,
+			this.declarationSourceStart,
+			this.declarationSourceEnd - this.declarationSourceStart + 1)
+		.append("\n");
 	return buffer.toString();
 }
 }

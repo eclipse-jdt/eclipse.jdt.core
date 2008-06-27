@@ -41,12 +41,12 @@ public void cleanup() {
 }
 
 SimpleLookupTable directoryTable(String qualifiedPackageName) {
-	SimpleLookupTable dirTable = (SimpleLookupTable) directoryCache.get(qualifiedPackageName);
-	if (dirTable == missingPackageHolder) return null; // package exists in another classpath directory or jar
+	SimpleLookupTable dirTable = (SimpleLookupTable) this.directoryCache.get(qualifiedPackageName);
+	if (dirTable == this.missingPackageHolder) return null; // package exists in another classpath directory or jar
 	if (dirTable != null) return dirTable;
 
 	try {
-		IResource container = sourceFolder.findMember(qualifiedPackageName); // this is a case-sensitive check
+		IResource container = this.sourceFolder.findMember(qualifiedPackageName); // this is a case-sensitive check
 		if (container instanceof IContainer) {
 			IResource[] members = ((IContainer) container).members();
 			dirTable = new SimpleLookupTable();
@@ -63,13 +63,13 @@ SimpleLookupTable directoryTable(String qualifiedPackageName) {
 					}
 				}
 			}
-			directoryCache.put(qualifiedPackageName, dirTable);
+			this.directoryCache.put(qualifiedPackageName, dirTable);
 			return dirTable;
 		}
 	} catch(CoreException ignored) {
 		// treat as if missing
 	}
-	directoryCache.put(qualifiedPackageName, missingPackageHolder);
+	this.directoryCache.put(qualifiedPackageName, this.missingPackageHolder);
 	return null;
 }
 
@@ -77,8 +77,8 @@ public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof ClasspathSourceDirectory)) return false;
 
-	return sourceFolder.equals(((ClasspathSourceDirectory) o).sourceFolder);
-} 
+	return this.sourceFolder.equals(((ClasspathSourceDirectory) o).sourceFolder);
+}
 
 public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String qualifiedPackageName, String qualifiedSourceFileWithoutExtension) {
 	SimpleLookupTable dirTable = directoryTable(qualifiedPackageName);
@@ -92,7 +92,7 @@ public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String
 }
 
 public IPath getProjectRelativePath() {
-	return sourceFolder.getProjectRelativePath();
+	return this.sourceFolder.getProjectRelativePath();
 }
 
 public boolean isPackage(String qualifiedPackageName) {
@@ -104,7 +104,7 @@ public void reset() {
 }
 
 public String toString() {
-	return "Source classpath directory " + sourceFolder.getFullPath().toString(); //$NON-NLS-1$
+	return "Source classpath directory " + this.sourceFolder.getFullPath().toString(); //$NON-NLS-1$
 }
 
 public String debugPathString() {

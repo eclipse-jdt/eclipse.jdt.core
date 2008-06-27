@@ -32,7 +32,7 @@ public ConstructorDeclaration(CompilationResult compilationResult){
 	super(compilationResult);
 }
 
-/** 
+/**
  * @see org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration#analyseCode(org.eclipse.jdt.internal.compiler.lookup.ClassScope, org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext, org.eclipse.jdt.internal.compiler.flow.FlowInfo)
  * @deprecated use instead {@link #analyseCode(ClassScope, InitializationFlowContext, FlowInfo, int)}
  */
@@ -50,7 +50,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 	int nonStaticFieldInfoReachMode = flowInfo.reachMode();
 	flowInfo.setReachMode(initialReachMode);
-	
+
 	checkUnused: {
 		MethodBinding constructorBinding;
 		if ((constructorBinding = this.binding) == null) break checkUnused;
@@ -65,12 +65,12 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		// complain unused
 		this.scope.problemReporter().unusedPrivateConstructor(this);
 	}
-		
+
 	// check constructor recursion, once all constructor got resolved
-	if (isRecursive(null /*lazy initialized visited list*/)) {				
+	if (isRecursive(null /*lazy initialized visited list*/)) {
 		this.scope.problemReporter().recursiveConstructorInvocation(this.constructorCall);
 	}
-		
+
 	try {
 		ExceptionHandlingFlowContext constructorContext =
 			new ExceptionHandlingFlowContext(
@@ -96,14 +96,14 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				}
 			}
 		}
-		
+
 		// tag parameters as being set
 		if (this.arguments != null) {
 			for (int i = 0, count = this.arguments.length; i < count; i++) {
 				flowInfo.markAsDefinitelyAssigned(this.arguments[i].binding);
 			}
 		}
-		
+
 		// propagate to constructor call
 		if (this.constructorCall != null) {
 			// if calling 'this(...)', then flag all non-static fields as definitely
@@ -119,7 +119,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			}
 			flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
 		}
-		
+
 		// reuse the reachMode from non static field info
 		flowInfo.setReachMode(nonStaticFieldInfoReachMode);
 
@@ -141,7 +141,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		}
 
 		// reuse the initial reach mode for diagnosing missing blank finals
-		flowInfo.setReachMode(initialReachMode);		
+		flowInfo.setReachMode(initialReachMode);
 
 		// check missing blank final field initializations
 		if ((this.constructorCall != null)
@@ -162,7 +162,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		// check unreachable catch blocks
 		constructorContext.complainIfUnusedExceptionHandlers(this);
 		// check unused parameters
-		scope.checkUnusedParameters(binding);
+		this.scope.checkUnusedParameters(this.binding);
 	} catch (AbortMethod e) {
 		this.ignoreFurtherInvestigation = true;
 	}
@@ -189,15 +189,15 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 	}
 	try {
 		problemResetPC = classFile.contentsOffset;
-		this.internalGenerateCode(classScope, classFile);
+		internalGenerateCode(classScope, classFile);
 	} catch (AbortMethod e) {
 		if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
 			// a branch target required a goto_w, restart code gen in wide mode.
 			try {
 				classFile.contentsOffset = problemResetPC;
 				classFile.methodCount--;
-				classFile.codeStream.wideMode = true; // request wide mode 
-				this.internalGenerateCode(classScope, classFile); // restart method generation
+				classFile.codeStream.wideMode = true; // request wide mode
+				internalGenerateCode(classScope, classFile); // restart method generation
 			} catch (AbortMethod e2) {
 				int problemsLength;
 				CategorizedProblem[] problems =
@@ -219,7 +219,7 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 
 public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodScope, CodeStream codeStream, ReferenceBinding declaringClass) {
 	if (!declaringClass.isNestedType()) return;
-	
+
 	NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
 
 	SyntheticArgumentBinding[] syntheticArgs = nestedType.syntheticEnclosingInstances();
@@ -247,7 +247,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 	int methodAttributeOffset = classFile.contentsOffset;
 	int attributeNumber = classFile.generateMethodInfoAttribute(this.binding);
 	if ((!this.binding.isNative()) && (!this.binding.isAbstract())) {
-		
+
 		TypeDeclaration declaringType = classScope.referenceContext;
 		int codeAttributeOffset = classFile.contentsOffset;
 		classFile.generateCodeAttributeHeader();
@@ -271,7 +271,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		} else {
 			this.scope.computeLocalVariablePositions(1 + enumOffset,  codeStream);
 		}
-			
+
 		if (this.arguments != null) {
 			for (int i = 0, max = this.arguments.length; i < max; i++) {
 				// arguments initialization for local variable debug attributes
@@ -286,7 +286,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				}
 			}
 		}
-		
+
 		MethodScope initializerScope = declaringType.initializerScope;
 		initializerScope.computeLocalVariablePositions(argSlotSize, codeStream); // offset by the argument size (since not linked to method scope)
 
@@ -364,8 +364,8 @@ public boolean isRecursive(ArrayList visited) {
 			|| !this.constructorCall.binding.isValidBinding()) {
 		return false;
 	}
-	
-	ConstructorDeclaration targetConstructor = 
+
+	ConstructorDeclaration targetConstructor =
 		((ConstructorDeclaration)this.scope.referenceType().declarationOf(this.constructorCall.binding.original()));
 	if (this == targetConstructor) return true; // direct case
 
@@ -385,7 +385,7 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 	if (((this.bits & ASTNode.IsDefaultConstructor) != 0) && this.constructorCall == null){
 		this.constructorCall = SuperReference.implicitSuperConstructorCall();
 		this.constructorCall.sourceStart = this.sourceStart;
-		this.constructorCall.sourceEnd = this.sourceEnd; 
+		this.constructorCall.sourceEnd = this.sourceEnd;
 		return;
 	}
 	parser.parse(this, unit, false);
@@ -416,16 +416,16 @@ public void resolveJavadoc() {
 		if (this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
 			// Set javadoc visibility
 			int javadocVisibility = this.binding.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
-			ClassScope classScope = scope.classScope();
+			ClassScope classScope = this.scope.classScope();
 			ProblemReporter reporter = this.scope.problemReporter();
 			int severity = reporter.computeSeverity(IProblem.JavadocMissing);
 			if (severity != ProblemSeverities.Ignore) {
-				if (classScope != null) {			
+				if (classScope != null) {
 					javadocVisibility = Util.computeOuterMostVisibility(classScope.referenceType(), javadocVisibility);
 				}
 				int javadocModifiers = (this.binding.modifiers & ~ExtraCompilerModifiers.AccVisibilityMASK) | javadocVisibility;
-				reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);				
-			}			
+				reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
+			}
 		}
 	}
 }
@@ -458,10 +458,10 @@ public void resolveStatements() {
 			this.constructorCall = null;
 		} else {
 			this.constructorCall.resolve(this.scope);
-		}	
+		}
 	}
 	if ((this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) {
-		this.scope.problemReporter().methodNeedBody(this);		
+		this.scope.problemReporter().methodNeedBody(this);
 	}
 	super.resolveStatements();
 }
@@ -481,7 +481,7 @@ public void traverse(ASTVisitor visitor,	ClassScope classScope) {
 			for (int i = 0; i < typeParametersLength; i++) {
 				this.typeParameters[i].traverse(visitor, this.scope);
 			}
-		}			
+		}
 		if (this.arguments != null) {
 			int argumentLength = this.arguments.length;
 			for (int i = 0; i < argumentLength; i++)
@@ -504,5 +504,5 @@ public void traverse(ASTVisitor visitor,	ClassScope classScope) {
 }
 public TypeParameter[] typeParameters() {
     return this.typeParameters;
-}		
+}
 }

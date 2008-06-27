@@ -18,10 +18,10 @@ public ExplicitConstructorInvocationSelectionTest(String testName) {
 	super(testName);
 }
 /*
- * ExplicitConstructorInvocation ::= Name '.' 'super' '(' <ArgumentListopt> ')' ';'  
+ * ExplicitConstructorInvocation ::= Name '.' 'super' '(' <ArgumentListopt> ')' ';'
  */
 public void testNameSuper() {
-	this.runTestCheckMethodParse(
+	runTestCheckMethodParse(
 		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
@@ -42,21 +42,21 @@ public void testNameSuper() {
 		// expectedSelectionNodeToString:
 		"<SelectOnMessageSend:fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  public class InnerBar {\n" + 
-		"    InnerBar(Bar x) {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public class SubInnerBar extends InnerBar {\n" + 
-		"    SubInnerBar() {\n" + 
-		"      super(<SelectOnMessageSend:fred()>);\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  public class InnerBar {\n" +
+		"    InnerBar(Bar x) {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public class SubInnerBar extends InnerBar {\n" +
+		"    SubInnerBar() {\n" +
+		"      super(<SelectOnMessageSend:fred()>);\n" +
+		"    }\n" +
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedSelectionIdentifier:
 		"fred",
@@ -67,10 +67,10 @@ public void testNameSuper() {
 	);
 }
 /*
- * ExplicitConstructorInvocation ::= Name '.' 'this' '(' <ArgumentListopt> ')' ';'  
+ * ExplicitConstructorInvocation ::= Name '.' 'this' '(' <ArgumentListopt> ')' ';'
  */
 public void testNameThis() {
-	this.runTestCheckMethodParse(
+	runTestCheckMethodParse(
 		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
@@ -91,21 +91,21 @@ public void testNameThis() {
 		// expectedSelectionNodeToString:
 		"<SelectOnMessageSend:fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  public class InnerBar {\n" + 
-		"    InnerBar(Bar x) {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public class SubInnerBar extends InnerBar {\n" + 
-		"    SubInnerBar() {\n" + 
-		"      this(<SelectOnMessageSend:fred()>);\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  public class InnerBar {\n" +
+		"    InnerBar(Bar x) {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public class SubInnerBar extends InnerBar {\n" +
+		"    SubInnerBar() {\n" +
+		"      this(<SelectOnMessageSend:fred()>);\n" +
+		"    }\n" +
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedSelectionIdentifier:
 		"fred",
@@ -116,10 +116,10 @@ public void testNameThis() {
 	);
 }
 /*
- * ExplicitConstructorInvocation ::= Primary '.' 'this' '(' <ArgumentListopt> ')' ';' 
+ * ExplicitConstructorInvocation ::= Primary '.' 'this' '(' <ArgumentListopt> ')' ';'
  */
 public void testPrimarySuper() {
-	this.runTestCheckMethodParse(
+	runTestCheckMethodParse(
 		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
@@ -140,21 +140,21 @@ public void testPrimarySuper() {
 		// expectedSelectionNodeToString:
 		"<SelectOnMessageSend:fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  public class InnerBar {\n" + 
-		"    InnerBar(Bar x) {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public class SubInnerBar extends InnerBar {\n" + 
-		"    SubInnerBar(Bar x) {\n" + 
-		"      super(<SelectOnMessageSend:fred()>);\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  public class InnerBar {\n" +
+		"    InnerBar(Bar x) {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public class SubInnerBar extends InnerBar {\n" +
+		"    SubInnerBar(Bar x) {\n" +
+		"      super(<SelectOnMessageSend:fred()>);\n" +
+		"    }\n" +
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedSelectionIdentifier:
 		"fred",
@@ -165,10 +165,10 @@ public void testPrimarySuper() {
 	);
 }
 /*
- * ExplicitConstructorInvocation ::= 'super' '(' <ArgumentListopt> ')' ';'  
+ * ExplicitConstructorInvocation ::= 'super' '(' <ArgumentListopt> ')' ';'
  */
 public void testSuper() {
-	this.runTestCheckMethodParse(
+	runTestCheckMethodParse(
 		// compilationUnit:
 		"class Bar {									\n" +
 		"	Bar() {										\n" +
@@ -182,10 +182,10 @@ public void testSuper() {
 		// expectedSelectionNodeToString:
 		"<SelectOnMessageSend:fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
+		"class Bar {\n" +
 		"  Bar() {\n" +
-		"    super(<SelectOnMessageSend:fred()>);\n" + 
-		"  }\n" + 
+		"    super(<SelectOnMessageSend:fred()>);\n" +
+		"  }\n" +
 		"}\n",
 		// expectedSelectionIdentifier:
 		"fred",
@@ -196,10 +196,10 @@ public void testSuper() {
 	);
 }
 /*
- * ExplicitConstructorInvocation ::= 'this' '(' <ArgumentListopt> ')' ';' 
+ * ExplicitConstructorInvocation ::= 'this' '(' <ArgumentListopt> ')' ';'
  */
 public void testThis() {
-	this.runTestCheckMethodParse(
+	runTestCheckMethodParse(
 		// compilationUnit:
 		"class Bar {									\n" +
 		"	Bar() {										\n" +
@@ -213,10 +213,10 @@ public void testThis() {
 		// expectedSelectionNodeToString:
 		"<SelectOnMessageSend:fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
+		"class Bar {\n" +
 		"  Bar() {\n" +
-		"    this(<SelectOnMessageSend:fred()>);\n" + 
-		"  }\n" + 
+		"    this(<SelectOnMessageSend:fred()>);\n" +
+		"  }\n" +
 		"}\n",
 		// expectedSelectionIdentifier:
 		"fred",

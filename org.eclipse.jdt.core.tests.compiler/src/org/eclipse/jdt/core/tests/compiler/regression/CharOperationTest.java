@@ -15,7 +15,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import junit.framework.Test;
 
 public class CharOperationTest extends AbstractRegressionTest {
-	
+
 public CharOperationTest(String name) {
 	super(name);
 }

@@ -52,7 +52,7 @@ private void addSuper(ICompilationUnit unit, String typeName, String newSuper) t
 	IType type = copy.getTypes()[0];
 	String source = type.getSource();
 	int superIndex = -1;
-	String newSource = 
+	String newSource =
 		source.substring(0, (superIndex = source.indexOf(typeName) + typeName.length())) +
 		" extends " +
 		newSuper +
@@ -66,7 +66,7 @@ protected void changeSuper(ICompilationUnit unit, String existingSuper, String n
 	IType type = copy.getTypes()[0];
 	String source = type.getSource();
 	int superIndex = -1;
-	String newSource = 
+	String newSource =
 		source.substring(0, (superIndex = source.indexOf(" " + existingSuper))) +
 		" " +
 		newSuper +
@@ -80,7 +80,7 @@ protected void changeVisibility(ICompilationUnit unit, String existingModifier, 
 	IType type = copy.getTypes()[0];
 	String source = type.getSource();
 	int modifierIndex = -1;
-	String newSource = 
+	String newSource =
 		source.substring(0, (modifierIndex = source.indexOf(existingModifier))) +
 		" " +
 		newModifier +
@@ -99,7 +99,7 @@ private void reset() {
 }
 protected void setUp() throws Exception {
 	super.setUp();
-	this.reset();
+	reset();
 	this.setUpJavaProject("TypeHierarchyNotification");
 }
 static {
@@ -123,14 +123,14 @@ public void testAddAnonymousInRegion() throws CoreException {
 	try {
 		copy = getCompilationUnit("TypeHierarchyNotification", "src", "p3", "A.java");
 		copy.becomeWorkingCopy(null);
-		
+
 		IRegion region = JavaCore.newRegion();
 		region.add(copy.getParent());
 		h = copy.getJavaProject().newTypeHierarchy(region, null);
 		h.addTypeHierarchyChangedListener(this);
 
 		// add a field initialized with a 'new B() {...}' anonymous type
-		String newSource = 
+		String newSource =
 			"package p3;\n" +
 			"public class A{\n" +
 			"  B field = new B() {};\n" +
@@ -139,7 +139,7 @@ public void testAddAnonymousInRegion() throws CoreException {
 		copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		copy.commitWorkingCopy(true, null);
 
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		if (h != null) {
 			h.removeTypeHierarchyChangedListener(this);
@@ -151,7 +151,7 @@ public void testAddAnonymousInRegion() throws CoreException {
 }
 /**
  * When a CU is added the type hierarchy should change
- * only if one of the types of the CU is part of the  
+ * only if one of the types of the CU is part of the
  * type hierarchy.
  */
 public void testAddCompilationUnit1() throws CoreException {
@@ -164,7 +164,7 @@ public void testAddCompilationUnit1() throws CoreException {
 	// a cu with no types part of the hierarchy
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p");
 	ICompilationUnit newCU1 = pkg.createCompilationUnit(
-		"Z1.java", 
+		"Z1.java",
 		"package p;\n" +
 		"\n" +
 		"public class Z1 {\n" +
@@ -172,20 +172,20 @@ public void testAddCompilationUnit1() throws CoreException {
 		"	public static main(String[] args) {\n" +
 		"		System.out.println(\"HelloWorld\");\n" +
 		"	}\n" +
-		"}\n", 
-		false, 
+		"}\n",
+		false,
 		null);
 	try {
 		assertCreation(newCU1);
 		assertTrue("Should not receive change", !this.changeReceived);
 	} finally {
-		// cleanup	
+		// cleanup
 		h.removeTypeHierarchyChangedListener(this);
 	}
-}	
+}
 /**
  * When a CU is added the type hierarchy should change
- * only if one of the types of the CU is part of the  
+ * only if one of the types of the CU is part of the
  * type hierarchy.
  */
 public void testAddCompilationUnit2() throws CoreException {
@@ -198,29 +198,29 @@ public void testAddCompilationUnit2() throws CoreException {
 	// a cu with a top level type which is part of the hierarchy
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p");
 	ICompilationUnit newCU2 = pkg.createCompilationUnit(
-		"Z2.java", 
+		"Z2.java",
 		"package p;\n" +
 		"\n" +
 		"public class Z2 extends e.E {\n" +
-		"}\n",  
-		false, 
+		"}\n",
+		false,
 		null);
 	try {
 		assertCreation(newCU2);
-		this.assertOneChange(h);
+		assertOneChange(h);
 		h.refresh(null);
 		IType eE = getCompilationUnit("TypeHierarchyNotification", "src", "e", "E.java").getType("E");
 		IType[] subtypes = h.getSubtypes(eE);
 		assertTrue("Should be one subtype of e.E", subtypes.length == 1);
 		assertEquals("Subtype of e.E should be p.Z2", newCU2.getType("Z2"), subtypes[0]);
 	} finally {
-		// cleanup	
+		// cleanup
 		h.removeTypeHierarchyChangedListener(this);
 	}
 }
 /**
  * When a CU is added the type hierarchy should change
- * only if one of the types of the CU is part of the  
+ * only if one of the types of the CU is part of the
  * type hierarchy.
  */
 public void testAddCompilationUnit3() throws CoreException {
@@ -233,25 +233,25 @@ public void testAddCompilationUnit3() throws CoreException {
 	// a cu with an inner type which is part of the hierarchy
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p");
 	ICompilationUnit newCU3 = pkg.createCompilationUnit(
-		"Z3.java", 
+		"Z3.java",
 		"package p;\n" +
 		"\n" +
 		"public class Z3 {\n" +
 		"  public class InnerZ extends d.D {\n" +
 		"  }\n" +
-		"}\n",  
-		false, 
+		"}\n",
+		false,
 		null);
 	try {
 		assertCreation(newCU3);
-		this.assertOneChange(h);
+		assertOneChange(h);
 		h.refresh(null);
 		IType dD = getCompilationUnit("TypeHierarchyNotification", "src", "d", "D.java").getType("D");
 		IType[] subtypes = h.getSubtypes(dD);
 		assertTrue("Should be one subtype of d.D", subtypes.length == 1);
 		assertEquals("Subtype of d.D should be p.Z3.InnerZ", newCU3.getType("Z3").getType("InnerZ"), subtypes[0]);
 	} finally {
-		// cleanup	
+		// cleanup
 		h.removeTypeHierarchyChangedListener(this);
 	}
 }
@@ -271,70 +271,70 @@ public void testAddCompilationUnitInRegion() throws CoreException, IOException {
 		// a cu with no types part of the region
 		IPackageFragment pkg = getPackageFragment("TypeHierarchyDependent", "", "");
 		ICompilationUnit newCU1 = pkg.createCompilationUnit(
-			"Z1.java", 
+			"Z1.java",
 			"\n" +
 			"public class Z1 {\n" +
 			"\n" +
 			"	public static main(String[] args) {\n" +
 			"		System.out.println(\"HelloWorld\");\n" +
 			"	}\n" +
-			"}\n", 
-			false, 
+			"}\n",
+			false,
 			null);
 		try {
 			assertCreation(newCU1);
 			assertTrue("Should not receive change", !this.changeReceived);
 		} finally {
-			// cleanup	
+			// cleanup
 			deleteResource(newCU1.getUnderlyingResource());
-			this.reset();
+			reset();
 		}
-	
+
 		// a cu with a type which is part of the region and is a subtype of an existing type of the region
 		pkg = getPackageFragment("TypeHierarchyNotification", "src", "p");
 		ICompilationUnit newCU2 = pkg.createCompilationUnit(
-			"Z2.java", 
+			"Z2.java",
 			"package p;\n" +
 			"\n" +
 			"public class Z2 extends e.E {\n" +
-			"}\n",  
-			false, 
+			"}\n",
+			false,
 			null);
 		try {
 			assertCreation(newCU2);
-			this.assertOneChange(h);
+			assertOneChange(h);
 			h.refresh(null);
 			IType eE = getCompilationUnit("TypeHierarchyNotification", "src", "e", "E.java").getType("E");
 			IType[] subtypes = h.getSubtypes(eE);
 			assertTrue("Should be one subtype of e.E", subtypes.length == 1);
 			assertEquals("Subtype of e.E should be p.Z2", newCU2.getType("Z2"), subtypes[0]);
 		} finally {
-			// cleanup	
+			// cleanup
 			deleteResource(newCU2.getUnderlyingResource());
 			h.refresh(null);
-			this.reset();
+			reset();
 		}
-	
+
 		// a cu with a type which is part of the region and is not a sub type of an existing type of the region
 		ICompilationUnit newCU3 = pkg.createCompilationUnit(
-			"Z3.java", 
+			"Z3.java",
 			"package p;\n" +
 			"\n" +
 			"public class Z3 extends Throwable {\n" +
-			"}\n",  
-			false, 
+			"}\n",
+			false,
 			null);
 		try {
 			assertCreation(newCU3);
-			this.assertOneChange(h);
+			assertOneChange(h);
 			h.refresh(null);
 			IType throwableClass = getClassFile("TypeHierarchyNotification", getExternalJCLPathString(), "java.lang", "Throwable.class").getType();
 			assertEquals("Superclass of Z3 should be java.lang.Throwable", throwableClass, h.getSuperclass(newCU3.getType("Z3")));
 		} finally {
-			// cleanup	
+			// cleanup
 			deleteResource(newCU3.getUnderlyingResource());
 			h.refresh(null);
-			this.reset();
+			reset();
 		}
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
@@ -342,7 +342,7 @@ public void testAddCompilationUnitInRegion() throws CoreException, IOException {
 	}
 }
 /**
- * When a CU is added if the CU does not intersects package fragments in the type hierarchy, 
+ * When a CU is added if the CU does not intersects package fragments in the type hierarchy,
  * the typehierarchy has not changed.
  */
 public void testAddExternalCompilationUnit() throws CoreException {
@@ -351,10 +351,10 @@ public void testAddExternalCompilationUnit() throws CoreException {
 	IType type= cu.getType("X");
 	ITypeHierarchy h = type.newTypeHierarchy(javaProject, null);
 	h.addTypeHierarchyChangedListener(this);
-	
+
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p.other");
 	ICompilationUnit newCU= pkg.createCompilationUnit(
-		"Z.java", 
+		"Z.java",
 		"package p.other;\n" +
 		"\n" +
 		"public class Z {\n" +
@@ -362,14 +362,14 @@ public void testAddExternalCompilationUnit() throws CoreException {
 		"	public static main(String[] args) {\n" +
 		"		System.out.println(\"HelloWorld\");\n" +
 		"	}\n" +
-		"}\n", 
-		false, 
+		"}\n",
+		false,
 		null);
 	try {
 		assertCreation(newCU);
 		assertTrue("Should not receive changes", !this.changeReceived);
 	} finally {
-		// cleanup	
+		// cleanup
 		deleteResource(newCU.getUnderlyingResource());
 		h.removeTypeHierarchyChangedListener(this);
 	}
@@ -385,21 +385,21 @@ public void testAddExternalPackage() throws CoreException {
 
 	try {
 		this.createJavaProject("Other", new String[] {"src"}, "bin");
-	
+
 		h.addTypeHierarchyChangedListener(this);
-	
+
 		IPackageFragmentRoot root= getPackageFragmentRoot("Other", "src");
 		IPackageFragment frag= root.createPackageFragment("a.day.in.spain", false, null);
 		try {
 			assertCreation(frag);
 			assertTrue("Should not receive changes", !this.changeReceived);
 		} finally {
-			// cleanup	
+			// cleanup
 			frag.delete(true, null);
-			this.reset();
+			reset();
 	 	}
 	} finally {
-		this.deleteProject("Other");	
+		this.deleteProject("Other");
 		h.removeTypeHierarchyChangedListener(this);
 	}
 }
@@ -436,11 +436,11 @@ public void testAddListenerTwice() throws CoreException {
 	// add listener twice
 	h.addTypeHierarchyChangedListener(this);
 	h.addTypeHierarchyChangedListener(this);
-	
+
 	IFile file = (IFile) superCU.getUnderlyingResource();
 	try {
 		deleteResource(file);
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
@@ -459,9 +459,9 @@ public void testAddPackage() throws CoreException {
 	IPackageFragment frag= root.createPackageFragment("one.two.three", false, null);
 	try {
 		assertCreation(frag);
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
-		// cleanup	
+		// cleanup
 		h.removeTypeHierarchyChangedListener(this);
 	}
 }
@@ -487,11 +487,11 @@ public void testAddPackageFragmentRoot() throws CoreException {
 		project.setRawClasspath(newCP, null);
 
 		// now create the actual resource for the root and populate it
-		this.reset();
+		reset();
 		project.getProject().getFolder("extra").create(false, true, null);
 		IPackageFragmentRoot newRoot= getPackageFragmentRoot("TypeHierarchyNotification", "extra");
 		assertTrue("New root should now be visible", newRoot != null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
@@ -519,7 +519,7 @@ public void testAddProject() throws CoreException {
 		project.setRawClasspath(newCP, null);
 
 		// now create the actual resource for the root and populate it
-		this.reset();
+		reset();
 		final IProject newProject = project.getJavaModel().getWorkspace().getRoot().getProject("NewProject");
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -531,7 +531,7 @@ public void testAddProject() throws CoreException {
 		IProjectDescription description = newProject.getDescription();
 		description.setNatureIds(new String[] {JavaCore.NATURE_ID});
 		newProject.setDescription(description, null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		this.deleteProject("NewProject");
 		h.removeTypeHierarchyChangedListener(this);
@@ -567,24 +567,24 @@ public void testAddRemoveClassFile() throws CoreException {
 		h.refresh(null);
 
 		// Test addition of 'Error.class' in 'java.lang' (it should replace the 'Error.class' of the JCL in the hierarchy)
-		this.reset();
+		reset();
 		IFile file = getProject("TypeHierarchyNotification").getFile("Error.class");
 		((IFolder) pf.getUnderlyingResource()).getFile("Error.class").create(file.getContents(false), false, null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 		h.refresh(null);
 		assertEquals("Superclass of MyError should be Error in patch", pf.getClassFile("Error.class").getType(), h.getSuperclass(type));
 
 		// Test removal of 'Error.class'
-		this.reset();
+		reset();
 		deleteResource(pf.getClassFile("Error.class").getUnderlyingResource());
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
 }
 /*
  * Ensures that changing the modifiers of the focus type in a working copy reports a hierarchy change on save.
- * (regression test for bug 
+ * (regression test for bug
  */
 public void testChangeFocusModifier() throws CoreException {
 	ITypeHierarchy h = null;
@@ -602,7 +602,7 @@ public void testChangeFocusModifier() throws CoreException {
 		workingCopy.becomeWorkingCopy(null/*no progress*/);
 		h = workingCopy.getType("X").newTypeHierarchy(null);
 		h.addTypeHierarchyChangedListener(this);
-		
+
 		workingCopy.getBuffer().setContents(
 			"package p1;\n" +
 			"class X {\n" +
@@ -610,7 +610,7 @@ public void testChangeFocusModifier() throws CoreException {
 		);
 		workingCopy.reconcile(ICompilationUnit.NO_AST, false/*no pb detection*/, null/*no workingcopy owner*/, null/*no prgress*/);
 		workingCopy.commitWorkingCopy(false/*don't force*/, null/*no progress*/);
-		
+
 		assertOneChange(h);
 	} finally {
 		if (h != null)
@@ -659,14 +659,14 @@ public void testEditBuffer() throws CoreException {
 		workingCopy.becomeWorkingCopy(null/*no progress*/);
 		h = workingCopy.getType("X").newTypeHierarchy(null);
 		h.addTypeHierarchyChangedListener(this);
-		
+
 		workingCopy.getBuffer().setContents(
 			"package p;\n" +
 			"public class X extends Throwable {\n" +
 			"}"
 		);
 		workingCopy.commitWorkingCopy(false/*don't force*/, null/*no progress*/);
-		
+
 		assertOneChange(h);
 	} finally {
 		if (h != null)
@@ -691,7 +691,7 @@ public void testEditExtendsSourceType() throws CoreException {
 		changeSuper(cu, "B", "a.A");
 		assertOneChange(h);
 		h.refresh(null);
-		
+
 		// change the superclass back to B
 		reset();
 		changeSuper(cu, "a.A", "B");
@@ -735,11 +735,11 @@ public void testAddExtendsSourceType1() throws CoreException {
 	try {
 		// add p2.B as the superclass of p2.A
 		addSuper(cu, "A", "p2.B");
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
-	
+
 }
 /**
  * When adding an extends clause of a source type in a hierarchy on a region, we should be notified of change.
@@ -751,7 +751,7 @@ public void testAddExtendsSourceType2() throws CoreException {
 	try {
 		copy = getCompilationUnit("TypeHierarchyNotification", "src", "p2", "A.java");
 		copy.becomeWorkingCopy(null);
-		
+
 		IRegion region = JavaCore.newRegion();
 		region.add(copy.getParent());
 		h = copy.getJavaProject().newTypeHierarchy(region, null);
@@ -762,7 +762,7 @@ public void testAddExtendsSourceType2() throws CoreException {
 		String newSuper = "p2.B";
 		String source = copy.getBuffer().getContents();
 		int superIndex = -1;
-		String newSource = 
+		String newSource =
 			source.substring(0, (superIndex = source.indexOf(typeName) + typeName.length())) +
 			" extends " +
 			newSuper +
@@ -771,7 +771,7 @@ public void testAddExtendsSourceType2() throws CoreException {
 		copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		copy.commitWorkingCopy(true, null);
 
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		if (h != null) {
 			h.removeTypeHierarchyChangedListener(this);
@@ -782,7 +782,7 @@ public void testAddExtendsSourceType2() throws CoreException {
 	}
 }
 /**
- * While in a primary working copy, when adding an extends clause with a qualified name in a hierarchy, 
+ * While in a primary working copy, when adding an extends clause with a qualified name in a hierarchy,
  * we should be notified of change after a reconcile.
  * (regression test for bug 111396 TypeHierarchy doesn't notify listeners on addition of fully qualified subtypes)
  */
@@ -800,7 +800,7 @@ public void testAddExtendsSourceType3() throws CoreException {
 		String newSuper = "p2.A";
 		String source = copy.getBuffer().getContents();
 		int superIndex = -1;
-		String newSource = 
+		String newSource =
 			source.substring(0, (superIndex = source.indexOf(typeName) + typeName.length())) +
 			" extends " +
 			newSuper +
@@ -808,13 +808,13 @@ public void testAddExtendsSourceType3() throws CoreException {
 		copy.getBuffer().setContents(newSource);
 		copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		copy.commitWorkingCopy(true, null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		if (h != null)
 			h.removeTypeHierarchyChangedListener(this);
 		copy.discardWorkingCopy();
 	}
-	
+
 }
 /**
  * When editing a source type NOT in a hierarchy, we should receive NO CHANGES.
@@ -836,7 +836,7 @@ public void testEditExternalSourceType() throws CoreException {
 	}
 }
 /**
- * When editing the field of a source type in a hierarchy, 
+ * When editing the field of a source type in a hierarchy,
  * we should NOT be notified of a change.
  */
 public void testEditFieldSourceType() throws CoreException {
@@ -852,7 +852,7 @@ public void testEditFieldSourceType() throws CoreException {
 		String source= field.getSource();
 		field.delete(false, null);
 		assertTrue("Should not receive change", !this.changeReceived);
-		
+
 		// add the field back in and make sure we don't get any notification
 		type.createField(source, null, false, null);
 		assertTrue("Should receive change", !this.changeReceived);
@@ -861,7 +861,7 @@ public void testEditFieldSourceType() throws CoreException {
  	}
 }
 /**
- * When editing the imports of a source type in a hierarchy, 
+ * When editing the imports of a source type in a hierarchy,
  * we should be notified of a change.
  */
 public void testEditImportSourceType() throws CoreException {
@@ -875,37 +875,37 @@ public void testEditImportSourceType() throws CoreException {
 		// remove an import declaration
 		IImportDeclaration importDecl = cu.getImport("b.*");
 		importDecl.delete(false, null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 		h.refresh(null);
-		
+
 		// remove all remaining import declarations
-		this.reset();
+		reset();
 		importDecl = cu.getImport("i.*");
 		importDecl.delete(false, null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 		h.refresh(null);
-		
-		// add an import back in 
-		this.reset();
+
+		// add an import back in
+		reset();
 		cu.createImport("b.B", null, null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 		h.refresh(null);
-		
-		// add a second import back in 
-		this.reset();
+
+		// add a second import back in
+		reset();
 		cu.createImport("i.*", null, null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
  	}
 }
 /**
- * When editing > 1 source type in a hierarchy using a MultiOperation, 
+ * When editing > 1 source type in a hierarchy using a MultiOperation,
  * we should be notified of ONE change.
  */
 public void testEditSourceTypes() throws CoreException {
 	// TBD: Find a way to do 2 changes in 2 different CUs at once
-	
+
 	IJavaProject project= getJavaProject("TypeHierarchyNotification");
 	final ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	final ICompilationUnit superCU = getCompilationUnit("TypeHierarchyNotification", "src", "b", "B.java");
@@ -956,7 +956,7 @@ public void testEditSuperType() throws CoreException {
 
 		// change the visibility of the super class, there should be one change
 		changeVisibility(superCU, "public", "private");
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
@@ -971,11 +971,11 @@ public void testRemoveCompilationUnit() throws CoreException {
 	IType type = cu.getType("X");
 	ITypeHierarchy h = type.newTypeHierarchy(project, null);
 	h.addTypeHierarchyChangedListener(this);
-	
+
 	IFile file = (IFile) superCU.getUnderlyingResource();
 	try {
 		deleteResource(file);
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
@@ -990,7 +990,7 @@ public void testRemoveExternalCompilationUnit() throws CoreException {
 	IType type = cu.getType("X");
 	ITypeHierarchy h = type.newTypeHierarchy(project, null);
 	h.addTypeHierarchyChangedListener(this);
-	
+
 	IFile file = (IFile) otherCU.getUnderlyingResource();
 	try {
 		deleteResource(file);
@@ -1008,7 +1008,7 @@ public void testRemoveExternalPackage() throws CoreException {
 	IType type = cu.getType("X");
 	ITypeHierarchy h = type.newTypeHierarchy(project, null);
 	h.addTypeHierarchyChangedListener(this);
-	
+
 	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p.other");
 	IFolder folder = (IFolder) pkg.getUnderlyingResource();
 	try {
@@ -1035,21 +1035,21 @@ public void testRemoveExternalPackageFragmentRoot() throws CoreException {
 	IClasspathEntry[] newCP= new IClasspathEntry[originalCP.length + 1];
 	System.arraycopy(originalCP, 0 , newCP, 0, originalCP.length);
 	newCP[originalCP.length]= newEntry;
-	
+
 	try {
 		// set classpath
 		project.setRawClasspath(newCP, null);
 
 		// now create the actual resource for the root and populate it
-		this.reset();
+		reset();
 		project.getProject().getFolder("extra").create(false, true, null);
 		IPackageFragmentRoot newRoot= getPackageFragmentRoot("TypeHierarchyNotification", "extra");
 		assertTrue("New root should now be visible", newRoot != null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 		h.refresh(null);
 
 		// remove a classpath entry that does not impact the type hierarchy
-		this.reset();
+		reset();
 		project.setRawClasspath(originalCP, null);
 		assertTrue("Should not receive change", !this.changeReceived);
 	} finally {
@@ -1057,7 +1057,7 @@ public void testRemoveExternalPackageFragmentRoot() throws CoreException {
 	}
 }
 /**
- * When a project is deleted that contains package fragments that impact the 
+ * When a project is deleted that contains package fragments that impact the
  * type hierarchy, the type hierarchy should change
  */
 public void testRemoveExternalProject() throws CoreException {
@@ -1069,7 +1069,7 @@ public void testRemoveExternalProject() throws CoreException {
 		IType type = cu.getType("X");
 		ITypeHierarchy h = type.newTypeHierarchy(null);
 		h.addTypeHierarchyChangedListener(this);
-		
+
 		try {
 			this.deleteProject("External");
 			assertTrue("Should receive change", this.changeReceived);
@@ -1091,9 +1091,9 @@ public void testRemoveListener() throws CoreException {
 	ITypeHierarchy h = type.newTypeHierarchy(project, null);
 	ITypeHierarchyChangedListener listener= new ITypeHierarchyChangedListener() {
 		public void typeHierarchyChanged(ITypeHierarchy th) {
-			changeReceived= true;
-			hierarchy= th;
-			notifications++;
+			TypeHierarchyNotificationTests.this.changeReceived= true;
+			TypeHierarchyNotificationTests.this.hierarchy= th;
+			TypeHierarchyNotificationTests.this.notifications++;
 			th.removeTypeHierarchyChangedListener(this);
 		}
 	};
@@ -1116,7 +1116,7 @@ public void testRemoveListener() throws CoreException {
 			null
 		);
 
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
@@ -1130,11 +1130,11 @@ public void testRemovePackage() throws CoreException {
 	IType type = cu.getType("X");
 	ITypeHierarchy h = type.newTypeHierarchy(project, null);
 	h.addTypeHierarchyChangedListener(this);
-	
+
 	IPackageFragment pkg = type.getPackageFragment();
 	try {
 		deleteResource(pkg.getUnderlyingResource());
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
@@ -1148,16 +1148,16 @@ public void testRemovePackageFragmentRoots() throws CoreException {
 	IType type = cu.getType("X");
 	ITypeHierarchy h = type.newTypeHierarchy(project, null);
 	h.addTypeHierarchyChangedListener(this);
-	
+
 	try {
 		project.setRawClasspath(null, null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
 }
 /**
- * When a project is deleted that contains package fragments that impact the 
+ * When a project is deleted that contains package fragments that impact the
  * type hierarchy, the type hierarchy should change (and be made invalid)
  */
 public void testRemoveProject() throws CoreException, IOException {
@@ -1169,23 +1169,23 @@ public void testRemoveProject() throws CoreException, IOException {
 		IType type = cu.getType("Dependent");
 		h = type.newTypeHierarchy(project, null);
 		h.addTypeHierarchyChangedListener(this);
-	
+
 		// Sanity check
 		assertEquals("Superclass of Dependent is a.A", "a.A", h.getSuperclass(type).getFullyQualifiedName());
-	
+
 		// Delete a related project
 		IResource folder = getJavaProject("TypeHierarchyNotification").getUnderlyingResource();
 		deleteResource(folder);
-		this.assertOneChange(h);
+		assertOneChange(h);
 		assertTrue("Should still exist", h.exists());
 		h.refresh(null);
 		IType superType = h.getSuperclass(type);
 		assertTrue("Superclass of Dependent should be null", superType == null);
-	
+
 		// Delete the project type lives in.
 		folder = getJavaProject("TypeHierarchyDependent").getUnderlyingResource();
 		deleteResource(folder);
-		assertTrue("Should have been invalidated", ! h.exists());	
+		assertTrue("Should have been invalidated", ! h.exists());
 	} finally {
 		this.deleteProject("TypeHierarchyDependent");
 		if (h != null) h.removeTypeHierarchyChangedListener(this);
@@ -1221,7 +1221,7 @@ public void testRenameCompilationUnit() throws CoreException {
 
 	try {
 		cu.rename("X2.java", false, null);
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}

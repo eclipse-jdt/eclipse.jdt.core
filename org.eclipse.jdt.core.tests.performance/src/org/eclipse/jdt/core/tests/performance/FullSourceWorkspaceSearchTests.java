@@ -41,7 +41,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 	// Formats
 	private final static NumberFormat INT_FORMAT = NumberFormat.getIntegerInstance();
-	
+
 	/**
 	 * @param name
 	 */
@@ -155,7 +155,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		 * Execute the current job, answer whether it was successful.
 		 */
 		public boolean execute(IProgressMonitor progress) {
-			if (start) {
+			if (this.start) {
 				startMeasuring();
 			} else {
 				stopMeasuring();
@@ -166,15 +166,15 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			return "FullSourceWorkspaceSearchTests.Measuring";
 		}
 	}
-	
+
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor resultCollector) throws CoreException {
 		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
 			? SearchPattern.R_PATTERN_MATCH
 			: SearchPattern.R_EXACT_MATCH;
 		SearchPattern pattern = SearchPattern.createPattern(
-			patternString, 
+			patternString,
 			searchFor,
-			limitTo, 
+			limitTo,
 			matchMode | SearchPattern.R_CASE_SENSITIVE);
 		new SearchEngine().search(
 			pattern,
@@ -201,10 +201,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 	/**
 	 * Performance tests for search: Indexing entire workspace
-	 * 
+	 *
 	 * First wait that already started indexing jobs ends before performing test and measure.
 	 * Consider this initial indexing jobs as warm-up for this test.
-	 * 
+	 *
 	 * TODO (frederic) After 3.3, activate several iteration for this test to have more accurate results,
 	 * 	then rename the test as numbers will be different...
 	 */
@@ -273,7 +273,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 	/**
 	 * Performance tests for search: Search All Types Names using 2.1 API.
-	 * 
+	 *
 	 * @deprecated As we use deprecated API
 	 */
 	public void testSearchAllTypeNames() throws CoreException {
@@ -291,7 +291,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 				null,
 				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 				IJavaSearchConstants.TYPE,
-				scope, 
+				scope,
 				requestor,
 				WAIT_UNTIL_READY_TO_SEARCH,
 				null);
@@ -317,14 +317,14 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 					null,
 					SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 					IJavaSearchConstants.TYPE,
-					scope, 
+					scope,
 					requestor,
 					WAIT_UNTIL_READY_TO_SEARCH,
 					null);
 			}
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
@@ -349,7 +349,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 				null,
 				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 				IJavaSearchConstants.TYPE,
-				scope, 
+				scope,
 				requestor,
 				WAIT_UNTIL_READY_TO_SEARCH,
 				null);
@@ -375,7 +375,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 				null,
 				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 				IJavaSearchConstants.TYPE,
-				scope, 
+				scope,
 				requestor,
 				WAIT_UNTIL_READY_TO_SEARCH,
 				null);
@@ -389,7 +389,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 	/**
 	 * Performance tests for search: Search All Types Names Matches.
-	 * 
+	 *
 	 * This test use a collector which accepts IType.
 	 */
 	public void testSearchAllTypeNameMatches() throws CoreException {
@@ -408,7 +408,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 				null,
 				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 				IJavaSearchConstants.TYPE,
-				scope, 
+				scope,
 				requestor,
 				WAIT_UNTIL_READY_TO_SEARCH,
 				null);
@@ -434,7 +434,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 				null,
 				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 				IJavaSearchConstants.TYPE,
-				scope, 
+				scope,
 				requestor,
 				WAIT_UNTIL_READY_TO_SEARCH,
 				null);
@@ -448,7 +448,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 	/**
 	 * Performance tests for search:  Types occurrences.
-	 * 
+	 *
 	 * Note that following search have been tested:
 	 *		- "String":				> 65000 macthes (CAUTION: needs -Xmx512M)
 	 *		- "Object":			13497 matches
@@ -480,7 +480,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			search(name, TYPE, ALL_OCCURRENCES, scope, resultCollector);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
@@ -514,7 +514,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			search(name, FIELD, ALL_OCCURRENCES, scope, resultCollector);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
@@ -527,10 +527,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	public void testSearchMethod() throws CoreException {
 		tagAsSummary("Search method occurences (no resolution)", false); // do NOT put in fingerprint
 		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Test is not enough stable and will be replaced by another one...");
-	
+
 		// Wait for indexing end
 		AbstractJavaModelTests.waitUntilIndexesReady();
-	
+
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
 		String name = "equals";
@@ -541,19 +541,19 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 				System.out.println("	- "+INT_FORMAT.format(resultCollector.count)+" occurences for method '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
 			}
 		}
-	
+
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			// clean before test
 			cleanCategoryTableCache(false, scope, resultCollector);
 			runGc();
-	
+
 			// test
 			startMeasuring();
 			search(name, METHOD, ALL_OCCURRENCES, scope, resultCollector);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
@@ -591,7 +591,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			search(name, METHOD, ALL_OCCURRENCES, scope, resultCollector);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
@@ -665,7 +665,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 				search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
@@ -700,7 +700,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 				search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
@@ -748,7 +748,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			search(name, PACKAGE, DECLARATIONS, scope, requestor);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();

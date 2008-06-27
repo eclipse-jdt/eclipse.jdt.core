@@ -83,7 +83,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	static final int METHOD_NAME = 7;
 	static final int PACKAGE_NAME = 8;
 	static final int TYPE_VARIABLE_NAME = 9;
-	
+
 	// All possible compiler versions
 	static final String[] VERSIONS = new String[] {
 		CompilerOptions.VERSION_1_1,
@@ -163,27 +163,27 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	public void testPackageFragmentRootOverlap() throws Exception {
 		try {
 			IJavaProject project = this.createJavaProject("P1", new String[] {"src"}, new String[] {"/P1/jclMin.jar"}, "bin");
-			
+
 			// ensure the external JCL is copied
 			setupExternalJCL("jclMin");
-			
-			this.copy(new java.io.File(getExternalJCLPathString()), new java.io.File(getWorkspaceRoot().getLocation().toOSString() + java.io.File.separator + "P1" + java.io.File.separator + "jclMin.jar"));
+
+			copy(new java.io.File(getExternalJCLPathString()), new java.io.File(getWorkspaceRoot().getLocation().toOSString() + java.io.File.separator + "P1" + java.io.File.separator + "jclMin.jar"));
 			project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
-			
+
 			IPackageFragmentRoot p1Zip= getPackageFragmentRoot("P1", "jclMin.jar");
 			IPackageFragmentRoot p1Src= getPackageFragmentRoot("P1", "src");
-		
+
 			assertTrue("zip should not overlap source root",
 					!JavaConventions.isOverlappingRoots(p1Zip.getUnderlyingResource().getFullPath(), p1Src.getUnderlyingResource().getFullPath()));
-		
+
 			this.createJavaProject("P2", new String[] {"src"}, "bin");
-		
+
 			IPackageFragmentRoot p2Src= getPackageFragmentRoot("P2", "src");
 			assertTrue("source roots in different projects should not overlap ",
 					!JavaConventions.isOverlappingRoots(p1Src.getUnderlyingResource().getFullPath(), p2Src.getUnderlyingResource().getFullPath()));
-		
+
 			assertTrue("The same root should overlap", JavaConventions.isOverlappingRoots(p2Src.getUnderlyingResource().getFullPath(), p2Src.getUnderlyingResource().getFullPath()));
-		
+
 			assertTrue("isOverLappingRoot does not handle null arguments", !JavaConventions.isOverlappingRoots(p2Src.getUnderlyingResource().getFullPath(), null));
 			assertTrue("isOverLappingRoot does not handle null arguments", !JavaConventions.isOverlappingRoots(null, null));
 		} finally {
@@ -235,10 +235,10 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	 * @see JavaConventions
 	 */
 	public void testValidPackageName() {
-		
+
 		String pkgName= "org.eclipse.jdt.core.t\\u0065sts.MyPackage";
 		assertEquals("unicode package name not handled", IStatus.OK, validate(pkgName, PACKAGE_NAME));
-	
+
 		assertEquals("package name not recognized as invalid1", IStatus.ERROR, validate("", PACKAGE_NAME));
 		assertEquals("package name not recognized as valid1", IStatus.OK, validate("java . lang", PACKAGE_NAME));
 		assertEquals("package name not recognized as invalid2", IStatus.ERROR, validate("   java . lang", PACKAGE_NAME));
@@ -258,10 +258,10 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		assertEquals("type name should not contain slashes (2)", IStatus.ERROR, validate("Object/", JAVA_TYPE_NAME));
 		assertEquals("type name should not contain slashes (3)", IStatus.ERROR, validate("\\Object", JAVA_TYPE_NAME));
 		assertEquals("type name should not contain slashes (4)", IStatus.ERROR, validate("java\\lang\\Object", JAVA_TYPE_NAME));
-	
+
 		// regression test for 1G52ZIF: ITPJUI:WINNT - Wizards should strongly discourage the use of non-standard names
 		assertEquals("discouraged type names not handled", IStatus.WARNING, validate("alowercasetypename", JAVA_TYPE_NAME));
-	
+
 		// other tests
 		assertEquals("unicode type name not handled", IStatus.OK, validate("P\\u0065a", JAVA_TYPE_NAME));
 		assertEquals("qualified type names not handled", IStatus.OK, validate("java  .  lang\t.Object", JAVA_TYPE_NAME));
@@ -280,20 +280,20 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	 * @see JavaConventions
 	 */
 	public void testValidUnicodeImportDeclaration() {
-		
+
 		String pkgName= "com.\\u0069bm.jdt.core.tests.MyPackag\\u0065";
 		assertEquals("import not reconized as valid", IStatus.OK, validate(pkgName, IMPORT_DECLARATION));
-	
+
 	}
 	/**
 	 * @see JavaConventions
 	 */
 	public void testValidUnicodePackageName() {
-		
+
 		String pkgName= "com.\\u0069bm.jdt.core.tests.MyPackag\\u0065";
 		assertEquals("unicode package name not handled", IStatus.OK, validate(pkgName, PACKAGE_NAME));
 		assertEquals("Parameter modified", "com.\\u0069bm.jdt.core.tests.MyPackag\\u0065", pkgName);
-	
+
 	}
 
 	/**

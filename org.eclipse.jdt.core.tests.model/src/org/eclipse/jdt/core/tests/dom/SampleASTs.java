@@ -26,10 +26,10 @@ public class SampleASTs {
 		CompilationUnit cu = target.newCompilationUnit();
 		PackageDeclaration pd = target.newPackageDeclaration();
 		cu.setPackage(pd);
-		
+
 		ImportDeclaration im = target.newImportDeclaration();
 		cu.imports().add(im);
-		
+
 		TypeDeclaration td = target.newTypeDeclaration();
 		cu.types().add(td);
 		Javadoc javadoc = target.newJavadoc();
@@ -41,31 +41,31 @@ public class SampleASTs {
 		MethodRef mr = target.newMethodRef();
 		tg.fragments().add(mr);
 		mr.parameters().add(target.newMethodRefParameter());
-				
+
 		VariableDeclarationFragment variableDeclarationFragment = target.newVariableDeclarationFragment();
-		FieldDeclaration fd = 
+		FieldDeclaration fd =
 			target.newFieldDeclaration(variableDeclarationFragment);
-		td.bodyDeclarations().add(fd);	
-		
+		td.bodyDeclarations().add(fd);
+
 		Initializer in = target.newInitializer();
-		td.bodyDeclarations().add(in);	
+		td.bodyDeclarations().add(in);
 
 		if (target.apiLevel() >= AST.JLS3) {
 			EnumDeclaration ed = target.newEnumDeclaration();
-			td.bodyDeclarations().add(ed);	
+			td.bodyDeclarations().add(ed);
 			EnumConstantDeclaration ec = target.newEnumConstantDeclaration();
-			ed.enumConstants().add(ec);	
+			ed.enumConstants().add(ec);
 		}
-		
+
 		MethodDeclaration md = target.newMethodDeclaration();
 		SingleVariableDeclaration singleVariableDeclaration = target.newSingleVariableDeclaration();
 		md.parameters().add(singleVariableDeclaration);
 		td.bodyDeclarations().add(md);
-		
+
 		SimpleName sn1 = target.newSimpleName("one"); //$NON-NLS-1$
 		SimpleName sn2 =target.newSimpleName("two"); //$NON-NLS-1$
 		QualifiedName qn = target.newQualifiedName(sn1, sn2);
-		
+
 		PrimitiveType pt = target.newPrimitiveType(PrimitiveType.INT);
 		ArrayType at = target.newArrayType(pt);
 		fd.setType(at);
@@ -79,10 +79,10 @@ public class SampleASTs {
 			pmt.typeArguments().add(qt);
 			md.setReturnType2(pmt);
 		}
-		
+
 		Block b = target.newBlock();
 		md.setBody(b);
-		
+
 		// all statements (in alphabetic order of statement type)
 		AssertStatement assertStatement = target.newAssertStatement();
 		b.statements().add(assertStatement);
@@ -131,7 +131,7 @@ public class SampleASTs {
 		CatchClause catchClause = target.newCatchClause();
 		tr.catchClauses().add(catchClause);
 		b.statements().add(tr);
-		
+
 		TypeDeclaration typeDeclaration = target.newTypeDeclaration();
 		TypeDeclarationStatement typeDeclarationStatement = target.newTypeDeclarationStatement(typeDeclaration);
 		b.statements().add(typeDeclarationStatement);
@@ -199,7 +199,7 @@ public class SampleASTs {
 		VariableDeclarationFragment variableDeclarationFragment3 = target.newVariableDeclarationFragment();
 		VariableDeclarationExpression variableDeclarationExpression = target.newVariableDeclarationExpression(variableDeclarationFragment3);
 		z.add(variableDeclarationExpression);
-		
+
 		// annotations
 		if (target.apiLevel() >= AST.JLS3) {
 			AnnotationTypeDeclaration atd = target.newAnnotationTypeDeclaration();
@@ -214,7 +214,7 @@ public class SampleASTs {
 		}
 		return cu;
 	}
-	
+
 	/**
 	 * Returns a flat list of sample nodes of each type.
 	 * The sample includes one of each kind, including

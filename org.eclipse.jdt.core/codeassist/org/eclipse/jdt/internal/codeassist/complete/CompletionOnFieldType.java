@@ -30,13 +30,13 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * The arguments of the allocation expression are all the arguments defined
  * before the cursor.
  */
- 
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 
 public class CompletionOnFieldType extends FieldDeclaration {
 	public boolean isLocalVariable;
-	
+
 public CompletionOnFieldType(TypeReference type, boolean isLocalVariable){
 	super();
 	this.sourceStart = type.sourceStart;
@@ -50,6 +50,6 @@ public CompletionOnFieldType(TypeReference type, boolean isLocalVariable){
 }
 
 public StringBuffer printStatement(int tab, StringBuffer output) {
-	return type.print(tab, output).append(';'); 
+	return this.type.print(tab, output).append(';');
 }
 }

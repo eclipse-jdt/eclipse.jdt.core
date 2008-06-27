@@ -25,15 +25,15 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 
 public class MultiProjectTests extends BuilderTests {
-	
+
 	public MultiProjectTests(String name) {
 		super(name);
 	}
-	
+
 	public static Test suite() {
 		return buildTestSuite(MultiProjectTests.class);
 	}
-	
+
 	public void testCompileOnlyDependent() throws JavaModelException {
 		//----------------------------
 		//           Step 1
@@ -48,7 +48,7 @@ public class MultiProjectTests extends BuilderTests {
 			"public class A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -60,7 +60,7 @@ public class MultiProjectTests extends BuilderTests {
 			"public class B extends A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project3
 			//----------------------------
@@ -71,10 +71,10 @@ public class MultiProjectTests extends BuilderTests {
 			"public class C {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingNoProblems();
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
@@ -83,7 +83,7 @@ public class MultiProjectTests extends BuilderTests {
 			"   int x;\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild();
 		expectingCompiledClasses(new String[]{"A", "B"}); //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -107,7 +107,7 @@ public class MultiProjectTests extends BuilderTests {
 			"public class Unreferenced {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -119,7 +119,7 @@ public class MultiProjectTests extends BuilderTests {
 			"public class B extends A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project3
 			//----------------------------
@@ -130,10 +130,10 @@ public class MultiProjectTests extends BuilderTests {
 			"public class C {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingNoProblems();
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
@@ -149,11 +149,11 @@ public class MultiProjectTests extends BuilderTests {
 			"   int x; //structural change\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild();
 		expectingCompiledClasses(new String[]{"A", "Unreferenced"}); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	public void testRemoveField() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE); //$NON-NLS-1$
@@ -173,7 +173,7 @@ public class MultiProjectTests extends BuilderTests {
 			"   public int x;\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -188,10 +188,10 @@ public class MultiProjectTests extends BuilderTests {
 			"   }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingNoProblems();
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
@@ -199,18 +199,18 @@ public class MultiProjectTests extends BuilderTests {
 			"public class A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild();
 		expectingSpecificProblemFor(b, new Problem("B.foo()", "x cannot be resolved or is not a field", b, 61, 62, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	public void testCompileOrder() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		//----------------------------
 		//         Project1
 		//----------------------------
@@ -220,14 +220,14 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
-		
+
 		IPath c1 = env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
 			"  W w;\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		//----------------------------
 		//         Project2
 		//----------------------------
@@ -237,7 +237,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
-		
+
 		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"public class Y {\n"+ //$NON-NLS-1$
@@ -254,34 +254,34 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
-		
+
 		IPath c3 = env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n"+ //$NON-NLS-1$
 			"public class Z {\n"+ //$NON-NLS-1$
 			"  W w;\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		env.setBuildOrder(new String[]{"P1", "P3", "P2"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		fullBuild();
-		
+
 		expectingCompilingOrder(new String[]{"p1.X", "p3.Z", "p2.Y"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		IPath workspaceRootPath = env.getWorkspaceRootPath();
 		expectingOnlySpecificProblemsFor(workspaceRootPath,new Problem[]{
 				new Problem("p3", "W cannot be resolved to a type", c3, 31, 32, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p2", "W cannot be resolved to a type", c2, 31, 32, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p1", "W cannot be resolved to a type", c1, 31, 32, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)//$NON-NLS-1$ //$NON-NLS-2$
-		});	
+		});
 		JavaCore.setOptions(options);
 	}
-	
+
 	public void testCycle1() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		//----------------------------
 		//         Project1
 		//----------------------------
@@ -291,7 +291,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"import p2.Y;\n"+ //$NON-NLS-1$
@@ -301,7 +301,7 @@ public class MultiProjectTests extends BuilderTests {
 			"  }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		//----------------------------
 		//         Project2
 		//----------------------------
@@ -311,7 +311,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
@@ -334,7 +334,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
@@ -344,7 +344,7 @@ public class MultiProjectTests extends BuilderTests {
 			"  }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		// for Project1
 		env.addRequiredProject(p1, p2);
 		env.addRequiredProject(p1, p3);
@@ -357,25 +357,25 @@ public class MultiProjectTests extends BuilderTests {
 		try {
 			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			fullBuild();
-			
+
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$//$NON-NLS-6$//$NON-NLS-7$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-			
+
 			JavaCore.setOptions(options);
 		} finally {
 			env.setBuildOrder(null);
 		}
 	}
-	
+
 	public void testCycle2() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		//----------------------------
 		//         Project1
 		//----------------------------
@@ -385,7 +385,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"import p2.Y;\n"+ //$NON-NLS-1$
@@ -395,7 +395,7 @@ public class MultiProjectTests extends BuilderTests {
 			"  }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		//----------------------------
 		//         Project2
 		//----------------------------
@@ -405,7 +405,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
-		
+
 		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
@@ -428,7 +428,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
@@ -438,7 +438,7 @@ public class MultiProjectTests extends BuilderTests {
 			"  }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		// for Project1
 		env.addRequiredProject(p1, p2);
 		env.addRequiredProject(p1, p3);
@@ -449,9 +449,9 @@ public class MultiProjectTests extends BuilderTests {
 		env.addRequiredProject(p3, p1);
 
 		try {
-			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
+			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 			fullBuild();
-			
+
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$//$NON-NLS-7$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
@@ -459,20 +459,20 @@ public class MultiProjectTests extends BuilderTests {
 					new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-			
+
 			JavaCore.setOptions(options);
 		} finally {
 			env.setBuildOrder(null);
 		}
 	}
-	
+
 	public void testCycle3() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		//----------------------------
 		//         Project1
 		//----------------------------
@@ -482,7 +482,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"import p2.Y;\n"+ //$NON-NLS-1$
@@ -492,7 +492,7 @@ public class MultiProjectTests extends BuilderTests {
 			"  }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		//----------------------------
 		//         Project2
 		//----------------------------
@@ -502,7 +502,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
-		
+
 		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
@@ -525,7 +525,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
@@ -535,7 +535,7 @@ public class MultiProjectTests extends BuilderTests {
 			"  }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		// for Project1
 		env.addRequiredProject(p1, p2);
 		env.addRequiredProject(p1, p3);
@@ -546,14 +546,14 @@ public class MultiProjectTests extends BuilderTests {
 		env.addRequiredProject(p3, p1);
 
 		try {
-			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
+			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 			fullBuild();
-			
+
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$//$NON-NLS-7$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-			
+
 			env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p1;\n"+ //$NON-NLS-1$
 				"import p2.Y;\n"+ //$NON-NLS-1$
@@ -564,15 +564,15 @@ public class MultiProjectTests extends BuilderTests {
 				"}\n" //$NON-NLS-1$
 				);
 			incrementalBuild();
-			
-			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
+
+			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
 					new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2, 106, 109, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 					new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-	
+
 			JavaCore.setOptions(options);
 		} finally {
 			env.setBuildOrder(null);
@@ -582,9 +582,9 @@ public class MultiProjectTests extends BuilderTests {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		//----------------------------
 		//         Project1
 		//----------------------------
@@ -594,7 +594,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
-		
+
 		//----------------------------
 		//         Project2
 		//----------------------------
@@ -604,7 +604,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
-		
+
 		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
@@ -627,7 +627,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
-		
+
 		IPath c3 = env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
@@ -637,7 +637,7 @@ public class MultiProjectTests extends BuilderTests {
 			"  }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		// for Project1
 		env.addRequiredProject(p1, p2);
 		env.addRequiredProject(p1, p3);
@@ -648,9 +648,9 @@ public class MultiProjectTests extends BuilderTests {
 		env.addRequiredProject(p3, p1);
 
 		try {
-			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
+			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 			fullBuild();
-			
+
 			expectingCompilingOrder(new String[]{"p2.Y", "p3.Z", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
@@ -665,7 +665,7 @@ public class MultiProjectTests extends BuilderTests {
 				new Problem("p3", "The import p1 cannot be resolved", c3, 19, 21, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
-	
+
 			env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p1;\n"+ //$NON-NLS-1$
 				"import p2.Y;\n"+ //$NON-NLS-1$
@@ -676,24 +676,24 @@ public class MultiProjectTests extends BuilderTests {
 				"}\n" //$NON-NLS-1$
 				);
 			incrementalBuild();
-			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ 
+			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-	
+
 			JavaCore.setOptions(options);
 		} finally {
 			env.setBuildOrder(null);
 		}
 	}
-	
+
 	public void testCycle5() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		//----------------------------
 		//         Project1
 		//----------------------------
@@ -703,7 +703,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
-		
+
 		IPath c1 = env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"import p2.*;\n"+ //$NON-NLS-1$
@@ -712,7 +712,7 @@ public class MultiProjectTests extends BuilderTests {
 			"  Y y;\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		//----------------------------
 		//         Project2
 		//----------------------------
@@ -722,7 +722,7 @@ public class MultiProjectTests extends BuilderTests {
 		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
-		
+
 		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p1.*;\n"+ //$NON-NLS-1$
@@ -741,8 +741,8 @@ public class MultiProjectTests extends BuilderTests {
 		try {
 			env.setBuildOrder(new String[]{"P1", "P2"});//$NON-NLS-1$ //$NON-NLS-2$
 			fullBuild();
-			
-			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p1.X", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ 
+
+			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p1.X", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 			expectingOnlySpecificProblemsFor(p1,new Problem[]{
 				new Problem("p1", "The import p22 cannot be resolved", c1, 32, 35, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
@@ -751,7 +751,7 @@ public class MultiProjectTests extends BuilderTests {
 				new Problem("p2", "The import p11 cannot be resolved", c2, 32, 35, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
-			
+
 			env.addClass(root1, "p11", "XX", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p11;\n"+ //$NON-NLS-1$
 				"public class XX {\n"+ //$NON-NLS-1$
@@ -762,9 +762,9 @@ public class MultiProjectTests extends BuilderTests {
 				"public class YY {\n"+ //$NON-NLS-1$
 				"}\n" //$NON-NLS-1$
 				);
-				
+
 			incrementalBuild();
-			
+
 			expectingCompilingOrder(new String[]{"p11.XX", "p22.YY", "p2.Y", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 			expectingOnlySpecificProblemsFor(p1,new Problem[]{
 				new Problem("p1", "The import p22 is never used", c1, 32, 35, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING),//$NON-NLS-1$ //$NON-NLS-2$
@@ -774,13 +774,13 @@ public class MultiProjectTests extends BuilderTests {
 				new Problem("p2", "The import p11 is never used", c2, 32, 35, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
-			
+
 			JavaCore.setOptions(options);
 		} finally {
 			env.setBuildOrder(null);
 		}
 	}
-	
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=114349
 // this one fails; compare with testCycle7 (only one change in Object source),
 // which passes
@@ -788,9 +788,9 @@ public void testCycle6() throws JavaModelException {
 	Hashtable options = JavaCore.getOptions();
 	Hashtable newOptions = JavaCore.getOptions();
 	newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
-	
+
 	JavaCore.setOptions(newOptions);
-	
+
 	//----------------------------
 	//         Project1
 	//----------------------------
@@ -799,7 +799,7 @@ public void testCycle6() throws JavaModelException {
 	env.removePackageFragmentRoot(p1, "");
 	IPath root1 = env.addPackageFragmentRoot(p1, "src");
 	env.setOutputFolder(p1, "bin");
-	
+
 	env.addClass(root1, "java/lang", "Object",
 		"package java.lang;\n" +
 		"public class Object {\n" +
@@ -807,7 +807,7 @@ public void testCycle6() throws JavaModelException {
 		"  String toString() { return \"\"; }\n" +	// the line that changes
 		"}\n"
 		);
-		
+
 	//----------------------------
 	//         Project2
 	//----------------------------
@@ -816,7 +816,7 @@ public void testCycle6() throws JavaModelException {
 	env.removePackageFragmentRoot(p2, "");
 	IPath root2 = env.addPackageFragmentRoot(p2, "src");
 	env.setOutputFolder(p2, "bin");
-	
+
 	env.addClass(root2, "java/lang", "Class",
 		"package java.lang;\n" +
 		"public class Class {\n" +
@@ -832,7 +832,7 @@ public void testCycle6() throws JavaModelException {
 	env.removePackageFragmentRoot(p3, "");
 	IPath root3 = env.addPackageFragmentRoot(p3, "src");
 	env.setOutputFolder(p3, "bin");
-	
+
 	env.addClass(root3, "java/lang", "String",
 		"package java.lang;\n" +
 		"public class String {\n" +
@@ -861,7 +861,7 @@ public void testCycle6() throws JavaModelException {
 		expectingOnlySpecificProblemsFor(p3,new Problem[]{
 			new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 		});
-		
+
 	} finally {
 		JavaCore.setOptions(options);
 	}
@@ -874,9 +874,9 @@ public void testCycle7() throws JavaModelException {
 	Hashtable options = JavaCore.getOptions();
 	Hashtable newOptions = JavaCore.getOptions();
 	newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
-	
+
 	JavaCore.setOptions(newOptions);
-	
+
 	//----------------------------
 	//         Project1
 	//----------------------------
@@ -885,7 +885,7 @@ public void testCycle7() throws JavaModelException {
 	env.removePackageFragmentRoot(p1, "");
 	IPath root1 = env.addPackageFragmentRoot(p1, "src");
 	env.setOutputFolder(p1, "bin");
-	
+
 	env.addClass(root1, "java/lang", "Object",
 		"package java.lang;\n" +
 		"public class Object {\n" +
@@ -893,7 +893,7 @@ public void testCycle7() throws JavaModelException {
 		"  String toString() { return null; }\n" +	// the line that changes
 		"}\n"
 		);
-		
+
 	//----------------------------
 	//         Project2
 	//----------------------------
@@ -902,7 +902,7 @@ public void testCycle7() throws JavaModelException {
 	env.removePackageFragmentRoot(p2, "");
 	IPath root2 = env.addPackageFragmentRoot(p2, "src");
 	env.setOutputFolder(p2, "bin");
-	
+
 	env.addClass(root2, "java/lang", "Class",
 		"package java.lang;\n" +
 		"public class Class {\n" +
@@ -918,7 +918,7 @@ public void testCycle7() throws JavaModelException {
 	env.removePackageFragmentRoot(p3, "");
 	IPath root3 = env.addPackageFragmentRoot(p3, "src");
 	env.setOutputFolder(p3, "bin");
-	
+
 	env.addClass(root3, "java/lang", "String",
 		"package java.lang;\n" +
 		"public class String {\n" +
@@ -947,12 +947,12 @@ public void testCycle7() throws JavaModelException {
 		expectingOnlySpecificProblemsFor(p3,new Problem[]{
 			new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 		});
-		
+
 	} finally {
 		JavaCore.setOptions(options);
 	}
 }
-	
+
 	/*
 	 * Full buid case
 	 */
@@ -973,7 +973,7 @@ public void testCycle7() throws JavaModelException {
 			"public class B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -989,11 +989,11 @@ public void testCycle7() throws JavaModelException {
 			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	/*
 	 * Incremental buid case
 	 */
@@ -1017,7 +1017,7 @@ public void testCycle7() throws JavaModelException {
 			"public class B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -1029,10 +1029,10 @@ public void testCycle7() throws JavaModelException {
 			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingNoProblems();
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
@@ -1040,11 +1040,11 @@ public void testCycle7() throws JavaModelException {
 			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	/*
 	 * Fix access restriction problem
 	 */
@@ -1068,7 +1068,7 @@ public void testCycle7() throws JavaModelException {
 			"public class B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -1084,20 +1084,20 @@ public void testCycle7() throws JavaModelException {
 			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
 		env.removeRequiredProject(project2Path, project1Path);
 		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {}, false);
-		
+
 		incrementalBuild();
 		expectingNoProblems();
 	}
-		
+
 	/*
 	 * Full buid case
 	 */
@@ -1118,7 +1118,7 @@ public void testCycle7() throws JavaModelException {
 			"public class B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -1134,11 +1134,11 @@ public void testCycle7() throws JavaModelException {
 			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	/*
 	 * Incremental buid case
 	 */
@@ -1162,7 +1162,7 @@ public void testCycle7() throws JavaModelException {
 			"public class B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -1174,10 +1174,10 @@ public void testCycle7() throws JavaModelException {
 			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingNoProblems();
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
@@ -1185,11 +1185,11 @@ public void testCycle7() throws JavaModelException {
 			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	/*
 	 * Fix access restriction problem
 	 */
@@ -1213,7 +1213,7 @@ public void testCycle7() throws JavaModelException {
 			"public class B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -1229,20 +1229,20 @@ public void testCycle7() throws JavaModelException {
 			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not accessible due to restriction on required project Project1", d, 23, 35, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
 		env.removeRequiredProject(project2Path, project1Path);
 		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {}, false);
-		
+
 		incrementalBuild();
 		expectingNoProblems();
 	}
-	
+
 	/*
 	 * Ensures that a type matching a ignore-if-better non-accessible rule is further found when accessible
 	 * on another classpath entry.
@@ -1260,7 +1260,7 @@ public void testCycle7() throws JavaModelException {
 			"public class A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -1272,7 +1272,7 @@ public void testCycle7() throws JavaModelException {
 			"public class A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 			//----------------------------
 			//         Project3
 			//----------------------------
@@ -1290,7 +1290,7 @@ public void testCycle7() throws JavaModelException {
 		fullBuild();
 		expectingNoProblems();
 	}
-	
+
 	/*
 	 * Ensures that a type matching a ignore-if-better non-accessible rule is further found when accessible
 	 * on another classpath entry.
@@ -1308,7 +1308,7 @@ public void testCycle7() throws JavaModelException {
 			"public class A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 			//----------------------------
 			//         Project2
 			//----------------------------
@@ -1320,7 +1320,7 @@ public void testCycle7() throws JavaModelException {
 			"public class A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 			//----------------------------
 			//         Project3
 			//----------------------------
@@ -1338,9 +1338,9 @@ public void testCycle7() throws JavaModelException {
 		fullBuild();
 		expectingSpecificProblemFor(project3Path, new Problem("", "Discouraged access: The type A is not accessible due to restriction on required project Project2", b, 35, 38, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	public void testMissingRequiredBinaries() throws JavaModelException {
-		
+
 		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
 		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
 		IPath p3 = env.addProject("P3"); //$NON-NLS-1$
@@ -1358,20 +1358,20 @@ public void testCycle7() throws JavaModelException {
 		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
 		env.addRequiredProject(p2, p3);
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
-		
+
 		env.addExternalJars(p3, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
-		
+
 		IPath x = env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"import p2.*;\n"+ //$NON-NLS-1$
 			"public class X extends Y{\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p3.*;\n"+ //$NON-NLS-1$
@@ -1387,7 +1387,7 @@ public void testCycle7() throws JavaModelException {
 
 		try {
 			fullBuild();
-			
+
 			expectingOnlySpecificProblemsFor(p1,new Problem[]{
 				new Problem("p1", "The type p3.Z cannot be resolved. It is indirectly referenced from required .class files", x, 48, 49, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p1", "The project was not built since its build path is incomplete. Cannot find the class file for p3.Z. Fix the build path then try building this project", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)//$NON-NLS-1$ //$NON-NLS-2$
@@ -1406,7 +1406,7 @@ public void test100_class_folder_exported() throws JavaModelException {
 	env.addExternalJars(P1, Util.getJavaClassLibs());
 	env.addClass(
 		env.addPackage(
-			env.getPackageFragmentRootPath(P1, ""), "p"), 
+			env.getPackageFragmentRootPath(P1, ""), "p"),
 		"A",
 		"package p;\n" +
 		"public class A {\n" +
@@ -1420,8 +1420,8 @@ public void test100_class_folder_exported() throws JavaModelException {
 	env.addExternalJars(P2, Util.getJavaClassLibs());
 	env.addRequiredProject(P2, P1);
 	env.addClass(
-		env.getPackageFragmentRootPath(P2, ""), 
-		"X", 
+		env.getPackageFragmentRootPath(P2, ""),
+		"X",
 		"import p.A;\n" +
 		"public class X {\n" +
 		"  A f;\n" +
@@ -1439,7 +1439,7 @@ public void test101_class_folder_non_exported() throws JavaModelException {
 	env.addExternalJars(P1, Util.getJavaClassLibs());
 	env.addClass(
 		env.addPackage(
-			env.getPackageFragmentRootPath(P1, ""), "p"), 
+			env.getPackageFragmentRootPath(P1, ""), "p"),
 		"A",
 		"package p;\n" +
 		"public class A {\n" +
@@ -1453,18 +1453,18 @@ public void test101_class_folder_non_exported() throws JavaModelException {
 	env.addExternalJars(P2, Util.getJavaClassLibs());
 	env.addRequiredProject(P2, P1);
 	IPath c = env.addClass(
-		env.getPackageFragmentRootPath(P2, ""), 
-		"X", 
+		env.getPackageFragmentRootPath(P2, ""),
+		"X",
 		"import p.A;\n" +
 		"public class X {\n" +
 		"  A f;\n" +
 		"}");
 	fullBuild();
-	expectingSpecificProblemsFor(P2, 
+	expectingSpecificProblemsFor(P2,
 		new Problem[] {
-			new Problem("", "The import p cannot be resolved", 
+			new Problem("", "The import p cannot be resolved",
 					c, 7 , 8, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),
-			new Problem("", "A cannot be resolved to a type", 
+			new Problem("", "A cannot be resolved to a type",
 					c, 31 , 32, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)});
 }
 
@@ -1484,7 +1484,7 @@ public void test102_missing_required_binaries() throws JavaModelException {
 	IPath root2 = env.addPackageFragmentRoot(p2, "src");
 	env.addRequiredProject(p2, p1);
 	env.setOutputFolder(p2, "bin");
-	
+
 	IPath p3 = env.addProject("P3");
 	env.addExternalJars(p3, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(p3, "");
@@ -1492,12 +1492,12 @@ public void test102_missing_required_binaries() throws JavaModelException {
 //	env.addRequiredProject(p3, p1); - missing dependency
 	env.addRequiredProject(p3, p2);
 	env.setOutputFolder(p3, "bin");
-	
+
 	env.addClass(root1, "", "I",
 		"public interface I {\n" +
 		"}\n"
 		);
-		
+
 	env.addClass(root2, "", "X",
 		"public class X implements I {\n" +
 		"}\n"
@@ -1512,11 +1512,11 @@ public void test102_missing_required_binaries() throws JavaModelException {
 	try {
 		fullBuild();
 		expectingOnlySpecificProblemsFor(p3, new Problem[]{
-			new Problem("p3", 
-				"The project was not built since its build path is incomplete. Cannot find the class file for I. Fix the build path then try building this project", 
+			new Problem("p3",
+				"The project was not built since its build path is incomplete. Cannot find the class file for I. Fix the build path then try building this project",
 				p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
-			new Problem("p3", 
-				"The type I cannot be resolved. It is indirectly referenced from required .class files", 
+			new Problem("p3",
+				"The type I cannot be resolved. It is indirectly referenced from required .class files",
 				y, 23, 24, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
 		});
 	} finally {
@@ -1540,7 +1540,7 @@ public void test103_missing_required_binaries() throws JavaModelException {
 	IPath root2 = env.addPackageFragmentRoot(p2, "src");
 	env.addRequiredProject(p2, p1);
 	env.setOutputFolder(p2, "bin");
-	
+
 	IPath p3 = env.addProject("P3");
 	env.addExternalJars(p3, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(p3, "");
@@ -1548,12 +1548,12 @@ public void test103_missing_required_binaries() throws JavaModelException {
 //	env.addRequiredProject(p3, p1); - missing dependency
 	env.addRequiredProject(p3, p2);
 	env.setOutputFolder(p3, "bin");
-	
+
 	env.addClass(root1, "", "I",
 		"public interface I {\n" +
 		"}\n"
 		);
-		
+
 	env.addClass(root2, "", "X",
 		"public class X implements I {\n" +
 		"}\n"
@@ -1569,11 +1569,11 @@ public void test103_missing_required_binaries() throws JavaModelException {
 	try {
 		fullBuild();
 		expectingOnlySpecificProblemsFor(p3, new Problem[]{
-				new Problem("p3", 
-					"The project was not built since its build path is incomplete. Cannot find the class file for I. Fix the build path then try building this project", 
+				new Problem("p3",
+					"The project was not built since its build path is incomplete. Cannot find the class file for I. Fix the build path then try building this project",
 					p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
-				new Problem("p3", 
-					"The type I cannot be resolved. It is indirectly referenced from required .class files", 
+				new Problem("p3",
+					"The type I cannot be resolved. It is indirectly referenced from required .class files",
 					y, 0, 0, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
 		});
 	} finally {

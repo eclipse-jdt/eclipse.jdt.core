@@ -305,12 +305,12 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_INVALID_IMPORT = PLUGIN_ID + ".compiler.problem.invalidImport"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Attempt to Override Package Visible Method.
-	 * <p>A package visible method, which is any method that is not explicitly 
-	 *    declared as public, protected or private, is not visible from other 
-	 *    packages, and thus cannot be overridden from another package. 
-	 *    Attempting to override a package visible method from another package 
-	 *    introduces a new method that is unrelated to the original one. When 
-	 *    enabling this option, the compiler will signal such situations as an 
+	 * <p>A package visible method, which is any method that is not explicitly
+	 *    declared as public, protected or private, is not visible from other
+	 *    packages, and thus cannot be overridden from another package.
+	 *    Attempting to override a package visible method from another package
+	 *    introduces a new method that is unrelated to the original one. When
+	 *    enabling this option, the compiler will signal such situations as an
 	 *    error or a warning.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"</code></dd>
@@ -444,7 +444,7 @@ public final class JavaCore extends Plugin {
 	 * <p>When enabled, the compiler will consider doc comment references to parameters (i.e. <code>@param</code> clauses) for the unused
 	 *    parameter check. Thus, documented parameters will be considered as mandated as per doc contract.
 	 * <p>The severity of the unused parameter problem is controlled with option {@link #COMPILER_PB_UNUSED_PARAMETER}.
-	 * <p>Note: this option has no effect until the doc comment support is enabled according to the 
+	 * <p>Note: this option has no effect until the doc comment support is enabled according to the
 	 *    option {@link #COMPILER_DOC_COMMENT_SUPPORT}.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocCommentReference"</code></dd>
@@ -764,9 +764,9 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_FINALLY_BLOCK_NOT_COMPLETING = PLUGIN_ID + ".compiler.problem.finallyBlockNotCompletingNormally"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Unused Declared Thrown Exception.
-	 * <p>When enabled, the compiler will issue an error or a warning when a 
+	 * <p>When enabled, the compiler will issue an error or a warning when a
 	 *    method or a constructor is declaring a checked exception as thrown,
-	 *    but its body actually raises neither that exception, nor any other 
+	 *    but its body actually raises neither that exception, nor any other
 	 *    exception extending it.
 	 * <p>This diagnostic is further tuned by options
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE},
@@ -785,7 +785,7 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Reporting Unused Declared Thrown Exception in Overriding Method.
 	 * <p>When disabled, the compiler will report unused declared thrown
 	 *    exceptions neither on overriding methods nor on implementing methods.
-	 * <p>The severity of the unused declared thrown exception problem is 
+	 * <p>The severity of the unused declared thrown exception problem is
 	 *    controlled with option {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION}.
 	 * <p>This diagnostic is further tuned by options
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE} and
@@ -801,12 +801,12 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Consider Reference in Doc Comment for Unused Declared Thrown Exception Check.
-	 * <p>When enabled, the compiler will consider doc comment references to 
+	 * <p>When enabled, the compiler will consider doc comment references to
 	 *    exceptions (i.e. <code>@throws</code> clauses) for the unused
-	 *    declared thrown exception check. Thus, documented exceptions will be 
+	 *    declared thrown exception check. Thus, documented exceptions will be
 	 *    considered as mandated as per doc contract.
 	 * <p>The severity of the unused declared thrown exception problem is controlled with option {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION}.
-	 * <p>Note: this option has no effect until the doc comment support is enabled according to the 
+	 * <p>Note: this option has no effect until the doc comment support is enabled according to the
 	 *    option {@link #COMPILER_DOC_COMMENT_SUPPORT}.
 	 * <p>This diagnostic is further tuned by options
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE}
@@ -822,17 +822,17 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Unused Declared Thrown Exception Exempts Exception And Throwable.
-	 * <p>When enabled, the compiler will issue an error or a warning when a 
+	 * <p>When enabled, the compiler will issue an error or a warning when a
 	 *    method or a constructor is declaring a checked exception else than
 	 *    {@link java.lang.Throwable} or {@link java.lang.Exception} as thrown,
-	 *    but its body actually raises neither that exception, nor any other 
-	 *    exception extending it. When disabled, the compiler will issue an 
-	 *    error or a warning when a method or a constructor is declaring a 
-	 *    checked exception (including {@link java.lang.Throwable} and 
-	 *    {@link java.lang.Exception}) as thrown, but its body actually raises 
-	 *    neither that exception, nor any other exception extending it. 
-	 * <p>The severity of the unused declared thrown exception problem is 
-	 *    controlled with option 
+	 *    but its body actually raises neither that exception, nor any other
+	 *    exception extending it. When disabled, the compiler will issue an
+	 *    error or a warning when a method or a constructor is declaring a
+	 *    checked exception (including {@link java.lang.Throwable} and
+	 *    {@link java.lang.Exception}) as thrown, but its body actually raises
+	 *    neither that exception, nor any other exception extending it.
+	 * <p>The severity of the unused declared thrown exception problem is
+	 *    controlled with option
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION}.
 	 * <p>This diagnostic is further tuned by options
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE}
@@ -1094,7 +1094,7 @@ public final class JavaCore extends Plugin {
 	 * <p>It does not depend on option {@link #COMPILER_PB_INVALID_JAVADOC_TAGS}.
 	 * <p>When this option is valued to {@link #COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_STANDARD_TAGS},
 	 *       a subset of the standard <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/javadoc.html#javadoctags">Javadoc tags</a>
-	 *       that have a description, text or label are checked. While this set may grow in the future, note that user-defined tags are not and will not be checked. 
+	 *       that have a description, text or label are checked. While this set may grow in the future, note that user-defined tags are not and will not be checked.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "return_tag", "all_standard_tags", "no_tag" }</code></dd>
@@ -1372,9 +1372,9 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_UNHANDLED_WARNING_TOKEN = PLUGIN_ID + ".compiler.problem.unhandledWarningToken"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Unnecessary <code>@SuppressWarnings</code>.
-	 * <p>When enabled, the compiler will issue an error or a warning when encountering <code>@SuppressWarnings</code> annotation 
+	 * <p>When enabled, the compiler will issue an error or a warning when encountering <code>@SuppressWarnings</code> annotation
 	 *    for which no corresponding warning got detected in the code. This diagnostic is provided to help developers to get
-	 *    rid of transient <code>@SuppressWarnings</code> no longer needed. Note that <code>@SuppressWarnings("all")</code> is still 
+	 *    rid of transient <code>@SuppressWarnings</code> no longer needed. Note that <code>@SuppressWarnings("all")</code> is still
 	 *    silencing the warning for unnecessary <code>@SuppressWarnings</code>, as it is the master switch to silence ALL warnings.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedWarningToken"</code></dd>
@@ -1444,7 +1444,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting Redundant Superinterface.
 	 * <p>When enabled, the compiler will issue an error or a warning if a type
-	 *    explicitly implements an interface that is already implemented by any 
+	 *    explicitly implements an interface that is already implemented by any
 	 *    of its supertypes.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.redundantSuperinterface"</code></dd>
@@ -2350,7 +2350,7 @@ public final class JavaCore extends Plugin {
 	 * generated by <code>IJavaElement.getHandleIdentifier()</code>, or
 	 * <code>null</code> if unable to create the associated element.
 	 * If the returned Java element is an <code>ICompilationUnit</code> or an element
-	 * inside a compilation unit, the compilation unit's owner is the given owner if such a 
+	 * inside a compilation unit, the compilation unit's owner is the given owner if such a
 	 * working copy exists, otherwise the compilation unit is a primary compilation unit.
 	 *
 	 * @param handleIdentifier the given handle identifier
@@ -2758,7 +2758,7 @@ public final class JavaCore extends Plugin {
 		if (message != null) {
 		    return message;
 		}
-	    
+
 	    // If the variable has been already initialized, then there's no deprecation message
 		IPath variablePath = manager.variableGet(variableName);
 		if (variablePath != null && variablePath != JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) {
@@ -2879,12 +2879,12 @@ public final class JavaCore extends Plugin {
 	 * then pass to <code>setOptions</code>.
 	 * <p>
 	 * Helper constants have been defined on JavaCore for each of the option IDs
-	 * (categorized in Code assist option ID, Compiler option ID and Core option ID) 
+	 * (categorized in Code assist option ID, Compiler option ID and Core option ID)
 	 * and some of their acceptable values (categorized in Option value). Some
 	 * options accept open value sets beyond the documented constant values.
 	 * <p>
 	 * Note: each release may add new options.
-	 * 
+	 *
 	 * @return a table of all known configurable options with their default values
 	 */
  	public static Hashtable getDefaultOptions(){
@@ -3133,7 +3133,7 @@ public final class JavaCore extends Plugin {
 	 * Note that it may answer <code>null</code> if this option does not exist.
 	 * <p>
 	 * Helper constants have been defined on JavaCore for each of the option IDs
-	 * (categorized in Code assist option ID, Compiler option ID and Core option ID) 
+	 * (categorized in Code assist option ID, Compiler option ID and Core option ID)
 	 * and some of their acceptable values (categorized in Option value). Some
 	 * options accept open value sets beyond the documented constant values.
 	 * <p>
@@ -3150,30 +3150,30 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * Returns the option that can be used to configure the severity of the 
-	 * compiler problem identified by <code>problemID</code> if any, 
-	 * <code>null</code> otherwise. Non-null return values are taken from the 
-	 * constants defined by this class whose names start with 
-	 * <code>COMPILER_PB</code> and for which the possible values of the 
-	 * option are defined by <code>{ "error", "warning", "ignore" }</code>. A 
-	 * null return value means that the provided problem ID is unknown or that 
+	 * Returns the option that can be used to configure the severity of the
+	 * compiler problem identified by <code>problemID</code> if any,
+	 * <code>null</code> otherwise. Non-null return values are taken from the
+	 * constants defined by this class whose names start with
+	 * <code>COMPILER_PB</code> and for which the possible values of the
+	 * option are defined by <code>{ "error", "warning", "ignore" }</code>. A
+	 * null return value means that the provided problem ID is unknown or that
 	 * it matches a problem whose severity cannot be configured.
 	 * @param problemID one of the problem IDs defined by {@link IProblem}
-	 * @return the option that can be used to configure the severity of the 
-	 *         compiler problem identified by <code>problemID</code> if any, 
+	 * @return the option that can be used to configure the severity of the
+	 *         compiler problem identified by <code>problemID</code> if any,
 	 *         <code>null</code> otherwise
 	 * @since 3.4
 	 */
 	public static String getOptionForConfigurableSeverity(int problemID) {
 		return CompilerOptions.optionKeyFromIrritant(ProblemReporter.getIrritant(problemID));
 	}
-	
+
 	/**
 	 * Returns the table of the current options. Initially, all options have their default values,
 	 * and this method returns a table that includes all known options.
 	 * <p>
 	 * Helper constants have been defined on JavaCore for each of the option IDs
-	 * (categorized in Code assist option ID, Compiler option ID and Core option ID) 
+	 * (categorized in Code assist option ID, Compiler option ID and Core option ID)
 	 * and some of their acceptable values (categorized in Option value). Some
 	 * options accept open value sets beyond the documented constant values.
 	 * <p>
@@ -3346,7 +3346,7 @@ public final class JavaCore extends Plugin {
 					subMonitor.done();
 				manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(null);
 			}
-			
+
 			// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413 )
 			// and recreate links for external folders if needed
 			if (monitor != null)
@@ -3385,13 +3385,13 @@ public final class JavaCore extends Plugin {
 						manager.deltaState.addExternalFolderChange(javaProject, null/*act as if all external folders were new*/);
 				}
 			}
-			
+
 			// initialize delta state
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_initializing_delta_state);
 			manager.deltaState.rootsAreStale = true; // in case it was already initialized before we cleaned up the source attachment proprties
 			manager.deltaState.initializeRoots(true/*initAfteLoad*/);
-			
+
 			// dummy query for waiting until the indexes are ready
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_configuring_searchengine);
@@ -3485,7 +3485,7 @@ public final class JavaCore extends Plugin {
 			} catch (JavaModelException e) {
 				// refreshing failed: ignore
 			}
-			
+
 		} finally {
 			if (monitor != null) monitor.done();
 		}
@@ -3881,7 +3881,7 @@ public final class JavaCore extends Plugin {
 	 * The target JAR can either be defined internally to the workspace (absolute path relative
 	 * to the workspace root), or externally to the workspace (absolute path in the file system).
 	 * The target root folder can also be defined internally to the workspace (absolute path relative
-	 * to the workspace root), or - since 3.4 - externally to the workspace (absolute path in the file system). 
+	 * to the workspace root), or - since 3.4 - externally to the workspace (absolute path in the file system).
 	 * <p>
 	 * e.g. Here are some examples of binary path usage<ul>
 	 *	<li><code> "c:\jdk1.2.2\jre\lib\rt.jar" </code> - reference to an external JAR on Windows</li>
@@ -4723,7 +4723,7 @@ public final class JavaCore extends Plugin {
 	 * Sets the default's compiler options inside the given options map according
 	 * to the given compliance.
 	 *
-	 * <p>The given compliance must be one of those supported by the compiler, 
+	 * <p>The given compliance must be one of those supported by the compiler,
 	 * that is one of the acceptable values for option {@link #COMPILER_COMPLIANCE}.
 	 *
 	 * <p>The list of modified options is:</p>
@@ -4789,7 +4789,7 @@ public final class JavaCore extends Plugin {
 	 * are forgotten, including ones not explicitly mentioned.
 	 * <p>
 	 * Helper constants have been defined on JavaCore for each of the option IDs
-	 * (categorized in Code assist option ID, Compiler option ID and Core option ID) 
+	 * (categorized in Code assist option ID, Compiler option ID and Core option ID)
 	 * and some of their acceptable values (categorized in Option value). Some
 	 * options accept open value sets beyond the documented constant values.
 	 * <p>

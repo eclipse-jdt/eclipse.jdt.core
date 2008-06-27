@@ -12,17 +12,17 @@ package org.eclipse.jdt.core.util;
 
 /**
  * This class represents a stack map table attribute.
- * 
+ *
  * This interface may be implemented by clients.
- *  
+ *
  * @since 3.2
  */
 public interface IStackMapTableAttribute extends IClassFileAttribute {
-	
+
 	/**
 	 * Answer back the number of stack map frames of this atribute as specified in
 	 * the JVM specifications.
-	 * 
+	 *
 	 * @return the number of stack map frames of this atribute as specified in
 	 * the JVM specifications
 	 */
@@ -31,7 +31,7 @@ public interface IStackMapTableAttribute extends IClassFileAttribute {
 	/**
 	 * Answer back the stack map frames for this attribute as specified
 	 * in the JVM specifications.
-	 * 
+	 *
 	 * @return the stack map frames for this attribute as specified
 	 * in the JVM specifications
 	 */

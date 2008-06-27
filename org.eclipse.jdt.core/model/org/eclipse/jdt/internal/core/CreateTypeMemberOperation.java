@@ -109,7 +109,7 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) t
 				newSource.append(createdNodeSource.substring(createdNodeStart, nameStart));
 				newSource.append(this.alteredName);
 				newSource.append(createdNodeSource.substring(nameEnd, createdNodeEnd));
-				
+
 			}
 			this.source = newSource.toString();
 		}
@@ -193,7 +193,7 @@ public IJavaModelStatus verify() {
 	if (this.source == null) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS);
 	}
-	if (!force) {
+	if (!this.force) {
 		//check for name collisions
 		try {
 			ICompilationUnit cu = getCompilationUnit();
@@ -203,7 +203,7 @@ public IJavaModelStatus verify() {
 		}
 		return verifyNameCollision();
 	}
-	
+
 	return JavaModelStatus.VERIFIED_OK;
 }
 /**

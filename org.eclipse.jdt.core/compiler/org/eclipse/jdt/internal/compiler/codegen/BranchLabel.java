@@ -158,11 +158,11 @@ void branchWide() {
 
 public int forwardReferenceCount() {
 	if (this.delegate != null) this.delegate.forwardReferenceCount();
-	return forwardReferenceCount;
+	return this.forwardReferenceCount;
 }
 public int[] forwardReferences() {
 	if (this.delegate != null) this.delegate.forwardReferences();
-	return forwardReferences;
+	return this.forwardReferences;
 }
 public void initialize(CodeStream stream) {
     this.codeStream = stream;

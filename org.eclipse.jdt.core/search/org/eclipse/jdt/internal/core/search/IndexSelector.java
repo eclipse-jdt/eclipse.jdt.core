@@ -36,17 +36,17 @@ public class IndexSelector {
 	IJavaSearchScope searchScope;
 	SearchPattern pattern;
 	IPath[] indexLocations; // cache of the keys for looking index up
-	
+
 public IndexSelector(
 		IJavaSearchScope searchScope,
 		SearchPattern pattern) {
-	
+
 	this.searchScope = searchScope;
 	this.pattern = pattern;
 }
 /**
  * Returns whether elements of the given project or jar can see the given focus (an IJavaProject or
- * a JarPackageFragmentRot) either because the focus is part of the project or the jar, or because it is 
+ * a JarPackageFragmentRot) either because the focus is part of the project or the jar, or because it is
  * accessible throught the project's classpath
  */
 public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearch, IPath projectOrJarPath) {
@@ -67,8 +67,8 @@ public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearc
 		for (int i = 0, length = allProjects.length; i < length; i++) {
 			JavaProject otherProject = (JavaProject) allProjects[i];
 			IClasspathEntry entry = otherProject.getClasspathEntryFor(projectOrJarPath);
-			if (entry != null 
-					&& entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY 
+			if (entry != null
+					&& entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY
 					&& canSeeFocus(focus, otherProject, focusEntries))
 				return true;
 		}
@@ -209,7 +209,7 @@ private void initializeIndexLocations() {
 }
 public IPath[] getIndexLocations() {
 	if (this.indexLocations == null) {
-		this.initializeIndexLocations(); 
+		initializeIndexLocations();
 	}
 	return this.indexLocations;
 }

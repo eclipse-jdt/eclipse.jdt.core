@@ -16,23 +16,23 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class Argument extends LocalDeclaration {
-	
+
 	// prefix for setter method (to recognize special hiding argument)
 	private final static char[] SET = "set".toCharArray(); //$NON-NLS-1$
-	
+
 	public Argument(char[] name, long posNom, TypeReference tr, int modifiers) {
 
 		super(name, (int) (posNom >>> 32), (int) posNom);
 		this.declarationSourceEnd = (int) posNom;
 		this.modifiers = modifiers;
-		type = tr;
+		this.type = tr;
 		this.bits |= IsLocalDeclarationReachable;
 	}
 
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
 
 		// record the resolved type into the type reference
-		Binding existingVariable = scope.getBinding(name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
+		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
@@ -72,17 +72,17 @@ public class Argument extends LocalDeclaration {
 	public boolean isVarArgs() {
 		return this.type != null &&  (this.type.bits & IsVarArgs) != 0;
 	}
-		
+
 	public StringBuffer print(int indent, StringBuffer output) {
 
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
 		if (this.annotations != null) printAnnotations(this.annotations, output);
-		
-		if (type == null) {
+
+		if (this.type == null) {
 			output.append("<no type> "); //$NON-NLS-1$
 		} else {
-			type.print(0, output).append(' '); 
+			this.type.print(0, output).append(' ');
 		}
 		return output.append(this.name);
 	}
@@ -90,7 +90,7 @@ public class Argument extends LocalDeclaration {
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 
 		return print(indent, output).append(';');
-	}	
+	}
 
 	public TypeBinding resolveForCatch(BlockScope scope) {
 
@@ -112,7 +112,7 @@ public class Argument extends LocalDeclaration {
 						// fall thru to create the variable - avoids additional errors because the variable is missing
 					}
 					break;
-				case Binding.TYPE_PARAMETER :					
+				case Binding.TYPE_PARAMETER :
 					scope.problemReporter().invalidTypeVariableAsException(exceptionType, this);
 					hasError = true;
 					// fall thru to create the variable - avoids additional errors because the variable is missing
@@ -130,8 +130,8 @@ public class Argument extends LocalDeclaration {
 				hasError = true;
 				// fall thru to create the variable - avoids additional errors because the variable is missing
 			}
-		}		
-		Binding existingVariable = scope.getBinding(name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
+		}
+		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
@@ -140,38 +140,38 @@ public class Argument extends LocalDeclaration {
 			}
 		}
 
-		this.binding = new LocalVariableBinding(this, exceptionType, modifiers, false); // argument decl, but local var  (where isArgument = false)
+		this.binding = new LocalVariableBinding(this, exceptionType, this.modifiers, false); // argument decl, but local var  (where isArgument = false)
 		resolveAnnotations(scope, this.annotations, this.binding);
-		
-		scope.addLocalVariable(binding);
-		binding.setConstant(Constant.NotAConstant);
+
+		scope.addLocalVariable(this.binding);
+		this.binding.setConstant(Constant.NotAConstant);
 		if (hasError) return null;
 		return exceptionType;
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		
+
 		if (visitor.visit(this, scope)) {
 			if (this.annotations != null) {
 				int annotationsLength = this.annotations.length;
 				for (int i = 0; i < annotationsLength; i++)
 					this.annotations[i].traverse(visitor, scope);
 			}
-			if (type != null)
-				type.traverse(visitor, scope);
+			if (this.type != null)
+				this.type.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		
+
 		if (visitor.visit(this, scope)) {
 			if (this.annotations != null) {
 				int annotationsLength = this.annotations.length;
 				for (int i = 0; i < annotationsLength; i++)
 					this.annotations[i].traverse(visitor, scope);
 			}
-			if (type != null)
-				type.traverse(visitor, scope);
+			if (this.type != null)
+				this.type.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}

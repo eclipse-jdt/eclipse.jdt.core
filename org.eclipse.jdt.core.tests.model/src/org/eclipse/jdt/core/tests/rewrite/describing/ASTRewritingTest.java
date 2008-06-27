@@ -30,10 +30,10 @@ import org.eclipse.text.edits.TextEdit;
 public class ASTRewritingTest extends AbstractJavaModelTests {
 	/** @deprecated using deprecated code */
 	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
-	
+
 	protected IJavaProject project1;
 	protected IPackageFragmentRoot sourceFolder;
-	
+
 	public static Test suite() {
 		TestSuite suite= new TestSuite(ASTRewritingTest.class.getName());
 		suite.addTest(ASTRewritingExpressionsTest.allTests());
@@ -52,22 +52,22 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		return suite;
 	}
 
-	
+
 	public ASTRewritingTest(String name) {
 		super(name);
 	}
-	
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 	}
-	
+
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 	}
-	
+
 	protected void setUp() throws Exception {
 		super.setUp();
-		
+
 		IJavaProject proj= createJavaProject("P", new String[] {"src"}, "bin");
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
@@ -77,55 +77,55 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
 
 		this.project1 = proj;
-		this.sourceFolder = this.getPackageFragmentRoot("P", "src");
-		
+		this.sourceFolder = getPackageFragmentRoot("P", "src");
+
 		waitUntilIndexesReady();
 	}
-	
+
 	protected void tearDown() throws Exception {
 		deleteProject("P");
 		super.tearDown();
 	}
-		
+
 	protected CompilationUnit createAST(ICompilationUnit cu) {
 		ASTParser parser= ASTParser.newParser(AST_INTERNAL_JLS2);
 		parser.setSource(cu);
 		parser.setResolveBindings(false);
 		return (CompilationUnit) parser.createAST(null);
 	}
-	
+
 	protected CompilationUnit createAST3(ICompilationUnit cu) {
 		ASTParser parser= ASTParser.newParser(AST.JLS3);
 		parser.setSource(cu);
 		parser.setResolveBindings(false);
 		return (CompilationUnit) parser.createAST(null);
 	}
-	
+
 	protected String evaluateRewrite(ICompilationUnit cu, ASTRewrite rewrite) throws Exception {
 		Document document1= new Document(cu.getSource());
 		TextEdit res= rewrite.rewriteAST(document1, cu.getJavaProject().getOptions(true));
 		res.apply(document1);
 		String content1= document1.get();
-		
+
 		Document document2= new Document(cu.getSource());
 		TextEdit res2= rewrite.rewriteAST();
 		res2.apply(document2);
 		String content2= document2.get();
-		
+
 		assertEquals(content1, content2);
-		
+
 		return content1;
 	}
-	
-	
+
+
 	public static void assertEqualString(String actual, String expected) {
 		StringAsserts.assertEqualString(actual, expected);
 	}
-	
+
 	public static TypeDeclaration findTypeDeclaration(CompilationUnit astRoot, String simpleTypeName) {
 		return (TypeDeclaration) findAbstractTypeDeclaration(astRoot, simpleTypeName);
 	}
-	
+
 	public static AbstractTypeDeclaration findAbstractTypeDeclaration(CompilationUnit astRoot, String simpleTypeName) {
 		List types= astRoot.types();
 		for (int i= 0; i < types.size(); i++) {
@@ -136,7 +136,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		}
 		return null;
 	}
-	
+
 	public static MethodDeclaration findMethodDeclaration(TypeDeclaration typeDecl, String methodName) {
 		MethodDeclaration[] methods= typeDecl.getMethods();
 		for (int i= 0; i < methods.length; i++) {
@@ -146,14 +146,14 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		}
 		return null;
 	}
-	
+
 	public static SingleVariableDeclaration createNewParam(AST ast, String name) {
 		SingleVariableDeclaration newParam= ast.newSingleVariableDeclaration();
 		newParam.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
 		newParam.setName(ast.newSimpleName(name));
 		return newParam;
 	}
-	
+
 	/** @deprecated using deprecated code */
 	private void setModifiers(BodyDeclaration bodyDeclaration, int modifiers) {
 		bodyDeclaration.setModifiers(modifiers);
@@ -163,7 +163,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	private void setReturnType(MethodDeclaration methodDeclaration, Type type) {
 		methodDeclaration.setReturnType(type);
 	}
-	
+
 	protected FieldDeclaration createNewField(AST ast, String name) {
 		VariableDeclarationFragment frag= ast.newVariableDeclarationFragment();
 		frag.setName(ast.newSimpleName(name));
@@ -176,7 +176,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		newFieldDecl.setType(ast.newPrimitiveType(PrimitiveType.DOUBLE));
 		return newFieldDecl;
 	}
-	
+
 	protected MethodDeclaration createNewMethod(AST ast, String name, boolean isAbstract) {
 		MethodDeclaration decl= ast.newMethodDeclaration();
 		decl.setName(ast.newSimpleName(name));

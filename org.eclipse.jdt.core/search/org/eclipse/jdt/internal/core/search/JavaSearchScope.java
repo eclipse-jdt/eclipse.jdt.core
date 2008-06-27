@@ -45,13 +45,13 @@ import org.eclipse.jdt.internal.core.util.Util;
  * A Java-specific scope for searching relative to one or more java elements.
  */
 public class JavaSearchScope extends AbstractJavaSearchScope {
-	
+
 	private ArrayList elements;
 
-	/* The paths of the resources in this search scope 
-	    (or the classpath entries' paths if the resources are projects) 
+	/* The paths of the resources in this search scope
+	    (or the classpath entries' paths if the resources are projects)
 	*/
-	private ArrayList projectPaths = new ArrayList(); // container paths projects 
+	private ArrayList projectPaths = new ArrayList(); // container paths projects
 	private int[] projectIndexes; // Indexes of projects in list
 	private String[] containerPaths; // path to the container (e.g. /P/src, /P/lib.jar, c:\temp\mylib.jar)
 	private String[] relativePaths; // path relative to the container (e.g. x/y/Z.class, x/y, (empty))
@@ -59,7 +59,7 @@ public class JavaSearchScope extends AbstractJavaSearchScope {
 	protected AccessRuleSet[] pathRestrictions;
 	private int pathsCount;
 	private int threshold;
-	
+
 	private IPath[] enclosingProjectsAndJars;
 	public final static AccessRuleSet NOT_ENCLOSED = new AccessRuleSet(null, (byte) 0, null);
 
@@ -69,11 +69,11 @@ public JavaSearchScope() {
 
 private JavaSearchScope(int size) {
 	initialize(size);
-	
+
 	//disabled for now as this could be expensive
 	//JavaModelManager.getJavaModelManager().rememberScope(this);
 }
-	
+
 private void addEnclosingProjectOrJar(IPath path) {
 	int length = this.enclosingProjectsAndJars.length;
 	for (int i = 0; i < length; i++) {
@@ -104,7 +104,7 @@ public void add(JavaProject project, int includeMask, HashSet projectsToBeAdded)
  * @param includeMask Mask to apply on classpath entries
  * @param projectsToBeAdded Set to avoid infinite recursion
  * @param referringEntry Project raw entry in referring project classpath
- * @throws JavaModelException May happen while getting java model info 
+ * @throws JavaModelException May happen while getting java model info
  */
 void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet projectsToBeAdded, IClasspathEntry referringEntry) throws JavaModelException {
 	IProject project = javaProject.getProject();
@@ -112,7 +112,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet proj
 
 	IPath projectPath = project.getFullPath();
 	String projectPathString = projectPath.toString();
-	this.addEnclosingProjectOrJar(projectPath);
+	addEnclosingProjectOrJar(projectPath);
 
 	IClasspathEntry[] entries = javaProject.getResolvedClasspath();
 	IJavaModel model = javaProject.getJavaModel();
@@ -214,7 +214,7 @@ public void add(IJavaElement element) throws JavaModelException {
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
 			// a workspace sope should be used
-			break; 
+			break;
 		case IJavaElement.JAVA_PROJECT:
 			add((JavaProject)element, null, includeMask, new HashSet(2), null);
 			break;
@@ -276,7 +276,7 @@ public void add(IJavaElement element) throws JavaModelException {
 			containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 			add(projectPath, relativePath, containerPathToString, false/*not a package*/, null);
 	}
-	
+
 	if (root != null)
 		addEnclosingProjectOrJar(root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : root.getPath());
 }
@@ -321,15 +321,15 @@ private void add(String projectPath, String relativePath, String containerPath, 
 		rehash();
 }
 
-/* 
+/*
  * E.g.
- * 
+ *
  * 1. /P/src/pkg/X.java
  * 2. /P/src/pkg
  * 3. /P/lib.jar|org/eclipse/jdt/core/IJavaElement.class
  * 4. /home/mylib.jar|x/y/z/X.class
  * 5. c:\temp\mylib.jar|x/y/Y.class
- * 
+ *
  * @see IJavaSearchScope#encloses(String)
  */
 public boolean encloses(String resourcePathString) {
@@ -347,7 +347,7 @@ public boolean encloses(String resourcePathString) {
 /**
  * Returns paths list index of given path or -1 if not found.
  * NOTE: Use indexOf(String, String) for path inside jars
- * 
+ *
  * @param fullPath the full path of the resource, e.g.
  *   1. /P/src/pkg/X.java
  *   2. /P/src/pkg
@@ -404,7 +404,7 @@ private int indexOf(String containerPath, String relativePath) {
 private boolean encloses(String enclosingPath, String path, int index) {
 	// normalize given path as it can come from outside
 	path = normalize(path);
-	
+
 	int pathLength = path.length();
 	int enclosingLength = enclosingPath.length();
 	if (pathLength < enclosingLength) {
@@ -420,10 +420,10 @@ private boolean encloses(String enclosingPath, String path, int index) {
 		return path.startsWith(enclosingPath)
 			&& path.charAt(enclosingLength) == '/';
 	} else {
-		// if looking at a package, this scope encloses the given path 
+		// if looking at a package, this scope encloses the given path
 		// if the given path is a direct child of the folder
 		// or if the given path path is the folder path (see bug 13919 Declaration for package not found if scope is not project)
-		if (path.startsWith(enclosingPath) 
+		if (path.startsWith(enclosingPath)
 			&& ((enclosingPath.length() == path.lastIndexOf('/'))
 				|| (enclosingPath.length() == path.length()))) {
 			return true;
@@ -543,7 +543,7 @@ public void processDelta(IJavaElementDelta delta, int eventType) {
 			IJavaElementDelta[] children = delta.getAffectedChildren();
 			for (int i = 0, length = children.length; i < length; i++) {
 				IJavaElementDelta child = children[i];
-				this.processDelta(child, eventType);
+				processDelta(child, eventType);
 			}
 			break;
 		case IJavaElementDelta.REMOVED:
@@ -551,7 +551,7 @@ public void processDelta(IJavaElementDelta delta, int eventType) {
 			if (this.encloses(element)) {
 				if (this.elements != null) {
 					this.elements.remove(element);
-				} 
+				}
 				IPath path = null;
 				switch (element.getElementType()) {
 					case IJavaElement.JAVA_PROJECT:
@@ -592,7 +592,7 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString, int j
 		index = indexOf(resourcePathString);
 	}
 	if (index >= 0) {
-		int idx = projectIndexes[index];
+		int idx = this.projectIndexes[index];
 		String projectPath = idx == -1 ? null : (String) this.projectPaths.get(idx);
 		if (projectPath != null) {
 			IJavaProject project =JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject(projectPath));

@@ -18,10 +18,10 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 public class CompletionOnBrankStatementLabel extends BranchStatement {
 	public static final int BREAK = 1;
 	public static final int CONTINUE = 2;
-	
+
 	private int kind;
 	public char[][] possibleLabels;
-	
+
 	public CompletionOnBrankStatementLabel(int kind, char[] l, int s, int e, char[][] possibleLabels) {
 		super(l, s, e);
 		this.kind = kind;
@@ -39,13 +39,13 @@ public class CompletionOnBrankStatementLabel extends BranchStatement {
 	}
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 		printIndent(indent, output);
-		if(kind == CONTINUE) {
+		if(this.kind == CONTINUE) {
 			output.append("continue "); //$NON-NLS-1$
 		} else {
 			output.append("break "); //$NON-NLS-1$
 		}
 		output.append("<CompleteOnLabel:"); //$NON-NLS-1$
-		output.append(label);
+		output.append(this.label);
 		return output.append(">;"); //$NON-NLS-1$
 	}
 

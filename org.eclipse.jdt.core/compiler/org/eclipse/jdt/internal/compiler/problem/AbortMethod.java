@@ -14,15 +14,15 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 
 /*
- * Special unchecked exception type used 
+ * Special unchecked exception type used
  * to abort from the compilation process
  *
  * should only be thrown from within problem handlers.
  */
 public class AbortMethod extends AbortType {
-	
-	private static final long serialVersionUID = -1480267398969840003L; // backward compatible	
-	
+
+	private static final long serialVersionUID = -1480267398969840003L; // backward compatible
+
 public AbortMethod(CompilationResult compilationResult, CategorizedProblem problem) {
 	super(compilationResult, problem);
 }

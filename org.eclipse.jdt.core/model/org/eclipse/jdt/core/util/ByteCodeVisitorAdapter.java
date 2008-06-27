@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.util;
 /**
  * Adapter that implements the IBytecodeVisitor. This class is intended to
  * be subclassed by clients.
- * 
+ *
  * @since 2.0
  */
 public class ByteCodeVisitorAdapter implements IBytecodeVisitor {

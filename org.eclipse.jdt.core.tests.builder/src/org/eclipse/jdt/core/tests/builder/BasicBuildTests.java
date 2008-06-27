@@ -32,22 +32,22 @@ public class BasicBuildTests extends BuilderTests {
 	public BasicBuildTests(String name) {
 		super(name);
 	}
-	
+
 	public static Test suite() {
 		return buildTestSuite(BasicBuildTests.class);
 	}
-	
+
 	public void testBuild() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class Hello {\n"+ //$NON-NLS-1$
@@ -56,7 +56,7 @@ public class BasicBuildTests extends BuilderTests {
 			"   }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild(projectPath);
 	}
 
@@ -67,9 +67,9 @@ public class BasicBuildTests extends BuilderTests {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "todo"); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -87,7 +87,7 @@ public class BasicBuildTests extends BuilderTests {
 
 		fullBuild(projectPath);
 		expectingOnlySpecificProblemFor(pathToA, new Problem("A", "todo nothing", pathToA, 14, 26, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		JavaCore.setOptions(options);
 	}
 
@@ -99,9 +99,9 @@ public class BasicBuildTests extends BuilderTests {
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
 		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -152,7 +152,7 @@ public class BasicBuildTests extends BuilderTests {
 		}
 		JavaCore.setOptions(options);
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=110797
 	 */
@@ -161,9 +161,9 @@ public class BasicBuildTests extends BuilderTests {
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
 		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -217,9 +217,9 @@ public class BasicBuildTests extends BuilderTests {
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
 		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -257,7 +257,7 @@ public class BasicBuildTests extends BuilderTests {
 		}
 		JavaCore.setOptions(options);
 	}
-	
+
 	/*
 	 * Ensures that a task tag is not user editable
 	 * (regression test for bug 123721 two types of 'remove' for TODO task tags)
@@ -294,7 +294,7 @@ public class BasicBuildTests extends BuilderTests {
 			JavaCore.setOptions(options);
 		}
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=92821
 	 */
@@ -302,9 +302,9 @@ public class BasicBuildTests extends BuilderTests {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.WARNING);
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -315,30 +315,30 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "util", "MyException", //$NON-NLS-1$ //$NON-NLS-2$
-			"package util;\n" + 
-			"public class MyException extends Exception {\n" + 
+			"package util;\n" +
+			"public class MyException extends Exception {\n" +
 			"	private static final long serialVersionUID = 1L;\n" +
 			"}"
 		); //$NON-NLS-1$
 
 		env.addClass(root, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" + 
-			"import util.MyException;\n" + 
-			"public class Test {\n" + 
-			"	/**\n" + 
-			"	 * @throws MyException\n" + 
-			"	 */\n" + 
-			"	public void bar() {\n" + 
-			"	}\n" + 
+			"package p;\n" +
+			"import util.MyException;\n" +
+			"public class Test {\n" +
+			"	/**\n" +
+			"	 * @throws MyException\n" +
+			"	 */\n" +
+			"	public void bar() {\n" +
+			"	}\n" +
 			"}"
 		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
-		
+
 		JavaCore.setOptions(options);
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=98667
 	 */
@@ -348,17 +348,17 @@ public class BasicBuildTests extends BuilderTests {
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		env.addClass(root, "p1", "Aaa$Bbb$Ccc", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$ 
+			"package p1;\n" + //$NON-NLS-1$
 			"\n" +  //$NON-NLS-1$
-			"public class Aaa$Bbb$Ccc {\n" + //$NON-NLS-1$ 
+			"public class Aaa$Bbb$Ccc {\n" + //$NON-NLS-1$
 			"}" //$NON-NLS-1$
 		);
-			
+
 		fullBuild(projectPath);
 		expectingNoProblems();
 	}
@@ -370,7 +370,7 @@ public class BasicBuildTests extends BuilderTests {
 	 */
 	public void testBug164707() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		IJavaProject javaProject = env.getJavaProject(projectPath); 
+		IJavaProject javaProject = env.getJavaProject(projectPath);
 		javaProject.setOption(JavaCore.COMPILER_SOURCE, "invalid");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
@@ -383,7 +383,7 @@ public class BasicBuildTests extends BuilderTests {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75471"
 	 */
 	public void _testUpdateProjectPreferences() throws JavaModelException {
-		
+
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -394,16 +394,16 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "util", "MyException", //$NON-NLS-1$ //$NON-NLS-2$
-			"package util;\n" + 
-			"public class MyException extends Exception {\n" + 
+			"package util;\n" +
+			"public class MyException extends Exception {\n" +
 			"	private static final long serialVersionUID = 1L;\n" +
 			"}"
 		); //$NON-NLS-1$
 
 		IPath cuPath = env.addClass(root, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" + 
-			"import util.MyException;\n" + 
-			"public class Test {\n" + 
+			"package p;\n" +
+			"import util.MyException;\n" +
+			"public class Test {\n" +
 			"}"
 		);
 
@@ -418,7 +418,7 @@ public class BasicBuildTests extends BuilderTests {
 		expectingNoProblems();
 	}
 	public void _testUpdateWkspPreferences() throws JavaModelException {
-		
+
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -429,16 +429,16 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "util", "MyException", //$NON-NLS-1$ //$NON-NLS-2$
-			"package util;\n" + 
-			"public class MyException extends Exception {\n" + 
+			"package util;\n" +
+			"public class MyException extends Exception {\n" +
 			"	private static final long serialVersionUID = 1L;\n" +
 			"}"
 		); //$NON-NLS-1$
 
 		IPath cuPath = env.addClass(root, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" + 
-			"import util.MyException;\n" + 
-			"public class Test {\n" + 
+			"package p;\n" +
+			"import util.MyException;\n" +
+			"public class Test {\n" +
 			"}"
 		);
 
@@ -471,28 +471,28 @@ public class BasicBuildTests extends BuilderTests {
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO!,TODO,TODO?"); //$NON-NLS-1$
 		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "HIGH,NORMAL,LOW"); //$NON-NLS-1$
-		
+
 		JavaCore.setOptions(newOptions);
-		
+
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-	
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		IPath pathToA = env.addClass(root, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p; \n"+ //$NON-NLS-1$
 			"// TODO! TODO? need to review the loop\n" + //$NON-NLS-1$
 			"public class A {\n" + //$NON-NLS-1$
 			"}");
-	
+
 		fullBuild(projectPath);
 		IMarker[] markers = env.getTaskMarkersFor(pathToA);
 		assertEquals("Wrong size", 2, markers.length);
-	
+
 		try {
 			IMarker marker = markers[1];
 			Object priority = marker.getAttribute(IMarker.PRIORITY);
@@ -500,7 +500,7 @@ public class BasicBuildTests extends BuilderTests {
 			assertEquals("Wrong message", "TODO? need to review the loop", message);
 			assertNotNull("No task priority", priority);
 			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_LOW), priority);
-	
+
 			marker = markers[0];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
@@ -512,5 +512,5 @@ public class BasicBuildTests extends BuilderTests {
 		}
 		JavaCore.setOptions(options);
 	}
-	
+
 }

@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.search.*;
 /**
  * An intermediate class to store data in the search match and access them
  * in a private manner.
- * 
+ *
  * @since 3.4
  */
 public abstract class InternalReferenceMatch extends ReferenceMatch {
@@ -30,7 +30,7 @@ public InternalReferenceMatch(IJavaElement enclosingElement, int accuracy, int o
 
 /**
  * Return the stored local element.
- * 
+ *
  * @see org.eclipse.jdt.core.search.ReferenceMatch#getLocalElement()
  */
 protected IJavaElement localElement() {
@@ -39,7 +39,7 @@ protected IJavaElement localElement() {
 
 /**
  * Store the local element in the match.
- * 
+ *
  * @param element The local element to be stored
  */
 public void localElement(IJavaElement element) {

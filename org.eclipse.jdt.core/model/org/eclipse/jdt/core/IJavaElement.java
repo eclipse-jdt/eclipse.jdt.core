@@ -123,7 +123,7 @@ public interface IJavaElement extends IAdaptable {
 	 * @since 3.1
 	 */
 	int TYPE_PARAMETER = 15;
-	
+
 	/**
 	 * Constant representing an annotation.
 	 * A Java element with this type can be safely cast to {@link IAnnotation}.
@@ -283,7 +283,7 @@ public interface IJavaElement extends IAdaptable {
 	 * the path returned is the full, absolute path to the underlying resource,
 	 * relative to the workbench.
 	 * If this element is included in an external library,
-	 * the path returned is the absolute path to the archive or to the 
+	 * the path returned is the absolute path to the archive or to the
 	 * folder in the file system.
 	 * This is a handle-only method.
 	 *

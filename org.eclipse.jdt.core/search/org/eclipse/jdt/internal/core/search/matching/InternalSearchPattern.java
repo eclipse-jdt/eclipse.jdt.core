@@ -31,7 +31,7 @@ public abstract class InternalSearchPattern {
 
 	int kind;
 	boolean mustResolve = true;
-	
+
 	void acceptMatch(String relativePath, String containerPath, char separator, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
 
 		if (scope instanceof JavaSearchScope) {
@@ -44,7 +44,7 @@ public abstract class InternalSearchPattern {
 				documentPath.append(containerPath);
 				documentPath.append(separator);
 				documentPath.append(relativePath);
-				if (!requestor.acceptIndexMatch(documentPath.toString(), pattern, participant, access)) 
+				if (!requestor.acceptIndexMatch(documentPath.toString(), pattern, participant, access))
 					throw new OperationCanceledException();
 			}
 		} else {
@@ -53,10 +53,10 @@ public abstract class InternalSearchPattern {
 			buffer.append(separator);
 			buffer.append(relativePath);
 			String documentPath = buffer.toString();
-			if (scope.encloses(documentPath)) 
-				if (!requestor.acceptIndexMatch(documentPath, pattern, participant, null)) 
+			if (scope.encloses(documentPath))
+				if (!requestor.acceptIndexMatch(documentPath, pattern, participant, null))
 					throw new OperationCanceledException();
-			
+
 		}
 	}
 	SearchPattern currentPattern() {
@@ -72,13 +72,13 @@ public abstract class InternalSearchPattern {
 			SearchPattern pattern = currentPattern();
 			EntryResult[] entries = ((InternalSearchPattern)pattern).queryIn(index);
 			if (entries == null) return;
-		
+
 			SearchPattern decodedResult = pattern.getBlankPattern();
 			String containerPath = index.containerPath;
 			char separator = index.separator;
 			for (int i = 0, l = entries.length; i < l; i++) {
 				if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-		
+
 				EntryResult entry = entries[i];
 				decodedResult.decodeIndexKey(entry.getWord());
 				if (pattern.matchesDecodedKey(decodedResult)) {

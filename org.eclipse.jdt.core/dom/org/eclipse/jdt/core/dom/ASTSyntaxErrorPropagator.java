@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 class ASTSyntaxErrorPropagator extends ASTVisitor {
 
 	private CategorizedProblem[] problems;
-	
+
 	ASTSyntaxErrorPropagator(CategorizedProblem[] problems) {
 		// visit Javadoc.tags() as well
 		super(true);
@@ -86,63 +86,63 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(FieldDeclaration node) {
-		return checkAndTagAsMalformed(node);		
+		return checkAndTagAsMalformed(node);
 	}
 
 	/*
 	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(MethodDeclaration node) {
-		return checkAndTagAsMalformed(node);		
+		return checkAndTagAsMalformed(node);
 	}
 
 	/*
 	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(PackageDeclaration node) {
-		return checkAndTagAsMalformed(node);		
+		return checkAndTagAsMalformed(node);
 	}
 
 	/*
 	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(ImportDeclaration node) {
-		return checkAndTagAsMalformed(node);		
+		return checkAndTagAsMalformed(node);
 	}
 
 	/*
 	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(CompilationUnit node) {
-		return checkAndTagAsMalformed(node);		
+		return checkAndTagAsMalformed(node);
 	}
 
 	/*
 	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(AnnotationTypeDeclaration node) {
-		return checkAndTagAsMalformed(node);		
+		return checkAndTagAsMalformed(node);
 	}
-	
+
 	/*
 	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(EnumDeclaration node) {
-		return checkAndTagAsMalformed(node);		
+		return checkAndTagAsMalformed(node);
 	}
-	
+
 	/*
 	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(TypeDeclaration node) {
-		return checkAndTagAsMalformed(node);		
+		return checkAndTagAsMalformed(node);
 	}
-	
+
 	/*
 	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(Initializer node) {
-		return checkAndTagAsMalformed(node);		
+		return checkAndTagAsMalformed(node);
 	}
 
 }

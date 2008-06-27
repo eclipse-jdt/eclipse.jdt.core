@@ -49,16 +49,16 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		public EvaluationResult[] results = new EvaluationResult[5];
 		public boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassName) {
 			try {
-				target.sendClasses(codeSnippetClassName != null, classFiles);
+				EvaluationTest.this.target.sendClasses(codeSnippetClassName != null, classFiles);
 			} catch (TargetException e) {
 				return false;
 			}
 			if (codeSnippetClassName != null) {
-				TargetInterface.Result result = target.getResult();
+				TargetInterface.Result result = EvaluationTest.this.target.getResult();
 				if (result.displayString == null) {
-					this.acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, null, null));
+					acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, null, null));
 				} else {
-					this.acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, result.displayString, result.typeName));
+					acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, result.displayString, result.typeName));
 				}
 			} else {
 				for (int i = 0, length = classFiles.length; i < length; i++) {
@@ -70,11 +70,11 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 								for (int j = 0; j < fields.length; j++) {
 									IBinaryField field = fields[j];
 									if (Modifier.isPublic(field.getModifiers())) {
-										TargetInterface.Result result = target.getResult();
+										TargetInterface.Result result = EvaluationTest.this.target.getResult();
 										if (result.displayString == null) {
-											this.acceptResult(new EvaluationResult(field.getName(), EvaluationResult.T_VARIABLE, null, null));
+											acceptResult(new EvaluationResult(field.getName(), EvaluationResult.T_VARIABLE, null, null));
 										} else {
-											this.acceptResult(new EvaluationResult(field.getName(), EvaluationResult.T_VARIABLE, result.displayString, result.typeName));
+											acceptResult(new EvaluationResult(field.getName(), EvaluationResult.T_VARIABLE, result.displayString, result.typeName));
 										}
 									}
 								}
@@ -88,7 +88,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			return true;
 		}
 		public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int fragmentKind) {
-			this.acceptResult(new EvaluationResult(fragmentSource, fragmentKind, new CategorizedProblem[]{problem}));
+			acceptResult(new EvaluationResult(fragmentSource, fragmentKind, new CategorizedProblem[]{problem}));
 		}
 		public void acceptResult(EvaluationResult result) {
 			try {
@@ -100,34 +100,34 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			}
 		}
 	}
-	
+
 	String[] classPath;
 	public EvaluationContext context;
 	INameEnvironment env;
 	LocalVirtualMachine launchedVM;
 	TargetInterface target;
-	
+
 	/**
 	 * Creates a new EvaluationTest.
 	 */
 	public EvaluationTest(String name) {
 		super(name);
 	}
-	
+
 	public static Test setupSuite(Class clazz) {
 		ArrayList testClasses = new ArrayList();
 		testClasses.add(clazz);
 		return buildAllCompliancesTestSuite(clazz, EvaluationSetup.class, testClasses);
 	}
-	
+
 	public static Test suite(Class evaluationTestClass) {
 		TestSuite suite = new TestSuite(evaluationTestClass);
 		return suite;
 	}
-	
+
 	/**
 	 * Asserts that two char arrays are equal. If they are not an AssertionFailedError is thrown.
-	 * 
+	 *
 	 * @param message
 	 *                 the detail message for this assertion
 	 * @param expected
@@ -155,7 +155,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		}
 		failNotEquals(message, expected, actual);
 	}
-	
+
 	/**
 	 * Build a char array from the given lines
 	 */
@@ -185,14 +185,14 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		}
 		return (pb1.getID() == pb2.getID()) && (pb1.isError() == pb2.isError()) && (pb1.getSourceStart() == pb2.getSourceStart()) && (pb1.getSourceEnd() == pb2.getSourceEnd()) && (pb1.getSourceLineNumber() == pb2.getSourceLineNumber());
 	}
-	
+
 	/**
 	 * Evaluates the given code snippet and makes sure it returns a result with the given display string.
 	 */
 	public void evaluateWithExpectedDisplayString(Map compilerOptions, char[] codeSnippet, char[] displayString) {
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluate(codeSnippet, getEnv(), compilerOptions, requestor, getProblemFactory());
+			this.context.evaluate(codeSnippet, getEnv(), compilerOptions, requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception " + e.getMessage(), false);
 		}
@@ -214,14 +214,14 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			assertEquals("Value display string", displayString, result.getValueDisplayString());
 		}
 	}
-	
+
 	/**
 	 * Evaluates the given code snippet and makes sure it returns a result with the given display string.
 	 */
 	public void evaluateWithExpectedDisplayString(char[] codeSnippet, char[] displayString) {
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+			this.context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception " + e.getMessage(), false);
 		}
@@ -243,21 +243,21 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			assertEquals("Value display string", displayString, result.getValueDisplayString());
 		}
 	}
-	
+
 	/**
 	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem on the given import.
 	 */
 	protected void evaluateWithExpectedImportProblem(char[] codeSnippet, char[] importDeclaration, CategorizedProblem expected) {
 		evaluateWithExpectedImportProblem(codeSnippet, importDeclaration, getCompilerOptions(), expected);
 	}
-	
+
 	/**
 	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem on the given import.
 	 */
 	protected void evaluateWithExpectedImportProblem(char[] codeSnippet, char[] importDeclaration, Map options, CategorizedProblem expected) {
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluate(codeSnippet, getEnv(), options, requestor, getProblemFactory());
+			this.context.evaluate(codeSnippet, getEnv(), options, requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception " + e.getMessage(), false);
 		}
@@ -274,14 +274,14 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		}
 		assertTrue("Expected problem not found", false);
 	}
-	
+
 	/**
 	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem.
 	 */
 	protected void evaluateWithExpectedProblem(char[] codeSnippet, CategorizedProblem expected) {
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+			this.context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception " + e.getMessage(), false);
 		}
@@ -298,14 +298,14 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		}
 		assertTrue("Expected problem not found", false);
 	}
-	
+
 	/**
 	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem.
 	 */
 	protected void evaluateWithExpectedProblem(char[] codeSnippet, String problemsString) {
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+			this.context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception " + e.getMessage(), false);
 		}
@@ -322,14 +322,14 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		}
 		assertEquals("Unexpected problems", problemsString, problemBuffer.toString());
 	}
-	
+
 	/**
 	 * Evaluates the given variable and makes sure the evaluation result has at least the given problem.
 	 */
 	protected void evaluateWithExpectedProblem(GlobalVariable var, CategorizedProblem expected) {
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluateVariables(getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+			this.context.evaluateVariables(getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception " + e.getMessage(), false);
 		}
@@ -346,14 +346,14 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		}
 		assertTrue("Expected problem not found", false);
 	}
-	
+
 	/**
 	 * Evaluates the given code snippet and makes sure it returns a result with the given type name.
 	 */
 	protected void evaluateWithExpectedType(char[] codeSnippet, char[] expectedTypeName) {
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+			this.context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception " + e.getMessage(), false);
 		}
@@ -373,14 +373,14 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			assertEquals("Value type name", expectedTypeName, result.getValueTypeName());
 		}
 	}
-	
+
 	/**
 	 * Evaluates the given code snippet and makes sure it returns a result with the given display string and type name.
 	 */
 	protected void evaluateWithExpectedValue(char[] codeSnippet, char[] displayString, char[] typeName) {
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+			this.context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception " + e.getMessage(), false);
 		}
@@ -396,14 +396,14 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			assertEquals("Value type name", typeName, result.getValueTypeName());
 		}
 	}
-	
+
 	/**
 	 * Evaluates the given variable and makes sure it returns a result with the given display string and type name.
 	 */
 	protected void evaluateWithExpectedValue(GlobalVariable var, char[] displayString, char[] typeName) {
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluateVariable(var, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+			this.context.evaluateVariable(var, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception " + e.getMessage(), false);
 		}
@@ -422,7 +422,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 			assertEquals("Value type name", typeName, result.getValueTypeName());
 		}
 	}
-	
+
 	/**
 	 * Evaluates the given code snippet and makes sure an evaluation result has at least the given warning, and that another evaluation result has the given display string.
 	 */
@@ -435,20 +435,20 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 				//assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
 				if (result.hasValue()) {
 					if (CharOperation.equals(result.getValueDisplayString(), displayString)) {
-						gotDisplayString = true;
+						this.gotDisplayString = true;
 					}
 				} else {
 					assertTrue("Has problem", result.hasProblems());
 					CategorizedProblem[] problems = result.getProblems();
 					for (int i = 0; i < problems.length; i++) {
-						collectedProblems.add(problems[i]);
+						this.collectedProblems.add(problems[i]);
 					}
 				}
 			}
 		}
 		ResultRequestor requestor = new ResultRequestor();
 		try {
-			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+			this.context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception " + e.getMessage(), false);
 		}
@@ -461,7 +461,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		}
 		assertTrue("Expected display string", requestor.gotDisplayString);
 	}
-	
+
 	private void failNotEquals(String message, char[] expected, char[] actual) {
 		String formatted = "";
 		if (message != null)
@@ -470,7 +470,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		String actualString = actual == null ? "null" : new String(actual);
 		fail(formatted + "expected:<" + expectedString + "> but was:<" + actualString + ">");
 	}
-	
+
 	public Map getCompilerOptions() {
 		Map defaultOptions = super.getCompilerOptions();
 		defaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
@@ -484,15 +484,15 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		defaultOptions.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, CompilerOptions.WARNING);
 		return defaultOptions;
 	}
-	
+
 	public INameEnvironment getEnv() {
-		return env;
+		return this.env;
 	}
 
 	public IProblemFactory getProblemFactory() {
 		return new DefaultProblemFactory(java.util.Locale.getDefault());
 	}
-	
+
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 		EvaluationSetup evalSetUp = (EvaluationSetup)setUp;
@@ -501,7 +501,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		this.launchedVM = evalSetUp.launchedVM;
 		this.env = evalSetUp.env;
 	}
-	
+
 	/**
 	 * Installs all the variables and check that the number of installed variables is the given number.
 	 */
@@ -517,13 +517,13 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 
 		InstallRequestor installRequestor = new InstallRequestor();
 		try {
-			context.evaluateVariables(getEnv(), getCompilerOptions(), installRequestor, getProblemFactory());
+			this.context.evaluateVariables(getEnv(), getCompilerOptions(), installRequestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("Target exception: " + e.getMessage(), false);
 		}
 		assertEquals("Number of installed variables", expectedNumber, installRequestor.count);
 	}
-	
+
 	public boolean isJRockitVM() {
 		final String vmName = System.getProperty("java.vm.name");
 		return vmName != null && vmName.indexOf("JRockit") != -1;
@@ -534,14 +534,14 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	protected DefaultProblem newProblem(int id, int severity, int startPos, int endPos, int line) {
 		return new DefaultProblem(null, null, id, null, severity, startPos, endPos, line, 0);
 	}
-	
+
 	public void resetEnv() {
 		String encoding = (String)getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(encoding))
 			encoding = null;
-		env = new FileSystem(Util.concatWithClassLibs(EvaluationSetup.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY, false), new String[0], encoding);
+		this.env = new FileSystem(Util.concatWithClassLibs(EvaluationSetup.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY, false), new String[0], encoding);
 	}
-	
+
 	public void stop() {
 		if (this.target != null) {
 			this.target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed.

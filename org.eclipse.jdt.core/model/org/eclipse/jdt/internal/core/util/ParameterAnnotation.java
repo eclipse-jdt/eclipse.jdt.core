@@ -21,14 +21,14 @@ import org.eclipse.jdt.core.util.IParameterAnnotation;
 public class ParameterAnnotation extends ClassFileStruct implements IParameterAnnotation {
 
 	private static final IAnnotation[] NO_ENTRIES = new IAnnotation[0];
-	
+
 	private int annotationsNumber;
 	private IAnnotation[] annotations;
 	private int readOffset;
-	
+
 	/**
 	 * Constructor for Annotation.
-	 * 
+	 *
 	 * @param classFileBytes
 	 * @param constantPool
 	 * @param offset
@@ -38,14 +38,14 @@ public class ParameterAnnotation extends ClassFileStruct implements IParameterAn
 			byte[] classFileBytes,
 			IConstantPool constantPool,
 			int offset) throws ClassFormatException {
-		
+
 		final int length = u2At(classFileBytes, 0, offset);
 		this.readOffset = 2;
 		this.annotationsNumber = length;
 		if (length != 0) {
 			this.annotations = new IAnnotation[length];
 			for (int i = 0; i < length; i++) {
-				Annotation annotation = new Annotation(classFileBytes, constantPool, offset + readOffset);
+				Annotation annotation = new Annotation(classFileBytes, constantPool, offset + this.readOffset);
 				this.annotations[i] = annotation;
 				this.readOffset += annotation.sizeInBytes();
 			}
@@ -53,7 +53,7 @@ public class ParameterAnnotation extends ClassFileStruct implements IParameterAn
 			this.annotations = NO_ENTRIES;
 		}
 	}
-	
+
 	int sizeInBytes() {
 		return this.readOffset;
 	}

@@ -25,7 +25,7 @@ private BooleanConstant(boolean value) {
 }
 
 public boolean booleanValue() {
-	return value;
+	return this.value;
 }
 
 public String stringValue() {
@@ -34,7 +34,7 @@ public String stringValue() {
 }
 
 public String toString(){
-	return "(boolean)" + value ;  //$NON-NLS-1$
+	return "(boolean)" + this.value ;  //$NON-NLS-1$
 }
 
 public int typeID() {

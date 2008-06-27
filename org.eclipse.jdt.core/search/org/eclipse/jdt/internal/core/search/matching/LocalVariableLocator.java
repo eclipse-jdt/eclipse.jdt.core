@@ -58,12 +58,12 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		length = localVariable.nameEnd-offset+1;
 		element = localVariable;
 		this.match = locator.newDeclarationMatch(element, null, accuracy, offset, length);
-		locator.report(match);
+		locator.report(this.match);
 		return;
 	}
 	if (offset >= 0) {
-		match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, length, reference);
-		locator.report(match);
+		this.match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, length, reference);
+		locator.report(this.match);
 	}
 }
 protected int matchContainer() {

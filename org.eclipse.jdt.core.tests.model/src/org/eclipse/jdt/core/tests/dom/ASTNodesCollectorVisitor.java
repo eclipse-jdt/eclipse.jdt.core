@@ -18,23 +18,23 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 
 class ASTNodesCollectorVisitor extends ASTVisitor {
-	
+
 	private Set detachedAstNodes;
-	
+
 	/**
-	 * 
+	 *
 	 * @see java.lang.Object#Object()
 	 */
 	ASTNodesCollectorVisitor() {
         // visit Javadoc.tags()
-		super(true); 
+		super(true);
 		this.detachedAstNodes = new HashSet();
 	}
 
 	private void add(ASTNode node) {
 		this.detachedAstNodes.add(node);
 	}
-		
+
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(AnnotationTypeDeclaration)
 	 * @since 3.0
@@ -268,7 +268,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @return Set
 	 */
 	public Set getDetachedAstNodes() {
-		return detachedAstNodes;
+		return this.detachedAstNodes;
 	}
 
 }

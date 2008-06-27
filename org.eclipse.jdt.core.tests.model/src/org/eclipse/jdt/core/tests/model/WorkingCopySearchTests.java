@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.*;
 public class WorkingCopySearchTests extends JavaSearchTests {
 	ICompilationUnit workingCopy;
-	
+
 	public WorkingCopySearchTests(String name) {
 		super(name);
 	}
@@ -38,7 +38,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 //		TESTS_NUMBERS = new int[] { 8 };
 //		TESTS_RANGE = new int[] { -1, -1 };
 	}
-	
+
 	/**
 	 * Get a new working copy.
 	 */
@@ -50,7 +50,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Destroy the working copy.
 	 */
@@ -59,7 +59,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 		this.workingCopy = null;
 		super.tearDown();
 	}
-	
+
 	/**
 	 * Hierarchy scope on a working copy test.
 	 */
@@ -78,7 +78,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			copy.discardWorkingCopy();
 		}
 	}
-	
+
 	/**
 	 * Type declaration in a working copy test.
 	 * A new type is added in the working copy only.
@@ -90,27 +90,27 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			null,
 			false,
 			null);
-		
-		IJavaSearchScope scope = 
+
+		IJavaSearchScope scope =
 			SearchEngine.createJavaSearchScope(
 				new IJavaElement[] {this.workingCopy.getParent()});
 	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		SearchPattern pattern = SearchPattern.createPattern(
 			"NewType",
 			TYPE,
-			DECLARATIONS, 
+			DECLARATIONS,
 			SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
-			pattern, 
+			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			scope, 
-			resultCollector,
+			scope,
+			this.resultCollector,
 			null);
 		assertSearchResults(
-			"src/wc/X.java wc.NewType [NewType]", 
-			resultCollector);
+			"src/wc/X.java wc.NewType [NewType]",
+			this.resultCollector);
 	}
-	
+
 	/*
 	 * Search all type names in working copies test.
 	 * (Regression test for bug 40793 Primary working copies: Type search does not find type in modified CU)
@@ -121,7 +121,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			"public class Y {\n" +
 			"  interface I {\n" +
 			"  }\n" +
-			"}" 
+			"}"
 		);
 		this.workingCopy.makeConsistent(null);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
@@ -132,10 +132,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			null,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			TYPE,
-			scope, 
+			scope,
 			requestor,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null		
+			null
 		);
 		assertSearchResults(
 			"Unexpected all type names",
@@ -143,7 +143,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			"wc.Y$I",
 			requestor);
 	}
-	
+
 	/*
 	 * Search all type names in working copies test (without reconciling working copies).
 	 * (Regression test for bug 40793 Primary working copies: Type search does not find type in modified CU)
@@ -154,7 +154,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			"public class Y {\n" +
 			"  interface I {\n" +
 			"  }\n" +
-			"}" 
+			"}"
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 		SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
@@ -164,10 +164,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			null,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			TYPE,
-			scope, 
+			scope,
 			requestor,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null		
+			null
 		);
 		assertSearchResults(
 			"Unexpected all type names",
@@ -175,7 +175,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			"wc.Y$I",
 			requestor);
 	}
-	
+
 	/*
 	 * Search all type names with a prefix in a primary working copy.
 	 * (regression test for bug 44884 Wrong list displayed while code completion)
@@ -192,7 +192,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				"}"
 			);
 			wc.makeConsistent(null);
-			
+
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {wc.getParent()});
 			SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 			new SearchEngine().searchAllTypeNames(
@@ -201,10 +201,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				"X".toCharArray(),
 				SearchPattern.R_PREFIX_MATCH, // case insensitive
 				TYPE,
-				scope, 
+				scope,
 				requestor,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-				null		
+				null
 			);
 			assertSearchResults(
 				"Unexpected all type names",
@@ -230,7 +230,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				"interface I {\n" +
 				"}"
 			);
-			
+
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {wc.getParent()});
 			SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 			new SearchEngine().searchAllTypeNames(
@@ -239,10 +239,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				"X".toCharArray(),
 				SearchPattern.R_PREFIX_MATCH, // case insensitive
 				TYPE,
-				scope, 
+				scope,
 				requestor,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-				null		
+				null
 			);
 			assertSearchResults(
 				"Unexpected all type names",
@@ -274,10 +274,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			"A*".toCharArray(),
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			TYPE,
-			scope, 
+			scope,
 			requestor,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null		
+			null
 		);
 		assertSearchResults(
 			"Unexpected all type names",
@@ -294,19 +294,19 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			IJavaProject[] projects = new IJavaProject[2];
 			projects[0] = createJavaProject("P1");
 			projects[1] = createJavaProject("P2");
-			workingCopies = new ICompilationUnit[2];
-			workingCopies[0] = getWorkingCopy("/P1/p1/A1.java",
-				"package p1;\n" + 
-				"public class A1 {\n" + 
-				"	public static class A1Inner1 {}" + 
-				"	public static class A1Inner2 {}" + 
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/P1/p1/A1.java",
+				"package p1;\n" +
+				"public class A1 {\n" +
+				"	public static class A1Inner1 {}" +
+				"	public static class A1Inner2 {}" +
 				"}"
 			);
-			workingCopies[1] = getWorkingCopy("/P2/p2/A2.java",
-				"package p2;\n" + 
-				"public class A2 {\n" + 
-				"	public static class A2Inner1 {}" + 
-				"	public static class A2Inner2 {}" + 
+			this.workingCopies[1] = getWorkingCopy("/P2/p2/A2.java",
+				"package p2;\n" +
+				"public class A2 {\n" +
+				"	public static class A2Inner1 {}" +
+				"	public static class A2Inner2 {}" +
 				"}"
 			);
 			TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
@@ -324,8 +324,8 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			);
 			assertSearchResults(
 				"Unexpected all type names",
-				"p2.A2\n" + 
-				"p2.A2$A2Inner1\n" + 
+				"p2.A2\n" +
+				"p2.A2$A2Inner1\n" +
 				"p2.A2$A2Inner2",
 				requestor);
 		}
@@ -349,106 +349,106 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			null);
 	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfReferencedTypes(
-			method, 
-			resultCollector
+			method,
+			this.resultCollector
 		);
 		assertSearchResults(
-			"src/wc/X.java wc.X [X]", 
-			resultCollector);
+			"src/wc/X.java wc.X [X]",
+			this.resultCollector);
 	}
-	
+
 	/**
 	 * Type declaration in a working copy test.
 	 * A type is moved from one working copy to another.
 	 */
 	public void testMoveType() throws CoreException {
-		
+
 		// move type X from working copy in one package to a working copy in another package
 		ICompilationUnit workingCopy1 = getCompilationUnit("JavaSearch", "src", "wc1", "X.java").getWorkingCopy(null);
 		ICompilationUnit workingCopy2 = getCompilationUnit("JavaSearch", "src", "wc2", "Y.java").getWorkingCopy(null);
-		
+
 		try {
 			workingCopy1.getType("X").move(workingCopy2, null, null, true, null);
-			
+
 			SearchEngine searchEngine = new SearchEngine(new ICompilationUnit[] {workingCopy1, workingCopy2});
-			
+
 			// type X should not be visible in old package
 			IJavaSearchScope scope1 = SearchEngine.createJavaSearchScope(new IJavaElement[] {workingCopy1.getParent()});
 	//		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-			
+
 			SearchPattern pattern = SearchPattern.createPattern(
 				"X",
 				TYPE,
-				DECLARATIONS, 
+				DECLARATIONS,
 				SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 			searchEngine.search(
-				pattern, 
+				pattern,
 				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-				scope1, 
-				resultCollector,
+				scope1,
+				this.resultCollector,
 				null);
 			assertEquals(
-				"", 
-				resultCollector.toString());
-			
+				"",
+				this.resultCollector.toString());
+
 			// type X should be visible in new package
 			IJavaSearchScope scope2 = SearchEngine.createJavaSearchScope(new IJavaElement[] {workingCopy2.getParent()});
-			resultCollector = new JavaSearchResultCollector();
+			this.resultCollector = new JavaSearchResultCollector();
 			searchEngine.search(
-				pattern, 
+				pattern,
 				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-				scope2, 
-				resultCollector,
+				scope2,
+				this.resultCollector,
 				null);
 			assertSearchResults(
-				"src/wc2/Y.java wc2.X [X]", 
-				resultCollector);
+				"src/wc2/Y.java wc2.X [X]",
+				this.resultCollector);
 		} finally {
 			workingCopy1.discardWorkingCopy();
 			workingCopy2.discardWorkingCopy();
 		}
 	}
-	
+
 	/**
 	 * Type declaration in a working copy test.
 	 * A type is removed from the working copy only.
 	 */
 	public void testRemoveType() throws CoreException {
 		this.workingCopy.getType("X").delete(true, null);
-		
-		IJavaSearchScope scope = 
+
+		IJavaSearchScope scope =
 			SearchEngine.createJavaSearchScope(
 				new IJavaElement[] {this.workingCopy.getParent()});
-		
+
 		// type X should not be visible when working copy hides it
 	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		SearchPattern pattern = SearchPattern.createPattern(
 			"X",
 			TYPE,
-			DECLARATIONS, 
+			DECLARATIONS,
 			SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
-			pattern, 
+			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			scope, 
-			resultCollector,
+			scope,
+			this.resultCollector,
 			null);
 		assertSearchResults(
-			"", 
-			resultCollector);
-			
+			"",
+			this.resultCollector);
+
 		// ensure the type is still present in the compilation unit
-		resultCollector = new JavaSearchResultCollector();
+		this.resultCollector = new JavaSearchResultCollector();
 		new SearchEngine().search(
-			pattern, 
+			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			scope, 
-			resultCollector,
+			scope,
+			this.resultCollector,
 			null);
 		assertSearchResults(
-			"src/wc/X.java wc.X [X]", 
-			resultCollector);
-	
+			"src/wc/X.java wc.X [X]",
+			this.resultCollector);
+
 	}
-	
+
 }

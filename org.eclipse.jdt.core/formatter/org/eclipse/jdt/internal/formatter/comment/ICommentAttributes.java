@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.formatter.comment;
 
 /**
  * General comment range attributes.
- * 
+ *
  * @since 3.0
  */
 public interface ICommentAttributes {
@@ -56,7 +56,7 @@ public interface ICommentAttributes {
 
 	/** Range is the first token on the line in the original source */
 	public static final int COMMENT_FIRST_TOKEN= 1 << 13;
-	
+
 	/**
 	 * Range was preceded by whitespace / line delimiters
 	 * @since 3.1

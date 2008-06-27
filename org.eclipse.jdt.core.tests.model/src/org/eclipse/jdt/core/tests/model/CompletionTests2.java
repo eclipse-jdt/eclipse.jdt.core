@@ -39,9 +39,9 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import junit.framework.*;
 
 public class CompletionTests2 extends ModifyingResourceTests implements RelevanceConstants {
-	
+
 	public static class CompletionContainerInitializer implements ContainerInitializer.ITestInitializer {
-		
+
 		public static class DefaultContainer implements IClasspathContainer {
 			char[][] libPaths;
 			boolean[] areExported;
@@ -57,10 +57,10 @@ public class CompletionTests2 extends ModifyingResourceTests implements Relevanc
 				for (int j = 0; j < length; j++) {
 				    IPath path = new Path(new String(this.libPaths[j]));
 				    boolean isExported = this.areExported[j];
-		
+
 				    IAccessRule[] accessRules;
-				    if(forbiddenReferences != null && forbiddenReferences[j]!= null && forbiddenReferences[j].length() != 0) {
-					    StringTokenizer tokenizer = new StringTokenizer(forbiddenReferences[j], ";");
+				    if(this.forbiddenReferences != null && this.forbiddenReferences[j]!= null && this.forbiddenReferences[j].length() != 0) {
+					    StringTokenizer tokenizer = new StringTokenizer(this.forbiddenReferences[j], ";");
 					    int count = tokenizer.countTokens();
 					    accessRules = new IAccessRule[count];
 					    String token = null;
@@ -89,23 +89,23 @@ public class CompletionTests2 extends ModifyingResourceTests implements Relevanc
 				return new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
 			}
 		}
-		
+
 		Map containerValues;
 		CoreException exception;
-		
+
 		public CompletionContainerInitializer(String projectName, String[] libPaths, boolean[] areExported) {
 			this(projectName, libPaths, areExported, null);
 		}
 		public CompletionContainerInitializer(String projectName, String[] libPaths, boolean[] areExported, String[] forbiddenRefrences) {
-			containerValues = new HashMap();
-			
+			this.containerValues = new HashMap();
+
 			int libPathsLength = libPaths.length;
 			char[][] charLibPaths = new char[libPathsLength][];
 			for (int i = 0; i < libPathsLength; i++) {
 				charLibPaths[i] = libPaths[i].toCharArray();
 			}
-			containerValues.put(
-				projectName, 
+			this.containerValues.put(
+				projectName,
 				newContainer(charLibPaths, areExported, forbiddenRefrences)
 			);
 		}
@@ -116,12 +116,12 @@ public class CompletionTests2 extends ModifyingResourceTests implements Relevanc
 			return true;
 		}
 		public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
-			if (containerValues == null) return;
+			if (this.containerValues == null) return;
 			try {
 				JavaCore.setClasspathContainer(
-					containerPath, 
+					containerPath,
 					new IJavaProject[] {project},
-					new IClasspathContainer[] {(IClasspathContainer)containerValues.get(project.getElementName())}, 
+					new IClasspathContainer[] {(IClasspathContainer)this.containerValues.get(project.getElementName())},
 					null);
 			} catch (CoreException e) {
 				this.exception = e;
@@ -134,12 +134,12 @@ public CompletionTests2(String name) {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	setUpJavaProject("Completion");
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("Completion");
-	
+
 	super.tearDownSuite();
 }
 
@@ -194,7 +194,7 @@ public void testBug29832() throws Exception {
 			 "");
 		this.createFile("/P1/lib.jar", f.getContents());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -207,13 +207,13 @@ public void testBug29832() throws Exception {
 			"public class X {\n"+
 			"  ZZZ z;\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "X.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "ZZZ";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -222,23 +222,23 @@ public void testBug29832() throws Exception {
 		assertEquals(
 			"element:ZZZ    completion:pz.ZZZ    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED),
 			requestor.getResults());
-		
-		
+
+
 		// delete P1
 		p.getProject().delete(true, false, null);
-		
+
 		// create P1
 		File dest = getWorkspaceRoot().getLocation().toFile();
-		File pro = this.createDirectory(dest, "P1");
-		
+		File pro = createDirectory(dest, "P1");
+
 		this.createFile(pro, ".classpath", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<classpath>\n" +
 			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
 			"    <classpathentry kind=\"var\" path=\"JCL_LIB\" sourcepath=\"JCL_SRC\" rootpath=\"JCL_SRCROOT\"/>\n" +
 			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>");
-			
-		this.createFile(pro, ".project", 
+
+		this.createFile(pro, ".project",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<projectDescription>\n" +
 			"	<name>org.eclipse.jdt.core</name>\n" +
@@ -256,16 +256,16 @@ public void testBug29832() throws Exception {
 			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
 			"	</natures>\n" +
 			"</projectDescription>");
-		
-		File src = this.createDirectory(pro, "src");
-		
-		File pz = this.createDirectory(src, "pz");
-		
+
+		File src = createDirectory(pro, "src");
+
+		File pz = createDirectory(src, "pz");
+
 		this.createFile(pz, "ZZZ.java",
 			"package pz;\n" +
 			"public class ZZZ {\n" +
 			"}");
-		
+
 		final IProject project = getWorkspaceRoot().getProject("P1");
 		IWorkspaceRunnable populate = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -275,9 +275,9 @@ public void testBug29832() throws Exception {
 		};
 		getWorkspace().run(populate, null);
 		JavaCore.create(project);
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		requestor = new CompletionTestsRequestor();
 		cu.codeComplete(cursorLocation, requestor);
@@ -310,7 +310,7 @@ public void testBug33560() throws Exception {
 			 "");
 		this.createFile("/P1/lib.jar", f.getContents());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -319,7 +319,7 @@ public void testBug33560() throws Exception {
 			new String[]{"/P1"},
 			new boolean[]{true},
 			"bin");
-					
+
 		// create P3
 		this.createJavaProject(
 			"P3",
@@ -332,13 +332,13 @@ public void testBug33560() throws Exception {
 			"public class X {\n"+
 			"  ZZZ z;\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 		ICompilationUnit cu= getCompilationUnit("P3", "src", "", "X.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "ZZZ";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -347,23 +347,23 @@ public void testBug33560() throws Exception {
 		assertEquals(
 			"element:ZZZ    completion:pz.ZZZ    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED),
 			requestor.getResults());
-		
-		
+
+
 		// delete P1
 		p.getProject().delete(true, false, null);
-		
+
 		// create P1
 		File dest = getWorkspaceRoot().getLocation().toFile();
-		File pro = this.createDirectory(dest, "P1");
-		
+		File pro = createDirectory(dest, "P1");
+
 		this.createFile(pro, ".classpath", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<classpath>\n" +
 			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
 			"    <classpathentry kind=\"var\" path=\"JCL_LIB\" sourcepath=\"JCL_SRC\" rootpath=\"JCL_SRCROOT\"/>\n" +
 			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>");
-			
-		this.createFile(pro, ".project", 
+
+		this.createFile(pro, ".project",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<projectDescription>\n" +
 			"	<name>org.eclipse.jdt.core</name>\n" +
@@ -381,16 +381,16 @@ public void testBug33560() throws Exception {
 			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
 			"	</natures>\n" +
 			"</projectDescription>");
-		
-		File src = this.createDirectory(pro, "src");
-		
-		File pz = this.createDirectory(src, "pz");
-		
+
+		File src = createDirectory(pro, "src");
+
+		File pz = createDirectory(src, "pz");
+
 		this.createFile(pz, "ZZZ.java",
 			"package pz;\n" +
 			"public class ZZZ {\n" +
 			"}");
-		
+
 		final IProject project = getWorkspaceRoot().getProject("P1");
 		IWorkspaceRunnable populate = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -400,9 +400,9 @@ public void testBug33560() throws Exception {
 		};
 		getWorkspace().run(populate, null);
 		JavaCore.create(project);
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		requestor = new CompletionTestsRequestor();
 		cu.codeComplete(cursorLocation, requestor);
@@ -430,14 +430,14 @@ public void testBug79288() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
 				"package a;\n"+
 				"public class XX1 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -445,14 +445,14 @@ public void testBug79288() throws Exception {
 			new String[]{"JCL_LIB"},
 			new String[]{"/P1"},
 			"bin");
-		
+
 		this.createFolder("/P2/src/b");
 		this.createFile(
 				"/P2/src/b/XX2.java",
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P3
 		this.createJavaProject(
 			"P3",
@@ -460,7 +460,7 @@ public void testBug79288() throws Exception {
 			new String[]{"JCL_LIB"},
 			new String[]{"/P2"},
 			"bin");
-		
+
 		this.createFile(
 				"/P3/src/YY.java",
 				"public class YY {\n"+
@@ -468,18 +468,18 @@ public void testBug79288() throws Exception {
 				"    XX\n"+
 				"  }\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P3", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -503,14 +503,14 @@ public void testBug91772() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
 				"package a;\n"+
 				"public class XX1 {\n"+
 				"}");
-		
+
 		// create P2
 		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}));
 		String[] classLib = new String[]{"JCL_LIB"};
@@ -523,14 +523,14 @@ public void testBug91772() throws Exception {
 			new String[]{"src"},
 			lib,
 			"bin");
-		
+
 		this.createFolder("/P2/src/b");
 		this.createFile(
 				"/P2/src/b/XX2.java",
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P3
 		this.createJavaProject(
 			"P3",
@@ -538,7 +538,7 @@ public void testBug91772() throws Exception {
 			new String[]{"JCL_LIB"},
 			new String[]{"/P2"},
 			"bin");
-		
+
 		this.createFile(
 				"/P3/src/YY.java",
 				"public class YY {\n"+
@@ -546,18 +546,18 @@ public void testBug91772() throws Exception {
 				"    XX\n"+
 				"  }\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P3", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX1[TYPE_REF]{a.XX1, a, La.XX1;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
 			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
@@ -566,8 +566,8 @@ public void testBug91772() throws Exception {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 		this.deleteProject("P3");
-		
-		
+
+
 		// TODO the following code is not the correct way to remove the container
 		// Cleanup caches
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
@@ -583,7 +583,7 @@ public void testBug93891() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -596,21 +596,21 @@ public void testBug93891() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
 				"package a;\n"+
 				"public class XX1 {\n"+
 				"}");
-		
+
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P2
 		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}, new String[]{"a/*"}));
 		String[] classLib = new String[]{"JCL_LIB"};
@@ -623,7 +623,7 @@ public void testBug93891() throws Exception {
 			new String[]{"src"},
 			lib,
 			"bin");
-		
+
 		this.createFolder("/P2/src/b");
 		this.createFile(
 				"/P2/src/YY.java",
@@ -632,31 +632,31 @@ public void testBug93891() throws Exception {
 				"    XX\n"+
 				"  }\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		
+
 		// TODO the following code is not the correct way to remove the container
 		// Cleanup caches
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		manager.containers = new HashMap(5);
 		manager.variables = new HashMap(5);
-		
+
 		JavaCore.setOptions(oldOptions);
 	}
 }
@@ -669,7 +669,7 @@ public void testAccessRestriction1() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -682,7 +682,7 @@ public void testAccessRestriction1() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
@@ -696,7 +696,7 @@ public void testAccessRestriction1() throws Exception {
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -711,18 +711,18 @@ public void testAccessRestriction1() throws Exception {
 			"    XX\n"+
 			"  }\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX1[TYPE_REF]{a.XX1, a, La.XX1;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
  			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
@@ -743,7 +743,7 @@ public void testAccessRestriction2() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -756,7 +756,7 @@ public void testAccessRestriction2() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
@@ -770,7 +770,7 @@ public void testAccessRestriction2() throws Exception {
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -794,18 +794,18 @@ public void testAccessRestriction2() throws Exception {
 			"    XX\n"+
 			"  }\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX1[TYPE_REF]{a.XX1, a, La.XX1;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
  			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
@@ -824,7 +824,7 @@ public void testAccessRestriction3() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -837,7 +837,7 @@ public void testAccessRestriction3() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
@@ -851,7 +851,7 @@ public void testAccessRestriction3() throws Exception {
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -875,18 +875,18 @@ public void testAccessRestriction3() throws Exception {
 			"    XX\n"+
 			"  }\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX1[TYPE_REF]{a.XX1, a, La.XX1;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE) + "}\n" +
  			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
@@ -906,7 +906,7 @@ public void testAccessRestriction4() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -919,7 +919,7 @@ public void testAccessRestriction4() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
@@ -933,7 +933,7 @@ public void testAccessRestriction4() throws Exception {
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -957,18 +957,18 @@ public void testAccessRestriction4() throws Exception {
 			"    XX\n"+
 			"  }\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX1[TYPE_REF]{a.XX1, a, La.XX1;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
  			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
@@ -987,7 +987,7 @@ public void testAccessRestriction5() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -1000,7 +1000,7 @@ public void testAccessRestriction5() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
@@ -1014,7 +1014,7 @@ public void testAccessRestriction5() throws Exception {
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -1038,18 +1038,18 @@ public void testAccessRestriction5() throws Exception {
 			"    XX\n"+
 			"  }\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -1067,7 +1067,7 @@ public void testAccessRestriction6() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -1080,7 +1080,7 @@ public void testAccessRestriction6() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
@@ -1094,14 +1094,14 @@ public void testAccessRestriction6() throws Exception {
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		this.createFolder("/P1/src/c");
 		this.createFile(
 				"/P1/src/c/XX3.java",
 				"package c;\n"+
 				"public class XX3 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -1118,7 +1118,7 @@ public void testAccessRestriction6() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		// create P3
 		this.createJavaProject(
 			"P3",
@@ -1135,7 +1135,7 @@ public void testAccessRestriction6() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		this.createFile(
 			"/P3/src/YY.java",
 			"public class YY {\n"+
@@ -1143,18 +1143,18 @@ public void testAccessRestriction6() throws Exception {
 			"    XX\n"+
 			"  }\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P3", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX3[TYPE_REF]{c.XX3, c, Lc.XX3;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -1173,7 +1173,7 @@ public void testAccessRestriction7() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -1186,7 +1186,7 @@ public void testAccessRestriction7() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
@@ -1200,7 +1200,7 @@ public void testAccessRestriction7() throws Exception {
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -1224,7 +1224,7 @@ public void testAccessRestriction7() throws Exception {
 				"    XX\n"+
 				"  }\n"+
 				"}");
-		
+
 		// create P3
 		this.createJavaProject(
 			"P3",
@@ -1241,18 +1241,18 @@ public void testAccessRestriction7() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -1271,7 +1271,7 @@ public void testAccessRestriction8() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -1284,7 +1284,7 @@ public void testAccessRestriction8() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
@@ -1298,7 +1298,7 @@ public void testAccessRestriction8() throws Exception {
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -1322,7 +1322,7 @@ public void testAccessRestriction8() throws Exception {
 				"    XX\n"+
 				"  }\n"+
 				"}");
-		
+
 		// create P3
 		this.createJavaProject(
 			"P3",
@@ -1339,18 +1339,18 @@ public void testAccessRestriction8() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX1[TYPE_REF]{a.XX1, a, La.XX1;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
 			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
@@ -1370,7 +1370,7 @@ public void testAccessRestriction9() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -1383,21 +1383,21 @@ public void testAccessRestriction9() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/p11");
 		this.createFile(
 				"/P1/src/p11/XX11.java",
 				"package p11;\n"+
 				"public class XX11 {\n"+
 				"}");
-		
+
 		this.createFolder("/P1/src/p12");
 		this.createFile(
 				"/P1/src/p12/XX12.java",
 				"package p12;\n"+
 				"public class XX12 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -1414,21 +1414,21 @@ public void testAccessRestriction9() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		this.createFolder("/P2/src/p21");
 		this.createFile(
 				"/P2/src/p21/XX21.java",
 				"package p21;\n"+
 				"public class XX21 {\n"+
 				"}");
-		
+
 		this.createFolder("/P2/src/p22");
 		this.createFile(
 				"/P2/src/p22/XX22.java",
 				"package p22;\n"+
 				"public class XX22 {\n"+
 				"}");
-		
+
 		// create P3
 		this.createJavaProject(
 			"P3",
@@ -1445,21 +1445,21 @@ public void testAccessRestriction9() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		this.createFolder("/P3/src/p31");
 		this.createFile(
 				"/P3/src/p31/XX31.java",
 				"package p31;\n"+
 				"public class XX31 {\n"+
 				"}");
-		
+
 		this.createFolder("/P3/src/p32");
 		this.createFile(
 				"/P3/src/p32/XX32.java",
 				"package p32;\n"+
 				"public class XX32 {\n"+
 				"}");
-		
+
 		// create PX
 		this.createJavaProject(
 				"PX",
@@ -1476,7 +1476,7 @@ public void testAccessRestriction9() throws Exception {
 				null,
 				null,
 				"1.4");
-		
+
 		this.createFile(
 				"/PX/src/X.java",
 				"public class X {\n"+
@@ -1484,18 +1484,18 @@ public void testAccessRestriction9() throws Exception {
 				"    XX\n"+
 				"  }\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("PX", "src", "", "X.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX12[TYPE_REF]{p12.XX12, p12, Lp12.XX12;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
 			"XX21[TYPE_REF]{p21.XX21, p21, Lp21.XX21;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
@@ -1518,7 +1518,7 @@ public void testAccessRestriction10() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -1531,21 +1531,21 @@ public void testAccessRestriction10() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/p11");
 		this.createFile(
 				"/P1/src/p11/XX11.java",
 				"package p11;\n"+
 				"public class XX11 {\n"+
 				"}");
-		
+
 		this.createFolder("/P1/src/p12");
 		this.createFile(
 				"/P1/src/p12/XX12.java",
 				"package p12;\n"+
 				"public class XX12 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -1562,21 +1562,21 @@ public void testAccessRestriction10() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		this.createFolder("/P2/src/p21");
 		this.createFile(
 				"/P2/src/p21/XX21.java",
 				"package p21;\n"+
 				"public class XX21 {\n"+
 				"}");
-		
+
 		this.createFolder("/P2/src/p22");
 		this.createFile(
 				"/P2/src/p22/XX22.java",
 				"package p22;\n"+
 				"public class XX22 {\n"+
 				"}");
-		
+
 		// create P3
 		this.createJavaProject(
 			"P3",
@@ -1593,21 +1593,21 @@ public void testAccessRestriction10() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		this.createFolder("/P3/src/p31");
 		this.createFile(
 				"/P3/src/p31/XX31.java",
 				"package p31;\n"+
 				"public class XX31 {\n"+
 				"}");
-		
+
 		this.createFolder("/P3/src/p32");
 		this.createFile(
 				"/P3/src/p32/XX32.java",
 				"package p32;\n"+
 				"public class XX32 {\n"+
 				"}");
-		
+
 		// create PX
 		this.createJavaProject(
 				"PX",
@@ -1624,7 +1624,7 @@ public void testAccessRestriction10() throws Exception {
 				null,
 				null,
 				"1.4");
-		
+
 		this.createFile(
 				"/PX/src/X.java",
 				"public class X {\n"+
@@ -1632,18 +1632,18 @@ public void testAccessRestriction10() throws Exception {
 				"    XX\n"+
 				"  }\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("PX", "src", "", "X.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX11[TYPE_REF]{p11.XX11, p11, Lp11.XX11;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE) + "}\n" +
 			"XX31[TYPE_REF]{p31.XX31, p31, Lp31.XX31;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE) + "}\n" +
@@ -1668,7 +1668,7 @@ public void testAccessRestriction11() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -1681,21 +1681,21 @@ public void testAccessRestriction11() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/x/y/z/p11");
 		this.createFile(
 				"/P1/src/x/y/z/p11/XX11.java",
 				"package x.y.z.p11;\n"+
 				"public class XX11 {\n"+
 				"}");
-		
+
 		this.createFolder("/P1/src/x/y/z/p12");
 		this.createFile(
 				"/P1/src/x/y/z/p12/XX12.java",
 				"package x.y.z.p12;\n"+
 				"public class XX12 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -1712,21 +1712,21 @@ public void testAccessRestriction11() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		this.createFolder("/P2/src/x/y/z/p21");
 		this.createFile(
 				"/P2/src/x/y/z/p21/XX21.java",
 				"package x.y.z.p21;\n"+
 				"public class XX21 {\n"+
 				"}");
-		
+
 		this.createFolder("/P2/src/x/y/z/p22");
 		this.createFile(
 				"/P2/src/x/y/z/p22/XX22.java",
 				"package x.y.z.p22;\n"+
 				"public class XX22 {\n"+
 				"}");
-		
+
 		// create P3
 		this.createJavaProject(
 			"P3",
@@ -1743,21 +1743,21 @@ public void testAccessRestriction11() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		this.createFolder("/P3/src/x/y/z/p31");
 		this.createFile(
 				"/P3/src/x/y/z/p31/XX31.java",
 				"package x.y.z.p31;\n"+
 				"public class XX31 {\n"+
 				"}");
-		
+
 		this.createFolder("/P3/src/x/y/z/p32");
 		this.createFile(
 				"/P3/src/x/y/z/p32/XX32.java",
 				"package x.y.z.p32;\n"+
 				"public class XX32 {\n"+
 				"}");
-		
+
 		// create PX
 		this.createJavaProject(
 				"PX",
@@ -1774,7 +1774,7 @@ public void testAccessRestriction11() throws Exception {
 				null,
 				null,
 				"1.4");
-		
+
 		this.createFile(
 				"/PX/src/X.java",
 				"public class X {\n"+
@@ -1782,18 +1782,18 @@ public void testAccessRestriction11() throws Exception {
 				"    XX\n"+
 				"  }\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("PX", "src", "", "X.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX11[TYPE_REF]{x.y.z.p11.XX11, x.y.z.p11, Lx.y.z.p11.XX11;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
 			"XX21[TYPE_REF]{x.y.z.p21.XX21, x.y.z.p21, Lx.y.z.p21.XX21;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
@@ -1816,7 +1816,7 @@ public void testAccessRestriction12() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -1829,21 +1829,21 @@ public void testAccessRestriction12() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/p11");
 		this.createFile(
 				"/P1/src/p11/XX11.java",
 				"package p11;\n"+
 				"public class XX11 {\n"+
 				"}");
-		
+
 		this.createFolder("/P1/src/p12");
 		this.createFile(
 				"/P1/src/p12/XX12.java",
 				"package p12;\n"+
 				"public class XX12 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -1860,21 +1860,21 @@ public void testAccessRestriction12() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		this.createFolder("/P2/src/p21");
 		this.createFile(
 				"/P2/src/p21/XX21.java",
 				"package p21;\n"+
 				"public class XX21 {\n"+
 				"}");
-		
+
 		this.createFolder("/P2/src/p22");
 		this.createFile(
 				"/P2/src/p22/XX22.java",
 				"package p22;\n"+
 				"public class XX22 {\n"+
 				"}");
-		
+
 		// create P3
 		this.createJavaProject(
 			"P3",
@@ -1891,21 +1891,21 @@ public void testAccessRestriction12() throws Exception {
 			null,
 			null,
 			"1.4");
-		
+
 		this.createFolder("/P3/src/p31");
 		this.createFile(
 				"/P3/src/p31/XX31.java",
 				"package p31;\n"+
 				"public class XX31 {\n"+
 				"}");
-		
+
 		this.createFolder("/P3/src/p32");
 		this.createFile(
 				"/P3/src/p32/XX32.java",
 				"package p32;\n"+
 				"public class XX32 {\n"+
 				"}");
-		
+
 		// create PX
 		this.createJavaProject(
 				"PX",
@@ -1922,7 +1922,7 @@ public void testAccessRestriction12() throws Exception {
 				null,
 				null,
 				"1.4");
-		
+
 		this.createFile(
 				"/PX/src/X.java",
 				"public class X {\n"+
@@ -1930,18 +1930,18 @@ public void testAccessRestriction12() throws Exception {
 				"    XX\n"+
 				"  }\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("PX", "src", "", "X.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX12[TYPE_REF]{p12.XX12, p12, Lp12.XX12;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE) + "}\n" +
 			"XX31[TYPE_REF]{p31.XX31, p31, Lp31.XX31;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE) + "}\n" +
@@ -1966,7 +1966,7 @@ public void testAccessRestriction13() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -1979,7 +1979,7 @@ public void testAccessRestriction13() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
@@ -1993,7 +1993,7 @@ public void testAccessRestriction13() throws Exception {
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -2017,18 +2017,18 @@ public void testAccessRestriction13() throws Exception {
 			"    XX\n"+
 			"  }\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -2046,7 +2046,7 @@ public void testAccessRestriction14() throws Exception {
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
-		
+
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -2059,7 +2059,7 @@ public void testAccessRestriction14() throws Exception {
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
-		
+
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
@@ -2073,7 +2073,7 @@ public void testAccessRestriction14() throws Exception {
 				"package b;\n"+
 				"public class XX2 {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -2097,18 +2097,18 @@ public void testAccessRestriction14() throws Exception {
 			"    XX\n"+
 			"  }\n"+
 			"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "XX";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -2125,7 +2125,7 @@ public void testAccessRestriction14() throws Exception {
 //		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 //		options.put(JavaCore.CODEASSIST_RESTRICTIONS_CHECK, JavaCore.DISABLED);
 //		JavaCore.setOptions(options);
-//		
+//
 //		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -2138,7 +2138,7 @@ public void testAccessRestriction14() throws Exception {
 //			new String[]{"src"},
 //			new String[]{"JCL_LIB"},
 //			 "bin");
-//		
+//
 //		this.createFolder("/P1/src/a");
 //		this.createFile(
 //				"/P1/src/a/XX1.java",
@@ -2147,7 +2147,7 @@ public void testAccessRestriction14() throws Exception {
 //				"  public void foo() {\n"+
 //				"  }\n"+
 //				"}");
-//		
+//
 //		// create P2
 //		this.createJavaProject(
 //			"P2",
@@ -2172,18 +2172,18 @@ public void testAccessRestriction14() throws Exception {
 //			"    x.fo\n"+
 //			"  }\n"+
 //			"}");
-//		
+//
 //		waitUntilIndexesReady();
-//		
+//
 //		// do completion
 //		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 //		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
-//		
+//
 //		String str = cu.getSource();
 //		String completeBehind = "x.fo";
 //		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 //		cu.codeComplete(cursorLocation, requestor);
-//		
+//
 //		assertResults(
 //			"foo[METHOD_REF]{foo(), La.XX1;, ()V, foo, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC) + "}",
 //			requestor.getResults());
@@ -2211,7 +2211,7 @@ public void testBug96950() throws Exception {
 				"/P1/src/Taratata.java",
 				"public class Taratata {\n"+
 				"}");
-		
+
 		// create P2
 		this.createJavaProject(
 			"P2",
@@ -2233,18 +2233,18 @@ public void testBug96950() throws Exception {
 				"public class BreakRules {\n"+
 				"	Tara\n"+
 				"}");
-		
+
 		waitUntilIndexesReady();
-		
+
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "BreakRules.java");
-		
+
 		String str = cu.getSource();
 		String completeBehind = "Tara";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
-		
+
 		assertResults(
 			"Tara[POTENTIAL_METHOD_DECLARATION]{Tara, LBreakRules;, ()V, Tara, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -2264,10 +2264,10 @@ public void testChangeInternalJar() throws CoreException, IOException {
 		// Create jar file with a class with 2 methods doXXX
 		String[] pathAndContents = new String[] {
 			"pack/Util.java",
-			"package pack;\n" + 
-			"public class Util {\n" + 
-			"    public void doit2A(int x, int y) { }\n" + 
-			"    public void doit2B(int x) { }\n" + 
+			"package pack;\n" +
+			"public class Util {\n" +
+			"    public void doit2A(int x, int y) { }\n" +
+			"    public void doit2B(int x) { }\n" +
 			"}\n"
 		};
 		addLibrary(jarName, "b162621_src.zip", pathAndContents, JavaCore.VERSION_1_4);
@@ -2282,13 +2282,13 @@ public void testChangeInternalJar() throws CoreException, IOException {
 
 		// Create compilation unit in which completion occurs
 		String path = "/Completion/src/test/Test.java";
-		String source = "package test;\n" + 
-			"import pack.*;\n" + 
-			"public class Test {\n" + 
-			"	public void foo() {\n" + 
-			"		Util test = new Util();\n" + 
-			"		test.doit2A(1, 2);\n" + 
-			"	}\n" + 
+		String source = "package test;\n" +
+			"import pack.*;\n" +
+			"public class Test {\n" +
+			"	public void foo() {\n" +
+			"		Util test = new Util();\n" +
+			"		test.doit2A(1, 2);\n" +
+			"	}\n" +
 			"}\n";
 		createFolder("/Completion/src/test");
 		createFile(path, source);
@@ -2309,11 +2309,11 @@ public void testChangeInternalJar() throws CoreException, IOException {
 		String jarPath = projectLocation + File.separator + jarName;
 		createJar(new String[] {
 			"pack/Util.java",
-			"package pack;\n" + 
-			"public class Util {\n" + 
-			"    public void doit2A(int x, int y) { }\n" + 
-			"    public void doit2B(int x) { }\n" + 
-			"    public void doit2C(int x) { }\n" + 
+			"package pack;\n" +
+			"public class Util {\n" +
+			"    public void doit2A(int x, int y) { }\n" +
+			"    public void doit2B(int x) { }\n" +
+			"    public void doit2C(int x) { }\n" +
 			"}\n"
 		}, jarPath);
 		this.currentProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);

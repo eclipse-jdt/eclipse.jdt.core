@@ -24,7 +24,7 @@ public class ClassFileAttribute extends ClassFileStruct implements IClassFileAtt
 	private long attributeLength;
 	private int attributeNameIndex;
 	private char[] attributeName;
-	
+
 	public ClassFileAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		this.attributeNameIndex = u2At(classFileBytes, 0, offset);
 		this.attributeLength = u4At(classFileBytes, 2, offset);

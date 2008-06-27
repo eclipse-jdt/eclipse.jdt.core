@@ -21,15 +21,15 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
  * Collects the resource paths reported by a client to this search requestor.
  */
 public class PathCollector extends IndexQueryRequestor {
-	
+
 	/* a set of resource paths */
 	public HashSet paths = new HashSet(5);
-	
+
 	/* (non-Javadoc)
 	 * @seeIndexQueryRequestor#acceptIndexMatch(IndexRecord, SearchParticipant, SearchPattern)
 	 */
 	public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
-		paths.add(documentPath);
+		this.paths.add(documentPath);
 		return true;
 	}
 

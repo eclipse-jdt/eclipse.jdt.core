@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    IBM - rewrote spec
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.core.builder;

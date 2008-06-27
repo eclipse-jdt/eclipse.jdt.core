@@ -24,15 +24,15 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  * MemberValuePair node
  */
 public class MemberValuePair extends ASTNode {
-	
+
 	public char[] name;
 	public Expression value;
 	public MethodBinding binding;
-	/** 
-	 *  The representation of this pair in the type system. 
+	/**
+	 *  The representation of this pair in the type system.
 	 */
 	public ElementValuePair compilerElementPair = null;
-	
+
 	public MemberValuePair(char[] token, int sourceStart, int sourceEnd, Expression value) {
 		this.name = token;
 		this.sourceStart = sourceStart;
@@ -42,20 +42,20 @@ public class MemberValuePair extends ASTNode {
 			value.bits |= IsAnnotationDefaultValue;
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#print(int, java.lang.StringBuffer)
 	 */
 	public StringBuffer print(int indent, StringBuffer output) {
 		output
-			.append(name)
+			.append(this.name)
 			.append(" = "); //$NON-NLS-1$
-		value.print(0, output);
+		this.value.print(0, output);
 		return output;
 	}
-	
+
 	public void resolveTypeExpecting(BlockScope scope, TypeBinding requiredType) {
-		
+
 		if (this.value == null) {
 			this.compilerElementPair = new ElementValuePair(this.name, this.value, this.binding);
 			return;
@@ -92,14 +92,14 @@ public class MemberValuePair extends ASTNode {
 				|| (requiredType.isBaseType() && BaseTypeBinding.isWidening(requiredType.id, valueType.id)))
 				|| valueType.isCompatibleWith(requiredType))) {
 
-			if (!(requiredType.isArrayType() 
-					&& requiredType.dimensions() == 1 
+			if (!(requiredType.isArrayType()
+					&& requiredType.dimensions() == 1
 					&& (this.value.isConstantValueOfTypeAssignableToType(valueType, leafType)
 							|| (leafType.isBaseType() && BaseTypeBinding.isWidening(leafType.id, valueType.id)))
 							|| valueType.isCompatibleWith(leafType))) {
-				
+
 				if (leafType.isAnnotationType() && !valueType.isAnnotationType()) {
-					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);				
+					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);
 				} else {
 					scope.problemReporter().typeMismatchError(valueType, requiredType, this.value, null);
 				}
@@ -107,9 +107,9 @@ public class MemberValuePair extends ASTNode {
 			}
 		} else {
 			scope.compilationUnitScope().recordTypeConversion(requiredType.leafComponentType(), valueType.leafComponentType());
-			this.value.computeConversion(scope, requiredType, valueType);				
+			this.value.computeConversion(scope, requiredType, valueType);
 		}
-		
+
 		// annotation methods can only return base types, String, Class, enum type, annotation types and arrays of these
 		checkAnnotationMethodType: {
 			switch (leafType.erasure().id) {
@@ -219,7 +219,7 @@ public class MemberValuePair extends ASTNode {
 			}
 		}
 	}
-	
+
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.value != null) {

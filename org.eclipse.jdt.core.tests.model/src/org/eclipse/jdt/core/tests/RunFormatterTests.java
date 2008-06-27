@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.tests.junit.extension.TestCase;
  * Runs all formatter tests.
  */
 public class RunFormatterTests extends junit.framework.TestCase {
-	
+
 	public final static List TEST_SUITES = new ArrayList();
 	static {
 		TEST_SUITES.add(FormatterCommentsBugsTest.class);
@@ -81,7 +81,7 @@ public class RunFormatterTests extends junit.framework.TestCase {
 		}
 		return ts;
 	}
-	
+
 public RunFormatterTests(String name) {
 	super(name);
 }

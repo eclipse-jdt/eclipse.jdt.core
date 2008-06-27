@@ -40,7 +40,7 @@ import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
-	
+
 	/**
 	 * The java.io.File path to the directory that contains the external jars.
 	 */
@@ -52,12 +52,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	// working copies usage
 	protected ICompilationUnit[] workingCopies;
 	protected WorkingCopyOwner wcOwner;
-	
+
 	// infos for invalid results
 	protected int tabs = 2;
 	protected boolean displayName = false;
 	protected String endChar = ",";
-	
+
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
 		public void beginReporting() {}
@@ -65,7 +65,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		public boolean isActive() {
 			return true;
 		}
-	} 
+	}
 
 	public static class ProblemRequestor implements IProblemRequestor {
 		public StringBuffer problems;
@@ -98,26 +98,26 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			this.problemCount = 0;
 		}
 	}
-	
+
 	/**
 	 * Delta listener
 	 */
 	protected class DeltaListener implements IElementChangedListener {
 		/**
-		 * Deltas received from the java model. See 
+		 * Deltas received from the java model. See
 		 * <code>#startDeltas</code> and
 		 * <code>#stopDeltas</code>.
 		 */
 		public IJavaElementDelta[] deltas;
-		
+
 		public ByteArrayOutputStream stackTraces;
-	
+
 		public void elementChanged(ElementChangedEvent ev) {
 			IJavaElementDelta[] copy= new IJavaElementDelta[this.deltas.length + 1];
 			System.arraycopy(this.deltas, 0, copy, 0, this.deltas.length);
 			copy[this.deltas.length]= ev.getDelta();
 			this.deltas= copy;
-			
+
 			new Throwable("Caller of IElementChangedListener#elementChanged").printStackTrace(new PrintStream(this.stackTraces));
 		}
 		public CompilationUnit getCompilationUnitAST(ICompilationUnit workingCopy) {
@@ -192,10 +192,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 	}
 	protected DeltaListener deltaListener = new DeltaListener();
-	
+
 	protected ILogListener logListener;
-	 
-	
+
+
 	public AbstractJavaModelTests(String name) {
 		super(name);
 	}
@@ -209,14 +209,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Build a test suite with all tests computed from public methods starting with "test"
 	 * found in the given test class.
 	 * Test suite name is the name of the given test class.
-	 * 
+	 *
 	 * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
-	 * 
+	 *
 	 * This test suite differ from this computed in {@link TestCase} in the fact that this is
 	 * a {@link SuiteOfTestCases.Suite} instead of a simple framework {@link TestSuite}.
-	 * 
+	 *
 	 * @param evaluationTestClass
-	 * @return a test suite ({@link Test}) 
+	 * @return a test suite ({@link Test})
 	 */
 	public static Test buildModelTestSuite(Class evaluationTestClass) {
 		return buildModelTestSuite(evaluationTestClass, ORDERING);
@@ -226,15 +226,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Build a test suite with all tests computed from public methods starting with "test"
 	 * found in the given test class and sorted in alphabetical order.
 	 * Test suite name is the name of the given test class.
-	 * 
+	 *
 	 * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
-	 * 
+	 *
 	 * This test suite differ from this computed in {@link TestCase} in the fact that this is
 	 * a {@link SuiteOfTestCases.Suite} instead of a simple framework {@link TestSuite}.
-	 * 
+	 *
 	 * @param evaluationTestClass
 	 * @param ordering kind of sort use for the list (see {@link #ORDERING} for possible values)
-	 * @return a test suite ({@link Test}) 
+	 * @return a test suite ({@link Test})
 	 */
 	public static Test buildModelTestSuite(Class evaluationTestClass, long ordering) {
 		TestSuite suite = new Suite(evaluationTestClass.getName());
@@ -297,7 +297,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			null,
 			true
 		);
-		
+
 	}
 	protected void addLibrary(String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
 		addLibrary(this.currentProject, jarName, sourceZipName, pathAndContents, null, null, compliance);
@@ -326,13 +326,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected void addLibraryEntry(String path, boolean exported) throws JavaModelException {
 		addLibraryEntry(this.currentProject, new Path(path), null, null, null, null, exported);
-	} 
+	}
 	protected void addLibraryEntry(IJavaProject project, String path, boolean exported) throws JavaModelException {
 		addLibraryEntry(project, new Path(path), exported);
-	} 
+	}
 	protected void addLibraryEntry(IJavaProject project, IPath path, boolean exported) throws JavaModelException {
 		addLibraryEntry(project, path, null, null, null, null, exported);
-	} 
+	}
 	protected void addLibraryEntry(IJavaProject project, String path, String srcAttachmentPath) throws JavaModelException{
 		addLibraryEntry(
 			project,
@@ -359,11 +359,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, IClasspathAttribute[] extraAttributes, boolean exported) throws JavaModelException{
 		IClasspathEntry entry = JavaCore.newLibraryEntry(
-			path, 
-			srcAttachmentPath, 
-			srcAttachmentPathRoot, 
-			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles), 
-			extraAttributes, 
+			path,
+			srcAttachmentPath,
+			srcAttachmentPathRoot,
+			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
+			extraAttributes,
 			exported);
 		addClasspathEntry(project, entry);
 	}
@@ -371,7 +371,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		sortElements(elements);
 		assertElementsEqual(message, expected, elements);
 	}
-	
+
 	protected void assertResourceEquals(String message, String expected, IResource resource) {
 		String actual = resource == null ? "<null>" : resource.getFullPath().toString();
 		if (!expected.equals(actual)) {
@@ -380,7 +380,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals(message, expected, actual);
 	}
-	
+
 	protected void assertResourcesEqual(String message, String expected, Object[] resources) {
 		sortResources(resources);
 		StringBuffer buffer = new StringBuffer();
@@ -404,7 +404,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			buffer.toString()
 		);
 	}
-	
+
 	protected void assertResourceNamesEqual(String message, String expected, Object[] resources) {
 		sortResources(resources);
 		StringBuffer buffer = new StringBuffer();
@@ -428,7 +428,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			buffer.toString()
 		);
 	}
-	
+
 	protected void assertResourceTreeEquals(String message, String expected, Object[] resources) throws CoreException {
 		sortResources(resources);
 		StringBuffer buffer = new StringBuffer();
@@ -446,9 +446,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			buffer.toString()
 		);
 	}
-	
+
 	private void printResourceTree(Object resource, StringBuffer buffer, int indent) throws CoreException {
-		for (int i = 0; i < indent; i++) 
+		for (int i = 0; i < indent; i++)
 			buffer.append("  ");
 		if (resource instanceof IResource) {
 			buffer.append(((IResource) resource).getName());
@@ -476,7 +476,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		} else if (resource == null) {
 			buffer.append("<null>");
 		}
-		
+
 	}
 
 	protected void assertElementEquals(String message, String expected, IJavaElement element) {
@@ -513,11 +513,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertEquals(message, expected, actual);
 	}
 	protected void assertExceptionEquals(String message, String expected, Exception exception) {
-		String actual = 
-			exception == null ? 
-				"<null>" : 
-				(exception instanceof CoreException) ? 
-					((CoreException) exception).getStatus().getMessage() : 
+		String actual =
+			exception == null ?
+				"<null>" :
+				(exception instanceof CoreException) ?
+					((CoreException) exception).getStatus().getMessage() :
 					exception.toString();
 		if (!expected.equals(actual)) {
 			if (this.displayName) System.out.println(getName()+" actual result is:");
@@ -566,7 +566,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals(message, expectedMarkers, actual);
 	}
-	
+
 	protected void assertMemberValuePairEquals(String expected, IMemberValuePair member) throws JavaModelException {
 		StringBuffer buffer = new StringBuffer();
 		appendAnnotationMember(buffer, member);
@@ -576,7 +576,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals("Unexpected member value pair", expected, actual);
 	}
-	
+
 	protected void assertProblems(String message, String expected, ProblemRequestor problemRequestor) {
 		String actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(problemRequestor.problems.toString());
 		String independantExpectedString = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(expected);
@@ -590,7 +590,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	/*
 	 * Asserts that the given actual source (usually coming from a file content) is equal to the expected one.
-	 * Note that 'expected' is assumed to have the '\n' line separator. 
+	 * Note that 'expected' is assumed to have the '\n' line separator.
 	 * The line separators in 'actual' are converted to '\n' before the comparison.
 	 */
 	protected void assertSourceEquals(String message, String expected, String actual) {
@@ -663,7 +663,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			appendAnnotationMemberValue(buffer, value, kind);
 		}
 	}
-	
+
 	private void appendAnnotationMemberValue(StringBuffer buffer, Object value, int kind) throws JavaModelException {
 		if (value == null) {
 			buffer.append("<null>");
@@ -749,7 +749,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			return IMemberValuePair.K_STRING;
 		}
 		return -1;
-		
+
 	}
 	/*
 	 * Ensures that the toString() of the given AST node is as expected.
@@ -803,9 +803,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			elementToDelete = elementsToDelete[i];
 			assertTrue("Element must be present to be deleted", elementToDelete.exists());
 		}
-	
+
 		getJavaModel().delete(elementsToDelete, false, null);
-		
+
 		for (int i = 0; i < elementsToDelete.length; i++) {
 			elementToDelete = elementsToDelete[i];
 			assertTrue("Element should not be present after deletion: " + elementToDelete, !elementToDelete.exists());
@@ -837,7 +837,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertTypesEqual(message, expected, types, true);
 	}
 	protected void assertTypesEqual(String message, String expected, IType[] types, boolean sort) {
-		if (sort) this.sortTypes(types);
+		if (sort) sortTypes(types);
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0; i < types.length; i++){
 			if (types[i] == null)
@@ -945,14 +945,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	public void copy(File src, File dest) throws IOException {
 		// read source bytes
-		byte[] srcBytes = this.read(src);
-		
+		byte[] srcBytes = read(src);
+
 		if (convertToIndependantLineDelimiter(src)) {
 			String contents = new String(srcBytes);
 			contents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(contents);
 			srcBytes = contents.getBytes();
 		}
-	
+
 		// write bytes to dest
 		FileOutputStream out = new FileOutputStream(dest);
 		try {
@@ -961,11 +961,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			out.close();
 		}
 	}
-	
+
 	public boolean convertToIndependantLineDelimiter(File file) {
 		return file.getName().endsWith(".java");
 	}
-	
+
 	/**
 	 * Copy the given source directory (and all its contents) to the given target directory.
 	 */
@@ -994,12 +994,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				IContainer parent = folder.getParent();
 				if (parent instanceof IFolder && !parent.exists()) {
 					createFolder(parent.getFullPath());
-				} 
+				}
 				folder.create(true, true, null);
 			}
 		},
 		null);
-	
+
 		return folder;
 	}
 	protected void createJar(String[] javaPathsAndContents, String jarPath) throws IOException {
@@ -1007,7 +1007,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			waitAtLeast(1000); // ensure the timestamps is different
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, jarPath, "1.4");
 	}
-		
+
 	/*
 	}
 	 * Creates a Java project where prj=src=bin and with JCL_LIB on its classpath.
@@ -1016,22 +1016,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return this.createJavaProject(projectName, new String[] {""}, new String[] {"JCL_LIB"}, "");
 	}
 	/*
-	 * Creates a Java project with the given source folders an output location. 
+	 * Creates a Java project with the given source folders an output location.
 	 * Add those on the project's classpath.
 	 */
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String output) throws CoreException {
-		return 
+		return
 			this.createJavaProject(
-				projectName, 
-				sourceFolders, 
-				null/*no lib*/, 
+				projectName,
+				sourceFolders,
+				null/*no lib*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				null/*no project*/, 
+				null/*no project*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				null/*no exported project*/, 
-				output, 
+				null/*no exported project*/,
+				output,
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
@@ -1039,22 +1039,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			);
 	}
 	/*
-	 * Creates a Java project with the given source folders an output location. 
+	 * Creates a Java project with the given source folders an output location.
 	 * Add those on the project's classpath.
 	 */
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String output, String[] sourceOutputs) throws CoreException {
-		return 
+		return
 			this.createJavaProject(
-				projectName, 
-				sourceFolders, 
-				null/*no lib*/, 
+				projectName,
+				sourceFolders,
+				null/*no lib*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				null/*no project*/, 
+				null/*no project*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				null/*no exported project*/, 
-				output, 
+				null/*no exported project*/,
+				output,
 				sourceOutputs,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
@@ -1062,19 +1062,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output) throws CoreException {
-		return 
+		return
 			this.createJavaProject(
-				projectName, 
-				sourceFolders, 
-				libraries, 
+				projectName,
+				sourceFolders,
+				libraries,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				null/*no project*/, 
+				null/*no project*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
 				true/*combine access restrictions by default*/,
-				null/*no exported project*/, 
-				output, 
+				null/*no exported project*/,
+				output,
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
@@ -1083,18 +1083,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output, String compliance) throws CoreException {
-		return 
+		return
 			this.createJavaProject(
-				projectName, 
-				sourceFolders, 
-				libraries, 
+				projectName,
+				sourceFolders,
+				libraries,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				null/*no project*/, 
+				null/*no project*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				null/*no exported project*/, 
-				output, 
+				null/*no exported project*/,
+				output,
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
@@ -1112,7 +1112,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				projects,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				null/*no exported project*/, 
+				null/*no exported project*/,
 				projectOutput,
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
@@ -1141,7 +1141,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				projects,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				exportedProject, 
+				exportedProject,
 				projectOutput,
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
@@ -1150,18 +1150,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, String projectOutput, String compliance) throws CoreException {
-		return 
+		return
 			createJavaProject(
-				projectName, 
-				sourceFolders, 
-				libraries, 
+				projectName,
+				sourceFolders,
+				libraries,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				projects, 
+				projects,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				null/*no exported project*/, 
-				projectOutput, 
+				null/*no exported project*/,
+				projectOutput,
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
@@ -1179,7 +1179,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			projects,
 			null/*no inclusion pattern*/,
 			null/*no exclusion pattern*/,
-			exportedProjects, 
+			exportedProjects,
 			projectOutput,
 			sourceOutputs,
 			inclusionPatterns,
@@ -1217,7 +1217,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			sourceOutputs,
 			inclusionPatterns,
 			exclusionPatterns,
-			compliance, 
+			compliance,
 			false/*don't import*/);
 	}
 	protected IJavaProject createJavaProject(
@@ -1235,18 +1235,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			final String[] sourceOutputs,
 			final String[][] inclusionPatterns,
 			final String[][] exclusionPatterns,
-			final String compliance, 
+			final String compliance,
 			final boolean simulateImport) throws CoreException {
 		final IJavaProject[] result = new IJavaProject[1];
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				// create project
 				createProject(projectName);
-				
+
 				// set java nature
 				addJavaNature(projectName);
-				
-				// create classpath entries 
+
+				// create classpath entries
 				IProject project = getWorkspaceRoot().getProject(projectName);
 				IPath projectPath = project.getFullPath();
 				int sourceLength = sourceFolders == null ? 0 : sourceFolders.length;
@@ -1305,11 +1305,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						}
 					}
 					// create source entry
-					entries[i] = 
+					entries[i] =
 						JavaCore.newSourceEntry(
-							projectPath.append(sourcePath), 
+							projectPath.append(sourcePath),
 							inclusionPaths,
-							exclusionPaths, 
+							exclusionPaths,
 							outputPath == null ? null : projectPath.append(outputPath)
 						);
 				}
@@ -1323,7 +1323,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 							e.printStackTrace();
 						}
 					}
-					
+
 					// accessible files
 					IPath[] accessibleFiles;
 					if (librariesInclusionPatterns == null) {
@@ -1350,11 +1350,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 							nonAccessibleFiles[j] = new Path(exclusionPattern);
 						}
 					}
-					if (lib.indexOf(File.separatorChar) == -1 && lib.charAt(0) != '/' && lib.equals(lib.toUpperCase())) { // all upper case is a var 
+					if (lib.indexOf(File.separatorChar) == -1 && lib.charAt(0) != '/' && lib.equals(lib.toUpperCase())) { // all upper case is a var
 						char[][] vars = CharOperation.splitOn(',', lib.toCharArray());
 						entries[sourceLength+i] = JavaCore.newVariableEntry(
-							new Path(new String(vars[0])), 
-							vars.length > 1 ? new Path(new String(vars[1])) : null, 
+							new Path(new String(vars[0])),
+							vars.length > 1 ? new Path(new String(vars[1])) : null,
 							vars.length > 2 ? new Path(new String(vars[2])) : null,
 							ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles), // ClasspathEntry.NO_ACCESS_RULES,
 							ClasspathEntry.NO_EXTRA_ATTRIBUTES,
@@ -1376,13 +1376,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 								null,
 								null,
 								ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
-								new IClasspathAttribute[0], 
+								new IClasspathAttribute[0],
 								false);
 					}
 				}
 				for  (int i= 0; i < projectLength; i++) {
 					boolean isExported = exportedProjects != null && exportedProjects.length > i && exportedProjects[i];
-					
+
 					// accessible files
 					IPath[] accessibleFiles;
 					if (projectsInclusionPatterns == null) {
@@ -1409,16 +1409,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 							nonAccessibleFiles[j] = new Path(exclusionPattern);
 						}
 					}
-					
+
 					entries[sourceLength+libLength+i] =
 						JavaCore.newProjectEntry(
 								new Path(projects[i]),
 								ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
 								combineAccessRestrictions,
-								new IClasspathAttribute[0], 
+								new IClasspathAttribute[0],
 								isExported);
 				}
-				
+
 				// create project's output folder
 				IPath outputPath = new Path(projectOutput);
 				if (outputPath.segmentCount() > 0) {
@@ -1427,43 +1427,43 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						output.create(true, true, monitor);
 					}
 				}
-				
+
 				// set classpath and output location
 				JavaProject javaProject = (JavaProject) JavaCore.create(project);
 				if (simulateImport)
 					javaProject.writeFileEntries(entries, projectPath.append(outputPath));
 				else
 					javaProject.setRawClasspath(entries, projectPath.append(outputPath), monitor);
-				
+
 				// set compliance level options
 				if ("1.5".equals(compliance)) {
 					Map options = new HashMap();
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 					javaProject.setOptions(options);
 				}
-				
+
 				result[0] = javaProject;
 			}
 		};
-		getWorkspace().run(create, null);	
+		getWorkspace().run(create, null);
 		return result[0];
 	}
 	protected IJavaProject importJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output) throws CoreException {
-		return 
+		return
 			createJavaProject(
-				projectName, 
-				sourceFolders, 
-				libraries, 
+				projectName,
+				sourceFolders,
+				libraries,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				null/*no project*/, 
+				null/*no project*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
 				true/*combine access restrictions by default*/,
-				null/*no exported project*/, 
-				output, 
+				null/*no exported project*/,
+				output,
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
@@ -1482,7 +1482,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				project.open(null);
 			}
 		};
-		getWorkspace().run(create, null);	
+		getWorkspace().run(create, null);
 		return project;
 	}
 	public void deleteResource(File resource) {
@@ -1497,7 +1497,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		deleteResource(getFolder(folderPath));
 	}
 	protected void deleteProject(String projectName) throws CoreException {
-		IProject project = this.getProject(projectName);
+		IProject project = getProject(projectName);
 		if (project.exists() && !project.isOpen()) { // force opening so that project can be deleted without logging (see bug 23629)
 			project.open(null);
 		}
@@ -1509,7 +1509,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		deleteResource(project.getProject());
 	}
-	
+
 	/**
 	 * Batch deletion of projects
 	 */
@@ -1620,22 +1620,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return pkg.getCompilationUnits();
 	}
 	protected ICompilationUnit getCompilationUnitFor(IJavaElement element) {
-	
+
 		if (element instanceof ICompilationUnit) {
 			return (ICompilationUnit)element;
 		}
-	
+
 		if (element instanceof IMember) {
 			return ((IMember)element).getCompilationUnit();
 		}
-	
+
 		if (element instanceof IPackageDeclaration ||
 			element instanceof IImportDeclaration) {
 				return (ICompilationUnit)element.getParent();
 			}
-	
+
 		return null;
-	
+
 	}
 	/**
 	 * Returns the last delta for the given element from the cached delta.
@@ -1662,11 +1662,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		return result;
 	}
-	
+
 	protected File getExternalFile(String relativePath) {
 		return new File(getExternalPath(), relativePath);
 	}
-	
+
 	protected String getExternalResourcePath(String name) {
 		return getExternalPath() + name;
 	}
@@ -1676,7 +1676,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected IPath getExternalJCLPath() {
 		return new Path(getExternalJCLPathString(""));
-	}	
+	}
 	/**
 	 * Returns the IPath to the external java class library (e.g. jclMin.jar)
 	 */
@@ -1810,17 +1810,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Returns the specified package fragment root in the given project, or
 	 * <code>null</code> if it does not exist.
-	 * If relative, the rootPath must be specified as a project relative path. 
+	 * If relative, the rootPath must be specified as a project relative path.
 	 * The empty path refers to the package fragment root that is the project
 	 * folder iteslf.
-	 * If absolute, the rootPath refers to either an external jar, or a resource 
+	 * If absolute, the rootPath refers to either an external jar, or a resource
 	 * internal to the workspace
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(
-		String projectName, 
+		String projectName,
 		String rootPath)
 		throws JavaModelException {
-			
+
 		IJavaProject project = getJavaProject(projectName);
 		if (project == null) {
 			return null;
@@ -1873,7 +1873,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	public ICompilationUnit getWorkingCopy(String path, boolean computeProblems) throws JavaModelException {
 		return getWorkingCopy(path, "", computeProblems);
-	}	
+	}
 	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
 		return getWorkingCopy(path, source, false);
 	}
@@ -1939,65 +1939,65 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			if (units[i] != null)
 				units[i].discardWorkingCopy();
 	}
-	
+
 	protected String displayString(String toPrint, int indent) {
-    	char[] toDisplay = 
+    	char[] toDisplay =
     		CharOperation.replace(
-    			toPrint.toCharArray(), 
-    			getExternalJCLPathString().toCharArray(), 
+    			toPrint.toCharArray(),
+    			getExternalJCLPathString().toCharArray(),
     			"getExternalJCLPathString()".toCharArray());
-		toDisplay = 
+		toDisplay =
     		CharOperation.replace(
-    			toDisplay, 
-    			getExternalJCLPathString("1.5").toCharArray(), 
+    			toDisplay,
+    			getExternalJCLPathString("1.5").toCharArray(),
     			"getExternalJCLPathString(\"1.5\")".toCharArray());
-		toDisplay = 
+		toDisplay =
     		CharOperation.replace(
-    			toDisplay, 
-    			getExternalPath().toCharArray(), 
+    			toDisplay,
+    			getExternalPath().toCharArray(),
     			"getExternalPath()".toCharArray());
-		
-		toDisplay = 
+
+		toDisplay =
     		CharOperation.replace(
-    			toDisplay, 
-    			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString(), 0).toCharArray(), 
+    			toDisplay,
+    			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString(), 0).toCharArray(),
     			"getExternalJCLSourcePathString()".toCharArray());
-		toDisplay = 
+		toDisplay =
     		CharOperation.replace(
-    			toDisplay, 
-    			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString("1.5"), 0).toCharArray(), 
+    			toDisplay,
+    			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString("1.5"), 0).toCharArray(),
     			"getExternalJCLSourcePathString(\"1.5\")".toCharArray());
-		
+
     	toDisplay = org.eclipse.jdt.core.tests.util.Util.displayString(new String(toDisplay), indent).toCharArray();
-    	
-    	toDisplay = 
+
+    	toDisplay =
     		CharOperation.replace(
-    			toDisplay, 
-    			"getExternalJCLPathString()".toCharArray(), 
+    			toDisplay,
+    			"getExternalJCLPathString()".toCharArray(),
     			("\"+ getExternalJCLPathString() + \"").toCharArray());
-    	toDisplay = 
+    	toDisplay =
     		CharOperation.replace(
-    			toDisplay, 
-    			"getExternalJCLPathString(\\\"1.5\\\")".toCharArray(), 
+    			toDisplay,
+    			"getExternalJCLPathString(\\\"1.5\\\")".toCharArray(),
     			("\"+ getExternalJCLPathString(\"1.5\") + \"").toCharArray());
-    	toDisplay = 
+    	toDisplay =
     		CharOperation.replace(
-    			toDisplay, 
-    			"getExternalJCLSourcePathString()".toCharArray(), 
+    			toDisplay,
+    			"getExternalJCLSourcePathString()".toCharArray(),
     			("\"+ getExternalJCLSourcePathString() + \"").toCharArray());
-    	toDisplay = 
+    	toDisplay =
     		CharOperation.replace(
-    			toDisplay, 
-    			"getExternalJCLSourcePathString(\\\"1.5\\\")".toCharArray(), 
+    			toDisplay,
+    			"getExternalJCLSourcePathString(\\\"1.5\\\")".toCharArray(),
     			("\"+ getExternalJCLSourcePathString(\"1.5\") + \"").toCharArray());
-    	toDisplay = 
+    	toDisplay =
     		CharOperation.replace(
-    			toDisplay, 
-    			"getExternalPath()".toCharArray(), 
+    			toDisplay,
+    			"getExternalPath()".toCharArray(),
     			("\"+ getExternalPath() + \"").toCharArray());
     	return new String(toDisplay);
     }
-	
+
 	protected ICompilationUnit newExternalWorkingCopy(String name, final String contents) throws JavaModelException {
 		return newExternalWorkingCopy(name, null/*no classpath*/, null/*no problem requestor*/, contents);
 	}
@@ -2018,7 +2018,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Create a new working copy owner using given problem requestor
 	 * to report problem.
-	 * 
+	 *
 	 * @param problemRequestor The requestor used to report problems
 	 * @return The created working copy owner
 	 */
@@ -2056,9 +2056,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		waitForAutoBuild(); // ensure that the auto-build job doesn't interfere with external jar refreshing
 		getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
 	}
-	
+
 	protected void removeJavaNature(String projectName) throws CoreException {
-		IProject project = this.getProject(projectName);
+		IProject project = getProject(projectName);
 		IProjectDescription description = project.getDescription();
 		description.setNatureIds(new String[] {});
 		project.setDescription(description, null);
@@ -2088,7 +2088,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				if (i < length-1)
 				System.arraycopy(entries, i+1, newEntries, i, length-1-i);
 				break;
-			}	
+			}
 		}
 		if (newEntries != null)
 			project.setRawClasspath(newEntries, null);
@@ -2098,7 +2098,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Returns a delta for the given element in the delta tree
 	 */
 	protected IJavaElementDelta searchForDelta(IJavaElement element, IJavaElementDelta delta) {
-	
+
 		if (delta == null) {
 			return null;
 		}
@@ -2134,9 +2134,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1)
 			matchRule |= SearchPattern.R_PATTERN_MATCH;
 		SearchPattern pattern = SearchPattern.createPattern(
-			patternString, 
+			patternString,
 			searchFor,
-			limitTo, 
+			limitTo,
 			matchRule);
 		assertNotNull("Pattern should not be null", pattern);
 		new SearchEngine().search(
@@ -2272,7 +2272,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected ResolvedSourceMethod selectParameterizedMethod(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectParameterizedMethod(unit, selection, 1);
 	}
-	
+
 	/**
 	 * Select a parameterized source method in a compilation unit identified with the nth occurence in the source of a given selection.
 	 * @param unit
@@ -2297,7 +2297,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected ResolvedSourceType selectParameterizedType(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectParameterizedType(unit, selection, 1);
 	}
-	
+
 	/**
 	 * Select a parameterized source type in a compilation unit identified with the nth occurence in the source of a given selection.
 	 * @param unit
@@ -2498,17 +2498,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL_SRC";
 				break;
 		}
-		
+
 		// ensure variables are set
 		setUpJCLClasspathVariables(compliance);
-		
+
 		// set options
 		Map options = new HashMap();
 		options.put(CompilerOptions.OPTION_Compliance, version);
-		options.put(CompilerOptions.OPTION_Source, version);	
+		options.put(CompilerOptions.OPTION_Source, version);
 		options.put(CompilerOptions.OPTION_TargetPlatform, version);
 		javaProject.setOptions(options);
-		
+
 		// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
 		IClasspathEntry[] classpath = javaProject.getRawClasspath();
 		IPath jclLib = new Path(jclLibString);
@@ -2516,11 +2516,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			IClasspathEntry entry = classpath[i];
 			if (entry.getPath().equals(jclLib)) {
 				classpath[i] = JavaCore.newVariableEntry(
-						new Path(newJclLibString), 
-						new Path(newJclSrcString), 
-						entry.getSourceAttachmentRootPath(), 
-						entry.getAccessRules(), 
-						new IClasspathAttribute[0], 
+						new Path(newJclLibString),
+						new Path(newJclSrcString),
+						entry.getSourceAttachmentRootPath(),
+						entry.getAccessRules(),
+						new IClasspathAttribute[0],
 						entry.isExported());
 				break;
 			}
@@ -2535,7 +2535,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					new String[] {"JCL15_LIB", "JCL15_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
 					null);
-			} 
+			}
 		} else {
 			if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
 				setupExternalJCL("jclMin");
@@ -2543,12 +2543,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 					null);
-			} 
-		}	
+			}
+		}
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		
+
 		// ensure autobuilding is turned off
 		IWorkspaceDescription description = getWorkspace().getDescription();
 		if (description.isAutoBuilding()) {
@@ -2558,7 +2558,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
-		
+
 		if (NameLookup.VERBOSE || BasicSearchEngine.VERBOSE || JavaModelManager.VERBOSE) {
 			System.out.println("--------------------------------------------------------------------------------");
 			System.out.println("Running test "+getName()+"...");
@@ -2571,12 +2571,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				JavaElement elementB = (JavaElement)b;
 				char[] tempJCLPath = "<externalJCLPath>".toCharArray();
 	    		String idA = new String(CharOperation.replace(
-	    			elementA.toStringWithAncestors().toCharArray(), 
-	    			getExternalJCLPathString().toCharArray(), 
+	    			elementA.toStringWithAncestors().toCharArray(),
+	    			getExternalJCLPathString().toCharArray(),
 	    			tempJCLPath));
 	    		String idB = new String(CharOperation.replace(
-	    			elementB.toStringWithAncestors().toCharArray(), 
-	    			getExternalJCLPathString().toCharArray(), 
+	    			elementB.toStringWithAncestors().toCharArray(),
+	    			getExternalJCLPathString().toCharArray(),
 	    			tempJCLPath));
 				return idA.compareTo(idB);
 			}
@@ -2589,11 +2589,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				if (a instanceof IResource) {
 					IResource resourceA = (IResource)a;
 					IResource resourceB = (IResource)b;
-					return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());			
+					return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());
 				} else {
 					IJarEntryResource resourceA = (IJarEntryResource)a;
 					IJarEntryResource resourceB = (IJarEntryResource)b;
-					return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());			
+					return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());
 				}
 			}
 		};
@@ -2654,8 +2654,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		this.logListener = new ILogListener(){
 			private StringBuffer buffer = new StringBuffer();
 			public void logging(IStatus status, String plugin) {
-				buffer.append(status);
-				buffer.append('\n');
+				this.buffer.append(status);
+				this.buffer.append('\n');
 			}
 			public String toString() {
 				return this.buffer.toString();
@@ -2701,7 +2701,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		} while ((System.currentTimeMillis() - start) < time);
 	}
-	
+
 	protected String toString(String[] strings) {
 		return toString(strings, false/*don't add extra new line*/);
 	}
@@ -2722,13 +2722,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			this.workingCopies = null;
 		}
 		this.wcOwner = null;
-		
+
 		// ensure workspace options have been restored to their default
 		Hashtable options = JavaCore.getOptions();
 		Hashtable defaultOptions = JavaCore.getDefaultOptions();
 		assertEquals(
-			"Workspace options should be back to their default", 
-			new CompilerOptions(defaultOptions).toString(), 
+			"Workspace options should be back to their default",
+			new CompilerOptions(defaultOptions).toString(),
 			new CompilerOptions(options).toString());
 	}
 	/* (non-Javadoc)
@@ -2780,7 +2780,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				"!@$#!@".toCharArray(),
 				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 				IJavaSearchConstants.CLASS,
-				scope, 
+				scope,
 				new TypeNameRequestor() {
 					public void acceptType(
 						int modifiers,

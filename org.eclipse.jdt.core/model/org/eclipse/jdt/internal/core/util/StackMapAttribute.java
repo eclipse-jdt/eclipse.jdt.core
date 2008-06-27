@@ -27,7 +27,7 @@ public class StackMapAttribute
 
 	private int numberOfEntries;
 	private IStackMapFrame[] frames;
-	
+
 	private byte[] bytes;
 
 	/**
@@ -43,8 +43,8 @@ public class StackMapAttribute
 			int offset)
 			throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
-		
-		final int length = u2At(classFileBytes, 6, offset); 
+
+		final int length = u2At(classFileBytes, 6, offset);
 		this.numberOfEntries = length;
 		if (length != 0) {
 			int readOffset = 8;
@@ -58,7 +58,7 @@ public class StackMapAttribute
 			this.frames = NO_FRAMES;
 		}
 		final int byteLength = (int) u4At(classFileBytes, 2, offset);
-		
+
 		if (length != 0) {
 			System.arraycopy(classFileBytes, offset + 6, this.bytes = new byte[byteLength], 0, byteLength);
 		} else {
@@ -73,7 +73,7 @@ public class StackMapAttribute
 	public IStackMapFrame[] getStackMapFrame() {
 		return this.frames;
 	}
-	
+
 	/**
 	 */
 	public byte[] getBytes() {

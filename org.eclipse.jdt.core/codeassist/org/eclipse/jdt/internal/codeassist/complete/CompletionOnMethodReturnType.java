@@ -21,13 +21,13 @@ public class CompletionOnMethodReturnType extends MethodDeclaration {
 		this.sourceStart = returnType.sourceStart;
 		this.sourceEnd = returnType.sourceEnd;
 	}
-	
+
 	public void resolveStatements() {
 			throw new CompletionNodeFound(this, this.scope);
 	}
-	
+
 	public StringBuffer print(int tab, StringBuffer output) {
-		return returnType.print(tab, output);
+		return this.returnType.print(tab, output);
 	}
 
 }

@@ -42,7 +42,7 @@ public RenameElementsOperation(IJavaElement[] elements, IJavaElement[] destinati
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Messages.operation_renameElementProgress; 
+	return Messages.operation_renameElementProgress;
 }
 /**
  * @see CopyElementsOperation#isRename()
@@ -67,17 +67,17 @@ protected IJavaModelStatus verify() {
 protected void verify(IJavaElement element) throws JavaModelException {
 	if (element == null || !element.exists())
 		error(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, element);
-		
+
 	if (element.isReadOnly())
 		error(IJavaModelStatusConstants.READ_ONLY, element);
-		
+
 	if (!(element instanceof ISourceReference))
 		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
-		
+
 	int elementType = element.getElementType();
 	if (elementType < IJavaElement.TYPE || elementType == IJavaElement.INITIALIZER)
 		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
-		
+
 	verifyRenaming(element);
 }
 }

@@ -20,25 +20,25 @@ private ShortConstant(short value) {
 	this.value = value;
 }
 public byte byteValue() {
-	return (byte) value;
+	return (byte) this.value;
 }
 public char charValue() {
-	return (char) value;
+	return (char) this.value;
 }
 public double doubleValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public float floatValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public int intValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public long longValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public short shortValue() {
-	return value;
+	return this.value;
 }
 public String stringValue() {
 	//spec 15.17.11
@@ -46,7 +46,7 @@ public String stringValue() {
 }
 public String toString(){
 
-	return "(short)" + value ; } //$NON-NLS-1$
+	return "(short)" + this.value ; } //$NON-NLS-1$
 public int typeID() {
 	return T_short;
 }

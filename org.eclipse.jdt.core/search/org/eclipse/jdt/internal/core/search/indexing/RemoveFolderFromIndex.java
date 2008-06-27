@@ -51,13 +51,13 @@ class RemoveFolderFromIndex extends IndexRequest {
 			if (paths != null) {
 				if (this.exclusionPatterns == null && this.inclusionPatterns == null) {
 					for (int i = 0, max = paths.length; i < max; i++) {
-						manager.remove(paths[i], this.containerPath); // write lock will be acquired by the remove operation
+						this.manager.remove(paths[i], this.containerPath); // write lock will be acquired by the remove operation
 					}
 				} else {
 					for (int i = 0, max = paths.length; i < max; i++) {
 						String documentPath =  this.containerPath.toString() + '/' + paths[i];
 						if (!Util.isExcluded(new Path(documentPath), this.inclusionPatterns, this.exclusionPatterns, false))
-							manager.remove(paths[i], this.containerPath); // write lock will be acquired by the remove operation
+							this.manager.remove(paths[i], this.containerPath); // write lock will be acquired by the remove operation
 					}
 				}
 			}

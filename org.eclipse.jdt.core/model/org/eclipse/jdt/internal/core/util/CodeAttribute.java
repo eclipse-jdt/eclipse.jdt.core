@@ -41,7 +41,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	private ILocalVariableAttribute localVariableAttribute;
 	private int maxLocals;
 	private int maxStack;
-	
+
 	CodeAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
 		this.classFileBytes = classFileBytes;
@@ -111,7 +111,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	 */
 	public byte[] getBytecodes() {
 		if (this.bytecodes == null) {
-			System.arraycopy(this.classFileBytes, this.codeOffset, (this.bytecodes = new byte[(int) this.codeLength]), 0, (int) this.codeLength); 
+			System.arraycopy(this.classFileBytes, this.codeOffset, (this.bytecodes = new byte[(int) this.codeLength]), 0, (int) this.codeLength);
 		}
 		return this.bytecodes;
 	}
@@ -150,7 +150,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	public ILocalVariableAttribute getLocalVariableAttribute() {
 		return this.localVariableAttribute;
 	}
-	
+
 	/**
 	 * @see ICodeAttribute#getMaxLocals()
 	 */
@@ -164,7 +164,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	public int getMaxStack() {
 		return this.maxStack;
 	}
-	
+
 	/**
 	 * @see ICodeAttribute#traverse(IBytecodeVisitor visitor)
 	 */
@@ -1159,7 +1159,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 					pc++;
 					break;
 				default:
-					throw new ClassFormatException(ClassFormatException.INVALID_BYTECODE);			
+					throw new ClassFormatException(ClassFormatException.INVALID_BYTECODE);
 			}
 			if (pc >= (this.codeLength + this.codeOffset)) {
 				break;

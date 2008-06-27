@@ -19,11 +19,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 import junit.framework.Test;
 
 public class JavaLikeExtensionsTests extends ModifyingResourceTests {
-	
+
 	public JavaLikeExtensionsTests(String name) {
 		super(name);
 	}
-	
+
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
@@ -37,7 +37,7 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 	public static Test suite() {
 		return buildModelTestSuite(JavaLikeExtensionsTests.class);
 	}
-	
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		Util.resetJavaLikeExtensions();
@@ -49,8 +49,8 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 	public void testGetJavaLikeExtensions01() {
 		assertSortedStringsEqual(
 			"Unexpected file extensions",
-			"bar\n" + 
-			"foo\n" + 
+			"bar\n" +
+			"foo\n" +
 			"java\n",
 			JavaCore.getJavaLikeExtensions()
 		);
@@ -66,9 +66,9 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 				javaContentType.addFileSpec("abc", IContentType.FILE_EXTENSION_SPEC);
 			assertSortedStringsEqual(
 				"Unexpected file extensions",
-				"abc\n" + 
-				"bar\n" + 
-				"foo\n" + 
+				"abc\n" +
+				"bar\n" +
+				"foo\n" +
 				"java\n",
 				JavaCore.getJavaLikeExtensions()
 			);
@@ -77,7 +77,7 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 				javaContentType.removeFileSpec("abc", IContentType.FILE_EXTENSION_SPEC);
 		}
 	}
-	
+
 	/*
 	 * Ensure that file.foo is a Java-like file name
 	 */
@@ -105,7 +105,7 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 	public void testIJavaLikeFileName04() {
 		assertFalse("file should not be a Java-like file name", JavaCore.isJavaLikeFileName("file"));
 	}
-	
+
 	/*
 	 * Ensure that removing the Java-like extension for file.foo returns foo
 	 */

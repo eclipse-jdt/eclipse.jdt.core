@@ -33,17 +33,17 @@ public class ASTRewritingRevertTest extends ASTRewritingTest {
 	public static Test allTests() {
 		return new Suite(THIS);
 	}
-	
+
 	public static Test setUpTest(Test someTest) {
 		TestSuite suite= new Suite("one test");
 		suite.addTest(someTest);
 		return suite;
 	}
-	
+
 	public static Test suite() {
 		return allTests();
 	}
-	
+
 
 	public void testRemoveInserted() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -52,43 +52,43 @@ public class ASTRewritingRevertTest extends ASTRewritingTest {
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
 		buf.append("    }\n");
-		buf.append("}\n");	
+		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createAST3(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
-		
+
 		AST ast= astRoot.getAST();
-		
+
 		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
 		{
 			// revert inserted node
 			PrimitiveType newType= ast.newPrimitiveType(PrimitiveType.INT);
-			
+
 			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, newType, null);
 			rewrite.remove(newType, null);
-			
+
 		}
 		{
 			// revert inserted list child
 			SingleVariableDeclaration newParam= createNewParam(ast, "x");
-			
+
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertFirst(newParam, null);
-			
+
 			rewrite.remove(newParam, null);
 		}
-				
+
 		String preview= evaluateRewrite(cu, rewrite);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
 		buf.append("    }\n");
-		buf.append("}\n");	
-			
+		buf.append("}\n");
+
 		assertEqualString(preview, buf.toString());
 	}
 
@@ -99,48 +99,48 @@ public class ASTRewritingRevertTest extends ASTRewritingTest {
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
 		buf.append("    }\n");
-		buf.append("}\n");	
+		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createAST3(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
-		
+
 		AST ast= astRoot.getAST();
-		
+
 		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
 		{
 			// replace inserted node
 			PrimitiveType newType= ast.newPrimitiveType(PrimitiveType.INT);
-			
+
 			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, newType, null);
-			
+
 			PrimitiveType betterType= ast.newPrimitiveType(PrimitiveType.BOOLEAN);
-			
+
 			rewrite.replace(newType, betterType, null);
-			
+
 		}
 		{
 			// replace inserted list child
 			SingleVariableDeclaration newParam= createNewParam(ast, "x");
-			
+
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertFirst(newParam, null);
-			
+
 			SingleVariableDeclaration betterParam= createNewParam(ast, "y");
-			
+
 			rewrite.replace(newParam, betterParam, null);
 		}
-				
+
 		String preview= evaluateRewrite(cu, rewrite);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public boolean foo(float y) {\n");
 		buf.append("    }\n");
-		buf.append("}\n");	
-			
+		buf.append("}\n");
+
 		assertEqualString(preview, buf.toString());
-	}			
+	}
 }

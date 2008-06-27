@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.impl;
 
 public class DoubleConstant extends Constant {
-	
+
 	private double value;
 
 	public static Constant fromValue(double value) {
@@ -22,43 +22,43 @@ public class DoubleConstant extends Constant {
 	private DoubleConstant(double value) {
 		this.value = value;
 	}
-	
+
 	public byte byteValue() {
-		return (byte) value;
+		return (byte) this.value;
 	}
-	
+
 	public char charValue() {
-		return (char) value;
+		return (char) this.value;
 	}
-	
+
 	public double doubleValue() {
 		return this.value;
 	}
-	
+
 	public float floatValue() {
-		return (float) value;
+		return (float) this.value;
 	}
-	
+
 	public int intValue() {
-		return (int) value;
+		return (int) this.value;
 	}
-	
+
 	public long longValue() {
-		return (long) value;
+		return (long) this.value;
 	}
-	
+
 	public short shortValue() {
-		return (short) value;
+		return (short) this.value;
 	}
-	
+
 	public String stringValue() {
 		return String.valueOf(this.value);
 	}
-	
+
 	public String toString() {
 		if (this == NotAConstant)
 			return "(Constant) NotAConstant"; //$NON-NLS-1$
-		return "(double)" + value;  //$NON-NLS-1$
+		return "(double)" + this.value;  //$NON-NLS-1$
 	}
 
 	public int typeID() {

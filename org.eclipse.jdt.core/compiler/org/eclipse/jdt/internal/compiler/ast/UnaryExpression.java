@@ -32,7 +32,7 @@ public FlowInfo analyseCode(
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 	this.expression.checkNPE(currentScope, flowContext, flowInfo);
-	if (((bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
+	if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
 		return this.expression.
 			analyseCode(currentScope, flowContext, flowInfo).
 			asNegatedCondition();
@@ -71,7 +71,7 @@ public FlowInfo analyseCode(
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		switch ((bits & OperatorMASK) >> OperatorSHIFT) {
+		switch ((this.bits & OperatorMASK) >> OperatorSHIFT) {
 			case NOT :
 				switch ((this.expression.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) /* runtime type */ {
 					case T_boolean :
@@ -137,7 +137,7 @@ public FlowInfo analyseCode(
 				} else {
 					this.expression.generateCode(currentScope, codeStream, valueRequired);
 					if (valueRequired) {
-						switch ((expression.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4){ /* runtime type */
+						switch ((this.expression.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4){ /* runtime type */
 							case T_int :
 								codeStream.ineg();
 								break;
@@ -229,7 +229,7 @@ public FlowInfo analyseCode(
 		}
 
 		int tableId;
-		switch ((bits & OperatorMASK) >> OperatorSHIFT) {
+		switch ((this.bits & OperatorMASK) >> OperatorSHIFT) {
 			case NOT :
 				tableId = AND_AND;
 				break;
@@ -281,11 +281,11 @@ public FlowInfo analyseCode(
 				Constant.computeConstantOperation(
 					this.expression.constant,
 					expressionTypeID,
-					(bits & OperatorMASK) >> OperatorSHIFT);
+					(this.bits & OperatorMASK) >> OperatorSHIFT);
 		} else {
 			this.constant = Constant.NotAConstant;
-			if (((bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
-				Constant cst = expression.optimizedBooleanConstant();
+			if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
+				Constant cst = this.expression.optimizedBooleanConstant();
 				if (cst != Constant.NotAConstant)
 					this.optimizedBooleanConstant = BooleanConstant.fromValue(!cst.booleanValue());
 			}

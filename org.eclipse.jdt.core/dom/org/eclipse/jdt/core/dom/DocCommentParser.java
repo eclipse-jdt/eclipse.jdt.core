@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
  * Internal parser used for decoding doc comments.
- * 
+ *
  * @since 3.0
  */
 class DocCommentParser extends AbstractCommentParser {
@@ -42,7 +42,7 @@ class DocCommentParser extends AbstractCommentParser {
 
 	/* (non-Javadoc)
 	 * Returns true if tag @deprecated is present in annotation.
-	 * 
+	 *
 	 * If annotation checking is enabled, will also construct an Annotation node, which will be stored into Parser.annotation
 	 * slot for being consumed later on.
 	 */
@@ -55,7 +55,7 @@ class DocCommentParser extends AbstractCommentParser {
 		this.source = this.scanner.source;
 		this.lineEnds = this.scanner.lineEnds;
 		this.docComment = new Javadoc(this.ast);
-		
+
 		// Parse
 		if (this.checkDocComment) {
 			this.javadocStart = start;
@@ -333,7 +333,7 @@ class DocCommentParser extends AbstractCommentParser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseTag(int)
 	 */
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
-		
+
 		// Read tag name
 		int currentPosition = this.index;
 		int token = readTokenAndConsume();

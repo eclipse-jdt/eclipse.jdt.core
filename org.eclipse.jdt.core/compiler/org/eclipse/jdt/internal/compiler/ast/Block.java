@@ -16,28 +16,28 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class Block extends Statement {
-	
+
 	public Statement[] statements;
 	public int explicitDeclarations;
 	// the number of explicit declaration , used to create scope
 	public BlockScope scope;
-	
+
 	public Block(int explicitDeclarations) {
 		this.explicitDeclarations = explicitDeclarations;
 	}
-	
+
 	public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
 		// empty block
-		if (statements == null)	return flowInfo;
+		if (this.statements == null)	return flowInfo;
 		boolean didAlreadyComplain = false;
-		for (int i = 0, max = statements.length; i < max; i++) {
-			Statement stat = statements[i];
-			if (!stat.complainIfUnreachable(flowInfo, scope, didAlreadyComplain)) {
-				flowInfo = stat.analyseCode(scope, flowContext, flowInfo);
+		for (int i = 0, max = this.statements.length; i < max; i++) {
+			Statement stat = this.statements[i];
+			if (!stat.complainIfUnreachable(flowInfo, this.scope, didAlreadyComplain)) {
+				flowInfo = stat.analyseCode(this.scope, flowContext, flowInfo);
 			} else {
 				didAlreadyComplain = true;
 			}
@@ -49,32 +49,32 @@ public class Block extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((bits & IsReachable) == 0) {
+		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
 		int pc = codeStream.position;
-		if (statements != null) {
-			for (int i = 0, max = statements.length; i < max; i++) {
-				statements[i].generateCode(scope, codeStream);
+		if (this.statements != null) {
+			for (int i = 0, max = this.statements.length; i < max; i++) {
+				this.statements[i].generateCode(this.scope, codeStream);
 			}
 		} // for local variable debug attributes
-		if (scope != currentScope) { // was really associated with its own scope
-			codeStream.exitUserScope(scope);
+		if (this.scope != currentScope) { // was really associated with its own scope
+			codeStream.exitUserScope(this.scope);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	public boolean isEmptyBlock() {
 
-		return statements == null;
+		return this.statements == null;
 	}
 
 	public StringBuffer printBody(int indent, StringBuffer output) {
 
 		if (this.statements == null) return output;
-		for (int i = 0; i < statements.length; i++) {
-			statements[i].printStatement(indent + 1, output);
-			output.append('\n'); 
+		for (int i = 0; i < this.statements.length; i++) {
+			this.statements[i].printStatement(indent + 1, output);
+			output.append('\n');
 		}
 		return output;
 	}
@@ -92,13 +92,13 @@ public class Block extends Statement {
 		if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			upperScope.problemReporter().undocumentedEmptyBlock(this.sourceStart, this.sourceEnd);
 		}
-		if (statements != null) {
-			scope =
-				explicitDeclarations == 0
+		if (this.statements != null) {
+			this.scope =
+				this.explicitDeclarations == 0
 					? upperScope
-					: new BlockScope(upperScope, explicitDeclarations);
-			for (int i = 0, length = statements.length; i < length; i++) {
-				statements[i].resolve(scope);
+					: new BlockScope(upperScope, this.explicitDeclarations);
+			for (int i = 0, length = this.statements.length; i < length; i++) {
+				this.statements[i].resolve(this.scope);
 			}
 		}
 	}
@@ -109,10 +109,10 @@ public class Block extends Statement {
 			givenScope.problemReporter().undocumentedEmptyBlock(this.sourceStart, this.sourceEnd);
 		}
 		// this optimized resolve(...) is sent only on none empty blocks
-		scope = givenScope;
-		if (statements != null) {
-			for (int i = 0, length = statements.length; i < length; i++) {
-				statements[i].resolve(scope);
+		this.scope = givenScope;
+		if (this.statements != null) {
+			for (int i = 0, length = this.statements.length; i < length; i++) {
+				this.statements[i].resolve(this.scope);
 			}
 		}
 	}
@@ -122,21 +122,21 @@ public class Block extends Statement {
 		BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
-			if (statements != null) {
-				for (int i = 0, length = statements.length; i < length; i++)
-					statements[i].traverse(visitor, scope);
+			if (this.statements != null) {
+				for (int i = 0, length = this.statements.length; i < length; i++)
+					this.statements[i].traverse(visitor, this.scope);
 			}
 		}
 		visitor.endVisit(this, blockScope);
 	}
-	
+
 	/**
 	 * Dispatch the call on its last statement.
 	 */
 	public void branchChainTo(BranchLabel label) {
 		 if (this.statements != null) {
-		 	this.statements[statements.length - 1].branchChainTo(label);
+		 	this.statements[this.statements.length - 1].branchChainTo(label);
 		 }
 	}
-	
+
 }

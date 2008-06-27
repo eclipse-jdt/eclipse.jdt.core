@@ -261,17 +261,17 @@ public void initialize(ClassFile givenClassFile) {
  * Return the content of the receiver
  */
 public byte[] dumpBytes() {
-    System.arraycopy(poolContent, 0, (poolContent = new byte[currentOffset]), 0, currentOffset);
-    return poolContent;
+    System.arraycopy(this.poolContent, 0, (this.poolContent = new byte[this.currentOffset]), 0, this.currentOffset);
+    return this.poolContent;
 }
 public int literalIndex(byte[] utf8encoding, char[] stringCharArray) {
     int index;
-    if ((index = UTF8Cache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
+    if ((index = this.UTF8Cache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
         // The entry doesn't exit yet
         if ((index = -index)> 0xFFFF) {
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
         }
-        currentIndex++;
+        this.currentIndex++;
         // Write the tag first
         int length = this.offsets.length;
         if (length <= index) {
@@ -281,16 +281,16 @@ public int literalIndex(byte[] utf8encoding, char[] stringCharArray) {
         this.offsets[index] = this.currentOffset;
         writeU1(Utf8Tag);
         int utf8encodingLength = utf8encoding.length;
-        if (currentOffset + 2 + utf8encodingLength >= poolContent.length) {
+        if (this.currentOffset + 2 + utf8encodingLength >= this.poolContent.length) {
             // we need to resize the poolContent array because we won't have
             // enough space to write the length
             resizePoolContents(2 + utf8encodingLength);
         }
-        poolContent[currentOffset++] = (byte) (utf8encodingLength >> 8);
-        poolContent[currentOffset++] = (byte) utf8encodingLength;
+        this.poolContent[this.currentOffset++] = (byte) (utf8encodingLength >> 8);
+        this.poolContent[this.currentOffset++] = (byte) utf8encodingLength;
         // add in once the whole byte array
-        System.arraycopy(utf8encoding, 0, poolContent, currentOffset, utf8encodingLength);
-        currentOffset += utf8encodingLength;
+        System.arraycopy(utf8encoding, 0, this.poolContent, this.currentOffset, utf8encodingLength);
+        this.currentOffset += utf8encodingLength;
     }
     return index;
 }
@@ -309,7 +309,7 @@ public int literalIndex(TypeBinding binding) {
  */
 public int literalIndex(char[] utf8Constant) {
     int index;
-    if ((index = UTF8Cache.putIfAbsent(utf8Constant, this.currentIndex)) < 0) {
+    if ((index = this.UTF8Cache.putIfAbsent(utf8Constant, this.currentIndex)) < 0) {
         if ((index = -index)> 0xFFFF) {
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
         }
@@ -323,13 +323,13 @@ public int literalIndex(char[] utf8Constant) {
         this.offsets[index] = this.currentOffset;
         writeU1(Utf8Tag);
         // Then the size of the stringName array
-        int savedCurrentOffset = currentOffset;
-        if (currentOffset + 2 >= poolContent.length) {
+        int savedCurrentOffset = this.currentOffset;
+        if (this.currentOffset + 2 >= this.poolContent.length) {
             // we need to resize the poolContent array because we won't have
             // enough space to write the length
             resizePoolContents(2);
         }
-        currentOffset += 2;
+        this.currentOffset += 2;
         length = 0;
         for (int i = 0; i < utf8Constant.length; i++) {
             char current = utf8Constant[i];
@@ -354,23 +354,23 @@ public int literalIndex(char[] utf8Constant) {
             }
         }
         if (length >= 65535) {
-            currentOffset = savedCurrentOffset - 1;
+            this.currentOffset = savedCurrentOffset - 1;
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceForConstant(this.classFile.referenceBinding.scope.referenceType());
         }
         if (index > 0xFFFF){
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
         }
-        currentIndex++;
+        this.currentIndex++;
         // Now we know the length that we have to write in the constant pool
         // we use savedCurrentOffset to do that
-        poolContent[savedCurrentOffset] = (byte) (length >> 8);
-        poolContent[savedCurrentOffset + 1] = (byte) length;
+        this.poolContent[savedCurrentOffset] = (byte) (length >> 8);
+        this.poolContent[savedCurrentOffset + 1] = (byte) length;
     }
     return index;
 }
 public int literalIndex(char[] stringCharArray, byte[] utf8encoding) {
     int index;
-    if ((index = stringCache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
+    if ((index = this.stringCache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
         // The entry doesn't exit yet
         this.currentIndex++;
         if ((index = -index) > 0xFFFF){
@@ -386,14 +386,14 @@ public int literalIndex(char[] stringCharArray, byte[] utf8encoding) {
         writeU1(StringTag);
         // Then the string index
         int stringIndexOffset = this.currentOffset;
-        if (currentOffset + 2 >= poolContent.length) {
+        if (this.currentOffset + 2 >= this.poolContent.length) {
             resizePoolContents(2);
         }
-        currentOffset+=2;
+        this.currentOffset+=2;
 
         final int stringIndex = literalIndex(utf8encoding, stringCharArray);
-        poolContent[stringIndexOffset++] = (byte) (stringIndex >> 8);
-        poolContent[stringIndexOffset] = (byte) stringIndex;
+        this.poolContent[stringIndexOffset++] = (byte) (stringIndex >> 8);
+        this.poolContent[stringIndexOffset] = (byte) stringIndex;
     }
     return index;
 }
@@ -412,10 +412,10 @@ public int literalIndex(double key) {
     int index;
     // lazy initialization for base type caches
     // If it is null, initialize it, otherwise use it
-    if (doubleCache == null) {
-            doubleCache = new DoubleCache(DOUBLE_INITIAL_SIZE);
+    if (this.doubleCache == null) {
+            this.doubleCache = new DoubleCache(DOUBLE_INITIAL_SIZE);
     }
-    if ((index = doubleCache.putIfAbsent(key, this.currentIndex)) < 0) {
+    if ((index = this.doubleCache.putIfAbsent(key, this.currentIndex)) < 0) {
         if ((index = -index)> 0xFFFF){
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
         }
@@ -431,18 +431,18 @@ public int literalIndex(double key) {
         writeU1(DoubleTag);
         // Then add the 8 bytes representing the double
         long temp = java.lang.Double.doubleToLongBits(key);
-        length = poolContent.length;
-        if (currentOffset + 8 >= length) {
+        length = this.poolContent.length;
+        if (this.currentOffset + 8 >= length) {
             resizePoolContents(8);
         }
-        poolContent[currentOffset++] = (byte) (temp >>> 56);
-        poolContent[currentOffset++] = (byte) (temp >>> 48);
-        poolContent[currentOffset++] = (byte) (temp >>> 40);
-        poolContent[currentOffset++] = (byte) (temp >>> 32);
-        poolContent[currentOffset++] = (byte) (temp >>> 24);
-        poolContent[currentOffset++] = (byte) (temp >>> 16);
-        poolContent[currentOffset++] = (byte) (temp >>> 8);
-        poolContent[currentOffset++] = (byte) temp;
+        this.poolContent[this.currentOffset++] = (byte) (temp >>> 56);
+        this.poolContent[this.currentOffset++] = (byte) (temp >>> 48);
+        this.poolContent[this.currentOffset++] = (byte) (temp >>> 40);
+        this.poolContent[this.currentOffset++] = (byte) (temp >>> 32);
+        this.poolContent[this.currentOffset++] = (byte) (temp >>> 24);
+        this.poolContent[this.currentOffset++] = (byte) (temp >>> 16);
+        this.poolContent[this.currentOffset++] = (byte) (temp >>> 8);
+        this.poolContent[this.currentOffset++] = (byte) temp;
     }
     return index;
 }
@@ -459,10 +459,10 @@ public int literalIndex(float key) {
     int index;
     // lazy initialization for base type caches
     // If it is null, initialize it, otherwise use it
-    if (floatCache == null) {
-        floatCache = new FloatCache(FLOAT_INITIAL_SIZE);
+    if (this.floatCache == null) {
+        this.floatCache = new FloatCache(FLOAT_INITIAL_SIZE);
     }
-    if ((index = floatCache.putIfAbsent(key, this.currentIndex)) < 0) {
+    if ((index = this.floatCache.putIfAbsent(key, this.currentIndex)) < 0) {
         if ((index = -index) > 0xFFFF){
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
         }
@@ -478,13 +478,13 @@ public int literalIndex(float key) {
         writeU1(FloatTag);
         // Then add the 4 bytes representing the float
         int temp = java.lang.Float.floatToIntBits(key);
-        if (currentOffset + 4 >= poolContent.length) {
+        if (this.currentOffset + 4 >= this.poolContent.length) {
             resizePoolContents(4);
         }
-        poolContent[currentOffset++] = (byte) (temp >>> 24);
-        poolContent[currentOffset++] = (byte) (temp >>> 16);
-        poolContent[currentOffset++] = (byte) (temp >>> 8);
-        poolContent[currentOffset++] = (byte) temp;
+        this.poolContent[this.currentOffset++] = (byte) (temp >>> 24);
+        this.poolContent[this.currentOffset++] = (byte) (temp >>> 16);
+        this.poolContent[this.currentOffset++] = (byte) (temp >>> 8);
+        this.poolContent[this.currentOffset++] = (byte) temp;
     }
     return index;
 }
@@ -501,10 +501,10 @@ public int literalIndex(int key) {
     int index;
     // lazy initialization for base type caches
     // If it is null, initialize it, otherwise use it
-    if (intCache == null) {
-        intCache = new IntegerCache(INT_INITIAL_SIZE);
+    if (this.intCache == null) {
+        this.intCache = new IntegerCache(INT_INITIAL_SIZE);
     }
-    if ((index = intCache.putIfAbsent(key, this.currentIndex)) < 0) {
+    if ((index = this.intCache.putIfAbsent(key, this.currentIndex)) < 0) {
         this.currentIndex++;
         if ((index = -index) > 0xFFFF){
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
@@ -519,13 +519,13 @@ public int literalIndex(int key) {
         this.offsets[index] = this.currentOffset;
         writeU1(IntegerTag);
         // Then add the 4 bytes representing the int
-        if (currentOffset + 4 >= poolContent.length) {
+        if (this.currentOffset + 4 >= this.poolContent.length) {
             resizePoolContents(4);
         }
-        poolContent[currentOffset++] = (byte) (key >>> 24);
-        poolContent[currentOffset++] = (byte) (key >>> 16);
-        poolContent[currentOffset++] = (byte) (key >>> 8);
-        poolContent[currentOffset++] = (byte) key;
+        this.poolContent[this.currentOffset++] = (byte) (key >>> 24);
+        this.poolContent[this.currentOffset++] = (byte) (key >>> 16);
+        this.poolContent[this.currentOffset++] = (byte) (key >>> 8);
+        this.poolContent[this.currentOffset++] = (byte) key;
     }
     return index;
 }
@@ -544,10 +544,10 @@ public int literalIndex(long key) {
     int index;
     // lazy initialization for base type caches
     // If it is null, initialize it, otherwise use it
-    if (longCache == null) {
-        longCache = new LongCache(LONG_INITIAL_SIZE);
+    if (this.longCache == null) {
+        this.longCache = new LongCache(LONG_INITIAL_SIZE);
     }
-    if ((index = longCache.putIfAbsent(key, this.currentIndex)) < 0) {
+    if ((index = this.longCache.putIfAbsent(key, this.currentIndex)) < 0) {
         if ((index = -index) > 0xFFFF){
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
         }
@@ -562,17 +562,17 @@ public int literalIndex(long key) {
         this.offsets[index] = this.currentOffset;
         writeU1(LongTag);
         // Then add the 8 bytes representing the long
-        if (currentOffset + 8 >= poolContent.length) {
+        if (this.currentOffset + 8 >= this.poolContent.length) {
             resizePoolContents(8);
         }
-        poolContent[currentOffset++] = (byte) (key >>> 56);
-        poolContent[currentOffset++] = (byte) (key >>> 48);
-        poolContent[currentOffset++] = (byte) (key >>> 40);
-        poolContent[currentOffset++] = (byte) (key >>> 32);
-        poolContent[currentOffset++] = (byte) (key >>> 24);
-        poolContent[currentOffset++] = (byte) (key >>> 16);
-        poolContent[currentOffset++] = (byte) (key >>> 8);
-        poolContent[currentOffset++] = (byte) key;
+        this.poolContent[this.currentOffset++] = (byte) (key >>> 56);
+        this.poolContent[this.currentOffset++] = (byte) (key >>> 48);
+        this.poolContent[this.currentOffset++] = (byte) (key >>> 40);
+        this.poolContent[this.currentOffset++] = (byte) (key >>> 32);
+        this.poolContent[this.currentOffset++] = (byte) (key >>> 24);
+        this.poolContent[this.currentOffset++] = (byte) (key >>> 16);
+        this.poolContent[this.currentOffset++] = (byte) (key >>> 8);
+        this.poolContent[this.currentOffset++] = (byte) key;
     }
     return index;
 }
@@ -585,9 +585,9 @@ public int literalIndex(long key) {
 public int literalIndex(String stringConstant) {
     int index;
     char[] stringCharArray = stringConstant.toCharArray();
-    if ((index = stringCache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
+    if ((index = this.stringCache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
         // The entry doesn't exit yet
-        currentIndex++;
+        this.currentIndex++;
         if ((index  = -index)> 0xFFFF){
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
         }
@@ -601,19 +601,19 @@ public int literalIndex(String stringConstant) {
         writeU1(StringTag);
         // Then the string index
         int stringIndexOffset = this.currentOffset;
-        if (currentOffset + 2 >= poolContent.length) {
+        if (this.currentOffset + 2 >= this.poolContent.length) {
             resizePoolContents(2);
         }
-        currentOffset+=2;
+        this.currentOffset+=2;
         final int stringIndex = literalIndex(stringCharArray);
-        poolContent[stringIndexOffset++] = (byte) (stringIndex >> 8);
-        poolContent[stringIndexOffset] = (byte) stringIndex;
+        this.poolContent[stringIndexOffset++] = (byte) (stringIndex >> 8);
+        this.poolContent[stringIndexOffset] = (byte) stringIndex;
     }
     return index;
 }
 public int literalIndexForType(final char[] constantPoolName) {
     int index;
-    if ((index = classCache.putIfAbsent(constantPoolName, this.currentIndex)) < 0) {
+    if ((index = this.classCache.putIfAbsent(constantPoolName, this.currentIndex)) < 0) {
         // The entry doesn't exit yet
         this.currentIndex++;
         if ((index = -index) > 0xFFFF){
@@ -629,13 +629,13 @@ public int literalIndexForType(final char[] constantPoolName) {
 
         // Then the name index
         int nameIndexOffset = this.currentOffset;
-        if (currentOffset + 2 >= poolContent.length) {
+        if (this.currentOffset + 2 >= this.poolContent.length) {
             resizePoolContents(2);
         }
-        currentOffset+=2;
+        this.currentOffset+=2;
         final int nameIndex = literalIndex(constantPoolName);
-        poolContent[nameIndexOffset++] = (byte) (nameIndex >> 8);
-        poolContent[nameIndexOffset] = (byte) nameIndex;
+        this.poolContent[nameIndexOffset++] = (byte) (nameIndex >> 8);
+        this.poolContent[nameIndexOffset] = (byte) nameIndex;
     }
     return index;
 }
@@ -670,18 +670,18 @@ public int literalIndexForMethod(char[] declaringClass, char[] selector, char[] 
         writeU1(isInterface ? InterfaceMethodRefTag : MethodRefTag);
 
         int classIndexOffset = this.currentOffset;
-        if (currentOffset + 4 >= poolContent.length) {
+        if (this.currentOffset + 4 >= this.poolContent.length) {
             resizePoolContents(4);
         }
-        currentOffset+=4;
+        this.currentOffset+=4;
 
         final int classIndex = literalIndexForType(declaringClass);
         final int nameAndTypeIndex = literalIndexForNameAndType(selector, signature);
 
-        poolContent[classIndexOffset++] = (byte) (classIndex >> 8);
-        poolContent[classIndexOffset++] = (byte) classIndex;
-        poolContent[classIndexOffset++] = (byte) (nameAndTypeIndex >> 8);
-        poolContent[classIndexOffset] = (byte) nameAndTypeIndex;
+        this.poolContent[classIndexOffset++] = (byte) (classIndex >> 8);
+        this.poolContent[classIndexOffset++] = (byte) classIndex;
+        this.poolContent[classIndexOffset++] = (byte) (nameAndTypeIndex >> 8);
+        this.poolContent[classIndexOffset] = (byte) nameAndTypeIndex;
     }
     return index;
 }
@@ -693,9 +693,9 @@ public int literalIndexForMethod(TypeBinding binding, char[] selector, char[] si
 }
 public int literalIndexForNameAndType(char[] name, char[] signature) {
     int index;
-    if ((index = putInNameAndTypeCacheIfAbsent(name, signature, currentIndex)) < 0) {
+    if ((index = putInNameAndTypeCacheIfAbsent(name, signature, this.currentIndex)) < 0) {
         // The entry doesn't exit yet
-        currentIndex++;
+        this.currentIndex++;
         if ((index = -index) > 0xFFFF){
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
         }
@@ -707,17 +707,17 @@ public int literalIndexForNameAndType(char[] name, char[] signature) {
         this.offsets[index] = this.currentOffset;
         writeU1(NameAndTypeTag);
         int nameIndexOffset = this.currentOffset;
-        if (currentOffset + 4 >= poolContent.length) {
+        if (this.currentOffset + 4 >= this.poolContent.length) {
             resizePoolContents(4);
         }
-        currentOffset+=4;
+        this.currentOffset+=4;
 
         final int nameIndex = literalIndex(name);
         final int typeIndex = literalIndex(signature);
-        poolContent[nameIndexOffset++] = (byte) (nameIndex >> 8);
-        poolContent[nameIndexOffset++] = (byte) nameIndex;
-        poolContent[nameIndexOffset++] = (byte) (typeIndex >> 8);
-        poolContent[nameIndexOffset] = (byte) typeIndex;
+        this.poolContent[nameIndexOffset++] = (byte) (nameIndex >> 8);
+        this.poolContent[nameIndexOffset++] = (byte) nameIndex;
+        this.poolContent[nameIndexOffset++] = (byte) (typeIndex >> 8);
+        this.poolContent[nameIndexOffset] = (byte) typeIndex;
     }
     return index;
 }
@@ -739,18 +739,18 @@ public int literalIndexForField(char[] declaringClass, char[] name, char[] signa
         this.offsets[index] = this.currentOffset;
         writeU1(FieldRefTag);
         int classIndexOffset = this.currentOffset;
-        if (currentOffset + 4 >= poolContent.length) {
+        if (this.currentOffset + 4 >= this.poolContent.length) {
             resizePoolContents(4);
         }
-        currentOffset+=4;
+        this.currentOffset+=4;
 
         final int classIndex = literalIndexForType(declaringClass);
         final int nameAndTypeIndex = literalIndexForNameAndType(name, signature);
 
-        poolContent[classIndexOffset++] = (byte) (classIndex >> 8);
-        poolContent[classIndexOffset++] = (byte) classIndex;
-        poolContent[classIndexOffset++] = (byte) (nameAndTypeIndex >> 8);
-        poolContent[classIndexOffset] = (byte) nameAndTypeIndex;
+        this.poolContent[classIndexOffset++] = (byte) (classIndex >> 8);
+        this.poolContent[classIndexOffset++] = (byte) classIndex;
+        this.poolContent[classIndexOffset++] = (byte) (nameAndTypeIndex >> 8);
+        this.poolContent[classIndexOffset] = (byte) nameAndTypeIndex;
     }
     return index;
 }
@@ -764,7 +764,7 @@ public int literalIndexForLdc(char[] stringCharArray) {
     int savedCurrentIndex = this.currentIndex;
     int savedCurrentOffset = this.currentOffset;
     int index;
-    if ((index = stringCache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
+    if ((index = this.stringCache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
         if ((index = -index)> 0xFFFF) {
             this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
         }
@@ -781,13 +781,13 @@ public int literalIndexForLdc(char[] stringCharArray) {
 
         // Then the string index
         int stringIndexOffset = this.currentOffset;
-        if (currentOffset + 2 >= poolContent.length) {
+        if (this.currentOffset + 2 >= this.poolContent.length) {
             resizePoolContents(2);
         }
-        currentOffset+=2;
+        this.currentOffset+=2;
 
         int stringIndex;
-        if ((stringIndex = UTF8Cache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
+        if ((stringIndex = this.UTF8Cache.putIfAbsent(stringCharArray, this.currentIndex)) < 0) {
             if ((stringIndex = -stringIndex)> 0xFFFF) {
                 this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
             }
@@ -802,39 +802,39 @@ public int literalIndexForLdc(char[] stringCharArray) {
             this.offsets[stringIndex] = this.currentOffset;
             writeU1(Utf8Tag);
             // Then the size of the stringName array
-            int lengthOffset = currentOffset;
-            if (currentOffset + 2 >= poolContent.length) {
+            int lengthOffset = this.currentOffset;
+            if (this.currentOffset + 2 >= this.poolContent.length) {
                 // we need to resize the poolContent array because we won't have
                 // enough space to write the length
                 resizePoolContents(2);
             }
-            currentOffset += 2;
+            this.currentOffset += 2;
             length = 0;
             for (int i = 0; i < stringCharArray.length; i++) {
                 char current = stringCharArray[i];
                 if ((current >= 0x0001) && (current <= 0x007F)) {
                     // we only need one byte: ASCII table
                     length++;
-                    if (currentOffset + 1 >= poolContent.length) {
+                    if (this.currentOffset + 1 >= this.poolContent.length) {
                         // we need to resize the poolContent array because we won't have
                         // enough space to write the length
                         resizePoolContents(1);
                     }
-                    poolContent[currentOffset++] = (byte)(current);
+                    this.poolContent[this.currentOffset++] = (byte)(current);
                 } else
                     if (current > 0x07FF) {
                         // we need 3 bytes
                         length += 3;
-                        if (currentOffset + 3 >= poolContent.length) {
+                        if (this.currentOffset + 3 >= this.poolContent.length) {
                             // we need to resize the poolContent array because we won't have
                             // enough space to write the length
                             resizePoolContents(3);
                         }
-                        poolContent[currentOffset++] = (byte) (0xE0 | ((current >> 12) & 0x0F)); // 0xE0 = 1110 0000
-                        poolContent[currentOffset++] = (byte) (0x80 | ((current >> 6) & 0x3F)); // 0x80 = 1000 0000
-                        poolContent[currentOffset++] = (byte) (0x80 | (current & 0x3F)); // 0x80 = 1000 0000
+                        this.poolContent[this.currentOffset++] = (byte) (0xE0 | ((current >> 12) & 0x0F)); // 0xE0 = 1110 0000
+                        this.poolContent[this.currentOffset++] = (byte) (0x80 | ((current >> 6) & 0x3F)); // 0x80 = 1000 0000
+                        this.poolContent[this.currentOffset++] = (byte) (0x80 | (current & 0x3F)); // 0x80 = 1000 0000
                     } else {
-                        if (currentOffset + 2 >= poolContent.length) {
+                        if (this.currentOffset + 2 >= this.poolContent.length) {
                             // we need to resize the poolContent array because we won't have
                             // enough space to write the length
                             resizePoolContents(2);
@@ -842,8 +842,8 @@ public int literalIndexForLdc(char[] stringCharArray) {
                         // we can be 0 or between 0x0080 and 0x07FF
                         // In that case we only need 2 bytes
                         length += 2;
-                        poolContent[currentOffset++] = (byte) (0xC0 | ((current >> 6) & 0x1F)); // 0xC0 = 1100 0000
-                        poolContent[currentOffset++] = (byte) (0x80 | (current & 0x3F)); // 0x80 = 1000 0000
+                        this.poolContent[this.currentOffset++] = (byte) (0xC0 | ((current >> 6) & 0x1F)); // 0xC0 = 1100 0000
+                        this.poolContent[this.currentOffset++] = (byte) (0x80 | (current & 0x3F)); // 0x80 = 1000 0000
                     }
             }
             if (length >= 65535) {
@@ -853,11 +853,11 @@ public int literalIndexForLdc(char[] stringCharArray) {
                 this.UTF8Cache.remove(stringCharArray);
                 return 0;
             }
-            poolContent[lengthOffset++] = (byte) (length >> 8);
-            poolContent[lengthOffset] = (byte) length;
+            this.poolContent[lengthOffset++] = (byte) (length >> 8);
+            this.poolContent[lengthOffset] = (byte) length;
         }
-        poolContent[stringIndexOffset++] = (byte) (stringIndex >> 8);
-        poolContent[stringIndexOffset] = (byte) stringIndex;
+        this.poolContent[stringIndexOffset++] = (byte) (stringIndex >> 8);
+        this.poolContent[stringIndexOffset] = (byte) stringIndex;
     }
     return index;
 }
@@ -938,16 +938,16 @@ private int putInCacheIfAbsent(final char[] key1, final char[] key2, final char[
  * @see org.eclipse.jdt.internal.compiler.ast.TypeDeclaration#addClinit()
  */
 public void resetForClinit(int constantPoolIndex, int constantPoolOffset) {
-    currentIndex = constantPoolIndex;
-    currentOffset = constantPoolOffset;
-    if (UTF8Cache.get(AttributeNamesConstants.CodeName) >= constantPoolIndex) {
-        UTF8Cache.remove(AttributeNamesConstants.CodeName);
+    this.currentIndex = constantPoolIndex;
+    this.currentOffset = constantPoolOffset;
+    if (this.UTF8Cache.get(AttributeNamesConstants.CodeName) >= constantPoolIndex) {
+        this.UTF8Cache.remove(AttributeNamesConstants.CodeName);
     }
-    if (UTF8Cache.get(ConstantPool.ClinitSignature) >= constantPoolIndex) {
-        UTF8Cache.remove(ConstantPool.ClinitSignature);
+    if (this.UTF8Cache.get(ConstantPool.ClinitSignature) >= constantPoolIndex) {
+        this.UTF8Cache.remove(ConstantPool.ClinitSignature);
     }
-    if (UTF8Cache.get(ConstantPool.Clinit) >= constantPoolIndex) {
-        UTF8Cache.remove(ConstantPool.Clinit);
+    if (this.UTF8Cache.get(ConstantPool.Clinit) >= constantPoolIndex) {
+        this.UTF8Cache.remove(ConstantPool.Clinit);
     }
 }
 
@@ -955,11 +955,11 @@ public void resetForClinit(int constantPoolIndex, int constantPoolOffset) {
  * Resize the pool contents
  */
 private final void resizePoolContents(int minimalSize) {
-    int length = poolContent.length;
+    int length = this.poolContent.length;
     int toAdd = length;
     if (toAdd < minimalSize)
         toAdd = minimalSize;
-    System.arraycopy(poolContent, 0, poolContent = new byte[length + toAdd], 0, length);
+    System.arraycopy(this.poolContent, 0, this.poolContent = new byte[length + toAdd], 0, length);
 }
 /**
  * Write a unsigned byte into the byte array
@@ -967,10 +967,10 @@ private final void resizePoolContents(int minimalSize) {
  * @param value <CODE>int</CODE> The value to write into the byte array
  */
 protected final void writeU1(int value) {
-    if (currentOffset + 1 >= poolContent.length) {
+    if (this.currentOffset + 1 >= this.poolContent.length) {
         resizePoolContents(1);
     }
-    poolContent[currentOffset++] = (byte) value;
+    this.poolContent[this.currentOffset++] = (byte) value;
 }
 /**
  * Write a unsigned byte into the byte array
@@ -978,11 +978,11 @@ protected final void writeU1(int value) {
  * @param value <CODE>int</CODE> The value to write into the byte array
  */
 protected final void writeU2(int value) {
-    if (currentOffset + 2 >= poolContent.length) {
+    if (this.currentOffset + 2 >= this.poolContent.length) {
         resizePoolContents(2);
     }
-    poolContent[currentOffset++] = (byte) (value >>> 8);
-    poolContent[currentOffset++] = (byte) value;
+    this.poolContent[this.currentOffset++] = (byte) (value >>> 8);
+    this.poolContent[this.currentOffset++] = (byte) value;
 }
 public void reset() {
     if (this.doubleCache != null) this.doubleCache.clear();

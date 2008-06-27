@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class SourceInitializer extends SourceField {
 public SourceInitializer(
-	int declarationStart, 
+	int declarationStart,
 	int modifiers) {
 	super(declarationStart, modifiers, null, null, -1, -1, null);
 }
@@ -24,7 +24,7 @@ public void setDeclarationSourceEnd(int declarationSourceEnd) {
 }
 
 public String toString(int tab) {
-	if (modifiers == ClassFileConstants.AccStatic) {
+	if (this.modifiers == ClassFileConstants.AccStatic) {
 		return tabString(tab) + "static {}";
 	}
 	return tabString(tab) + "{}";

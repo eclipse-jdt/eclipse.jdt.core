@@ -13,18 +13,18 @@ package org.eclipse.jdt.internal.eval;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 /**
- * An EvaluationResult is the result of a code snippet evaluation, a global 
+ * An EvaluationResult is the result of a code snippet evaluation, a global
  * variable evaluation or it is used to report problems against imports and
  * package declaration.
- * It primarily contains the representation of the resulting value (eg. its 
- * toString() representation). However if the code snippet, a global variable 
- * definition, an import or the package declaration could not be compiled, it 
+ * It primarily contains the representation of the resulting value (eg. its
+ * toString() representation). However if the code snippet, a global variable
+ * definition, an import or the package declaration could not be compiled, it
  * contains the corresponding compilation problems.
  */
 public class EvaluationResult {
 
 	static final CategorizedProblem[] NO_PROBLEMS = new CategorizedProblem[0];
-	
+
 	char[] evaluationID;
 	int evaluationType;
 	CategorizedProblem[] problems;
@@ -60,7 +60,7 @@ public class EvaluationResult {
 	 * The evaluation result reports an internal problem.
 	 */
 	public static final int T_INTERNAL = 5;
-	
+
 public EvaluationResult(char[] evaluationID, int evaluationType, char[] displayString, char[] typeName) {
 	this.evaluationID = evaluationID;
 	this.evaluationType = evaluationType;

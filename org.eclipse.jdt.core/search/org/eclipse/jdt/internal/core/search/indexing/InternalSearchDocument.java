@@ -25,7 +25,7 @@ public class InternalSearchDocument {
 	 */
 	public void addIndexEntry(char[] category, char[] key) {
 		if (this.index != null)
-			index.addIndexEntry(category, key, getContainerRelativePath());
+			this.index.addIndexEntry(category, key, getContainerRelativePath());
 	}
 	private String getContainerRelativePath() {
 		if (this.containerRelativePath == null)
@@ -37,7 +37,7 @@ public class InternalSearchDocument {
 	 */
 	public void removeAllIndexEntries() {
 		if (this.index != null)
-			index.remove(getContainerRelativePath());
+			this.index.remove(getContainerRelativePath());
 	}
 	/*
 	 * Hidden by API SearchDocument subclass

@@ -25,15 +25,15 @@ import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 
 public class InternalNamingConventions {
 	private static final char[] DEFAULT_NAME = "name".toCharArray(); //$NON-NLS-1$
-	
+
 	private static Scanner getNameScanner(CompilerOptions compilerOptions) {
 		return
 			new Scanner(
-				false /*comment*/, 
-				false /*whitespace*/, 
-				false /*nls*/, 
-				compilerOptions.sourceLevel /*sourceLevel*/, 
-				null /*taskTags*/, 
+				false /*comment*/,
+				false /*whitespace*/,
+				false /*nls*/,
+				compilerOptions.sourceLevel /*sourceLevel*/,
+				null /*taskTags*/,
 				null/*taskPriorities*/,
 				true/*taskCaseSensitive*/);
 	}
@@ -55,7 +55,7 @@ public class InternalNamingConventions {
 	}
 	public static void suggestFieldNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, int modifiers, char[] internalPrefix, char[][] excludedNames, INamingRequestor requestor) {
 		boolean isStatic = Flags.isStatic(modifiers);
-		
+
 		Map options = javaProject.getOptions(true);
 		CompilerOptions compilerOptions = new CompilerOptions(options);
 		AssistOptions assistOptions = new AssistOptions(options);
@@ -87,7 +87,7 @@ public class InternalNamingConventions {
 			getNameScanner(compilerOptions),
 			requestor);
 	}
-	
+
 	private static void suggestNames(
 		char[] packageName,
 		char[] qualifiedTypeName,
@@ -98,18 +98,18 @@ public class InternalNamingConventions {
 		char[][] excludedNames,
 		Scanner nameScanner,
 		INamingRequestor requestor){
-		
+
 		if(qualifiedTypeName == null || qualifiedTypeName.length == 0)
 			return;
-		
+
 		if(internalPrefix == null) {
 			internalPrefix = CharOperation.NO_CHAR;
 		} else {
 			internalPrefix = removePrefix(internalPrefix, prefixes);
 		}
-		
+
 		char[] typeName = CharOperation.lastSegment(qualifiedTypeName, '.');
-	
+
 		if(prefixes == null || prefixes.length == 0) {
 			prefixes = new char[1][0];
 		} else {
@@ -117,7 +117,7 @@ public class InternalNamingConventions {
 			System.arraycopy(prefixes, 0, prefixes = new char[length+1][], 0, length);
 			prefixes[length] = CharOperation.NO_CHAR;
 		}
-	
+
 		if(suffixes == null || suffixes.length == 0) {
 			suffixes = new char[1][0];
 		} else {
@@ -125,9 +125,9 @@ public class InternalNamingConventions {
 			System.arraycopy(suffixes, 0, suffixes = new char[length+1][], 0, length);
 			suffixes[length] = CharOperation.NO_CHAR;
 		}
-	
+
 		char[][] tempNames = null;
-	
+
 		// compute variable name for base type
 		try{
 			nameScanner.setSource(typeName);
@@ -140,15 +140,15 @@ public class InternalNamingConventions {
 				case TerminalTokens.TokenNamefloat :
 				case TerminalTokens.TokenNamedouble :
 				case TerminalTokens.TokenNameboolean :
-					
+
 					if (internalPrefix != null && internalPrefix.length > 0) return;
-					
+
 					char[] name = computeBaseTypeNames(typeName[0], excludedNames);
 					if(name != null) {
 						tempNames =  new char[][]{name};
 					}
 					break;
-			}	
+			}
 		} catch(InvalidInputException e){
 			// ignore
 		}
@@ -157,10 +157,10 @@ public class InternalNamingConventions {
 		if(tempNames == null) {
 			tempNames = computeNames(typeName);
 		}
-	
+
 		boolean acceptDefaultName = true;
 		SimpleSetOfCharArray foundNames = new SimpleSetOfCharArray();
-		
+
 		next : for (int i = 0; i < tempNames.length; i++) {
 			char[] tempName = tempNames[i];
 			if(dim > 0) {
@@ -181,7 +181,7 @@ public class InternalNamingConventions {
 					tempName[length] = 's';
 				}
 			}
-		
+
 			char[] unprefixedName = tempName;
 			unprefixedName[0] = ScannerHelper.toUpperCase(unprefixedName[0]);
 			for (int j = 0; j <= internalPrefix.length; j++) {
@@ -258,7 +258,7 @@ public class InternalNamingConventions {
 			requestor.acceptNameWithoutPrefixAndSuffix(name, 0);
 		}
 	}
-	
+
 	private static void acceptName(
 		char[] name,
 		char[] prefix,
@@ -277,10 +277,10 @@ public class InternalNamingConventions {
 			requestor.acceptNameWithoutPrefixAndSuffix(name, reusedCharacters);
 		}
 	}
-	
+
 	private static char[] computeBaseTypeNames(char firstName, char[][] excludedNames){
 		char[] name = new char[]{firstName};
-		
+
 		for(int i = 0 ; i < excludedNames.length ; i++){
 			if(CharOperation.equals(name, excludedNames[i], false)) {
 				name[0]++;
@@ -289,12 +289,12 @@ public class InternalNamingConventions {
 				if(name[0] == firstName)
 					return null;
 				i = 0;
-			}	
+			}
 		}
-		
+
 		return name;
 	}
-	
+
 	private static char[][] computeNames(char[] sourceName){
 		char[][] names = new char[5][];
 		int nameCount = 0;
@@ -317,7 +317,7 @@ public class InternalNamingConventions {
 			previousIsLetter = isLetter;
 		}
 		if(nameCount == 0){
-			names[nameCount++] = CharOperation.toLowerCase(sourceName);				
+			names[nameCount++] = CharOperation.toLowerCase(sourceName);
 		}
 		System.arraycopy(names, 0, names = new char[nameCount][], 0, nameCount);
 		return names;
@@ -344,7 +344,7 @@ public class InternalNamingConventions {
 		}
 		return suffixName;
 	}
-	
+
 	private static char[] removePrefix(char[] name, char[][] prefixes) {
 		// remove longer prefix
 		char[] withoutPrefixName = name;
@@ -353,7 +353,7 @@ public class InternalNamingConventions {
 			int nameLength = name.length;
 			for (int i= 0; i < prefixes.length; i++) {
 				char[] prefix = prefixes[i];
-				
+
 				int prefixLength = prefix.length;
 				if(prefixLength <= nameLength) {
 					if(CharOperation.prefixEquals(prefix, name, false)) {
@@ -384,8 +384,8 @@ public class InternalNamingConventions {
 				}
 			}
 		}
-//		
-//		
+//
+//
 //		// remove longer prefix
 //		char[] withoutPrefixName = name;
 //		if (prefixes != null) {
@@ -414,10 +414,10 @@ public class InternalNamingConventions {
 //				}
 //			}
 //		}
-		
+
 		return withoutPrefixName;
 	}
-	
+
 	public static final boolean prefixEquals(char[] prefix, char[] name) {
 
 		int max = prefix.length;

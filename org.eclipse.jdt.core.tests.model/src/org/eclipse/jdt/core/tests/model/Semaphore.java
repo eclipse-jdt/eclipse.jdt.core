@@ -14,10 +14,10 @@ package org.eclipse.jdt.core.tests.model;
  * A semaphore implementation with timeout.
  */
 public class Semaphore {
-	
+
 	private String name = null;
 	private int permissions = 0;
-	
+
 	public static class TimeOutException extends Exception {
 		private static final long serialVersionUID = 1L;
 	}

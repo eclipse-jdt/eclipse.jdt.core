@@ -45,7 +45,7 @@ public class InternalScannerTest extends AbstractRegressionTest {
 		assertEquals("Wrong comment start", 0,  scanner.commentStarts[0]);
 		assertEquals("Wrong comment start", -9, scanner.commentStops[0]);
 	}
-	
+
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=73762
 	 */
@@ -63,6 +63,6 @@ public class InternalScannerTest extends AbstractRegressionTest {
 			token = scanner.getNextToken();
 		}
 		assertEquals("Wrong number of line ends", 2, scanner.getLineEnds().length);
-	}					
+	}
 
 }

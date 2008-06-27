@@ -58,7 +58,7 @@ public class SelectionJavadoc extends Javadoc {
 				selectedString = "<SelectOnType:"; //$NON-NLS-1$
 			}
 			int pos = output.length()-3;
-			output.replace(pos-2,pos, selectedString+selectedNode+'>');
+			output.replace(pos-2,pos, selectedString+this.selectedNode+'>');
 		}
 		return output;
 	}
@@ -66,7 +66,7 @@ public class SelectionJavadoc extends Javadoc {
 	/**
 	 * Resolve selected node if not null and throw exception to let clients know
 	 * that it has been found.
-	 * 
+	 *
 	 * @throws SelectionNodeFound
 	 */
 	private void internalResolve(Scope scope) {
@@ -112,7 +112,7 @@ public class SelectionJavadoc extends Javadoc {
 	/**
 	 * Resolve selected node if not null and throw exception to let clients know
 	 * that it has been found.
-	 * 
+	 *
 	 * @throws SelectionNodeFound
 	 */
 	public void resolve(ClassScope scope) {
@@ -122,7 +122,7 @@ public class SelectionJavadoc extends Javadoc {
 	/**
 	 * Resolve selected node if not null and throw exception to let clients know
 	 * that it has been found.
-	 * 
+	 *
 	 * @throws SelectionNodeFound
 	 */
 	public void resolve(MethodScope scope) {

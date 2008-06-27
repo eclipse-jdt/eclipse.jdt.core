@@ -55,20 +55,20 @@ import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class AbstractASTTests extends ModifyingResourceTests implements DefaultMarkedNodeLabelProviderOptions {
-	
+
 	/** @deprecated Using deprecated code */
 	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
 	public static final int astInternalJLS2() {
 		return AST_INTERNAL_JLS2;
 	}
-	
+
 	// TODO (frederic) use this field while converting instead of method argument
 	protected int testLevel = AST_INTERNAL_JLS2;
-	
+
 	public AbstractASTTests(String name) {
 		super(name);
 	}
-	
+
 	/*
 	 * Removes the *start* and *end* markers from the given source
 	 * and remembers the positions.
@@ -76,14 +76,14 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	public class MarkerInfo {
 		String path;
 		String source;
-		
+
 		String markerStartStart;
 		String markerStartEnd;
 		String markerEndStart;
 		String markerEndEnd;
-		
+
 		int[] astStarts, astEnds;
-		
+
 		public MarkerInfo(String source) {
 			this(null, source);
 		}
@@ -98,7 +98,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 				String markerEnd) {
 			this(null, source, markerBeginning, markerEnding, markerStart, markerEnd);
 		}
-		
+
 		public MarkerInfo(
 				String path,
 				String source,
@@ -108,7 +108,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 				String markerEnd) {
 			this.path = path;
 			this.source = source;
-			
+
 			this.markerStartStart = markerBeginning + markerStart;
 			this.markerStartEnd = markerEnding;
 			this.markerEndStart = markerBeginning + markerEnd;
@@ -121,24 +121,24 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			int astNumber = source.indexOf(this.markerStartStart + this.markerStartEnd) != -1 ? markerIndex : markerIndex-1;
 			this.astStarts = new int[astNumber];
 			this.astEnds = new int[astNumber];
-			
+
 			for (int i = 1; i < markerIndex; i++)
-				setStartAndEnd(i);		
+				setStartAndEnd(i);
 			if (astNumber == markerIndex)
 				setStartAndEnd(-1);
 		}
-		
+
 		public int indexOfASTStart(int astStart) {
 			return this.indexOfASTStart(astStart, 0);
 		}
-		
+
 		public int indexOfASTStart(int astStart, int fromIndex) {
 			for (int i = fromIndex, length = this.astStarts.length; i < length; i++)
 				if (this.astStarts[i] == astStart)
 					return i;
 			return -1;
 		}
-		
+
 		private void removeMarkerFromSource(String marker, int sourceIndex, int astNumber) {
 			int markerLength = marker.length();
 			this.source = this.source.substring(0, sourceIndex).concat(this.source.substring(sourceIndex + markerLength));
@@ -150,15 +150,15 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 					this.astEnds[i] -= markerLength;
 			}
 		}
-		
+
 		private void setStartAndEnd(int markerIndex) {
-			String markerNumber; 
+			String markerNumber;
 			if (markerIndex == -1) {
 				markerNumber = "";
 				markerIndex = this.astStarts.length; // *start* is always last
 			} else
 				markerNumber = Integer.toString(markerIndex);
-			
+
 			String markerStart = this.markerStartStart + markerNumber + this.markerStartEnd;
 			String markerEnd = this.markerEndStart + markerNumber + this.markerEndEnd;
 			int astStart = this.source.indexOf(markerStart); // start of AST inclusive
@@ -168,9 +168,9 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			this.astEnds[markerIndex-1] = astEnd;
 			removeMarkerFromSource(markerEnd, astEnd, markerIndex-1);
 		}
-		
+
 	}
-	
+
 	public class BindingRequestor extends ASTRequestor {
 		HashMap bindings = new HashMap();
 		public void acceptBinding(String bindingKey, IBinding binding) {
@@ -185,7 +185,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			return result;
 		}
 	}
-	
+
 	public static class ASTResult {
 		public String result; // marked ast output
 		public String source; // source without marker
@@ -194,7 +194,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			this.source = source;
 		}
 	}
-		
+
 	protected void assertASTNodeEquals(String expected, ASTNode node) {
 		String actual = node.toString();
 		if (!expected.equals(actual)) {
@@ -202,7 +202,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		}
 		assertEquals("Unexpected ast node", expected, actual);
 	}
-	
+
 	protected void assertASTNodesEqual(String expected, List nodes) {
 		StringBuffer buffer = new StringBuffer();
 		Iterator iterator = nodes.iterator();
@@ -227,7 +227,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		}
 		assertEquals("Unexpected ast nodes", expected, actual);
 	}
-		
+
 	protected void assertBindingKeyEquals(String expected, String actual) {
 		assertBindingKeysEqual(expected, new String[] {actual});
 	}
@@ -252,11 +252,11 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	protected void assertBindingEquals(String expected, IBinding binding) {
 		assertBindingsEqual(expected, new IBinding[] {binding});
 	}
-	
+
 	protected void assertBindingsEqual(String expected, IBinding[] actualBindings) {
 		assertBindingsEqual("Unexpected bindings", expected, actualBindings);
 	}
-	
+
 	protected void assertBindingsEqual(String message, String expected, IBinding[] actualBindings) {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, length = actualBindings.length; i < length; i++) {
@@ -273,17 +273,17 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		}
 		assertEquals(message, expected, actual);
 	}
-	
+
 	protected void assertASTResult(
 			String expected,
 			ASTResult actual) throws JavaModelException {
-		
+
 		if (!expected.equals(actual.result)) {
 			System.out.println();
 			System.out.println(actual.source);
 			System.out.println(Util.displayString(actual.result, 3));
 		}
-		
+
 		assertEquals(expected, actual.result);
 	}
 
@@ -293,7 +293,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	    return parser;
     }
 	/*
-	 * Builds an AST from the info source (which is assumed to be the source attached to the given class file), 
+	 * Builds an AST from the info source (which is assumed to be the source attached to the given class file),
 	 * and returns the AST node that was delimited by the astStart and astEnd of the marker info.
 	 */
 	protected ASTNode buildAST(MarkerInfo markerInfo, IClassFile classFile, boolean reportErrors) throws JavaModelException {
@@ -301,7 +301,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		parser.setSource(classFile);
 		parser.setResolveBindings(true);
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
-		
+
 		if (reportErrors) {
 			StringBuffer buffer = new StringBuffer();
 			IProblem[] problems = unit.getProblems();
@@ -313,7 +313,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 
 		return findNode(unit, markerInfo);
 	}
-	
+
 	protected ASTNode buildAST(ICompilationUnit cu) throws JavaModelException {
 		return buildAST(null/*use existing contents*/, cu, true/*report errors*/);
 	}
@@ -321,7 +321,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu) throws JavaModelException {
 		return buildAST(newContents, cu, true/*report errors*/);
 	}
-	
+
 	protected ASTNode buildAST(MarkerInfo markerInfo, IClassFile classFile) throws JavaModelException {
 		return buildAST(markerInfo, classFile, true/*report errors*/);
 	}
@@ -339,13 +339,13 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		ASTNode[] nodes = buildASTs(newContents, cu, reportErrors, enableStatementRecovery, bindingRecovery);
 		if (nodes.length == 0) return null;
 		return nodes[0];
-	}	
+	}
 
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery) throws JavaModelException {
 		ASTNode[] nodes = buildASTs(newContents, cu, reportErrors, enableStatementRecovery, false);
 		if (nodes.length == 0) return null;
 		return nodes[0];
-	}	
+	}
 
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu, int flags) throws JavaModelException {
 		ASTNode[] nodes = buildASTs(newContents, cu, flags);
@@ -370,14 +370,14 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			IBuffer buffer = cu.getBuffer();
 			buffer.setContents(newContents);
 			buffer.save(null, false);
-			
+
 			ASTParser parser = ASTParser.newParser(AST.JLS3);
 			parser.setSource(cu);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery((flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 			unit = (CompilationUnit) parser.createAST(null);
 		}
-		
+
 		if ((flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0) {
 			StringBuffer buffer = new StringBuffer();
 			IProblem[] problems = unit.getProblems();
@@ -406,7 +406,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
 		return buildASTs(newContents, cu, reportErrors, false, false);
 	}
-	
+
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
 		MarkerInfo markerInfo;
 		if (newContents == null) {
@@ -428,7 +428,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			IBuffer buffer = cu.getBuffer();
 			buffer.setContents(newContents);
 			buffer.save(null, false);
-			
+
 			ASTParser parser = ASTParser.newParser(AST.JLS3);
 			parser.setSource(cu);
 			parser.setResolveBindings(true);
@@ -436,7 +436,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			parser.setBindingsRecovery(bindingRecovery);
 			unit = (CompilationUnit) parser.createAST(null);
 		}
-		
+
 		if (reportErrors) {
 			StringBuffer buffer = new StringBuffer();
 			IProblem[] problems = unit.getProblems();
@@ -451,7 +451,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			return new ASTNode[] {unit};
 		return nodes;
 	}
-	
+
 	protected ASTResult buildMarkedAST(
 			String path,
 			String content) throws JavaModelException {
@@ -464,7 +464,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 					true, // report problems
 					new MarkedASTFlattener.DefaultMarkedNodeLabelProvider(ALL_OPTIONS));
 	}
-	
+
 	protected ASTResult buildMarkedAST(
 			String path,
 			String content,
@@ -472,7 +472,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			boolean reportAST,
 			boolean reportProblems,
 			int options) throws JavaModelException {
-		return 
+		return
 			this.buildMarkedAST(
 					path,
 					content,
@@ -481,7 +481,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 					reportProblems,
 					new MarkedASTFlattener.DefaultMarkedNodeLabelProvider(options));
 	}
-	
+
 	/*
 	 * Removes the marker comments "[*?*]" from the given new contents
 	 * (where ? is either empty or a number), or use the current contents if the given new contents is null.
@@ -494,31 +494,31 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			boolean reportAST,
 			boolean reportProblems,
 			MarkedASTFlattener.DefaultMarkedNodeLabelProvider labelProvider) throws JavaModelException {
-		
+
 		MarkerInfo markerInfo;
 		markerInfo = new MarkerInfo(content, "[*", "*]", "", "");
 		content = markerInfo.source;
-		
+
 		ICompilationUnit compilationUnit = getWorkingCopy(path, content, true);
-		
+
 		ASTParser parser = createASTParser();
 		parser.setSource(compilationUnit);
 		parser.setResolveBindings(true);
 		parser.setWorkingCopyOwner(this.wcOwner);
 		parser.setStatementsRecovery(enableStatementRecovery);
 		CompilationUnit unit = (CompilationUnit)parser.createAST(null);
-		
+
 		MarkedASTFlattener flattener =
 			new MarkedASTFlattener(
 					reportAST,
 					reportProblems,
 					labelProvider);
 		flattener.process(unit, markerInfo);
-		
+
 		ASTResult result = new ASTResult(flattener.getResult(), markerInfo.source);
-		
+
 		compilationUnit.discardWorkingCopy();
-		
+
 		return result;
 	}
 
@@ -560,7 +560,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	protected ITypeBinding[] createTypeBindings(String[] pathAndSources, String[] bindingKeys) throws JavaModelException {
 		return createTypeBindings(pathAndSources, bindingKeys, getJavaProject("P"));
 	}
-	
+
 	protected ITypeBinding[] createTypeBindings(String[] pathAndSources, String[] bindingKeys, IJavaProject project) throws JavaModelException {
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		this.workingCopies = createWorkingCopies(pathAndSources, owner);
@@ -575,7 +575,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
 		return createWorkingCopies(markerInfos, owner);
 	}
-	
+
 	protected ICompilationUnit[] createWorkingCopies(MarkerInfo[] markerInfos, WorkingCopyOwner owner) throws JavaModelException {
 		int length = markerInfos.length;
 		ICompilationUnit[] copies = new ICompilationUnit[length];
@@ -588,14 +588,14 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		}
 		return copies;
 	}
-	
+
 	protected ASTNode findNode(CompilationUnit unit, final MarkerInfo markerInfo) {
 		ASTNode[] nodes = findNodes(unit, markerInfo);
 		if (nodes.length == 0)
 			return unit;
 		return nodes[0];
 	}
-	
+
 	protected ASTNode[] findNodes(CompilationUnit unit, final MarkerInfo markerInfo) {
 		class Visitor extends ASTVisitor {
 			ArrayList found = new ArrayList();
@@ -619,7 +619,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	/**
 	 * Create a new working copy owner using given problem requestor
 	 * to report problem.
-	 * 
+	 *
 	 * @param problemRequestor The requestor used to report problems
 	 * @return The created working copy owner
 	 */
@@ -638,7 +638,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		parser.setWorkingCopyOwner(owner);
 		parser.createASTs(cus, bindingKeys,  requestor, null);
 	}
-	
+
 	protected IBinding resolveBinding(ASTNode node) {
 		switch (node.getNodeType()) {
 			case ASTNode.PACKAGE_DECLARATION:
@@ -681,13 +681,13 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 				throw new Error("Not yet implemented for this type of node: " + node);
 		}
 	}
-	
+
 	protected IBinding[] resolveBindings(String[] bindingKeys, IJavaProject project, WorkingCopyOwner owner) {
 		BindingRequestor requestor = new BindingRequestor();
 		resolveASTs(new ICompilationUnit[0], bindingKeys, requestor, project, owner);
 		return requestor.getBindings(bindingKeys);
 	}
-	
+
 	/*
 	 * Resolve the bindings of the nodes marked with *start?* and *end?*.
 	 */
@@ -709,10 +709,10 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		return result;
 	}
 
-	
+
 //	protected void tearDown() throws Exception {
 //		discardWorkingCopies(this.workingCopies);
 //		this.workingCopies = null;
 //	}
-	
+
 }

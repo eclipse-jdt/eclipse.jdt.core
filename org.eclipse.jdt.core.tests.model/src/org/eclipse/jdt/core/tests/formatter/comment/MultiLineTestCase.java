@@ -81,7 +81,7 @@ public class MultiLineTestCase extends CommentTestCase {
 	public void testSingleLineCommentTabs2() {
 		assertEquals(PREFIX + "test test" + POSTFIX, testFormat("/*\ttest\ttest*/")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	/**
 	 * [formatting] formatter removes last line with block comments
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51654
@@ -95,37 +95,37 @@ public class MultiLineTestCase extends CommentTestCase {
 		assertTrue(result.indexOf("test3") != -1); //$NON-NLS-1$
 		assertTrue(result.indexOf("test4") != -1); //$NON-NLS-1$
 	}
-	
+
 	public void testNoChange1() {
 		String content= PREFIX + DELIMITER + POSTFIX;
 		assertEquals(content, testFormat(content));
 	}
-	
+
 	public void testNoFormat1() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT, DefaultCodeFormatterConstants.FALSE);
 		String content= PREFIX + DELIMITER + INFIX + "test" + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX;
 		assertEquals(content, testFormat(content));
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=145544
 	 */
 	public void testMultiLineCommentFor145544() {
 		setUserOption(DefaultCodeFormatterConstants.getJavaConventionsSettings());
 		String input= "/**\n" +  //$NON-NLS-1$
-				" * Member comment\n" +//$NON-NLS-1$ 
+				" * Member comment\n" +//$NON-NLS-1$
 				" */";//$NON-NLS-1$
 		String result= testFormat(input, 0, input.length(), CodeFormatter.K_MULTI_LINE_COMMENT , 2);
 		String expectedOutput = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT
-			?	"/**\n" + 
-				" * Member comment\n" + 
+			?	"/**\n" +
+				" * Member comment\n" +
 				" */"
-			:	"/***********************************************************************\n" + 
-				"	 * Member comment\n" + 
+			:	"/***********************************************************************\n" +
+				"	 * Member comment\n" +
 				"	 */";
 		assertEquals("Different output", expectedOutput, result);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75460
 	public void test75460() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
@@ -146,12 +146,12 @@ public class MultiLineTestCase extends CommentTestCase {
 				"              System.out.println(objs[i].toString());" + DELIMITER +
 				"            }" + DELIMITER +
 				"*/";
-		
+
 		String expected = input;
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=49412
 	// check backward compatibility
 	/**
@@ -166,7 +166,7 @@ public class MultiLineTestCase extends CommentTestCase {
 		String input = "/*" + DELIMITER + DELIMITER +
 				" test block comment with a blank line" + DELIMITER +
 				"*/";
-		
+
 		String expected= "/*" + DELIMITER +
 		" * test block comment with a blank line" + DELIMITER +
 		" */";
@@ -174,7 +174,7 @@ public class MultiLineTestCase extends CommentTestCase {
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=49412
 	// check backward compatibility
 	/**
@@ -189,13 +189,13 @@ public class MultiLineTestCase extends CommentTestCase {
 		String input = "/*" + DELIMITER + DELIMITER +
 				" test block comment with a blank line" + DELIMITER +
 				"*/";
-		
+
 		String expected= input;
 
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=49412
 	// check backward compatibility
 	/**
@@ -210,7 +210,7 @@ public class MultiLineTestCase extends CommentTestCase {
 		String input = "/*" + DELIMITER + DELIMITER +
 				" test block comment with a blank line" + DELIMITER +
 				"*/";
-		
+
 		String expected= "/*" + DELIMITER +
 		" * "+ DELIMITER +
 		" * test block comment with a blank line" + DELIMITER +
@@ -219,19 +219,19 @@ public class MultiLineTestCase extends CommentTestCase {
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170580
 	public void _test170580() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 
-		String input = "/*\n" + 
-				"<pre>\n" + 
-				"&lt;test&gt;\n" + 
-				"</pre>\n" + 
+		String input = "/*\n" +
+				"<pre>\n" +
+				"&lt;test&gt;\n" +
+				"</pre>\n" +
 				"         */";
 
-		String expected= "/*\n" + 
-				" * <pre>&lt;test&gt;</pre>\n" + 
+		String expected= "/*\n" +
+				" * <pre>&lt;test&gt;</pre>\n" +
 				" */";
 
 		String result=testFormat(input, options);

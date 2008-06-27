@@ -38,10 +38,10 @@ public class Util implements SuffixConstants {
 	private static final int DEFAULT_WRITING_SIZE = 1024;
 	public final static String UTF_8 = "UTF-8";	//$NON-NLS-1$
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
-	
+
 	public static final String EMPTY_STRING = new String(CharOperation.NO_CHAR);
 	public static final int[] EMPTY_INT_ARRAY= new int[0];
-	
+
 	/**
 	 * Build all the directories and subdirectories corresponding to the packages names
 	 * into the directory specified in parameters.
@@ -156,7 +156,7 @@ public class Util implements SuffixConstants {
 			return outDir.append(token).toString();
 		}
 	}
-	
+
 	/**
 	 * Returns the given bytes as a char array using a given encoding (null means platform default).
 	 */
@@ -165,10 +165,10 @@ public class Util implements SuffixConstants {
 		return getInputStreamAsCharArray(new ByteArrayInputStream(bytes), bytes.length, encoding);
 
 	}
-	
+
 	/**
 	 * Returns the outer most enclosing type's visibility for the given TypeDeclaration
-	 * and visibility based on compiler options.  
+	 * and visibility based on compiler options.
 	 */
 	public static int computeOuterMostVisibility(TypeDeclaration typeDeclaration, int visibility) {
 		while (typeDeclaration != null) {
@@ -188,7 +188,7 @@ public class Util implements SuffixConstants {
 					break;
 			}
 			typeDeclaration = typeDeclaration.enclosingType;
-		}	
+		}
 		return visibility;
 	}
 	/**
@@ -256,9 +256,9 @@ public class Util implements SuffixConstants {
 				}
 			}
 			return new FileOutputStream(new File(fileName));
-		}		
+		}
 	}
-	
+
 	/*
 	 * NIO support to get input stream as byte array.
 	 * Not used as with JDK 1.4.2 this support is slower than standard IO one...
@@ -293,7 +293,7 @@ public class Util implements SuffixConstants {
 			int amountRead = -1;
 			do {
 				int amountRequested = Math.max(stream.available(), DEFAULT_READING_SIZE);  // read at least 8K
-				
+
 				// resize contents if needed
 				if (contentsLength + amountRequested > contents.length) {
 					System.arraycopy(
@@ -311,7 +311,7 @@ public class Util implements SuffixConstants {
 					// remember length of contents
 					contentsLength += amountRead;
 				}
-			} while (amountRead != -1); 
+			} while (amountRead != -1);
 
 			// resize contents if necessary
 			if (contentsLength < contents.length) {
@@ -344,7 +344,7 @@ public class Util implements SuffixConstants {
 	 * in this area...
 	public static char[] getInputStreamAsCharArray(FileInputStream stream, int length, String encoding)
 		throws IOException {
-	
+
 		FileChannel channel = stream.getChannel();
 		int size = (int)channel.size();
 		if (length >= 0 && length < size) size = length;
@@ -393,15 +393,15 @@ public class Util implements SuffixConstants {
 				amountRequested = length - totalRead;
 			} else {
 				// reading beyond known length
-				int current = reader.read(); 
+				int current = reader.read();
 				if (current < 0) break;
-				
+
 				amountRequested = Math.max(stream.available(), DEFAULT_READING_SIZE);  // read at least 8K
-				
+
 				// resize contents if needed
 				if (totalRead + 1 + amountRequested > contents.length)
 					System.arraycopy(contents, 	0, 	contents = new char[totalRead + 1 + amountRequested], 0, totalRead);
-				
+
 				// add current character
 				contents[totalRead++] = (char) current; // coming from totalRead==length
 			}
@@ -419,7 +419,7 @@ public class Util implements SuffixConstants {
 				start = 1;
 			}
 		}
-		
+
 		// resize contents if necessary
 		if (totalRead < contents.length)
 			System.arraycopy(contents, start, contents = new char[totalRead], 	0, 	totalRead);
@@ -447,7 +447,7 @@ public class Util implements SuffixConstants {
 			return m+1;
 		}
 		return m+2;
-	}	
+	}
 	/**
 	 * Returns the contents of the given zip entry as a byte array.
 	 * @throws IOException if a problem occured reading the zip entry.
@@ -469,7 +469,7 @@ public class Util implements SuffixConstants {
 				}
 			}
 		}
-	}	
+	}
 
 	/**
 	 * Returns whether the given name is potentially a zip archive file name
@@ -517,8 +517,8 @@ public class Util implements SuffixConstants {
 			char c = name[offset + i];
 			if (c != SUFFIX_class[i] && c != SUFFIX_CLASS[i]) return false;
 		}
-		return true;		
-	}			
+		return true;
+	}
 	/**
 	 * Returns true iff str.toLowerCase().endsWith(".class")
 	 * implementation is not creating extra strings.
@@ -533,7 +533,7 @@ public class Util implements SuffixConstants {
 			int suffixIndex = suffixLength - i - 1;
 			if (c != SUFFIX_class[suffixIndex] && c != SUFFIX_CLASS[suffixIndex]) return false;
 		}
-		return true;		
+		return true;
 	}
 	/* TODO (philippe) should consider promoting it to CharOperation
 	 * Returns whether the given resource path matches one of the inclusion/exclusion
@@ -554,7 +554,7 @@ public class Util implements SuffixConstants {
 					if (lastSlash != -1 && lastSlash != pattern.length-1){ // trailing slash -> adds '**' for free (see http://ant.apache.org/manual/dirtasks.html)
 						int star = CharOperation.indexOf('*', pattern, lastSlash);
 						if ((star == -1
-								|| star >= pattern.length-1 
+								|| star >= pattern.length-1
 								|| pattern[star+1] != '*')) {
 							folderPattern = CharOperation.subarray(pattern, 0, lastSlash);
 						}
@@ -592,7 +592,7 @@ public class Util implements SuffixConstants {
 			char c = name[offset + i];
 			if (c != SUFFIX_java[i] && c != SUFFIX_JAVA[i]) return false;
 		}
-		return true;		
+		return true;
 	}
 
 	/**
@@ -703,11 +703,11 @@ public class Util implements SuffixConstants {
 	 * Converts an array of Objects into String.
 	 */
 	public static String toString(Object[] objects) {
-		return toString(objects, 
-			new Displayable(){ 
-				public String displayString(Object o) { 
+		return toString(objects,
+			new Displayable(){
+				public String displayString(Object o) {
 					if (o == null) return "null"; //$NON-NLS-1$
-					return o.toString(); 
+					return o.toString();
 				}
 			});
 	}

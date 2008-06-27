@@ -31,9 +31,9 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 /**
  * Element info for <code>ClassFile</code> handles.
  */
- 
+
 /* package */ class ClassFileInfo extends OpenableElementInfo implements SuffixConstants {
-	/** 
+	/**
 	 * The children of the <code>BinaryType</code> corresponding to our
 	 * <code>ClassFile</code>. These are kept here because we don't have
 	 * access to the <code>BinaryType</code> info (<code>ClassFileReader</code>).
@@ -43,7 +43,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 	 * The type parameters in this class file.
 	 */
 	protected ITypeParameter[] typeParameters;
-	
+
 /**
  * Creates the handles and infos for the fields of the given binary type.
  * Adds new handles to the given vector.
@@ -122,14 +122,14 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 		}
 		BinaryMethod method = new BinaryMethod((JavaElement)type, selector, pNames);
 		childrenHandles.add(method);
-		
+
 		// ensure that 2 binary methods with the same signature but with different return types have different occurence counts.
 		// (case of bridge methods in 1.5)
 		while (newElements.containsKey(method))
 			method.occurrenceCount++;
-		
+
 		newElements.put(method, methodInfo);
-		
+
 		generateTypeParameterInfos(method, signature, newElements, typeParameterHandles);
 	}
 }
@@ -154,13 +154,13 @@ private void generateTypeParameterInfos(BinaryMember parent, char[] signature, H
 		TypeParameterElementInfo info = new TypeParameterElementInfo();
 		info.bounds = typeParameterBounds;
 		typeParameterHandles.add(typeParameter);
-		
+
 		// ensure that 2 binary methods with the same signature but with different return types have different occurence counts.
 		// (case of bridge methods in 1.5)
 		while (newElements.containsKey(typeParameter))
 			typeParameter.occurrenceCount++;
-		
-		newElements.put(typeParameter, info);	
+
+		newElements.put(typeParameter, info);
 	}
 }
 /**
@@ -185,7 +185,7 @@ protected void readBinaryChildren(ClassFile classFile, HashMap newElements, IBin
 		generateMethodInfos(type, typeInfo, newElements, childrenHandles, typeParameterHandles);
 		generateInnerClassHandles(type, typeInfo, childrenHandles); // Note inner class are separate openables that are not opened here: no need to pass in newElements
 	}
-	
+
 	this.binaryChildren = new JavaElement[childrenHandles.size()];
 	childrenHandles.toArray(this.binaryChildren);
 	int typeParameterHandleSize = typeParameterHandles.size();

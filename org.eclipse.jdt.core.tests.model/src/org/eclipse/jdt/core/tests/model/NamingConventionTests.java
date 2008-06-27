@@ -39,25 +39,25 @@ public static Test suite() {
  */
 public void setUp() throws Exception {
 	super.setUp();
-	project = createJavaProject("P", new String[]{"src"}, "bin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	oldOptions = JavaCore.getOptions();
+	this.project = createJavaProject("P", new String[]{"src"}, "bin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	this.oldOptions = JavaCore.getOptions();
 	this.abortOnFailure = false; // some tests have failing one time on macos boxes => do not abort on failures
 }
 /**
  * Cleanup after the previous test.
  */
 public void tearDown() throws Exception {
-	JavaCore.setOptions(oldOptions);
-	
+	JavaCore.setOptions(this.oldOptions);
+
 	this.deleteProject("P"); //$NON-NLS-1$
-	
+
 	super.tearDown();
 }
 private String toString(char[][] suggestions) {
 	if(suggestions == null) {
 		return ""; //$NON-NLS-1$
 	}
-	
+
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0; i < suggestions.length; i++) {
 		if(i != 0) {
@@ -69,7 +69,7 @@ private String toString(char[][] suggestions) {
 }
 public void testSuggestFieldName001() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
 		0,
@@ -82,13 +82,13 @@ public void testSuggestFieldName001() {
 }
 public void testSuggestFieldName002() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneClass".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"class1\n" + //$NON-NLS-1$
 		"oneClass", //$NON-NLS-1$
@@ -98,15 +98,15 @@ public void testSuggestFieldName003() {
 	Hashtable options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"f"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"fName\n" + //$NON-NLS-1$
 		"fOneName\n" + //$NON-NLS-1$
@@ -118,15 +118,15 @@ public void testSuggestFieldName004() {
 	Hashtable options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"_"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"_name\n" + //$NON-NLS-1$
 		"_oneName\n" + //$NON-NLS-1$
@@ -139,15 +139,15 @@ public void testSuggestFieldName005() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"f"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FIELD_PREFIXES,"fg"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
 		0,
 		Flags.AccStatic,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"fgName\n" + //$NON-NLS-1$
 		"fgOneName\n" + //$NON-NLS-1$
@@ -160,15 +160,15 @@ public void testSuggestFieldName006() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"preNamesuf\n" + //$NON-NLS-1$
 		"preOneNamesuf\n" + //$NON-NLS-1$
@@ -185,15 +185,15 @@ public void testSuggestFieldName007() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"int".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"preIsuf\n" + //$NON-NLS-1$
 		"preI\n" + //$NON-NLS-1$
@@ -203,13 +203,13 @@ public void testSuggestFieldName007() {
 }
 public void testSuggestFieldName008() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		new char[][]{"name".toCharArray()}); //$NON-NLS-1$
-	
+
 	assumeEquals(
 		"name2\n" + //$NON-NLS-1$
 		"oneName", //$NON-NLS-1$
@@ -220,15 +220,15 @@ public void testSuggestFieldName009() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		new char[][]{"preNamesuf".toCharArray()}); //$NON-NLS-1$
-	
+
 	assumeEquals(
 		"preName2suf\n" + //$NON-NLS-1$
 		"preOneNamesuf\n" + //$NON-NLS-1$
@@ -245,15 +245,15 @@ public void testSuggestFieldName010() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"OneName".toCharArray(), //$NON-NLS-1$
 		1,
 		0,
 		new char[][]{"preNamesuf".toCharArray()}); //$NON-NLS-1$
-	
+
 	assumeEquals(
 		"preNamessuf\n" + //$NON-NLS-1$
 		"preOneNamessuf\n" + //$NON-NLS-1$
@@ -267,26 +267,26 @@ public void testSuggestFieldName010() {
 }
 public void testSuggestFieldName011() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
 		"Factory".toCharArray(), //$NON-NLS-1$
 		1,
 		0,
 		CharOperation.NO_CHAR_CHAR); //$NON-NLS-1$
-	
+
 	assumeEquals(
 		"factories", //$NON-NLS-1$
 		toString(suggestions));
 }
 public void testSuggestFieldName012() {
 	String[] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"a.b.c", //$NON-NLS-1$
 		"FooBar", //$NON-NLS-1$
 		0,
 		0,
 		new String[]{"bar"}); //$NON-NLS-1$
-	
+
 	assumeEquals(
 		"bar2\n" + //$NON-NLS-1$
 		"fooBar", //$NON-NLS-1$
@@ -294,52 +294,52 @@ public void testSuggestFieldName012() {
 }
 public void testSuggestFieldName013() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"java.lang".toCharArray(), //$NON-NLS-1$
 		"Class".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"class1",//$NON-NLS-1$
 		toString(suggestions));
 }
 public void testSuggestFieldName014() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"java.lang".toCharArray(), //$NON-NLS-1$
 		"Class".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		new char[][]{"class1".toCharArray()}); //$NON-NLS-1$
-	
+
 	assumeEquals(
 		"class2",//$NON-NLS-1$
 		toString(suggestions));
 }
 public void testSuggestFieldName015() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"".toCharArray(), //$NON-NLS-1$
 		"#".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"name",//$NON-NLS-1$
 		toString(suggestions));
 }
 public void testSuggestFieldName016() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"".toCharArray(), //$NON-NLS-1$
 		"#".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		new char[][]{"name".toCharArray()}); //$NON-NLS-1$
-	
+
 	assumeEquals(
 		"name2",//$NON-NLS-1$
 		toString(suggestions));
@@ -349,13 +349,13 @@ public void testSuggestFieldName016() {
  */
 public void testSuggestFieldName017() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"".toCharArray(), //$NON-NLS-1$
 		"names".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		new char[][]{});
-	
+
 	assumeEquals(
 		"names",//$NON-NLS-1$
 		toString(suggestions));
@@ -365,13 +365,13 @@ public void testSuggestFieldName017() {
  */
 public void testSuggestFieldName018() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"".toCharArray(), //$NON-NLS-1$
 		"names".toCharArray(), //$NON-NLS-1$
 		1,
 		0,
 		new char[][]{});
-	
+
 	assumeEquals(
 		"names",//$NON-NLS-1$
 		toString(suggestions));
@@ -381,13 +381,13 @@ public void testSuggestFieldName018() {
  */
 public void testSuggestFieldName019() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"".toCharArray(), //$NON-NLS-1$
 		"MyClass".toCharArray(), //$NON-NLS-1$
 		0,
 		0,
 		new char[][]{});
-	
+
 	assumeEquals(
 		"class1\n" + //$NON-NLS-1$
 		"myClass", //$NON-NLS-1$
@@ -398,13 +398,13 @@ public void testSuggestFieldName019() {
  */
 public void testSuggestFieldName020() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
-		project,
+		this.project,
 		"".toCharArray(), //$NON-NLS-1$
 		"MyClass".toCharArray(), //$NON-NLS-1$
 		1,
 		0,
 		new char[][]{});
-	
+
 	assumeEquals(
 		"classes\n" + //$NON-NLS-1$
 		"myClasses", //$NON-NLS-1$
@@ -415,12 +415,12 @@ public void testRemovePrefixAndSuffixForFieldName001() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[] name = NamingConventions.removePrefixAndSuffixForFieldName(
-		project,
+		this.project,
 		"preOneNamesuf".toCharArray(), //$NON-NLS-1$
 		0);
-	
+
 	assumeEquals(
 		"oneName", //$NON-NLS-1$
 		new String(name));
@@ -430,12 +430,12 @@ public void testRemovePrefixAndSuffixForFieldName002() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[] name = NamingConventions.removePrefixAndSuffixForFieldName(
-		project,
+		this.project,
 		"preOneNamesuf".toCharArray(), //$NON-NLS-1$
 		Flags.AccStatic);
-	
+
 	assumeEquals(
 		"preOneNamesuf", //$NON-NLS-1$
 		new String(name));
@@ -445,12 +445,12 @@ public void testRemovePrefixAndSuffixForFieldName003() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[] name = NamingConventions.removePrefixAndSuffixForFieldName(
-		project,
+		this.project,
 		"preOneNamesuf".toCharArray(), //$NON-NLS-1$
 		0);
-	
+
 	assumeEquals(
 		"oneName", //$NON-NLS-1$
 		new String(name));
@@ -460,12 +460,12 @@ public void testRemovePrefixAndSuffixForFieldName004() {
 	Hashtable options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre,"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[] name = NamingConventions.removePrefixAndSuffixForFieldName(
-		project,
+		this.project,
 		"preOneName".toCharArray(), //$NON-NLS-1$
 		0);
-	
+
 	assumeEquals(
 		"oneName", //$NON-NLS-1$
 		new String(name));
@@ -475,36 +475,36 @@ public void testRemovePrefixAndSuffixForLocalName001() {
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[] name = NamingConventions.removePrefixAndSuffixForLocalVariableName(
-		project,
+		this.project,
 		"preOneNamesuf".toCharArray() //$NON-NLS-1$
 		);
-	
+
 	assumeEquals(
 		"oneName", //$NON-NLS-1$
 		new String(name));
 }
 public void testSuggestGetterName001() {
 	char[] suggestion = NamingConventions.suggestGetterName(
-		project,
+		this.project,
 		"fieldName".toCharArray(), //$NON-NLS-1$
 		0,
 		false,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"getFieldName", //$NON-NLS-1$
 		new String(suggestion));
 }
 public void testSuggestGetterName002() {
 	char[] suggestion = NamingConventions.suggestGetterName(
-		project,
+		this.project,
 		"FieldName".toCharArray(), //$NON-NLS-1$
 		0,
 		false,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"getFieldName", //$NON-NLS-1$
 		new String(suggestion));
@@ -514,14 +514,14 @@ public void testSuggestGetterName003() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[] suggestion = NamingConventions.suggestGetterName(
-		project,
+		this.project,
 		"preFieldName".toCharArray(), //$NON-NLS-1$
 		0,
 		false,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"getFieldName", //$NON-NLS-1$
 		new String(suggestion));
@@ -531,14 +531,14 @@ public void testSuggestGetterName004() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[] suggestion = NamingConventions.suggestGetterName(
-		project,
+		this.project,
 		"preFieldNamesuf".toCharArray(), //$NON-NLS-1$
 		0,
 		false,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"getFieldName", //$NON-NLS-1$
 		new String(suggestion));
@@ -548,38 +548,38 @@ public void testSuggestGetterName005() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	char[] suggestion = NamingConventions.suggestGetterName(
-		project,
+		this.project,
 		"preFieldNamesuf".toCharArray(), //$NON-NLS-1$
 		0,
 		true,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"isFieldName", //$NON-NLS-1$
 		new String(suggestion));
 }
 public void testSuggestGetterName006() {
 	char[] suggestion = NamingConventions.suggestGetterName(
-		project,
+		this.project,
 		"isSomething".toCharArray(), //$NON-NLS-1$
 		0,
 		true,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"isSomething", //$NON-NLS-1$
 		new String(suggestion));
 }
 public void testSuggestGetterName007() {
 	char[] suggestion = NamingConventions.suggestGetterName(
-		project,
+		this.project,
 		"isSomething".toCharArray(), //$NON-NLS-1$
 		0,
 		false,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"getIsSomething", //$NON-NLS-1$
 		new String(suggestion));
@@ -587,36 +587,36 @@ public void testSuggestGetterName007() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153125
 public void testSuggestGetterName008() {
 	char[] suggestion = NamingConventions.suggestGetterName(
-		project,
+		this.project,
 		"éfield".toCharArray(), //$NON-NLS-1$
 		0,
 		false,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"getÉfield", //$NON-NLS-1$
 		new String(suggestion));
 }
 public void testSuggestSetterName001() {
 	char[] suggestion = NamingConventions.suggestSetterName(
-		project,
+		this.project,
 		"isSomething".toCharArray(), //$NON-NLS-1$
 		0,
 		true,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"setSomething", //$NON-NLS-1$
 		new String(suggestion));
 }
 public void testSuggestSetterName002() {
 	char[] suggestion = NamingConventions.suggestSetterName(
-		project,
+		this.project,
 		"isSomething".toCharArray(), //$NON-NLS-1$
 		0,
 		false,
 		CharOperation.NO_CHAR_CHAR);
-	
+
 	assumeEquals(
 		"setIsSomething", //$NON-NLS-1$
 		new String(suggestion));
@@ -634,12 +634,12 @@ public void testSuggestLocalName001() {
 		this.project.setOptions(newOptions);
 
 		String[] suggestions = NamingConventions.suggestLocalVariableNames(
-			project,
+			this.project,
 			"",//$NON-NLS-1$
 			"Enum",//$NON-NLS-1$
 			0,
 			new String[]{"o"});
-		
+
 		assumeEquals(
 			"enum1", //$NON-NLS-1$
 			toString(suggestions));
@@ -660,12 +660,12 @@ public void testSuggestLocalName002() {
 		this.project.setOptions(newOptions);
 
 		String[] suggestions = NamingConventions.suggestLocalVariableNames(
-			project,
+			this.project,
 			"",//$NON-NLS-1$
 			"Enums",//$NON-NLS-1$
 			0,
 			new String[]{"o"});
-		
+
 		assumeEquals(
 			"enums", //$NON-NLS-1$
 			toString(suggestions));

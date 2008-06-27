@@ -31,11 +31,11 @@ public void computeConstant() {
  * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
  * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
  * @param valueRequired boolean
- */ 
+ */
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
 	if (valueRequired) {
-		codeStream.generateConstant(constant, implicitConversion);
+		codeStream.generateConstant(this.constant, this.implicitConversion);
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
@@ -59,7 +59,7 @@ public TypeBinding literalType(BlockScope scope) {
 	return TypeBinding.BOOLEAN;
 }
 /**
- * 
+ *
  */
 public char[] source() {
 	return source;

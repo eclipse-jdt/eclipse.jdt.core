@@ -27,52 +27,52 @@ public void computeConstant() {
 	//This is true for both regular char AND unicode char
 	//BUT not for escape char like '\b' which are char[4]....
 
-	constant = CharConstant.fromValue(value);
+	this.constant = CharConstant.fromValue(this.value);
 }
 private void computeValue() {
 	//The source is a  char[3] first and last char are '
 	//This is true for both regular char AND unicode char
 	//BUT not for escape char like '\b' which are char[4]....
 
-	if ((value = source[1]) != '\\')
+	if ((this.value = this.source[1]) != '\\')
 		return;
 	char digit;
-	switch (digit = source[2]) {
+	switch (digit = this.source[2]) {
 		case 'b' :
-			value = '\b';
+			this.value = '\b';
 			break;
 		case 't' :
-			value = '\t';
+			this.value = '\t';
 			break;
 		case 'n' :
-			value = '\n';
+			this.value = '\n';
 			break;
 		case 'f' :
-			value = '\f';
+			this.value = '\f';
 			break;
 		case 'r' :
-			value = '\r';
+			this.value = '\r';
 			break;
 		case '\"' :
-			value = '\"';
+			this.value = '\"';
 			break;
 		case '\'' :
-			value = '\'';
+			this.value = '\'';
 			break;
 		case '\\' :
-			value = '\\';
+			this.value = '\\';
 			break;
 		default : //octal (well-formed: ended by a ' )
 			int number = ScannerHelper.getNumericValue(digit);
-			if ((digit = source[3]) != '\'')
+			if ((digit = this.source[3]) != '\'')
 				number = (number * 8) + ScannerHelper.getNumericValue(digit);
 			else {
-				constant = CharConstant.fromValue(value = (char) number);
+				this.constant = CharConstant.fromValue(this.value = (char) number);
 				break;
 			}
-			if ((digit = source[4]) != '\'')
+			if ((digit = this.source[4]) != '\'')
 				number = (number * 8) + ScannerHelper.getNumericValue(digit);
-			value = (char) number;
+			this.value = (char) number;
 			break;
 	}
 }
@@ -86,7 +86,7 @@ private void computeValue() {
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
 	if (valueRequired) {
-		codeStream.generateConstant(constant, implicitConversion);
+		codeStream.generateConstant(this.constant, this.implicitConversion);
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }

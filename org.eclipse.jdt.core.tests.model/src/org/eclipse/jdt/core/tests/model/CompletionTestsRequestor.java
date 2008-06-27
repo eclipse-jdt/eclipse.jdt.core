@@ -23,40 +23,40 @@ public class CompletionTestsRequestor extends CompletionRequestor {
 	private Vector relevances = new Vector();
 	private Vector completionStart = new Vector();
 	private Vector completionEnd = new Vector();
-	
+
 	public boolean debug = false;
 
 	private void acceptCommon(CompletionProposal proposal) {
-		completions.addElement(new String(proposal.getCompletion()));
-		relevances.addElement(String.valueOf(proposal.getRelevance()));
-		completionStart.addElement(String.valueOf(proposal.getReplaceStart()));
-		completionEnd.addElement(String.valueOf(proposal.getReplaceEnd()));
+		this.completions.addElement(new String(proposal.getCompletion()));
+		this.relevances.addElement(String.valueOf(proposal.getRelevance()));
+		this.completionStart.addElement(String.valueOf(proposal.getReplaceStart()));
+		this.completionEnd.addElement(String.valueOf(proposal.getReplaceEnd()));
 	}
 	public void accept(CompletionProposal proposal) {
 		char[] typeName = null;
 		switch(proposal.getKind()) {
 			case CompletionProposal.ANONYMOUS_CLASS_DECLARATION :
 				typeName = Signature.getSignatureSimpleName(proposal.getDeclarationSignature());
-				elements.addElement(new String(typeName));
-				this.acceptCommon(proposal);
-				if (debug)
+				this.elements.addElement(new String(typeName));
+				acceptCommon(proposal);
+				if (this.debug)
 					System.out.println("anonymous type " + new String(typeName));
 				break;
-				
+
 			case CompletionProposal.TYPE_REF :
 				if((proposal.getFlags() & Flags.AccEnum) != 0) {
-					
+
 				} else if((proposal.getFlags() & Flags.AccInterface) != 0) {
 					typeName = Signature.getSignatureSimpleName(proposal.getSignature());
-					elements.addElement(new String(typeName));
-					this.acceptCommon(proposal);
-					if (debug)
+					this.elements.addElement(new String(typeName));
+					acceptCommon(proposal);
+					if (this.debug)
 						System.out.println("Interface " + new String(typeName));
 				} else {
 					typeName = Signature.getSignatureSimpleName(proposal.getSignature());
-					elements.addElement(new String(typeName));
-					this.acceptCommon(proposal);
-					if (debug) {
+					this.elements.addElement(new String(typeName));
+					acceptCommon(proposal);
+					if (this.debug) {
 						if(Signature.getTypeSignatureKind(proposal.getSignature()) == Signature.TYPE_VARIABLE_SIGNATURE) {
 							System.out.println("type parameter " + new String(typeName));
 						} else {
@@ -65,60 +65,60 @@ public class CompletionTestsRequestor extends CompletionRequestor {
 					}
 				}
 				break;
-				
+
 			case CompletionProposal.FIELD_REF :
-				elements.addElement(new String(proposal.getName()));
-				this.acceptCommon(proposal);
-				if (debug)
+				this.elements.addElement(new String(proposal.getName()));
+				acceptCommon(proposal);
+				if (this.debug)
 					System.out.println("Field " + new String(proposal.getName()));
 				break;
-				
+
 			case CompletionProposal.KEYWORD:
-				elements.addElement(new String(proposal.getName()));
-				this.acceptCommon(proposal);
-				if (debug)
+				this.elements.addElement(new String(proposal.getName()));
+				acceptCommon(proposal);
+				if (this.debug)
 					System.out.println("Keyword " + new String(proposal.getName()));
 				break;
-				
+
 			case CompletionProposal.LABEL_REF:
-				elements.addElement(new String(proposal.getName()));
-				this.acceptCommon(proposal);
-				if (debug)
+				this.elements.addElement(new String(proposal.getName()));
+				acceptCommon(proposal);
+				if (this.debug)
 					System.out.println("Label " + new String(proposal.getName()));
 				break;
-				
+
 			case CompletionProposal.LOCAL_VARIABLE_REF:
-				elements.addElement(new String(proposal.getName()));
-				this.acceptCommon(proposal);
-				if (debug)
+				this.elements.addElement(new String(proposal.getName()));
+				acceptCommon(proposal);
+				if (this.debug)
 					System.out.println("Local variable " + new String(proposal.getName()));
 				break;
-				
+
 			case CompletionProposal.METHOD_REF:
-				elements.addElement(new String(proposal.getName()));
-				this.acceptCommon(proposal);
-				if (debug)
+				this.elements.addElement(new String(proposal.getName()));
+				acceptCommon(proposal);
+				if (this.debug)
 					System.out.println("method " + new String(proposal.getName()));
 				break;
-				
+
 			case CompletionProposal.METHOD_DECLARATION:
-				elements.addElement(new String(proposal.getName()));
-				this.acceptCommon(proposal);
-				if (debug)
+				this.elements.addElement(new String(proposal.getName()));
+				acceptCommon(proposal);
+				if (this.debug)
 					System.out.println("method declaration " + new String(proposal.getName()));
 				break;
-				
+
 			case CompletionProposal.PACKAGE_REF:
-				elements.addElement(new String(proposal.getDeclarationSignature()));
-				this.acceptCommon(proposal);
-				if (debug)
+				this.elements.addElement(new String(proposal.getDeclarationSignature()));
+				acceptCommon(proposal);
+				if (this.debug)
 					System.out.println("package " + new String(proposal.getDeclarationSignature()));
 				break;
-				
+
 			case CompletionProposal.VARIABLE_DECLARATION:
-				elements.addElement(new String(proposal.getName()));
-				this.acceptCommon(proposal);
-				if (debug)
+				this.elements.addElement(new String(proposal.getName()));
+				acceptCommon(proposal);
+				if (this.debug)
 					System.out.println("variable name " + new String(proposal.getName()));
 				break;
 		}
@@ -135,8 +135,8 @@ public class CompletionTestsRequestor extends CompletionRequestor {
 
 	public String getResults(boolean relevance, boolean position) {
 		StringBuffer result = new StringBuffer();
-		int size = elements.size();
-		
+		int size = this.elements.size();
+
 		if (size == 1) {
 			result.append(getResult(0, relevance, position));
 		} else if (size > 1) {
@@ -155,24 +155,24 @@ public class CompletionTestsRequestor extends CompletionRequestor {
 	}
 
 	private String getResult(int i, boolean relevance, boolean position) {
-		if(i < 0 || i >= elements.size())
+		if(i < 0 || i >= this.elements.size())
 			return "";
-		
+
 		StringBuffer buffer =  new StringBuffer();
 		buffer.append("element:");
-		buffer.append(elements.elementAt(i));
+		buffer.append(this.elements.elementAt(i));
 		buffer.append("    completion:");
-		buffer.append(completions.elementAt(i));
+		buffer.append(this.completions.elementAt(i));
 		if(position) {
 			buffer.append("    position:[");
-			buffer.append(completionStart.elementAt(i));
+			buffer.append(this.completionStart.elementAt(i));
 			buffer.append(",");
-			buffer.append(completionEnd.elementAt(i));
+			buffer.append(this.completionEnd.elementAt(i));
 			buffer.append("]");
 		}
 		if(relevance) {
 			buffer.append("    relevance:");
-			buffer.append(relevances.elementAt(i));
+			buffer.append(this.relevances.elementAt(i));
 		}
 		return buffer.toString();
 	}

@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import java.io.*;
 import java.net.*;
 /**
- * This is the interface to the target VM. It connects to an IDEInterface on the target side 
+ * This is the interface to the target VM. It connects to an IDEInterface on the target side
  * using TCP/IO to send request for code snippet evaluation and to get the result back.
  *
  * @see org.eclipse.jdt.core.tests.eval.target.IDEInterface for details about the protocol.
@@ -37,7 +37,7 @@ public class TargetInterface {
 	 */
 	static final boolean TIMING = false;
 	long sentTime;
-	
+
 	/**
 	 * The connection to the target's ide interface.
 	 */
@@ -79,7 +79,7 @@ public void connect(String targetAddress, int portNumber, int timeout) {
 }
 /**
  * (PRIVATE API)
- * Disconnects this interface from the target. 
+ * Disconnects this interface from the target.
  */
 public void disconnect() {
 	if (this.socket != null) {
@@ -92,7 +92,7 @@ public void disconnect() {
 	}
 }
 /**
- * Returns the result of the evaluation sent previously to the target. 
+ * Returns the result of the evaluation sent previously to the target.
  */
 public Result getResult() {
 	boolean hasValue = false;
@@ -100,10 +100,10 @@ public Result getResult() {
 	String toString = null;
 	if (DEBUG) {
 		hasValue = true;
-		typeName = "TargetInterface in debug mode. Run d:\\eval\\TestCodeSnippet.bat d:\\eval\\snippets\\" + codeSnippetClassName;
+		typeName = "TargetInterface in debug mode. Run d:\\eval\\TestCodeSnippet.bat d:\\eval\\snippets\\" + this.codeSnippetClassName;
 		toString = "";
 	} else {
-		if (this.isConnected()) {
+		if (isConnected()) {
 			// TBD: Read type name and toString as a character array
 			try {
 				DataInputStream in = new DataInputStream(this.socket.getInputStream());
@@ -120,7 +120,7 @@ public Result getResult() {
 				hasValue = true;
 				typeName = e.getMessage();
 				toString = "";
-				this.disconnect();
+				disconnect();
 			}
 		} else {
 			hasValue = true;
@@ -150,7 +150,7 @@ public void sendClasses(boolean mustRun, ClassFile[] classes) throws TargetExcep
 		for (int i = 0; i < classes.length; i++) {
 			String className = new String(classes[i].fileName()).replace('/', '\\') + ".class";
 			if ((i == 0) && (className.indexOf("CodeSnippet") != -1)) {
-				codeSnippetClassName = className;
+				this.codeSnippetClassName = className;
 				try {
 					Util.writeToDisk(true, "d:\\eval\\snippets", className, classes[0]);
 				} catch(IOException e) {
@@ -186,7 +186,7 @@ public void sendClasses(boolean mustRun, ClassFile[] classes) throws TargetExcep
 			}
 		} catch (IOException e) {
 			// The socket has likely been closed on the other end. So the code snippet runner has stopped.
-			this.disconnect();
+			disconnect();
 		}
 	}
 }

@@ -30,7 +30,7 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 	public static Test allTests() {
 		return new Suite(THIS);
 	}
-	
+
 	public static Test suite() {
 		if (true) {
 			return allTests();
@@ -39,9 +39,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		suite.addTest(new ASTRewritingModifyingMoveTest("test0009"));
 		return suite;
 	}
-	
+
 	public void test0001() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0001", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0001", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0001;\n");
 		buf.append("\n");
@@ -55,18 +55,18 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(1);
 		types.remove(1);
 		types.add(typeDeclaration);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0001;\n");
 		buf.append("\n");
@@ -81,9 +81,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void test0002() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0002", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0002", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0002;\n");
 		buf.append("\n");
@@ -97,13 +97,13 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		AST a = astRoot.getAST();
-		
+
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration1 = (TypeDeclaration)types.get(1);
 		types.remove(1);
@@ -111,9 +111,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		typeDeclaration2.setName(a.newSimpleName("A"));
 		typeDeclaration2.bodyDeclarations().add(typeDeclaration1);
 		types.add(typeDeclaration2);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0002;\n");
 		buf.append("\n");
@@ -130,9 +130,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void test0003() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0003", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0003", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0003;\n");
 		buf.append("\n");
@@ -146,22 +146,22 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		AST a = astRoot.getAST();
-		
+
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration1 = (TypeDeclaration)types.get(1);
 		types.remove(1);
 		TypeDeclaration typeDeclaration2 = a.newTypeDeclaration();
 		typeDeclaration2.setName(a.newSimpleName("A"));
 		typeDeclaration2.bodyDeclarations().add(typeDeclaration1);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0003;\n");
 		buf.append("\n");
@@ -173,9 +173,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void test0004() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0004", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0004", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0004;\n");
 		buf.append("\n");
@@ -189,19 +189,19 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration1 = (TypeDeclaration)types.get(1);
 		types.remove(1);
 		types.add(typeDeclaration1);
 		types.remove(2);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0004;\n");
 		buf.append("\n");
@@ -213,9 +213,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void test0005() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0005", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0005", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0005;\n");
 		buf.append("\n");
@@ -229,18 +229,18 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration1 = (TypeDeclaration)types.get(1);
 		types.remove(1);
 		types.add(1, typeDeclaration1);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0005;\n");
 		buf.append("\n");
@@ -255,9 +255,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void test0006() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0006", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0006", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0006;\n");
 		buf.append("\n");
@@ -271,18 +271,18 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
 		types.remove(0);
 		types.set(1, typeDeclaration);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0006;\n");
 		buf.append("\n");
@@ -294,9 +294,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void test0007() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0007", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0007", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0007;\n");
 		buf.append("\n");
@@ -314,18 +314,18 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(1);
 		types.remove(1);
 		types.add(typeDeclaration);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0007;\n");
 		buf.append("\n");
@@ -344,10 +344,10 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	/** @deprecated using deprecated code */
 	public void test0008() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0008", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0008", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0008;\n");
 		buf.append("\n");
@@ -360,20 +360,20 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration1 = (TypeDeclaration)types.get(0);
 		TypeDeclaration typeDeclaration2 = (TypeDeclaration)types.get(1);
 		Name name = typeDeclaration1.getSuperclass();
 		typeDeclaration1.setSuperclass(null);
 		typeDeclaration2.setSuperclass(name);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0008;\n");
 		buf.append("\n");
@@ -387,9 +387,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void test0009() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0009", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0009", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0009;\n");
 		buf.append("\n");
@@ -404,11 +404,11 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("    }\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
 		MethodDeclaration methodDeclaration = typeDeclaration.getMethods()[0];
@@ -417,9 +417,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		Statement statement = (Statement)statements.get(1);
 		statements.remove(1);
 		statements.add(statement);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0009;\n");
 		buf.append("\n");
@@ -435,7 +435,7 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 //	public void test0010() throws Exception {
 //		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0010", false, null);
 //		StringBuffer buf= new StringBuffer();
@@ -453,11 +453,11 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 //		buf.append("    }\n");
 //		buf.append("}\n");
 //		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-//		
+//
 //		CompilationUnit astRoot= parseCompilationUnit(cu, false);
-//		
+//
 //		astRoot.recordModifications();
-//		
+//
 //		List types = astRoot.types();
 //		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
 //		MethodDeclaration methodDeclaration1 = typeDeclaration.getMethods()[0];
@@ -465,9 +465,9 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 //		Javadoc javadoc = methodDeclaration1.getJavadoc();
 //		methodDeclaration1.setJavadoc(null);
 //		methodDeclaration2.setJavadoc(javadoc);
-//		
+//
 //		String preview = evaluateRewrite(cu, astRoot);
-//		
+//
 //		buf= new StringBuffer();
 //		buf.append("package test0010;\n");
 //		buf.append("\n");

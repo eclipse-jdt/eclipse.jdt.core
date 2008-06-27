@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.core.NameLookup;
  */
 public class InternalCompletionProposal {
 	private static Object NO_ATTACHED_SOURCE = new Object();
-	
+
 	static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
 	static final char[] ARG0 = "arg0".toCharArray();  //$NON-NLS-1$
 	static final char[] ARG1 = "arg1".toCharArray();  //$NON-NLS-1$
@@ -34,23 +34,23 @@ public class InternalCompletionProposal {
 	static final char[][] ARGS2 = new char[][]{ARG0, ARG1};
 	static final char[][] ARGS3 = new char[][]{ARG0, ARG1, ARG2};
 	static final char[][] ARGS4 = new char[][]{ARG0, ARG1, ARG2, ARG3};
-	
+
 	protected CompletionEngine completionEngine;
 	protected NameLookup nameLookup;
-	
+
 	protected char[] declarationPackageName;
 	protected char[] declarationTypeName;
 	protected char[] packageName;
 	protected char[] typeName;
 	protected char[][] parameterPackageNames;
 	protected char[][] parameterTypeNames;
-	
+
 	protected char[] originalSignature;
-	
+
 	protected int accessibility = IAccessRule.K_ACCESSIBLE;
-	
+
 	protected boolean isConstructor = false;
-	
+
 	protected char[][] createDefaultParameterNames(int length) {
 		char[][] parameterNames;
 		switch (length) {
@@ -80,19 +80,19 @@ public class InternalCompletionProposal {
 	}
 	protected char[][] findMethodParameterNames(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] paramTypeNames){
 		if(paramTypeNames == null || declaringTypeName == null) return null;
-		
+
 		char[][] parameterNames = null;
 		int length = paramTypeNames.length;
-		
+
 		char[] tName = CharOperation.concat(declaringTypePackageName,declaringTypeName,'.');
 		Object cachedType = this.completionEngine.typeCache.get(tName);
-		
+
 		IType type = null;
 		if(cachedType != null) {
 			if(cachedType != NO_ATTACHED_SOURCE && cachedType instanceof BinaryType) {
 				type = (BinaryType)cachedType;
 			}
-		} else { 
+		} else {
 			// TODO (david) shouldn't it be NameLookup.ACCEPT_ALL ?
 			NameLookup.Answer answer = this.nameLookup.findType(new String(tName),
 				false,
@@ -108,7 +108,7 @@ public class InternalCompletionProposal {
 				type = null;
 			}
 		}
-		
+
 		if(type != null) {
 			String[] args = new String[length];
 			for(int i = 0;	i< length ; i++){
@@ -125,68 +125,68 @@ public class InternalCompletionProposal {
 				parameterNames = null;
 			}
 		}
-		
+
 		// default parameters name
 		if(parameterNames == null) {
 			parameterNames = createDefaultParameterNames(length);
 		}
-		
+
 		return parameterNames;
 	}
-	
+
 	protected char[] getDeclarationPackageName() {
 		return this.declarationPackageName;
 	}
-	
+
 	protected char[] getDeclarationTypeName() {
 		return this.declarationTypeName;
 	}
-	
+
 	protected char[] getPackageName() {
 		return this.packageName;
 	}
-	
+
 	protected char[] getTypeName() {
 		return this.typeName;
 	}
-	
+
 	protected char[][] getParameterPackageNames() {
 		return this.parameterPackageNames;
 	}
-	
-	
+
+
 	protected char[][] getParameterTypeNames() {
 		return this.parameterTypeNames;
 	}
-	
+
 	protected void setDeclarationPackageName(char[] declarationPackageName) {
 		this.declarationPackageName = declarationPackageName;
 	}
-	
+
 	protected void setDeclarationTypeName(char[] declarationTypeName) {
 		this.declarationTypeName = declarationTypeName;
 	}
-	
+
 	protected void setPackageName(char[] packageName) {
 		this.packageName = packageName;
 	}
-	
+
 	protected void setTypeName(char[] typeName) {
 		this.typeName = typeName;
 	}
-	
+
 	protected void setParameterPackageNames(char[][] parameterPackageNames) {
 		this.parameterPackageNames = parameterPackageNames;
 	}
-	
+
 	protected void setParameterTypeNames(char[][] parameterTypeNames) {
 		this.parameterTypeNames = parameterTypeNames;
 	}
-	
+
 	protected void setAccessibility(int kind) {
 		this.accessibility = kind;
 	}
-	
+
 	protected void setIsContructor(boolean isConstructor) {
 		this.isConstructor = isConstructor;
 	}

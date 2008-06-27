@@ -27,5 +27,5 @@ public interface EvaluationConstants {
 	public static final String RESULT_TYPE_FIELD = "resultType"; //$NON-NLS-1$
 	public static final char[] LOCAL_VAR_PREFIX = "val$".toCharArray(); //$NON-NLS-1$
 	public static final char[] DELEGATE_THIS = "val$this".toCharArray(); //$NON-NLS-1$
-	
+
 }

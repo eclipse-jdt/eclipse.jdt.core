@@ -29,12 +29,12 @@ public final class BaseTypeBinding extends TypeBinding {
 	public char[] computeUniqueKey(boolean isLeaf) {
 		return constantPoolName();
 	}
-	
+
 	/* Answer the receiver's constant pool name.
 	*/
 	public char[] constantPoolName() {
 
-		return constantPoolName;
+		return this.constantPoolName;
 	}
 
 	public PackageBinding getPackage() {
@@ -57,7 +57,7 @@ public final class BaseTypeBinding extends TypeBinding {
 			case TypeIds.T_char :
 				return false;
 			case TypeIds.T_double :
-				switch (id) {
+				switch (this.id) {
 					case TypeIds.T_byte :
 					case TypeIds.T_char :
 					case TypeIds.T_short :
@@ -69,7 +69,7 @@ public final class BaseTypeBinding extends TypeBinding {
 						return false;
 				}
 			case TypeIds.T_float :
-				switch (id) {
+				switch (this.id) {
 					case TypeIds.T_byte :
 					case TypeIds.T_char :
 					case TypeIds.T_short :
@@ -80,7 +80,7 @@ public final class BaseTypeBinding extends TypeBinding {
 						return false;
 				}
 			case TypeIds.T_long :
-				switch (id) {
+				switch (this.id) {
 					case TypeIds.T_byte :
 					case TypeIds.T_char :
 					case TypeIds.T_short :
@@ -90,7 +90,7 @@ public final class BaseTypeBinding extends TypeBinding {
 						return false;
 				}
 			case TypeIds.T_int :
-				switch (id) {
+				switch (this.id) {
 					case TypeIds.T_byte :
 					case TypeIds.T_char :
 					case TypeIds.T_short :
@@ -99,7 +99,7 @@ public final class BaseTypeBinding extends TypeBinding {
 						return false;
 				}
 			case TypeIds.T_short :
-				return (id == TypeIds.T_byte);
+				return (this.id == TypeIds.T_byte);
 		}
 		return false;
 	}
@@ -183,22 +183,22 @@ public final class BaseTypeBinding extends TypeBinding {
 		return Binding.BASE_TYPE;
 	}
 	public char[] qualifiedSourceName() {
-		return simpleName;
+		return this.simpleName;
 	}
 
 	public char[] readableName() {
-		return simpleName;
+		return this.simpleName;
 	}
 
 	public char[] shortReadableName() {
-		return simpleName;
+		return this.simpleName;
 	}
 
 	public char[] sourceName() {
-		return simpleName;
+		return this.simpleName;
 	}
 
 	public String toString() {
-		return new String(constantPoolName) + " (id=" + id + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		return new String(this.constantPoolName) + " (id=" + this.id + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

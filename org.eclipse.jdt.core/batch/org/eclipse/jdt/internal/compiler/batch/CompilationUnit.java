@@ -26,7 +26,7 @@ public class CompilationUnit implements ICompilationUnit {
 	public String destinationPath;
 		// a specific destination path for this compilation unit; coding is
 		// aligned with Main.destinationPath:
-		// == null: unspecified, use whatever value is set by the enclosing 
+		// == null: unspecified, use whatever value is set by the enclosing
 		//          context, id est Main;
 		// == Main.NONE: absorbent element, do not output class files;
 		// else: use as the path of the directory into which class files must
@@ -51,7 +51,7 @@ public CompilationUnit(char[] contents, String fileName, String encoding,
 			}
 	}
 	this.fileName = fileNameCharArray;
-	int start = CharOperation.lastIndexOf(File.separatorChar, fileNameCharArray) + 1; 
+	int start = CharOperation.lastIndexOf(File.separatorChar, fileNameCharArray) + 1;
 
 	int end = CharOperation.lastIndexOf('.', fileNameCharArray);
 	if (end == -1) {

@@ -45,18 +45,18 @@ public void test0001() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    MissingType m = null;\n" + 
- 		"    m.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    MissingType m = null;\n" +
+ 		"    m.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -82,18 +82,18 @@ public void test0002() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    MissingType m = null;\n" + 
- 		"    m.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    MissingType m = null;\n" +
+ 		"    m.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public int bar;\n" + 
+		"public class MissingType {\n" +
+		"  public int bar;\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -102,7 +102,7 @@ public void test0002() throws JavaModelException {
 	String completeBehind = "m.b";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
@@ -119,24 +119,24 @@ public void test0003() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    MissingType m = null;\n" + 
- 		"    m.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    MissingType m = null;\n" +
+ 		"    m.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType extends SuperType {\n" + 
+		"public class MissingType extends SuperType {\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/SuperType.java",
 		"package missing;"+
-		"public class SuperType {\n" + 
-		"  public int bar;\n" + 
+		"public class SuperType {\n" +
+		"  public int bar;\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -162,18 +162,18 @@ public void test0004() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    MissingType[] m = null;\n" + 
- 		"    m.\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    MissingType[] m = null;\n" +
+ 		"    m.\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {};\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {};\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -222,18 +222,18 @@ public void test0005() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType m;\n" + 
-		"  void foo() {\n" + 
- 		"    m.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m;\n" +
+		"  void foo() {\n" +
+ 		"    m.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -242,7 +242,7 @@ public void test0005() throws JavaModelException {
 	String completeBehind = "m.b";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
@@ -259,20 +259,20 @@ public void test0006() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType m;\n" + 
-		"  public class Test1 {\n" + 
-		"    void foo() {\n" + 
- 		"      m.b\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m;\n" +
+		"  public class Test1 {\n" +
+		"    void foo() {\n" +
+ 		"      m.b\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -281,7 +281,7 @@ public void test0006() throws JavaModelException {
 	String completeBehind = "m.b";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
@@ -298,27 +298,27 @@ public void test0007() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType m;\n" + 
-		"  public class Test1 extends test.SuperType {\n" + 
-		"    void foo() {\n" + 
- 		"      m.e\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m;\n" +
+		"  public class Test1 extends test.SuperType {\n" +
+		"    void foo() {\n" +
+ 		"      m.e\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
-	
+
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/SuperType.java",
 		"package test;"+
-		"public class SuperType {\n" + 
-		"  public Object m;\n" + 
+		"public class SuperType {\n" +
+		"  public Object m;\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -341,27 +341,27 @@ public void test0008() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType m;\n" + 
-		"  public class Test1 extends test.SuperType {\n" + 
-		"    void foo() {\n" + 
- 		"      m.b\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m;\n" +
+		"  public class Test1 extends test.SuperType {\n" +
+		"    void foo() {\n" +
+ 		"      m.b\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
-	
+
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/SuperType.java",
 		"package test;"+
-		"public class SuperType {\n" + 
-		"  public Object m;\n" + 
+		"public class SuperType {\n" +
+		"  public Object m;\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -381,25 +381,25 @@ public void test0009() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    MissingType m = null;\n" + 
- 		"    m.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    MissingType m = null;\n" +
+ 		"    m.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
-	
+
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/missing2/MissingType.java",
 		"package missing2;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -427,20 +427,20 @@ public void test0010() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    MissingMemberType m = null;\n" + 
- 		"    m.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    MissingMemberType m = null;\n" +
+ 		"    m.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public class MissingMemberType {\n" + 
-		"    public void bar() {}\n" + 
-		"  }\n" + 
+		"public class MissingType {\n" +
+		"  public class MissingMemberType {\n" +
+		"    public void bar() {}\n" +
+		"  }\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -466,18 +466,18 @@ public void test0011() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType m() {return null;}\n" + 
-		"  void foo() {\n" + 
- 		"    m().b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m() {return null;}\n" +
+		"  void foo() {\n" +
+ 		"    m().b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -486,7 +486,7 @@ public void test0011() throws JavaModelException {
 	String completeBehind = "m().b";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m().b") + "m().".length();
 	int end1 = start1 + "b".length();
@@ -503,18 +503,18 @@ public void test0012() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType m(int i) {return null;}\n" + 
-		"  void foo() {\n" + 
- 		"    m(0).b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m(int i) {return null;}\n" +
+		"  void foo() {\n" +
+ 		"    m(0).b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -540,27 +540,27 @@ public void test0013() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType m() {return null;}\n" + 
-		"  public class Inner extends missing.SuperType{\n" + 
-		"    void foo() {\n" + 
- 		"      m().e\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m() {return null;}\n" +
+		"  public class Inner extends missing.SuperType{\n" +
+		"    void foo() {\n" +
+ 		"      m().e\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/SuperType.java",
 		"package missing;"+
-		"public class SuperType {\n" + 
-		"  public Object m() {return null;}\n" + 
+		"public class SuperType {\n" +
+		"  public Object m() {return null;}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -583,27 +583,27 @@ public void test0014() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType m() {return null;}\n" + 
-		"  public class Inner extends missing.SuperType{\n" + 
-		"    void foo() {\n" + 
- 		"      m().b\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m() {return null;}\n" +
+		"  public class Inner extends missing.SuperType{\n" +
+		"    void foo() {\n" +
+ 		"      m().b\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/SuperType.java",
 		"package missing;"+
-		"public class SuperType {\n" + 
-		"  public Object m() {return null;}\n" + 
+		"public class SuperType {\n" +
+		"  public Object m() {return null;}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -623,27 +623,27 @@ public void test0015() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType m() {return null;}\n" + 
-		"  public class Inner extends missing.SuperType{\n" + 
-		"    void foo() {\n" + 
- 		"      m().b\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m() {return null;}\n" +
+		"  public class Inner extends missing.SuperType{\n" +
+		"    void foo() {\n" +
+ 		"      m().b\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/SuperType.java",
 		"package missing;"+
-		"public class SuperType {\n" + 
-		"  public Object m(int i) {return null;}\n" + 
+		"public class SuperType {\n" +
+		"  public Object m(int i) {return null;}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -669,20 +669,20 @@ public void test0016() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    MissingType.MissingMemberType m = null;\n" + 
- 		"    m.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    MissingType.MissingMemberType m = null;\n" +
+ 		"    m.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public class MissingMemberType {\n" + 
-		"    public void bar() {}\n" + 
-		"  }\n" + 
+		"public class MissingType {\n" +
+		"  public class MissingMemberType {\n" +
+		"    public void bar() {}\n" +
+		"  }\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -708,20 +708,20 @@ public void test0017() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    missing2.MissingType.MissingMemberType m = null;\n" + 
- 		"    m.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    missing2.MissingType.MissingMemberType m = null;\n" +
+ 		"    m.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing1/missing2/MissingType.java",
 		"package missing1.missing2;"+
-		"public class MissingType {\n" + 
-		"  public class MissingMemberType {\n" + 
-		"    public void bar() {}\n" + 
-		"  }\n" + 
+		"public class MissingType {\n" +
+		"  public class MissingMemberType {\n" +
+		"    public void bar() {}\n" +
+		"  }\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -741,20 +741,20 @@ public void test0018() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    missing2.missing3.MissingType.MissingMemberType m = null;\n" + 
- 		"    m.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    missing2.missing3.MissingType.MissingMemberType m = null;\n" +
+ 		"    m.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing1/missing2/missing3/MissingType.java",
 		"package missing1.missing2.missing3;"+
-		"public class MissingType {\n" + 
-		"  public class MissingMemberType {\n" + 
-		"    public void bar() {}\n" + 
-		"  }\n" + 
+		"public class MissingType {\n" +
+		"  public class MissingMemberType {\n" +
+		"    public void bar() {}\n" +
+		"  }\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -774,20 +774,20 @@ public void test0019() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    MissingType.MissingMemberType[] m = null;\n" + 
- 		"    m.e\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    MissingType.MissingMemberType[] m = null;\n" +
+ 		"    m.e\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public class MissingMemberType {\n" + 
-		"    public void bar() {}\n" + 
-		"  }\n" + 
+		"public class MissingType {\n" +
+		"  public class MissingMemberType {\n" +
+		"    public void bar() {}\n" +
+		"  }\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -810,12 +810,12 @@ public void test0019() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0020() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
-	
+
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
@@ -826,24 +826,24 @@ public void test0020() throws JavaModelException {
 			"		m.b\n"+
 			"	}\n"+
 			"}");
-		
+
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
 			"package missing;"+
-			"public class MissingType {\n" + 
-			"  /** @deprecated */\n" + 
-			"  public class MissingMemberType {\n" + 
-			"    public void bar() {}\n" + 
-			"  }\n" + 
+			"public class MissingType {\n" +
+			"  /** @deprecated */\n" +
+			"  public class MissingMemberType {\n" +
+			"    public void bar() {}\n" +
+			"  }\n" +
 			"}\n");
-		
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "m.b";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 		int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("m.b") + "m.".length();
 		int end1 = start1 + "b".length();
@@ -854,18 +854,18 @@ public void test0020() throws JavaModelException {
 				"   MissingType.MissingMemberType[TYPE_REF]{missing.MissingType.MissingMemberType, missing, Lmissing.MissingType$MissingMemberType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0021() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
-	
+
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
@@ -876,40 +876,40 @@ public void test0021() throws JavaModelException {
 			"		m.b\n"+
 			"	}\n"+
 			"}");
-		
+
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
 			"package missing;"+
-			"public class MissingType {\n" + 
-			"  /** @deprecated */\n" + 
-			"  public class MissingMemberType {\n" + 
-			"    public void bar() {}\n" + 
-			"  }\n" + 
+			"public class MissingType {\n" +
+			"  /** @deprecated */\n" +
+			"  public class MissingMemberType {\n" +
+			"    public void bar() {}\n" +
+			"  }\n" +
 			"}\n");
-		
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "m.b";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		
+
 		assertResults(
 				"",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0022() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
-	
+
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
@@ -920,26 +920,26 @@ public void test0022() throws JavaModelException {
 			"		m.b\n"+
 			"	}\n"+
 			"}");
-		
+
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
 			"package missing;"+
-			"public class MissingType {\n" + 
-			"  	/** @deprecated */\n" + 
-			"  public class MissingMemberType {\n" + 
-			"  	 public class MissingMemberMemberType {\n" + 
-			"      public void bar() {}\n" + 
-			"    }\n" + 
-			"  }\n" + 
+			"public class MissingType {\n" +
+			"  	/** @deprecated */\n" +
+			"  public class MissingMemberType {\n" +
+			"  	 public class MissingMemberMemberType {\n" +
+			"      public void bar() {}\n" +
+			"    }\n" +
+			"  }\n" +
 			"}\n");
-		
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "m.b";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 		int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("m.b") + "m.".length();
 		int end1 = start1 + "b".length();
@@ -950,18 +950,18 @@ public void test0022() throws JavaModelException {
 				"   MissingType.MissingMemberType.MissingMemberMemberType[TYPE_REF]{missing.MissingType.MissingMemberType.MissingMemberMemberType, missing, Lmissing.MissingType$MissingMemberType$MissingMemberMemberType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0023() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
-	
+
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
@@ -972,42 +972,42 @@ public void test0023() throws JavaModelException {
 			"		m.b\n"+
 			"	}\n"+
 			"}");
-		
+
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
 			"package missing;"+
-			"public class MissingType {\n" + 
-			"  /** @deprecated */\n" + 
-			"  public class MissingMemberType {\n" + 
-			"  	 public class MissingMemberMemberType {\n" + 
-			"      public void bar() {}\n" + 
-			"    }\n" + 
-			"  }\n" + 
+			"public class MissingType {\n" +
+			"  /** @deprecated */\n" +
+			"  public class MissingMemberType {\n" +
+			"  	 public class MissingMemberMemberType {\n" +
+			"      public void bar() {}\n" +
+			"    }\n" +
+			"  }\n" +
 			"}\n");
-		
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "m.b";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		
+
 		assertResults(
 				"",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void _test0024() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
-	
+
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
@@ -1018,23 +1018,23 @@ public void _test0024() throws JavaModelException {
 			"		m.b\n"+
 			"	}\n"+
 			"}");
-		
+
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
 			"package missing;"+
-			"public class MissingType {\n" + 
-			"  private class MissingMemberType {\n" + 
-			"    public void bar() {}\n" + 
-			"  }\n" + 
+			"public class MissingType {\n" +
+			"  private class MissingMemberType {\n" +
+			"    public void bar() {}\n" +
+			"  }\n" +
 			"}\n");
-		
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "m.b";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 		int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("m.b") + "m.".length();
 		int end1 = start1 + "b".length();
@@ -1045,18 +1045,18 @@ public void _test0024() throws JavaModelException {
 				"   MissingType.MissingMemberType[TYPE_REF]{missing.MissingType.MissingMemberType, missing, Lmissing.MissingType$MissingMemberType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0025() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
-	
+
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
@@ -1067,39 +1067,39 @@ public void test0025() throws JavaModelException {
 			"		m.b\n"+
 			"	}\n"+
 			"}");
-		
+
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
 			"package missing;"+
-			"public class MissingType {\n" + 
-			"  private class MissingMemberType {\n" + 
-			"    public void bar() {}\n" + 
-			"  }\n" + 
+			"public class MissingType {\n" +
+			"  private class MissingMemberType {\n" +
+			"    public void bar() {}\n" +
+			"  }\n" +
 			"}\n");
-		
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "m.b";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 		assertResults(
 				"",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void _test0026() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
-	
+
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
@@ -1110,25 +1110,25 @@ public void _test0026() throws JavaModelException {
 			"		m.b\n"+
 			"	}\n"+
 			"}");
-		
+
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
 			"package missing;"+
-			"public class MissingType {\n" + 
-			"  private class MissingMemberType {\n" + 
-			"  	 public class MissingMemberMemberType {\n" + 
-			"      public void bar() {}\n" + 
-			"    }\n" + 
-			"  }\n" + 
+			"public class MissingType {\n" +
+			"  private class MissingMemberType {\n" +
+			"  	 public class MissingMemberMemberType {\n" +
+			"      public void bar() {}\n" +
+			"    }\n" +
+			"  }\n" +
 			"}\n");
-		
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "m.b";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 		int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("m.b") + "m.".length();
 		int end1 = start1 + "b".length();
@@ -1139,18 +1139,18 @@ public void _test0026() throws JavaModelException {
 				"   MissingType.MissingMemberType.MissingMemberMemberType[TYPE_REF]{missing.MissingType.MissingMemberType.MissingMemberMemberType, missing, Lmissing.MissingType$MissingMemberType$MissingMemberMemberType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0027() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
-	
+
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
@@ -1161,30 +1161,30 @@ public void test0027() throws JavaModelException {
 			"		m.b\n"+
 			"	}\n"+
 			"}");
-		
+
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/missing/MissingType.java",
 			"package missing;"+
-			"public class MissingType {\n" + 
-			"  private class MissingMemberType {\n" + 
-			"  	 public class MissingMemberMemberType {\n" + 
-			"      public void bar() {}\n" + 
-			"    }\n" + 
-			"  }\n" + 
+			"public class MissingType {\n" +
+			"  private class MissingMemberType {\n" +
+			"  	 public class MissingMemberMemberType {\n" +
+			"      public void bar() {}\n" +
+			"    }\n" +
+			"  }\n" +
 			"}\n");
-		
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "m.b";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 		assertResults(
 				"",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
@@ -1194,25 +1194,25 @@ public void test0028() throws JavaModelException {
 		"/Completion/src/test/Test.java",
 		"package test;"+
 		"import known.KnownType;\n"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
- 		"    MissingType m = null;\n" + 
- 		"    m.field.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+ 		"    MissingType m = null;\n" +
+ 		"    m.field.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public known.KnownType field\n" + 
+		"public class MissingType {\n" +
+		"  public known.KnownType field\n" +
 		"}\n");
-	
+
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/known/KnownType.java",
 		"package known;"+
-		"public class KnownType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class KnownType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1233,25 +1233,25 @@ public void test0029() throws JavaModelException {
 		"/Completion/src/test/Test.java",
 		"package test;"+
 		"import known.KnownType;\n"+
-		"public class Test {\n" + 
-		"  MissingType m = null;\n" + 
-		"  void foo() {\n" + 
- 		"    m.field.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m = null;\n" +
+		"  void foo() {\n" +
+ 		"    m.field.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public known.KnownType field\n" + 
+		"public class MissingType {\n" +
+		"  public known.KnownType field\n" +
 		"}\n");
-	
+
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/known/KnownType.java",
 		"package known;"+
-		"public class KnownType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class KnownType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1272,25 +1272,25 @@ public void test0030() throws JavaModelException {
 		"/Completion/src/test/Test.java",
 		"package test;"+
 		"import known.KnownType;\n"+
-		"public class Test {\n" + 
-		"  MissingType m(){return null;}\n" + 
-		"  void foo() {\n" + 
- 		"    m().field.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m(){return null;}\n" +
+		"  void foo() {\n" +
+ 		"    m().field.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public known.KnownType field\n" + 
+		"public class MissingType {\n" +
+		"  public known.KnownType field\n" +
 		"}\n");
-	
+
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/known/KnownType.java",
 		"package known;"+
-		"public class KnownType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class KnownType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1311,25 +1311,25 @@ public void test0031() throws JavaModelException {
 		"/Completion/src/test/Test.java",
 		"package test;"+
 		"import known.KnownType;\n"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
-		"    MissingType m = null;\n" + 
- 		"    m.method().b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    MissingType m = null;\n" +
+ 		"    m.method().b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public known.KnownType method() {return null;}\n" + 
+		"public class MissingType {\n" +
+		"  public known.KnownType method() {return null;}\n" +
 		"}\n");
-	
+
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/known/KnownType.java",
 		"package known;"+
-		"public class KnownType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class KnownType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1350,25 +1350,25 @@ public void test0032() throws JavaModelException {
 		"/Completion/src/test/Test.java",
 		"package test;"+
 		"import known.KnownType;\n"+
-		"public class Test {\n" + 
-		"  MissingType m(){return null;}\n" + 
-		"  void foo() {\n" + 
- 		"    m().method().b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m(){return null;}\n" +
+		"  void foo() {\n" +
+ 		"    m().method().b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public known.KnownType method() {return null;}\n" + 
+		"public class MissingType {\n" +
+		"  public known.KnownType method() {return null;}\n" +
 		"}\n");
-	
+
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/known/KnownType.java",
 		"package known;"+
-		"public class KnownType {\n" + 
-		"  public void bar() {}\n" + 
+		"public class KnownType {\n" +
+		"  public void bar() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1388,17 +1388,17 @@ public void test0033() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  /** @see MissingType#b */\n" + 
-		"  void foo() {\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  /** @see MissingType#b */\n" +
+		"  void foo() {\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar()\n" + 
+		"public class MissingType {\n" +
+		"  public void bar()\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1418,18 +1418,18 @@ public void test0034() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
-		"    MissingType.foo\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    MissingType.foo\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void foo1()\n" + 
-		"  public static void foo2()\n" + 
+		"public class MissingType {\n" +
+		"  public void foo1()\n" +
+		"  public static void foo2()\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1455,18 +1455,18 @@ public void test0035() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
-		"    MissingType.foo\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    MissingType.foo\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public int foo1;\n" + 
-		"  public static int foo2;\n" + 
+		"public class MissingType {\n" +
+		"  public int foo1;\n" +
+		"  public static int foo2;\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1492,18 +1492,18 @@ public void test0036() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
-		"    MissingType.foo\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    MissingType.foo\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public class foo1 {}\n" + 
-		"  public static class foo2 {}\n" + 
+		"public class MissingType {\n" +
+		"  public class foo1 {}\n" +
+		"  public static class foo2 {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1531,20 +1531,20 @@ public void test0037() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
-		"    MissingType.MissingType2.foo\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    MissingType.MissingType2.foo\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public class MissingType2 {\n" + 
-		"    public void foo1()\n" + 
-		"    public static void foo2()\n" + 
-		"  }\n" + 
+		"public class MissingType {\n" +
+		"  public class MissingType2 {\n" +
+		"    public void foo1()\n" +
+		"    public static void foo2()\n" +
+		"  }\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1553,7 +1553,7 @@ public void test0037() throws JavaModelException {
 	String completeBehind = "foo";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 	assertResults(
 			"",
 			requestor.getResults());
@@ -1564,16 +1564,16 @@ public void test0038() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
-		"    MissingType.cla\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    MissingType.cla\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
+		"public class MissingType {\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1598,21 +1598,21 @@ public void test0039() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType m;\n" + 
-		"  void foo() {\n" + 
-		"    class MissingType {\n" + 
-		"      public void bar2() {}\n" + 
-		"    }\n" + 
-		"    m.b\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  MissingType m;\n" +
+		"  void foo() {\n" +
+		"    class MissingType {\n" +
+		"      public void bar2() {}\n" +
+		"    }\n" +
+		"    m.b\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public void bar1() {}\n" + 
+		"public class MissingType {\n" +
+		"  public void bar1() {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
@@ -1638,15 +1638,15 @@ public void test0040() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  MissingType.Mem\n" + 
+		"public class Test {\n" +
+		"  MissingType.Mem\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/missing/MissingType.java",
 		"package missing;"+
-		"public class MissingType {\n" + 
-		"  public class Member {}\n" + 
+		"public class MissingType {\n" +
+		"  public class Member {}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);

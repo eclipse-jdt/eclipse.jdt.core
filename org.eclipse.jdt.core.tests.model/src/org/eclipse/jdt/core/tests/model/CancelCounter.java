@@ -21,7 +21,7 @@ public class CancelCounter implements IProgressMonitor {
 	public void done() {}
 	public void internalWorked(double work) {}
 	public boolean isCanceled() {
-		count++;
+		this.count++;
 		return false;
 	}
 	public void setCanceled(boolean value) {}

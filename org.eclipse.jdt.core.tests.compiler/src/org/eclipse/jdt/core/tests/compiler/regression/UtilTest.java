@@ -71,12 +71,12 @@ protected void setUp() throws Exception {
 }
 
 public boolean checkPathMatch(char[] pattern, char[] path, boolean isCaseSensitive) {
-	
+
 	CharOperation.replace(pattern, '/', File.separatorChar);
 	CharOperation.replace(pattern, '\\', File.separatorChar);
 	CharOperation.replace(path, '/', File.separatorChar);
 	CharOperation.replace(path, '\\', File.separatorChar);
-	
+
 	boolean result = CharOperation.pathMatch(pattern, path, isCaseSensitive, File.separatorChar);
 
 //	boolean antResult = SelectorUtils.matchPath(new String(pattern), new String(path), isCaseSensitive);
@@ -365,7 +365,7 @@ public void test43() {
  * Corner cases
  */
 public void test44() {
-		
+
 	assertTrue("Path pattern matching failure-1",
 		!checkPathMatch("test".toCharArray(), "test/CVS/Entries".toCharArray(), true));
 	assertTrue("Path pattern matching failure-2",
@@ -375,7 +375,7 @@ public void test44() {
  * Corner cases
  */
 public void test45() {
-		
+
 	assertTrue("Path pattern matching failure-1",
 		checkPathMatch("/test/test1/".toCharArray(), "/test/test1/test/test1".toCharArray(), true));
 	assertTrue("Path pattern matching failure-2",
@@ -387,7 +387,7 @@ public void test46() {
 		checkPathMatch("hello/**/World".toCharArray(), "hello/World".toCharArray(), true));
 }
 /*
- * Regression test for 28316 Missing references to constructor 
+ * Regression test for 28316 Missing references to constructor
  */
 public void test47() {
 
@@ -430,7 +430,7 @@ public void test54() {
 		!checkPathMatch("x/".toCharArray(), "hello/x".toCharArray(), true)); // 29761
 
 	assertTrue("Path pattern matching failure-2",
-		checkPathMatch("**/x/".toCharArray(), "hello/x".toCharArray(), true)); 
+		checkPathMatch("**/x/".toCharArray(), "hello/x".toCharArray(), true));
 
 	assertTrue("Path pattern matching failure-3",
 		!checkPathMatch("/x/".toCharArray(), "hello/x".toCharArray(), true));
@@ -464,7 +464,7 @@ public void test60() {
 	assertTrue("Path pattern matching failure-3",
 		checkPathMatch("/P/src".toCharArray(), "/P/src".toCharArray(), true));
 	assertTrue("Path pattern matching failure-4",
-		!checkPathMatch("A.java".toCharArray(), "/P/src/A.java".toCharArray(), true));		
+		!checkPathMatch("A.java".toCharArray(), "/P/src/A.java".toCharArray(), true));
 }
 public void test61() {
 
@@ -545,12 +545,12 @@ public void test66() {
             {"aTiZ","artTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
             {"aTZ","artTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
     };
-    
+
     for (int i = 0; i<MATCHES.length ; i++) {
         String[] match = MATCHES[i];
         assertCamelCase(match[0], match[1], true/*should match*/);
     }
-    
+
     String[][] MIS_MATCHES = {
             {"TZ","Timezone"},  //$NON-NLS-1$//$NON-NLS-2$
             {"aTZ","TimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
@@ -561,7 +561,7 @@ public void test66() {
             {"arTZ","aTimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
             {"aT","atimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
     };
-    
+
     for (int i = 0; i<MIS_MATCHES.length ; i++) {
         String[] match = MIS_MATCHES[i];
         assertCamelCase(match[0], match[1], false/*should not match*/);

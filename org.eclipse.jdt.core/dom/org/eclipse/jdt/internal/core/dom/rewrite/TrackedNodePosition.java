@@ -24,7 +24,7 @@ public class TrackedNodePosition implements ITrackedNodePosition {
 
 	private final TextEditGroup group;
 	private final ASTNode node;
-	
+
 	public TrackedNodePosition(TextEditGroup group, ASTNode node) {
 		this.group= group;
 		this.node= node;

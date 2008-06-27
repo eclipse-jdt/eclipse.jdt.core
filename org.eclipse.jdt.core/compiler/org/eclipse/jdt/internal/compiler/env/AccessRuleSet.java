@@ -21,13 +21,13 @@ public class AccessRuleSet {
 	private AccessRule[] accessRules;
 	public byte classpathEntryType; // one of AccessRestriction#COMMAND_LINE, LIBRARY, PROJECT
 	public String classpathEntryName;
-	
+
 /**
  * Make a new set of access rules.
  * @param accessRules the access rules to be contained by the new set
  * @param classpathEntryType one of {@link AccessRestriction#COMMAND_LINE},
  *        {@link AccessRestriction#LIBRARY}, {@link AccessRestriction#PROJECT}
- *        that tells the access restrictions how to render the classpath entry 
+ *        that tells the access restrictions how to render the classpath entry
  * @param classpathEntryName a user-readable name for the classpath entry
  */
 public AccessRuleSet(AccessRule[] accessRules, byte classpathEntryType, String classpathEntryName) {
@@ -40,7 +40,7 @@ public AccessRuleSet(AccessRule[] accessRules, byte classpathEntryType, String c
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(Object object) {
-		if (this == object) 
+		if (this == object)
 			return true;
 		if (!(object instanceof AccessRuleSet))
 			return false;
@@ -57,22 +57,22 @@ public AccessRuleSet(AccessRule[] accessRules, byte classpathEntryType, String c
 				return false;
 		return true;
 	}
-	
+
 	public AccessRule[] getAccessRules() {
 		return this.accessRules;
 	}
-	
+
 /**
- * Select the first access rule which is violated when accessing a given type, 
+ * Select the first access rule which is violated when accessing a given type,
  * or null if no 'non accessible' access rule applies.
- * @param targetTypeFilePath the target type file path, formed as: 
+ * @param targetTypeFilePath the target type file path, formed as:
  * "org/eclipse/jdt/core/JavaCore"
  * @return the first access restriction that applies if any, null else
  */
 public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath) {
 	for (int i = 0, length = this.accessRules.length; i < length; i++) {
 		AccessRule accessRule = this.accessRules[i];
-		if (CharOperation.pathMatch(accessRule.pattern, targetTypeFilePath, 
+		if (CharOperation.pathMatch(accessRule.pattern, targetTypeFilePath,
 				true/*case sensitive*/, '/')) {
 			switch (accessRule.getProblemId()) {
 				case IProblem.ForbiddenReference:
@@ -85,11 +85,11 @@ public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath) {
 	}
 	return null;
 }
-	
+
 	public String toString() {
 		return toString(true/*wrap lines*/);
 	}
-	
+
 	public String toString(boolean wrap) {
 		StringBuffer buffer = new StringBuffer(200);
 		buffer.append("AccessRuleSet {"); //$NON-NLS-1$

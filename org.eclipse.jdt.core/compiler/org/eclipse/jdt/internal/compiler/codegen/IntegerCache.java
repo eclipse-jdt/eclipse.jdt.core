@@ -12,12 +12,12 @@ package org.eclipse.jdt.internal.compiler.codegen;
 
 public class IntegerCache {
 	public int keyTable[];
-	public int valueTable[]; 
+	public int valueTable[];
 	int elementSize;
 	int threshold;
 /**
  * Constructs a new, empty hashtable. A default capacity and
- * load factor is used. Note that the hashtable will automatically 
+ * load factor is used. Note that the hashtable will automatically
  * grow when it gets full.
  */
 public IntegerCache() {
@@ -72,7 +72,7 @@ public int hash(int key) {
 /**
  * Puts the specified element into the hashtable, using the specified
  * key.  The element may be retrieved by doing a get() with the same key.
- * 
+ *
  * @param key <CODE>int</CODE> the specified key in the hashtable
  * @param value <CODE>int</CODE> the specified element
  * @return int value
@@ -98,7 +98,7 @@ public int put(int key, int value) {
 /**
  * Puts the specified element into the hashtable if absent, using the specified
  * key.  The element may be retrieved by doing a get() with the same key.
- * 
+ *
  * @param key <CODE>int</CODE> the specified key in the hashtable
  * @param value <CODE>int</CODE> the specified element
  * @return int value

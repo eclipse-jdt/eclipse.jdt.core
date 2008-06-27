@@ -23,11 +23,11 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class JavaSearchDocument extends SearchDocument {
-	
+
 	private IFile file;
 	protected byte[] byteContents;
 	protected char[] charContents;
-	
+
 	public JavaSearchDocument(String documentPath, SearchParticipant participant) {
 		super(documentPath, participant);
 	}

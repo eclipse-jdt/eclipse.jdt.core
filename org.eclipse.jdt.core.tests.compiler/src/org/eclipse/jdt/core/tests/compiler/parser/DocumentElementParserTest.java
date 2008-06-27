@@ -30,7 +30,7 @@ public void reset() {
 }
 public void test01() {
 
-	String s = 
+	String s =
 		"public class X {\n" +
 		"public String getTexts(int i) [] {\n" +
 		"		 String[] texts = new String[1];\n" +
@@ -42,7 +42,7 @@ public void test01() {
 
 	char[] source = s.toCharArray();
 	reset();
-	DocumentElementParser parser = 
+	DocumentElementParser parser =
 		new DocumentElementParser(new IDocumentElementRequestor() {
 			public void acceptImport(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, int nameStartPosition, boolean onDemand, int modifiers) {
 			}
@@ -81,7 +81,7 @@ public void test01() {
 					assertEquals("Wrong return type", "String[]", new String(returnType));
 				}
 			}
-		}, new DefaultProblemFactory(Locale.getDefault()), new CompilerOptions(getCompilerOptions())); 
+		}, new DefaultProblemFactory(Locale.getDefault()), new CompilerOptions(getCompilerOptions()));
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 

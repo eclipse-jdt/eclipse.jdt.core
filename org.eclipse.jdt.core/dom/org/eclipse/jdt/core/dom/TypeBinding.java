@@ -69,7 +69,7 @@ class TypeBinding implements ITypeBinding {
 
 	public ITypeBinding createArrayType(int dimension) {
 		int realDimensions = dimension;
-		realDimensions += this.getDimensions();
+		realDimensions += getDimensions();
 		if (realDimensions < 1 || realDimensions > 255) {
 			throw new IllegalArgumentException();
 		}
@@ -168,11 +168,11 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getComponentType()
 	 */
 	public ITypeBinding getComponentType() {
-		if (!this.isArray()) {
+		if (!isArray()) {
 			return null;
 		}
-		ArrayBinding arrayBinding = (ArrayBinding) binding;
-		return resolver.getTypeBinding(arrayBinding.elementsType());
+		ArrayBinding arrayBinding = (ArrayBinding) this.binding;
+		return this.resolver.getTypeBinding(arrayBinding.elementsType());
 	}
 
 	/*
@@ -202,9 +202,9 @@ class TypeBinding implements ITypeBinding {
 					if (convertedFieldCount != length) {
 						if (convertedFieldCount == 0) {
 							return this.fields = NO_VARIABLE_BINDINGS;
-						}						
+						}
 						System.arraycopy(newFields, 0, (newFields = new IVariableBinding[convertedFieldCount]), 0, convertedFieldCount);
-					}					
+					}
 					return this.fields = newFields;
 				}
 			}
@@ -385,10 +385,10 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getDimensions()
 	 */
 	public int getDimensions() {
-		if (!this.isArray()) {
+		if (!isArray()) {
 			return 0;
 		}
-		ArrayBinding arrayBinding = (ArrayBinding) binding;
+		ArrayBinding arrayBinding = (ArrayBinding) this.binding;
 		return arrayBinding.dimensions;
 	}
 
@@ -396,11 +396,11 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getElementType()
 	 */
 	public ITypeBinding getElementType() {
-		if (!this.isArray()) {
+		if (!isArray()) {
 			return null;
 		}
-		ArrayBinding arrayBinding = (ArrayBinding) binding;
-		return resolver.getTypeBinding(arrayBinding.leafComponentType);
+		ArrayBinding arrayBinding = (ArrayBinding) this.binding;
+		return this.resolver.getTypeBinding(arrayBinding.leafComponentType);
 	}
 
 	/* (non-Javadoc)
@@ -933,7 +933,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isArray()
 	 */
 	public boolean isArray() {
-		return binding.isArrayType();
+		return this.binding.isArrayType();
 	}
 
 	/* (non-Javadoc)
@@ -1145,7 +1145,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isPrimitive()
 	 */
 	public boolean isPrimitive() {
-		return !isNullType() && binding.isBaseType();
+		return !isNullType() && this.binding.isBaseType();
 	}
 
 	/* (non-Javadoc)

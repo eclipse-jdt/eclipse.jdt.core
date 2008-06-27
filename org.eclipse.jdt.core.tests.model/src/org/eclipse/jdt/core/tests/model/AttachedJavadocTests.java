@@ -36,7 +36,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 public class AttachedJavadocTests extends ModifyingResourceTests {
 	private static final String DEFAULT_DOC_FOLDER = "doc";
-	
+
 	static {
 //		TESTS_NAMES = new String[] { "test010" };
 //		TESTS_NUMBERS = new int[] { 20 };
@@ -89,7 +89,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		Map options = this.project.getOptions(true);
 		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000"); //$NON-NLS-1$
 		this.project.setOptions(options);
-		this.setJavadocLocationAttribute(DEFAULT_DOC_FOLDER);
+		setJavadocLocationAttribute(DEFAULT_DOC_FOLDER);
 
 		IPackageFragmentRoot[] roots = this.project.getAllPackageFragmentRoots();
 		int count = 0;
@@ -185,7 +185,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertEquals("Wrong size", 1, paramNames.length); //$NON-NLS-1$
 		assertEquals("Wrong name for first param", "i", paramNames[0]);		 //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	// for a member type
 	public void test006() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -195,7 +195,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 	}
-	
+
 	// for a constructor
 	public void test007() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -212,7 +212,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertEquals("Wrong size", 1, paramNames.length); //$NON-NLS-1$
 		assertEquals("Wrong name for first param", "f", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	// for a method foo2
 	public void test008() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -228,7 +228,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull(paramNames);
 		assertEquals("Wrong size", 0, paramNames.length); //$NON-NLS-1$
 	}
-	
+
 	// for a field f2
 	public void test009() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -241,7 +241,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		String javadoc = field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 	}
-	
+
 	// test archive doc
 	public void test010() throws JavaModelException {
 		IClasspathEntry[] savedEntries = null;
@@ -288,7 +288,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			}
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120597
 	public void test011() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -301,7 +301,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		String javadoc = field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120637
 	public void test012() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -312,7 +312,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		assertTrue("Should not contain reference to out", javadoc.indexOf("out") == -1);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
 	public void test013() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -322,7 +322,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNull("Should not have a javadoc", javadoc); //$NON-NLS-1$
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120637
 	public void test014() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -333,7 +333,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		assertTrue("Should not contain reference to Constant C", javadoc.indexOf("Constant C") == -1);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120637
 	public void test015() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -344,7 +344,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		assertTrue("Should not contain reference to name", javadoc.indexOf("name") == -1);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120847
 	public void test016() throws JavaModelException {
 		IClasspathEntry[] savedEntries = null;
@@ -380,7 +380,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			}
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120875
 	public void test017() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -391,7 +391,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		assertTrue("Should not contain reference to name2", javadoc.indexOf("name2") == -1);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=138167
 	public void test018() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2.p3"); //$NON-NLS-1$
@@ -409,7 +409,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertTrue("Wrong doc", javadoc.indexOf(selector) != -1);
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=138167
 	public void test019() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2.p3"); //$NON-NLS-1$
@@ -428,7 +428,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertEquals("Wrong parameter name", "j", names[1]);
 		assertEquals("Wrong parameter name", "m2", names[2]);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=139160
 	public void test020() throws JavaModelException {
 		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
@@ -451,7 +451,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertEquals("Wrong name", "i", paramNames[0]); //$NON-NLS-1$
 		assertEquals("Wrong name", "j", paramNames[1]); //$NON-NLS-1$
 	}
-	
+
 	/*
 	 * Ensures that calling getAttachedJavadoc(...) on a binary method
 	 * has no side-effect on the underlying Java model cache.
@@ -463,21 +463,21 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			IPackageFragment p = this.root.getPackageFragment("p2");
 			IType type = p.getClassFile("X.class").getType();
 			IMethod method = type.getMethod("foo", new String[0]);
-			
+
 			// the following call should have no side-effect
 			method.getAttachedJavadoc(null);
-			
+
 			// ensure no side-effect
 			ProblemRequestor problemRequestor = new ProblemRequestor();
 			workingCopy = getWorkingCopy(
-				"/AttachedJavadocProject/src/Test.java", 
+				"/AttachedJavadocProject/src/Test.java",
 				"import p2.Y;\n" +
 				"public class Test extends Y { }",
 				newWorkingCopyOwner(problemRequestor)
 			);
 			assertProblems(
-				"Unexpected problems", 
-				"----------\n" + 
+				"Unexpected problems",
+				"----------\n" +
 				"----------\n",
 				problemRequestor);
 		} finally {
@@ -509,13 +509,13 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertEquals("Wrong name", "arg0", paramNames[0]); //$NON-NLS-1$
 		assertEquals("Wrong name", "arg1", paramNames[1]); //$NON-NLS-1$
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=221723
 	// for a method
 	public void test023() throws JavaModelException {
 		try {
-			this.setJavadocLocationAttribute("specialDoc");
-			
+			setJavadocLocationAttribute("specialDoc");
+
 			IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 			assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 			IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
@@ -532,7 +532,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertEquals("Wrong name for second param", "l", paramNames[1]); //$NON-NLS-1$ //$NON-NLS-2$
 			assertEquals("Wrong name for third param", "s", paramNames[2]); //$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
-			this.setJavadocLocationAttribute(DEFAULT_DOC_FOLDER);
+			setJavadocLocationAttribute(DEFAULT_DOC_FOLDER);
 		}
 	}
 }

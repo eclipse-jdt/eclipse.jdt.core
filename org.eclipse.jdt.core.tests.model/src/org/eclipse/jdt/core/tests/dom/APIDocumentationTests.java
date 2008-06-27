@@ -45,7 +45,7 @@ public class APIDocumentationTests extends AbstractASTTests {
 	public static Test suite() {
 		return buildModelTestSuite(APIDocumentationTests.class);
 	}
-	
+
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
@@ -81,7 +81,7 @@ class JavaCoreJavadocAnalyzer {
 					} else if (line.startsWith(" * <dt>Default:")) {
 						this.defaultValue = line.substring(31, line.length() - 13);
 						return;
-					} 
+					}
 				}
 			} catch (IOException e) {
 				// silent
@@ -138,7 +138,7 @@ public void _test001() throws CoreException, IllegalArgumentException, IllegalAc
 			Map.Entry optionID = (Map.Entry) optionIDs.next();
 			realOptionNames.put(optionID.getValue(), optionID.getKey());
 		}
-				
+
 		// fetch default option values
 		Hashtable realDefaultValues = JavaCore.getDefaultOptions();
 		// load documented values in a map

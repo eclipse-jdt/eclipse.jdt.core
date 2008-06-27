@@ -36,7 +36,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 
 public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
-	
+
 	static class Result implements Comparable {
 		long length;
 		long time;
@@ -60,7 +60,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 		}
 	}
 	private static final int INCREMENTS = 100;
-	
+
 	private static boolean RESOLVE_BINDINGS = false;
 
 	public static Test suite() {
@@ -72,7 +72,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 	public ProfilingASTConvertionTest(String name) {
 		super(name);
 	}
-	
+
 	public String display(int value, int numberOfFiguresForRange) {
 		int numberOfFigures = value == 0 ? 1 : (int) (Math.log(value)/ Math.log(10));
 		if ((value % 10) == 0) {
@@ -119,7 +119,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 		totalCounter += counter;
 		printRange(counter, bound, increment, totalCounter, length, numberOfFiguresForRange, numberOfFiguresForCounter);
 	}
-		
+
 	/**
 	 * @param counter
 	 * @param bound
@@ -143,13 +143,13 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 			System.out.println(String.valueOf(buffer));
 		}
 	}
-	
+
 	/**
 	 * @param totalTime
 	 * @param length
 	 * @param times
 	 * @param arrayList
-	 * @deprecated using deprecated code 
+	 * @deprecated using deprecated code
 	 */
 	private void reportResults(int apiLevel, long totalTime, int length, long[] times, ArrayList arrayList) {
 		System.out.println("===============================================================================");
@@ -212,8 +212,8 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				new Path[] {new Path(getExternalPath() + "converterJclMin.jar"), new Path(getExternalPath() + "converterJclMinsrc.zip"), new Path("")},
 				null);
-		}		
-		
+		}
+
 		IJavaProject javaProject = setUpJavaProject("Compiler", "1.4"); //$NON-NLS-1$ //$NON-NLS-2$
 		assertNotNull("No java project", javaProject);
 		IPackageFragment[] packageFragments = javaProject.getPackageFragments();
@@ -268,7 +268,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 			RESOLVE_BINDINGS = false;
 		}
 	}
-	
+
 	public void test0001() throws JavaModelException {
 		try {
 			RESOLVE_BINDINGS = true;
@@ -346,7 +346,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 			RESOLVE_BINDINGS = false;
 		}
 	}
-	
+
 	/** @deprecated using deprecated code */
 	public void test0003() throws JavaModelException {
 		try {

@@ -83,7 +83,7 @@ protected boolean parseIdentifierTag(boolean report) {
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#parseSimpleTag()
  */
 protected void parseSimpleTag() {
-	
+
 	// Read first char
 	// readChar() code is inlined to balance additional method call in checkDeprectation(int)
 	char first = this.source[this.index++];

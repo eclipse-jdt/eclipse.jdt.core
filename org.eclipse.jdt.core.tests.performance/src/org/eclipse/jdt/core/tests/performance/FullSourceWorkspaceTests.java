@@ -68,7 +68,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		} else {
 			System.out.println("Used compliance: "+compliance);
 			options.put(CompilerOptions.OPTION_Compliance, compliance);
-			options.put(CompilerOptions.OPTION_Source, compliance);	
+			options.put(CompilerOptions.OPTION_Source, compliance);
 			options.put(CompilerOptions.OPTION_TargetPlatform, compliance);
 			JavaCore.setOptions(options);
 		}
@@ -86,7 +86,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 		return compliance;
 	}
-	
+
 	// Garbage collect constants
 	final static int MAX_GC = 10; // Max gc iterations
 	final static int TIME_GC = 500; // Sleep to wait gc to run (in ms)
@@ -103,7 +103,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected static final String BIG_JAR2_NAME = "big2.jar";
 //	protected final static String JUNIT_PROJECT_NAME = "junit";
 //	protected static IJavaProject JUNIT_PROJECT;
-	
+
 	// Compilaiton variable
 	public static final String COMPILER_OUTPUT_DIR;
 	static {
@@ -131,7 +131,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	// Index variables
 	protected static IndexManager INDEX_MANAGER = JavaModelManager.getIndexManager();
-	
+
 	// Tests infos
 	protected static int ALL_TESTS_COUNT = 0;
 	protected static int TEST_POSITION = 0;
@@ -190,7 +190,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * following options:
 	 *		-DPerformanceMeterFactory=org.eclipse.jdt.core.tests.performance:org.eclipse.jdt.core.tests.performance.util.JdtCorePerformanceMeterFactory
 	 *		-DlogDir=directory where you want to write log files (for example d:/usr/OTI/tests/perfs/stats)
-	 * 
+	 *
 	 */
 	// Store directory where to put files
 	private final static File INVALID_DIR = new File("Invalid");
@@ -210,13 +210,13 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Patch version currently applied: may be null!
 	protected final static String PATCH_ID = System.getProperty("patch");
 	protected static String RUN_ID;
-	
+
 	// Format to store/display numbers
 	private NumberFormat percentFormat = NumberFormat.getPercentInstance();
 	private final NumberFormat d2Format = NumberFormat.getNumberInstance();
 	{
-		percentFormat.setMaximumFractionDigits(1);
-		d2Format.setMaximumFractionDigits(2);
+		this.percentFormat.setMaximumFractionDigits(1);
+		this.d2Format.setMaximumFractionDigits(2);
 	}
 
 	// Filter to get only the 3.0 plugins
@@ -248,12 +248,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	/**
 	 * Initialize log directory.
-	 * 
+	 *
 	 * Directory where log files must be put is specified by System property <code>logDir</code>.
 	 * For example, if user want to store log files in d:/usr/OTI/tests/perfs/stats,
 	 * then he has to specify: -DlogDir=d:/usr/OTI/tests/perfs/stats in VM Arguments of his
 	 * performance test launch configuration.
-	 * 
+	 *
 	 * CAUTION: Parent directory at least <b>must</b> exist before running test otherwise
 	 * it won't be created and times won't be logged.
 	 * This was intentional to avoid unexpected log files creation (especially during nightly/integration builds).
@@ -285,9 +285,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 					dir = INVALID_DIR;
 				}
 			}
-			
+
 			// Create Log dir
-			String[] subdirs = (PATCH_ID == null) 
+			String[] subdirs = (PATCH_ID == null)
 				? new String[] {LOG_VERSION, RUN_ID }
 				: new String[] {LOG_VERSION, PATCH_ID, RUN_ID };
 			for (int i=0; i<subdirs.length; i++) {
@@ -317,7 +317,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	/**
 	 * Create test suite for a given TestCase class.
-	 * 
+	 *
 	 * Use this method for all JDT/Core performance test using full source workspace.
 	 * All test count is computed to know when tests are about to be finished.
 	 *
@@ -338,7 +338,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			TESTS_NAME_LIST.add(test.getName());
 		}
 		ALL_TESTS_COUNT += suite.testCount();
-		
+
 		// Init log dir if necessary
 		if (LOG_DIR == null) {
 			if (RUN_ID == null) {
@@ -346,7 +346,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			}
 			initLogDir();
 		}
-		
+
 		// Return created tests
 		return suite;
 	}
@@ -355,9 +355,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * Create print streams (one for each type of statistic).
 	 * Log file names have all same prefix based on test class name,
 	 * include type of statistic stored in it and always have extension ".log".
-	 * 
+	 *
 	 * If log file does not exist, then add column headers at the beginning of the file.
-	 * 
+	 *
 	 * This method does nothing if log files directory has not been initialized
 	 * (which should be the case most of times and especially while running nightly/integration build performance tests).
 	 */
@@ -384,7 +384,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 								logStreams[i].print(testName+'\t');
 							}
 							logStreams[i].println("Comment");
-							
+
 						}
 						// Log date and time
 						Date date = new Date(System.currentTimeMillis());
@@ -490,7 +490,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 					if (haveStats) {
 						if (scenarioComments[i] != null) {
 							logStreams[i].print(scenarioComments[i].toString());
-						}	
+						}
 						logStreams[i].println();
 					}
 					logStreams[i].close();
@@ -508,8 +508,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	    double error = stddev / Math.sqrt(count);
 	    if ((error/average) > ERROR_THRESHOLD) {
 	    	//if (logStreams[0] != null) logStreams[0].print("'"); // disable over threshold result for xls table
-	    	System.out.println("	WARNING: "+DIM_NAMES[index]+" error is over "+ERROR_STRING+"%: "+d2Format.format(stddev)+"/sqrt("+count+")="+ percentFormat.format(error/average));
-	    	comments[index] = "err=" + percentFormat.format(error/average);
+	    	System.out.println("	WARNING: "+DIM_NAMES[index]+" error is over "+ERROR_STRING+"%: "+this.d2Format.format(stddev)+"/sqrt("+count+")="+ this.percentFormat.format(error/average));
+	    	comments[index] = "err=" + this.percentFormat.format(error/average);
 	    }
 	    if (logStreams[index] != null) {
 	    	logStreams[index].print(""+statistics.getSum(index)+"\t");
@@ -580,7 +580,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 		// Abort if only touch
 		if (TOUCH) {
-			String testPrintName = "'"+scenarioShortName+"' test"; 
+			String testPrintName = "'"+this.scenarioShortName+"' test";
 			System.out.println("Touch "+testPrintName+" to verify that it will run correctly.");
 			throw new Error(testPrintName+" execution has been aborted!");
 		}
@@ -600,7 +600,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * Set up full source workpsace from zip file.
 	 */
 	private void setUpFullSourceWorkspace() throws IOException, CoreException {
-		
+
 		// Get wksp info
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
@@ -645,7 +645,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		// Init JRE_LIB variable
 		String jdkLib = Util.getJavaClassLibs()[0];
 		JavaCore.setClasspathVariable("JRE_LIB", new Path(jdkLib), null);
-		
+
 		// Set classpaths (workaround bug 73253 Project references not set on project open)
 		System.out.print("Set projects classpaths...");
 		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
@@ -680,28 +680,28 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		final String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
-	
+
 		// Print for log in case of project creation troubles...
 		System.out.println("Create '"+JUNIT_PROJECT_NAME+"' project in "+workspaceRoot.getLocation()+":");
 		long start = System.currentTimeMillis();
-	
+
 		// Print for log in case of project creation troubles...
 		String genericsZipPath = getPluginDirectoryPath() + File.separator + JUNIT_PROJECT_NAME + "src.zip";
 		start = System.currentTimeMillis();
 		System.out.println("Unzipping "+genericsZipPath);
 		System.out.print("	in "+targetWorkspacePath+"...");
-	
+
 		// Unzip file
 		Util.unzip(genericsZipPath, targetWorkspacePath);
 		System.out.println(" "+(System.currentTimeMillis()-start)+"ms.");
-	
+
 		// Add project to workspace
 		System.out.print("	- add project to full source workspace...");
 		start = System.currentTimeMillis();
 		ENV.addProject(JUNIT_PROJECT_NAME);
 		JUNIT_PROJECT = createJavaProject(JUNIT_PROJECT_NAME, new String[]{ "src" }, "bin", "1.5");
 		JUNIT_PROJECT.setRawClasspath(JUNIT_PROJECT.getResolvedClasspath(true), null);
-	
+
 		// Print for log in case of project creation troubles...
 		System.out.println(" "+(System.currentTimeMillis()-start)+"ms.");
 	}
@@ -830,8 +830,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		final IJavaProject[] result = new IJavaProject[1];
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				
-				// create classpath entries 
+
+				// create classpath entries
 				IProject project = ENV.getProject(projectName);
 				IPath projectPath = project.getFullPath();
 				int sourceLength = sourceFolders == null ? 0 : sourceFolders.length;
@@ -851,15 +851,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 						}
 					}
 					// create source entry
-					entries[i] = 
+					entries[i] =
 						JavaCore.newSourceEntry(
-							projectPath.append(sourcePath), 
+							projectPath.append(sourcePath),
 							new IPath[0],
-							new IPath[0], 
+							new IPath[0],
 							null
 						);
 				}
-				
+
 				// Add JRE_LIB entry
 				entries[sourceLength] = JavaCore.newVariableEntry(
 								new Path("JRE_LIB"),
@@ -874,24 +874,24 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 						output.create(true, true, null);
 					}
 				}
-				
+
 				// set classpath and output location
 				IJavaProject javaProject = ENV.getJavaProject(projectName);
 				javaProject.setRawClasspath(entries, projectPath.append(outputPath), null);
-				
+
 				// set compliance level options
 				if ("1.5".equals(compliance)) {
 					Map options = new HashMap();
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 					javaProject.setOptions(options);
 				}
-				
+
 				result[0] = javaProject;
 			}
 		};
-		ResourcesPlugin.getWorkspace().run(create, null);	
+		ResourcesPlugin.getWorkspace().run(create, null);
 		return result[0];
 	}
 
@@ -965,14 +965,14 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	/**
 	 * Returns the specified package fragment root in the given project, or
 	 * <code>null</code> if it does not exist.
-	 * If relative, the rootPath must be specified as a project relative path. 
+	 * If relative, the rootPath must be specified as a project relative path.
 	 * The empty path refers to the package fragment root that is the project
 	 * folder iteslf.
-	 * If absolute, the rootPath refers to either an external jar, or a resource 
+	 * If absolute, the rootPath refers to either an external jar, or a resource
 	 * internal to the workspace
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(
-		IJavaProject project, 
+		IJavaProject project,
 		String rootPath)
 		throws JavaModelException {
 
@@ -1054,7 +1054,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			if (root.isExternal() && root.getElementName().equals(jarSimpleName)) {
 				return root;
 			}
-		}		
+		}
 		return null;
 	}
 	/*
@@ -1136,7 +1136,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		Hashtable optionsMap = JavaCore.getDefaultOptions();
 		if (kind == 0) {
 			// Default set since 3.1
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE);
 		} else {
 			clearOptions(optionsMap);
 			boolean all = kind == 1;
@@ -1144,60 +1144,60 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			String warning = all ? CompilerOptions.WARNING : CompilerOptions.IGNORE;
 			String enabled = all ? CompilerOptions.ENABLED : CompilerOptions.DISABLED;
 			String preserve = all ? CompilerOptions.OPTIMIZE_OUT : CompilerOptions.PRESERVE;
-			
+
 			// Set options values
-			optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, generate); 
+			optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, generate);
 			optionsMap.put(CompilerOptions.OPTION_LineNumberAttribute, generate);
 			optionsMap.put(CompilerOptions.OPTION_SourceFileAttribute, generate);
 			optionsMap.put(CompilerOptions.OPTION_PreserveUnusedLocal, preserve);
-			optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, enabled); 
-			optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportDeprecation, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, enabled); 
-			optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, enabled); 
-			optionsMap.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedLocal, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameter, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportNoEffectAssignment, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportLocalVariableHiding, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryElse, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadoc, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, enabled); 
-			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTags, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocComments, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, warning); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, warning); 
+			optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, enabled);
+			optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportDeprecation, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, enabled);
+			optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, enabled);
+			optionsMap.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedLocal, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameter, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportNoEffectAssignment, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportLocalVariableHiding, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryElse, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadoc, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, enabled);
+			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTags, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocComments, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, warning);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, warning);
 			optionsMap.put(CompilerOptions.OPTION_TaskTags, all ? JavaCore.DEFAULT_TASK_TAGS : "");
 			optionsMap.put(CompilerOptions.OPTION_TaskPriorities, all ? JavaCore.DEFAULT_TASK_PRIORITIES : "");
-			optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, enabled); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled); 
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled); 
-			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, enabled);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled);
+			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled);
 			optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
 		}
 
 		// Ignore 3.1 options
-		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE); 
-		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE); 
+		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
+		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE);
 
 		// Ignore 3.2 options
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedLabel, CompilerOptions.IGNORE); 
+		optionsMap.put(CompilerOptions.OPTION_ReportUnusedLabel, CompilerOptions.IGNORE);
 
 		// Set compliance
 		String compliance= compliance();

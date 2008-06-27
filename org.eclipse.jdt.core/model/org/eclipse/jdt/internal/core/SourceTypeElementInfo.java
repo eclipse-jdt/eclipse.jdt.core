@@ -19,8 +19,8 @@ import org.eclipse.jdt.internal.compiler.env.ISourceImport;
 import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 
-/** 
- * Element info for an IType element that originated from source. 
+/**
+ * Element info for an IType element that originated from source.
  */
 public class SourceTypeElementInfo extends AnnotatableInfo implements ISourceType {
 
@@ -35,7 +35,7 @@ public class SourceTypeElementInfo extends AnnotatableInfo implements ISourceTyp
 	 * fully qualified for source types.
 	 */
 	protected char[] superclassName;
-	
+
 	/**
 	 * The names of the interfaces this type implements or
 	 * extends. These names are fully qualified in the case
@@ -43,13 +43,13 @@ public class SourceTypeElementInfo extends AnnotatableInfo implements ISourceTyp
 	 * case of a source type
 	 */
 	protected char[][] superInterfaceNames;
-	
+
 	/**
 	 * Backpointer to my type handle - useful for translation
 	 * from info to handle.
 	 */
 	protected IType handle = null;
-	
+
 	/*
 	 * The type parameters of this source type. Empty if none.
 	 */
@@ -59,7 +59,7 @@ public class SourceTypeElementInfo extends AnnotatableInfo implements ISourceTyp
 	 * A map from an IJavaElement (this type or a child of this type) to a String[] (the categories of this element)
 	 */
 	protected HashMap categories;
-	
+
 protected void addCategories(IJavaElement element, char[][] elementCategories) {
 	if (elementCategories == null) return;
 	if (this.categories == null)
@@ -244,11 +244,11 @@ public char[] getName() {
  */
 public char[] getSuperclassName() {
 	if (this.handle.getElementName().length() == 0) { // if anonymous type
-		char[][] interfaceNames = this.superInterfaceNames;	
+		char[][] interfaceNames = this.superInterfaceNames;
 		if (interfaceNames != null && interfaceNames.length > 0) {
 			return interfaceNames[0];
 		}
-	} 
+	}
 	return this.superclassName;
 }
 public char[][][] getTypeParameterBounds() {

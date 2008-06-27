@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.formatter.comment;
 
 /**
  * Html tag constants.
- * 
+ *
  * @since 3.0
  */
 public interface IHtmlTagDelimiters {

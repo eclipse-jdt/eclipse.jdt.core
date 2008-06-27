@@ -52,7 +52,7 @@ public class CompletionOnJavadocQualifiedTypeReference extends JavadocQualifiedT
 
 	/**
 	 * Get completion node flags.
-	 * 
+	 *
 	 * @return int Flags of the javadoc completion node.
 	 */
 	public int getCompletionFlags() {

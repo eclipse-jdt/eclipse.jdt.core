@@ -36,11 +36,11 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "bin1"); //$NON-NLS-1$ //$NON-NLS-2$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		
+
 		env.addClass(src1, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class X {}" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingNoProblems();
 		expectingPresenceOf(projectPath.append("bin1/X.class")); //$NON-NLS-1$
@@ -54,17 +54,17 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		
+
 		env.addClass(src1, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;"+ //$NON-NLS-1$
 			"public class X {}" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(src2, "p", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;"+ //$NON-NLS-1$
 			"public class Y {}" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingNoProblems();
 		expectingPresenceOf(projectPath.append("bin1/p/X.class")); //$NON-NLS-1$
@@ -72,7 +72,7 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 		expectingNoPresenceOf(projectPath.append("bin/p/X.class")); //$NON-NLS-1$
 		expectingNoPresenceOf(projectPath.append("bin1/p/Y.class")); //$NON-NLS-1$
 	}
-	
+
 	public void test0003() {
 		try {
 			IPath projectPath = env.addProject("P"); //$NON-NLS-1$
@@ -81,20 +81,20 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 			env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 			env.addExternalJars(projectPath, Util.getJavaClassLibs());
-			
+
 			fullBuild();
 			expectingNoProblems();
-			
+
 			assertTrue("JavaModelException", false); //$NON-NLS-1$
 		} catch (JavaModelException e) {
 			assertEquals(
 				"Cannot nest 'P/src/f1' inside 'P/src'. " + //$NON-NLS-1$
 				"To enable the nesting exclude 'f1/' from 'P/src'", //$NON-NLS-1$
 				e.getMessage()
-			); 
+			);
 		}
 	}
-		
+
 	public void test0004() {
 		try {
 			IPath projectPath = env.addProject("P"); //$NON-NLS-1$
@@ -103,19 +103,19 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 			env.addPackageFragmentRoot(projectPath, "src", new IPath[]{new Path("f1")}, null); //$NON-NLS-1$ //$NON-NLS-2$
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 			env.addExternalJars(projectPath, Util.getJavaClassLibs());
-			
+
 			fullBuild();
 			expectingNoProblems();
-			
+
 			assertTrue("JavaModelException", false); //$NON-NLS-1$
 		} catch (JavaModelException e) {
 			assertEquals(
 				"End exclusion filter 'f1' with / to fully exclude 'P/src/f1'", //$NON-NLS-1$
 				e.getMessage()
-			); 
+			);
 		}
 	}
-	
+
 	public void test0005() throws JavaModelException {
 		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -123,99 +123,99 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 		env.addPackageFragmentRoot(projectPath, "src", new IPath[]{new Path("f1/")}, null); //$NON-NLS-1$ //$NON-NLS-2$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		
+
 		fullBuild();
 		expectingNoProblems();
 	}
-	
+
 	public void test0006() throws JavaModelException {
 		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath srcF1 = env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
 		IPath src = env.addPackageFragmentRoot(projectPath, "src", new IPath[]{new Path("f1/")}, null); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		
+
 		env.addClass(src, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;"+ //$NON-NLS-1$
 			"public class X extends p2.Y{}" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(srcF1, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;"+ //$NON-NLS-1$
 			"public class Y {}" //$NON-NLS-1$
 			);
-			
+
 		fullBuild();
 		expectingNoProblems();
 	}
-	
+
 	public void test0007() throws JavaModelException {
 		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath srcF1 = env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
 		IPath src = env.addPackageFragmentRoot(projectPath, "src", new IPath[]{new Path("f1/")}, null); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		
+
 		IPath xPath = env.addClass(src, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;"+ //$NON-NLS-1$
 			"public class X extends f1.p2.Y{}" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(srcF1, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;"+ //$NON-NLS-1$
 			"public class Y {}" //$NON-NLS-1$
 			);
-			
+
 		fullBuild();
 		expectingOnlyProblemsFor(xPath);
 	}
-	
+
 	public void test0008() throws JavaModelException {
 		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath srcF1 = env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
 		IPath src = env.addPackageFragmentRoot(projectPath, "src", new IPath[]{new Path("f1/")}, null); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		
+
 		IPath xPath = env.addClass(src, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;"+ //$NON-NLS-1$
 			"public class X extends p2.Y{}" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(srcF1, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;"+ //$NON-NLS-1$
 			"public abstract class Y {"+ //$NON-NLS-1$
 			"  abstract void foo();"+ //$NON-NLS-1$
 			"}" //$NON-NLS-1$
 			);
-			
+
 		fullBuild();
 		expectingOnlyProblemsFor(xPath);
-		
+
 		env.addClass(srcF1, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;"+ //$NON-NLS-1$
 			"public class Y {}" //$NON-NLS-1$
 			);
-		
+
 		incrementalBuild();
-		
+
 		expectingNoProblems();
 	}
-	
+
 	public void test0009() throws JavaModelException {
 		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	
+
 		env.addPackageFragmentRoot(projectPath, "", null, "bin2"); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 		env.addClass(projectPath, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class X {}" //$NON-NLS-1$
 		);
-			
-		
+
+
 		fullBuild();
 
 		expectingNoProblems();
@@ -237,12 +237,12 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 		env.addClass(projectPath, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class X {}" //$NON-NLS-1$
 		);
-		
+
 		env.addClass(src, "", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class Y {}" //$NON-NLS-1$
 		);
-		
-	
+
+
 		fullBuild();
 
 		expectingNoProblems();
@@ -266,12 +266,12 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 		env.addClass(projectPath, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class X {}" //$NON-NLS-1$
 		);
-		
+
 		env.addClass(src, "", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class Y {}" //$NON-NLS-1$
 		);
-		
-	
+
+
 		fullBuild();
 
 		expectingNoProblems();
@@ -282,7 +282,7 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 		expectingNoPresenceOf(projectPath.append("bin2").append("bin")); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingNoPresenceOf(projectPath.append("bin").append("bin2")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	/*
 	 * Regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161
 	 */
@@ -291,14 +291,14 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 		env.removePackageFragmentRoot(projectPath, "");
 		IPath src = env.addPackageFragmentRoot(projectPath, "", new IPath[] {new Path("p1/p2/p3/X.java"), new Path("Y.java")}, null, "");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		
-		env.addClass(src, "p1.p2.p3", "X", 
+
+		env.addClass(src, "p1.p2.p3", "X",
 			"package p1.p2.p3;\n" +
 			"public class X {}"
 		);
 		fullBuild();
 		expectingNoProblems();
-		
+
 		env.addClass(src, "", "Y",
 			"import p1.p2.p3.X;\n" +
 			"public class Y extends X {}"

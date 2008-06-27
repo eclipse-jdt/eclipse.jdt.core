@@ -12,12 +12,12 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 public class BinaryLocalVariableBinding extends LocalVariableBinding {
 	AnnotationBinding[] annotationBindings;
-	
+
 	public BinaryLocalVariableBinding(char[] name, TypeBinding type, int modifiers, AnnotationBinding[] annotationBindings) {
 		super(name, type, modifiers, true);
 		this.annotationBindings = annotationBindings == null ? Binding.NO_ANNOTATIONS : annotationBindings;
 	}
-	
+
 	public AnnotationBinding[] getAnnotations() {
 		return this.annotationBindings;
 	}

@@ -15,12 +15,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
- * The <code>LRUCache</code> is a hashtable that stores a finite number of elements.  
+ * The <code>LRUCache</code> is a hashtable that stores a finite number of elements.
  * When an attempt is made to add values to a full cache, the least recently used values
  * in the cache are discarded to make room for the new values as necessary.
- * 
+ *
  * <p>The data structure is based on the LRU virtual memory paging scheme.
- * 
+ *
  * <p>Objects can take up a variable amount of cache space by implementing
  * the <code>ILRUCacheable</code> interface.
  *
@@ -32,7 +32,7 @@ import java.util.Hashtable;
 public class LRUCache implements Cloneable {
 
 	/**
-	 * This type is used internally by the LRUCache to represent entries 
+	 * This type is used internally by the LRUCache to represent entries
 	 * stored in the cache.
 	 * It is static because it does not require a pointer to the cache
 	 * which contains it.
@@ -40,37 +40,37 @@ public class LRUCache implements Cloneable {
 	 * @see LRUCache
 	 */
 	protected static class LRUCacheEntry {
-		
+
 		/**
 		 * Hash table key
 		 */
 		public Object key;
-		 
+
 		/**
 		 * Hash table value (an LRUCacheEntry object)
 		 */
-		public Object value;		 
+		public Object value;
 
 		/**
 		 * Time value for queue sorting
 		 */
 		public int timestamp;
-		
+
 		/**
 		 * Cache footprint of this entry
 		 */
 		public int space;
-		
+
 		/**
 		 * Previous entry in queue
 		 */
 		public LRUCacheEntry previous;
-			
+
 		/**
 		 * Next entry in queue
 		 */
 		public LRUCacheEntry next;
-			
+
 		/**
 		 * Creates a new instance of the receiver with the provided values
 		 * for key, value, and space.
@@ -86,50 +86,50 @@ public class LRUCache implements Cloneable {
 		 */
 		public String toString() {
 
-			return "LRUCacheEntry [" + key + "-->" + value + "]"; //$NON-NLS-3$ //$NON-NLS-1$ //$NON-NLS-2$
+			return "LRUCacheEntry [" + this.key + "-->" + this.value + "]"; //$NON-NLS-3$ //$NON-NLS-1$ //$NON-NLS-2$
 		}
-	}	
+	}
 
 	/**
 	 * Amount of cache space used so far
 	 */
 	protected int currentSpace;
-	
+
 	/**
 	 * Maximum space allowed in cache
 	 */
 	protected int spaceLimit;
-	
+
 	/**
 	 * Counter for handing out sequential timestamps
 	 */
 	protected int	timestampCounter;
-	
+
 	/**
 	 * Hash table for fast random access to cache entries
 	 */
 	protected Hashtable entryTable;
 
 	/**
-	 * Start of queue (most recently used entry) 
-	 */	
+	 * Start of queue (most recently used entry)
+	 */
 	protected LRUCacheEntry entryQueue;
 
 	/**
 	 * End of queue (least recently used entry)
-	 */	
+	 */
 	protected LRUCacheEntry entryQueueTail;
-		
+
 	/**
 	 * Default amount of space in the cache
 	 */
 	protected static final int DEFAULT_SPACELIMIT = 100;
 	/**
-	 * Creates a new cache.  Size of cache is defined by 
+	 * Creates a new cache.  Size of cache is defined by
 	 * <code>DEFAULT_SPACELIMIT</code>.
 	 */
 	public LRUCache() {
-		
+
 		this(DEFAULT_SPACELIMIT);
 	}
 	/**
@@ -137,7 +137,7 @@ public class LRUCache implements Cloneable {
 	 * @param size Size of Cache
 	 */
 	public LRUCache(int size) {
-		
+
 		this.timestampCounter = this.currentSpace = 0;
 		this.entryQueue = this.entryQueueTail = null;
 		this.entryTable = new Hashtable(size);
@@ -149,10 +149,10 @@ public class LRUCache implements Cloneable {
 	 * @return New copy of object.
 	 */
 	public Object clone() {
-		
-		LRUCache newCache = newInstance(spaceLimit);
+
+		LRUCache newCache = newInstance(this.spaceLimit);
 		LRUCacheEntry qEntry;
-		
+
 		/* Preserve order of entries by copying from oldest to newest */
 		qEntry = this.entryQueueTail;
 		while (qEntry != null) {
@@ -162,17 +162,17 @@ public class LRUCache implements Cloneable {
 		return newCache;
 	}
 	public double fillingRatio() {
-		return (currentSpace) * 100.0 / spaceLimit;
+		return (this.currentSpace) * 100.0 / this.spaceLimit;
 	}
 	/**
 	 * Flushes all entries from the cache.
 	 */
 	public void flush() {
 
-		currentSpace = 0;
-		LRUCacheEntry entry = entryQueueTail; // Remember last entry
-		entryTable = new Hashtable();  // Clear it out
-		entryQueue = entryQueueTail = null;  
+		this.currentSpace = 0;
+		LRUCacheEntry entry = this.entryQueueTail; // Remember last entry
+		this.entryTable = new Hashtable();  // Clear it out
+		this.entryQueue = this.entryQueueTail = null;
 		while (entry != null) {  // send deletion notifications in LRU order
 			entry = entry.previous;
 		}
@@ -184,22 +184,22 @@ public class LRUCache implements Cloneable {
 	 * @param key Key of object to flush
 	 */
 	public void flush (Object key) {
-		
+
 		LRUCacheEntry entry;
-		
-		entry = (LRUCacheEntry) entryTable.get(key);
+
+		entry = (LRUCacheEntry) this.entryTable.get(key);
 
 		/* If entry does not exist, return */
 		if (entry == null) return;
 
-		this.privateRemoveEntry (entry, false);
+		privateRemoveEntry (entry, false);
 	}
 	/*
 	 * Answers the existing key that is equals to the given key.
 	 * If the key is not in the cache, returns the given key
 	 */
 	public Object getKey(Object key) {
-		LRUCacheEntry entry = (LRUCacheEntry) entryTable.get(key);
+		LRUCacheEntry entry = (LRUCacheEntry) this.entryTable.get(key);
 		if (entry == null) {
 			return key;
 		}
@@ -213,58 +213,58 @@ public class LRUCache implements Cloneable {
 	 * @return Retreived object, or null if object does not exist
 	 */
 	public Object get(Object key) {
-		
-		LRUCacheEntry entry = (LRUCacheEntry) entryTable.get(key);
+
+		LRUCacheEntry entry = (LRUCacheEntry) this.entryTable.get(key);
 		if (entry == null) {
 			return null;
 		}
-		
-		this.updateTimestamp (entry);
+
+		updateTimestamp (entry);
 		return entry.value;
 	}
 	/**
 	 * Returns the amount of space that is current used in the cache.
 	 */
 	public int getCurrentSpace() {
-		return currentSpace;
+		return this.currentSpace;
 	}
 	/**
 	 * Returns the maximum amount of space available in the cache.
 	 */
 	public int getSpaceLimit() {
-		return spaceLimit;
+		return this.spaceLimit;
 	}
 	/**
 	 * Returns an Enumeration of the keys currently in the cache.
 	 */
 	public Enumeration keys() {
-		
-		return entryTable.keys();
+
+		return this.entryTable.keys();
 	}
 	/**
-	 * Returns an enumeration that iterates over all the keys and values 
+	 * Returns an enumeration that iterates over all the keys and values
 	 * currently in the cache.
 	 */
 	public ICacheEnumeration keysAndValues() {
 		return new ICacheEnumeration() {
-		
-			Enumeration values = entryTable.elements();
+
+			Enumeration values = LRUCache.this.entryTable.elements();
 			LRUCacheEntry entry;
-			
+
 			public boolean hasMoreElements() {
-				return values.hasMoreElements();
+				return this.values.hasMoreElements();
 			}
-			
+
 			public Object nextElement() {
-				entry = (LRUCacheEntry) values.nextElement();
-				return entry.key;
+				this.entry = (LRUCacheEntry) this.values.nextElement();
+				return this.entry.key;
 			}
-			
+
 			public Object getValue() {
-				if (entry == null) {
+				if (this.entry == null) {
 					throw new java.util.NoSuchElementException();
 				}
-				return entry.value;
+				return this.entry.value;
 			}
 		};
 	}
@@ -276,24 +276,24 @@ public class LRUCache implements Cloneable {
 	 * @param space Amount of space to free up
 	 */
 	protected boolean makeSpace (int space) {
-		
+
 		int limit;
-		
-		limit = this.getSpaceLimit();
-		
+
+		limit = getSpaceLimit();
+
 		/* if space is already available */
-		if (currentSpace + space <= limit) {
+		if (this.currentSpace + space <= limit) {
 			return true;
 		}
-		
+
 		/* if entry is too big for cache */
 		if (space > limit) {
 			return false;
 		}
-		
+
 		/* Free up space by removing oldest entries */
-		while (currentSpace + space > limit && entryQueueTail != null) {
-			this.privateRemoveEntry (entryQueueTail, false);
+		while (this.currentSpace + space > limit && this.entryQueueTail != null) {
+			privateRemoveEntry (this.entryQueueTail, false);
 		}
 		return true;
 	}
@@ -310,8 +310,8 @@ public class LRUCache implements Cloneable {
 	 * This function does not modify timestamps.
 	 */
 	public Object peek(Object key) {
-		
-		LRUCacheEntry entry = (LRUCacheEntry) entryTable.get(key);
+
+		LRUCacheEntry entry = (LRUCacheEntry) this.entryTable.get(key);
 		if (entry == null) {
 			return null;
 		}
@@ -321,64 +321,64 @@ public class LRUCache implements Cloneable {
 	 * Adds an entry for the given key/value/space.
 	 */
 	protected void privateAdd (Object key, Object value, int space) {
-		
+
 		LRUCacheEntry entry;
-		
+
 		entry = new LRUCacheEntry(key, value, space);
-		this.privateAddEntry (entry, false);
+		privateAddEntry (entry, false);
 	}
 	/**
 	 * Adds the given entry from the receiver.
-	 * @param shuffle Indicates whether we are just shuffling the queue 
+	 * @param shuffle Indicates whether we are just shuffling the queue
 	 * (in which case, the entry table is not modified).
 	 */
 	protected void privateAddEntry (LRUCacheEntry entry, boolean shuffle) {
-		
+
 		if (!shuffle) {
-			entryTable.put (entry.key, entry);
-			currentSpace += entry.space;
+			this.entryTable.put (entry.key, entry);
+			this.currentSpace += entry.space;
 		}
-		
-		entry.timestamp = timestampCounter++;
+
+		entry.timestamp = this.timestampCounter++;
 		entry.next = this.entryQueue;
 		entry.previous = null;
-		
-		if (entryQueue == null) {
+
+		if (this.entryQueue == null) {
 			/* this is the first and last entry */
-			entryQueueTail = entry;
+			this.entryQueueTail = entry;
 		} else {
-			entryQueue.previous = entry;
+			this.entryQueue.previous = entry;
 		}
-		
-		entryQueue = entry;
+
+		this.entryQueue = entry;
 	}
 	/**
-	 * Removes the entry from the entry queue.  
-	 * @param shuffle indicates whether we are just shuffling the queue 
+	 * Removes the entry from the entry queue.
+	 * @param shuffle indicates whether we are just shuffling the queue
 	 * (in which case, the entry table is not modified).
 	 */
 	protected void privateRemoveEntry (LRUCacheEntry entry, boolean shuffle) {
-		
+
 		LRUCacheEntry previous, next;
-		
+
 		previous = entry.previous;
 		next = entry.next;
-		
+
 		if (!shuffle) {
-			entryTable.remove(entry.key);
-			currentSpace -= entry.space;
+			this.entryTable.remove(entry.key);
+			this.currentSpace -= entry.space;
 		}
 
 		/* if this was the first entry */
 		if (previous == null) {
-			entryQueue = next;
+			this.entryQueue = next;
 		} else {
 			previous.next = next;
 		}
 
 		/* if this was the last entry */
 		if (next == null) {
-			entryQueueTail = previous;
+			this.entryQueueTail = previous;
 		} else {
 			next.previous = previous;
 		}
@@ -391,19 +391,19 @@ public class LRUCache implements Cloneable {
 	 * @return added value.
 	 */
 	public Object put(Object key, Object value) {
-		
+
 		int newSpace, oldSpace, newTotal;
 		LRUCacheEntry entry;
-		
+
 		/* Check whether there's an entry in the cache */
 		newSpace = spaceFor(value);
-		entry = (LRUCacheEntry) entryTable.get (key);
-		
+		entry = (LRUCacheEntry) this.entryTable.get (key);
+
 		if (entry != null) {
-			
+
 			/**
 			 * Replace the entry in the cache if it would not overflow
-			 * the cache.  Otherwise flush the entry and re-add it so as 
+			 * the cache.  Otherwise flush the entry and re-add it so as
 			 * to keep cache within budget
 			 */
 			oldSpace = entry.space;
@@ -431,13 +431,13 @@ public class LRUCache implements Cloneable {
 	 * @return Value removed from cache.
 	 */
 	public Object removeKey (Object key) {
-		
-		LRUCacheEntry entry = (LRUCacheEntry) entryTable.get(key);
+
+		LRUCacheEntry entry = (LRUCacheEntry) this.entryTable.get(key);
 		if (entry == null) {
 			return null;
 		}
 		Object value = entry.value;
-		this.privateRemoveEntry (entry, false);
+		privateRemoveEntry (entry, false);
 		return value;
 	}
 	/**
@@ -446,16 +446,16 @@ public class LRUCache implements Cloneable {
 	 * @param limit Number of units of cache space
 	 */
 	public void setSpaceLimit(int limit) {
-		if (limit < spaceLimit) {
-			makeSpace(spaceLimit - limit);
+		if (limit < this.spaceLimit) {
+			makeSpace(this.spaceLimit - limit);
 		}
-		spaceLimit = limit;
+		this.spaceLimit = limit;
 	}
 	/**
 	 * Returns the space taken by the given value.
 	 */
 	protected int spaceFor (Object value) {
-		
+
 		if (value instanceof ILRUCacheable) {
 			return ((ILRUCacheable) value).getCacheFootprint();
 		} else {
@@ -467,25 +467,25 @@ public class LRUCache implements Cloneable {
 	 * is for debugging purposes only.
 	 */
 	public String toString() {
-		return 
+		return
 			toStringFillingRation("LRUCache") + //$NON-NLS-1$
 			toStringContents();
 	}
-	
+
 	/**
 	 * Returns a String that represents the contents of this object.  This method
 	 * is for debugging purposes only.
 	 */
 	protected String toStringContents() {
 		StringBuffer result = new StringBuffer();
-		int length = entryTable.size();
+		int length = this.entryTable.size();
 		Object[] unsortedKeys = new Object[length];
 		String[] unsortedToStrings = new String[length];
-		Enumeration e = this.keys();
+		Enumeration e = keys();
 		for (int i = 0; i < length; i++) {
 			Object key = e.nextElement();
 			unsortedKeys[i] = key;
-			unsortedToStrings[i] = 
+			unsortedToStrings[i] =
 				(key instanceof org.eclipse.jdt.internal.core.JavaElement) ?
 					((org.eclipse.jdt.internal.core.JavaElement)key).getElementName() :
 					key.toString();
@@ -494,15 +494,15 @@ public class LRUCache implements Cloneable {
 		sorter.sort(unsortedKeys, unsortedToStrings);
 		for (int i = 0; i < length; i++) {
 			String toString = sorter.sortedStrings[i];
-			Object value = this.get(sorter.sortedObjects[i]);
-			result.append(toString);		
+			Object value = get(sorter.sortedObjects[i]);
+			result.append(toString);
 			result.append(" -> "); //$NON-NLS-1$
 			result.append(value);
 			result.append("\n"); //$NON-NLS-1$
 		}
 		return result.toString();
 	}
-	
+
 	public String toStringFillingRation(String cacheName) {
 		StringBuffer buffer = new StringBuffer(cacheName);
 		buffer.append('[');
@@ -514,15 +514,15 @@ public class LRUCache implements Cloneable {
 	}
 
 	/**
-	 * Updates the timestamp for the given entry, ensuring that the queue is 
+	 * Updates the timestamp for the given entry, ensuring that the queue is
 	 * kept in correct order.  The entry must exist
 	 */
 	protected void updateTimestamp (LRUCacheEntry entry) {
-		
-		entry.timestamp = timestampCounter++;
-		if (entryQueue != entry) {
-			this.privateRemoveEntry (entry, true);
-			this.privateAddEntry (entry, true);
+
+		entry.timestamp = this.timestampCounter++;
+		if (this.entryQueue != entry) {
+			privateRemoveEntry (entry, true);
+			privateAddEntry (entry, true);
 		}
 		return;
 	}

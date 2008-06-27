@@ -20,9 +20,9 @@ import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 
 /**
  * An <code>Index</code> maps document names to their referenced words in various categories.
- * 
+ *
  * Queries can search a single category or several at the same time.
- * 
+ *
  * Indexes are not synchronized structures and should only be queried/updated one at a time.
  */
 
@@ -120,11 +120,11 @@ public boolean hasChanged() {
  * If the key is null then all entries in specified categories are returned.
  */
 public EntryResult[] query(char[][] categories, char[] key, int matchRule) throws IOException {
-	if (this.memoryIndex.shouldMerge() && monitor.exitReadEnterWrite()) {
+	if (this.memoryIndex.shouldMerge() && this.monitor.exitReadEnterWrite()) {
 		try {
 			save();
 		} finally {
-			monitor.exitWriteEnterRead();
+			this.monitor.exitWriteEnterRead();
 		}
 	}
 

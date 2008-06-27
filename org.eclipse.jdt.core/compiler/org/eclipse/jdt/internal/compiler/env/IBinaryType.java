@@ -41,7 +41,7 @@ IBinaryField[] getFields();
  * Answer the receiver's signature which describes the parameter &
  * return types as specified in section 4.4.4 of the Java 2 VM spec 3rd edition.
  * Returns null if none.
- * 
+ *
  * @return the receiver's signature, null if none
  */
 char[] getGenericSignature();
@@ -121,7 +121,7 @@ boolean isLocal();
  * Answer true if the receiver is a member class.
  * false otherwise
  */
-boolean isMember(); 
+boolean isMember();
 
 /**
  * Answer the source file attribute, or null if none.

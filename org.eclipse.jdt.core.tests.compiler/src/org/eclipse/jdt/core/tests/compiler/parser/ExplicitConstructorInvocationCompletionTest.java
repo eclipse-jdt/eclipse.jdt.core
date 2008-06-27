@@ -25,12 +25,12 @@ public static Test suite() {
 }
 /*
  * Completion on a qualified 'super' constructor invocation.
- * 
+ *
  * ie. ExplicitConstructorInvocation ::= Primary '.' 'super' '(' ArgumentListopt ')' ';'
  */
 public void testPrimarySuper() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
 		"	public class InnerBar {						\n" +
@@ -48,21 +48,21 @@ public void testPrimarySuper() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnExplicitConstructorCall:primary().super(1, 2)>;",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  public class InnerBar {\n" + 
-		"    InnerBar(Bar x) {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public class SubInnerBar extends InnerBar {\n" + 
-		"    SubInnerBar(Bar x) {\n" + 
-		"      <CompleteOnExplicitConstructorCall:primary().super(1, 2)>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  public class InnerBar {\n" +
+		"    InnerBar(Bar x) {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public class SubInnerBar extends InnerBar {\n" +
+		"    SubInnerBar(Bar x) {\n" +
+		"      <CompleteOnExplicitConstructorCall:primary().super(1, 2)>;\n" +
+		"    }\n" +
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -74,12 +74,12 @@ public void testPrimarySuper() {
 }
 /*
  * Completion on a qualified 'this' constructor invocation.
- * 
+ *
  * ie. ExplicitConstructorInvocation ::= Primary '.' 'this' '(' ArgumentListopt ')' ';'
  */
 public void testPrimaryThis() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
 		"	public class InnerBar {						\n" +
@@ -97,21 +97,21 @@ public void testPrimaryThis() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnExplicitConstructorCall:primary().this(1, 2)>;",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  public class InnerBar {\n" + 
-		"    InnerBar(Bar x) {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public class SubInnerBar extends InnerBar {\n" + 
-		"    SubInnerBar(Bar x) {\n" + 
-		"      <CompleteOnExplicitConstructorCall:primary().this(1, 2)>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  public class InnerBar {\n" +
+		"    InnerBar(Bar x) {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public class SubInnerBar extends InnerBar {\n" +
+		"    SubInnerBar(Bar x) {\n" +
+		"      <CompleteOnExplicitConstructorCall:primary().this(1, 2)>;\n" +
+		"    }\n" +
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -123,7 +123,7 @@ public void testPrimaryThis() {
 }
 /*
  * Completion on a 'super' constructor invocation.
- * 
+ *
  * ie. ExplicitConstructorInvocation ::= 'super' '(' ArgumentListopt ')' ';'
  */
 public void testSuper() {
@@ -139,10 +139,10 @@ public void testSuper() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnExplicitConstructorCall:super(1, 2)>;",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"    <CompleteOnExplicitConstructorCall:super(1, 2)>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"    <CompleteOnExplicitConstructorCall:super(1, 2)>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -154,7 +154,7 @@ public void testSuper() {
 }
 /*
  * Completion on a 'this' constructor invocation.
- * 
+ *
  * ie. ExplicitConstructorInvocation ::= 'this' '(' ArgumentListopt ')' ';'
  */
 public void testThis() {
@@ -170,10 +170,10 @@ public void testThis() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnExplicitConstructorCall:this(1, 2)>;",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"    <CompleteOnExplicitConstructorCall:this(1, 2)>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"    <CompleteOnExplicitConstructorCall:this(1, 2)>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -188,7 +188,7 @@ public void testThis() {
  */
 public void testWrapperNameSuper() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
 		"	public class InnerBar {						\n" +
@@ -206,21 +206,21 @@ public void testWrapperNameSuper() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  public class InnerBar {\n" + 
-		"    InnerBar(Bar x) {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public class SubInnerBar extends InnerBar {\n" + 
-		"    SubInnerBar() {\n" + 
-		"      super(<CompleteOnMemberAccess:fred().x>);\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  public class InnerBar {\n" +
+		"    InnerBar(Bar x) {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public class SubInnerBar extends InnerBar {\n" +
+		"    SubInnerBar() {\n" +
+		"      super(<CompleteOnMemberAccess:fred().x>);\n" +
+		"    }\n" +
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -231,11 +231,11 @@ public void testWrapperNameSuper() {
 	);
 }
 /*
- * ExplicitConstructorInvocation ::= Name '.' 'this' '(' <ArgumentListopt> ')' ';'  
+ * ExplicitConstructorInvocation ::= Name '.' 'this' '(' <ArgumentListopt> ')' ';'
  */
 public void testWrapperNameThis() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
 		"	public class InnerBar {						\n" +
@@ -253,21 +253,21 @@ public void testWrapperNameThis() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  public class InnerBar {\n" + 
-		"    InnerBar(Bar x) {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public class SubInnerBar extends InnerBar {\n" + 
-		"    SubInnerBar() {\n" + 
-		"      this(<CompleteOnMemberAccess:fred().x>);\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  public class InnerBar {\n" +
+		"    InnerBar(Bar x) {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public class SubInnerBar extends InnerBar {\n" +
+		"    SubInnerBar() {\n" +
+		"      this(<CompleteOnMemberAccess:fred().x>);\n" +
+		"    }\n" +
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -278,11 +278,11 @@ public void testWrapperNameThis() {
 	);
 }
 /*
- * ExplicitConstructorInvocation ::= Primary '.' 'this' '(' <ArgumentListopt> ')' ';' 
+ * ExplicitConstructorInvocation ::= Primary '.' 'this' '(' <ArgumentListopt> ')' ';'
  */
 public void testWrapperPrimarySuper() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	static Bar x;								\n" +
 		"	public class InnerBar {						\n" +
@@ -300,21 +300,21 @@ public void testWrapperPrimarySuper() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  public class InnerBar {\n" + 
-		"    InnerBar(Bar x) {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public class SubInnerBar extends InnerBar {\n" + 
-		"    SubInnerBar(Bar x) {\n" + 
-		"      super(<CompleteOnMemberAccess:fred().x>);\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  static Bar x;\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  public class InnerBar {\n" +
+		"    InnerBar(Bar x) {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public class SubInnerBar extends InnerBar {\n" +
+		"    SubInnerBar(Bar x) {\n" +
+		"      super(<CompleteOnMemberAccess:fred().x>);\n" +
+		"    }\n" +
+		"  }\n" +
+		"  static Bar x;\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -325,11 +325,11 @@ public void testWrapperPrimarySuper() {
 	);
 }
 /*
- * ExplicitConstructorInvocation ::= 'super' '(' <ArgumentListopt> ')' ';'   
+ * ExplicitConstructorInvocation ::= 'super' '(' <ArgumentListopt> ')' ';'
  */
 public void testWrapperSuper() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	Bar() {										\n" +
 		"		super(fred().xyz);						\n" +
@@ -340,10 +340,10 @@ public void testWrapperSuper() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
+		"class Bar {\n" +
 		"  Bar() {\n" +
-		"    super(<CompleteOnMemberAccess:fred().x>);\n" + 
-		"  }\n" + 
+		"    super(<CompleteOnMemberAccess:fred().x>);\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",
@@ -354,11 +354,11 @@ public void testWrapperSuper() {
 	);
 }
 /*
- * ExplicitConstructorInvocation ::= 'this' '(' <ArgumentListopt> ')' ';'   
+ * ExplicitConstructorInvocation ::= 'this' '(' <ArgumentListopt> ')' ';'
  */
 public void testWrapperThis() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {									\n" +
 		"	Bar() {										\n" +
 		"		this(fred().xyz);							\n" +
@@ -369,10 +369,10 @@ public void testWrapperThis() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
+		"class Bar {\n" +
 		"  Bar() {\n" +
-		"    this(<CompleteOnMemberAccess:fred().x>);\n" + 
-		"  }\n" + 
+		"    this(<CompleteOnMemberAccess:fred().x>);\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"x",

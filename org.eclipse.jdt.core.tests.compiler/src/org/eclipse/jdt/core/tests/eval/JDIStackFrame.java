@@ -55,21 +55,21 @@ public JDIStackFrame(VirtualMachine jdiVM, DebugEvaluationTest test, String user
 	this(jdiVM, test, userCode, "_JDIStackFrame_", "foo", Integer.MAX_VALUE);
 }
 public JDIStackFrame(
-	VirtualMachine jdiVM, 
-	DebugEvaluationTest test, 
+	VirtualMachine jdiVM,
+	DebugEvaluationTest test,
 	String userCode,
 	String breakpointClassName,
 	String breakpointMethodName,
 	int breakpointLine) {
-		
+
 	this.jdiVM = jdiVM;
 	this.userCode = userCode;
 	this.breakpointClassName = breakpointClassName;
 	this.breakpointMethodName = breakpointMethodName;
 	this.breakpointLine = breakpointLine;
-	
+
 	test.jdiStackFrame = null;
-	this.jdiThread = this.getDebuggedThread(test);
+	this.jdiThread = getDebuggedThread(test);
 	test.jdiStackFrame = this;
 }
 public char[] declaringTypeName() {
@@ -97,8 +97,8 @@ protected ThreadReference getDebuggedThread(DebugEvaluationTest test) {
 					"}";
 				test.compileAndDeploy(source, "_JDIStackFrame_");
 			}
-			
-			// force load of class 
+
+			// force load of class
 			test.evaluateWithExpectedDisplayString(
 				("return Class.forName(\"" + this.breakpointClassName + "\");").toCharArray(),
 				("class " + this.breakpointClassName).toCharArray()
@@ -139,16 +139,16 @@ protected ThreadReference getDebuggedThread(DebugEvaluationTest test) {
 			test.context.evaluate(
 				("(new Thread() {\n" +
 				"  public void run() {\n" +
-				     userCode + "\n" +
+				     this.userCode + "\n" +
 				(this.breakpointClassName.equals("_JDIStackFrame_") ? "    new _JDIStackFrame_().foo();\n" : "") +
 				"  }\n" +
 				"  public String toString() {\n" +
 				"    return \"my thread\";\n" +
 				"  }\n" +
 				"}).start();\n").toCharArray(),
-				test.getEnv(), 
-				test.getCompilerOptions(), 
-				requestor, 
+				test.getEnv(),
+				test.getCompilerOptions(),
+				requestor,
 				test.getProblemFactory());
 		} catch (InstallException e) {
 			Assert.assertTrue("Target exception " + e.getMessage(), false);
@@ -262,13 +262,13 @@ public boolean run(String codeSnippetClassName) {
 		ObjectReference codeSnippetRunner;
 		try {
 			// Get the code snippet class
-			List classes = jdiVM.classesByName(codeSnippetClassName);
+			List classes = this.jdiVM.classesByName(codeSnippetClassName);
 			while (classes.size() == 0) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 				}
-				classes = jdiVM.classesByName(codeSnippetClassName);
+				classes = this.jdiVM.classesByName(codeSnippetClassName);
 				if (classes.size() == 0) {
 					// workaround bug in Standard VM
 					Iterator iterator = this.jdiVM.allClasses().iterator();
@@ -286,7 +286,7 @@ public boolean run(String codeSnippetClassName) {
 
 			// Create a new code snippet
 			Method constructor = (Method)codeSnippetClass.methodsByName("<init>").get(0);
-			codeSnippet = codeSnippetClass.newInstance(jdiThread, constructor, new ArrayList(), ClassType.INVOKE_SINGLE_THREADED);
+			codeSnippet = codeSnippetClass.newInstance(this.jdiThread, constructor, new ArrayList(), ClassType.INVOKE_SINGLE_THREADED);
 
 			// Install local variables and "this" into generated fields
 			StackFrame stackFrame = getStackFrame();
@@ -308,11 +308,11 @@ public boolean run(String codeSnippetClassName) {
 			}
 
 			// Get the code snippet runner
-			ClassType codeSnippetRunnerClass = (ClassType)jdiVM.classesByName(CODE_SNIPPET_RUNNER_CLASS_NAME).get(0);
+			ClassType codeSnippetRunnerClass = (ClassType)this.jdiVM.classesByName(CODE_SNIPPET_RUNNER_CLASS_NAME).get(0);
 			Field theRunner = codeSnippetRunnerClass.fieldByName(THE_RUNNER_FIELD);
 			codeSnippetRunner = (ObjectReference)codeSnippetRunnerClass.getValue(theRunner);
 
-			// Get the method 'runCodeSnippet' and its arguments		
+			// Get the method 'runCodeSnippet' and its arguments
 			method = (Method)codeSnippetRunnerClass.methodsByName(RUN_CODE_SNIPPET_METHOD).get(0);
 			arguments = new ArrayList();
 			arguments.add(codeSnippet);
@@ -332,7 +332,7 @@ public boolean run(String codeSnippetClassName) {
 
 		try {
 			// Invoke runCodeSnippet(CodeSnippet)
-			codeSnippetRunner.invokeMethod(jdiThread, method, arguments, ClassType.INVOKE_SINGLE_THREADED);
+			codeSnippetRunner.invokeMethod(this.jdiThread, method, arguments, ClassType.INVOKE_SINGLE_THREADED);
 
 			// Retrieve values of local variables and put them back in the stack frame
 			StackFrame stackFrame = getStackFrame();

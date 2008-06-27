@@ -26,7 +26,7 @@ boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
 
 	TypeBinding match = one.declaringClass.findSuperTypeOriginatingFrom(two.declaringClass);
 	if (!(match instanceof ReferenceBinding))
-		return false; // method's declaringClass does not inherit from inheritedMethod's 
+		return false; // method's declaringClass does not inherit from inheritedMethod's
 
 	if (match != two.declaringClass) {
 		MethodBinding[] superMethods = ((ReferenceBinding) match).getMethods(two.selector);
@@ -602,7 +602,7 @@ boolean detectNameClash(MethodBinding current, MethodBinding inherited) {
 	MethodBinding original = inherited.original(); // can be the same as inherited
 	if (!current.areParameterErasuresEqual(original) || current.returnType.erasure() != original.returnType.erasure()) return false;
 
-	problemReporter(current).methodNameClash(current, 
+	problemReporter(current).methodNameClash(current,
 			inherited.declaringClass.isRawType() ? inherited : original);
 	return true;
 }

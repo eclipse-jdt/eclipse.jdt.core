@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
  *	elements which are explicitly removed.
  *
  *	<p>If the cache cannot remove enough old elements to add new elements
- *	it will grow beyond <code>fSpaceLimit</code>. Later, it will attempt to 
+ *	it will grow beyond <code>fSpaceLimit</code>. Later, it will attempt to
  *	shink back to the maximum space limit.
  *
  *	The method <code>close</code> should attempt to close the element.  If
@@ -36,16 +36,16 @@ import org.eclipse.jdt.internal.core.util.Messages;
  *	<code>setSpaceLimit</code>.  Explicitly calling the <code>shrink</code> method
  *	will also cause the cache to attempt to shrink.
  *
- *	<p>The cache calculates the used space of all elements which implement 
+ *	<p>The cache calculates the used space of all elements which implement
  *	<code>ILRUCacheable</code>.  All other elements are assumed to be of size one.
  *
  *	<p>Use the <code>#peek(Object)</code> and <code>#disableTimestamps()</code> method to
  *	circumvent the timestamp feature of the cache.  This feature is intended to be used
- *	only when the <code>#close(LRUCacheEntry)</code> method causes changes to the cache.  
- *	For example, if a parent closes its children when </code>#close(LRUCacheEntry)</code> is called, 
- *	it should be careful not to change the LRU linked list.  It can be sure it is not causing 
+ *	only when the <code>#close(LRUCacheEntry)</code> method causes changes to the cache.
+ *	For example, if a parent closes its children when </code>#close(LRUCacheEntry)</code> is called,
+ *	it should be careful not to change the LRU linked list.  It can be sure it is not causing
  *	problems by calling <code>#peek(Object)</code> instead of <code>#get(Object)</code> method.
- *	
+ *
  *	@see LRUCache
  */
 public abstract class OverflowingLRUCache extends LRUCache {
@@ -63,14 +63,14 @@ public abstract class OverflowingLRUCache extends LRUCache {
 	 */
 	protected double loadFactor = 0.333;
 /**
- * Creates a OverflowingLRUCache. 
+ * Creates a OverflowingLRUCache.
  * @param size Size limit of cache.
  */
 public OverflowingLRUCache(int size) {
 	this(size, 0);
 }
 /**
- * Creates a OverflowingLRUCache. 
+ * Creates a OverflowingLRUCache.
  * @param size Size limit of cache.
  * @param overflow Size of the overflow.
  */
@@ -84,10 +84,10 @@ public OverflowingLRUCache(int size, int overflow) {
 	 * @return New copy of this object.
 	 */
 	public Object clone() {
-		
-		OverflowingLRUCache newCache = (OverflowingLRUCache)newInstance(spaceLimit, overflow);
+
+		OverflowingLRUCache newCache = (OverflowingLRUCache)newInstance(this.spaceLimit, this.overflow);
 		LRUCacheEntry qEntry;
-		
+
 		/* Preserve order of entries by copying from oldest to newest */
 		qEntry = this.entryQueueTail;
 		while (qEntry != null) {
@@ -110,22 +110,22 @@ protected abstract boolean close(LRUCacheEntry entry);
 	 *	recently used first.
 	 */
 	public Enumeration elements() {
-		if (entryQueue == null)
+		if (this.entryQueue == null)
 			return new LRUCacheEnumerator(null);
-		LRUCacheEnumerator.LRUEnumeratorElement head = 
-			new LRUCacheEnumerator.LRUEnumeratorElement(entryQueue.value);
-		LRUCacheEntry currentEntry = entryQueue.next;
+		LRUCacheEnumerator.LRUEnumeratorElement head =
+			new LRUCacheEnumerator.LRUEnumeratorElement(this.entryQueue.value);
+		LRUCacheEntry currentEntry = this.entryQueue.next;
 		LRUCacheEnumerator.LRUEnumeratorElement currentElement = head;
 		while(currentEntry != null) {
 			currentElement.next = new LRUCacheEnumerator.LRUEnumeratorElement(currentEntry.value);
 			currentElement = currentElement.next;
-			
+
 			currentEntry = currentEntry.next;
 		}
 		return new LRUCacheEnumerator(head);
 	}
 	public double fillingRatio() {
-		return (currentSpace + overflow) * 100.0 / spaceLimit;
+		return (this.currentSpace + this.overflow) * 100.0 / this.spaceLimit;
 	}
 	/**
 	 * For internal testing only.
@@ -134,21 +134,21 @@ protected abstract boolean close(LRUCacheEntry entry);
 	 * @return Hashtable of entries
 	 */
 	public java.util.Hashtable getEntryTable() {
-		return entryTable;
+		return this.entryTable;
 	}
 /**
- * Returns the load factor for the cache.  The load factor determines how 
+ * Returns the load factor for the cache.  The load factor determines how
  * much space is reclaimed when the cache exceeds its space limit.
  * @return double
  */
 public double getLoadFactor() {
-	return loadFactor;
+	return this.loadFactor;
 }
 	/**
 	 *	@return The space by which the cache has overflown.
 	 */
 	public int getOverflow() {
-		return overflow;
+		return this.overflow;
 	}
 	/**
 	 * Ensures there is the specified amount of free space in the receiver,
@@ -159,39 +159,39 @@ public double getLoadFactor() {
 	 * @param space Amount of space to free up
 	 */
 	protected boolean makeSpace(int space) {
-	
-		int limit = spaceLimit;
-		if (overflow == 0 && currentSpace + space <= limit) {
+
+		int limit = this.spaceLimit;
+		if (this.overflow == 0 && this.currentSpace + space <= limit) {
 			/* if space is already available */
 			return true;
 		}
-	
+
 		/* Free up space by removing oldest entries */
-		int spaceNeeded = (int)((1 - loadFactor) * limit);
+		int spaceNeeded = (int)((1 - this.loadFactor) * limit);
 		spaceNeeded = (spaceNeeded > space) ? spaceNeeded : space;
-		LRUCacheEntry entry = entryQueueTail;
-	
+		LRUCacheEntry entry = this.entryQueueTail;
+
 		try {
 			// disable timestamps update while making space so that the previous and next links are not changed
 			// (by a call to get(Object) for example)
-			timestampsOn = false;
-			
-			while (currentSpace + spaceNeeded > limit && entry != null) {
+			this.timestampsOn = false;
+
+			while (this.currentSpace + spaceNeeded > limit && entry != null) {
 				this.privateRemoveEntry(entry, false, false);
 				entry = entry.previous;
 			}
 		} finally {
-			timestampsOn = true;
+			this.timestampsOn = true;
 		}
-	
+
 		/* check again, since we may have aquired enough space */
-		if (currentSpace + space <= limit) {
-			overflow = 0;
+		if (this.currentSpace + space <= limit) {
+			this.overflow = 0;
 			return true;
 		}
-	
+
 		/* update fOverflow */
-		overflow = currentSpace + space - limit;
+		this.overflow = this.currentSpace + space - limit;
 		return false;
 	}
 	/**
@@ -203,36 +203,36 @@ public double getLoadFactor() {
  */
 public void printStats() {
 	int forwardListLength = 0;
-	LRUCacheEntry entry = entryQueue;
+	LRUCacheEntry entry = this.entryQueue;
 	while(entry != null) {
 		forwardListLength++;
 		entry = entry.next;
 	}
 	System.out.println("Forward length: " + forwardListLength); //$NON-NLS-1$
-	
+
 	int backwardListLength = 0;
-	entry = entryQueueTail;
+	entry = this.entryQueueTail;
 	while(entry != null) {
 		backwardListLength++;
 		entry = entry.previous;
 	}
 	System.out.println("Backward length: " + backwardListLength); //$NON-NLS-1$
 
-	Enumeration keys = entryTable.keys();
+	Enumeration keys = this.entryTable.keys();
 	class Temp {
 		public Class clazz;
 		public int count;
 		public Temp(Class aClass) {
-			clazz = aClass;
-			count = 1;
+			this.clazz = aClass;
+			this.count = 1;
 		}
 		public String toString() {
-			return "Class: " + clazz + " has " + count + " entries."; //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+			return "Class: " + this.clazz + " has " + this.count + " entries."; //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
 		}
 	}
 	java.util.HashMap h = new java.util.HashMap();
 	while(keys.hasMoreElements()) {
-		entry = (LRUCacheEntry)entryTable.get(keys.nextElement());
+		entry = (LRUCacheEntry)this.entryTable.get(keys.nextElement());
 		Class key = entry.value.getClass();
 		Temp t = (Temp)h.get(key);
 		if (t == null) {
@@ -250,7 +250,7 @@ public void printStats() {
 	 *	Removes the entry from the entry queue.
 	 *	Calls <code>privateRemoveEntry</code> with the external functionality enabled.
 	 *
-	 * @param shuffle indicates whether we are just shuffling the queue 
+	 * @param shuffle indicates whether we are just shuffling the queue
 	 * (in which case, the entry table is not modified).
 	 */
 	protected void privateRemoveEntry (LRUCacheEntry entry, boolean shuffle) {
@@ -261,43 +261,43 @@ public void printStats() {
  *	without checking if it can be removed.  It is assumed that the client has already closed
  *	the element it is trying to remove (or will close it promptly).
  *
- *	If <i>external</i> is false, and the entry could not be closed, it is not removed and the 
+ *	If <i>external</i> is false, and the entry could not be closed, it is not removed and the
  *	pointers are not changed.
  *
- *	@param shuffle indicates whether we are just shuffling the queue 
+ *	@param shuffle indicates whether we are just shuffling the queue
  *	(in which case, the entry table is not modified).
  */
 protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean external) {
 
 	if (!shuffle) {
 		if (external) {
-			entryTable.remove(entry.key);			
-			currentSpace -= entry.space;
+			this.entryTable.remove(entry.key);
+			this.currentSpace -= entry.space;
 		} else {
 			if (!close(entry)) return;
 			// buffer close will recursively call #privateRemoveEntry with external==true
 			// thus entry will already be removed if reaching this point.
-			if (entryTable.get(entry.key) == null){
+			if (this.entryTable.get(entry.key) == null){
 				return;
 			} else {
 				// basic removal
-				entryTable.remove(entry.key);			
-				currentSpace -= entry.space;
+				this.entryTable.remove(entry.key);
+				this.currentSpace -= entry.space;
 			}
 		}
 	}
 	LRUCacheEntry previous = entry.previous;
 	LRUCacheEntry next = entry.next;
-		
+
 	/* if this was the first entry */
 	if (previous == null) {
-		entryQueue = next;
+		this.entryQueue = next;
 	} else {
 		previous.next = next;
 	}
 	/* if this was the last entry */
 	if (next == null) {
-		entryQueueTail = previous;
+		this.entryQueueTail = previous;
 	} else {
 		next.previous = previous;
 	}
@@ -311,41 +311,41 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 	 */
 	public Object put(Object key, Object value) {
 		/* attempt to rid ourselves of the overflow, if there is any */
-		if (overflow > 0)
+		if (this.overflow > 0)
 			shrink();
-			
+
 		/* Check whether there's an entry in the cache */
 		int newSpace = spaceFor(value);
-		LRUCacheEntry entry = (LRUCacheEntry) entryTable.get (key);
-		
+		LRUCacheEntry entry = (LRUCacheEntry) this.entryTable.get (key);
+
 		if (entry != null) {
-			
+
 			/**
 			 * Replace the entry in the cache if it would not overflow
-			 * the cache.  Otherwise flush the entry and re-add it so as 
+			 * the cache.  Otherwise flush the entry and re-add it so as
 			 * to keep cache within budget
 			 */
 			int oldSpace = entry.space;
-			int newTotal = currentSpace - oldSpace + newSpace;
-			if (newTotal <= spaceLimit) {
+			int newTotal = this.currentSpace - oldSpace + newSpace;
+			if (newTotal <= this.spaceLimit) {
 				updateTimestamp (entry);
 				entry.value = value;
 				entry.space = newSpace;
-				currentSpace = newTotal;
-				overflow = 0;
+				this.currentSpace = newTotal;
+				this.overflow = 0;
 				return value;
 			} else {
 				privateRemoveEntry (entry, false, false);
 			}
 		}
-		
+
 		// attempt to make new space
 		makeSpace(newSpace);
-		
+
 		// add without worring about space, it will
 		// be handled later in a makeSpace call
 		privateAdd (key, value, newSpace);
-		
+
 		return value;
 	}
 	/**
@@ -359,16 +359,16 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 		return removeKey(key);
 	}
 /**
- * Sets the load factor for the cache.  The load factor determines how 
+ * Sets the load factor for the cache.  The load factor determines how
  * much space is reclaimed when the cache exceeds its space limit.
  * @param newLoadFactor double
  * @throws IllegalArgumentException when the new load factor is not in (0.0, 1.0]
  */
 public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException {
 	if(newLoadFactor <= 1.0 && newLoadFactor > 0.0)
-		loadFactor = newLoadFactor;
+		this.loadFactor = newLoadFactor;
 	else
-		throw new IllegalArgumentException(Messages.cache_invalidLoadFactor); 
+		throw new IllegalArgumentException(Messages.cache_invalidLoadFactor);
 }
 	/**
 	 * Sets the maximum amount of space that the cache can store
@@ -376,17 +376,17 @@ public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException 
 	 * @param limit Number of units of cache space
 	 */
 	public void setSpaceLimit(int limit) {
-		if (limit < spaceLimit) {
-			makeSpace(spaceLimit - limit);
+		if (limit < this.spaceLimit) {
+			makeSpace(this.spaceLimit - limit);
 		}
-		spaceLimit = limit;
+		this.spaceLimit = limit;
 	}
 	/**
 	 * Attempts to shrink the cache if it has overflown.
 	 * Returns true if the cache shrinks to less than or equal to <code>fSpaceLimit</code>.
 	 */
 	public boolean shrink() {
-		if (overflow > 0)
+		if (this.overflow > 0)
 			return makeSpace(0);
 		return true;
 	}
@@ -395,22 +395,22 @@ public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException 
  * is for debugging purposes only.
  */
 public String toString() {
-	return 
+	return
 		toStringFillingRation("OverflowingLRUCache ") + //$NON-NLS-1$
 		toStringContents();
 }
 /**
- * Updates the timestamp for the given entry, ensuring that the queue is 
+ * Updates the timestamp for the given entry, ensuring that the queue is
  * kept in correct order.  The entry must exist.
  *
  * <p>This method will do nothing if timestamps have been disabled.
  */
 protected void updateTimestamp(LRUCacheEntry entry) {
-	if (timestampsOn) {
-		entry.timestamp = timestampCounter++;
-		if (entryQueue != entry) {
+	if (this.timestampsOn) {
+		entry.timestamp = this.timestampCounter++;
+		if (this.entryQueue != entry) {
 			this.privateRemoveEntry(entry, true);
-			this.privateAddEntry(entry, true);
+			privateAddEntry(entry, true);
 		}
 	}
 }

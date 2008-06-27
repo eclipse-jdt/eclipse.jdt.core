@@ -76,15 +76,15 @@ protected String getEscapedExternalJCLPath() {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	this.createJavaProject(
-			"P", 
-			new String[] {"src"}, 
+			"P",
+			new String[] {"src"},
 			new String[] {
-				getExternalJCLPathString(), 
+				getExternalJCLPathString(),
 				"/P/lib",
 				"/P/lib/myLib.jar",
-				"/OtherProj/lib", 
+				"/OtherProj/lib",
 				"/OtherProj/lib/myLib.jar",
 			},
 			"bin");
@@ -125,7 +125,7 @@ public void testAnnotation3() {
  */
 public void testAnonymousTypeMemento1() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
-	
+
 	IType anonymous = type.getInitializer(1).getType("", 1);
 	assertMemento(
 		"=P/src<p{X.java[X|1[",
@@ -141,12 +141,12 @@ public void testAnonymousTypeMemento1() {
  */
 public void testAnonymousTypeMemento2() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
-	
+
 	IType anonymous = type.getField("f").getType("", 1);
 	assertMemento(
 		"=P/src<p{X.java[X^f[",
 		anonymous);
-		
+
 	anonymous = type.getField("f").getType("", 3);
 	assertMemento(
 		"=P/src<p{X.java[X^f[!3",
@@ -157,12 +157,12 @@ public void testAnonymousTypeMemento2() {
  */
 public void testAnonymousTypeMemento3() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
-	
+
 	IType anonymous = type.getMethod("foo", new String[]{}).getType("", 1);
 	assertMemento(
 		"=P/src<p{X.java[X~foo[",
 		anonymous);
-		
+
 	anonymous = type.getMethod("foo", new String[]{}).getType("", 4);
 	assertMemento(
 		"=P/src<p{X.java[X~foo[!4",
@@ -192,7 +192,7 @@ public void testBinaryInnerTypeMemento() throws JavaModelException {
 	assertMemento(
 		"=P/lib<p(X$Inner.class[Inner^field",
 		innerField);
-	
+
 	IMethod innerMethod = type.getMethod("foo", new String[] {"I", "Ljava.lang.String;"});
 	assertMemento(
 		"=P/lib<p(X$Inner.class[Inner~foo~I~Ljava.lang.String;",
@@ -217,7 +217,7 @@ public void testBinaryMethodMemento2() throws JavaModelException {
 	assertMemento(
 		"=P/lib<p(X.class[X~bar",
 		method);
-}	
+}
 /**
  * Tests that a binary method can be persisted and restored using its memento.
  */
@@ -262,7 +262,7 @@ public void testClassFileMemento() {
 	assertMemento(
 		"=P/lib<(Y.class",
 		cf);
-	
+
 }
 /**
  * Tests that a compilation unit can be persisted and restored using its memento.
@@ -272,7 +272,7 @@ public void testCompilationUnitMemento1() {
 	assertMemento(
 		"=P/src<p{X.java",
 		cu);
-		
+
 	cu = getCompilationUnit("/P/src/Y.java");
 	assertMemento(
 		"=P/src<{Y.java",
@@ -292,7 +292,7 @@ public void testCompilationUnitMemento2() throws Exception {
 /**
  * Tests that a binary field in an external jar can be persisted and restored using its memento.
  */
-public void testExternalJarBinaryFieldMemento() throws JavaModelException {	
+public void testExternalJarBinaryFieldMemento() throws JavaModelException {
 	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
 	IField field = type.getField("field");
 	assertMemento(
@@ -311,7 +311,7 @@ public void testExternalJarBinaryInnerTypeMemento() throws JavaModelException {
 /**
  * Tests that a binary method in an external jar can be persisted and restored using its memento.
  */
-public void testExternalJarBinaryMethodMemento() throws JavaModelException {	
+public void testExternalJarBinaryMethodMemento() throws JavaModelException {
 	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"[Ljava.lang.String;"});
 	assertMemento(
@@ -321,11 +321,11 @@ public void testExternalJarBinaryMethodMemento() throws JavaModelException {
 /**
  * Tests that a binary type in an external jar can be persisted and restored using its memento.
  */
-public void testExternalJarBinaryTypeMemento() throws JavaModelException {	
+public void testExternalJarBinaryTypeMemento() throws JavaModelException {
 	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
 	assertMemento(
 		"=P/" + getEscapedExternalJCLPath() + "<p(X.class[X",
-		type);	
+		type);
 }
 /**
  * Tests that a class file in an external jar at the root of the file system can be persisted and restored using its memento.
@@ -336,7 +336,7 @@ public void testExternalJarClassFileMemento() throws JavaModelException {
 	IClassFile classFile = getClassFile("P", device + separator + "lib.jar", "p", "X.class");
 	assertMemento(
 		"=P/" + device + "\\/lib.jar<p(X.class",
-		classFile);	
+		classFile);
 }
 /**
  * Tests that an import declaration can be persisted and restored using its memento.
@@ -355,7 +355,7 @@ public void testImportDeclarationMemento() {
 	assertMemento(
 		"=P/src<p{X.java#java.io.Serializable",
 		importDecl);
-	
+
 	importDecl = getCompilationUnit("/P/src/p/X.java").getImport("java.util.*");
 	assertMemento(
 		"=P/src<p{X.java#java.util.*",
@@ -374,12 +374,12 @@ public void testInvalidMemento() {
  */
 public void testInitializerMemento() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
-	
+
 	IInitializer initializer = type.getInitializer(1);
 	assertMemento(
 		"=P/src<p{X.java[X|1",
 		initializer);
-	
+
 	initializer = type.getInitializer(2);
 	assertMemento(
 		"=P/src<p{X.java[X|2",
@@ -388,7 +388,7 @@ public void testInitializerMemento() {
 /**
  * Tests that a binary field in an internal jar can be persisted and restored using its memento.
  */
-public void testInternalJarBinaryFieldMemento() throws JavaModelException {	
+public void testInternalJarBinaryFieldMemento() throws JavaModelException {
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
 	IField field = type.getField("field");
 	assertMemento(
@@ -398,7 +398,7 @@ public void testInternalJarBinaryFieldMemento() throws JavaModelException {
 /**
  * Tests that a inner binary type and field in an internal jar can be persisted and restored using its memento.
  */
-public void testInternalJarBinaryInnerTypeMemento() throws JavaModelException {	
+public void testInternalJarBinaryInnerTypeMemento() throws JavaModelException {
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X$Inner.class").getType();
 	assertMemento(
 		"=P/lib\\/myLib.jar<p(X$Inner.class[Inner",
@@ -407,7 +407,7 @@ public void testInternalJarBinaryInnerTypeMemento() throws JavaModelException {
 /**
  * Tests that a binary method in an internal jar can be persisted and restored using its memento.
  */
-public void testInternalJarBinaryMethodMemento() throws JavaModelException {	
+public void testInternalJarBinaryMethodMemento() throws JavaModelException {
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"[Ljava.lang.String;"});
 	assertMemento(
@@ -417,18 +417,18 @@ public void testInternalJarBinaryMethodMemento() throws JavaModelException {
 /**
  * Tests that a binary type in an internal jar can be persisted and restored using its memento.
  */
-public void testInternalJarBinaryTypeMemento() throws JavaModelException {	
+public void testInternalJarBinaryTypeMemento() throws JavaModelException {
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
 	assertMemento(
 		"=P/lib\\/myLib.jar<p(X.class[X",
-		type);	
+		type);
 }
 /**
  * Tests that a local type can be persisted and restored using its memento.
  */
 public void testLocalTypeMemento1() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
-	
+
 	IType anonymous = type.getInitializer(1).getType("Y", 1);
 	assertMemento(
 		"=P/src<p{X.java[X|1[Y",
@@ -444,12 +444,12 @@ public void testLocalTypeMemento1() {
  */
 public void testLocalTypeMemento2() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
-	
+
 	IType anonymous = type.getMethod("foo", new String[]{}).getType("Y", 1);
 	assertMemento(
 		"=P/src<p{X.java[X~foo[Y",
 		anonymous);
-		
+
 	anonymous = type.getMethod("foo", new String[]{}).getType("Y", 3);
 	assertMemento(
 		"=P/src<p{X.java[X~foo[Y!3",
@@ -499,7 +499,7 @@ public void testPackageDeclarationMemento() {
 	assertMemento(
 		"=P/src<p{X.java%p",
 		declaration);
-		
+
 	declaration = getCompilationUnit("/P/src/p1/p2/X.java").getPackageDeclaration("p1.p2");
 	assertMemento(
 		"=P/src<p1.p2{X.java%p1.p2",
@@ -513,7 +513,7 @@ public void testPackageFragmentMemento() {
 	assertMemento(
 		"=P/src<p",
 		pkg);
-		
+
 	pkg = getPackage("/P/src/p1/p2");
 	assertMemento(
 		"=P/src<p1.p2",
@@ -533,7 +533,7 @@ public void testPackageFragmentMemento2() throws CoreException {
 		IPackageFragment pkg = getPackage("/P1/p");
 		assertMemento(
 			"=P1/<p",
-			pkg);		
+			pkg);
 	} finally {
 		deleteProject("P1");
 	}
@@ -561,8 +561,8 @@ public void testPackageFragmentRootMemento2() throws CoreException {
 			root);
 	} finally {
 		this.deleteProject("P1");
-	}		
-}	
+	}
+}
 /**
  * Tests that a library folder package fragment root in the same project
  * can be persisted and restored using its memento.

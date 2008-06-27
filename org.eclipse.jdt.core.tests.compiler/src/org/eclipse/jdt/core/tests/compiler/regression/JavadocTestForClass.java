@@ -326,7 +326,7 @@ public class JavadocTestForClass extends JavadocTest {
 
 	// @see Classes references
 	public void test020() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -393,7 +393,7 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test022() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n" +
@@ -443,7 +443,7 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test024() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n" +
@@ -464,7 +464,7 @@ public class JavadocTestForClass extends JavadocTest {
 
 	// @see Field references
 	public void test030() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -800,7 +800,7 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test047() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -948,16 +948,16 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "	public void s_foo() {\n"
 					+ "	}\n"
 					+ "}\n" },
-			"----------\n" + 
-			"1. ERROR in test\\X.java (at line 6)\n" + 
-			"	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" + 
-			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: The type VisibilityPackage is not visible\n" + 
-			"----------\n" + 
-			"2. ERROR in test\\X.java (at line 7)\n" + 
-			"	* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: The type test.copy.VisibilityPackage is not visible\n" + 
+			"----------\n" +
+			"1. ERROR in test\\X.java (at line 6)\n" +
+			"	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" +
+			"	       ^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type VisibilityPackage is not visible\n" +
+			"----------\n" +
+			"2. ERROR in test\\X.java (at line 7)\n" +
+			"	* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type test.copy.VisibilityPackage is not visible\n" +
 			"----------\n");
 	}
 
@@ -982,7 +982,7 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test053() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"

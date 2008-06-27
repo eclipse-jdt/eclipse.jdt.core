@@ -28,14 +28,14 @@ public class CompletionOnKeyword3 extends SingleNameReference implements Complet
 		return false;
 	}
 	public char[] getToken() {
-		return token;
+		return this.token;
 	}
 	public char[][] getPossibleKeywords() {
-		return possibleKeywords;
+		return this.possibleKeywords;
 	}
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		
-		return output.append("<CompleteOnKeyword:").append(token).append('>'); //$NON-NLS-1$
+
+		return output.append("<CompleteOnKeyword:").append(this.token).append('>'); //$NON-NLS-1$
 	}
 	public TypeBinding resolveType(BlockScope scope) {
 		throw new CompletionNodeFound(this, scope);

@@ -26,8 +26,8 @@ public class NullLiteral extends MagicLiteral {
 	}
 
 	public void computeConstant() {
-	
-		constant = Constant.NotAConstant; 
+
+		this.constant = Constant.NotAConstant;
 	}
 
 	/**
@@ -36,7 +36,7 @@ public class NullLiteral extends MagicLiteral {
 	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 * @param valueRequired boolean
-	 */ 
+	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		int pc = codeStream.position;
 		if (valueRequired) {
@@ -56,7 +56,7 @@ public class NullLiteral extends MagicLiteral {
 	public Object reusableJSRTarget() {
 		return TypeBinding.NULL;
 	}
-	
+
 	public char[] source() {
 		return source;
 	}

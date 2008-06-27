@@ -37,7 +37,7 @@ public boolean add(String value) {
 	this.values[index] = value;
 
 	// assumes the threshold is never equal to the size of the table
-	if (++elementSize > threshold) rehash();
+	if (++this.elementSize > this.threshold) rehash();
 	return true;
 }
 
@@ -48,7 +48,7 @@ public void clear() {
 }
 
 public boolean includes(String value) {
-	int length = values.length;
+	int length = this.values.length;
 	int index = (value.hashCode() & 0x7FFFFFFF) % length;
 	String current;
 	while ((current = this.values[index]) != null) {
@@ -59,7 +59,7 @@ public boolean includes(String value) {
 }
 
 private void rehash() {
-	StringSet newSet = new StringSet(elementSize * 2); // double the number of expected elements
+	StringSet newSet = new StringSet(this.elementSize * 2); // double the number of expected elements
 	String current;
 	for (int i = this.values.length; --i >= 0;)
 		if ((current = this.values[i]) != null)

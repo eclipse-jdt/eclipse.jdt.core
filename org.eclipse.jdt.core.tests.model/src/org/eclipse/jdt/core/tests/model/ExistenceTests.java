@@ -148,9 +148,9 @@ public void testJarFile() throws Exception {
 	try {
 		IJavaProject p2 = createJavaProject("P2");
 		String[] pathsAndContents = new String[] {
-			"test/X.java", 
+			"test/X.java",
 			"package test;\n" +
-			"public class X {\n" + 
+			"public class X {\n" +
 			"}",
 		};
 		addLibrary(p2, "lib.jar", "libsrc.zip", pathsAndContents, JavaCore.VERSION_1_5);
@@ -173,7 +173,7 @@ public void testClassFileInSource1() throws CoreException {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		this.createFile("P/src/X.class", "");
 		IClassFile classFile = this.getClassFile("P/src/X.class");
-		assertTrue("Class file should not exist", !classFile.exists()); 
+		assertTrue("Class file should not exist", !classFile.exists());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -189,7 +189,7 @@ public void testClassFileInSource1() throws CoreException {
 		this.createFile("P/src/X.class", "");
 		IClassFile classFile = this.getClassFile("P/src/X.class");
 		assertOpenFails(
-			"Operation not supported for specified element type(s):src [in P]", 
+			"Operation not supported for specified element type(s):src [in P]",
 			classFile);
 	} finally {
 		this.deleteProject("P");
@@ -204,11 +204,11 @@ public void testCompilationUnitInLibrary1() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {}, new String[] {"lib"},  "bin");
 		this.createFile(
-			"P/lib/X.java", 
+			"P/lib/X.java",
 			"public class X {}"
 		);
 		ICompilationUnit cu = this.getCompilationUnit("P/lib/X.java");
-		assertTrue("Ccompilation unit should not exist", !cu.exists()); 
+		assertTrue("Ccompilation unit should not exist", !cu.exists());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -222,7 +222,7 @@ public void testCompilationUnitInLibrary2() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {}, new String[] {"lib"},  "bin");
 		this.createFile(
-			"P/lib/X.java", 
+			"P/lib/X.java",
 			"public class X {}"
 		);
 		ICompilationUnit cu = this.getCompilationUnit("P/lib/X.java");
@@ -241,11 +241,11 @@ public void testMethodWithInvalidParameter() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFile(
-			"P/X.java", 
+			"P/X.java",
 			"public class X {}"
 		);
 		IMethod method = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[] {"~12345@"});
-		assertTrue("Methodr should not exist", !method.exists()); 
+		assertTrue("Methodr should not exist", !method.exists());
 	} finally {
 		deleteProject("P");
 	}
@@ -258,7 +258,7 @@ public void testNonExistingClassFile1() throws CoreException {
 		this.createJavaProject("P", new String[] {"src"}, new String[] {"lib"}, "bin");
 		IClassFile classFile = getClassFile("/P/lib/X.class");
 		assertOpenFails(
-			"X.class [in <default> [in lib [in P]]] does not exist", 
+			"X.class [in <default> [in lib [in P]]] does not exist",
 			classFile);
 	} finally {
 		this.deleteProject("P");
@@ -288,7 +288,7 @@ public void testNonExistingCompilationUnit() throws CoreException {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		ICompilationUnit cu = getCompilationUnit("/P/src/X.java");
 		assertOpenFails(
-			"X.java [in <default> [in src [in P]]] does not exist", 
+			"X.java [in <default> [in src [in P]]] does not exist",
 			cu);
 	} finally {
 		this.deleteProject("P");
@@ -329,9 +329,9 @@ public void testNonExistingExternalPackageFragmentRoot2() throws CoreException {
 public void testNonExistingPackageFragment1() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
-		IPackageFragment pkg = this.getPackage("/P/src/x");
+		IPackageFragment pkg = getPackage("/P/src/x");
 		assertOpenFails(
-			"x [in src [in P]] does not exist", 
+			"x [in src [in P]] does not exist",
 			pkg);
 	} finally {
 		this.deleteProject("P");
@@ -363,10 +363,10 @@ public void testNonExistingPackageFragment3() throws CoreException {
 		IPackageFragment pkg = getPackage("/P/pack");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-			"<classpath>\n" + 
-			"	<classpathentry excluding=\"pack/\" kind=\"src\" path=\"\"/>\n" + 
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"	<classpathentry excluding=\"pack/\" kind=\"src\" path=\"\"/>\n" +
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
 			"</classpath>"
 		);
 		assertFalse(	"pack should not exist", pkg.exists());
@@ -383,7 +383,7 @@ public void testNonJavaProject() throws CoreException {
 		createProject("P");
 		IProject project = getProject("P");
 		IJavaProject javaProject = JavaCore.create(project);
-		
+
 		assertTrue("Simple project should not exist", !javaProject.exists());
 	} finally {
 		deleteProject("P");
@@ -412,11 +412,11 @@ public void testTypeParameter1() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFile(
-			"P/X.java", 
+			"P/X.java",
 			"public class X<T> {}"
 		);
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getTypeParameter("T");
-		assertTrue("Type parameter should exist", typeParameter.exists()); 
+		assertTrue("Type parameter should exist", typeParameter.exists());
 	} finally {
 		deleteProject("P");
 	}
@@ -428,13 +428,13 @@ public void testTypeParameter2() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFile(
-			"P/X.java", 
+			"P/X.java",
 			"public class X {\n" +
 			"  <T extends String> void foo() {}\n" +
 			"}"
 		);
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[0]).getTypeParameter("T");
-		assertTrue("Type parameter should exist", typeParameter.exists()); 
+		assertTrue("Type parameter should exist", typeParameter.exists());
 	} finally {
 		deleteProject("P");
 	}
@@ -446,11 +446,11 @@ public void testTypeParameter3() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFile(
-			"P/X.java", 
+			"P/X.java",
 			"public class X<T> {}"
 		);
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getTypeParameter("U");
-		assertTrue("Type parameter should not exist", !typeParameter.exists()); 
+		assertTrue("Type parameter should not exist", !typeParameter.exists());
 	} finally {
 		deleteProject("P");
 	}
@@ -462,13 +462,13 @@ public void testTypeParameter4() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFile(
-			"P/X.java", 
+			"P/X.java",
 			"public class X {\n" +
 			"  <T extends String> void foo() {}\n" +
 			"}"
 		);
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[0]).getTypeParameter("String");
-		assertTrue("Type parameter should not exist", !typeParameter.exists()); 
+		assertTrue("Type parameter should not exist", !typeParameter.exists());
 	} finally {
 		deleteProject("P");
 	}
@@ -481,13 +481,13 @@ public void testTypeParameter5() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFile(
-			"P/X.java", 
+			"P/X.java",
 			"public class X {\n" +
 			"  class T {}\n" +
 			"}"
 		);
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getTypeParameter("T");
-		assertTrue("Type parameter should not exist", !typeParameter.exists()); 
+		assertTrue("Type parameter should not exist", !typeParameter.exists());
 	} finally {
 		deleteProject("P");
 	}

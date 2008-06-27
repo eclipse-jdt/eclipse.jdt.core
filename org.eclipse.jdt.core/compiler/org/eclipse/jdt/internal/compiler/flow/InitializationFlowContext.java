@@ -26,7 +26,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 	public TypeBinding[] thrownExceptions = new TypeBinding[5];
 	public ASTNode[] exceptionThrowers = new ASTNode[5];
 	public FlowInfo[] exceptionThrowerFlowInfos = new FlowInfo[5];
-	
+
 	public InitializationFlowContext(
 		FlowContext parent,
 		ASTNode associatedNode,
@@ -35,7 +35,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 			parent,
 			associatedNode,
 			Binding.NO_EXCEPTIONS, // no exception allowed by default
-			scope, 
+			scope,
 			FlowInfo.DEAD_END);
 	}
 
@@ -43,56 +43,56 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 		BlockScope currentScope,
 		FlowContext initializerContext,
 		FlowInfo flowInfo) {
-		for (int i = 0; i < exceptionCount; i++) {
+		for (int i = 0; i < this.exceptionCount; i++) {
 			initializerContext.checkExceptionHandlers(
-				thrownExceptions[i],
-				exceptionThrowers[i],
-				exceptionThrowerFlowInfos[i],
+				this.thrownExceptions[i],
+				this.exceptionThrowers[i],
+				this.exceptionThrowerFlowInfos[i],
 				currentScope);
 		}
 	}
 
 	public String individualToString() {
-		
+
 		StringBuffer buffer = new StringBuffer("Initialization flow context"); //$NON-NLS-1$
-		for (int i = 0; i < exceptionCount; i++) {
-			buffer.append('[').append(thrownExceptions[i].readableName());
-			buffer.append('-').append(exceptionThrowerFlowInfos[i].toString()).append(']');
+		for (int i = 0; i < this.exceptionCount; i++) {
+			buffer.append('[').append(this.thrownExceptions[i].readableName());
+			buffer.append('-').append(this.exceptionThrowerFlowInfos[i].toString()).append(']');
 		}
 		return buffer.toString();
 	}
-	
+
 	public void recordHandlingException(
 		ReferenceBinding exceptionType,
 		UnconditionalFlowInfo flowInfo,
 		TypeBinding raisedException,
 		ASTNode invocationSite,
 		boolean wasMasked) {
-			
+
 		// even if unreachable code, need to perform unhandled exception diagnosis
-		int size = thrownExceptions.length;
-		if (exceptionCount == size) {
+		int size = this.thrownExceptions.length;
+		if (this.exceptionCount == size) {
 			System.arraycopy(
-				thrownExceptions,
+				this.thrownExceptions,
 				0,
-				(thrownExceptions = new TypeBinding[size * 2]),
+				(this.thrownExceptions = new TypeBinding[size * 2]),
 				0,
 				size);
 			System.arraycopy(
-				exceptionThrowers,
+				this.exceptionThrowers,
 				0,
-				(exceptionThrowers = new ASTNode[size * 2]),
+				(this.exceptionThrowers = new ASTNode[size * 2]),
 				0,
 				size);
 			System.arraycopy(
-				exceptionThrowerFlowInfos,
+				this.exceptionThrowerFlowInfos,
 				0,
-				(exceptionThrowerFlowInfos = new FlowInfo[size * 2]),
+				(this.exceptionThrowerFlowInfos = new FlowInfo[size * 2]),
 				0,
 				size);
 		}
-		thrownExceptions[exceptionCount] = raisedException;
-		exceptionThrowers[exceptionCount] = invocationSite;
-		exceptionThrowerFlowInfos[exceptionCount++] = flowInfo.copy();
-	}	
+		this.thrownExceptions[this.exceptionCount] = raisedException;
+		this.exceptionThrowers[this.exceptionCount] = invocationSite;
+		this.exceptionThrowerFlowInfos[this.exceptionCount++] = flowInfo.copy();
+	}
 }

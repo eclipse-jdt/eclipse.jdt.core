@@ -11,10 +11,10 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 public class ProblemMethodBinding extends MethodBinding {
-    
+
 	private int problemReason;
 	public MethodBinding closestMatch; // TODO (philippe) should rename into #alternateMatch
-	
+
 public ProblemMethodBinding(char[] selector, TypeBinding[] args, int problemReason) {
 	this.selector = selector;
 	this.parameters = (args == null || args.length == 0) ? Binding.NO_PARAMETERS : args;

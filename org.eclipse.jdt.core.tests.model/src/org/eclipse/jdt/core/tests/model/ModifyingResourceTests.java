@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaElement;
 
 public class ModifyingResourceTests extends AbstractJavaModelTests {
-	
+
 public ModifyingResourceTests(String name) {
 	super(name);
 }
@@ -76,7 +76,7 @@ public static void generateClassFile(String className, String javaSource) throws
 			if (read != -1) System.out.print("\t");
 			for (int i = 0; i < read; i++) {
 				System.out.print(buffer[i]);
-				System.out.print(", ");	
+				System.out.print(", ");
 			}
 			if (read != -1) System.out.println();
 		}
@@ -127,18 +127,18 @@ protected void deleteExternalResource(String relativePath) {
 	deleteResource(new File(getExternalPath() + relativePath));
 }
 protected void deleteFile(String filePath) throws CoreException {
-	deleteResource(this.getFile(filePath));
+	deleteResource(getFile(filePath));
 }
 protected void deleteFolder(String folderPath) throws CoreException {
 	deleteFolder(new Path(folderPath));
 }
 protected IFile editFile(String path, String content) throws CoreException {
-	IFile file = this.getFile(path);
+	IFile file = getFile(path);
 	InputStream input = new ByteArrayInputStream(content.getBytes());
 	file.setContents(input, IResource.FORCE, null);
 	return file;
 }
-/* 
+/*
  * Expands (i.e. open) the given element and returns a toString() representation
  * of the tree.
  */
@@ -163,7 +163,7 @@ private void expandAll(IJavaElement element, int tab, StringBuffer buffer) throw
 	}
 }
 protected void renameProject(String project, String newName) throws CoreException {
-	this.getProject(project).move(new Path(newName), true, null);
+	getProject(project).move(new Path(newName), true, null);
 }
 protected IClassFile getClassFile(String path) {
 	return (IClassFile)JavaCore.create(getFile(path));
@@ -179,17 +179,17 @@ protected IPackageFragment getPackage(String path) {
 		}
 		return (IPackageFragment)element;
 	}
-	IProject project = this.getProject(path);
+	IProject project = getProject(path);
 	return JavaCore.create(project).getPackageFragmentRoot(project).getPackageFragment("");
 }
 protected IPackageFragmentRoot getPackageFragmentRoot(String path) {
 	if (path.indexOf('/', 1) != -1) { // if path as more than one segment
 		if (path.endsWith(".jar")) {
-			return  (IPackageFragmentRoot)JavaCore.create(this.getFile(path));
+			return  (IPackageFragmentRoot)JavaCore.create(getFile(path));
 		}
 		return (IPackageFragmentRoot)JavaCore.create(this.getFolder(path));
 	}
-	IProject project = this.getProject(path);
+	IProject project = getProject(path);
 	return JavaCore.create(project).getPackageFragmentRoot(project);
 }
 protected String getSortedByProjectDeltas() {
@@ -197,18 +197,18 @@ protected String getSortedByProjectDeltas() {
 	for (int i=0, length = this.deltaListener.deltas.length; i<length; i++) {
 		IJavaElementDelta[] projects = this.deltaListener.deltas[i].getAffectedChildren();
 		int projectsLength = projects.length;
-		
+
 		// sort by project
 		IJavaElementDelta[] sorted = new IJavaElementDelta[projectsLength];
 		System.arraycopy(projects, 0, sorted, 0, projectsLength);
 		org.eclipse.jdt.internal.core.util.Util.sort(
-			sorted, 
+			sorted,
 			new  org.eclipse.jdt.internal.core.util.Util.Comparer() {
 				public int compare(Object a, Object b) {
 					return a.toString().compareTo(b.toString());
 				}
 			});
-		
+
 		for (int j=0; j<projectsLength; j++) {
 			buffer.append(sorted[j]);
 			if (j != projectsLength-1) {
@@ -222,14 +222,14 @@ protected String getSortedByProjectDeltas() {
 	return buffer.toString();
 }
 protected void moveFile(String sourcePath, String destPath) throws CoreException {
-	this.getFile(sourcePath).move(this.getFile(destPath).getFullPath(), false, null);
+	getFile(sourcePath).move(getFile(destPath).getFullPath(), false, null);
 }
 protected void moveFolder(String sourcePath, String destPath) throws CoreException {
 	this.getFolder(sourcePath).move(this.getFolder(destPath).getFullPath(), false, null);
 }
 protected void swapFiles(String firstPath, String secondPath) throws CoreException {
-	final IFile first = this.getFile(firstPath);
-	final IFile second = this.getFile(secondPath);
+	final IFile first = getFile(firstPath);
+	final IFile second = getFile(secondPath);
 	IWorkspaceRunnable runnable = new IWorkspaceRunnable(	) {
 		public void run(IProgressMonitor monitor) throws CoreException {
 			IPath tempPath = first.getParent().getFullPath().append("swappingFile.temp");
@@ -291,13 +291,13 @@ protected IClasspathEntry[] createClasspath(String[] foldersAndPatterns, boolean
 			}
 		}
 		IPath folderPath = new Path(src);
-		classpath[i/increment] = JavaCore.newSourceEntry(folderPath, accessibleFiles, nonAccessibleFiles, null); 
+		classpath[i/increment] = JavaCore.newSourceEntry(folderPath, accessibleFiles, nonAccessibleFiles, null);
 	}
 	return classpath;
 }
 /*
  * Returns a new classpath from the given folders and their respective accessible/non accessible files patterns.
- * The folder path is an absolute workspace-relative path. If the given project name is non-null, 
+ * The folder path is an absolute workspace-relative path. If the given project name is non-null,
  * the folder path is considered a project path if it has 1 segment that is different from the project name.
  * The given array as the following form:
  * [<folder>, "<+|-><pattern>[|<+|-><pattern]*"]*
@@ -348,7 +348,7 @@ public IClasspathEntry createSourceEntry(String referingProjectName, String src,
 
 	IPath folderPath = new Path(src);
 	if (referingProjectName != null && folderPath.segmentCount() == 1 && !referingProjectName.equals(folderPath.lastSegment())) {
-		return JavaCore.newProjectEntry(folderPath, accessRules, true/*combine access restrictions*/, new IClasspathAttribute[0], false); 
+		return JavaCore.newProjectEntry(folderPath, accessRules, true/*combine access restrictions*/, new IClasspathAttribute[0], false);
 	} else {
 		IPath[] accessibleFiles = new IPath[ruleCount-nonAccessibleRules];
 		int accessibleIndex = 0;
@@ -356,12 +356,12 @@ public IClasspathEntry createSourceEntry(String referingProjectName, String src,
 		int nonAccessibleIndex = 0;
 		for (int j = 0; j < ruleCount; j++) {
 			IAccessRule accessRule = accessRules[j];
-			if (accessRule.getKind() == IAccessRule.K_ACCESSIBLE) 
+			if (accessRule.getKind() == IAccessRule.K_ACCESSIBLE)
 				accessibleFiles[accessibleIndex++] = accessRule.getPattern();
 			else
 				nonAccessibleFiles[nonAccessibleIndex++] = accessRule.getPattern();
 		}
-		return JavaCore.newSourceEntry(folderPath, accessibleFiles, nonAccessibleFiles, null); 
+		return JavaCore.newSourceEntry(folderPath, accessibleFiles, nonAccessibleFiles, null);
 	}
 }
 }

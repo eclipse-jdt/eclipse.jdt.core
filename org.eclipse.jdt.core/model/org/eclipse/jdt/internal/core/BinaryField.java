@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 /* package */ class BinaryField extends BinaryMember implements IField {
 
 /*
- * Constructs a handle to the field with the given name in the specified type. 
+ * Constructs a handle to the field with the given name in the specified type.
  */
 protected BinaryField(JavaElement parent, String name) {
 	super(parent, name);
@@ -98,7 +98,7 @@ public JavaElement resolved(Binding binding) {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
-	buffer.append(this.tabString(tab));
+	buffer.append(tabString(tab));
 	if (info == null) {
 		toStringName(buffer);
 		buffer.append(" (not open)"); //$NON-NLS-1$
@@ -106,7 +106,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 		toStringName(buffer);
 	} else {
 		try {
-			buffer.append(Signature.toString(this.getTypeSignature()));
+			buffer.append(Signature.toString(getTypeSignature()));
 			buffer.append(" "); //$NON-NLS-1$
 			toStringName(buffer);
 		} catch (JavaModelException e) {
@@ -115,10 +115,10 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 	}
 }
 public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
-	String contents = ((BinaryType) this.getDeclaringType()).getJavadocContents(monitor);
+	String contents = ((BinaryType) getDeclaringType()).getJavadocContents(monitor);
 	if (contents == null) return null;
 	int indexAnchor = contents.indexOf(
-			JavadocConstants.ANCHOR_PREFIX_START + this.getElementName() + JavadocConstants.ANCHOR_PREFIX_END);
+			JavadocConstants.ANCHOR_PREFIX_START + getElementName() + JavadocConstants.ANCHOR_PREFIX_END);
 	if (indexAnchor == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	int indexOfEndLink = contents.indexOf(JavadocConstants.ANCHOR_SUFFIX, indexAnchor);
 	if (indexOfEndLink == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));

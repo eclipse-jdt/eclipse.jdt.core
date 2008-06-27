@@ -23,5 +23,5 @@ public interface TestListener extends junit.framework.TestListener {
    /**
  	* A failure occurred.
  	*/
- 	public void addFailure(Test test, TestFailure testFailure); 
+ 	public void addFailure(Test test, TestFailure testFailure);
 }

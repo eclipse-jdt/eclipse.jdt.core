@@ -837,14 +837,14 @@ public void testJarLikeRootFolder() throws CoreException {
 		IJavaProject p = createJavaProject("P1", new String[0], new String[] {"/P1/classFolder.jar"}, "");
 		IFolder folder = createFolder("/P1/classFolder.jar/p");
 		createFile("/P1/classFolder.jar/X.class", "p");
-		
+
 		// populate cache with a valid package fragment root and a valid package fragment
 		IPackageFragment validPkg = p.getPackageFragmentRoot(folder.getParent()).getPackageFragment("p");
 		validPkg.open(null);
 
 		// create an invalid package fragment root and an invalid package fragment
 		IPackageFragment invalidPkg = p.getPackageFragmentRoot("/P1/classFolder.jar").getPackageFragment("p");
-		
+
 		// ensure that the class file cannot be opened with a valid exception
 		IClassFile openable = invalidPkg.getClassFile("X.class");
 		JavaModelException expected = null;

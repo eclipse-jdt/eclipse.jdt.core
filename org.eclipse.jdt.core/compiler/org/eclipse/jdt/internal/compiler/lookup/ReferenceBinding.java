@@ -230,7 +230,7 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 				// special tolerance for type variable direct bounds
 				if (receiverType.isTypeVariable()) {
 					TypeVariableBinding typeVariable = (TypeVariableBinding) receiverType;
-					if (typeVariable.isErasureBoundTo(this.erasure()) || typeVariable.isErasureBoundTo(enclosingType().erasure()))
+					if (typeVariable.isErasureBoundTo(erasure()) || typeVariable.isErasureBoundTo(enclosingType().erasure()))
 						break receiverCheck;
 				}
 				return false;
@@ -245,7 +245,7 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 				temp = temp.enclosingType();
 			}
 
-			ReferenceBinding outerDeclaringClass = (ReferenceBinding)this.erasure();
+			ReferenceBinding outerDeclaringClass = (ReferenceBinding)erasure();
 			temp = outerDeclaringClass.enclosingType();
 			while (temp != null) {
 				outerDeclaringClass = temp;
@@ -312,7 +312,7 @@ public final boolean canBeSeenBy(Scope scope) {
 			temp = temp.enclosingType();
 		}
 
-		ReferenceBinding outerDeclaringClass = (ReferenceBinding)this.erasure();
+		ReferenceBinding outerDeclaringClass = (ReferenceBinding)erasure();
 		temp = outerDeclaringClass.enclosingType();
 		while (temp != null) {
 			outerDeclaringClass = temp;
@@ -874,7 +874,7 @@ private boolean isCompatibleWith0(TypeBinding otherType) {
 		return true;
 	// equivalence may allow compatibility with array type through wildcard
 	// bound
-	if (this.isEquivalentTo(otherType))
+	if (isEquivalentTo(otherType))
 		return true;
 	switch (otherType.kind()) {
 		case Binding.WILDCARD_TYPE :
@@ -888,25 +888,25 @@ private boolean isCompatibleWith0(TypeBinding otherType) {
 				TypeBinding otherLowerBound;
 				if ((otherLowerBound = otherCapture.lowerBound) != null) {
 					if (otherLowerBound.isArrayType()) return false;
-					return this.isCompatibleWith(otherLowerBound);
+					return isCompatibleWith(otherLowerBound);
 				}
 			}
 		case Binding.GENERIC_TYPE :
 		case Binding.TYPE :
 		case Binding.PARAMETERIZED_TYPE :
 		case Binding.RAW_TYPE :
-			switch (this.kind()) {
+			switch (kind()) {
 				case Binding.GENERIC_TYPE :
 				case Binding.PARAMETERIZED_TYPE :
 				case Binding.RAW_TYPE :
-					if (this.erasure() == otherType.erasure())
+					if (erasure() == otherType.erasure())
 						return false; // should have passed equivalence check
 										// above if same erasure
 			}
 			ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
 			if (otherReferenceType.isInterface()) // could be annotation type
 				return implementsInterface(otherReferenceType, true);
-			if (this.isInterface())  // Explicit conversion from an interface
+			if (isInterface())  // Explicit conversion from an interface
 										// to a class is not allowed
 				return false;
 			return otherReferenceType.isSuperclassOf(this);
@@ -1058,7 +1058,7 @@ public final boolean isUsed() {
  */
 public final boolean isViewedAsDeprecated() {
 	return (this.modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0
-			|| (this.getPackage().tagBits & TagBits.AnnotationDeprecated) != 0;
+			|| (getPackage().tagBits & TagBits.AnnotationDeprecated) != 0;
 }
 
 public ReferenceBinding[] memberTypes() {
@@ -1102,7 +1102,7 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 		readableName = CharOperation.concatWith(this.compoundName, '.');
 	}
 	TypeVariableBinding[] typeVars;
-	if ((typeVars = this.typeVariables()) != Binding.NO_TYPE_VARIABLES) {
+	if ((typeVars = typeVariables()) != Binding.NO_TYPE_VARIABLES) {
 	    StringBuffer nameBuffer = new StringBuffer(10);
 	    nameBuffer.append(readableName).append('<');
 	    for (int i = 0, length = typeVars.length; i < length; i++) {
@@ -1139,7 +1139,7 @@ public char[] shortReadableName() /*Object*/ {
 		shortReadableName = this.sourceName;
 	}
 	TypeVariableBinding[] typeVars;
-	if ((typeVars = this.typeVariables()) != Binding.NO_TYPE_VARIABLES) {
+	if ((typeVars = typeVariables()) != Binding.NO_TYPE_VARIABLES) {
 	    StringBuffer nameBuffer = new StringBuffer(10);
 	    nameBuffer.append(shortReadableName).append('<');
 	    for (int i = 0, length = typeVars.length; i < length; i++) {

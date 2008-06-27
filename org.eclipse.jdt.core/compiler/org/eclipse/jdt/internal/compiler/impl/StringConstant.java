@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.impl;
 
 public class StringConstant extends Constant {
 private String value;
-    
+
 
 public static Constant fromValue(String value) {
 	return new StringConstant(value);
@@ -26,7 +26,7 @@ public String stringValue() {
 	//spec 15.17.11
 
 	//the next line do not go into the toString() send....!
-	return value ;
+	return this.value ;
 
 	/*
 	String s = value.toString() ;
@@ -35,11 +35,11 @@ public String stringValue() {
 	else
 		return s;
 	*/
-	
+
 }
 public String toString(){
 
-	return "(String)\"" + value +"\""; } //$NON-NLS-2$ //$NON-NLS-1$
+	return "(String)\"" + this.value +"\""; } //$NON-NLS-2$ //$NON-NLS-1$
 public int typeID() {
 	return T_JavaLangString;
 }

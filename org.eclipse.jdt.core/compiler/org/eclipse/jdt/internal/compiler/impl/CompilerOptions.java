@@ -120,7 +120,7 @@ public class CompilerOptions {
 	public static final String OPTION_Process_Annotations = "org.eclipse.jdt.core.compiler.processAnnotations"; //$NON-NLS-1$
 	public static final String OPTION_ReportRedundantSuperinterface =  "org.eclipse.jdt.core.compiler.problem.redundantSuperinterface"; //$NON-NLS-1$
 	public static final String OPTION_ReportComparingIdentical =  "org.eclipse.jdt.core.compiler.problem.comparingIdentical"; //$NON-NLS-1$
-	
+
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingAnnotation = "org.eclipse.jdt.core.compiler.problem.missingAnnotation"; //$NON-NLS-1$
@@ -763,7 +763,7 @@ public class CompilerOptions {
 			} else if (DISABLED.equals(optionValue)) {
 				this.reportUnusedParameterIncludeDocCommentReference = false;
 			}
-		}		
+		}
 		if ((optionValue = optionsMap.get(OPTION_ReportSpecialParameterHidingField)) != null) {
 			if (ENABLED.equals(optionValue)) {
 				this.reportSpecialParameterHidingField = true;
@@ -884,7 +884,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedTypeArgumentsForMethodInvocation)) != null) updateSeverity(UnusedTypeArguments, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportRedundantSuperinterface)) != null) updateSeverity(RedundantSuperinterface, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportComparingIdentical)) != null) updateSeverity(ComparingIdentical, optionValue);
-		
+
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
 			if (ENABLED.equals(optionValue)) {
@@ -951,10 +951,10 @@ public class CompilerOptions {
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocComments)) != null) {
 			updateSeverity(MissingJavadocComments, optionValue);
-		}		
+		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagDescription)) != null) {
 			this.reportMissingJavadocTagDescription = (String) optionValue;
-		}		
+		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocCommentsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
 				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic;

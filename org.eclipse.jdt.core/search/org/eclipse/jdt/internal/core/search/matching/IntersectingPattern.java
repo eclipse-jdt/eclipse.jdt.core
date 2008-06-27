@@ -30,7 +30,7 @@ public IntersectingPattern(int patternKind, int matchRule) {
 public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
-	this.resetQuery();
+	resetQuery();
 	SimpleSet intersectedNames = null;
 	try {
 		index.startQuery();
@@ -61,7 +61,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 
 			if (newIntersectedNames.elementSize == 0) return;
 			intersectedNames = newIntersectedNames;
-		} while (this.hasNextQuery());
+		} while (hasNextQuery());
 	} finally {
 		index.stopQuery();
 	}

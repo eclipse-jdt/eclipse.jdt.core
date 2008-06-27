@@ -22,8 +22,8 @@ public class CompilationUnit implements ICompilationUnit {
 	protected char[] fFileName;
 	protected char[] fMainTypeName;
 public CompilationUnit(char[] contents, char[] filename) {
-	fContents = contents;
-	fFileName = filename;
+	this.fContents = contents;
+	this.fFileName = filename;
 
 	String file = new String(filename);
 	int start = file.lastIndexOf("/") + 1; //$NON-NLS-1$
@@ -34,24 +34,24 @@ public CompilationUnit(char[] contents, char[] filename) {
 	if (end == -1)
 		end = file.length();
 
-	fMainTypeName = file.substring(start, end).toCharArray();
+	this.fMainTypeName = file.substring(start, end).toCharArray();
 }
 public char[] getContents() {
-	return fContents;
+	return this.fContents;
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
  */
 public char[] getFileName() {
-	return fFileName;
+	return this.fFileName;
 }
 public char[] getMainTypeName() {
-	return fMainTypeName;
+	return this.fMainTypeName;
 }
 public char[][] getPackageName() {
 	return null;
 }
 public String toString() {
-	return "CompilationUnit[" + new String(fFileName) + "]";  //$NON-NLS-2$ //$NON-NLS-1$
+	return "CompilationUnit[" + new String(this.fFileName) + "]";  //$NON-NLS-2$ //$NON-NLS-1$
 }
 }

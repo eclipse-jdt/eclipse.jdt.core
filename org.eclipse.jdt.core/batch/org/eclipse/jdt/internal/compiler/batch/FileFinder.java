@@ -14,7 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class FileFinder {
-	
+
 public static String[] find(File f, String pattern) {
 	ArrayList files = new ArrayList();
 	find0(f, pattern, files);

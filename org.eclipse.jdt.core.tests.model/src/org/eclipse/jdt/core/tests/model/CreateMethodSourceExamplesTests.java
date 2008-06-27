@@ -19,7 +19,7 @@ import junit.framework.Test;
  * @deprecated JDOM is obsolete
  */
 public class CreateMethodSourceExamplesTests extends AbstractJavaModelTests {
-	
+
 	IDOMFactory domFactory;
 
 public CreateMethodSourceExamplesTests(String name) {
@@ -41,7 +41,7 @@ public void testCreateEmptyInterfaceMethod() {
 	method.setName("foo");
 	method.setBody(";\n");
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"public void foo();\n",
 		method.getContents());
 }
@@ -52,7 +52,7 @@ public void testCreateEmptyMethod() {
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"public void foo() {\n" +
 		"}\n",
 		method.getContents());
@@ -61,16 +61,16 @@ public void testCreateEmptyMethod() {
  * Example of creating an abstract method.
  */
 public void testCreateMethodWithAbstractModifier() {
-	
+
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
 	method.setFlags(ClassFileConstants.AccPublic| ClassFileConstants.AccAbstract);
 	assertSourceEquals(
-		"source code incorrect", 
-		"public abstract void foo() {\n" + 
+		"source code incorrect",
+		"public abstract void foo() {\n" +
 		"}\n",
 		method.getContents());
-	
+
 }
 /**
  * Example of creating a method body.
@@ -80,13 +80,13 @@ public void testCreateMethodWithBody() {
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
 	method.setBody(
-		" {\n" + 
-		"\t...method body...\n" + 
+		" {\n" +
+		"\t...method body...\n" +
 		"}\n");
 	assertSourceEquals(
-		"source code incorrect", 
-		"public void foo() {\n" + 
-		"\t...method body...\n" + 
+		"source code incorrect",
+		"public void foo() {\n" +
+		"\t...method body...\n" +
 		"}\n",
 		method.getContents());
 
@@ -100,8 +100,8 @@ public void testCreateMethodWithModifiers() {
 	method.setName("foo");
 	method.setFlags(ClassFileConstants.AccPublic| ClassFileConstants.AccStatic);
 	assertSourceEquals(
-		"source code incorrect", 
-		"public static void foo() {\n" + 
+		"source code incorrect",
+		"public static void foo() {\n" +
 		"}\n",
 		method.getContents());
 
@@ -110,7 +110,7 @@ public void testCreateMethodWithModifiers() {
  * Example of creating a method with modifiers and exceptions
  */
 public void testCreateMethodWithModifiersAndExceptions() {
-	
+
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
 	method.setFlags(ClassFileConstants.AccPrivate);
@@ -118,8 +118,8 @@ public void testCreateMethodWithModifiersAndExceptions() {
 		{"java.lang.IllegalArgumentException",
 		 "java.io.FileNotFoundExcpetion"});
 	assertSourceEquals(
-		"source code incorrect", 
-		"private void foo() throws java.lang.IllegalArgumentException, java.io.FileNotFoundExcpetion {\n" + 
+		"source code incorrect",
+		"private void foo() throws java.lang.IllegalArgumentException, java.io.FileNotFoundExcpetion {\n" +
 		"}\n",
 		method.getContents());
 
@@ -132,11 +132,11 @@ public void testCreateMethodWithParameters() {
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
 	method.setParameters(
-		new String[] {"String", "int", "char[]"}, 
+		new String[] {"String", "int", "char[]"},
 		new String[] {"name", "number", "buffer"});
 	assertSourceEquals(
-		"source code incorrect", 
-		"public void foo(String name, int number, char[] buffer) {\n" + 
+		"source code incorrect",
+		"public void foo(String name, int number, char[] buffer) {\n" +
 		"}\n",
 		method.getContents());
 }
@@ -149,7 +149,7 @@ public void testCreateMethodWithReturnType() {
 	method.setName("foo");
 	method.setReturnType("String");
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"public String foo() {\n" +
 		"}\n",
 		method.getContents());

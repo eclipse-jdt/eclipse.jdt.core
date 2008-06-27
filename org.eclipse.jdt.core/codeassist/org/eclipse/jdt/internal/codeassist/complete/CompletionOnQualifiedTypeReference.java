@@ -23,7 +23,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * The source range of the completion node denotes the source range
  * which should be replaced by the completion.
  */
- 
+
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -32,7 +32,7 @@ public class CompletionOnQualifiedTypeReference extends QualifiedTypeReference {
 	public static final int K_CLASS = 1;
 	public static final int K_INTERFACE = 2;
 	public static final int K_EXCEPTION = 3;
-	
+
 	private int kind = K_TYPE;
 	public char[] completionIdentifier;
 public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions) {
@@ -54,14 +54,14 @@ public TypeReference copyDims(int dim){
 }
 protected TypeBinding getTypeBinding(Scope scope) {
 	// it can be a package, type or member type
-	Binding binding = scope.parent.getTypeOrPackage(tokens); // step up from the ClassScope
+	Binding binding = scope.parent.getTypeOrPackage(this.tokens); // step up from the ClassScope
 	if (!binding.isValidBinding()) {
 		scope.problemReporter().invalidType(this, (TypeBinding) binding);
-		
+
 		if (binding.problemId() == ProblemReasons.NotFound) {
 			throw new CompletionNodeFound(this, binding, scope);
 		}
-		
+
 		throw new CompletionNodeFound();
 	}
 
@@ -100,11 +100,11 @@ public StringBuffer printExpression(int indent, StringBuffer output) {
 			output.append("<CompleteOnType:");//$NON-NLS-1$
 			break;
 	}
-	for (int i = 0; i < tokens.length; i++) {
-		output.append(tokens[i]);
-		output.append('.'); 
+	for (int i = 0; i < this.tokens.length; i++) {
+		output.append(this.tokens[i]);
+		output.append('.');
 	}
-	output.append(completionIdentifier).append('>');
+	output.append(this.completionIdentifier).append('>');
 	return output;
 }
 }

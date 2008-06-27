@@ -28,7 +28,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, secondary);
 
 		addIndexEntry(
-			SUPER_REF, 
+			SUPER_REF,
 			SuperTypeReferencePattern.createIndexKey(
 				modifiers, packageName, name, enclosingTypeNames, null, ANNOTATION_TYPE_SUFFIX, CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION, '.'), ANNOTATION_TYPE_SUFFIX));
 	}
@@ -36,11 +36,11 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexEntry(ANNOTATION_REF, CharOperation.lastSegment(typeName, '.'));
 	}
 	public void addClassDeclaration(
-			int modifiers, 
+			int modifiers,
 			char[] packageName,
-			char[] name, 
-			char[][] enclosingTypeNames, 
-			char[] superclass, 
+			char[] name,
+			char[][] enclosingTypeNames,
+			char[] superclass,
 			char[][] superinterfaces,
 			char[][] typeParameterSignatures,
 			boolean secondary) {
@@ -51,7 +51,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 			addTypeReference(superclass);
 		}
 		addIndexEntry(
-			SUPER_REF, 
+			SUPER_REF,
 			SuperTypeReferencePattern.createIndexKey(
 				modifiers, packageName, name, enclosingTypeNames, typeParameterSignatures, CLASS_SUFFIX, superclass, CLASS_SUFFIX));
 		if (superinterfaces != null) {
@@ -67,14 +67,14 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	}
 	private char[] erasure(char[] typeName) {
 		int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, typeName);
-		if (genericStart > -1) 
+		if (genericStart > -1)
 			typeName = CharOperation.subarray(typeName, 0, genericStart);
 		return typeName;
 	}
 	public void addConstructorDeclaration(char[] typeName, char[][] parameterTypes, char[][] exceptionTypes) {
 		int argCount = parameterTypes == null ? 0 : parameterTypes.length;
 		addIndexEntry(CONSTRUCTOR_DECL, ConstructorPattern.createIndexKey(CharOperation.lastSegment(typeName,'.'), argCount));
-	
+
 		if (parameterTypes != null) {
 			for (int i = 0; i < argCount; i++)
 				addTypeReference(parameterTypes[i]);
@@ -95,7 +95,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, secondary);
 
 		addIndexEntry(
-			SUPER_REF, 
+			SUPER_REF,
 			SuperTypeReferencePattern.createIndexKey(
 				modifiers, packageName, name, enclosingTypeNames, null, ENUM_SUFFIX, superclass, CLASS_SUFFIX));
 		if (superinterfaces != null) {
@@ -108,7 +108,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 						modifiers, packageName, name, enclosingTypeNames, null, ENUM_SUFFIX, superinterface, INTERFACE_SUFFIX));
 			}
 		}
-	}	
+	}
 	public void addFieldDeclaration(char[] typeName, char[] fieldName) {
 		addIndexEntry(FIELD_DECL, FieldPattern.createIndexKey(fieldName));
 		addTypeReference(typeName);
@@ -136,7 +136,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	public void addMethodDeclaration(char[] methodName, char[][] parameterTypes, char[] returnType, char[][] exceptionTypes) {
 		int argCount = parameterTypes == null ? 0 : parameterTypes.length;
 		addIndexEntry(METHOD_DECL, MethodPattern.createIndexKey(methodName, argCount));
-	
+
 		if (parameterTypes != null) {
 			for (int i = 0; i < argCount; i++)
 				addTypeReference(parameterTypes[i]);

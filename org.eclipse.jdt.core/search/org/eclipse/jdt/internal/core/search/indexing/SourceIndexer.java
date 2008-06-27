@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
  * - Constructors.
  */
 public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
-	
+
 	public SourceIndexer(SearchDocument document) {
 		super(document);
 	}
@@ -52,12 +52,12 @@ public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 		} else {
 			parser.setRequestor(requestor);
 		}
-		
+
 		// Launch the parser
 		char[] source = null;
 		char[] name = null;
 		try {
-			source = document.getCharContents();
+			source = this.document.getCharContents();
 			name = documentPath.toCharArray();
 		} catch(Exception e){
 			// ignore

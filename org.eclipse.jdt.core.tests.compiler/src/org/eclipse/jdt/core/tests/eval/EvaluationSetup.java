@@ -29,7 +29,7 @@ public class EvaluationSetup extends CompilerTestSetup {
 
 	public static final String EVAL_DIRECTORY = Util.getOutputDirectory() + File.separator + "evaluation";
 	public static final String JRE_PATH = Util.getJREDirectory();
-	
+
 	EvaluationContext context;
 	TargetInterface target;
 	LocalVirtualMachine launchedVM;

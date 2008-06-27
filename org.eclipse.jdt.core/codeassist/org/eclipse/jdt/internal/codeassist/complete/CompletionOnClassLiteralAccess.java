@@ -35,24 +35,24 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnClassLiteralAccess extends ClassLiteralAccess {
-	
+
 	public char[] completionIdentifier;
 	public int classStart;
-	
+
 	public CompletionOnClassLiteralAccess(long pos, TypeReference t) {
-		
+
 		super((int)pos, t);
 		this.classStart = (int) (pos >>> 32);
 	}
-	
+
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		
+
 		output.append("<CompleteOnClassLiteralAccess:"); //$NON-NLS-1$
 		return this.type.print(0, output).append('.').append(this.completionIdentifier).append('>');
 	}
-	
+
 	public TypeBinding resolveType(BlockScope scope) {
-		
+
 		if (super.resolveType(scope) == null)
 			throw new CompletionNodeFound();
 		else

@@ -33,15 +33,15 @@ public String operatorToString() {
 			return "++"; //$NON-NLS-1$
 		case MINUS :
 			return "--"; //$NON-NLS-1$
-	} 
+	}
 	return "unknown operator"; //$NON-NLS-1$
 }
 
 public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
 
 	output.append(operatorToString()).append(' ');
-	return this.lhs.printExpression(0, output); 
-} 
+	return this.lhs.printExpression(0, output);
+}
 
 public boolean restrainUsageToNumericTypes() {
 	return true;

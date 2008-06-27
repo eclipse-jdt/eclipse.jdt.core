@@ -16,18 +16,18 @@ public class RecoveryScannerData {
 	public int[][] insertedTokens;
 	public int[] insertedTokensPosition;
 	public boolean[] insertedTokenUsed;
-	
+
 	public int replacedTokensPtr = -1;
 	public int[][] replacedTokens;
 	public int[] replacedTokensStart;
 	public int[] replacedTokensEnd;
 	public boolean[] replacedTokenUsed;
-		
+
 	public int removedTokensPtr = -1;
 	public int[] removedTokensStart;
 	public int[] removedTokensEnd;
 	public boolean[] removedTokenUsed;
-	
+
 	public RecoveryScannerData removeUnused() {
 		if(this.insertedTokens != null) {
 			int newInsertedTokensPtr = -1;
@@ -67,7 +67,7 @@ public class RecoveryScannerData {
 			}
 			this.removedTokensPtr = newRemovedTokensPtr;
 		}
-		
+
 		return this;
 	}
 }

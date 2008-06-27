@@ -59,7 +59,7 @@ public class OutputFolderTests extends BuilderTests {
 	public void testDeleteOutputFolder() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		
+
 		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
@@ -94,7 +94,7 @@ public class OutputFolderTests extends BuilderTests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	
+
 		// add cu and build
 		env.addClass(projectPath, "src", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A {}" //$NON-NLS-1$
@@ -104,7 +104,7 @@ public class OutputFolderTests extends BuilderTests {
 
 		// set invalid  output foder by editing the .classpath file
 		env.addFile(
-			projectPath, 
+			projectPath,
 			".classpath",  //$NON-NLS-1$
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //$NON-NLS-1$
 			"<classpath>\n" + //$NON-NLS-1$
@@ -113,16 +113,16 @@ public class OutputFolderTests extends BuilderTests {
 			"    <classpathentry kind=\"output\" path=\"\"/>\n" + //$NON-NLS-1$
 			"</classpath>" //$NON-NLS-1$
 		);
-		
+
 		// simulate exit/restart
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		JavaProject project = (JavaProject)manager.getJavaModel().getJavaProject("P"); //$NON-NLS-1$
 		manager.removePerProjectInfo(project);
-		
+
 		// change cu and build
 		IPath cuPath = env.addClass(projectPath, "src", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class A { String s;}" //$NON-NLS-1$
-			);		
+			);
 		incrementalBuild();
 
 		expectingPresenceOf(new IPath[] {cuPath});

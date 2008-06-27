@@ -40,7 +40,7 @@ public class CreateTypeHierarchyOperation extends JavaModelOperation {
 	 * The generated type hierarchy
 	 */
 	protected TypeHierarchy typeHierarchy;
-	
+
 /**
  * Constructs an operation to create a type hierarchy for the
  * given type within the specified region, in the context of

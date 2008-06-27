@@ -53,7 +53,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit28 = 0x8000000;			// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000;			// parenthesis count (expression)
 	public final static int Bit30 = 0x20000000;			// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref) | needScope (for statement) | isAnySubRoutineEscaping (return statement) | blockExit (synchronized statement)
-	public final static int Bit31 = 0x40000000;			// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment) | isSynchronized (return statement) | thenExit (if statement) 
+	public final static int Bit31 = 0x40000000;			// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment) | isSynchronized (return statement) | thenExit (if statement)
 	public final static int Bit32 = 0x80000000;			// reachable (statement)
 
 	public final static long Bit32L = 0x80000000L;
@@ -155,7 +155,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	// for explicit constructor call
 	public static final int DiscardEnclosingInstance = Bit14; // used for codegen
-	
+
 	// for empty statement
 	public static final int IsUsefulEmptyStatement = Bit1;
 
@@ -165,7 +165,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	// for initializer and method declaration
 	public static final int ErrorInSignature = Bit6;
-	
+
 	// for abstract method declaration
 	public static final int NeedFreeReturn = Bit7; // abstract method declaration
 
@@ -206,20 +206,20 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for import reference
 	public static final int OnDemand = Bit18;
 	public static final int Used = Bit2;
-	
+
 	// for parameterized qualified/single type ref
 	public static final int DidResolve = Bit19;
-	
+
 	// for return statement
 	public static final int IsAnySubRoutineEscaping = Bit30;
 	public static final int IsSynchronized = Bit31;
-	
+
 	// for synchronized statement
 	public static final int BlockExit = Bit30;
-	
+
 	// for annotation reference
 	public static final int IsRecovered = Bit6;
-	
+
 	// constants used when checking invocation arguments
 	public static final int INVOCATION_ARGUMENT_OK = 0;
 	public static final int INVOCATION_ARGUMENT_UNCHECKED = 1;
@@ -343,7 +343,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope, boolean isStrictlyAssigned) {
 		// ignore references insing Javadoc comments
 		if ((this.bits & ASTNode.InsideJavadoc) ==0 &&
-				!isStrictlyAssigned && 
+				!isStrictlyAssigned &&
 				(field.isPrivate() || (field.declaringClass != null && field.declaringClass.isLocalType())) && !scope.isDefinedInField(field)) {
 			// ignore cases where field is used from within inside itself
 			field.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
@@ -354,7 +354,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				scope.environment().getAccessRestriction(field.declaringClass.erasure());
 			if (restriction != null) {
 				scope.problemReporter().forbiddenReference(field, this,
-						restriction.classpathEntryType, restriction.classpathEntryName, 
+						restriction.classpathEntryType, restriction.classpathEntryName,
 						restriction.getProblemId());
 			}
 		}

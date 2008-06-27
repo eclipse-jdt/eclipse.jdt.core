@@ -47,7 +47,7 @@ public SearchPattern getBlankPattern() {
 }
 public char[] getIndexKey() {
 	// Package reference keys are encoded as 'name' (where 'name' is the last segment of the package name)
-	if (this.currentSegment >= 0) 
+	if (this.currentSegment >= 0)
 		return this.segments[this.currentSegment];
 	return null;
 }
@@ -68,7 +68,7 @@ protected void resetQuery() {
 }
 protected StringBuffer print(StringBuffer output) {
 	output.append("PackageReferencePattern: <"); //$NON-NLS-1$
-	if (this.pkgName != null) 
+	if (this.pkgName != null)
 		output.append(this.pkgName);
 	else
 		output.append("*"); //$NON-NLS-1$

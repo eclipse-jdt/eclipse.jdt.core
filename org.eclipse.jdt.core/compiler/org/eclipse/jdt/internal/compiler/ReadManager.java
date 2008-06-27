@@ -43,7 +43,7 @@ public ReadManager(ICompilationUnit[] files, int length) {
 			else if (threadCount > CACHE_SIZE)
 				threadCount = CACHE_SIZE;
 		}
-	} catch (Exception ignored) { // ignored		
+	} catch (Exception ignored) { // ignored
 	}
 
 	if (threadCount > 0) {
@@ -70,9 +70,9 @@ public char[] getContents(ICompilationUnit unit) throws Error {
 	if (this.readingThreads == null || this.units.length == 0) {
 		if (this.caughtException != null) {
 			// rethrow the caught exception from the readingThreads in the main compiler thread
-			if (caughtException instanceof Error)
-				throw (Error) caughtException;
-			throw (RuntimeException) caughtException;
+			if (this.caughtException instanceof Error)
+				throw (Error) this.caughtException;
+			throw (RuntimeException) this.caughtException;
 		}
 		return unit.getContents();
 	}
@@ -82,15 +82,15 @@ public char[] getContents(ICompilationUnit unit) throws Error {
 	synchronized (this) {
 		if (unit == this.filesRead[this.readyToReadPosition]) {
 			result = this.contentsRead[this.readyToReadPosition];
-			while (result == readInProcessMarker || result == null) {
+			while (result == this.readInProcessMarker || result == null) {
 				// let the readingThread know we're waiting
 				//System.out.print('|');
-				this.contentsRead[readyToReadPosition] = null;
+				this.contentsRead[this.readyToReadPosition] = null;
 				try {
 					wait(250);
 				} catch (InterruptedException ignore) { // ignore
 				}
-				result = this.contentsRead[readyToReadPosition];
+				result = this.contentsRead[this.readyToReadPosition];
 			}
 			// free spot for next file
 			this.filesRead[this.readyToReadPosition] = null;
@@ -138,7 +138,7 @@ public void run() {
 			int position = -1;
 			synchronized (this) {
 				if (this.readingThreads == null) return;
-	
+
 				while (this.filesRead[this.nextAvailablePosition] != null) {
 					this.sleepingThreadCount++;
 					try {
@@ -148,14 +148,14 @@ public void run() {
 					this.sleepingThreadCount--;
 					if (this.readingThreads == null) return;
 				}
-	
+
 				if (this.nextFileToRead >= this.units.length) return;
 				unit = this.units[this.nextFileToRead++];
 				position = this.nextAvailablePosition;
 				if (++this.nextAvailablePosition >= this.contentsRead.length)
 					this.nextAvailablePosition = 0;
 				this.filesRead[position] = unit;
-				this.contentsRead[position] = readInProcessMarker; // mark the spot so we know its being read
+				this.contentsRead[position] = this.readInProcessMarker; // mark the spot so we know its being read
 			}
 			char[] result = unit.getContents();
 			synchronized (this) {

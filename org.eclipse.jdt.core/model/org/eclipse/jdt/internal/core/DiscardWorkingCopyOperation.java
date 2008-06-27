@@ -20,13 +20,13 @@ import org.eclipse.jdt.core.JavaModelException;
  * and signal its removal through a delta.
  */
 public class DiscardWorkingCopyOperation extends JavaModelOperation {
-	
+
 	public DiscardWorkingCopyOperation(IJavaElement workingCopy) {
 		super(new IJavaElement[] {workingCopy});
 	}
 	protected void executeOperation() throws JavaModelException {
 		CompilationUnit workingCopy = getWorkingCopy();
-		
+
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		int useCount = manager.discardPerWorkingCopyInfo(workingCopy);
 		if (useCount == 0) {

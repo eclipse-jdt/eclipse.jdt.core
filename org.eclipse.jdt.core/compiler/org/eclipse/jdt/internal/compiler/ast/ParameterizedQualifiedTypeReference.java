@@ -30,7 +30,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	 * @param positions
 	 */
 	public ParameterizedQualifiedTypeReference(char[][] tokens, TypeReference[][] typeArguments, int dim, long[] positions) {
-	    
+
 		super(tokens, dim, positions);
 		this.typeArguments = typeArguments;
 	}
@@ -59,8 +59,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	}
 	public TypeReference copyDims(int dim){
 		return new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, dim, this.sourcePositions);
-	}	
-	
+	}
+
 	/**
 	 * @return char[][]
 	 */
@@ -82,7 +82,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				buffer.append('>');
 				int nameLength = buffer.length();
 				qParamName[i] = new char[nameLength];
-				buffer.getChars(0, nameLength, qParamName[i], 0);		
+				buffer.getChars(0, nameLength, qParamName[i], 0);
 			}
 		}
 		int dim = this.dimensions;
@@ -96,15 +96,15 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			qParamName[length-1] = CharOperation.concat(qParamName[length-1], dimChars);
 		}
 		return qParamName;
-	}	
-	
+	}
+
 	/* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
      */
     protected TypeBinding getTypeBinding(Scope scope) {
         return null; // not supported here - combined with resolveType(...)
     }
-    
+
     /*
      * No need to check for reference to raw type per construction
      */
@@ -123,14 +123,14 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 							case ProblemReasons.NotVisible :
 							case ProblemReasons.InheritedNameHidesEnclosingName :
 								TypeBinding type = this.resolvedType.closestMatch();
-								return type;			
+								return type;
 							default :
 								return null;
-						}			
+						}
 					}
 				}
 			}
-		} 
+		}
 		this.bits |= ASTNode.DidResolve;
 		boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 		Binding binding = scope.getPackage(this.tokens);
@@ -175,7 +175,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						    	typeArgument.resolveType((BlockScope) scope);
 						    }
 						}
-				    }				
+				    }
 				}
 				return null;
 			}
@@ -188,17 +188,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						: scope.environment().convertToParameterizedType(qualifyingType);
 				}
 			} else {
-				if (typeIsConsistent && currentType.isStatic() 
+				if (typeIsConsistent && currentType.isStatic()
 						&& ((qualifyingType.isParameterizedType() && ((ParameterizedTypeBinding)qualifyingType).arguments != null) || qualifyingType.isGenericType())) {
 					scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifyingType));
 					typeIsConsistent = false;
-				}					
+				}
 				ReferenceBinding enclosingType = currentType.enclosingType();
 				if (enclosingType != null && enclosingType.erasure() != qualifyingType.erasure()) { // qualifier != declaring/enclosing
 					qualifyingType = enclosingType; // inherited member type, leave it associated with its enclosing rather than subtype
 				}
 			}
-		
+
 			// check generic and arity
 		    TypeReference[] args = this.typeArguments[i];
 		    if (args != null) {
@@ -220,8 +220,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						argHasError = true;
 					} else {
 						argTypes[j] = argType;
-					}			    
-				}				
+					}
+				}
 				if (argHasError) {
 					return null;
 				}
@@ -241,9 +241,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						? scope.environment().createParameterizedType(currentErasure, null, qualifyingType)
 						: currentType;
 					if (this.dimensions > 0) {
-						if (dimensions > 255)
+						if (this.dimensions > 255)
 							scope.problemReporter().tooManyDimensions(this);
-						this.resolvedType = scope.createArrayType(this.resolvedType, dimensions);
+						this.resolvedType = scope.createArrayType(this.resolvedType, this.dimensions);
 					}
 					return this.resolvedType;
 				} else if (argLength != typeVariables.length) { // check arity
@@ -256,7 +256,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					if (actualEnclosing != null && actualEnclosing.isRawType()) {
 						scope.problemReporter().rawMemberTypeCannotBeParameterized(
 								this, scope.environment().createRawType(currentErasure, actualEnclosing), argTypes);
-						typeIsConsistent = false;				
+						typeIsConsistent = false;
 					}
 				}
 				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentErasure, argTypes, qualifyingType);
@@ -282,23 +282,23 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 			}
 			if (isTypeUseDeprecated(qualifyingType, scope))
-				reportDeprecatedType(qualifyingType, scope);		    
+				reportDeprecatedType(qualifyingType, scope);
 			this.resolvedType = qualifyingType;
 		}
 		// array type ?
 		if (this.dimensions > 0) {
-			if (dimensions > 255)
+			if (this.dimensions > 255)
 				scope.problemReporter().tooManyDimensions(this);
-			this.resolvedType = scope.createArrayType(this.resolvedType, dimensions);
+			this.resolvedType = scope.createArrayType(this.resolvedType, this.dimensions);
 		}
 		return this.resolvedType;
 	}
-	
+
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		int length = tokens.length;
+		int length = this.tokens.length;
 		for (int i = 0; i < length - 1; i++) {
-			output.append(tokens[i]);
-			TypeReference[] typeArgument = typeArguments[i];
+			output.append(this.tokens[i]);
+			TypeReference[] typeArgument = this.typeArguments[i];
 			if (typeArgument != null) {
 				output.append('<');
 				int max = typeArgument.length - 1;
@@ -311,8 +311,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 			output.append('.');
 		}
-		output.append(tokens[length - 1]);
-		TypeReference[] typeArgument = typeArguments[length - 1];
+		output.append(this.tokens[length - 1]);
+		TypeReference[] typeArgument = this.typeArguments[length - 1];
 		if (typeArgument != null) {
 			output.append('<');
 			int max = typeArgument.length - 1;
@@ -324,21 +324,21 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			output.append('>');
 		}
 		if ((this.bits & IsVarArgs) != 0) {
-			for (int i= 0 ; i < dimensions - 1; i++) {
+			for (int i= 0 ; i < this.dimensions - 1; i++) {
 				output.append("[]"); //$NON-NLS-1$
 			}
 			output.append("..."); //$NON-NLS-1$
 		} else {
-			for (int i= 0 ; i < dimensions; i++) {
+			for (int i= 0 ; i < this.dimensions; i++) {
 				output.append("[]"); //$NON-NLS-1$
 			}
 		}
 		return output;
-	}	
-	
+	}
+
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 	    return internalResolveType(scope, checkBounds);
-	}	
+	}
 	public TypeBinding resolveType(ClassScope scope) {
 	    return internalResolveType(scope, false);
 	}
@@ -354,7 +354,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		}
 		visitor.endVisit(this, scope);
 	}
-	
+
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
 			for (int i = 0, max = this.typeArguments.length; i < max; i++) {

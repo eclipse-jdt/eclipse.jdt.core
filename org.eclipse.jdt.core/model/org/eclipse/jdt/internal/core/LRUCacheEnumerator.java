@@ -13,13 +13,13 @@ package org.eclipse.jdt.internal.core;
 import java.util.Enumeration;
 
 /**
- *	The <code>LRUCacheEnumerator</code> returns its elements in 
+ *	The <code>LRUCacheEnumerator</code> returns its elements in
  *	the order they are found in the <code>LRUCache</code>, with the
  *	most recent elements first.
  *
- *	Once the enumerator is created, elements which are later added 
+ *	Once the enumerator is created, elements which are later added
  *	to the cache are not returned by the enumerator.  However,
- *	elements returned from the enumerator could have been closed 
+ *	elements returned from the enumerator could have been closed
  *	by the cache.
  */
 public class LRUCacheEnumerator implements Enumeration {
@@ -33,7 +33,7 @@ public class LRUCacheEnumerator implements Enumeration {
 		 *	Value returned by <code>nextElement()</code>;
 		 */
 		public Object value;
-		
+
 		/**
 		 *	Next element
 		 */
@@ -56,14 +56,14 @@ public LRUCacheEnumerator(LRUEnumeratorElement firstElement) {
  * Returns true if more elements exist.
  */
 public boolean hasMoreElements() {
-	return elementQueue != null;
+	return this.elementQueue != null;
 }
 /**
  * Returns the next element.
  */
 public Object nextElement() {
-	Object temp = elementQueue.value;
-	elementQueue = elementQueue.next;
+	Object temp = this.elementQueue.value;
+	this.elementQueue = this.elementQueue.next;
 	return temp;
 }
 }

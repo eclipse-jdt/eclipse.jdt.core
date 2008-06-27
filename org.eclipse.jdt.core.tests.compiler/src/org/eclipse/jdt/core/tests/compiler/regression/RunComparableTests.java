@@ -45,7 +45,7 @@ public class RunComparableTests extends junit.framework.TestCase {
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
 	}
-	
+
 	public RunComparableTests(String testName) {
 		super(testName);
 	}

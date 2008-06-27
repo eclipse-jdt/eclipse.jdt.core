@@ -1030,7 +1030,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		return CharOperation.equals(TypeConstants.JAVA_LANG_OBJECT, CharOperation.splitOn('.', className));
 	}
 
-	
+
 	private boolean isVarArgs(IMethodInfo methodInfo) {
 		int accessFlags = methodInfo.getAccessFlags();
 		if ((accessFlags & IModifierConstants.ACC_VARARGS) != 0) return true;

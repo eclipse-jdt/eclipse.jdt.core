@@ -32,7 +32,7 @@ public void testCreateBinaryToolObject() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {}, new String[] {"lib"}, "bin");
 		IFile file = this.createFile("/P/lib/X.class", "");
-		
+
 		IJavaElement object = JavaCore.create(file);
 		assertTrue("tooling object not created", object != null);
 		assertTrue("class file does not exist", object.exists());
@@ -51,13 +51,13 @@ public void testCreateCompilationUnits() throws CoreException {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		this.createFolder("/P/src/x/y/z");
 		IFile fileA = this.createFile(
-			"/P/src/x/y/z/A.java", 
+			"/P/src/x/y/z/A.java",
 			"package x.y.z;\n" +
 			"public class A {\n" +
 			"}"
 		);
 		IFile fileB = this.createFile(
-			"/P/src/x/y/B.java", 
+			"/P/src/x/y/B.java",
 			"package x.y;\n" +
 			"public class B {\n" +
 			"}"
@@ -89,7 +89,7 @@ public void testCreateCompilationUnitsNotOnClasspath() throws CoreException {
 		IFile fileA = this.createFile("/P/other/A.java", "public class A {}");
 		IFile fileB = this.createFile("/P/other/nested/B.java", "public class B {}");
 		IFile fileC = this.createFile("/P/C.java", "public class C {}");
-		
+
 		IJavaElement objectA = JavaCore.create(fileA);
 		assertTrue("tooling object A not created", objectA != null);
 		assertTrue("wrong object A created", objectA instanceof ICompilationUnit);
@@ -117,45 +117,45 @@ public void testCreateCompilationUnitsNotOnClasspath() throws CoreException {
 	}
 }
 /**
- * Ensures that a Java model element can be created from a IFolder.  
+ * Ensures that a Java model element can be created from a IFolder.
  * Test that no elements are created if there is no classpath.
  * Ensure that the correct Java model element is created based on the
- * classpath.  
+ * classpath.
  */
 public void testCreateFolderToolObjects() throws CoreException {
 	try {
 		IJavaProject javaProject = this.createJavaProject("P", new String[] {}, "bin");
 		this.createFolder("/P/src/x/y/z");
-		
+
 		IFolder src =this.getFolder("/P/src");
 		IFolder res = src.getFolder("x");
 		IJavaElement object = JavaCore.create(res);
 		assertTrue("tooling object 1 should not be created", object == null);
-	
+
 		//set a classpath
 		IClasspathEntry[] classpath= new IClasspathEntry[] {JavaCore.newSourceEntry(src.getFullPath())};
 		javaProject.setRawClasspath(classpath, null);
-	
+
 		//test with a class path
 		object = JavaCore.create(src);
 		assertTrue("tooling object 2 should be created", object != null);
 		assertTrue("tooling object 2 should be a IPackageFragmentRoot", object instanceof IPackageFragmentRoot);
 		assertEquals("IPackageFragmentRoot 2 name is incorrect", "src", object.getElementName());
 		assertTrue("root 'src' does not exist", object.exists());
-		
+
 		object = JavaCore.create(res);
 		assertTrue("tooling object 3 should be created", object != null);
 		assertTrue("tooling object 3 should be a IPackageFragment", object instanceof IPackageFragment);
 		assertEquals("IPackageFragment 3 name is incorrect", "x", object.getElementName());
 		assertTrue("package 'com' does not exist", object.exists());
-	
+
 		IFolder subFolder= res.getFolder("y");
 		object= JavaCore.create(subFolder);
 		assertTrue("tooling object 'x.y' should be created", object != null);
 		assertTrue("tooling object 'x.y' should be a IPackageFragment", object instanceof IPackageFragment);
 		assertEquals("IPackageFragment 'x.y' name is incorrect", "x.y", object.getElementName());
 		assertTrue("package 'x.y' does not exist", object.exists());
-	
+
 		//not on or below the class path
 		IFolder bin = this.getFolder("/P/bin");
 		object = JavaCore.create(bin);
@@ -165,7 +165,7 @@ public void testCreateFolderToolObjects() throws CoreException {
 	}
 }
 /**
- * Ensures that the factory correctly handles empty java files 
+ * Ensures that the factory correctly handles empty java files
  */
 public void testCreateFromEmptyJavaFile() throws CoreException {
 	try {
@@ -201,7 +201,7 @@ public void testCreateFromInvalidMemento()  {
 }
 /**
  * Ensures that a Java model element can be created from a IFile
- * that is a zip or jar.  
+ * that is a zip or jar.
  */
 public void testCreateJarToolObject() throws CoreException {
 	try {
@@ -217,7 +217,7 @@ public void testCreateJarToolObject() throws CoreException {
 /**
  * Ensures that a Java model element can be created from a class folder library that is in the project's output.
  * (regression test for bug 25538 Conflict of classfolder and outputfolder not reported)
-*/ 
+*/
 public void testCreateLibInOutput() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {}, new String[] {"/P/lib"}, "");

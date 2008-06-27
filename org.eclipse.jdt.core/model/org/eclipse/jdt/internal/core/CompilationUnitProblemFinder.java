@@ -55,12 +55,12 @@ public class CompilationUnitProblemFinder extends Compiler {
 	 *      them all) and at the same time perform some actions such as opening a dialog
 	 *      in UI when compiling interactively.
 	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
-	 * 
+	 *
 	 *	@param compilerOptions The compiler options to use for the resolution.
-	 *      
+	 *
 	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
 	 *      Component which will receive and persist all compilation results and is intended
-	 *      to consume them as they are produced. Typically, in a batch compiler, it is 
+	 *      to consume them as they are produced. Typically, in a batch compiler, it is
 	 *      responsible for writing out the actual .class files to the file system.
 	 *      @see org.eclipse.jdt.internal.compiler.CompilationResult
 	 *
@@ -121,7 +121,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		compilerOptions.storeAnnotations = creatingAST; /*store annotations in the bindings if creating a DOM AST*/
 		return compilerOptions;
 	}
-	
+
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
@@ -141,7 +141,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	}
 
 	public static CompilationUnitDeclaration process(
-		CompilationUnit unitElement, 
+		CompilationUnit unitElement,
 		SourceElementParser parser,
 		WorkingCopyOwner workingCopyOwner,
 		HashMap problems,
@@ -178,7 +178,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 					problemFinder.handleInternalException(e, unit);
 				}
 			} else {
-				unit = 
+				unit =
 					problemFinder.resolve(
 						unitElement,
 						true, // verify methods
@@ -208,10 +208,10 @@ public class CompilationUnitProblemFinder extends Compiler {
 		} catch (OperationCanceledException e) {
 			// catch this exception so as to not enter the catch(RuntimeException e) below
 			throw e;
-		} catch(RuntimeException e) { 
+		} catch(RuntimeException e) {
 			// avoid breaking other tools due to internal compiler failure (40334)
 			String lineDelimiter = unitElement.findRecommendedLineSeparator();
-			StringBuffer message = new StringBuffer("Exception occurred during problem detection:");  //$NON-NLS-1$ 
+			StringBuffer message = new StringBuffer("Exception occurred during problem detection:");  //$NON-NLS-1$
 			message.append(lineDelimiter);
 			message.append("----------------------------------- SOURCE BEGIN -------------------------------------"); //$NON-NLS-1$
 			message.append(lineDelimiter);
@@ -227,19 +227,19 @@ public class CompilationUnitProblemFinder extends Compiler {
 				problemFactory.monitor = null; // don't hold a reference to this external object
 			// NB: unit.cleanUp() is done by caller
 			if (problemFinder != null && !creatingAST)
-				problemFinder.lookupEnvironment.reset();		
+				problemFinder.lookupEnvironment.reset();
 		}
 	}
 
 	public static CompilationUnitDeclaration process(
-		CompilationUnit unitElement, 
+		CompilationUnit unitElement,
 		WorkingCopyOwner workingCopyOwner,
 		HashMap problems,
 		boolean creatingAST,
 		int reconcileFlags,
 		IProgressMonitor monitor)
 		throws JavaModelException {
-			
+
 		return process(unitElement, null/*use default Parser*/, workingCopyOwner, problems, creatingAST, reconcileFlags, monitor);
 	}
 
@@ -250,5 +250,5 @@ public class CompilationUnitProblemFinder extends Compiler {
 	public void initializeParser() {
 		this.parser = new CommentRecorderParser(this.problemReporter, this.options.parseLiteralExpressionsAsConstants);
 	}
-}	
+}
 

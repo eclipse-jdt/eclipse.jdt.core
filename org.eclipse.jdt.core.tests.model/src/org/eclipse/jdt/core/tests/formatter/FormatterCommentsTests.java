@@ -81,7 +81,7 @@ public void setUpSuite() throws Exception {
 		JAVA_PROJECT = setUpJavaProject("FormatterJavadoc", "1.5"); //$NON-NLS-1$
 	}
 	super.setUpSuite();
-}	
+}
 
 /**
  * Reset the jar placeholder and delete project.
@@ -98,7 +98,7 @@ public void tearDownSuite() throws Exception {
 }
 
 DefaultCodeFormatter codeFormatter() {
-	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, JAVA_PROJECT.getOptions(true));
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.preferences, JAVA_PROJECT.getOptions(true));
 	return codeFormatter;
 }
 
@@ -169,7 +169,7 @@ void compareFormattedSource(ICompilationUnit compilationUnit) throws JavaModelEx
 }
 /*
  * Asserts that the given actual source (usually coming from a file content) is equal to the expected one.
- * Note that 'expected' is assumed to have the '\n' line separator. 
+ * Note that 'expected' is assumed to have the '\n' line separator.
  * The line separators in 'actual' are converted to '\n' before the comparison.
  */
 protected void assumeSourceEquals(String message, String expected, String actual) {
@@ -259,17 +259,17 @@ private int getIndentationLevel(Scanner scanner, int position) {
 
 private Map getDefaultCompilerOptions() {
 	Map optionsMap = new HashMap(30);
-	optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE); 
+	optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
 	optionsMap.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
 	optionsMap.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.DO_NOT_GENERATE);
 	optionsMap.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
-	optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.DISABLED); 
-	optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.IGNORE); 
+	optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.DISABLED);
+	optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-	optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.DISABLED); 
-	optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.DISABLED); 
+	optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.DISABLED);
+	optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
@@ -277,7 +277,7 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportNoEffectAssignment, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.IGNORE);
-	optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, CompilerOptions.IGNORE); 
+	optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, CompilerOptions.IGNORE);
@@ -304,18 +304,18 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
-	optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, CompilerOptions.DISABLED); 
+	optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-	optionsMap.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2); 
+	optionsMap.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
 	optionsMap.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
 	optionsMap.put(CompilerOptions.OPTION_TaskPriorities, ""); //$NON-NLS-1$
 	optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, CompilerOptions.DISABLED);
-	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED); 
-	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED); 
-	optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED); 
+	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
+	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED);
+	optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_MaxProblemPerUnit, String.valueOf(100));
-	optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED); 
+	optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	return optionsMap;
 }
@@ -379,7 +379,7 @@ private String getOutputSource(ICompilationUnit unit) throws JavaModelException 
 		// should never happen
 		throw new RuntimeException(e);
 	}
-	
+
 }
 
 IPath getOutputFolder() {
@@ -442,7 +442,7 @@ public void testHtmlOthers02c() throws JavaModelException {
 	formatUnit("html.others", "X02c.java");
 }
 public void testHtmlOthers02d() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed tags issue with max length
 	formatUnit("html.others", "X02d.java");
 }
@@ -487,7 +487,7 @@ public void testHtmlPre01() throws JavaModelException {
 	formatUnit("html.pre", "X01.java");
 }
 public void testHtmlPre02() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) Blank lines inside the <pre> tag are now preserved
 	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231845
 	formatUnit("html.pre", "X02.java");
@@ -496,7 +496,7 @@ public void testHtmlPre03() throws JavaModelException {
 	formatUnit("html.pre", "X03.java");
 }
 public void testHtmlPre04() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) Blank lines inside the <pre> tag are now preserved
 	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231845
 	formatUnit("html.pre", "X04.java");
@@ -508,7 +508,7 @@ public void testHtmlPre06() throws JavaModelException {
 	formatUnit("html.pre", "X06.java");
 }
 public void testHtmlPre07() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) Blank lines inside the <pre> tag are now preserved
 	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231845
 	formatUnit("html.pre", "X07.java");
@@ -579,12 +579,12 @@ public void testLines() throws JavaModelException {
 	formatUnit("lines", "X01.java");
 }
 public void testLines02() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed max length issue when comment has only one line
 	formatUnit("lines", "X02.java");
 }
 public void testLines03() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed max length issue when comment has only one line
 	formatUnit("lines", "X03.java");
 }
@@ -604,7 +604,7 @@ public void testLines08() throws JavaModelException {
 	formatUnit("lines", "X08.java");
 }
 public void testLines09() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed max length issue when comment has only one line
 	formatUnit("lines", "X09.java");
 }
@@ -635,7 +635,7 @@ public void _testPreferencesExample07() throws JavaModelException {
 	formatUnit("example", "X07.java");
 }
 public void testPreferencesExample08() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	formatUnit("example", "X08.java");
 }
@@ -650,12 +650,12 @@ public void testPreferencesExample11() throws JavaModelException {
 	formatUnit("example", "X11.java");
 }
 public void testPreferencesExample12() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// TODO Decide how split line when closing line is over the max length
 	formatUnit("example", "X12.java");
 }
 public void testPreferencesExample13() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231800
 	formatUnit("example", "X13.java");
@@ -688,7 +688,7 @@ public void testPreferencesExample16a() throws JavaModelException {
 	formatUnit("example", "X16a.java");
 }
 public void testPreferencesExample16b() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	formatUnit("example", "X16b.java");
 }
@@ -943,13 +943,13 @@ public void testWkspEclipse01() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X01.java");
 }
 public void testWkspEclipse02() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) fixed space after open html tag
 	formatUnit("wksp.eclipse", "X02.java");
 }
 public void testWkspEclipse02b() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) fixed extra space after open html tag
 	formatUnit("wksp.eclipse", "X02b.java");
@@ -965,7 +965,7 @@ public void testWkspEclipse05() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X05.java");
 }
 public void testWkspEclipse06() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed invalid description indentation when param ref is invalid
 	formatUnit("wksp.eclipse", "X06.java");
 }
@@ -973,7 +973,7 @@ public void testWkspEclipse07() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X07.java");
 }
 public void testWkspEclipse08() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	formatUnit("wksp.eclipse", "X08.java");
 }
@@ -984,7 +984,7 @@ public void testWkspEclipse08c() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X08c.java");
 }
 public void testWkspEclipse09() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed max length issue when comment has only one line
 	formatUnit("wksp.eclipse", "X09.java");
 }
@@ -1001,13 +1001,13 @@ public void testWkspEclipse11c() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X11c.java");
 }
 public void testWkspEclipse12() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// TODO the string is now put on 2 lines
 	formatUnit("wksp.eclipse", "X12.java");
 }
 public void testWkspEclipse12b() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// TODO the string is now put on 2 lines
 	formatUnit("wksp.eclipse", "X12b.java");
@@ -1016,7 +1016,7 @@ public void testWkspEclipse13() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X13.java");
 }
 public void testWkspEclipse14() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed description in inline tag we should be formatted as text
 	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
 	formatUnit("wksp.eclipse", "X14.java");
@@ -1025,19 +1025,19 @@ public void testWkspEclipse15() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X15.java");
 }
 public void testWkspEclipse16() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) Allow split between text tokens when max length is reached
 	// TODO verify that this behavior is OK
 	formatUnit("wksp.eclipse", "X16.java");
 }
 public void testWkspEclipse17() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) Consider that code is immutable => do not change the content of <pre> inside
 	//		 see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229580
 	formatUnit("wksp.eclipse", "X17.java");
 }
 public void testWkspEclipse18() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed description in inline tag we should be formatted as text
 	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
 	// 2) fixed wrong max length with immutable tags
@@ -1045,19 +1045,19 @@ public void testWkspEclipse18() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X18.java");
 }
 public void testWkspEclipse19() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed extra space between link tag name and reference
 	// 2) fixed description in inline tag we should be formatted as text
 	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
 	formatUnit("wksp.eclipse", "X19.java");
 }
 public void testWkspEclipse20() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	formatUnit("wksp.eclipse", "X20.java");
 }
 public void testWkspEclipse21() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) tag description is not indented when an empty line exists in the description
 	// 3) split line on closing html tags when over the max length
@@ -1065,13 +1065,13 @@ public void testWkspEclipse21() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X21.java");
 }
 public void testWkspEclipse22() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed max length issue when comment has only one line
 	// 2) bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231800
 	formatUnit("wksp.eclipse", "X22.java");
 }
 public void testWkspEclipse23() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) fixed issue with javadoc line start (' *' instead of expected  ' * ')
 	// 3) fixed issue with </table> closing tag
@@ -1079,18 +1079,18 @@ public void testWkspEclipse23() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X23.java");
 }
 public void testWkspEclipse24() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231800
 	formatUnit("wksp.eclipse", "X24.java");
 }
 public void testWkspEclipse25() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	formatUnit("wksp.eclipse", "X25.java");
 }
 public void testWkspEclipse26() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) Consider that code is immutable => do not change the content of <pre> inside
 	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229580
 	formatUnit("wksp.eclipse", "X26.java");
@@ -1108,42 +1108,42 @@ public void _testWkspEclipse28c() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X28c.java");
 }
 public void testWkspEclipse28d() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) Do not split line when it will start with '@'
 	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229683
 	formatUnit("wksp.eclipse", "X28d.java");
 }
 public void testWkspEclipse29() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) Consider any tag as normal root tag when syntax is invalid
 	// 2) Split line just after the identifier when name syntax is invalid
 	// TODO verify that these 2 new rules are OK
 	formatUnit("wksp.eclipse", "X29.java");
 }
 public void testWkspEclipse30() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) Consider any tag as normal root tag when syntax is invalid
 	//		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231796
 	formatUnit("wksp.eclipse", "X30.java");
 }
 public void testWkspEclipse31() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with inline tags
 	formatUnit("wksp.eclipse", "X31.java");
 }
 public void testWkspEclipse32() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231800
 	formatUnit("wksp.eclipse", "X32.java");
 }
 public void testWkspEclipse33() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with '*'
 	formatUnit("wksp.eclipse", "X33.java");
 }
 public void testWkspEclipse34() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	formatUnit("wksp.eclipse", "X34.java");
 }
@@ -1153,12 +1153,12 @@ public void _testWkspGanymede01() throws JavaModelException {
 	formatUnit("wksp.ganymede", "X02.java");
 }
 public void testWkspGanymede02() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed extra space between link tag name and reference
 	formatUnit("wksp.ganymede", "X02.java");
 }
 public void testWkspGanymede03() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) fixed description in inline tag we should be formatted as text
 	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
@@ -1166,7 +1166,7 @@ public void testWkspGanymede03() throws JavaModelException {
 	formatUnit("wksp.ganymede", "X03.java");
 }
 public void testWkspGanymede04() throws JavaModelException {
-	// Difference with old formatter: 
+	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) fixed string split
 	formatUnit("wksp.ganymede", "X04.java");

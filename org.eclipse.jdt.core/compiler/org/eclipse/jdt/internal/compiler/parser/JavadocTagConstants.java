@@ -86,7 +86,7 @@ public interface JavadocTagConstants {
 	public static final int TAG_LITERAL_VALUE = 19;
 	public static final int TAG_DOC_ROOT_VALUE = 20;
 	public static final int TAG_OTHERS_VALUE = 100;
-	
+
 	// tags expected positions
 	public final static int ORDERED_TAGS_NUMBER = 3;
 	public final static int PARAM_TAG_EXPECTED_ORDER = 0;
@@ -98,7 +98,7 @@ public interface JavadocTagConstants {
 	 */
 	public final static int BLOCK_IDX = 0;
 	public final static int INLINE_IDX = 1;
-	
+
 	// href tag
 	public final static char[] HREF_TAG = {'h', 'r', 'e', 'f'};
 	/*

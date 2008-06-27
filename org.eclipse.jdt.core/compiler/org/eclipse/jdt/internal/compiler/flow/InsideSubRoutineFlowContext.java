@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 public class InsideSubRoutineFlowContext extends FlowContext {
 
 	public UnconditionalFlowInfo initsOnReturn;
-	
+
 public InsideSubRoutineFlowContext(
 	FlowContext parent,
 	ASTNode associatedNode) {
@@ -37,11 +37,11 @@ public String individualToString() {
 public UnconditionalFlowInfo initsOnReturn(){
 	return this.initsOnReturn;
 }
-	
+
 public boolean isNonReturningContext() {
 	return ((SubRoutineStatement) this.associatedNode).isSubRoutineEscaping();
 }
-	
+
 public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 	if (this.initsOnReturn == FlowInfo.DEAD_END) {

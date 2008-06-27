@@ -14,7 +14,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 
 /**
- * 
+ *
  * Partial implementation of an IGenericType used to
  * answer hierarchies.
  */
@@ -25,14 +25,14 @@ public class HierarchyType implements IGenericType {
 	public int modifiers;
 	public char[] superclassName;
 	public char[][] superInterfaceNames;
-	
+
 public HierarchyType(
-	IType typeHandle, 
-	char[] name, 
-	int modifiers, 
+	IType typeHandle,
+	char[] name,
+	int modifiers,
 	char[] superclassName,
 	char[][] superInterfaceNames) {
-		
+
 	this.typeHandle = typeHandle;
 	this.name = name;
 	this.modifiers = modifiers;

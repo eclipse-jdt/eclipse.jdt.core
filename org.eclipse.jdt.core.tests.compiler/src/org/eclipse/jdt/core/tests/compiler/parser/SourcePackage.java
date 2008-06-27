@@ -22,28 +22,28 @@ public class SourcePackage {
  * @param source char[]
  */
 public SourcePackage(
-	int declarationSourceStart, 
-	int declarationSourceEnd, 
+	int declarationSourceStart,
+	int declarationSourceEnd,
 	char[] name,
 	char[] source) {
 
 	this.declarationSourceStart = declarationSourceStart;
-	this.declarationSourceEnd = declarationSourceEnd; 
+	this.declarationSourceEnd = declarationSourceEnd;
 	this.name = name;
 	this.source = source;
 }
 /**
- * 
+ *
  * @return java.lang.String
  */
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer
 		.append(
-			source, 
-			declarationSourceStart, 
-			declarationSourceEnd - declarationSourceStart + 1)
-		.append("\n"); 
+			this.source,
+			this.declarationSourceStart,
+			this.declarationSourceEnd - this.declarationSourceStart + 1)
+		.append("\n");
 	return buffer.toString();
 }
 }

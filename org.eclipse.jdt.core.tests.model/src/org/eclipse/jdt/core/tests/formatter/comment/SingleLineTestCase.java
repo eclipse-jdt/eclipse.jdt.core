@@ -25,7 +25,7 @@ public class SingleLineTestCase extends CommentTestCase {
 	static {
 //		TESTS_NAMES = new String[] { "test109581" } ;
 	}
-	
+
 	public static Test suite() {
 		return buildTestSuite(SingleLineTestCase.class);
 	}
@@ -171,7 +171,7 @@ public class SingleLineTestCase extends CommentTestCase {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "32"); //$NON-NLS-1$
 		assertEquals(PREFIX + "test test" + DELIMITER, testFormat("//test\ttest" + DELIMITER)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
-	
+
 	public void testCommentWrapping5() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
 		String prefix= "public class Test {" + DELIMITER + "	int test; // test test test test test test test test test test test test";
@@ -240,7 +240,7 @@ public class SingleLineTestCase extends CommentTestCase {
 		if (DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT) expected = expected.substring(0, expected.length()-DELIMITER.length());
 		assertEquals(expected, testFormat("//   test\t\t\ttest\ttest" + DELIMITER + PREFIX + "test test test test")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$
 	}
-	
+
 	public void testIndentedComment1() {
 		String prefix= "public class Test {" + DELIMITER + "\t";
 		String comment= PREFIX + "test" + DELIMITER;
@@ -248,7 +248,7 @@ public class SingleLineTestCase extends CommentTestCase {
 		String string= prefix + comment + postfix;
 		assertEquals(string, testFormat(string, prefix.length(), comment.length()));
 	}
-	
+
 	public void testIndentedComment2() {
 		String prefix= "public class Test {" + DELIMITER + "\tpublic void test() {" + DELIMITER + "\t\t";
 		String comment= PREFIX + "test" + DELIMITER;
@@ -256,7 +256,7 @@ public class SingleLineTestCase extends CommentTestCase {
 		String string= prefix + comment + postfix;
 		assertEquals(string, testFormat(string, prefix.length(), comment.length()));
 	}
-	
+
 	public void testIndentedComment3() {
 		String prefix= "public class Test {" + DELIMITER + "\tpublic void test() {" + DELIMITER + "\t\tif (true) {" + DELIMITER + "\t\t\t";
 		String comment= PREFIX + "test" + DELIMITER;
@@ -264,12 +264,12 @@ public class SingleLineTestCase extends CommentTestCase {
 		String string= prefix + comment + postfix;
 		assertEquals(string, testFormat(string, prefix.length(), comment.length()));
 	}
-	
+
 	public void testNoChange1() {
 		String content= PREFIX;
 		assertEquals(content, testFormat(content));
 	}
-	
+
 	public void testNoFormat1() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, DefaultCodeFormatterConstants.FALSE);
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "1");

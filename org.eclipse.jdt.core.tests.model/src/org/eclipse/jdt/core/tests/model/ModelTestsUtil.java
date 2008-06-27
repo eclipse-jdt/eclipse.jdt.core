@@ -61,7 +61,7 @@ static public boolean convertToIndependantLineDelimiter(File file) {
 static public void copy(File src, File dest) throws IOException {
 	// read source bytes
 	byte[] srcBytes = read(src);
-	
+
 	if (convertToIndependantLineDelimiter(src)) {
 		String contents = new String(srcBytes);
 		contents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(contents);
@@ -192,7 +192,7 @@ static public IPackageFragmentRoot getExternalJarFile(IJavaProject project, Stri
 		if (root.isExternal() && root.getElementName().equals(jarSimpleName)) {
 			return root;
 		}
-	}		
+	}
 	return null;
 }
 
@@ -201,7 +201,7 @@ static public IPackageFragmentRoot getExternalJarFile(IJavaProject project, Stri
  */
 static public IPath getExternalJCLPath() {
 	return new Path(getExternalJCLPathString(""));
-}	
+}
 /**
  * Returns the IPath to the external java class library (e.g. jclMin.jar)
  */
@@ -283,14 +283,14 @@ static public IPackageFragment getPackageFragment(IJavaProject project, String r
 /**
  * Returns the specified package fragment root in the given project, or
  * <code>null</code> if it does not exist.
- * If relative, the rootPath must be specified as a project relative path. 
+ * If relative, the rootPath must be specified as a project relative path.
  * The empty path refers to the package fragment root that is the project
  * folder itself.
- * If absolute, the rootPath refers to either an external jar, or a resource 
+ * If absolute, the rootPath refers to either an external jar, or a resource
  * internal to the workspace
  */
 static public IPackageFragmentRoot getPackageFragmentRoot(
-	IJavaProject project, 
+	IJavaProject project,
 	String rootPath)
 	throws JavaModelException {
 
@@ -330,7 +330,7 @@ static public String getPluginDirectoryPath() {
 }
 /**
  * Returns the OS path to the directory that contains this plugin.
- * 
+ *
  * @param type May be one of the following value
  */
 static public String getPluginDirectoryPath(String type) {
@@ -376,13 +376,13 @@ static public byte[] read(java.io.File file) throws java.io.IOException {
 		}
 		return fileBytes;
 	} finally {
-		stream.close();		
+		stream.close();
 	}
 }
 
 /**
  * Remove all white spaces from a string.
- * 
+ *
  * @param input The input string
  * @return A new string without any whitespaces
  */
@@ -477,7 +477,7 @@ static public void setUpJCLClasspathVariables(String compliance) throws JavaMode
 				new String[] {"JCL15_LIB", "JCL15_SRC", "JCL_SRCROOT"},
 				new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
 				null);
-		} 
+		}
 	} else {
 		if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
 			setupExternalJCL("jclMin");
@@ -485,8 +485,8 @@ static public void setUpJCLClasspathVariables(String compliance) throws JavaMode
 				new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
 				new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 				null);
-		} 
-	}	
+		}
+	}
 }
 
 static public void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {
@@ -525,17 +525,17 @@ static public void setUpProjectCompliance(IJavaProject javaProject, String compl
 			newJclSrcString = "JCL_SRC";
 			break;
 	}
-	
+
 	// ensure variables are set
 	setUpJCLClasspathVariables(compliance);
-	
+
 	// set options
 	Map options = new HashMap();
 	options.put(CompilerOptions.OPTION_Compliance, version);
-	options.put(CompilerOptions.OPTION_Source, version);	
+	options.put(CompilerOptions.OPTION_Source, version);
 	options.put(CompilerOptions.OPTION_TargetPlatform, version);
 	javaProject.setOptions(options);
-	
+
 	// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
 	IClasspathEntry[] classpath = javaProject.getRawClasspath();
 	IPath jclLib = new Path(jclLibString);
@@ -543,11 +543,11 @@ static public void setUpProjectCompliance(IJavaProject javaProject, String compl
 		IClasspathEntry entry = classpath[i];
 		if (entry.getPath().equals(jclLib)) {
 			classpath[i] = JavaCore.newVariableEntry(
-					new Path(newJclLibString), 
-					new Path(newJclSrcString), 
-					entry.getSourceAttachmentRootPath(), 
-					entry.getAccessRules(), 
-					new IClasspathAttribute[0], 
+					new Path(newJclLibString),
+					new Path(newJclSrcString),
+					entry.getSourceAttachmentRootPath(),
+					entry.getAccessRules(),
+					new IClasspathAttribute[0],
 					entry.isExported());
 			break;
 		}
@@ -557,7 +557,7 @@ static public void setUpProjectCompliance(IJavaProject javaProject, String compl
 
 /**
  * Remove all white spaces at the deginning of each lines from a string.
- * 
+ *
  * @param input The input string
  * @return A new string without any whitespaces
  */

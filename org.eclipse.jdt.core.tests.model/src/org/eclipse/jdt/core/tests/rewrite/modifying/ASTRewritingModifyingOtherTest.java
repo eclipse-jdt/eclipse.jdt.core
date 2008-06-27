@@ -22,15 +22,15 @@ import org.eclipse.jdt.core.dom.*;
 
 public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 	private static final Class THIS = ASTRewritingModifyingOtherTest.class;
-	
+
 	public ASTRewritingModifyingOtherTest(String name) {
 		super(name);
 	}
-	
+
 	public static Test allTests() {
 		return new Suite(THIS);
 	}
-	
+
 	public static Test suite() {
 		if (true) {
 			return allTests();
@@ -39,49 +39,49 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		suite.addTest(new ASTRewritingModifyingOtherTest("test0009"));
 		return suite;
 	}
-	
+
 	public void test0000() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0000", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0000", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0000;\n");
 		buf.append("public class X {\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		try {
 			evaluateRewrite(cu, astRoot);
 			assertTrue("rewrite did not fail even though recording not on", false);
 		} catch (IllegalStateException e) {
 		}
 	}
-	
+
 	public void test0001() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0001", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0001", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0001;\n");
 		buf.append("public class X {\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0001;\n");
 		buf.append("public class X {\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 
 
 	public void test0002() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0002", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0002", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0002;\n");
 		buf.append("import java.util.*;\n");
@@ -90,13 +90,13 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		buf.append("public class X {\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		AST a = astRoot.getAST();
-		
+
 		List imports = astRoot.imports();
 		imports.remove(1);
 		Name name = a.newSimpleName("aaa");
@@ -104,9 +104,9 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		importDeclaration.setName(name);
 		importDeclaration.setOnDemand(true);
 		imports.add(importDeclaration);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0002;\n");
 		buf.append("import java.util.*;\n");
@@ -118,7 +118,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 	}
 
 	public void test0003() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0003", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0003", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0003;\n");
 		buf.append("import java.util.*;\n");
@@ -127,16 +127,16 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		buf.append("public class X {\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		ImportDeclaration importDeclaration = (ImportDeclaration)astRoot.imports().get(0);
 		importDeclaration.setOnDemand(false);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0003;\n");
 		buf.append("import java.util;\n");
@@ -149,7 +149,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 
 	public void test0004() throws Exception {
-		IPackageFragment pack1= sourceFolder.createPackageFragment("test0004", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0004", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0004;\n");
 		buf.append("\n");
@@ -163,21 +163,21 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createCU(cu, false);
-		
+
 		astRoot.recordModifications();
-		
+
 		AST a = astRoot.getAST();
-		
+
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration1 = a.newTypeDeclaration();
 		typeDeclaration1.setName(a.newSimpleName("A"));
 		types.add(1, typeDeclaration1);
 		types.remove(1);
-		
+
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0004;\n");
 		buf.append("\n");
@@ -192,7 +192,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 //	public void _test000X() throws Exception {
 //		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0004", false, null);
 //		StringBuffer buf= new StringBuffer();
@@ -208,21 +208,21 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 //		buf.append("    }\n");
 //		buf.append("}\n");
 //		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-//		
+//
 //		CompilationUnit astRoot= parseCompilationUnit(cu, false);
-//		
+//
 //		astRoot.recordModifications();
-//		
+//
 //		AST a = astRoot.getAST();
-//		
+//
 //		Comment[] comments = astRoot.getCommentTable();
 //		Comment comment1 = comments[0];
 //		Comment comment2 = a.newBlockComment();
 //		comment2.setSourceRange(comment1.getStartPosition(), comment1.getLength() - 2);
 //		comments[0] = comment2;
-//		
+//
 //		String preview = evaluateRewrite(cu, astRoot);
-//		
+//
 //		buf= new StringBuffer();
 //		buf.append("package test0004;\n");
 //		buf.append("\n");

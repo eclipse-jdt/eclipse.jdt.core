@@ -168,7 +168,7 @@ class CompilationUnitResolver extends Compiler {
 			CompilationResult unitResult =
 				new CompilationResult(sourceUnit, index++, maxUnits, this.options.maxProblemsPerUnit);
 			try {
-				if (options.verbose) {
+				if (this.options.verbose) {
 					this.out.println(
 						Messages.bind(Messages.compilation_request,
 						new String[] {
@@ -225,7 +225,7 @@ class CompilationUnitResolver extends Compiler {
 		}
 
 		// binding resolution
-		lookupEnvironment.completeTypeBindings();
+		this.lookupEnvironment.completeTypeBindings();
 	}
 
 	IBinding createBinding(String key) {
@@ -869,7 +869,7 @@ class CompilationUnitResolver extends Compiler {
 
 				// code generation
 				if (generateCode) unit.generateCode();
-				
+
 				// finalize problems (suppressWarnings)
 				unit.finalizeProblems();
 			}

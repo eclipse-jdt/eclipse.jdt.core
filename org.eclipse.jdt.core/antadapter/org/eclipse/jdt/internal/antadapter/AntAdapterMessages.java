@@ -20,7 +20,7 @@ public class AntAdapterMessages {
 	private static final String BUNDLE_NAME = "org.eclipse.jdt.internal.antadapter.messages"; //$NON-NLS-1$
 
 	private static ResourceBundle RESOURCE_BUNDLE;
-	
+
 	static {
 		try {
 		RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault());

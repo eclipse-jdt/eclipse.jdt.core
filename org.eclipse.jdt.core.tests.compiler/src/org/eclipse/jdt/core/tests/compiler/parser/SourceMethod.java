@@ -28,7 +28,7 @@ public class SourceMethod implements ISourceMethod {
 	private String explicitConstructorCall;
 	char[][] typeParameterNames;
 	char[][][] typeParameterBounds;
-	
+
 public SourceMethod(
 	int declarationStart,
 	int modifiers,
@@ -79,53 +79,53 @@ public String displayModifiers() {
 }
 public String getActualName() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append(source, nameSourceStart, nameSourceEnd - nameSourceStart + 1);
+	buffer.append(this.source, this.nameSourceStart, this.nameSourceEnd - this.nameSourceStart + 1);
 	return buffer.toString();
 }
 public char[][] getArgumentNames() {
-	return argumentNames;
+	return this.argumentNames;
 }
 public char[][] getArgumentTypeNames() {
-	return argumentTypeNames;
+	return this.argumentTypeNames;
 }
 public int getDeclarationSourceEnd() {
-	return declarationEnd;
+	return this.declarationEnd;
 }
 public int getDeclarationSourceStart() {
-	return declarationStart;
+	return this.declarationStart;
 }
 public char[][] getExceptionTypeNames() {
-	return exceptionTypeNames;
+	return this.exceptionTypeNames;
 }
 public int getModifiers() {
-	return modifiers;
+	return this.modifiers;
 }
 public int getNameSourceEnd() {
-	return nameSourceEnd;
+	return this.nameSourceEnd;
 }
 public int getNameSourceStart() {
-	return nameSourceStart;
+	return this.nameSourceStart;
 }
 public char[] getReturnTypeName() {
-	return returnTypeName;
+	return this.returnTypeName;
 }
 public char[] getSelector() {
-	return selector;
+	return this.selector;
 }
 public char[][][] getTypeParameterBounds() {
-	return typeParameterBounds;
+	return this.typeParameterBounds;
 }
 public char[][] getTypeParameterNames() {
-	return typeParameterNames;	
+	return this.typeParameterNames;
 }
 public boolean isConstructor() {
-	return returnTypeName == null;
+	return this.returnTypeName == null;
 }
 protected void setDeclarationSourceEnd(int position) {
-	declarationEnd = position;
+	this.declarationEnd = position;
 }
 protected void setExplicitConstructorCall(String s) {
-	explicitConstructorCall = s;
+	this.explicitConstructorCall = s;
 }
 public String tabString(int tab) {
 	/*slow code*/
@@ -145,26 +145,26 @@ public String toString(int tab) {
 	if (displayModifiers != null) {
 		buffer.append(displayModifiers).append(" ");
 	}
-	if (returnTypeName != null) {
-		buffer.append(returnTypeName).append(" ");
+	if (this.returnTypeName != null) {
+		buffer.append(this.returnTypeName).append(" ");
 	}
-	buffer.append(selector).append("(");
-	if (argumentTypeNames != null) {
-		for (int i = 0, max = argumentTypeNames.length; i < max; i++) {
-			buffer.append(argumentTypeNames[i]).append(" ").append(
-				argumentNames[i]).append(
-				", "); 
+	buffer.append(this.selector).append("(");
+	if (this.argumentTypeNames != null) {
+		for (int i = 0, max = this.argumentTypeNames.length; i < max; i++) {
+			buffer.append(this.argumentTypeNames[i]).append(" ").append(
+				this.argumentNames[i]).append(
+				", ");
 		}
 	}
 	buffer.append(") ");
-	if (exceptionTypeNames != null) {
+	if (this.exceptionTypeNames != null) {
 		buffer.append("throws ");
-		for (int i = 0, max = exceptionTypeNames.length; i < max; i++) {
-			buffer.append(exceptionTypeNames[i]).append(", ");
+		for (int i = 0, max = this.exceptionTypeNames.length; i < max; i++) {
+			buffer.append(this.exceptionTypeNames[i]).append(", ");
 		}
 	}
-	if (explicitConstructorCall != null) {
-		buffer.append("{\n").append(tabString(tab+1)).append(explicitConstructorCall).append(tabString(tab)).append("}");
+	if (this.explicitConstructorCall != null) {
+		buffer.append("{\n").append(tabString(tab+1)).append(this.explicitConstructorCall).append(tabString(tab)).append("}");
 	} else {
 		buffer.append("{}");
 	}

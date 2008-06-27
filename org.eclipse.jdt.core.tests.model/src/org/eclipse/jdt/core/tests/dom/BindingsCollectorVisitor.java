@@ -26,21 +26,21 @@ class BindingsCollectorVisitor extends ASTVisitor {
 
 	private HashMap hashMap;
 	private HashSet set;
-	
+
 	BindingsCollectorVisitor() {
 		// visit Javadoc.tags() as well
 		super(true);
 		this.hashMap = new HashMap();
 		this.set = new HashSet();
 	}
-	
+
 	private void collectBindings(
 		ASTNode node,
 		IBinding binding) {
 		if (binding != null) {
-			hashMap.put(node, binding);
+			this.hashMap.put(node, binding);
 		} else {
-			set.add(node);
+			this.set.add(node);
 		}
 	}
 
@@ -183,7 +183,7 @@ class BindingsCollectorVisitor extends ASTVisitor {
 		ITypeBinding typeBinding = node.resolveTypeBinding();
 		collectBindings(node, typeBinding);
 	}
-	
+
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ImportDeclaration)
 	 */
@@ -416,7 +416,7 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	 * @return HashMap
 	 */
 	public HashMap getBindingsMap() {
-		return hashMap;
+		return this.hashMap;
 	}
 
 	/**
@@ -424,7 +424,7 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	 * @return HashSet
 	 */
 	public HashSet getUnresolvedNodesSet() {
-		return set;
+		return this.set;
 	}
 
 }

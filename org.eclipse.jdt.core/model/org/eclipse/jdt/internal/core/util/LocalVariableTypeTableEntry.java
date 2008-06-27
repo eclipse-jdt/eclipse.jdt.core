@@ -28,10 +28,10 @@ public class LocalVariableTypeTableEntry extends ClassFileStruct implements ILoc
 	private char[] name;
 	private char[] signature;
 	private int index;
-	
+
 	/**
 	 * Constructor for LocalVariableTypeTableEntry.
-	 * 
+	 *
 	 * @param classFileBytes
 	 * @param constantPool
 	 * @param offset
@@ -57,7 +57,7 @@ public class LocalVariableTypeTableEntry extends ClassFileStruct implements ILoc
 			}
 			this.signature = constantPoolEntry.getUtf8Value();
 		}
-		
+
 	/**
 	 * @see ILocalVariableTypeTableEntry#getStartPC()
 	 */

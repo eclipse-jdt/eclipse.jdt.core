@@ -130,9 +130,9 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 	}
 
 	public Object getValue() {
-		if (value == null)
+		if (this.value == null)
 			init();
-		return value == NoValue ? null : this.value;
+		return this.value == NoValue ? null : this.value;
 	}
 
 	private void init() {

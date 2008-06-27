@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
 
 /**
- * A wrapper around the infrastructure evaluation context. 
+ * A wrapper around the infrastructure evaluation context.
  */
 public class EvaluationContextWrapper implements IEvaluationContext {
 	protected EvaluationContext context;
@@ -73,7 +73,7 @@ public IGlobalVariable[] allVariables() {
  * Checks to ensure that there is a previously built state.
  */
 protected void checkBuilderState() {
-	
+
 	return;
 }
 /**
@@ -151,18 +151,18 @@ public void deleteVariable(IGlobalVariable variable) {
  * @see IEvaluationContext#evaluateCodeSnippet(String, String[], String[], int[], IType, boolean, boolean, ICodeSnippetRequestor, IProgressMonitor)
  */
 public void evaluateCodeSnippet(
-	String codeSnippet, 
-	String[] localVariableTypeNames, 
-	String[] localVariableNames, 
-	int[] localVariableModifiers, 
-	IType declaringType, 
-	boolean isStatic, 
-	boolean isConstructorCall, 
-	ICodeSnippetRequestor requestor, 
+	String codeSnippet,
+	String[] localVariableTypeNames,
+	String[] localVariableNames,
+	int[] localVariableModifiers,
+	IType declaringType,
+	boolean isStatic,
+	boolean isConstructorCall,
+	ICodeSnippetRequestor requestor,
 	IProgressMonitor progressMonitor) throws org.eclipse.jdt.core.JavaModelException {
-		
+
 	checkBuilderState();
-	
+
 	int length = localVariableTypeNames.length;
 	char[][] varTypeNames = new char[length][];
 	for (int i = 0; i < length; i++){
@@ -178,7 +178,7 @@ public void evaluateCodeSnippet(
 	Map options = this.project.getOptions(true);
 	// transfer the imports of the IType to the evaluation context
 	if (declaringType != null) {
-		// retrieves the package statement 
+		// retrieves the package statement
 		this.context.setPackageName(declaringType.getPackageFragment().getElementName().toCharArray());
 		ICompilationUnit compilationUnit = declaringType.getCompilationUnit();
 		if (compilationUnit != null) {
@@ -217,9 +217,9 @@ public void evaluateCodeSnippet(
 			declaringType == null? null : declaringType.getFullyQualifiedName().toCharArray(),
 			isStatic,
 			isConstructorCall,
-			environment = getBuildNameEnvironment(), 
-			options, 
-			getInfrastructureEvaluationRequestor(requestor), 
+			environment = getBuildNameEnvironment(),
+			options,
+			getInfrastructureEvaluationRequestor(requestor),
 			getProblemFactory());
 	} catch (InstallException e) {
 		handleInstallException(e);
@@ -236,10 +236,10 @@ public void evaluateCodeSnippet(String codeSnippet, ICodeSnippetRequestor reques
 	INameEnvironment environment = null;
 	try {
 		this.context.evaluate(
-			codeSnippet.toCharArray(), 
-			environment = getBuildNameEnvironment(), 
-			this.project.getOptions(true), 
-			getInfrastructureEvaluationRequestor(requestor), 
+			codeSnippet.toCharArray(),
+			environment = getBuildNameEnvironment(),
+			this.project.getOptions(true),
+			getInfrastructureEvaluationRequestor(requestor),
 			getProblemFactory());
 	} catch (InstallException e) {
 		handleInstallException(e);
@@ -256,10 +256,10 @@ public void evaluateVariable(IGlobalVariable variable, ICodeSnippetRequestor req
 	INameEnvironment environment = null;
 	try {
 		this.context.evaluateVariable(
-			((GlobalVariableWrapper)variable).variable, 
-			environment = getBuildNameEnvironment(), 
-			this.project.getOptions(true), 
-			getInfrastructureEvaluationRequestor(requestor), 
+			((GlobalVariableWrapper)variable).variable,
+			environment = getBuildNameEnvironment(),
+			this.project.getOptions(true),
+			getInfrastructureEvaluationRequestor(requestor),
 			getProblemFactory());
 	} catch (InstallException e) {
 		handleInstallException(e);
@@ -329,10 +329,10 @@ protected void handleInstallException(InstallException e) throws JavaModelExcept
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#newVariable(String, String, String)
  */
 public IGlobalVariable newVariable(String typeName, String name, String initializer) {
-	GlobalVariable newVar = 
+	GlobalVariable newVar =
 		this.context.newVariable(
-			typeName.toCharArray(), 
-			name.toCharArray(), 
+			typeName.toCharArray(),
+			name.toCharArray(),
 			(initializer == null) ?
 				null :
 				initializer.toCharArray());
@@ -359,13 +359,13 @@ public void setPackageName(String packageName) {
  * @see IEvaluationContext#validateImports(ICodeSnippetRequestor)
  */
 public void validateImports(ICodeSnippetRequestor requestor) {
-	
+
 	checkBuilderState();
 	INameEnvironment environment = null;
 	try {
 		this.context.evaluateImports(
-			environment = getBuildNameEnvironment(), 
-			getInfrastructureEvaluationRequestor(requestor), 
+			environment = getBuildNameEnvironment(),
+			getInfrastructureEvaluationRequestor(requestor),
 			getProblemFactory());
 	} finally {
 		if (environment != null) environment.cleanup();
@@ -394,7 +394,7 @@ public void codeComplete(String codeSnippet, int position, final org.eclipse.jdt
 			public void acceptError(IProblem error) {
 				// was disabled in 1.0
 			}
-			
+
 			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 				requestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
 			}

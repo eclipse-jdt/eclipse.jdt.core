@@ -23,7 +23,7 @@ public CopyMoveElementsTests(String name) {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	IJavaProject project = this.createJavaProject("BinaryProject", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 	this.createFile(
 		"/BinaryProject/src/X.java",
@@ -41,7 +41,7 @@ public void setUpSuite() throws Exception {
  */
 public void setUp() throws Exception {
 	super.setUp();
-	
+
 	this.createJavaProject("P", new String[] {"src"}, new String[] {"/BinaryProject/bin"}, "bin", "1.5");
 }
 // Use this static initializer to specify subset for tests
@@ -61,7 +61,7 @@ public static Test suite() {
  */
 public void tearDown() throws Exception {
 	this.deleteProject("P");
-	
+
 	super.tearDown();
 }
 public void tearDownSuite() throws Exception {
@@ -117,7 +117,7 @@ public void testCopyConstructor() throws CoreException {
 	copyPositive(methodSource, typeDest, null, null, false);
 }
 /**
- * Ensures that a constructor can be copied to a different type across projects. 
+ * Ensures that a constructor can be copied to a different type across projects.
  * The constructor should be automatically renamed to that of the destination type.
  */
 public void testCopyConstructorInDifferentProject() throws CoreException {
@@ -131,7 +131,7 @@ public void testCopyConstructorInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource = typeSource.getMethod("X", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -139,7 +139,7 @@ public void testCopyConstructorInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(methodSource, typeDest, null, null, false);
 
 	} finally {
@@ -192,7 +192,7 @@ public void testCopyFieldForce() throws CoreException {
 	copyPositive(fieldSource, typeDest, null, null, true);
 }
 /**
- * Ensures that a field can be copied to a different type across projects 
+ * Ensures that a field can be copied to a different type across projects
  * replacing an existing field.
  */
 public void testCopyFieldForceInDifferentProject() throws CoreException {
@@ -205,7 +205,7 @@ public void testCopyFieldForceInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("bar");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -214,7 +214,7 @@ public void testCopyFieldForceInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(fieldSource, typeDest, null, null, true);
 	} finally {
 		this.deleteProject("P2");
@@ -233,7 +233,7 @@ public void testCopyFieldInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("bar");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -241,7 +241,7 @@ public void testCopyFieldInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(fieldSource, typeDest, null, null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -295,7 +295,7 @@ public void testCopyFieldRenameForce() throws CoreException {
 	copyPositive(fieldSource, typeDest, null, "bar", true);
 }
 /**
- * Ensures that a field can be copied to a different type across two different 
+ * Ensures that a field can be copied to a different type across two different
  * projects, and renamed, overwriting an existing field.
  */
 public void testCopyFieldRenameForceInDifferentProject() throws CoreException {
@@ -308,7 +308,7 @@ public void testCopyFieldRenameForceInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("foo");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -317,7 +317,7 @@ public void testCopyFieldRenameForceInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(fieldSource, typeDest, null, "bar", true);
 	} finally {
 		this.deleteProject("P2");
@@ -337,7 +337,7 @@ public void testCopyFieldRenameInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("foo");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -345,7 +345,7 @@ public void testCopyFieldRenameInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(fieldSource, typeDest, null, "bar", false);
 	} finally {
 		this.deleteProject("P2");
@@ -406,14 +406,14 @@ public void testCopyFieldsMultiStatus() throws CoreException {
 			e = true;
 		}
 		assertTrue("Should have been an exception", e);
-		
+
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" + 
-			"	src[*]: {CHILDREN}\n" + 
-			"		<default>[*]: {CHILDREN}\n" + 
-			"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
-			"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"P[*]: {CHILDREN}\n" +
+			"	src[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
+			"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
+			"				Y[*]: {CHILDREN | FINE GRAINED}\n" +
 			"					foo[+]: {}"
 		);
 
@@ -437,7 +437,7 @@ public void testCopyFieldsMultiStatusInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -445,7 +445,7 @@ public void testCopyFieldsMultiStatusInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		IField[] fieldsSource = typeSource.getFields();
 		IJavaElement[] dests = new IJavaElement[fieldsSource.length];
 		for (int i = 0; i < dests.length; i++) {
@@ -464,14 +464,14 @@ public void testCopyFieldsMultiStatusInDifferentProject() throws CoreException {
 			e = true;
 		}
 		assertTrue("Should have been an exception", e);
-		
+
 		assertDeltas(
 			"Unexpected delta",
-			"P2[*]: {CHILDREN}\n" + 
-			"	src[*]: {CHILDREN}\n" + 
-			"		<default>[*]: {CHILDREN}\n" + 
-			"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
-			"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"P2[*]: {CHILDREN}\n" +
+			"	src[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
+			"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
+			"				Y[*]: {CHILDREN | FINE GRAINED}\n" +
 			"					foo[+]: {}"
 		);
 
@@ -520,7 +520,7 @@ public void testCopyFieldWithCollisionInDifferentProject() throws CoreException 
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("bar");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -529,7 +529,7 @@ public void testCopyFieldWithCollisionInDifferentProject() throws CoreException 
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyNegative(fieldSource, typeDest, null, null, false, IJavaModelStatusConstants.NAME_COLLISION);
 	} finally {
 		this.deleteProject("P2");
@@ -565,10 +565,10 @@ public void testCopyFieldWithInvalidDestinationInDifferentProject() throws CoreE
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("foo");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, new String[] {"/BinaryProject/bin"}, "bin");
 		IClassFile cf = getClassFile("P2", "/BinaryProject/bin", "", "X.class");
-	
+
 		copyNegative(fieldSource, cf.getType(), null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
 	} finally {
 		this.deleteProject("P2");
@@ -596,11 +596,11 @@ public void testCopyFieldWithInvalidPositioning() throws CoreException {
 	IType typeDest = getCompilationUnit("/P/src/Y.java").getType("Y");
 
 	copyNegative(
-		fieldSource, 
-		typeDest, 
-		typeDest.getField("invalid"), 
-		null, 
-		false, 
+		fieldSource,
+		typeDest,
+		typeDest.getField("invalid"),
+		null,
+		false,
 		IJavaModelStatusConstants.INVALID_SIBLING);
 }
 /**
@@ -617,7 +617,7 @@ public void testCopyFieldWithInvalidPositioningInDifferentProject() throws CoreE
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("foo");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -625,13 +625,13 @@ public void testCopyFieldWithInvalidPositioningInDifferentProject() throws CoreE
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyNegative(
-			fieldSource, 
-			typeDest, 
-			typeDest.getField("invalid"), 
-			null, 
-			false, 
+			fieldSource,
+			typeDest,
+			typeDest.getField("invalid"),
+			null,
+			false,
 			IJavaModelStatusConstants.INVALID_SIBLING);
 	} finally {
 		this.deleteProject("P2");
@@ -661,7 +661,7 @@ public void testCopyFieldWithPositioning() throws CoreException {
 	copyPositive(fieldSource, typeDest, typeDest.getField("bar"), null, false);
 }
 /**
- * Ensures that a field can be copied to a different type across different projects 
+ * Ensures that a field can be copied to a different type across different projects
  * with positioning.
  */
 public void testCopyFieldWithPositioningInDifferentProject() throws CoreException {
@@ -674,7 +674,7 @@ public void testCopyFieldWithPositioningInDifferentProject() throws CoreExceptio
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("foo");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -683,7 +683,7 @@ public void testCopyFieldWithPositioningInDifferentProject() throws CoreExceptio
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(fieldSource, typeDest, typeDest.getField("bar"), null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -778,7 +778,7 @@ public void testCopyInitializerInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IInitializer initializerSource= typeSource.getInitializer(1);
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -786,7 +786,7 @@ public void testCopyInitializerInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(initializerSource, typeDest, null, null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -833,7 +833,7 @@ public void testCopyInitializerRenameInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IInitializer initializerSource= typeSource.getInitializer(1);
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -841,7 +841,7 @@ public void testCopyInitializerRenameInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyNegative(initializerSource, typeDest, null, "newName", false, IJavaModelStatusConstants.INVALID_NAME);
 	} finally {
 		this.deleteProject("P2");
@@ -864,7 +864,7 @@ public void testCopyInitializerWithPositioningInDifferentProject() throws CoreEx
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IInitializer initializerSource= typeSource.getInitializer(1);
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -873,7 +873,7 @@ public void testCopyInitializerWithPositioningInDifferentProject() throws CoreEx
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(initializerSource, typeDest, typeDest.getField("bar"), null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -888,11 +888,11 @@ public void testCopyInnerTypeWithPositioningInDifferentProject() throws CoreExce
 			"/P/src/X.java",
 			"public class X {\n" +
 			"  class Inner {\n" +
-			"  }" +			
+			"  }" +
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X").getType("Inner");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -903,7 +903,7 @@ public void testCopyInnerTypeWithPositioningInDifferentProject() throws CoreExce
 		);
 		ICompilationUnit cuDest = getCompilationUnit("/P2/src/Y.java");
 		IType typeDest = cuDest.getType("Y");
-	
+
 		copyPositive(typeSource,  typeDest, typeDest.getMethod("foo", new String[] {}), null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -964,7 +964,7 @@ public void testCopyMainTypeInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -972,7 +972,7 @@ public void testCopyMainTypeInDifferentProject() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cuDest = getCompilationUnit("/P2/src/Y.java");
-	
+
 		copyPositive(typeSource,  cuDest, null, null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -1028,7 +1028,7 @@ public void testCopyMethodForce() throws CoreException {
 	copyPositive(methodSource, typeDest, null, null, true);
 }
 /**
- * Ensures that a method can be copied to a different type across different projects, 
+ * Ensures that a method can be copied to a different type across different projects,
  * forcing an overwrite when there is a name collision
  */
 public void testCopyMethodForceInDifferentProject() throws CoreException {
@@ -1042,7 +1042,7 @@ public void testCopyMethodForceInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1052,7 +1052,7 @@ public void testCopyMethodForceInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(methodSource, typeDest, null, null, true);
 	} finally {
 		this.deleteProject("P2");
@@ -1072,7 +1072,7 @@ public void testCopyMethodInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1137,7 +1137,7 @@ public void testCopyMethodRenameForce() throws CoreException {
 	copyPositive(methodSource, typeDest, null, "bar", true);
 }
 /**
- * Ensures that a method can be copied to a different type across different projects, 
+ * Ensures that a method can be copied to a different type across different projects,
  * renamed simaltaneously, overwriting an existing method.
  */
 public void testCopyMethodRenameForceInDifferentProject() throws CoreException {
@@ -1151,7 +1151,7 @@ public void testCopyMethodRenameForceInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1168,7 +1168,7 @@ public void testCopyMethodRenameForceInDifferentProject() throws CoreException {
 	}
 }
 /**
- * Ensures that a method can be copied to a different type across different projects, 
+ * Ensures that a method can be copied to a different type across different projects,
  * renamed simaltaneously.
  */
 public void testCopyMethodRenameInDifferentProject() throws CoreException {
@@ -1182,7 +1182,7 @@ public void testCopyMethodRenameInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1190,7 +1190,7 @@ public void testCopyMethodRenameInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(methodSource, typeDest, null, "bar", false);
 	} finally {
 		this.deleteProject("P2");
@@ -1240,7 +1240,7 @@ public void testCopyMethodWithCollision() throws CoreException {
 	copyNegative(methodSource, typeDest, null, null, false, IJavaModelStatusConstants.NAME_COLLISION);
 }
 /**
- * Ensures that a method cannot be copied to a different type across different projects, 
+ * Ensures that a method cannot be copied to a different type across different projects,
  * when not forcing an overwrite when there is a name collision
  */
 public void testCopyMethodWithCollisionInDifferentProject() throws CoreException {
@@ -1254,7 +1254,7 @@ public void testCopyMethodWithCollisionInDifferentProject() throws CoreException
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1264,7 +1264,7 @@ public void testCopyMethodWithCollisionInDifferentProject() throws CoreException
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyNegative(methodSource, typeDest, null, null, false, IJavaModelStatusConstants.NAME_COLLISION);
 	} finally {
 		this.deleteProject("P2");
@@ -1300,7 +1300,7 @@ public void testCopyMethodWithInvalidDestinationInDifferentProject() throws Core
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource = typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1311,7 +1311,7 @@ public void testCopyMethodWithInvalidDestinationInDifferentProject() throws Core
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
 		IMethod methodDest = typeDest.getMethod("bar", new String[] {});
-		
+
 		copyNegative(methodSource, methodDest, null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
 	} finally {
 		this.deleteProject("P2");
@@ -1331,7 +1331,7 @@ public void testCopyMethodWithPositioningInDifferentProject() throws CoreExcepti
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource = typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1341,7 +1341,7 @@ public void testCopyMethodWithPositioningInDifferentProject() throws CoreExcepti
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(methodSource, typeDest, typeDest.getMethod("bar", new String[] {}), null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -1361,11 +1361,11 @@ public void testCopyMoveWithInvalidRenamings() throws CoreException {
 	IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 	IMethod methodSource = typeSource.getMethod("foo", new String[]{});
 	copyNegative(
-		new IJavaElement[] {methodSource}, 
-		new IJavaElement[] {typeSource}, 
-		null, 
-		new String[] {"bar", "fred"}, 
-		false, 
+		new IJavaElement[] {methodSource},
+		new IJavaElement[] {typeSource},
+		null,
+		new String[] {"bar", "fred"},
+		false,
 		IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
 }
 /**
@@ -1406,7 +1406,7 @@ public void testCopySyntaxErrorMethodInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1414,7 +1414,7 @@ public void testCopySyntaxErrorMethodInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		copyPositive(methodSource, typeDest, null, null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -1455,7 +1455,7 @@ public void testCopyTypeInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("Z");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1463,7 +1463,7 @@ public void testCopyTypeInDifferentProject() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cuDest = getCompilationUnit("/P2/src/Y.java");
-	
+
 		copyPositive(typeSource,  cuDest, null, null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -1482,7 +1482,7 @@ public void testCopyTypeWithPositioningInDifferentProject() throws CoreException
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("Z");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1490,7 +1490,7 @@ public void testCopyTypeWithPositioningInDifferentProject() throws CoreException
 			"}"
 		);
 		ICompilationUnit cuDest = getCompilationUnit("/P2/src/Y.java");
-	
+
 		copyPositive(typeSource,  cuDest, cuDest.getType("Y"), null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -1519,14 +1519,14 @@ public void testMoveConstructor() throws CoreException {
 	IType typeDest = getCompilationUnit("/P/src/Y.java").getType("Y");
 
 	movePositive(methodSource, typeDest, null, null, false);
-	
+
 	// test that the constructor has been renamed
 	assertTrue(
-		"Constructor was not renamed", 
+		"Constructor was not renamed",
 		typeDest.getMethod("Y", new String[] {"QString;"}).exists());
 }
 /**
- * Ensures that a constructor can be moved to a different type across different projects. 
+ * Ensures that a constructor can be moved to a different type across different projects.
  * The constructor should be automatically renamed to that of the destination type.
  */
 public void testMoveConstructorInDifferentProject() throws CoreException {
@@ -1540,7 +1540,7 @@ public void testMoveConstructorInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("X", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1548,12 +1548,12 @@ public void testMoveConstructorInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(methodSource, typeDest, null, null, false);
 
 		// test that the constructor has been renamed
 		assertTrue(
-			"Constructor was not renamed", 
+			"Constructor was not renamed",
 			typeDest.getMethod("Y", new String[] {"QString;"}).exists());
 	} finally {
 		this.deleteProject("P2");
@@ -1605,7 +1605,7 @@ public void testMoveFieldForce() throws CoreException {
 	movePositive(fieldSource, typeDest, null, null, true);
 }
 /**
- * Ensures that a field can be moved to a different type across differnt projects 
+ * Ensures that a field can be moved to a different type across differnt projects
  * replacing an existing field.
  */
 public void testMoveFieldForceInDifferentProject() throws CoreException {
@@ -1618,7 +1618,7 @@ public void testMoveFieldForceInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("bar");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1627,7 +1627,7 @@ public void testMoveFieldForceInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(fieldSource, typeDest, null, null, true);
 	} finally {
 		this.deleteProject("P2");
@@ -1646,7 +1646,7 @@ public void testMoveFieldInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("bar");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1654,7 +1654,7 @@ public void testMoveFieldInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(fieldSource, typeDest, null, null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -1721,7 +1721,7 @@ public void testMoveFieldRenameForceInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("foo");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1730,7 +1730,7 @@ public void testMoveFieldRenameForceInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(fieldSource, typeDest, null, "bar", true);
 	} finally {
 		this.deleteProject("P2");
@@ -1750,7 +1750,7 @@ public void testMoveFieldRenameInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("foo");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1758,14 +1758,14 @@ public void testMoveFieldRenameInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(fieldSource, typeDest, null, "bar", false);
 	} finally {
 		this.deleteProject("P2");
 	}
 }
 /**
- * Ensures that a field can be copied to a different type across different projects 
+ * Ensures that a field can be copied to a different type across different projects
  * with positioning.
  */
 public void testMoveFieldRenameForceWithPositioningInDifferentProject() throws CoreException {
@@ -1778,7 +1778,7 @@ public void testMoveFieldRenameForceWithPositioningInDifferentProject() throws C
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("foo");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1788,7 +1788,7 @@ public void testMoveFieldRenameForceWithPositioningInDifferentProject() throws C
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(fieldSource, typeDest, typeDest.getField("bar"), "fred", true);
 	} finally {
 		this.deleteProject("P2");
@@ -1847,7 +1847,7 @@ public void testMoveFieldWithCollisionInDifferentProject() throws CoreException 
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("bar");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1856,7 +1856,7 @@ public void testMoveFieldWithCollisionInDifferentProject() throws CoreException 
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		moveNegative(fieldSource, typeDest, null, null, false, IJavaModelStatusConstants.NAME_COLLISION);
 	} finally {
 		this.deleteProject("P2");
@@ -1892,17 +1892,17 @@ public void testMoveFieldWithInvalidDestinationInDifferentProject() throws CoreE
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("foo");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, new String[] {"/BinaryProject/bin"}, "bin");
 		IClassFile cf = getClassFile("P2", "/BinaryProject/bin", "", "X.class");
-	
+
 		moveNegative(fieldSource, cf.getType(), null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
 	} finally {
 		this.deleteProject("P2");
 	}
 }
 /**
- * Ensures that a field can be copied to a different type across different projects 
+ * Ensures that a field can be copied to a different type across different projects
  * with positioning.
  */
 public void testMoveFieldWithPositioningInDifferentProject() throws CoreException {
@@ -1915,7 +1915,7 @@ public void testMoveFieldWithPositioningInDifferentProject() throws CoreExceptio
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IField fieldSource= typeSource.getField("foo");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1924,7 +1924,7 @@ public void testMoveFieldWithPositioningInDifferentProject() throws CoreExceptio
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(fieldSource, typeDest, typeDest.getField("bar"), null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -1972,7 +1972,7 @@ public void testMoveInitializerInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IInitializer initializerSource= typeSource.getInitializer(1);
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -1980,7 +1980,7 @@ public void testMoveInitializerInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(initializerSource, typeDest, null, null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -2027,7 +2027,7 @@ public void testMoveInitializerRenameInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IInitializer initializerSource= typeSource.getInitializer(1);
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2035,14 +2035,14 @@ public void testMoveInitializerRenameInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		moveNegative(initializerSource, typeDest, null, "newName", false, IJavaModelStatusConstants.INVALID_NAME);
 	} finally {
 		this.deleteProject("P2");
 	}
 }
 /**
- * Ensures that a initializer can be moved to a different type in a different project 
+ * Ensures that a initializer can be moved to a different type in a different project
  * with positioning.
  */
 public void testMoveInitializerWithPositioningInDifferentProject() throws CoreException {
@@ -2058,7 +2058,7 @@ public void testMoveInitializerWithPositioningInDifferentProject() throws CoreEx
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IInitializer initializerSource= typeSource.getInitializer(1);
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2067,7 +2067,7 @@ public void testMoveInitializerWithPositioningInDifferentProject() throws CoreEx
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(initializerSource, typeDest, typeDest.getField("bar"), null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -2083,11 +2083,11 @@ public void testMoveInnerTypeRenameWithPositioningInDifferentProject() throws Co
 			"/P/src/X.java",
 			"public class X {\n" +
 			"  class Inner {\n" +
-			"  }" +			
+			"  }" +
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X").getType("Inner");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2114,11 +2114,11 @@ public void testMoveInnerTypeWithPositioningInDifferentProject() throws CoreExce
 			"/P/src/X.java",
 			"public class X {\n" +
 			"  class Inner {\n" +
-			"  }" +			
+			"  }" +
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X").getType("Inner");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2129,7 +2129,7 @@ public void testMoveInnerTypeWithPositioningInDifferentProject() throws CoreExce
 		);
 		ICompilationUnit cuDest = getCompilationUnit("/P2/src/Y.java");
 		IType typeDest = cuDest.getType("Y");
-	
+
 		movePositive(typeSource,  typeDest, typeDest.getMethod("foo", new String[] {}), null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -2149,10 +2149,10 @@ public void testMoveMainTypes() throws CoreException {
 	IType typeSource = cu.getType("X");
 
 	movePositive(
-		new IJavaElement[] {typeSource}, 
-		new IJavaElement[]{cu}, 
-		null, 
-		new String[] {"Y"}, 
+		new IJavaElement[] {typeSource},
+		new IJavaElement[]{cu},
+		null,
+		new String[] {"Y"},
 		false);
 
 	// test that both the compilation unit and the main type have been renamed.
@@ -2223,7 +2223,7 @@ public void testMoveMethodForceInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2233,7 +2233,7 @@ public void testMoveMethodForceInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(methodSource, typeDest, null, null, true);
 	} finally {
 		this.deleteProject("P2");
@@ -2253,7 +2253,7 @@ public void testMoveMethodInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2332,7 +2332,7 @@ public void testMoveMethodRenameForceInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2363,7 +2363,7 @@ public void testMoveMethodRenameInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2371,7 +2371,7 @@ public void testMoveMethodRenameInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(methodSource, typeDest, null, "bar", false);
 	} finally {
 		this.deleteProject("P2");
@@ -2392,7 +2392,7 @@ public void testMoveMethodRenameWithPositioningInDifferentProject() throws CoreE
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource = typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2402,7 +2402,7 @@ public void testMoveMethodRenameWithPositioningInDifferentProject() throws CoreE
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(methodSource, typeDest, typeDest.getMethod("bar", new String[] {}), "fred", false);
 	} finally {
 		this.deleteProject("P2");
@@ -2473,7 +2473,7 @@ public void testMoveMethodsWithCancelInDifferentProject() throws CoreException {
 			"}"
 		);
 		final IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2483,7 +2483,7 @@ public void testMoveMethodsWithCancelInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		boolean isCanceled = false;
 		try {
 			TestProgressMonitor monitor = TestProgressMonitor.getInstance();
@@ -2538,7 +2538,7 @@ public void testMoveMethodWithCollisionInDifferentProject() throws CoreException
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2548,7 +2548,7 @@ public void testMoveMethodWithCollisionInDifferentProject() throws CoreException
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		moveNegative(methodSource, typeDest, null, null, false, IJavaModelStatusConstants.NAME_COLLISION);
 	} finally {
 		this.deleteProject("P2");
@@ -2584,7 +2584,7 @@ public void testMoveMethodWithInvalidDestinationInDifferentProject() throws Core
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource = typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2595,7 +2595,7 @@ public void testMoveMethodWithInvalidDestinationInDifferentProject() throws Core
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
 		IMethod methodDest = typeDest.getMethod("bar", new String[] {});
-		
+
 		moveNegative(methodSource, methodDest, null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
 	} finally {
 		this.deleteProject("P2");
@@ -2616,7 +2616,7 @@ public void testMoveMethodWithPositioningInDifferentProject() throws CoreExcepti
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource = typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2626,7 +2626,7 @@ public void testMoveMethodWithPositioningInDifferentProject() throws CoreExcepti
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(methodSource, typeDest, typeDest.getMethod("bar", new String[] {}), null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -2670,7 +2670,7 @@ public void testMoveSyntaxErrorMethodInDifferentProject() throws CoreException {
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 		IMethod methodSource= typeSource.getMethod("foo", new String[] {"QString;"});
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2678,7 +2678,7 @@ public void testMoveSyntaxErrorMethodInDifferentProject() throws CoreException {
 			"}"
 		);
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
-	
+
 		movePositive(methodSource, typeDest, null, null, false);
 	} finally {
 		this.deleteProject("P2");
@@ -2697,7 +2697,7 @@ public void testMoveTypeRenameWithPositioningInDifferentProject() throws CoreExc
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("Z");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2705,7 +2705,7 @@ public void testMoveTypeRenameWithPositioningInDifferentProject() throws CoreExc
 			"}"
 		);
 		ICompilationUnit cuDest = getCompilationUnit("/P2/src/Y.java");
-	
+
 		movePositive(typeSource,  cuDest, cuDest.getType("Y"), "T", false);
 	} finally {
 		this.deleteProject("P2");
@@ -2724,7 +2724,7 @@ public void testMoveTypeWithPositioningInDifferentProject() throws CoreException
 			"}"
 		);
 		IType typeSource = getCompilationUnit("/P/src/X.java").getType("Z");
-	
+
 		this.createJavaProject("P2", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P2/src/Y.java",
@@ -2732,7 +2732,7 @@ public void testMoveTypeWithPositioningInDifferentProject() throws CoreException
 			"}"
 		);
 		ICompilationUnit cuDest = getCompilationUnit("/P2/src/Y.java");
-	
+
 		movePositive(typeSource,  cuDest, cuDest.getType("Y"), null, false);
 	} finally {
 		this.deleteProject("P2");

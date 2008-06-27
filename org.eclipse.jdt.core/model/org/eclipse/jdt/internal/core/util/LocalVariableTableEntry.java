@@ -28,10 +28,10 @@ public class LocalVariableTableEntry extends ClassFileStruct implements ILocalVa
 	private char[] name;
 	private char[] descriptor;
 	private int index;
-	
+
 	/**
 	 * Constructor for LocalVariableTableEntry.
-	 * 
+	 *
 	 * @param classFileBytes
 	 * @param constantPool
 	 * @param offset
@@ -57,7 +57,7 @@ public class LocalVariableTableEntry extends ClassFileStruct implements ILocalVa
 			}
 			this.descriptor = constantPoolEntry.getUtf8Value();
 		}
-		
+
 	/**
 	 * @see ILocalVariableTableEntry#getStartPC()
 	 */

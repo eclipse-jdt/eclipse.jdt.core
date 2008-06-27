@@ -25,7 +25,7 @@ public class SourceFileAttribute
 
 	private int sourceFileIndex;
 	private char[] sourceFileName;
-	
+
 	/**
 	 * Constructor for SourceFileAttribute.
 	 * @param classFileBytes

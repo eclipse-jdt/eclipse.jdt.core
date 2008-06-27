@@ -55,7 +55,7 @@ public class AbstractMethodTests extends BuilderTests {
 	public AbstractMethodTests(String name) {
 		super(name);
 	}
-	
+
 	public static Test suite() {
 		return buildTestSuite(AbstractMethodTests.class);
 	}
@@ -72,20 +72,20 @@ public class AbstractMethodTests extends BuilderTests {
 			//----------------------------
 		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(project1Path, ""); //$NON-NLS-1$
-		
+
 		env.setOutputFolder(project1Path, "bin"); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
-		
+
 		env.addClass(root1, "p1", "IX", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
 			"public interface IX {\n" + //$NON-NLS-1$
 			"   public abstract void foo(IX x);\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		IPath classX = env.addClass(root1, "p2", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n" + //$NON-NLS-1$
 			"import p1.*;\n" + //$NON-NLS-1$
@@ -93,30 +93,30 @@ public class AbstractMethodTests extends BuilderTests {
 			"   public void foo(IX x){}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 			//----------------------------
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(project2Path, ""); //$NON-NLS-1$
-		
+
 		IPath root2 = env.addPackageFragmentRoot(project2Path, "src"); //$NON-NLS-1$
 		env.setOutputFolder(project2Path, "bin"); //$NON-NLS-1$
-			
+
 		IPath classY =env.addClass(root2, "p3", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n" + //$NON-NLS-1$
 			"import p2.*;\n" + //$NON-NLS-1$
 			"public class Y extends X{\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		fullBuild();
 		expectingNoProblems();
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
@@ -127,11 +127,11 @@ public class AbstractMethodTests extends BuilderTests {
 			"   public void foo(I__X x){}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild();
 		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved to a type", classX, 84, 88, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingOnlySpecificProblemFor(classY, new Problem("Y", "The type Y must implement the inherited abstract method IX.foo(IX)", classY, 38, 39, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		//----------------------------
 		//           Step 3
 		//----------------------------
@@ -142,11 +142,11 @@ public class AbstractMethodTests extends BuilderTests {
 			"   public void foo(IX x){}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		incrementalBuild();
 		expectingNoProblems();
 	}
-	
+
 	/**
 	 * Check behavior in 1.1 target mode (generated default abstract method)
 	 */
@@ -162,17 +162,17 @@ public class AbstractMethodTests extends BuilderTests {
 		env.getJavaProject(project1Path).setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1); // need default abstract method
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(project1Path, ""); //$NON-NLS-1$
-		
+
 		env.setOutputFolder(project1Path, "bin"); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
-		
+
 		env.addClass(root1, "p1", "IX", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
 			"public interface IX {\n" + //$NON-NLS-1$
 			"   public abstract void foo(IX x);\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		IPath classX = env.addClass(root1, "p2", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n" + //$NON-NLS-1$
 			"import p1.*;\n" + //$NON-NLS-1$
@@ -180,30 +180,30 @@ public class AbstractMethodTests extends BuilderTests {
 			"   public void foo(IX x){}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 			//----------------------------
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(project2Path, ""); //$NON-NLS-1$
-		
+
 		IPath root2 = env.addPackageFragmentRoot(project2Path, "src"); //$NON-NLS-1$
 		env.setOutputFolder(project2Path, "bin"); //$NON-NLS-1$
-			
+
 		IPath classY =env.addClass(root2, "p3", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n" + //$NON-NLS-1$
 			"import p2.*;\n" + //$NON-NLS-1$
 			"public class Y extends X{\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		fullBuild();
 		expectingNoProblems();
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
@@ -214,7 +214,7 @@ public class AbstractMethodTests extends BuilderTests {
 			"   public void foo(I__X x){}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild();
 		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved to a type", classX, 84, 88, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingOnlySpecificProblemFor(classY, new Problem("Y", "The type Y must implement the inherited abstract method IX.foo(IX)", classY, 38, 39, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -229,7 +229,7 @@ public class AbstractMethodTests extends BuilderTests {
 			"   public void foo(IX x){}\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		incrementalBuild();
 		expectingNoProblems();
 	}
@@ -249,24 +249,24 @@ public class AbstractMethodTests extends BuilderTests {
 		env.getJavaProject(project1Path).setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1); // need default abstract method
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(project1Path, ""); //$NON-NLS-1$
-		
+
 		env.setOutputFolder(project1Path, "bin"); //$NON-NLS-1$
 		IPath root1 = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
-		
+
 		env.addClass(root1, "p1", "IX", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
 			"public interface IX {\n" + //$NON-NLS-1$
 			"   public abstract void foo(IX x);\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		env.addClass(root1, "p2", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n" + //$NON-NLS-1$
 			"import p1.*;\n" + //$NON-NLS-1$
 			"public abstract class X implements IX {\n" + //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-		
+
 		fullBuild();
 		expectingNoProblems();
 
@@ -280,10 +280,10 @@ public class AbstractMethodTests extends BuilderTests {
 		String expectedOutput = "/Project1/bin/p2/X.class\n" +
 				"/Project1/bin/p1/IX.class\n";
 		assertEquals("Wrong names", Util.convertToIndependantLineDelimiter(expectedOutput), actualOutput);
-		
+
 		assertEquals("Wrong type", IResource.FILE, resources[0].getType());
 		IFile classFile = (IFile) resources[0];
-		IClassFileReader classFileReader = null; 
+		IClassFileReader classFileReader = null;
 		InputStream stream = null;
 		try {
 			stream = classFile.getContents();

@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class SecondaryTypeDeclarationPattern extends TypeDeclarationPattern {
-	
+
 	private final static char[] SECONDARY_PATTERN_KEY = "*/S".toCharArray(); //$NON-NLS-1$
 
 public SecondaryTypeDeclarationPattern() {
@@ -43,5 +43,5 @@ protected StringBuffer print(StringBuffer output) {
 EntryResult[] queryIn(Index index) throws IOException {
 	return index.query(CATEGORIES, SECONDARY_PATTERN_KEY, R_PATTERN_MATCH | R_CASE_SENSITIVE);
 }
-	
+
 }

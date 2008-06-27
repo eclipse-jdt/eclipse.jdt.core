@@ -35,35 +35,35 @@ public static Test suite() {
  */
 public void testAllVariables() {
 	// No variables defined yet
-	GlobalVariable[] vars = context.allVariables();
+	GlobalVariable[] vars = this.context.allVariables();
 	assertEquals("No variables should be defined", 0, vars.length);
 
 	// Define 3 variables
-	context.newVariable("int".toCharArray(), "foo".toCharArray(), "1".toCharArray());
-	context.newVariable("Object".toCharArray(), "bar".toCharArray(), null);
-	context.newVariable("String".toCharArray(), "zip".toCharArray(), "\"abcdefg\"".toCharArray());
-	vars = context.allVariables();
+	this.context.newVariable("int".toCharArray(), "foo".toCharArray(), "1".toCharArray());
+	this.context.newVariable("Object".toCharArray(), "bar".toCharArray(), null);
+	this.context.newVariable("String".toCharArray(), "zip".toCharArray(), "\"abcdefg\"".toCharArray());
+	vars = this.context.allVariables();
 	assertEquals("3 variables should be defined", 3, vars.length);
 	assertEquals("1st variable", "foo".toCharArray(), vars[0].getName());
 	assertEquals("2nd variable", "bar".toCharArray(), vars[1].getName());
 	assertEquals("3rd variable", "zip".toCharArray(), vars[2].getName());
 
 	// Remove 2nd variable
-	context.deleteVariable(vars[1]);
-	vars = context.allVariables();
+	this.context.deleteVariable(vars[1]);
+	vars = this.context.allVariables();
 	assertEquals("2 variables should be defined", 2, vars.length);
 	assertEquals("1st variable", "foo".toCharArray(), vars[0].getName());
 	assertEquals("2nd variable", "zip".toCharArray(), vars[1].getName());
 
 	// Remove last variable
-	context.deleteVariable(vars[1]);
-	vars = context.allVariables();
+	this.context.deleteVariable(vars[1]);
+	vars = this.context.allVariables();
 	assertEquals("1 variable should be defined", 1, vars.length);
 	assertEquals("1st variable", "foo".toCharArray(), vars[0].getName());
 
 	// Remove 1st variable
-	context.deleteVariable(vars[0]);
-	vars = context.allVariables();
+	this.context.deleteVariable(vars[0]);
+	vars = this.context.allVariables();
 	assertEquals("No variables should be defined", 0, vars.length);
 }
 public static Class testClass() {
@@ -76,7 +76,7 @@ public void testEvaluate() {
 	Requestor requestor = new Requestor();
 	char[] snippet = "return 1;".toCharArray();
 	try {
-		context.evaluate(snippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+		this.context.evaluate(snippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
 	}
@@ -93,7 +93,7 @@ public void testEvaluate() {
 public void testEvaluateImports() {
 	try {
 		// Define imports
-		context.setImports(new char[][] {"java.util.*".toCharArray(), "java.lang.reflect.Method".toCharArray()});
+		this.context.setImports(new char[][] {"java.util.*".toCharArray(), "java.lang.reflect.Method".toCharArray()});
 
 		// Evaluate them
 		IRequestor requestor = new Requestor() {
@@ -101,10 +101,10 @@ public void testEvaluateImports() {
 				assertTrue("No problems with the imports", !result.hasProblems());
 			}
 		};
-		context.evaluateImports(getEnv(), requestor, getProblemFactory());
+		this.context.evaluateImports(getEnv(), requestor, getProblemFactory());
 	} finally {
 		// Clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -114,16 +114,16 @@ public void testEvaluateVariable() {
 	GlobalVariable var = null;
 	try {
 		// Create the variable
-		var = context.newVariable("int".toCharArray(), "foo".toCharArray(), "1".toCharArray());
+		var = this.context.newVariable("int".toCharArray(), "foo".toCharArray(), "1".toCharArray());
 
-		// Install it	
+		// Install it
 		class NoPbRequestor extends Requestor {
 			public void acceptResult(EvaluationResult result) {
 				assertTrue("No problems with the variable", !result.hasProblems());
 			}
 		}
 		try {
-			context.evaluateVariables(getEnv(), getCompilerOptions(), new NoPbRequestor(), getProblemFactory());
+			this.context.evaluateVariables(getEnv(), getCompilerOptions(), new NoPbRequestor(), getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
@@ -131,7 +131,7 @@ public void testEvaluateVariable() {
 		// Get its value
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluateVariable(var, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+			this.context.evaluateVariable(var, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
@@ -143,7 +143,7 @@ public void testEvaluateVariable() {
 	} finally {
 		// Clean up
 		if (var != null) {
-			context.deleteVariable(var);
+			this.context.deleteVariable(var);
 		}
 	}
 }
@@ -154,12 +154,12 @@ public void testEvaluateVariables() {
 	GlobalVariable var = null;
 	try {
 		// Create 1 variable
-		var = context.newVariable("int".toCharArray(), "foo".toCharArray(), "1".toCharArray());
+		var = this.context.newVariable("int".toCharArray(), "foo".toCharArray(), "1".toCharArray());
 
 		// Install it and get its value
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluateVariables(getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+			this.context.evaluateVariables(getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
@@ -172,7 +172,7 @@ public void testEvaluateVariables() {
 	} finally {
 		// Clean up
 		if (var != null) {
-			context.deleteVariable(var);
+			this.context.deleteVariable(var);
 		}
 	}
 }
@@ -182,19 +182,19 @@ public void testEvaluateVariables() {
 public void testGetSetImports() {
 	try {
 		// No imports
-		assertTrue("No imports defined", context.getImports().length == 0);
+		assertTrue("No imports defined", this.context.getImports().length == 0);
 
 		// Define some imports
 		char[][] imports = new char[][] {"java.util".toCharArray(), "java.lang.reflect.Method".toCharArray()};
-		context.setImports(imports);
-		char[][] storedImports = context.getImports();
+		this.context.setImports(imports);
+		char[][] storedImports = this.context.getImports();
 		assertEquals("Same length", imports.length, storedImports.length);
 		for (int i = 0; i < imports.length; i++){
 			assertEquals("Import #" + i, imports[i], storedImports[i]);
 		}
 	} finally {
 		// Clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -203,16 +203,16 @@ public void testGetSetImports() {
 public void testGetSetPackageName() {
 	try {
 		// Default package
-		assertTrue("Default package", context.getPackageName().length == 0);
+		assertTrue("Default package", this.context.getPackageName().length == 0);
 
 		// Define a package
 		char[] packageName = "x.y.z".toCharArray();
-		context.setPackageName(packageName);
-		char[] storedPackageName = context.getPackageName();
+		this.context.setPackageName(packageName);
+		char[] storedPackageName = this.context.getPackageName();
 		assertEquals("Same package name", packageName, storedPackageName);
 	} finally {
 		// Clean up
-		context.setPackageName(new char[0]);
+		this.context.setPackageName(new char[0]);
 	}
 }
 /**
@@ -221,11 +221,11 @@ public void testGetSetPackageName() {
  */
 public void testNewDeleteVariable() {
 	// Define 1 variable
-	GlobalVariable var = context.newVariable("int".toCharArray(), "deleted".toCharArray(), null);
+	GlobalVariable var = this.context.newVariable("int".toCharArray(), "deleted".toCharArray(), null);
 
 	// Delete it
-	context.deleteVariable(var);
-	GlobalVariable[] vars = context.allVariables();
+	this.context.deleteVariable(var);
+	GlobalVariable[] vars = this.context.allVariables();
 	for (int i = 0; i < vars.length; i++) {
 		assertTrue("Variable should not exist", !var.getName().equals(vars[i].getName()));
 	}

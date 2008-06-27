@@ -56,11 +56,11 @@ public interface TypeIds {
 
 	// 1.4 features
 	final int T_JavaLangAssertionError = 35;
-	
+
 	// array interfaces
 	final int T_JavaLangCloneable = 36;
 	final int T_JavaIoSerializable = 37;
-	    
+
 	// 1.5 features
 	final int T_JavaLangIterable = 38;
 	final int T_JavaUtilIterator = 39;

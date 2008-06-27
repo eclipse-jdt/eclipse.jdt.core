@@ -85,7 +85,7 @@ public int resolveLevel(Binding binding) {
 	}
 }
 /**
- * Returns whether the given type binding matches the given simple name pattern 
+ * Returns whether the given type binding matches the given simple name pattern
  * qualification pattern and enclosing type name pattern.
  */
 protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, char[] enclosingNamePattern, TypeBinding type) {

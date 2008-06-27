@@ -30,7 +30,7 @@ import junit.framework.Test;
  * Tests internal Java element cache and buffer cache.
  */
 public class OverflowingCacheTests extends ModifyingResourceTests {
-	
+
 	/**
 	 * Simple implementation of IBuffer to test the BufferCache.
 	 * A OverflowingTestBuffer is created with/without saved changes (determined
@@ -41,22 +41,22 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		 * True if this buffer is open, otherwise false.
 		 */
 		public boolean isOpen;
-	
+
 		/**
 		 * True if this buffer has unsaved changes, otherwise false.
 		 */
 		public boolean hasUnsavedChanges;
-	
+
 		/**
 		 * The cache this buffer is stored in
 		 */
 		public OverflowingLRUCache cache;
-	
+
 		/**
 		 * This buffers owner (this buffer's key in this buffer's cache)
 		 */
 		public IOpenable owner;
-		
+
 		public OverflowingTestBuffer(boolean hasUnsavedChanges, OverflowingLRUCache cache) {
 			super();
 			this.hasUnsavedChanges= hasUnsavedChanges;
@@ -167,15 +167,15 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 	 * A OverflowingTestBuffer is created with/without saved changes (determined
 	 * by client), and is opened on creation.
 	 */
-	
+
 	public class OverflowingTestOpenable extends Openable {
 		/**
 		 * True if this element is open, otherwise false.
 		 */
 		public boolean isOpen;
-	
+
 		public OverflowingTestBuffer buffer;
-	
+
 		/**
 		 * The cache this element is stored in
 		 */
@@ -192,11 +192,11 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			this.cache= cache;
 			open(null);
 		}
-		
+
 		protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) {
 			return false;
 		}
-		
+
 		public void close() {
 			// Closes this element and removes if from the cache.
 			this.isOpen = false;
@@ -220,7 +220,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 			return null;
 		}
-		
+
 		protected char getHandleMementoDelimiter() {
 			return 0;
 		}
@@ -260,7 +260,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		public void save(IProgressMonitor pm, boolean force) {
 			this.buffer.hasUnsavedChanges = false;
 		}
-		
+
 		protected IStatus validateExistence(IResource underlyingResource) {
 			return null;
 		}
@@ -280,7 +280,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 	private boolean hasUnsavedChanges(int i) {
 		return i % 10 != 0;
 	}
-	
+
 	/*
 	 * Ensures that the Java model cache adapts its size for a project with a number of roots greater than the default max.
 	 */
@@ -307,13 +307,13 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			}
 			classpath[rootSize] = JavaCore.newVariableEntry(new Path("JCL_LIB"), null, null);
 			project.setRawClasspath(classpath, new Path("/P/bin"), null);
-			
+
 			// Open all roots
 			IJavaElement[] roots = project.getChildren();
 			for (int i = 0; i < rootSize; i++) {
 				((IOpenable) roots[i]).open(null);
 			}
-			
+
 			// Ensure that all roots remained opened
 			for (int i = 0; i < rootSize; i++) {
 				assertTrue("Root should be opened " + roots[i], ((IOpenable) roots[i]).isOpen());
@@ -333,17 +333,17 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int overflow = 0, actualOverflow;
 		int current = 0, actualCurrent;
 		OverflowingLRUCache cache = new BufferCache(spaceLimit);
-		
+
 		actualSpaceLimit = cache.getSpaceLimit();
 		assertEquals("space limit incorrect ", spaceLimit, actualSpaceLimit);
-		
+
 		actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect ", current, actualCurrent);
-		
+
 		actualOverflow = cache.getOverflow();
 		assertEquals("overflow space incorrect ", overflow, actualOverflow);
 	}
-	
+
 	/**
 	 * Creates an empty BufferCache of size 20, inserts 20 buffers
 	 * and ensures that it is full, with zero overflow.
@@ -352,7 +352,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int spaceLimit = 20, actualSpaceLimit;
 		int overflow = 0, actualOverflow;
 		int current = 0, actualCurrent;
-	
+
 		OverflowingLRUCache cache = new BufferCache(spaceLimit);
 		OverflowingTestBuffer[] buffers= new OverflowingTestBuffer[spaceLimit];
 		OverflowingTestOpenable[] openables= new OverflowingTestOpenable[spaceLimit];
@@ -365,19 +365,19 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 
 		actualSpaceLimit = cache.getSpaceLimit();
 		assertEquals("space limit incorrect ", spaceLimit, actualSpaceLimit);
-		
+
 		actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect ", current, actualCurrent);
-		
+
 		actualOverflow = cache.getOverflow();
 		assertEquals("overflow space incorrect ", overflow, actualOverflow);
-	
+
 		for(int i = spaceLimit - 1; i >= 0; i--) {
 			Object value = cache.get(openables[i]);
 			assertEquals("wrong value ("+i+")", buffers[i], value);
-		}	
+		}
 	}
-	
+
 	/**
 	 * Creates an empty BufferCache of size 500, inserts 1000 buffers
 	 * and ensures that the cache has 334 buffers left in it. When the
@@ -392,7 +392,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int overflow = 0, actualOverflow;
 		int actualCurrent, predictedCurrent = 334;
 		int entryCount = 1000;
-	
+
 		OverflowingLRUCache cache = new BufferCache(spaceLimit);
 		OverflowingTestOpenable[] openables = new OverflowingTestOpenable[entryCount];
 		OverflowingTestBuffer[] buffers= new OverflowingTestBuffer[entryCount];
@@ -404,24 +404,24 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 
 		actualSpaceLimit = cache.getSpaceLimit();
 		assertEquals("space limit incorrect ", spaceLimit, actualSpaceLimit);
-		
+
 		actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect ", predictedCurrent, actualCurrent);
-		
+
 		actualOverflow = cache.getOverflow();
 		assertEquals("overflow space incorrect ", overflow, actualOverflow);
-	
-	
+
+
 		for(int i = entryCount - 1; i >= entryCount - predictedCurrent; i--) {
 			Object value = cache.get(openables[i]);
 			assertEquals("wrong value ("+i+")", buffers[i], value);
 		}
-	
+
 		// ensure first 500 entries swaped out
 		for(int i = 0; i < spaceLimit; i++) {
 			Object value = cache.get(openables[i]);
 			assertEquals("entry should not be present", null, value);
-		}	
+		}
 	}
 
 	/**
@@ -435,7 +435,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 	public void testBufferCacheUseOverflow() {
 		int spaceLimit = 500;
 		int entryCount = 1000;
-		
+
 		OverflowingLRUCache cache = new BufferCache(spaceLimit);
 		OverflowingTestOpenable[] openables = new OverflowingTestOpenable[entryCount];
 		OverflowingTestBuffer[] buffers= new OverflowingTestBuffer[entryCount];
@@ -445,23 +445,23 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			openables[i] = new OverflowingTestOpenable(buffers[i], null);
 			cache.put(openables[i], buffers[i]);
 		}
-	
+
 		Hashtable table = cache.getEntryTable();
-		assertEquals("Hashtable wrong size", 900, table.size());	 	
-		
+		assertEquals("Hashtable wrong size", 900, table.size());
+
 		int actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect", 900, actualCurrent);
-		
+
 		int actualOverflow = cache.getOverflow();
 		assertEquals("overflow space incorrect", 400, actualOverflow);
-		
+
 		for (int i = entryCount - 1; i >= 0; i--) {
 			if (hasUnsavedChanges(i)) {
 				Object value = cache.get(openables[i]);
 				assertEquals("wrong value (" + i + ")", buffers[i], value);
 			}
 		}
-	
+
 		// the cache should shrink back to the spaceLimit as we save entries with unsaved changes
 		for (int i= 0; i < entryCount; i++) {
 			buffers[i].save(null, false);
@@ -470,12 +470,12 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		OverflowingTestBuffer buffer1= new OverflowingTestBuffer(false, cache);
 		IOpenable openable1= new OverflowingTestOpenable(buffer1, null);
 		cache.put(openable1, buffer1);
-		
+
 		// now the size should be back to 168, with 0 overflow
 		actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect (after flush)", 168, actualCurrent);
 		actualOverflow = cache.getOverflow();
-		assertEquals("overflow space incorrect (after flush)", 0, actualOverflow);	
+		assertEquals("overflow space incorrect (after flush)", 0, actualOverflow);
 	}
 
 	/**
@@ -493,7 +493,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		}
 		openBuffers= BufferManager.getDefaultBufferManager().getOpenBuffers();
 		assertTrue("buffer cache not empty", !openBuffers.hasMoreElements());
-		
+
 		try {
 			createJavaProject("P");
 			for (int i = 0; i < 61; i++) {
@@ -505,13 +505,13 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			}
 			IPackageFragment pkg= getPackage("P");
 			ICompilationUnit[] cus = pkg.getCompilationUnits();
-		
+
 			// fill the cache - open 60 buffers
 			int max = 60;
 			for (int i= 0; i < max; i++) {
 				cus[i].getBuffer();
 			}
-		
+
 			// should be 60 buffers now
 			openBuffers= BufferManager.getDefaultBufferManager().getOpenBuffers();
 			int count= 0;
@@ -520,7 +520,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 				count++;
 			}
 			assertEquals("incorrect numbers of open buffers (1)", max, count);
-		
+
 			// open one more buffer should cause the cache to free up 2/3rds of its space
 			// which means 40 buffers will be closed, and 1 will be added (this one),
 			// totalling 21 = 60 - 40 + 1.
@@ -531,8 +531,8 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 				openBuffers.nextElement();
 				count++;
 			}
-			assertEquals("incorrect numbers of open buffers (2)", 21, count);	
-		
+			assertEquals("incorrect numbers of open buffers (2)", 21, count);
+
 			//re-opening a previous open buffer should work fine
 			cus[0].getBuffer();
 			openBuffers= BufferManager.getDefaultBufferManager().getOpenBuffers();
@@ -541,7 +541,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 				openBuffers.nextElement();
 				count++;
 			}
-			assertEquals("incorrect numbers of open buffers (3)", 22, count);	
+			assertEquals("incorrect numbers of open buffers (3)", 22, count);
 		} finally {
 			deleteProject("P");
 		}
@@ -556,13 +556,13 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int overflow = 0, actualOverflow;
 		int current = 0, actualCurrent;
 		OverflowingLRUCache cache = new ElementCache(spaceLimit);
-		
+
 		actualSpaceLimit = cache.getSpaceLimit();
 		assertEquals("space limit incorrect ", spaceLimit, actualSpaceLimit);
-		
+
 		actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect ", current, actualCurrent);
-		
+
 		actualOverflow = cache.getOverflow();
 		assertEquals("overflow space incorrect ", overflow, actualOverflow);
 	}
@@ -575,7 +575,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int spaceLimit = 500, actualSpaceLimit;
 		int overflow = 0, actualOverflow;
 		int current = 0, actualCurrent;
-	
+
 		OverflowingLRUCache cache = new ElementCache(spaceLimit);
 		OverflowingTestOpenable[] openables = new OverflowingTestOpenable[spaceLimit];
 		for(int i = 0; i < spaceLimit; i++) {
@@ -586,17 +586,17 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 
 		actualSpaceLimit = cache.getSpaceLimit();
 		assertEquals("space limit incorrect ", spaceLimit, actualSpaceLimit);
-		
+
 		actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect ", current, actualCurrent);
-		
+
 		actualOverflow = cache.getOverflow();
 		assertEquals("overflow space incorrect ", overflow, actualOverflow);
-	
+
 		for(int i = spaceLimit - 1; i >= 0; i--) {
 			Object value = cache.get(openables[i]);
 			assertEquals("wrong value (" + i + ")", Integer.toString(i), value);
-		}	
+		}
 	}
 
 	/**
@@ -613,7 +613,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int overflow = 0, actualOverflow;
 		int actualCurrent, predictedCurrent = 334;
 		int entryCount = 1000;
-	
+
 		OverflowingLRUCache cache = new ElementCache(spaceLimit);
 		OverflowingTestOpenable[] openables = new OverflowingTestOpenable[entryCount];
 		for(int i = 0; i < entryCount; i++) {
@@ -623,23 +623,23 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 
 		actualSpaceLimit = cache.getSpaceLimit();
 		assertEquals("space limit incorrect ", spaceLimit, actualSpaceLimit);
-		
+
 		actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect ", predictedCurrent, actualCurrent);
-		
+
 		actualOverflow = cache.getOverflow();
 		assertEquals("overflow space incorrect ", overflow, actualOverflow);
-	
+
 		for(int i = entryCount - 1; i >= entryCount - predictedCurrent; i--) {
 			Object value = cache.get(openables[i]);
 			assertEquals("wrong value (" + i + ")", Integer.toString(i), value);
 		}
-	
+
 		// ensure first 500 entries swaped out
 		for(int i = 0; i < spaceLimit; i++) {
 			Object value = cache.get(openables[i]);
 			assertEquals("entry should not be present", null, value);
-		}	
+		}
 	}
 
 	/**
@@ -653,28 +653,28 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 	public void testElementCacheUseOverflow() {
 		int spaceLimit = 500;
 		int entryCount = 1000;
-		
+
 		OverflowingLRUCache cache = new ElementCache(spaceLimit);
 		OverflowingTestOpenable[] openables = new OverflowingTestOpenable[entryCount];
 		for (int i = 0; i < entryCount; i++) {
 			openables[i] = new OverflowingTestOpenable(new OverflowingTestBuffer(hasUnsavedChanges(i), null), cache);
 			cache.put(openables[i], Integer.toString(i));
 		}
-	
+
 		Hashtable table = cache.getEntryTable();
-		assertEquals("Hashtable wrong size", 900, table.size());	 	
+		assertEquals("Hashtable wrong size", 900, table.size());
 		int actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect", 900, actualCurrent);
 		int actualOverflow = cache.getOverflow();
 		assertEquals("overflow space incorrect", 400, actualOverflow);
-		
+
 		for (int i = entryCount - 1; i >= 0; i--) {
 			if (hasUnsavedChanges(i)) {
 				Object value = cache.get(openables[i]);
 				assertEquals("wrong value (" + i + ")", Integer.toString(i), value);
 			}
 		}
-	
+
 		// the cache should shrink back to the spaceLimit as we save entries with unsaved changes
 		for (int i= 0; i < entryCount; i++) {
 			openables[i].save(null, false);
@@ -685,7 +685,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect (after flush)", 168, actualCurrent);
 		actualOverflow = cache.getOverflow();
-		assertEquals("overflow space incorrect (after flush)", 0, actualOverflow);	
+		assertEquals("overflow space incorrect (after flush)", 0, actualOverflow);
 	}
 
 }

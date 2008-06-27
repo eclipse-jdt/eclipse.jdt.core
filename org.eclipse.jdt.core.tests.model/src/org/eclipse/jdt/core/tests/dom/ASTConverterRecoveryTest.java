@@ -50,12 +50,12 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterRecoveryTest.class);
 	}
-	
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST.JLS3);
 	}
-	
+
 	public void test0001() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -68,20 +68,20 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    baz(1);\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    bar(0);\n" + 
-			"    baz(1);\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    bar(0);\n" +
+			"    baz(1);\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -122,7 +122,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		assertEquals("Not int", "int", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		checkSourceRange(parameter2, "1", source); //$NON-NLS-1$
 	}
-	
+
 	public void test0002() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -135,20 +135,20 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    bar(1,\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    baz(0);\n" + 
-			"    bar(1);\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    baz(0);\n" +
+			"    bar(1);\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -189,7 +189,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		assertEquals("Not int", "int", typeBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		checkSourceRange(parameter2, "1", source); //$NON-NLS-1$
 	}
-	
+
 	public void test0003() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -203,20 +203,20 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    foo(3);\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    baz(0);\n" + 
-			"    bar(1,foo(3));\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    baz(0);\n" +
+			"    bar(1,foo(3));\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -257,7 +257,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		MethodInvocation methodInvocation3 = (MethodInvocation) parameter2;
 		checkSourceRange(methodInvocation3, "foo(3)", source); //$NON-NLS-1$
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=124296
 	public void test0004() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -271,20 +271,20 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    System.out.println(var);\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    int var=123;\n" + 
-			"    System.out.println(var);\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    int var=123;\n" +
+			"    System.out.println(var);\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -313,19 +313,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    String[] s =  {\"\",,,};\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    String[] s={\"\",$missing$};\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    String[] s={\"\",$missing$};\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -355,9 +355,9 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		assertTrue("Not a string literal", expression2.getNodeType() == ASTNode.SIMPLE_NAME); //$NON-NLS-1$
 		SimpleName simpleName = (SimpleName) expression2;
 		checkSourceRange(simpleName, ",", source); //$NON-NLS-1$
-		
+
 	}
-		
+
 	// check RECOVERED flag (insert tokens)
 	public void test0006() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -370,19 +370,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    bar()\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    bar();\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    bar();\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -403,7 +403,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		checkSourceRange(methodInvocation, "bar()", source); //$NON-NLS-1$
 		assertTrue("Flag as RECOVERED", (methodInvocation.getFlags() & ASTNode.RECOVERED) == 0);
 	}
-	
+
 	// check RECOVERED flag (insert tokens)
 	public void test0007() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -416,19 +416,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    bar(baz()\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    bar(baz());\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    bar(baz());\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -456,7 +456,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		checkSourceRange(methodInvocation2, "baz()", source); //$NON-NLS-1$
 		assertTrue("Flag as RECOVERED", (methodInvocation2.getFlags() & ASTNode.RECOVERED) == 0);
 	}
-	
+
 	// check RECOVERED flag (insert tokens)
 	public void test0008() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -469,19 +469,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    for(int i\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    for (int i; ; )     ;\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    for (int i; ; )     ;\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -517,7 +517,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		checkSourceRange(emptyStatement, "i", source); //$NON-NLS-1$
 		assertTrue("Not flag as RECOVERED", (emptyStatement.getFlags() & ASTNode.RECOVERED) != 0);
 	}
-	
+
 	// check RECOVERED flag (remove tokens)
 	public void test0009() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -530,19 +530,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    bar(baz());#\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    bar(baz());\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    bar(baz());\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -570,7 +570,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		checkSourceRange(methodInvocation2, "baz()", source); //$NON-NLS-1$
 		assertTrue("Flag as RECOVERED", (methodInvocation2.getFlags() & ASTNode.RECOVERED) == 0);
 	}
-	
+
 	// check RECOVERED flag (remove tokens)
 	public void test0010() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -583,19 +583,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    bar(baz())#;\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    bar(baz());\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    bar(baz());\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -623,7 +623,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		checkSourceRange(methodInvocation2, "baz()", source); //$NON-NLS-1$
 		assertTrue("Flag as RECOVERED", (methodInvocation2.getFlags() & ASTNode.RECOVERED) == 0);
 	}
-	
+
 	// check RECOVERED flag (remove tokens)
 	public void test0011() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -636,19 +636,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    bar(baz()#);\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    bar(baz());\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    bar(baz());\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -676,7 +676,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		checkSourceRange(methodInvocation2, "baz()", source); //$NON-NLS-1$
 		assertTrue("Flag as RECOVERED", (methodInvocation2.getFlags() & ASTNode.RECOVERED) == 0);
 	}
-	
+
 	// check RECOVERED flag (insert tokens)
 	public void test0012() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -689,19 +689,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    bar()#\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    bar();\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    bar();\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -722,7 +722,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		checkSourceRange(methodInvocation, "bar()", source); //$NON-NLS-1$
 		assertTrue("Flag as RECOVERED", (methodInvocation.getFlags() & ASTNode.RECOVERED) == 0);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129555
 	public void test0013() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -735,19 +735,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    a[0]\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    a[0]=$missing$;\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    a[0]=$missing$;\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -772,7 +772,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		SimpleName simpleName = (SimpleName) rhs;
 		assertEquals("Not length isn't correct", 0, simpleName.getLength()); //$NON-NLS-1$
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129909
 	public void test0014() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -785,19 +785,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    int[] = a[0];\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    int[] $missing$=a[0];\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    int[] $missing$=a[0];\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -817,7 +817,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		SimpleName simpleName = fragment.getName();
 		assertEquals("Not length isn't correct", 0, simpleName.getLength()); //$NON-NLS-1$
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=143212
 	public void test0015() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -830,19 +830,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    assert 0 == 0 : a[0;\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    assert 0 == 0 : a[0];\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    assert 0 == 0 : a[0];\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -862,7 +862,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		checkSourceRange(message, "a[0", source); //$NON-NLS-1$
 		assertTrue("Not flag as RECOVERED", (message.getFlags() & ASTNode.RECOVERED) != 0);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=143212
 	public void test0016() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -875,19 +875,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    assert 0 == 0 : foo(;\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    assert 0 == 0 : foo();\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    assert 0 == 0 : foo();\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -919,19 +919,19 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			"	    assert 0 == 0 : (\"aa\";\n"+
 			"	}\n"+
 			"}\n");
-		
+
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
-		
+
 		assertASTNodeEquals(
-			"package test;\n" + 
-			"public class X {\n" + 
-			"  void foo(){\n" + 
-			"    assert 0 == 0 : (\"aa\");\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"public class X {\n" +
+			"  void foo(){\n" +
+			"    assert 0 == 0 : (\"aa\");\n" +
+			"  }\n" +
 			"}\n",
 			result);
-		
+
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$

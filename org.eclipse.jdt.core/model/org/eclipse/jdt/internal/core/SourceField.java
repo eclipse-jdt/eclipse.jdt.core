@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 public class SourceField extends NamedMember implements IField {
 
 /**
- * Constructs a handle to the field with the given name in the specified type. 
+ * Constructs a handle to the field with the given name in the specified type.
  */
 protected SourceField(JavaElement parent, String name) {
 	super(parent, name);
@@ -45,13 +45,13 @@ public ASTNode findNode(org.eclipse.jdt.core.dom.CompilationUnit ast) {
  * @see IField
  */
 public Object getConstant() throws JavaModelException {
-	Object constant = null;	
+	Object constant = null;
 	SourceFieldElementInfo info = (SourceFieldElementInfo) getElementInfo();
 	final char[] constantSourceChars = info.initializationSource;
 	if (constantSourceChars == null) {
 		return null;
 	}
-			
+
 	String constantSource = new String(constantSourceChars);
 	String signature = info.getTypeSignature();
 	try {
@@ -153,7 +153,7 @@ public JavaElement resolved(Binding binding) {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
-	buffer.append(this.tabString(tab));
+	buffer.append(tabString(tab));
 	if (info == null) {
 		toStringName(buffer);
 		buffer.append(" (not open)"); //$NON-NLS-1$
@@ -161,7 +161,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 		toStringName(buffer);
 	} else {
 		try {
-			buffer.append(Signature.toString(this.getTypeSignature()));
+			buffer.append(Signature.toString(getTypeSignature()));
 			buffer.append(" "); //$NON-NLS-1$
 			toStringName(buffer);
 		} catch (JavaModelException e) {

@@ -40,7 +40,7 @@ class VariableBinding implements IVariableBinding {
 	private BindingResolver resolver;
 	private ITypeBinding type;
 	private IAnnotationBinding[] annotations;
-	
+
 	VariableBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
 		this.resolver = resolver;
 		this.binding = binding;
@@ -175,7 +175,7 @@ class VariableBinding implements IVariableBinding {
 		if (isField()) {
 			return ((FieldBinding) this.binding).getAccessFlags() & VALID_MODIFIERS;
 		}
-		if (binding.isFinal()) {
+		if (this.binding.isFinal()) {
 			return IModifierConstants.ACC_FINAL;
 		}
 		return Modifier.NONE;
@@ -239,7 +239,7 @@ class VariableBinding implements IVariableBinding {
 		JavaElement parent = null;
 		IMethodBinding declaringMethod = getDeclaringMethod();
 		if (declaringMethod == null) {
-			ReferenceContext referenceContext = ((LocalVariableBinding) binding).declaringScope.referenceContext();
+			ReferenceContext referenceContext = ((LocalVariableBinding) this.binding).declaringScope.referenceContext();
 			if (referenceContext instanceof TypeDeclaration){
 				// Local variable is declared inside an initializer
 				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
@@ -269,7 +269,7 @@ class VariableBinding implements IVariableBinding {
 	 * @since 3.1
 	 */
 	public IVariableBinding getVariableDeclaration() {
-		if (this.isField()) {
+		if (isField()) {
 			FieldBinding fieldBinding = (FieldBinding) this.binding;
 			return this.resolver.getVariableBinding(fieldBinding.original());
 		}
@@ -332,7 +332,7 @@ class VariableBinding implements IVariableBinding {
 			}
 		} else {
 			if (BindingComparator.isEqual(this.binding, otherBinding)) {
-				IMethodBinding declaringMethod = this.getDeclaringMethod();
+				IMethodBinding declaringMethod = getDeclaringMethod();
 				IMethodBinding otherDeclaringMethod = ((VariableBinding) other).getDeclaringMethod();
 				if (declaringMethod == null) {
 					if (otherDeclaringMethod != null) {

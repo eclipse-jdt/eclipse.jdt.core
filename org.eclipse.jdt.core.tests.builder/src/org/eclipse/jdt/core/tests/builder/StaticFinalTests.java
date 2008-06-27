@@ -16,11 +16,11 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class StaticFinalTests extends BuilderTests {
-	
+
 	public StaticFinalTests(String name) {
 		super(name);
 	}
-	
+
 	public static Test suite() {
 		return buildTestSuite(StaticFinalTests.class);
 	}

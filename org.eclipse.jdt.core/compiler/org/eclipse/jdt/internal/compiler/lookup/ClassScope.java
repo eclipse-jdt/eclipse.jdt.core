@@ -29,7 +29,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class ClassScope extends Scope {
-	
+
 	public TypeDeclaration referenceContext;
 	public TypeReference superTypeReference;
 
@@ -37,7 +37,7 @@ public class ClassScope extends Scope {
 		super(Scope.CLASS_SCOPE, parent);
 		this.referenceContext = context;
 	}
-	
+
 	void buildAnonymousTypeBinding(SourceTypeBinding enclosingType, ReferenceBinding supertype) {
 		LocalTypeBinding anonymousType = buildLocalType(enclosingType, supertype, enclosingType.fPackage);
 		if (supertype.isInterface()) {
@@ -50,25 +50,25 @@ public class ClassScope extends Scope {
 			if (typeReference != null) { // no check for enum constant body
 				if (supertype.erasure().id == TypeIds.T_JavaLangEnum) {
 					problemReporter().cannotExtendEnum(anonymousType, typeReference, supertype);
-					anonymousType.tagBits |= TagBits.HierarchyHasProblems;		
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.superclass = getJavaLangObject();
 				} else if (supertype.isFinal()) {
 					problemReporter().anonymousClassCannotExtendFinalClass(typeReference, supertype);
-					anonymousType.tagBits |= TagBits.HierarchyHasProblems;		
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.superclass = getJavaLangObject();
 				} else if ((supertype.tagBits & TagBits.HasDirectWildcard) != 0) {
 					problemReporter().superTypeCannotUseWildcard(anonymousType, typeReference, supertype);
-					anonymousType.tagBits |= TagBits.HierarchyHasProblems;		
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.superclass = getJavaLangObject();
 				}
-			} 
+			}
 		}
 		connectMemberTypes();
 		buildFieldsAndMethods();
 		anonymousType.faultInTypesForFieldsAndMethods();
 		anonymousType.verifyMethods(environment().methodVerifier());
 	}
-	
+
 	void buildFields() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if (sourceType.areFieldsInitialized()) return;
@@ -144,10 +144,10 @@ public class ClassScope extends Scope {
 		}
 		if (count != fieldBindings.length)
 			System.arraycopy(fieldBindings, 0, fieldBindings = new FieldBinding[count], 0, count);
-		sourceType.tagBits &= ~(TagBits.AreFieldsSorted|TagBits.AreFieldsComplete); // in case some static imports reached already into this type		
+		sourceType.tagBits &= ~(TagBits.AreFieldsSorted|TagBits.AreFieldsComplete); // in case some static imports reached already into this type
 		sourceType.setFields(fieldBindings);
 	}
-	
+
 	void buildFieldsAndMethods() {
 		buildFields();
 		buildMethods();
@@ -160,19 +160,19 @@ public class ClassScope extends Scope {
 		for (int i = 0, length = memberTypes.length; i < length; i++)
 			 ((SourceTypeBinding) memberTypes[i]).scope.buildFieldsAndMethods();
 	}
-	
+
 	private LocalTypeBinding buildLocalType(SourceTypeBinding enclosingType, ReferenceBinding anonymousOriginalSuperType, PackageBinding packageBinding) {
-	    
+
 		this.referenceContext.scope = this;
 		this.referenceContext.staticInitializerScope = new MethodScope(this, this.referenceContext, true);
 		this.referenceContext.initializerScope = new MethodScope(this, this.referenceContext, false);
 
 		// build the binding or the local type
-		LocalTypeBinding localType = new LocalTypeBinding(this, enclosingType, this.innermostSwitchCase(), anonymousOriginalSuperType);
+		LocalTypeBinding localType = new LocalTypeBinding(this, enclosingType, innermostSwitchCase(), anonymousOriginalSuperType);
 		this.referenceContext.binding = localType;
 		checkAndSetModifiers();
 		buildTypeVariables();
-		
+
 		// Look at member types
 		ReferenceBinding[] memberTypeBindings = Binding.NO_MEMBER_TYPES;
 		if (this.referenceContext.memberTypes != null) {
@@ -214,7 +214,7 @@ public class ClassScope extends Scope {
 		localType.memberTypes = memberTypeBindings;
 		return localType;
 	}
-	
+
 	void buildLocalTypeBinding(SourceTypeBinding enclosingType) {
 
 		LocalTypeBinding localType = buildLocalType(enclosingType, null /* anonymous super type*/, enclosingType.fPackage);
@@ -224,7 +224,7 @@ public class ClassScope extends Scope {
 
 		this.referenceContext.binding.verifyMethods(environment().methodVerifier());
 	}
-	
+
 	private void buildMemberTypes(AccessRestriction accessRestriction) {
 	    SourceTypeBinding sourceType = this.referenceContext.binding;
 		ReferenceBinding[] memberTypeBindings = Binding.NO_MEMBER_TYPES;
@@ -243,7 +243,7 @@ public class ClassScope extends Scope {
 							problemReporter().illegalLocalTypeDeclaration(memberContext);
 							continue nextMember;
 						}
-					break;						
+					break;
 				}
 				ReferenceBinding type = sourceType;
 				// check that the member does not conflict with an enclosing type
@@ -270,7 +270,7 @@ public class ClassScope extends Scope {
 		}
 		sourceType.memberTypes = memberTypeBindings;
 	}
-	
+
 	void buildMethods() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if (sourceType.areMethodsInitialized()) return;
@@ -297,8 +297,8 @@ public class ClassScope extends Scope {
 		MethodBinding[] methodBindings = new MethodBinding[(clinitIndex == -1 ? size : size - 1) + count];
 		// create special methods for enums
 		if (isEnum) {
-			methodBindings[0] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUES); // add <EnumType>[] values() 
-			methodBindings[1] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUEOF); // add <EnumType> valueOf() 
+			methodBindings[0] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUES); // add <EnumType>[] values()
+			methodBindings[1] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUEOF); // add <EnumType> valueOf()
 		}
 		// create bindings for source methods
 		for (int i = 0; i < size; i++) {
@@ -314,7 +314,7 @@ public class ClassScope extends Scope {
 		sourceType.tagBits &= ~(TagBits.AreMethodsSorted|TagBits.AreMethodsComplete); // in case some static imports reached already into this type
 		sourceType.setMethods(methodBindings);
 	}
-	
+
 	SourceTypeBinding buildType(SourceTypeBinding enclosingType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		// provide the typeDeclaration with needed scopes
 		this.referenceContext.scope = this;
@@ -342,19 +342,19 @@ public class ClassScope extends Scope {
 		}
 
 		SourceTypeBinding sourceType = this.referenceContext.binding;
-		environment().setAccessRestriction(sourceType, accessRestriction);		
+		environment().setAccessRestriction(sourceType, accessRestriction);
 		sourceType.fPackage.addType(sourceType);
 		checkAndSetModifiers();
 		buildTypeVariables();
 		buildMemberTypes(accessRestriction);
 		return sourceType;
 	}
-	
+
 	private void buildTypeVariables() {
-	    
+
 	    SourceTypeBinding sourceType = this.referenceContext.binding;
 		TypeParameter[] typeParameters = this.referenceContext.typeParameters;
-		
+
 	    // do not construct type variables if source < 1.5
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
 		    sourceType.typeVariables = Binding.NO_TYPE_VARIABLES;
@@ -364,12 +364,12 @@ public class ClassScope extends Scope {
 
 		if (sourceType.id == TypeIds.T_JavaLangObject) { // handle the case of redefining java.lang.Object up front
 			problemReporter().objectCannotBeGeneric(this.referenceContext);
-			return; 
+			return;
 		}
 		sourceType.typeVariables = createTypeVariables(typeParameters, sourceType);
 		sourceType.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 	}
-	
+
 	private void checkAndSetModifiers() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		int modifiers = sourceType.modifiers;
@@ -409,7 +409,7 @@ public class ClassScope extends Scope {
 						MethodScope methodScope = (MethodScope) scope;
 						if (methodScope.isInsideInitializer()) {
 							SourceTypeBinding type = ((TypeDeclaration) methodScope.referenceContext).binding;
-			
+
 							// inside field declaration ? check field modifier to see if deprecated
 							if (methodScope.initializedField != null) {
 									// currently inside this field initialization
@@ -418,9 +418,9 @@ public class ClassScope extends Scope {
 							} else {
 								if (type.isStrictfp())
 									modifiers |= ClassFileConstants.AccStrictfp;
-								if (type.isViewedAsDeprecated() && !sourceType.isDeprecated()) 
+								if (type.isViewedAsDeprecated() && !sourceType.isDeprecated())
 									modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-							}					
+							}
 						} else {
 							MethodBinding method = ((AbstractMethodDeclaration) methodScope.referenceContext).binding;
 							if (method != null) {
@@ -475,7 +475,7 @@ public class ClassScope extends Scope {
 			/*
 			 * AccSynthetic must be set if the target is greater than 1.5. 1.5 VM don't support AccSynthetics flag.
 			 */
-			if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME && this.compilerOptions().targetJDK > ClassFileConstants.JDK1_5) {
+			if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME && compilerOptions().targetJDK > ClassFileConstants.JDK1_5) {
 				modifiers |= ClassFileConstants.AccSynthetic;
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
@@ -531,7 +531,7 @@ public class ClassScope extends Scope {
 						}
 					}
 					// tag this enum as abstract since an abstract method must be implemented AND all enum constants define an anonymous body
-					// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method					
+					// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method
 					if (needAbstractBit) {
 						modifiers |= ClassFileConstants.AccAbstract;
 					}
@@ -615,7 +615,7 @@ public class ClassScope extends Scope {
 
 		sourceType.modifiers = modifiers;
 	}
-	
+
 	/* This method checks the modifiers of a field.
 	*
 	* 9.3 & 8.3
@@ -647,7 +647,7 @@ public class ClassScope extends Scope {
 			// check that they are not modifiers in source
 			if ((modifiers & ExtraCompilerModifiers.AccJustFlag) != 0)
 				problemReporter().illegalModifierForEnumConstant(declaringClass, fieldDecl);
-		
+
 			// set the modifiers
 			final int IMPLICIT_MODIFIERS = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum;
 			fieldBinding.modifiers|= IMPLICIT_MODIFIERS;
@@ -839,11 +839,11 @@ public class ClassScope extends Scope {
 		Our current belief based on available JCK tests is:
 			inherited member types are visible as a potential superclass.
 			inherited interfaces are not visible when defining a superinterface.
-	
+
 		Error recovery story:
 			ensure the superclass is set to java.lang.Object if a problem is detected
 			resolving the superclass.
-	
+
 		Answer false if an error was reported against the sourceType.
 	*/
 	private boolean connectSuperclass() {
@@ -907,20 +907,20 @@ public class ClassScope extends Scope {
 		} else if (1 != refTypeVariables.length) { // check arity
 			problemReporter().incorrectArityForParameterizedType(null, rootEnumType, new TypeBinding[]{ sourceType });
 			return false; // cannot reach here as AbortCompilation is thrown
-		}			
+		}
 		// check argument type compatibility
 		ParameterizedTypeBinding  superType = environment().createParameterizedType(
-			rootEnumType, 
-			new TypeBinding[]{ 
-				environment().convertToRawType(sourceType, false /*do not force conversion of enclosing types*/), 
-			} , 
+			rootEnumType,
+			new TypeBinding[]{
+				environment().convertToRawType(sourceType, false /*do not force conversion of enclosing types*/),
+			} ,
 			null);
 		sourceType.tagBits |= (superType.tagBits & TagBits.HierarchyHasProblems); // propagate if missing supertpye
 		sourceType.superclass = superType;
 		// bound check (in case of bogus definition of Enum type)
 		if (refTypeVariables[0].boundCheck(superType, sourceType) != TypeConstants.OK) {
 			problemReporter().typeMismatchError(rootEnumType, refTypeVariables[0], sourceType, null);
-		}		
+		}
 		return !foundCycle;
 	}
 
@@ -928,10 +928,10 @@ public class ClassScope extends Scope {
 		Our current belief based on available JCK 1.3 tests is:
 			inherited member types are visible as a potential superclass.
 			inherited interfaces are visible when defining a superinterface.
-	
+
 		Error recovery story:
 			ensure the superinterfaces contain only valid visible interfaces.
-	
+
 		Answer false if an error was reported against the sourceType.
 	*/
 	private boolean connectSuperInterfaces() {
@@ -962,7 +962,7 @@ public class ClassScope extends Scope {
 				continue nextInterface;
 			}
 
-			// check for simple interface collisions 
+			// check for simple interface collisions
 			// Check for a duplicate interface once the name is resolved, otherwise we may be confused (ie : a.b.I and c.d.I)
 			for (int j = 0; j < i; j++) {
 				if (interfaceBindings[j] == superInterface) {
@@ -990,7 +990,7 @@ public class ClassScope extends Scope {
 					|| !superInterfaceRef.resolvedType.isValidBinding()) {
 				sourceType.tagBits |= TagBits.HierarchyHasProblems; // propagate if missing supertype
 				noProblems &= superInterfaceRef.resolvedType.isValidBinding();
-			} 			
+			}
 			// only want to reach here when no errors are reported
 			interfaceBindings[count++] = superInterface;
 		}
@@ -1002,7 +1002,7 @@ public class ClassScope extends Scope {
 		}
 		return noProblems;
 	}
-	
+
 	void connectTypeHierarchy() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if ((sourceType.tagBits & TagBits.BeginHierarchyCheck) == 0) {
@@ -1027,7 +1027,7 @@ public class ClassScope extends Scope {
 			env.missingClassFileLocation = null;
 		}
 	}
-	
+
 	private void connectTypeHierarchyWithoutMembers() {
 		// must ensure the imports are resolved
 		if (this.parent instanceof CompilationUnitScope) {
@@ -1199,7 +1199,7 @@ public class ClassScope extends Scope {
 	public TypeDeclaration referenceType() {
 		return this.referenceContext;
 	}
-	
+
 	public String toString() {
 		if (this.referenceContext != null)
 			return "--- Class Scope ---\n\n"  //$NON-NLS-1$

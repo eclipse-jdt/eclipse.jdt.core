@@ -81,19 +81,19 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 	static class BindingsCollector extends ASTVisitor {
 
 		public ArrayList arrayList;
-		
+
 		BindingsCollector() {
 			// visit Javadoc.tags() as well
 			super(true);
 			this.arrayList = new ArrayList();
 		}
-		
+
 		private void collectBindings(
 			ASTNode node,
 			IBinding binding) {
-			
+
 			if (binding != null) {
-				arrayList.add(binding);
+				this.arrayList.add(binding);
 			}
 		}
 
@@ -236,7 +236,7 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 			ITypeBinding typeBinding = node.resolveTypeBinding();
 			collectBindings(node, typeBinding);
 		}
-		
+
 		/**
 		 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ImportDeclaration)
 		 */
@@ -465,12 +465,12 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 		}
 
 		public List getBindings() {
-			return arrayList;
+			return this.arrayList;
 		}
 
 	}
 
-	
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST.JLS3);
@@ -481,7 +481,7 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(ASTConverterBindingsTest.class);		
+		return buildModelTestSuite(ASTConverterBindingsTest.class);
 	}
 
 	public void test0001() throws JavaModelException {

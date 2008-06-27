@@ -47,15 +47,15 @@ public class JavadocTestMixed extends JavadocTest {
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_DocCommentSupport, this.docCommentSupport);
-		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
-		if (reportMissingJavadocComments != null) 
-			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, this.reportInvalidJavadoc);
+		if (this.reportMissingJavadocComments != null)
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, this.reportMissingJavadocComments);
 		else
-			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportInvalidJavadoc);
-		if (reportMissingJavadocTags != null) 
-			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportMissingJavadocTags);
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, this.reportInvalidJavadoc);
+		if (this.reportMissingJavadocTags != null)
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, this.reportMissingJavadocTags);
 		else
-			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportInvalidJavadoc);
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, this.reportInvalidJavadoc);
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -69,11 +69,11 @@ public class JavadocTestMixed extends JavadocTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.docCommentSupport = CompilerOptions.ENABLED;
-		reportInvalidJavadoc = CompilerOptions.ERROR;
-		reportMissingJavadocTags = CompilerOptions.ERROR;
-		reportMissingJavadocComments = null;
+		this.reportInvalidJavadoc = CompilerOptions.ERROR;
+		this.reportMissingJavadocTags = CompilerOptions.ERROR;
+		this.reportMissingJavadocComments = null;
 	}
-	
+
 	/*
 	 * Test missing javadoc
 	 */
@@ -92,7 +92,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "	 public void foo() {}\n"
 					+ "}\n" });
 	}
-	
+
 	public void test002() {
 		runConformTest(
 			new String[] {
@@ -108,7 +108,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "  void foo() {}\n"
 					+ "}\n" });
 	}
-	
+
 	public void test003() {
 		runConformTest(
 			new String[] {
@@ -124,7 +124,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "  protected void foo() {}\n"
 					+ "}\n" });
 	}
-	
+
 	public void test004() {
 		runConformTest(
 			new String[] {
@@ -140,9 +140,9 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "  private void foo() {}\n"
 					+ "}\n" });
 	}
-	
+
 	public void test005() {
-		reportInvalidJavadoc = CompilerOptions.IGNORE;
+		this.reportInvalidJavadoc = CompilerOptions.IGNORE;
 		runConformTest(
 			new String[] {
 				"test/X.java",
@@ -155,27 +155,27 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "	public void foo() {}\n"
 					+ "}\n" });
 	}
-	
+
 	public void test006() {
-		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	String s1 = \"non-terminated;\n" + 
-				"	void foo() {}\n" + 
-				"	String s2 = \"terminated\";\n" + 
+				"public class X {\n" +
+				"	String s1 = \"non-terminated;\n" +
+				"	void foo() {}\n" +
+				"	String s2 = \"terminated\";\n" +
 				"}\n"
 			},
-			"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	String s1 = \"non-terminated;\n" + 
-				"	            ^^^^^^^^^^^^^^^^\n" + 
-				"String literal is not properly closed by a double-quote\n" + 
+			"----------\n" +
+				"1. ERROR in X.java (at line 2)\n" +
+				"	String s1 = \"non-terminated;\n" +
+				"	            ^^^^^^^^^^^^^^^^\n" +
+				"String literal is not properly closed by a double-quote\n" +
 				"----------\n"
 		);
 	}
-	
+
 	public void test010() {
 		runNegativeTest(
 			new String[] {
@@ -200,7 +200,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
-	
+
 	public void test011() {
 		runNegativeTest(
 			new String[] {
@@ -225,7 +225,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
-	
+
 	public void test012() {
 		runNegativeTest(
 			new String[] {
@@ -250,7 +250,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
-	
+
 	public void test013() {
 		runNegativeTest(
 			new String[] {
@@ -275,7 +275,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
-	
+
 	/*
 	 * Test mixing javadoc comments
 	 */
@@ -320,7 +320,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "	}\n"
 					+ "}\n" });
 	}
-	
+
 	public void test022() {
 		runNegativeTest(
 			new String[] {
@@ -370,7 +370,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
-	
+
 	public void test023() {
 		runNegativeTest(
 			new String[] {
@@ -420,7 +420,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
-	
+
 	public void test024() {
 		runNegativeTest(
 			new String[] {
@@ -474,7 +474,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
-	
+
 	public void test025() {
 		runNegativeTest(
 			new String[] {
@@ -528,7 +528,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
-	
+
 	public void test026() {
 		runNegativeTest(
 			new String[] {
@@ -591,7 +591,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
-	
+
 	/*
 	 * Javadoc on invalid syntax
 	 */
@@ -642,7 +642,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "Illegal modifier for the class X; only public, abstract & final are permitted\n"
 				+ "----------\n");
 	}
-	
+
 	public void test031() {
 		runNegativeTest(
 			new String[] {
@@ -690,7 +690,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "Syntax error, insert \";\" to complete ClassBodyDeclarations\n"
 				+ "----------\n");
 	}
-	
+
 	public void test032() {
 		runNegativeTest(
 			new String[] {
@@ -738,7 +738,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "Syntax error on token \")\", { expected after this token\n"
 				+ "----------\n");
 	}
-	
+
 	public void test033() {
 		runNegativeTest(
 			new String[] {
@@ -823,47 +823,47 @@ public class JavadocTestMixed extends JavadocTest {
 						+ "Syntax error on token \"}\", delete this token\n"
 						+ "----------\n");
 	}
-	
+
 	public void test040() {
-		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-					"	/**\n" + 
-					"	/**\n" + 
-					"	/**\n" + 
-					"	/** \n" + 
-					"	 * @param str\n" + 
-					"	 * @param x\n" + 
-					"	 */\n" + 
-					"	public void bar(String str, int x) {\n" + 
-					"	}\n" + 
-					"	public void foo() {\n" + 
-					"		bar(\"toto\", 0 /* block comment inline */);\n" + 
-					"	}\n" + 
+				"public class X {\n" +
+					"	/**\n" +
+					"	/**\n" +
+					"	/**\n" +
+					"	/** \n" +
+					"	 * @param str\n" +
+					"	 * @param x\n" +
+					"	 */\n" +
+					"	public void bar(String str, int x) {\n" +
+					"	}\n" +
+					"	public void foo() {\n" +
+					"		bar(\"toto\", 0 /* block comment inline */);\n" +
+					"	}\n" +
 					"}\n" });
 	}
-	
+
 	public void test041() {
-		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-					"	/**\n" + 
-					"	 * @see String\n" + 
-					"	 * @see #\n" + 
-					"	 * @return String\n" + 
-					"	 */\n" + 
-					"	String bar() {return \"\";}\n" + 
+				"public class X {\n" +
+					"	/**\n" +
+					"	 * @see String\n" +
+					"	 * @see #\n" +
+					"	 * @return String\n" +
+					"	 */\n" +
+					"	String bar() {return \"\";}\n" +
 					"}\n"
 			},
-			"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	* @see #\n" + 
-				"	       ^\n" + 
-				"Javadoc: Invalid reference\n" + 
+			"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	* @see #\n" +
+				"	       ^\n" +
+				"Javadoc: Invalid reference\n" +
 				"----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);

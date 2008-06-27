@@ -12,15 +12,15 @@ package org.eclipse.jdt.internal.formatter;
 
 /**
  * Unchecked exception wrapping invalid input checked exception which may occur
- * when scanning original formatted source. 
- * 
+ * when scanning original formatted source.
+ *
  * @since 2.1
  */
 public class AbortFormatting extends RuntimeException {
 
 	Throwable nestedException;
 	private static final long serialVersionUID = -5796507276311428526L; // backward compatible
-	
+
 	public AbortFormatting(String message) {
 		super(message);
 	}

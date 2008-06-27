@@ -31,7 +31,7 @@ public GlobalVariable(char[] typeName, char[] name, char[] initializer) {
 }
 /**
  * Returns the initializer of this global variable. The initializer is a
- * variable initializer (ie. an expression or an array initializer) as defined 
+ * variable initializer (ie. an expression or an array initializer) as defined
  * in the Java Language Specifications.
  */
 public char[] getInitializer() {

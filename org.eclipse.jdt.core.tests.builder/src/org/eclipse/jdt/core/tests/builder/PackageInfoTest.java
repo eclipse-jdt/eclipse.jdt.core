@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class PackageInfoTest extends BuilderTests {
-	
+
 public PackageInfoTest(String name) {
 	super(name);
 }
@@ -41,24 +41,24 @@ public void test001() throws JavaModelException {
     IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
     env.addExternalJars(projectPath, Util.getJavaClassLibs());
     fullBuild(projectPath);
-    
+
     // remove old package fragment root so that names don't collide
     env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-    
+
     IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
     env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-    
+
     env.addClass(root, "pack", "Annot", //$NON-NLS-1$ //$NON-NLS-2$
         "package pack;\n"+ //$NON-NLS-1$
         "public @interface Annot {}" //$NON-NLS-1$
     );
 
     incrementalBuild(projectPath);
-   
+
     IPath packageInfoPath = env.addFile(root, "pack/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
         "@Annot package p1" //$NON-NLS-1$
     );
-        
+
     incrementalBuild(projectPath);
     expectingOnlyProblemsFor(packageInfoPath);
     final Problem[] problems = env.getProblems();
@@ -68,7 +68,7 @@ public void test001() throws JavaModelException {
     final PrintWriter writer = new PrintWriter(stringWriter);
     final int problemsLength = problems.length;
     if (problemsLength == 1) {
-        writer.print(problems[0].getMessage());    
+        writer.print(problems[0].getMessage());
     } else {
         for (int i = 0; i < problemsLength - 1; i++) {
             writer.println(problems[i].getMessage());
@@ -77,21 +77,21 @@ public void test001() throws JavaModelException {
     }
     writer.close();
     final String expectedOutput =
-        "Syntax error on token \"p1\", ; expected after this token\n" + 
-    	"The declared package \"p1\" does not match the expected package \"pack\""; 
+        "Syntax error on token \"p1\", ; expected after this token\n" +
+    	"The declared package \"p1\" does not match the expected package \"pack\"";
     assertSourceEquals("Different messages", expectedOutput, stringWriter.toString());
 }
 public void test002() throws JavaModelException {
     IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
     env.addExternalJars(projectPath, Util.getJavaClassLibs());
     fullBuild(projectPath);
-    
+
     // remove old package fragment root so that names don't collide
     env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-    
+
     IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
     env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-    
+
     env.addClass(root, "testcase", "Main", //$NON-NLS-1$ //$NON-NLS-2$
 		"package testcase;\n" +
 		"\n" +
@@ -119,11 +119,11 @@ public void test002() throws JavaModelException {
 		"public @interface TestAnnotation {\n" +
 		"}"
         );
-   
+
     env.addFile(root, "testcase/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
         "@TestAnnotation package testcase;" //$NON-NLS-1$
     );
-        
+
     incrementalBuild(projectPath);
 	expectingNoProblems();
 	executeClass(projectPath, "testcase.Main", "@testcase.TestAnnotation()@testcase.TestAnnotation()", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -132,10 +132,10 @@ public void test003() throws JavaModelException {
     IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
     env.addExternalJars(projectPath, Util.getJavaClassLibs());
     fullBuild(projectPath);
-    
+
     // remove old package fragment root so that names don't collide
     env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-    
+
     IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
     env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
@@ -143,7 +143,7 @@ public void test003() throws JavaModelException {
     IPath packageInfoPath = env.addFile(root, "testcase/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
         "" //$NON-NLS-1$
     );
-        
+
     incrementalBuild(projectPath);
 //    expectingOnlyProblemsFor(packageInfoPath);
 	expectingOnlySpecificProblemFor(packageInfoPath, new Problem("testcase/package-info.java", "The declared package \"\" does not match the expected package \"testcase\"", packageInfoPath, 0, 0, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$

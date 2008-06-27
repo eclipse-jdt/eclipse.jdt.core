@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 
 /*
- * Special unchecked exception type used 
+ * Special unchecked exception type used
  * to abort from the compilation process
  *
  * should only be thrown from within problem handlers.
@@ -24,9 +24,9 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 public class AbortCompilationUnit extends AbortCompilation {
 
 	private static final long serialVersionUID = -4253893529982226734L; // backward compatible
-	
+
 	public String encoding;
-	
+
 public AbortCompilationUnit(CompilationResult compilationResult, CategorizedProblem problem) {
 	super(compilationResult, problem);
 }

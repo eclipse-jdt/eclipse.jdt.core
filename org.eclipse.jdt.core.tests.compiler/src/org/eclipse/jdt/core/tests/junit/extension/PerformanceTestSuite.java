@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 public class PerformanceTestSuite extends TestSuite {
-	
+
 	/**
 	 * Constructs a TestSuite from the given class. Adds all the methods
 	 * starting with "testPerf" as test cases to the suite.
@@ -50,11 +50,11 @@ public class PerformanceTestSuite extends TestSuite {
 		if (countTestCases() == 0)
 			addTest(addWarningTest("No tests found in "+theClass.getName()));
 	}
-	
+
 	public PerformanceTestSuite(String name) {
 		setName(name);
 	}
-	
+
 	private void addTestMethod(Method m, Vector names, Class theClass) {
 		String name= m.getName();
 		if (names.contains(name))
@@ -71,18 +71,18 @@ public class PerformanceTestSuite extends TestSuite {
 	public void addTestSuite(Class theClass) {
 		addTest(new PerformanceTestSuite(theClass));
 	}
-	
+
 	private boolean isPublicTestMethod(Method m) {
 		return isTestMethod(m) && Modifier.isPublic(m.getModifiers());
 	 }
-	 
+
 	private boolean isTestMethod(Method m) {
 		String name= m.getName();
 		Class[] parameters= m.getParameterTypes();
 		Class returnType= m.getReturnType();
 		return parameters.length == 0 && name.startsWith("testPerf") && returnType.equals(Void.TYPE);
 	 }
-	 
+
 	/**
 	 * Returns a test which will fail and log a warning message.
 	 */

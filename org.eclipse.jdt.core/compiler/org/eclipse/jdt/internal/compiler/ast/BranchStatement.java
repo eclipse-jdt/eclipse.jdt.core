@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class BranchStatement extends Statement {
-	
+
 	public char[] label;
 	public BranchLabel targetLabel;
 	public SubRoutineStatement[] subroutines;
@@ -40,7 +40,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	int pc = codeStream.position;
 
-	// generation of code responsible for invoking the finally 
+	// generation of code responsible for invoking the finally
 	// blocks in sequence
 	if (this.subroutines != null){
 		for (int i = 0, max = this.subroutines.length; i < max; i++){
@@ -52,7 +52,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					if (this.initStateIndex != -1) {
 						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 						codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
-					}					
+					}
 					return;
 			}
 		}

@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.parser.*;
  * <code>SubstitutionTextReader</code> that will substitute html entities for
  * html symbols encountered in the original text. Line breaks and whitespaces
  * are preserved.
- * 
+ *
  * @since 3.0
  */
 public class Java2HTMLEntityReader extends SubstitutionTextReader {
@@ -50,7 +50,7 @@ public class Java2HTMLEntityReader extends SubstitutionTextReader {
 
 	/**
 	 * Creates a new instance that will read from <code>reader</code>
-	 * 
+	 *
 	 * @param reader the source reader
 	 */
 	public Java2HTMLEntityReader(Reader reader) {

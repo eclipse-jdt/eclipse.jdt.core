@@ -86,11 +86,11 @@ public void testConstructorDeclaration01() throws CoreException { // was testSim
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IMethod constructor = type.getMethod("A", new String[] {"QX;"});
 	search(
-		constructor, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		constructor,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
-	assertSearchResults("src/p/A.java p.A(X) [A]", resultCollector);
+	assertSearchResults("src/p/A.java p.A(X) [A]", this.resultCollector);
 }
 /**
  * Constructor declaration in jar file test.
@@ -99,12 +99,12 @@ public void testConstructorDeclaration02() throws CoreException { // was testCon
 	IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
 	IMethod method = type.getMethod("A", new String[] {"Ljava.lang.String;"});
 	search(
-		method, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		method,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"MyJar.jar p1.A(java.lang.String) [No source]", 
+		"MyJar.jar p1.A(java.lang.String) [No source]",
 		this.resultCollector);
 }
 /**
@@ -114,9 +114,9 @@ public void testConstructorReference01() throws CoreException { // was testSimpl
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IMethod constructor = type.getMethod("A", new String[] {"QX;"});
 	search(
-		constructor, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		constructor,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/Test.java void Test.main(String[]) [new p.A(y)]",
@@ -127,10 +127,10 @@ public void testConstructorReference01() throws CoreException { // was testSimpl
  */
 public void testConstructorReference02() throws CoreException { // was testSimpleConstructorReference2
 	search(
-		"p.A(X)", 
+		"p.A(X)",
 		CONSTRUCTOR,
 		REFERENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/Test.java void Test.main(String[]) [new p.A(y)]",
@@ -143,12 +143,12 @@ public void testConstructorReference03() throws CoreException { // was testConst
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "Y.java").getType("Y");
 	IMethod method = type.getMethod("Y", new String[] {"I"});
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/Z.java p.Z(int) [super(i);]", 
+		"src/p/Z.java p.Z(int) [super(i);]",
 		this.resultCollector);
 }
 /**
@@ -158,13 +158,13 @@ public void testConstructorReference04() throws CoreException { // was testConst
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	IMethod method = type.getMethod("X", new String[] {"I"});
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/p/Y.java p.Y(int) [super(i);]\n" +
-		"src/p/Y.java p.Y(boolean) [super(1);]", 
+		"src/p/Y.java p.Y(boolean) [super(1);]",
 		this.resultCollector);
 }
 /**
@@ -175,12 +175,12 @@ public void testConstructorReference05() throws CoreException { // was testConst
 	IType type = getCompilationUnit("JavaSearch", "src", "c7", "X.java").getType("X");
 	IMethod method = type.getMethod("X", new String[] {});
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/c7/Y.java c7.Y() [Y]", 
+		"src/c7/Y.java c7.Y() [Y]",
 		this.resultCollector);
 }
 /**
@@ -189,13 +189,13 @@ public void testConstructorReference05() throws CoreException { // was testConst
  */
 public void testConstructorReference06() throws CoreException { // was testConstructorReferenceImplicitConstructorCall2
 	search(
-		"c8.X()", 
-		CONSTRUCTOR, 
+		"c8.X()",
+		CONSTRUCTOR,
 		REFERENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/c8/Y.java c8.Y [Y]", 
+		"src/c8/Y.java c8.Y [Y]",
 		this.resultCollector);
 }
 /**
@@ -206,13 +206,13 @@ public void testConstructorReference07() throws CoreException { // was testConst
 	IType type = getCompilationUnit("JavaSearch", "src", "", "A.java").getType("A").getType("Inner");
 	IMethod method = type.getMethod("Inner", new String[] {"I"});
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/A.java A.field [new Inner(1)]\n" +
-		"src/A.java A.field [new Inner(2)]", 
+		"src/A.java A.field [new Inner(2)]",
 		this.resultCollector);
 }
 /**
@@ -221,13 +221,13 @@ public void testConstructorReference07() throws CoreException { // was testConst
  */
 public void testConstructorReference08() throws CoreException { // was testConstructorReferenceDefaultConstructorOfMemberClass
 	search(
-		"c10.X.Inner()", 
-		CONSTRUCTOR, 
+		"c10.X.Inner()",
+		CONSTRUCTOR,
 		REFERENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/c10/X.java c10.B() [new X().super();]", 
+		"src/c10/X.java c10.B() [new X().super();]",
 		this.resultCollector);
 }
 /*
@@ -237,10 +237,10 @@ public void testConstructorReference09() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/p2/X.java").getType("X");
 	IMethod method = type.getMethod("X", new String[] {"QE;"});
 	search(
-		method, 
-		REFERENCES, 
+		method,
+		REFERENCES,
 		ERASURE_RULE,
-		getJavaSearchScope15(), 
+		getJavaSearchScope15(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/p2/Y.java Object p2.Y.foo() [new X<Object>(this)]",
@@ -251,16 +251,16 @@ public void testConstructorReference09() throws CoreException {
  * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
  */
 public void testConstructorReference10() throws CoreException { // was testConstructorReferenceImplicitConstructorCall2
-	resultCollector.showSynthetic = true;
+	this.resultCollector.showSynthetic = true;
 	search(
-		"c11.A()", 
-		CONSTRUCTOR, 
+		"c11.A()",
+		CONSTRUCTOR,
 		REFERENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/c11/A.java c11.A1 [A1] SYNTHETIC\n" + 
-		"src/c11/A.java c11.A2() [A2] SYNTHETIC\n" + 
+		"src/c11/A.java c11.A1 [A1] SYNTHETIC\n" +
+		"src/c11/A.java c11.A2() [A2] SYNTHETIC\n" +
 		"src/c11/A.java c11.A3() [super();]",
 		this.resultCollector);
 }
@@ -277,9 +277,9 @@ public void testCoreException() throws CoreException {
 	};
 	try {
 		search(
-			type, 
-			DECLARATIONS, 
-			getJavaSearchScope(), 
+			type,
+			DECLARATIONS,
+			getJavaSearchScope(),
 			result);
 	} catch (CoreException e) {
 		assertEquals("Unexpected CoreException has been thrown", "test", e.getStatus().getMessage());
@@ -292,15 +292,15 @@ public void testCoreException() throws CoreException {
  * (regression test for bug 6538 searchDeclarationsOf* incorrect)
  */
 public void testDeclarationOfAccessedFields1() throws CoreException {
-	IMethod method = 
+	IMethod method =
 		getCompilationUnit("JavaSearch", "src", "a5", "B.java").
 			getType("C").getMethod("i", new String[] {});
 	searchDeclarationsOfAccessedFields(
-		method, 
-		resultCollector
+		method,
+		this.resultCollector
 	);
 	assertSearchResults(
-		"", 
+		"",
 		this.resultCollector);
 }
 /**
@@ -308,15 +308,15 @@ public void testDeclarationOfAccessedFields1() throws CoreException {
  * (regression test for bug 6538 searchDeclarationsOf* incorrect)
  */
 public void testDeclarationOfAccessedFields2() throws CoreException {
-	IMethod method = 
+	IMethod method =
 		getCompilationUnit("JavaSearch", "src", "a6", "A.java").
 			getType("B").getMethod("m", new String[] {});
 	searchDeclarationsOfAccessedFields(
-		method, 
-		resultCollector
+		method,
+		this.resultCollector
 	);
 	assertSearchResults(
-		"src/a6/A.java a6.B.f [f]", 
+		"src/a6/A.java a6.B.f [f]",
 		this.resultCollector);
 }
 /**
@@ -324,27 +324,27 @@ public void testDeclarationOfAccessedFields2() throws CoreException {
  * (regression test for bug 10386 NPE in MatchLocator.lookupType)
  */
 public void testDeclarationOfAccessedFields3() throws CoreException {
-	IMethod method = 
+	IMethod method =
 		getCompilationUnit("JavaSearch", "src", "b6", "A.java").
 			getType("A").getMethod("foo", new String[] {});
 	searchDeclarationsOfAccessedFields(
-		method, 
-		resultCollector
+		method,
+		this.resultCollector
 	);
 	assertSearchResults(
-		"src/b6/A.java b6.A.field [field]", 
+		"src/b6/A.java b6.A.field [field]",
 		this.resultCollector);
 }
 /**
  * Declaration of referenced types test.
  */
 public void testDeclarationOfReferencedTypes01() throws CoreException {
-	IMethod method = 
+	IMethod method =
 		getCompilationUnit("JavaSearch", "src", "a3", "References.java").
 			getType("References").getMethod("foo", new String[] {});
 	searchDeclarationsOfReferencedTypes(
-		method, 
-		resultCollector
+		method,
+		this.resultCollector
 	);
 	assertSearchResults(
 		"src/a3/X.java a3.X [X]\n" +
@@ -354,7 +354,7 @@ public void testDeclarationOfReferencedTypes01() throws CoreException {
 		"src/a3/b/A.java a3.b.A$B [B]\n" +
 		getExternalJCLPathString() + " java.lang.Object\n" +
 		"src/a3/Y.java a3.Y [Y]\n" +
-		"src/a3/b/B.java a3.b.B [B]", 
+		"src/a3/b/B.java a3.b.B [B]",
 		this.resultCollector);
 }
 /**
@@ -362,15 +362,15 @@ public void testDeclarationOfReferencedTypes01() throws CoreException {
  * (Regression test for bug 6779 searchDeclarationsOfReferencedTyped - missing exception types)
  */
 public void testDeclarationOfReferencedTypes02() throws CoreException {
-	IMethod method = 
+	IMethod method =
 		getCompilationUnit("JavaSearch", "src", "a7", "X.java").
 			getType("X").getMethod("foo", new String[] {});
 	searchDeclarationsOfReferencedTypes(
-		method, 
-		resultCollector
+		method,
+		this.resultCollector
 	);
 	assertSearchResults(
-		"src/a7/X.java a7.MyException [MyException]", 
+		"src/a7/X.java a7.MyException [MyException]",
 		this.resultCollector);
 }
 /**
@@ -380,11 +380,11 @@ public void testDeclarationOfReferencedTypes02() throws CoreException {
 public void testDeclarationOfReferencedTypes03() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c1", "A.java");
 	searchDeclarationsOfReferencedTypes(
-		unit, 
-		resultCollector
+		unit,
+		this.resultCollector
 	);
 	assertSearchResults(
-		"src/c1/I.java c1.I [I]", 
+		"src/c1/I.java c1.I [I]",
 		this.resultCollector);
 }
 /**
@@ -394,11 +394,11 @@ public void testDeclarationOfReferencedTypes03() throws CoreException {
 public void testDeclarationOfReferencedTypes04() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c1", "B.java");
 	searchDeclarationsOfReferencedTypes(
-		unit, 
-		resultCollector
+		unit,
+		this.resultCollector
 	);
 	assertSearchResults(
-		"src/c1/I.java c1.I [I]", 
+		"src/c1/I.java c1.I [I]",
 		this.resultCollector);
 }
 /**
@@ -408,11 +408,11 @@ public void testDeclarationOfReferencedTypes04() throws CoreException {
 public void testDeclarationOfReferencedTypes05() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c2", "A.java");
 	searchDeclarationsOfReferencedTypes(
-		unit, 
-		resultCollector
+		unit,
+		this.resultCollector
 	);
 	assertSearchResults(
-		"src/c3/C.java c3.C [C]", 
+		"src/c3/C.java c3.C [C]",
 		this.resultCollector);
 }
 /**
@@ -423,16 +423,16 @@ public void testDeclarationOfReferencedTypes06() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "d1", "X.java");
 	IType innerType = unit.getType("X").getType("Inner");
 	searchDeclarationsOfReferencedTypes(
-		innerType, 
-		resultCollector
+		innerType,
+		this.resultCollector
 	);
 	assertSearchResults(
-		"src/d2/Y.java d2.Y [Y]", 
+		"src/d2/Y.java d2.Y [Y]",
 		this.resultCollector);
 }
 /**
  * Declaration of referenced types test.
- * (Regression test for bug 37438 searchenging NPE in searchDeclarationsOfReferencedTypes 
+ * (Regression test for bug 37438 searchenging NPE in searchDeclarationsOfReferencedTypes
 )
  */
 public void testDeclarationOfReferencedTypes07() throws CoreException {
@@ -440,8 +440,8 @@ public void testDeclarationOfReferencedTypes07() throws CoreException {
 	boolean iae = false;
 	try {
 		searchDeclarationsOfReferencedTypes(
-			pkg, 
-			resultCollector
+			pkg,
+			this.resultCollector
 		);
 	} catch (IllegalArgumentException exception) {
 		assertSearchResults("");
@@ -467,13 +467,13 @@ public void testDeclarationOfReferencedTypes08() throws CoreException {
 	searchDeclarationsOfReferencedTypes(unit, result);
 	assertSearchResults(
 		"Starting search...\n"+
-		"Done searching.", 
+		"Done searching.",
 		result);
 }
 
 /**
  * Declaration of referenced types test.
- * (Regression test for bug 68862 [1.5] ClassCastException when moving a a java file 
+ * (Regression test for bug 68862 [1.5] ClassCastException when moving a a java file
 )
  */
 public void testDeclarationOfReferencedTypes09() throws CoreException {
@@ -487,12 +487,12 @@ public void testDeclarationOfReferencedTypes09() throws CoreException {
         }
 	};
 	searchDeclarationsOfReferencedTypes(
-		cu, 
+		cu,
 		result
 	);
 	assertSearchResults(
-		"Starting search...\n" + 
-		getExternalJCLPathString("1.5") + " java.lang.Object\n" + 
+		"Starting search...\n" +
+		getExternalJCLPathString("1.5") + " java.lang.Object\n" +
 		"Done searching.",
 		result);
 }
@@ -502,12 +502,12 @@ public void testDeclarationOfReferencedTypes09() throws CoreException {
 public void testDeclarationsOfSentMessages01() throws CoreException { // was testSimpleDeclarationsOfSentMessages
 	ICompilationUnit cu = getCompilationUnit("JavaSearch", "src", "", "Test.java");
 	searchDeclarationsOfSentMessages(
-		cu, 
+		cu,
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/X.java void p.X.foo(int, String, X) [foo(int i, String s, X x)]\n" + 
-		"src/p/Y.java void p.Y.bar() [bar()]\n" + 
-		"src/p/Z.java void p.Z.foo(int, String, X) [foo(int i, String s, X x)]\n" + 
+		"src/p/X.java void p.X.foo(int, String, X) [foo(int i, String s, X x)]\n" +
+		"src/p/Y.java void p.Y.bar() [bar()]\n" +
+		"src/p/Z.java void p.Z.foo(int, String, X) [foo(int i, String s, X x)]\n" +
 		"src/p/A.java void p.A.foo(int, String, X) [foo()]",
 		this.resultCollector);
 }
@@ -517,15 +517,15 @@ public void testDeclarationsOfSentMessages01() throws CoreException { // was tes
  * (regression test for bug 6538 searchDeclarationsOf* incorrect)
  */
 public void testDeclarationsOfSentMessages02() throws CoreException { // was testDeclarationOfSentMessages
-	IMethod method = 
+	IMethod method =
 		getCompilationUnit("JavaSearch", "src", "a5", "B.java").
 			getType("C").getMethod("i", new String[] {});
 	searchDeclarationsOfSentMessages(
-		method, 
-		resultCollector
+		method,
+		this.resultCollector
 	);
 	assertSearchResults(
-		"", 
+		"",
 		this.resultCollector);
 }
 
@@ -537,7 +537,7 @@ public void testExternalFolder1() throws CoreException {
 		createExternalFolder("externalLib");
 		Util.compile(
 			new String[] {
-				"p/X.java", 
+				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"  public void foo() {\n" +
@@ -567,7 +567,7 @@ public void testExternalFolder2() throws CoreException {
 		createExternalFolder("externalLib");
 		Util.compile(
 			new String[] {
-				"p/ExternalType.java", 
+				"p/ExternalType.java",
 				"package p;\n" +
 				"public class ExternalType {\n" +
 				"}"
@@ -576,7 +576,7 @@ public void testExternalFolder2() throws CoreException {
 			getExternalResourcePath("externalLib")
 		);
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
-		
+
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine(this.workingCopies).searchAllTypeNames(
 			null,
@@ -610,7 +610,7 @@ public void testExternalFolder3() throws CoreException {
 		createExternalFolder("externalLib");
 		Util.compile(
 			new String[] {
-				"p/ExternalType229304.java", 
+				"p/ExternalType229304.java",
 				"package p;\n" +
 				"public class ExternalType229304 {\n" +
 				"}"
@@ -619,7 +619,7 @@ public void testExternalFolder3() throws CoreException {
 			getExternalResourcePath("externalLib")
 		);
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
-		
+
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine(this.workingCopies).searchAllTypeNames(
 			null,
@@ -650,7 +650,7 @@ public void testZIPArchive1() throws Exception {
 	try {
 		createJar(
 			new String[] {
-				"p/X.java", 
+				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"  public void foo() {\n" +
@@ -660,7 +660,7 @@ public void testZIPArchive1() throws Exception {
 			getExternalResourcePath("externalLib.abc"));
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
-		
+
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")});
 		search("foo", METHOD, DECLARATIONS, scope);
 		assertSearchResults(
@@ -680,14 +680,14 @@ public void testZIPArchive2() throws Exception {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		createJar(
 			new String[] {
-				"p/ExternalType.java", 
+				"p/ExternalType.java",
 				"package p;\n" +
 				"public class ExternalType {\n" +
 				"}"
 			},
 			getExternalResourcePath("externalLib.abc"));
 		refreshExternalArchives(p);
-		
+
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine(this.workingCopies).searchAllTypeNames(
 			null,
@@ -718,12 +718,12 @@ public void testFieldDeclaration01() throws CoreException { // was testSimpleFie
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IField field = type.getField("x");
 	search(
-		field, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		field,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/A.java p.A.x [x]", 
+		"src/p/A.java p.A.x [x]",
 		this.resultCollector);
 }
 /**
@@ -733,12 +733,12 @@ public void testFieldDeclaration02() throws CoreException { // was testFieldDecl
 	IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
 	IField field = type.getField("field");
 	search(
-		field, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		field,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"MyJar.jar p1.A.field [No source]", 
+		"MyJar.jar p1.A.field [No source]",
 		this.resultCollector);
 }
 
@@ -751,12 +751,12 @@ public void testFieldDeclaration03() throws CoreException { // was testFieldDecl
 	IType type = getCompilationUnit("JavaSearch", "src", "", "B.java").getType("B");
 	IField field = type.getField("open");
 	search(
-		field, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		field,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/B.java B.open [open]", 
+		"src/B.java B.open [open]",
 		this.resultCollector);
 }
 /**
@@ -765,13 +765,13 @@ public void testFieldDeclaration03() throws CoreException { // was testFieldDecl
  */
 public void testFieldDeclaration04() throws CoreException { // was testFieldDeclarationWithWildCard
 	search(
-		"class*path", 
+		"class*path",
 		FIELD,
 		DECLARATIONS,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/c5/Test.java c5.Test.class_path [class_path]", 
+		"src/c5/Test.java c5.Test.class_path [class_path]",
 		this.resultCollector);
 }
 /**
@@ -782,12 +782,12 @@ public void testFieldReference01() throws CoreException { // was testFieldRefere
 	IType type = getCompilationUnit("JavaSearch", "src", "p8", "A.java").getType("A");
 	IField field = type.getField("g");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p8/A.java void p8.A.m() [g]\n" + 
+		"src/p8/A.java void p8.A.m() [g]\n" +
 		"src/p8/A.java void p8.B.m() [g]",
 		this.resultCollector);
 }
@@ -799,9 +799,9 @@ public void testFieldReference02() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p9", "X.java").getType("X");
 	IField field = type.getField("f");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/p9/X.java void p9.X.m() [f]",
@@ -814,7 +814,7 @@ public void testFieldReference02() throws CoreException {
 public void testFieldReference03() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "q8", "EclipseTest.java").getType("EclipseTest");
 	IField field = type.getField("test");
-	resultCollector.showPotential = false;
+	this.resultCollector.showPotential = false;
 	search(field, REFERENCES, getJavaSearchScope());
 	assertSearchResults(
 		"src/q8/EclipseTest.java void q8.EclipseTest.main(String[]) [test]"
@@ -828,9 +828,9 @@ public void testFieldReference04() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "a2", "X.java").getType("X");
 	IField field = type.getField("length");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/a2/X.java void a2.X.foo() [length]",
@@ -849,12 +849,12 @@ public void testFieldReference05() throws CoreException {
 	String currentOption = (String)options.get("org.eclipse.jdt.core.compiler.compliance");
 	options.put("org.eclipse.jdt.core.compiler.compliance", "1.4");
 	JavaCore.setOptions(options);
-	
+
 	try {
 		search(
-			field, 
-			REFERENCES, 
-			getJavaSearchScope(), 
+			field,
+			REFERENCES,
+			getJavaSearchScope(),
 			this.resultCollector);
 		assertSearchResults(
 			"src/b1/B.java void b1.B.foo() [x]",
@@ -873,9 +873,9 @@ public void testFieldReference06() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "c4", "X.java").getType("X");
 	IField field = type.getField("x");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/c4/X.java int c4.X.foo() [x]",
@@ -889,9 +889,9 @@ public void testFieldReference07() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "s5", "A.java").getType("A");
 	IField field = type.getField("b");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/s5/A.java void s5.A.method() [b]",
@@ -904,12 +904,12 @@ public void testFieldReference08() throws CoreException { // was testSimpleField
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IField field = type.getField("x");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/Test.java void Test.main(String[]) [x]\n" + 
+		"src/Test.java void Test.main(String[]) [x]\n" +
 		"src/p/A.java p.A(X) [x]",
 		this.resultCollector);
 }
@@ -920,9 +920,9 @@ public void testFieldReference09() throws CoreException { // was testSimpleReadF
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IField field = type.getField("x");
 	search(
-		field, 
-		READ_ACCESSES, 
-		getJavaSearchScope(), 
+		field,
+		READ_ACCESSES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/Test.java void Test.main(String[]) [x]",
@@ -935,12 +935,12 @@ public void testFieldReference10() throws CoreException { // was testSimpleWrite
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IField field = type.getField("x");
 	search(
-		field, 
-		WRITE_ACCESSES, 
-		getJavaSearchScope(), 
+		field,
+		WRITE_ACCESSES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/A.java p.A(X) [x]", 
+		"src/p/A.java p.A(X) [x]",
 		this.resultCollector);
 }
 /**
@@ -951,13 +951,13 @@ public void testFieldReference11() throws CoreException { // was testMultipleFie
 	IType type = getCompilationUnit("JavaSearch", "src", "p5", "A.java").getType("A");
 	IField field = type.getField("x");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p5/A.java void p5.A.k() [x]\n" + 
-		"src/p5/A.java void p5.A.k() [x]\n" + 
+		"src/p5/A.java void p5.A.k() [x]\n" +
+		"src/p5/A.java void p5.A.k() [x]\n" +
 		"src/p5/A.java void p5.A.k() [x]",
 		this.resultCollector);
 }
@@ -969,9 +969,9 @@ public void testFieldReference12() throws CoreException { // was testStaticField
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IField field = type.getField("DEBUG");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/p/A.java void p.A.foo() [DEBUG]",
@@ -985,9 +985,9 @@ public void testFieldReference13() throws CoreException { // was testFieldRefere
 	IType type = getCompilationUnit("JavaSearch", "src", "", "O.java").getType("O");
 	IField field = type.getField("y");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/O.java void O$I.y() [y]",
@@ -1001,9 +1001,9 @@ public void testFieldReference14() throws CoreException { // was testFieldRefere
 	IType type = getCompilationUnit("JavaSearch", "src", "", "D.java").getType("D");
 	IField field = type.getField("h");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/D.java void void D.g():<anonymous>#1.run() [h]",
@@ -1017,28 +1017,28 @@ public void testFieldReference15() throws CoreException { // was testFieldRefere
 	IType type = getCompilationUnit("JavaSearch", "src", "p6", "A.java").getType("A");
 	IField field = type.getField("f");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p6/A.java void p6.A.m() [f]\n" + 
-		"src/p6/A.java void p6.B.m() [f]\n" + 
+		"src/p6/A.java void p6.A.m() [f]\n" +
+		"src/p6/A.java void p6.B.m() [f]\n" +
 		"src/p6/A.java void p6.B.m() [f]",
 		this.resultCollector);
-		
+
 	type = getCompilationUnit("JavaSearch", "src", "p6", "A.java").getType("AA");
 	field = type.getField("f");
-	resultCollector = new JavaSearchResultCollector();
+	this.resultCollector = new JavaSearchResultCollector();
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/p6/A.java void p6.B.m() [f]",
 		this.resultCollector);
-		
+
 }
 /**
  * Read and write access reference in compound expression test.
@@ -1050,20 +1050,20 @@ public void testFieldReference16() throws CoreException { // was testReadWriteFi
 
 	// Read reference
 	search(
-		field, 
-		READ_ACCESSES, 
-		getJavaSearchScope(), 
+		field,
+		READ_ACCESSES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/a4/X.java void a4.X.foo() [field]",
 		this.resultCollector);
-		
+
 	// Write reference
-	resultCollector = new JavaSearchResultCollector();
+	this.resultCollector = new JavaSearchResultCollector();
 	search(
-		field, 
-		WRITE_ACCESSES, 
-		getJavaSearchScope(), 
+		field,
+		WRITE_ACCESSES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/a4/X.java void a4.X.foo() [field]",
@@ -1077,12 +1077,12 @@ public void testFieldReference17() throws CoreException { // was testReadWriteAc
 	IType type = getCompilationUnit("JavaSearch", "src", "a8", "A.java").getType("A");
 	IField field = type.getField("a");
 	search(
-		field, 
-		WRITE_ACCESSES, 
-		getJavaSearchScope(), 
+		field,
+		WRITE_ACCESSES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"", 
+		"",
 		this.resultCollector);
 }
 /**
@@ -1093,9 +1093,9 @@ public void testFieldReference18() throws CoreException { // was testFieldRefere
 	IType type = getCompilationUnit("JavaSearch", "src", "s3", "A.java").getType("A");
 	IField field = type.getField("field");
 	search(
-		field, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		field,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/s3/A.java int s3.A.bar() [field]",
@@ -1107,12 +1107,12 @@ public void testFieldReference18() throws CoreException { // was testFieldRefere
  */
 public void testFieldReference19() throws CoreException { // was testAccurateFieldReference1
 	search(
-		"d6.X.CONSTANT", 
-		FIELD, 
+		"d6.X.CONSTANT",
+		FIELD,
 		REFERENCES,
 		SearchEngine.createJavaSearchScope(new IJavaElement[] {
 			getPackageFragment("JavaSearch", "src", "d6")
-		}), 
+		}),
 		this.resultCollector);
 	assertSearchResults(
 		"src/d6/Y.java d6.Y.T [CONSTANT]",
@@ -1124,10 +1124,10 @@ public void testFieldReference19() throws CoreException { // was testAccurateFie
 public void testFieldReference20() throws CoreException { // was testFieldReferenceInOutDocComment
 	IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
 	IField field = type.getField("x");
-	resultCollector.showInsideDoc = true;
-	search(field, REFERENCES, getJavaSearchScope(), resultCollector);
+	this.resultCollector.showInsideDoc = true;
+	search(field, REFERENCES, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
-		"src/s4/X.java int s4.X.foo() [x] OUTSIDE_JAVADOC\n" + 
+		"src/s4/X.java int s4.X.foo() [x] OUTSIDE_JAVADOC\n" +
 		"src/s4/X.java void s4.X.bar() [x] INSIDE_JAVADOC",
 		this.resultCollector);
 }
@@ -1138,13 +1138,13 @@ public void testInterfaceImplementors1() throws CoreException { // was testInter
 	// implementors of an interface
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "I.java").getType("I");
 	search(
-		type, 
-		IMPLEMENTORS, 
-		getJavaSearchScope(), 
+		type,
+		IMPLEMENTORS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/InterfaceImplementors.java InterfaceImplementors [p.I]\n" +
-		"src/p/X.java p.X [I]", 
+		"src/p/X.java p.X [I]",
 		this.resultCollector);
 
 	/**
@@ -1153,15 +1153,15 @@ public void testInterfaceImplementors1() throws CoreException { // was testInter
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124645"
 	 */
 	type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
-	resultCollector = new JavaSearchResultCollector();
+	this.resultCollector = new JavaSearchResultCollector();
 	search(
-		type, 
-		IMPLEMENTORS, 
-		getJavaSearchScope(), 
+		type,
+		IMPLEMENTORS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/p/Y.java p.Y [X]",
-		this.resultCollector);	
+		this.resultCollector);
 }
 /**
  * Interface implementors test.
@@ -1171,9 +1171,9 @@ public void testInterfaceImplementors2() throws CoreException {
 	// implementors of an interface
 	IType type = getCompilationUnit("JavaSearch", "src", "r2", "I.java").getType("I");
 	search(
-		type, 
-		IMPLEMENTORS, 
-		getJavaSearchScope(), 
+		type,
+		IMPLEMENTORS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/r2/X.java r2.X.field:<anonymous>#1 [I]",
@@ -1186,9 +1186,9 @@ public void testInterfaceImplementors2() throws CoreException {
 public void testLocalVariableDeclaration1() throws CoreException {
 	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
 	search(
-		localVar, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		localVar,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/f1/X.java void f1.X.foo1().var1 [var1]",
@@ -1201,9 +1201,9 @@ public void testLocalVariableDeclaration1() throws CoreException {
 public void testLocalVariableDeclaration2() throws CoreException {
 	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var2 = new X();", "var2");
 	search(
-		localVar, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		localVar,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/f1/X.java void f1.X.foo2().var2 [var2]",
@@ -1217,9 +1217,9 @@ public void testLocalVariableDeclaration2() throws CoreException {
 public void testLocalVariableDeclaration_Bug207257() throws CoreException {
 	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
 	search(
-		localVar, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		localVar,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertEquals("Invalid Search Match class", LocalVariableDeclarationMatch.class, this.resultCollector.match.getClass());
 }
@@ -1230,12 +1230,12 @@ public void testLocalVariableDeclaration_Bug207257() throws CoreException {
 public void testLocalVariableOccurrences1() throws CoreException {
 	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
 	search(
-		localVar, 
-		ALL_OCCURRENCES, 
-		getJavaSearchScope(), 
+		localVar,
+		ALL_OCCURRENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/f1/X.java void f1.X.foo1().var1 [var1]\n" + 
+		"src/f1/X.java void f1.X.foo1().var1 [var1]\n" +
 		"src/f1/X.java void f1.X.foo1() [var1]",
 		this.resultCollector);
 }
@@ -1246,12 +1246,12 @@ public void testLocalVariableOccurrences1() throws CoreException {
 public void testLocalVariableOccurrences2() throws CoreException {
 	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var2 = new X();", "var2");
 	search(
-		localVar, 
-		ALL_OCCURRENCES, 
-		getJavaSearchScope(), 
+		localVar,
+		ALL_OCCURRENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/f1/X.java void f1.X.foo2().var2 [var2]\n" + 
+		"src/f1/X.java void f1.X.foo2().var2 [var2]\n" +
 		"src/f1/X.java void f1.X.foo2() [var2]",
 		this.resultCollector);
 }
@@ -1262,9 +1262,9 @@ public void testLocalVariableOccurrences2() throws CoreException {
 public void testLocalVariableReference1() throws CoreException {
 	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
 	search(
-		localVar, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		localVar,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/f1/X.java void f1.X.foo1() [var1]",
@@ -1277,9 +1277,9 @@ public void testLocalVariableReference1() throws CoreException {
 public void testLocalVariableReference2() throws CoreException {
 	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var2 = new X();", "var2");
 	search(
-		localVar, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		localVar,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/f1/X.java void f1.X.foo2() [var2]",
@@ -1293,9 +1293,9 @@ public void testLocalVariableReference3() throws CoreException {
     IClassFile classFile = getClassFile("JavaSearch", "test48725.jar", "p48725", "X.class");
 	ILocalVariable localVar = (ILocalVariable) codeSelect(classFile, "local = 1;", "local")[0];
 	search(
-		localVar, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		localVar,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"test48725.jar int p48725.<anonymous>.bar()",
@@ -1309,12 +1309,12 @@ public void testMethodDeclaration01() throws CoreException { // was testSimpleMe
 	IMethod method = type.getMethod("foo", new String[] {"I", "QString;", "QX;"});
 
 	search(
-		method, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		method,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/X.java void p.X.foo(int, String, X) [foo]\n" + 
+		"src/p/X.java void p.X.foo(int, String, X) [foo]\n" +
 		"src/p/Z.java void p.Z.foo(int, String, X) [foo]",
 		this.resultCollector);
 }
@@ -1326,10 +1326,10 @@ public void testMethodDeclaration02() throws CoreException { // was testMethodDe
 	IType type = getCompilationUnit("JavaSearch", "src", "e2", "X.java").getType("X");
 
 	search(
-		"foo(String, String)", 
+		"foo(String, String)",
 		METHOD,
 		DECLARATIONS,
-		SearchEngine.createJavaSearchScope(new IJavaElement[] {type}), 
+		SearchEngine.createJavaSearchScope(new IJavaElement[] {type}),
 		this.resultCollector);
 	assertSearchResults(
 		"src/e2/X.java void e2.X.foo(String, String) [foo]",
@@ -1345,9 +1345,9 @@ public void testMethodDeclaration03() throws CoreException { // was testInnerMet
 	IMethod method = type.getMethod("foo", new String[] {});
 
 	search(
-		method, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		method,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/p/X.java String p.X$Inner.foo() [foo]",
@@ -1360,13 +1360,13 @@ public void testMethodDeclaration04() throws CoreException { // was testMethodDe
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 
 	search(
-		"foo", 
+		"foo",
 		METHOD,
 		DECLARATIONS,
-		SearchEngine.createHierarchyScope(type), 
+		SearchEngine.createHierarchyScope(type),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/X.java void p.X.foo(int, String, X) [foo]\n" + 
+		"src/p/X.java void p.X.foo(int, String, X) [foo]\n" +
 		"src/p/Z.java void p.Z.foo(int, String, X) [foo]",
 		this.resultCollector);
 }
@@ -1379,12 +1379,12 @@ public void testMethodDeclaration05() throws CoreException { // was testMethodDe
 	IMethod method = type.getMethod("foo", new String[] {"I", "QString;", "QX;"});
 
 	search(
-		method, 
+		method,
 		DECLARATIONS,
-		SearchEngine.createHierarchyScope(type), 
+		SearchEngine.createHierarchyScope(type),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/X.java void p.X.foo(int, String, X) [foo]\n" + 
+		"src/p/X.java void p.X.foo(int, String, X) [foo]\n" +
 		"src/p/Z.java void p.Z.foo(int, String, X) [foo]",
 		this.resultCollector);
 }
@@ -1396,9 +1396,9 @@ public void testMethodDeclaration06() throws CoreException { // was testMethodDe
 	IMethod method = type.getMethod("foo", new String[] {});
 
 	search(
-		method, 
+		method,
 		DECLARATIONS,
-		SearchEngine.createHierarchyScope(type), 
+		SearchEngine.createHierarchyScope(type),
 		this.resultCollector);
 	assertSearchResults(
 		"src/d3/A.java void d3.B.foo() [foo]",
@@ -1413,10 +1413,10 @@ public void testMethodDeclaration07() throws CoreException { // was testMethodDe
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
 
 	search(
-		"main(String[])", 
+		"main(String[])",
 		METHOD,
 		DECLARATIONS,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"src/p/A.java void p.A.main(String[]) [main]",
@@ -1430,9 +1430,9 @@ public void testMethodDeclaration08() throws CoreException { // was testMethodDe
 	IMethod method = type.getMethod("foo", new String[] {"Ljava.lang.String;"});
 
 	search(
-		method, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		method,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"MyJar.jar boolean p1.A.foo(java.lang.String) [No source]",
@@ -1445,10 +1445,10 @@ public void testMethodDeclaration08() throws CoreException { // was testMethodDe
 public void testMethodDeclaration09() throws CoreException { // was testMethodDeclarationInInitializer
 
 	search(
-		"foo24346", 
+		"foo24346",
 		METHOD,
 		DECLARATIONS,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/c6/X.java void c6.X.x:<anonymous>#1.foo24346() [foo24346]",
@@ -1463,10 +1463,10 @@ public void testMethodDeclaration10() throws CoreException { // was testMethodDe
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
 
 	search(
-		"m() int", 
+		"m() int",
 		METHOD,
 		DECLARATIONS,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"src/e8/A.java void e8.A.m() [m]",
@@ -1484,10 +1484,10 @@ public void testMethodDeclaration11() throws CoreException {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
 
 	search(
-		"foo", 
+		"foo",
 		METHOD,
 		DECLARATIONS,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"otherSrc()/X92210.java void X92210.foo() [foo]",
@@ -1502,9 +1502,9 @@ public void testMethodReference01() throws CoreException {
 	IMethod method = type.getMethod("k", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/q5/AQ.java void q5.T.m() [k()]",
@@ -1519,9 +1519,9 @@ public void testMethodReference02() throws CoreException {
 	IMethod method = type.getMethod("k", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/q6/CD.java void q6.AQE.k() [k()]",
@@ -1536,9 +1536,9 @@ public void testMethodReference03() throws CoreException {
 	IMethod method = type.getMethod("k", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/q7/AQ.java void q7.D.h() [k()]",
@@ -1553,9 +1553,9 @@ public void testMethodReference04() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"QX.Inner;"});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/b2/Z.java void b2.Z.bar() [foo(inner)]",
@@ -1570,9 +1570,9 @@ public void testMethodReference05() throws CoreException {
 	IMethod method = type.getMethod("bar", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/e9/A.java void e9.A.foo() [bar()]",
@@ -1585,12 +1585,12 @@ public void testMethodReference06() throws CoreException {
 	IMethod method= getCompilationUnit("JavaSearch/src/f3/X.java").getType("X").getMethod("bar", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/f3/X.java void void f3.X.foo():<anonymous>#2.foobar() [bar()]\n" + 
+		"src/f3/X.java void void f3.X.foo():<anonymous>#2.foobar() [bar()]\n" +
 		"src/f3/X.java void void f3.X.foo():Y#2.foobar() [bar()]",
 		this.resultCollector);
 }
@@ -1602,14 +1602,14 @@ public void testMethodReference07() throws CoreException { // was testSimpleMeth
 	IMethod method = type.getMethod("foo", new String[] {"I", "QString;", "QX;"});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/Test.java void Test.main(String[]) [foo(1, \"a\", y)]\n" + 
+		"src/Test.java void Test.main(String[]) [foo(1, \"a\", y)]\n" +
 		// since bug 160301 fix, subclass overridden method calls are not reported
-		//"src/Test.java void Test.main(String[]) [foo(1, \"a\", z)]\n" + 
+		//"src/Test.java void Test.main(String[]) [foo(1, \"a\", z)]\n" +
 		"src/p/Z.java void p.Z.foo(int, String, X) [foo(i, s, new Y(true))]",
 		this.resultCollector);
 }
@@ -1621,9 +1621,9 @@ public void testMethodReference08() throws CoreException { // was testStaticMeth
 	IMethod method = type.getMethod("bar", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/Test.java void Test.main(String[]) [bar()]",
@@ -1637,12 +1637,12 @@ public void testMethodReference09() throws CoreException { // was testStaticMeth
 	IMethod method = type.getMethod("bar", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"", 
+		"",
 		this.resultCollector);
 }
 /**
@@ -1653,9 +1653,9 @@ public void testMethodReference10() throws CoreException { // was testInnerMetho
 	IMethod method = type.getMethod("foo", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/p/A.java void p.A.foo(int, String, X) [foo()]",
@@ -1669,9 +1669,9 @@ public void testMethodReference11() throws CoreException { // was testMethodRefe
 	IMethod method = type.getMethod("k", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/sd/AQ.java void sd.AQE.k() [k()]",
@@ -1685,12 +1685,12 @@ public void testMethodReference12() throws CoreException { // was testMethodRefe
 	IMethod method = type.getMethod("m", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/CA.java void CA$CB.f() [m()]\n" + 
+		"src/CA.java void CA$CB.f() [m()]\n" +
 		"src/CA.java void CA$CB$CC.f() [m()]",
 		this.resultCollector);
 }
@@ -1703,9 +1703,9 @@ public void testMethodReference13() throws CoreException { // was testMethodRefe
 	IMethod method = type.getMethod("method", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/PR_1GGNOTF.java void void PR_1GGNOTF.method2():<anonymous>#1.run() [method()]",
@@ -1720,9 +1720,9 @@ public void testMethodReference14() throws CoreException { // was testMethodRefe
 	IMethod method = type.getMethod("clone", new String[] {});
 
 	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		method,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/E.java Object E.foo() [clone()]",
@@ -1734,10 +1734,10 @@ public void testMethodReference14() throws CoreException { // was testMethodRefe
 public void testMethodReference15() throws CoreException { // was testMethodReferenceInOutDocComment
 	IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
 	IMethod method = type.getMethod("foo", new String[] {});
-	resultCollector.showInsideDoc = true;
-	search(method, REFERENCES, getJavaSearchScope(), resultCollector);
+	this.resultCollector.showInsideDoc = true;
+	search(method, REFERENCES, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
-		"src/s4/X.java void s4.X.bar() [foo()] INSIDE_JAVADOC\n" + 
+		"src/s4/X.java void s4.X.bar() [foo()] INSIDE_JAVADOC\n" +
 		"src/s4/X.java void s4.X.fred() [foo()] OUTSIDE_JAVADOC",
 		this.resultCollector);
 }
@@ -1747,7 +1747,7 @@ public void testMethodReference15() throws CoreException { // was testMethodRefe
 public void testMethodReference16() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/p2/X.java").getType("X");
 	IMethod method = type.getMethod("foo", new String[] {"QE;"});
-	search(method, REFERENCES, ERASURE_RULE, getJavaSearchScope15(), resultCollector);
+	search(method, REFERENCES, ERASURE_RULE, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
 		"src/p2/Y.java void p2.Y.bar() [foo(this)]",
 		this.resultCollector);
@@ -1759,8 +1759,8 @@ public void testMethodReference16() throws CoreException {
 public void testMethodReference17() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch/src/b111416/X.java").getType("X");
 	IMethod method = type.getMethod("open", new String[] {"QString;"});
-	resultCollector.showAccuracy = true;
-	search(method, REFERENCES, ERASURE_RULE, getJavaSearchScope(), resultCollector);
+	this.resultCollector.showAccuracy = true;
+	search(method, REFERENCES, ERASURE_RULE, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
 		"src/b111416/X.java void b111416.X.foo() [open(\"\")] EXACT_MATCH",
 		this.resultCollector);
@@ -1777,14 +1777,14 @@ public void testOrPattern() throws CoreException {
 		.getType("A1").getMethod("m", new String[] {});
 	SearchPattern rightPattern = createPattern(rightMethod, ALL_OCCURRENCES);
 	SearchPattern orPattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
-	resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy = true;
 	search(
-		orPattern, 
+		orPattern,
 		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/e8/A.java void e8.A.m() [m] POTENTIAL_MATCH\n" + 
-		"src/q9/I.java void q9.I.m() [m] EXACT_MATCH\n" + 
+		"src/e8/A.java void e8.A.m() [m] POTENTIAL_MATCH\n" +
+		"src/q9/I.java void q9.I.m() [m] EXACT_MATCH\n" +
 		"src/q9/I.java void q9.A1.m() [m] EXACT_MATCH",
 		this.resultCollector);
 }
@@ -1794,12 +1794,12 @@ public void testOrPattern() throws CoreException {
 public void testPackageDeclaration1() throws CoreException { // was testSimplePackageDeclaration
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p");
 	search(
-		pkg, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		pkg,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p p", 
+		"src/p p",
 		this.resultCollector);
 }
 
@@ -1809,14 +1809,14 @@ public void testPackageDeclaration1() throws CoreException { // was testSimplePa
 public void testPackageDeclaration2() throws CoreException { // was testVariousPackageDeclarations
 	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
 	search(
-		"p3*", 
+		"p3*",
 		PACKAGE,
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		DECLARATIONS,
+		getJavaSearchScope(),
 		packageCollector);
 	assertSearchResults(
-		"src/p3 p3\n" + 
-		"src/p3/p2 p3.p2\n" + 
+		"src/p3 p3\n" +
+		"src/p3/p2 p3.p2\n" +
 		"src/p3/p2/p p3.p2.p",
 		packageCollector);
 }
@@ -1828,9 +1828,9 @@ public void testPackageDeclaration3() throws CoreException { // was testPackageD
 	IPackageFragment pkg = getPackageFragment("JavaSearch", getExternalJCLPathString(), "java.lang");
 
 	search(
-		pkg, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		pkg,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		getExternalJCLPath() + " java.lang",
@@ -1852,11 +1852,11 @@ public void testPackageDeclaration4() throws CoreException {
 		project.setRawClasspath(newCP, null);
 		search("r9",
 			PACKAGE,
-			DECLARATIONS, 
-			getJavaSearchScope(), 
+			DECLARATIONS,
+			getJavaSearchScope(),
 			this.resultCollector);
 		assertSearchResults(
-			"src/r9 r9", 
+			"src/r9 r9",
 			this.resultCollector);
 	} finally {
 		project.setRawClasspath(originalCP, null);
@@ -1905,17 +1905,17 @@ public void testPackageDeclarationBug183062a() throws CoreException {
 	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
 	search("j?",
 		PACKAGE,
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		DECLARATIONS,
+		getJavaSearchScope(),
 		packageCollector);
 	assertSearchResults(
-		"src/j1 j1\n" + 
-		"src/j2 j2\n" + 
-		"src/j3 j3\n" + 
-		"src/j4 j4\n" + 
-		"src/j5 j5\n" + 
-		"src/j6 j6\n" + 
-		"src/j7 j7\n" + 
+		"src/j1 j1\n" +
+		"src/j2 j2\n" +
+		"src/j3 j3\n" +
+		"src/j4 j4\n" +
+		"src/j5 j5\n" +
+		"src/j6 j6\n" +
+		"src/j7 j7\n" +
 		"test47909.jar j3 [No source]",
 		packageCollector);
 }
@@ -1923,23 +1923,23 @@ public void testPackageDeclarationBug183062b() throws CoreException {
 	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
 	search("j*",
 		PACKAGE,
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		DECLARATIONS,
+		getJavaSearchScope(),
 		packageCollector);
 	assertSearchResults(
-		""+ getExternalJCLPathString() + " java\n" + 
-		""+ getExternalJCLPathString() + " java.io\n" + 
-		""+ getExternalJCLPathString() + " java.lang\n" + 
-		"src/j1 j1\n" + 
-		"src/j2 j2\n" + 
-		"src/j3 j3\n" + 
-		"src/j4 j4\n" + 
-		"src/j5 j5\n" + 
-		"src/j6 j6\n" + 
-		"src/j7 j7\n" + 
-		"src/j7/qua j7.qua\n" + 
-		"src/j7/qua/li j7.qua.li\n" + 
-		"src/j7/qua/li/fied j7.qua.li.fied\n" + 
+		""+ getExternalJCLPathString() + " java\n" +
+		""+ getExternalJCLPathString() + " java.io\n" +
+		""+ getExternalJCLPathString() + " java.lang\n" +
+		"src/j1 j1\n" +
+		"src/j2 j2\n" +
+		"src/j3 j3\n" +
+		"src/j4 j4\n" +
+		"src/j5 j5\n" +
+		"src/j6 j6\n" +
+		"src/j7 j7\n" +
+		"src/j7/qua j7.qua\n" +
+		"src/j7/qua/li j7.qua.li\n" +
+		"src/j7/qua/li/fied j7.qua.li.fied\n" +
 		"test47909.jar j3 [No source]",
 		packageCollector);
 }
@@ -1947,12 +1947,12 @@ public void testPackageDeclarationBug183062c() throws CoreException {
 	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
 	search("j7.*",
 		PACKAGE,
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		DECLARATIONS,
+		getJavaSearchScope(),
 		packageCollector);
 	assertSearchResults(
-		"src/j7/qua j7.qua\n" + 
-		"src/j7/qua/li j7.qua.li\n" + 
+		"src/j7/qua j7.qua\n" +
+		"src/j7/qua/li j7.qua.li\n" +
 		"src/j7/qua/li/fied j7.qua.li.fied",
 		packageCollector);
 }
@@ -1960,11 +1960,11 @@ public void testPackageDeclarationBug183062d() throws CoreException {
 	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
 	search("j7.*.*",
 		PACKAGE,
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		DECLARATIONS,
+		getJavaSearchScope(),
 		packageCollector);
 	assertSearchResults(
-		"src/j7/qua/li j7.qua.li\n" + 
+		"src/j7/qua/li j7.qua.li\n" +
 		"src/j7/qua/li/fied j7.qua.li.fied",
 		packageCollector);
 }
@@ -1972,8 +1972,8 @@ public void testPackageDeclarationBug183062e() throws CoreException {
 	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
 	search("????.????",
 		PACKAGE,
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		DECLARATIONS,
+		getJavaSearchScope(),
 		packageCollector);
 	assertSearchResults(
 		""+ getExternalJCLPathString() + " java.lang",
@@ -1987,9 +1987,9 @@ public void testPackageReference1() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "q2");
 
 	search(
-		pkg, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		pkg,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/q1/B.java void q1.B.m(AA) [q2]",
@@ -2003,12 +2003,12 @@ public void testPackageReference2() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "b8");
 
 	search(
-		pkg, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		pkg,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/b9/Foo.java [b8]", 
+		"src/b9/Foo.java [b8]",
 		this.resultCollector);
 }
 /**
@@ -2020,9 +2020,9 @@ public void testPackageReference3() throws CoreException {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg.getParent()});
 
 	search(
-		pkg, 
-		REFERENCES, 
-		scope, 
+		pkg,
+		REFERENCES,
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"test47989.jar java.lang.Object p2.Y.foo()",
@@ -2035,19 +2035,19 @@ public void testPackageReference4() throws CoreException { // was testSimplePack
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p");
 
 	search(
-		pkg, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		pkg,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/InterfaceImplementors.java InterfaceImplementors [p]\n" + 
-		"src/Test.java void Test.main(String[]) [p]\n" + 
-		"src/Test.java void Test.main(String[]) [p]\n" + 
-		"src/Test.java void Test.main(String[]) [p]\n" + 
-		"src/Test.java void Test.main(String[]) [p]\n" + 
-		"src/Test.java void Test.main(String[]) [p]\n" + 
-		"src/Test.java void Test.main(String[]) [p]\n" + 
-		"src/Test.java void Test.main(String[]) [p]\n" + 
+		"src/InterfaceImplementors.java InterfaceImplementors [p]\n" +
+		"src/Test.java void Test.main(String[]) [p]\n" +
+		"src/Test.java void Test.main(String[]) [p]\n" +
+		"src/Test.java void Test.main(String[]) [p]\n" +
+		"src/Test.java void Test.main(String[]) [p]\n" +
+		"src/Test.java void Test.main(String[]) [p]\n" +
+		"src/Test.java void Test.main(String[]) [p]\n" +
+		"src/Test.java void Test.main(String[]) [p]\n" +
 		"src/TypeReferenceInImport/X.java [p]",
 		this.resultCollector);
 }
@@ -2058,20 +2058,20 @@ public void testPackageReference5() throws CoreException { // was testVariousPac
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p3.p2.p");
 
 	search(
-		pkg, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		pkg,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/PackageReference/A.java [p3.p2.p]\n" + 
-		"src/PackageReference/B.java [p3.p2.p]\n" + 
-		"src/PackageReference/C.java PackageReference.C [p3.p2.p]\n" + 
-		"src/PackageReference/D.java PackageReference.D.x [p3.p2.p]\n" + 
-		"src/PackageReference/E.java PackageReference.E.x [p3.p2.p]\n" + 
-		"src/PackageReference/F.java p3.p2.p.X PackageReference.F.foo() [p3.p2.p]\n" + 
-		"src/PackageReference/G.java void PackageReference.G.foo(p3.p2.p.X) [p3.p2.p]\n" + 
-		"src/PackageReference/H.java void PackageReference.H.foo() [p3.p2.p]\n" + 
-		"src/PackageReference/I.java void PackageReference.I.foo() [p3.p2.p]\n" + 
+		"src/PackageReference/A.java [p3.p2.p]\n" +
+		"src/PackageReference/B.java [p3.p2.p]\n" +
+		"src/PackageReference/C.java PackageReference.C [p3.p2.p]\n" +
+		"src/PackageReference/D.java PackageReference.D.x [p3.p2.p]\n" +
+		"src/PackageReference/E.java PackageReference.E.x [p3.p2.p]\n" +
+		"src/PackageReference/F.java p3.p2.p.X PackageReference.F.foo() [p3.p2.p]\n" +
+		"src/PackageReference/G.java void PackageReference.G.foo(p3.p2.p.X) [p3.p2.p]\n" +
+		"src/PackageReference/H.java void PackageReference.H.foo() [p3.p2.p]\n" +
+		"src/PackageReference/I.java void PackageReference.I.foo() [p3.p2.p]\n" +
 		"src/PackageReference/J.java void PackageReference.J.foo() [p3.p2.p]",
 		this.resultCollector);
 }
@@ -2082,12 +2082,12 @@ public void testPackageReference6() throws CoreException { // was testAccuratePa
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p3.p2");
 
 	search(
-		pkg, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		pkg,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/PackageReference/K.java [p3.p2]", 
+		"src/PackageReference/K.java [p3.p2]",
 		this.resultCollector);
 }
 /**
@@ -2096,21 +2096,21 @@ public void testPackageReference6() throws CoreException { // was testAccuratePa
 public void testPackageReference7() throws CoreException { // was testPatternMatchPackageReference
 
 	search(
-		"*p2.*", 
+		"*p2.*",
 		PACKAGE,
 		REFERENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/PackageReference/A.java [p3.p2.p]\n" + 
-		"src/PackageReference/B.java [p3.p2.p]\n" + 
-		"src/PackageReference/C.java PackageReference.C [p3.p2.p]\n" + 
-		"src/PackageReference/D.java PackageReference.D.x [p3.p2.p]\n" + 
-		"src/PackageReference/E.java PackageReference.E.x [p3.p2.p]\n" + 
-		"src/PackageReference/F.java p3.p2.p.X PackageReference.F.foo() [p3.p2.p]\n" + 
-		"src/PackageReference/G.java void PackageReference.G.foo(p3.p2.p.X) [p3.p2.p]\n" + 
-		"src/PackageReference/H.java void PackageReference.H.foo() [p3.p2.p]\n" + 
-		"src/PackageReference/I.java void PackageReference.I.foo() [p3.p2.p]\n" + 
+		"src/PackageReference/A.java [p3.p2.p]\n" +
+		"src/PackageReference/B.java [p3.p2.p]\n" +
+		"src/PackageReference/C.java PackageReference.C [p3.p2.p]\n" +
+		"src/PackageReference/D.java PackageReference.D.x [p3.p2.p]\n" +
+		"src/PackageReference/E.java PackageReference.E.x [p3.p2.p]\n" +
+		"src/PackageReference/F.java p3.p2.p.X PackageReference.F.foo() [p3.p2.p]\n" +
+		"src/PackageReference/G.java void PackageReference.G.foo(p3.p2.p.X) [p3.p2.p]\n" +
+		"src/PackageReference/H.java void PackageReference.H.foo() [p3.p2.p]\n" +
+		"src/PackageReference/I.java void PackageReference.I.foo() [p3.p2.p]\n" +
 		"src/PackageReference/J.java void PackageReference.J.foo() [p3.p2.p]",
 		this.resultCollector);
 }
@@ -2122,17 +2122,17 @@ public void testPackageReference7() throws CoreException { // was testPatternMat
 public void testPackageReference8() throws CoreException { // was testPatternMatchPackageReference2
 
 	search(
-		"*", 
+		"*",
 		PACKAGE,
 		REFERENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
-	resultCollector.toString();
+	this.resultCollector.toString();
 }
 /**
  * Test that we find potential matches in binaries even if we can't resolve the entire
  * class file.
- * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
+ * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration)
  */
 public void testSearchFieldInBinaryWithResolution() throws CoreException {
 	IClasspathEntry[] classpath = JAVA_PROJECT.getRawClasspath();
@@ -2143,13 +2143,13 @@ public void testSearchFieldInBinaryWithResolution() throws CoreException {
 		System.arraycopy(classpath, 0, newClasspath, 0, length);
 		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
 		JAVA_PROJECT.setRawClasspath(newClasspath, null);
-		
+
 		// potential match for a field declaration
 		this.resultCollector.showAccuracy = true;
 		search("MissingFieldType.*", FIELD, DECLARATIONS,  getJavaSearchScope());
 		assertSearchResults(
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] EXACT_MATCH\n" + 
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] EXACT_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] POTENTIAL_MATCH"
 		);
 	} finally {
@@ -2167,7 +2167,7 @@ public void testSearchFieldInBinaryNoResolution() throws CoreException {
 		System.arraycopy(classpath, 0, newClasspath, 0, length);
 		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
 		JAVA_PROJECT.setRawClasspath(newClasspath, null);
-		
+
 		// exact match for a field declaration
 		JavaSearchResultCollector collector = new JavaSearchResultCollector() {
 			public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
@@ -2180,8 +2180,8 @@ public void testSearchFieldInBinaryNoResolution() throws CoreException {
 		collector.showAccuracy = true;
 		search("*", FIELD, DECLARATIONS,  getJavaSearchScope(), collector);
 		assertSearchResults(
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] EXACT_MATCH\n" + 
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] EXACT_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] EXACT_MATCH",
 			collector
 		);
@@ -2189,11 +2189,11 @@ public void testSearchFieldInBinaryNoResolution() throws CoreException {
 		// reset classpath
 		JAVA_PROJECT.setRawClasspath(classpath, null);
 	}
-}	
+}
 /**
  * Test that we find potential matches in binaries even if we can't resolve the entire
  * class file.
- * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
+ * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration)
  */
 public void testSearchMethodInBinaryWithResolution() throws CoreException {
 	IClasspathEntry[] classpath = JAVA_PROJECT.getRawClasspath();
@@ -2204,12 +2204,12 @@ public void testSearchMethodInBinaryWithResolution() throws CoreException {
 		System.arraycopy(classpath, 0, newClasspath, 0, length);
 		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
 		JAVA_PROJECT.setRawClasspath(newClasspath, null);
-		
+
 		// potential match for a method declaration
 		this.resultCollector.showAccuracy = true;
 		search("MissingArgumentType.foo*", METHOD, DECLARATIONS, getJavaSearchScope());
 		assertSearchResults(
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] EXACT_MATCH\n" +
 			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] EXACT_MATCH\n" +
 			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo(java.util.EventListener) [No source] POTENTIAL_MATCH"
 		);
@@ -2228,7 +2228,7 @@ public void testSearchMethodInBinaryNoResolution() throws CoreException {
 		System.arraycopy(classpath, 0, newClasspath, 0, length);
 		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
 		JAVA_PROJECT.setRawClasspath(newClasspath, null);
-		
+
 		// exact match for a method declaration
 		JavaSearchResultCollector collector = new JavaSearchResultCollector() {
 			public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
@@ -2241,9 +2241,9 @@ public void testSearchMethodInBinaryNoResolution() throws CoreException {
 		collector.showAccuracy = true;
 		search("*", METHOD, DECLARATIONS,  getJavaSearchScope(), collector);
 		assertSearchResults(
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] EXACT_MATCH\n" + 
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo(java.util.EventListener) [No source] EXACT_MATCH\n" + 
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo(java.util.EventListener) [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] EXACT_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingArgumentType() [No source] EXACT_MATCH",
 			collector
 		);
@@ -2251,11 +2251,11 @@ public void testSearchMethodInBinaryNoResolution() throws CoreException {
 		// reset classpath
 		JAVA_PROJECT.setRawClasspath(classpath, null);
 	}
-}	
+}
 /**
  * Test that we find potential matches in binaries even if we can't resolve the entire
  * class file.
- * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
+ * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration)
  */
 public void testSearchTypesInBinaryWithResolution() throws CoreException {
 	IClasspathEntry[] classpath = JAVA_PROJECT.getRawClasspath();
@@ -2268,11 +2268,11 @@ public void testSearchTypesInBinaryWithResolution() throws CoreException {
 		JAVA_PROJECT.setRawClasspath(newClasspath, null);
 
 		// exact match for a type declaration
-		resultCollector.showAccuracy = true;
+		this.resultCollector.showAccuracy = true;
 		search("AbortCompilation.*Missing*", TYPE, DECLARATIONS,  getJavaSearchScope());
 		assertSearchResults(
-			"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" + 
-			"AbortCompilation.jar AbortCompilation.MissingArgumentType [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingArgumentType [No source] EXACT_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingFieldType [No source] EXACT_MATCH"
 		);
 	} finally {
@@ -2291,18 +2291,18 @@ public void testSearchTypeInBinaryNoResolution() throws CoreException {
 		JAVA_PROJECT.setRawClasspath(newClasspath, null);
 
 		// exact match for a type declaration
-		resultCollector.showAccuracy = true;
+		this.resultCollector.showAccuracy = true;
 		search("Missing*", TYPE, DECLARATIONS,  getJavaSearchScope());
 		assertSearchResults(
-			"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" + 
-			"AbortCompilation.jar AbortCompilation.MissingArgumentType [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingArgumentType [No source] EXACT_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingFieldType [No source] EXACT_MATCH"
 		);
 	} finally {
 		// reset classpath
 		JAVA_PROJECT.setRawClasspath(classpath, null);
 	}
-}	
+}
 /**
  * Hierarchy scope test.
  * (regression test for bug 3445 search: type hierarchy scope incorrect (1GLC8VS))
@@ -2325,14 +2325,14 @@ public void testSearchScope02() throws CoreException { // was testSubCUSearchSco
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type});
 
 	search(
-		type, 
+		type,
 		REFERENCES,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
-		"src/b3/X.java b3.X.field [X]\n" + 
-		"src/b3/X.java Object b3.X.foo() [X]\n" + 
-		"src/b3/X.java b3.X$Y.field2 [X]\n" + 
+		"src/b3/X.java b3.X.field [X]\n" +
+		"src/b3/X.java Object b3.X.foo() [X]\n" +
+		"src/b3/X.java b3.X$Y.field2 [X]\n" +
 		"src/b3/X.java Object b3.X$Y.foo2() [X]",
 		this.resultCollector);
 }
@@ -2345,12 +2345,12 @@ public void testSearchScope03() throws CoreException { // was testSubCUSearchSco
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getField("field")});
 
 	search(
-		type, 
+		type,
 		REFERENCES,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
-		"src/b3/X.java b3.X.field [X]", 
+		"src/b3/X.java b3.X.field [X]",
 		this.resultCollector);
 }
 /**
@@ -2362,12 +2362,12 @@ public void testSearchScope04() throws CoreException { // was testSubCUSearchSco
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getType("Y")});
 
 	search(
-		type, 
+		type,
 		REFERENCES,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
-		"src/b3/X.java b3.X$Y.field2 [X]\n" + 
+		"src/b3/X.java b3.X$Y.field2 [X]\n" +
 		"src/b3/X.java Object b3.X$Y.foo2() [X]",
 		this.resultCollector);
 }
@@ -2379,7 +2379,7 @@ public void testSearchScope05() throws CoreException, IOException { // was testE
 	File workspaceLocation = new File(workspace.getRoot().getLocation().toOSString());
 	File minimalJar = new File(workspaceLocation, "JavaSearch/MyJar.jar");
 	File externalJar = new File(workspaceLocation.getParentFile().getCanonicalFile(), "MyJar.jar"); // canonicalize the external path as this is not done on case sensitive platforms when creating a new lib entry
-	IJavaProject project = this.getJavaProject("JavaSearch");
+	IJavaProject project = getJavaProject("JavaSearch");
 	IClasspathEntry[] classpath = project.getRawClasspath();
 	try {
 		copy(minimalJar, externalJar);
@@ -2389,12 +2389,12 @@ public void testSearchScope05() throws CoreException, IOException { // was testE
 		String externalPath = externalJar.getAbsolutePath();
 		newClasspath[length-1] = JavaCore.newLibraryEntry(new Path(externalPath), new Path(externalPath), null, false);
 		project.setRawClasspath(newClasspath, null);
-		
-		IPackageFragment pkg = this.getPackageFragment("JavaSearch", externalPath, "p0");
+
+		IPackageFragment pkg = getPackageFragment("JavaSearch", externalPath, "p0");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 
 		search(
-			"X", 
+			"X",
 			TYPE,
 			DECLARATIONS,
 			scope,
@@ -2402,24 +2402,24 @@ public void testSearchScope05() throws CoreException, IOException { // was testE
 		assertSearchResults(
 			externalJar + " p0.X",
 			this.resultCollector);
-			
+
 		IClassFile classFile = pkg.getClassFile("X.class");
 		scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {classFile});
-		resultCollector = new JavaSearchResultCollector();
+		this.resultCollector = new JavaSearchResultCollector();
 		search(
-			classFile.getType(), 
+			classFile.getType(),
 			DECLARATIONS,
 			scope,
 			this.resultCollector);
 		assertSearchResults(
 			externalJar.getCanonicalPath()+ " p0.X",
 			this.resultCollector);
-		
+
 	} finally {
 		Util.delete(externalJar);
 		project.setRawClasspath(classpath, null);
 	}
-	
+
 }
 /**
  * Simple type declaration test.
@@ -2428,25 +2428,25 @@ public void testTypeDeclaration01() throws CoreException { // was testSimpleType
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 
 	search(
-		type, 
+		type,
 		DECLARATIONS,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
-	assertSearchResults("src/p/X.java p.X [X]", resultCollector);
+	assertSearchResults("src/p/X.java p.X [X]", this.resultCollector);
 }
 /**
  * Type declaration test.
  * (generic type)
  */
 public void testTypeDeclaration02() throws CoreException {
-	IPackageFragment pkg = this.getPackageFragment("JavaSearch15", "src", "p1");
+	IPackageFragment pkg = getPackageFragment("JavaSearch15", "src", "p1");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 
 	search(
-		"Y", 
+		"Y",
 		TYPE,
 		DECLARATIONS,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"src/p1/Y.java p1.Y [Y]",
@@ -2457,16 +2457,16 @@ public void testTypeDeclaration02() throws CoreException {
  * (regression test for bug 29524 Search for declaration via patterns adds '"*")
  */
 public void testTypeDeclaration03() throws CoreException { // was testTypeDeclaration
-	IPackageFragment pkg = this.getPackageFragment("JavaSearch", "src", "d8");
+	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "d8");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 
 	search(
-		"A", 
+		"A",
 		TYPE,
 		DECLARATIONS,
-		scope, 
+		scope,
 		this.resultCollector);
-	assertSearchResults("src/d8/A.java d8.A [A]", resultCollector);
+	assertSearchResults("src/d8/A.java d8.A [A]", this.resultCollector);
 }
 /**
  * Type declaration in jar file test.
@@ -2475,12 +2475,12 @@ public void testTypeDeclaration04() throws CoreException { // was testTypeDeclar
 	IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
 
 	search(
-		type, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
+		type,
+		DECLARATIONS,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"MyJar.jar p1.A [No source]", 
+		"MyJar.jar p1.A [No source]",
 		this.resultCollector);
 }
 /**
@@ -2492,10 +2492,10 @@ public void testTypeDeclaration05() throws CoreException { // was testTypeDeclar
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
 
 	search(
-		"Y", 
+		"Y",
 		TYPE,
-		DECLARATIONS, 
-		scope, 
+		DECLARATIONS,
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"test20631.jar Y",
@@ -2510,13 +2510,13 @@ public void testTypeDeclaration06() throws CoreException { // was testTypeDeclar
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
 
 	search(
-		"X", 
+		"X",
 		TYPE,
 		DECLARATIONS,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
-		"src/p3/X.java p3.X [X]", 
+		"src/p3/X.java p3.X [X]",
 		this.resultCollector);
 }
 /**
@@ -2528,13 +2528,13 @@ public void testTypeDeclaration07() throws CoreException { // was testTypeDeclar
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
 
 	search(
-		"X", 
+		"X",
 		TYPE,
 		DECLARATIONS,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
-		"MyJar.jar p0.X [No source]", 
+		"MyJar.jar p0.X [No source]",
 		this.resultCollector);
 }
 /**
@@ -2543,17 +2543,17 @@ public void testTypeDeclaration07() throws CoreException { // was testTypeDeclar
  */
 public void testTypeDeclaration08() throws CoreException { // was testMemberTypeDeclaration
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{
-		this.getPackageFragment("JavaSearch", "src", "b4")
+		getPackageFragment("JavaSearch", "src", "b4")
 	});
 
 	search(
-		"*.A.B", 
+		"*.A.B",
 		TYPE,
 		DECLARATIONS,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
-		"src/b4/A.java b4.A$B [B]", 
+		"src/b4/A.java b4.A$B [B]",
 		this.resultCollector);
 }
 /**
@@ -2563,12 +2563,12 @@ public void testTypeDeclaration08() throws CoreException { // was testMemberType
 public void testTypeDeclaration09() throws CoreException {
 
 	search(
-		"X?Z", 
+		"X?Z",
 		TYPE,
 		DECLARATIONS,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
-	assertSearchResults("src/r5/XYZ.java r5.XYZ [XYZ]", resultCollector);
+	assertSearchResults("src/r5/XYZ.java r5.XYZ [XYZ]", this.resultCollector);
 }
 /**
  * Long declaration (>255) test.
@@ -2577,13 +2577,13 @@ public void testTypeDeclaration09() throws CoreException {
 public void testTypeDeclaration10() throws CoreException { // was testLongDeclaration
 
 	search(
-		"AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz", 
-		TYPE, 
+		"AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz",
+		TYPE,
 		DECLARATIONS,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/c9/X.java c9.AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz [AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz]", 
+		"src/c9/X.java c9.AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz [AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz]",
 		this.resultCollector);
 }
 /*
@@ -2594,10 +2594,10 @@ public void testTypeDeclaration11() throws CoreException { // was testLocalTypeD
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 
 	search(
-		"Y", 
+		"Y",
 		TYPE,
 		DECLARATIONS,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"src/f2/X.java Object f2.X.foo1():Y#1 [Y]",
@@ -2608,13 +2608,13 @@ public void testTypeDeclaration11() throws CoreException { // was testLocalTypeD
  */
 public void testTypeDeclaration12() throws CoreException { // was testLocalTypeDeclaration2
 	IType type = getCompilationUnit("JavaSearch/src/f2/X.java").getType("X").getMethod("foo1", new String[0]).getType("Y", 1);
-	
+
 	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 
 	search(
-		type, 
+		type,
 		DECLARATIONS,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"src/f2/X.java Object f2.X.foo1():Y#1 [Y]",
@@ -2628,16 +2628,16 @@ public void testTypeOccurence1() throws CoreException { // was testTypeOccurence
 	IType type = getCompilationUnit("JavaSearch", "src", "r", "A.java").getType("A").getType("X");
 
 	search(
-		type, 
-		ALL_OCCURRENCES, 
-		getJavaSearchScope(), 
+		type,
+		ALL_OCCURRENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/r/A.java A r.A.m() [X]\n" + 
-		"src/r/A.java r.A$X [X]\n" + 
-		"src/r/A.java r.A$X(X) [X]\n" + 
-		"src/r/A.java r.A$X(X) [X]\n" + 
-		"src/r/A.java r.B.ax [A.X]\n" + 
+		"src/r/A.java A r.A.m() [X]\n" +
+		"src/r/A.java r.A$X [X]\n" +
+		"src/r/A.java r.A$X(X) [X]\n" +
+		"src/r/A.java r.A$X(X) [X]\n" +
+		"src/r/A.java r.B.ax [A.X]\n" +
 		"src/r/A.java r.B.ax [X]",
 		this.resultCollector);
 }
@@ -2650,9 +2650,9 @@ public void testTypeOccurence2() throws CoreException {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
 
 	search(
-		type, 
-		ALL_OCCURRENCES, 
-		scope, 
+		type,
+		ALL_OCCURRENCES,
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"src/r8/A.java [B]",
@@ -2666,9 +2666,9 @@ public void testTypeOccurence3() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "e4", "A.java").getType("A").getType("Inner");
 
 	search(
-		type, 
-		ALL_OCCURRENCES, 
-		getJavaSearchScope(), 
+		type,
+		ALL_OCCURRENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/e4/A.java e4.A$Inner [Inner]\n" +
@@ -2687,12 +2687,12 @@ public void testTypeOccurence4() throws CoreException { // was testTypeOccurence
 	IType type = getCompilationUnit("JavaSearch", "src", "q3", "A$B.java").getType("A$B");
 
 	search(
-		type, 
-		ALL_OCCURRENCES, 
-		getJavaSearchScope(), 
+		type,
+		ALL_OCCURRENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/q3/A$B.java q3.A$B [A$B]\n" + 
+		"src/q3/A$B.java q3.A$B [A$B]\n" +
 		"src/q4/C.java Object q4.C.foo() [q3.A$B]",
 		this.resultCollector);
 }
@@ -2704,9 +2704,9 @@ public void testTypeReference01() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "X.java").getType("X");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/X.java AA() [X]",
@@ -2720,13 +2720,13 @@ public void testTypeReference02() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "d7", "A.java").getType("A");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/d7/A.java d7.A.A [A]\n" + 
-		"src/d7/A.java A d7.A.A(A) [A]\n" + 
+		"src/d7/A.java d7.A.A [A]\n" +
+		"src/d7/A.java A d7.A.A(A) [A]\n" +
 		"src/d7/A.java A d7.A.A(A) [A]",
 		this.resultCollector);
 }
@@ -2737,13 +2737,13 @@ public void testTypeReference02() throws CoreException {
 public void testTypeReference03() throws CoreException {
 	SearchPattern pattern = createPattern("x31985", TYPE, REFERENCES, false);
 
-	resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy = true;
 	search(
-		pattern, 
+		pattern,
 		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/e3/X31985.java e3.X31985.CONSTANT [X31985] EXACT_MATCH\n" + 
+		"src/e3/X31985.java e3.X31985.CONSTANT [X31985] EXACT_MATCH\n" +
 		"src/e3/Y31985.java Object e3.Y31985.foo() [X31985] EXACT_MATCH",
 		this.resultCollector);
 }
@@ -2755,9 +2755,9 @@ public void testTypeReference04() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "otherSrc()", "", "X31997.java").getType("X31997");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"otherSrc()/Y31997.java Y31997 [X31997]",
@@ -2772,9 +2772,9 @@ public void testTypeReference05() throws CoreException {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment().getParent()});
 
 	search(
-		type, 
-		REFERENCES, 
-		scope, 
+		type,
+		REFERENCES,
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"test48261.jar p.X$Y(java.lang.String)",
@@ -2788,9 +2788,9 @@ public void testTypeReference06() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/p1/X.java").getType("X");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope15("p1", true), 
+		type,
+		REFERENCES,
+		getJavaSearchScope15("p1", true),
 		this.resultCollector);
 	assertSearchResults(
 		"src/p1/Y.java Object p1.Y.foo() [X]",
@@ -2803,17 +2803,17 @@ public void testTypeReference07() throws CoreException { // was testTypeDeclarat
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/A.java p.A.x [X]\n" + 
-		"src/p/A.java p.A(X) [X]\n" + 
-		"src/p/A.java void p.A.foo(int, String, X) [X]\n" + 
-		"src/p/X.java p.X() [X]\n" + 
-		"src/p/X.java void p.X.foo(int, String, X) [X]\n" + 
-		"src/p/Y.java p.Y [X]\n" + 
+		"src/p/A.java p.A.x [X]\n" +
+		"src/p/A.java p.A(X) [X]\n" +
+		"src/p/A.java void p.A.foo(int, String, X) [X]\n" +
+		"src/p/X.java p.X() [X]\n" +
+		"src/p/X.java void p.X.foo(int, String, X) [X]\n" +
+		"src/p/Y.java p.Y [X]\n" +
 		"src/p/Z.java void p.Z.foo(int, String, X) [X]",
 		this.resultCollector);
 }
@@ -2825,9 +2825,9 @@ public void testTypeReference08() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "", "Test.java").getType("Test");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/Test.java Test.static {} [Test]\n" +
@@ -2842,12 +2842,12 @@ public void testTypeReference09() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "", "TypeReferenceAsSingleNameReference.java").getType("TypeReferenceAsSingleNameReference");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/TypeReferenceAsSingleNameReference.java void TypeReferenceAsSingleNameReference.hasReference() [TypeReferenceAsSingleNameReference]\n" + 
+		"src/TypeReferenceAsSingleNameReference.java void TypeReferenceAsSingleNameReference.hasReference() [TypeReferenceAsSingleNameReference]\n" +
 		"src/TypeReferenceAsSingleNameReference.java void TypeReferenceAsSingleNameReference.hasReference() [TypeReferenceAsSingleNameReference]",
 		this.resultCollector);
 }
@@ -2857,44 +2857,44 @@ public void testTypeReference09() throws CoreException { // was testTypeReferenc
 public void testTypeReference10() throws CoreException { // was testMemberTypeReference
 	// references to second level member type
 
-	resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy = true;
 	search(
-		"BMember", 
+		"BMember",
 		TYPE,
 		REFERENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"References to type BMember",
-		"src/MemberTypeReference/Azz.java void MemberTypeReference.Azz.poo() [BMember] EXACT_MATCH\n" + 
-		"src/MemberTypeReference/Azz.java MemberTypeReference.Azz$AzzMember [BMember] EXACT_MATCH\n" + 
-		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [BMember] EXACT_MATCH\n" + 
+		"src/MemberTypeReference/Azz.java void MemberTypeReference.Azz.poo() [BMember] EXACT_MATCH\n" +
+		"src/MemberTypeReference/Azz.java MemberTypeReference.Azz$AzzMember [BMember] EXACT_MATCH\n" +
+		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [BMember] EXACT_MATCH\n" +
 		"src/MemberTypeReference/B.java void MemberTypeReference.B.foo() [BMember] EXACT_MATCH",
 		this.resultCollector);
 
 	// references to first level member type
-	resultCollector = new JavaSearchResultCollector();
-	resultCollector.showAccuracy = true;
+	this.resultCollector = new JavaSearchResultCollector();
+	this.resultCollector.showAccuracy = true;
 	search(
-		"AzzMember", 
+		"AzzMember",
 		TYPE,
 		REFERENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"References to type AzzMember",
-		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [AzzMember] EXACT_MATCH\n" + 
+		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [AzzMember] EXACT_MATCH\n" +
 		"src/MemberTypeReference/B.java void MemberTypeReference.B.foo() [AzzMember] EXACT_MATCH",
 		this.resultCollector);
 
 	// no reference to a field with same name as member type
-	resultCollector = new JavaSearchResultCollector();
-	resultCollector.showAccuracy = true;
+	this.resultCollector = new JavaSearchResultCollector();
+	this.resultCollector.showAccuracy = true;
 	search(
-		"BMember", 
+		"BMember",
 		FIELD,
 		REFERENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"References to field BMember",
@@ -2909,13 +2909,13 @@ public void testTypeReference11() throws CoreException { // was testMemberTypeRe
 	IType type = getCompilationUnit("JavaSearch", "src", "a", "A.java").getType("A").getType("X");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/a/A.java a.B.ax [A.X]\n" +
-		"src/a/A.java a.B.sx [S.X]", 
+		"src/a/A.java a.B.sx [S.X]",
 		this.resultCollector);
 }
 /**
@@ -2927,11 +2927,11 @@ public void testTypeReference12() throws CoreException { // was testObjectMember
 		.getType("A")
 		.getType("Object");
 
-	resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy = true;
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/ObjectMemberTypeReference/A.java void ObjectMemberTypeReference.A.foo() [Object] EXACT_MATCH",
@@ -2945,13 +2945,13 @@ public void testTypeReference13() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/Test.java void Test.main(String[]) [p.A]\n" + 
-		"src/Test.java void Test.main(String[]) [p.A]\n" + 
+		"src/Test.java void Test.main(String[]) [p.A]\n" +
+		"src/Test.java void Test.main(String[]) [p.A]\n" +
 		"src/p/A.java void p.A.foo() [A]",
 		this.resultCollector);
 }
@@ -2963,13 +2963,13 @@ public void testTypeReference14() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "p4", "A.java").getType("A");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p4/A.java p4.A.A [A]\n" + 
-		"src/p4/A.java p4.X [p4.A]\n" + 
+		"src/p4/A.java p4.A.A [A]\n" +
+		"src/p4/A.java p4.X [p4.A]\n" +
 		"src/p4/A.java void p4.X.x() [p4.A]",
 		this.resultCollector);
 }
@@ -2981,9 +2981,9 @@ public void testTypeReference15() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "", "W.java").getType("W");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/W.java int W.m() [W]",
@@ -2997,9 +2997,9 @@ public void testTypeReference16() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "b7", "X.java").getType("SubClass");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/b7/X.java void b7.Test.main(String[]) [SubClass]",
@@ -3013,17 +3013,17 @@ public void testTypeReference17() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/A.java p.A.x [X]\n" + 
-		"src/p/A.java p.A(X) [X]\n" + 
-		"src/p/A.java void p.A.foo(int, String, X) [X]\n" + 
-		"src/p/X.java p.X() [X]\n" + 
-		"src/p/X.java void p.X.foo(int, String, X) [X]\n" + 
-		"src/p/Y.java p.Y [X]\n" + 
+		"src/p/A.java p.A.x [X]\n" +
+		"src/p/A.java p.A(X) [X]\n" +
+		"src/p/A.java void p.A.foo(int, String, X) [X]\n" +
+		"src/p/X.java p.X() [X]\n" +
+		"src/p/X.java void p.X.foo(int, String, X) [X]\n" +
+		"src/p/Y.java p.Y [X]\n" +
 		"src/p/Z.java void p.Z.foo(int, String, X) [X]",
 		this.resultCollector);
 }
@@ -3035,9 +3035,9 @@ public void testTypeReference18() throws CoreException { // was testVariousTypeR
 	IType type = getCompilationUnit("JavaSearch", "src", "NoReference", "A.java").getType("A");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"", // no reference should be found
@@ -3051,9 +3051,9 @@ public void testTypeReference19() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "p2", "Z.java").getType("Z");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/TypeReferenceInImport/X.java [p2.Z]",
@@ -3067,9 +3067,9 @@ public void testTypeReference20() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "r6", "A.java").getType("A");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/r6/B.java [r6.A]\n" +
@@ -3088,9 +3088,9 @@ public void testTypeReference21() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "TypeReferenceInArray", "A.java").getType("A");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/TypeReferenceInArray/A.java TypeReferenceInArray.A.a [A]\n" +
@@ -3105,9 +3105,9 @@ public void testTypeReference22() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "s1", "X.java").getType("X");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/s1/Y.java s1.Y.f [X]",
@@ -3121,9 +3121,9 @@ public void testTypeReference23() throws CoreException { // testNegativeTypeRefe
 	IType type = getCompilationUnit("JavaSearch", "src", "p7", "A.java").getType("A");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"",
@@ -3136,11 +3136,11 @@ public void testTypeReference23() throws CoreException { // testNegativeTypeRefe
 public void testTypeReference24() throws CoreException { // was testTypeReferenceInThrows
 	IType type = getCompilationUnit("JavaSearch", "src", "a7", "X.java").getType("MyException");
 
-	resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy = true;
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/a7/X.java void a7.X.foo() [MyException] EXACT_MATCH",
@@ -3153,12 +3153,12 @@ public void testTypeReference24() throws CoreException { // was testTypeReferenc
 public void testTypeReference25() throws CoreException { // was testInnacurateTypeReference1
 
 	search(
-		"Zork", 
-		TYPE, 
+		"Zork",
+		TYPE,
 		REFERENCES,
 		SearchEngine.createJavaSearchScope(new IJavaElement[] {
 			getPackageFragment("JavaSearch", "src", "b5")
-		}), 
+		}),
 		this.resultCollector);
 	assertSearchResults(
 		"src/b5/A.java [Zork]\n" +
@@ -3176,16 +3176,16 @@ public void testTypeReference26() throws CoreException { // was testInnacurateTy
 	this.resultCollector.showAccuracy = true;
 	this.resultCollector.showSelection = true;
 	search(
-		"p.Zork", 
-		TYPE, 
+		"p.Zork",
+		TYPE,
 		REFERENCES,
 		SearchEngine.createJavaSearchScope(new IJavaElement[] {
 			getPackageFragment("JavaSearch", "src", "b5")
-		}), 
+		}),
 		this.resultCollector);
 	assertSearchResults(
-			"src/b5/A.java b5.A.{} [    §|Zork|§[] zork = new Zork[0];] POTENTIAL_MATCH\n" + 
-			"src/b5/A.java b5.A.{} [    Zork[] zork = new §|Zork|§[0];] POTENTIAL_MATCH\n" + 
+			"src/b5/A.java b5.A.{} [    §|Zork|§[] zork = new Zork[0];] POTENTIAL_MATCH\n" +
+			"src/b5/A.java b5.A.{} [    Zork[] zork = new §|Zork|§[0];] POTENTIAL_MATCH\n" +
 			"src/b5/A.java b5.A.{} [    int i = §|Zork|§.foo;] POTENTIAL_MATCH",
 		this.resultCollector);
 }
@@ -3196,11 +3196,11 @@ public void testTypeReference26() throws CoreException { // was testInnacurateTy
 public void testTypeReference27() throws CoreException { // was testInnacurateTypeReference3
 	IType type = getCompilationUnit("JavaSearch", "src", "r3", "A21485.java").getType("A21485");
 
-	resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy = true;
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/r4/B21485.java [r3.A21485] EXACT_MATCH\n" +
@@ -3215,9 +3215,9 @@ public void testTypeReference28() throws CoreException { // was testTypeReferenc
 	IType type = getCompilationUnit("JavaSearch", "src", "s3", "A.java").getType("B");
 
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/s3/A.java Object s3.A.foo() [B]",
@@ -3230,13 +3230,13 @@ public void testTypeReference28() throws CoreException { // was testTypeReferenc
 public void testTypeReference29() throws CoreException { // was testPatternMatchTypeReference
 
 	search(
-		"p24741.*", 
+		"p24741.*",
 		TYPE,
 		REFERENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
-		"test24741.jar q24741.B", 
+		"test24741.jar q24741.B",
 		this.resultCollector);
 }
 /**
@@ -3248,8 +3248,8 @@ public void testTypeReference30() throws CoreException { // was testTypeReferenc
 	SearchPattern pattern = createPattern("Y", TYPE, REFERENCES, false);
 
 	search(
-		pattern, 
-		scope, 
+		pattern,
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"src/d4/X.java Object d4.X.foo() [Y]",
@@ -3261,12 +3261,12 @@ public void testTypeReference30() throws CoreException { // was testTypeReferenc
 public void testTypeReference31() throws CoreException { // was testAccurateTypeReference
 
 	search(
-		"d5.X", 
-		TYPE, 
+		"d5.X",
+		TYPE,
 		REFERENCES,
 		SearchEngine.createJavaSearchScope(new IJavaElement[] {
 			getPackageFragment("JavaSearch", "src", "d5")
-		}), 
+		}),
 		this.resultCollector);
 	assertSearchResults(
 		"src/d5/Y.java d5.Y.T [d5.X]\n" +
@@ -3283,9 +3283,9 @@ public void testTypeReference32() throws CoreException { // was testTypeReferenc
 
 	IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
 	search(
-		type, 
-		REFERENCES, 
-		scope, 
+		type,
+		REFERENCES,
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"",
@@ -3298,11 +3298,11 @@ public void testTypeReference32() throws CoreException { // was testTypeReferenc
 public void testTypeReference33() throws CoreException { // was testTypeReferenceWithRecovery
 	IType type = getCompilationUnit("JavaSearch", "src", "e1", "A29366.java").getType("A29366");
 
-	resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy = true;
 	search(
-		type, 
-		REFERENCES, 
-		getJavaSearchScope(), 
+		type,
+		REFERENCES,
+		getJavaSearchScope(),
 		this.resultCollector);
 	assertSearchResults(
 		"src/e1/A29366.java void e1.A29366.foo() [A29366] EXACT_MATCH",
@@ -3315,12 +3315,12 @@ public void testTypeReference33() throws CoreException { // was testTypeReferenc
 public void testTypeReference34() throws CoreException { // was testTypeReferenceWithProblem
 	IType type = getCompilationUnit("JavaSearch", "src", "e6", "A.java").getType("A");
 
-	resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy = true;
 	search(
-		"B36479", 
+		"B36479",
 		TYPE,
-		REFERENCES, 
-		SearchEngine.createJavaSearchScope(new IJavaElement[] {type}), 
+		REFERENCES,
+		SearchEngine.createJavaSearchScope(new IJavaElement[] {type}),
 		this.resultCollector);
 	assertSearchResults(
 		"src/e6/A.java Object e6.A.foo() [B36479] POTENTIAL_MATCH",
@@ -3340,14 +3340,14 @@ public void testTypeReference35() throws CoreException { // was testTypeReferenc
 		System.arraycopy(originalCP, 0, newCP, 0, cpLength);
 		newCP[cpLength] = JavaCore.newLibraryEntry(new Path("/JavaSearch/corrupt.jar"), null, null);
 		project.setRawClasspath(newCP, null);
-		
+
 		IType type = getCompilationUnit("JavaSearch", "src", "e7", "A.java").getType("A");
 
-		resultCollector.showAccuracy = true;
+		this.resultCollector.showAccuracy = true;
 		search(
-			type, 
+			type,
 			REFERENCES,
-			SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), 
+			SearchEngine.createJavaSearchScope(new IJavaElement[] {project}),
 			this.resultCollector);
 		assertSearchResults(
 			"src/e7/A.java e7.A.a [A] EXACT_MATCH",
@@ -3363,12 +3363,12 @@ public void testTypeReference36() throws CoreException { // was testLocalTypeRef
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "f2");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 
-	resultCollector.showSelection = true;
+	this.resultCollector.showSelection = true;
 	search(
-		"Y", 
+		"Y",
 		TYPE,
 		REFERENCES,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"src/f2/X.java Object f2.X.foo1() [		return new §|Y|§();]",
@@ -3381,14 +3381,14 @@ public void testTypeReference37() throws CoreException { // was testLocalTypeRef
 	IType type = getCompilationUnit("JavaSearch/src/f2/X.java").getType("X");
 	IMethod method = type.getMethod("foo1", new String[0]);
 	IType localType = method.getType("Y", 1);
-	
+
 	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 
-	resultCollector.showSelection = true;
+	this.resultCollector.showSelection = true;
 	search(
-		localType, 
+		localType,
 		REFERENCES,
-		scope, 
+		scope,
 		this.resultCollector);
 	assertSearchResults(
 		"src/f2/X.java Object f2.X.foo1() [		return new §|Y|§();]",
@@ -3399,12 +3399,12 @@ public void testTypeReference37() throws CoreException { // was testLocalTypeRef
  */
 public void testTypeReference38() throws CoreException { // was testTypeReferenceInOutDocComment
 	IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
-	resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc = true;
 	search(type, REFERENCES, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
-		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
-		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
-		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
+		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" +
+		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" +
+		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" +
 		"src/s4/X.java void s4.X.fred() [X] OUTSIDE_JAVADOC",
 		this.resultCollector);
 }
@@ -3416,12 +3416,12 @@ public void testEnum01() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "Team.java").getType("Team");
 	search(type, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/a1/Author.java [e1.Team]\n" + 
-		"src/a1/Author.java [e1.Team]\n" + 
-		"src/a1/Author.java Team[] a1.Author.name() [Team]\n" + 
-		"src/a1/Test.java [e1.Team]\n" + 
-		"src/e1/Test.java void e1.Test.main(String[]) [Team]\n" + 
-		"src/e1/Test.java void e1.Test.main(String[]) [Team]\n" + 
+		"src/a1/Author.java [e1.Team]\n" +
+		"src/a1/Author.java [e1.Team]\n" +
+		"src/a1/Author.java Team[] a1.Author.name() [Team]\n" +
+		"src/a1/Test.java [e1.Team]\n" +
+		"src/e1/Test.java void e1.Test.main(String[]) [Team]\n" +
+		"src/e1/Test.java void e1.Test.main(String[]) [Team]\n" +
 		"src/e1/Test.java Location e1.Test.location(Team) [Team]",
 		this.resultCollector);
 }
@@ -3438,10 +3438,10 @@ public void testEnum03() throws CoreException {
 	IMethod method = type.getMethod("Team", new String[] { "I" });
 	search(method, REFERENCES, getJavaSearchScope15("e1", false), this.resultCollector);
 	assertSearchResults(
-		"src/e1/Team.java e1.Team.PHILIPPE [PHILIPPE(37)]\n" + 
-		"src/e1/Team.java e1.Team.DAVID [DAVID(27)]\n" + 
-		"src/e1/Team.java e1.Team.JEROME [JEROME(33)]\n" + 
-		"src/e1/Team.java e1.Team.OLIVIER [OLIVIER(35)]\n" + 
+		"src/e1/Team.java e1.Team.PHILIPPE [PHILIPPE(37)]\n" +
+		"src/e1/Team.java e1.Team.DAVID [DAVID(27)]\n" +
+		"src/e1/Team.java e1.Team.JEROME [JEROME(33)]\n" +
+		"src/e1/Team.java e1.Team.OLIVIER [OLIVIER(35)]\n" +
 		"src/e1/Team.java e1.Team.KENT [KENT(40)]",
 		this.resultCollector);
 }
@@ -3458,8 +3458,8 @@ public void testEnum05() throws CoreException {
 	IMethod method = type.getMethod("isManager", new String[0]);
 	search(method, ALL_OCCURRENCES, getJavaSearchScope15("e1", false), this.resultCollector);
 	assertSearchResults(
-		"src/e1/Team.java boolean e1.Team.PHILIPPE:<anonymous>#1.isManager() [isManager]\n" + 
-		"src/e1/Team.java boolean e1.Team.isManager() [isManager]\n" + 
+		"src/e1/Team.java boolean e1.Team.PHILIPPE:<anonymous>#1.isManager() [isManager]\n" +
+		"src/e1/Team.java boolean e1.Team.isManager() [isManager]\n" +
 		"src/e1/Test.java void e1.Test.main(String[]) [isManager()]",
 		this.resultCollector);
 }
@@ -3479,7 +3479,7 @@ public void testVarargs01() throws CoreException {
 	IMethod method = type.getMethod("vargs", new String[] { "I", "I" });
 	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/v1/X.java void v1.X.vargs(int, int) [vargs]\n" + 
+		"src/v1/X.java void v1.X.vargs(int, int) [vargs]\n" +
 		"src/v1/X.java void v1.X.bar() [vargs(1, 2)]",
 		this.resultCollector);
 }
@@ -3488,8 +3488,8 @@ public void testVarargs02() throws CoreException {
 	IMethod method = type.getMethod("vargs", new String[] { "I", "[I" });
 	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/v1/X.java void v1.X.vargs(int, int ...) [vargs]\n" + 
-		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3)]\n" + 
+		"src/v1/X.java void v1.X.vargs(int, int ...) [vargs]\n" +
+		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3)]\n" +
 		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3, 4, 5, 6)]",
 		this.resultCollector);
 }
@@ -3498,7 +3498,7 @@ public void testVarargs03() throws CoreException {
 	IMethod method = type.getMethod("vargs", new String[] { "[QString;" });
 	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/v1/X.java void v1.X.vargs(String ...) [vargs]\n" + 
+		"src/v1/X.java void v1.X.vargs(String ...) [vargs]\n" +
 		"src/v1/X.java void v1.X.bar() [vargs(\"x\", \"a\",\"'b\", \"c\")]",
 		this.resultCollector);
 }
@@ -3507,26 +3507,26 @@ public void testVarargs04() throws CoreException {
 	IMethod method = type.getMethod("vargs", new String[] { "QString;", "[Z" });
 	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/v1/X.java void v1.X.vargs(String, boolean ...) [vargs]\n" + 
+		"src/v1/X.java void v1.X.vargs(String, boolean ...) [vargs]\n" +
 		"src/v1/X.java void v1.X.bar() [vargs(\"x\", false, true)]",
 		this.resultCollector);
 }
 public void testVarargs05() throws CoreException {
 	search("vargs", METHOD, DECLARATIONS, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/v1/X.java void v1.X.vargs(int, int) [vargs]\n" + 
-		"src/v1/X.java void v1.X.vargs(int, int ...) [vargs]\n" + 
-		"src/v1/X.java void v1.X.vargs(String ...) [vargs]\n" + 
+		"src/v1/X.java void v1.X.vargs(int, int) [vargs]\n" +
+		"src/v1/X.java void v1.X.vargs(int, int ...) [vargs]\n" +
+		"src/v1/X.java void v1.X.vargs(String ...) [vargs]\n" +
 		"src/v1/X.java void v1.X.vargs(String, boolean ...) [vargs]",
 		this.resultCollector);
 }
 public void testVarargs06() throws CoreException {
 	search("vargs", METHOD, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/v1/X.java void v1.X.bar() [vargs(1, 2)]\n" + 
-		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3)]\n" + 
-		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3, 4, 5, 6)]\n" + 
-		"src/v1/X.java void v1.X.bar() [vargs(\"x\", \"a\",\"\'b\", \"c\")]\n" + 
+		"src/v1/X.java void v1.X.bar() [vargs(1, 2)]\n" +
+		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3)]\n" +
+		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3, 4, 5, 6)]\n" +
+		"src/v1/X.java void v1.X.bar() [vargs(\"x\", \"a\",\"\'b\", \"c\")]\n" +
 		"src/v1/X.java void v1.X.bar() [vargs(\"x\", false, true)]",
 		this.resultCollector);
 }
@@ -3537,8 +3537,8 @@ public void testAnnotationType01() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "a1", "Author.java").getType("Author");
 	search(type, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/a1/Test.java a1.Test [Author]\n" + 
-		"src/a1/Test.java a1.Test.t [Author]\n" + 
+		"src/a1/Test.java a1.Test [Author]\n" +
+		"src/a1/Test.java a1.Test.t [Author]\n" +
 		"src/a1/Test.java void a1.Test.foo() [Author]",
 		this.resultCollector);
 }
@@ -3555,18 +3555,18 @@ public void testAnnotationType02() throws CoreException {
  * Search for auto-boxing
  */
 public void testAutoBoxing01() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/p/X.java",
-		"package p;\n" + 
-		"public class X {\n" + 
-		"	void foo(int x) {}\n" + 
-		"	void bar() {\n" + 
-		"		foo(new Integer(0));\n" + 
-		"	}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearch15/src/p/X.java",
+		"package p;\n" +
+		"public class X {\n" +
+		"	void foo(int x) {}\n" +
+		"	void bar() {\n" +
+		"		foo(new Integer(0));\n" +
+		"	}\n" +
 		"}\n"
 		);
-	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
-	IMethod method = workingCopies[0].getType("X").getMethod("foo", new String[] { "I" });
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	IMethod method = this.workingCopies[0].getType("X").getMethod("foo", new String[] { "I" });
 	search(method, REFERENCES, scope);
 	assertSearchResults(
 		"src/p/X.java void p.X.bar() [foo(new Integer(0))]"
@@ -3584,13 +3584,13 @@ public void testTypeParameterTypes01() throws CoreException {
 	ITypeParameter typeParam = selectTypeParameter(unit, "T");
 	search(typeParam, REFERENCES, getJavaSearchScope15());
 	assertSearchResults(
-		"src/g5/m/def/Single.java void g5.m.def.Single.standard(T) [T]\n" + 
-		"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [T]\n" + 
-		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" + 
-		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" + 
-		"src/g5/m/def/Single.java void g5.m.def.Single.paramTypesArgs(Single<T>) [T]\n" + 
-		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" + 
-		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" + 
+		"src/g5/m/def/Single.java void g5.m.def.Single.standard(T) [T]\n" +
+		"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [T]\n" +
+		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" +
+		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" +
+		"src/g5/m/def/Single.java void g5.m.def.Single.paramTypesArgs(Single<T>) [T]\n" +
+		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" +
+		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" +
 		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]"
 	);
 }
@@ -3608,13 +3608,13 @@ public void testTypeParameterTypes03() throws CoreException {
 	search(typeParam, ALL_OCCURRENCES, getJavaSearchScope15());
 	assertSearchResults(
 		"src/g5/m/def/Single.java g5.m.def.Single [T]\n" +
-		"src/g5/m/def/Single.java void g5.m.def.Single.standard(T) [T]\n" + 
-		"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [T]\n" + 
-		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" + 
-		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" + 
-		"src/g5/m/def/Single.java void g5.m.def.Single.paramTypesArgs(Single<T>) [T]\n" + 
-		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" + 
-		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" + 
+		"src/g5/m/def/Single.java void g5.m.def.Single.standard(T) [T]\n" +
+		"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [T]\n" +
+		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" +
+		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" +
+		"src/g5/m/def/Single.java void g5.m.def.Single.paramTypesArgs(Single<T>) [T]\n" +
+		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" +
+		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" +
 		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]"
 	);
 }
@@ -3623,13 +3623,13 @@ public void testTypeParameterTypes04() throws CoreException {
 	ITypeParameter typeParam = selectTypeParameter(unit, "T3");
 	search(typeParam, REFERENCES, getJavaSearchScope15());
 	assertSearchResults(
-		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.standard(T1, T2, T3) [T3]\n" + 
-		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T3]\n" + 
-		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T3]\n" + 
-		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T3]\n" + 
-		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T3]\n" + 
-		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T3]\n" + 
-		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T3]\n" + 
+		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.standard(T1, T2, T3) [T3]\n" +
+		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T3]\n" +
+		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T3]\n" +
+		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T3]\n" +
+		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T3]\n" +
+		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T3]\n" +
+		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T3]\n" +
 		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T3]"
 	);
 }
@@ -3646,14 +3646,14 @@ public void testTypeParameterTypes06() throws CoreException {
 	ITypeParameter typeParam = selectTypeParameter(unit, "T2", 3); // type argument of Multiple<T1,T2,T3>
 	search(typeParam, ALL_OCCURRENCES, getJavaSearchScope15());
 	assertSearchResults(
-		"src/g5/m/def/Multiple.java g5.m.def.Multiple [T2]\n" + 
-		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.standard(T1, T2, T3) [T2]\n" + 
-		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T2]\n" + 
-		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T2]\n" + 
-		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T2]\n" + 
-		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T2]\n" + 
-		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T2]\n" + 
-		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T2]\n" + 
+		"src/g5/m/def/Multiple.java g5.m.def.Multiple [T2]\n" +
+		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.standard(T1, T2, T3) [T2]\n" +
+		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T2]\n" +
+		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T2]\n" +
+		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T2]\n" +
+		"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T2]\n" +
+		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T2]\n" +
+		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T2]\n" +
 		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T2]"
 	);
 }
@@ -3681,7 +3681,7 @@ public void testTypeParameterMethods03() throws CoreException {
 	ITypeParameter typeParam = selectTypeParameter(unit, "U", 4); // argument of complete method
 	search(typeParam, ALL_OCCURRENCES, getJavaSearchScope15());
 	assertSearchResults(
-		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [U]\n" + 
+		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [U]\n" +
 		"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [U]"
 	);
 }
@@ -3706,7 +3706,7 @@ public void testTypeParameterMethods06() throws CoreException {
 	ITypeParameter typeParam = selectTypeParameter(unit, "U2", 4); // argument of complete method
 	search(typeParam, ALL_OCCURRENCES, getJavaSearchScope15());
 	assertSearchResults(
-		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [U2]\n" + 
+		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [U2]\n" +
 		"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [U2]"
 	);
 }
@@ -3778,39 +3778,39 @@ public void testTypeParameterConstructors06() throws CoreException {
 // for fields
 public void testStaticImportField01() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "s1.pack.age", "S.java").getType("S");
-	search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(type, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/s1/A.java [s1.pack.age.S]\n" + 
-		"src/s1/A.java [s1.pack.age.S]\n" + 
-		"src/s1/A.java [s1.pack.age.S]\n" + 
-		"src/s1/B.java [s1.pack.age.S]\n" + 
-		"src/s1/B.java [s1.pack.age.S]\n" + 
-		"src/s1/C.java [s1.pack.age.S]\n" + 
-		"src/s1/C.java [s1.pack.age.S]\n" + 
+		"src/s1/A.java [s1.pack.age.S]\n" +
+		"src/s1/A.java [s1.pack.age.S]\n" +
+		"src/s1/A.java [s1.pack.age.S]\n" +
+		"src/s1/B.java [s1.pack.age.S]\n" +
+		"src/s1/B.java [s1.pack.age.S]\n" +
+		"src/s1/C.java [s1.pack.age.S]\n" +
+		"src/s1/C.java [s1.pack.age.S]\n" +
 		"src/s1/D.java [s1.pack.age.S]"
 	);
 }
 public void testStaticImportField02() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "s1.pack.age", "S.java").getType("S");
 	IField field = type.getField("out");
-	search(field, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(field, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/s1/A.java [out]\n" + 
-		"src/s1/B.java void s1.B.foo() [out]\n" + 
-		"src/s1/C.java [out]\n" + 
+		"src/s1/A.java [out]\n" +
+		"src/s1/B.java void s1.B.foo() [out]\n" +
+		"src/s1/C.java [out]\n" +
 		"src/s1/C.java void s1.C.foo() [out]"
 	);
 }
 public void testStaticImportField03() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "s1.pack.age", "S.java").getType("S");
 	IType member = type.getType("M");
-	search(member, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(member, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/s1/A.java [s1.pack.age.S.M]\n" + 
-		"src/s1/B.java [s1.pack.age.S.M]\n" + 
-		"src/s1/C.java [s1.pack.age.S.M]\n" + 
-		"src/s1/D.java [s1.pack.age.S.M]\n" + 
-		"src/s1/D.java void s1.D.foo() [M]\n" + 
+		"src/s1/A.java [s1.pack.age.S.M]\n" +
+		"src/s1/B.java [s1.pack.age.S.M]\n" +
+		"src/s1/C.java [s1.pack.age.S.M]\n" +
+		"src/s1/D.java [s1.pack.age.S.M]\n" +
+		"src/s1/D.java void s1.D.foo() [M]\n" +
 		"src/s1/D.java void s1.D.foo() [M]"
 	);
 }
@@ -3818,51 +3818,51 @@ public void testStaticImportField04() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "s1.pack.age", "S.java").getType("S");
 	IType member = type.getType("M");
 	IField field = member.getField("in");
-	search(field, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(field, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/s1/A.java [in]\n" + 
-		"src/s1/B.java void s1.B.foo() [in]\n" + 
-		"src/s1/C.java [in]\n" + 
-		"src/s1/C.java void s1.C.foo() [in]\n" + 
+		"src/s1/A.java [in]\n" +
+		"src/s1/B.java void s1.B.foo() [in]\n" +
+		"src/s1/C.java [in]\n" +
+		"src/s1/C.java void s1.C.foo() [in]\n" +
 		"src/s1/D.java void s1.D.foo() [in]"
 	);
 }
 // for methods
 public void testStaticImportMethod01() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "s2.pack.age", "S.java").getType("S");
-	search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(type, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/s2/A.java [s2.pack.age.S]\n" + 
-		"src/s2/A.java [s2.pack.age.S]\n" + 
-		"src/s2/A.java [s2.pack.age.S]\n" + 
-		"src/s2/B.java [s2.pack.age.S]\n" + 
-		"src/s2/B.java [s2.pack.age.S]\n" + 
-		"src/s2/C.java [s2.pack.age.S]\n" + 
-		"src/s2/C.java [s2.pack.age.S]\n" + 
+		"src/s2/A.java [s2.pack.age.S]\n" +
+		"src/s2/A.java [s2.pack.age.S]\n" +
+		"src/s2/A.java [s2.pack.age.S]\n" +
+		"src/s2/B.java [s2.pack.age.S]\n" +
+		"src/s2/B.java [s2.pack.age.S]\n" +
+		"src/s2/C.java [s2.pack.age.S]\n" +
+		"src/s2/C.java [s2.pack.age.S]\n" +
 		"src/s2/D.java [s2.pack.age.S]"
 	);
 }
 public void testStaticImportMethod02() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "s2.pack.age", "S.java").getType("S");
 	IMethod method = type.getMethod("out", new String[0]);
-	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(method, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/s2/A.java [s2.pack.age.S.out]\n" + 
-		"src/s2/B.java void s2.B.foo() [out()]\n" + 
-		"src/s2/C.java [s2.pack.age.S.out]\n" + 
+		"src/s2/A.java [s2.pack.age.S.out]\n" +
+		"src/s2/B.java void s2.B.foo() [out()]\n" +
+		"src/s2/C.java [s2.pack.age.S.out]\n" +
 		"src/s2/C.java void s2.C.foo() [out()]"
 	);
 }
 public void testStaticImportMethod03() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "s2.pack.age", "S.java").getType("S");
 	IType member = type.getType("M");
-	search(member, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(member, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/s2/A.java [s2.pack.age.S.M]\n" + 
-		"src/s2/B.java [s2.pack.age.S.M]\n" + 
-		"src/s2/C.java [s2.pack.age.S.M]\n" + 
-		"src/s2/D.java [s2.pack.age.S.M]\n" + 
-		"src/s2/D.java void s2.D.foo() [M]\n" + 
+		"src/s2/A.java [s2.pack.age.S.M]\n" +
+		"src/s2/B.java [s2.pack.age.S.M]\n" +
+		"src/s2/C.java [s2.pack.age.S.M]\n" +
+		"src/s2/D.java [s2.pack.age.S.M]\n" +
+		"src/s2/D.java void s2.D.foo() [M]\n" +
 		"src/s2/D.java void s2.D.foo() [M]"
 	);
 }
@@ -3870,41 +3870,41 @@ public void testStaticImportMethod04() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "s2.pack.age", "S.java").getType("S");
 	IType member = type.getType("M");
 	IMethod method = member.getMethod("in", new String[0]);
-	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(method, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/s2/A.java [s2.pack.age.S.M.in]\n" + 
-		"src/s2/B.java void s2.B.foo() [in()]\n" + 
-		"src/s2/C.java [s2.pack.age.S.M.in]\n" + 
-		"src/s2/C.java void s2.C.foo() [in()]\n" + 
+		"src/s2/A.java [s2.pack.age.S.M.in]\n" +
+		"src/s2/B.java void s2.B.foo() [in()]\n" +
+		"src/s2/C.java [s2.pack.age.S.M.in]\n" +
+		"src/s2/C.java void s2.C.foo() [in()]\n" +
 		"src/s2/D.java void s2.D.foo() [in()]"
 	);
 }
 // for packages
 public void testStaticImportPackage01() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch15", "src", "s1.pack.age");
-	search(pkg, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(pkg, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/s1/A.java [s1.pack.age]\n" + 
-		"src/s1/A.java [s1.pack.age]\n" + 
-		"src/s1/A.java [s1.pack.age]\n" + 
-		"src/s1/B.java [s1.pack.age]\n" + 
-		"src/s1/B.java [s1.pack.age]\n" + 
-		"src/s1/C.java [s1.pack.age]\n" + 
-		"src/s1/C.java [s1.pack.age]\n" + 
+		"src/s1/A.java [s1.pack.age]\n" +
+		"src/s1/A.java [s1.pack.age]\n" +
+		"src/s1/A.java [s1.pack.age]\n" +
+		"src/s1/B.java [s1.pack.age]\n" +
+		"src/s1/B.java [s1.pack.age]\n" +
+		"src/s1/C.java [s1.pack.age]\n" +
+		"src/s1/C.java [s1.pack.age]\n" +
 		"src/s1/D.java [s1.pack.age]"
 	);
 }
 public void testStaticImportPackage02() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch15", "src", "s2.pack.age");
-	search(pkg, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(pkg, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
-		"src/s2/A.java [s2.pack.age]\n" + 
-		"src/s2/A.java [s2.pack.age]\n" + 
-		"src/s2/A.java [s2.pack.age]\n" + 
-		"src/s2/B.java [s2.pack.age]\n" + 
-		"src/s2/B.java [s2.pack.age]\n" + 
-		"src/s2/C.java [s2.pack.age]\n" + 
-		"src/s2/C.java [s2.pack.age]\n" + 
+		"src/s2/A.java [s2.pack.age]\n" +
+		"src/s2/A.java [s2.pack.age]\n" +
+		"src/s2/A.java [s2.pack.age]\n" +
+		"src/s2/B.java [s2.pack.age]\n" +
+		"src/s2/B.java [s2.pack.age]\n" +
+		"src/s2/C.java [s2.pack.age]\n" +
+		"src/s2/C.java [s2.pack.age]\n" +
 		"src/s2/D.java [s2.pack.age]"
 	);
 }
@@ -3919,7 +3919,7 @@ public void testStaticImportPackage02() throws CoreException {
 public void testCamelCaseTypePattern01_CamelCase() throws CoreException {
 	search("RE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/a3/References.java a3.References [References]\n" + 
+		"src/a3/References.java a3.References [References]\n" +
 		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
 	);
 }
@@ -3944,7 +3944,7 @@ public void testCamelCaseTypePattern04_CamelCase() throws CoreException {
 public void testCamelCaseTypePattern05_CamelCase() throws CoreException {
 	search("R*E*", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/a3/References.java a3.References [References]\n" + 
+		"src/a3/References.java a3.References [References]\n" +
 		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
 	);
 }
@@ -3961,10 +3961,10 @@ public void testCamelCaseTypePattern07_CamelCase() throws CoreException {
 	searchAllTypeNames("AA", SearchPattern.R_CAMELCASE_MATCH, requestor);
 	assertSearchResults(
 		"Unexpected all type names",
-		"AA\n" + 
-		"c9.AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz\n" + 
-		"d8.AA\n" + 
-		"p6.AA\n" + 
+		"AA\n" +
+		"c9.AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz\n" +
+		"d8.AA\n" +
+		"p6.AA\n" +
 		"q1.AA",
 		requestor);
 }
@@ -3973,9 +3973,9 @@ public void testCamelCaseTypePattern08_CamelCase() throws CoreException {
 	searchAllTypeNames("aa", SearchPattern.R_CAMELCASE_MATCH, requestor);
 	assertSearchResults(
 		"Unexpected all type names",
-		"AA\n" + 
-		"d8.AA\n" + 
-		"p6.AA\n" + 
+		"AA\n" +
+		"d8.AA\n" +
+		"p6.AA\n" +
 		"q1.AA",
 		requestor);
 }
@@ -3984,21 +3984,21 @@ public void testCamelCaseTypePattern09_CamelCase() throws CoreException {
 	searchAllTypeNames("aa", SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH, requestor);
 	assertSearchResults(
 		"Unexpected all type names",
-		"AA\n" + 
-		"d8.AA\n" + 
-		"p6.AA\n" + 
+		"AA\n" +
+		"d8.AA\n" +
+		"p6.AA\n" +
 		"q1.AA",
 		requestor);
 }
 public void testCamelCaseTypePattern10_CamelCase() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
-		"class Null {}\n" + 
-		"class NULL {}\n" + 
-		"class NullPointerException {}\n" + 
-		"class Nullpointerexception {}\n" + 
-		"class NULLPointerException {}\n" + 
-		"class NULLPOINTERException {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" +
+		"class NULL {}\n" +
+		"class NullPointerException {}\n" +
+		"class Nullpointerexception {}\n" +
+		"class NULLPointerException {}\n" +
+		"class NULLPOINTERException {}\n" +
 		"class NULLPOINTEREXCEPTION {}\n"
 	);
 	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
@@ -4013,14 +4013,14 @@ public void testCamelCaseTypePattern10_CamelCase() throws CoreException {
 	);
 }
 public void testCamelCaseTypePattern11_CamelCase() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
-		"class Null {}\n" + 
-		"class NULL {}\n" + 
-		"class NullPointerException {}\n" + 
-		"class Nullpointerexception {}\n" + 
-		"class NULLPointerException {}\n" + 
-		"class NULLPOINTERException {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" +
+		"class NULL {}\n" +
+		"class NullPointerException {}\n" +
+		"class Nullpointerexception {}\n" +
+		"class NULLPointerException {}\n" +
+		"class NULLPOINTERException {}\n" +
 		"class NULLPOINTEREXCEPTION {}\n"
 	);
 	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH);
@@ -4035,37 +4035,37 @@ public void testCamelCaseTypePattern11_CamelCase() throws CoreException {
 	);
 }
 public void testCamelCaseTypePattern12_CamelCase() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
-		"class Null {}\n" + 
-		"class NULL {}\n" + 
-		"class NullPointerException {}\n" + 
-		"class Nullpointerexception {}\n" + 
-		"class NULLPointerException {}\n" + 
-		"class NULLPOINTERException {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" +
+		"class NULL {}\n" +
+		"class NullPointerException {}\n" +
+		"class Nullpointerexception {}\n" +
+		"class NULLPointerException {}\n" +
+		"class NULLPOINTERException {}\n" +
 		"class NULLPOINTEREXCEPTION {}\n"
 	);
 	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
-		"src/Test.java Null [Null]\n" + 
+		"src/Test.java Null [Null]\n" +
 		"src/Test.java NullPointerException [NullPointerException]\n" +
 		"src/Test.java Nullpointerexception [Nullpointerexception]"
 	);
 }
 public void testCamelCaseTypePattern13_CamelCase() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
-		"class Null {}\n" + 
-		"class NULL {}\n" + 
-		"class NullPointerException {}\n" + 
-		"class Nullpointerexception {}\n" + 
-		"class NULLPointerException {}\n" + 
-		"class NULLPOINTERException {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" +
+		"class NULL {}\n" +
+		"class NullPointerException {}\n" +
+		"class Nullpointerexception {}\n" +
+		"class NULLPointerException {}\n" +
+		"class NULLPOINTERException {}\n" +
 		"class NULLPOINTEREXCEPTION {}\n"
 	);
 	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
-		"src/Test.java Null [Null]\n" + 
+		"src/Test.java Null [Null]\n" +
 		"src/Test.java NullPointerException [NullPointerException]\n" +
 		"src/Test.java Nullpointerexception [Nullpointerexception]"
 	);
@@ -4096,7 +4096,7 @@ public void testCamelCaseTypePattern04_CamelCaseSamePartCount() throws CoreExcep
 public void testCamelCaseTypePattern05_CamelCaseSamePartCount() throws CoreException {
 	search("R*E*", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
-		"src/a3/References.java a3.References [References]\n" + 
+		"src/a3/References.java a3.References [References]\n" +
 		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
 	);
 }
@@ -4113,9 +4113,9 @@ public void testCamelCaseTypePattern07_CamelCaseSamePartCount() throws CoreExcep
 	searchAllTypeNames("AA", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, requestor);
 	assertSearchResults(
 		"Unexpected all type names",
-		"AA\n" + 
-		"d8.AA\n" + 
-		"p6.AA\n" + 
+		"AA\n" +
+		"d8.AA\n" +
+		"p6.AA\n" +
 		"q1.AA",
 		requestor);
 }
@@ -4124,9 +4124,9 @@ public void testCamelCaseTypePattern08_CamelCaseSamePartCount() throws CoreExcep
 	searchAllTypeNames("aa", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, requestor);
 	assertSearchResults(
 		"Unexpected all type names",
-		"AA\n" + 
-		"d8.AA\n" + 
-		"p6.AA\n" + 
+		"AA\n" +
+		"d8.AA\n" +
+		"p6.AA\n" +
 		"q1.AA",
 		requestor);
 }
@@ -4135,21 +4135,21 @@ public void testCamelCaseTypePattern09_CamelCaseSamePartCount() throws CoreExcep
 	searchAllTypeNames("aa", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_PREFIX_MATCH, requestor);
 	assertSearchResults(
 		"Unexpected all type names",
-		"AA\n" + 
-		"d8.AA\n" + 
-		"p6.AA\n" + 
+		"AA\n" +
+		"d8.AA\n" +
+		"p6.AA\n" +
 		"q1.AA",
 		requestor);
 }
 public void testCamelCaseTypePattern10_CamelCaseSamePartCount() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
-		"class Null {}\n" + 
-		"class NULL {}\n" + 
-		"class NullPointerException {}\n" + 
-		"class Nullpointerexception {}\n" + 
-		"class NULLPointerException {}\n" + 
-		"class NULLPOINTERException {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" +
+		"class NULL {}\n" +
+		"class NullPointerException {}\n" +
+		"class Nullpointerexception {}\n" +
+		"class NULLPointerException {}\n" +
+		"class NULLPOINTERException {}\n" +
 		"class NULLPOINTEREXCEPTION {}\n"
 	);
 	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
@@ -4159,14 +4159,14 @@ public void testCamelCaseTypePattern10_CamelCaseSamePartCount() throws CoreExcep
 	);
 }
 public void testCamelCaseTypePattern11_CamelCaseSamePartCount() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
-		"class Null {}\n" + 
-		"class NULL {}\n" + 
-		"class NullPointerException {}\n" + 
-		"class Nullpointerexception {}\n" + 
-		"class NULLPointerException {}\n" + 
-		"class NULLPOINTERException {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" +
+		"class NULL {}\n" +
+		"class NullPointerException {}\n" +
+		"class Nullpointerexception {}\n" +
+		"class NULLPointerException {}\n" +
+		"class NULLPOINTERException {}\n" +
 		"class NULLPOINTEREXCEPTION {}\n"
 	);
 	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_PREFIX_MATCH);
@@ -4176,14 +4176,14 @@ public void testCamelCaseTypePattern11_CamelCaseSamePartCount() throws CoreExcep
 	);
 }
 public void testCamelCaseTypePattern12_CamelCaseSamePartCount() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
-		"class Null {}\n" + 
-		"class NULL {}\n" + 
-		"class NullPointerException {}\n" + 
-		"class Nullpointerexception {}\n" + 
-		"class NULLPointerException {}\n" + 
-		"class NULLPOINTERException {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" +
+		"class NULL {}\n" +
+		"class NullPointerException {}\n" +
+		"class Nullpointerexception {}\n" +
+		"class NULLPointerException {}\n" +
+		"class NULLPOINTERException {}\n" +
 		"class NULLPOINTEREXCEPTION {}\n"
 	);
 	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE);
@@ -4192,14 +4192,14 @@ public void testCamelCaseTypePattern12_CamelCaseSamePartCount() throws CoreExcep
 	);
 }
 public void testCamelCaseTypePattern13_CamelCaseSamePartCount() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
-		"class Null {}\n" + 
-		"class NULL {}\n" + 
-		"class NullPointerException {}\n" + 
-		"class Nullpointerexception {}\n" + 
-		"class NULLPointerException {}\n" + 
-		"class NULLPOINTERException {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" +
+		"class NULL {}\n" +
+		"class NullPointerException {}\n" +
+		"class Nullpointerexception {}\n" +
+		"class NULLPointerException {}\n" +
+		"class NULLPOINTERException {}\n" +
 		"class NULLPOINTEREXCEPTION {}\n"
 	);
 	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);

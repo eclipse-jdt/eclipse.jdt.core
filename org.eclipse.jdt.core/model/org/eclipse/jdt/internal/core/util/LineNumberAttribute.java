@@ -24,7 +24,7 @@ public class LineNumberAttribute
 	private static final int[][] NO_ENTRIES = new int[0][0];
 	private int lineNumberTableLength;
 	private int[][] lineNumberTable;
-	
+
 	/**
 	 * Constructor for LineNumberAttribute.
 	 * @param classFileBytes
@@ -38,7 +38,7 @@ public class LineNumberAttribute
 		int offset)
 		throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
-		
+
 		final int length = u2At(classFileBytes, 6, offset);
 		this.lineNumberTableLength = length;
 		if (length != 0) {

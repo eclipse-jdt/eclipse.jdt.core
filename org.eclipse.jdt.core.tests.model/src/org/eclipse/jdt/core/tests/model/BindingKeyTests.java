@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.Signature;
 import junit.framework.Test;
 
 public class BindingKeyTests extends AbstractJavaModelTests {
-	
+
 	static {
 //		TESTS_PREFIX = "testInvalidCompilerOptions";
 //		TESTS_NAMES = new String[] { "test028"};
@@ -29,13 +29,13 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public static Test suite() {
 		return buildModelTestSuite(BindingKeyTests.class);
 	}
-	
+
 	protected void assertBindingKeyEquals(String expected, String key) {
 		if (!(expected.equals(key)))
 			System.out.println(displayString(key, 3) + ",");
 		assertEquals(expected, key);
 	}
-	
+
 	protected void assertBindingKeySignatureEquals(String expected, String key) {
 		BindingKey bindingKey = new BindingKey(key);
 		String signature = bindingKey.toSignature();
@@ -43,13 +43,13 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			System.out.println(displayString(signature, 3) + ",");
 		assertEquals(expected, signature);
 	}
-	
+
 	protected void assertBindingKeyTypeArgumentsEqual(String expected, String key) {
 		BindingKey bindingKey = new BindingKey(key);
 		String[] typeArguments = bindingKey.getTypeArguments();
 		assertStringsEqual("Unexpected type arguments", expected, typeArguments);
 	}
-	
+
 	/*
 	 * Package.
 	 */
@@ -190,7 +190,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Lp1/X;.foo(Ljava/lang/String;I)Z"
 		);
 	}
-	
+
 	/*
 	 * Create a type binding key from a fully qualified name
 	 */
@@ -220,7 +220,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"[Z",
 			key);
 	}
-	
+
 	/*
 	 * Create a parameterized type binding key
 	 */
@@ -310,7 +310,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Lp/X;.foo()V:TSomeTypeVariable;",
 			key);
 	}
-	
+
 	/*
 	 * Parameterized member type
 	 */
@@ -380,7 +380,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Ljava/util/List;&!Lp1/X;+Ljava/util/ArrayList<>;123;"
 		);
 	}
-	
+
 	/*
 	 * Method starting with an upper case corresponding to a primitive type
 	 * (regression test for bug 94398 Error attempting to find References)
@@ -391,7 +391,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Lp1/X;.Set(Ljava/lang/String;I)Z"
 		);
 	}
-	
+
 	/*
 	 * Parameterized method with capture argument
 	 * (regression test for bug 96410 Incorrect information in selection resolved key)
@@ -402,7 +402,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"LX;&LX~Store<!LX~Store;*157;>;.get(!*)!*"
 		);
 	}
-		
+
 	/*
 	 * Parameterized method with argument similar to a type name
 	 */
@@ -412,7 +412,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"La/A<La/A~TU;>;.foo<U:Ljava/lang/Object;>(TU;La/TU;)V%<La/A~TU;>"
 		);
 	}
-	
+
 	/*
 	 * Field
 	 * (regression test for bug  87362 BindingKey#internalToSignature() should return the field's type signature)
@@ -445,7 +445,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Z"
 		);
 	}
-	
+
 	/*
 	 * Parameterized method with argument nested in another argument
 	 * (regression test for bug 97275 method reference should not contain type variable anymore)
@@ -456,7 +456,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Lp1/X;.foo<T:Ljava/lang/Object;>(Ljava/util/List<TT;>;Ljava/lang/Integer;)V%<Ljava/lang/String;>)"
 		);
 	}
-	
+
 	/*
 	 * Parameterized method with argument nested in another argument as a wilcard bound
 	 * (regression test for bug 97814 Incorrect resolved information on hover)
@@ -498,7 +498,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"LX<TSM;TLM;>;"
 		);
 	}
-	
+
 	/*
 	 * Ensures that the type arguments for a parameterized type binding key are correct
 	 */
@@ -529,7 +529,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"LX;"
 		);
 	}
-	
+
 	/*
 	 * Ensures that the type arguments for a parameterized type binding key are correct
 	 * (regression test for bug 103654 BindingKey.getTypeArguments bug with qualified types)
@@ -540,7 +540,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"LX<Ljava/lang/String;>.LY<Ljava/lang/Object;>;"
 		);
 	}
-	
+
 	/*
 	 * Ensures that the type arguments for a parameterized method binding key are correct
 	 */
@@ -550,7 +550,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"LX;.foo<T:Ljava/lang/Object;>(TT;)V%<Ljava/lang/String;>"
 		);
 	}
-	
+
 	/*
 	 * Parameterized method
 	 */
@@ -560,7 +560,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"LX;.foo<T:Ljava/lang/Object;>(TT;)V%<Ljava/lang/String;>"
 		);
 	}
-	
+
 	/*
 	 * Ensures that the binding key of a parameterized type is not a raw type
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209475)
@@ -568,7 +568,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test051() {
 		assertFalse("Should not be a raw type", new BindingKey("Ltest/ZZ<Ljava/lang/Object;>;").isRawType());
 	}
-	
+
 	/*
 	 * Ensures that the signature of a method defined in a cu with a $ name is correct
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=127739 )
@@ -579,7 +579,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"LA$B~A$B;.m()V"
 		);
 	}
-	
+
 	/*
 	 * Ensures that the signature of a method with a $ name is correct
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=127739 )

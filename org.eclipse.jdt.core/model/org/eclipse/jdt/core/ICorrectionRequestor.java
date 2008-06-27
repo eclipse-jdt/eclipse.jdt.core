@@ -12,13 +12,13 @@ package org.eclipse.jdt.core;
 
 /**
  * A callback interface for receiving java problem correction.
- * 
+ *
  * @since 2.0
  */
 public interface ICorrectionRequestor {
 /**
  * Notification of a class correction.
- * 
+ *
  * @param packageName Declaring package name of the class.
  * @param className Name of the class.
  * @param correctionName The correction for the class.

@@ -32,13 +32,13 @@ public class CompilationUnitTests extends ModifyingResourceTests {
 	ICompilationUnit cu;
 	ICompilationUnit workingCopy;
 	IJavaProject testProject;
-	
+
 public CompilationUnitTests(String name) {
 	super(name);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	this.testProject = createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5");
 	createFolder("/P/src/p");
 	createFile(
@@ -127,11 +127,11 @@ private ICompilationUnit createWorkingCopy(String source) throws JavaModelExcept
 }
 /**
  * Create working copy and compute problems.
- * 
+ *
  * Note that in this case, a complete parse of javadoc comment is performed
  * (ie. done with checkDocComment = true) instead of a "light" parse when
  * problems are not computed.
- * 
+ *
  * See CompilationUnit#buildStructure() line with comment: // disable javadoc parsing if not computing problems, not resolving and not creating ast
  * and org.eclipse.jdt.internal.compiler.parser.JavadocParser#checkDeprecation(int)
  */
@@ -147,7 +147,7 @@ public void testCodeCoverage() throws JavaModelException {
 	this.cu.restore();
 }
 /**
- * Ensures <code>commitWorkingCopy(boolean, IProgressMonitor)</code> throws the correct 
+ * Ensures <code>commitWorkingCopy(boolean, IProgressMonitor)</code> throws the correct
  * <code>JavaModelException</code> for a <code>CompilationUnit</code>.
  */
 public void testCommitWorkingCopy() {
@@ -165,7 +165,7 @@ public void testCommitWorkingCopy() {
  */
 public void testDefaultValue1() throws CoreException {
 	try {
-		String cuSource = 
+		String cuSource =
 			"package p;\n" +
 			"public @interface Y {\n" +
 			"  public String member() default \"abc\";\n" +
@@ -185,7 +185,7 @@ public void testDefaultValue1() throws CoreException {
  */
 public void testDefaultValue2() throws CoreException {
 	try {
-		String cuSource = 
+		String cuSource =
 			"package p;\n" +
 			"public @interface Y {\n" +
 			"  public int member() default 1;\n" +
@@ -205,7 +205,7 @@ public void testDefaultValue2() throws CoreException {
  */
 public void testDefaultValue3() throws CoreException {
 	try {
-		String cuSource = 
+		String cuSource =
 			"package p;\n" +
 			"public @interface Y {\n" +
 			"  public int member();\n" +
@@ -225,7 +225,7 @@ public void testDefaultValue3() throws CoreException {
  */
 public void testDefaultValue4() throws CoreException {
 	try {
-		String cuSource = 
+		String cuSource =
 			"package p;\n" +
 			"public class Y {\n" +
 			"  public int member() {}\n" +
@@ -245,7 +245,7 @@ public void testDefaultValue4() throws CoreException {
  */
 public void testDefaultValue5() throws CoreException {
 	try {
-		String cuSource = 
+		String cuSource =
 			"package p;\n" +
 			"public @interface Y {\n" +
 			"  public String member() default \"abc\" + 1;\n" +
@@ -266,7 +266,7 @@ public void testDefaultValue5() throws CoreException {
  */
 public void testDefaultValue6() throws CoreException {
 	try {
-		String cuSource = 
+		String cuSource =
 			"package p;\n" +
 			"public class Y {\n" +
 			"  public Y() {}\n" +
@@ -368,7 +368,7 @@ public void testDeprecatedFlag09() throws JavaModelException {
 public void testFindPrimaryType1() throws JavaModelException {
 	ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 	assertElementEquals(
-		"Unexpected primary type", 
+		"Unexpected primary type",
 		"X [in X.java [in p [in src [in P]]]]",
 		unit.findPrimaryType());
 }
@@ -1218,8 +1218,8 @@ public void testGetChildrenForCategory01() throws CoreException {
 	IJavaElement[] children = this.workingCopy.getType("Y").getChildrenForCategory("test");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
-		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
+		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
 		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
 		children);
 }
@@ -1248,7 +1248,7 @@ public void testGetChildrenForCategory02() throws CoreException {
 	IJavaElement[] children = this.workingCopy.getType("Y").getChildrenForCategory("test1");
 	assertElementsEqual(
 		"Unexpected children",
-		"Member [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"Member [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
 		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
 		children);
 }
@@ -1277,15 +1277,15 @@ public void testGetChildrenForCategory03() throws CoreException, IOException {
 	IJavaElement[] tests  = this.workingCopy.getType("Y").getChildrenForCategory("test");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
-		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
+		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
 		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
 		tests);
 	IJavaElement[] methods = this.workingCopy.getType("Y").getChildrenForCategory("methods");
 	assertElementsEqual(
 		"Unexpected children",
-		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
-		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
+		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
 		"foo3() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
 		methods);
 	IJavaElement[] others = this.workingCopy.getType("Y").getChildrenForCategory("other");
@@ -1296,9 +1296,9 @@ public void testGetChildrenForCategory03() throws CoreException, IOException {
 	IJavaElement[] all = this.workingCopy.getType("Y").getChildrenForCategory("all");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
-		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
-		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
+		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
+		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
+		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
 		"foo3() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
 		all);
 }
@@ -1309,7 +1309,7 @@ public void testGetChildrenForCategory03() throws CoreException, IOException {
  */
 public void testGetContentsForNotPresent() {
 	CompilationUnit compilationUnit = (CompilationUnit)getCompilationUnit("/P/src/p/Absent.java");
-	
+
 	assertSourceEquals("Unexpected contents for non present cu", "", new String(compilationUnit.getContents()));
 }
 /*
@@ -1331,7 +1331,7 @@ public void testGetContentsForNotPresentRemote() throws CoreException, URISyntax
 			actual = e;
 		}
 		assertExceptionEquals(
-			"Unexpected exception", 
+			"Unexpected exception",
 			"<null>",
 			actual);
 	} finally {
@@ -1339,13 +1339,13 @@ public void testGetContentsForNotPresentRemote() throws CoreException, URISyntax
 	}
  }
 /**
- * Tests Java element retrieval via source position 
+ * Tests Java element retrieval via source position
  */
 public void testGetElementAt() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	ISourceRange sourceRange= type.getSourceRange();
 	//ensure that we are into the body of the type
-	IJavaElement element= 
+	IJavaElement element=
 		this.cu.getElementAt(sourceRange.getOffset() + type.getElementName().length() + 1);
 	assertTrue("Should have found a type", element instanceof IType);
 	assertEquals(
@@ -1455,10 +1455,10 @@ public void testGetFields() throws JavaModelException {
 public void testGetImport() {
 	IImportDeclaration imprt = this.cu.getImport("java.lang");
 	assertTrue("Import should not exist " + imprt, !imprt.exists());
-	
+
 	imprt = this.cu.getImport("p2.*");
 	assertTrue("Import should exist " + imprt, imprt.exists());
-	
+
 	imprt = this.cu.getImport("p3.Z");
 	assertTrue("Import should exist " + imprt, imprt.exists());
 }
@@ -1488,18 +1488,18 @@ public void testGetImports() throws JavaModelException {
 	assertTrue("Import container must exist and have children", container.exists() && container.hasChildren());
 	ISourceRange containerRange= container.getSourceRange();
 	assertEquals(
-		"Offset container range not correct", 
+		"Offset container range not correct",
 		imprts[0].getSourceRange().getOffset(),
 		containerRange.getOffset());
 	assertEquals(
 		"Length container range not correct",
 		imprts[imprts.length-1].getSourceRange().getOffset() + imprts[imprts.length-1].getSourceRange().getLength(),
 		containerRange.getOffset() + containerRange.getLength());
-	assertSourceEquals("Source not correct", 
+	assertSourceEquals("Source not correct",
 		"import p2.*;\n" +
 		"import p3.Z;",
 		container.getSource());
-	
+
 }
 /**
  * Ensure that type handles are returned from the
@@ -1614,7 +1614,7 @@ public void testCheckInterfaceMethodModifiers() throws JavaModelException {
 public void testGetSuperInterfaceTypeSignatures() throws JavaModelException {
 	IType type = this.cu.getType("Y");
 	assertStringsEqual(
-		"Unexpected signatures", 
+		"Unexpected signatures",
 		"QI2<QE;>;\n",
 		type.getSuperInterfaceTypeSignatures());
 }
@@ -1627,7 +1627,7 @@ public void testGetPrimary() {
 	assertEquals("Primary element for a compilation unit should be the same", this.cu, primary);
 	primary = this.cu.getPrimary();
 	assertEquals("Primary for a compilation unit should be the same", this.cu, primary);
-	
+
 }
 /*
  * Ensures that the occurrence count for an initializer is correct
@@ -1661,10 +1661,10 @@ public void testGetPackages() throws JavaModelException {
 public void testGetType() {
 	IType type = this.cu.getType("someType");
 	assertTrue("Type should not exist " + type, !type.exists());
-	
+
 	type = this.cu.getType("X");
 	assertTrue("Type should exist " + type, type.exists());
-	
+
 	type = this.cu.getType("I"); // secondary type
 	assertTrue("Type should exist " + type, type.exists());
 }
@@ -1754,7 +1754,7 @@ public void testGetTypes() throws JavaModelException {
 	String[][] formalTypeParameters = new String[][] {
 		new String[0], new String[0], new String[] {"E"}, new String[0], new String[] {"E"}, new String[0], new String[0]
 	};
-	
+
 	assertEquals("Wrong number of types returned", typeNames.length, types.length);
 	for (int i = 0; i < types.length; i++) {
 		assertEquals("Incorrect name for the " + i + " type", typeNames[i], types[i].getElementName());
@@ -1786,7 +1786,7 @@ public void testHasChildren() throws JavaModelException {
  */
 public void testHasResourceChanged() {
 	assertTrue(
-		"A compilation unit's resource should not have changed", 
+		"A compilation unit's resource should not have changed",
 		!this.cu.hasResourceChanged());
 }
 /*
@@ -1885,13 +1885,13 @@ public void testPackageDefaultFlag4() throws JavaModelException {
 }
 
 /**
- * Ensures that the "structure is known" flag is set for a valid compilation unit. 
+ * Ensures that the "structure is known" flag is set for a valid compilation unit.
  */
 public void testStructureKnownForCU() throws JavaModelException {
 	assertTrue("Structure is unknown for valid CU", this.cu.isStructureKnown());
 }
 /**
- *  Ensures that the "structure is unknown" flag is set for a non valid compilation unit. 
+ *  Ensures that the "structure is unknown" flag is set for a non valid compilation unit.
  */
 public void testStructureUnknownForCU() throws CoreException {
 	try {
@@ -1901,7 +1901,7 @@ public void testStructureUnknownForCU() throws CoreException {
 		ICompilationUnit badCU = getCompilationUnit("/P/src/p/Invalid.java");
 		assertTrue("Structure is known for an invalid CU", !badCU.isStructureKnown());
 	} finally {
-		this.deleteFile("/P/src/p/Invalid.java");
+		deleteFile("/P/src/p/Invalid.java");
 	}
 }
 
@@ -1927,7 +1927,7 @@ public void testSuperFlag2() throws JavaModelException {
  */
 public void testBug73884() throws CoreException {
 	try {
-		String cuSource = 
+		String cuSource =
 			"package p;\n" +
 			"public interface I<T> {\n" +
 			"}";
@@ -2016,7 +2016,7 @@ public void testTypeParameter5() throws CoreException {
 	);
 	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getMethod("foo", new String[]{}).getTypeParameters();
 	assertTypeParametersEqual(
-		"T extends List\n" + 
+		"T extends List\n" +
 		"U extends X & Runnable\n",
 		typeParameters);
 }
@@ -2027,12 +2027,12 @@ public void testTypeParameter5() throws CoreException {
  */
 public void testBug78275() throws CoreException {
 	try {
-		String cuSource = 
-			"public class X {\n" + 
-			"	void a() {\n" + 
-			"	     }\n" + 
-			"	}\n" + 
-			"	void m() {}\n" + 
+		String cuSource =
+			"public class X {\n" +
+			"	void a() {\n" +
+			"	     }\n" +
+			"	}\n" +
+			"	void m() {}\n" +
 			"}\n";
 		createFile("/P/src/X.java", cuSource);
 		IType type = getCompilationUnit("/P/src/X.java").getType("X");
@@ -2179,9 +2179,9 @@ public void test110172() throws CoreException {
 public void test120902() throws CoreException {
 	try {
 		String source =
-			"/**\r\n" + 
-			" * Toy\r\n" + 
-			" */\r\n" + 
+			"/**\r\n" +
+			" * Toy\r\n" +
+			" */\r\n" +
 			"public class X {\r\n" +
 			"}";
 		createFile("/P/src/X.java", source);
@@ -2195,7 +2195,7 @@ public void test120902() throws CoreException {
 			assertNull("Got a source range", javadocRange);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			assertFalse("Should not happen", true);
-		}		
+		}
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -2208,19 +2208,19 @@ public void testApplyEdit() throws CoreException {
 			"}\n";
 		createFile("/P/src/X.java", source);
 		ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
-		
+
 		ReplaceEdit edit= new ReplaceEdit(0, 6, "private");
-		
+
 		UndoEdit undoEdit= compilationUnit.applyTextEdit(edit, null);
-		
+
 		String newSource =
 			"private class X {\n" +
 			"}\n";
-		
+
 		assertEquals(newSource, compilationUnit.getSource());
-		
+
 		compilationUnit.applyTextEdit(undoEdit, null);
-		
+
 		assertEquals(source, compilationUnit.getSource());
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -2234,26 +2234,26 @@ public void testApplyEdit2() throws CoreException {
 			"}\n";
 		createFile("/P/src/X.java", source);
 		ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
-		
+
 		ImportRewrite importRewrite= ImportRewrite.create(compilationUnit, true);
 		importRewrite.addImport("java.util.Vector");
 		importRewrite.addImport("java.util.ArrayList");
-		
+
 		TextEdit edit= importRewrite.rewriteImports(null);
-		
+
 		UndoEdit undoEdit= compilationUnit.applyTextEdit(edit, null);
-		
+
 		String newSource =
 			"import java.util.ArrayList;\n" +
 			"import java.util.Vector;\n" +
 			"\n" +
 			"public class X {\n" +
 			"}\n";
-		
+
 		assertEquals(newSource, compilationUnit.getSource());
-		
+
 		compilationUnit.applyTextEdit(undoEdit, null);
-		
+
 		assertEquals(source, compilationUnit.getSource());
 	} finally {
 		deleteFile("/P/src/X.java");

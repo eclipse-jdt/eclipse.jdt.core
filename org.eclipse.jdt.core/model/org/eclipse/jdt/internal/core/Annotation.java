@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -21,9 +21,9 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 
 	public static final IAnnotation[] NO_ANNOTATIONS = new IAnnotation[0];
 	public static final IMemberValuePair[] NO_MEMBER_VALUE_PAIRS = new IMemberValuePair[0];
-	
+
 	protected String name;
-	
+
 	public Annotation(JavaElement parent, String name) {
 		super(parent);
 		this.name = name;
@@ -49,7 +49,7 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	protected char getHandleMementoDelimiter() {
 		return JavaElement.JEM_ANNOTATION;
 	}
-	
+
 	public IMemberValuePair[] getMemberValuePairs() throws JavaModelException {
 		AnnotationInfo info = (AnnotationInfo) getElementInfo();
 		return info.members;

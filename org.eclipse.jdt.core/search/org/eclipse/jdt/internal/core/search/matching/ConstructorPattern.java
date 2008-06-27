@@ -118,18 +118,18 @@ public ConstructorPattern(
  * Instanciate a method pattern with signatures for generics search
  */
 public ConstructorPattern(
-	char[] declaringSimpleName,	
+	char[] declaringSimpleName,
 	char[] declaringQualification,
-	char[][] parameterQualifications, 
+	char[][] parameterQualifications,
 	char[][] parameterSimpleNames,
 	String[] parameterSignatures,
 	IMethod method,
 	int limitTo,
 	int matchRule) {
 
-	this(declaringSimpleName,	
+	this(declaringSimpleName,
 		declaringQualification,
-		parameterQualifications, 
+		parameterQualifications,
 		parameterSimpleNames,
 		limitTo,
 		matchRule);
@@ -163,64 +163,64 @@ public ConstructorPattern(
 	if (parameterSignatures != null) {
 		int length = parameterSignatures.length;
 		if (length > 0) {
-			parametersTypeSignatures = new char[length][][];
-			parametersTypeArguments = new char[length][][][];
+			this.parametersTypeSignatures = new char[length][][];
+			this.parametersTypeArguments = new char[length][][][];
 			for (int i=0; i<length; i++) {
-				parametersTypeSignatures[i] = Util.splitTypeLevelsSignature(parameterSignatures[i]);
-				parametersTypeArguments[i] = Util.getAllTypeArguments(parametersTypeSignatures[i]);
+				this.parametersTypeSignatures[i] = Util.splitTypeLevelsSignature(parameterSignatures[i]);
+				this.parametersTypeArguments[i] = Util.getAllTypeArguments(this.parametersTypeSignatures[i]);
 			}
 		}
 	}
 
 	// Store type signatures and arguments for method
-	constructorArguments = extractMethodArguments(method);
+	this.constructorArguments = extractMethodArguments(method);
 	if (hasConstructorArguments())  ((InternalSearchPattern)this).mustResolve = true;
 }
 /*
  * Instanciate a method pattern with signatures for generics search
  */
 public ConstructorPattern(
-	char[] declaringSimpleName,	
+	char[] declaringSimpleName,
 	char[] declaringQualification,
 	String declaringSignature,
-	char[][] parameterQualifications, 
+	char[][] parameterQualifications,
 	char[][] parameterSimpleNames,
 	String[] parameterSignatures,
 	char[][] arguments,
 	int limitTo,
 	int matchRule) {
 
-	this(declaringSimpleName,	
+	this(declaringSimpleName,
 		declaringQualification,
-		parameterQualifications, 
+		parameterQualifications,
 		parameterSimpleNames,
 		limitTo,
 		matchRule);
 
 	// Store type signature and arguments for declaring type
 	if (declaringSignature != null) {
-		typeSignatures = Util.splitTypeLevelsSignature(declaringSignature);
-		setTypeArguments(Util.getAllTypeArguments(typeSignatures));
+		this.typeSignatures = Util.splitTypeLevelsSignature(declaringSignature);
+		setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 	}
 
 	// Store type signatures and arguments for method parameters type
 	if (parameterSignatures != null) {
 		int length = parameterSignatures.length;
 		if (length > 0) {
-			parametersTypeSignatures = new char[length][][];
-			parametersTypeArguments = new char[length][][][];
+			this.parametersTypeSignatures = new char[length][][];
+			this.parametersTypeArguments = new char[length][][][];
 			for (int i=0; i<length; i++) {
-				parametersTypeSignatures[i] = Util.splitTypeLevelsSignature(parameterSignatures[i]);
-				parametersTypeArguments[i] = Util.getAllTypeArguments(parametersTypeSignatures[i]);
+				this.parametersTypeSignatures[i] = Util.splitTypeLevelsSignature(parameterSignatures[i]);
+				this.parametersTypeArguments[i] = Util.getAllTypeArguments(this.parametersTypeSignatures[i]);
 			}
 		}
 	}
 
 	// Store type signatures and arguments for method
-	constructorArguments = arguments;
+	this.constructorArguments = arguments;
 	if (arguments  == null || arguments.length == 0) {
 		if (getTypeArguments() != null && getTypeArguments().length > 0) {
-			constructorArguments = getTypeArguments()[0];
+			this.constructorArguments = getTypeArguments()[0];
 		}
 	}
 	if (hasConstructorArguments())  ((InternalSearchPattern)this).mustResolve = true;
@@ -254,10 +254,10 @@ public char[][] getIndexCategories() {
 	return CharOperation.NO_CHAR_CHAR;
 }
 boolean hasConstructorArguments() {
-	return constructorArguments != null && constructorArguments.length > 0;
+	return this.constructorArguments != null && this.constructorArguments.length > 0;
 }
 boolean hasConstructorParameters() {
-	return constructorParameters;
+	return this.constructorParameters;
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	ConstructorPattern pattern = (ConstructorPattern) decodedPattern;
@@ -316,21 +316,21 @@ protected StringBuffer print(StringBuffer output) {
 	} else {
 		output.append("ConstructorReferencePattern: "); //$NON-NLS-1$
 	}
-	if (declaringQualification != null)
-		output.append(declaringQualification).append('.');
-	if (declaringSimpleName != null) 
-		output.append(declaringSimpleName);
-	else if (declaringQualification != null)
+	if (this.declaringQualification != null)
+		output.append(this.declaringQualification).append('.');
+	if (this.declaringSimpleName != null)
+		output.append(this.declaringSimpleName);
+	else if (this.declaringQualification != null)
 		output.append("*"); //$NON-NLS-1$
 
 	output.append('(');
-	if (parameterSimpleNames == null) {
+	if (this.parameterSimpleNames == null) {
 		output.append("..."); //$NON-NLS-1$
 	} else {
-		for (int i = 0, max = parameterSimpleNames.length; i < max; i++) {
+		for (int i = 0, max = this.parameterSimpleNames.length; i < max; i++) {
 			if (i > 0) output.append(", "); //$NON-NLS-1$
-			if (parameterQualifications[i] != null) output.append(parameterQualifications[i]).append('.');
-			if (parameterSimpleNames[i] == null) output.append('*'); else output.append(parameterSimpleNames[i]);
+			if (this.parameterQualifications[i] != null) output.append(this.parameterQualifications[i]).append('.');
+			if (this.parameterSimpleNames[i] == null) output.append('*'); else output.append(this.parameterSimpleNames[i]);
 		}
 	}
 	output.append(')');

@@ -238,7 +238,7 @@ public void testBug209150c() throws CoreException, IOException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212100"
  */
 public void testBug212100a() throws JavaModelException {
-	workingCopies = new ICompilationUnit[1];
+	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 	String contents =
 		"public class X {\n" +
@@ -322,31 +322,31 @@ public void testBug212100b() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212834"
  */
 public void testBug212834() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[3];
-	workingCopies[0] = getWorkingCopy("/Converter15/src/Baz.java",
-		"public @interface Baz {\n" + 
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Baz.java",
+		"public @interface Baz {\n" +
 		"}\n"
 	);
-	workingCopies[1] = getWorkingCopy("/Converter15/src/C.java",
-		"public class C {\n" + 
-		"public C(D d) {\n" + 
-		"	foo(5);\n" + 
-		"	d.bar(7);\n" + 
-		"}\n" + 
-		"@Baz\n" + 
-		"public void foo(@Baz int x) { }\n" + 
-		"\n" + 
+	this.workingCopies[1] = getWorkingCopy("/Converter15/src/C.java",
+		"public class C {\n" +
+		"public C(D d) {\n" +
+		"	foo(5);\n" +
+		"	d.bar(7);\n" +
+		"}\n" +
+		"@Baz\n" +
+		"public void foo(@Baz int x) { }\n" +
+		"\n" +
 		"}"
 	);
-	workingCopies[2] = getWorkingCopy("/Converter15/src/D.java",
-		"public class D {\n" + 
-		"@Baz\n" + 
-		"public void bar(@Baz int y) { }\n" + 
-		"\n" + 
+	this.workingCopies[2] = getWorkingCopy("/Converter15/src/D.java",
+		"public class D {\n" +
+		"@Baz\n" +
+		"public void bar(@Baz int y) { }\n" +
+		"\n" +
 		"}"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	MethodInvocation methodInvocation = (MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(1)).getExpression();
 	IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
@@ -362,106 +362,106 @@ public void testBug212834() throws CoreException, IOException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212857"
  */
 public void testBug212857() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	String source = "package xy;\n" + 
-		"public class C {\n" + 
-		"	void m(@SuppressWarnings({\"unused\", \"bla\"}) int arg) {\n" + 
-		"		int local;\n" + 
-		"	}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	String source = "package xy;\n" +
+		"public class C {\n" +
+		"	void m(@SuppressWarnings({\"unused\", \"bla\"}) int arg) {\n" +
+		"		int local;\n" +
+		"	}\n" +
 		"}\n";
-	workingCopies[0] = getWorkingCopy("/Converter15/src/xy/C.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/xy/C.java", source);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
-		"{\n" + 
-		"		int local;\n" + 
+		"{\n" +
+		"		int local;\n" +
 		"	}",
 		source
 	);
 }
 public void testBug212857a() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	String source = "package xy;\n" + 
-	"public class C {\n" + 
-	"	@SuppressWarnings({\"unused\", \"bla\"}) void m() {\n" + 
-	"		int local;\n" + 
-	"	}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	String source = "package xy;\n" +
+	"public class C {\n" +
+	"	@SuppressWarnings({\"unused\", \"bla\"}) void m() {\n" +
+	"		int local;\n" +
+	"	}\n" +
 	"}\n";
-	workingCopies[0] = getWorkingCopy("/Converter15/src/xy/C.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/xy/C.java", source);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
-		"{\n" + 
-		"		int local;\n" + 
+		"{\n" +
+		"		int local;\n" +
 		"	}",
 		source
 	);
 }
 // tests with recovery
 public void testBug212857b() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	String source = "package test;\n" + 
-	"public class X {\n" + 
-	"	void m() \n" + 
-	"		if (arg == 0) {}\n" + 
-	"	}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	String source = "package test;\n" +
+	"public class X {\n" +
+	"	void m() \n" +
+	"		if (arg == 0) {}\n" +
+	"	}\n" +
 	"}\n";
-	workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
-		" \n" + 
-		"		if (arg == 0) {}\n" + 
+		" \n" +
+		"		if (arg == 0) {}\n" +
 		"	}",
 		source
 	);
 }
 public void testBug212857c() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	String source = "package test;\n" + 
-	"public class X {\n" + 
-	"	void m() \n" + 
-	"	}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	String source = "package test;\n" +
+	"public class X {\n" +
+	"	void m() \n" +
+	"	}\n" +
 	"}\n";
-	workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
-		" \n" + 
+		" \n" +
 		"	}",
 		source
 	);
 }
 public void testBug212857d() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	String source = "package test;\n" + 
-	"public class X {\n" + 
-	"	void m(String str) \n" + 
-	"		if (arg == 0) {}\n" + 
-	"	}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	String source = "package test;\n" +
+	"public class X {\n" +
+	"	void m(String str) \n" +
+	"		if (arg == 0) {}\n" +
+	"	}\n" +
 	"}\n";
-	workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
-		" \n" + 
-		"		if (arg == 0) {}\n" + 
+		" \n" +
+		"		if (arg == 0) {}\n" +
 		"	}",
 		source
 	);
 }
 public void testBug212857e() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	String source = "package test;\n" + 
-	"public class X {\n" + 
-	"	void m(Object obj, int x) \n" + 
-	"	}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	String source = "package test;\n" +
+	"public class X {\n" +
+	"	void m(Object obj, int x) \n" +
+	"	}\n" +
 	"}\n";
-	workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
-		" \n" + 
+		" \n" +
 		"	}",
 		source
 	);
@@ -473,61 +473,61 @@ public void testBug212857e() throws CoreException, IOException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=213509"
  */
 public void testBug213509() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" + 
-		"	void m(@Foo @Bar @Annot String str, @Bar @Foo Object obj, @Annot int x) {}\n" + 
-		"}\n" + 
-		"@interface Foo {}\n" + 
-		"@interface Bar {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" +
+		"	void m(@Foo @Bar @Annot String str, @Bar @Foo Object obj, @Annot int x) {}\n" +
+		"}\n" +
+		"@interface Foo {}\n" +
+		"@interface Bar {}\n" +
 		"@interface Annot {}\n"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
-		"----- param 1-----\n" + 
-		"@LTest~Foo;\n" + 
-		"@LTest~Bar;\n" + 
-		"@LTest~Annot;\n" + 
-		"----- param 2-----\n" + 
-		"@LTest~Bar;\n" + 
-		"@LTest~Foo;\n" + 
-		"----- param 3-----\n" + 
+		"----- param 1-----\n" +
+		"@LTest~Foo;\n" +
+		"@LTest~Bar;\n" +
+		"@LTest~Annot;\n" +
+		"----- param 2-----\n" +
+		"@LTest~Bar;\n" +
+		"@LTest~Foo;\n" +
+		"----- param 3-----\n" +
 		"@LTest~Annot;\n",
 		methodDeclaration.resolveBinding()
 	);
 }
 public void testBug213509_invocation() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[2];
-	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" + 
-		"	void m(@Foo @Bar @Annot String str, @Bar @Foo Object obj, @Annot int x) {}\n" + 
-		"}\n" + 
-		"@interface Foo {}\n" + 
-		"@interface Bar {}\n" + 
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" +
+		"	void m(@Foo @Bar @Annot String str, @Bar @Foo Object obj, @Annot int x) {}\n" +
+		"}\n" +
+		"@interface Foo {}\n" +
+		"@interface Bar {}\n" +
 		"@interface Annot {}\n"
 	);
-	workingCopies[1] = getWorkingCopy("/Converter15/src/X.java",
-		"public class X {\n" + 
-		"public X(Test test) {\n" + 
-		"	test.m(\"\", null, 7);\n" + 
-		"}\n" + 
+	this.workingCopies[1] = getWorkingCopy("/Converter15/src/X.java",
+		"public class X {\n" +
+		"public X(Test test) {\n" +
+		"	test.m(\"\", null, 7);\n" +
+		"}\n" +
 		"}"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	MethodInvocation methodInvocation = (MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(0)).getExpression();
 	checkParameterAnnotations(methodInvocation+" has invalid parameter annotations!",
-		"----- param 1-----\n" + 
-		"@LTest~Foo;\n" + 
-		"@LTest~Bar;\n" + 
-		"@LTest~Annot;\n" + 
-		"----- param 2-----\n" + 
-		"@LTest~Bar;\n" + 
-		"@LTest~Foo;\n" + 
-		"----- param 3-----\n" + 
+		"----- param 1-----\n" +
+		"@LTest~Foo;\n" +
+		"@LTest~Bar;\n" +
+		"@LTest~Annot;\n" +
+		"----- param 2-----\n" +
+		"@LTest~Bar;\n" +
+		"@LTest~Foo;\n" +
+		"----- param 3-----\n" +
 		"@LTest~Annot;\n",
 		methodInvocation.resolveMethodBinding()
 	);
@@ -539,47 +539,47 @@ public void testBug213509_invocation() throws CoreException, IOException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=214002"
  */
 public void testBug214002() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" + 
-		"	void m(String str, @Bar @Foo Object obj, @Annot int x) {}\n" + 
-		"}\n" + 
-		"@interface Foo {}\n" + 
-		"@interface Bar {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" +
+		"	void m(String str, @Bar @Foo Object obj, @Annot int x) {}\n" +
+		"}\n" +
+		"@interface Foo {}\n" +
+		"@interface Bar {}\n" +
 		"@interface Annot {}\n"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
-		"----- param 1-----\n" + 
-		"----- param 2-----\n" + 
-		"@LTest~Bar;\n" + 
-		"@LTest~Foo;\n" + 
-		"----- param 3-----\n" + 
+		"----- param 1-----\n" +
+		"----- param 2-----\n" +
+		"@LTest~Bar;\n" +
+		"@LTest~Foo;\n" +
+		"----- param 3-----\n" +
 		"@LTest~Annot;\n",
 		methodDeclaration.resolveBinding()
 	);
 }
 public void testBug214002b() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" + 
-		"	void m(@Annot String str, Object obj, @Bar @Foo int x) {}\n" + 
-		"}\n" + 
-		"@interface Foo {}\n" + 
-		"@interface Bar {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" +
+		"	void m(@Annot String str, Object obj, @Bar @Foo int x) {}\n" +
+		"}\n" +
+		"@interface Foo {}\n" +
+		"@interface Bar {}\n" +
 		"@interface Annot {}\n"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
-		"----- param 1-----\n" + 
+		"----- param 1-----\n" +
 		"@LTest~Annot;\n" +
-		"----- param 2-----\n" + 
-		"----- param 3-----\n" + 
-		"@LTest~Bar;\n" + 
+		"----- param 2-----\n" +
+		"----- param 3-----\n" +
+		"@LTest~Bar;\n" +
 		"@LTest~Foo;\n",
 		methodDeclaration.resolveBinding()
 	);
@@ -630,14 +630,14 @@ public void testBug214002b() throws CoreException, IOException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=214647"
  */
 public void testBug214647() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" + 
-		"	void m(String str) {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" +
+		"	void m(String str) {}\n" +
 		"}\n"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
 		"----- param 1-----\n",
@@ -645,18 +645,18 @@ public void testBug214647() throws CoreException, IOException {
 	);
 }
 public void testBug214647b() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" + 
-		"	void m(String str, Object o, int x) {}\n" + 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" +
+		"	void m(String str, Object o, int x) {}\n" +
 		"}\n"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
 		"----- param 1-----\n" +
-		"----- param 2-----\n" + 
+		"----- param 2-----\n" +
 		"----- param 3-----\n",
 		methodDeclaration.resolveBinding()
 	);
@@ -672,108 +672,108 @@ public void testBug215759a() throws CoreException {
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/p/Y.java",
-			"package p;\n" + 
-			"public class  Y {\n" + 
+			"package p;\n" +
+			"public class  Y {\n" +
 			"}",
 			true/*resolve*/);
-	
+
 	ASTResult result = this.buildMarkedAST(
 			"/Converter/src/p/X.java",
-			"package p;\n" + 
-			"public class X extends Y {\n" + 
-			"	/**\n" + 
-			"	 * blabla1\n" + 
-			"	 * @param [*1*]string[*1*] blabla2\n" + 
-			"	 */\n" + 
-			"	protected [*2*]String[*2*] foo(String string) {\n" + 
-			"		return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" + 
-			"	}\n" + 
-			"	/*comment*/[*4*]protected void bar() {}[*4*]\n" + 
-			"	#\n" + 
+			"package p;\n" +
+			"public class X extends Y {\n" +
+			"	/**\n" +
+			"	 * blabla1\n" +
+			"	 * @param [*1*]string[*1*] blabla2\n" +
+			"	 */\n" +
+			"	protected [*2*]String[*2*] foo(String string) {\n" +
+			"		return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" +
+			"	}\n" +
+			"	/*comment*/[*4*]protected void bar() {}[*4*]\n" +
+			"	#\n" +
 			"}");
-	
+
 	assertASTResult(
-			"===== AST =====\n" + 
-			"package p;\n" + 
-			"public class X extends Y {\n" + 
-			"  /** \n" + 
-			" * blabla1\n" + 
-			" * @param [*1*]string[*1*] blabla2\n" + 
-			" */\n" + 
-			"  protected [*2*]String[*2*] foo(  String string){\n" + 
-			"    return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" + 
-			"  }\n" + 
-			"  [*4*]protected void bar(){\n" + 
-			"  }[*4*]\n" + 
-			"}\n" + 
-			"\n" + 
-			"===== Details =====\n" + 
-			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string,]\n" + 
-			"2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]\n" + 
-			"2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]\n" + 
-			"3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]\n" + 
-			"4:METHOD_DECLARATION,[176,23],,,[METHOD,Lp/X;.bar()V,]\n" + 
-			"===== Problems =====\n" + 
-			"1. ERROR in /Converter/src/p/X.java (at line 11)\n" + 
-			"	#\n" + 
-			"	^\n" + 
+			"===== AST =====\n" +
+			"package p;\n" +
+			"public class X extends Y {\n" +
+			"  /** \n" +
+			" * blabla1\n" +
+			" * @param [*1*]string[*1*] blabla2\n" +
+			" */\n" +
+			"  protected [*2*]String[*2*] foo(  String string){\n" +
+			"    return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" +
+			"  }\n" +
+			"  [*4*]protected void bar(){\n" +
+			"  }[*4*]\n" +
+			"}\n" +
+			"\n" +
+			"===== Details =====\n" +
+			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string,]\n" +
+			"2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
+			"2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
+			"3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]\n" +
+			"4:METHOD_DECLARATION,[176,23],,,[METHOD,Lp/X;.bar()V,]\n" +
+			"===== Problems =====\n" +
+			"1. ERROR in /Converter/src/p/X.java (at line 11)\n" +
+			"	#\n" +
+			"	^\n" +
 			"Syntax error on token \"Invalid Character\", delete this token\n",
 			result);
 }
 
 public void testBug215759b() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
-	
+
 	this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/p/Y.java",
-			"package p;\n" + 
-			"public class  Y {\n" + 
+			"package p;\n" +
+			"public class  Y {\n" +
 			"}",
 			true/*resolve*/);
-	
+
 	ASTResult result = this.buildMarkedAST(
 			"/Converter/src/p/X.java",
-			"package p;\n" + 
-			"public class X extends Y {\n" + 
-			"	/**\n" + 
-			"	 * blabla1\n" + 
-			"	 * @param [*1*]string[*1*] blabla2\n" + 
-			"	 */\n" + 
-			"	protected [*2*]String[*2*] foo(String string) {\n" + 
-			"		return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" + 
-			"	}\n" + 
-			"	/*comment*/[*4*]protected void bar() {}[*4*]\n" + 
-			"	[*5*]/**@deprecated*/protected void bar2() {}[*5*]\n" + 
+			"package p;\n" +
+			"public class X extends Y {\n" +
+			"	/**\n" +
+			"	 * blabla1\n" +
+			"	 * @param [*1*]string[*1*] blabla2\n" +
+			"	 */\n" +
+			"	protected [*2*]String[*2*] foo(String string) {\n" +
+			"		return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" +
+			"	}\n" +
+			"	/*comment*/[*4*]protected void bar() {}[*4*]\n" +
+			"	[*5*]/**@deprecated*/protected void bar2() {}[*5*]\n" +
 			"}");
-	
+
 	assertASTResult(
-			"===== AST =====\n" + 
-			"package p;\n" + 
-			"public class X extends Y {\n" + 
-			"  /** \n" + 
-			" * blabla1\n" + 
-			" * @param [*1*]string[*1*] blabla2\n" + 
-			" */\n" + 
-			"  protected [*2*]String[*2*] foo(  String string){\n" + 
-			"    return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" + 
-			"  }\n" + 
-			"  [*4*]protected void bar(){\n" + 
-			"  }[*4*]\n" + 
-			"  [*5*]/** \n" + 
-			" * @deprecated\n" + 
-			" */\n" + 
-			"  protected void bar2(){\n" + 
-			"  }[*5*]\n" + 
-			"}\n" + 
-			"\n" + 
-			"===== Details =====\n" + 
-			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string,]\n" + 
-			"2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]\n" + 
-			"2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]\n" + 
-			"3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]\n" + 
-			"4:METHOD_DECLARATION,[176,23],[165,34],,[METHOD,Lp/X;.bar()V,]\n" + 
-			"5:METHOD_DECLARATION,[201,40],,,[METHOD,Lp/X;.bar2()V,DEPRECATED]\n" + 
-			"===== Problems =====\n" + 
+			"===== AST =====\n" +
+			"package p;\n" +
+			"public class X extends Y {\n" +
+			"  /** \n" +
+			" * blabla1\n" +
+			" * @param [*1*]string[*1*] blabla2\n" +
+			" */\n" +
+			"  protected [*2*]String[*2*] foo(  String string){\n" +
+			"    return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" +
+			"  }\n" +
+			"  [*4*]protected void bar(){\n" +
+			"  }[*4*]\n" +
+			"  [*5*]/** \n" +
+			" * @deprecated\n" +
+			" */\n" +
+			"  protected void bar2(){\n" +
+			"  }[*5*]\n" +
+			"}\n" +
+			"\n" +
+			"===== Details =====\n" +
+			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string,]\n" +
+			"2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
+			"2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
+			"3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]\n" +
+			"4:METHOD_DECLARATION,[176,23],[165,34],,[METHOD,Lp/X;.bar()V,]\n" +
+			"5:METHOD_DECLARATION,[201,40],,,[METHOD,Lp/X;.bar2()V,DEPRECATED]\n" +
+			"===== Problems =====\n" +
 			"No problem",
 			result);
 }
@@ -802,63 +802,63 @@ public void testBug218824a() throws JavaModelException {
 			"                           }[*1*]takeParam([*1*](int) c);\n"+
 			"        }\n"+
 			"}\n");
-	
+
 	assertASTResult(
-			"===== AST =====\n" + 
-			"package a;\n" + 
-			"public class X {\n" + 
-			"  public void takeParam(  int i){\n" + 
-			"  }\n" + 
-			"  void test(){\n" + 
-			"    char c=\'a\';\n" + 
-			"    public void takeParam;\n" + 
-			"    int i;\n" + 
-			"    new test(){\n" + 
-			"      char c=\'a\';\n" + 
-			"{\n" + 
-			"        takeParam((int)c);\n" + 
-			"      }\n" + 
-			"      [*1*]void takeParam(){\n" + 
-			"      }[*1*]\n" + 
-			"    }\n" + 
-			";\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"\n" + 
-			"===== Details =====\n" + 
-			"1:METHOD_DECLARATION,[447,10],,MALFORMED,[null]\n" + 
-			"===== Problems =====\n" + 
-			"1. ERROR in /Converter15/src/a/X.java (at line 9)\n" + 
-			"	public void takeParam(int i) {\n" + 
-			"	            ^^^^^^^^^\n" + 
-			"void is an invalid type for the variable takeParam\n" + 
-			"2. ERROR in /Converter15/src/a/X.java (at line 9)\n" + 
-			"	public void takeParam(int i) {\n" + 
-			"	                     ^\n" + 
-			"Syntax error on token \"(\", ; expected\n" + 
-			"3. ERROR in /Converter15/src/a/X.java (at line 9)\n" + 
-			"	public void takeParam(int i) {\n" + 
-			"	                           ^\n" + 
-			"Syntax error on token \")\", ; expected\n" + 
-			"4. ERROR in /Converter15/src/a/X.java (at line 13)\n" + 
-			"	void test() {\n" + 
-			"	^^^^\n" + 
-			"Syntax error on token \"void\", new expected\n" + 
-			"5. ERROR in /Converter15/src/a/X.java (at line 13)\n" + 
-			"	void test() {\n" + 
-			"	     ^^^^\n" + 
-			"test cannot be resolved to a type\n" + 
-			"6. ERROR in /Converter15/src/a/X.java (at line 14)\n" + 
-			"	char c = \'a\';\n" + 
-			"	            ^\n" + 
-			"Syntax error on token \";\", { expected after this token\n" + 
-			"7. ERROR in /Converter15/src/a/X.java (at line 16)\n" + 
-			"	}takeParam((int) c);\n" + 
-			"	^\n" + 
-			"Syntax error, insert \"}\" to complete ClassBody\n" + 
-			"8. ERROR in /Converter15/src/a/X.java (at line 16)\n" + 
-			"	}takeParam((int) c);\n" + 
-			"	^\n" + 
+			"===== AST =====\n" +
+			"package a;\n" +
+			"public class X {\n" +
+			"  public void takeParam(  int i){\n" +
+			"  }\n" +
+			"  void test(){\n" +
+			"    char c=\'a\';\n" +
+			"    public void takeParam;\n" +
+			"    int i;\n" +
+			"    new test(){\n" +
+			"      char c=\'a\';\n" +
+			"{\n" +
+			"        takeParam((int)c);\n" +
+			"      }\n" +
+			"      [*1*]void takeParam(){\n" +
+			"      }[*1*]\n" +
+			"    }\n" +
+			";\n" +
+			"  }\n" +
+			"}\n" +
+			"\n" +
+			"===== Details =====\n" +
+			"1:METHOD_DECLARATION,[447,10],,MALFORMED,[null]\n" +
+			"===== Problems =====\n" +
+			"1. ERROR in /Converter15/src/a/X.java (at line 9)\n" +
+			"	public void takeParam(int i) {\n" +
+			"	            ^^^^^^^^^\n" +
+			"void is an invalid type for the variable takeParam\n" +
+			"2. ERROR in /Converter15/src/a/X.java (at line 9)\n" +
+			"	public void takeParam(int i) {\n" +
+			"	                     ^\n" +
+			"Syntax error on token \"(\", ; expected\n" +
+			"3. ERROR in /Converter15/src/a/X.java (at line 9)\n" +
+			"	public void takeParam(int i) {\n" +
+			"	                           ^\n" +
+			"Syntax error on token \")\", ; expected\n" +
+			"4. ERROR in /Converter15/src/a/X.java (at line 13)\n" +
+			"	void test() {\n" +
+			"	^^^^\n" +
+			"Syntax error on token \"void\", new expected\n" +
+			"5. ERROR in /Converter15/src/a/X.java (at line 13)\n" +
+			"	void test() {\n" +
+			"	     ^^^^\n" +
+			"test cannot be resolved to a type\n" +
+			"6. ERROR in /Converter15/src/a/X.java (at line 14)\n" +
+			"	char c = \'a\';\n" +
+			"	            ^\n" +
+			"Syntax error on token \";\", { expected after this token\n" +
+			"7. ERROR in /Converter15/src/a/X.java (at line 16)\n" +
+			"	}takeParam((int) c);\n" +
+			"	^\n" +
+			"Syntax error, insert \"}\" to complete ClassBody\n" +
+			"8. ERROR in /Converter15/src/a/X.java (at line 16)\n" +
+			"	}takeParam((int) c);\n" +
+			"	^\n" +
 			"Syntax error, insert \";\" to complete Statement\n",
 			result);
 }
@@ -875,21 +875,21 @@ public void testBug215137a() throws JavaModelException {
 			"                System.out.println(\"hello);\n"+
 			"        }[*1*]\n"+
 			"}\n");
-	
+
 	assertASTResult(
-			"===== AST =====\n" + 
-			"package a;\n" + 
-			"public class X {\n" + 
-			"  public void foo()[*1*]{\n" + 
-			"  }[*1*]\n" + 
-			"}\n" + 
-			"\n" + 
-			"===== Details =====\n" + 
-			"1:BLOCK,[54,55],,RECOVERED,[N/A]\n" + 
-			"===== Problems =====\n" + 
-			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
-			"	System.out.println(\"hello);\n" + 
-			"	                   ^^^^^^^^\n" + 
+			"===== AST =====\n" +
+			"package a;\n" +
+			"public class X {\n" +
+			"  public void foo()[*1*]{\n" +
+			"  }[*1*]\n" +
+			"}\n" +
+			"\n" +
+			"===== Details =====\n" +
+			"1:BLOCK,[54,55],,RECOVERED,[N/A]\n" +
+			"===== Problems =====\n" +
+			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" +
+			"	System.out.println(\"hello);\n" +
+			"	                   ^^^^^^^^\n" +
 			"String literal is not properly closed by a double-quote\n",
 			result);
 }
@@ -902,21 +902,21 @@ public void testBug215137b() throws JavaModelException {
 			"                System.out.println('a);\n"+
 			"        }[*1*]\n"+
 			"}\n");
-	
+
 	assertASTResult(
-			"===== AST =====\n" + 
-			"package a;\n" + 
-			"public class X {\n" + 
-			"  public void foo()[*1*]{\n" + 
-			"  }[*1*]\n" + 
-			"}\n" + 
-			"\n" + 
-			"===== Details =====\n" + 
-			"1:BLOCK,[54,51],,RECOVERED,[N/A]\n" + 
-			"===== Problems =====\n" + 
-			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
-			"	System.out.println(\'a);\n" + 
-			"	                   ^^\n" + 
+			"===== AST =====\n" +
+			"package a;\n" +
+			"public class X {\n" +
+			"  public void foo()[*1*]{\n" +
+			"  }[*1*]\n" +
+			"}\n" +
+			"\n" +
+			"===== Details =====\n" +
+			"1:BLOCK,[54,51],,RECOVERED,[N/A]\n" +
+			"===== Problems =====\n" +
+			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" +
+			"	System.out.println(\'a);\n" +
+			"	                   ^^\n" +
 			"Invalid character constant\n",
 			result);
 }
@@ -929,21 +929,21 @@ public void testBug215137c() throws JavaModelException {
 			"                System.out.println(''a);\n"+
 			"        }[*1*]\n"+
 			"}\n");
-	
+
 	assertASTResult(
-			"===== AST =====\n" + 
-			"package a;\n" + 
-			"public class X {\n" + 
-			"  public void foo()[*1*]{\n" + 
-			"  }[*1*]\n" + 
-			"}\n" + 
-			"\n" + 
-			"===== Details =====\n" + 
-			"1:BLOCK,[54,52],,RECOVERED,[N/A]\n" + 
-			"===== Problems =====\n" + 
-			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
-			"	System.out.println(\'\'a);\n" + 
-			"	                   ^^\n" + 
+			"===== AST =====\n" +
+			"package a;\n" +
+			"public class X {\n" +
+			"  public void foo()[*1*]{\n" +
+			"  }[*1*]\n" +
+			"}\n" +
+			"\n" +
+			"===== Details =====\n" +
+			"1:BLOCK,[54,52],,RECOVERED,[N/A]\n" +
+			"===== Problems =====\n" +
+			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" +
+			"	System.out.println(\'\'a);\n" +
+			"	                   ^^\n" +
 			"Invalid character constant\n",
 			result);
 }
@@ -956,21 +956,21 @@ public void testBug215137d() throws JavaModelException {
 			"                7eSystem.out.println();\n"+
 			"        }[*1*]\n"+
 			"}\n");
-	
+
 	assertASTResult(
-			"===== AST =====\n" + 
-			"package a;\n" + 
-			"public class X {\n" + 
-			"  public void foo()[*1*]{\n" + 
-			"  }[*1*]\n" + 
-			"}\n" + 
-			"\n" + 
-			"===== Details =====\n" + 
-			"1:BLOCK,[54,51],,RECOVERED,[N/A]\n" + 
-			"===== Problems =====\n" + 
-			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
-			"	7eSystem.out.println();\n" + 
-			"	^^^\n" + 
+			"===== AST =====\n" +
+			"package a;\n" +
+			"public class X {\n" +
+			"  public void foo()[*1*]{\n" +
+			"  }[*1*]\n" +
+			"}\n" +
+			"\n" +
+			"===== Details =====\n" +
+			"1:BLOCK,[54,51],,RECOVERED,[N/A]\n" +
+			"===== Problems =====\n" +
+			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" +
+			"	7eSystem.out.println();\n" +
+			"	^^^\n" +
 			"Invalid float literal number\n",
 			result);
 }
@@ -982,9 +982,9 @@ public void testBug215137d() throws JavaModelException {
 public void testBug223838() throws JavaModelException {
 	String contents =
 		"package b223838;\n" +
-		"@Deprecated\n" + 
-		"@Invalid\n" + 
-		"public class Test {\n" + 
+		"@Deprecated\n" +
+		"@Invalid\n" +
+		"public class Test {\n" +
 		"}\n";
 	ICompilationUnit workingCopy = getWorkingCopy(
 			"/Converter15/src/b223838/Test.java",
@@ -1007,9 +1007,9 @@ public void testBug223838() throws JavaModelException {
 public void testBug223838a() throws JavaModelException {
 	String contents =
 		"package b223838;\n" +
-		"@Deprecated\n" + 
-		"@Invalid\n" + 
-		"public class Test {\n" + 
+		"@Deprecated\n" +
+		"@Invalid\n" +
+		"public class Test {\n" +
 		"}\n";
 	ICompilationUnit workingCopy = getWorkingCopy(
 			"/Converter15/src/b223838/Test.java",
@@ -1031,32 +1031,32 @@ public void testBug223838a() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=226357"
  */
 public void testBug226357() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[2];
-	workingCopies[0] = getWorkingCopy("/Converter15/src/ParameterSubsetAnnotated.java",
-		"public class ParameterSubsetAnnotated {\n" + 
-		"        public @interface NonZero { }\n" + 
-		"        public static int safeDiv(int a, @NonZero int b) {\n" + 
-		"                return a / b;\n" + 
-		"        }\n" + 
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/ParameterSubsetAnnotated.java",
+		"public class ParameterSubsetAnnotated {\n" +
+		"        public @interface NonZero { }\n" +
+		"        public static int safeDiv(int a, @NonZero int b) {\n" +
+		"                return a / b;\n" +
+		"        }\n" +
 		"}"
 	);
-	workingCopies[1] = getWorkingCopy("/Converter15/src/ParameterSubsetClient.java",
-		"public class ParameterSubsetClient {\n" + 
-		"\n" + 
-		"        public void client() {\n" + 
-		"                ParameterSubsetAnnotated.safeDiv(5, 0);\n" + 
-		"        }\n" + 
-		"\n" + 
+	this.workingCopies[1] = getWorkingCopy("/Converter15/src/ParameterSubsetClient.java",
+		"public class ParameterSubsetClient {\n" +
+		"\n" +
+		"        public void client() {\n" +
+		"                ParameterSubsetAnnotated.safeDiv(5, 0);\n" +
+		"        }\n" +
+		"\n" +
 		"}\n"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	ExpressionStatement statement = (ExpressionStatement) methodDeclaration.getBody().statements().get(0);
 	MethodInvocation methodInvocation = (MethodInvocation) statement.getExpression();
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
-		"----- param 1-----\n" + 
-		"----- param 2-----\n" + 
+		"----- param 1-----\n" +
+		"----- param 2-----\n" +
 		"@LParameterSubsetAnnotated$NonZero;\n",
 		methodInvocation.resolveMethodBinding()
 	);

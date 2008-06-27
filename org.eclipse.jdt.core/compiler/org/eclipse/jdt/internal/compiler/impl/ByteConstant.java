@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.impl;
 
 public class ByteConstant extends Constant {
 	private byte value;
-	
+
 public static Constant fromValue(byte value) {
 	return new ByteConstant(value);
 }
@@ -23,22 +23,22 @@ public byte byteValue() {
 	return this.value;
 }
 public char charValue() {
-	return (char) value;
+	return (char) this.value;
 }
 public double doubleValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public float floatValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public int intValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public long longValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public short shortValue() {
-	return value; // implicit cast to return type
+	return this.value; // implicit cast to return type
 }
 public String stringValue() {
 	//spec 15.17.11
@@ -46,7 +46,7 @@ public String stringValue() {
 }
 public String toString(){
 
-	return "(byte)" + value ; } //$NON-NLS-1$
+	return "(byte)" + this.value ; } //$NON-NLS-1$
 public int typeID() {
 	return T_byte;
 }

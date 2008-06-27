@@ -51,7 +51,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	public static boolean DEBUG = false;
 	public static boolean PERF = false;
-	
+
 	SelectionParser parser;
 	ISelectionRequestor requestor;
 
@@ -60,7 +60,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private int actualSelectionStart;
 	private int actualSelectionEnd;
 	private char[] selectedIdentifier;
-	
+
 	private char[][][] acceptedClasses;
 	private int[] acceptedClassesModifiers;
 	private char[][][] acceptedInterfaces;
@@ -73,7 +73,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	int acceptedInterfacesCount;
 	int acceptedEnumsCount;
 	int acceptedAnnotationsCount;
-	
+
 	boolean noProposal = true;
 	CategorizedProblem problem = null;
 
@@ -88,7 +88,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 *      based on partial names.
 	 *
 	 *  @param requestor org.eclipse.jdt.internal.codeassist.ISelectionRequestor
-	 *      since the engine might produce answers of various forms, the engine 
+	 *      since the engine might produce answers of various forms, the engine
 	 *      is associated with a requestor able to accept all possible completions.
 	 *
 	 *  @param settings java.util.Map
@@ -109,7 +109,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				this.compilerOptions,
 				new DefaultProblemFactory(Locale.getDefault())) {
-					
+
 			public CategorizedProblem createProblem(
 				char[] fileName,
 				int problemId,
@@ -149,7 +149,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						CharOperation.concatWith(enclosingTypeNames, '.'),
 						simpleTypeName,
 						'.');
-		
+
 		if (CharOperation.equals(simpleTypeName, this.selectedIdentifier)) {
 			char[] flatEnclosingTypeNames =
 				enclosingTypeNames == null || enclosingTypeNames.length == 0 ?
@@ -164,7 +164,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						char[][] acceptedAnnotation = new char[2][];
 						acceptedAnnotation[0] = packageName;
 						acceptedAnnotation[1] = typeName;
-						
+
 						if(this.acceptedAnnotations == null) {
 							this.acceptedAnnotations = new char[10][][];
 							this.acceptedAnnotationsModifiers = new int[10];
@@ -183,7 +183,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						char[][] acceptedEnum = new char[2][];
 						acceptedEnum[0] = packageName;
 						acceptedEnum[1] = typeName;
-						
+
 						if(this.acceptedEnums == null) {
 							this.acceptedEnums = new char[10][][];
 							this.acceptedEnumsModifiers = new int[10];
@@ -202,7 +202,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						char[][] acceptedInterface= new char[2][];
 						acceptedInterface[0] = packageName;
 						acceptedInterface[1] = typeName;
-						
+
 						if(this.acceptedInterfaces == null) {
 							this.acceptedInterfaces = new char[10][][];
 							this.acceptedInterfacesModifiers = new int[10];
@@ -221,7 +221,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						char[][] acceptedClass = new char[2][];
 						acceptedClass[0] = packageName;
 						acceptedClass[1] = typeName;
-						
+
 						if(this.acceptedClasses == null) {
 							this.acceptedClasses = new char[10][][];
 							this.acceptedClassesModifiers = new int[10];
@@ -255,7 +255,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	/**
 	 * One result of the search consists of a new package.
 	 * @param packageName char[]
-	 * 
+	 *
 	 * NOTE - All package names are presented in their readable form:
 	 *    Package names are in the form "a.b.c".
 	 *    The default package is represented by an empty array.
@@ -341,29 +341,29 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 		Scanner scanner = new Scanner();
 		scanner.setSource(source);
-		
+
 		int lastIdentifierStart = -1;
 		int lastIdentifierEnd = -1;
 		char[] lastIdentifier = null;
 		int token;
-		
+
 		if(selectionStart > selectionEnd){
 			int end = source.length - 1;
-			
+
 			// compute start position of current line
 			int currentPosition = selectionStart - 1;
 			int nextCharacterPosition = selectionStart;
 			char currentCharacter = ' ';
 			try {
 				lineLoop: while(currentPosition > 0){
-					
+
 					if(source[currentPosition] == '\\' && source[currentPosition+1] == 'u') {
 						int pos = currentPosition + 2;
 						int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 						while (source[pos] == 'u') {
 							pos++;
 						}
-						
+
 						int endOfUnicode = pos + 3;
 						if (end < endOfUnicode) {
 							if (endOfUnicode < source.length) {
@@ -390,7 +390,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						currentCharacter = source[currentPosition];
 						nextCharacterPosition = currentPosition+1;
 					}
-					
+
 					switch(currentCharacter) {
 						case '\r':
 						case '\n':
@@ -404,7 +404,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			} catch (ArrayIndexOutOfBoundsException e) {
 				return false;
 			}
-			
+
 			// compute start and end of the last token
 			scanner.resetTo(nextCharacterPosition, end);
 			isolateLastName: do {
@@ -434,7 +434,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			} while (token != TerminalTokens.TokenNameEOF);
 		} else {
 			scanner.resetTo(selectionStart, selectionEnd);
-	
+
 			boolean expectingIdentifier = true;
 			do {
 				try {
@@ -536,13 +536,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				default :
 					buffer.append(scanner.getCurrentTokenSource());
 					break;
-				
+
 			}
 			if(depth < 0) {
 				return false;
 			}
 		} while (depth != 0 && token != TerminalTokens.TokenNameEOF);
-		
+
 		if(depth == 0) {
 			int length = buffer.length() - 1;
 			char[] typeRef = new char[length];
@@ -554,10 +554,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				return false;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	public AssistParser getParser() {
 		return this.parser;
 	}
@@ -595,7 +595,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		int selectionSourceEnd) {
 
 		char[] source = sourceUnit.getContents();
-		
+
 		if(DEBUG) {
 			System.out.print("SELECTION IN "); //$NON-NLS-1$
 			System.out.print(sourceUnit.getFileName());
@@ -611,7 +611,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 		if (DEBUG) {
 			System.out.print("SELECTION - Checked : \""); //$NON-NLS-1$
-			System.out.print(new String(source, actualSelectionStart, actualSelectionEnd-actualSelectionStart+1));
+			System.out.print(new String(source, this.actualSelectionStart, this.actualSelectionEnd-this.actualSelectionStart+1));
 			System.out.println('"');
 		}
 		try {
@@ -625,7 +625,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					System.out.println("SELECTION - Diet AST :"); //$NON-NLS-1$
 					System.out.println(parsedUnit.toString());
 				}
-				
+
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof SelectionOnPackageReference) {
 					char[][] tokens =
@@ -643,13 +643,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							this.noProposal = false;
 							this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
 							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), false, false, IJavaSearchConstants.TYPE, this);
-							
+
 							this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 							if ((this.unitScope = parsedUnit.scope) != null) {
 								int tokenCount = tokens.length;
 								char[] lastToken = tokens[tokenCount - 1];
 								char[][] qualifierTokens = CharOperation.subarray(tokens, 0, tokenCount - 1);
-								
+
 								if(qualifierTokens != null && qualifierTokens.length > 0) {
 									Binding binding = this.unitScope.getTypeOrPackage(qualifierTokens);
 									if(binding != null && binding instanceof ReferenceBinding) {
@@ -662,7 +662,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									}
 								}
 							}
-							
+
 							// accept qualified types only if no unqualified type was accepted
 							if(!this.acceptedAnswer) {
 								acceptQualifiedTypes();
@@ -717,7 +717,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// thus use the selected source and perform a textual type search
 			if (!this.acceptedAnswer) {
 				this.nameEnvironment.findTypes(this.selectedIdentifier, false, false, IJavaSearchConstants.TYPE, this);
-				
+
 				// accept qualified types only if no unqualified type was accepted
 				if(!this.acceptedAnswer) {
 					acceptQualifiedTypes();
@@ -726,7 +726,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if(this.noProposal && this.problem != null) {
 				this.requestor.acceptError(this.problem);
 			}
-		} catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D		
+		} catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D
 			if(DEBUG) {
 				System.out.println("Exception caught by SelectionEngine:"); //$NON-NLS-1$
 				e.printStackTrace(System.out);
@@ -746,7 +746,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		ReferenceBinding[] memberTypes = ref.memberTypes();
 		next : for (int j = 0; j < memberTypes.length; j++) {
 			ReferenceBinding memberType = memberTypes[j];
-			
+
 			if (fieldLength > memberType.sourceName.length)
 				continue next;
 
@@ -755,20 +755,20 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 			if (!CharOperation.equals(lastToken, memberType.sourceName, true))
 				continue next;
-			
-			this.selectFrom(memberType, parsedUnit, false);
+
+			selectFrom(memberType, parsedUnit, false);
 		}
 	}
-	
+
 	private void selectStaticFieldFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
 		int fieldLength = lastToken.length;
 		FieldBinding[] fields = ref.availableFields();
 		next : for (int j = 0; j < fields.length; j++) {
 			FieldBinding field = fields[j];
-			
+
 			if (fieldLength > field.name.length)
 				continue next;
-			
+
 			if (field.isSynthetic())
 				continue next;
 
@@ -777,17 +777,17 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 			if (!CharOperation.equals(lastToken, field.name, true))
 				continue next;
-			
-			this.selectFrom(field, parsedUnit, false);
+
+			selectFrom(field, parsedUnit, false);
 		}
 	}
-	
+
 	private void selectStaticMethodFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
 		int methodLength = lastToken.length;
 		MethodBinding[] methods = ref.availableMethods();
 		next : for (int j = 0; j < methods.length; j++) {
 			MethodBinding method = methods[j];
-			
+
 			if (method.isSynthetic()) continue next;
 
 			if (method.isDefaultAbstract())	continue next;
@@ -801,8 +801,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 			if (!CharOperation.equals(lastToken, method.selector, true))
 				continue next;
-			
-			this.selectFrom(method, parsedUnit, false);
+
+			selectFrom(method, parsedUnit, false);
 		}
 	}
 
@@ -811,7 +811,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) binding;
 			Binding enclosingElement = typeVariableBinding.declaringElement;
 			this.noProposal = false;
-			
+
 			if(enclosingElement instanceof SourceTypeBinding) {
 				SourceTypeBinding enclosingType = (SourceTypeBinding) enclosingElement;
 				if (isLocal(enclosingType) && this.requestor instanceof SelectionRequestor) {
@@ -876,7 +876,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if (binding instanceof MethodBinding) {
 				MethodBinding methodBinding = (MethodBinding) binding;
 				this.noProposal = false;
-				
+
 				boolean isValuesOrValueOf = false;
 				if(binding instanceof SyntheticMethodBinding) {
 					SyntheticMethodBinding syntheticMethodBinding = (SyntheticMethodBinding) binding;
@@ -885,7 +885,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						isValuesOrValueOf =  true;
 					}
 				}
-						
+
 				if(!isValuesOrValueOf && !methodBinding.isSynthetic()) {
 					TypeBinding[] parameterTypes = methodBinding.original().parameters;
 					int length = parameterTypes.length;
@@ -897,7 +897,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
 						parameterSignatures[i] = new String(getSignature(parameterTypes[i])).replace('/', '.');
 					}
-					
+
 					TypeVariableBinding[] typeVariables = methodBinding.original().typeVariables;
 					length = typeVariables == null ? 0 : typeVariables.length;
 					char[][] typeParameterNames = new char[length][];
@@ -922,7 +922,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							}
 						}
 					}
-					
+
 					ReferenceBinding declaringClass = methodBinding.declaringClass;
 					if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
 						((SelectionRequestor)this.requestor).acceptLocalMethod(methodBinding);
@@ -939,7 +939,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							parameterSignatures,
 							typeParameterNames,
 							typeParameterBoundNames,
-							methodBinding.isConstructor(), 
+							methodBinding.isConstructor(),
 							isDeclaration,
 							methodBinding.computeUniqueKey(),
 							this.actualSelectionStart,
@@ -991,16 +991,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									this.acceptedAnswer = true;
 								}
 	}
-	
+
 	/*
 	 * Checks if a local declaration got selected in this method/initializer/field.
 	 */
 	private void selectLocalDeclaration(ASTNode node) {
 		// the selected identifier is not identical to the parser one (equals but not identical),
 		// for traversing the parse tree, the parser assist identifier is necessary for identitiy checks
-		final char[] assistIdentifier = this.getParser().assistIdentifier();
+		final char[] assistIdentifier = getParser().assistIdentifier();
 		if (assistIdentifier == null) return;
-		
+
 		class Visitor extends ASTVisitor {
 			public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 				if (constructorDeclaration.selector == assistIdentifier){
@@ -1063,7 +1063,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				return true;
 			}
 		}
-		
+
 		if (node instanceof AbstractMethodDeclaration) {
 			((AbstractMethodDeclaration)node).traverse(new Visitor(), (ClassScope)null);
 		} else {
@@ -1085,7 +1085,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	public void selectType(char[] typeName, IType context) throws JavaModelException {
 		try {
 			this.acceptedAnswer = false;
-			
+
 			// only the type erasure are returned by IType.resolvedType(...)
 			if (CharOperation.indexOf('<', typeName) != -1) {
 				char[] typeSig = Signature.createCharArrayTypeSignature(typeName, false/*not resolved*/);
@@ -1100,7 +1100,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				outerType = parent;
 				parent = parent.getDeclaringType();
 			}
-			
+
 			// compute parse tree for this most outer type
 			CompilationUnitDeclaration parsedUnit = null;
 			TypeDeclaration typeDeclaration = null;
@@ -1115,13 +1115,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				ISourceType outerTypeInfo = (ISourceType) ((SourceType) outerType).getElementInfo();
 				CompilationResult result = new CompilationResult(outerTypeInfo.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 				int flags = SourceTypeConverter.FIELD_AND_METHOD | SourceTypeConverter.MEMBER_TYPE;
-				if (context.isAnonymous() || context.isLocal()) 
+				if (context.isAnonymous() || context.isLocal())
 					flags |= SourceTypeConverter.LOCAL_TYPE;
 				parsedUnit =
 					SourceTypeConverter.buildCompilationUnit(
 							topLevelInfos,
 							flags,
-							this.parser.problemReporter(), 
+							this.parser.problemReporter(),
 							result);
 				if (parsedUnit != null && parsedUnit.types != null) {
 					if(DEBUG) {
@@ -1130,14 +1130,14 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 					// find the type declaration that corresponds to the original source type
 					typeDeclaration = new ASTNodeFinder(parsedUnit).findType(context);
-				} 
+				}
 			} else { // binary type
 				ClassFile classFile = (ClassFile) context.getClassFile();
 				ClassFileReader reader = (ClassFileReader) classFile.getBinaryTypeInfo((IFile) classFile.resource(), false/*don't fully initialize so as to keep constant pool (used below)*/);
 				CompilationResult result = new CompilationResult(reader.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 				parsedUnit = new CompilationUnitDeclaration(this.parser.problemReporter(), result, 0);
 				HashSetOfCharArrayArray typeNames = new HashSetOfCharArrayArray();
-				
+
 				BinaryTypeConverter converter = new BinaryTypeConverter(this.parser.problemReporter(), result, typeNames);
 				typeDeclaration = converter.buildTypeDeclaration(context, parsedUnit);
 				parsedUnit.imports = converter.buildImports(reader);
@@ -1204,9 +1204,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 		// the selected identifier is not identical to the parser one (equals but not identical),
 		// for traversing the parse tree, the parser assist identifier is necessary for identitiy checks
-		char[] assistIdentifier = this.getParser().assistIdentifier();
+		char[] assistIdentifier = getParser().assistIdentifier();
 		if (assistIdentifier == null) return false;
-		
+
 		ImportReference currentPackage = compilationUnit.currentPackage;
 		char[] packageName = currentPackage == null ? CharOperation.NO_CHAR : CharOperation.concatWith(currentPackage.tokens, '.');
 		// iterate over the types
@@ -1220,17 +1220,17 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	// Check if a declaration got selected in this type
 	private boolean selectDeclaration(TypeDeclaration typeDeclaration, char[] assistIdentifier, char[] packageName){
-	
+
 		if (typeDeclaration.name == assistIdentifier){
 			char[] qualifiedSourceName = null;
-			
+
 			TypeDeclaration enclosingType = typeDeclaration;
 			while(enclosingType != null) {
 				qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
 				enclosingType = enclosingType.enclosingType;
 			}
 			char[] uniqueKey = typeDeclaration.binding != null ? typeDeclaration.binding.computeUniqueKey() : null;
-			
+
 			this.requestor.acceptType(
 				packageName,
 				qualifiedSourceName,
@@ -1239,7 +1239,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				uniqueKey,
 				this.actualSelectionStart,
 				this.actualSelectionEnd);
-			
+
 			this.noProposal = false;
 			return true;
 		}
@@ -1252,7 +1252,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		for (int i = 0, length = fields == null ? 0 : fields.length; i < length; i++){
 			if (fields[i].name == assistIdentifier){
 				char[] qualifiedSourceName = null;
-				
+
 				TypeDeclaration enclosingType = typeDeclaration;
 				while(enclosingType != null) {
 					qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
@@ -1275,16 +1275,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 		for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++){
 			AbstractMethodDeclaration method = methods[i];
-			
+
 			if (method.selector == assistIdentifier){
 				char[] qualifiedSourceName = null;
-				
+
 				TypeDeclaration enclosingType = typeDeclaration;
 				while(enclosingType != null) {
 					qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
 					enclosingType = enclosingType.enclosingType;
 				}
-				
+
 				this.requestor.acceptMethod(
 					packageName,
 					qualifiedSourceName,
@@ -1300,24 +1300,24 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					method.binding != null ? method.binding.computeUniqueKey() : null,
 					this.actualSelectionStart,
 					this.actualSelectionEnd);
-				
+
 				this.noProposal = false;
 				return true;
 			}
-			
+
 			TypeParameter[] methodTypeParameters = method.typeParameters();
 			for (int j = 0, length2 = methodTypeParameters == null ? 0 : methodTypeParameters.length; j < length2; j++){
 				TypeParameter methodTypeParameter = methodTypeParameters[j];
-				
+
 				if(methodTypeParameter.name == assistIdentifier) {
 					char[] qualifiedSourceName = null;
-					
+
 					TypeDeclaration enclosingType = typeDeclaration;
 					while(enclosingType != null) {
 						qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
 						enclosingType = enclosingType.enclosingType;
 					}
-					
+
 					this.requestor.acceptMethodTypeParameter(
 						packageName,
 						qualifiedSourceName,
@@ -1328,25 +1328,25 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						true,
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
-					
+
 					this.noProposal = false;
 					return true;
 				}
 			}
 		}
-		
+
 		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
 		for (int i = 0, length = typeParameters == null ? 0 : typeParameters.length; i < length; i++){
 			TypeParameter typeParameter = typeParameters[i];
 			if(typeParameter.name == assistIdentifier) {
 				char[] qualifiedSourceName = null;
-				
+
 				TypeDeclaration enclosingType = typeDeclaration;
 				while(enclosingType != null) {
 					qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
 					enclosingType = enclosingType.enclosingType;
 				}
-				
+
 				this.requestor.acceptTypeParameter(
 					packageName,
 					qualifiedSourceName,
@@ -1354,12 +1354,12 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					true,
 					this.actualSelectionStart,
 					this.actualSelectionEnd);
-				
+
 				this.noProposal = false;
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 }

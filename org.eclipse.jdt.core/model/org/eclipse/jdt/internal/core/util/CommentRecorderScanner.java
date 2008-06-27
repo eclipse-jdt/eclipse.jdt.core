@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
 /**
  * Internal scanner used for DOM AST nodes.
- * 
+ *
  * @since 3.0
  */
 public class CommentRecorderScanner extends Scanner {
@@ -29,7 +29,7 @@ public class CommentRecorderScanner extends Scanner {
 		boolean isTaskCaseSensitive) {
 		super(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, sourceLevel, taskTags, taskPriorities, isTaskCaseSensitive);
 	}
-	
+
 	/**
 	 * Set start position negative for line comments.
 	 * @see org.eclipse.jdt.internal.compiler.parser.Scanner#recordComment(int)

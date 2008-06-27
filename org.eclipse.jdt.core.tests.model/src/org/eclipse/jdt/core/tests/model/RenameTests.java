@@ -27,7 +27,7 @@ public RenameTests(String name) {
 	super(name);
 }
 /**
- * Attempts to rename the elements with optional 
+ * Attempts to rename the elements with optional
  * forcing. The operation should fail with the failure code.
  */
 public void renameNegative(IJavaElement[] elements ,String[] renamings, boolean force, int failureCode) {
@@ -35,14 +35,14 @@ public void renameNegative(IJavaElement[] elements ,String[] renamings, boolean 
 		//rename
 	 	getJavaModel().rename(elements, new IJavaElement[]{elements[0].getParent()}, renamings, force, null);
 	} catch (JavaModelException jme) {
-		assertTrue("Code not correct for JavaModelException: "  + jme, jme.getStatus().getCode() == failureCode); 
+		assertTrue("Code not correct for JavaModelException: "  + jme, jme.getStatus().getCode() == failureCode);
 		return;
 	}
 	assertTrue("The rename should have failed for multiple renaming", false);
 	return;
 }
 /**
- * Attempts to rename the element with optional 
+ * Attempts to rename the element with optional
  * forcing. The operation should fail with the failure code.
  */
 public void renameNegative(IJavaElement element, String rename, boolean force, int failureCode) {
@@ -57,7 +57,7 @@ public void renameNegative(IJavaElement element, String rename, boolean force, i
 	return;
 }
 /**
- * Renames the element to the container with optional 
+ * Renames the element to the container with optional
  * forcing. The operation should succeed, so any exceptions
  * encountered are thrown.
  */
@@ -65,7 +65,7 @@ public void renamePositive(IJavaElement[] elements, String[] names, boolean forc
 	renamePositive(elements, new IJavaElement[]{elements[0].getParent()}, names, force);
 }
 /**
- * Renames the element to the container with optional 
+ * Renames the element to the container with optional
  * forcing. The operation should succeed, so any exceptions
  * encountered are thrown.
  */
@@ -73,7 +73,7 @@ public void renamePositive(IJavaElement[] elements, IJavaElement[] destinations,
 	renamePositive(elements, destinations, names, force, false);
 }
 /**
- * Renames the element to the container with optional 
+ * Renames the element to the container with optional
  * forcing. The operation should succeed, so any exceptions
  * encountered are thrown.
  */
@@ -81,7 +81,7 @@ public void renamePositive(IJavaElement[] elements, IJavaElement[] destinations,
 	renamePositive(elements, destinations, names, force, originalShouldExist, null);
 }
 /**
- * Renames the element to the container with optional 
+ * Renames the element to the container with optional
  * forcing. The operation should succeed, so any exceptions
  * encountered are thrown.
  */
@@ -124,7 +124,7 @@ public void renamePositive(IJavaElement[] elements, IJavaElement[] destinations,
 	}
 }
 /**
- * Renames the element to the container with optional 
+ * Renames the element to the container with optional
  * forcing. The operation should succeed, so any exceptions
  * encountered are thrown.
  */
@@ -155,12 +155,12 @@ public void setUp() throws Exception {
 		"}"
 	);
 	this.cu = getCompilationUnit("/P/src/X.java");
-	
+
 	startDeltas();
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	IJavaProject project = this.createJavaProject("BinaryProject", new String[] {"src"}, new String[] {"JCL_LIB"}, "lib");
 	this.createFile(
 		"/BinaryProject/src/X.java",
@@ -235,9 +235,9 @@ public void testRenameBinaryType() throws JavaModelException {
  */
 public void testRenameCompilationUnitAndType() {
 	renameNegative(
-		new IJavaElement[] {this.cu, this.cu.getType("X")}, 
-		new String[]{"Y.java", "Y"}, 
-		false, 
+		new IJavaElement[] {this.cu, this.cu.getType("X")},
+		new String[]{"Y.java", "Y"},
+		false,
 		IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
 }
 /**
@@ -250,7 +250,7 @@ public void testRenameCompilationUnitResultingInCollision() throws CoreException
 		"public class Y {\n" +
 		"}"
 	);
-	
+
 	renameNegative(this.cu, "Y.java", false, IJavaModelStatusConstants.NAME_COLLISION);
 	renamePositive(this.cu, "Y.java", true);
 }
@@ -266,26 +266,26 @@ public void testRenameCompilationUnitsCheckingDeltas() throws CoreException{
 		"}"
 	);
 	ICompilationUnit cu2 = this.getCompilationUnit("/P/src/Y.java");
-	
+
 	clearDeltas();
 	renamePositive(
-		new ICompilationUnit[] {this.cu, cu2}, 
-		new String[] {"NewX.java", "NewY.java"}, 
+		new ICompilationUnit[] {this.cu, cu2},
+		new String[] {"NewX.java", "NewY.java"},
 		false);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
-		"		<default>[*]: {CHILDREN}\n" + 
-		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}\n" + 
-		"			NewY.java[+]: {MOVED_FROM(Y.java [in <default> [in src [in P]]])}\n" + 
-		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
+		"		<default>[*]: {CHILDREN}\n" +
+		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}\n" +
+		"			NewY.java[+]: {MOVED_FROM(Y.java [in <default> [in src [in P]]])}\n" +
+		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}\n" +
 		"			Y.java[-]: {MOVED_TO(NewY.java [in <default> [in src [in P]]])}"
 	);
 }
 /**
- * Ensures that a compilation unit cannot be renamed to an invalid name.  
+ * Ensures that a compilation unit cannot be renamed to an invalid name.
  * The new name for a cu must end in .java and be a valid Java identifier.
  */
 public void testRenameCompilationUnitWithInvalidName() {
@@ -306,7 +306,7 @@ public void testRenameCompilationUnitWithNull() throws JavaModelException {
 }
 /**
  * Ensures that a construtor cannot be renamed using the
- * <code>RenameElementsOperation</code>.  
+ * <code>RenameElementsOperation</code>.
  */
 public void testRenameConstructor() {
 	IMethod constructor = this.cu.getType("X").getMethod("X",  new String[] {"I"});
@@ -314,15 +314,15 @@ public void testRenameConstructor() {
 }
 
 /**
- * 
+ *
  */
 public void testRenameCU() throws CoreException {
 	this.cu.rename("NewX.java", false, null);
-	assertTrue("Original CU should not exist", !cu.exists());
+	assertTrue("Original CU should not exist", !this.cu.exists());
 
 	ICompilationUnit newCU = getCompilationUnit("/P/src/NewX.java");
 	assertTrue("New CU should exist", newCU.exists());
-	
+
 	assertTypesEqual(
 		"Unexpected types",
 		"NewX\n",
@@ -330,10 +330,10 @@ public void testRenameCU() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
-		"		<default>[*]: {CHILDREN}\n" + 
-		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
+		"		<default>[*]: {CHILDREN}\n" +
+		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}\n" +
 		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}"
 	);
 }
@@ -351,11 +351,11 @@ public void testRenameCUForce() throws CoreException {
 	ICompilationUnit destCU = getCompilationUnit("/P/src/Y.java");
 	IFile destFile = (IFile)destCU.getResource();
 
-	assertTrue("Original CU should not exist", !cu.exists());
+	assertTrue("Original CU should not exist", !this.cu.exists());
 	assertTrue("Original file should not exist", !file.exists());
 	assertTrue("Destination CU should exist", destCU.exists());
 	assertTrue("Destination file should exist", destFile.exists());
-	
+
 	assertTypesEqual(
 		"Unexpected types",
 		"Y\n",
@@ -363,10 +363,10 @@ public void testRenameCUForce() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
-		"		<default>[*]: {CHILDREN}\n" + 
-		"			X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
+		"		<default>[*]: {CHILDREN}\n" +
+		"			X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}\n" +
 		"			Y.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}"
 	);
 }
@@ -379,13 +379,13 @@ public void testRenameEmptyPF() throws CoreException {
 
 	clearDeltas();
 	getPackage("/P/src/x/y/z").rename("x.y", false, null);
-	
+
 	IPackageFragment newFrag = getPackage("/P/src/x/y");
 	assertTrue("New package should exist", newFrag.exists());
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
 		"		x.y.z[-]: {MOVED_TO(x.y [in src [in P]])}\n" +
 		"		x.y[+]: {MOVED_FROM(x.y.z [in src [in P]])}"
 	);
@@ -451,7 +451,7 @@ public void testRenameEnum2() throws CoreException {
 	}
 }
 /**
- * Ensures that fields can be renamed.  
+ * Ensures that fields can be renamed.
  * Verifies that the proper change deltas are generated as a side effect
  * of running the operation. As well ensures that the fields are
  * positioned in the same location as before the rename.
@@ -460,15 +460,15 @@ public void testRenameFieldsCheckingDeltasAndPositions() throws JavaModelExcepti
 	IType type = this.cu.getType("X");
 	IField field = type.getField("bar");
 	renamePositive(field, "fred", false);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
-		"		<default>[*]: {CHILDREN}\n" + 
-		"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
-		"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"					bar[-]: {}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
+		"		<default>[*]: {CHILDREN}\n" +
+		"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
+		"				X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"					bar[-]: {}\n" +
 		"					fred[+]: {}"
 	);
 	ensureCorrectPositioning(type, type.getField("fred"), type.getField("other"));
@@ -490,7 +490,7 @@ public void testRenameFieldFragment() throws Exception {
     renamePositive(field, "int2_renamed", false);
 }
 /**
- * Ensures that fields can be renamed even if one of the renamings fails.  
+ * Ensures that fields can be renamed even if one of the renamings fails.
  */
 public void testRenameFieldsMultiStatus() throws CoreException {
 	String addition = "multiStatus";
@@ -513,18 +513,18 @@ public void testRenameFieldsMultiStatus() throws CoreException {
 		e = true;
 	}
 	assertTrue("Should have been an exception", e);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
-		"		<default>[*]: {CHILDREN}\n" + 
-		"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
-		"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"					multiStatusother[+]: {}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
+		"		<default>[*]: {CHILDREN}\n" +
+		"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
+		"				X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"					multiStatusother[+]: {}\n" +
 		"					other[-]: {}"
 	);
-	
+
 	IJavaElement copy = generateHandle(iFields[0], newNames[0], type);
 	assertTrue("Copy should exist", copy.exists());
 }
@@ -603,11 +603,11 @@ public void testRenameMainTypes() throws CoreException {
 		new IJavaElement[] {
 			this.cu.getType("X"),
 			cu2.getType("Y")
-		}, 
+		},
 		new IJavaElement[] {
-			types[0].getParent(), 
-			types[1].getParent()}, 
-		newNames, 
+			types[0].getParent(),
+			types[1].getParent()},
+		newNames,
 		false);
 
 	//test that both the compilation unit, main type and constructors have been renamed.
@@ -617,7 +617,7 @@ public void testRenameMainTypes() throws CoreException {
 	IType newType2 = renamedCU2.getType("NewY");
 	assertTrue("NewX should be present", newType1.exists());
 	assertTrue("NewY should be present", newType2.exists());
-	
+
 	IMethod constructor1 = newType1.getMethod("NewX", new String[] {"I"});
 	IMethod constructor2 = newType2.getMethod("NewY", new String[] {});
 	assertTrue("NewX(int) should be present", constructor1.exists());
@@ -653,7 +653,7 @@ public void testRenameMainTypesAndAChild() throws CoreException {
 	for (int i = 0; i < elements.length; i++) {
 		destinations[i] = elements[i].getParent();
 	}
-	
+
 	getJavaModel().rename(elements, destinations, newNames, false, null);
 
 	//test that both the compilation unit and the main type have been renamed.
@@ -661,11 +661,11 @@ public void testRenameMainTypesAndAChild() throws CoreException {
 	ICompilationUnit renamedCU1= pkg.getCompilationUnit("NewX.java");
 	IType newX = renamedCU1.getType("NewX");
 	assertTrue("NewX should be present", newX.exists());
-	
+
 	ICompilationUnit renamedCU2= pkg.getCompilationUnit("NewY.java");
 	IType newY = renamedCU2.getType("NewY");
 	assertTrue("NewY should be present", newY.exists());
-	
+
 	IField newBar = newX.getField("newBar");
 	assertTrue("Renamed field should exist", newBar.exists());
 }
@@ -676,11 +676,11 @@ public void testRenameMethod() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	IMethod method = type.getMethod("foo", new String[] {"QString;"});
 	renamePositive(method, "newFoo", false);
-	
+
 	//ensure that the method did not move as a result of the rename
 	ensureCorrectPositioning(
-		type, 
-		type.getMethod("newFoo", new String[] {"QString;"}), 
+		type,
+		type.getMethod("newFoo", new String[] {"QString;"}),
 		type.getMethod("otherMethod", new String[] {"QString;"}));
 }
 /**
@@ -710,27 +710,27 @@ public void testRenamePF() throws CoreException {
 	IPackageFragment frag = getPackage("/P/src/x/y/z");
 	clearDeltas();
 	frag.rename("x.y.newZ", false, null);
-	
+
 	IPackageFragment newFrag = getPackage("/P/src/x/y/newZ");
 	assertTrue("Old package should not exist", !frag.exists());
 	assertTrue("New package should exist", newFrag.exists());
 
 	ICompilationUnit compilationUnit = newFrag.getCompilationUnit("A.java");
 	assertTrue("A.java should exits in new package", compilationUnit.exists());
-	
+
 	IType[] types = compilationUnit.getTypes();
 	assertTrue(types != null && types.length == 1);
 	IType mainType = types[0];
 	assertEquals(
-		"Unexpected A.java's main type'", 
+		"Unexpected A.java's main type'",
 		"x.y.newZ.A",
 		mainType.getFullyQualifiedName());
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
-		"		x.y.newZ[+]: {MOVED_FROM(x.y.z [in src [in P]])}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
+		"		x.y.newZ[+]: {MOVED_FROM(x.y.z [in src [in P]])}\n" +
 		"		x.y.z[-]: {MOVED_TO(x.y.newZ [in src [in P]])}"
 	);
 }
@@ -750,26 +750,26 @@ public void testRenamePF2() throws CoreException {
 	IPackageFragment frag = getPackage("/P/src/x/y/z");
 	clearDeltas();
 	frag.rename("x.y. z2", false, null);
-	
+
 	IPackageFragment newFrag = getPackage("/P/src/x/y/z2");
 	assertTrue("Old package should not exist", !frag.exists());
 	assertTrue("New package should exist", newFrag.exists());
 
 	ICompilationUnit compilationUnit = newFrag.getCompilationUnit("A.java");
 	assertTrue("A.java should exits in new package", compilationUnit.exists());
-	
+
 	IType[] types = compilationUnit.getTypes();
 	assertTrue(types != null && types.length == 1);
 	IType mainType = types[0];
 	assertEquals(
-		"Unexpected A.java's main type'", 
+		"Unexpected A.java's main type'",
 		"x.y.z2.A",
 		mainType.getFullyQualifiedName());
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
 		"		x.y.z2[+]: {MOVED_FROM(x.y.z [in src [in P]])}\n" +
 		"		x.y.z[-]: {MOVED_TO(x.y.z2 [in src [in P]])}"
 	);
@@ -810,7 +810,7 @@ public void testRenamePFWithSubPackages() throws CoreException {
 
 	clearDeltas();
 	getPackage("/P/src/x").rename("newX", false, null);
-	
+
 	IPackageFragment oldFrag = getPackage("/P/src/x/y/z");
 	assertTrue("Old inner package should still exist", oldFrag.exists());
 
@@ -819,11 +819,11 @@ public void testRenamePFWithSubPackages() throws CoreException {
 
 	ICompilationUnit compilationUnit = oldFrag.getCompilationUnit("A.java");
 	assertTrue("A.java should exits in old inner package", compilationUnit.exists());
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
 		"		newX[+]: {}"
 	);
 }
@@ -848,15 +848,15 @@ public void testRenameWithInvalidRenamings() {
 	IMethod method = getCompilationUnit("/P/src/X.java").getType("X").getMethod("foo", null);
 
 	renameNegative(
-		new IJavaElement[] {method}, 
-		new String[]{"", ""}, 
-		false, 
+		new IJavaElement[] {method},
+		new String[]{"", ""},
+		false,
 		IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
 
 	renameNegative(
-		new IJavaElement[] {method}, 
-		null, 
-		false, 
+		new IJavaElement[] {method},
+		null,
+		false,
 		IJavaModelStatusConstants.NULL_NAME);
 }
 /**

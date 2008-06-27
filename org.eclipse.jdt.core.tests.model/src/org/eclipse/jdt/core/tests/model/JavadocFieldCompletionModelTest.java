@@ -58,15 +58,15 @@ public void test001() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@");
 	assertResults(
-		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -113,7 +113,7 @@ public void test004() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@ser");
 	assertResults(
-		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -147,13 +147,13 @@ public void test006() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@");
 	assertResults(
-		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -171,17 +171,17 @@ public void test007() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@");
 	assertResults(
-		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -191,12 +191,12 @@ public void test007() throws JavaModelException {
  */
 public void test010() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see Obj\n" + 
-		"	 */\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see Obj\n" +
+		"	 */\n" +
 		"	int field;\n" +
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "Obj");
@@ -207,30 +207,30 @@ public void test010() throws JavaModelException {
 
 public void test011() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see BasicTest\n" + 
-		"	 */\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see BasicTest\n" +
+		"	 */\n" +
 		"	int field;\n" +
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "BasicTest", 2);
 	assertResults(
-		"BasicTestFields[TYPE_REF]{BasicTestFields, javadoc.fields.tags, Ljavadoc.fields.tags.BasicTestFields;, null, null, "+this.positions+R_DRICUNR+"}\n" + 
+		"BasicTestFields[TYPE_REF]{BasicTestFields, javadoc.fields.tags, Ljavadoc.fields.tags.BasicTestFields;, null, null, "+this.positions+R_DRICUNR+"}\n" +
 		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
 public void test012() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see javadoc.fields.tags.BasicTest\n" + 
-		"	 * 		Note: JDT-UI failed on this one\n" + 
-		"	 */\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see javadoc.fields.tags.BasicTest\n" +
+		"	 * 		Note: JDT-UI failed on this one\n" +
+		"	 */\n" +
 		"	int field;\n" +
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "javadoc.fields.tags.BasicTest");
@@ -241,13 +241,13 @@ public void test012() throws JavaModelException {
 
 public void test013() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see java.la\n" + 
-		"	 * 		Note: JDT-UI fails on this one\n" + 
-		"	 */\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see java.la\n" +
+		"	 * 		Note: JDT-UI fails on this one\n" +
+		"	 */\n" +
 		"	int field;\n" +
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "java.la");
@@ -258,36 +258,36 @@ public void test013() throws JavaModelException {
 
 public void test014() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see pack.Bin\n" + 
-		"	 */\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see pack.Bin\n" +
+		"	 */\n" +
 		"	int field;\n" +
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "pack.Bin");
 	assertSortedResults(
-		"Bin1[TYPE_REF]{pack.Bin1, pack, Lpack.Bin1;, null, null, "+this.positions+R_DRICQNR+"}\n" + 
-		"Bin2[TYPE_REF]{pack.Bin2, pack, Lpack.Bin2;, null, null, "+this.positions+R_DRICQNR+"}\n" + 
+		"Bin1[TYPE_REF]{pack.Bin1, pack, Lpack.Bin1;, null, null, "+this.positions+R_DRICQNR+"}\n" +
+		"Bin2[TYPE_REF]{pack.Bin2, pack, Lpack.Bin2;, null, null, "+this.positions+R_DRICQNR+"}\n" +
 		"Bin3[TYPE_REF]{pack.Bin3, pack, Lpack.Bin3;, null, null, "+this.positions+R_DRICQNR+"}"
 	);
 }
 
 public void test015() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see I\n" + 
-		"	 * 		Note: completion list shoud not include base types.\n" + 
-		"	 */\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see I\n" +
+		"	 * 		Note: completion list shoud not include base types.\n" +
+		"	 */\n" +
 		"	int field;\n" +
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "I");
 	assertSortedResults(
-		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNR+"}\n" + 
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNR+"}\n" +
 		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNR+"}"
 	);
 }
@@ -297,13 +297,13 @@ public void test015() throws JavaModelException {
  */
 public void test020() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see #fo\n" + 
-		"	 */\n" + 
-		"	int foo;\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see #fo\n" +
+		"	 */\n" +
+		"	int foo;\n" +
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "fo");
 	assertResults(
@@ -313,13 +313,13 @@ public void test020() throws JavaModelException {
 
 public void test021() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see BasicTestFields#fo\n" + 
-		"	 */\n" + 
-		"	int foo;\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see BasicTestFields#fo\n" +
+		"	 */\n" +
+		"	int foo;\n" +
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "fo");
 	assertResults(
@@ -329,13 +329,13 @@ public void test021() throws JavaModelException {
 
 public void test022() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see javadoc.fields.tags.BasicTestFields#fo\n" + 
-		"	 */\n" + 
-		"	int foo;\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see javadoc.fields.tags.BasicTestFields#fo\n" +
+		"	 */\n" +
+		"	int foo;\n" +
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "fo");
 	assertResults(
@@ -346,17 +346,17 @@ public void test022() throws JavaModelException {
 public void test023() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/fields/tags/BasicTestFields.java",
-			"package javadoc.fields.tags;\n" + 
-			"public class BasicTestFields {\n" + 
-			"	/**\n" + 
-			"	 * Completion after:\n" + 
-			"	 * 	@see OtherFields#oth\n" + 
-			"	 */\n" + 
+			"package javadoc.fields.tags;\n" +
+			"public class BasicTestFields {\n" +
+			"	/**\n" +
+			"	 * Completion after:\n" +
+			"	 * 	@see OtherFields#oth\n" +
+			"	 */\n" +
 			"	int foo;\n" +
 			"}",
 		"/Completion/src/javadoc/fields/tags/OtherFields.java",
-			"package javadoc.fields.tags;\n" + 
-			"public class OtherFields {\n" + 
+			"package javadoc.fields.tags;\n" +
+			"public class OtherFields {\n" +
 			"	int other;\n" +
 			"}"
 	};
@@ -368,104 +368,104 @@ public void test023() throws JavaModelException {
 
 public void test024() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see #\n" + 
-		"	 */\n" + 
-		"	int foo;\n" + 
-		"	Object obj;\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see #\n" +
+		"	 */\n" +
+		"	int foo;\n" +
+		"	Object obj;\n" +
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "#", 0); // completion on empty token
 	assertResults(
-		"obj[FIELD_REF]{obj, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, obj, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"foo[FIELD_REF]{foo, Ljavadoc.fields.tags.BasicTestFields;, I, foo, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DRICNRNS+"}\n" + 
-		"wait[METHOD_REF]{wait(long), Ljava.lang.Object;, (J)V, wait, (millis), "+this.positions+R_DRICNRNS+"}\n" + 
-		"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DRICNRNS+"}\n" + 
-		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" + 
+		"obj[FIELD_REF]{obj, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, obj, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"foo[FIELD_REF]{foo, Ljavadoc.fields.tags.BasicTestFields;, I, foo, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DRICNRNS+"}\n" +
+		"wait[METHOD_REF]{wait(long), Ljava.lang.Object;, (J)V, wait, (millis), "+this.positions+R_DRICNRNS+"}\n" +
+		"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DRICNRNS+"}\n" +
+		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"BasicTestFields[METHOD_REF<CONSTRUCTOR>]{BasicTestFields(), Ljavadoc.fields.tags.BasicTestFields;, ()V, BasicTestFields, null, "+this.positions+R_DRINR+"}"
 	);
 }
 
 public void test025() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see BasicTestFields#\n" + 
-		"	 */\n" + 
-		"	int foo;\n" + 
-		"	Object obj;\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see BasicTestFields#\n" +
+		"	 */\n" +
+		"	int foo;\n" +
+		"	Object obj;\n" +
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "#", 0); // completion on empty token
 	assertResults(
-		"obj[FIELD_REF]{obj, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, obj, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"foo[FIELD_REF]{foo, Ljavadoc.fields.tags.BasicTestFields;, I, foo, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DRICNRNS+"}\n" + 
-		"wait[METHOD_REF]{wait(long), Ljava.lang.Object;, (J)V, wait, (millis), "+this.positions+R_DRICNRNS+"}\n" + 
-		"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DRICNRNS+"}\n" + 
-		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" + 
+		"obj[FIELD_REF]{obj, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, obj, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"foo[FIELD_REF]{foo, Ljavadoc.fields.tags.BasicTestFields;, I, foo, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DRICNRNS+"}\n" +
+		"wait[METHOD_REF]{wait(long), Ljava.lang.Object;, (J)V, wait, (millis), "+this.positions+R_DRICNRNS+"}\n" +
+		"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DRICNRNS+"}\n" +
+		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"BasicTestFields[METHOD_REF<CONSTRUCTOR>]{BasicTestFields(), Ljavadoc.fields.tags.BasicTestFields;, ()V, BasicTestFields, null, "+this.positions+R_DRINR+"}"
 	);
 }
 
 public void test026() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see javadoc.fields.tags.BasicTestFields#\n" + 
-		"	 */\n" + 
-		"	int foo;\n" + 
-		"	Object obj;\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see javadoc.fields.tags.BasicTestFields#\n" +
+		"	 */\n" +
+		"	int foo;\n" +
+		"	Object obj;\n" +
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "#", 0); // completion on empty token
 	assertResults(
-		"obj[FIELD_REF]{obj, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, obj, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"foo[FIELD_REF]{foo, Ljavadoc.fields.tags.BasicTestFields;, I, foo, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DRICNRNS+"}\n" + 
-		"wait[METHOD_REF]{wait(long), Ljava.lang.Object;, (J)V, wait, (millis), "+this.positions+R_DRICNRNS+"}\n" + 
-		"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DRICNRNS+"}\n" + 
-		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DRICNRNS+"}\n" + 
-		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" + 
+		"obj[FIELD_REF]{obj, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, obj, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"foo[FIELD_REF]{foo, Ljavadoc.fields.tags.BasicTestFields;, I, foo, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+this.positions+R_DRICNRNS+"}\n" +
+		"wait[METHOD_REF]{wait(long), Ljava.lang.Object;, (J)V, wait, (millis), "+this.positions+R_DRICNRNS+"}\n" +
+		"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DRICNRNS+"}\n" +
+		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"BasicTestFields[METHOD_REF<CONSTRUCTOR>]{BasicTestFields(), Ljavadoc.fields.tags.BasicTestFields;, ()V, BasicTestFields, null, "+this.positions+R_DRINR+"}"
 	);
 }
 
 public void test027() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see BasicTestReferences#FIE\n" + 
-		"	 */\n" + 
-		"	int foo;\n" + 
-		"	Object obj;\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see BasicTestReferences#FIE\n" +
+		"	 */\n" +
+		"	int foo;\n" +
+		"	Object obj;\n" +
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "FIE");
 	assertResults("");
@@ -473,14 +473,14 @@ public void test027() throws JavaModelException {
 
 public void test028() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see org.eclipse.jdt.core.tests.BasicTestReferences#FIE\n" + 
-		"	 */\n" + 
-		"	int foo;\n" + 
-		"	Object obj;\n" + 
+		"package javadoc.fields.tags;\n" +
+		"public class BasicTestFields {\n" +
+		"	/**\n" +
+		"	 * Completion after:\n" +
+		"	 * 	@see org.eclipse.jdt.core.tests.BasicTestReferences#FIE\n" +
+		"	 */\n" +
+		"	int foo;\n" +
+		"	Object obj;\n" +
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "FIE");
 	assertResults(
@@ -493,27 +493,27 @@ public void test028() throws JavaModelException {
 public void test030() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
+		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
-		
+
 		String source =
-			"package javadoc.fields.tags;\n" + 
-			"public class BasicTestFields {\n" + 
-			"	Object oneTwoThree;\n" + 
-			"	/**\n" + 
-			"	 * Completion after:\n" + 
-			"	 * 	@see #oTT\n" + 
-			"	 */\n" + 
-			"	int foo;\n" + 
-			
+			"package javadoc.fields.tags;\n" +
+			"public class BasicTestFields {\n" +
+			"	Object oneTwoThree;\n" +
+			"	/**\n" +
+			"	 * Completion after:\n" +
+			"	 * 	@see #oTT\n" +
+			"	 */\n" +
+			"	int foo;\n" +
+
 			"}";
 		completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "oTT");
 		assertResults(
 			"oneTwoThree[FIELD_REF]{oneTwoThree, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, oneTwoThree, null, "+this.positions+"25}"
 		);
 	} finally {
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 }

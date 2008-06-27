@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.util.HashSetOfInt;
 public class CompilationUnitDeclaration
 	extends ASTNode
 	implements ProblemSeverities, ReferenceContext {
-	
+
 	private static final Comparator STRING_LITERAL_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
 			StringLiteral literal1 = (StringLiteral) o1;
@@ -74,9 +74,9 @@ public class CompilationUnitDeclaration
 
 	long[] suppressWarningIrritants;  // irritant for suppressed warnings
 	Annotation[] suppressWarningAnnotations;
-	long[] suppressWarningScopePositions; // (start << 32) + end 
+	long[] suppressWarningScopePositions; // (start << 32) + end
 	int suppressWarningsCount;
-	
+
 	public CompilationUnitDeclaration(
 		ProblemReporter problemReporter,
 		CompilationResult compilationResult,
@@ -86,8 +86,8 @@ public class CompilationUnitDeclaration
 		this.compilationResult = compilationResult;
 
 		//by definition of a compilation unit....
-		sourceStart = 0;
-		sourceEnd = sourceLength - 1;
+		this.sourceStart = 0;
+		this.sourceEnd = sourceLength - 1;
 	}
 
 	/*
@@ -110,12 +110,12 @@ public class CompilationUnitDeclaration
 	 */
 	public void analyseCode() {
 
-		if (ignoreFurtherInvestigation)
+		if (this.ignoreFurtherInvestigation)
 			return;
 		try {
-			if (types != null) {
-				for (int i = 0, count = types.length; i < count; i++) {
-					types[i].analyseCode(scope);
+			if (this.types != null) {
+				for (int i = 0, count = this.types.length; i < count; i++) {
+					this.types[i].analyseCode(this.scope);
 				}
 			}
 			// request inner emulation propagation
@@ -136,16 +136,16 @@ public class CompilationUnitDeclaration
 				cleanUp(this.types[i]);
 			}
 			for (int i = 0, max = this.localTypeCount; i < max; i++) {
-			    LocalTypeBinding localType = localTypes[i];
+			    LocalTypeBinding localType = this.localTypes[i];
 				// null out the type's scope backpointers
 				localType.scope = null; // local members are already in the list
 				localType.enclosingCase = null;
 			}
 		}
 
-		compilationResult.recoveryScannerData = null; // recovery is already done
+		this.compilationResult.recoveryScannerData = null; // recovery is already done
 
-		ClassFile[] classFiles = compilationResult.getClassFiles();
+		ClassFile[] classFiles = this.compilationResult.getClassFiles();
 		for (int i = 0, max = classFiles.length; i < max; i++) {
 			// clear the classFile back pointer to the bindings
 			ClassFile classFile = classFiles[i];
@@ -154,7 +154,7 @@ public class CompilationUnitDeclaration
 			classFile.innerClassesBindings = null;
 			classFile.missingTypes = null;
 		}
-		
+
 		this.suppressWarningAnnotations = null;
 	}
 	private void cleanUp(TypeDeclaration type) {
@@ -164,7 +164,7 @@ public class CompilationUnitDeclaration
 			}
 		}
 		if (type.binding != null && type.binding.isAnnotationType())
-			compilationResult.hasAnnotations = true;
+			this.compilationResult.hasAnnotations = true;
 		if (type.binding != null) {
 			// null out the type's scope backpointers
 			type.binding.scope = null;
@@ -178,7 +178,7 @@ public class CompilationUnitDeclaration
 				ImportBinding importBinding = this.scope.imports[i];
 				ImportReference importReference = importBinding.reference;
 				if (importReference != null && ((importReference.bits & ASTNode.Used) == 0)){
-					scope.problemReporter().unusedImport(importReference);
+					this.scope.problemReporter().unusedImport(importReference);
 				}
 			}
 		}
@@ -211,7 +211,7 @@ public class CompilationUnitDeclaration
 		CategorizedProblem[] problems = this.compilationResult.problems;
 		int problemCount = this.compilationResult.problemCount;
 		long[] foundIrritants = new long[this.suppressWarningsCount];
-		CompilerOptions options = scope.compilerOptions();
+		CompilerOptions options = this.scope.compilerOptions();
 		boolean hasErrors = false;
 		nextProblem: for (int iProblem = 0, length = problemCount; iProblem < length; iProblem++) {
 			CategorizedProblem problem = problems[iProblem];
@@ -237,8 +237,8 @@ public class CompilationUnitDeclaration
 				// discard suppressed warning
 				removed++;
 				problems[iProblem] = null;
-				if (compilationResult.problemsMap != null) compilationResult.problemsMap.remove(problem);
-				if (compilationResult.firstErrors != null) compilationResult.firstErrors.remove(problem);
+				if (this.compilationResult.problemsMap != null) this.compilationResult.problemsMap.remove(problem);
+				if (this.compilationResult.firstErrors != null) this.compilationResult.firstErrors.remove(problem);
 				foundIrritants[iSuppress] |= irritant;
 				continue nextProblem;
 			}
@@ -281,7 +281,7 @@ public class CompilationUnitDeclaration
 											Constant cst = inits[iToken].constant;
 											if (cst != Constant.NotAConstant && cst.typeID() == TypeIds.T_JavaLangString) {
 												long tokenIrritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
-												if (tokenIrritants != 0 
+												if (tokenIrritants != 0
 														&& ~tokenIrritants != 0 // no complaint against @SuppressWarnings("all")
 														&& options.getSeverity(tokenIrritants) != ProblemSeverities.Ignore // if irritant is effectevely enabled
 														&& (foundIrritants[iSuppress] & tokenIrritants) == 0) { // if irritant had no matching problem
@@ -296,7 +296,7 @@ public class CompilationUnitDeclaration
 															if (~this.suppressWarningIrritants[jSuppress] == 0) break pairLoop; // suppress all?
 														}
 													}
-													scope.problemReporter().unusedWarningToken(inits[iToken]);
+													this.scope.problemReporter().unusedWarningToken(inits[iToken]);
 												}
 											}
 										}
@@ -305,7 +305,7 @@ public class CompilationUnitDeclaration
 									Constant cst = value.constant;
 									if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
 										long tokenIrritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
-										if (tokenIrritants != 0 
+										if (tokenIrritants != 0
 												&& ~tokenIrritants != 0 // no complaint against @SuppressWarnings("all")
 												&& options.getSeverity(tokenIrritants) != ProblemSeverities.Ignore // if irritant is effectevely enabled
 												&& (foundIrritants[iSuppress] & tokenIrritants) == 0) { // if irritant had no matching problem
@@ -320,9 +320,9 @@ public class CompilationUnitDeclaration
 													if (~this.suppressWarningIrritants[jSuppress] == 0) break pairLoop; // suppress all?
 												}
 											}
-											scope.problemReporter().unusedWarningToken(value);
+											this.scope.problemReporter().unusedWarningToken(value);
 										}
-									}	
+									}
 								}
 								break pairLoop;
 							}
@@ -332,28 +332,28 @@ public class CompilationUnitDeclaration
 			}
 		}
 	}
-	
+
 	/**
 	 * Bytecode generation
 	 */
 	public void generateCode() {
-		if (ignoreFurtherInvestigation) {
-			if (types != null) {
-				for (int i = 0, count = types.length; i < count; i++) {
-					types[i].ignoreFurtherInvestigation = true;
+		if (this.ignoreFurtherInvestigation) {
+			if (this.types != null) {
+				for (int i = 0, count = this.types.length; i < count; i++) {
+					this.types[i].ignoreFurtherInvestigation = true;
 					// propagate the flag to request problem type creation
-					types[i].generateCode(scope);
+					this.types[i].generateCode(this.scope);
 				}
 			}
 			return;
 		}
-		if (this.isPackageInfo() && this.types != null && this.currentPackage!= null && this.currentPackage.annotations != null) {
-			types[0].annotations = this.currentPackage.annotations;
+		if (isPackageInfo() && this.types != null && this.currentPackage!= null && this.currentPackage.annotations != null) {
+			this.types[0].annotations = this.currentPackage.annotations;
 		}
 		try {
-			if (types != null) {
-				for (int i = 0, count = types.length; i < count; i++)
-					types[i].generateCode(scope);
+			if (this.types != null) {
+				for (int i = 0, count = this.types.length; i < count; i++)
+					this.types[i].generateCode(this.scope);
 			}
 		} catch (AbortCompilationUnit e) {
 			// ignore
@@ -362,13 +362,13 @@ public class CompilationUnitDeclaration
 
 	public char[] getFileName() {
 
-		return compilationResult.getFileName();
+		return this.compilationResult.getFileName();
 	}
 
 	public char[] getMainTypeName() {
 
-		if (compilationResult.compilationUnit == null) {
-			char[] fileName = compilationResult.getFileName();
+		if (this.compilationResult.compilationUnit == null) {
+			char[] fileName = this.compilationResult.getFileName();
 
 			int start = CharOperation.lastIndexOf('/', fileName) + 1;
 			if (start == 0 || start < CharOperation.lastIndexOf('\\', fileName))
@@ -380,17 +380,17 @@ public class CompilationUnitDeclaration
 
 			return CharOperation.subarray(fileName, start, end);
 		} else {
-			return compilationResult.compilationUnit.getMainTypeName();
+			return this.compilationResult.compilationUnit.getMainTypeName();
 		}
 	}
 
 	public boolean isEmpty() {
 
-		return (currentPackage == null) && (imports == null) && (types == null);
+		return (this.currentPackage == null) && (this.imports == null) && (this.types == null);
 	}
 
 	public boolean isPackageInfo() {
-		return CharOperation.equals(this.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME);
+		return CharOperation.equals(getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME);
 	}
 
 	public boolean hasErrors() {
@@ -399,23 +399,23 @@ public class CompilationUnitDeclaration
 
 	public StringBuffer print(int indent, StringBuffer output) {
 
-		if (currentPackage != null) {
+		if (this.currentPackage != null) {
 			printIndent(indent, output).append("package "); //$NON-NLS-1$
-			currentPackage.print(0, output, false).append(";\n"); //$NON-NLS-1$
+			this.currentPackage.print(0, output, false).append(";\n"); //$NON-NLS-1$
 		}
-		if (imports != null)
-			for (int i = 0; i < imports.length; i++) {
+		if (this.imports != null)
+			for (int i = 0; i < this.imports.length; i++) {
 				printIndent(indent, output).append("import "); //$NON-NLS-1$
-				ImportReference currentImport = imports[i];
+				ImportReference currentImport = this.imports[i];
 				if (currentImport.isStatic()) {
 					output.append("static "); //$NON-NLS-1$
 				}
 				currentImport.print(0, output).append(";\n"); //$NON-NLS-1$
 			}
 
-		if (types != null) {
-			for (int i = 0; i < types.length; i++) {
-				types[i].print(indent, output).append("\n"); //$NON-NLS-1$
+		if (this.types != null) {
+			for (int i = 0; i < this.types.length; i++) {
+				this.types[i].print(indent, output).append("\n"); //$NON-NLS-1$
 			}
 		}
 		return output;
@@ -426,10 +426,10 @@ public class CompilationUnitDeclaration
 	 */
 	public void propagateInnerEmulationForAllLocalTypes() {
 
-		isPropagatingInnerClassEmulation = true;
+		this.isPropagatingInnerClassEmulation = true;
 		for (int i = 0, max = this.localTypeCount; i < max; i++) {
 
-			LocalTypeBinding localType = localTypes[i];
+			LocalTypeBinding localType = this.localTypes[i];
 			// only propagate for reachable local types
 			if ((localType.scope.referenceType().bits & IsReachable) != 0) {
 				localType.updateInnerEmulationDependents();
@@ -442,15 +442,15 @@ public class CompilationUnitDeclaration
 			if (this.stringLiteralsStart.contains(literal.sourceStart)) return;
 			this.stringLiteralsStart.add(literal.sourceStart);
 		} else if (fromRecovery) {
-			this.stringLiteralsStart = new HashSetOfInt(stringLiteralsPtr + STRING_LITERALS_INCREMENT);
+			this.stringLiteralsStart = new HashSetOfInt(this.stringLiteralsPtr + STRING_LITERALS_INCREMENT);
 			for (int i = 0; i < this.stringLiteralsPtr; i++) {
 				this.stringLiteralsStart.add(this.stringLiterals[i].sourceStart);
 			}
-			
+
 			if (this.stringLiteralsStart.contains(literal.sourceStart)) return;
 			this.stringLiteralsStart.add(literal.sourceStart);
 		}
-		
+
 		if (this.stringLiterals == null) {
 			this.stringLiterals = new StringLiteral[STRING_LITERALS_INCREMENT];
 			this.stringLiteralsPtr = 0;
@@ -482,7 +482,7 @@ public class CompilationUnitDeclaration
 		this.suppressWarningAnnotations[this.suppressWarningsCount] = annotation;
 		this.suppressWarningScopePositions[this.suppressWarningsCount++] = ((long)scopeStart<<32) + scopeEnd;
 	}
-	
+
 	/*
 	 * Keep track of all local types, so as to update their innerclass
 	 * emulation later on.
@@ -502,7 +502,7 @@ public class CompilationUnitDeclaration
 		boolean isPackageInfo = isPackageInfo();
 		if (this.types != null && isPackageInfo) {
 			// resolve synthetic type declaration
-			final TypeDeclaration syntheticTypeDeclaration = types[0];
+			final TypeDeclaration syntheticTypeDeclaration = this.types[0];
 			// set empty javadoc to avoid missing warning (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=95286)
 			if (syntheticTypeDeclaration.javadoc == null) {
 				syntheticTypeDeclaration.javadoc = new Javadoc(syntheticTypeDeclaration.declarationSourceStart, syntheticTypeDeclaration.declarationSourceStart);
@@ -527,12 +527,12 @@ public class CompilationUnitDeclaration
 			}
 		}
 		if (this.currentPackage != null && this.currentPackage.annotations != null && !isPackageInfo) {
-			scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
+			this.scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
 		}
 		try {
-			if (types != null) {
-				for (int i = startingTypeIndex, count = types.length; i < count; i++) {
-					types[i].resolve(scope);
+			if (this.types != null) {
+				for (int i = startingTypeIndex, count = this.types.length; i < count; i++) {
+					this.types[i].resolve(this.scope);
 				}
 			}
 			if (!this.compilationResult.hasErrors()) checkUnusedImports();
@@ -552,23 +552,23 @@ public class CompilationUnitDeclaration
 					for (int i = 0; i < nlsTagsLength; i++) {
 						NLSTag tag = this.nlsTags[i];
 						if (tag != null) {
-							scope.problemReporter().unnecessaryNLSTags(tag.start, tag.end);
+							this.scope.problemReporter().unnecessaryNLSTags(tag.start, tag.end);
 						}
 					}
 				}
 			} else if (nlsTagsLength == 0) {
 				// resize string literals
 				if (this.stringLiterals.length != stringLiteralsLength) {
-					System.arraycopy(this.stringLiterals, 0, (stringLiterals = new StringLiteral[stringLiteralsLength]), 0, stringLiteralsLength);
+					System.arraycopy(this.stringLiterals, 0, (this.stringLiterals = new StringLiteral[stringLiteralsLength]), 0, stringLiteralsLength);
 				}
 				Arrays.sort(this.stringLiterals, STRING_LITERAL_COMPARATOR);
 				for (int i = 0; i < stringLiteralsLength; i++) {
-					scope.problemReporter().nonExternalizedStringLiteral(this.stringLiterals[i]);
+					this.scope.problemReporter().nonExternalizedStringLiteral(this.stringLiterals[i]);
 				}
 			} else {
 				// need to iterate both arrays to find non matching elements
 				if (this.stringLiterals.length != stringLiteralsLength) {
-					System.arraycopy(this.stringLiterals, 0, (stringLiterals = new StringLiteral[stringLiteralsLength]), 0, stringLiteralsLength);
+					System.arraycopy(this.stringLiterals, 0, (this.stringLiterals = new StringLiteral[stringLiteralsLength]), 0, stringLiteralsLength);
 				}
 				Arrays.sort(this.stringLiterals, STRING_LITERAL_COMPARATOR);
 				int indexInLine = 1;
@@ -591,7 +591,7 @@ public class CompilationUnitDeclaration
 							if (tag == null) continue nlsTagsLoop;
 							int tagLineNumber = tag.lineNumber;
 							if (literalLineNumber < tagLineNumber) {
-								scope.problemReporter().nonExternalizedStringLiteral(literal);
+								this.scope.problemReporter().nonExternalizedStringLiteral(literal);
 								continue stringLiteralsLoop;
 							} else if (literalLineNumber == tagLineNumber) {
 								if (tag.index == indexInLine) {
@@ -611,15 +611,15 @@ public class CompilationUnitDeclaration
 												continue nlsTagsLoop2;
 											}
 										} else {
-											scope.problemReporter().nonExternalizedStringLiteral(literal);
+											this.scope.problemReporter().nonExternalizedStringLiteral(literal);
 											continue stringLiteralsLoop;
 										}
 									}
-									scope.problemReporter().nonExternalizedStringLiteral(literal);
+									this.scope.problemReporter().nonExternalizedStringLiteral(literal);
 									continue stringLiteralsLoop;
 								}
 							} else {
-								scope.problemReporter().unnecessaryNLSTags(tag.start, tag.end);
+								this.scope.problemReporter().unnecessaryNLSTags(tag.start, tag.end);
 								continue nlsTagsLoop;
 							}
 						}
@@ -628,13 +628,13 @@ public class CompilationUnitDeclaration
 					break stringLiteralsLoop;
 				}
 				for (; i < stringLiteralsLength; i++) {
-					scope.problemReporter().nonExternalizedStringLiteral(this.stringLiterals[i]);
+					this.scope.problemReporter().nonExternalizedStringLiteral(this.stringLiterals[i]);
 				}
 				if (index < nlsTagsLength) {
 					for (; index < nlsTagsLength; index++) {
 						NLSTag tag = this.nlsTags[index];
 						if (tag != null) {
-							scope.problemReporter().unnecessaryNLSTags(tag.start, tag.end);
+							this.scope.problemReporter().unnecessaryNLSTags(tag.start, tag.end);
 						}
 					}
 				}
@@ -643,20 +643,20 @@ public class CompilationUnitDeclaration
 	}
 
 	public void tagAsHavingErrors() {
-		ignoreFurtherInvestigation = true;
+		this.ignoreFurtherInvestigation = true;
 	}
 
 	public void traverse(
 		ASTVisitor visitor,
 		CompilationUnitScope unitScope) {
 
-		if (ignoreFurtherInvestigation)
+		if (this.ignoreFurtherInvestigation)
 			return;
 		try {
 			if (visitor.visit(this, this.scope)) {
 				if (this.types != null && isPackageInfo()) {
 		            // resolve synthetic type declaration
-					final TypeDeclaration syntheticTypeDeclaration = types[0];
+					final TypeDeclaration syntheticTypeDeclaration = this.types[0];
 					// resolve javadoc package if any
 					final MethodScope methodScope = syntheticTypeDeclaration.staticInitializerScope;
 					if (this.javadoc != null) {
@@ -675,16 +675,16 @@ public class CompilationUnitDeclaration
 				if (this.currentPackage != null) {
 					this.currentPackage.traverse(visitor, this.scope);
 				}
-				if (imports != null) {
-					int importLength = imports.length;
+				if (this.imports != null) {
+					int importLength = this.imports.length;
 					for (int i = 0; i < importLength; i++) {
-						imports[i].traverse(visitor, this.scope);
+						this.imports[i].traverse(visitor, this.scope);
 					}
 				}
-				if (types != null) {
-					int typesLength = types.length;
+				if (this.types != null) {
+					int typesLength = this.types.length;
 					for (int i = 0; i < typesLength; i++) {
-						types[i].traverse(visitor, this.scope);
+						this.types[i].traverse(visitor, this.scope);
 					}
 				}
 			}

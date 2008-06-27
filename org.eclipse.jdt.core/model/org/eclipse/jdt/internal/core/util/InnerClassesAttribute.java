@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.util.IInnerClassesAttributeEntry;
 /**
  * Default implementation of IInnerClassesAttribute.
  */
-public class InnerClassesAttribute extends ClassFileAttribute implements IInnerClassesAttribute {		
+public class InnerClassesAttribute extends ClassFileAttribute implements IInnerClassesAttribute {
 	private static final IInnerClassesAttributeEntry[] NO_ENTRIES = new IInnerClassesAttributeEntry[0];
 
 	private int numberOfClasses;
@@ -44,7 +44,7 @@ public class InnerClassesAttribute extends ClassFileAttribute implements IInnerC
 			for (int i = 0; i < length; i++) {
 				this.entries[i] = new InnerClassesAttributeEntry(classFileBytes, constantPool, offset + readOffset);
 				readOffset += 8;
-			}		
+			}
 		} else {
 			this.entries = NO_ENTRIES;
 		}

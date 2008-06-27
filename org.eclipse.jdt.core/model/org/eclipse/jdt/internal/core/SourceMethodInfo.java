@@ -20,11 +20,11 @@ public class SourceMethodInfo extends SourceMethodElementInfo {
 	 * constructors is equivalent to void.
 	 */
 	protected char[] returnType;
-	
+
 	public boolean isAnnotationMethod() {
 		return false;
 	}
-	
+
 	public boolean isConstructor() {
 		return false;
 	}

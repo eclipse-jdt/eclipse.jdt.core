@@ -55,7 +55,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * This includes tests on build, batch compiler, Scanner and Parser.
  */
 public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
-	
+
 	// Tests counters
 	private static int TESTS_COUNT = 0;
 	private final static int ITERATIONS_COUNT = 10;
@@ -64,7 +64,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	// Tests thresholds
 	private final static int TIME_THRESHOLD = 150;
-	
+
 	// Log files
 	private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
 
@@ -100,7 +100,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			"staticReceiver," +
 			"syntheticAccess," +
 			"tasks(TODO|FIX|XXX)";
-	
+
 	// Source paths
 	final static String[] JDT_CORE_SRC_PATHS = {
 		"batch",
@@ -112,7 +112,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		"model",
 		"search"
 	};
-	
+
 	/**
 	 * @param name
 	 */
@@ -138,7 +138,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Start a build on given project or workspace using given options.
-	 * 
+	 *
 	 * @param javaProject Project which must be (full) build or null if all workspace has to be built.
 	 * @param options Options used while building
 	 */
@@ -160,7 +160,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			for (int i=0; i<WARMUP_COUNT; i++) {
 				ENV.fullBuild(javaProject.getProject().getName());
 			}
-			
+
 			// measures
 			int max = MEASURES_COUNT;
 			for (int i=0; i<max; i++) {
@@ -180,7 +180,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 				stopMeasuring();
 			}
 		}
-		
+
 		// Verify markers
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		IMarker[] markers = workspaceRoot.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
@@ -219,11 +219,11 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			System.out.println("--------------------");
 		}
 		if (DEBUG) System.out.println("done");
-		
+
 		// Commit measure
 		commitMeasurements();
 		assertPerformance();
-	
+
 		// Store warning
 		if (warnings>0) {
 			System.out.println("\t- "+warnings+" warnings found while performing build.");
@@ -306,7 +306,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 				org.eclipse.jdt.core.tests.util.Util.delete(COMPILER_OUTPUT_DIR);
 			}
 		}
-		
+
 		// Commit measures
 		commitMeasurements();
 		assertPerformance();
@@ -335,12 +335,12 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		CompilerOptions options = new CompilerOptions();
 		options.sourceLevel = ClassFileConstants.JDK1_4;
 		options.targetJDK = ClassFileConstants.JDK1_4;
-		ProblemReporter problemReporter = 
+		ProblemReporter problemReporter =
 				new ProblemReporter(
-					DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
-					options, 
+					DefaultErrorHandlingPolicies.exitAfterAllProblems(),
+					options,
 					new DefaultProblemFactory());
-		
+
 		// Create parser
         Parser parser = null;
 		switch (kind) {
@@ -355,7 +355,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		// Warm up
 		for (int i = 0; i < 2; i++) {
 			ICompilationUnit unit = new CompilationUnit(content, file.getName(), null);
-			CompilationResult unitResult = new CompilationResult(unit, 0, 1, options.maxProblemsPerUnit);				
+			CompilationResult unitResult = new CompilationResult(unit, 0, 1, options.maxProblemsPerUnit);
 			CompilationUnitDeclaration unitDeclaration = parser.dietParse(unit, unitResult);
 			parser.getMethodBodies(unitDeclaration);
 		}
@@ -373,7 +373,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		startMeasuring();
 		for (int i = 0; i < iterations; i++) {
 			ICompilationUnit unit = new CompilationUnit(content, file.getName(), null);
-			CompilationResult unitResult = new CompilationResult(unit, 0, 1, options.maxProblemsPerUnit);				
+			CompilationResult unitResult = new CompilationResult(unit, 0, 1, options.maxProblemsPerUnit);
 			CompilationUnitDeclaration unitDeclaration = parser.dietParse(unit, unitResult);
 			parser.getMethodBodies(unitDeclaration);
 			parsedCharacters += content.length;
@@ -399,7 +399,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * Test performance for a parser on one file.
 	 * Parse is executed many times ({@link #ITERATIONS_COUNT}) to have significant time for execution.
 	 * This test is repeated several times ({@link #MEASURES_COUNT}) to average time measuring.
-	 *  
+	 *
 	 * @throws InvalidInputException
 	 * @throws IOException
 	 */
@@ -409,7 +409,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		final String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
-		
+
 		// Run test
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			IWorkspaceRunnable compilation = new IWorkspaceRunnable() {
@@ -541,7 +541,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		if (LOG_DIR != null) {
 			logPerfResult(LOG_STREAMS, TESTS_COUNT);
 		}
-		
+
 		// Call super at the end as it close print streams
 		super.tearDown();
 	}
@@ -550,7 +550,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * Test performance for Scanner on one file.
 	 * Scan is executed many times ({@link #SCAN_REPEAT}) to have significant time for execution.
 	 * This test is repeated several times ({@link #ITERATIONS_COUNT}) to average time measuring.
-	 *  
+	 *
 	 * @throws InvalidInputException
 	 * @throws IOException
 	 */
@@ -588,7 +588,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * Test performance for Parser on one file.
 	 * Parse is executed many times ({@link #ITERATIONS_COUNT}) to have significant time for execution.
 	 * This test is repeated several times ({@link #MEASURES_COUNT}) to average time measuring.
-	 *  
+	 *
 	 * @throws InvalidInputException
 	 * @throws IOException
 	 */
@@ -600,11 +600,11 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * Test performance for SourceElementParser on one file.
 	 * Parse is executed many times ({@link #ITERATIONS_COUNT}) to have significant time for execution.
 	 * This test is repeated several times ({@link #MEASURES_COUNT}) to average time measuring.
-	 * 
+	 *
 	 * Note: This test has been temporarily removed as there's unexplicable difference between
 	 * HEAD and 3.0 versions for CPU Time results (10% faster) and Elapsed process (25% slower)...
 	 * TODO (frederic) Put back when platform-releng will have stabilized performance results process.
-	 *  
+	 *
 	 * @throws InvalidInputException
 	 * @throws IOException
 	 */
@@ -614,12 +614,12 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Full build with JavaCore default options.
-	 * 
+	 *
 	 * WARNING:
 	 * 	This test must be and _ever_ stay at first position as it build the entire workspace.
 	 * 	It also cannot be removed as it's a Global fingerprint!
 	 * 	Move it would have great consequence on all other tests results...
-	 * 
+	 *
 	 * @throws CoreException
 	 * @throws IOException
 	 */
@@ -630,7 +630,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * JDT/Core project full build with no warning.
-	 * 
+	 *
 	 * @throws CoreException
 	 * @throws IOException
 	 * @since 3.2 M6
@@ -642,7 +642,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * JDT/Core project full build with JavaCore default options.
-	 * 
+	 *
 	 * @throws CoreException
 	 * @throws IOException
 	 * @since 3.2 M6
@@ -654,7 +654,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * JDT/Core project full build with all warnings.
-	 * 
+	 *
 	 * @throws CoreException
 	 * @throws IOException
 	 * @since 3.2 M6
@@ -666,10 +666,10 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Batch compiler build with no warning
-	 * 
+	 *
 	 * Not calling tagAsSummary means that this test is currently evaluated
 	 * before put it in builds performance results.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void testBatchCompilerNoWarning() throws IOException, CoreException {
@@ -679,7 +679,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Compile JDT/Core project with default warnings
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void testCompileJDTCoreProjectNoWarning() throws IOException, CoreException {
@@ -689,7 +689,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Compile JDT/Core project with default warnings
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void testCompileJDTCoreProjectDefault() throws IOException, CoreException {
@@ -699,7 +699,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Compile JDT/Core project with default javadoc warnings
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void testCompileJDTCoreProjectJavadoc() throws IOException, CoreException {
@@ -709,7 +709,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Compile JDT/Core project with all warnings
-	 * 
+	 *
 	 * @throws IOException
 	 * @since 3.2 M6
 	 */
@@ -720,7 +720,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Compile JDT/Core project with default warnings
-	 * 
+	 *
 	 * @throws IOException
 	 * @since 3.2 M6
 	 */

@@ -14,7 +14,7 @@ package org.eclipse.jdt.internal.compiler;
  * A callback interface for receiving compilation results.
  */
 public interface ICompilerRequestor {
-	
+
 	/**
 	 * Accept a compilation result.
 	 */

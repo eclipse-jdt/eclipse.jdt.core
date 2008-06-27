@@ -36,7 +36,7 @@ public class SignatureWrapper {
 				this.end = CharOperation.indexOf(';', this.signature, this.start);
 				if (this.bracket <= this.start) // already know it if its > start
 					this.bracket = CharOperation.indexOf('<', this.signature, this.start);
-		
+
 				if (this.bracket > this.start && this.bracket < this.end)
 					this.end = this.bracket;
 				else if (this.end == -1)

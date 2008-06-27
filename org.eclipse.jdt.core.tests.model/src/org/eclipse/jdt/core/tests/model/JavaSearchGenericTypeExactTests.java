@@ -22,7 +22,7 @@ import junit.framework.TestSuite;
  * Test for search of generic types using R_EXACT_MATCH rule.
  */
 public class JavaSearchGenericTypeExactTests extends JavaSearchGenericTypeTests {
-	
+
 	/**
 	 * @param name
 	 */

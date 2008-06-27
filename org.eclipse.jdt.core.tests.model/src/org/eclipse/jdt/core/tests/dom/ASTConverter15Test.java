@@ -2907,7 +2907,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", methodBinding);
 		assertEquals("LX;.foo<T:Ljava/lang/Object;>(LNonExisting;)V", methodBinding.getKey());
 		assertFalse("Method should not be flagged as recovered", methodBinding.isRecovered());
-		assertTrue("Method argument type should be flagged as recovered", methodBinding.getParameterTypes()[0].isRecovered());				
+		assertTrue("Method argument type should be flagged as recovered", methodBinding.getParameterTypes()[0].isRecovered());
 	}
 
 	/*
@@ -4170,10 +4170,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
     	assertProblemsSize(compilationUnit, 5,
-    			"URL cannot be resolved to a type\n" + 
-    			"URL cannot be resolved to a type\n" + 
-    			"URL cannot be resolved to a type\n" + 
-    			"Cannot instantiate the type List<URL>\n" + 
+    			"URL cannot be resolved to a type\n" +
+    			"URL cannot be resolved to a type\n" +
+    			"URL cannot be resolved to a type\n" +
+    			"Cannot instantiate the type List<URL>\n" +
     			"URL cannot be resolved to a type");
     	compilationUnit.accept(new ASTVisitor() {
     		public boolean visit(ParameterizedType type) {
@@ -6436,7 +6436,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
-			workingCopy,
+			this.workingCopy,
 			true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
@@ -6464,7 +6464,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
-			workingCopy,
+			this.workingCopy,
 			true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
@@ -6494,7 +6494,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
-			workingCopy,
+			this.workingCopy,
 			true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
@@ -6916,7 +6916,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", annotationBinding);
 		assertEquals("LX;.fXoo)I@LTest;", annotationBinding.getKey());
 		assertTrue("Annotation should not flagged as recovered", annotationBinding.isRecovered());
-		assertTrue("Annotation type should be flagged as recovered", annotationBinding.getAnnotationType().isRecovered());		
+		assertTrue("Annotation type should be flagged as recovered", annotationBinding.getAnnotationType().isRecovered());
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=140318
@@ -7096,7 +7096,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", annotations[0]);
 		assertEquals("LX;.foo()V@LZork;", annotations[0].getKey());
 		assertTrue("Annotation should be flagged as recovered", annotations[0].isRecovered());
-		assertTrue("Annotation type should be flagged as recovered", annotations[0].getAnnotationType().isRecovered());		
+		assertTrue("Annotation type should be flagged as recovered", annotations[0].getAnnotationType().isRecovered());
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=153303
@@ -7158,7 +7158,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", bindings[0]);
 		assertEquals("@LZork;", bindings[0].getKey());
 		assertTrue("Annotation should be flagged as recovered", bindings[0].isRecovered());
-		assertTrue("Annotation type should be flagged as recovered", bindings[0].getAnnotationType().isRecovered());				
+		assertTrue("Annotation type should be flagged as recovered", bindings[0].getAnnotationType().isRecovered());
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=153303
@@ -7206,7 +7206,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	this.workingCopy.getBuffer().setContents(contents);
     	this.workingCopy.save(null, true);
     	TestASTRequestor requestor = new TestASTRequestor();
-    	resolveASTs(new ICompilationUnit[] { this.workingCopy } , new String[0], requestor, this.getJavaProject("Converter15"), null);
+    	resolveASTs(new ICompilationUnit[] { this.workingCopy } , new String[0], requestor, getJavaProject("Converter15"), null);
     	ArrayList asts = requestor.asts;
 		assertEquals("Wrong size", 1, asts.size());
 		CompilationUnit compilationUnit = (CompilationUnit) asts.get(0);
@@ -7431,7 +7431,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/A.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
-			workingCopy,
+			this.workingCopy,
 			true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
@@ -7486,7 +7486,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/A.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
-			workingCopy,
+			this.workingCopy,
 			true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
@@ -7608,8 +7608,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 2, interfaces.length);
 		assertEquals("Ljava/lang/Runnable;", interfaces[0].getKey());
 		assertFalse("Runnable should not be flagged as recovered", interfaces[0].isRecovered());
-		assertEquals("LZork;", interfaces[1].getKey());		
-		assertTrue("Zork should be flagged as recovered", interfaces[1].isRecovered());			
+		assertEquals("LZork;", interfaces[1].getKey());
+		assertTrue("Zork should be flagged as recovered", interfaces[1].isRecovered());
 	}
 
 	/*
@@ -7643,7 +7643,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Ltest0237/X;.()V", methodBindings[0].getKey());
 		assertEquals("Ltest0237/X;.foo()LZork;", methodBindings[1].getKey());
 		assertFalse("#foo() should not be flagged as recovered", methodBindings[1].isRecovered());
-		assertTrue("Zork should be flagged as recovered", methodBindings[1].getReturnType().isRecovered());			
+		assertTrue("Zork should be flagged as recovered", methodBindings[1].getReturnType().isRecovered());
 	}
 
 	/*
@@ -8174,9 +8174,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		return c;\n" +
 			"	}\n" +
 			"}";
-		workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-		workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS3, this.workingCopy, true, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedError = "List cannot be resolved to a type";
@@ -8212,9 +8212,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		return c;\n" +
 			"	}\n" +
 			"}";
-		workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-		workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS3, this.workingCopy, true, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -8234,7 +8234,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "List<String>", typeBinding.getName());
 		assertEquals("Wrong dimension", 0, typeBinding.getDimensions());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=130001
 	 */
@@ -8270,7 +8270,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("No statement recovery", unit.getAST().hasStatementsRecovery());
 		assertFalse("Has binding recovery", unit.getAST().hasBindingsRecovery());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=130001
 	 */
@@ -8288,7 +8288,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Has statement recovery", unit.getAST().hasStatementsRecovery());
 		assertFalse("Has binding recovery", unit.getAST().hasBindingsRecovery());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=179042
 	 */
@@ -8327,7 +8327,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong modifier", Modifier.NONE, annotationBinding.getModifiers());
 		assertFalse("A deprecated annotation", annotationBinding.isDeprecated());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=179042
 	 */
@@ -8372,7 +8372,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, allMemberValuePairs.length);
 		assertFalse("Not a recovered binding", annotationBinding.isRecovered());
 		assertFalse("Not a synthetic binding", annotationBinding.isSynthetic());
-		
+
 		node = getASTNode(unit, 2);
 		assertEquals("Not a type declaration unit", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		typeDeclaration = (TypeDeclaration) node;
@@ -8384,7 +8384,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a normal annotation", ASTNode.NORMAL_ANNOTATION, annotation.getNodeType());
 		normalAnnotation = (NormalAnnotation) annotation;
 		IAnnotationBinding annotationBinding2 = normalAnnotation.resolveAnnotationBinding();
-		
+
 		assertTrue("Should be equal", annotationBinding2.isEqualTo(annotationBinding));
 		assertTrue("Should be equal", annotationBinding.isEqualTo(annotationBinding2));
 	}
@@ -8434,69 +8434,69 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Not a recovered binding", annotationBinding.isRecovered());
 		assertFalse("Not a synthetic binding", annotationBinding.isSynthetic());
 	}
-	
+
 	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=179065 
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=179065
 	 */
 	public void test0261() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"@interface Annot {\n" + 
-			"	public boolean booleanValue() default true;\n" + 
-			"\n" + 
-			"	public byte byteValue() default 0;\n" + 
-			"\n" + 
-			"	public char charValue() default \' \';\n" + 
-			"\n" + 
-			"	public double doubleValue() default 0.0;\n" + 
-			"\n" + 
-			"	public float floatValue() default 0.0f;\n" + 
-			"\n" + 
-			"	public int intValue() default 1;\n" + 
-			"\n" + 
-			"	public long longValue() default Long.MAX_VALUE;\n" + 
-			"\n" + 
-			"	public short shortValue() default 127;\n" + 
-			"\n" + 
-			"	public String stringValue() default \"\";\n" + 
-			"\n" + 
-			"	public E enumValue() default E.A;\n" + 
-			"\n" + 
-			"	public Class classValue() default String.class;\n" + 
-			"\n" + 
-			"	@Deprecated public Ann annotationValue() default @Ann();\n" + 
-			"\n" + 
-			"	public boolean[] booleanArrayValue() default { true, false };\n" + 
-			"\n" + 
-			"	public byte[] byteArrayValue() default { 0, 1 };\n" + 
-			"\n" + 
-			"	public char[] charArrayValue() default { \'#\' };\n" + 
-			"\n" + 
-			"	@Deprecated public double[] doubleArrayValue() default { 2.0 };\n" + 
-			"\n" + 
-			"	public float[] floatArrayValue() default { 1.0f };\n" + 
-			"\n" + 
-			"	public int[] intArrayValue() default { 0, 1 };\n" + 
-			"\n" + 
-			"	public long[] longArrayValue() default { Long.MIN_VALUE };\n" + 
-			"\n" + 
-			"	public short[] shortArrayValue() default { 127 };\n" + 
-			"\n" + 
-			"	public String[] stringArrayValue() default { \"Hello\", \"World\" };\n" + 
-			"\n" + 
-			"	public E[] enumArrayValue() default { E.A, E.B };\n" + 
-			"\n" + 
-			"	public Class[] classArrayValue() default { Object.class, Annot.class };\n" + 
-			"\n" + 
-			"	public Ann[] annotationArrayValue() default {};\n" + 
-			"}\n" + 
-			"\n" + 
-			"enum E {\n" + 
-			"	A, B, C, D\n" + 
-			"}\n" + 
-			"\n" + 
-			"@interface Ann {}\n" + 
-			"\n" + 
+			"@interface Annot {\n" +
+			"	public boolean booleanValue() default true;\n" +
+			"\n" +
+			"	public byte byteValue() default 0;\n" +
+			"\n" +
+			"	public char charValue() default \' \';\n" +
+			"\n" +
+			"	public double doubleValue() default 0.0;\n" +
+			"\n" +
+			"	public float floatValue() default 0.0f;\n" +
+			"\n" +
+			"	public int intValue() default 1;\n" +
+			"\n" +
+			"	public long longValue() default Long.MAX_VALUE;\n" +
+			"\n" +
+			"	public short shortValue() default 127;\n" +
+			"\n" +
+			"	public String stringValue() default \"\";\n" +
+			"\n" +
+			"	public E enumValue() default E.A;\n" +
+			"\n" +
+			"	public Class classValue() default String.class;\n" +
+			"\n" +
+			"	@Deprecated public Ann annotationValue() default @Ann();\n" +
+			"\n" +
+			"	public boolean[] booleanArrayValue() default { true, false };\n" +
+			"\n" +
+			"	public byte[] byteArrayValue() default { 0, 1 };\n" +
+			"\n" +
+			"	public char[] charArrayValue() default { \'#\' };\n" +
+			"\n" +
+			"	@Deprecated public double[] doubleArrayValue() default { 2.0 };\n" +
+			"\n" +
+			"	public float[] floatArrayValue() default { 1.0f };\n" +
+			"\n" +
+			"	public int[] intArrayValue() default { 0, 1 };\n" +
+			"\n" +
+			"	public long[] longArrayValue() default { Long.MIN_VALUE };\n" +
+			"\n" +
+			"	public short[] shortArrayValue() default { 127 };\n" +
+			"\n" +
+			"	public String[] stringArrayValue() default { \"Hello\", \"World\" };\n" +
+			"\n" +
+			"	public E[] enumArrayValue() default { E.A, E.B };\n" +
+			"\n" +
+			"	public Class[] classArrayValue() default { Object.class, Annot.class };\n" +
+			"\n" +
+			"	public Ann[] annotationArrayValue() default {};\n" +
+			"}\n" +
+			"\n" +
+			"enum E {\n" +
+			"	A, B, C, D\n" +
+			"}\n" +
+			"\n" +
+			"@interface Ann {}\n" +
+			"\n" +
 			"@Annot(\n" +
 			"	booleanValue = true,\n" +
 			"	byteValue = (byte) 1,\n" +
@@ -8509,8 +8509,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"	stringValue = \"SUCCESS\",\n" +
 			"	enumValue = E.B,\n" +
 			"	classValue = Object.class,\n" +
-			"	annotationValue = @Ann())\n" + 
-			"public class X {\n" + 
+			"	annotationValue = @Ann())\n" +
+			"public class X {\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -8519,7 +8519,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedProblems =
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
 			"Class is a raw type. References to generic type Class<T> should be parameterized";
 		assertProblemsSize(unit, 2, expectedProblems);
 		node = getASTNode(unit, 3);
@@ -8555,7 +8555,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Object defaultValue = methodBinding.getDefaultValue();
 		assertTrue("Different values", value.equals(defaultValue));
 		assertFalse("Is deprecated", pairBinding.isDeprecated());
-		
+
 		pairBinding = declaredMemberValuePairs[1];
 		assertEquals("Wrong name", "byteValue", pairBinding.getName());
 		value = pairBinding.getValue();
@@ -8703,23 +8703,23 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Same values", annotationBinding2.isEqualTo((IBinding) defaultValue));
 		assertTrue("Not deprecated", pairBinding.isDeprecated());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=166963
 	 */
 	public void test0262() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"public class X {\n" + 
-			"	public X(String s) {\n" + 
+			"public class X {\n" +
+			"	public X(String s) {\n" +
 			"	}\n" +
-			"	public X() {\n" + 
+			"	public X() {\n" +
 			"		String s = \"\";\n" +
-			"		System.out.println();\n" + 
-			"		this(zork);\n" + 
-			"		Zork.this.this();\n" + 
-			"		<Zork>this(s);\n" + 
-			"	}\n" + 
+			"		System.out.println();\n" +
+			"		this(zork);\n" +
+			"		Zork.this.this();\n" +
+			"		<Zork>this(s);\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -8727,11 +8727,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				0);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		String expectedErrors = "Constructor call must be the first statement in a constructor\n" + 
-		"zork cannot be resolved\n" + 
-		"Constructor call must be the first statement in a constructor\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		String expectedErrors = "Constructor call must be the first statement in a constructor\n" +
+		"zork cannot be resolved\n" +
+		"Constructor call must be the first statement in a constructor\n" +
+		"Zork cannot be resolved to a type\n" +
+		"Zork cannot be resolved to a type\n" +
 		"Constructor call must be the first statement in a constructor";
 		assertProblemsSize(unit, 6, expectedErrors);
 		node = getASTNode(unit, 0, 1, 4);
@@ -8779,22 +8779,22 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMemberValuePairBinding memberValuePairBinding = pair.resolveMemberValuePairBinding();
 		assertFalse("Is default value", memberValuePairBinding.isDefault());
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
 	public void test0264() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"import java.util.*;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	private <T> T find(T a, List<T> b) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	public void foo1() {\n" + 
-			"		// T x;\n" + 
-			"		find(x, Arrays.asList(\"a\")); // closestMatch: #find(String,List<String>)\n" + 
-			"		find(x, 0); // closestMatch: #find(Object,List<Object>)\n" + 
-			"	}\n" + 
+			"import java.util.*;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	private <T> T find(T a, List<T> b) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public void foo1() {\n" +
+			"		// T x;\n" +
+			"		find(x, Arrays.asList(\"a\")); // closestMatch: #find(String,List<String>)\n" +
+			"		find(x, 0); // closestMatch: #find(Object,List<Object>)\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -8803,7 +8803,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors =
-			"x cannot be resolved\n" + 
+			"x cannot be resolved\n" +
 			"x cannot be resolved";
 		assertProblemsSize(unit, 2, expectedErrors);
 		node = getASTNode(unit, 0, 1, 0);
@@ -8826,22 +8826,22 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 		assertTrue("Not a raw method", methodBinding.isRawMethod());
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
 	public void test0265() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"import java.util.*;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	<T> X(T a, List<T> b) {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public void foo1() {\n" + 
-			"		// T x;\n" + 
-			"		new X(x, Arrays.asList(\"a\")); // closestMatch:#X(String,List<String>)\n" + 
-			"		new X(x, 0); // closestMatch: #X(Object,List<Object>)\n" + 
-			"	}\n" + 
+			"import java.util.*;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	<T> X(T a, List<T> b) {\n" +
+			"	}\n" +
+			"\n" +
+			"	public void foo1() {\n" +
+			"		// T x;\n" +
+			"		new X(x, Arrays.asList(\"a\")); // closestMatch:#X(String,List<String>)\n" +
+			"		new X(x, 0); // closestMatch: #X(Object,List<Object>)\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -8850,7 +8850,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors =
-			"x cannot be resolved\n" + 
+			"x cannot be resolved\n" +
 			"x cannot be resolved";
 		assertProblemsSize(unit, 2, expectedErrors);
 		node = getASTNode(unit, 0, 1, 0);
@@ -8873,23 +8873,23 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 		assertTrue("Not a raw method", methodBinding.isRawMethod());
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
 	public void test0266() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"import java.util.*;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	class M {\n" + 
-			"		<T> M(T a, List<T> b) {\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	public void foo1() {\n" + 
-			"		// T x;\n" + 
-			"		this.new M(x, Arrays.asList(\"a\")); // closestMatch: #X(String,List<String>)\n" + 
-			"		this.new M(x, 0); // closestMatch: #X(Object,List<Object>)\n" + 
-			"	}\n" + 
+			"import java.util.*;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	class M {\n" +
+			"		<T> M(T a, List<T> b) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public void foo1() {\n" +
+			"		// T x;\n" +
+			"		this.new M(x, Arrays.asList(\"a\")); // closestMatch: #X(String,List<String>)\n" +
+			"		this.new M(x, 0); // closestMatch: #X(Object,List<Object>)\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -8898,7 +8898,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors =
-			"x cannot be resolved\n" + 
+			"x cannot be resolved\n" +
 			"x cannot be resolved";
 		assertProblemsSize(unit, 2, expectedErrors);
 		node = getASTNode(unit, 0, 1, 0);
@@ -8925,20 +8925,20 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0267() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"import java.util.*;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	class M {\n" + 
-			"		<T> M(T a, List<T> b) {\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	public void foo1() {\n" + 
-			"		// T x;\n" + 
-			"		this.new M(x, Arrays.asList(\"a\")) {\n" + 
-			"		}; // closestMatch:#X(String,List<String>)\n" + 
-			"		this.new M(x, 0) {\n" + 
-			"		}; // closestMatch: #X(Object,List<Object>)\n" + 
-			"	}\n" + 
+			"import java.util.*;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	class M {\n" +
+			"		<T> M(T a, List<T> b) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public void foo1() {\n" +
+			"		// T x;\n" +
+			"		this.new M(x, Arrays.asList(\"a\")) {\n" +
+			"		}; // closestMatch:#X(String,List<String>)\n" +
+			"		this.new M(x, 0) {\n" +
+			"		}; // closestMatch: #X(Object,List<Object>)\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -8947,7 +8947,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors =
-			"x cannot be resolved\n" + 
+			"x cannot be resolved\n" +
 			"x cannot be resolved";
 		assertProblemsSize(unit, 2, expectedErrors);
 		node = getASTNode(unit, 0, 1, 0);
@@ -8975,21 +8975,21 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0268() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"import java.util.*;\n" + 
-			"\n" + 
-			"class Super {\n" + 
-			"	<T> Super(T a, List<T> b) {\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"public class X extends Super {\n" + 
-			"	public X() {\n" + 
-			"		// T x;\n" + 
-			"		super(x, Arrays.asList(\"a\")); // closestMatch:#X(String,List<String>)\n" + 
-			"	}\n" + 
-			"	public X(boolean b) {\n" + 
-			"		// T x;\n" + 
-			"		super(x, 0); // closestMatch: #X(Object,List<Object>)\n" + 
-			"	}\n" + 
+			"import java.util.*;\n" +
+			"\n" +
+			"class Super {\n" +
+			"	<T> Super(T a, List<T> b) {\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X extends Super {\n" +
+			"	public X() {\n" +
+			"		// T x;\n" +
+			"		super(x, Arrays.asList(\"a\")); // closestMatch:#X(String,List<String>)\n" +
+			"	}\n" +
+			"	public X(boolean b) {\n" +
+			"		// T x;\n" +
+			"		super(x, 0); // closestMatch: #X(Object,List<Object>)\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -8998,7 +8998,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors =
-			"x cannot be resolved\n" + 
+			"x cannot be resolved\n" +
 			"x cannot be resolved";
 		assertProblemsSize(unit, 2, expectedErrors);
 		node = getASTNode(unit, 1, 0, 0);
@@ -9015,19 +9015,19 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 		assertTrue("Not a raw method", methodBinding.isRawMethod());
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
 	public void test0269() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"import java.util.*;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	<T extends Comparable<T>> void find(T a, String[] b, List<T> c) {\n" + 
-			"	}\n" + 
-			"	void foo(String[] s) {\n" + 
-			"		find(x, Arrays.asList(\"a\"), s);\n" + 
-			"	}\n" + 
+			"import java.util.*;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	<T extends Comparable<T>> void find(T a, String[] b, List<T> c) {\n" +
+			"	}\n" +
+			"	void foo(String[] s) {\n" +
+			"		find(x, Arrays.asList(\"a\"), s);\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -9048,19 +9048,19 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 		assertTrue("Not a parameterized method", methodBinding.isRawMethod());
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=180966
 	public void _test0270() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/foo/X.java", true/*resolve*/);
 		String contents =
-			"package foo;\n" + 
-			"\n" + 
-			"class GenericBase<T> {\n" + 
-			"        public void someMethod() {}\n" + 
-			"}\n" + 
-			"public class X extends GenericBase<String> {\n" + 
-			"        @Override\n" + 
-			"        public void someMethod() {}\n" + 
+			"package foo;\n" +
+			"\n" +
+			"class GenericBase<T> {\n" +
+			"        public void someMethod() {}\n" +
+			"}\n" +
+			"public class X extends GenericBase<String> {\n" +
+			"        @Override\n" +
+			"        public void someMethod() {}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -9083,14 +9083,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void _test0271() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/foo/X.java", true/*resolve*/);
 		String contents =
-			"package foo;\n" + 
-			"\n" + 
-			"class GenericBase<T> {\n" + 
-			"        public void someMethod() {}\n" + 
-			"}\n" + 
-			"public class X extends GenericBase<String> {\n" + 
-			"        @Override\n" + 
-			"        public void someMethod() {}\n" + 
+			"package foo;\n" +
+			"\n" +
+			"class GenericBase<T> {\n" +
+			"        public void someMethod() {}\n" +
+			"}\n" +
+			"public class X extends GenericBase<String> {\n" +
+			"        @Override\n" +
+			"        public void someMethod() {}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -9124,22 +9124,22 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0272() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"import java.util.List;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	<T> T foo(T t) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	Object bar() {\n" + 
-			"		return new Object() {\n" + 
-			"			void bar(List<?> l) {\n" + 
-			"				foo(l.get(0));\n" + 
-			"			}\n" + 
-			"		};\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public static void main(String args[]) {\n" + 
-			"	}\n" + 
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	<T> T foo(T t) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	Object bar() {\n" +
+			"		return new Object() {\n" +
+			"			void bar(List<?> l) {\n" +
+			"				foo(l.get(0));\n" +
+			"			}\n" +
+			"		};\n" +
+			"	}\n" +
+			"	\n" +
+			"	public static void main(String args[]) {\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -9199,8 +9199,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
 			"public class X {\n" +
-			"	@Deprecated\n" + 
-			"	public static int x= 5, y= 10;\n" + 
+			"	@Deprecated\n" +
+			"	public static int x= 5, y= 10;\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -9227,8 +9227,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		String contents =
 			"public class X {\n" +
 			"	public void foo() {\n" +
-			"		@Deprecated\n" + 
-			"		int x= 5, y= 10;\n" + 
+			"		@Deprecated\n" +
+			"		int x= 5, y= 10;\n" +
 			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
@@ -9261,13 +9261,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"@interface Annot {\n" +
 			"  public int value();\n" +
 			"}\n" +
-			"\n" + 
+			"\n" +
 			"public class X {\n" +
 			"  @Annot(1) String foo1() { return null; }\n" +
 			"  @Annot(1) String foo2() { return null; }\n" +
 			"}";
 		this.workingCopy.getBuffer().setContents(contents);
-		
+
 		class CompilationUnitRequestor extends ASTRequestor {
 			public void acceptAST(ICompilationUnit source, CompilationUnit node) {
 				MethodDeclaration methodDeclaration = (MethodDeclaration)getASTNode(node, 1, 0);
@@ -9288,7 +9288,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnitRequestor requestor = new CompilationUnitRequestor();
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
-		parser.setProject(this.getJavaProject("Converter15"));
+		parser.setProject(getJavaProject("Converter15"));
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.createASTs(new ICompilationUnit[]{this.workingCopy}, new String[0], requestor, null);
 	}
@@ -9296,13 +9296,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0277() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"public class X {\n" + 
-			"	public static void method() {\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class Y extends X {\n" + 
-			"	public static void method() {\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void method() {\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"	public static void method() {\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -9315,25 +9315,25 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding1 = methodDeclaration.resolveBinding();
-		
+
 		node = getASTNode(unit, 1, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
-		
+
 		assertFalse("Overrides", methodBinding2.overrides(methodBinding1));
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191908
 	public void test0278() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"public class X {\n" + 
-			"	public void method() {\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class Y extends X {\n" + 
-			"	public static void method() {\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public void method() {\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"	public static void method() {\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -9346,25 +9346,25 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding1 = methodDeclaration.resolveBinding();
-		
+
 		node = getASTNode(unit, 1, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
-		
+
 		assertFalse("Overrides", methodBinding2.overrides(methodBinding1));
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191908
 	public void test0279() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"public class X {\n" + 
-			"	public static void method() {\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class Y extends X {\n" + 
-			"	public void method() {\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void method() {\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"	public void method() {\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -9377,27 +9377,27 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding1 = methodDeclaration.resolveBinding();
-		
+
 		node = getASTNode(unit, 1, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
-		
+
 		assertFalse("Overrides", methodBinding2.overrides(methodBinding1));
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191908
 	public void test0280() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"public class X {\n" + 
-			"	public void method() {\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class Y extends X {\n" + 
+			"public class X {\n" +
+			"	public void method() {\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y extends X {\n" +
 			"	@Override\n" +
-			"	public void method() {\n" + 
-			"	}\n" + 
+			"	public void method() {\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -9410,15 +9410,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding1 = methodDeclaration.resolveBinding();
-		
+
 		node = getASTNode(unit, 1, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
-		
+
 		assertTrue("Doesn't overrides", methodBinding2.overrides(methodBinding1));
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=198085
 	public void test0281() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -9443,22 +9443,22 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong size", 2, annotations.length);
 		assertEquals("LX;@LInvalid;", annotations[0].getKey());
 		assertTrue("Annotation should be flagged as recovered", annotations[0].isRecovered());
-		assertTrue("Annotation type should be flagged as recovered", annotations[0].getAnnotationType().isRecovered());		
+		assertTrue("Annotation type should be flagged as recovered", annotations[0].getAnnotationType().isRecovered());
 		assertEquals("LX;@Ljava/lang/Deprecated;", annotations[1].getKey());
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=190622
 	public void test0282() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"	public @interface Moo {\n" + 
-			"		Class<?> value();\n" + 
-			"	}\n" + 
-			"	@Moo(Bar.Baz.class)\n" + 
-			"	public static class Bar {\n" + 
-			"		public static class Baz {\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public @interface Moo {\n" +
+			"		Class<?> value();\n" +
+			"	}\n" +
+			"	@Moo(Bar.Baz.class)\n" +
+			"	public static class Bar {\n" +
+			"		public static class Baz {\n" +
+			"		}\n" +
+			"	}\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
@@ -9504,15 +9504,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=201104
 	public void test0283() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"	public @interface Moo {\n" + 
-			"		Class<?> value();\n" + 
-			"	}\n" + 
-			"	@Moo(Bar2.Baz.class)\n" + 
-			"	public static class Bar {\n" + 
-			"		public static class Baz {\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public @interface Moo {\n" +
+			"		Class<?> value();\n" +
+			"	}\n" +
+			"	@Moo(Bar2.Baz.class)\n" +
+			"	public static class Bar {\n" +
+			"		public static class Baz {\n" +
+			"		}\n" +
+			"	}\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
@@ -9551,15 +9551,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", IJavaElement.COMPILATION_UNIT, javaElement.getElementType());
 		assertNotNull("No parent", javaElement.getParent());
 	}
-	
-	
+
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=203342
 	 */
 	public void _test0284() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"	public static final double VAR = 0x0.0000000000001P-1022;\n" + 
+			"public class X {\n" +
+			"	public static final double VAR = 0x0.0000000000001P-1022;\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
@@ -9585,10 +9585,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0285() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/* resolve */);
 		PackageDeclaration packageDeclaration = (PackageDeclaration) buildAST(
-			"/*start*/package p;/*end*/\n" + 
-			"public class X {\n" + 
+			"/*start*/package p;/*end*/\n" +
+			"public class X {\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/);
 		IPackageBinding packageBinding = packageDeclaration.resolveBinding();
 		try {
@@ -9671,9 +9671,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0287/A.java", true/*resolve*/);
 		MemberValuePair pair = (MemberValuePair) buildAST(
 			"package test0287;\n" +
-			"@ABC (/*start*/name1=\"\"/*end*/)\n" + 
+			"@ABC (/*start*/name1=\"\"/*end*/)\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9687,9 +9687,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0288/A.java", true/*resolve*/);
 		MemberValuePair pair = (MemberValuePair) buildAST(
 			"package test0288;\n" +
-			"@ABC (/*start*/name1=\"\"/*end*/)\n" + 
+			"@ABC (/*start*/name1=\"\"/*end*/)\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -9703,9 +9703,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0289/A.java", true/*resolve*/);
 		NormalAnnotation annotation = (NormalAnnotation) buildAST(
 			"package test0289;\n" +
-			"/*start*/@ABC (name1=\"\")/*end*/\n" + 
+			"/*start*/@ABC (name1=\"\")/*end*/\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -9720,9 +9720,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0290/A.java", true/*resolve*/);
 		NormalAnnotation annotation = (NormalAnnotation) buildAST(
 			"package test0290;\n" +
-			"/*start*/@ABC (name1=\"\")/*end*/\n" + 
+			"/*start*/@ABC (name1=\"\")/*end*/\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9737,9 +9737,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0291/A.java", true/*resolve*/);
 		NormalAnnotation annotation = (NormalAnnotation) buildAST(
 			"package test0291;\n" +
-			"/*start*/@ABC (name1=\"\")/*end*/\n" + 
+			"/*start*/@ABC (name1=\"\")/*end*/\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9756,9 +9756,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"@interface ABC {\n" +
 			"	String name1() default \"\";\n" +
 			"}\n" +
-			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" + 
+			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9775,9 +9775,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"@interface ABC {\n" +
 			"	String name1() default \"\";\n" +
 			"}\n" +
-			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" + 
+			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9794,9 +9794,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"@interface ABC {\n" +
 			"	String name1() default \"\";\n" +
 			"}\n" +
-			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" + 
+			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9813,9 +9813,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"@interface ABC {\n" +
 			"	String name1() default \"\";\n" +
 			"}\n" +
-			"/*start*/@ABC(id=0)/*end*/\n" + 
+			"/*start*/@ABC(id=0)/*end*/\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9832,9 +9832,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"@interface ABC {\n" +
 			"	String name1() default \"\";\n" +
 			"}\n" +
-			"/*start*/@ABC(id=0)/*end*/\n" + 
+			"/*start*/@ABC(id=0)/*end*/\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -9851,9 +9851,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"@interface ABC {\n" +
 			"	String name1() default \"\";\n" +
 			"}\n" +
-			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" + 
+			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" +
 			"public class A {}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -9868,10 +9868,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type type = (Type) buildAST(
 			"package test0298;\n" +
 			"import java.util.List;\n" +
-			"public interface X {\n" + 
-			"	/*start*/List<IEntity>/*end*/ foo();\n" + 
+			"public interface X {\n" +
+			"	/*start*/List<IEntity>/*end*/ foo();\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -9885,10 +9885,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0299/X.java", true/*resolve*/);
 		Type type = (Type) buildAST(
 			"package test0299;\n" +
-			"public interface X {\n" + 
-			"	/*start*/List<IEntity>/*end*/ foo();\n" + 
+			"public interface X {\n" +
+			"	/*start*/List<IEntity>/*end*/ foo();\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -9902,10 +9902,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0300/X.java", true/*resolve*/);
 		Type type = (Type) buildAST(
 			"package test0300;\n" +
-			"public interface X {\n" + 
-			"	/*start*/ArrayList<IEntity>/*end*/ foo();\n" + 
+			"public interface X {\n" +
+			"	/*start*/ArrayList<IEntity>/*end*/ foo();\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -9920,10 +9920,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type type = (Type) buildAST(
 			"package test03018;\n" +
 			"import java.util.List;\n" +
-			"public interface X {\n" + 
-			"	/*start*/List<IEntity>/*end*/ foo();\n" + 
+			"public interface X {\n" +
+			"	/*start*/List<IEntity>/*end*/ foo();\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9937,10 +9937,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0302/X.java", true/*resolve*/);
 		Type type = (Type) buildAST(
 			"package test0302;\n" +
-			"public interface X {\n" + 
-			"	/*start*/List<IEntity>/*end*/ foo();\n" + 
+			"public interface X {\n" +
+			"	/*start*/List<IEntity>/*end*/ foo();\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9954,10 +9954,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0303/X.java", true/*resolve*/);
 		ParameterizedType type = (ParameterizedType) buildAST(
 			"package test0303;\n" +
-			"public interface X {\n" + 
-			"	/*start*/ArrayList<IEntity>/*end*/ foo();\n" + 
+			"public interface X {\n" +
+			"	/*start*/ArrayList<IEntity>/*end*/ foo();\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9971,10 +9971,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0304/X.java", true/*resolve*/);
 		Type type = (Type) buildAST(
 			"package test0304;\n" +
-			"public interface X {\n" + 
-			"	ArrayList</*start*/IEntity/*end*/> foo();\n" + 
+			"public interface X {\n" +
+			"	ArrayList</*start*/IEntity/*end*/> foo();\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -9988,10 +9988,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0305/X.java", true/*resolve*/);
 		Type type = (Type) buildAST(
 			"package test0305;\n" +
-			"public interface X {\n" + 
-			"	ArrayList</*start*/IEntity/*end*/> foo();\n" + 
+			"public interface X {\n" +
+			"	ArrayList</*start*/IEntity/*end*/> foo();\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -10010,7 +10010,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		/*start*/ArrayList<IEntity> list;/*end*/\n" +
 			"	}\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -10031,7 +10031,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		/*start*/ArrayList<IEntity> list;/*end*/\n" +
 			"	}\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -10052,7 +10052,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		 return null;\n" +
 			"	}/*end*/\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -10071,7 +10071,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		 return null;\n" +
 			"	}/*end*/\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
@@ -10089,7 +10089,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"	/*start*/void foo(ArrayList<IEntity> list) {\n" +
 			"	}/*end*/\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			false);
@@ -10107,14 +10107,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"	/*start*/void foo(ArrayList<IEntity> list) {\n" +
 			"	}/*end*/\n" +
 			"}",
-			this.workingCopy, 
+			this.workingCopy,
 			false/*don't report errors*/,
 			true,
 			true);
 		IMethodBinding binding = declaration.resolveBinding();
 		assertNotNull("No binding", binding);
 	}
-	
+
 	/*
 	 * Ensures that requesting a type binding with a non-existing parameterized type doesn't throw an OutOfMemoryError
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=233625 )
@@ -10140,7 +10140,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"<null>",
 			requestor.getBindings(bindingKeys));
 	}
-	
+
 	/*
 	 * Ensures that requesting a type binding with a non-existing parameterized type returns null
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=233625 )
@@ -10159,15 +10159,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0315() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/pack1/E.java", true/*resolve*/);
 		ASTNode node = buildAST(
-	    	"package pack1;\n" + 
-    		"public class E<X> {\n" + 
-    		"	public static <T> E<T> bar(T t) {\n" + 
-    		"		return null;\n" + 
-    		"	}\n" + 
-    		"\n" + 
-    		"	public void foo(E<?> e) {\n" + 
-    		"		/*start*/bar(e)/*end*/;\n" + 
-    		"	}\n" + 
+	    	"package pack1;\n" +
+    		"public class E<X> {\n" +
+    		"	public static <T> E<T> bar(T t) {\n" +
+    		"		return null;\n" +
+    		"	}\n" +
+    		"\n" +
+    		"	public void foo(E<?> e) {\n" +
+    		"		/*start*/bar(e)/*end*/;\n" +
+    		"	}\n" +
     		"}",
 			this.workingCopy);
 		IBinding binding = ((MethodInvocation) node).resolveTypeBinding();
@@ -10175,5 +10175,5 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"Lpack1/E<Lpack1/E<!Lpack1/E;*122;>;>;",
 			binding.getKey());
 	}
-	
+
 }

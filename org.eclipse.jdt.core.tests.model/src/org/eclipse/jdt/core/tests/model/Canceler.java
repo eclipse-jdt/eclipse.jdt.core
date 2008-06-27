@@ -24,7 +24,7 @@ public class Canceler implements IProgressMonitor {
 	public void done() {}
 	public void internalWorked(double work) {}
 	public boolean isCanceled() {
-		return --count < 0;
+		return --this.count < 0;
 	}
 	public void setCanceled(boolean value) {}
 	public void setTaskName(String name) {}

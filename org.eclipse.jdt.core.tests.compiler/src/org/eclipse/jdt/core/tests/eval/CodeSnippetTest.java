@@ -53,7 +53,7 @@ public void testCheckedException() {
 		"	throw new java.io.IOException();",
 		"} finally {",
 		"	System.err.println(\"This is an expected exception printed by the target VM:\");",
-		"}"}), 
+		"}"}),
 		null);
 }
 public static Class testClass() {
@@ -74,7 +74,7 @@ public void testEmptyStatement() {
 		"		return fact0(n - 1, acc * n);",
 		"	}",
 		"};",
-		"new X().fact(10)"}), 
+		"new X().fact(10)"}),
 		"3628800".toCharArray());
 }
 /**
@@ -83,9 +83,9 @@ public void testEmptyStatement() {
 public void testEvaluateEmptyImport() {
 	try {
 		char[] importName = new char[0];
-		context.setImports(new char[][] {importName});
+		this.context.setImports(new char[][] {importName});
 		Requestor requestor = new Requestor();
-		context.evaluateImports(getEnv(), requestor, getProblemFactory());
+		this.context.evaluateImports(getEnv(), requestor, getProblemFactory());
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Problems", result.hasProblems());
@@ -93,7 +93,7 @@ public void testEvaluateEmptyImport() {
 		assertEquals("Evaluation ID", importName, result.getEvaluationID());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -102,9 +102,9 @@ public void testEvaluateEmptyImport() {
 public void testEvaluateExistingPackageAndNonExistingTypeImports() {
 	try {
 		char[] importName = "non.existing.Type".toCharArray();
-		context.setImports(new char[][] {"java.lang.reflect.*".toCharArray(), importName});
+		this.context.setImports(new char[][] {"java.lang.reflect.*".toCharArray(), importName});
 		Requestor requestor = new Requestor();
-		context.evaluateImports(getEnv(), requestor, getProblemFactory());
+		this.context.evaluateImports(getEnv(), requestor, getProblemFactory());
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Problems", result.hasProblems());
@@ -112,7 +112,7 @@ public void testEvaluateExistingPackageAndNonExistingTypeImports() {
 		assertEquals("Evaluation ID", importName, result.getEvaluationID());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -121,9 +121,9 @@ public void testEvaluateExistingPackageAndNonExistingTypeImports() {
 public void testEvaluateNonExistingPackageAndExistingTypeImports() {
 	try {
 		char[] importName = "non.existing.*".toCharArray();
-		context.setImports(new char[][] {importName, "java.math.BigInteger".toCharArray()});
+		this.context.setImports(new char[][] {importName, "java.math.BigInteger".toCharArray()});
 		Requestor requestor = new Requestor();
-		context.evaluateImports(getEnv(), requestor, getProblemFactory());
+		this.context.evaluateImports(getEnv(), requestor, getProblemFactory());
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Problems", result.hasProblems());
@@ -131,7 +131,7 @@ public void testEvaluateNonExistingPackageAndExistingTypeImports() {
 		assertEquals("Evaluation ID", importName, result.getEvaluationID());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -140,9 +140,9 @@ public void testEvaluateNonExistingPackageAndExistingTypeImports() {
 public void testEvaluateNonExistingPackageImport() {
 	try {
 		char[] importName = "non.existing.*".toCharArray();
-		context.setImports(new char[][] {importName});
+		this.context.setImports(new char[][] {importName});
 		Requestor requestor = new Requestor();
-		context.evaluateImports(getEnv(), requestor, getProblemFactory());
+		this.context.evaluateImports(getEnv(), requestor, getProblemFactory());
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Problems", result.hasProblems());
@@ -150,7 +150,7 @@ public void testEvaluateNonExistingPackageImport() {
 		assertEquals("Evaluation ID", importName, result.getEvaluationID());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -159,9 +159,9 @@ public void testEvaluateNonExistingPackageImport() {
 public void testEvaluateNonExistingTypeImport() {
 	try {
 		char[] importName = "non.existing.Type".toCharArray();
-		context.setImports(new char[][] {importName});
+		this.context.setImports(new char[][] {importName});
 		Requestor requestor = new Requestor();
-		context.evaluateImports(getEnv(), requestor, getProblemFactory());
+		this.context.evaluateImports(getEnv(), requestor, getProblemFactory());
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Problems", result.hasProblems());
@@ -169,7 +169,7 @@ public void testEvaluateNonExistingTypeImport() {
 		assertEquals("Evaluation ID", importName, result.getEvaluationID());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -177,11 +177,11 @@ public void testEvaluateNonExistingTypeImport() {
  */
 public void testEvaluateValidPackageAndTypeImports() {
 	try {
-		context.setImports(new char[][] {"java.util.Enumeration".toCharArray(), "java.lang.reflect.*".toCharArray()});
-		context.evaluateImports(getEnv(), getNoResultRequestor(), getProblemFactory());
+		this.context.setImports(new char[][] {"java.util.Enumeration".toCharArray(), "java.lang.reflect.*".toCharArray()});
+		this.context.evaluateImports(getEnv(), getNoResultRequestor(), getProblemFactory());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -189,11 +189,11 @@ public void testEvaluateValidPackageAndTypeImports() {
  */
 public void testEvaluateValidPackageImport() {
 	try {
-		context.setImports(new char[][] {"java.io.*".toCharArray()});
-		context.evaluateImports(getEnv(), getNoResultRequestor(), getProblemFactory());
+		this.context.setImports(new char[][] {"java.io.*".toCharArray()});
+		this.context.evaluateImports(getEnv(), getNoResultRequestor(), getProblemFactory());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -201,11 +201,11 @@ public void testEvaluateValidPackageImport() {
  */
 public void testEvaluateValidTypeImport() {
 	try {
-		context.setImports(new char[][] {"java.math.BigInteger".toCharArray()});
-		context.evaluateImports(getEnv(), getNoResultRequestor(), getProblemFactory());
+		this.context.setImports(new char[][] {"java.math.BigInteger".toCharArray()});
+		this.context.evaluateImports(getEnv(), getNoResultRequestor(), getProblemFactory());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -217,7 +217,7 @@ public void testFinallyError() {
 		"	throw new Error();",
 		"} finally {",
 		"	System.err.println(\"This is an expected error printed by the target VM:\");",
-		"}"}), 
+		"}"}),
 		null);
 }
 /**
@@ -229,9 +229,9 @@ public void testFinallyOneBlock() {
 		"	return 1;",
 		"} finally {",
 		"	return 2;",
-		"}"}), 
+		"}"}),
 		new CategorizedProblem[] {
-			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 30, 40, 4), 
+			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 30, 40, 4),
 		},
 		"2".toCharArray());
 }
@@ -248,10 +248,10 @@ public void testFinallyTwoBlock() {
 		"	}",
 		"} finally {",
 		"	return 3;",
-		"}"}), 
+		"}"}),
 		new CategorizedProblem[] {
-			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 40, 51, 5), 
-			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 66, 76, 8), 
+			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 40, 51, 5),
+			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 66, 76, 8),
 		},
 		"3".toCharArray());
 }
@@ -265,7 +265,7 @@ public void testFreeReturnAnonymous() {
 		"	public String toString() {",
 		"		return \"an object\";",
 		"	}",
-		"}"}), 
+		"}"}),
 		"an object".toCharArray());
 }
 /**
@@ -282,7 +282,7 @@ public void testFreeReturnClassDeclaration() {
 		"		this.y = y;",
 		"	}",
 		"}",
-		"new Point(56, 99).x"}), 
+		"new Point(56, 99).x"}),
 		"56".toCharArray());
 }
 /**
@@ -306,7 +306,7 @@ public void testFreeReturnInteger() {
 public void testFreeReturnLocalVar() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"int i = 99;",
-		"i + 4"}), 
+		"i + 4"}),
 		"103".toCharArray());
 }
 /**
@@ -319,7 +319,7 @@ public void testFreeReturnStatement() {
 		"for (int j=0;j<10;j++) {",
 		"	i++;",
 		"}",
-		"i"}), 
+		"i"}),
 		"12".toCharArray());
 }
 /**
@@ -327,11 +327,11 @@ public void testFreeReturnStatement() {
  */
 public void testImportPackage() {
 	try {
-		context.setImports(new char[][] {"java.io.*".toCharArray()});
+		this.context.setImports(new char[][] {"java.io.*".toCharArray()});
 		evaluateWithExpectedDisplayString("return new File(\"!@#%\").exists();".toCharArray(), "false".toCharArray());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -339,11 +339,11 @@ public void testImportPackage() {
  */
 public void testImportType() {
 	try {
-		context.setImports(new char[][] {"java.math.BigInteger".toCharArray()});
+		this.context.setImports(new char[][] {"java.math.BigInteger".toCharArray()});
 		evaluateWithExpectedDisplayString("return new BigInteger(\"123456789012345678901234567890\");".toCharArray(), "123456789012345678901234567890".toCharArray());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -351,11 +351,11 @@ public void testImportType() {
  */
 public void testImportTypeAndPackage() {
 	try {
-		context.setImports(new char[][] {"java.util.Enumeration".toCharArray(), "java.lang.reflect.*".toCharArray()});
+		this.context.setImports(new char[][] {"java.util.Enumeration".toCharArray(), "java.lang.reflect.*".toCharArray()});
 		evaluateWithExpectedDisplayString("Field[] fields = Enumeration.class.getDeclaredFields(); return fields.length;".toCharArray(), "0".toCharArray());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 /**
@@ -378,7 +378,7 @@ public void testInnerClassNamed() {
 		"class X {",
 		"	int foo = 1;",
 		"}",
-		"return new X().foo;"}), 
+		"return new X().foo;"}),
 		"1".toCharArray());
 }
 /**
@@ -390,11 +390,11 @@ public void testPackage() {
 	// TBD: Test access to package class and members in another package than a java.* package
 	try {
 		// declare that the code snippet is run in java.util.zip and access a package private class
-		context.setPackageName("java.util.zip".toCharArray());
+		this.context.setPackageName("java.util.zip".toCharArray());
 		evaluateWithExpectedDisplayString("return ZipConstants.LOCSIG;".toCharArray(), "67324752".toCharArray());
 	} finally {
 		// clean up
-		context.setPackageName(new char[0]);
+		this.context.setPackageName(new char[0]);
 	}
 }
 /**
@@ -457,7 +457,7 @@ public void testReturnDisplayStringObject() {
 		"	public String toString() {",
 		"		return \"an object\";",
 		"	}",
-		"};"}), 
+		"};"}),
 		"an object".toCharArray());
 }
 /**
@@ -671,7 +671,7 @@ public void testRunMethodInAnonymous() {
 		"	}",
 		"}).start();",
 		"while (!x.finished) Thread.currentThread().sleep(100);",
-		"x.i"}), 
+		"x.i"}),
 		"10".toCharArray());
 }
 /**
@@ -680,7 +680,7 @@ public void testRunMethodInAnonymous() {
 public void testFor89632() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	try {
-		context.setImports(new char[][] {"java.util.*".toCharArray()});
+		this.context.setImports(new char[][] {"java.util.*".toCharArray()});
 		evaluateWithExpectedDisplayString(
 				buildCharArray(new String[] {
 					"Collection<String> c = new ArrayList<String>();\n" +
@@ -693,11 +693,11 @@ public void testFor89632() {
 					"	buffer.append(i.next());\n" +
 					"}" +
 					"return String.valueOf(buffer);"
-				}), 
+				}),
 				"abc".toCharArray());
 	} finally {
 		// clean up
-		context.setImports(new char[0][]);
+		this.context.setImports(new char[0][]);
 	}
 }
 }

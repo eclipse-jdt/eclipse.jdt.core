@@ -28,7 +28,7 @@ public CodeSnippetTypeDeclaration(CompilationResult compilationResult){
 public void generateCode(ClassFile enclosingClassFile) {
 	if ((this.bits & ASTNode.HasBeenGenerated) != 0) return;
 	this.bits |= ASTNode.HasBeenGenerated;
-	
+
 	if (this.ignoreFurtherInvestigation) {
 		if (this.binding == null)
 			return;
@@ -61,7 +61,7 @@ public void generateCode(ClassFile enclosingClassFile) {
 				this.methods[i].generateCode(this.scope, classFile);
 			}
 		}
-		
+
 		// generate all methods
 		classFile.addSpecialMethods();
 

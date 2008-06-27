@@ -25,10 +25,10 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CaseStatement extends Statement {
-	
+
 	public Expression constantExpression;
 	public CaseLabel targetLabel;
-	
+
 public CaseStatement(Expression constantExpression, int sourceEnd, int sourceStart) {
 	this.constantExpression = constantExpression;
 	this.sourceEnd = sourceEnd;
@@ -41,7 +41,7 @@ public FlowInfo analyseCode(
 	FlowInfo flowInfo) {
 
 	if (this.constantExpression != null) {
-		if (this.constantExpression.constant == Constant.NotAConstant 
+		if (this.constantExpression.constant == Constant.NotAConstant
 				&& !this.constantExpression.resolvedType.isEnum()) {
 			currentScope.problemReporter().caseExpressionMustBeConstant(this.constantExpression);
 		}
@@ -88,13 +88,13 @@ public void resolve(BlockScope scope) {
 public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	// switchExpressionType maybe null in error case
     scope.enclosingCase = this; // record entering in a switch case block
-    
+
 	if (this.constantExpression == null) {
 		// remember the default case into the associated switch statement
 		if (switchStatement.defaultCase != null)
 			scope.problemReporter().duplicateDefaultCase(this);
 
-		// on error the last default will be the selected one ...	
+		// on error the last default will be the selected one ...
 		switchStatement.defaultCase = this;
 		return Constant.NotAConstant;
 	}

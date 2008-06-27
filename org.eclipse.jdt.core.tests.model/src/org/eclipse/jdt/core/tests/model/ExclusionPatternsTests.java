@@ -65,23 +65,23 @@ public void testAddExclusionOnCompilationUnit() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-	
+
 	clearDeltas();
 	setClasspath(new String[] {"/P/src", "**/A.java"});
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
-		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
+		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
 		"	ResourceDelta(/P/.classpath)[*]"
 	);
-	
+
 	IPackageFragment pkg = getPackage("/P/src/p");
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"",
 		pkg.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"A.java",
@@ -99,20 +99,20 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
 
 		clearDeltas();
 		javaProject.setRawClasspath(createClasspath(new String[] {"/P1", "doc/"}, false/*no inclusion*/, true/*exclusion*/), null);
-	
+
 		assertDeltas(
 			"Unexpected deltas",
-			"P1[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
-			"	<project root>[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+			"	<project root>[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
 			"	ResourceDelta(/P1/.classpath)[*]"
 		);
-	
+
 		IPackageFragmentRoot root = getPackageFragmentRoot("/P1");
 		assertSortedElementsEqual(
 			"Unexpected children",
 			"<default> [in <project root> [in P1]]",
 			root.getChildren());
-		
+
 		assertResourceNamesEqual(
 			"Unexpected non-java resources of project",
 			".classpath\n" +
@@ -125,28 +125,28 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
 }
 /*
  * Ensure that adding an exclusion on a package
- * makes it disappear from the children of its package fragment root 
+ * makes it disappear from the children of its package fragment root
  * and it is added to the non-java resources.
  */
 public void testAddExclusionOnPackage() throws CoreException {
 	createFolder("/P/src/p");
-	
+
 	clearDeltas();
 	setClasspath(new String[] {"/P/src", "p/"});
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
-		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
+		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
 		"	ResourceDelta(/P/.classpath)[*]"
 	);
-	
+
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"<default> [in src [in P]]",
 		root.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"p",
@@ -164,28 +164,28 @@ public void testAddExclusionOnPrimaryWorkingCopy() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-		
+
 	ICompilationUnit workingCopy = null;
 	try {
 		workingCopy = getCompilationUnit("/P/src/p/A.java");
 		workingCopy.becomeWorkingCopy(null);
-		
+
 		clearDeltas();
 		setClasspath(new String[] {"/P/src", "**/A.java"});
-		
+
 		assertDeltas(
 			"Unexpected deltas",
-			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
-			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
-		
+
 		IPackageFragment pkg = getPackage("/P/src/p");
 		assertSortedElementsEqual(
 			"Unexpected children",
 			"",
 			pkg.getChildren());
-			
+
 		assertResourceNamesEqual(
 			"Unexpected non-java resources",
 			"A.java",
@@ -202,30 +202,30 @@ public void testAddExclusionOnPrimaryWorkingCopy() throws CoreException {
  */
 public void testAddToExcludedFolder() throws CoreException {
 	createFolder("/P/src/icons");
-	
+
 	// exclude folder and its contents
 	setClasspath(new String[] {"/P/src", "icons/"});
-	
+
 	clearDeltas();
 	createFile("/P/src/icons/my.txt", "");
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CONTENT}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CONTENT}\n" +
 		"		ResourceDelta(/P/src/icons)[*]"
 	);
-	
+
 	clearDeltas();
 	deleteFile("/P/src/icons/my.txt");
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CONTENT}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CONTENT}\n" +
 		"		ResourceDelta(/P/src/icons)[*]"
 	);
 }
 /*
- * Ensure that creating an excluded compilation unit 
+ * Ensure that creating an excluded compilation unit
  * doesn't make it appear as a child of its package but it is a non-java resource.
  */
 public void testCreateExcludedCompilationUnit() throws CoreException {
@@ -241,48 +241,48 @@ public void testCreateExcludedCompilationUnit() throws CoreException {
 		"}",
 		false,
 		null);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
-		"		p[*]: {CONTENT}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
+		"		p[*]: {CONTENT}\n" +
 		"			ResourceDelta(/P/src/p/A.java)[+]"
 	);
-	
+
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"",
 		pkg.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"A.java",
 		pkg.getNonJavaResources());
 }
 /*
- * Ensure that crearing an excluded package 
+ * Ensure that crearing an excluded package
  * doesn't make it appear as a child of its package fragment root but it is a non-java resource.
  */
 public void testCreateExcludedPackage() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
-	
+
 	clearDeltas();
 	root.createPackageFragment("p", false, null);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CONTENT}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CONTENT}\n" +
 		"		ResourceDelta(/P/src/p)[+]"
 	);
-	
+
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"<default> [in src [in P]]",
 		root.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"p",
@@ -294,24 +294,24 @@ public void testCreateExcludedPackage() throws CoreException {
  */
 public void testCreateExcludedPackage2() throws CoreException {
 	setClasspath(new String[] {"/P/src", "org/*|org/eclipse/*"});
-	
+
 	clearDeltas();
 	createFolder("/P/src/org/eclipse/mypack");
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CONTENT}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CONTENT}\n" +
 		"		ResourceDelta(/P/src/org)[+]"
 	);
-	
+
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"<default> [in src [in P]]\n" + 
+		"<default> [in src [in P]]\n" +
 		"org.eclipse.mypack [in src [in P]]",
 		root.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"org",
@@ -325,36 +325,36 @@ public void testCreateExcludedPackage2() throws CoreException {
 public void testCreateExcludedAndIncludedPackages() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p1/p2/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
-	
+
 	clearDeltas();
 	createFolder("/P/src/p1/p2");
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
 		"		p1[+]: {}"
 	);
-	
+
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"<default> [in src [in P]]\n" + 
+		"<default> [in src [in P]]\n" +
 		"p1 [in src [in P]]",
 		root.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"p2",
 		root.getPackageFragment("p1").getNonJavaResources());
 }
 /*
- * Ensure that creating a file that corresponds to an excluded compilation unit 
+ * Ensure that creating a file that corresponds to an excluded compilation unit
  * doesn't make it appear as a child of its package but it is a non-java resource.
  */
 public void testCreateResourceExcludedCompilationUnit() throws CoreException {
 	setClasspath(new String[] {"/P/src", "**/A.java"});
 	createFolder("/P/src/p");
-	
+
 	clearDeltas();
 	createFile(
 		"/P/src/p/A.java",
@@ -362,49 +362,49 @@ public void testCreateResourceExcludedCompilationUnit() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
-		"		p[*]: {CONTENT}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
+		"		p[*]: {CONTENT}\n" +
 		"			ResourceDelta(/P/src/p/A.java)[+]"
 	);
-	
+
 	IPackageFragment pkg = getPackage("/P/src/p");
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"",
 		pkg.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"A.java",
 		pkg.getNonJavaResources());
 }
 /*
- * Ensure that creating a folder that corresponds to an excluded package 
+ * Ensure that creating a folder that corresponds to an excluded package
  * doesn't make it appear as a child of its package fragment root but it is a non-java resource.
  */
 public void testCreateResourceExcludedPackage() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p/"});
-	
+
 	clearDeltas();
 	createFolder("/P/src/p");
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CONTENT}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CONTENT}\n" +
 		"		ResourceDelta(/P/src/p)[+]"
 	);
-	
+
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"<default> [in src [in P]]",
 		root.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"p",
@@ -422,10 +422,10 @@ public void testIsOnClasspath1() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-	assertTrue("Resource should be on classpath", project.isOnClasspath(file));
-	
+	assertTrue("Resource should be on classpath", this.project.isOnClasspath(file));
+
 	ICompilationUnit cu = getCompilationUnit("/P/src/p/A.java");
-	assertTrue("CU should be on classpath", project.isOnClasspath(cu));
+	assertTrue("CU should be on classpath", this.project.isOnClasspath(cu));
 }
 /*
  * Ensures that a cu that is excluded is not on the classpath of the project.
@@ -439,10 +439,10 @@ public void testIsOnClasspath2() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-	assertTrue("Resource should not be on classpath", !project.isOnClasspath(file));
-	
+	assertTrue("Resource should not be on classpath", !this.project.isOnClasspath(file));
+
 	ICompilationUnit cu = getCompilationUnit("/P/src/p/A.java");
-	assertTrue("CU should not be on classpath", !project.isOnClasspath(cu));
+	assertTrue("CU should not be on classpath", !this.project.isOnClasspath(cu));
 }
 /*
  * Ensures that a non-java resource that is not excluded is on the classpath of the project.
@@ -451,7 +451,7 @@ public void testIsOnClasspath3() throws CoreException {
 	setClasspath(new String[] {"/P/src", ""});
 	createFolder("/P/src/p");
 	IFile file = createFile("/P/src/p/readme.txt", "");
-	assertTrue("Resource should be on classpath", project.isOnClasspath(file));
+	assertTrue("Resource should be on classpath", this.project.isOnClasspath(file));
 }
 /*
  * Ensures that a non-java resource that is excluded is not on the classpath of the project.
@@ -460,12 +460,12 @@ public void testIsOnClasspath4() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p/**"});
 	createFolder("/P/src/p");
 	IFile file = createFile("/P/src/p/readme.txt", "");
-	assertTrue("Resource should not be on classpath", !project.isOnClasspath(file));
+	assertTrue("Resource should not be on classpath", !this.project.isOnClasspath(file));
 }
 /*
  * Ensures that an excluded nested source folder doesn't appear as a non-java resource of the outer folder.
  * (regression test for bug 28115 Ubiquitous resource in the JavaModel)
- * 
+ *
  */
 public void testNestedSourceFolder1() throws CoreException {
 	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
@@ -477,79 +477,79 @@ public void testNestedSourceFolder1() throws CoreException {
 		root1.getNonJavaResources());
 }
 /*
- * Ensures that adding a .java file in a nested source folder reports 
+ * Ensures that adding a .java file in a nested source folder reports
  * a delta on the nested source folder and not on the outer one.
  */
 public void testNestedSourceFolder2() throws CoreException {
 	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
 	createFolder("/P/src1/src2");
-	
+
 	clearDeltas();
 	createFile(
 		"/P/src1/src2/A.java",
 		"public class A {\n" +
 		"}"
 	);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src1/src2[*]: {CHILDREN}\n" + 
-		"		<default>[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src1/src2[*]: {CHILDREN}\n" +
+		"		<default>[*]: {CHILDREN}\n" +
 		"			A.java[+]: {}"
 	);
 }
 /*
- * Ensures that adding a .txt file in a nested source folder reports 
+ * Ensures that adding a .txt file in a nested source folder reports
  * a resource delta on the nested source folder and not on the outer one.
  */
 public void testNestedSourceFolder3() throws CoreException {
 	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
 	createFolder("/P/src1/src2");
-	
+
 	clearDeltas();
 	createFile("/P/src1/src2/readme.txt", "");
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src1/src2[*]: {CONTENT}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src1/src2[*]: {CONTENT}\n" +
 		"		ResourceDelta(/P/src1/src2/readme.txt)[+]"
 	);
 }
 /*
- * Ensures that adding a folder in a nested source folder reports 
+ * Ensures that adding a folder in a nested source folder reports
  * a delta on the nested source folder and not on the outer one.
  */
 public void testNestedSourceFolder4() throws CoreException {
 	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
 	createFolder("/P/src1/src2");
-	
+
 	clearDeltas();
 	createFolder("/P/src1/src2/p");
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src1/src2[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src1/src2[*]: {CHILDREN}\n" +
 		"		p[+]: {}"
 	);
 }
 /*
- * Ensures that adding a folder in a outer source folder reports 
+ * Ensures that adding a folder in a outer source folder reports
  * a delta on the outer source folder and not on the nested one.
  */
 public void testNestedSourceFolder5() throws CoreException {
 	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
 	createFolder("/P/src1/src2");
-	
+
 	clearDeltas();
 	createFolder("/P/src1/p");
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src1[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src1[*]: {CHILDREN}\n" +
 		"		p[+]: {}"
 	);
 }
@@ -561,16 +561,16 @@ public void testNestedSourceFolder6() throws CoreException {
 	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
 	createFolder("/P/src1/src2");
 	createFolder("/P/src1/p");
-	
+
 	clearDeltas();
 	moveFolder("/P/src1/p", "/P/src1/src2/p");
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src1[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src1[*]: {CHILDREN}\n" +
 		"		p[-]: {MOVED_TO(p [in src1/src2 [in P]])}\n" +
-		"	src1/src2[*]: {CHILDREN}\n" + 
+		"	src1/src2[*]: {CHILDREN}\n" +
 		"		p[+]: {MOVED_FROM(p [in src1 [in P]])}"
 	);
 }
@@ -590,22 +590,22 @@ public void testRenameExcludedCompilationUnit() throws CoreException {
 
 	clearDeltas();
 	file.move(new Path("/P/src/p/B.java"), false, null);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
-		"		p[*]: {CHILDREN | CONTENT}\n" + 
-		"			B.java[+]: {}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
+		"		p[*]: {CHILDREN | CONTENT}\n" +
+		"			B.java[+]: {}\n" +
 		"			ResourceDelta(/P/src/p/A.java)[-]"
 	);
-	
+
 	IPackageFragment pkg = getPackage("/P/src/p");
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"B.java [in p [in src [in P]]]",
 		pkg.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
@@ -613,31 +613,31 @@ public void testRenameExcludedCompilationUnit() throws CoreException {
 }
 /*
  * Ensure that renaming an excluded package so that it is not excluded any longer
- * makes it appears as a child of its package fragment root 
+ * makes it appears as a child of its package fragment root
  * and it is removed from the non-java resources.
  */
 public void testRenameExcludedPackage() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	IPackageFragment pkg = root.createPackageFragment("p", false, null);
-	
+
 	clearDeltas();
 	pkg.getResource().move(new Path("/P/src/q"), false, null);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN | CONTENT}\n" + 
-		"		q[+]: {}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN | CONTENT}\n" +
+		"		q[+]: {}\n" +
 		"		ResourceDelta(/P/src/p)[-]"
 	);
-	
+
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"<default> [in src [in P]]\n" + 
+		"<default> [in src [in P]]\n" +
 		"q [in src [in P]]",
 		root.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
@@ -656,25 +656,25 @@ public void testRenameResourceExcludedCompilationUnit() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-	
+
 	clearDeltas();
 	file.move(new Path("/P/src/p/B.java"),  false, null);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
-		"		p[*]: {CHILDREN | CONTENT}\n" + 
-		"			B.java[+]: {}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
+		"		p[*]: {CHILDREN | CONTENT}\n" +
+		"			B.java[+]: {}\n" +
 		"			ResourceDelta(/P/src/p/A.java)[-]"
 	);
-	
+
 	IPackageFragment pkg = getPackage("/P/src/p");
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"B.java [in p [in src [in P]]]",
 		pkg.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
@@ -692,13 +692,13 @@ public void testSearchWithExcludedCompilationUnit1() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-	
+
 	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 	search(
-		"A", 
+		"A",
 		IJavaSearchConstants.TYPE,
 		IJavaSearchConstants.DECLARATIONS,
-		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}), 
+		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}),
 		resultCollector);
 	assertEquals(
 		"Unexpected matches found",
@@ -717,14 +717,14 @@ public void testSearchWithExcludedCompilationUnit2() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-	
+
 	setClasspath(new String[] {"/P/src", ""});
 	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 	search(
-		"A", 
+		"A",
 		IJavaSearchConstants.TYPE,
 		IJavaSearchConstants.DECLARATIONS,
-		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}), 
+		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}),
 		resultCollector);
 	assertEquals(
 		"Unexpected matches found",
@@ -740,22 +740,22 @@ public void testRemoveExcludedAndIncludedPackages() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p1/p2/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	createFolder("/P/src/p1/p2");
-	
+
 	clearDeltas();
 	deleteFolder("/P/src/p1");
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN}\n" +
 		"		p1[-]: {}"
 	);
-	
+
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"<default> [in src [in P]]",
 		root.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
@@ -763,33 +763,33 @@ public void testRemoveExcludedAndIncludedPackages() throws CoreException {
 }
 
 /*
- * Ensure that renaming a folder that corresponds to an excluded package 
+ * Ensure that renaming a folder that corresponds to an excluded package
  * so that it is not excluded any longer
- * makes it appears as a child of its package fragment root 
+ * makes it appears as a child of its package fragment root
  * and it is removed from the non-java resources.
  */
 public void testRenameResourceExcludedPackage() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p/"});
 	IFolder folder = createFolder("/P/src/p");
-	
+
 	clearDeltas();
 	folder.move(new Path("/P/src/q"), false, null);
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-		"	src[*]: {CHILDREN | CONTENT}\n" + 
-		"		q[+]: {}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	src[*]: {CHILDREN | CONTENT}\n" +
+		"		q[+]: {}\n" +
 		"		ResourceDelta(/P/src/p)[-]"
 	);
-	
+
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"<default> [in src [in P]]\n" + 
+		"<default> [in src [in P]]\n" +
 		"q [in src [in P]]",
 		root.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
@@ -812,14 +812,14 @@ public void testSearchPotentialMatchInOutput() throws CoreException {
 				);
 			}
 		}, null);
-		
+
 		JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {getJavaProject("P")});
 		search(
-			"X", 
+			"X",
 			IJavaSearchConstants.TYPE,
 			IJavaSearchConstants.DECLARATIONS,
-			scope, 
+			scope,
 			resultCollector);
 		assertEquals("", resultCollector.toString());
 	} finally {
@@ -839,23 +839,23 @@ public void testRemoveExclusionOnCompilationUnit() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-	
+
 	clearDeltas();
 	setClasspath(new String[] {"/P/src", ""});
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
-		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
+		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
 		"	ResourceDelta(/P/.classpath)[*]"
 	);
-	
+
 	IPackageFragment pkg = getPackage("/P/src/p");
 	assertSortedElementsEqual(
 		"Unexpected children",
 		"A.java [in p [in src [in P]]]",
 		pkg.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",
@@ -863,30 +863,30 @@ public void testRemoveExclusionOnCompilationUnit() throws CoreException {
 }
 /*
  * Ensure that removing the exclusion on a package
- * makes it appears as a child of its package fragment root 
+ * makes it appears as a child of its package fragment root
  * and it is removed from the non-java resources.
  */
 public void testRemoveExclusionOnPackage() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p"});
 	createFolder("/P/src/p");
-	
+
 	clearDeltas();
 	setClasspath(new String[] {"/P/src", ""});
-	
+
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
-		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
+		"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+		"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
 		"	ResourceDelta(/P/.classpath)[*]"
 	);
-	
+
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"<default> [in src [in P]]\n" + 
+		"<default> [in src [in P]]\n" +
 		"p [in src [in P]]",
 		root.getChildren());
-		
+
 	assertResourceNamesEqual(
 		"Unexpected non-java resources",
 		"",

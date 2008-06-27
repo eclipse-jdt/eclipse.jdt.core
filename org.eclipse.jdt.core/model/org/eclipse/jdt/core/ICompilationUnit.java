@@ -63,17 +63,17 @@ public static final int ENABLE_STATEMENTS_RECOVERY = 0x02;
 public static final int ENABLE_BINDINGS_RECOVERY = 0x04;
 
 /**
- * Applies a text edit to the compilation unit's buffer. 
- * 
+ * Applies a text edit to the compilation unit's buffer.
+ *
  * @param edit the edit to apply
  * @param monitor the progress monitor to use or <code>null</code> if no progress should be reported
- * @return the undo edit 
+ * @return the undo edit
  * @throws JavaModelException if this edit can not be applied to the compilation unit's buffer. Reasons include:
  * <ul>
  * <li>This compilation unit does not exist ({@link IJavaModelStatusConstants#ELEMENT_DOES_NOT_EXIST}).</li>
  * <li>The provided edit can not be applied as there is a problem with the text edit locations ({@link IJavaModelStatusConstants#BAD_TEXT_EDIT_LOCATION}).</li>
  * </ul>
- * 
+ *
  * @since 3.4
  */
 public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws JavaModelException;

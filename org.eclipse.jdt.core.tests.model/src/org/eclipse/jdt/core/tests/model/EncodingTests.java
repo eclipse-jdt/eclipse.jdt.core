@@ -51,7 +51,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	public EncodingTests(String name) {
 		super(name);
 	}
-	
+
 	public static Test suite() {
 		return buildModelTestSuite(EncodingTests.class);
 	}
@@ -132,11 +132,11 @@ public class EncodingTests extends ModifyingResourceTests {
 		String savedEncoding = null;
 		try {
 			Preferences preferences = ResourcesPlugin.getPlugin().getPluginPreferences();
-			
+
 			savedEncoding = preferences.getString(ResourcesPlugin.PREF_ENCODING);
 			String encoding = "UTF-8";
 			preferences.setValue(ResourcesPlugin.PREF_ENCODING, encoding);
-			
+
 			ResourcesPlugin.getPlugin().savePluginPreferences();
 
 			IJavaProject newProject = createJavaProject("P", new String[] { "" }, "");
@@ -169,7 +169,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			preferences.setValue(ResourcesPlugin.PREF_ENCODING, savedEncoding);
 			ResourcesPlugin.getPlugin().savePluginPreferences();
 		}
-	}	
+	}
 
 	/*
 	##################
@@ -185,7 +185,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Set file encoding
 		String encoding = "UTF-8";
 		this.utf8File.setCharset(encoding, null);
-		
+
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = this.utf8Source.getSource();
@@ -201,7 +201,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		for (int i = 0, max = sourceBytes.length; i < max; i++) {
 			assertTrue("Wrong size of encoded character at " + i, sourceBytes[i] == encodedBytes[i]);
 		}
-	}	
+	}
 
 	/*
 	 * Get compilation unit source on a file written in UTF-8 charset using UTF-8 encoding for project.
@@ -213,7 +213,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Set project encoding
 		String encoding = "UTF-8";
 		this.encodingProject.setDefaultCharset(encoding, null);
-		
+
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = this.utf8Source.getSource();
@@ -229,7 +229,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		for (int i = 0, max = sourceBytes.length; i < max; i++) {
 			assertTrue("Wrong size of encoded character at " + i, sourceBytes[i] == encodedBytes[i]);
 		}
-	}	
+	}
 
 	/*
 	 * Get compilation unit source on a file written in UTF-8 charset using workspace default encoding.
@@ -247,7 +247,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File));
 		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
 		assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, systemSource);
-			
+
 		// Now compare bytes array
 		byte[] sourceBytes = source.getBytes(wkspEncoding);
 		byte[] encodedBytes = Util.getResourceContentsAsByteArray(this.utf8File);
@@ -270,7 +270,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Set file encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
 		this.utf8File.setCharset(encoding, null);
-		
+
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.utf8Source.getSource());
@@ -289,14 +289,14 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Set project encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
 		this.encodingProject.setDefaultCharset(encoding, null);
-		
+
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.utf8Source.getSource());
 		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding));
 		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
-	}	
+	}
 
 	/*
 	 * Get compilation unit source on a file written in UTF-8 charset using workspace default encoding.
@@ -326,7 +326,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Set file encoding
 		String encoding = "UTF-8";
 		this.utf8File.setCharset(encoding, null);
-		
+
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String source = this.utf8Source.getSource();
@@ -342,7 +342,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		for (int i = 0, max = sourceBytes.length; i < max; i++) {
 			assertTrue("Wrong size of encoded character at " + i, sourceBytes[i] == encodedBytes[i]);
 		}
-	}	
+	}
 
 	/* Same config than test002  */
 	public void test012() throws JavaModelException, CoreException, UnsupportedEncodingException {
@@ -350,7 +350,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Set project encoding
 		String encoding = "UTF-8";
 		this.encodingProject.setDefaultCharset(encoding, null);
-		
+
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String source = this.utf8Source.getSource();
@@ -366,7 +366,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		for (int i = 0, max = sourceBytes.length; i < max; i++) {
 			assertTrue("Wrong size of encoded character at " + i, sourceBytes[i] == encodedBytes[i]);
 		}
-	}	
+	}
 
 	/* Same config than test003  */
 	public void test013() throws JavaModelException, CoreException, UnsupportedEncodingException {
@@ -378,7 +378,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File));
 		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
 		assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, systemSource);
-			
+
 		// Now compare bytes array
 		byte[] sourceBytes = source.getBytes(wkspEncoding);
 		byte[] encodedBytes = Util.getResourceContentsAsByteArray(this.utf8File);
@@ -397,7 +397,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Set file encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
 		this.utf8File.setCharset(encoding, null);
-		
+
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String source = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.utf8Source.getSource());
@@ -412,14 +412,14 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Set project encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
 		this.encodingProject.setDefaultCharset(encoding, null);
-		
+
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String source = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.utf8Source.getSource());
 		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding));
 		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
-	}	
+	}
 
 	/* Same config than test006  */
 	public void test016() throws JavaModelException, CoreException {
@@ -497,7 +497,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertNotNull(source);
 		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
-		
+
 		// Reset zip file encoding
 		zipFile.setCharset(null, null);
 	}
@@ -516,8 +516,8 @@ public class EncodingTests extends ModifyingResourceTests {
 				"public class Test {}";
 			IFile file = this.createFile("P/Test.java", initialContent);
 			file.setCharset(encoding, null);
-			ICompilationUnit cu = this.getCompilationUnit("P/Test.java"); 
-			
+			ICompilationUnit cu = this.getCompilationUnit("P/Test.java");
+
 			// Modif direct the buffer
 			String firstModif = "/**\n"+
 				" * Caract?res exotiques:\n"+
@@ -527,7 +527,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			cu.getBuffer().setContents(firstModif);
 			cu.getBuffer().save(null, true);
 			String source = cu.getBuffer().getContents();
-			
+
 			// Compare strings and bytes arrays
 			String encodedContents = new String (Util.getResourceContentsAsCharArray(file, encoding));
 			assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, source);
@@ -539,7 +539,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			}
 		} catch (UnsupportedEncodingException e) {
 		} finally {
-			this.stopDeltas();
+			stopDeltas();
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
 			}
@@ -562,8 +562,8 @@ public class EncodingTests extends ModifyingResourceTests {
 				"public class Test {}";
 			IFile file = this.createFile("P/Test.java", initialContent);
 			file.setCharset(encoding, null);
-			ICompilationUnit cu = this.getCompilationUnit("P/Test.java"); 
-			
+			ICompilationUnit cu = this.getCompilationUnit("P/Test.java");
+
 			// Modif using working copy
 			workingCopy = cu.getWorkingCopy(null);
 			String secondModif = "/**\n"+
@@ -576,7 +576,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			workingCopy.getBuffer().setContents(secondModif);
 			workingCopy.commitWorkingCopy(true, null);
 			String source = workingCopy.getBuffer().getContents();
-			
+
 			// Compare strings and bytes arrays
 			String encodedContents = new String (Util.getResourceContentsAsCharArray(file));
 			assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, source);
@@ -588,7 +588,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			}
 		} catch (UnsupportedEncodingException e) {
 		} finally {
-			this.stopDeltas();
+			stopDeltas();
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
 			}
@@ -605,7 +605,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Set file encoding
 		String encoding = "UTF-8";
 		this.utf8File.setCharset(encoding, null);
-		
+
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = this.utf8Source.getSource();
@@ -615,8 +615,8 @@ public class EncodingTests extends ModifyingResourceTests {
 		ISourceReference bomSourceRef = getCompilationUnit(bomFile.getFullPath().toString());
 		String bomSource = bomSourceRef.getSource();
 		assertEquals("BOM UTF-8 source should be idtentical than UTF-8!", source, bomSource);
-	}	
-	
+	}
+
 	/*
 	 * Ensures that a file is reindexed when the encoding changes.
 	 * (regression test for bug 68585 index is out of date after encoding change)
@@ -631,7 +631,7 @@ public class EncodingTests extends ModifyingResourceTests {
 					IFile file = null;
 					try {
 						file = createFile(
-							"/Encoding/src/test68585/X.java", 
+							"/Encoding/src/test68585/X.java",
 							"package  test68585;\n" +
 							"public class X {\n" +
 							"}\n" +
@@ -643,29 +643,29 @@ public class EncodingTests extends ModifyingResourceTests {
 					}
 					file.setCharset(wkspEncoding, null);
 				}
-			}, 
+			},
 			null);
-			
+
 			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 			JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 			search(
-				"Y\u00F4", 
+				"Y\u00F4",
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS,
-				scope, 
+				scope,
 				resultCollector);
 			assertSearchResults("Should not get any result", "", resultCollector);
-			
+
 			// change encoding so that file is readable
 			getFile("/Encoding/src/test68585/X.java").setCharset(encoding, null);
 			search(
-				"Y\u00F4", 
+				"Y\u00F4",
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS,
-				scope, 
+				scope,
 				resultCollector);
 			assertSearchResults(
-				"Should have been reindexed", 
+				"Should have been reindexed",
 				"src/test68585/X.java test68585.Y\u00F4 [Y\u00F4]",
 				resultCollector);
 		} finally {
@@ -682,7 +682,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		try {
 			// Create file
 			IFile file = createFile("/Encoding/Test34.txt", "acegikm");
-			
+
 			// Read file using a transformation where a character is read and the next alphabetical character is
 			// automaticaly added
 			final InputStream fileStream = file.getContents();
@@ -691,14 +691,14 @@ public class EncodingTests extends ModifyingResourceTests {
 					int current = -1;
 					public int read() throws IOException {
 						int result;
-						if (current != -1) {
-							result = current;
-							current = -1;
+						if (this.current != -1) {
+							result = this.current;
+							this.current = -1;
 						} else {
 							result = fileStream.read();
 							if (result == -1)
 								return -1;
-							current = result + 1;
+							this.current = result + 1;
 						}
 						return result;
 					}
@@ -707,7 +707,7 @@ public class EncodingTests extends ModifyingResourceTests {
 				assertSourceEquals(
 					"Unexpected source",
 					"abcdefghijklmn",
-					new String(result)					
+					new String(result)
 				);
 			} finally {
 				fileStream.close();
@@ -715,8 +715,8 @@ public class EncodingTests extends ModifyingResourceTests {
 		} finally {
 			deleteFile("Encoding/Test34.txt");
 		}
-	}	
-	
+	}
+
 	/**
 	 * Bug 66898: refactor-rename: encoding is not preserved
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=66898"
@@ -731,25 +731,25 @@ public class EncodingTests extends ModifyingResourceTests {
 		ICompilationUnit cu = getCompilationUnit(file.getFullPath().toString());
 		createFolder("/Encoding/src/tmp");
 		IPackageFragment packFrag = getPackageFragment("Encoding", "src", "tmp");
-		
+
 		try {
 			waitUntilIndexesReady();
-			
+
 			// Move file
 			cu.move(packFrag, null, null, false, null);
 			ICompilationUnit destSource = packFrag.getCompilationUnit(fileName);
 			IFile destFile = (IFile) destSource.getUnderlyingResource();
 			assertEquals("Moved file should keep encoding", encoding, destFile.getCharset());
-	
+
 			// Get source and compare with file contents
 			compareContents(destSource, encoding);
-			
+
 			// Rename file
 			destSource.rename("TestUTF8.java", false, null);
 			ICompilationUnit renamedSource = packFrag.getCompilationUnit("TestUTF8.java");
 			IFile renamedFile = (IFile) renamedSource.getUnderlyingResource();
 			assertEquals("Moved file should keep encoding", encoding, renamedFile.getCharset());
-			
+
 			// Compare contents again
 			compareContents(renamedSource, encoding);
 		}
@@ -759,7 +759,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			//assertEquals("Moved file should keep encoding", encoding, this.utf8File.getCharset());
 			deleteFolder("/Encoding/src/tmp");
 		}
-	}	
+	}
 	public void testBug66898b() throws JavaModelException, CoreException {
 
 		// Set file encoding
@@ -770,7 +770,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		final IPackageFragment srcFolder = getPackageFragment("Encoding", "src", "testBug66898b");
 		createFolder("/Encoding/src/tmp");
 		final IPackageFragment tmpFolder = getPackageFragment("Encoding", "src", "tmp");
-	
+
 		try {
 			// Copy file
 			IWorkspaceRunnable copy = new IWorkspaceRunnable() {
@@ -781,13 +781,13 @@ public class EncodingTests extends ModifyingResourceTests {
 					ICompilationUnit dest = tmpFolder.getCompilationUnit(fileName);
 					IFile destFile = (IFile) dest.getUnderlyingResource();
 					assertEquals("Copied file should keep encoding", encoding, destFile.getCharset());
-			
+
 					// Get source and compare with file contents
 					compareContents(dest, encoding);
 				}
 			};
 			JavaCore.run(copy, null);
-	
+
 			// Rename file
 			IWorkspaceRunnable rename = new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
@@ -797,13 +797,13 @@ public class EncodingTests extends ModifyingResourceTests {
 					ICompilationUnit ren = tmpFolder.getCompilationUnit("Renamed.java");
 					IFile renFile = (IFile) ren.getUnderlyingResource();
 					assertEquals("Renamed file should keep encoding", encoding, renFile.getCharset());
-			
+
 					// Get source and compare with file contents
 					compareContents(ren, encoding);
 				}
 			};
 			JavaCore.run(rename, null);
-	
+
 			// Move file
 			IWorkspaceRunnable move = new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
@@ -813,7 +813,7 @@ public class EncodingTests extends ModifyingResourceTests {
 					ICompilationUnit moved = srcFolder.getCompilationUnit("Renamed.java");
 					IFile movedFile = (IFile) moved.getUnderlyingResource();
 					assertEquals("Renamed file should keep encoding", encoding, movedFile.getCharset());
-			
+
 					// Get source and compare with file contents
 					compareContents(moved, encoding);
 				}
@@ -826,7 +826,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			if (cu.exists()) cu.delete(true, null);
 			deleteFolder("/Encoding/src/tmp");
 		}
-	}	
+	}
 
 	/**
 	 * Bug 70598: [Encoding] ArrayIndexOutOfBoundsException while testing BOM on *.txt files
@@ -845,10 +845,10 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Test read empty content using io file
 		char[] ifileContents =Util.getResourceContentsAsCharArray(emptyFile, "UTF-8");
 		assertEquals("We should not get any character!", "", new String(ifileContents));
-		
+
 		// Delete empty file
 		deleteResource(file);
-	}	
+	}
 
 	/**
 	 * Bug 110576: [encoding] Rename CU looses encoding for file which charset is determined by contents
@@ -870,14 +870,14 @@ public class EncodingTests extends ModifyingResourceTests {
 		ICompilationUnit testCU = getCompilationUnit(file.getFullPath().toString());
 		createFolder("/Encoding/src/tmp");
 		IPackageFragment tmpPackage = getPackageFragment("Encoding", "src", "tmp");
-		
+
 		try {
 			// Copy file
 			testCU.copy(tmpPackage, null, null, false, null);
 			ICompilationUnit copiedCU = tmpPackage.getCompilationUnit(fileName);
 			IFile copiedFile = (IFile) copiedCU.getUnderlyingResource();
 			verifyUtf8BOM(copiedFile);
-	
+
 			// Get source and compare with file contents
 			compareContents(copiedCU, "UTF-8", true/*BOM*/);
 
@@ -887,7 +887,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			IFile renamedFile = (IFile) renamedCU.getUnderlyingResource();
 			verifyUtf8BOM(renamedFile);
 			fileName = renamedFile.getName();
-			
+
 			// Compare contents again
 			compareContents(renamedCU, "UTF-8", true/*BOM*/);
 
@@ -898,7 +898,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			ICompilationUnit movedCU = subPackage.getCompilationUnit(fileName);
 			IFile movedFile = (IFile) movedCU.getUnderlyingResource();
 			verifyUtf8BOM(movedFile);
-	
+
 			// Get source and compare with file contents
 			compareContents(movedCU, "UTF-8", true/*BOM*/);
 		}
@@ -916,5 +916,5 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertNotNull("File should have a content description", contentDescription);
 		assertEquals("Content description charset should be UTF-8", "UTF-8", contentDescription.getCharset());
 		assertNotNull("File should be UTF-8 BOM!", contentDescription.getProperty(IContentDescription.BYTE_ORDER_MARK));
-	}	
+	}
 }

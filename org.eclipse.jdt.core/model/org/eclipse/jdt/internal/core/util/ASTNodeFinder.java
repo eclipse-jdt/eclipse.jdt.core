@@ -120,14 +120,14 @@ public class ASTNodeFinder {
 			TypeDeclaration result;
 			int count = 0;
 			public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
-				if (result != null) return false;
+				if (this.result != null) return false;
 				if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
-					if (findAnonymous && ++count == occurenceCount) {
-						result = typeDeclaration;
+					if (findAnonymous && ++this.count == occurenceCount) {
+						this.result = typeDeclaration;
 					}
 				} else {
 					if (!findAnonymous && CharOperation.equals(typeName, typeDeclaration.name)) {
-						result = typeDeclaration;
+						this.result = typeDeclaration;
 					}
 				}
 				return false; // visit only one level

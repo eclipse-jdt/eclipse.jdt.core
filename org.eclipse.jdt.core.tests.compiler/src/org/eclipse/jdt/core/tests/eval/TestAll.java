@@ -33,7 +33,7 @@ public static Test suite() {
 		testClasses.add(NegativeCodeSnippetTest.class);
 		testClasses.add(NegativeVariableTest.class);
 		testClasses.add(DebugEvaluationTest.class);
-		
+
 		return AbstractCompilerTest.buildAllCompliancesTestSuite(TestAll.class, DebugEvaluationSetup.class, testClasses);
 	}
 	// Disable evaluation tests on Linux

@@ -25,11 +25,11 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  * receiver object (that is, the receiver of the context in the stack frame)
  */
 public class CodeSnippetThisReference extends ThisReference implements EvaluationConstants, InvocationSite {
-	
+
 	EvaluationContext evaluationContext;
 	FieldBinding delegateThis;
 	boolean isImplicit;
-	
+
 	/**
 	 * CodeSnippetThisReference constructor comment.
 	 * @param s int
@@ -46,7 +46,7 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 			methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
 			return false;
 		}
-	
+
 		// static may not refer to this/super
 		if (this.evaluationContext.declaringTypeName == null || this.evaluationContext.isStatic) {
 			methodScope.problemReporter().errorThisSuperInStatic(this);
@@ -67,7 +67,7 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 	 */
 	public TypeBinding[] genericTypeArguments() {
 		return null;
-	}	
+	}
 	public boolean isSuperAccess(){
 		return false;
 	}
@@ -75,17 +75,17 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 		return false;
 	}
 	public StringBuffer printExpression(int indent, StringBuffer output){
-		
+
 		char[] declaringType = this.evaluationContext.declaringTypeName;
 		output.append('(');
-		if (declaringType == null) 
+		if (declaringType == null)
 			output.append("<NO DECLARING TYPE>"); //$NON-NLS-1$
-		else 
+		else
 			output.append(declaringType);
 		return output.append(")this"); //$NON-NLS-1$
 	}
 	public TypeBinding resolveType(BlockScope scope) {
-	
+
 		// implicit this
 		this.constant = Constant.NotAConstant;
 		TypeBinding snippetType = null;
@@ -94,7 +94,7 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 			return null;
 		}
 		snippetType = scope.enclosingSourceType();
-		
+
 		this.delegateThis = scope.getField(snippetType, DELEGATE_THIS, this);
 		if (this.delegateThis == null || !this.delegateThis.isValidBinding()) {
 			// should not happen

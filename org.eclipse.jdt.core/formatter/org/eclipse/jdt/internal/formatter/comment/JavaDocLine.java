@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.formatter.comment;
 
 /**
  * Javadoc comment line in a comment region.
- * 
+ *
  * @since 3.0
  */
 public class JavaDocLine extends MultiCommentLine {
@@ -23,7 +23,7 @@ public class JavaDocLine extends MultiCommentLine {
 
 	/**
 	 * Creates a new javadoc line.
-	 * 
+	 *
 	 * @param region comment region to create the line for
 	 */
 	protected JavaDocLine(final CommentRegion region) {

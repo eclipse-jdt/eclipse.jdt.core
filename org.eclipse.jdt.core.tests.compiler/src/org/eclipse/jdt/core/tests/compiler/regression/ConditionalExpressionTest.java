@@ -28,7 +28,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildAllCompliancesTestSuite(testClass());
 	}
-	
+
 	public static Class testClass() {
 		return ConditionalExpressionTest.class;
 	}

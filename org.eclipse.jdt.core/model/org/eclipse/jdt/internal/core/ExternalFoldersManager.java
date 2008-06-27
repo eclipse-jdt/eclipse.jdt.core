@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -39,7 +39,7 @@ public class ExternalFoldersManager {
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
 	private HashMap folders;
 	private int counter = 0;
-	
+
 	/*
 	 * Returns a set of external path to external folders referred to on the given classpath.
 	 * Returns null if none.
@@ -68,7 +68,7 @@ public class ExternalFoldersManager {
 		return folders;
 	}
 
-	
+
 	public static boolean isExternalFolderPath(IPath externalPath) {
 		if (externalPath == null)
 			return false;
@@ -103,7 +103,7 @@ public class ExternalFoldersManager {
 		knownFolders.put(externalFolderPath, result);
 		return result;
 	}
-	
+
 	public IFolder createLinkFolder(IPath externalFolderPath, boolean refreshIfExistAlready, IProgressMonitor monitor) throws CoreException {
 		IProject externalFoldersProject = createExternalFoldersProject(monitor); // run outside synchronized as this can create a resource
 		IFolder result = addFolder(externalFolderPath, externalFoldersProject);
@@ -113,7 +113,7 @@ public class ExternalFoldersManager {
 			result.refreshLocal(IResource.DEPTH_INFINITE,  monitor);
 		return result;
 	}
-	
+
 	public synchronized void cleanUp(IProgressMonitor monitor) throws CoreException {
 		DeltaProcessingState state = JavaModelManager.getDeltaState();
 		HashMap roots = state.roots;
@@ -135,7 +135,7 @@ public class ExternalFoldersManager {
 		if (project.isAccessible() && project.members().length == 1/*remaining member is .project*/)
 			project.delete(true, monitor);
 	}
-	
+
 	public IProject getExternalFoldersProject() {
 		return ResourcesPlugin.getWorkspace().getRoot().getProject(EXTERNAL_PROJECT_NAME);
 	}
@@ -185,11 +185,11 @@ public class ExternalFoldersManager {
 		}
 		return project;
 	}
-	
+
 	public synchronized IFolder getFolder(IPath externalFolderPath) {
 		return (IFolder) getFolders().get(externalFolderPath);
 	}
-	
+
 	private HashMap getFolders() {
 		if (this.folders == null) {
 			this.folders = new HashMap();
@@ -211,7 +211,7 @@ public class ExternalFoldersManager {
 		}
 		return this.folders;
 	}
-	
+
 	/*
 	 * Refreshes the external folders referenced on the classpath of the given source project
 	 */
@@ -226,7 +226,7 @@ public class ExternalFoldersManager {
 			if (externalFolders == null)
 				return;
 			final Iterator iterator = externalFolders.iterator();
-			Job refreshJob = new Job(Messages.refreshing_external_folders) { 
+			Job refreshJob = new Job(Messages.refreshing_external_folders) {
 				public boolean belongsTo(Object family) {
 					return family == ResourcesPlugin.FAMILY_MANUAL_REFRESH;
 				}

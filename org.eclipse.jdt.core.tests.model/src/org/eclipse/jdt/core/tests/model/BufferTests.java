@@ -77,7 +77,7 @@ public static Test suite() {
  * Tests appending to a buffer.
  */
 public void testAppend() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -97,7 +97,7 @@ public void testAppend() throws CoreException {
 		);
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
@@ -115,9 +115,9 @@ public void testAppendReadOnly() throws CoreException {
 		assertTrue("unexpected event", this.events.isEmpty());
 		assertSourceEquals(
 			"unexpected buffer contents",
-			"package java.lang;\n" + 
-			"\n" + 
-			"public class String {\n" + 
+			"package java.lang;\n" +
+			"\n" +
+			"public class String {\n" +
 			"}\n",
 			buffer.getContents()
 		);
@@ -130,7 +130,7 @@ public void testAppendReadOnly() throws CoreException {
 	}
 }
 public void testClose() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -140,7 +140,7 @@ public void testClose() throws CoreException {
 		buffer.close();
 		assertBufferEvent(0, 0, null);
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 
@@ -149,7 +149,7 @@ public void testClose() throws CoreException {
  * Tests getting the underlying resource of a buffer.
  */
 public void testGetUnderlyingResource() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -157,13 +157,13 @@ public void testGetUnderlyingResource() throws CoreException {
 	);
 	ICompilationUnit copy = null;
 	try {
-		IFile file = this.getFile("P/x/y/A.java");
+		IFile file = getFile("P/x/y/A.java");
 		assertEquals("Unexpected underlying resource", file, buffer.getUnderlyingResource());
-		
+
 		copy = this.getCompilationUnit("P/x/y/A.java").getWorkingCopy(null);
 		assertEquals("Unexpected underlying resource 2", file, copy.getBuffer().getUnderlyingResource());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 		if (copy != null) {
 			copy.discardWorkingCopy();
 		}
@@ -173,7 +173,7 @@ public void testGetUnderlyingResource() throws CoreException {
  * Tests deleting text at the beginning of a buffer.
  */
 public void testDeleteBeginning() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -190,14 +190,14 @@ public void testDeleteBeginning() throws CoreException {
 		);
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
  * Tests deleting text in the middle of a buffer.
  */
 public void testDeleteMiddle() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -216,14 +216,14 @@ public void testDeleteMiddle() throws CoreException {
 		);
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
  * Tests deleting text at the end of a buffer.
  */
 public void testDeleteEnd() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -240,14 +240,14 @@ public void testDeleteEnd() throws CoreException {
 		);
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
- * Tests the buffer char retrieval via source position 
+ * Tests the buffer char retrieval via source position
  */
 public void testGetChar() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -256,7 +256,7 @@ public void testGetChar() throws CoreException {
 	try {
 		assertEquals("Unexpected char at position 17", 'i', buffer.getChar(17));
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
@@ -264,7 +264,7 @@ public void testGetChar() throws CoreException {
  * (regression test for bug 46040 NPE in Eclipse console)
  */
 public void testGetChar2() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -274,14 +274,14 @@ public void testGetChar2() throws CoreException {
 	try {
 		assertEquals("Unexpected char at position 17", Character.MIN_VALUE, buffer.getChar(17));
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
- * Tests the buffer getLength() 
+ * Tests the buffer getLength()
  */
 public void testGetLength() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -290,14 +290,14 @@ public void testGetLength() throws CoreException {
 	try {
 		assertEquals("Unexpected length", 31, buffer.getLength());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
- * Tests the buffer text retrieval via source position 
+ * Tests the buffer text retrieval via source position
  */
 public void testGetText() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -308,14 +308,14 @@ public void testGetText() throws CoreException {
 		assertSourceEquals("Unexpected text (2)", "public", buffer.getText(13, 6));
 		assertSourceEquals("Unexpected text (3)", "", buffer.getText(10, 0));
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
  * Tests inserting text at the beginning of a buffer.
  */
 public void testInsertBeginning() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -334,14 +334,14 @@ public void testInsertBeginning() throws CoreException {
 		);
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
  * Tests replacing text at the beginning of a buffer.
  */
 public void testReplaceBeginning() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -359,14 +359,14 @@ public void testReplaceBeginning() throws CoreException {
 		);
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
  * Tests replacing text in the middle of a buffer.
  */
 public void testReplaceMiddle() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -385,14 +385,14 @@ public void testReplaceMiddle() throws CoreException {
 		);
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
  * Tests replacing text at the end of a buffer.
  */
 public void testReplaceEnd() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -412,7 +412,7 @@ public void testReplaceEnd() throws CoreException {
 		);
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /*
@@ -429,7 +429,7 @@ public void testSaveNonExistingUTF8() throws Exception {
 	String defaultCharset = project.getDefaultCharset();
 	try {
 		project.setDefaultCharset("UTF-8", null);
-		String newContents = 
+		String newContents =
 			"public interface X234307 {\n" +
 			"}";
 		buffer.setContents(newContents);
@@ -445,7 +445,7 @@ public void testSaveNonExistingUTF8() throws Exception {
  * Tests inserting text in the middle of a buffer.
  */
 public void testInsertMiddle() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -465,14 +465,14 @@ public void testInsertMiddle() throws CoreException {
 		);
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 /**
  * Tests inserting text at the end of a buffer.
  */
 public void testInsertEnd() throws CoreException {
-	IBuffer buffer = this.createBuffer(
+	IBuffer buffer = createBuffer(
 		"P/x/y/A.java",
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -493,7 +493,7 @@ public void testInsertEnd() throws CoreException {
 		);
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
-		this.deleteBuffer(buffer);
+		deleteBuffer(buffer);
 	}
 }
 
@@ -517,8 +517,8 @@ public void testCreateImport() throws CoreException {
 		this.events = new ArrayList();
 		copy.createImport("java.io.IOException", null, null);
 		assertBufferEvents(
-			"(12, 0) import java.io.IOException;\n" + 
-			"(12, 0) \n" + 
+			"(12, 0) import java.io.IOException;\n" +
+			"(12, 0) \n" +
 			"\n"
 		); // A.java has a \n line delimiter
 	} finally {

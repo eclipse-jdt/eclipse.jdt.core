@@ -28,7 +28,7 @@ public class Java50Tests extends BuilderTests {
 	}
 
 	public void testAnnotation() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); 
+		IPath projectPath = env.addProject("Project", "1.5");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.setOutputFolder(projectPath, "");
 
@@ -42,7 +42,7 @@ public class Java50Tests extends BuilderTests {
 			"package q;\n" +
 			"public @interface Ann {\n" +
 			"}"
-		); 
+		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
@@ -63,7 +63,7 @@ public class Java50Tests extends BuilderTests {
 	}
 
 	public void testHierarchyCycle() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); 
+		IPath projectPath = env.addProject("Project", "1.5");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.setOutputFolder(projectPath, "");
 
@@ -74,16 +74,16 @@ public class Java50Tests extends BuilderTests {
 		);
 		env.addClass(projectPath, "", "C",
 			"interface C extends B {}"
-		); 
+		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=214237, dupe of
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=205235
 	public void testHierarchyCycleInstanceof() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); 
+		IPath projectPath = env.addProject("Project", "1.5");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.setOutputFolder(projectPath, "");
 
@@ -102,7 +102,7 @@ public class Java50Tests extends BuilderTests {
 			"public abstract class C extends B {\n" +
 			"  boolean isD() {return this instanceof D;}\n" +
 			"}\n"
-		); 
+		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
@@ -110,7 +110,7 @@ public class Java50Tests extends BuilderTests {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=231293
 	public void testMissingRequiredBinaries() throws JavaModelException {
-		
+
 		IPath p1 = env.addProject("P1", "1.5"); //$NON-NLS-1$
 		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
 
@@ -166,7 +166,7 @@ public class Java50Tests extends BuilderTests {
 	}
 
 	public void testParameterizedMemberType() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); 
+		IPath projectPath = env.addProject("Project", "1.5");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.setOutputFolder(projectPath, "");
 
@@ -179,9 +179,9 @@ public class Java50Tests extends BuilderTests {
 		);
 
 		IPath bPath = env.addClass(projectPath, "", "B",
-			"class B<T> extends Missing<T> {\n" + 
-			"	class M{}\n" + 
-			"}\n" + 
+			"class B<T> extends Missing<T> {\n" +
+			"	class M{}\n" +
+			"}\n" +
 			"class Missing<T> {}"
 		);
 
@@ -189,8 +189,8 @@ public class Java50Tests extends BuilderTests {
 		expectingNoProblems();
 
 		env.addClass(projectPath, "", "B",
-			"class B<T> extends Missing<T> {\n" + 
-			"	class M{}\n" + 
+			"class B<T> extends Missing<T> {\n" +
+			"	class M{}\n" +
 			"}"
 		);
 
@@ -209,8 +209,8 @@ public class Java50Tests extends BuilderTests {
 		expectingSpecificProblemFor(bPath, new Problem("B", "Missing cannot be resolved to a type", bPath, 19, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(projectPath, "", "B",
-			"class B<T> extends Missing<T> {\n" + 
-			"	class M{}\n" + 
+			"class B<T> extends Missing<T> {\n" +
+			"	class M{}\n" +
 			"}"
 		);
 
@@ -220,9 +220,9 @@ public class Java50Tests extends BuilderTests {
 		expectingSpecificProblemFor(bPath, new Problem("B", "Missing cannot be resolved to a type", bPath, 19, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(projectPath, "", "B",
-			"class B<T> extends Missing<T> {\n" + 
-			"	class M{}\n" + 
-			"}\n" + 
+			"class B<T> extends Missing<T> {\n" +
+			"	class M{}\n" +
+			"}\n" +
 			"class Missing<T> {}"
 		);
 
@@ -231,35 +231,35 @@ public class Java50Tests extends BuilderTests {
 	}
 
 	public void testParameterizedType1() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); 
+		IPath projectPath = env.addProject("Project", "1.5");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.setOutputFolder(projectPath, "");
 
 		IPath usePath = env.addClass(projectPath, "p", "Use",
 			"package p;\n" +
-			"import java.util.ArrayList;\n" + 
-			"import q.Other;\n" + 
-			"public class Use {\n" + 
-			"	public Use() {\n" + 
-			"		new Other().foo(new ArrayList<String>());\n" + 
-			"	}\n" + 
+			"import java.util.ArrayList;\n" +
+			"import q.Other;\n" +
+			"public class Use {\n" +
+			"	public Use() {\n" +
+			"		new Other().foo(new ArrayList<String>());\n" +
+			"	}\n" +
 			"}"
 		);
 		env.addClass(projectPath, "q", "Other",
-			"package q;\n" + 
-			"import java.util.List;\n" + 
-			"public class Other {\n" + 
-			"	public void foo(List<String> ls) {}\n" + 
+			"package q;\n" +
+			"import java.util.List;\n" +
+			"public class Other {\n" +
+			"	public void foo(List<String> ls) {}\n" +
 			"}"
-		); 
+		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 
 		env.addClass(projectPath, "q", "Other",
-			"package q;\n" + 
-			"import java.util.List;\n" + 
-			"public class Other {\n" + 
+			"package q;\n" +
+			"import java.util.List;\n" +
+			"public class Other {\n" +
 			"	public void foo(List<Object> ls) {}\n" +
 			"}"
 		);
@@ -270,38 +270,38 @@ public class Java50Tests extends BuilderTests {
 			"Problem : The method foo(List<Object>) in the type Other is not applicable for the arguments (ArrayList<String>) [ resource : </Project/p/Use.java> range : <104,107> category : <50> severity : <2>]"
 		);
 	}
-	
+
 	public void testParameterizedType2() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); 
+		IPath projectPath = env.addProject("Project", "1.5");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.setOutputFolder(projectPath, "");
 
 		IPath usePath = env.addClass(projectPath, "p", "Use",
 			"package p;\n" +
-			"import java.util.ArrayList;\n" + 
-			"import q.Other;\n" + 
-			"public class Use {\n" + 
-			"	public Use() {\n" + 
-			"		new Other().foo(new ArrayList<String>());\n" + 
-			"	}\n" + 
+			"import java.util.ArrayList;\n" +
+			"import q.Other;\n" +
+			"public class Use {\n" +
+			"	public Use() {\n" +
+			"		new Other().foo(new ArrayList<String>());\n" +
+			"	}\n" +
 			"}"
 		);
 		env.addClass(projectPath, "q", "Other",
-			"package q;\n" + 
-			"import java.util.List;\n" + 
-			"public class Other {\n" + 
-			"	public void foo(List<String> ls) {}\n" + 
+			"package q;\n" +
+			"import java.util.List;\n" +
+			"public class Other {\n" +
+			"	public void foo(List<String> ls) {}\n" +
 			"}"
-		); 
+		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 
 		env.addClass(projectPath, "q", "Other",
-			"package q;\n" + 
-			"import java.util.List;\n" + 
-			"public class Other {\n" + 
-			"	public void foo(List<String> ls) throws Exception {}\n" + 
+			"package q;\n" +
+			"import java.util.List;\n" +
+			"public class Other {\n" +
+			"	public void foo(List<String> ls) throws Exception {}\n" +
 			"}"
 		);
 
@@ -311,5 +311,5 @@ public class Java50Tests extends BuilderTests {
 			"Problem : Unhandled exception type Exception [ resource : </Project/p/Use.java> range : <92,132> category : <40> severity : <2>]"
 		);
 	}
-	
+
 }

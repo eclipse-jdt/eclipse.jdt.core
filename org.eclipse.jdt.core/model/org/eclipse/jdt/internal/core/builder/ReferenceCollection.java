@@ -39,7 +39,7 @@ public void addDependencies(String[] typeNameDependencies) {
 			if (!includes(qualifiedTypeName[qualifiedTypeName.length - 1])) {
 				int length = this.simpleNameReferences.length;
 				System.arraycopy(this.simpleNameReferences, 0, this.simpleNameReferences = new char[length + 1][], 0, length);
-				this.simpleNameReferences[length] = qualifiedTypeName[qualifiedTypeName.length - 1];				
+				this.simpleNameReferences[length] = qualifiedTypeName[qualifiedTypeName.length - 1];
 			}
 			int length = this.qualifiedNameReferences.length;
 			System.arraycopy(this.qualifiedNameReferences, 0, this.qualifiedNameReferences = new char[length + 1][][], 0, length);
@@ -55,14 +55,14 @@ public void addDependencies(String[] typeNameDependencies) {
 }
 
 public boolean includes(char[] simpleName) {
-	for (int i = 0, l = simpleNameReferences.length; i < l; i++)
-		if (simpleName == simpleNameReferences[i]) return true;
+	for (int i = 0, l = this.simpleNameReferences.length; i < l; i++)
+		if (simpleName == this.simpleNameReferences[i]) return true;
 	return false;
 }
 
 public boolean includes(char[][] qualifiedName) {
-	for (int i = 0, l = qualifiedNameReferences.length; i < l; i++)
-		if (qualifiedName == qualifiedNameReferences[i]) return true;
+	for (int i = 0, l = this.qualifiedNameReferences.length; i < l; i++)
+		if (qualifiedName == this.qualifiedNameReferences[i]) return true;
 	return false;
 }
 

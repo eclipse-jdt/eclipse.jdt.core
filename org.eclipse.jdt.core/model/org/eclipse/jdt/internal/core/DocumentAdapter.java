@@ -18,9 +18,9 @@ import org.eclipse.jface.text.Document;
  * Adapts an IBuffer to IDocument
  */
 public class DocumentAdapter extends Document {
-	
+
 	private IBuffer buffer;
-	
+
 	public DocumentAdapter(IBuffer buffer) {
 		super(buffer.getContents());
 		this.buffer = buffer;

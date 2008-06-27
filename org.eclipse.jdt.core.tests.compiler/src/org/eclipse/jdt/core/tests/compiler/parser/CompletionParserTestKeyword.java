@@ -272,8 +272,8 @@ public void test0009(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" + 
-		"import yyy;\n" + 
+		"package p;\n" +
+		"import yyy;\n" +
 		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
@@ -303,8 +303,8 @@ public void test0010(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" + 
-		"import yyy;\n" + 
+		"package p;\n" +
+		"import yyy;\n" +
 		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
@@ -334,7 +334,7 @@ public void test0011(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" + 
+		"package p;\n" +
 		"import <CompleteOnImport:abst>;\n";
 
 	checkDietParse(
@@ -436,8 +436,8 @@ public void test0014(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" + 
-		"import yyy;\n" + 
+		"package p;\n" +
+		"import yyy;\n" +
 		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
@@ -728,10 +728,10 @@ public void test0021_Method(){
 			"    <CompleteOnName:abst>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -805,10 +805,10 @@ public void test0022_Method(){
 			"    <CompleteOnName:abst>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -882,10 +882,10 @@ public void test0023_Method(){
 			"    <CompleteOnName:bre>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -966,10 +966,10 @@ public void test0024_Method(){
 			"    }\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -1043,10 +1043,10 @@ public void test0025_Method(){
 			"    <CompleteOnName:cas>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -1124,10 +1124,10 @@ public void test0026_Method(){
 			"    <CompleteOnKeyword:cas>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -1201,10 +1201,10 @@ public void test0027_Method(){
 			"    <CompleteOnName:cat>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -1280,10 +1280,10 @@ public void test0028_Method(){
 			"    <CompleteOnKeyword:cat>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -1593,10 +1593,10 @@ public void test0037_Method(){
 			"    <CompleteOnName:cla>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -1666,10 +1666,10 @@ public void test0038_Method(){
 			"    <CompleteOnName:cla>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -1739,10 +1739,10 @@ public void test0039_Method(){
 			"    <CompleteOnName:cla>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -1816,10 +1816,10 @@ public void test0040_Method(){
 			"    <CompleteOnName:con>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -1900,10 +1900,10 @@ public void test0041_Method(){
 			"    }\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -1977,10 +1977,10 @@ public void test0042_Method(){
 			"    <CompleteOnName:def>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -2062,10 +2062,10 @@ public void test0043_Method(){
 			"    }\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -2139,10 +2139,10 @@ public void test0044_Method(){
 			"    <CompleteOnName:do>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -2216,10 +2216,10 @@ public void test0045_Method(){
 			"    <CompleteOnName:els>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -2295,10 +2295,10 @@ public void test0046_Method(){
 			"    <CompleteOnName:els>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -2605,10 +2605,10 @@ public void test0055_Method(){
 			"    <CompleteOnName:fin>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -2684,10 +2684,10 @@ public void test0056_Method(){
 			"    <CompleteOnKeyword:fin>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -2761,10 +2761,10 @@ public void test0057_Method(){
 			"    <CompleteOnName:for>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -2838,10 +2838,10 @@ public void test0058_Method(){
 			"    <CompleteOnName:if>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -2915,10 +2915,10 @@ public void test0059_Method(){
 			"    <CompleteOnName:swi>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -3575,10 +3575,10 @@ public void test0080_Method(){
 			"    <CompleteOnName:int>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -3648,10 +3648,10 @@ public void test0081_Method(){
 			"    <CompleteOnName:int>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -3721,10 +3721,10 @@ public void test0082_Method(){
 			"    <CompleteOnName:int>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -3856,7 +3856,7 @@ public void test0087(){
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"package p;\n" + 
+		"package p;\n" +
 		"import <CompleteOnKeyword:pac>;\n";
 
 	checkDietParse(
@@ -3885,7 +3885,7 @@ public void test0088(){
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"import p;\n" + 
+		"import p;\n" +
 		"import <CompleteOnKeyword:pac>;\n";
 
 	checkDietParse(
@@ -3914,10 +3914,10 @@ public void test0089(){
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pac>;\n" + 
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
+		"import <CompleteOnKeyword:pac>;\n" +
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
 		"}\n";
 
 	checkDietParse(
@@ -3992,10 +3992,10 @@ public void test0090_Method(){
 			"    <CompleteOnName:ret>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -4065,10 +4065,10 @@ public void test0091_Method(){
 			"    <CompleteOnName:thr>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -4138,10 +4138,10 @@ public void test0092_Method(){
 			"    <CompleteOnName:try>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -4208,14 +4208,14 @@ public void test0093_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:try>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:try>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -4282,14 +4282,14 @@ public void test0094_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:do>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:do>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -4356,14 +4356,14 @@ public void test0095_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:for>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:for>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -4430,14 +4430,14 @@ public void test0096_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:if>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:if>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -4500,18 +4500,18 @@ public void test0097_Method(){
 	String completionIdentifier = "swi";
 	String expectedReplacedSource = "swi";
 	String expectedUnitDisplayString =
-			"public class X {\n" + 
-			"  public X() {\n" + 
-			"  }\n" + 
-			"  void foo() {\n" + 
-			"    if (<CompleteOnName:swi>)\n" + 
-			"        ;\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    if (<CompleteOnName:swi>)\n" +
+			"        ;\n" +
+			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -4581,10 +4581,10 @@ public void test0098_Method(){
 			"    <CompleteOnName:new>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -4654,10 +4654,10 @@ public void test0099_Method(){
 			"    <CompleteOnName:new>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -4727,10 +4727,10 @@ public void test0100_Method(){
 			"    <CompleteOnName:new>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -5008,10 +5008,10 @@ public void test0107_Method(){
 			"    <CompleteOnName:whi>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -5078,14 +5078,14 @@ public void test0108_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:whi>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:whi>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -5155,10 +5155,10 @@ public void test0109_Method(){
 			"    <CompleteOnName:ass>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -5225,14 +5225,14 @@ public void test0110_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:ass>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:ass>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -6458,10 +6458,10 @@ public void test0147_Method(){
 			"    <CompleteOnName:syn>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -6528,13 +6528,13 @@ public void test0148_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:syn>)\n        ;\n" + 
+			"    if (<CompleteOnName:syn>)\n        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -6732,10 +6732,10 @@ public void test0155(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pub>;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+		"import <CompleteOnKeyword:pub>;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
 		"}\n";
 
 	checkDietParse(
@@ -7037,10 +7037,10 @@ public void test0165(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pro>;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+		"import <CompleteOnKeyword:pro>;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
 		"}\n";
 
 	checkDietParse(
@@ -7342,10 +7342,10 @@ public void test0175(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pri>;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+		"import <CompleteOnKeyword:pri>;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
 		"}\n";
 
 	checkDietParse(
@@ -7585,10 +7585,10 @@ public void test0181_Method(){
 			"    <CompleteOnName:sup>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -7658,10 +7658,10 @@ public void test0182_Method(){
 			"    <CompleteOnName:thi>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -7731,10 +7731,10 @@ public void test0183_Method(){
 			"    <CompleteOnName:tru>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -7804,10 +7804,10 @@ public void test0184_Method(){
 			"    <CompleteOnName:fal>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -7877,10 +7877,10 @@ public void test0185_Method(){
 			"    <CompleteOnName:nul>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -7950,10 +7950,10 @@ public void test0186_Method(){
 			"    <CompleteOnKeyword:ins>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -8023,10 +8023,10 @@ public void test0187_Method(){
 			"    <CompleteOnName:ins>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -8097,10 +8097,10 @@ public void test0188_Method(){
 			"    <CompleteOnName:ins>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -8172,10 +8172,10 @@ public void test0189_Method(){
 			"    <CompleteOnKeyword:whi>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -8253,10 +8253,10 @@ public void test0190_Method(){
 			"    <CompleteOnName:cat>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -8334,10 +8334,10 @@ public void test0191_Method(){
 			"    <CompleteOnName:fin>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -8415,10 +8415,10 @@ public void test0192_Method(){
 			"    <CompleteOnName:fin>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -8488,10 +8488,10 @@ public void test0193_Method(){
 			"    <CompleteOnName:X.thi>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -8788,8 +8788,8 @@ public void test0202(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" + 
-		"import yyy;\n" + 
+		"package p;\n" +
+		"import yyy;\n" +
 		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
@@ -8820,8 +8820,8 @@ public void test0203(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" + 
-		"import yyy;\n" + 
+		"package p;\n" +
+		"import yyy;\n" +
 		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
@@ -8957,8 +8957,8 @@ public void test0207(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" + 
-		"import yyy;\n" + 
+		"package p;\n" +
+		"import yyy;\n" +
 		"import <CompleteOnKeyword:abst>;\n";
 
 	checkDietParse(
@@ -9257,10 +9257,10 @@ public void test0214_Method(){
 			"    <CompleteOnName:abst>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -9336,10 +9336,10 @@ public void test0216_Method(){
 			"    <CompleteOnName:abst>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -9415,10 +9415,10 @@ public void test0217_Method(){
 			"    <CompleteOnName:bre>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -9501,10 +9501,10 @@ public void test0218_Method(){
 			"    }\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -9580,10 +9580,10 @@ public void test0219_Method(){
 			"    <CompleteOnName:cas>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -9665,10 +9665,10 @@ public void test0220_Method(){
 			"    }\n"+
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -9744,10 +9744,10 @@ public void test0221_Method(){
 			"    <CompleteOnName:cat>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -9825,10 +9825,10 @@ public void test0222_Method(){
 			"    <CompleteOnKeyword:cat>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -10148,10 +10148,10 @@ public void test0231_Method(){
 			"    <CompleteOnName:cla>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -10223,10 +10223,10 @@ public void test0232_Method(){
 			"    <CompleteOnName:cla>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -10298,10 +10298,10 @@ public void test0233_Method(){
 			"    <CompleteOnName:cla>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -10377,10 +10377,10 @@ public void test0234_Method(){
 			"    <CompleteOnName:con>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -10463,10 +10463,10 @@ public void test0235_Method(){
 			"    }\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -10542,10 +10542,10 @@ public void test0236_Method(){
 			"    <CompleteOnName:def>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -10629,10 +10629,10 @@ public void test0237_Method(){
 			"    }\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -10708,10 +10708,10 @@ public void test0238_Method(){
 			"    <CompleteOnName:do>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -10787,10 +10787,10 @@ public void test0239_Method(){
 			"    <CompleteOnName:els>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -10868,10 +10868,10 @@ public void test0240_Method(){
 			"    <CompleteOnName:els>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -11188,10 +11188,10 @@ public void test0249_Method(){
 			"    <CompleteOnName:fin>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -11269,10 +11269,10 @@ public void test0250_Method(){
 			"    <CompleteOnKeyword:fin>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -11348,10 +11348,10 @@ public void test0251_Method(){
 			"    <CompleteOnName:for>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -11427,10 +11427,10 @@ public void test0252_Method(){
 			"    <CompleteOnName:if>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -11506,10 +11506,10 @@ public void test0253_Method(){
 			"    <CompleteOnName:swi>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -12188,10 +12188,10 @@ public void test0274_Method(){
 			"    <CompleteOnName:int>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -12263,10 +12263,10 @@ public void test0275_Method(){
 			"    <CompleteOnName:int>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -12338,10 +12338,10 @@ public void test0276_Method(){
 			"    <CompleteOnName:int>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -12478,7 +12478,7 @@ public void test0281(){
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"package p;\n" + 
+		"package p;\n" +
 		"import <CompleteOnKeyword:pac>;\n";
 
 	checkDietParse(
@@ -12508,7 +12508,7 @@ public void test0282(){
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"import p;\n" + 
+		"import p;\n" +
 		"import <CompleteOnKeyword:pac>;\n";
 
 	checkDietParse(
@@ -12538,10 +12538,10 @@ public void test0283(){
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pac>;\n" + 
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
+		"import <CompleteOnKeyword:pac>;\n" +
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
 		"}\n";
 
 	checkDietParse(
@@ -12618,10 +12618,10 @@ public void test0284_Method(){
 			"    <CompleteOnName:ret>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -12693,10 +12693,10 @@ public void test0285_Method(){
 			"    <CompleteOnName:thr>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -12768,10 +12768,10 @@ public void test0286_Method(){
 			"    <CompleteOnName:try>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -12840,14 +12840,14 @@ public void test0287_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:try>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:try>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -12916,14 +12916,14 @@ public void test0288_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:do>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:do>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -12992,14 +12992,14 @@ public void test0289_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:for>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:for>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -13068,14 +13068,14 @@ public void test0290_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:if>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:if>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -13144,14 +13144,14 @@ public void test0291_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:swi>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:swi>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -13223,10 +13223,10 @@ public void test0292_Method(){
 			"    <CompleteOnName:new>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -13298,10 +13298,10 @@ public void test0293_Method(){
 			"    <CompleteOnName:new>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -13373,10 +13373,10 @@ public void test0294_Method(){
 			"    <CompleteOnName:new>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -13662,10 +13662,10 @@ public void test0301_Method(){
 			"    <CompleteOnName:whi>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -13734,14 +13734,14 @@ public void test0302_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:whi>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:whi>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -13813,10 +13813,10 @@ public void test0303_Method(){
 			"    <CompleteOnName:ass>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -13885,14 +13885,14 @@ public void test0304_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:ass>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:ass>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -15156,10 +15156,10 @@ public void test0341_Method(){
 			"    <CompleteOnName:syn>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -15228,14 +15228,14 @@ public void test0342_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    if (<CompleteOnName:syn>)\n" + 
-			"        ;\n" + 
+			"    if (<CompleteOnName:syn>)\n" +
+			"        ;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -15440,10 +15440,10 @@ public void test0349(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pub>;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+		"import <CompleteOnKeyword:pub>;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
 		"}\n";
 
 	checkDietParse(
@@ -15755,10 +15755,10 @@ public void test0359(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pro>;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+		"import <CompleteOnKeyword:pro>;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
 		"}\n";
 
 	checkDietParse(
@@ -16070,10 +16070,10 @@ public void test0369(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pri>;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+		"import <CompleteOnKeyword:pri>;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
 		"}\n";
 
 	checkDietParse(
@@ -16320,10 +16320,10 @@ public void test0375_Method(){
 			"    <CompleteOnName:sup>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -16395,10 +16395,10 @@ public void test0376_Method(){
 			"    <CompleteOnName:thi>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -16470,10 +16470,10 @@ public void test0377_Method(){
 			"    <CompleteOnName:tru>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -16545,10 +16545,10 @@ public void test0378_Method(){
 			"    <CompleteOnName:fal>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -16620,10 +16620,10 @@ public void test0379_Method(){
 			"    <CompleteOnName:nul>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -16695,10 +16695,10 @@ public void test0380_Method(){
 			"    <CompleteOnKeyword:ins>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -16770,10 +16770,10 @@ public void test0381_Method(){
 			"    <CompleteOnName:ins>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -16846,10 +16846,10 @@ public void test0382_Method(){
 			"    <CompleteOnName:ins>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -16923,10 +16923,10 @@ public void test0384_Method(){
 			"    <CompleteOnKeyword:whi>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -17006,10 +17006,10 @@ public void test0385_Method(){
 			"    <CompleteOnName:cat>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -17089,10 +17089,10 @@ public void test0386_Method(){
 			"    <CompleteOnName:fin>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -17172,10 +17172,10 @@ public void test0387_Method(){
 			"    <CompleteOnName:fin>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,
@@ -17247,10 +17247,10 @@ public void test0388_Method(){
 			"    <CompleteOnName:X.thi>;\n" +
 			"  }\n" +
 			"}\n";
-	
+
 	checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
 		expectedUnitDisplayString,

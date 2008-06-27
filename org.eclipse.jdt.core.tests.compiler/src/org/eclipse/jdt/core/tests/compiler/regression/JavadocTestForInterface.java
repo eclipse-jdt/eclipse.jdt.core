@@ -305,7 +305,7 @@ public class JavadocTestForInterface extends JavadocTest {
 
 	// @see Classes references
 	public void test020() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n"
@@ -370,7 +370,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test022() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n" +
@@ -418,7 +418,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test024() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n" +
@@ -438,7 +438,7 @@ public class JavadocTestForInterface extends JavadocTest {
 
 	// @see Field references
 	public void test030() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n"
@@ -766,7 +766,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test047() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n"
@@ -909,16 +909,16 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "public interface IX {\n"
 					+ "	public void foo();\n"
 					+ "}\n" },
-			"----------\n" + 
-			"1. ERROR in test\\IX.java (at line 6)\n" + 
-			"	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" + 
-			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: The type VisibilityPackage is not visible\n" + 
-			"----------\n" + 
-			"2. ERROR in test\\IX.java (at line 7)\n" + 
-			"	* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: The type test.copy.VisibilityPackage is not visible\n" + 
+			"----------\n" +
+			"1. ERROR in test\\IX.java (at line 6)\n" +
+			"	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" +
+			"	       ^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type VisibilityPackage is not visible\n" +
+			"----------\n" +
+			"2. ERROR in test\\IX.java (at line 7)\n" +
+			"	* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type test.copy.VisibilityPackage is not visible\n" +
 			"----------\n");
 	}
 
@@ -942,7 +942,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test053() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n"
@@ -1398,31 +1398,31 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "		FileNotFoundException, \n"
 					+ "		IOException;\n"
 					+ "}\n" },
-					"----------\n" + 
-					"1. ERROR in IX.java (at line 13)\n" + 
-					"	InvalidException, \n" + 
-					"	^^^^^^^^^^^^^^^^\n" + 
-					"InvalidException cannot be resolved to a type\n" + 
-					"----------\n" + 
-					"2. ERROR in IX.java (at line 14)\n" + 
-					"	String, \n" + 
-					"	^^^^^^\n" + 
-					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" + 
-					"----------\n" + 
-					"3. ERROR in IX.java (at line 15)\n" + 
-					"	java.io.EOFException, \n" + 
-					"	^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Javadoc: Missing tag for declared exception EOFException\n" + 
-					"----------\n" + 
-					"4. ERROR in IX.java (at line 16)\n" + 
-					"	FileNotFoundException, \n" + 
-					"	^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Javadoc: Missing tag for declared exception FileNotFoundException\n" + 
-					"----------\n" + 
-					"5. ERROR in IX.java (at line 17)\n" + 
-					"	IOException;\n" + 
-					"	^^^^^^^^^^^\n" + 
-					"IOException cannot be resolved to a type\n" + 
+					"----------\n" +
+					"1. ERROR in IX.java (at line 13)\n" +
+					"	InvalidException, \n" +
+					"	^^^^^^^^^^^^^^^^\n" +
+					"InvalidException cannot be resolved to a type\n" +
+					"----------\n" +
+					"2. ERROR in IX.java (at line 14)\n" +
+					"	String, \n" +
+					"	^^^^^^\n" +
+					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" +
+					"----------\n" +
+					"3. ERROR in IX.java (at line 15)\n" +
+					"	java.io.EOFException, \n" +
+					"	^^^^^^^^^^^^^^^^^^^^\n" +
+					"Javadoc: Missing tag for declared exception EOFException\n" +
+					"----------\n" +
+					"4. ERROR in IX.java (at line 16)\n" +
+					"	FileNotFoundException, \n" +
+					"	^^^^^^^^^^^^^^^^^^^^^\n" +
+					"Javadoc: Missing tag for declared exception FileNotFoundException\n" +
+					"----------\n" +
+					"5. ERROR in IX.java (at line 17)\n" +
+					"	IOException;\n" +
+					"	^^^^^^^^^^^\n" +
+					"IOException cannot be resolved to a type\n" +
 					"----------\n");
 	}
 
@@ -1590,7 +1590,7 @@ public class JavadocTestForInterface extends JavadocTest {
 
 	// @see tag: class references
 	public void test095() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n"
@@ -1655,7 +1655,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test097() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n" +
@@ -1703,7 +1703,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test099() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n" +
@@ -1723,7 +1723,7 @@ public class JavadocTestForInterface extends JavadocTest {
 
 	// @see tag: field references
 	public void test105() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n"
@@ -2054,7 +2054,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test117() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n"
@@ -2197,16 +2197,16 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "	 */\n"
 					+ "	public void foo();\n"
 					+ "}\n" },
-			"----------\n" + 
-			"1. ERROR in test\\IX.java (at line 7)\n" + 
-			"	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" + 
-			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: The type VisibilityPackage is not visible\n" + 
-			"----------\n" + 
-			"2. ERROR in test\\IX.java (at line 8)\n" + 
-			"	* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: The type test.copy.VisibilityPackage is not visible\n" + 
+			"----------\n" +
+			"1. ERROR in test\\IX.java (at line 7)\n" +
+			"	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" +
+			"	       ^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type VisibilityPackage is not visible\n" +
+			"----------\n" +
+			"2. ERROR in test\\IX.java (at line 8)\n" +
+			"	* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type test.copy.VisibilityPackage is not visible\n" +
 			"----------\n");
 	}
 
@@ -2230,7 +2230,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test123() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
 				"package test;\n"

@@ -28,7 +28,7 @@ import org.eclipse.team.core.RepositoryProvider;
 public class WorkingCopyTests extends ModifyingResourceTests {
 	ICompilationUnit cu = null;
 	ICompilationUnit copy = null;
-	
+
 	public class TestWorkingCopyOwner extends WorkingCopyOwner {
 		public IBuffer createBuffer(ICompilationUnit workingCopy) {
 			return new TestBuffer(workingCopy);
@@ -43,15 +43,15 @@ public static Test suite() {
 }
 protected void setUp() throws Exception {
 	super.setUp();
-	
+
 	try {
 		this.createJavaProject(
-			"P", 
-			new String[] {"src"}, 
-			new String[] {this.getExternalJCLPathString(), "lib"}, 
+			"P",
+			new String[] {"src"},
+			new String[] {this.getExternalJCLPathString(), "lib"},
 			"bin");
 		this.createFolder("P/src/x/y");
-		this.createFile("P/src/x/y/A.java", 
+		this.createFile("P/src/x/y/A.java",
 			"package x.y;\n" +
 			"import java.io.File;\n" +
 			"public class A {\n" +
@@ -120,7 +120,7 @@ public void testChangeContent() throws CoreException {
 		"Unexpected working copy contents",
 		newContents,
 		this.copy.getBuffer().getContents());
-	
+
 	this.copy.commitWorkingCopy(true, null);
 	assertSourceEquals(
 		"Unexpected original cu contents",
@@ -129,7 +129,7 @@ public void testChangeContent() throws CoreException {
 }
 
 /*
- * Ensures that one cannot commit the contents of a working copy on a read only cu. 
+ * Ensures that one cannot commit the contents of a working copy on a read only cu.
  */
 public void testChangeContentOfReadOnlyCU1() throws CoreException {
 	if (!Util.isReadOnlySupported()) {
@@ -154,7 +154,7 @@ public void testChangeContentOfReadOnlyCU1() throws CoreException {
 
 /*
  * Ensures that one can commit the contents of a working copy on a read only cu if a pessimistic repository
- * provider allows it. 
+ * provider allows it.
  */
 public void testChangeContentOfReadOnlyCU2() throws CoreException {
 	if (!Util.isReadOnlySupported()) {
@@ -174,7 +174,7 @@ public void testChangeContentOfReadOnlyCU2() throws CoreException {
 		RepositoryProvider.map(project, TestPessimisticProvider.NATURE_ID);
 		TestPessimisticProvider.markWritableOnSave = true;
 		Util.setReadOnly(resource, true);
-		
+
 		this.copy.getBuffer().setContents(newContents);
 		this.copy.commitWorkingCopy(true, null);
 		assertSourceEquals(
@@ -206,14 +206,14 @@ public void testContents() throws CoreException {
 public void testOnClassFile() throws JavaModelException, IOException {
 	// ensure the external JCL is copied
 	setupExternalJCL("jclMin");
-			
-	this.attachSource(this.getPackageFragmentRoot("P", this.getExternalJCLPathString()), this.getExternalJCLSourcePath().toOSString(), "src");
+
+	attachSource(this.getPackageFragmentRoot("P", this.getExternalJCLPathString()), this.getExternalJCLSourcePath().toOSString(), "src");
 	IClassFile classFile = this.getClassFile("P", this.getExternalJCLPathString(), "java.lang", "Object.class");
 	WorkingCopyOwner owner = new TestWorkingCopyOwner();
 	ICompilationUnit customizedCopy = classFile.getWorkingCopy(owner, null);
 	try {
 		IBuffer buffer = customizedCopy.getBuffer();
-		assertTrue("Unexpected buffer", buffer instanceof TestBuffer);	
+		assertTrue("Unexpected buffer", buffer instanceof TestBuffer);
 		assertTrue("Buffer should be initialized with source", buffer.getCharacters().length > 0);
 	} finally {
 		customizedCopy.discardWorkingCopy();
@@ -248,7 +248,7 @@ public void testCustomizedBuffer2() throws JavaModelException {
 	try {
 		customizedCopy.close();
 		customizedCopy.open(null);
-		assertTrue("Unexpected buffer", customizedCopy.getBuffer() instanceof TestBuffer);		
+		assertTrue("Unexpected buffer", customizedCopy.getBuffer() instanceof TestBuffer);
 	} finally {
 		customizedCopy.discardWorkingCopy();
 	}
@@ -273,8 +273,8 @@ public void testDelete2Fields() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta",
-			"A[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"	field1[-]: {}\n" + 
+			"A[*]: {CHILDREN | FINE GRAINED}\n" +
+			"	field1[-]: {}\n" +
 			"	field2[-]: {}"
 		);
 	} finally {
@@ -287,7 +287,7 @@ public void testDelete2Fields() throws CoreException {
  * <li>ensures the correct retrieval of the original element</li>
  * <li>closing the package of the compilation unit does not close the copy</li>
  * <li>ensures that working copies are unique
- * <li>ensures committing changes from working copies 
+ * <li>ensures committing changes from working copies
  */
 public void testGeneral() throws JavaModelException, CoreException {
 
@@ -305,7 +305,7 @@ public void testGeneral() throws JavaModelException, CoreException {
 	// closing the package should not close the copy
 	((IOpenable)this.cu.getParent()).close();
 	assertTrue("copy should still be open", this.copy.isOpen());
-	
+
 	// verify original still present
 	assertTrue("actual type should still be present", this.cu.getType("A").exists());
 
@@ -313,41 +313,41 @@ public void testGeneral() throws JavaModelException, CoreException {
 	ICompilationUnit copy2= this.cu.getWorkingCopy(null);
 	try {
 		assertTrue("working copies should be unique ", !(this.copy.equals(copy2)));
-	
+
 		// delete a method from the 2nd working copy.
 		IMethod method= copy2.getType("A").getMethod("foo", null);
-	
+
 		assertDeletion(method);
 		IMethod originalMethod= this.cu.getType("A").getMethod("foo", null);
 		assertTrue("method should still be present in original", originalMethod.exists());
-	
+
 		// commit the changes from the 2nd copy.
 		copy2.commitWorkingCopy(false, null);
-	
+
 		assertTrue("copy always has unsaved changes", copy2.hasUnsavedChanges());
-		
+
 		// original method should now be gone
 		assertTrue("method should no longer be present in original after commit", !originalMethod.exists());
-	
+
 		// commit the changes from the 1st copy - should fail
 		try {
 			this.copy.commitWorkingCopy(false, null);
 			assertTrue("commit should have failed", ex);
 		} catch (JavaModelException jme) {
 		}
-		
-	
+
+
 		// now force the update
 		try {
 			this.copy.commitWorkingCopy(true, null);
 		} catch (JavaModelException jme) {
 			assertTrue("commit should work", false);
 		}
-	
+
 		// now the type should be gone.
 		assertTrue("original type should no longer be present", !this.cu.getType("A").exists());
-	
-	
+
+
 		this.copy.close();
 		ex= false;
 		try {
@@ -356,7 +356,7 @@ public void testGeneral() throws JavaModelException, CoreException {
 			ex= true;
 		}
 		assertTrue("should be able to open working copy a 2nd time", !ex);
-	
+
 		// now discard the working copy
 		this.copy.discardWorkingCopy();
 		ex= false;
@@ -381,8 +381,8 @@ public void testGetPrimaryBinaryElement() throws CoreException {
 		"}")
 	*/
 	byte[] bytes = new byte[] {
-		-54, -2, -70, -66, 0, 3, 0, 45, 0, 10, 1, 0, 1, 65, 7, 0, 1, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 79, 98, 106, 101, 99, 116, 7, 0, 3, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111, 100, 101, 12, 0, 5, 0, 6, 10, 0, 4, 0, 8, 0, 33, 0, 2, 0, 4, 0, 0, 0, 
-		0, 0, 1, 0, 1, 0, 5, 0, 6, 0, 1, 0, 7, 0, 0, 0, 17, 0, 1, 0, 1, 0, 0, 0, 5, 42, -73, 0, 9, -79, 0, 0, 0, 0, 0, 0, 
+		-54, -2, -70, -66, 0, 3, 0, 45, 0, 10, 1, 0, 1, 65, 7, 0, 1, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 79, 98, 106, 101, 99, 116, 7, 0, 3, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111, 100, 101, 12, 0, 5, 0, 6, 10, 0, 4, 0, 8, 0, 33, 0, 2, 0, 4, 0, 0, 0,
+		0, 0, 1, 0, 1, 0, 5, 0, 6, 0, 1, 0, 7, 0, 0, 0, 17, 0, 1, 0, 1, 0, 0, 0, 5, 42, -73, 0, 9, -79, 0, 0, 0, 0, 0, 0,
 	};
 	this.createFile("P/lib/A.class", bytes);
 	IClassFile cf = this.getClassFile("P/lib/A.class");
@@ -521,32 +521,32 @@ public void testMoveTypeToAnotherWorkingCopy() throws CoreException {
 		assertTrue("A should not exist", !classA.exists());
 		assertTrue("B.A should exist", classB.getType("A").exists());
 		assertTrue("Buffer for A should not be null", this.copy.getBuffer() != null);
-		assertSourceEquals("Invalid content for A", 
+		assertSourceEquals("Invalid content for A",
 			"package x.y;\n" +
 			"import java.io.File;",
 			this.copy.getBuffer().getContents());
 		assertTrue("Buffer for B should not be null", copy2.getBuffer() != null);
-		assertSourceEquals("Invalid content for B", 
-			"package x.y;\n" + 
-			"public class B {\n" + 
-			"\n" + 
-			"	public class A {\n" + 
-			"	  public class Inner {\n" + 
-			"	    public class InnerInner {\n" + 
-			"	    }\n" + 
-			"	    int innerField;\n" + 
-			"	    void innerMethod() {\n" + 
-			"	    }\n" + 
-			"	  }\n" + 
-			"	  static String FIELD;\n" + 
-			"	  {\n" + 
-			"	    FIELD = File.pathSeparator;\n" + 
-			"	  }\n" + 
-			"	  int field1;\n" + 
-			"	  boolean field2;\n" + 
-			"	  public void foo() {\n" + 
-			"	  }\n" + 
-			"	}\n" + 
+		assertSourceEquals("Invalid content for B",
+			"package x.y;\n" +
+			"public class B {\n" +
+			"\n" +
+			"	public class A {\n" +
+			"	  public class Inner {\n" +
+			"	    public class InnerInner {\n" +
+			"	    }\n" +
+			"	    int innerField;\n" +
+			"	    void innerMethod() {\n" +
+			"	    }\n" +
+			"	  }\n" +
+			"	  static String FIELD;\n" +
+			"	  {\n" +
+			"	    FIELD = File.pathSeparator;\n" +
+			"	  }\n" +
+			"	  int field1;\n" +
+			"	  boolean field2;\n" +
+			"	  public void foo() {\n" +
+			"	  }\n" +
+			"	}\n" +
 			"}",
 			copy2.getBuffer().getContents());
 	} finally {
@@ -597,16 +597,16 @@ public void testMultipleCommit() {
 	} catch (JavaModelException jme) {
 		assertTrue("creation failed", false);
 	}
-	
+
 	// commit the changes from the copy.
 	try {
 		this.copy.commitWorkingCopy(false, null);
 	} catch (JavaModelException t) {
 		assertTrue("commit failed", false);
 	}
-	
+
 	// new method added
-	assertTrue("method should exist after commit", 
+	assertTrue("method should exist after commit",
 		this.cu.getType("A").getMethod("anotherMethod", new String[]{}).exists());
 
 	//add another method
@@ -624,7 +624,7 @@ public void testMultipleCommit() {
 	}
 
 	// new method added
-	assertTrue("second method added should exist after commit", 
+	assertTrue("second method added should exist after commit",
 		this.cu.getType("A").getMethod("anotherAnotherMethod", new String[]{}).exists());
 }
 /**
@@ -638,25 +638,25 @@ public void testNonExistingCU() throws JavaModelException {
 		// getBuffer()
 		workingCopy = nonExistingCU.getWorkingCopy(null);
 		assertSourceEquals("Buffer should be empty", "", ((IOpenable)workingCopy).getBuffer().getContents());
-		
+
 		// exists()
 		assertTrue("Working copy should exists", ((IJavaElement)workingCopy).exists());
-		
+
 		// getCorrespondingResource()
 		assertEquals("Corresponding resource should be null", null, ((IJavaElement)workingCopy).getCorrespondingResource());
-		
+
 		// getPrimaryElement()
 		assertEquals("Unexpected orginal element", nonExistingCU, workingCopy.getPrimaryElement());
-		
+
 		// getPath()
 		assertEquals("Unexpected path", new Path("/P/src/x/y/NonExisting.java"), ((IJavaElement)workingCopy).getPath());
-		
+
 		// getResource()
 		assertEquals("Unexpected resource", nonExistingCU.getResource(), ((IJavaElement)workingCopy).getResource());
-		
+
 		// isConsistent()
 		assertTrue("Working copy should be consistent", ((IOpenable)workingCopy).isConsistent());
-		
+
 		// restore()
 		boolean exception = false;
 		try {
@@ -665,7 +665,7 @@ public void testNonExistingCU() throws JavaModelException {
 			exception = true;
 		}
 		assertTrue("Should not be able to restore from primary element", exception);
-		
+
 		// makeConsistent()
 		((IOpenable)workingCopy).getBuffer().setContents(
 			"public class X {\n" +
@@ -673,7 +673,7 @@ public void testNonExistingCU() throws JavaModelException {
 		assertTrue("Working copy should not be consistent", !((IOpenable)workingCopy).isConsistent());
 		((IOpenable)workingCopy).makeConsistent(null);
 		assertTrue("Working copy should be consistent", ((IOpenable)workingCopy).isConsistent());
-		
+
 		// save()
 		((IOpenable)workingCopy).getBuffer().setContents(
 			"public class Y {\n" +
@@ -681,14 +681,14 @@ public void testNonExistingCU() throws JavaModelException {
 		((IOpenable)workingCopy).save(null, false);
 		assertTrue("Working copy should be consistent after save", ((IOpenable)workingCopy).isConsistent());
 		assertTrue("Primary cu should not exist", !nonExistingCU.exists());
-		
+
 		// commitWorkingCopy()
 		workingCopy.commitWorkingCopy(false, null);
 		assertTrue("Primary cu should exist", nonExistingCU.exists());
 
 		// hasResourceChanged()
 		assertTrue("Working copy's resource should now not mark as changed", !workingCopy.hasResourceChanged());
-		
+
 	} finally {
 		if (workingCopy != null) {
 			workingCopy.discardWorkingCopy();
@@ -714,7 +714,7 @@ public void testOperations() throws JavaModelException {
 		ex= true;
 	}
 	assertTrue("renaming a working copy should fail", ex);
-	
+
 	// move to same location as primary cu
 	ex= false;
 	try {
@@ -728,6 +728,6 @@ public void testOperations() throws JavaModelException {
 	// copy working copy to default package
 	IPackageFragment pkg= getPackageFragment("P", "src", "");
 	this.copy.copy(pkg, null, "someName.java", false, null);
-	assertCreation(this.copy);	
+	assertCreation(this.copy);
 }
 }

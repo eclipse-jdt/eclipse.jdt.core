@@ -1280,7 +1280,7 @@ public static String getProblemLog(CompilationResult compilationResult, boolean 
 		int count = problems.length;
 		int problemCount = 0;
 		char[] unitSource = compilationResult.compilationUnit.getContents();
-		for (int i = 0; i < count; i++) { 
+		for (int i = 0; i < count; i++) {
 			DefaultProblem problem = (DefaultProblem) problems[i];
 			if (problem != null) {
 				if (problemCount == 0)

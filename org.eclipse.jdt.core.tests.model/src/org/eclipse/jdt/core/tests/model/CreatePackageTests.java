@@ -49,15 +49,15 @@ public void testCreatePackageFragment1() throws JavaModelException {
 	assertTrue("Fragment return not correct", frag.getElementName().equals("one.two.three"));
 	assertDeltas(
 		"Unexpected delta",
-		"P[*]: {CHILDREN}\n" + 
-		"	<project root>[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	<project root>[*]: {CHILDREN}\n" +
 		"		one.two.three[+]: {}\n" +
-		"		one.two[+]: {}\n" + 
+		"		one.two[+]: {}\n" +
 		"		one[+]: {}"
 	);
 }
 /**
- * Ensures that a package fragment that shares a prefix path with 
+ * Ensures that a package fragment that shares a prefix path with
  * an existing package fragment can be created in a package
  * fragment root.
  * Verifies that the proper change deltas are generated as a side effect
@@ -69,11 +69,11 @@ public void testCreatePackageFragment2() throws JavaModelException {
 	assertCreation(frag);
 	assertDeltas(
 		"Unexpected delta",
-		"P[*]: {CHILDREN}\n" + 
-		"	<project root>[*]: {CHILDREN}\n" + 
+		"P[*]: {CHILDREN}\n" +
+		"	<project root>[*]: {CHILDREN}\n" +
 		"		one.two.three.four[+]: {}\n" +
-		"		one.two.three[+]: {}\n" + 
-		"		one.two[+]: {}\n" + 
+		"		one.two.three[+]: {}\n" +
+		"		one.two[+]: {}\n" +
 		"		one[+]: {}"
 	);
 }

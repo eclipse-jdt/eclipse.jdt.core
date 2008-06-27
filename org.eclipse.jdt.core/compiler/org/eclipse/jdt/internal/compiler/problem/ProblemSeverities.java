@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.problem;
 
 public interface ProblemSeverities {
-	
+
 	final int Ignore = -1; // during handling only
 	final int Warning = 0; // during handling only
 
@@ -23,5 +23,5 @@ public interface ProblemSeverities {
 	final int Abort = 30; // 2r11110
 	final int Optional = 32; // when bit is set: problem was configurable
 	final int SecondaryError = 64;
-	final int Fatal = 128; // when bit is set: problem was either a mandatory error, or an optional+treatOptionalErrorAsFatal	
+	final int Fatal = 128; // when bit is set: problem was either a mandatory error, or an optional+treatOptionalErrorAsFatal
 }

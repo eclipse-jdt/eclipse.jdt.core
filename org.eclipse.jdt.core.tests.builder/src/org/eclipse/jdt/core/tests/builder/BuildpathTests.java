@@ -267,7 +267,7 @@ public void testChangeExternalFolder() throws CoreException {
 		new File(externalLib).mkdirs();
 		Util.compile(
 			new String[] {
-				"p/X.java", 
+				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"  public void foo() {\n" +
@@ -277,22 +277,22 @@ public void testChangeExternalFolder() throws CoreException {
 			new HashMap(),
 			externalLib
 		);
-		
-		IPath projectPath = env.addProject("Project"); 
+
+		IPath projectPath = env.addProject("Project");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.addExternalFolders(projectPath, new String[] {externalLib});
 
 		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
-		env.setOutputFolder(projectPath, ""); 
+		env.setOutputFolder(projectPath, "");
 
-		IPath classY = env.addClass(root, "q", "Y",  
-			"package q;\n"+ 
+		IPath classY = env.addClass(root, "q", "Y",
+			"package q;\n"+
 			"public class Y {\n" +
 			"  void bar(p.X x) {\n" +
 			"    x.foo();\n" +
 			"  }\n" +
 			"}"
-		); 
+		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
@@ -305,7 +305,7 @@ public void testChangeExternalFolder() throws CoreException {
 		}
 		Util.compile(
 			new String[] {
-				"p/X.java", 
+				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"}"
@@ -314,7 +314,7 @@ public void testChangeExternalFolder() throws CoreException {
 			externalLib
 		);
 		new java.io.File(externalClassFile).setLastModified(lastModified + 1000); // to be sure its different
-		
+
 		env.getProject(projectPath).refreshLocal(IResource.DEPTH_INFINITE, null);
 		env.waitForManualRefresh();
 
@@ -343,24 +343,24 @@ public void testChangeZIPArchive1() throws Exception {
 				"  }\n" +
 				"}"
 			},
-			externalLib, 
+			externalLib,
 			"1.4");
-		
-		IPath projectPath = env.addProject("Project"); 
+
+		IPath projectPath = env.addProject("Project");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.addExternalJars(projectPath, new String[] {externalLib});
 
 		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
-		env.setOutputFolder(projectPath, ""); 
+		env.setOutputFolder(projectPath, "");
 
-		IPath classY = env.addClass(root, "q", "Y",  
-			"package q;\n"+ 
+		IPath classY = env.addClass(root, "q", "Y",
+			"package q;\n"+
 			"public class Y {\n" +
 			"  void bar(p.X x) {\n" +
 			"    x.foo();\n" +
 			"  }\n" +
 			"}"
-		); 
+		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
@@ -377,10 +377,10 @@ public void testChangeZIPArchive1() throws Exception {
 				"public class X {\n" +
 				"}"
 			},
-			externalLib, 
+			externalLib,
 			"1.4");
 		new java.io.File(externalLib).setLastModified(lastModified + 1000); // to be sure its different
-		
+
 		IJavaProject p = env.getJavaProject(projectPath);
 		p.getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
 
@@ -398,7 +398,7 @@ public void testChangeZIPArchive1() throws Exception {
  * Ensures that changing a type in an internal ZIP archive and refreshing triggers a rebuild
  */
 public void testChangeZIPArchive2() throws Exception {
-	IPath projectPath = env.addProject("Project"); 
+	IPath projectPath = env.addProject("Project");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	String internalLib = env.getProject("Project").getLocation().toOSString() + File.separator + "internalLib.abc";
 	org.eclipse.jdt.core.tests.util.Util.createJar(
@@ -410,22 +410,22 @@ public void testChangeZIPArchive2() throws Exception {
 			"  }\n" +
 			"}"
 		},
-		internalLib, 
+		internalLib,
 		"1.4");
 	env.getProject(projectPath).refreshLocal(IResource.DEPTH_INFINITE, null);
 	env.addEntry(projectPath, JavaCore.newLibraryEntry(new Path("/Project/internalLib.abc"), null, null));
 
 	IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
-	env.setOutputFolder(projectPath, ""); 
+	env.setOutputFolder(projectPath, "");
 
-	IPath classY = env.addClass(root, "q", "Y",  
-		"package q;\n"+ 
+	IPath classY = env.addClass(root, "q", "Y",
+		"package q;\n"+
 		"public class Y {\n" +
 		"  void bar(p.X x) {\n" +
 		"    x.foo();\n" +
 		"  }\n" +
 		"}"
-	); 
+	);
 
 	fullBuild(projectPath);
 	expectingNoProblems();
@@ -442,10 +442,10 @@ public void testChangeZIPArchive2() throws Exception {
 			"public class X {\n" +
 			"}"
 		},
-		internalLib, 
+		internalLib,
 		"1.4");
 	new java.io.File(internalLib).setLastModified(lastModified + 1000); // to be sure its different
-	
+
 	env.getProject(projectPath).refreshLocal(IResource.DEPTH_INFINITE, null);
 
 	incrementalBuild(projectPath);

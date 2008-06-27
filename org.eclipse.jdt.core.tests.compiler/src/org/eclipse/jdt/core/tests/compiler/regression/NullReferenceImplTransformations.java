@@ -26,20 +26,20 @@ import org.eclipse.jdt.core.tests.compiler.regression.NullReferenceImplTests.Sta
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 public class NullReferenceImplTransformations {
 	public static final Transformation
-		markAsComparedEqualToNonNull = 
+		markAsComparedEqualToNonNull =
 		// markAsComparedEqualToNonNull DEFINITION START
 		// start => prot. non null
 		// prot. non null => prot. non null
 		// prot. null => prot. non null
-		// pot. unknown => pot. nn & prot. nn 
+		// pot. unknown => pot. nn & prot. nn
 		// pot. non null => pot. nn & prot. nn
 		// pot. nn & prot. nn => pot. nn & prot. nn
 		// pot. nn & pot. un => pot. nn & prot. nn
 		// pot. null => prot. non null
 		// pot. n & prot. n => prot. non null
-		// pot. n & pot. un => pot. nn & prot. nn 
+		// pot. n & pot. un => pot. nn & prot. nn
 		// pot. n & pot. nn => pot. nn & prot. nn
-		// def. unknown => def. non null 
+		// def. unknown => def. non null
 		// def. non null => def. non null
 		// def. null => prot. non null
 		// markAsComparedEqualToNonNull DEFINITION END
@@ -62,7 +62,7 @@ public class NullReferenceImplTransformations {
 					{0x3C,0x3C},
 					// markAsComparedEqualToNonNull INITIALIZER END
 					}) {
-				UnconditionalFlowInfo output(UnconditionalFlowInfo input, 
+				UnconditionalFlowInfo output(UnconditionalFlowInfo input,
 						TestLocalVariableBinding local) {
 					UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
 					result.markAsComparedEqualToNonNull(local);
@@ -105,14 +105,14 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x38},
 				// markAsComparedEqualToNull INITIALIZER END
 				}) {
-			UnconditionalFlowInfo output(UnconditionalFlowInfo input, 
+			UnconditionalFlowInfo output(UnconditionalFlowInfo input,
 					TestLocalVariableBinding local) {
 				UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
 				result.markAsComparedEqualToNull(local);
 				return result;
 			}
 		},
-		markAsDefinitelyNonNull = 
+		markAsDefinitelyNonNull =
 		// markAsDefinitelyNonNull DEFINITION START
 		// start => def. non null
 		// prot. non null => def. non null
@@ -148,7 +148,7 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x28},
 				// markAsDefinitelyNonNull INITIALIZER END
 				}) {
-			UnconditionalFlowInfo output(UnconditionalFlowInfo input, 
+			UnconditionalFlowInfo output(UnconditionalFlowInfo input,
 					TestLocalVariableBinding local) {
 				UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
 				result.markAsDefinitelyNonNull(local);
@@ -192,7 +192,7 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x30},
 				// markAsDefinitelyNull INITIALIZER END
 				}) {
-			UnconditionalFlowInfo output(UnconditionalFlowInfo input, 
+			UnconditionalFlowInfo output(UnconditionalFlowInfo input,
 					TestLocalVariableBinding local) {
 				UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
 				result.markAsDefinitelyNull(local);
@@ -235,7 +235,7 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x24},
 				// markAsDefinitelyUnknown INITIALIZER END
 				}) {
-			UnconditionalFlowInfo output(UnconditionalFlowInfo input, 
+			UnconditionalFlowInfo output(UnconditionalFlowInfo input,
 					TestLocalVariableBinding local) {
 				UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
 				result.markAsDefinitelyUnknown(local);
@@ -244,146 +244,146 @@ public class NullReferenceImplTransformations {
 		},
 		addInitializationsFrom =
 		// addInitializationsFrom DEFINITION START
-		// def. non null + def. non null => def. non null		
-		// def. non null + def. null => def. null		
-		// def. non null + def. unknown => def. unknown		
-		// def. non null + pot. n & pot. nn => pot. n & pot. nn		
-		// def. non null + pot. n & pot. un => pot. n & pot. nn		
-		// def. non null + pot. n & prot. n => pot. n & prot. n		
-		// def. non null + pot. nn & pot. un => def. unknown		
-		// def. non null + pot. nn & prot. nn => def. non null		
-		// def. non null + pot. non null => def. non null		
-		// def. non null + pot. null => pot. n & pot. nn		
-		// def. non null + pot. unknown => def. unknown // priv.	
-		// def. non null + prot. non null => def. non null		
-		// def. non null + prot. null => prot. null		
-		// def. non null + start => def. non null		
-		// def. null + def. non null => def. non null		
-		// def. null + def. null => def. null		
-		// def. null + def. unknown => def. unknown		
-		// def. null + pot. n & pot. nn => pot. n & pot. nn		
-		// def. null + pot. n & pot. un => pot. n & pot. un		
-		// def. null + pot. n & prot. n => def. null		
-		// def. null + pot. nn & pot. un => pot. n & pot. nn		
-		// def. null + pot. nn & prot. nn => pot. nn & prot. nn		
-		// def. null + pot. non null => pot. n & pot. nn		
-		// def. null + pot. null => def. null		
-		// def. null + pot. unknown => pot. n & pot. un // pot. null privileged over def. unknown		
-		// def. null + prot. non null => prot. non null		
-		// def. null + prot. null => def. null		
-		// def. null + start => def. null		
-		// def. unknown + def. non null => def. non null		
-		// def. unknown + def. null => def. null		
-		// def. unknown + def. unknown => def. unknown		
-		// def. unknown + pot. n & pot. nn => pot. n & pot. nn		
+		// def. non null + def. non null => def. non null
+		// def. non null + def. null => def. null
+		// def. non null + def. unknown => def. unknown
+		// def. non null + pot. n & pot. nn => pot. n & pot. nn
+		// def. non null + pot. n & pot. un => pot. n & pot. nn
+		// def. non null + pot. n & prot. n => pot. n & prot. n
+		// def. non null + pot. nn & pot. un => def. unknown
+		// def. non null + pot. nn & prot. nn => def. non null
+		// def. non null + pot. non null => def. non null
+		// def. non null + pot. null => pot. n & pot. nn
+		// def. non null + pot. unknown => def. unknown // priv.
+		// def. non null + prot. non null => def. non null
+		// def. non null + prot. null => prot. null
+		// def. non null + start => def. non null
+		// def. null + def. non null => def. non null
+		// def. null + def. null => def. null
+		// def. null + def. unknown => def. unknown
+		// def. null + pot. n & pot. nn => pot. n & pot. nn
+		// def. null + pot. n & pot. un => pot. n & pot. un
+		// def. null + pot. n & prot. n => def. null
+		// def. null + pot. nn & pot. un => pot. n & pot. nn
+		// def. null + pot. nn & prot. nn => pot. nn & prot. nn
+		// def. null + pot. non null => pot. n & pot. nn
+		// def. null + pot. null => def. null
+		// def. null + pot. unknown => pot. n & pot. un // pot. null privileged over def. unknown
+		// def. null + prot. non null => prot. non null
+		// def. null + prot. null => def. null
+		// def. null + start => def. null
+		// def. unknown + def. non null => def. non null
+		// def. unknown + def. null => def. null
+		// def. unknown + def. unknown => def. unknown
+		// def. unknown + pot. n & pot. nn => pot. n & pot. nn
 		// def. unknown + pot. n & pot. un => pot. n & pot. un	// we loose the def here, but we need the pot. null
-		// def. unknown + pot. n & prot. n => def. null		
+		// def. unknown + pot. n & prot. n => def. null
 		// def. unknown + pot. nn & pot. un => def. unknown // priv.
-		// def. unknown + pot. nn & prot. nn => def. non null		
+		// def. unknown + pot. nn & prot. nn => def. non null
 		// def. unknown + pot. non null => def. unknown	// privileging over pot. nn & pot. un
 		// def. unknown + pot. null => pot. n & pot. un
-		// def. unknown + pot. unknown => def. unknown		
-		// def. unknown + prot. non null => def. non null 		
-		// def. unknown + prot. null => def. null		
-		// def. unknown + start => def. unknown		
-		// pot. n & pot. nn + def. non null => def. non null		
-		// pot. n & pot. nn + def. null => def. null		
-		// pot. n & pot. nn + def. unknown => def. unknown		
-		// pot. n & pot. nn + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. n & pot. un => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. n & prot. n => pot. n & prot. n		
-		// pot. n & pot. nn + pot. nn & pot. un => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. nn & prot. nn => pot. nn & prot. nn		
-		// pot. n & pot. nn + pot. non null => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. null => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. unknown => pot. n & pot. nn		
-		// pot. n & pot. nn + prot. non null => pot. nn & prot. nn		
-		// pot. n & pot. nn + prot. null => pot. n & prot. n		
-		// pot. n & pot. nn + start => pot. n & pot. nn		
-		// pot. n & pot. un + def. non null => def. non null		
-		// pot. n & pot. un + def. null => def. null		
-		// pot. n & pot. un + def. unknown => def. unknown		
-		// pot. n & pot. un + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. n & pot. un + pot. n & pot. un => pot. n & pot. un		
-		// pot. n & pot. un + pot. n & prot. n => pot. n & prot. n		
-		// pot. n & pot. un + pot. nn & pot. un => pot. n & pot. nn		
-		// pot. n & pot. un + pot. nn & prot. nn => pot. nn & prot. nn		
-		// pot. n & pot. un + pot. non null => pot. n & pot. nn		
-		// pot. n & pot. un + pot. null => pot. n & pot. un		
-		// pot. n & pot. un + pot. unknown => pot. n & pot. un		
-		// pot. n & pot. un + prot. non null => pot. nn & prot. nn 		
-		// pot. n & pot. un + prot. null => pot. n & prot. n		
-		// pot. n & pot. un + start => pot. n & pot. un		
-		// pot. n & prot. n + def. non null => def. non null		
-		// pot. n & prot. n + def. null => def. null		
-		// pot. n & prot. n + def. unknown => def. unknown		
-		// pot. n & prot. n + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. n & prot. n + pot. n & pot. un => pot. n & pot. un		
-		// pot. n & prot. n + pot. n & prot. n => pot. n & prot. n		
-		// pot. n & prot. n + pot. nn & pot. un => pot. n & pot. nn		
-		// pot. n & prot. n + pot. nn & prot. nn => pot. nn & prot. nn		
-		// pot. n & prot. n + pot. non null => pot. n & pot. nn		
-		// pot. n & prot. n + pot. null => pot. n & prot. n		
-		// pot. n & prot. n + pot. unknown => pot. n & pot. un		
-		// pot. n & prot. n + prot. non null => prot. non null		
-		// pot. n & prot. n + prot. null => pot. n & prot. n		
-		// pot. n & prot. n + start => pot. n & prot. n		
-		// pot. nn & pot. un + def. non null => def. non null		
-		// pot. nn & pot. un + def. null => def. null		
-		// pot. nn & pot. un + def. unknown => def. unknown		
-		// pot. nn & pot. un + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. nn & pot. un + pot. n & pot. un => pot. n & pot. nn		
-		// pot. nn & pot. un + pot. n & prot. n => pot. n & prot. n		
-		// pot. nn & pot. un + pot. nn & pot. un => pot. nn & pot. un		
-		// pot. nn & pot. un + pot. nn & prot. nn => pot. nn & prot. nn		
-		// pot. nn & pot. un + pot. non null => pot. nn & pot. un		
-		// pot. nn & pot. un + pot. null => pot. n & pot. nn		
-		// pot. nn & pot. un + pot. unknown => pot. nn & pot. un		
+		// def. unknown + pot. unknown => def. unknown
+		// def. unknown + prot. non null => def. non null
+		// def. unknown + prot. null => def. null
+		// def. unknown + start => def. unknown
+		// pot. n & pot. nn + def. non null => def. non null
+		// pot. n & pot. nn + def. null => def. null
+		// pot. n & pot. nn + def. unknown => def. unknown
+		// pot. n & pot. nn + pot. n & pot. nn => pot. n & pot. nn
+		// pot. n & pot. nn + pot. n & pot. un => pot. n & pot. nn
+		// pot. n & pot. nn + pot. n & prot. n => pot. n & prot. n
+		// pot. n & pot. nn + pot. nn & pot. un => pot. n & pot. nn
+		// pot. n & pot. nn + pot. nn & prot. nn => pot. nn & prot. nn
+		// pot. n & pot. nn + pot. non null => pot. n & pot. nn
+		// pot. n & pot. nn + pot. null => pot. n & pot. nn
+		// pot. n & pot. nn + pot. unknown => pot. n & pot. nn
+		// pot. n & pot. nn + prot. non null => pot. nn & prot. nn
+		// pot. n & pot. nn + prot. null => pot. n & prot. n
+		// pot. n & pot. nn + start => pot. n & pot. nn
+		// pot. n & pot. un + def. non null => def. non null
+		// pot. n & pot. un + def. null => def. null
+		// pot. n & pot. un + def. unknown => def. unknown
+		// pot. n & pot. un + pot. n & pot. nn => pot. n & pot. nn
+		// pot. n & pot. un + pot. n & pot. un => pot. n & pot. un
+		// pot. n & pot. un + pot. n & prot. n => pot. n & prot. n
+		// pot. n & pot. un + pot. nn & pot. un => pot. n & pot. nn
+		// pot. n & pot. un + pot. nn & prot. nn => pot. nn & prot. nn
+		// pot. n & pot. un + pot. non null => pot. n & pot. nn
+		// pot. n & pot. un + pot. null => pot. n & pot. un
+		// pot. n & pot. un + pot. unknown => pot. n & pot. un
+		// pot. n & pot. un + prot. non null => pot. nn & prot. nn
+		// pot. n & pot. un + prot. null => pot. n & prot. n
+		// pot. n & pot. un + start => pot. n & pot. un
+		// pot. n & prot. n + def. non null => def. non null
+		// pot. n & prot. n + def. null => def. null
+		// pot. n & prot. n + def. unknown => def. unknown
+		// pot. n & prot. n + pot. n & pot. nn => pot. n & pot. nn
+		// pot. n & prot. n + pot. n & pot. un => pot. n & pot. un
+		// pot. n & prot. n + pot. n & prot. n => pot. n & prot. n
+		// pot. n & prot. n + pot. nn & pot. un => pot. n & pot. nn
+		// pot. n & prot. n + pot. nn & prot. nn => pot. nn & prot. nn
+		// pot. n & prot. n + pot. non null => pot. n & pot. nn
+		// pot. n & prot. n + pot. null => pot. n & prot. n
+		// pot. n & prot. n + pot. unknown => pot. n & pot. un
+		// pot. n & prot. n + prot. non null => prot. non null
+		// pot. n & prot. n + prot. null => pot. n & prot. n
+		// pot. n & prot. n + start => pot. n & prot. n
+		// pot. nn & pot. un + def. non null => def. non null
+		// pot. nn & pot. un + def. null => def. null
+		// pot. nn & pot. un + def. unknown => def. unknown
+		// pot. nn & pot. un + pot. n & pot. nn => pot. n & pot. nn
+		// pot. nn & pot. un + pot. n & pot. un => pot. n & pot. nn
+		// pot. nn & pot. un + pot. n & prot. n => pot. n & prot. n
+		// pot. nn & pot. un + pot. nn & pot. un => pot. nn & pot. un
+		// pot. nn & pot. un + pot. nn & prot. nn => pot. nn & prot. nn
+		// pot. nn & pot. un + pot. non null => pot. nn & pot. un
+		// pot. nn & pot. un + pot. null => pot. n & pot. nn
+		// pot. nn & pot. un + pot. unknown => pot. nn & pot. un
 		// pot. nn & pot. un + prot. non null => pot. nn & prot. nn
-		// pot. nn & pot. un + prot. null => pot. n & prot. n		
-		// pot. nn & pot. un + start => pot. nn & pot. un		
-		// pot. nn & prot. nn + def. non null => def. non null		
-		// pot. nn & prot. nn + def. null => def. null		
-		// pot. nn & prot. nn + def. unknown => def. unknown		
-		// pot. nn & prot. nn + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. nn & prot. nn + pot. n & pot. un => pot. n & pot. nn		
-		// pot. nn & prot. nn + pot. n & prot. n => pot. n & prot. n		
+		// pot. nn & pot. un + prot. null => pot. n & prot. n
+		// pot. nn & pot. un + start => pot. nn & pot. un
+		// pot. nn & prot. nn + def. non null => def. non null
+		// pot. nn & prot. nn + def. null => def. null
+		// pot. nn & prot. nn + def. unknown => def. unknown
+		// pot. nn & prot. nn + pot. n & pot. nn => pot. n & pot. nn
+		// pot. nn & prot. nn + pot. n & pot. un => pot. n & pot. nn
+		// pot. nn & prot. nn + pot. n & prot. n => pot. n & prot. n
 		// pot. nn & prot. nn + pot. nn & pot. un => pot. nn & pot. un
-		// pot. nn & prot. nn + pot. nn & prot. nn => pot. nn & prot. nn		
-		// pot. nn & prot. nn + pot. non null => pot. nn & prot. nn		
-		// pot. nn & prot. nn + pot. null => pot. n & pot. nn		
+		// pot. nn & prot. nn + pot. nn & prot. nn => pot. nn & prot. nn
+		// pot. nn & prot. nn + pot. non null => pot. nn & prot. nn
+		// pot. nn & prot. nn + pot. null => pot. n & pot. nn
 		// pot. nn & prot. nn + pot. unknown => pot. nn & pot. un
-		// pot. nn & prot. nn + prot. non null => pot. nn & prot. nn		
-		// pot. nn & prot. nn + prot. null => prot. null		
-		// pot. nn & prot. nn + start => pot. nn & prot. nn		
-		// pot. non null + def. non null => def. non null		
-		// pot. non null + def. null => def. null		
-		// pot. non null + def. unknown => def. unknown		
-		// pot. non null + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. non null + pot. n & pot. un => pot. n & pot. nn		
-		// pot. non null + pot. n & prot. n => pot. n & prot. n		
-		// pot. non null + pot. nn & pot. un => pot. nn & pot. un		
-		// pot. non null + pot. nn & prot. nn => pot. nn & prot. nn		
-		// pot. non null + pot. non null => pot. non null		
-		// pot. non null + pot. null => pot. n & pot. nn		
-		// pot. non null + pot. unknown => pot. nn & pot. un		
-		// pot. non null + prot. non null => pot. nn & prot. nn		
-		// pot. non null + prot. null => prot. null		
+		// pot. nn & prot. nn + prot. non null => pot. nn & prot. nn
+		// pot. nn & prot. nn + prot. null => prot. null
+		// pot. nn & prot. nn + start => pot. nn & prot. nn
+		// pot. non null + def. non null => def. non null
+		// pot. non null + def. null => def. null
+		// pot. non null + def. unknown => def. unknown
+		// pot. non null + pot. n & pot. nn => pot. n & pot. nn
+		// pot. non null + pot. n & pot. un => pot. n & pot. nn
+		// pot. non null + pot. n & prot. n => pot. n & prot. n
+		// pot. non null + pot. nn & pot. un => pot. nn & pot. un
+		// pot. non null + pot. nn & prot. nn => pot. nn & prot. nn
+		// pot. non null + pot. non null => pot. non null
+		// pot. non null + pot. null => pot. n & pot. nn
+		// pot. non null + pot. unknown => pot. nn & pot. un
+		// pot. non null + prot. non null => pot. nn & prot. nn
+		// pot. non null + prot. null => prot. null
 		// pot. non null + start => pot. non null
-		// pot. null + def. non null => def. non null		
-		// pot. null + def. null => def. null		
-		// pot. null + def. unknown => def. unknown		
-		// pot. null + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. null + pot. n & pot. un => pot. n & pot. un		
-		// pot. null + pot. n & prot. n => pot. n & prot. n		
-		// pot. null + pot. nn & pot. un => pot. n & pot. nn		
-		// pot. null + pot. nn & prot. nn => pot. nn & prot. nn		
-		// pot. null + pot. non null => pot. n & pot. nn		
-		// pot. null + pot. null => pot. null		
-		// pot. null + pot. unknown => pot. n & pot. un		
-		// pot. null + prot. non null => prot. non null		
-		// pot. null + prot. null => pot. n & prot. n		
-		// pot. null + start => pot. null		
+		// pot. null + def. non null => def. non null
+		// pot. null + def. null => def. null
+		// pot. null + def. unknown => def. unknown
+		// pot. null + pot. n & pot. nn => pot. n & pot. nn
+		// pot. null + pot. n & pot. un => pot. n & pot. un
+		// pot. null + pot. n & prot. n => pot. n & prot. n
+		// pot. null + pot. nn & pot. un => pot. n & pot. nn
+		// pot. null + pot. nn & prot. nn => pot. nn & prot. nn
+		// pot. null + pot. non null => pot. n & pot. nn
+		// pot. null + pot. null => pot. null
+		// pot. null + pot. unknown => pot. n & pot. un
+		// pot. null + prot. non null => prot. non null
+		// pot. null + prot. null => pot. n & prot. n
+		// pot. null + start => pot. null
 		// pot. unknown + def. non null => def. non null
 		// pot. unknown + def. null => def. null
 		// pot. unknown + def. unknown => def. unknown
@@ -642,206 +642,206 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x3C,0x3C},
 				// addInitializationsFrom INITIALIZER END
 				}) {
-			UnconditionalFlowInfo output(UnconditionalFlowInfo input1, 
+			UnconditionalFlowInfo output(UnconditionalFlowInfo input1,
 					UnconditionalFlowInfo input2) {
-				return (UnconditionalFlowInfo) 
+				return (UnconditionalFlowInfo)
 					input1.copy().addInitializationsFrom(input2);
 			}
 		},
 		// addPotentialInitializationsFrom DEFINITION START
-		// def. non null + def. non null => def. non null		
-		// def. non null + def. null => pot. n & pot. nn		
-		// def. non null + def. unknown => def. unknown		
-		// def. non null + pot. n & pot. nn => pot. n & pot. nn		
-		// def. non null + pot. n & pot. un => pot. n & pot. nn		
-		// def. non null + pot. n & prot. n => pot. n & pot. nn		
-		// def. non null + pot. nn & pot. un => def. unknown		
-		// def. non null + pot. nn & prot. nn => def. non null		
-		// def. non null + pot. non null => def. non null		
-		// def. non null + pot. null => pot. n & pot. nn		
-		// def. non null + pot. unknown => def. unknown		
-		// def. non null + prot. non null => def. non null		
-		// def. non null + prot. null => def. non null		
-		// def. non null + start => def. non null		
-		// def. null + def. non null => pot. n & pot. nn		
-		// def. null + def. null => def. null		
-		// def. null + def. unknown => pot. n & pot. un		
-		// def. null + pot. n & pot. nn => pot. n & pot. nn		
+		// def. non null + def. non null => def. non null
+		// def. non null + def. null => pot. n & pot. nn
+		// def. non null + def. unknown => def. unknown
+		// def. non null + pot. n & pot. nn => pot. n & pot. nn
+		// def. non null + pot. n & pot. un => pot. n & pot. nn
+		// def. non null + pot. n & prot. n => pot. n & pot. nn
+		// def. non null + pot. nn & pot. un => def. unknown
+		// def. non null + pot. nn & prot. nn => def. non null
+		// def. non null + pot. non null => def. non null
+		// def. non null + pot. null => pot. n & pot. nn
+		// def. non null + pot. unknown => def. unknown
+		// def. non null + prot. non null => def. non null
+		// def. non null + prot. null => def. non null
+		// def. non null + start => def. non null
+		// def. null + def. non null => pot. n & pot. nn
+		// def. null + def. null => def. null
+		// def. null + def. unknown => pot. n & pot. un
+		// def. null + pot. n & pot. nn => pot. n & pot. nn
 		// def. null + pot. n & pot. un => pot. n & pot. un
-		// def. null + pot. n & prot. n => def. null		
-		// def. null + pot. nn & pot. un => pot. n & pot. nn		
-		// def. null + pot. nn & prot. nn => pot. n & pot. nn		
-		// def. null + pot. non null => pot. n & pot. nn		
-		// def. null + pot. null => def. null		
-		// def. null + pot. unknown => pot. n & pot. un		
-		// def. null + prot. non null => def. null		
-		// def. null + prot. null => def. null		
+		// def. null + pot. n & prot. n => def. null
+		// def. null + pot. nn & pot. un => pot. n & pot. nn
+		// def. null + pot. nn & prot. nn => pot. n & pot. nn
+		// def. null + pot. non null => pot. n & pot. nn
+		// def. null + pot. null => def. null
+		// def. null + pot. unknown => pot. n & pot. un
+		// def. null + prot. non null => def. null
+		// def. null + prot. null => def. null
 		// def. null + start => def. null
 		// def. unknown + def. non null => def. unknown
-		// def. unknown + def. null => pot. n & pot. un		
-		// def. unknown + def. unknown => def. unknown		
-		// def. unknown + pot. n & pot. nn => pot. n & pot. nn		
-		// def. unknown + pot. n & pot. un => pot. n & pot. un		
-		// def. unknown + pot. n & prot. n => pot. n & pot. un		
-		// def. unknown + pot. nn & pot. un => def. unknown		
+		// def. unknown + def. null => pot. n & pot. un
+		// def. unknown + def. unknown => def. unknown
+		// def. unknown + pot. n & pot. nn => pot. n & pot. nn
+		// def. unknown + pot. n & pot. un => pot. n & pot. un
+		// def. unknown + pot. n & prot. n => pot. n & pot. un
+		// def. unknown + pot. nn & pot. un => def. unknown
 		// def. unknown + pot. nn & prot. nn => def. unknown
 		// def. unknown + pot. non null => def. unknown
-		// def. unknown + pot. null => pot. n & pot. un		
-		// def. unknown + pot. unknown => def. unknown		
-		// def. unknown + prot. non null => def. unknown		
-		// def. unknown + prot. null => def. unknown		
-		// def. unknown + start => def. unknown		
-		// pot. n & pot. nn + def. non null => pot. n & pot. nn		
-		// pot. n & pot. nn + def. null => pot. n & pot. nn		
-		// pot. n & pot. nn + def. unknown => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. n & pot. un => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. n & prot. n => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. nn & pot. un => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. nn & prot. nn => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. non null => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. null => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. unknown => pot. n & pot. nn		
-		// pot. n & pot. nn + prot. non null => pot. n & pot. nn		
-		// pot. n & pot. nn + prot. null => pot. n & pot. nn		
-		// pot. n & pot. nn + start => pot. n & pot. nn		
-		// pot. n & pot. un + def. non null => pot. n & pot. nn		
-		// pot. n & pot. un + def. null => pot. n & pot. un		
-		// pot. n & pot. un + def. unknown => pot. n & pot. un		
-		// pot. n & pot. un + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. n & pot. un + pot. n & pot. un => pot. n & pot. un		
-		// pot. n & pot. un + pot. n & prot. n => pot. n & pot. un		
-		// pot. n & pot. un + pot. nn & pot. un => pot. n & pot. nn		
-		// pot. n & pot. un + pot. nn & prot. nn => pot. n & pot. nn		
-		// pot. n & pot. un + pot. non null => pot. n & pot. nn		
-		// pot. n & pot. un + pot. null => pot. n & pot. un		
-		// pot. n & pot. un + pot. unknown => pot. n & pot. un		
-		// pot. n & pot. un + prot. non null => pot. n & pot. un		
-		// pot. n & pot. un + prot. null => pot. n & pot. un		
-		// pot. n & pot. un + start => pot. n & pot. un		
-		// pot. n & prot. n + def. non null => pot. n & pot. nn		
-		// pot. n & prot. n + def. null => pot. n & prot. n		
-		// pot. n & prot. n + def. unknown => pot. n & pot. un		
-		// pot. n & prot. n + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. n & prot. n + pot. n & pot. un => pot. n & pot. un		
-		// pot. n & prot. n + pot. n & prot. n => pot. n & prot. n		
-		// pot. n & prot. n + pot. nn & pot. un => pot. n & pot. nn		
-		// pot. n & prot. n + pot. nn & prot. nn => pot. n & pot. nn		
-		// pot. n & prot. n + pot. non null => pot. n & pot. nn		
-		// pot. n & prot. n + pot. null => pot. n & prot. n		
-		// pot. n & prot. n + pot. unknown => pot. n & pot. un		
-		// pot. n & prot. n + prot. non null => pot. n & prot. n		
-		// pot. n & prot. n + prot. null => pot. n & prot. n		
-		// pot. n & prot. n + start => pot. n & prot. n		
-		// pot. nn & pot. un + def. non null => pot. nn & pot. un		
-		// pot. nn & pot. un + def. null => pot. n & pot. nn		
-		// pot. nn & pot. un + def. unknown => pot. nn & pot. un		
-		// pot. nn & pot. un + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. nn & pot. un + pot. n & pot. un => pot. n & pot. nn		
-		// pot. nn & pot. un + pot. n & prot. n => pot. n & pot. nn		
-		// pot. nn & pot. un + pot. nn & pot. un => pot. nn & pot. un		
-		// pot. nn & pot. un + pot. nn & prot. nn => pot. nn & pot. un		
-		// pot. nn & pot. un + pot. non null => pot. nn & pot. un		
-		// pot. nn & pot. un + pot. null => pot. n & pot. nn		
-		// pot. nn & pot. un + pot. unknown => pot. nn & pot. un		
-		// pot. nn & pot. un + prot. non null => pot. nn & pot. un		
-		// pot. nn & pot. un + prot. null => pot. nn & pot. un		
-		// pot. nn & pot. un + start => pot. nn & pot. un		
-		// pot. nn & prot. nn + def. non null => pot. nn & prot. nn		
-		// pot. nn & prot. nn + def. null => pot. n & pot. nn		
+		// def. unknown + pot. null => pot. n & pot. un
+		// def. unknown + pot. unknown => def. unknown
+		// def. unknown + prot. non null => def. unknown
+		// def. unknown + prot. null => def. unknown
+		// def. unknown + start => def. unknown
+		// pot. n & pot. nn + def. non null => pot. n & pot. nn
+		// pot. n & pot. nn + def. null => pot. n & pot. nn
+		// pot. n & pot. nn + def. unknown => pot. n & pot. nn
+		// pot. n & pot. nn + pot. n & pot. nn => pot. n & pot. nn
+		// pot. n & pot. nn + pot. n & pot. un => pot. n & pot. nn
+		// pot. n & pot. nn + pot. n & prot. n => pot. n & pot. nn
+		// pot. n & pot. nn + pot. nn & pot. un => pot. n & pot. nn
+		// pot. n & pot. nn + pot. nn & prot. nn => pot. n & pot. nn
+		// pot. n & pot. nn + pot. non null => pot. n & pot. nn
+		// pot. n & pot. nn + pot. null => pot. n & pot. nn
+		// pot. n & pot. nn + pot. unknown => pot. n & pot. nn
+		// pot. n & pot. nn + prot. non null => pot. n & pot. nn
+		// pot. n & pot. nn + prot. null => pot. n & pot. nn
+		// pot. n & pot. nn + start => pot. n & pot. nn
+		// pot. n & pot. un + def. non null => pot. n & pot. nn
+		// pot. n & pot. un + def. null => pot. n & pot. un
+		// pot. n & pot. un + def. unknown => pot. n & pot. un
+		// pot. n & pot. un + pot. n & pot. nn => pot. n & pot. nn
+		// pot. n & pot. un + pot. n & pot. un => pot. n & pot. un
+		// pot. n & pot. un + pot. n & prot. n => pot. n & pot. un
+		// pot. n & pot. un + pot. nn & pot. un => pot. n & pot. nn
+		// pot. n & pot. un + pot. nn & prot. nn => pot. n & pot. nn
+		// pot. n & pot. un + pot. non null => pot. n & pot. nn
+		// pot. n & pot. un + pot. null => pot. n & pot. un
+		// pot. n & pot. un + pot. unknown => pot. n & pot. un
+		// pot. n & pot. un + prot. non null => pot. n & pot. un
+		// pot. n & pot. un + prot. null => pot. n & pot. un
+		// pot. n & pot. un + start => pot. n & pot. un
+		// pot. n & prot. n + def. non null => pot. n & pot. nn
+		// pot. n & prot. n + def. null => pot. n & prot. n
+		// pot. n & prot. n + def. unknown => pot. n & pot. un
+		// pot. n & prot. n + pot. n & pot. nn => pot. n & pot. nn
+		// pot. n & prot. n + pot. n & pot. un => pot. n & pot. un
+		// pot. n & prot. n + pot. n & prot. n => pot. n & prot. n
+		// pot. n & prot. n + pot. nn & pot. un => pot. n & pot. nn
+		// pot. n & prot. n + pot. nn & prot. nn => pot. n & pot. nn
+		// pot. n & prot. n + pot. non null => pot. n & pot. nn
+		// pot. n & prot. n + pot. null => pot. n & prot. n
+		// pot. n & prot. n + pot. unknown => pot. n & pot. un
+		// pot. n & prot. n + prot. non null => pot. n & prot. n
+		// pot. n & prot. n + prot. null => pot. n & prot. n
+		// pot. n & prot. n + start => pot. n & prot. n
+		// pot. nn & pot. un + def. non null => pot. nn & pot. un
+		// pot. nn & pot. un + def. null => pot. n & pot. nn
+		// pot. nn & pot. un + def. unknown => pot. nn & pot. un
+		// pot. nn & pot. un + pot. n & pot. nn => pot. n & pot. nn
+		// pot. nn & pot. un + pot. n & pot. un => pot. n & pot. nn
+		// pot. nn & pot. un + pot. n & prot. n => pot. n & pot. nn
+		// pot. nn & pot. un + pot. nn & pot. un => pot. nn & pot. un
+		// pot. nn & pot. un + pot. nn & prot. nn => pot. nn & pot. un
+		// pot. nn & pot. un + pot. non null => pot. nn & pot. un
+		// pot. nn & pot. un + pot. null => pot. n & pot. nn
+		// pot. nn & pot. un + pot. unknown => pot. nn & pot. un
+		// pot. nn & pot. un + prot. non null => pot. nn & pot. un
+		// pot. nn & pot. un + prot. null => pot. nn & pot. un
+		// pot. nn & pot. un + start => pot. nn & pot. un
+		// pot. nn & prot. nn + def. non null => pot. nn & prot. nn
+		// pot. nn & prot. nn + def. null => pot. n & pot. nn
 		// pot. nn & prot. nn + def. unknown => pot. nn & pot. un
-		// pot. nn & prot. nn + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. nn & prot. nn + pot. n & pot. un => pot. n & pot. nn		
-		// pot. nn & prot. nn + pot. n & prot. n => pot. n & pot. nn		
+		// pot. nn & prot. nn + pot. n & pot. nn => pot. n & pot. nn
+		// pot. nn & prot. nn + pot. n & pot. un => pot. n & pot. nn
+		// pot. nn & prot. nn + pot. n & prot. n => pot. n & pot. nn
 		// pot. nn & prot. nn + pot. nn & pot. un => pot. nn & pot. un	// see test1501
-		// pot. nn & prot. nn + pot. nn & prot. nn => pot. nn & prot. nn		
-		// pot. nn & prot. nn + pot. non null => pot. nn & prot. nn		
-		// pot. nn & prot. nn + pot. null => pot. n & pot. nn		
+		// pot. nn & prot. nn + pot. nn & prot. nn => pot. nn & prot. nn
+		// pot. nn & prot. nn + pot. non null => pot. nn & prot. nn
+		// pot. nn & prot. nn + pot. null => pot. n & pot. nn
 		// pot. nn & prot. nn + pot. unknown => pot. nn & pot. un
-		// pot. nn & prot. nn + prot. non null => pot. nn & prot. nn		
-		// pot. nn & prot. nn + prot. null => pot. nn & prot. nn		
-		// pot. nn & prot. nn + start => pot. nn & prot. nn		
-		// pot. non null + def. non null => pot. non null		
-		// pot. non null + def. null => pot. n & pot. nn		
-		// pot. non null + def. unknown => pot. nn & pot. un		
-		// pot. non null + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. non null + pot. n & pot. un => pot. n & pot. nn		
-		// pot. non null + pot. n & prot. n => pot. n & pot. nn		
-		// pot. non null + pot. nn & pot. un => pot. nn & pot. un		
-		// pot. non null + pot. nn & prot. nn => pot. non null		
-		// pot. non null + pot. non null => pot. non null		
-		// pot. non null + pot. null => pot. n & pot. nn		
-		// pot. non null + pot. unknown => pot. nn & pot. un		
-		// pot. non null + prot. non null => pot. non null		
-		// pot. non null + prot. null => pot. non null		
-		// pot. non null + start => pot. non null		
-		// pot. null + def. non null => pot. n & pot. nn		
-		// pot. null + def. null => pot. null		
-		// pot. null + def. unknown => pot. n & pot. un		
-		// pot. null + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. null + pot. n & pot. un => pot. n & pot. un		
-		// pot. null + pot. n & prot. n => pot. null		
-		// pot. null + pot. nn & pot. un => pot. n & pot. nn		
-		// pot. null + pot. nn & prot. nn => pot. n & pot. nn		
-		// pot. null + pot. non null => pot. n & pot. nn		
-		// pot. null + pot. null => pot. null		
-		// pot. null + pot. unknown => pot. n & pot. un		
-		// pot. null + prot. non null => pot. null		
-		// pot. null + prot. null => pot. null		
-		// pot. null + start => pot. null		
-		// pot. unknown + def. non null => pot. nn & pot. un		
-		// pot. unknown + def. null => pot. n & pot. un		
-		// pot. unknown + def. unknown => pot. unknown		
-		// pot. unknown + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. unknown + pot. n & pot. un => pot. n & pot. un		
-		// pot. unknown + pot. n & prot. n => pot. n & pot. un		
-		// pot. unknown + pot. nn & pot. un => pot. nn & pot. un		
-		// pot. unknown + pot. nn & prot. nn => pot. nn & pot. un		
-		// pot. unknown + pot. non null => pot. nn & pot. un		
-		// pot. unknown + pot. null => pot. n & pot. un		
-		// pot. unknown + pot. unknown => pot. unknown		
-		// pot. unknown + prot. non null => pot. unknown		
-		// pot. unknown + prot. null => pot. unknown		
-		// pot. unknown + start => pot. unknown		
+		// pot. nn & prot. nn + prot. non null => pot. nn & prot. nn
+		// pot. nn & prot. nn + prot. null => pot. nn & prot. nn
+		// pot. nn & prot. nn + start => pot. nn & prot. nn
+		// pot. non null + def. non null => pot. non null
+		// pot. non null + def. null => pot. n & pot. nn
+		// pot. non null + def. unknown => pot. nn & pot. un
+		// pot. non null + pot. n & pot. nn => pot. n & pot. nn
+		// pot. non null + pot. n & pot. un => pot. n & pot. nn
+		// pot. non null + pot. n & prot. n => pot. n & pot. nn
+		// pot. non null + pot. nn & pot. un => pot. nn & pot. un
+		// pot. non null + pot. nn & prot. nn => pot. non null
+		// pot. non null + pot. non null => pot. non null
+		// pot. non null + pot. null => pot. n & pot. nn
+		// pot. non null + pot. unknown => pot. nn & pot. un
+		// pot. non null + prot. non null => pot. non null
+		// pot. non null + prot. null => pot. non null
+		// pot. non null + start => pot. non null
+		// pot. null + def. non null => pot. n & pot. nn
+		// pot. null + def. null => pot. null
+		// pot. null + def. unknown => pot. n & pot. un
+		// pot. null + pot. n & pot. nn => pot. n & pot. nn
+		// pot. null + pot. n & pot. un => pot. n & pot. un
+		// pot. null + pot. n & prot. n => pot. null
+		// pot. null + pot. nn & pot. un => pot. n & pot. nn
+		// pot. null + pot. nn & prot. nn => pot. n & pot. nn
+		// pot. null + pot. non null => pot. n & pot. nn
+		// pot. null + pot. null => pot. null
+		// pot. null + pot. unknown => pot. n & pot. un
+		// pot. null + prot. non null => pot. null
+		// pot. null + prot. null => pot. null
+		// pot. null + start => pot. null
+		// pot. unknown + def. non null => pot. nn & pot. un
+		// pot. unknown + def. null => pot. n & pot. un
+		// pot. unknown + def. unknown => pot. unknown
+		// pot. unknown + pot. n & pot. nn => pot. n & pot. nn
+		// pot. unknown + pot. n & pot. un => pot. n & pot. un
+		// pot. unknown + pot. n & prot. n => pot. n & pot. un
+		// pot. unknown + pot. nn & pot. un => pot. nn & pot. un
+		// pot. unknown + pot. nn & prot. nn => pot. nn & pot. un
+		// pot. unknown + pot. non null => pot. nn & pot. un
+		// pot. unknown + pot. null => pot. n & pot. un
+		// pot. unknown + pot. unknown => pot. unknown
+		// pot. unknown + prot. non null => pot. unknown
+		// pot. unknown + prot. null => pot. unknown
+		// pot. unknown + start => pot. unknown
 		// prot. non null + def. non null => pot. nn & prot. nn
-		// prot. non null + def. null => pot. null		
+		// prot. non null + def. null => pot. null
 		// prot. non null + def. unknown => pot. unknown
-		// prot. non null + pot. n & pot. nn => pot. n & pot. nn		
-		// prot. non null + pot. n & pot. un => pot. n & pot. un		
-		// prot. non null + pot. n & prot. n => pot. null		
+		// prot. non null + pot. n & pot. nn => pot. n & pot. nn
+		// prot. non null + pot. n & pot. un => pot. n & pot. un
+		// prot. non null + pot. n & prot. n => pot. null
 		// prot. non null + pot. nn & pot. un => pot. nn & pot. un	// see test1500
-		// prot. non null + pot. nn & prot. nn => pot. nn & prot. nn		
-		// prot. non null + pot. non null => pot. nn & prot. nn		
-		// prot. non null + pot. null => pot. null		
+		// prot. non null + pot. nn & prot. nn => pot. nn & prot. nn
+		// prot. non null + pot. non null => pot. nn & prot. nn
+		// prot. non null + pot. null => pot. null
 		// prot. non null + pot. unknown => pot. unknown
-		// prot. non null + prot. non null => prot. non null		
+		// prot. non null + prot. non null => prot. non null
 		// prot. non null + prot. null => prot. non null
-		// prot. non null + start => prot. non null		
-		// prot. null + def. non null => pot. non null		
-		// prot. null + def. null => pot. n & prot. n		
-		// prot. null + def. unknown => pot. unknown		
-		// prot. null + pot. n & pot. nn => pot. n & pot. nn		
-		// prot. null + pot. n & pot. un => pot. n & pot. un		
-		// prot. null + pot. n & prot. n => pot. n & prot. n		
-		// prot. null + pot. nn & pot. un => pot. nn & pot. un		
-		// prot. null + pot. nn & prot. nn => pot. non null		
-		// prot. null + pot. non null => pot. non null		
-		// prot. null + pot. null => pot. n & prot. n		
-		// prot. null + pot. unknown => pot. unknown		
+		// prot. non null + start => prot. non null
+		// prot. null + def. non null => pot. non null
+		// prot. null + def. null => pot. n & prot. n
+		// prot. null + def. unknown => pot. unknown
+		// prot. null + pot. n & pot. nn => pot. n & pot. nn
+		// prot. null + pot. n & pot. un => pot. n & pot. un
+		// prot. null + pot. n & prot. n => pot. n & prot. n
+		// prot. null + pot. nn & pot. un => pot. nn & pot. un
+		// prot. null + pot. nn & prot. nn => pot. non null
+		// prot. null + pot. non null => pot. non null
+		// prot. null + pot. null => pot. n & prot. n
+		// prot. null + pot. unknown => pot. unknown
 		// prot. null + prot. non null => prot. null
-		// prot. null + prot. null => prot. null		
-		// prot. null + start => prot. null		
-		// start + def. non null => pot. non null		
-		// start + def. null => pot. null		
-		// start + def. unknown => pot. unknown		
-		// start + pot. n & pot. nn => pot. n & pot. nn		
-		// start + pot. n & pot. un => pot. n & pot. un		
-		// start + pot. n & prot. n => pot. null		
-		// start + pot. nn & pot. un => pot. nn & pot. un		
-		// start + pot. nn & prot. nn => pot. non null		
-		// start + pot. non null => pot. non null		
-		// start + pot. null => pot. null		
-		// start + pot. unknown => pot. unknown		
+		// prot. null + prot. null => prot. null
+		// prot. null + start => prot. null
+		// start + def. non null => pot. non null
+		// start + def. null => pot. null
+		// start + def. unknown => pot. unknown
+		// start + pot. n & pot. nn => pot. n & pot. nn
+		// start + pot. n & pot. un => pot. n & pot. un
+		// start + pot. n & prot. n => pot. null
+		// start + pot. nn & pot. un => pot. nn & pot. un
+		// start + pot. nn & prot. nn => pot. non null
+		// start + pot. non null => pot. non null
+		// start + pot. null => pot. null
+		// start + pot. unknown => pot. unknown
 		// start + prot. non null => start // PREMATURE may need to be tainted?
 		// start + prot. null => start		// PREMATURE may need to be tainted?
 		// start + start => start
@@ -1048,119 +1048,119 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x3C,0x3C},
 				// addPotentialInitializationsFrom INITIALIZER END
 				}) {
-			UnconditionalFlowInfo output(UnconditionalFlowInfo input1, 
+			UnconditionalFlowInfo output(UnconditionalFlowInfo input1,
 					UnconditionalFlowInfo input2) {
-				return (UnconditionalFlowInfo) 
+				return (UnconditionalFlowInfo)
 					input1.copy().addPotentialInitializationsFrom(input2);
 			}
 		},
 		mergedWith =
 		// mergedWith DEFINITION START
-		// def. non null + def. non null => def. non null		
+		// def. non null + def. non null => def. non null
 		// def. non null + def. null => pot. n & pot. nn
-		// def. null + def. null => def. null		
+		// def. null + def. null => def. null
 		// def. unknown + def. non null => def. unknown
 		// def. unknown + def. null => pot. n & pot. un // pot. n priv. over def. unknown
-		// def. unknown + def. unknown => def. unknown		
-		// pot. n & pot. nn + def. non null => pot. n & pot. nn		
-		// pot. n & pot. nn + def. null => pot. n & pot. nn		
-		// pot. n & pot. nn + def. unknown => pot. n & pot. nn		
-		// pot. n & pot. nn + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. n & pot. un + def. non null => pot. n & pot. nn		
-		// pot. n & pot. un + def. null => pot. n & pot. un		
-		// pot. n & pot. un + def. unknown => pot. n & pot. un		
-		// pot. n & pot. un + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. n & pot. un + pot. n & pot. un => pot. n & pot. un		
-		// pot. n & prot. n + def. non null => pot. n & pot. nn		
+		// def. unknown + def. unknown => def. unknown
+		// pot. n & pot. nn + def. non null => pot. n & pot. nn
+		// pot. n & pot. nn + def. null => pot. n & pot. nn
+		// pot. n & pot. nn + def. unknown => pot. n & pot. nn
+		// pot. n & pot. nn + pot. n & pot. nn => pot. n & pot. nn
+		// pot. n & pot. un + def. non null => pot. n & pot. nn
+		// pot. n & pot. un + def. null => pot. n & pot. un
+		// pot. n & pot. un + def. unknown => pot. n & pot. un
+		// pot. n & pot. un + pot. n & pot. nn => pot. n & pot. nn
+		// pot. n & pot. un + pot. n & pot. un => pot. n & pot. un
+		// pot. n & prot. n + def. non null => pot. n & pot. nn
 		// pot. n & prot. n + def. null => pot. n & prot. n
-		// pot. n & prot. n + def. unknown => pot. n & pot. un		
-		// pot. n & prot. n + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. n & prot. n + pot. n & pot. un => pot. n & pot. un		
-		// pot. n & prot. n + pot. n & prot. n => pot. n & prot. n		
-		// pot. nn & pot. un + def. non null => pot. nn & pot. un		
-		// pot. nn & pot. un + def. null => pot. n & pot. nn		
-		// pot. nn & pot. un + def. unknown => pot. nn & pot. un		
-		// pot. nn & pot. un + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. nn & pot. un + pot. n & pot. un => pot. n & pot. nn		
-		// pot. nn & pot. un + pot. n & prot. n => pot. n & pot. nn		
-		// pot. nn & pot. un + pot. nn & pot. un => pot. nn & pot. un		
-		// pot. nn & pot. un + pot. null => pot. n & pot. nn		
+		// pot. n & prot. n + def. unknown => pot. n & pot. un
+		// pot. n & prot. n + pot. n & pot. nn => pot. n & pot. nn
+		// pot. n & prot. n + pot. n & pot. un => pot. n & pot. un
+		// pot. n & prot. n + pot. n & prot. n => pot. n & prot. n
+		// pot. nn & pot. un + def. non null => pot. nn & pot. un
+		// pot. nn & pot. un + def. null => pot. n & pot. nn
+		// pot. nn & pot. un + def. unknown => pot. nn & pot. un
+		// pot. nn & pot. un + pot. n & pot. nn => pot. n & pot. nn
+		// pot. nn & pot. un + pot. n & pot. un => pot. n & pot. nn
+		// pot. nn & pot. un + pot. n & prot. n => pot. n & pot. nn
+		// pot. nn & pot. un + pot. nn & pot. un => pot. nn & pot. un
+		// pot. nn & pot. un + pot. null => pot. n & pot. nn
 		// pot. nn & prot. nn + def. non null => pot. nn & prot. nn
-		// pot. nn & prot. nn + def. null => pot. n & pot. nn		
-		// pot. nn & prot. nn + def. unknown => pot. nn & pot. un		
-		// pot. nn & prot. nn + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. nn & prot. nn + pot. n & pot. un => pot. n & pot. nn		
-		// pot. nn & prot. nn + pot. n & prot. n => pot. n & pot. nn		
-		// pot. nn & prot. nn + pot. nn & pot. un => pot. nn & pot. un		
-		// pot. nn & prot. nn + pot. nn & prot. nn => pot. nn & prot. nn		
-		// pot. nn & prot. nn + pot. null => pot. n & pot. nn		
-		// pot. non null + def. non null => pot. non null		
-		// pot. non null + def. null => pot. n & pot. nn		
-		// pot. non null + def. unknown => pot. nn & pot. un		
-		// pot. non null + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. non null + pot. n & pot. un => pot. n & pot. nn		
-		// pot. non null + pot. n & prot. n => pot. n & pot. nn		
-		// pot. non null + pot. nn & pot. un => pot. nn & pot. un		
-		// pot. non null + pot. nn & prot. nn => pot. non null		
-		// pot. non null + pot. non null => pot. non null		
-		// pot. non null + pot. null => pot. n & pot. nn		
-		// pot. null + def. non null => pot. n & pot. nn		
-		// pot. null + def. null => pot. null		
-		// pot. null + def. unknown => pot. n & pot. un		
-		// pot. null + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. null + pot. n & pot. un => pot. n & pot. un		
-		// pot. null + pot. n & prot. n => pot. null		
-		// pot. null + pot. null => pot. null		
-		// pot. unknown + def. non null => pot. nn & pot. un		
-		// pot. unknown + def. null => pot. n & pot. un		
-		// pot. unknown + def. unknown => pot. unknown		
-		// pot. unknown + pot. n & pot. nn => pot. n & pot. nn		
-		// pot. unknown + pot. n & pot. un => pot. n & pot. un		
-		// pot. unknown + pot. n & prot. n => pot. n & pot. un		
-		// pot. unknown + pot. nn & pot. un => pot. nn & pot. un		
-		// pot. unknown + pot. nn & prot. nn => pot. nn & pot. un		
-		// pot. unknown + pot. non null => pot. nn & pot. un		
-		// pot. unknown + pot. null => pot. n & pot. un		
-		// pot. unknown + pot. unknown => pot. unknown		
-		// prot. non null + def. non null => pot. nn & prot. nn		
-		// prot. non null + def. null => pot. null		
+		// pot. nn & prot. nn + def. null => pot. n & pot. nn
+		// pot. nn & prot. nn + def. unknown => pot. nn & pot. un
+		// pot. nn & prot. nn + pot. n & pot. nn => pot. n & pot. nn
+		// pot. nn & prot. nn + pot. n & pot. un => pot. n & pot. nn
+		// pot. nn & prot. nn + pot. n & prot. n => pot. n & pot. nn
+		// pot. nn & prot. nn + pot. nn & pot. un => pot. nn & pot. un
+		// pot. nn & prot. nn + pot. nn & prot. nn => pot. nn & prot. nn
+		// pot. nn & prot. nn + pot. null => pot. n & pot. nn
+		// pot. non null + def. non null => pot. non null
+		// pot. non null + def. null => pot. n & pot. nn
+		// pot. non null + def. unknown => pot. nn & pot. un
+		// pot. non null + pot. n & pot. nn => pot. n & pot. nn
+		// pot. non null + pot. n & pot. un => pot. n & pot. nn
+		// pot. non null + pot. n & prot. n => pot. n & pot. nn
+		// pot. non null + pot. nn & pot. un => pot. nn & pot. un
+		// pot. non null + pot. nn & prot. nn => pot. non null
+		// pot. non null + pot. non null => pot. non null
+		// pot. non null + pot. null => pot. n & pot. nn
+		// pot. null + def. non null => pot. n & pot. nn
+		// pot. null + def. null => pot. null
+		// pot. null + def. unknown => pot. n & pot. un
+		// pot. null + pot. n & pot. nn => pot. n & pot. nn
+		// pot. null + pot. n & pot. un => pot. n & pot. un
+		// pot. null + pot. n & prot. n => pot. null
+		// pot. null + pot. null => pot. null
+		// pot. unknown + def. non null => pot. nn & pot. un
+		// pot. unknown + def. null => pot. n & pot. un
+		// pot. unknown + def. unknown => pot. unknown
+		// pot. unknown + pot. n & pot. nn => pot. n & pot. nn
+		// pot. unknown + pot. n & pot. un => pot. n & pot. un
+		// pot. unknown + pot. n & prot. n => pot. n & pot. un
+		// pot. unknown + pot. nn & pot. un => pot. nn & pot. un
+		// pot. unknown + pot. nn & prot. nn => pot. nn & pot. un
+		// pot. unknown + pot. non null => pot. nn & pot. un
+		// pot. unknown + pot. null => pot. n & pot. un
+		// pot. unknown + pot. unknown => pot. unknown
+		// prot. non null + def. non null => pot. nn & prot. nn
+		// prot. non null + def. null => pot. null
 		// prot. non null + def. unknown => def. unknown // test726
-		// prot. non null + pot. n & pot. nn => pot. n & pot. nn		
-		// prot. non null + pot. n & pot. un => pot. n & pot. un		
-		// prot. non null + pot. n & prot. n => pot. null		
-		// prot. non null + pot. nn & pot. un => pot. nn & pot. un		
-		// prot. non null + pot. nn & prot. nn => pot. nn & prot. nn		
-		// prot. non null + pot. non null => pot. non null		
-		// prot. non null + pot. null => pot. null		
-		// prot. non null + pot. unknown => pot. unknown		
-		// prot. non null + prot. non null => prot. non null		
+		// prot. non null + pot. n & pot. nn => pot. n & pot. nn
+		// prot. non null + pot. n & pot. un => pot. n & pot. un
+		// prot. non null + pot. n & prot. n => pot. null
+		// prot. non null + pot. nn & pot. un => pot. nn & pot. un
+		// prot. non null + pot. nn & prot. nn => pot. nn & prot. nn
+		// prot. non null + pot. non null => pot. non null
+		// prot. non null + pot. null => pot. null
+		// prot. non null + pot. unknown => pot. unknown
+		// prot. non null + prot. non null => prot. non null
 		// prot. non null + prot. null => pot. null // PREMATURE use tainted instead
 		// prot. null + def. non null => pot. non null		 // PREMATURE should become tainted null & pot. nn... not really, depends on the three way merge... or even on the conditions that got there (pb with no contrib prot. null branch)
-		// prot. null + def. null => pot. n & prot. n		
-		// prot. null + def. unknown => pot. unknown	// PREMATURE possibly wrong, but no test case yet	
-		// prot. null + pot. n & pot. nn => pot. n & pot. nn		
-		// prot. null + pot. n & pot. un => pot. n & pot. un		
-		// prot. null + pot. n & prot. n => pot. n & prot. n		
+		// prot. null + def. null => pot. n & prot. n
+		// prot. null + def. unknown => pot. unknown	// PREMATURE possibly wrong, but no test case yet
+		// prot. null + pot. n & pot. nn => pot. n & pot. nn
+		// prot. null + pot. n & pot. un => pot. n & pot. un
+		// prot. null + pot. n & prot. n => pot. n & prot. n
 		// prot. null + pot. nn & pot. un => pot. n & pot. nn
 		// prot. null + pot. nn & prot. nn => pot. n & pot. nn
 		// prot. null + pot. non null => pot. n & pot. nn
-		// prot. null + pot. null => pot. null		
-		// prot. null + pot. unknown => pot. unknown // PREMATURE possibly wrong, but no test case yet		
-		// prot. null + prot. null => prot. null		
-		// start + def. non null => pot. non null		
-		// start + def. null => pot. null		
-		// start + def. unknown => pot. unknown		
-		// start + pot. n & pot. nn => pot. n & pot. nn		
-		// start + pot. n & pot. un => pot. n & pot. un		
-		// start + pot. n & prot. n => pot. null		
-		// start + pot. nn & pot. un => pot. nn & pot. un		
-		// start + pot. nn & prot. nn => pot. non null		
-		// start + pot. non null => pot. non null		
-		// start + pot. null => pot. null		
-		// start + pot. unknown => pot. unknown		
-		// start + prot. non null => start // PREMATURE should it taint?		
-		// start + prot. null => start		
-		// start + start => start		
+		// prot. null + pot. null => pot. null
+		// prot. null + pot. unknown => pot. unknown // PREMATURE possibly wrong, but no test case yet
+		// prot. null + prot. null => prot. null
+		// start + def. non null => pot. non null
+		// start + def. null => pot. null
+		// start + def. unknown => pot. unknown
+		// start + pot. n & pot. nn => pot. n & pot. nn
+		// start + pot. n & pot. un => pot. n & pot. un
+		// start + pot. n & prot. n => pot. null
+		// start + pot. nn & pot. un => pot. nn & pot. un
+		// start + pot. nn & prot. nn => pot. non null
+		// start + pot. non null => pot. non null
+		// start + pot. null => pot. null
+		// start + pot. unknown => pot. unknown
+		// start + prot. non null => start // PREMATURE should it taint?
+		// start + prot. null => start
+		// start + start => start
 		// mergedWith DEFINITION END
 			new SymmetricalThreeDimensionalTransformation("mergedWith",
 				new byte[][] {
@@ -1272,12 +1272,12 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x3C,0x3C},
 				// mergedWith INITIALIZER END
 				}) {
-			UnconditionalFlowInfo output(UnconditionalFlowInfo input1, 
+			UnconditionalFlowInfo output(UnconditionalFlowInfo input1,
 					UnconditionalFlowInfo input2) {
 				return input1.copy().mergedWith(input2);
 			}
 		},
-		newNullInfoRegistry = 
+		newNullInfoRegistry =
 		// newNullInfoRegistry DEFINITION START
 		// start => start
 		// prot. non null => start
@@ -1317,7 +1317,7 @@ public class NullReferenceImplTransformations {
 				return NullInfoRegistryTestHarness.
 					testNullInfoRegistry((UnconditionalFlowInfoTestHarness) input);
 			}
-		};		
+		};
 	public static final Transformation[] transformations = {
 			markAsComparedEqualToNonNull,
 			markAsComparedEqualToNull,
@@ -1330,16 +1330,16 @@ public class NullReferenceImplTransformations {
 			newNullInfoRegistry
 		};
 public abstract static class Transformation {
-	public String name; 
-	String	definitionStartMarker, definitionEndMarker, 
+	public String name;
+	String	definitionStartMarker, definitionEndMarker,
 		initializerStartMarker,	initializerEndMarker;
 	int dimension;
 	public Map initializedTransitions, computedTransitions;
 		// PREMATURE limit public access
 	int failuresNb; // transient
 // PREMATURE complete the test coverage for NullInfoRegistry (need to consider several classes
-//  		 of transitions so as to avoid considering NullInfoRegistry states and 
-//			 UnconditionalFlowInfo states into the same pool; moreover, cross classes 
+//  		 of transitions so as to avoid considering NullInfoRegistry states and
+//			 UnconditionalFlowInfo states into the same pool; moreover, cross classes
 //			 transformations exist.
 Transformation(String name) {
 	this.name = name;
@@ -1368,7 +1368,7 @@ static boolean checkContiguity(String a, String b) {
 	for (int i = 0; i < aLength; i++) {
 		if (a.charAt(i) != b.charAt(i)) {
 			status++;
-		} 
+		}
 	}
 	if (status != 1) {
 		System.out.println("non contiguous strings: " + a + " vs " + b);
@@ -1393,7 +1393,7 @@ final static String truthTableRowNames[] = { // need a specific order to yield s
 		"101000",
 		"101100",
 		"100100",
-		"100000",		
+		"100000",
 		// PREMATURE cheated to group first four bits... reconsider
 		"000001",
 		"000011",
@@ -1502,7 +1502,7 @@ State[] computeOutputs(State[] inputs) {
 	for (int j = 0; j < length; j++) {
 		result[j] = (State) resultIterator.next();
 	}
-	return result;	
+	return result;
 }
 void hydrate() {
 	if (this.computedTransitions == null) {
@@ -1511,7 +1511,7 @@ void hydrate() {
 		for (int i = 0, length = State.states.length; i < length; i++) {
 			output = ((UnconditionalFlowInfoTestHarness)
 				output(UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(input = State.states[i]), 
+					testUnconditionalFlowInfo(input = State.states[i]),
 						TestLocalVariableBinding.local0)).asState();
 			if (input.symbolic && !output.symbolic) {
 				System.err.println(this.name + " generates non-symbolic state " +
@@ -1545,7 +1545,7 @@ void printTruthTables(File outputDirectory) {
 			State input = (State) transitionsSet.getKey();
 			keepRow[row = rankForState(input)] = true;
 			for (int bit = 0; bit < State.stateWidth; bit++) {
-				truthValues[row][bit] = 
+				truthValues[row][bit] =
 					((State) transitionsSet.getValue()).printableBitsField.charAt(bit);
 			}
 		}
@@ -1592,7 +1592,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 			lineNumber++;
 			output.write(line);
 			output.write('\n');
-			if ((cursor = line.indexOf(definitionStartMarker)) != -1) {
+			if ((cursor = line.indexOf(this.definitionStartMarker)) != -1) {
 				// check the line format
 				boolean reachedStart = true;
 				for (int i = 0; i < cursor; i++) {
@@ -1605,10 +1605,10 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 					}
 				}
 				if (reachedStart) {
-					while ((line = input.readLine()) != null && 
-							line.indexOf(definitionEndMarker) == -1) {
+					while ((line = input.readLine()) != null &&
+							line.indexOf(this.definitionEndMarker) == -1) {
 						lineNumber++;
-						final int 
+						final int
 							start = 0,
 							commentStart = 1,
 							commentFound = 2,
@@ -1619,7 +1619,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 							secondState = 30,
 							secondStateWS = 31, // caveat, multi-state
 							error = 99;
-						int state = start, 
+						int state = start,
 							firstStateStart = 0, firstStateEnd = 0, firstStateWhiteSpace = 0,
 							secondStateStart = 0, secondStateEnd = 0, secondStateWhiteSpace = 0;
 						char current;
@@ -1632,7 +1632,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 									} else if (! Character.isWhitespace(current)) {
 										state = error;
 										break analysis;
-									} 
+									}
 									break;
 								case commentStart:
 									if (current == '/') {
@@ -1745,7 +1745,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 										secondStateEnd += secondStateWhiteSpace + 5;
 									}
 									break;
-									
+
 							}
 						}
 						if (state == error || state < secondState) {
@@ -1790,9 +1790,9 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 						}
 					}
 				}
-				output.write(tab + definitionEndMarker + "\n");
+				output.write(tab + this.definitionEndMarker + "\n");
 			}
-			if (line != null && (cursor = line.indexOf(initializerStartMarker)) != -1) {
+			if (line != null && (cursor = line.indexOf(this.initializerStartMarker)) != -1) {
 				// check the line format
 				boolean reachedStart = true;
 				tab = "";
@@ -1806,8 +1806,8 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 					}
 				}
 				if (reachedStart) {
-					while ((line = input.readLine()) != null && 
-							line.indexOf(initializerEndMarker) == -1) {
+					while ((line = input.readLine()) != null &&
+							line.indexOf(this.initializerEndMarker) == -1) {
 						// loop
 					}
 					SortedMap sorted = new TreeMap(this.initializedTransitions);
@@ -1823,7 +1823,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 						output.write("},");
 						output.write('\n');
 					}
-					output.write(tab + initializerEndMarker + "\n");
+					output.write(tab + this.initializerEndMarker + "\n");
 				}
 			}
 		}
@@ -1843,7 +1843,7 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 		while ((line = input.readLine()) != null) {
 			output.write(line);
 			output.write('\n');
-			if ((cursor = line.indexOf(definitionStartMarker)) != -1) {
+			if ((cursor = line.indexOf(this.definitionStartMarker)) != -1) {
 				// check the line format
 				boolean reachedStart = true;
 				for (int i = 0; i < cursor; i++) {
@@ -1856,8 +1856,8 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 					}
 				}
 				if (reachedStart) {
-					while ((line = input.readLine()) != null && 
-							line.indexOf(definitionEndMarker) == -1) {
+					while ((line = input.readLine()) != null &&
+							line.indexOf(this.definitionEndMarker) == -1) {
 						// loop
 					}
 					int i, length;
@@ -1874,10 +1874,10 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 						}
 						output.write('\n');
 					}
-					output.write(tab + definitionEndMarker + "\n");
+					output.write(tab + this.definitionEndMarker + "\n");
 				}
 			}
-			if (line != null && (cursor = line.indexOf(initializerStartMarker)) != -1) {
+			if (line != null && (cursor = line.indexOf(this.initializerStartMarker)) != -1) {
 				// check the line format
 				boolean reachedStart = true;
 				tab = "";
@@ -1891,8 +1891,8 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 					}
 				}
 				if (reachedStart) {
-					while ((line = input.readLine()) != null && 
-							line.indexOf(initializerEndMarker) == -1) {
+					while ((line = input.readLine()) != null &&
+							line.indexOf(this.initializerEndMarker) == -1) {
 						// loop
 					}
 					int i, length;
@@ -1906,7 +1906,7 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 						output.write("},");
 						output.write('\n');
 					}
-					output.write(tab + initializerEndMarker + "\n");
+					output.write(tab + this.initializerEndMarker + "\n");
 				}
 			}
 		}
@@ -1924,14 +1924,14 @@ int test() {
 		transition = (Map.Entry) transitions.next();
 		input = (State) transition.getKey();
 		expectedOutput = (State) transition.getValue();
-		effectiveOutput = ((UnconditionalFlowInfoTestHarness) 
+		effectiveOutput = ((UnconditionalFlowInfoTestHarness)
 			output(UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(input), 
+				testUnconditionalFlowInfo(input),
 					TestLocalVariableBinding.local0)).asState();
 		if (effectiveOutput != expectedOutput) {
 			fail();
-			System.out.println("\t\t" + input.printableBitsField + 
-				" => " + effectiveOutput.printableBitsField + 
+			System.out.println("\t\t" + input.printableBitsField +
+				" => " + effectiveOutput.printableBitsField +
 				" instead of: " + expectedOutput.printableBitsField);
 		}
 	}
@@ -1942,12 +1942,12 @@ int test() {
 		expectedOutput = (State) transition.getValue();
 		effectiveOutput = ((UnconditionalFlowInfoTestHarness)
 				output(UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(input, 64), 
+					testUnconditionalFlowInfo(input, 64),
 						TestLocalVariableBinding.local64)).asState(64);
 		if (effectiveOutput != expectedOutput) {
 			fail();
-			System.out.println("\t\t" + input.printableBitsField + 
-				" => " + effectiveOutput.printableBitsField + 
+			System.out.println("\t\t" + input.printableBitsField +
+				" => " + effectiveOutput.printableBitsField +
 				" (64) instead of: " + expectedOutput.printableBitsField);
 		}
 		if (input == State.start) {
@@ -1957,8 +1957,8 @@ int test() {
 						TestLocalVariableBinding.local64)).asState(64);
 			if (effectiveOutput != expectedOutput) {
 				fail();
-				System.out.println("\t\t" + input.printableBitsField + 
-					" => " + effectiveOutput.printableBitsField + 
+				System.out.println("\t\t" + input.printableBitsField +
+					" => " + effectiveOutput.printableBitsField +
 					" (zero 64) instead of: " + expectedOutput.printableBitsField);
 			}
 		}
@@ -1975,8 +1975,8 @@ int test() {
 						TestLocalVariableBinding.local128)).asState(128);
 			if (effectiveOutput != expectedOutput) {
 				fail();
-				System.out.println("\t\t" + input.printableBitsField + 
-					" => " + effectiveOutput.printableBitsField + 
+				System.out.println("\t\t" + input.printableBitsField +
+					" => " + effectiveOutput.printableBitsField +
 					" (zero 128) instead of: " + expectedOutput.printableBitsField);
 			}
 		}
@@ -1995,7 +1995,7 @@ void hydrate() {
 		for (int i = 0, length = State.states.length; i < length; i++) {
 			output = ((NullInfoRegistryTestHarness)
 				output(UnconditionalFlowInfoTestHarness.
-					testUnconditionalFlowInfo(input = State.states[i]), 
+					testUnconditionalFlowInfo(input = State.states[i]),
 						TestLocalVariableBinding.local0)).asState();
 			if (input.symbolic && !output.symbolic) {
 				System.err.println(this.name + " generates non-symbolic state " +
@@ -2018,14 +2018,14 @@ int test() {
 		transition = (Map.Entry) transitions.next();
 		input = (State) transition.getKey();
 		expectedOutput = (State) transition.getValue();
-		effectiveOutput = ((NullInfoRegistryTestHarness) 
+		effectiveOutput = ((NullInfoRegistryTestHarness)
 			output(UnconditionalFlowInfoTestHarness.
-				testUnconditionalFlowInfo(input), 
+				testUnconditionalFlowInfo(input),
 					TestLocalVariableBinding.local0)).asState();
 		if (effectiveOutput != expectedOutput) {
 			fail();
-			System.out.println("\t\t" + input.printableBitsField + 
-				" => " + effectiveOutput.printableBitsField + 
+			System.out.println("\t\t" + input.printableBitsField +
+				" => " + effectiveOutput.printableBitsField +
 				" instead of: " + expectedOutput.printableBitsField);
 		}
 	}
@@ -2039,8 +2039,8 @@ int test() {
 					testUnconditionalFlowInfo(input, 64))).asState(64);
 		if (effectiveOutput != expectedOutput) {
 			fail();
-			System.out.println("\t\t" + input.printableBitsField + 
-				" => " + effectiveOutput.printableBitsField + 
+			System.out.println("\t\t" + input.printableBitsField +
+				" => " + effectiveOutput.printableBitsField +
 				" (64) instead of: " + expectedOutput.printableBitsField);
 		}
 	}
@@ -2090,7 +2090,7 @@ State[] computeOutputs(State[] inputs) {
 	for (int j = 0; j < length; j++) {
 		result[j] = (State) resultIterator.next();
 	}
-	return result;	
+	return result;
 }
 void hydrate() {
 	if (this.computedTransitions == null) {
@@ -2113,7 +2113,7 @@ void hydrate() {
 				entry.put(input2, output);
 			}
 		}
-	}	
+	}
 }
 abstract UnconditionalFlowInfo output(UnconditionalFlowInfo input1, UnconditionalFlowInfo input2);
 void printDefinitions(BufferedWriter output, State[] consideredStates, String tab)
@@ -2234,7 +2234,7 @@ void printTruthTables(File outputDirectory) {
 				}
 		//		assertFalse("invalid rows table", gotProblem);
 			}
-			boolean keepRow[] = new boolean[State.statesNb], 
+			boolean keepRow[] = new boolean[State.statesNb],
 				keepColumn[] = new boolean[State.statesNb];
 			Iterator i1 = this.initializedTransitions.entrySet().iterator();
 			while (i1.hasNext()) {
@@ -2325,7 +2325,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 			lineNumber++;
 			output.write(line);
 			output.write('\n');
-			if ((cursor = line.indexOf(definitionStartMarker)) != -1) {
+			if ((cursor = line.indexOf(this.definitionStartMarker)) != -1) {
 				// check the line format
 				boolean reachedStart = true;
 				for (int i = 0; i < cursor; i++) {
@@ -2338,10 +2338,10 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 					}
 				}
 				if (reachedStart) {
-					while ((line = input.readLine()) != null && 
-							line.indexOf(definitionEndMarker) == -1) {
+					while ((line = input.readLine()) != null &&
+							line.indexOf(this.definitionEndMarker) == -1) {
 						lineNumber++;
-						final int 
+						final int
 							start = 0,
 							commentStart = 1,
 							commentFound = 2,
@@ -2355,7 +2355,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 							thirdState = 50,
 							thirdStateWS = 51, // caveat, multi-state
 							error = 99;
-						int state = start, 
+						int state = start,
 							firstStateStart = 0, firstStateEnd = 0, firstStateWhiteSpace = 0,
 							secondStateStart = 0, secondStateEnd = 0, secondStateWhiteSpace = 0,
 							thirdStateStart = 0, thirdStateEnd = 0, thirdStateWhiteSpace = 0;
@@ -2369,7 +2369,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 									} else if (! Character.isWhitespace(current)) {
 										state = error;
 										break analysis;
-									} 
+									}
 									break;
 								case commentStart:
 									if (current == '/') {
@@ -2506,7 +2506,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 										thirdStateEnd += thirdStateWhiteSpace + 5;
 									}
 									break;
-									
+
 							}
 						}
 						if (state == error || state < thirdState) {
@@ -2551,9 +2551,9 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 					}
 				}
 				printMissingEntries(output, tab);
-				output.write(tab + definitionEndMarker + "\n");
+				output.write(tab + this.definitionEndMarker + "\n");
 			}
-			if (line != null && (cursor = line.indexOf(initializerStartMarker)) != -1) {
+			if (line != null && (cursor = line.indexOf(this.initializerStartMarker)) != -1) {
 				// check the line format
 				boolean reachedStart = true;
 				tab = "";
@@ -2567,8 +2567,8 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 					}
 				}
 				if (reachedStart) {
-					while ((line = input.readLine()) != null && 
-							line.indexOf(initializerEndMarker) == -1) {
+					while ((line = input.readLine()) != null &&
+							line.indexOf(this.initializerEndMarker) == -1) {
 						// loop
 					}
 					SortedMap sortedTransitionsSet = new TreeMap(this.initializedTransitions);
@@ -2592,7 +2592,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 							output.write('\n');
 						}
 					}
-					output.write(tab + initializerEndMarker + "\n");
+					output.write(tab + this.initializerEndMarker + "\n");
 				}
 			}
 		}
@@ -2610,7 +2610,7 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 		while ((line = input.readLine()) != null) {
 			output.write(line);
 			output.write('\n');
-			if ((cursor = line.indexOf(definitionStartMarker)) != -1) {
+			if ((cursor = line.indexOf(this.definitionStartMarker)) != -1) {
 				// check the line format
 				boolean reachedStart = true;
 				for (int i = 0; i < cursor; i++) {
@@ -2623,15 +2623,15 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 					}
 				}
 				if (reachedStart) {
-					while ((line = input.readLine()) != null && 
-							line.indexOf(definitionEndMarker) == -1) {
+					while ((line = input.readLine()) != null &&
+							line.indexOf(this.definitionEndMarker) == -1) {
 						// loop
 					}
 					printDefinitions(output, consideredStates, tab);
-					output.write(tab + definitionEndMarker + "\n");
+					output.write(tab + this.definitionEndMarker + "\n");
 				}
 			}
-			if (line != null && (cursor = line.indexOf(initializerStartMarker)) != -1) {
+			if (line != null && (cursor = line.indexOf(this.initializerStartMarker)) != -1) {
 				// check the line format
 				boolean reachedStart = true;
 				tab = "";
@@ -2645,12 +2645,12 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 					}
 				}
 				if (reachedStart) {
-					while ((line = input.readLine()) != null && 
-							line.indexOf(initializerEndMarker) == -1) {
+					while ((line = input.readLine()) != null &&
+							line.indexOf(this.initializerEndMarker) == -1) {
 						// loop
 					}
 					printInitializers(output, consideredStates, tab);
-					output.write(tab + initializerEndMarker + "\n");
+					output.write(tab + this.initializerEndMarker + "\n");
 				}
 			}
 		}
@@ -2691,20 +2691,20 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 					fail();
 					System.out.println("\t\t" + input1.printableBitsField +
 						" + " + input2.printableBitsField +
-						" => " + effectiveOutput.printableBitsField + 
+						" => " + effectiveOutput.printableBitsField +
 						" instead of: " + expectedOutput.printableBitsField);
 				}
 			}
 		}
 	}
 	if (combinationTestsLoopsNb > 1) {
-		System.out.println(this.name + "...\t\t" + combinationTestsLoopsNb + "\t" + 
+		System.out.println(this.name + "...\t\t" + combinationTestsLoopsNb + "\t" +
 				(System.currentTimeMillis() - start));
 	}
 	// PREMATURE optimize test (extraneous allocations and copies)
 	// PREMATURE optimize test (extraneous iterations - undup)
 	if (!skipHighOrderBits) {
-		UnconditionalFlowInfoTestHarness 
+		UnconditionalFlowInfoTestHarness
 			zero = UnconditionalFlowInfoTestHarness.
 					testUnconditionalFlowInfo(State.start),
 			left, right, left64, right64, left128, right128,
@@ -2733,12 +2733,12 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 					right128 = UnconditionalFlowInfoTestHarness.
 							testUnconditionalFlowInfo(input2, 128);
 				if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
-						output(left64, right64)).asState(64)) != 
+						output(left64, right64)).asState(64)) !=
 							expectedOutput) {
 					fail();
 					System.out.println("\t\t" + input1.printableBitsField +
 						" + " + input2.printableBitsField +
-						" => " + effectiveOutput.printableBitsField + 
+						" => " + effectiveOutput.printableBitsField +
 						" (64, 64) - instead of: " + expectedOutput.printableBitsField);
 				}
 				if (input1 == State.start) {
@@ -2747,7 +2747,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (zero 128, 1) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -2755,7 +2755,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (zero, 64) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -2763,7 +2763,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (zero 128, 64) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -2771,7 +2771,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (zero, 128) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -2779,7 +2779,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (zero 64, 128) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -2787,7 +2787,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (special zero, 128) - instead of: " + expectedOutput.printableBitsField);
 					}
 				}
@@ -2797,7 +2797,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (1, zero 128) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -2805,7 +2805,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (64, zero) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -2813,7 +2813,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (64, zero 128) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -2821,7 +2821,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (128, zero) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -2829,7 +2829,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (128, zero 64) - instead of: " + expectedOutput.printableBitsField);
 					}
 				}
@@ -2840,7 +2840,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 }
 }
 
-public abstract static class SymmetricalThreeDimensionalTransformation 
+public abstract static class SymmetricalThreeDimensionalTransformation
 		extends ThreeDimensionalTransformation{
 SymmetricalThreeDimensionalTransformation(String name, byte[][] transitions) {
 	super(name);
@@ -2905,7 +2905,7 @@ void mark(char truthValues[][], boolean keepRow[], boolean keepColumn[],
 }
 void printDefinitions(BufferedWriter output, State[] consideredStates, String tab)
 		throws IOException {
-	// only difference with parent is that we print only half of possible 
+	// only difference with parent is that we print only half of possible
 	// combinations
 	int i, j, length;
 	State result;
@@ -2930,7 +2930,7 @@ void printDefinitions(BufferedWriter output, State[] consideredStates, String ta
 }
 void printInitializers(BufferedWriter output, State[] consideredStates, String tab)
 		throws IOException {
-	// only difference with parent is that we print only half of possible 
+	// only difference with parent is that we print only half of possible
 	// combinations
 	int i, j, length;
 	for (i = 0, length = consideredStates.length; i < length; i++) {
@@ -3022,7 +3022,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 					fail();
 					System.out.println("\t\t" + input1.printableBitsField +
 						" + " + input2.printableBitsField +
-						" => " + effectiveOutput.printableBitsField + 
+						" => " + effectiveOutput.printableBitsField +
 						" instead of: " + expectedOutput.printableBitsField);
 				}
 				effectiveOutput = ((UnconditionalFlowInfoTestHarness) output(
@@ -3033,20 +3033,20 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 					fail();
 					System.out.println("\t\t" + input2.printableBitsField +
 						" + " + input1.printableBitsField +
-						" => " + effectiveOutput.printableBitsField + 
+						" => " + effectiveOutput.printableBitsField +
 						" instead of: " + expectedOutput.printableBitsField);
 				}
 			}
 		}
 	}
 	if (combinationTestsLoopsNb > 1) {
-		System.out.println(this.name + "...\t\t" + combinationTestsLoopsNb + "\t" + 
+		System.out.println(this.name + "...\t\t" + combinationTestsLoopsNb + "\t" +
 				(System.currentTimeMillis() - start));
 	}
 	// PREMATURE optimize test (extraneous allocations and copies)
 	// PREMATURE optimize test (extraneous iterations - undup)
 	if (!skipHighOrderBits) {
-		UnconditionalFlowInfoTestHarness 
+		UnconditionalFlowInfoTestHarness
 			zero = UnconditionalFlowInfoTestHarness.
 					testUnconditionalFlowInfo(State.start),
 			right, left64, right64, right128;
@@ -3069,21 +3069,21 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 					right128 = UnconditionalFlowInfoTestHarness.
 							testUnconditionalFlowInfo(input2, 128);
 				if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
-						output(left64, right64)).asState(64)) != 
+						output(left64, right64)).asState(64)) !=
 							expectedOutput) {
 					fail();
 					System.out.println("\t\t" + input1.printableBitsField +
 						" + " + input2.printableBitsField +
-						" => " + effectiveOutput.printableBitsField + 
+						" => " + effectiveOutput.printableBitsField +
 						" (64, 64) - instead of: " + expectedOutput.printableBitsField);
 				}
 				if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
-						output(right64, left64)).asState(64)) != 
+						output(right64, left64)).asState(64)) !=
 							expectedOutput) {
 					fail();
 					System.out.println("\t\t" + input2.printableBitsField +
 						" + " + input1.printableBitsField +
-						" => " + effectiveOutput.printableBitsField + 
+						" => " + effectiveOutput.printableBitsField +
 						" (64, 64) - instead of: " + expectedOutput.printableBitsField);
 				}
 				if (input1 == State.start) {
@@ -3092,7 +3092,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (zero 128, 1) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -3100,7 +3100,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (zero, 64) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -3108,7 +3108,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (zero 128, 64) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -3116,7 +3116,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (zero, 128) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -3124,7 +3124,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input1.printableBitsField +
 							" + " + input2.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (zero 64, 128) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -3132,7 +3132,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input2.printableBitsField +
 							" + " + input1.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (1, zero 128) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -3140,7 +3140,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input2.printableBitsField +
 							" + " + input1.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (64, zero) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -3148,7 +3148,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input2.printableBitsField +
 							" + " + input1.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (64, zero 128) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -3156,7 +3156,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input2.printableBitsField +
 							" + " + input1.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (128, zero) - instead of: " + expectedOutput.printableBitsField);
 					}
 					if ((effectiveOutput = ((UnconditionalFlowInfoTestHarness)
@@ -3164,7 +3164,7 @@ int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 						fail();
 						System.out.println("\t\t" + input2.printableBitsField +
 							" + " + input1.printableBitsField +
-							" => " + effectiveOutput.printableBitsField + 
+							" => " + effectiveOutput.printableBitsField +
 							" (128, zero 64) - instead of: " + expectedOutput.printableBitsField);
 					}
 				}

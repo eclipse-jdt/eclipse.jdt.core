@@ -34,7 +34,7 @@ public class ScannerTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int[] { 42, 43, 44 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
-	
+
 	public static Test suite() {
 		return buildAllCompliancesTestSuite(testClass());
 	}
@@ -374,7 +374,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 		assertEquals("Wrong number of tokens", 1, counter);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74934
 	 */
@@ -394,7 +394,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 		assertTrue(false);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74934
 	 */
@@ -414,7 +414,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 		assertTrue(false);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74934
 	 */
@@ -433,7 +433,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 		assertEquals("Wrong number of tokens", 1, counter);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74934
 	 */
@@ -452,9 +452,9 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 		assertEquals("Wrong number of tokens", 1, counter);
 	}
-	
+
 	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78905 
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78905
 	 */
 	public void test023() {
 		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
@@ -484,7 +484,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			}
 		} catch (InvalidInputException e) {
 		}
-		
+
 		assertEquals("wrong number of tokens", 5, counter);
 		int[] lineEnds = scanner.getLineEnds();
 		assertNotNull("No line ends", lineEnds);
@@ -494,7 +494,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		lineEnds = scanner.getLineEnds();
 		assertNotNull("No line ends", lineEnds);
 		assertEquals("wrong length", 0, lineEnds.length);
-		
+
 		counter = 0;
 		try {
 			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
@@ -502,34 +502,34 @@ public class ScannerTest extends AbstractRegressionTest {
 			}
 		} catch (InvalidInputException e) {
 		}
-		
+
 		assertEquals("wrong number of tokens", 5, counter);
 		lineEnds = scanner.getLineEnds();
 		assertNotNull("No line ends", lineEnds);
 		assertEquals("wrong length", 0, lineEnds.length);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84398
 	 */
 	public void test025() {
 		IScanner scanner = ToolFactory.createScanner(true, true, false, true);
 		scanner.setSource("String\r\nwith\r\nmany\r\nmany\r\nline\r\nbreaks".toCharArray());
-		
+
 		try {
 			while(scanner.getNextToken()!=ITerminalSymbols.TokenNameEOF){}
 		} catch (InvalidInputException e) {
 			assertTrue(false);
 		}
-		
+
 		assertEquals("Wrong size", 5, scanner.getLineEnds().length);
-		
+
 		scanner.setSource("No line breaks here".toCharArray()); // expecting line breaks to reset
 		assertEquals("Wrong size", 0, scanner.getLineEnds().length);
 	}
-	
+
 	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=86611 
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=86611
 	 */
 	public void test026() {
 		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_4);
@@ -571,7 +571,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertEquals("Wrong contents", "classTest{charC=\"\n\";}", String.valueOf(buffer));
 		} catch (InvalidInputException e) {
 			assertTrue(false);
-		}		
+		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test028() {
@@ -603,7 +603,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertEquals("Wrong contents", "classTest{charC=\'\\n\';}", String.valueOf(buffer));
 		} catch (InvalidInputException e) {
 			assertTrue(false);
-		}		
+		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test029() {
@@ -632,9 +632,9 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertEquals("Wrong contents", "classTest{charC=\"\n\";}", String.valueOf(buffer));
 		} catch (InvalidInputException e) {
 			assertTrue(false);
-		}		
+		}
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test030() {
 		this.runConformTest(
@@ -651,7 +651,7 @@ public class ScannerTest extends AbstractRegressionTest {
 				},
 				"1true");
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test031() {
 		this.runConformTest(
@@ -668,7 +668,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			},
 			"1true");
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test032() {
 		this.runConformTest(
@@ -684,7 +684,7 @@ public class ScannerTest extends AbstractRegressionTest {
 				},
 				"true");
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test033() {
 		this.runConformTest(
@@ -700,7 +700,7 @@ public class ScannerTest extends AbstractRegressionTest {
 				},
 				"true");
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test034() {
 		this.runConformTest(
@@ -717,12 +717,12 @@ public class ScannerTest extends AbstractRegressionTest {
 				},
 				"3true");
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test035() {
 		/*
 		 * Corresponding source:
-		 * 
+		 *
 		 * public class Test {
 		 * 	  static String C = "\n";
 		 *    public static void main(String[] args) {
@@ -763,7 +763,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertTrue("Should not happen", false);
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106403
 	public void test037() {
 		try {
@@ -786,7 +786,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertTrue("Should not happen", false);
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106403
 	public void test038() {
 		try {
@@ -829,7 +829,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertTrue("Should not happen", false);
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106403
 	public void test040() {
 		try {
@@ -843,7 +843,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertTrue("Should not happen", false);
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106403
 	public void test041() {
 		try {
@@ -863,7 +863,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertTrue("Should not happen", false);
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=112223
 	public void test042() {
 		IScanner scanner = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
@@ -892,7 +892,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertEquals("Wrong exception", PublicScanner.INVALID_CHAR_IN_STRING, e.getMessage());
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=112223
 	public void test043() {
 		IScanner scanner = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
@@ -953,7 +953,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	public void test045() {
 		/*
 		 * Corresponding source:
-		 * 
+		 *
 		 * public class Test {
 		 * 	  static String C = "\n";
 		 *    public static void main(String[] args) {
@@ -965,35 +965,35 @@ public class ScannerTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 					"_X.java",
-					"import java.lang.reflect.Field;\n" + 
-					"public class _X {\n" + 
-					"	public static void main(String[] args) {\n" + 
-					"		String i\\u0000;\n" + 
-					"		String i\\u0001;\n" + 
-					"		String i\\u0002;\n" + 
-					"		String i\\u0003;\n" + 
-					"		String i\\u0004;\n" + 
-					"		String i\\u0005;\n" + 
-					"		String i\\u0006;\n" + 
-					"		String i\\u0007;\n" + 
-					"		String i\\u0008;\n" + 
-					"		String i\\u000e;\n" + 
-					"		String i\\u000f;\n" + 
-					"		String i\\u0010;\n" + 
-					"		String i\\u0011;\n" + 
-					"		String i\\u0012;\n" + 
-					"		String i\\u0013;\n" + 
-					"		String i\\u0014;\n" + 
-					"		String i\\u0015;\n" + 
-					"		String i\\u0016;\n" + 
-					"		String i\\u0017;\n" + 
-					"		String i\\u0018;\n" + 
-					"		String i\\u0019;\n" + 
-					"		String i\\u001a;\n" + 
-					"		String i\\u001b;\n" + 
-					"		String i\\u007f;\n" + 
-					"		System.out.print(\"SUCCESS\");\n" + 
-					"	}\n" + 
+					"import java.lang.reflect.Field;\n" +
+					"public class _X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		String i\\u0000;\n" +
+					"		String i\\u0001;\n" +
+					"		String i\\u0002;\n" +
+					"		String i\\u0003;\n" +
+					"		String i\\u0004;\n" +
+					"		String i\\u0005;\n" +
+					"		String i\\u0006;\n" +
+					"		String i\\u0007;\n" +
+					"		String i\\u0008;\n" +
+					"		String i\\u000e;\n" +
+					"		String i\\u000f;\n" +
+					"		String i\\u0010;\n" +
+					"		String i\\u0011;\n" +
+					"		String i\\u0012;\n" +
+					"		String i\\u0013;\n" +
+					"		String i\\u0014;\n" +
+					"		String i\\u0015;\n" +
+					"		String i\\u0016;\n" +
+					"		String i\\u0017;\n" +
+					"		String i\\u0018;\n" +
+					"		String i\\u0019;\n" +
+					"		String i\\u001a;\n" +
+					"		String i\\u001b;\n" +
+					"		String i\\u007f;\n" +
+					"		System.out.print(\"SUCCESS\");\n" +
+					"	}\n" +
 					"}"
 				},
 				"SUCCESS");

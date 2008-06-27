@@ -40,23 +40,23 @@ public void test0001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0001/X.java",
-		"package test0001;\n" + 
-		"public class X {\n" + 
-		"  /**/\n" + 
+		"package test0001;\n" +
+		"public class X {\n" +
+		"  /**/\n" +
 		"}");
-	
+
 	String snippet =
 		"ZZZZ";
-	
+
 	IType type = this.workingCopies[0].getType("X");
 	String str = this.workingCopies[0].getSource();
 	int insertion = str.lastIndexOf("/**/");
-	
+
 	int tokenStart = snippet.lastIndexOf("ZZZZ");
 	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
 	int cursorLocation = snippet.lastIndexOf("ZZZZ") + "ZZZZ".length();
-	
-	
+
+
 	CompletionResult result = snippetContextComplete(
 			type,
 			snippet,
@@ -78,23 +78,23 @@ public void test0002() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0002/X.java",
-		"package test0002;\n" + 
-		"public class X {\n" + 
-		"  /**/\n" + 
+		"package test0002;\n" +
+		"public class X {\n" +
+		"  /**/\n" +
 		"}");
-	
+
 	String snippet =
 		"ZZZZ";
-	
+
 	IType type = this.workingCopies[0].getType("X");
 	String str = this.workingCopies[0].getSource();
 	int insertion = str.lastIndexOf("/**/");
-	
+
 	int tokenStart = snippet.lastIndexOf("ZZZZ");
 	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
 	int cursorLocation = snippet.lastIndexOf("ZZZZ");
-	
-	
+
+
 	CompletionResult result = snippetContextComplete(
 			type,
 			snippet,
@@ -116,23 +116,23 @@ public void test0003() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0003/X.java",
-		"package test0003;\n" + 
-		"public class X {\n" + 
-		"  /**/\n" + 
+		"package test0003;\n" +
+		"public class X {\n" +
+		"  /**/\n" +
 		"}");
-	
+
 	String snippet =
 		"ZZZZ";
-	
+
 	IType type = this.workingCopies[0].getType("X");
 	String str = this.workingCopies[0].getSource();
 	int insertion = str.lastIndexOf("/**/");
-	
+
 	int tokenStart = snippet.lastIndexOf("ZZZZ");
 	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
 	int cursorLocation = snippet.lastIndexOf("ZZZZ") + "ZZ".length();
-	
-	
+
+
 	CompletionResult result = snippetContextComplete(
 			type,
 			snippet,
@@ -154,23 +154,23 @@ public void test0004() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0004/X.java",
-		"package test0004;\n" + 
-		"public class X {\n" + 
-		"  /**/\n" + 
+		"package test0004;\n" +
+		"public class X {\n" +
+		"  /**/\n" +
 		"}");
-	
+
 	String snippet =
 		"/**/";
-	
+
 	IType type = this.workingCopies[0].getType("X");
 	String str = this.workingCopies[0].getSource();
 	int insertion = str.lastIndexOf("/**/");
-	
+
 	int tokenStart = snippet.lastIndexOf("/**/");
 	int tokenEnd = tokenStart + "".length();
 	int cursorLocation = snippet.lastIndexOf("/**/") + "".length();
-	
-	
+
+
 	CompletionResult result = snippetContextComplete(
 			type,
 			snippet,

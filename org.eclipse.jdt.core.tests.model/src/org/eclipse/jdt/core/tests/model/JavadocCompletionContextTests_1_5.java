@@ -39,14 +39,14 @@ public void test0001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0001/X.java",
-		"package test0001;\n" + 
-		"public class X {\n" + 
-		"  /**\n" + 
-		"   * @param <ZZZZ\n" + 
-		"   */\n" + 
-		"  public <T> void foo(){}\n" + 
+		"package test0001;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @param <ZZZZ\n" +
+		"   */\n" +
+		"  public <T> void foo(){}\n" +
 		"}");
-	
+
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
 	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
@@ -68,14 +68,14 @@ public void test0002() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0002/X.java",
-		"package test0002;\n" + 
-		"public class X {\n" + 
-		"  /**\n" + 
-		"   * @param <ZZZZ\n" + 
-		"   */\n" + 
-		"  public <T> void foo(){}\n" + 
+		"package test0002;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @param <ZZZZ\n" +
+		"   */\n" +
+		"  public <T> void foo(){}\n" +
 		"}");
-	
+
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
 	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
@@ -97,21 +97,21 @@ public void test0003() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0003/X.java",
-		"package test0003;\n" + 
-		"public class X {\n" + 
-		"  /**\n" + 
-		"   * @param <ZZZZ\n" + 
-		"   */\n" + 
-		"  public <T> void foo(){}\n" + 
+		"package test0003;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @param <ZZZZ\n" +
+		"   */\n" +
+		"  public <T> void foo(){}\n" +
 		"}");
-	
+
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("ZZZZ");
 	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
 	int cursorLocation = str.lastIndexOf("ZZZZ") + "ZZ".length();
 
 	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
-	
+
 	assertResults(
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
@@ -126,21 +126,21 @@ public void test0004() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src3/test0004/X.java",
-		"package test0004;\n" + 
-		"public class X {\n" + 
-		"  /**\n" + 
-		"   * @param <\n" + 
-		"   */\n" + 
-		"  public <T> void foo(){}\n" + 
+		"package test0004;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @param <\n" +
+		"   */\n" +
+		"  public <T> void foo(){}\n" +
 		"}");
-	
+
 	String str = this.workingCopies[0].getSource();
 	int tokenStart = str.lastIndexOf("@param <") + "@param <".length();
 	int tokenEnd = tokenStart + "".length() - 1;
 	int cursorLocation = str.lastIndexOf("@param <") + "@param <".length();
 
 	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
-	
+
 	assertResults(
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +

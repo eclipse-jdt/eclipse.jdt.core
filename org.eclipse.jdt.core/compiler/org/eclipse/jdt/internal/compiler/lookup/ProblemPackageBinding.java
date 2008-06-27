@@ -27,6 +27,6 @@ ProblemPackageBinding(char[] name, int problemId) {
 */
 
 public final int problemId() {
-	return problemId;
+	return this.problemId;
 }
 }

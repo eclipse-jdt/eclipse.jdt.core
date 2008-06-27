@@ -38,7 +38,7 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 
 	/**
 	 * Get completion node flags.
-	 * 
+	 *
 	 * @return int Flags of the javadoc completion node.
 	 */
 	public int getCompletionFlags() {

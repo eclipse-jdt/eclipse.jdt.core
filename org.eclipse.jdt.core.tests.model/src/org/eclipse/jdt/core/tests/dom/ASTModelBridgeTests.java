@@ -29,7 +29,7 @@ import junit.framework.Test;
  * Test the bridge between the DOM AST and the Java model.
  */
 public class ASTModelBridgeTests extends AbstractASTTests {
-	
+
 	ICompilationUnit workingCopy;
 
 	public ASTModelBridgeTests(String name) {
@@ -39,7 +39,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public static Test suite() {
 		return buildModelTestSuite(ASTModelBridgeTests.class);
 	}
-	
+
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
@@ -57,7 +57,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			element
 		);
 	}
-	
+
 	/*
 	 * Removes the marker comments "*start*" and "*end*" from the given contents,
 	 * builds an AST from the resulting source, and returns the AST node that was delimited
@@ -66,7 +66,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	private ASTNode buildAST(String contents) throws JavaModelException {
 		return buildAST(contents, this.workingCopy);
 	}
-	
+
 	/*
 	 * Removes the marker comments "*start*" and "*end*" from the given contents,
 	 * builds an AST from the resulting source, gets the binding from the AST node that was delimited
@@ -79,7 +79,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		if (binding == null) return null;
 		return binding.getKey();
 	}
-	
+
 	private IBinding[] createBindings(String contents, IJavaElement element) throws JavaModelException {
 		this.workingCopy.getBuffer().setContents(contents);
 		this.workingCopy.makeConsistent(null);
@@ -88,7 +88,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement[] elements = new IJavaElement[] {element};
 		return parser.createBindings(elements, null);
 	}
-	
+
 	private IBinding[] createBinaryBindings(String contents, IJavaElement element) throws CoreException {
 		createClassFile("/P/lib", "A.class", contents);
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
@@ -96,7 +96,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement[] elements = new IJavaElement[] {element};
 		return parser.createBindings(elements, null);
 	}
-	
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		setUpJavaProject();
@@ -111,9 +111,9 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		project.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
 		project.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		addLibrary(
-			project, 
+			project,
 			"lib.jar",
-			"libsrc.zip", 
+			"libsrc.zip",
 			new String[] {
 				"p/Y.java",
 				"package p;\n" +
@@ -150,7 +150,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"    new Member() {};\n" +
 				"  }\n" +
 				"}"
-			}, 
+			},
 			"1.5");
 		setUpWorkingCopy();
 	}
@@ -167,15 +167,15 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			}
 		};
 		this.workingCopy = getCompilationUnit("/P/src/X.java").getWorkingCopy(
-			newWorkingCopyOwner(problemRequestor), 
+			newWorkingCopyOwner(problemRequestor),
 			null/*no progress*/);
 	}
-	
+
 	public void tearDownSuite() throws Exception {
 		tearDownJavaProject();
 		super.tearDownSuite();
 	}
-	
+
 	private void tearDownJavaProject() throws JavaModelException, CoreException {
 		if (this.workingCopy != null)
 			this.workingCopy.discardWorkingCopy();
@@ -187,12 +187,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation1() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" + 
-			"  /*start*/@MyAnnot/*end*/\n" + 
-			"  void foo() {\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"@interface MyAnnot {\n" + 
+			"public class X {\n" +
+			"  /*start*/@MyAnnot/*end*/\n" +
+			"  void foo() {\n" +
+			"  }\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
 			"}"
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
@@ -210,11 +210,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation2() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" + 
-			"  /*start*/@MyAnnot/*end*/\n" + 
-			"  int field;\n" + 
-			"}\n" + 
-			"@interface MyAnnot {\n" + 
+			"public class X {\n" +
+			"  /*start*/@MyAnnot/*end*/\n" +
+			"  int field;\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
 			"}"
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
@@ -232,10 +232,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation3() throws JavaModelException {
 		ASTNode node = buildAST(
-			"/*start*/@MyAnnot/*end*/\n" + 
-			"public class X {\n" + 
-			"}\n" + 
-			"@interface MyAnnot {\n" + 
+			"/*start*/@MyAnnot/*end*/\n" +
+			"public class X {\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
 			"}"
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
@@ -259,13 +259,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			myAnnot = getCompilationUnit("/P/src/pkg/MyAnnot.java").getWorkingCopy(owner, null);
 			myAnnot.getBuffer().setContents(
 				"package pkg;\n" +
-				"public @interface MyAnnot {\n" + 
+				"public @interface MyAnnot {\n" +
 				"}"
 			);
 			myAnnot.makeConsistent(null);
 			packageInfo = getCompilationUnit("/P/src/pkg/package-info.java").getWorkingCopy(owner, null);
 			ASTNode node = buildAST(
-				"/*start*/@MyAnnot/*end*/\n" + 
+				"/*start*/@MyAnnot/*end*/\n" +
 				"package pkg;",
 				packageInfo
 			);
@@ -290,13 +290,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation5() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" + 
-			"  void foo() {\n" + 
-			"    /*start*/@MyAnnot/*end*/\n" + 
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    /*start*/@MyAnnot/*end*/\n" +
 			"    int var1 = 2;\n" +
-			"  }\n" + 
-			"}\n" + 
-			"@interface MyAnnot {\n" + 
+			"  }\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
 			"}"
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
@@ -334,16 +334,16 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 
 	public void testAnonymousType2() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" + 
-			"	public void foo() {\n" + 
-			"		new Y(0/*c*/) /*start*/{\n" + 
-			"			Object field;\n" + 
-			"		}/*end*/;\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class Y {\n" + 
-			"	Y(int i) {\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		new Y(0/*c*/) /*start*/{\n" +
+			"			Object field;\n" +
+			"		}/*end*/;\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	Y(int i) {\n" +
+			"	}\n" +
 			"}"
 		);
 		IBinding binding = ((AnonymousClassDeclaration) node).resolveBinding();
@@ -419,7 +419,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a constructor of a binary member type is correct.
 	 * (regression test for bug 119249 codeResolve, search, etc. don't work on constructor of binary inner class)
@@ -441,7 +441,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a type coming from a class file is correct.
 	 */
@@ -462,7 +462,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a type coming from a class file is correct
 	 * after searching for references to this type.
@@ -470,10 +470,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testBinaryType2() throws CoreException {
 		IClassFile classFile = getClassFile("P", "lib.jar", "p", "ABC.class"); // class with no references
-		
+
 		// ensure classfile is open
 		classFile.open(null);
-		
+
 		//search for references to p.ABC after adding references in exactly 1 file
 		try {
 			createFile(
@@ -487,7 +487,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		} finally {
 			deleteFile("/P/src/Test.java");
 		}
-		
+
 		String source = classFile.getSource();
 		MarkerInfo markerInfo = new MarkerInfo(source);
 		markerInfo.astStarts = new int[] {source.indexOf("public")};
@@ -503,7 +503,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a type in a jar is correct after deleting the first project
 	 * referencing it.
@@ -511,18 +511,18 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void testBinaryType3() throws CoreException, IOException {
 		// force String to be put in the jar cache
 		buildAST(
-			"public class X {\n" + 
-			"    /*start*/String/*end*/ field;\n" + 
+			"public class X {\n" +
+			"    /*start*/String/*end*/ field;\n" +
 			"}"
 		);
 		try {
 			tearDownJavaProject();
-			
+
 			createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 			createFile(
 				"/P1/X.java",
-				"public class X {\n" + 
-				"    /*start*/String/*end*/ field;\n" + 
+				"public class X {\n" +
+				"    /*start*/String/*end*/ field;\n" +
 				"}"
 			);
 			ASTNode node = buildAST(getCompilationUnit("/P1/X.java"));
@@ -561,7 +561,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement for a binary member type coming from an anoumous class file is correct.
 	 * (regression test for bug 100636 [model] Can't find overriden methods of protected nonstatic inner class.)
@@ -583,7 +583,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (test several kinds of elements)
@@ -595,7 +595,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
-			"/P/src/X.java", 
+			"/P/src/X.java",
 			"public class X {\n" +
 			"  public void foo(int i, String s) {\n" +
 			"  }\n" +
@@ -603,7 +603,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			owner
 		);
 		this.workingCopies[1] = getWorkingCopy(
-			"/P/src/Y.java", 
+			"/P/src/Y.java",
 			"public class Y extends X {\n" +
 			"  void bar() {\n" +
 			"    new Y() {};\n" +
@@ -612,7 +612,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			owner
 		);
 		this.workingCopies[2] = getWorkingCopy(
-			"/P/src/I.java", 
+			"/P/src/I.java",
 			"public interface I {\n" +
 			"  int BAR;\n" +
 			"}",
@@ -620,7 +620,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		IType typeX = this.workingCopies[0].getType("X");
 		IJavaElement[] elements = new IJavaElement[] {
-			typeX, 
+			typeX,
 			getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "Object.class").getType(),
 			typeX.getMethod("foo", new String[] {"I", "QString;"}),
 			this.workingCopies[2].getType("I").getField("BAR"),
@@ -628,14 +628,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		};
 		IBinding[] bindings = parser.createBindings(elements, null);
 		assertBindingsEqual(
-			"LX;\n" + 
-			"Ljava/lang/Object;\n" + 
-			"LX;.foo(ILjava/lang/String;)V\n" + 
-			"LI;.BAR)I\n" + 
+			"LX;\n" +
+			"Ljava/lang/Object;\n" +
+			"LX;.foo(ILjava/lang/String;)V\n" +
+			"LI;.BAR)I\n" +
 			"LY$50;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (top level type)
@@ -650,7 +650,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (member type)
@@ -667,7 +667,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX$Member;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (anonymous type)
@@ -686,7 +686,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX$40;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (local type)
@@ -705,7 +705,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX$42$Y;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (field)
@@ -721,7 +721,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;.field)I",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (method)
@@ -737,7 +737,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;.foo()V",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (annotation declaration)
@@ -752,7 +752,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (enum declaration)
@@ -767,7 +767,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (annotation member declaration)
@@ -783,7 +783,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;.foo()I",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (enum constant)
@@ -799,7 +799,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;.FOO)LX;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (import)
@@ -816,7 +816,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"java/io",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (import)
@@ -833,7 +833,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"Ljava/io/Serializable;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (type parameter)
@@ -848,7 +848,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;:TT;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (binary type)
@@ -863,7 +863,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LA;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (binary field)
@@ -879,7 +879,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LA;.field)I",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (binary method)
@@ -897,7 +897,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LA;.foo(Ljava/lang/String;Z)I",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBindings are created for a given set of IJavaElement
 	 * (binary method)
@@ -935,7 +935,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LA;.foo(Ljava/lang/String;)Ljava/lang/String;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBinding is created for an IField starting with a 'L'
 	 * (regression test for 205860 ASTParser.createBindings() returns [null])
@@ -987,7 +987,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;@LX~MyAnnot;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a field is correct.
 	 */
@@ -1045,7 +1045,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"X [in [Working copy] X.java [in <default> [in src [in P]]]]"
 		);
 	}
-	
+
 	/*
 	 * Ensures that an IMethod can be found using its binding key.
 	 */
@@ -1061,7 +1061,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]"
 		);
 	}
-	
+
 	/*
 	 * Ensures that an IField can be found using its binding key.
 	 */
@@ -1076,7 +1076,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"field [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]"
 		);
 	}
-	
+
 	/*
 	 * Ensures that a member IType can be found using its binding key.
 	 */
@@ -1092,7 +1092,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"Member [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]"
 		);
 	}
-	
+
 	/*
 	 * Ensures that a local IType can be found using its binding key.
 	 */
@@ -1110,7 +1110,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"Local [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]"
 		);
 	}
-	
+
 	/*
 	 * Ensures that an anonymous IType can be found using its binding key.
 	 */
@@ -1128,7 +1128,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"<anonymous #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]"
 		);
 	}
-	
+
 	/*
 	 * Ensures that a secondary IType can be found using its binding key.
 	 */
@@ -1144,7 +1144,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"Secondary [in [Working copy] X.java [in <default> [in src [in P]]]]"
 		);
 	}
-	
+
 	/*
 	 * Ensures that an IAnnotation can be found using its binding key.
 	 */
@@ -1161,7 +1161,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"@MyAnnot [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]"
 		);
 	}
-	
+
 	/*
 	 * Ensures that an IPackageFragment can be found using its binding key.
 	 */
@@ -1254,7 +1254,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void testLocalType2() throws CoreException {
 		String filePath = "/P/src/Z.java";
 		try {
-			String contents = 
+			String contents =
 				"public class Z {\n" +
 				"  void foo() {\n" +
 				"    /*start*/class Local {\n" +
@@ -1267,19 +1267,19 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			ASTNode node = buildAST(contents, getCompilationUnit(filePath));
 			IBinding binding = ((TypeDeclarationStatement) node).resolveBinding();
 			String bindingKey = binding.getKey();
-			
+
 			// Resolve the binding key
 			BindingRequestor requestor = new BindingRequestor();
 			String[] bindingKeys = new String[] {bindingKey};
 			resolveASTs(
-				new ICompilationUnit[] {}, 
+				new ICompilationUnit[] {},
 				bindingKeys,
 				requestor,
 				getJavaProject("P"),
 				this.workingCopy.getOwner()
 			);
 			IBinding[] bindings = requestor.getBindings(bindingKeys);
-			
+
 			// Ensure the Java element is correct
 			IJavaElement element = bindings[0].getJavaElement();
 			assertElementEquals(
@@ -1514,23 +1514,23 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				otherWorkingCopy.discardWorkingCopy();
 		}
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a method is correct.
 	 * (regression test for bug 81258 IMethodBinding#getJavaElement() is null with inferred method parameterization)
 	 */
 	public void testMethod04() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" + 
-			"	void foo() {\n" + 
-			"		/*start*/bar(new B<Object>())/*end*/;\n" + 
-			"	}\n" + 
-			"	<T extends Object> void bar(A<? extends T> arg) {\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class A<T> {\n" + 
-			"}\n" + 
-			"class B<T> extends A<T> {	\n" + 
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		/*start*/bar(new B<Object>())/*end*/;\n" +
+			"	}\n" +
+			"	<T extends Object> void bar(A<? extends T> arg) {\n" +
+			"	}\n" +
+			"}\n" +
+			"class A<T> {\n" +
+			"}\n" +
+			"class B<T> extends A<T> {	\n" +
 			"}"
 		);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
@@ -1550,14 +1550,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod05() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X<T> {\n" + 
-			"    void m(T t) { }\n" + 
-			"}\n" + 
-			"\n" + 
-			"class Y {\n" + 
-			"    {\n" + 
-			"        /*start*/new X<String>().m(\"s\")/*end*/;\n" + 
-			"    }\n" + 
+			"public class X<T> {\n" +
+			"    void m(T t) { }\n" +
+			"}\n" +
+			"\n" +
+			"class Y {\n" +
+			"    {\n" +
+			"        /*start*/new X<String>().m(\"s\")/*end*/;\n" +
+			"    }\n" +
 			"}"
 		);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
@@ -1577,10 +1577,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testMethod06() throws JavaModelException {
 		ASTNode node = buildAST(
-			"@X(/*start*/value/*end*/=\"Hello\", count=-1)\n" + 
-			"@interface X {\n" + 
-			"    String value();\n" + 
-			"    int count();\n" + 
+			"@X(/*start*/value/*end*/=\"Hello\", count=-1)\n" +
+			"@interface X {\n" +
+			"    String value();\n" +
+			"    int count();\n" +
 			"}"
 		);
 		IBinding binding = ((SimpleName) node).resolveBinding();
@@ -1593,7 +1593,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a method with array parameters is correct.
 	 * (regression test for bug 88769 IMethodBinding#getJavaElement() drops extra array dimensions and varargs
@@ -1672,18 +1672,18 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			// use a compilation unit instead of a working copy to use the ASTParser instead of reconcile
 			createFile(
 				"/P/src/Test.java",
-				"public class X {\n" + 
-				"        void test() {\n" + 
-				"                new Object() {\n" + 
-				"                        /*start*/public void yes() {\n" + 
-				"                                System.out.println(\"hello world\");\n" + 
-				"                        }/*end*/\n" + 
-				"                } // missing semicolon;\n" + 
-				"        }\n" + 
+				"public class X {\n" +
+				"        void test() {\n" +
+				"                new Object() {\n" +
+				"                        /*start*/public void yes() {\n" +
+				"                                System.out.println(\"hello world\");\n" +
+				"                        }/*end*/\n" +
+				"                } // missing semicolon;\n" +
+				"        }\n" +
 				"}"
 			);
 			ICompilationUnit cu = getCompilationUnit("/P/src/Test.java");
-			
+
 			ASTNode node = buildAST(null/*use existing contents*/, cu, false/*don't report errors*/, true/*statement recovery*/, false);
 			IBinding binding = ((MethodDeclaration) node).resolveBinding();
 			assertNotNull("No binding", binding);
@@ -1700,24 +1700,24 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that no ClassCastException is thrown if the method is in an anonymous 
+	 * Ensures that no ClassCastException is thrown if the method is in an anonymous
 	 * which is inside the initializer of another anonymous.
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=208013)
 	 */
 	public void testMethod11() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X {\n" + 
-			"  public void foo() {\n" + 
+			"public class X {\n" +
+			"  public void foo() {\n" +
 			"    new Object() {\n" +
 			"      Object o;\n" +
 			"      {\n"+
-			"        new Object() {\n" + 
+			"        new Object() {\n" +
 			"          /*start*/void bar() {\n" +
 			"          }/*end*/\n" +
-			"		  };\n" + 
+			"		  };\n" +
 			"      }\n" +
 			"    };\n"+
-			"  }\n" + 
+			"  }\n" +
 			"}"
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
@@ -1768,7 +1768,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a parameterized binary type is correct.
 	 * (regression test for bug 78087 [dom] TypeBinding#getJavaElement() throws IllegalArgumentException for parameterized or raw reference to binary type)
@@ -1800,7 +1800,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"  public X(String s) {\n" +
 			"    /*start*/super(s);/*end*/\n" +
 			"  }\n" +
-			"}"		
+			"}"
 		);
 		IBinding binding = ((SuperConstructorInvocation) node).resolveConstructorBinding();
 		assertNotNull("No binding", binding);
@@ -1833,7 +1833,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a recovered type is correct.
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=232037 )
@@ -1991,8 +1991,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testWildCard() throws JavaModelException {
 		ASTNode node = buildAST(
-			"public class X<T> {\n" + 
-			"	X</*start*/? extends Exception/*end*/> field;\n" + 
+			"public class X<T> {\n" +
+			"	X</*start*/? extends Exception/*end*/> field;\n" +
 			"}"
 		);
 		IBinding binding = ((WildcardType) node).resolveBinding();

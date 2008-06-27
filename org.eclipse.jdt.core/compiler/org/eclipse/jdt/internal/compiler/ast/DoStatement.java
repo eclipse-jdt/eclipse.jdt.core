@@ -55,7 +55,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
 	int previousMode = flowInfo.reachMode();
-			
+
 	UnconditionalFlowInfo actionInfo = flowInfo.nullInfoLessUnconditionalCopy();
 	// we need to collect the contribution to nulls of the coming paths through the
 	// loop, be they falling through normally or branched to break, continue labels
@@ -66,8 +66,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			unconditionalInits();
 
 		// code generation can be optimized when no need to continue in the loop
-		if ((actionInfo.tagBits & 
-				loopingContext.initsOnContinue.tagBits & 
+		if ((actionInfo.tagBits &
+				loopingContext.initsOnContinue.tagBits &
 				FlowInfo.UNREACHABLE) != 0) {
 			this.continueLabel = null;
 		}
@@ -75,16 +75,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	/* Reset reach mode, to address following scenario.
 	 *   final blank;
 	 *   do { if (true) break; else blank = 0; } while(false);
-	 *   blank = 1; // may be initialized already 
+	 *   blank = 1; // may be initialized already
 	 */
 	actionInfo.setReachMode(previousMode);
-	
+
 	LoopingFlowContext condLoopContext;
 	FlowInfo condInfo =
 		this.condition.analyseCode(
 			currentScope,
 			(condLoopContext =
-				new LoopingFlowContext(flowContext,	flowInfo, this, null, 
+				new LoopingFlowContext(flowContext,	flowInfo, this, null,
 					null, currentScope)),
 			(this.action == null
 				? actionInfo
@@ -92,10 +92,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (!isConditionOptimizedFalse && this.continueLabel != null) {
 		loopingContext.complainOnDeferredFinalChecks(currentScope, condInfo);
 		condLoopContext.complainOnDeferredFinalChecks(currentScope, condInfo);
-		loopingContext.complainOnDeferredNullChecks(currentScope, 
+		loopingContext.complainOnDeferredNullChecks(currentScope,
 				flowInfo.unconditionalCopy().addPotentialNullInfoFrom(
 					  condInfo.initsWhenTrue().unconditionalInits()));
-		condLoopContext.complainOnDeferredNullChecks(currentScope, 
+		condLoopContext.complainOnDeferredNullChecks(currentScope,
 				actionInfo.addPotentialNullInfoFrom(
 				  condInfo.initsWhenTrue().unconditionalInits()));
 	}
@@ -105,11 +105,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			(loopingContext.initsOnBreak.tagBits &
 				FlowInfo.UNREACHABLE) != 0 ?
 				loopingContext.initsOnBreak :
-				flowInfo.unconditionalCopy().addInitializationsFrom(loopingContext.initsOnBreak), 
+				flowInfo.unconditionalCopy().addInitializationsFrom(loopingContext.initsOnBreak),
 					// recover upstream null info
 			isConditionOptimizedTrue,
 			(condInfo.tagBits & FlowInfo.UNREACHABLE) == 0 ?
-					flowInfo.addInitializationsFrom(condInfo.initsWhenFalse()) : condInfo, 
+					flowInfo.addInitializationsFrom(condInfo.initsWhenFalse()) : condInfo,
 				// recover null inits from before condition analysis
 			false, // never consider opt false case for DO loop, since break can always occur (47776)
 			!isConditionTrue /*do{}while(true); unreachable(); */);
@@ -147,7 +147,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	// generate condition
 	Constant cst = this.condition.optimizedBooleanConstant();
-	boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;		
+	boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 	if (isConditionOptimizedFalse){
 		this.condition.generateCode(currentScope, codeStream, false);
 	} else if (hasContinueLabel) {

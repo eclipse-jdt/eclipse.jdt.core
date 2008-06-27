@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.IRegion;
 /**
  * @see IRegion
  */
- 
+
 public class Region implements IRegion {
 
 	/**
@@ -42,20 +42,20 @@ public void add(IJavaElement element) {
 	if (!contains(element)) {
 		//"new" element added to region
 		removeAllChildren(element);
-		rootElements.add(element);
-		rootElements.trimToSize();
+		this.rootElements.add(element);
+		this.rootElements.trimToSize();
 	}
 }
 /**
  * @see IRegion
  */
 public boolean contains(IJavaElement element) {
-	
-	int size = rootElements.size();
+
+	int size = this.rootElements.size();
 	ArrayList parents = getAncestors(element);
-	
+
 	for (int i = 0; i < size; i++) {
-		IJavaElement aTop = (IJavaElement) rootElements.get(i);
+		IJavaElement aTop = (IJavaElement) this.rootElements.get(i);
 		if (aTop.equals(element)) {
 			return true;
 		}
@@ -87,10 +87,10 @@ private ArrayList getAncestors(IJavaElement element) {
  * @see IRegion
  */
 public IJavaElement[] getElements() {
-	int size= rootElements.size();
+	int size= this.rootElements.size();
 	IJavaElement[] roots= new IJavaElement[size];
 	for (int i = 0; i < size; i++) {
-		roots[i]= (IJavaElement) rootElements.get(i);
+		roots[i]= (IJavaElement) this.rootElements.get(i);
 	}
 
 	return roots;
@@ -101,7 +101,7 @@ public IJavaElement[] getElements() {
 public boolean remove(IJavaElement element) {
 
 	removeAllChildren(element);
-	return rootElements.remove(element);
+	return this.rootElements.remove(element);
 }
 /**
  * Removes any children of this element that are contained within this
@@ -112,8 +112,8 @@ public boolean remove(IJavaElement element) {
 protected void removeAllChildren(IJavaElement element) {
 	if (element instanceof IParent) {
 		ArrayList newRootElements = new ArrayList();
-		for (int i = 0, size = rootElements.size(); i < size; i++) {
-			IJavaElement currentRoot = (IJavaElement)rootElements.get(i);
+		for (int i = 0, size = this.rootElements.size(); i < size; i++) {
+			IJavaElement currentRoot = (IJavaElement)this.rootElements.get(i);
 			//walk the current root hierarchy
 			IJavaElement parent = currentRoot.getParent();
 			boolean isChild= false;
@@ -128,7 +128,7 @@ protected void removeAllChildren(IJavaElement element) {
 				newRootElements.add(currentRoot);
 			}
 		}
-		rootElements= newRootElements;
+		this.rootElements= newRootElements;
 	}
 }
 /**

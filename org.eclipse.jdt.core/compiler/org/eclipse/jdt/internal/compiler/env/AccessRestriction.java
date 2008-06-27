@@ -17,15 +17,15 @@ public class AccessRestriction {
 	public static final byte
 		COMMAND_LINE = 0,
 		PROJECT = 1,
-		LIBRARY = 2;	
+		LIBRARY = 2;
 	public String classpathEntryName;
-	
+
 	public AccessRestriction(AccessRule accessRule, byte classpathEntryType, String classpathEntryName) {
 		this.accessRule = accessRule;
 		this.classpathEntryName = classpathEntryName;
 		this.classpathEntryType = classpathEntryType;
 	}
-	
+
 	public int getProblemId() {
 		return this.accessRule.getProblemId();
 	}

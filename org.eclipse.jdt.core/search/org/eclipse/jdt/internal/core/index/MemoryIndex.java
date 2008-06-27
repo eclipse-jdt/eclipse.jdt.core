@@ -122,6 +122,6 @@ void remove(String documentName) {
 	this.docsToReferences.put(documentName, null);
 }
 boolean shouldMerge() {
-	return this.docsToReferences.elementSize >= NUM_CHANGES;
+	return this.docsToReferences.elementSize >= this.NUM_CHANGES;
 }
 }

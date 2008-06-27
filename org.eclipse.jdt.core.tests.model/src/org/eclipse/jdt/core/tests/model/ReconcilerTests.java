@@ -108,7 +108,7 @@ protected void assertProblems(String message, String expected) {
 	assertProblems(message, expected, this.problemRequestor);
 }
 protected void assertProblemsInclude(String message, String expected) {
-	String actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(problemRequestor.problems.toString());
+	String actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(this.problemRequestor.problems.toString());
 	String independantExpectedString = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(expected);
 	if (actual.indexOf(independantExpectedString) == -1){
 	 	System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actual, this.tabs));
@@ -587,8 +587,8 @@ public void testAnnotations1() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	foo()[*]: {ANNOTATIONS}\n" + 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	foo()[*]: {ANNOTATIONS}\n" +
 		"		@MyAnnot[+]: {}"
 	);
 }
@@ -620,8 +620,8 @@ public void testAnnotations2() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	foo()[*]: {ANNOTATIONS}\n" + 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	foo()[*]: {ANNOTATIONS}\n" +
 		"		@MyAnnot[-]: {}"
 	);
 }
@@ -654,8 +654,8 @@ public void testAnnotations3() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	foo()[*]: {ANNOTATIONS}\n" + 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	foo()[*]: {ANNOTATIONS}\n" +
 		"		@MyAnnot[*]: {CONTENT}"
 	);
 }
@@ -688,8 +688,8 @@ public void testAnnotations4() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	foo()[*]: {ANNOTATIONS}\n" + 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	foo()[*]: {ANNOTATIONS}\n" +
 		"		@MyAnnot[*]: {CONTENT}"
 	);
 }
@@ -702,12 +702,12 @@ public void testAnnotations5() throws JavaModelException {
 	try {
 		setUp15WorkingCopy();
 		annotation = getWorkingCopy(
-			"Reconciler15/src/p1/MyAnnot2.java", 
+			"Reconciler15/src/p1/MyAnnot2.java",
 			"/* test */\n" +
 			"package p1;\n" +
 			"public @interface MyAnnot2 {\n" +
 			"  String bar();\n" +
-			"}", 
+			"}",
 			this.wcOwner);
 		setWorkingCopyContents(
 			"package p1;\n" +
@@ -719,8 +719,8 @@ public void testAnnotations5() throws JavaModelException {
 		);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
+			"Unexpected problems",
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -764,7 +764,7 @@ public void testBroadcastAST2() throws JavaModelException {
 		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
 /*
- * Ensures that no AST is broadcasted during a reconcile operation if the working copy being reconciled 
+ * Ensures that no AST is broadcasted during a reconcile operation if the working copy being reconciled
  * has NO changes and NO problem detection is requested)
  */
 public void testBroadcastAST3() throws JavaModelException {
@@ -812,7 +812,7 @@ public void testBroadcastAST5() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
 	org.eclipse.jdt.core.dom.CompilationUnit compilationUnit = this.deltaListener.getCompilationUnitAST(this.workingCopy);
-	String newContents = 
+	String newContents =
 		"package p1;\n" +
 		"public class X {\n" +
 		"}";
@@ -860,26 +860,26 @@ public void testBufferClosed1() throws CoreException {
 		}
 	};
 	setUpWorkingCopy(
-		"Reconciler/src/p1/X.java", 
+		"Reconciler/src/p1/X.java",
 		"package p1;\n" +
 		"public class X {\n" +
 		"  void foo(String s) {\n" +
 		"  }\n" +
 		"}"
 	);
-	
+
 	// simulate buffer being closed
-	((TestBuffer) this.workingCopy.getBuffer()).contents = null; 
-	
+	((TestBuffer) this.workingCopy.getBuffer()).contents = null;
+
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 	assertProblemsInclude(
-		"Unexpected problems", 
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 1)\n" + 
-		"	package p1;\n" + 
-		"	^\n" + 
-		"Cannot read the source from /Reconciler/src/p1/X.java due to internal exception java.io.IOException:Buffer is closed\n" + 
-		"----------\n" 
+		"Unexpected problems",
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 1)\n" +
+		"	package p1;\n" +
+		"	^\n" +
+		"Cannot read the source from /Reconciler/src/p1/X.java due to internal exception java.io.IOException:Buffer is closed\n" +
+		"----------\n"
 	);
 }
 /*
@@ -896,7 +896,7 @@ public void testBufferClosed2() throws CoreException {
 		}
 	};
 	setUpWorkingCopy(
-		"Reconciler/src/p1/X.java", 
+		"Reconciler/src/p1/X.java",
 		"package p1;\n" +
 		"public class X {\n" +
 		"  void foo(String s) {\n" +
@@ -909,19 +909,19 @@ public void testBufferClosed2() throws CoreException {
 		"public class X {\n" +
 		"}"
 	);
-	
+
 	// simulate buffer being closed
-	((TestBuffer) this.workingCopy.getBuffer()).contents = null; 
+	((TestBuffer) this.workingCopy.getBuffer()).contents = null;
 
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 	assertProblemsInclude(
-		"Unexpected problems", 
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 1)\n" + 
-		"	package p1;\n" + 
-		"	^\n" + 
-		"Cannot read the source from /Reconciler/src/p1/X.java due to internal exception java.io.IOException:Buffer is closed\n" + 
-		"----------\n" 
+		"Unexpected problems",
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 1)\n" +
+		"	package p1;\n" +
+		"	^\n" +
+		"Cannot read the source from /Reconciler/src/p1/X.java due to internal exception java.io.IOException:Buffer is closed\n" +
+		"----------\n"
 	);
 }
 /**
@@ -1096,7 +1096,7 @@ public void testChangeSourceLevel1() throws Exception {
 				"package p.enum;\n" +
 				"public class X{\n" +
 				"}"
-			}, 
+			},
 			p.getProject().getLocation().append("lib.jar").toOSString(),
 			"1.3");
 		refresh(p);
@@ -1108,24 +1108,24 @@ public void testChangeSourceLevel1() throws Exception {
 			"}");
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		/* At this point, the following error is reported:
-		"----------\n" + 
-		"1. ERROR in /P1/src/p1/X.java (at line 3)\n" + 
-		"	p.enum.X field;\n" + 
-		"	  ^^^^\n" + 
-		"Syntax error on token \"enum\", Identifier expected\n" + 
+		"----------\n" +
+		"1. ERROR in /P1/src/p1/X.java (at line 3)\n" +
+		"	p.enum.X field;\n" +
+		"	  ^^^^\n" +
+		"Syntax error on token \"enum\", Identifier expected\n" +
 		"----------\n"
 		*/
-		
+
 		this.problemRequestor.reset();
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
-			"1. WARNING in /P1/src/p1/X.java (at line 3)\n" + 
-			"	p.enum.X field;\n" + 
-			"	  ^^^^\n" + 
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
+			"Unexpected problems",
+			"----------\n" +
+			"1. WARNING in /P1/src/p1/X.java (at line 3)\n" +
+			"	p.enum.X field;\n" +
+			"	  ^^^^\n" +
+			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1149,7 +1149,7 @@ public void testChangeSourceLevel2() throws Exception {
 				"package p.enum;\n" +
 				"public class X{\n" +
 				"}"
-			}, 
+			},
 			p.getProject().getLocation().append("lib.jar").toOSString(),
 			"1.3");
 		refresh(p);
@@ -1161,25 +1161,25 @@ public void testChangeSourceLevel2() throws Exception {
 			"}");
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		/* At this point, the following error is reported:
-		"----------\n" + 
-		"1. ERROR in /P1/src/p1/X.java (at line 3)\n" + 
-		"	p.enum.X field;\n" + 
-		"	  ^^^^\n" + 
-		"Syntax error on token \"enum\", Identifier expected\n" + 
+		"----------\n" +
+		"1. ERROR in /P1/src/p1/X.java (at line 3)\n" +
+		"	p.enum.X field;\n" +
+		"	  ^^^^\n" +
+		"Syntax error on token \"enum\", Identifier expected\n" +
 		"----------\n"
 		*/
-		
+
 		this.problemRequestor.reset();
 		newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 		JavaCore.setOptions(newOptions);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
-			"1. WARNING in /P1/src/p1/X.java (at line 3)\n" + 
-			"	p.enum.X field;\n" + 
-			"	  ^^^^\n" + 
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
+			"Unexpected problems",
+			"----------\n" +
+			"1. WARNING in /P1/src/p1/X.java (at line 3)\n" +
+			"	p.enum.X field;\n" +
+			"	  ^^^^\n" +
+			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1234,8 +1234,8 @@ public void testChangeClassFolder() throws CoreException {
 		);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
+			"Unexpected problems",
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1753,7 +1753,7 @@ public void testExternal3() throws Exception {
 			"}\n"
 		);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null/*no owner*/, null);
-	
+
 		createJar(new String[] {
 			"p/Lib2.java",
 			"package p;\n" +
@@ -1765,9 +1765,9 @@ public void testExternal3() throws Exception {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null/*no owner*/, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in / /External.java\n" + 
-			"p.Lib cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in / /External.java\n" +
+			"p.Lib cannot be resolved to a type\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2379,11 +2379,11 @@ public void testMethodWithError08() throws CoreException {
 		this.workingCopy.open(null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p2/X01.java (at line 2)\n" + 
-			"	public class X01 extends p1.X01 {\n" + 
-			"	             ^^^\n" + 
-			"The type X01 must implement the inherited abstract method X01.foo(Zork)\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p2/X01.java (at line 2)\n" +
+			"	public class X01 extends p1.X01 {\n" +
+			"	             ^^^\n" +
+			"The type X01 must implement the inherited abstract method X01.foo(Zork)\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2736,10 +2736,10 @@ public void testNoChanges2() throws JavaModelException {
 }
 /*
  * Ensures that the problem requestor is not called when the source
- * to reconcile is the same as the current contents, 
+ * to reconcile is the same as the current contents,
  * no ast is requested, no problem is requested and problem requestor is not active.
  * (regression test for bug 179258 simple reconcile starts problem finder - main thread waiting)
- * 
+ *
  */
 public void testNoChanges3() throws JavaModelException {
 	setWorkingCopyContents(this.workingCopy.getSource());
@@ -3010,7 +3010,7 @@ public void testReconcileParticipant08() throws CoreException {
 	);
 }
 /*
- * Ensures that a reconcile participant is not notified when a working copy is reconciled 
+ * Ensures that a reconcile participant is not notified when a working copy is reconciled
  * and it was consistent and forcing problem detection is off
  * (regression test for 177319 Annotation Processing (APT) affects eclipse speed)
  */
@@ -3025,7 +3025,7 @@ public void testReconcileParticipant09() throws CoreException {
 }
 
 /*
- * Ensures that a reconcile participant is notified when a working copy is reconciled 
+ * Ensures that a reconcile participant is notified when a working copy is reconciled
  * and it was consistent and forcing problem detection is on
  */
 public void testReconcileParticipant10() throws CoreException {
@@ -3064,8 +3064,8 @@ public void testReconcileParticipant11() throws CoreException {
 	this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	foo()[*]: {MODIFIERS CHANGED}"	
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	foo()[*]: {MODIFIERS CHANGED}"
 	);
 }
 
@@ -3083,8 +3083,8 @@ public void testRenameClasspathFile() throws CoreException {
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<classpath>\n" +
 			"    <classpathentry kind=\"src\" path=\"src1\"/>\n" +
-			"	<classpathentry kind=\"var\" path=\"JCL_LIB\"/>\n" + 
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"	<classpathentry kind=\"var\" path=\"JCL_LIB\"/>\n" +
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
 		createFolder("/P1/src1/p1");
@@ -3109,7 +3109,7 @@ public void testRenameClasspathFile() throws CoreException {
 		copy.reconcile(ICompilationUnit.NO_AST, true/*for pb detection*/, null/*default owner*/, null/*no progress*/);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -3597,19 +3597,19 @@ public void testTypeWithDollarName3() throws CoreException {
 		workingCopy2 = getWorkingCopy(
 			"/Reconciler/src/p1/Cl$ss.java",
 			"package p1;\n" +
-			"public interface Cl$ss {\n" + 
-			"        public void test(Cl$ss c);\n" + 
-			"        public void foo();\n" + 
+			"public interface Cl$ss {\n" +
+			"        public void test(Cl$ss c);\n" +
+			"        public void foo();\n" +
 			"}",
 			owner
 		);
 		setWorkingCopyContents(
 			"package p1;\n" +
-			"public class X {\n" + 
-			"        void m(Cl$ss c2) {\n" + 
-			"                c2.test(c2);\n" + 
-			"                c2.foo();\n" + 
-			"        }\n" + 
+			"public class X {\n" +
+			"        void m(Cl$ss c2) {\n" +
+			"                c2.test(c2);\n" +
+			"                c2.foo();\n" +
+			"        }\n" +
 			"}"
 		);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
@@ -4157,16 +4157,16 @@ public void test1001() throws CoreException, InterruptedException, IOException {
 		this.problemRequestor.initialize(sourcesAsCharArrays[2]);
 		this.workingCopies[2] = getCompilationUnit("/P3/Y.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems("Working copy should have problems:",
-				"----------\n" + 
-				"1. ERROR in /P3/Y.java (at line 1)\n" + 
-				"	class Y implements I {\n" + 
-				"	      ^\n" + 
-				"The type Y must implement the inherited abstract method I.bar(X)\n" + 
-				"----------\n" + 
-				"2. ERROR in /P3/Y.java (at line 1)\n" + 
-				"	class Y implements I {\n" + 
-				"	      ^\n" + 
-				"The type Y must implement the inherited abstract method I.foo()\n" + 
+				"----------\n" +
+				"1. ERROR in /P3/Y.java (at line 1)\n" +
+				"	class Y implements I {\n" +
+				"	      ^\n" +
+				"The type Y must implement the inherited abstract method I.bar(X)\n" +
+				"----------\n" +
+				"2. ERROR in /P3/Y.java (at line 1)\n" +
+				"	class Y implements I {\n" +
+				"	      ^\n" +
+				"The type Y must implement the inherited abstract method I.foo()\n" +
 				"----------\n");
 	} finally {
 		deleteProject("P1");

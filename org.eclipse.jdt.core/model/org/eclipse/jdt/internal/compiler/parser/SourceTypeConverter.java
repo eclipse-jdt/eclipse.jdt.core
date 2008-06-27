@@ -45,8 +45,8 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class SourceTypeConverter extends TypeConverter {
-	
-	/* 
+
+	/*
 	 * Exception thrown while converting an anonymous type of a member type
 	 * in this case, we must parse the source as the enclosing instance cannot be recreated
 	 * from the model
@@ -63,13 +63,13 @@ public class SourceTypeConverter extends TypeConverter {
 	public static final int FIELD_AND_METHOD = FIELD | CONSTRUCTOR | METHOD;
 	public static final int LOCAL_TYPE = 0x20;
 	public static final int NONE = 0;
-	
+
 	private int flags;
 	private CompilationUnitDeclaration unit;
 	private Parser parser;
 	private ICompilationUnit cu;
 	private char[] source;
-	
+
 	private SourceTypeConverter(int flags, ProblemReporter problemReporter) {
 		super(problemReporter, Signature.C_DOT);
 		this.flags = flags;
@@ -77,7 +77,7 @@ public class SourceTypeConverter extends TypeConverter {
 
 	/*
 	 * Convert a set of source element types into a parsed compilation unit declaration
-	 * The argument types are then all grouped in the same unit. The argument types must 
+	 * The argument types are then all grouped in the same unit. The argument types must
 	 * at least contain one type.
 	 * Can optionally ignore fields & methods or member types or field initialization
 	 */
@@ -86,7 +86,7 @@ public class SourceTypeConverter extends TypeConverter {
 		int flags,
 		ProblemReporter problemReporter,
 		CompilationResult compilationResult) {
-			
+
 //		long start = System.currentTimeMillis();
 		SourceTypeConverter converter = new SourceTypeConverter(flags, problemReporter);
 		try {
@@ -100,7 +100,7 @@ public class SourceTypeConverter extends TypeConverter {
 
 	/*
 	 * Convert a set of source element types into a parsed compilation unit declaration
-	 * The argument types are then all grouped in the same unit. The argument types must 
+	 * The argument types are then all grouped in the same unit. The argument types must
 	 * at least contain one type.
 	 */
 	private CompilationUnitDeclaration convert(ISourceType[] sourceTypes, CompilationResult compilationResult) throws JavaModelException {
@@ -135,7 +135,7 @@ public class SourceTypeConverter extends TypeConverter {
 			ISourceImport sourceImport = (ISourceImport) importDeclaration.getElementInfo();
 			String nameWithoutStar = importDeclaration.getNameWithoutStar();
 			this.unit.imports[i] = createImportReference(
-				Util.splitOn('.', nameWithoutStar, 0, nameWithoutStar.length()), 
+				Util.splitOn('.', nameWithoutStar, 0, nameWithoutStar.length()),
 				sourceImport.getDeclarationSourceStart(),
 				sourceImport.getDeclarationSourceEnd(),
 				importDeclaration.isOnDemand(),
@@ -160,7 +160,7 @@ public class SourceTypeConverter extends TypeConverter {
 			return new Parser(this.problemReporter, true).parse(this.cu, compilationResult);
 		}
 	}
-	
+
 	/*
 	 * Convert an initializerinfo into a parsed initializer declaration
 	 */
@@ -197,7 +197,7 @@ public class SourceTypeConverter extends TypeConverter {
 			}
 			block.statements = statements;
 		}
-		
+
 		return initializer;
 	}
 
@@ -242,7 +242,7 @@ public class SourceTypeConverter extends TypeConverter {
 				this.parser.parse(field, type, this.unit, initializationSource);
 			}
 		}
-		
+
 		/* conversion of local and anonymous types */
 		if ((this.flags & LOCAL_TYPE) != 0) {
 			IJavaElement[] children = fieldInfo.getChildren();
@@ -278,7 +278,7 @@ public class SourceTypeConverter extends TypeConverter {
 	}
 
 	/*
-	 * Convert a method source element into a parsed method/constructor declaration 
+	 * Convert a method source element into a parsed method/constructor declaration
 	 */
 	private AbstractMethodDeclaration convert(SourceMethod methodHandle, SourceMethodElementInfo methodInfo, CompilationResult compilationResult) throws JavaModelException {
 		AbstractMethodDeclaration method;
@@ -303,7 +303,7 @@ public class SourceTypeConverter extends TypeConverter {
 				}
 			}
 		}
-		
+
 		int modifiers = methodInfo.getModifiers();
 		if (methodInfo.isConstructor()) {
 			ConstructorDeclaration decl = new ConstructorDeclaration(compilationResult);
@@ -338,13 +338,13 @@ public class SourceTypeConverter extends TypeConverter {
 			} else {
 				decl = new MethodDeclaration(compilationResult);
 			}
-			
+
 			// convert return type
 			decl.returnType = createTypeReference(methodInfo.getReturnTypeName(), start, end);
-			
+
 			// type parameters
 			decl.typeParameters = typeParams;
-			
+
 			method = decl;
 		}
 		method.selector = methodHandle.getElementName().toCharArray();
@@ -393,7 +393,7 @@ public class SourceTypeConverter extends TypeConverter {
 					createTypeReference(exceptionTypeNames[i], start, end);
 			}
 		}
-		
+
 		/* convert local and anonymous types */
 		if ((this.flags & LOCAL_TYPE) != 0) {
 			IJavaElement[] children = methodInfo.getChildren();
@@ -417,7 +417,7 @@ public class SourceTypeConverter extends TypeConverter {
 				method.statements = statements;
 			}
 		}
-		
+
 		return method;
 	}
 
@@ -453,12 +453,12 @@ public class SourceTypeConverter extends TypeConverter {
 		type.declarationSourceStart = typeInfo.getDeclarationSourceStart();
 		type.declarationSourceEnd = typeInfo.getDeclarationSourceEnd();
 		type.bodyEnd = type.declarationSourceEnd;
-		
+
 		// convert 1.5 specific constructs only if compliance is 1.5 or above
 		if (this.has1_5Compliance) {
 			/* convert annotations */
 			type.annotations = convertAnnotations(typeHandle);
-	
+
 			/* convert type parameters */
 			char[][] typeParameterNames = typeInfo.getTypeParameterNames();
 			if (typeParameterNames.length > 0) {
@@ -470,7 +470,7 @@ public class SourceTypeConverter extends TypeConverter {
 				}
 			}
 		}
-		
+
 		/* set superclass and superinterfaces */
 		if (typeInfo.getSuperclassName() != null) {
 			type.superclass = createTypeReference(typeInfo.getSuperclassName(), start, end);
@@ -524,10 +524,10 @@ public class SourceTypeConverter extends TypeConverter {
 		boolean needConstructor = (this.flags & CONSTRUCTOR) != 0;
 		boolean needMethod = (this.flags & METHOD) != 0;
 		if (needConstructor || needMethod) {
-			
+
 			SourceMethod[] sourceMethods = typeInfo.getMethodHandles();
 			int sourceMethodCount = sourceMethods.length;
-	
+
 			/* source type has a constructor ?           */
 			/* by default, we assume that one is needed. */
 			int extraConstructor = 0;
@@ -564,7 +564,7 @@ public class SourceTypeConverter extends TypeConverter {
 				}
 				if ((isConstructor && needConstructor) || (!isConstructor && needMethod)) {
 					AbstractMethodDeclaration method = convert(sourceMethod, methodInfo, compilationResult);
-					if (isAbstract || method.isAbstract()) { // fix-up flag 
+					if (isAbstract || method.isAbstract()) { // fix-up flag
 						method.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
 					}
 					type.methods[extraConstructor + index++] = method;
@@ -572,10 +572,10 @@ public class SourceTypeConverter extends TypeConverter {
 			}
 			if (hasAbstractMethods) type.bits |= ASTNode.HasAbstractMethods;
 		}
-		
+
 		return type;
 	}
-	
+
 	private Annotation[] convertAnnotations(IAnnotatable element) throws JavaModelException {
 		char[] cuSource = getSource();
 		IAnnotation[] annotations = element.getAnnotations();
@@ -606,13 +606,13 @@ public class SourceTypeConverter extends TypeConverter {
 		}
 		return astAnnotations;
 	}
-	
+
 	private char[] getSource() {
 		if (this.source == null)
 			this.source = this.cu.getContents();
 		return this.source;
 	}
-	
+
 	private Expression parseMemberValue(char[] memberValue) {
 		// memberValue must not be null
 		if (this.parser == null) {

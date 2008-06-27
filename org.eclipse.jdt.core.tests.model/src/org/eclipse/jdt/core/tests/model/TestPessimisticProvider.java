@@ -21,9 +21,9 @@ import org.eclipse.team.core.RepositoryProvider;
  * Repository provider that can be configured to be pessimistic.
  */
 public class TestPessimisticProvider extends RepositoryProvider {
-	
+
 	public static final String NATURE_ID = "org.eclipse.jdt.core.tests.model.pessimisticnature";
-	
+
 	public static boolean markWritableOnEdit;
 	public static boolean markWritableOnSave;
 
@@ -36,7 +36,7 @@ public class TestPessimisticProvider extends RepositoryProvider {
 
 	public void deconfigure() {
 	}
-	
+
 	public FileModificationValidator getFileModificationValidator2() {
 		return new FileModificationValidator() {
 			public IStatus validateEdit(final IFile[] files, FileModificationValidationContext context) {
@@ -59,10 +59,10 @@ public class TestPessimisticProvider extends RepositoryProvider {
 						e.printStackTrace();
 						return e.getStatus();
 					}
-				} 
+				}
 				return Status.OK_STATUS;
 			}
-		
+
 			public IStatus validateSave(IFile file) {
 				if (TestPessimisticProvider.markWritableOnSave) {
 					try {
@@ -74,17 +74,17 @@ public class TestPessimisticProvider extends RepositoryProvider {
 				}
 				return Status.OK_STATUS;
 			}
-		
+
 			void setReadOnly(IResource resource, boolean readOnly) throws CoreException {
 				if (Util.isReadOnlySupported()) {
 					ResourceAttributes resourceAttributes = resource.getResourceAttributes();
 					if (resourceAttributes != null) {
 						resourceAttributes.setReadOnly(readOnly);
 						resource.setResourceAttributes(resourceAttributes);
-					}		
+					}
 				}
 			}
 		};
 	}
-	
+
 }

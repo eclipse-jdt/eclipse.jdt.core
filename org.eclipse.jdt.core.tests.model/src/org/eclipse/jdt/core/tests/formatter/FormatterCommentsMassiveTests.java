@@ -62,7 +62,7 @@ import org.eclipse.text.edits.TextEdit;
  *		</ul>
  * </p><p>
  * TODO Fix failures while running on workspaces without comparing.
- * 
+ *
  * It is not possible to continue to compare the entire files after 2 formatting
  * as the code formatter cannot handle properly following snippet:
  * <pre>
@@ -84,11 +84,11 @@ import org.eclipse.text.edits.TextEdit;
  * 	// comments in case the line comment formatting is enabled
  * }
  * </pre>
- * 
+ *
  * So, we're now obliged to ignore some whitespaces using the system property
  *  <code>ignoreWhitespaces</code> while running a launch config on this
  * test suite on big workspaces as full source perfs 3.0 or ganymede.
- * 
+ *
  * Here are the results when setting the system property to
  * <code>linesLeading</code> (e.g. ignore white spaces at the beginning of the
  * lines, including the star inside javadoc or block comments):
@@ -157,7 +157,7 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 		COMPARE = compare;
 	}
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2")); //$NON-NLS-1$
-	
+
 	// Failures management
 	int failureIndex;
 	final static int UNEXPECTED_FAILURE = 0;
@@ -187,10 +187,10 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 				case  COMPARISON_FAILURE:
 					return "different output while comparing with previous version";
 				default:
-			        return "different output while "+msg;
+			        return "different output while "+this.msg;
 			}
         }
-		
+
 	}
 	final static FormattingFailure[] FAILURES = new FormattingFailure[REFORMATTING_WHITESPACES_FAILURE+1];
 	{
@@ -242,7 +242,7 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 			new Path("com/ibm/icu/text/Collator.java"),
 			new Path("org/apache/lucene/analysis/ISOLatin1AccentFilter.java"),
 	};
-	
+
 public static Test suite() {
 	TestSuite suite = new Suite(FormatterCommentsMassiveTests.class.getName());
 	try {
@@ -346,7 +346,7 @@ public void tearDownSuite() throws Exception {
 
 /*
  * Asserts that the given actual source (usually coming from a file content) is equal to the expected one.
- * Note that 'expected' is assumed to have the '\n' line separator. 
+ * Note that 'expected' is assumed to have the '\n' line separator.
  * The line separators in 'actual' are converted to '\n' before the comparison.
  */
 protected void assertSourceEquals(String message, String expected, String actual) {
@@ -427,17 +427,17 @@ private String counterToString(int count) {
 
 private Map getDefaultCompilerOptions() {
 	Map optionsMap = new HashMap(30);
-	optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE); 
+	optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
 	optionsMap.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
 	optionsMap.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.DO_NOT_GENERATE);
 	optionsMap.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
-	optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.DISABLED); 
-	optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.IGNORE); 
+	optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.DISABLED);
+	optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-	optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.DISABLED); 
-	optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.DISABLED); 
+	optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.DISABLED);
+	optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
@@ -445,7 +445,7 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportNoEffectAssignment, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.IGNORE);
-	optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, CompilerOptions.IGNORE); 
+	optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, CompilerOptions.IGNORE);
@@ -472,18 +472,18 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
-	optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, CompilerOptions.DISABLED); 
+	optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-	optionsMap.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6); 
+	optionsMap.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 	optionsMap.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
 	optionsMap.put(CompilerOptions.OPTION_TaskPriorities, ""); //$NON-NLS-1$
 	optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, CompilerOptions.DISABLED);
-	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED); 
-	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED); 
-	optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED); 
+	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
+	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED);
+	optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_MaxProblemPerUnit, String.valueOf(100));
-	optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED); 
+	optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 	return optionsMap;
 }
@@ -561,7 +561,7 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 			this.hasSpaceFailure = true;
 			return initialResult;
 		}
-		
+
 		// Try to compare without spaces at all
 		if (ModelTestsUtil.removeWhiteSpace(previousResult).equals(ModelTestsUtil.removeWhiteSpace(result))) {
 			this.failureIndex = REFORMATTING_WHITESPACES_FAILURE;

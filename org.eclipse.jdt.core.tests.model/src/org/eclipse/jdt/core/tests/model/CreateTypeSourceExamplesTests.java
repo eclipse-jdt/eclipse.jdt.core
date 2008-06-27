@@ -39,7 +39,7 @@ public void testCreateClassWithExtends() {
 	type.setName("Foo");
 	type.setSuperclass("Bar");
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"public class Foo extends Bar {\n" +
 		"}\n",
 		type.getContents());
@@ -52,7 +52,7 @@ public void testCreateClassWithImplements() {
 	type.setName("Foo");
 	type.setSuperInterfaces(new String[] {"ISomething", "IOtherwise"});
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"public class Foo implements ISomething, IOtherwise {\n" +
 		"}\n",
 		type.getContents());
@@ -66,7 +66,7 @@ public void testCreateClassWithImplements2() {
 	IDOMType type= this.domFactory.createType("class A implements I1 {\n}");
 	type.addSuperInterface("I2");
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"class A implements I1, I2 {\n}",
 		type.getContents());
 }
@@ -79,7 +79,7 @@ public void testCreateClassWithImplements3() {
 	IDOMType type= this.domFactory.createType("class A {\n}");
 	type.setSuperInterfaces(new String[] {"I1", "I2"});
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"class A implements I1, I2 {\n}",
 		type.getContents());
 }
@@ -92,7 +92,7 @@ public void testCreateClassWithImplements4() {
 	IDOMType type= this.domFactory.createType("class A implements I1{\n}");
 	type.addSuperInterface("I2");
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"class A implements I1, I2{\n}",
 		type.getContents());
 }
@@ -105,7 +105,7 @@ public void testCreateClassWithModifiers() {
 	type.setName("Foo");
 	type.setFlags(ClassFileConstants.AccPublic | ClassFileConstants.AccFinal);
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"public final class Foo {\n" +
 		"}\n",
 		type.getContents());
@@ -117,7 +117,7 @@ public void testCreateEmptyClass() {
 	IDOMType type= this.domFactory.createType();
 	type.setName("Foo");
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"public class Foo {\n" +
 		"}\n",
 		type.getContents());
@@ -132,7 +132,7 @@ public void testCreateEmptyInterface() {
 	type.setName("Foo");
 	type.setClass(false);
 	assertSourceEquals(
-		"source code incorrect", 
+		"source code incorrect",
 		"public interface Foo {\n" +
 		"}\n",
 		type.getContents());

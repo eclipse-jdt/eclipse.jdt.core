@@ -122,15 +122,15 @@ public CharArrayBuffer append(char[] src, int start, int length) {
 		if (length + start > srcLength) throw new ArrayIndexOutOfBoundsException();
 		/** do length check here to allow exceptions to be thrown */
 		if (length > 0) {
-			if (end == size) {
-				int size2 = size * 2;
-				System.arraycopy(buffer, 0, (buffer = new char[size2][]), 0, size);
-				System.arraycopy(ranges, 0, (ranges = new int[size2][]), 0, size);
-				size *= 2;
+			if (this.end == this.size) {
+				int size2 = this.size * 2;
+				System.arraycopy(this.buffer, 0, (this.buffer = new char[size2][]), 0, this.size);
+				System.arraycopy(this.ranges, 0, (this.ranges = new int[size2][]), 0, this.size);
+				this.size *= 2;
 			}
-			buffer[end] = src;
-			ranges[end] = new int[] {start, length};
-			end++;
+			this.buffer[this.end] = src;
+			this.ranges[this.end] = new int[] {start, length};
+			this.end++;
 		}
 	}
 	return this;
@@ -160,22 +160,22 @@ public CharArrayBuffer append(String src) {
  * char[] or null if nothing has been put in the buffer.
  */
 public char[] getContents() {
-	if (end == 0)
+	if (this.end == 0)
 		return null;
 
 	// determine the length of the array
 	int length = 0;
-	for (int i = 0; i < end; i++)
-		length += ranges[i][1];
+	for (int i = 0; i < this.end; i++)
+		length += this.ranges[i][1];
 
 	if (length > 0) {
 		char[] result = new char[length];
 		int current = 0;
 		// copy the results
-		for(int i = 0; i < end; i++) {
-			int[] range = ranges[i];
+		for(int i = 0; i < this.end; i++) {
+			int[] range = this.ranges[i];
 			int length2 = range[1];
-			System.arraycopy(buffer[i], range[0], result, current, length2);
+			System.arraycopy(this.buffer[i], range[0], result, current, length2);
 			current += length2;
 		}
 		return result;

@@ -22,7 +22,7 @@ public class ImportDeclaration extends SourceRefElement implements IImportDeclar
 
 	protected String name;
 	protected boolean isOnDemand;
-	
+
 /**
  * Constructs an ImportDeclaration in the given import container
  * with the given name.
@@ -101,7 +101,7 @@ public String readableName() {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
-	buffer.append(this.tabString(tab));
+	buffer.append(tabString(tab));
 	buffer.append("import "); //$NON-NLS-1$
 	toStringName(buffer);
 	if (info == null) {

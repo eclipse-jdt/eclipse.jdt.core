@@ -14,7 +14,7 @@ package org.eclipse.jdt.internal.core.util;
  * Hashtable of {Object[] --> Object }
  */
 public final class HashtableOfArrayToObject implements Cloneable {
-	
+
 	// to avoid using Enumerations, walk the individual tables skipping nulls
 	public Object[][] keyTable;
 	public Object[] valueTable;
@@ -99,14 +99,14 @@ public final class HashtableOfArrayToObject implements Cloneable {
 	private int hashCode(Object[] element) {
 		return hashCode(element, element.length);
 	}
-	
+
 	private int hashCode(Object[] element, int length) {
 		int hash = 0;
 		for (int i = length-1; i >= 0; i--)
 			hash = Util.combineHashCodes(hash, element[i].hashCode());
 		return hash & 0x7FFFFFFF;
 	}
-	
+
 	public Object put(Object[] key, Object value) {
 		int length = this.keyTable.length;
 		int index = hashCode(key) % length;
@@ -123,7 +123,7 @@ public final class HashtableOfArrayToObject implements Cloneable {
 		this.valueTable[index] = value;
 
 		// assumes the threshold is never equal to the size of the table
-		if (++this.elementSize > threshold)
+		if (++this.elementSize > this.threshold)
 			rehash();
 		return value;
 	}
@@ -151,7 +151,7 @@ public final class HashtableOfArrayToObject implements Cloneable {
 
 	private void rehash() {
 
-		HashtableOfArrayToObject newHashtable = new HashtableOfArrayToObject(elementSize * 2);		// double the number of expected elements
+		HashtableOfArrayToObject newHashtable = new HashtableOfArrayToObject(this.elementSize * 2);		// double the number of expected elements
 		Object[] currentKey;
 		for (int i = this.keyTable.length; --i >= 0;)
 			if ((currentKey = this.keyTable[i]) != null)
@@ -163,7 +163,7 @@ public final class HashtableOfArrayToObject implements Cloneable {
 	}
 
 	public int size() {
-		return elementSize;
+		return this.elementSize;
 	}
 
 	public String toString() {
@@ -174,7 +174,7 @@ public final class HashtableOfArrayToObject implements Cloneable {
 				buffer.append('{');
 				for (int j = 0, length2 = element.length; j < length2; j++) {
 					buffer.append(element[j]);
-					if (j != length2-1) 
+					if (j != length2-1)
 						buffer.append(", "); //$NON-NLS-1$
 				}
 				buffer.append("} -> ");  //$NON-NLS-1$

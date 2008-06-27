@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.formatter.comment;
 
 /**
  * Single-line comment line in a comment region.
- * 
+ *
  * @since 3.0
  */
 public class SingleCommentLine extends CommentLine {
@@ -23,13 +23,13 @@ public class SingleCommentLine extends CommentLine {
 
 	/** NLS tag prefix */
 	private static final String NLS_TAG_PREFIX= "//$NON-NLS-"; //$NON-NLS-1$
-	
+
 	/** Is the comment a NLS locale tag sequence? */
 	private boolean fLocaleSequence= false;
 
 	/**
 	 * Creates a new single-line comment line.
-	 * 
+	 *
 	 * @param region comment region to create the line for
 	 */
 	protected SingleCommentLine(final CommentRegion region) {
@@ -98,7 +98,7 @@ public class SingleCommentLine extends CommentLine {
 		if (offset >= 0) {
 
 			if (content.startsWith(NLS_TAG_PREFIX))
-				fLocaleSequence= true;
+				this.fLocaleSequence= true;
 
 			range.trimBegin(offset + prefix.length());
 		}
@@ -109,7 +109,7 @@ public class SingleCommentLine extends CommentLine {
 	 */
 	protected void tokenizeLine(final int line) {
 
-		if (!fLocaleSequence)
+		if (!this.fLocaleSequence)
 			super.tokenizeLine(line);
 	}
 }

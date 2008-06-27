@@ -33,11 +33,11 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	boolean deleteProject = true;
 
 	public class TestSearchParticipant extends SearchParticipant {
-		
+
 		class WrapperDocument  extends SearchDocument {
-			
+
 			private SearchDocument document;
-			
+
 			WrapperDocument(SearchDocument document, SearchParticipant participant) {
 				super(document.getPath().replaceAll(".test", ".java"), participant);
 				this.document = document;
@@ -55,9 +55,9 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 				return this.document.getEncoding();
 			}
 		}
-				
+
 		private SearchParticipant defaultSearchParticipant = SearchEngine.getDefaultSearchParticipant();
-		
+
 		public SearchDocument getDocument(String documentPath) {
 			return new TestSearchDocument(documentPath, this);
 		}
@@ -84,7 +84,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 			return new IPath[] {getIndexLocation()};
 		}
 	}
-	
+
 	public class TestSearchDocument extends SearchDocument {
 
 		public boolean indexingRequested;
@@ -111,7 +111,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 			return null;
 		}
 	}
-	
+
 	public class TestResultCollector extends JavaSearchResultCollector {
 		protected char[] getSource(IResource resource, IJavaElement element, ICompilationUnit unit) throws JavaModelException {
 			IPath path = resource.getLocation().removeFileExtension().addFileExtension("test");
@@ -288,7 +288,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 		participant.removeIndex(getIndexLocation());
 		assertFalse("Index file should have been removed",  getIndexLocation().toFile().exists());
 	}
-	
+
 	/*
 	 * Ensures that a simple search that forwards queries to the default participant works as expected
 	 */

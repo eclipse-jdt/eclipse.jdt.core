@@ -29,7 +29,7 @@ IBinaryAnnotation[] getAnnotations();
  * Return {@link EnumConstantSignature} if value is an enum constant.
  * Return {@link IBinaryAnnotation} for annotation type.
  * Return {@link Object}[] for array type.
- * 
+ *
  * @return default value of this annotation method
  */
 Object getDefaultValue();

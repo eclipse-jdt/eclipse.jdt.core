@@ -18,43 +18,43 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 
 public class AssertStatement extends Statement {
-	
+
 	public Expression assertExpression, exceptionArgument;
 
 	// for local variable attribute
 	int preAssertInitStateIndex = -1;
 	private FieldBinding assertionSyntheticFieldBinding;
-	
+
 	public AssertStatement(
 		Expression exceptionArgument,
 		Expression assertExpression,
 		int startPosition) {
-			
+
 		this.assertExpression = assertExpression;
 		this.exceptionArgument = exceptionArgument;
-		sourceStart = startPosition;
-		sourceEnd = exceptionArgument.sourceEnd;
+		this.sourceStart = startPosition;
+		this.sourceEnd = exceptionArgument.sourceEnd;
 	}
 
 	public AssertStatement(Expression assertExpression, int startPosition) {
 
 		this.assertExpression = assertExpression;
-		sourceStart = startPosition;
-		sourceEnd = assertExpression.sourceEnd;
+		this.sourceStart = startPosition;
+		this.sourceEnd = assertExpression.sourceEnd;
 	}
 
 	public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-			
-		preAssertInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 
-		Constant cst = this.assertExpression.optimizedBooleanConstant();		
+		this.preAssertInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
+
+		Constant cst = this.assertExpression.optimizedBooleanConstant();
 		boolean isOptimizedTrueAssertion = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		boolean isOptimizedFalseAssertion = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
-		FlowInfo assertRawInfo = assertExpression.
+		FlowInfo assertRawInfo = this.assertExpression.
 			analyseCode(currentScope, flowContext, flowInfo.copy());
 		UnconditionalFlowInfo assertWhenTrueInfo = assertRawInfo.initsWhenTrue().
 			unconditionalInits();
@@ -62,11 +62,11 @@ public class AssertStatement extends Statement {
 		if (isOptimizedTrueAssertion) {
 			assertInfo.setReachMode(FlowInfo.UNREACHABLE);
 		}
-		
-		if (exceptionArgument != null) {
+
+		if (this.exceptionArgument != null) {
 			// only gets evaluated when escaping - results are not taken into account
-			FlowInfo exceptionInfo = exceptionArgument.analyseCode(currentScope, flowContext, assertInfo.copy()); 
-			
+			FlowInfo exceptionInfo = this.exceptionArgument.analyseCode(currentScope, flowContext, assertInfo.copy());
+
 			if (!isOptimizedTrueAssertion){
 				flowContext.checkExceptionHandlers(
 					currentScope.getJavaLangAssertionError(),
@@ -75,7 +75,7 @@ public class AssertStatement extends Statement {
 					currentScope);
 			}
 		}
-		
+
 		if (!isOptimizedTrueAssertion){
 			// add the assert support in the clinit
 			manageSyntheticAccessIfNecessary(currentScope, flowInfo);
@@ -87,60 +87,60 @@ public class AssertStatement extends Statement {
 		} else {
 			return flowInfo.mergedWith(assertInfo.nullInfoLessUnconditionalCopy()).
 				addInitializationsFrom(assertWhenTrueInfo.discardInitializationInfo());
-			// keep the merge from the initial code for the definite assignment 
+			// keep the merge from the initial code for the definite assignment
 			// analysis, tweak the null part to influence nulls downstream
 		}
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((bits & IsReachable) == 0) {
+		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
 		int pc = codeStream.position;
-	
+
 		if (this.assertionSyntheticFieldBinding != null) {
 			BranchLabel assertionActivationLabel = new BranchLabel(codeStream);
 			codeStream.getstatic(this.assertionSyntheticFieldBinding);
 			codeStream.ifne(assertionActivationLabel);
-			
+
 			BranchLabel falseLabel;
 			this.assertExpression.generateOptimizedBoolean(currentScope, codeStream, (falseLabel = new BranchLabel(codeStream)), null , true);
 			codeStream.newJavaLangAssertionError();
 			codeStream.dup();
-			if (exceptionArgument != null) {
-				exceptionArgument.generateCode(currentScope, codeStream, true);
-				codeStream.invokeJavaLangAssertionErrorConstructor(exceptionArgument.implicitConversion & 0xF);
+			if (this.exceptionArgument != null) {
+				this.exceptionArgument.generateCode(currentScope, codeStream, true);
+				codeStream.invokeJavaLangAssertionErrorConstructor(this.exceptionArgument.implicitConversion & 0xF);
 			} else {
 				codeStream.invokeJavaLangAssertionErrorDefaultConstructor();
 			}
 			codeStream.athrow();
-			
+
 			// May loose some local variable initializations : affecting the local variable attributes
-			if (preAssertInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(currentScope, preAssertInitStateIndex);
-			}	
+			if (this.preAssertInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preAssertInitStateIndex);
+			}
 			falseLabel.place();
 			assertionActivationLabel.place();
-		} else {			
+		} else {
 			// May loose some local variable initializations : affecting the local variable attributes
-			if (preAssertInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(currentScope, preAssertInitStateIndex);
-			}			
+			if (this.preAssertInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preAssertInitStateIndex);
+			}
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	public void resolve(BlockScope scope) {
 
-		assertExpression.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
-		if (exceptionArgument != null) {
-			TypeBinding exceptionArgumentType = exceptionArgument.resolveType(scope);
+		this.assertExpression.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+		if (this.exceptionArgument != null) {
+			TypeBinding exceptionArgumentType = this.exceptionArgument.resolveType(scope);
 			if (exceptionArgumentType != null){
 			    int id = exceptionArgumentType.id;
 			    switch(id) {
 					case T_void :
-						scope.problemReporter().illegalVoidExpression(exceptionArgument);
+						scope.problemReporter().illegalVoidExpression(this.exceptionArgument);
 					default:
 					    id = T_JavaLangObject;
 					case T_boolean :
@@ -152,7 +152,7 @@ public class AssertStatement extends Statement {
 					case T_int :
 					case T_long :
 					case T_JavaLangString :
-						exceptionArgument.implicitConversion = (id << 4) + id;
+						this.exceptionArgument.implicitConversion = (id << 4) + id;
 				}
 			}
 		}
@@ -161,18 +161,18 @@ public class AssertStatement extends Statement {
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {
-			assertExpression.traverse(visitor, scope);
-			if (exceptionArgument != null) {
-				exceptionArgument.traverse(visitor, scope);
+			this.assertExpression.traverse(visitor, scope);
+			if (this.exceptionArgument != null) {
+				this.exceptionArgument.traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);
-	}	
-	
+	}
+
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
-    		
+
     		// need assertion flag: $assertionsDisabled on outer most source clas
     		// (in case of static member of interface, will use the outermost static member - bug 22334)
     		SourceTypeBinding outerMostClass = currentScope.enclosingSourceType();
@@ -181,16 +181,16 @@ public class AssertStatement extends Statement {
     			if (enclosing == null || enclosing.isInterface()) break;
     			outerMostClass = (SourceTypeBinding) enclosing;
     		}
-    
+
     		this.assertionSyntheticFieldBinding = outerMostClass.addSyntheticFieldForAssert(currentScope);
-    
+
     		// find <clinit> and enable assertion support
     		TypeDeclaration typeDeclaration = outerMostClass.scope.referenceType();
     		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
     		for (int i = 0, max = methods.length; i < max; i++) {
     			AbstractMethodDeclaration method = methods[i];
     			if (method.isClinit()) {
-    				((Clinit) method).setAssertionSupport(assertionSyntheticFieldBinding, currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5);
+    				((Clinit) method).setAssertionSupport(this.assertionSyntheticFieldBinding, currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5);
     				break;
     			}
     		}
@@ -208,5 +208,5 @@ public class AssertStatement extends Statement {
 		}
 		return output.append(';');
 	}
-	
+
 }

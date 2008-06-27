@@ -55,31 +55,31 @@ public String getBatchFileName() {
  */
 public String[] getCommandLine() {
 	Vector commandLine= new Vector();
-	
+
 	// VM binary
 	if (System.getProperty("java.vm.version").startsWith("1.4.2")) {
 		commandLine.addElement(
-			this.vmPath + 
-			(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
-			"bin" + 
-			File.separator + 
+			this.vmPath +
+			(this.vmPath.endsWith(File.separator) ? "" : File.separator) +
+			"bin" +
+			File.separator +
 			"java");
 	} else {
-		String vmLocation = this.vmPath + 
-			(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
-			"bin" + 
-			File.separator + 
+		String vmLocation = this.vmPath +
+			(this.vmPath.endsWith(File.separator) ? "" : File.separator) +
+			"bin" +
+			File.separator +
 			"javaw";
 		final String osName = System.getProperty("os.name");
 		if (osName.indexOf("win32") != -1) {
 			vmLocation += ".exe";
 		}
 		if (!new File(vmLocation).exists()) {
-			vmLocation = 
-				this.vmPath + 
-				(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
-				"bin" + 
-				File.separator + 
+			vmLocation =
+				this.vmPath +
+				(this.vmPath.endsWith(File.separator) ? "" : File.separator) +
+				"bin" +
+				File.separator +
 				"java";
 		}
 		commandLine.addElement(vmLocation);
@@ -114,7 +114,7 @@ public String[] getCommandLine() {
 	if (this.evalPort != -1) {
 		commandLine.addElement(CODE_SNIPPET_RUNNER_CLASS_NAME);
 	}
-	
+
 	// code snippet runner arguments
 	if (this.evalPort != -1) {
 		commandLine.addElement(EVALPORT_ARG);
@@ -131,7 +131,7 @@ public String[] getCommandLine() {
 	if (this.programClass != null) {
 		commandLine.addElement(this.programClass);
 	}
-	
+
 	// program arguments
 	if (this.programArguments != null) {
 		for (int i=0;i<this.programArguments.length;i++) {
@@ -156,13 +156,13 @@ public String[] getCommandLine() {
 			result[i] = "\"" + argument + "\"";
 		}
 	}
-	
+
 	return result;
 }
 /**
  * Sets the name of the batch file used to launch the VM.
- * When this option is set, the launcher writes the command line to the given batch file, 
- * and it launches the  batch file. This causes a DOS console to be opened. Note it 
+ * When this option is set, the launcher writes the command line to the given batch file,
+ * and it launches the  batch file. This causes a DOS console to be opened. Note it
  * doesn't delete the batch file when done.
  */
 public void setBatchFileName(String batchFileName) {

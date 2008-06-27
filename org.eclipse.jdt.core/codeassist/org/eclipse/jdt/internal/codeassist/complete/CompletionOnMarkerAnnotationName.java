@@ -21,10 +21,10 @@ public class CompletionOnMarkerAnnotationName extends MarkerAnnotation {
 	public CompletionOnMarkerAnnotationName(TypeReference type, int sourceStart){
 		super(type, sourceStart);
 	}
-	
+
 	public TypeBinding resolveType(BlockScope scope) {
-		if(type instanceof QualifiedTypeReference) {
-			QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) type;
+		if(this.type instanceof QualifiedTypeReference) {
+			QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) this.type;
 			Binding binding = scope.parent.getTypeOrPackage(qualifiedTypeReference.tokens); // step up from the ClassScope
 			if (!binding.isValidBinding()) {
 				scope.problemReporter().invalidType(this, (TypeBinding) binding);

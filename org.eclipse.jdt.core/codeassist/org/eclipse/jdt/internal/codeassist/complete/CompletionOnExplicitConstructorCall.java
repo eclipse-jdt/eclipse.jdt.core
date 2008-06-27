@@ -40,9 +40,9 @@ public class CompletionOnExplicitConstructorCall extends ExplicitConstructorCall
 	public CompletionOnExplicitConstructorCall(int accessMode) {
 		super(accessMode);
 	}
-	
+
 	public StringBuffer printStatement(int tab, StringBuffer output) {
-		
+
 		printIndent(tab, output);
 		output.append("<CompleteOnExplicitConstructorCall:"); //$NON-NLS-1$
 		if (this.qualification != null) this.qualification.printExpression(0, output).append('.');
@@ -63,13 +63,13 @@ public class CompletionOnExplicitConstructorCall extends ExplicitConstructorCall
 	public void resolve(BlockScope scope) {
 
 		ReferenceBinding receiverType = scope.enclosingSourceType();
-		
+
 		if (this.arguments != null) {
 			int argsLength = this.arguments.length;
 			for (int a = argsLength; --a >= 0;)
 				this.arguments[a].resolveType(scope);
 		}
-	
+
 		if (this.accessMode != This && receiverType != null) {
 			if (receiverType.isHierarchyInconsistent())
 				throw new CompletionNodeFound();

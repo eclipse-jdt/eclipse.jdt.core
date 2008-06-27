@@ -17,7 +17,7 @@ public CompletionRecoveryTest(String testName){
 	super(testName);
 }
 static {
-//	TESTS_NUMBERS = new int[] { 22 };	
+//	TESTS_NUMBERS = new int[] { 22 };
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(CompletionRecoveryTest.class);
@@ -27,92 +27,92 @@ public static Test suite() {
  */
 public void test01() {
 
-	String str = 
-		"import java.io.*;							\n" + 
-		"											\n" + 
+	String str =
+		"import java.io.*;							\n" +
+		"											\n" +
 		"public class X extends IOException {		\n" +
 		"	int foo(){								\n" +
 		"		String str = ;						\n" +
-		"		str.								\n"; 
+		"		str.								\n";
 
 	String completeBehind = "str.";
 	String expectedCompletionNodeToString = "<CompleteOnName:str.>";
 	String completionIdentifier = "";
 	String expectedUnitDisplayString =
-		"import java.io.*;\n" + 
-		"public class X extends IOException {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  int foo() {\n" + 
-		"    String str;\n" + 
-		"    <CompleteOnName:str.>;\n" + 
-		"  }\n" + 
+		"import java.io.*;\n" +
+		"public class X extends IOException {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  int foo() {\n" +
+		"    String str;\n" +
+		"    <CompleteOnName:str.>;\n" +
+		"  }\n" +
 		"}\n";
 	String expectedReplacedSource = "str.";
 	String testName = "<complete on variable behind ill-formed declaration>";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	this.checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		testName); 
+		testName);
 }
 /*
  * Complete on variable behind ill-formed declaration and nested block
  */
 public void test02() {
 
-	String str = 
-		"import java.io.*;							\n" + 
-		"											\n" + 
+	String str =
+		"import java.io.*;							\n" +
+		"											\n" +
 		"public class X extends IOException {		\n" +
 		"	int foo(){								\n" +
 		"		String str = ;						\n" +
 		"		{									\n" +
 		"		 	int i;							\n" +
-		"			str.							\n"; 
+		"			str.							\n";
 
 	String completeBehind = "str.";
 	String expectedCompletionNodeToString = "<CompleteOnName:str.>";
 	String completionIdentifier = "";
 	String expectedUnitDisplayString =
-		"import java.io.*;\n" + 
-		"public class X extends IOException {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  int foo() {\n" + 
+		"import java.io.*;\n" +
+		"public class X extends IOException {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  int foo() {\n" +
 		"    String str;\n" +
 		"    {\n" +
-		"      int i;\n" +		
-		"      <CompleteOnName:str.>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"      int i;\n" +
+		"      <CompleteOnName:str.>;\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n";
 	String expectedReplacedSource = "str.";
 	String testName = "<complete on variable behind ill-formed declaration and nested block>";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	this.checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		testName); 
+		testName);
 }
 /*
  * Complete on variable behind ill-formed declaration and inside local type field initialization
  */
 public void test03() {
 
-	String str = 
-		"import java.io.*;							\n" + 
-		"											\n" + 
+	String str =
+		"import java.io.*;							\n" +
+		"											\n" +
 		"public class X extends IOException {		\n" +
 		"	int foo(){								\n" +
 		"		final String str = ;				\n" +
@@ -123,83 +123,83 @@ public void test03() {
 	String expectedCompletionNodeToString = "<CompleteOnName:str>";
 	String completionIdentifier = "str";
 	String expectedUnitDisplayString =
-		"import java.io.*;\n" + 
-		"public class X extends IOException {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  int foo() {\n" + 
-		"    final String str;\n" + 
-		"    class L {\n" + 
-		"      int i = <CompleteOnName:str>;\n" + 
-		"      L() {\n" + 
+		"import java.io.*;\n" +
+		"public class X extends IOException {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  int foo() {\n" +
+		"    final String str;\n" +
+		"    class L {\n" +
+		"      int i = <CompleteOnName:str>;\n" +
+		"      L() {\n" +
 		"        super();\n" + // could be optimized out
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n";
 	String expectedReplacedSource = "str";
 	String testName = "<complete on variable behind ill-formed declaration and inside local type field initialization>";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	this.checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		testName); 
+		testName);
 }
 /*
  * Complete on variable behind closed scope
  */
 public void test04() {
 
-	String str = 
-		"import java.io.*;							\n" + 
-		"											\n" + 
+	String str =
+		"import java.io.*;							\n" +
+		"											\n" +
 		"public class X extends 					\n" +
 		"	int foo(String str)						\n" +
 		"		String variable = ;					\n" +
 		"		{									\n" +
 		"		 	String variableNotInScope;		\n" +
 		"		}									\n" +
-		"		foo(varia							\n"; 
+		"		foo(varia							\n";
 
 	String completeBehind = "foo(var";
 	String expectedCompletionNodeToString = "<CompleteOnName:var>";
 	String completionIdentifier = "var";
 	String expectedUnitDisplayString =
-		"import java.io.*;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  int foo(String str) {\n" + 
-		"    String variable;\n" + 
-		"    foo(<CompleteOnName:var>);\n" + 
-		"  }\n" + 
+		"import java.io.*;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  int foo(String str) {\n" +
+		"    String variable;\n" +
+		"    foo(<CompleteOnName:var>);\n" +
+		"  }\n" +
 		"}\n";
 	String expectedReplacedSource = "varia";
 	String testName = "<complete on variable behind closed scope>";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	this.checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		testName); 
+		testName);
 }
 /*
  * Complete on variable str with sibling method stringAppend()
  */
 public void test05() {
 
-	String str = 
+	String str =
 		"import java.io.*;									\n"+
-		"													\n"+			
+		"													\n"+
 		"public class X extends 							\n"+
 		"	int foo(String str)								\n"+
 		"		String str = ;								\n"+
@@ -208,42 +208,42 @@ public void test05() {
 		"		}											\n"+
 		"		class L {									\n"+
 		"			int bar(){								\n"+
-		"				foo(str								\n"+							
-		"			void stringAppend(String s1, String s2)	\n"; 
+		"				foo(str								\n"+
+		"			void stringAppend(String s1, String s2)	\n";
 
 	String completeBehind = "foo(str";
 	String expectedCompletionNodeToString = "<CompleteOnName:str>";
 	String completionIdentifier = "str";
 	String expectedUnitDisplayString =
-		"import java.io.*;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  int foo(String str) {\n" + 
-		"    String str;\n" + 
-		"    class L {\n" + 
-		"      L() {\n" + 
-		"      }\n" + 
-		"      int bar() {\n" + 
-		"        foo(<CompleteOnName:str>);\n" + 
-		"      }\n" + 
-		"      void stringAppend(String s1, String s2) {\n" + 
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"import java.io.*;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  int foo(String str) {\n" +
+		"    String str;\n" +
+		"    class L {\n" +
+		"      L() {\n" +
+		"      }\n" +
+		"      int bar() {\n" +
+		"        foo(<CompleteOnName:str>);\n" +
+		"      }\n" +
+		"      void stringAppend(String s1, String s2) {\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n";
 	String expectedReplacedSource = "str";
 	String testName = "<complete on variable str with sibling method stringAppend()>";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	this.checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		testName); 
+		testName);
 }
 /*
  * Complete on variable str with sibling method stringAppend(), eliminating
@@ -251,9 +251,9 @@ public void test05() {
  */
 public void test06() {
 
-	String str = 
+	String str =
 		"import java.io.*;									\n"+
-		"													\n"+			
+		"													\n"+
 		"public class X extends 							\n"+
 		"	int foo(String str)								\n"+
 		"		String str = ;								\n"+
@@ -265,126 +265,126 @@ public void test06() {
 		"				System.out.println();				\n"+
 		"			}										\n"+
 		"			int bar(){								\n"+
-		"				foo(str								\n"+							
-		"			void stringAppend(String s1, String s2)	\n"; 
+		"				foo(str								\n"+
+		"			void stringAppend(String s1, String s2)	\n";
 
 	String completeBehind = "foo(str";
 	String expectedCompletionNodeToString = "<CompleteOnName:str>";
 	String completionIdentifier = "str";
 	String expectedUnitDisplayString =
-		"import java.io.*;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  int foo(String str) {\n" + 
-		"    String str;\n" + 
-		"    class L {\n" + 
-		"      L() {\n" + 
-		"      }\n" + 
-		"      int notInterestingBody() {\n" + 
-		"      }\n" + 
-		"      int bar() {\n" + 
-		"        foo(<CompleteOnName:str>);\n" + 
-		"      }\n" + 
-		"      void stringAppend(String s1, String s2) {\n" + 
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"import java.io.*;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  int foo(String str) {\n" +
+		"    String str;\n" +
+		"    class L {\n" +
+		"      L() {\n" +
+		"      }\n" +
+		"      int notInterestingBody() {\n" +
+		"      }\n" +
+		"      int bar() {\n" +
+		"        foo(<CompleteOnName:str>);\n" +
+		"      }\n" +
+		"      void stringAppend(String s1, String s2) {\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n";
-		
+
 	String expectedReplacedSource = "str";
 	String testName = "<complete on variable eliminating other uninteresting method bodies>";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	this.checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		testName); 
+		testName);
 }
 /*
  * Complete on new keyword
  */
-public void test07(){ 
+public void test07(){
 
-	String str = 
-		"import java.io.*							\n" + 
-		"											\n" + 
+	String str =
+		"import java.io.*							\n" +
+		"											\n" +
 		"public class X extends IOException {		\n" +
 		"	int foo() {								\n" +
 		"		X x = new X(						\n" +
-		"}											\n"; 
+		"}											\n";
 
 	String completeBehind = "= n";
 	String expectedCompletionNodeToString = "<CompleteOnName:n>";
 	String completionIdentifier = "n";
 	String expectedUnitDisplayString =
-		"import java.io.*;\n" + 
-		"public class X extends IOException {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  int foo() {\n" + 
-		"    X x = <CompleteOnName:n>;\n" + 
-		"  }\n" + 
+		"import java.io.*;\n" +
+		"public class X extends IOException {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  int foo() {\n" +
+		"    X x = <CompleteOnName:n>;\n" +
+		"  }\n" +
 		"}\n";
 	String expectedReplacedSource = "new";
 	String testName = "<complete on new keyword>";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	this.checkMethodParse(
-		str.toCharArray(), 
-		cursorLocation, 
+		str.toCharArray(),
+		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		testName); 
+		testName);
 }
 /*
  * Complete on field type in anonymous type.
  */
 public void test08() {
-	this.runTestCheckDietParse(
+	runTestCheckDietParse(
 		// compilationUnit:
-		"package test;\n" + 
-		"import java.util.Vector;\n" + 
-		"public class VA {\n" + 
-		"	Object o1 = new Object() {\n" + 
-		"		V\n" + 
-		"		void foo2() {\n" + 
-		"			int i = 1;\n" + 
-		"		}\n" + 
-		"	};\n" + 
-		"	String s2;\n" + 
-		"	void bar() {\n" + 
-		"	}\n" + 
-		"	void foo() { \n" + 
-		"		new String[] {}..equals()\n" + 
-		"	}\n" + 
+		"package test;\n" +
+		"import java.util.Vector;\n" +
+		"public class VA {\n" +
+		"	Object o1 = new Object() {\n" +
+		"		V\n" +
+		"		void foo2() {\n" +
+		"			int i = 1;\n" +
+		"		}\n" +
+		"	};\n" +
+		"	String s2;\n" +
+		"	void bar() {\n" +
+		"	}\n" +
+		"	void foo() { \n" +
+		"		new String[] {}..equals()\n" +
+		"	}\n" +
 		"}\n",
 		// completeBehind:
 		"		V",
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:V>",
 		// expectedUnitDisplayString:
-		"package test;\n" + 
-		"import java.util.Vector;\n" + 
-		"public class VA {\n" + 
-		"  Object o1 = new Object() {\n" + 
-		"    <CompleteOnType:V>;\n" + 
-		"    void foo2() {\n" + 
-		"    }\n" + 
-		"  };\n" + 
-		"  String s2;\n" + 
-		"  public VA() {\n" + 
-		"  }\n" + 
-		"  void bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"  }\n" + 
+		"package test;\n" +
+		"import java.util.Vector;\n" +
+		"public class VA {\n" +
+		"  Object o1 = new Object() {\n" +
+		"    <CompleteOnType:V>;\n" +
+		"    void foo2() {\n" +
+		"    }\n" +
+		"  };\n" +
+		"  String s2;\n" +
+		"  public VA() {\n" +
+		"  }\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"V",
@@ -398,7 +398,7 @@ public void test08() {
  * Complete on argument name
  */
 public void test09() {
-	this.runTestCheckDietParse(
+	runTestCheckDietParse(
 		// compilationUnit:
 		"package pack;								\n"+
 		"class A  {									\n"+
@@ -417,18 +417,18 @@ public void test09() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnArgumentName:String[] argv>",
 		// expectedUnitDisplayString:
-		"package pack;\n" + 
-		"class A {\n" + 
-		"  class Member {\n" + 
-		"    Member() {\n" + 
-		"    }\n" + 
-		"    int foo() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  A() {\n" + 
-		"  }\n" + 
-		"  public static void main(<CompleteOnArgumentName:String[] argv>) {\n" + 
-		"  }\n" + 
+		"package pack;\n" +
+		"class A {\n" +
+		"  class Member {\n" +
+		"    Member() {\n" +
+		"    }\n" +
+		"    int foo() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  A() {\n" +
+		"  }\n" +
+		"  public static void main(<CompleteOnArgumentName:String[] argv>) {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"argv",
@@ -461,18 +461,18 @@ public void test10() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"package pack;\n" + 
-		"class A {\n" + 
-		"  class Member {\n" + 
-		"    Member() {\n" + 
-		"    }\n" + 
-		"    int foo() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  A() {\n" + 
-		"  }\n" + 
-		"  public static void main(<CompleteOnArgumentName:String[] argv>) {\n" + 
-		"  }\n" + 
+		"package pack;\n" +
+		"class A {\n" +
+		"  class Member {\n" +
+		"    Member() {\n" +
+		"    }\n" +
+		"    int foo() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  A() {\n" +
+		"  }\n" +
+		"  public static void main(<CompleteOnArgumentName:String[] argv>) {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -505,19 +505,19 @@ public void test11() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:new Member().f>",
 		// expectedUnitDisplayString:
-		"package pack;\n" + 
-		"class A {\n" + 
-		"  class Member {\n" + 
-		"    Member() {\n" + 
-		"    }\n" + 
-		"    int foo() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  A() {\n" + 
-		"  }\n" + 
-		"  public static void main(String[] argv) {\n" + 
-		"    <CompleteOnMemberAccess:new Member().f>;\n" + 
-		"  }\n" + 
+		"package pack;\n" +
+		"class A {\n" +
+		"  class Member {\n" +
+		"    Member() {\n" +
+		"    }\n" +
+		"    int foo() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  A() {\n" +
+		"  }\n" +
+		"  public static void main(String[] argv) {\n" +
+		"    <CompleteOnMemberAccess:new Member().f>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"f",
@@ -553,11 +553,11 @@ public void test12() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"class DD {\n" + 
-		"  DD() {\n" + 
-		"  }\n" + 
-		"  public static void main(<CompleteOnArgumentName:String[] argv>) {\n" + 
-		"  }\n" + 
+		"class DD {\n" +
+		"  DD() {\n" +
+		"  }\n" +
+		"  public static void main(<CompleteOnArgumentName:String[] argv>) {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -583,12 +583,12 @@ public void test13() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnClassLiteralAccess:String[].>",
 		// expectedUnitDisplayString:
-		"class C {\n" + 
-		"  C() {\n" + 
-		"  }\n" + 
-		"  void test() {\n" + 
-		"    <CompleteOnClassLiteralAccess:String[].>;\n" + 
-		"  }\n" + 
+		"class C {\n" +
+		"  C() {\n" +
+		"  }\n" +
+		"  void test() {\n" +
+		"    <CompleteOnClassLiteralAccess:String[].>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -602,7 +602,7 @@ public void test13() {
  * Complete inside array type
  */
 public void test14() {
-	this.runTestCheckDietParse(
+	runTestCheckDietParse(
 		// compilationUnit:
 		"public class B {			\n"+
 		"	class Member {}			\n"+
@@ -613,13 +613,13 @@ public void test14() {
 		// expectedCompletionNodeToString:
 		NONE,
 		// expectedUnitDisplayString:
-		"public class B {\n" + 
-		"  class Member {\n" + 
-		"    Member() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public B() {\n" + 
-		"  }\n" + 
+		"public class B {\n" +
+		"  class Member {\n" +
+		"    Member() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public B() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -633,7 +633,7 @@ public void test14() {
  * Complete inside array type
  */
 public void test15() {
-	this.runTestCheckDietParse(
+	runTestCheckDietParse(
 		// compilationUnit:
 		"public class B {			\n"+
 		"	class Member {}			\n"+
@@ -644,13 +644,13 @@ public void test15() {
 		// expectedCompletionNodeToString:
 		NONE,
 		// expectedUnitDisplayString:
-		"public class B {\n" + 
-		"  class Member {\n" + 
-		"    Member() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public B() {\n" + 
-		"  }\n" + 
+		"public class B {\n" +
+		"  class Member {\n" +
+		"    Member() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public B() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -664,7 +664,7 @@ public void test15() {
  * Complete behind invalid array type
  */
 public void test16() {
-	this.runTestCheckDietParse(
+	runTestCheckDietParse(
 		// compilationUnit:
 		"public class B {			\n"+
 		"	class Member {}			\n"+
@@ -676,14 +676,14 @@ public void test16() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:Obje>",
 		// expectedUnitDisplayString:
-		"public class B {\n" + 
-		"  class Member {\n" + 
-		"    Member() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  <CompleteOnType:Obje>;\n" + 
-		"  public B() {\n" + 
-		"  }\n" + 
+		"public class B {\n" +
+		"  class Member {\n" +
+		"    Member() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  <CompleteOnType:Obje>;\n" +
+		"  public B() {\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"Obje",
@@ -711,16 +711,16 @@ public void test17() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnClassLiteralAccess:int.>",
 		// expectedUnitDisplayString:
-		"class D {\n" + 
-		"  class Member {\n" + 
-		"    Member() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  D() {\n" + 
-		"  }\n" + 
-		"  void test() {\n" + 
-		"    <CompleteOnClassLiteralAccess:int.>;\n" + 
-		"  }\n" + 
+		"class D {\n" +
+		"  class Member {\n" +
+		"    Member() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  D() {\n" +
+		"  }\n" +
+		"  void test() {\n" +
+		"    <CompleteOnClassLiteralAccess:int.>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -745,17 +745,17 @@ public void test18() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"class E {\n" + 
-		"  E() {\n" + 
-		"  }\n" + 
-		"  int bar() {\n" + 
-		"    class Local {\n" + 
-		"      Local() {\n" + 
-		"      }\n" + 
-		"      int hello() {\n" + 
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"class E {\n" +
+		"  E() {\n" +
+		"  }\n" +
+		"  int bar() {\n" +
+		"    class Local {\n" +
+		"      Local() {\n" +
+		"      }\n" +
+		"      int hello() {\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -784,12 +784,12 @@ public void test19() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:e>",
 		// expectedUnitDisplayString:
-		"public class Test {\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnName:e>;\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnName:e>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"e",
@@ -818,15 +818,15 @@ public void test20() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:e>",
 		// expectedUnitDisplayString:
-		"public class Test {\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    {\n" + 
-		"      Exception e;\n" + 
-		"      <CompleteOnName:e>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    {\n" +
+		"      Exception e;\n" +
+		"      <CompleteOnName:e>;\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"e",
@@ -856,15 +856,15 @@ public void test21() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:e>",
 		// expectedUnitDisplayString:
-		"public class Test {\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    {\n" + 
-		"      Exception e;\n" + 
-		"      <CompleteOnName:e>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    {\n" +
+		"      Exception e;\n" +
+		"      <CompleteOnName:e>;\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n"
 		,
 		// expectedCompletionIdentifier:
@@ -880,7 +880,7 @@ public void test21() {
  * 1G1HF7P: ITPCOM:WIN98 - CodeAssist may not work in constructor signature
  */
 public void test22() {
-	this.runTestCheckDietParse(
+	runTestCheckDietParse(
 		// compilationUnit:
 		"public class SomeType {\n" +
 		"	public SomeType(int i){}\n" +
@@ -896,17 +896,17 @@ public void test22() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnType:SomeOther>",
 		// expectedUnitDisplayString:
-		"public class SomeType {\n" + 
-		"  public SomeType(int i) {\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"class SomeOtherType extends SomeType {\n" + 
-		"  <CompleteOnType:SomeOther>;\n" + 
-		"  int i;\n" + 
-		"  {\n" + 
-		"  }\n" + 
-		"  SomeOtherType() {\n" + 
-		"  }\n" + 
+		"public class SomeType {\n" +
+		"  public SomeType(int i) {\n" +
+		"  }\n" +
+		"}\n" +
+		"class SomeOtherType extends SomeType {\n" +
+		"  <CompleteOnType:SomeOther>;\n" +
+		"  int i;\n" +
+		"  {\n" +
+		"  }\n" +
+		"  SomeOtherType() {\n" +
+		"  }\n" +
 		"}\n"
 		,
 		// expectedCompletionIdentifier:
@@ -923,28 +923,28 @@ public void test22() {
 public void test23() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
-		"package p;\n" +  
+		"package p;\n" +
 		"public class X {\n" +
-		"  void foo(){)\n" + 
-		"    {\n" + 
-		"      Obj\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"  void foo(){)\n" +
+		"    {\n" +
+		"      Obj\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n",
 		// completeBehind:
 		"Obj",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:Obj>",
 		// expectedUnitDisplayString:
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    {\n" + 
-		"      <CompleteOnName:Obj>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"package p;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    {\n" +
+		"      <CompleteOnName:Obj>;\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n"
 		,
 		// expectedCompletionIdentifier:
@@ -961,29 +961,29 @@ public void test23() {
 public void test24() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
-		"package p;\n" +  
+		"package p;\n" +
 		"public class X {\n" +
-		"  void foo(){)\n" + 
-		"    int v1;\n" + 
-		"    {\n" + 
-		"      int v2\n" + 
-		"    }\n" + 
-		"    Obj" + 
-		"  }\n" + 
+		"  void foo(){)\n" +
+		"    int v1;\n" +
+		"    {\n" +
+		"      int v2\n" +
+		"    }\n" +
+		"    Obj" +
+		"  }\n" +
 		"}\n",
 		// completeBehind:
 		"Obj",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:Obj>",
 		// expectedUnitDisplayString:
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int v1;\n" + 
-		"    <CompleteOnName:Obj>;\n" + 
-		"  }\n" + 
+		"package p;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    int v1;\n" +
+		"    <CompleteOnName:Obj>;\n" +
+		"  }\n" +
 		"}\n"
 		,
 		// expectedCompletionIdentifier:
@@ -1000,24 +1000,24 @@ public void test24() {
 public void test25() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
-		"package p;\n" +  
+		"package p;\n" +
 		"public class X {\n" +
-		"  void foo(){\n" + 
-		"      this.12\n" + 
-		"  }\n" + 
+		"  void foo(){\n" +
+		"      this.12\n" +
+		"  }\n" +
 		"}\n",
 		// completeBehind:
 		"this.",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:this.>",
 		// expectedUnitDisplayString:
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:this.>;\n" + 
-		"  }\n" + 
+		"package p;\n" +
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMemberAccess:this.>;\n" +
+		"  }\n" +
 		"}\n"
 		,
 		// expectedCompletionIdentifier:

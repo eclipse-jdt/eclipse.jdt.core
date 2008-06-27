@@ -16,9 +16,9 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 
 public class RecoveryScanner extends Scanner {
 	public static final char[] FAKE_IDENTIFIER = "$missing$".toCharArray(); //$NON-NLS-1$
-	
+
 	private RecoveryScannerData data;
-	
+
 	private int[] pendingTokens;
 	private int pendingTokensPtr = -1;
 	private char[] fakeTokenSource = null;
@@ -27,7 +27,7 @@ public class RecoveryScanner extends Scanner {
 	private int skipNextInsertedTokens = -1;
 
 	public boolean record = true;
-	
+
 	public RecoveryScanner(Scanner scanner, RecoveryScannerData data) {
 		super(false,
 				scanner.tokenizeWhiteSpace,
@@ -37,13 +37,13 @@ public class RecoveryScanner extends Scanner {
 				scanner.taskTags,
 				scanner.taskPriorities,
 				scanner.isTaskCaseSensitive);
-		this.setData(data);
+		setData(data);
 	}
-	
+
 	public void insertToken(int token, int completedToken, int position) {
 		insertTokens(new int []{token}, completedToken, position);
 	}
-	
+
 	private int[] reverse(int[] tokens) {
 		int length = tokens.length;
 		for(int i = 0, max = length / 2; i < max; i++) {
@@ -55,9 +55,9 @@ public class RecoveryScanner extends Scanner {
 	}
 	public void insertTokens(int[] tokens, int completedToken, int position) {
 		if(!this.record) return;
-		
+
 		if(completedToken > -1 && Parser.statements_recovery_filter[completedToken] != 0) return;
-		
+
 		this.data.insertedTokensPtr++;
 		if(this.data.insertedTokens == null) {
 			this.data.insertedTokens = new int[10][];
@@ -73,11 +73,11 @@ public class RecoveryScanner extends Scanner {
 		this.data.insertedTokensPosition[this.data.insertedTokensPtr] = position;
 		this.data.insertedTokenUsed[this.data.insertedTokensPtr] = false;
 	}
-	
+
 	public void replaceTokens(int token, int start, int end) {
 		replaceTokens(new int []{token}, start, end);
 	}
-	
+
 	public void replaceTokens(int[] tokens, int start, int end) {
 		if(!this.record) return;
 		this.data.replacedTokensPtr++;
@@ -98,7 +98,7 @@ public class RecoveryScanner extends Scanner {
 		this.data.replacedTokensEnd[this.data.replacedTokensPtr] = end;
 		this.data.replacedTokenUsed[this.data.replacedTokensPtr] = false;
 	}
-	
+
 	public void removeTokens(int start, int end) {
 		if(!this.record) return;
 		this.data.removedTokensPtr++;
@@ -116,7 +116,7 @@ public class RecoveryScanner extends Scanner {
 		this.data.removedTokensEnd[this.data.removedTokensPtr] = end;
 		this.data.removedTokenUsed[this.data.removedTokensPtr] = false;
 	}
-	
+
 	public int getNextToken() throws InvalidInputException {
 		if(this.pendingTokensPtr > -1) {
 			int nextToken = this.pendingTokens[this.pendingTokensPtr--];
@@ -127,13 +127,13 @@ public class RecoveryScanner extends Scanner {
 			}
 			return nextToken;
 		}
-		
+
 		this.fakeTokenSource = null;
 		this.precededByRemoved = false;
-		
+
 		if(this.data.insertedTokens != null) {
 			for (int i = 0; i <= this.data.insertedTokensPtr; i++) {
-				if(this.data.insertedTokensPosition[i] == this.currentPosition - 1 && i > skipNextInsertedTokens) {
+				if(this.data.insertedTokensPosition[i] == this.currentPosition - 1 && i > this.skipNextInsertedTokens) {
 					this.data.insertedTokenUsed[i] = true;
 					this.pendingTokens = this.data.insertedTokens[i];
 					this.pendingTokensPtr = this.data.insertedTokens[i].length - 1;
@@ -154,7 +154,7 @@ public class RecoveryScanner extends Scanner {
 
 		int previousLocation = this.currentPosition;
 		int currentToken = super.getNextToken();
-		
+
 		if(this.data.replacedTokens != null) {
 			for (int i = 0; i <= this.data.replacedTokensPtr; i++) {
 				if(this.data.replacedTokensStart[i] >= previousLocation &&
@@ -190,42 +190,42 @@ public class RecoveryScanner extends Scanner {
 		}
 		return currentToken;
 	}
-	
+
 	public char[] getCurrentIdentifierSource() {
 		if(this.fakeTokenSource != null) return this.fakeTokenSource;
 		return super.getCurrentIdentifierSource();
 	}
-	
+
 	public char[] getCurrentTokenSourceString() {
 		if(this.fakeTokenSource != null) return this.fakeTokenSource;
 		return super.getCurrentTokenSourceString();
 	}
-	
+
 	public char[] getCurrentTokenSource() {
 		if(this.fakeTokenSource != null) return this.fakeTokenSource;
 		return super.getCurrentTokenSource();
 	}
-	
+
 	public RecoveryScannerData getData() {
 		return this.data;
 	}
-	
+
 	public boolean isFakeToken() {
 		return this.fakeTokenSource != null;
 	}
-	
+
 	public boolean isInsertedToken() {
 		return this.fakeTokenSource != null && this.isInserted;
 	}
-	
+
 	public boolean isReplacedToken() {
 		return this.fakeTokenSource != null && !this.isInserted;
 	}
-	
+
 	public boolean isPrecededByRemovedToken() {
 		return this.precededByRemoved;
 	}
-	
+
 	public void setData(RecoveryScannerData data) {
 		if(data == null) {
 			this.data = new RecoveryScannerData();
@@ -233,7 +233,7 @@ public class RecoveryScanner extends Scanner {
 			this.data = data;
 		}
 	}
-	
+
 	public void setPendingTokens(int[] pendingTokens) {
 		this.pendingTokens = pendingTokens;
 		this.pendingTokensPtr = pendingTokens.length - 1;

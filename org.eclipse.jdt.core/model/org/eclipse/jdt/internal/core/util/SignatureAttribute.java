@@ -20,10 +20,10 @@ import org.eclipse.jdt.core.util.ISignatureAttribute;
  * @since 3.0
  */
 public class SignatureAttribute extends ClassFileAttribute implements ISignatureAttribute {
-	
+
 	private int signatureIndex;
 	private char[] signature;
-	
+
 	SignatureAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
 		final int index = u2At(classFileBytes, 6, offset);

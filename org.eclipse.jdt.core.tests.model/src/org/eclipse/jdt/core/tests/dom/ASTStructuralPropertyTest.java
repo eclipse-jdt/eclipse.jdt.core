@@ -22,13 +22,13 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.dom.*;
 
-public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase { 
+public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
 	/** @deprecated using deprecated code */
 	public static Test suite() {
 		// TODO (frederic) use buildList + setAstLevel(init) instead...
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTStructuralPropertyTest.class.getName());
-		
+
 		Class c = ASTStructuralPropertyTest.class;
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
@@ -38,8 +38,8 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			}
 		}
 		return suite;
-	}	
-	
+	}
+
 	AST ast;
 	ASTParser parser;
 	int API_LEVEL;
@@ -48,18 +48,18 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		super(name);
 		this.API_LEVEL = apiLevel;
 	}
-	
+
 	protected void setUp() throws Exception {
 		super.setUp();
-		ast = AST.newAST(this.API_LEVEL);
-		parser = ASTParser.newParser(this.API_LEVEL);
+		this.ast = AST.newAST(this.API_LEVEL);
+		this.parser = ASTParser.newParser(this.API_LEVEL);
 	}
-	
+
 	protected void tearDown() throws Exception {
-		ast = null;
+		this.ast = null;
 		super.tearDown();
 	}
-	
+
 	/** @deprecated using deprecated code */
 	public String getName() {
 		String name = super.getName();
@@ -68,14 +68,14 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 				name = "JLS2 - " + name;
 				break;
 			case AST.JLS3:
-				name = "JLS3 - " + name; 
+				name = "JLS3 - " + name;
 				break;
 		}
 		return name;
 	}
-	
+
 	public void testLocationInParent() {
-		final ASTNode root = SampleASTs.oneOfEach(ast);
+		final ASTNode root = SampleASTs.oneOfEach(this.ast);
 		ASTVisitor v = new ASTVisitor(true) {
 			public void postVisit(ASTNode node) {
 				StructuralPropertyDescriptor me = node.getLocationInParent();
@@ -86,7 +86,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
                     boolean foundMe = false;
                     for (Iterator it = parentProperties.iterator(); it
                             .hasNext();) {
-                        StructuralPropertyDescriptor prop = 
+                        StructuralPropertyDescriptor prop =
                             (StructuralPropertyDescriptor) it.next();
                         if (me == prop || prop.getId().equals(me.getId())) {
                             foundMe = true;
@@ -99,19 +99,19 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		};
 		root.accept(v);
 	}
-		
+
 	/**
 	 * @deprecated since using deprecated constant
 	 */
 	public void testStructuralProperties() {
-		final ASTNode root = SampleASTs.oneOfEach(ast);
-		
+		final ASTNode root = SampleASTs.oneOfEach(this.ast);
+
 		final Set simpleProperties = new HashSet(400);
 		final Set childProperties = new HashSet(400);
 		final Set childListProperties = new HashSet(400);
 		final Set visitedProperties = new HashSet(400);
 		final Set nodeClasses = new HashSet(100);
-		
+
 		ASTVisitor v = new ASTVisitor(true) {
 			public void postVisit(ASTNode node) {
 				StructuralPropertyDescriptor me = node.getLocationInParent();
@@ -131,13 +131,13 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 					} else if (p.isChildProperty()) {
 						childProperties.add(p);
 						// replace child with a copy
-						ASTNode copy = ASTNode.copySubtree(ast, (ASTNode) o);
+						ASTNode copy = ASTNode.copySubtree(ASTStructuralPropertyTest.this.ast, (ASTNode) o);
 						node.setStructuralProperty(p, copy);
 					} else if (p.isChildListProperty()) {
 						childListProperties.add(p);
 						// replace child list with copies
 						List list = (List) o;
-						List copy = ASTNode.copySubtrees(ast, list);
+						List copy = ASTNode.copySubtrees(ASTStructuralPropertyTest.this.ast, list);
 						list.clear();
 						list.addAll(copy);
 					}
@@ -161,13 +161,13 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 				assertEquals("Wrong number of child list properties", 52, childListProperties.size());
 		}
 		// visit should rebuild tree
-		ASTNode newRoot = SampleASTs.oneOfEach(ast);
+		ASTNode newRoot = SampleASTs.oneOfEach(this.ast);
 		assertTrue(root.subtreeMatch(new ASTMatcher(), newRoot));
 	}
-	
+
 	public void testProtect() {
-		final ASTNode root = SampleASTs.oneOfEach(ast);
-		
+		final ASTNode root = SampleASTs.oneOfEach(this.ast);
+
 		// check that all properties are again modifiable
 		class Slammer extends ASTVisitor {
 			boolean shouldBeProtected;
@@ -178,9 +178,9 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			public void postVisit(ASTNode node) {
 				try {
 					node.setSourceRange(1, 1);
-					assertTrue(!shouldBeProtected);
+					assertTrue(!this.shouldBeProtected);
 				} catch (RuntimeException e) {
-					assertTrue(shouldBeProtected);
+					assertTrue(this.shouldBeProtected);
 				}
 				List ps = node.structuralPropertiesForType();
 				for (Iterator it = ps.iterator(); it.hasNext(); ) {
@@ -190,42 +190,42 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 						// slam simple properties
 						try {
 							node.setStructuralProperty(p, o);
-							assertTrue(!shouldBeProtected);
+							assertTrue(!this.shouldBeProtected);
 						} catch (RuntimeException e) {
-							assertTrue(shouldBeProtected);
+							assertTrue(this.shouldBeProtected);
 						}
 					} else if (p.isChildProperty()) {
 						// replace child with a copy
-						ASTNode copy = ASTNode.copySubtree(ast, (ASTNode) o);
+						ASTNode copy = ASTNode.copySubtree(ASTStructuralPropertyTest.this.ast, (ASTNode) o);
 						try {
 							node.setStructuralProperty(p, copy);
-							assertTrue(!shouldBeProtected);
+							assertTrue(!this.shouldBeProtected);
 						} catch (RuntimeException e) {
-							assertTrue(shouldBeProtected);
+							assertTrue(this.shouldBeProtected);
 						}
 					} else if (p.isChildListProperty()) {
 						// replace child list with copies
 						List list = (List) o;
-						List copy = ASTNode.copySubtrees(ast, list);
+						List copy = ASTNode.copySubtrees(ASTStructuralPropertyTest.this.ast, list);
 						if (!list.isEmpty()) {
 							try {
 								list.clear();
-								assertTrue(!shouldBeProtected);
+								assertTrue(!this.shouldBeProtected);
 							} catch (RuntimeException e) {
-								assertTrue(shouldBeProtected);
+								assertTrue(this.shouldBeProtected);
 							}
 							try {
 								list.addAll(copy);
-								assertTrue(!shouldBeProtected);
+								assertTrue(!this.shouldBeProtected);
 							} catch (RuntimeException e) {
-								assertTrue(shouldBeProtected);
+								assertTrue(this.shouldBeProtected);
 							}
 						}
 					}
 				}
 			}
 		}
-		
+
 		class Protector extends ASTVisitor {
 			boolean shouldBeProtected;
 			Protector(boolean shouldBeProtected){
@@ -234,7 +234,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			}
 			public void preVisit(ASTNode node) {
 				int f = node.getFlags();
-				if (shouldBeProtected) {
+				if (this.shouldBeProtected) {
 					f |= ASTNode.PROTECT;
 				} else {
 					f &= ~ASTNode.PROTECT;
@@ -247,15 +247,15 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		// mark all nodes as protected
 		root.accept(new Protector(true));
 		root.accept(new Slammer(true));
-		
+
 		// mark all nodes as unprotected
 		root.accept(new Protector(false));
 		root.accept(new Slammer(false));
 	}
-	
+
 	public void testDelete() {
-		final ASTNode root = SampleASTs.oneOfEach(ast);
-		
+		final ASTNode root = SampleASTs.oneOfEach(this.ast);
+
 		// check that nodes can be deleted unless mandatory
 		root.accept(new ASTVisitor(true) {
 			public void postVisit(ASTNode node) {
@@ -267,7 +267,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 						ASTNode child = (ASTNode) node.getStructuralProperty(c);
 						if (!c.isMandatory() && child != null) {
 							try {
-								child.delete(); 
+								child.delete();
 								assertTrue(node.getStructuralProperty(c) == null);
 						    } catch (RuntimeException e) {
 							    assertTrue(false);
@@ -293,7 +293,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			}
 		});
 	}
-	
+
 	/** @deprecated using deprecated code */
 	public void testCreateInstance() {
 		for (int nodeType = 0; nodeType < 100; nodeType++) {
@@ -305,8 +305,8 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			}
 			if (nodeClass != null) {
 				try {
-					ASTNode node = ast.createInstance(nodeClass);
-					if (ast.apiLevel() == AST.JLS2) {
+					ASTNode node = this.ast.createInstance(nodeClass);
+					if (this.ast.apiLevel() == AST.JLS2) {
 						assertTrue((nodeType >= 1) && (nodeType <= 69));
 					} else {
 						assertTrue((nodeType >= 1) && (nodeType <= 83));
@@ -315,7 +315,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 					//ASTNode node2 = ast.createInstance(nodeType);
 					//assertTrue(node2.getNodeType() == nodeType);
 				} catch (RuntimeException e) {
-					if (ast.apiLevel() == AST.JLS2) {
+					if (this.ast.apiLevel() == AST.JLS2) {
 						assertTrue((nodeType < 1) || (nodeType > 69));
 					} else {
 						assertTrue((nodeType < 1) || (nodeType > 83));
@@ -324,7 +324,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			}
 		}
 	}
-	
+
 	public void testNodeClassForType() {
 		Set classes = new HashSet(100);
 		// make sure node types are contiguous starting at 0

@@ -20,25 +20,25 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
  * these fields.
  */
 public class ParameterizedFieldBinding extends FieldBinding {
-    
+
     public FieldBinding originalField;
-    
+
 public ParameterizedFieldBinding(ParameterizedTypeBinding parameterizedDeclaringClass, FieldBinding originalField) {
     super (
-            originalField.name, 
+            originalField.name,
             (originalField.modifiers & ClassFileConstants.AccEnum) != 0
             	? parameterizedDeclaringClass // enum constant get paramType as its type
-       			: (originalField.modifiers & ClassFileConstants.AccStatic) != 0 
+       			: (originalField.modifiers & ClassFileConstants.AccStatic) != 0
        					? originalField.type // no subst for static field
-       					: Scope.substitute(parameterizedDeclaringClass, originalField.type), 
-            originalField.modifiers, 
-            parameterizedDeclaringClass, 
+       					: Scope.substitute(parameterizedDeclaringClass, originalField.type),
+            originalField.modifiers,
+            parameterizedDeclaringClass,
             null);
     this.originalField = originalField;
     this.tagBits = originalField.tagBits;
     this.id = originalField.id;
 }
-	
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.VariableBinding#constant()
  */

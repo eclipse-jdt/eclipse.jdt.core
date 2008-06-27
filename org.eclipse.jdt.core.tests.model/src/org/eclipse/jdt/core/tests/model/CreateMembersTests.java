@@ -55,16 +55,16 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		assertEquals("Wrong size", 1, types.length);
 		IType type = types[0];
 		type.createMethod("\tpublic void foo() {\n\t\tSystem.out.println(\"Hello World\");\n\t}\n", null, true, new NullProgressMonitor());
-		String expectedSource = 
-			"public class A {\n" + 
-			"\n" + 
-			"	public void foo() {\n" + 
-			"		System.out.println(\"Hello World\");\n" + 
+		String expectedSource =
+			"public class A {\n" +
+			"\n" +
+			"	public void foo() {\n" +
+			"		System.out.println(\"Hello World\");\n" +
 			"	}\n" +
 			"}";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86906
 	public void test002() throws JavaModelException {
 		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E.java");
@@ -75,15 +75,15 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IType type = types[0];
 		IField sibling = type.getField("j");
 		type.createField("int i;", sibling, true, null);
-		String expectedSource = 
-			"public enum E {\n" + 
-			"	E1, E2;\n" + 
-			"	int i;\n" + 
-			"	int j;\n" + 
+		String expectedSource =
+			"public enum E {\n" +
+			"	E1, E2;\n" +
+			"	int i;\n" +
+			"	int j;\n" +
 			"}";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86906
 	public void test003() throws JavaModelException {
 		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "Annot.java");
@@ -94,15 +94,15 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IType type = types[0];
 		IMethod sibling = type.getMethod("foo", new String[]{});
 		type.createMethod("String bar();", sibling, true, null);
-		String expectedSource = 
-			"public @interface Annot {\n" + 
-			"	String bar();\n" + 
-			"\n" + 
-			"	String foo();\n" + 
+		String expectedSource =
+			"public @interface Annot {\n" +
+			"	String bar();\n" +
+			"\n" +
+			"	String foo();\n" +
 			"}";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
-	
+
 	/*
 	 * Ensures that the handle for a created method that has varargs type arguments is correct.
 	 * (regression test for bug 93487 IType#findMethods fails on vararg methods)
@@ -117,7 +117,7 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		);
 		assertTrue("Method should exist", method.exists());
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95580
 	public void test005() throws JavaModelException {
 		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E2.java");
@@ -127,14 +127,14 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		assertEquals("Wrong size", 1, types.length);
 		IType type = types[0];
 		type.createField("int i;", null, true, null);
-		String expectedSource = 
-			"public enum E2 {\n" + 
+		String expectedSource =
+			"public enum E2 {\n" +
 			"	A, B, C;\n\n" +
-			"	int i;\n" + 
+			"	int i;\n" +
 			"}";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95580
 	public void test006() throws JavaModelException {
 		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E3.java");
@@ -144,10 +144,10 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		assertEquals("Wrong size", 1, types.length);
 		IType type = types[0];
 		type.createType("class DD {}", null, true, null);
-		String expectedSource = 
-			"public enum E3 {\n" + 
+		String expectedSource =
+			"public enum E3 {\n" +
 			"	A, B, C;\n\n" +
-			"	class DD {}\n" + 
+			"	class DD {}\n" +
 			"}";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
@@ -162,8 +162,8 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 			expected = e;
 		}
 		assertExceptionEquals(
-			"Unexpected exception", 
-			"Invalid sibling: E1 [in E [in E.java [in <default> [in src [in CreateMembers]]]]]", 
+			"Unexpected exception",
+			"Invalid sibling: E1 [in E [in E.java [in <default> [in src [in CreateMembers]]]]]",
 			expected);
 	}
 }

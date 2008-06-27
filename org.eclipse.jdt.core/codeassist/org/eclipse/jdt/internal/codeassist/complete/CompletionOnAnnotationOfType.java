@@ -20,7 +20,7 @@ public class CompletionOnAnnotationOfType extends TypeDeclaration {
 	// During recovery a parameter can be parsed as a FieldDeclaration instead of Argument.
 	// 'isParameter' is set to true in this case.
 	public boolean isParameter;
-	
+
 	public CompletionOnAnnotationOfType(char[] typeName, CompilationResult compilationResult, Annotation annotation){
 		super(compilationResult);
 		this.sourceEnd = annotation.sourceEnd;
@@ -28,7 +28,7 @@ public class CompletionOnAnnotationOfType extends TypeDeclaration {
 		this.name = typeName;
 		this.annotations = new Annotation[]{annotation};
 	}
-	
+
 	public StringBuffer print(int indent, StringBuffer output) {
 		return this.annotations[0].print(indent, output);
 	}

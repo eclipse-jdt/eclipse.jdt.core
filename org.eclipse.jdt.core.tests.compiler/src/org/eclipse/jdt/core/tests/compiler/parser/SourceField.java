@@ -64,35 +64,35 @@ public String displayModifiers() {
 }
 public String getActualName() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append(source, nameSourceStart, nameSourceEnd - nameSourceStart + 1);
+	buffer.append(this.source, this.nameSourceStart, this.nameSourceEnd - this.nameSourceStart + 1);
 	return buffer.toString();
 }
 public int getDeclarationSourceEnd() {
-	return declarationEnd;
+	return this.declarationEnd;
 }
 public int getDeclarationSourceStart() {
-	return declarationStart;
+	return this.declarationStart;
 }
 public char[] getInitializationSource() {
 	return null;
 }
 public int getModifiers() {
-	return modifiers;
+	return this.modifiers;
 }
 public char[] getName() {
-	return name;
+	return this.name;
 }
 public int getNameSourceEnd() {
-	return nameSourceEnd;
+	return this.nameSourceEnd;
 }
 public int getNameSourceStart() {
-	return nameSourceStart;
+	return this.nameSourceStart;
 }
 public char[] getTypeName() {
-	return typeName;
+	return this.typeName;
 }
 protected void setDeclarationSourceEnd(int position) {
-	declarationEnd = position;
+	this.declarationEnd = position;
 }
 public String tabString(int tab) {
 	/*slow code*/
@@ -112,7 +112,7 @@ public String toString(int tab) {
 	if (displayModifiers != null) {
 		buffer.append(displayModifiers);
 	}
-	buffer.append(typeName).append(" ").append(name);
+	buffer.append(this.typeName).append(" ").append(this.name);
 	buffer.append(";");
 	return buffer.toString();
 }

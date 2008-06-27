@@ -25,25 +25,25 @@ import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 import junit.framework.Test;
 
 public class ClasspathInitializerTests extends ModifyingResourceTests {
-	
+
 public static class DefaultVariableInitializer implements VariablesInitializer.ITestInitializer {
 	Map variableValues;
-	
+
 	/*
 	 * values is [<var name>, <var value>]*
 	 */
 	public DefaultVariableInitializer(String[] values) {
-		variableValues = new HashMap();
+		this.variableValues = new HashMap();
 		for (int i = 0; i < values.length; i+=2) {
-			variableValues.put(values[i], new Path(values[i+1]));
+			this.variableValues.put(values[i], new Path(values[i+1]));
 		}
 	}
-	
+
 	public void initialize(String variable) throws JavaModelException {
-		if (variableValues == null) return;
+		if (this.variableValues == null) return;
 		JavaCore.setClasspathVariable(
-			variable, 
-			(IPath)variableValues.get(variable), 
+			variable,
+			(IPath)this.variableValues.get(variable),
 			null);
 	}
 }
@@ -56,11 +56,11 @@ public class NullContainerInitializer implements ContainerInitializer.ITestIniti
 		return false; // allow the initializer to run again
 	}
 	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
-		hasRun = true;
+		this.hasRun = true;
 		JavaCore.setClasspathContainer(
-			containerPath, 
-			new IJavaProject[] {project}, 
-			new IClasspathContainer[] { null }, 
+			containerPath,
+			new IJavaProject[] {project},
+			new IClasspathContainer[] { null },
 			null);
 	}
 }
@@ -96,9 +96,9 @@ public void testContainerInitializer01() throws CoreException {
 		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
 		IJavaProject p2 = createJavaProject(
-				"P2", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		IPackageFragmentRoot root = p2.getPackageFragmentRoot(getFile("/P1/lib.jar"));
 		assertTrue("/P1/lib.jar should exist", root.exists());
@@ -114,19 +114,19 @@ public void testContainerInitializer02() throws CoreException {
 		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
 		IJavaProject p2 = createJavaProject(
-				"P2", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
-				
+
 		// simulate state on startup
 		simulateExitRestart();
-		
+
 		startDeltas();
 		p2.getResolvedClasspath(true);
-		
+
 		assertDeltas(
-			"Unexpected delta on startup", 
+			"Unexpected delta on startup",
 			""
 		);
 	} finally {
@@ -141,25 +141,25 @@ public void testContainerInitializer03() throws CoreException {
 		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
 		createJavaProject(
-				"P2", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
-				
+
 		// change value of TEST_CONTAINER
 		createFile("/P1/lib2.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib2.jar"}));
 
 		// simulate state on startup
 		simulateExitRestart();
-		
+
 		startDeltas();
 		getJavaProject("P2").getResolvedClasspath(true);
-		
+
 		assertDeltas(
-			"Unexpected delta on startup", 
-			"P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" + 
-			"	/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"Unexpected delta on startup",
+			"P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
+			"	/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"
 		);
 	} finally {
@@ -178,24 +178,24 @@ public void testContainerInitializer04() throws CoreException {
 		DefaultContainerInitializer initializer = new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"});
 		ContainerInitializer.setInitializer(initializer);
 		createJavaProject(
-				"P2", 
-				new String[] {""}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {""},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
-				
+
 		// simulate state on startup
 		simulateExitRestart();
-		
+
 		startDeltas();
 		createFile("/P2/X.java", "public class X {}");
-		
+
 		assertEquals("Should not get exception", null, initializer.exception);
-		
+
 		assertDeltas(
-			"Unexpected delta on startup", 
-			"P2[*]: {CHILDREN}\n" + 
-			"	<project root>[*]: {CHILDREN}\n" + 
-			"		<default>[*]: {CHILDREN}\n" + 
+			"Unexpected delta on startup",
+			"P2[*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[+]: {}"
 		);
 	} finally {
@@ -204,7 +204,7 @@ public void testContainerInitializer04() throws CoreException {
 		deleteProject("P2");
 	}
 }
-/* 
+/*
  * 30920 - Stack overflow when container resolved to null
  */
 public void testContainerInitializer05() throws CoreException {
@@ -212,30 +212,30 @@ public void testContainerInitializer05() throws CoreException {
 		NullContainerInitializer nullInitializer = new NullContainerInitializer();
 		ContainerInitializer.setInitializer(nullInitializer);
 		createJavaProject(
-				"P1", 
-				new String[] {""}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P1",
+				new String[] {""},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
-				
+
 		// simulate state on startup
 		simulateExitRestart();
-		
+
 		startDeltas();
 
 		// will trigger classpath resolution (with null container value)
 		createFile("/P1/X.java", "public class X {}");
 		assertDeltas(
-			"Unexpected delta on startup", 
-			"P1[*]: {CHILDREN}\n" + 
-			"	<project root>[*]: {CHILDREN}\n" + 
-			"		<default>[*]: {CHILDREN}\n" + 
+			"Unexpected delta on startup",
+			"P1[*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[+]: {}"
 		);
 		assertTrue("initializer did not run", nullInitializer.hasRun);
-		
+
 		// next cp resolution request will rerun the initializer
 		waitForAutoBuild();
-		nullInitializer.hasRun = false; // reset		
+		nullInitializer.hasRun = false; // reset
 		getJavaProject("P1").getResolvedClasspath(true);
 		assertTrue("initializer did not run", nullInitializer.hasRun); // initializer should have run again (since keep setting to null)
 
@@ -246,8 +246,8 @@ public void testContainerInitializer05() throws CoreException {
 		clearDeltas();
 		getJavaProject("P1").getResolvedClasspath(true);
 		assertDeltas(
-			"Unexpected delta after setting container", 
-			"P1[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" + 
+			"Unexpected delta after setting container",
+			"P1[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
 			"	lib.jar[*]: {ADDED TO CLASSPATH}"
 		);
 
@@ -270,31 +270,31 @@ public void testContainerInitializer06() throws CoreException {
 		createProject("P1");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", ""}));
 		createJavaProject(
-				"P2", 
-				new String[] {"src"}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {"src"},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"bin");
 		createFile(
 			"/P2/src/X,java",
 			"public class X {\n" +
 			"}"
 		);
-				
+
 		// change value of TEST_CONTAINER
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
 
 		// simulate state on startup
 		simulateExitRestart();
-		
+
 		startDeltas();
 		workingCopy = getCompilationUnit("/P2/src/X.java");
 		workingCopy.becomeWorkingCopy(null);
-		
+
 		assertDeltas(
-			"Unexpected delta on startup", 
-			"P2[*]: {CHILDREN}\n" + 
-			"	src[*]: {CHILDREN}\n" + 
-			"		<default>[*]: {CHILDREN}\n" + 
+			"Unexpected delta on startup",
+			"P2[*]: {CHILDREN}\n" +
+			"	src[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			[Working copy] X.java[+]: {PRIMARY WORKING COPY}"
 		);
 	} finally {
@@ -317,9 +317,9 @@ public void testContainerInitializer07() throws CoreException {
 					throw new OperationCanceledException("test");
 				}});
 			IJavaProject p1 = createJavaProject(
-					"P1", 
-					new String[] {}, 
-					new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+					"P1",
+					new String[] {},
+					new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 					"");
 			p1.getResolvedClasspath(true);
 		} catch (OperationCanceledException e) {
@@ -373,30 +373,30 @@ public void testContainerInitializer08() throws CoreException {
 					createProject(projects[i]);
 					editFile(
 						"/" + projects[i] + "/.project",
-						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-						"<projectDescription>\n" + 
-						"	<name>" + projects[i] + "</name>\n" + 
-						"	<comment></comment>\n" + 
-						"	<projects>\n" + 
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+						"<projectDescription>\n" +
+						"	<name>" + projects[i] + "</name>\n" +
+						"	<comment></comment>\n" +
+						"	<projects>\n" +
 						(i == 0 ? "" : "<project>" + projects[i-1] + "</project>\n") +
-						"	</projects>\n" + 
-						"	<buildSpec>\n" + 
-						"		<buildCommand>\n" + 
-						"			<name>org.eclipse.jdt.core.javabuilder</name>\n" + 
-						"			<arguments>\n" + 
-						"			</arguments>\n" + 
-						"		</buildCommand>\n" + 
-						"	</buildSpec>\n" + 
-						"	<natures>\n" + 
-						"		<nature>org.eclipse.jdt.core.javanature</nature>\n" + 
-						"	</natures>\n" + 
+						"	</projects>\n" +
+						"	<buildSpec>\n" +
+						"		<buildCommand>\n" +
+						"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+						"			<arguments>\n" +
+						"			</arguments>\n" +
+						"		</buildCommand>\n" +
+						"	</buildSpec>\n" +
+						"	<natures>\n" +
+						"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+						"	</natures>\n" +
 						"</projectDescription>"
 					);
 					createFile(
 						"/" + projects[i] + "/.classpath",
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 						"<classpath>\n" +
-						(i == 0 ? "" : "<classpathentry kind=\"src\" path=\"/" + projects[i-1] + "\"/>\n") +					 
+						(i == 0 ? "" : "<classpathentry kind=\"src\" path=\"/" + projects[i-1] + "\"/>\n") +
 						"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
 						"	<classpathentry kind=\"output\" path=\"\"/>\n" +
 						"</classpath>"
@@ -437,22 +437,22 @@ public void testContainerInitializer09() throws CoreException {
 				createProject("P1");
 				editFile(
 					"/P1/.project",
-					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-					"<projectDescription>\n" + 
-					"	<name>P1</name>\n" + 
-					"	<comment></comment>\n" + 
-					"	<projects>\n" + 
-					"	</projects>\n" + 
-					"	<buildSpec>\n" + 
-					"		<buildCommand>\n" + 
-					"			<name>org.eclipse.jdt.core.javabuilder</name>\n" + 
-					"			<arguments>\n" + 
-					"			</arguments>\n" + 
-					"		</buildCommand>\n" + 
-					"	</buildSpec>\n" + 
-					"	<natures>\n" + 
-					"		<nature>org.eclipse.jdt.core.javanature</nature>\n" + 
-					"	</natures>\n" + 
+					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+					"<projectDescription>\n" +
+					"	<name>P1</name>\n" +
+					"	<comment></comment>\n" +
+					"	<projects>\n" +
+					"	</projects>\n" +
+					"	<buildSpec>\n" +
+					"		<buildCommand>\n" +
+					"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+					"			<arguments>\n" +
+					"			</arguments>\n" +
+					"		</buildCommand>\n" +
+					"	</buildSpec>\n" +
+					"	<natures>\n" +
+					"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+					"	</natures>\n" +
 					"</projectDescription>"
 				);
 				createFile(
@@ -501,37 +501,37 @@ public void testContainerInitializer10() throws CoreException {
 				createProject("P3");
                 editFile(
                 	"/P3/.project",
-                	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-                	"<projectDescription>\n" + 
-                	"	<name>P3</name>\n" + 
-                	"	<comment></comment>\n" + 
-                	"	<projects>\n" + 
-                	"	</projects>\n" + 
-                	"	<buildSpec>\n" + 
-                	"		<buildCommand>\n" + 
-                	"			<name>org.eclipse.jdt.core.javabuilder</name>\n" + 
-                	"			<arguments>\n" + 
-                	"			</arguments>\n" + 
-                	"		</buildCommand>\n" + 
-                	"	</buildSpec>\n" + 
-                	"	<natures>\n" + 
-                	"		<nature>org.eclipse.jdt.core.javanature</nature>\n" + 
-                	"	</natures>\n" + 
+                	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                	"<projectDescription>\n" +
+                	"	<name>P3</name>\n" +
+                	"	<comment></comment>\n" +
+                	"	<projects>\n" +
+                	"	</projects>\n" +
+                	"	<buildSpec>\n" +
+                	"		<buildCommand>\n" +
+                	"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+                	"			<arguments>\n" +
+                	"			</arguments>\n" +
+                	"		</buildCommand>\n" +
+                	"	</buildSpec>\n" +
+                	"	<natures>\n" +
+                	"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+                	"	</natures>\n" +
                 	"</projectDescription>\n"
                 );
                 createFile(
                 	"/P3/.classpath",
-                	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-                	"<classpath>\n" + 
-                	"	<classpathentry kind=\"src\" path=\"\"/>\n" + 
-                	"	<classpathentry kind=\"var\" path=\"JCL_LIB\"/>\n" + 
-                	"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" + 
-                	"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+                	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                	"<classpath>\n" +
+                	"	<classpathentry kind=\"src\" path=\"\"/>\n" +
+                	"	<classpathentry kind=\"var\" path=\"JCL_LIB\"/>\n" +
+                	"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
+                	"	<classpathentry kind=\"output\" path=\"\"/>\n" +
                 	"</classpath>"
                 );
              }
         }, null);
-		
+
 		assertEquals("Should not get any exception in log", null, listener.log);
 	} finally {
 	    Platform.removeLogListener(listener);
@@ -549,9 +549,9 @@ public void testContainerInitializer11() throws CoreException {
 	try {
 		ContainerInitializer.setInitializer(null);
 		createJavaProject(
-			"P", 
-			new String[] {}, 
-			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+			"P",
+			new String[] {},
+			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 			"");
 		simulateExitRestart();
 		DefaultContainerInitializer initializer = new DefaultContainerInitializer(new String[] {}) {
@@ -578,15 +578,15 @@ public void testContainerInitializer12() throws CoreException {
 	try {
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}));
 		IJavaProject project =  createJavaProject(
-			"P1", 
-			new String[] {}, 
-			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+			"P1",
+			new String[] {},
+			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 			"");
 		createFile("/P1/lib.jar", "");
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P1/lib.jar"));
 		assertTrue("/P1/lib.jar should exist", root.exists());
 		deleteProject("P1");
-		
+
 		class Initializer extends DefaultContainerInitializer {
 			boolean initialized;
 			public Initializer(String[] args) {
@@ -600,9 +600,9 @@ public void testContainerInitializer12() throws CoreException {
 		Initializer initializer = new Initializer(new String[] {"P1", "/P1/lib.jar"});
 		ContainerInitializer.setInitializer(initializer);
 		createJavaProject(
-			"P1", 
-			new String[] {}, 
-			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+			"P1",
+			new String[] {},
+			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 			"");
 		createFile("/P1/lib.jar", "");
 		assertTrue("/P1/lib.jar should exist", root.exists());
@@ -613,7 +613,7 @@ public void testContainerInitializer12() throws CoreException {
 	}
 }
 
-/* 
+/*
  * Ensures that no resource deta is reported if a container that was not initialized is initialized with null
  * (regression test for bug 149043 Unresolvable classpath container leads to lots of scheduled jobs)
  */
@@ -631,21 +631,21 @@ public void testContainerInitializer13() throws CoreException {
 		NullContainerInitializer nullInitializer = new NullContainerInitializer();
 		ContainerInitializer.setInitializer(nullInitializer);
 		IJavaProject project = createJavaProject(
-				"P1", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P1",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
-				
+
 		// simulate state on startup
 		simulateExitRestart();
-		
+
 		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
-		
+
 		// force resolution of container
 		project.findPackageFragmentRoots(project.getRawClasspath()[0]);
 
 		assertEquals(
-			"Unexpected resource delta on startup", 
+			"Unexpected resource delta on startup",
 			"",
 			listener.toString()
 		);
@@ -677,9 +677,9 @@ public void testContainerInitializer14() throws CoreException {
 		Container container = new Container(new String[] {"P2", "/P1/lib.jar"});
 		ContainerInitializer.setInitializer(container);
 		IJavaProject p2 = createJavaProject(
-				"P2", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		p2.getResolvedClasspath(true);
 		assertEquals("Unexpected number of initalizations", 1, container.initializeCount);
@@ -707,9 +707,9 @@ public void testContainerInitializer15() throws CoreException {
 		Container container = new Container(new String[] {"P1", "/P1/lib.jar"});
 		ContainerInitializer.setInitializer(container);
 		IJavaProject p1 = createJavaProject(
-				"P1", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P1",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		IClasspathContainer classpathContainer = JavaCore.getClasspathContainer(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"), p1);
 		assertClasspathEquals(classpathContainer.getClasspathEntries(), "");
@@ -727,17 +727,17 @@ public void testContainerInitializer16() throws CoreException {
 		JavaModelException exception = null;
 		try {
 			IJavaProject p1 = createJavaProject(
-				"P1", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P1",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 			p1.getResolvedClasspath(true);
 		} catch (JavaModelException e) {
 			exception = e;
 		}
 		assertExceptionEquals(
-			"Unexpected expection", 
-			"Project 'P1' cannot reference itself", 
+			"Unexpected expection",
+			"Project 'P1' cannot reference itself",
 			exception);
 	} finally {
 		stopDeltas();
@@ -745,7 +745,7 @@ public void testContainerInitializer16() throws CoreException {
 	}
 }
 
-/* 
+/*
  * Ensures that no resource deta is reported if a container is initialized right after startup  to the same value it had before shutdown.
  * (regression test for bug 175849 Project is touched on restart)
  */
@@ -764,21 +764,21 @@ public void testContainerInitializer17() throws CoreException {
 		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar", "P3", "/P1/lib.jar"}));
 		IJavaProject p2 = createJavaProject(
-				"P2", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		createJavaProject(
-				"P3", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P3",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
-				
+
 		// simulate state on startup
 		simulateExitRestart();
-		
+
 		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
-		
+
 		// initialize to the same value
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar", "P3", "/P1/lib.jar"}) {
 	        public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
@@ -790,7 +790,7 @@ public void testContainerInitializer17() throws CoreException {
 		p2.getResolvedClasspath(true);
 
 		assertEquals(
-			"Unexpected resource delta on container initialization", 
+			"Unexpected resource delta on container initialization",
 			"",
 			listener.toString()
 		);
@@ -809,18 +809,18 @@ public void testContainerInitializer18() throws CoreException {
 	try {
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}));
 		IJavaProject p1 = createJavaProject(
-				"P1", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P1",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		createFile("/P1/lib.jar", "");
 		p1.getResolvedClasspath(true);
 		waitForAutoBuild();
-		
+
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[0]));
 		JavaCore.setClasspathContainer(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"), new IJavaProject[] {p1}, new IClasspathContainer[] {null}, null);
 		assertMarkers(
-			"Unexpected markers", 
+			"Unexpected markers",
 			"Unbound classpath container: \'org.eclipse.jdt.core.tests.model.TEST_CONTAINER\' in project \'P1\'",
 			p1);
 	} finally {
@@ -837,22 +837,22 @@ public void testContainerInitializer19() throws CoreException {
 		// setup
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib1.jar"}));
 		IJavaProject p1 = createJavaProject(
-				"P1", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P1",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		createFile("/P1/lib1.jar", "");
 		createFile("/P1/lib2.jar", "");
 		p1.getResolvedClasspath(true);
 		IClasspathEntry[] initialClasspath = p1.getRawClasspath();
-		
+
 		// remove reference to container, change initializer, and add reference to container back
 		p1.setRawClasspath(new IClasspathEntry[0], null);
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib2.jar"}));
 		p1.setRawClasspath(initialClasspath, null);
-		
+
 		assertClasspathEquals(
-			p1.getResolvedClasspath(true), 
+			p1.getResolvedClasspath(true),
 			"/P1/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:false]"
 		);
 	} finally {
@@ -876,15 +876,15 @@ public void testContainerInitializer20() throws CoreException {
 			}
 		};
 		ContainerInitializer.setInitializer(initializer);
-		
+
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1"))});
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE2"))});
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1"))});
 		assertStringEquals(
-			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1\n" + 
-			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE2\n" + 
+			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1\n" +
+			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE2\n" +
 			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1\n",
-			paths.toString(), 
+			paths.toString(),
 			false);
 	} finally {
 		stopDeltas();
@@ -898,9 +898,9 @@ public void testContainerInitializer21() throws CoreException {
 		createExternalFolder("externalLib");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", getExternalResourcePath("externalLib")}));
 		IJavaProject p2 = createJavaProject(
-				"P2", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		IPackageFragmentRoot root = p2.getPackageFragmentRoot(getExternalResourcePath("externalLib"));
 		assertTrue(getExternalResourcePath("externalLib") + " should exist", root.exists());
@@ -918,9 +918,9 @@ public void testContainerInitializer22() throws CoreException {
 		createExternalFile("externalLib.abc", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", getExternalResourcePath("externalLib.abc")}));
 		IJavaProject p2 = createJavaProject(
-				"P2", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		IPackageFragmentRoot root = p2.getPackageFragmentRoot(getExternalResourcePath("externalLib.abc"));
 		assertTrue(getExternalResourcePath("externalLib.abc") + " should exist", root.exists());
@@ -938,9 +938,9 @@ public void testContainerInitializer23() throws CoreException {
 		IFile lib = createFile("/P1/internalLib.abc", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/internalLib.abc"}));
 		IJavaProject p2 = createJavaProject(
-				"P2", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		IPackageFragmentRoot root = p2.getPackageFragmentRoot(lib);
 		assertTrue("/P1/internalLib.abc should exist", root.exists());
@@ -965,14 +965,14 @@ public void testContainerInitializer24() throws Exception {
 		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
 		final JavaProject project2 = (JavaProject) createJavaProject(
-				"P2", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		simulateExit();
 		deleteResource(JavaCore.getPlugin().getStateLocation().append("variablesAndContainers.dat").toFile());
 		simulateRestart();
-		
+
 		JavaProject.addCPResolutionBPListener(listener);
 		thread.start(new Runnable() {
 			public void run() {
@@ -986,10 +986,10 @@ public void testContainerInitializer24() throws Exception {
 		thread.runToBP(1);
 		thread.runToBP(2);
 		thread.runToBP(3);
-		
+
 		IClasspathEntry[] classpath = project2.getResolvedClasspath();
 		assertClasspathEquals(
-			classpath, 
+			classpath,
 			"/P1/lib.jar[CPE_LIBRARY][K_BINARY][isExported:false]"
 		);
 
@@ -1049,17 +1049,17 @@ public void testVariableInitializer03() throws CoreException {
 
 		// simulate state on startup
 		simulateExitRestart();
-		
+
 		startDeltas();
-		//JavaModelManager.CP_RESOLVE_VERBOSE=true;		
+		//JavaModelManager.CP_RESOLVE_VERBOSE=true;
 		getJavaProject("P2").getResolvedClasspath(true);
-		
+
 		assertDeltas(
-			"Unexpected delta on startup", 
+			"Unexpected delta on startup",
 			""
 		);
 	} finally {
-		//JavaModelManager.CP_RESOLVE_VERBOSE=false;		
+		//JavaModelManager.CP_RESOLVE_VERBOSE=false;
 		stopDeltas();
 		deleteProject("P1");
 		deleteProject("P2");
@@ -1163,19 +1163,19 @@ public void testVariableInitializer07() throws CoreException {
 
 		// simulate state on startup
 		simulateExitRestart();
-		
+
 		startDeltas();
-		//JavaModelManager.CP_RESOLVE_VERBOSE=true;		
+		//JavaModelManager.CP_RESOLVE_VERBOSE=true;
 		getJavaProject("P2").getResolvedClasspath(true);
-		
+
 		assertDeltas(
-			"Unexpected delta on startup", 
-			"P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" + 
-			"	/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"Unexpected delta on startup",
+			"P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
+			"	/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"
 		);
 	} finally {
-		//JavaModelManager.CP_RESOLVE_VERBOSE=false;		
+		//JavaModelManager.CP_RESOLVE_VERBOSE=false;
 		stopDeltas();
 		deleteProject("P1");
 		deleteProject("P2");
@@ -1222,7 +1222,7 @@ public void testVariableInitializer09() throws CoreException {
 		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"TEST_LIB"}, "");
 		IClasspathEntry[] resolvedClasspath = p1.getResolvedClasspath(true);
 		assertClasspathEquals(
-			resolvedClasspath, 
+			resolvedClasspath,
 			""
 		);
 	} finally {
@@ -1262,12 +1262,12 @@ public void testVariableInitializer11() throws CoreException {
 		String newValue = "/tmp/file.jar";
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {varName, initialValue}));
 		assertEquals("JavaCore classpath value should have been initialized", JavaCore.getClasspathVariable(varName).toString(), initialValue);
-		
+
 		// Modify preference
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		IEclipsePreferences preferences = manager.getInstancePreferences();
 		preferences.put(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+varName, newValue);
-	
+
 		// verify that JavaCore preferences have been reset
 		assertEquals("JavaCore classpath value should be unchanged", JavaCore.getClasspathVariable(varName).toString(), initialValue);
 		assertEquals("JavaCore preferences value should be unchanged", preferences.get(varName, "X"), initialValue);
@@ -1287,7 +1287,7 @@ public void testVariableInitializerDeprecated() throws CoreException {
 		String filePath = "/P1/lib.jar";
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {varName, filePath}));
 		assertEquals("JavaCore classpath value should have been initialized", JavaCore.getClasspathVariable(varName).toString(), filePath);
-		
+
 		// Verify that Classpath Variable is deprecated
 		assertEquals("JavaCore classpath variable should be deprecated", "Test deprecated flag", JavaCore.getClasspathVariableDeprecationMessage(varName));
 
@@ -1312,7 +1312,7 @@ public void testVariableInitializerUnboundAndDeprecated() throws CoreException {
 		String filePath = "/P1/lib.jar";
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {varName, filePath}));
 		assertEquals("JavaCore classpath value should have been initialized", JavaCore.getClasspathVariable(varName).toString(), filePath);
-		
+
 		// Verify that Classpath Variable is deprecated
 		assertEquals("JavaCore classpath variable should be deprecated", "Test deprecated flag", JavaCore.getClasspathVariableDeprecationMessage(varName));
 
@@ -1456,7 +1456,7 @@ public void testVariableInitializerBug200449() throws CoreException {
 		String filePath = "/P1/lib.jar";
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {varName, filePath}));
 		JavaCore.getClasspathVariable(varName); // init variable
-		
+
 		// Verify that deprecation message has been stored
 		assertNotNull("Deprecation message should have been stored!", JavaModelManager.getJavaModelManager().deprecatedVariables.get("TEST_DEPRECATED"));
 	} finally {
@@ -1506,7 +1506,7 @@ public void testUserLibraryInitializer1() throws CoreException {
 			"</classpath>"
 		);
 
-		// Verify 
+		// Verify
 		IClasspathEntry[] entries = getJavaProject("p61872").getResolvedClasspath(true);
 		assertEquals("Invalid entries number in resolved classpath for project p61872!", 1, entries.length);
 		assertEquals("Invalid path for project 61872 classpath entry!", jarFullPath.toLowerCase(), entries[0].getPath().toString().toLowerCase());
@@ -1521,7 +1521,7 @@ public void testUserLibraryInitializer1() throws CoreException {
 		preferences.setValue(propertyName, propertyValue.toString());
 		JavaCore.getPlugin().savePluginPreferences();
 
-		// Verify 
+		// Verify
 		entries = getJavaProject("p61872").getResolvedClasspath(true);
 		assertEquals("Invalid entries number in resolved classpath for project p61872!", 1, entries.length);
 		assertEquals("Invalid path for project 61872 classpath entry!", jarFullPath.toLowerCase(), entries[0].getPath().toString().toLowerCase());

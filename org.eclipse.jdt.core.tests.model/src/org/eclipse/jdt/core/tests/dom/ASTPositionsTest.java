@@ -20,14 +20,14 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class ASTPositionsTest extends ConverterTestSetup {
-	
+
 	ICompilationUnit workingCopy;
-	
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST.JLS3);
 	}
-	
+
 	public ASTPositionsTest(String name) {
 		super(name);
 	}
@@ -39,7 +39,7 @@ public class ASTPositionsTest extends ConverterTestSetup {
 	public static Test suite() {
 		return buildModelTestSuite(ASTPositionsTest.class);
 	}
-	
+
 	private void sanityCheck(final String contents, CompilationUnit compilationUnit) {
 		for (int i = 0, max = contents.length(); i < max; i++) {
     		final int lineNumber = compilationUnit.getLineNumber(i);
@@ -54,7 +54,7 @@ public class ASTPositionsTest extends ConverterTestSetup {
 			assertEquals("Wrong char", contents.charAt(i), contents.charAt(position));
     	}
 	}
-	
+
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (this.workingCopy != null) {
@@ -62,7 +62,7 @@ public class ASTPositionsTest extends ConverterTestSetup {
 			this.workingCopy = null;
 		}
 	}
-		
+
 	public void test001() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	final String contents =
@@ -84,7 +84,7 @@ public class ASTPositionsTest extends ConverterTestSetup {
     	assertEquals("Wrong position", -1, compilationUnit.getPosition(4, 1));
     	assertEquals("Wrong char", '}', contents.charAt(compilationUnit.getPosition(4, 0)));
     	assertEquals("Wrong char", '\r', contents.charAt(compilationUnit.getPosition(1, 21)));
-    	
+
     	sanityCheck(contents, compilationUnit);
 	}
 
@@ -103,7 +103,7 @@ public class ASTPositionsTest extends ConverterTestSetup {
     	CompilationUnit compilationUnit = (CompilationUnit) node;
     	sanityCheck(contents, compilationUnit);
 	}
-	
+
 	public void test003() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	final String contents =
@@ -119,7 +119,7 @@ public class ASTPositionsTest extends ConverterTestSetup {
     	CompilationUnit compilationUnit = (CompilationUnit) node;
     	sanityCheck(contents, compilationUnit);
 	}
-	
+
 	public void test004() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
@@ -133,7 +133,7 @@ public class ASTPositionsTest extends ConverterTestSetup {
        	sanityCheck(contents, compilationUnit);
 		assertEquals(1, compilationUnit.getLineNumber(0));
 	}
-	
+
 	public void test005() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =

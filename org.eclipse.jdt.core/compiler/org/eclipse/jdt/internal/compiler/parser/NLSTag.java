@@ -16,7 +16,7 @@ public class NLSTag {
 	public int end;
 	public int lineNumber;
 	public int index;
-	
+
 	public NLSTag(int start, int end, int lineNumber, int index) {
 		this.start = start;
 		this.end = end;

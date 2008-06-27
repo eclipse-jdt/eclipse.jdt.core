@@ -34,7 +34,7 @@ public MoveResourceElementsOperation(IJavaElement[] elementsToMove, IJavaElement
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Messages.operation_moveResourceProgress; 
+	return Messages.operation_moveResourceProgress;
 }
 /**
  * @see CopyResourceElementsOperation#isMove()

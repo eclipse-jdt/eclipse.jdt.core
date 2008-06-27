@@ -23,14 +23,14 @@ import junit.framework.TestSuite;
  * once for all test cases of this class.
  */
 public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
-		
+
 	/*
 	 * A test suite that initialize the test case's fields once, then that copies the values
 	 * of these fields intto each subsequent test case.
 	 */
 	public static class Suite extends TestSuite {
 		public SuiteOfTestCases currentTestCase;
-		
+
 		/*
 		 * Creates a new suite on the given class. This class must be a subclass of SetupableTestSuite.
 		 */
@@ -46,14 +46,14 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 				Field[] fields = currentClass.getDeclaredFields();
 				for (int i = 0, length = fields.length; i < length; i++) {
 					Field field = fields[i];
-					
+
 					// skip static and final fields
 					int modifiers = field.getModifiers();
 					if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) continue;
-					
+
 					// make the field accessible
 					field.setAccessible(true);
-					
+
 					try {
 						Object value = field.get(this.currentTestCase);
 						field.set(test, value);
@@ -70,7 +70,7 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 					try {
 						// run suite (first test run will setup the suite)
 						superRun(result);
-					} finally {	
+					} finally {
 						// tear down the suite
 						if (Suite.this.currentTestCase != null) { // protect against empty test suite
 							Suite.this.currentTestCase.tearDownSuite();
@@ -94,27 +94,27 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 				}
 			} else {
 				// copy the values of the previous current test case's fields into the current one
-				this.initialize(current);
+				initialize(current);
 			}
 			try {
 				super.runTest(test, result);
-			} finally {		
+			} finally {
 				// make current
 				this.currentTestCase = current;
 			}
 		}
 	}
-			
+
 	public SuiteOfTestCases(String name) {
 		super(name);
 	}
-			
+
 	/**
 	 * Setup the test suite once before all test cases run.
 	 */
 	public void setUpSuite() throws Exception {
 	}
-	
+
 	/**
 	 * Tear down the test suite once after all test cases have run.
 	 */

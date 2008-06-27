@@ -65,7 +65,7 @@ protected void assertTypesEqual(String expected, String[][] types) {
 	}
 	assertEquals(
 		"Unexpected types",
-		expected, 
+		expected,
 		actual);
 }
 /* (non-Javadoc)
@@ -77,13 +77,13 @@ public void setUpSuite() throws Exception {
 	this.cu = this.getCompilationUnit("TypeResolve", "src", "p", "TypeResolve.java");
 	addLibrary("myLib.jar", "myLibsrc.zip", new String[] {
 			"p1/X.java",
-			"package p1;\n" + 
-			"public class X {\n" + 
+			"package p1;\n" +
+			"public class X {\n" +
 			"}",
 			"p2/Y.java",
-			"package p2;\n" + 
+			"package p2;\n" +
 			"import p1.X;\n" +
-			"public class Y {\n" + 
+			"public class Y {\n" +
 			"  class Member {\n" +
 			"    X field;\n" +
 			"  }\n" +
@@ -116,7 +116,7 @@ public void testResolveInSecondaryType() throws JavaModelException {
 	String[][] types = type.resolveType("B");
 	assertTypesEqual(
 		"p3.B",
-		types);	
+		types);
 }
 /**
  * Resolve the type "B" within one of its inner classes.
@@ -125,7 +125,7 @@ public void testResolveMemberTypeInInner() throws JavaModelException {
 	String[][] types = resolveType("B", "TypeResolve$A$B$D");
 	assertTypesEqual(
 		"p.TypeResolve.A.B",
-		types);	
+		types);
 }
 /*
  * Resolve a parameterized type
@@ -144,7 +144,7 @@ public void testResolveParameterizedType() throws CoreException {
 		String[][] types = type.resolveType("X<String>");
 		assertTypesEqual(
 			"X",
-			types);	
+			types);
 	} finally {
 		deleteProject("P");
 	}
@@ -156,7 +156,7 @@ public void testResolveSiblingTypeInInner() throws JavaModelException {
 	String[][] types = resolveType("C", "TypeResolve$A$B");
 	assertTypesEqual(
 		"p.TypeResolve.A.C",
-		types);	
+		types);
 }
 /*
  * Resolve the type "X" within a top level binary type.
@@ -166,7 +166,7 @@ public void testResolveTypeInBinary1() throws JavaModelException {
 	String[][] types = type.resolveType("X");
 	assertTypesEqual(
 		"p1.X",
-		types);		
+		types);
 }
 /*
  * Resolve the type "X" within a member binary type.
@@ -176,7 +176,7 @@ public void testResolveTypeInBinary2() throws JavaModelException {
 	String[][] types = type.resolveType("X");
 	assertTypesEqual(
 		"p1.X",
-		types);		
+		types);
 }
 /*
  * Resolve the type "X" within an anonymous binary type.
@@ -186,7 +186,7 @@ public void testResolveTypeInBinary3() throws JavaModelException {
 	String[][] types = type.resolveType("X");
 	assertTypesEqual(
 		"p1.X",
-		types);		
+		types);
 }
 /*
  * Resolve the type "int" within a member binary type with a constructor.
@@ -195,7 +195,7 @@ public void testResolveTypeInBinary3() throws JavaModelException {
 public void testResolveTypeInBinary4() throws Exception {
 	try {
 		addLibrary("lib212224.jar", "lib212224src.zip", new String[] {
-			"X212224.java", 
+			"X212224.java",
 			"public class X212224 {\n" +
 			"  public class Member {\n" +
 			"    Member(int i) {\n" +
@@ -220,7 +220,7 @@ public void testResolveTypeInInner() throws JavaModelException {
 	String[][] types = resolveType("X", "TypeResolve$A");
 	assertTypesEqual(
 		"p1.X",
-		types);	
+		types);
 }
 /**
  * Resolve the type "Object" within a local class.
@@ -228,11 +228,11 @@ public void testResolveTypeInInner() throws JavaModelException {
  */
 public void testResolveTypeInInner2() throws JavaModelException {
 	IType type = getCompilationUnit("/TypeResolve/src/p5/A.java").getType("A").getMethod("foo", new String[] {}).getType("Local", 1);
-	
+
 	String[][] types = type.resolveType("Object");
 	assertTypesEqual(
 		"java.lang.Object",
-		types);		
+		types);
 }
 /**
  * Resolve the type "String".
@@ -241,7 +241,7 @@ public void testResolveTypeInJavaLang() throws JavaModelException {
 	String[][] types = resolveType("String", "TypeResolve");
 	assertTypesEqual(
 		"java.lang.String",
-		types);	
+		types);
 }
 /**
  * Resolve the type "Vector" with no imports.
@@ -250,7 +250,7 @@ public void testResolveTypeWithNoImports() throws JavaModelException {
 	String[][] types = resolveType("Vector", "TypeResolve");
 	assertTypesEqual(
 		"<null>",
-		types);	
+		types);
 }
 /**
  * Resolve the type "Y" with an on-demand import.
@@ -259,7 +259,7 @@ public void testResolveTypeWithOnDemandImport() throws JavaModelException {
 	String[][] types = resolveType("Y", "TypeResolve");
 	assertTypesEqual(
 		"p2.Y",
-		types);	
+		types);
 }
 /**
  * Resolve the type "X" with a type import for it.
@@ -268,7 +268,7 @@ public void testResolveTypeWithTypeImport() throws JavaModelException {
 	String[][] types = resolveType("X", "TypeResolve");
 	assertTypesEqual(
 		"p1.X",
-		types);	
+		types);
 }
 /**
  * Resolve the type "String".
@@ -277,7 +277,7 @@ public void testResolveString() throws JavaModelException {
 	String[][] types = resolveType("String", "TypeResolve");
 	assertTypesEqual(
 		"java.lang.String",
-		types);	
+		types);
 }
 /**
  * Resolve the type "A.Inner".
@@ -287,7 +287,7 @@ public void testResolveInnerType1() throws JavaModelException {
 	String[][] types = type.resolveType("A.Inner");
 	assertTypesEqual(
 		"p4.A.Inner",
-		types);		
+		types);
 }
 /**
  * Resolve the type "p4.A.Inner".
@@ -297,6 +297,6 @@ public void testResolveInnerType2() throws JavaModelException {
 	String[][] types = type.resolveType("p4.A.Inner");
 	assertTypesEqual(
 		"p4.A.Inner",
-		types);		
+		types);
 }
 }

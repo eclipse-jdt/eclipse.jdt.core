@@ -31,33 +31,33 @@ public class IncrementalTests extends BuilderTests {
 	public static Test suite() {
 		return buildTestSuite(IncrementalTests.class);
 	}
-	
+
 	/*
 	 * Ensures that the source range for a duplicate secondary type error is correct
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=77283)
 	 */
 	public void testAddDuplicateSecondaryType() throws JavaModelException {
-		IPath projectPath = env.addProject("Project"); 
+		IPath projectPath = env.addProject("Project");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot(projectPath, ""); 
+		env.removePackageFragmentRoot(projectPath, "");
 
-		IPath root = env.addPackageFragmentRoot(projectPath, "src"); 
-		env.setOutputFolder(projectPath, "bin"); 
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
 
-		env.addClass(root, "p", "C",  
-			"package p;	\n"+ 
-			"public class C {}	\n"+ 
-			"class CC {}"); 
+		env.addClass(root, "p", "C",
+			"package p;	\n"+
+			"public class C {}	\n"+
+			"class CC {}");
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 
-		IPath pathToD = env.addClass(root, "p", "D",  
-			"package p;	\n"+ 
-			"public class D {}	\n"+ 
-			"class CC {}"); 
+		IPath pathToD = env.addClass(root, "p", "D",
+			"package p;	\n"+
+			"public class D {}	\n"+
+			"class CC {}");
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(
@@ -118,7 +118,7 @@ public class IncrementalTests extends BuilderTests {
 		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
 		fullBuild();
 		expectingNoProblems();
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
@@ -127,11 +127,11 @@ public class IncrementalTests extends BuilderTests {
 			"public class Object {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 
 		incrementalBuild();
 		expectingNoProblems();
-		
+
 		//----------------------------
 		//           Step 3
 		//----------------------------
@@ -140,7 +140,7 @@ public class IncrementalTests extends BuilderTests {
 			"public class Throwable {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 
 		incrementalBuild();
 		expectingNoProblems();
@@ -189,8 +189,8 @@ public class IncrementalTests extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingProblemsFor(
 			new IPath[]{ pathToA, pathToB, pathToC },
-			"Problem : A cannot be resolved to a type [ resource : </Project/src/p/B.java> range : <35,36> category : <40> severity : <2>]\n" + 
-			"Problem : The hierarchy of the type C is inconsistent [ resource : </Project/src/p/C.java> range : <25,26> category : <40> severity : <2>]\n" + 
+			"Problem : A cannot be resolved to a type [ resource : </Project/src/p/B.java> range : <35,36> category : <40> severity : <2>]\n" +
+			"Problem : The hierarchy of the type C is inconsistent [ resource : </Project/src/p/C.java> range : <25,26> category : <40> severity : <2>]\n" +
 			"Problem : The public type _A must be defined in its own file [ resource : </Project/src/p/A.java> range : <25,27> category : <40> severity : <2>]"
 		);
 		expectingSpecificProblemFor(pathToA, new Problem("_A", "The public type _A must be defined in its own file", pathToA, 25, 27, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -427,8 +427,8 @@ public class IncrementalTests extends BuilderTests {
 
 		fullBuild(projectPath);
 		expectingOnlySpecificProblemsFor(
-			root, 
-			new Problem[]{ 
+			root,
+			new Problem[]{
 				new Problem("", "The import p.ZA is never used", new Path("/Project/src/p/AB.java"), 35, 39, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			});
 
@@ -445,8 +445,8 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlySpecificProblemsFor(
-			root, 
-			new Problem[]{ 
+			root,
+			new Problem[]{
 				new Problem("", "The import p.AZ is never used", new Path("/Project/src/p/AB.java"), 19, 23, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			});
 
@@ -463,8 +463,8 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlySpecificProblemsFor(
-			root, 
-			new Problem[]{ 
+			root,
+			new Problem[]{
 				new Problem("", "The import p.ZA is never used", new Path("/Project/src/p/AB.java"), 35, 39, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			});
 	}
@@ -474,7 +474,7 @@ public class IncrementalTests extends BuilderTests {
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath[] exclusionPatterns = new Path[] {new Path("src2/")}; //$NON-NLS-1$
-		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", exclusionPatterns, null); //$NON-NLS-1$ 
+		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", exclusionPatterns, null); //$NON-NLS-1$
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src1/src2"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
@@ -498,7 +498,7 @@ public class IncrementalTests extends BuilderTests {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$ 
+		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		IPath other = env.addFolder(projectPath, "other"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
@@ -511,14 +511,14 @@ public class IncrementalTests extends BuilderTests {
 
 		fullBuild(projectPath);
 		expectingSpecificProblemFor(
-			classA, 
-			new Problem("", "Missing cannot be resolved to a type", new Path("/Project/src/p/A.java"), 35, 42, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+			classA,
+			new Problem("", "Missing cannot be resolved to a type", new Path("/Project/src/p/A.java"), 35, 42, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		);
 		expectingSpecificProblemFor(
-			classB, 
-			new Problem("", "Missing cannot be resolved to a type", new Path("/Project/src/p/q/B.java"), 37, 44, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+			classB,
+			new Problem("", "Missing cannot be resolved to a type", new Path("/Project/src/p/q/B.java"), 37, 44, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		);
-		
+
 		try {
 			IProject p = env.getProject(projectPath);
 			IFolder pFolder = p.getWorkspace().getRoot().getFolder(classA.removeLastSegments(1));
@@ -582,54 +582,54 @@ public class IncrementalTests extends BuilderTests {
 		org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = previous;
 		expectingNoProblems();
 	}
-	
+
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=27658
 	public void testObjectWithSuperInterfaces() throws JavaModelException {
 		try {
 			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 			env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	
+
 			// remove old package fragment root so that names don't collide
 			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-	
+
 			IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 			env.addClass(root, "java.lang", "Object", //$NON-NLS-1$ //$NON-NLS-2$
 				"package java.lang; \n"+ //$NON-NLS-1$
 				"public class Object implements I {} \n"+ //$NON-NLS-1$
 				"interface I {}	\n");	//$NON-NLS-1$
-	
+
 			fullBuild(projectPath);
 
 			expectingOnlySpecificProblemsFor(
-				root, 
+				root,
 				new Problem[]{
-					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				});
-	
+
 			env.addClass(root, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p; \n"+ //$NON-NLS-1$
 				"public class X {}\n"); //$NON-NLS-1$
-	
+
 			incrementalBuild(projectPath);
-	
+
 			expectingOnlySpecificProblemsFor(
-				root, 
+				root,
 				new Problem[]{
-					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				});
 
 			env.addClass(root, "p", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p; \n"+ //$NON-NLS-1$
 				"public class Y extends X {}\n"); //$NON-NLS-1$
-	
+
 			incrementalBuild(projectPath);
 
 			expectingOnlySpecificProblemsFor(
-				root, 
+				root,
 				new Problem[]{
-					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				});
 
 		} catch(StackOverflowError e){
@@ -637,9 +637,9 @@ public class IncrementalTests extends BuilderTests {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * Bugs 6461 
+	 * Bugs 6461
 	 * TODO excluded test
 	 */
 	public void _testWrongCompilationUnitLocation() throws JavaModelException {
@@ -656,11 +656,11 @@ public class IncrementalTests extends BuilderTests {
 			"}\n" //$NON-NLS-1$
 			);
 
-		
+
 		fullBuild();
 		expectingNoProblems();
 		expectingPresenceOf(bin.append("X.class")); //$NON-NLS-1$
-		
+
 		//----------------------------
 		//           Step 2
 		//----------------------------
@@ -669,7 +669,7 @@ public class IncrementalTests extends BuilderTests {
 			"public class X {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-			
+
 		incrementalBuild();
 		expectingProblemsFor(x, "???");
 		expectingNoPresenceOf(bin.append("X.class")); //$NON-NLS-1$
@@ -681,10 +681,10 @@ public class IncrementalTests extends BuilderTests {
 		try {
 			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 			env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	
+
 			// remove old package fragment root so that names don't collide
 			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-	
+
 			IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
@@ -714,7 +714,7 @@ public class IncrementalTests extends BuilderTests {
 				"public interface I {\n"+ //$NON-NLS-1$
 				"	interface InnerType {}\n" + //$NON-NLS-1$
 				"}");	//$NON-NLS-1$
-	
+
 			incrementalBuild(projectPath);
 			expectingNoProblems();
 		} finally {
@@ -728,15 +728,15 @@ public class IncrementalTests extends BuilderTests {
 		try {
 			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 			env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	
+
 			// remove old package fragment root so that names don't collide
 			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-	
+
 			IPath src1 = env.addPackageFragmentRoot(projectPath, "src1"); //$NON-NLS-1$
 			IPath bin1 = env.setOutputFolder(projectPath, "bin1"); //$NON-NLS-1$
 
 			env.addClass(src1, "p1", "NoSource", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p1;	\n"+ 
+				"package p1;	\n"+
 				"import p2.Foo;\n"+ //$NON-NLS-1$
 				"public class NoSource {\n"+ //$NON-NLS-1$
 				"	public NoSource(Foo.Bar b) {}\n" + //$NON-NLS-1$
@@ -745,7 +745,7 @@ public class IncrementalTests extends BuilderTests {
 			IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "bin2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			env.addClass(src2, "p2", "Foo", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p2; \n"+ 
+				"package p2; \n"+
 				"public class Foo {\n"+ //$NON-NLS-1$
 				"	public static class Bar {\n" + //$NON-NLS-1$
 				"		public static Bar LocalBar = new Bar();\n" + //$NON-NLS-1$
@@ -753,7 +753,7 @@ public class IncrementalTests extends BuilderTests {
 				"}");	//$NON-NLS-1$
 
 			env.addClass(src2, "p2", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p2; \n"+ 
+				"package p2; \n"+
 				"import p1.NoSource;\n"+ //$NON-NLS-1$
 				"import p2.Foo.Bar;\n"+ //$NON-NLS-1$
 				"public class Test {\n"+ //$NON-NLS-1$
@@ -769,7 +769,7 @@ public class IncrementalTests extends BuilderTests {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1;
 
 			env.addClass(src2, "p2", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p2; \n"+ 
+				"package p2; \n"+
 				"import p1.NoSource;\n"+ //$NON-NLS-1$
 				"import p2.Foo.Bar;\n"+ //$NON-NLS-1$
 				"public class Test {\n"+ //$NON-NLS-1$
@@ -783,14 +783,14 @@ public class IncrementalTests extends BuilderTests {
 		}
 	}
 
-	
+
 	public void test129316() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.setOutputFolder(projectPath, ""); //$NON-NLS-1$
 
 		IPath yPath = env.addClass(projectPath, "p", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" + 
+			"package p;\n" +
 			"public class Y extends Z {}"); //$NON-NLS-1$
 
 		env.addClass(projectPath, "p", "Z", //$NON-NLS-1$ //$NON-NLS-2$
@@ -800,14 +800,14 @@ public class IncrementalTests extends BuilderTests {
 		env.addClass(projectPath, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"import p.Y;\n" +
 			"public class X {\n" +
-			"	boolean b(Object o) {\n" + 
-			"		return o instanceof Y;\n" + 
+			"	boolean b(Object o) {\n" +
+			"		return o instanceof Y;\n" +
 			"    }\n" +
 			"}"); //$NON-NLS-1$
 
 		fullBuild(projectPath);
 		expectingNoProblems();
-		
+
 		env.addClass(projectPath, "p", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p;\n" +
 				"public class Y extends Zork {}"); //$NON-NLS-1$
@@ -817,8 +817,8 @@ public class IncrementalTests extends BuilderTests {
 
 		IPath xPath = env.addClass(projectPath, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
 				"public class X {\n" +
-				"	boolean b(Object o) {\n" + 
-				"		return o instanceof p.Y;\n" + 
+				"	boolean b(Object o) {\n" +
+				"		return o instanceof p.Y;\n" +
 				"    }\n" +
 				"}"); //$NON-NLS-1$
 
@@ -853,20 +853,20 @@ public class IncrementalTests extends BuilderTests {
 		}
 		expectingNoProblems();
 	}
-	
+
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 	public void testMissingType001() throws JavaModelException {
 
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		IPath xPath = env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class X {\n"+ //$NON-NLS-1$
@@ -885,7 +885,7 @@ public class IncrementalTests extends BuilderTests {
 		fullBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(yPath, new Problem("Y", "Z cannot be resolved to a type", yPath, 46, 47, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		env.addClass(root, "p2", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"public class Z {\n"+ //$NON-NLS-1$
@@ -901,13 +901,13 @@ public class IncrementalTests extends BuilderTests {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		IPath yPath = env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p2;\n"+ //$NON-NLS-1$
 				"public class Y {\n"+ //$NON-NLS-1$
@@ -929,7 +929,7 @@ public class IncrementalTests extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(yPath, new Problem("Y", "Z cannot be resolved to a type", yPath, 46, 47, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		env.addClass(root, "p2", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"public class Z {\n"+ //$NON-NLS-1$
@@ -945,13 +945,13 @@ public class IncrementalTests extends BuilderTests {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
-		
+
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		
+
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		
+
 		IPath yPath = env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p2;\n"+ //$NON-NLS-1$
 				"public class Y {\n"+ //$NON-NLS-1$
@@ -973,7 +973,7 @@ public class IncrementalTests extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(yPath, new Problem("Y", "p1.Z cannot be resolved to a type", yPath, 46, 50, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		env.addClass(root, "p1", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class Z {\n"+ //$NON-NLS-1$

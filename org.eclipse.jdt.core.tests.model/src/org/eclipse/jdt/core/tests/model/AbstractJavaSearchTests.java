@@ -76,7 +76,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			this.count++;
 			this.match = searchMatch;
 			writeLine();
-			if (this.line != null && (match.getAccuracy() == SearchMatch.A_ACCURATE || showPotential)) {
+			if (this.line != null && (this.match.getAccuracy() == SearchMatch.A_ACCURATE || this.showPotential)) {
 				this.lines.add(this.line);
 			}
 		}
@@ -85,47 +85,47 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 		}
 		protected void writeLine() throws CoreException {
 			try {
-				IResource resource = match.getResource();
-				IJavaElement element = getElement(match);
-				line = new StringBuffer();
+				IResource resource = this.match.getResource();
+				IJavaElement element = getElement(this.match);
+				this.line = new StringBuffer();
 				if (this.showMatchKind) {
 					String matchClassName = this.match.getClass().getName();
-					line.append(matchClassName.substring(matchClassName.lastIndexOf('.')+1));
-					line.append(": ");
+					this.line.append(matchClassName.substring(matchClassName.lastIndexOf('.')+1));
+					this.line.append(": ");
 				}
-				line.append(getPathString(resource, element));
+				this.line.append(getPathString(resource, element));
 				if (this.showProject) {
 					IProject project = element.getJavaProject().getProject();
-					line.append(" [in ");
-					line.append(project.getName());
-					line.append("]");
+					this.line.append(" [in ");
+					this.line.append(project.getName());
+					this.line.append("]");
 				}
 				ICompilationUnit unit = null;
 				if (element instanceof IMethod) {
-					line.append(" ");
+					this.line.append(" ");
 					IMethod method = (IMethod)element;
 					append(method);
 					unit = method.getCompilationUnit();
 				} else if (element instanceof IType) {
-					line.append(" ");
+					this.line.append(" ");
 					IType type = (IType)element;
 					append(type);
 					unit = type.getCompilationUnit();
 				} else if (element instanceof IField) {
-					line.append(" ");
+					this.line.append(" ");
 					IField field = (IField)element;
 					append(field);
 					unit = field.getCompilationUnit();
 				} else if (element instanceof IInitializer) {
-					line.append(" ");
+					this.line.append(" ");
 					IInitializer initializer = (IInitializer)element;
 					append(initializer);
 					unit = initializer.getCompilationUnit();
 				} else if (element instanceof IPackageFragment) {
-					line.append(" ");
+					this.line.append(" ");
 					append((IPackageFragment)element);
 				} else if (element instanceof ILocalVariable) {
-					line.append(" ");
+					this.line.append(" ");
 					ILocalVariable localVar = (ILocalVariable)element;
 					IJavaElement parent = localVar.getParent();
 					if (parent instanceof IInitializer) {
@@ -135,11 +135,11 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 						IMethod method = (IMethod)parent;
 						append(method);
 					}
-					line.append(".");
-					line.append(localVar.getElementName());
+					this.line.append(".");
+					this.line.append(localVar.getElementName());
 					unit = (ICompilationUnit)localVar.getAncestor(IJavaElement.COMPILATION_UNIT);
 				} else if (element instanceof ITypeParameter) {
-					line.append(" ");
+					this.line.append(" ");
 					ITypeParameter typeParam = (ITypeParameter)element;
 					IJavaElement parent = typeParam.getParent();
 					if (parent instanceof IType) {
@@ -151,11 +151,11 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 						append(method);
 						unit = method.getCompilationUnit();
 					} else {
-						line.append("<Unexpected kind of parent for type parameter>");
+						this.line.append("<Unexpected kind of parent for type parameter>");
 						unit = (ICompilationUnit)typeParam.getAncestor(IJavaElement.COMPILATION_UNIT);
 					}
-					line.append(".");
-					line.append(typeParam.getElementName());
+					this.line.append(".");
+					this.line.append(typeParam.getElementName());
 				} else if (element instanceof IImportDeclaration) {
 					IImportDeclaration importDeclaration = (IImportDeclaration)element;
 					unit = (ICompilationUnit)importDeclaration.getAncestor(IJavaElement.COMPILATION_UNIT);
@@ -163,109 +163,109 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 					IPackageDeclaration packageDeclaration = (IPackageDeclaration)element;
 					unit = (ICompilationUnit)packageDeclaration.getAncestor(IJavaElement.COMPILATION_UNIT);
 				} else if (element instanceof IAnnotation) {
-					line.append(" ");
+					this.line.append(" ");
 					append((IAnnotation)element);
 					unit = (ICompilationUnit) element.getAncestor(IJavaElement.COMPILATION_UNIT);
 				}
 				if (resource instanceof IFile) {
 					char[] contents = getSource(resource, element, unit);
-					int start = match.getOffset();
-					int end = start + match.getLength();
+					int start = this.match.getOffset();
+					int end = start + this.match.getLength();
 					if (start == -1 || (contents != null && contents.length > 0)) { // retrieving attached source not implemented here
-						line.append(" [");
+						this.line.append(" [");
 						if (start > -1) {
 							if (this.showSelection) {
 								int lineStart1 = CharOperation.lastIndexOf('\n', contents, 0, start);
 								int lineStart2 = CharOperation.lastIndexOf('\r', contents, 0, start);
 								int lineStart = Math.max(lineStart1, lineStart2) + 1;
-								line.append(CharOperation.subarray(contents, lineStart, start));
-								line.append("§|");
+								this.line.append(CharOperation.subarray(contents, lineStart, start));
+								this.line.append("§|");
 							}
-							line.append(CharOperation.subarray(contents, start, end));
+							this.line.append(CharOperation.subarray(contents, start, end));
 							if (this.showSelection) {
-								line.append("|§");
+								this.line.append("|§");
 								int lineEnd1 = CharOperation.indexOf('\n', contents, end);
 								int lineEnd2 = CharOperation.indexOf('\r', contents, end);
 								int lineEnd = lineEnd1 > 0 && lineEnd2 > 0 ? Math.min(lineEnd1, lineEnd2) : Math.max(lineEnd1, lineEnd2);
 								if (lineEnd == -1) lineEnd = contents.length;
-								line.append(CharOperation.subarray(contents, end, lineEnd));
+								this.line.append(CharOperation.subarray(contents, end, lineEnd));
 							}
 							if (this.showOffset) {
-								line.append('@');
-								line.append(start);
+								this.line.append('@');
+								this.line.append(start);
 							}
 						} else {
-							line.append("No source");
+							this.line.append("No source");
 						}
-						line.append("]");
+						this.line.append("]");
 					}
 				}
 				if (this.showAccuracy) {
-					line.append(" ");
-					if (match.getAccuracy() == SearchMatch.A_ACCURATE) {
+					this.line.append(" ");
+					if (this.match.getAccuracy() == SearchMatch.A_ACCURATE) {
 						if (this.showRule) {
-							if (match.isExact()) {
-								line.append("EXACT_");
-							} else if (match.isEquivalent()) {
-								line.append("EQUIVALENT_");
-							} else if (match.isErasure()) {
-								line.append("ERASURE_");
+							if (this.match.isExact()) {
+								this.line.append("EXACT_");
+							} else if (this.match.isEquivalent()) {
+								this.line.append("EQUIVALENT_");
+							} else if (this.match.isErasure()) {
+								this.line.append("ERASURE_");
 							} else {
-								line.append("INVALID_RULE_");
+								this.line.append("INVALID_RULE_");
 							}
-							if (match.isRaw()) {
-								line.append("RAW_");
+							if (this.match.isRaw()) {
+								this.line.append("RAW_");
 							}
 						} else {
-							line.append("EXACT_");
+							this.line.append("EXACT_");
 						}
-						line.append("MATCH");
+						this.line.append("MATCH");
 					} else {
-						line.append("POTENTIAL_MATCH");
+						this.line.append("POTENTIAL_MATCH");
 					}
 				}
 				if (this.showInsideDoc) {
-					line.append(" ");
-					if (match.isInsideDocComment()) {
-						line.append("INSIDE_JAVADOC");
+					this.line.append(" ");
+					if (this.match.isInsideDocComment()) {
+						this.line.append("INSIDE_JAVADOC");
 					} else {
-						line.append("OUTSIDE_JAVADOC");
+						this.line.append("OUTSIDE_JAVADOC");
 					}
 				}
 				if (this.showSynthetic) {
-					if (match instanceof MethodReferenceMatch) {
-						MethodReferenceMatch methRef = (MethodReferenceMatch) match;
+					if (this.match instanceof MethodReferenceMatch) {
+						MethodReferenceMatch methRef = (MethodReferenceMatch) this.match;
 						if (methRef.isSynthetic()) {
-							line.append(" SYNTHETIC");
+							this.line.append(" SYNTHETIC");
 						}
 					}
 				}
 				if (this.showFlavors > 0) {
-					if (match instanceof MethodReferenceMatch) {
-						MethodReferenceMatch methRef = (MethodReferenceMatch) match;
+					if (this.match instanceof MethodReferenceMatch) {
+						MethodReferenceMatch methRef = (MethodReferenceMatch) this.match;
 						if (methRef.isSuperInvocation() && showSuperInvocation()) {
-							line.append(" SUPER INVOCATION");
+							this.line.append(" SUPER INVOCATION");
 						}
 					}
 				}
 				if (this.showAccess) {
-					if (match instanceof FieldReferenceMatch) {
-						FieldReferenceMatch fieldRef = (FieldReferenceMatch) match;
+					if (this.match instanceof FieldReferenceMatch) {
+						FieldReferenceMatch fieldRef = (FieldReferenceMatch) this.match;
 						if (fieldRef.isReadAccess()) {
-							line.append(" READ");
-							if (fieldRef.isWriteAccess()) line.append("/WRITE");
-							line.append(" ACCESS");
+							this.line.append(" READ");
+							if (fieldRef.isWriteAccess()) this.line.append("/WRITE");
+							this.line.append(" ACCESS");
 						} else if (fieldRef.isWriteAccess()) {
-							line.append(" WRITE ACCESS");
+							this.line.append(" WRITE ACCESS");
 						}
-					} else if (match instanceof LocalVariableReferenceMatch) {
-						LocalVariableReferenceMatch variableRef = (LocalVariableReferenceMatch) match;
+					} else if (this.match instanceof LocalVariableReferenceMatch) {
+						LocalVariableReferenceMatch variableRef = (LocalVariableReferenceMatch) this.match;
 						if (variableRef.isReadAccess()) {
-							line.append(" READ");
-							if (variableRef.isWriteAccess()) line.append("/WRITE");
-							line.append(" ACCESS");
+							this.line.append(" READ");
+							if (variableRef.isWriteAccess()) this.line.append("/WRITE");
+							this.line.append(" ACCESS");
 						} else if (variableRef.isWriteAccess()) {
-							line.append(" WRITE ACCESS");
+							this.line.append(" WRITE ACCESS");
 						}
 					}
 				}
@@ -278,70 +278,70 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			return (this.showFlavors & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0;
 		}
 		protected void append(IAnnotation annotation) throws JavaModelException {
-			line.append("@");
-			line.append(annotation.getElementName());
-			line.append('(');
+			this.line.append("@");
+			this.line.append(annotation.getElementName());
+			this.line.append('(');
 			IMemberValuePair[] pairs = annotation.getMemberValuePairs();
 			int length = pairs == null ? 0 : pairs.length;
 			for (int i=0; i<length; i++) {
-				line.append(pairs[i].getMemberName());
-				line.append('=');
+				this.line.append(pairs[i].getMemberName());
+				this.line.append('=');
 				Object value = pairs[i].getValue();
 				switch (pairs[i].getValueKind()) {
 					case IMemberValuePair.K_CLASS:
-						line.append(value);
-						line.append(".class");
+						this.line.append(value);
+						this.line.append(".class");
 						break;
 					default:
-						line.append(value);
+						this.line.append(value);
 					break;
 				}
 			}
-			line.append(')');
+			this.line.append(')');
 		}
 		protected void append(IField field) throws JavaModelException {
 			append(field.getDeclaringType());
-			line.append(".");
-			line.append(field.getElementName());
+			this.line.append(".");
+			this.line.append(field.getElementName());
 		}
 		private void append(IInitializer initializer) throws JavaModelException {
 			append(initializer.getDeclaringType());
-			line.append(".");
+			this.line.append(".");
 			if (Flags.isStatic(initializer.getFlags())) {
-				line.append("static ");
+				this.line.append("static ");
 			}
-			line.append("{}");
+			this.line.append("{}");
 		}
 		private void append(IMethod method) throws JavaModelException {
 			if (!method.isConstructor()) {
-				line.append(Signature.toString(method.getReturnType()));
-				line.append(" ");
+				this.line.append(Signature.toString(method.getReturnType()));
+				this.line.append(" ");
 			}
 			append(method.getDeclaringType());
 			if (!method.isConstructor()) {
-				line.append(".");
-				line.append(method.getElementName());
+				this.line.append(".");
+				this.line.append(method.getElementName());
 			}
-			line.append("(");
+			this.line.append("(");
 			String[] parameters = method.getParameterTypes();
 			boolean varargs = Flags.isVarargs(method.getFlags());
 			for (int i = 0, length=parameters.length; i<length; i++) {
 				if (i < length - 1) {
-					line.append(Signature.toString(parameters[i]));
-					line.append(", "); //$NON-NLS-1$
+					this.line.append(Signature.toString(parameters[i]));
+					this.line.append(", "); //$NON-NLS-1$
 				} else if (varargs) {
 					// remove array from signature
 					String parameter = parameters[i].substring(1);
-					line.append(Signature.toString(parameter));
-					line.append(" ..."); //$NON-NLS-1$
+					this.line.append(Signature.toString(parameter));
+					this.line.append(" ..."); //$NON-NLS-1$
 				} else {
-					line.append(Signature.toString(parameters[i]));
+					this.line.append(Signature.toString(parameters[i]));
 				}
 			}
-			line.append(")");
+			this.line.append(")");
 		}
 		private void append(IPackageFragment pkg) {
-			line.append(pkg.getElementName());
+			this.line.append(pkg.getElementName());
 		}
 		private void append(IType type) throws JavaModelException {
 			IJavaElement parent = type.getParent();
@@ -351,25 +351,25 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 					IPackageFragment pkg = type.getPackageFragment();
 					append(pkg);
 					if (!pkg.getElementName().equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-						line.append(".");
+						this.line.append(".");
 					}
 					break;
 				case IJavaElement.CLASS_FILE:
 					IType declaringType = type.getDeclaringType();
 					if (declaringType != null) {
 						append(type.getDeclaringType());
-						line.append("$");
+						this.line.append("$");
 					} else {
 						pkg = type.getPackageFragment();
 						append(pkg);
 						if (!pkg.getElementName().equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-							line.append(".");
+							this.line.append(".");
 						}
 					}
 					break;
 				case IJavaElement.TYPE:
 					append((IType)parent);
-					line.append("$");
+					this.line.append("$");
 					break;
 				case IJavaElement.FIELD:
 					append((IField)parent);
@@ -385,17 +385,17 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 					break;
 			}
 			if (isLocal) {
-				line.append(":");
+				this.line.append(":");
 			}
 			String typeName = type.getElementName();
 			if (typeName.length() == 0) {
-				line.append("<anonymous>");
+				this.line.append("<anonymous>");
 			} else {
-				line.append(typeName);
+				this.line.append(typeName);
 			}
 			if (isLocal) {
-				line.append("#");
-				line.append(((SourceRefElement)type).occurrenceCount);
+				this.line.append("#");
+				this.line.append(((SourceRefElement)type).occurrenceCount);
 			}
 		}
 		protected IJavaElement getElement(SearchMatch searchMatch) {
@@ -439,7 +439,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 					IFile file = ((IFile) resource);
 					try {
 						contents = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
-							null, 
+							null,
 							file.getLocation().toFile().getPath(),
 							file.getCharset()).getContents();
 					} catch(AbortCompilationUnit e) {
@@ -468,7 +468,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 	        return buffer.toString();
 	    }
 	}
-	
+
 	static class TypeNameMatchCollector extends TypeNameMatchRequestor {
 		List matches = new ArrayList();
 		public void acceptTypeNameMatch(TypeNameMatch match) {
@@ -525,7 +525,7 @@ protected JavaSearchResultCollector resultCollector;
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertSearchResults(java.lang.String, java.lang.Object)
 	 */
 	protected void assertSearchResults(String expected) {
-		assertSearchResults(expected, resultCollector);
+		assertSearchResults(expected, this.resultCollector);
 	}
 	protected void assertSearchResults(String expected, JavaSearchResultCollector collector) {
 		assertSearchResults("Unexpected search results", expected, collector);
@@ -547,7 +547,7 @@ protected JavaSearchResultCollector resultCollector;
 						System.out.println("s:");
 				}
 			}
-			if (!displayName || collector.count>0) {
+			if (!this.displayName || collector.count>0) {
 				System.out.print(displayString(actual, this.tabs));
 				System.out.println(this.endChar);
 			}
@@ -640,7 +640,7 @@ protected JavaSearchResultCollector resultCollector;
 		return SearchEngine.createJavaSearchScope(new ICompilationUnit[] { cu });
 	}
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope) throws CoreException {
-		search(element, limitTo, EXACT_RULE, scope, resultCollector);
+		search(element, limitTo, EXACT_RULE, scope, this.resultCollector);
 	}
 	IJavaSearchScope getJavaSearchWorkingCopiesScope(ICompilationUnit workingCopy) throws JavaModelException {
 		return SearchEngine.createJavaSearchScope(new ICompilationUnit[] { workingCopy });
@@ -649,12 +649,12 @@ protected JavaSearchResultCollector resultCollector;
 		return SearchEngine.createJavaSearchScope(this.workingCopies);
 	}
 	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope) throws CoreException {
-		search(element, limitTo, matchRule, scope, resultCollector);
+		search(element, limitTo, matchRule, scope, this.resultCollector);
 	}
 	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		SearchPattern pattern = SearchPattern.createPattern(element, limitTo, matchRule);
 		assertNotNull("Pattern should not be null", pattern);
-		new SearchEngine(workingCopies).search(
+		new SearchEngine(this.workingCopies).search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope,
@@ -664,29 +664,29 @@ protected JavaSearchResultCollector resultCollector;
 	}
 	protected void search(SearchPattern searchPattern, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		new SearchEngine().search(
-			searchPattern, 
+			searchPattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope,
 			requestor,
 			null);
 	}
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope) throws CoreException {
-		search(patternString, searchFor, limitTo, EXACT_RULE, scope, resultCollector);
+		search(patternString, searchFor, limitTo, EXACT_RULE, scope, this.resultCollector);
 	}
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope) throws CoreException {
-		search(patternString, searchFor, limitTo, matchRule, scope, resultCollector);
+		search(patternString, searchFor, limitTo, matchRule, scope, this.resultCollector);
 	}
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		if (patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1) {
 			matchRule |= SearchPattern.R_PATTERN_MATCH;
 		}
 		SearchPattern pattern = SearchPattern.createPattern(
-			patternString, 
+			patternString,
 			searchFor,
-			limitTo, 
+			limitTo,
 			matchRule);
 		assertNotNull("Pattern should not be null", pattern);
-		new SearchEngine(workingCopies).search(
+		new SearchEngine(this.workingCopies).search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope,
@@ -694,16 +694,16 @@ protected JavaSearchResultCollector resultCollector;
 			null);
 	}
 	protected void search(IJavaElement element, int limitTo) throws CoreException {
-		search(element, limitTo, EXACT_RULE, getJavaSearchScope(), resultCollector);
+		search(element, limitTo, EXACT_RULE, getJavaSearchScope(), this.resultCollector);
 	}
 	protected void search(IJavaElement element, int limitTo, int matchRule) throws CoreException {
-		search(element, limitTo, matchRule, getJavaSearchScope(), resultCollector);
+		search(element, limitTo, matchRule, getJavaSearchScope(), this.resultCollector);
 	}
 	protected void search(String patternString, int searchFor, int limitTo) throws CoreException {
-		search(patternString, searchFor, limitTo, EXACT_RULE, getJavaSearchScope(), resultCollector);
+		search(patternString, searchFor, limitTo, EXACT_RULE, getJavaSearchScope(), this.resultCollector);
 	}
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule) throws CoreException {
-		search(patternString, searchFor, limitTo, matchRule, getJavaSearchScope(), resultCollector);
+		search(patternString, searchFor, limitTo, matchRule, getJavaSearchScope(), this.resultCollector);
 	}
 	protected void searchAllTypeNames(String pattern, int matchRule, TypeNameRequestor requestor) throws JavaModelException {
 		new SearchEngine(this.workingCopies).searchAllTypeNames(

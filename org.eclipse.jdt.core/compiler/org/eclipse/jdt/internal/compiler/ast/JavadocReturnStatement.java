@@ -29,8 +29,8 @@ public class JavadocReturnStatement extends ReturnStatement {
 		MethodBinding methodBinding = null;
 		TypeBinding methodType =
 			(methodScope.referenceContext instanceof AbstractMethodDeclaration)
-				? ((methodBinding = ((AbstractMethodDeclaration) methodScope.referenceContext).binding) == null 
-					? null 
+				? ((methodBinding = ((AbstractMethodDeclaration) methodScope.referenceContext).binding) == null
+					? null
 					: methodBinding.returnType)
 				: TypeBinding.VOID;
 		if (methodType == null || methodType == TypeBinding.VOID) {

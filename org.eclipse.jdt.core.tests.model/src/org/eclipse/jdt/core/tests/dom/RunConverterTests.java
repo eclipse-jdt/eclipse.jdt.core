@@ -25,10 +25,10 @@ public RunConverterTests(String name) {
 }
 public static Class[] getAllTestClasses() {
 	return new Class[] {
-		ASTConverterTest.class,		
+		ASTConverterTest.class,
 		ASTConverterTest2.class,
-		ASTConverterBugsTest.class,		
-		ASTConverterBugsTestJLS3.class,		
+		ASTConverterBugsTest.class,
+		ASTConverterBugsTestJLS3.class,
 		ASTConverterJavadocTest.class,
 		ASTConverter15Test.class,
 		ASTConverter16Test.class,

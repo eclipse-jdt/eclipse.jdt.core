@@ -17,6 +17,6 @@ import org.eclipse.jdt.internal.compiler.env.ISourceImport;
  * @see org.eclipse.jdt.core.IImportDeclaration
  */
 public class ImportDeclarationElementInfo extends MemberElementInfo implements ISourceImport{
-	
+
 	// empty element info
 }

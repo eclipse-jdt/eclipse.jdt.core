@@ -61,7 +61,7 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 			"    public static int FOO;\n" +
 			"}"
 		);
-		
+
 		// setup project P2
 		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
 		createFolder("/P2/p2");
@@ -74,7 +74,7 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 			"      return X.FOO;\n" +
 			"}"
 		);
-		
+
 		// create working copies and rename X.FOO to X.BAR in these working copies
 		wc1 = getCompilationUnit("P1/p1/X.java").getWorkingCopy(null);
 		wc1.getBuffer().setContents(
@@ -93,22 +93,22 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 			"      return X.BAR;\n" +
 			"}"
 		);
-		
+
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		IField field = wc1.getType("X").getField("BAR");
 		SearchPattern pattern = SearchPattern.createPattern(field, ALL_OCCURRENCES);
 		new SearchEngine(new ICompilationUnit[] {wc1, wc2}).search(
-			pattern, 
+			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			scope, 
+			scope,
 			resultCollector,
 			null);
 		assertEquals(
 			"Unexpected occurences of field p1.X.BAR",
 			"p1/X.java [in P1] p1.X.BAR [BAR]\n" +
-			"p2/Y.java [in P2] int p2.Y.bar() [BAR]", 
+			"p2/Y.java [in P2] int p2.Y.bar() [BAR]",
 			resultCollector.toString());
 	} finally {
 		if (wc1 != null) {
@@ -138,7 +138,7 @@ public void testHierarchyScope1() throws CoreException {
 			"	void bar() {\n" +
 			"		foo();\n" +
 			"	}\n" +
-			"}" 
+			"}"
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
 		createFile(
@@ -147,7 +147,7 @@ public void testHierarchyScope1() throws CoreException {
 			"public class Y extends X {\n" +
 			"	protected void foo() {\n" +
 			"	}\n" +
-			"}" 
+			"}"
 		);
 		ICompilationUnit cu = getCompilationUnit("/P2/Y.java");
 		IType type = cu.getType("Y");
@@ -156,12 +156,12 @@ public void testHierarchyScope1() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		search(
-			method, 
-			REFERENCES, 
-			scope, 
+			method,
+			REFERENCES,
+			scope,
 			resultCollector);
 		assertSearchResults(
-			"p/X.java [in P1] void p.X.bar() [foo()]", 
+			"p/X.java [in P1] void p.X.bar() [foo()]",
 			resultCollector);
 	} finally {
 		deleteProject("P1");
@@ -185,7 +185,7 @@ public void testHierarchyScope2() throws CoreException {
 			"	void bar() {\n" +
 			"		foo();\n" +
 			"	}\n" +
-			"}" 
+			"}"
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
 		createFile(
@@ -194,14 +194,14 @@ public void testHierarchyScope2() throws CoreException {
 			"public class Y extends X {\n" +
 			"	protected void foo() {\n" +
 			"	}\n" +
-			"}" 
+			"}"
 		);
 		createFile(
 			"/P2/Z.java",
 			"public class Z extends Y {\n" +
 			"	protected void foo() {\n" +
 			"	}\n" +
-			"}" 
+			"}"
 		);
 
 		ICompilationUnit cu = getCompilationUnit("/P2/Z.java");
@@ -211,12 +211,12 @@ public void testHierarchyScope2() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		search(
-			method, 
-			REFERENCES, 
-			scope, 
+			method,
+			REFERENCES,
+			scope,
 			resultCollector);
 		assertSearchResults(
-			"p/X.java [in P1] void p.X.bar() [foo()]", 
+			"p/X.java [in P1] void p.X.bar() [foo()]",
 			resultCollector);
 	} finally {
 		deleteProject("P1");
@@ -237,7 +237,7 @@ public void testHierarchyScope3() throws CoreException {
 			"public class X {\n" +
 			"	protected void foo() {\n" +
 			"	}\n" +
-			"}" 
+			"}"
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
 		createFolder("/P2/q");
@@ -249,7 +249,7 @@ public void testHierarchyScope3() throws CoreException {
 			"	void bar() {\n" +
 			"		foo();\n" +
 			"	}\n" +
-			"}" 
+			"}"
 		);
 
 		ICompilationUnit cu = getCompilationUnit("/P1/p/X.java");
@@ -259,12 +259,12 @@ public void testHierarchyScope3() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		search(
-			method, 
-			REFERENCES, 
-			scope, 
+			method,
+			REFERENCES,
+			scope,
 			resultCollector);
 		assertSearchResults(
-			"q/Y.java [in P2] void q.Y.bar() [foo()]", 
+			"q/Y.java [in P2] void q.Y.bar() [foo()]",
 			resultCollector);
 	} finally {
 		deleteProject("P1");
@@ -286,7 +286,7 @@ public void testHierarchyScope4() throws CoreException {
 			"  public static X TheX;\n" +
 			"	public void foo() {\n" +
 			"	}\n" +
-			"}" 
+			"}"
 		);
 		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0"}, "");
 		createFolder("/P1/p1");
@@ -298,7 +298,7 @@ public void testHierarchyScope4() throws CoreException {
 			"	public X zork() {\n" +
 			"		return X.TheX;\n" +
 			"	}\n" +
-			"}" 
+			"}"
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0", "/P1"}, "");
 		createFolder("/P2/p2");
@@ -311,7 +311,7 @@ public void testHierarchyScope4() throws CoreException {
 			"	public void bar() {\n" +
 			"		new T().zork().foo();\n" +
 			"	}\n" +
-			"}" 
+			"}"
 		);
 		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0", "/P2"}, "");
 		createFolder("/P3/p3");
@@ -326,7 +326,7 @@ public void testHierarchyScope4() throws CoreException {
 			"	}\n" +
 			"	public void foo() {\n" +
 			"	} // refs should find one in Y.bar()\n" +
-			"}" 
+			"}"
 		);
 
 		ICompilationUnit cu = getCompilationUnit("/P3/p3/Z.java");
@@ -337,12 +337,12 @@ public void testHierarchyScope4() throws CoreException {
 		resultCollector.showAccuracy = true;
 		resultCollector.showProject = true;
 		search(
-			method, 
-			REFERENCES, 
-			scope, 
+			method,
+			REFERENCES,
+			scope,
 			resultCollector);
 		assertSearchResults(
-			"p2/Y.java [in P2] void p2.Y.bar() [foo()] EXACT_MATCH", 
+			"p2/Y.java [in P2] void p2.Y.bar() [foo()] EXACT_MATCH",
 			resultCollector);
 	} finally {
 		deleteProjects(new String[] {"P0", "P1", "P2", "P3"});
@@ -372,24 +372,24 @@ public void testMethodOccurences() throws CoreException {
 			"    }\n" +
 			"}"
 		);
-		
+
 		// copy to project P2
 		p1.getProject().copy(new Path("/P2"), false, null);
 		IJavaProject p2 = getJavaProject("P2");
-		
+
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		IMethod method = getCompilationUnit("/P1/p/I.java").getType("I").getMethod("method", new String[] {"QObject;"});
 		search(
-			method, 
+			method,
 			ALL_OCCURRENCES,
-			scope, 
+			scope,
 			resultCollector);
 		assertSearchResults(
 			"Unexpected occurences of method p.I.method(Object)",
 			"p/C.java [in P1] void p.C.method(Object) [method]\n" +
-			"p/I.java [in P1] void p.I.method(Object) [method]", 
+			"p/I.java [in P1] void p.I.method(Object) [method]",
 			resultCollector);
 	} finally {
 		deleteProject("P1");
@@ -411,19 +411,19 @@ public void testPackageDeclaration() throws CoreException {
 			"public class X {\n" +
 			"}"
 		);
-		
+
 		// copy to project P2
 		p1.getProject().copy(new Path("/P2"), false, null);
 		IJavaProject p2 = getJavaProject("P2");
-		
+
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		IPackageFragment pkg = getPackage("/P1/p");
 		search(
-			pkg, 
+			pkg,
 			DECLARATIONS,
-			scope, 
+			scope,
 			resultCollector);
 		assertSearchResults(
 			"Unexpected package declarations",
@@ -449,13 +449,13 @@ public void testPackageReference1() throws CoreException {
 			"public class X {\n" +
 			"}"
 		);
-		
+
 		// setup project P2
 		IJavaProject p2 = createJavaProject(
-			"P2", 
-			new String[] {""}, 
-			new String[] {"JCL_LIB"}, 
-			new String[] {"/P1"}, 
+			"P2",
+			new String[] {""},
+			new String[] {"JCL_LIB"},
+			new String[] {"/P1"},
 			"");
 		createFolder("/P2/p");
 		createFile(
@@ -464,7 +464,7 @@ public void testPackageReference1() throws CoreException {
 			"public class Y {\n" +
 			"}"
 		);
-		
+
 		// create package references
 		createFolder("/P2/q");
 		createFile(
@@ -481,19 +481,19 @@ public void testPackageReference1() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		
+
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		IPackageFragment pkg = getPackage("/P1/p");
 		search(
-			pkg, 
+			pkg,
 			REFERENCES,
-			scope, 
+			scope,
 			resultCollector);
 		assertSearchResults(
 			"Unexpected package references",
-			"q/Z.java [p]\n" + 
-			"q/Z.java void q.Z.foo() [p]\n" + 
+			"q/Z.java [p]\n" +
+			"q/Z.java void q.Z.foo() [p]\n" +
 			"q/Z.java void q.Z.foo() [p]",
 			resultCollector);
 	} finally {
@@ -509,22 +509,22 @@ public void testPackageReference2() throws CoreException, IOException {
 	try {
 		// setup project JavaSearchMultipleProjects1
 		IJavaProject p1 = setUpJavaProject("JavaSearchMultipleProjects1");
-		
+
 		// setup project JavaSearchMultipleProjects2
 		IJavaProject p2 = setUpJavaProject("JavaSearchMultipleProjects2");
-				
+
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		IPackageFragment pkg = getPackage("/JavaSearchMultipleProjects1/lib/p");
 		search(
-			pkg, 
+			pkg,
 			REFERENCES,
-			scope, 
+			scope,
 			resultCollector);
 		assertSearchResults(
 			"Unexpected package references",
-			"src/q/Z.java [p]\n" + 
-			"src/q/Z.java void q.Z.foo() [p]\n" + 
+			"src/q/Z.java [p]\n" +
+			"src/q/Z.java void q.Z.foo() [p]\n" +
 			"src/q/Z.java void q.Z.foo() [p]",
 			resultCollector);
 	} finally {
@@ -557,13 +557,13 @@ public void testReferenceInWorkingCopies() throws CoreException {
 			"public class Test {\n" +
 			"}"
 		);
-		
+
 		// setup project P2
 		IJavaProject p2 = createJavaProject(
-			"P2", 
-			new String[] {""}, 
-			new String[] {"JCL_LIB"}, 
-			new String[] {"/P1"}, 
+			"P2",
+			new String[] {""},
+			new String[] {"JCL_LIB"},
+			new String[] {"/P1"},
 			"");
 		createFolder("/P2/p2");
 		createFile(
@@ -583,7 +583,7 @@ public void testReferenceInWorkingCopies() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		
+
 		// create working copies
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		workingCopy1 = getCompilationUnit("/P1/p1/X.java").getWorkingCopy(owner, null/*no progress monitor*/);
@@ -606,12 +606,12 @@ public void testReferenceInWorkingCopies() throws CoreException {
 			"}"
 		);
 		workingCopy2.makeConsistent(null);
-		
+
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		IMethod method = workingCopy1.getType("X").getMethod("bar", new String[] {"QTest;"});
 		new SearchEngine(owner).search(
-			SearchPattern.createPattern(method, REFERENCES), 
+			SearchPattern.createPattern(method, REFERENCES),
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope,
 			resultCollector,
@@ -636,33 +636,33 @@ public void testTypeDeclarationInJar() throws CoreException {
 	try {
 		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"JCL_LIB"}, "");
 		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"JCL_LIB"}, "");
-		
+
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		search(
-			"Object", 
+			"Object",
 			TYPE,
-			DECLARATIONS, 
-			scope, 
+			DECLARATIONS,
+			scope,
 			resultCollector);
 		assertSearchResults(
 			"Unexpected result in scope of P1",
-			getExternalJCLPathString() + " [in P1] java.lang.Object", 
+			getExternalJCLPathString() + " [in P1] java.lang.Object",
 			resultCollector);
-			
+
 		scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p2});
 		resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		search(
-			"Object", 
+			"Object",
 			TYPE,
-			DECLARATIONS, 
-			scope, 
+			DECLARATIONS,
+			scope,
 			resultCollector);
 		assertSearchResults(
 			"Unexpected result in scope of P2",
-			getExternalJCLPathString() + " [in P2] java.lang.Object", 
+			getExternalJCLPathString() + " [in P2] java.lang.Object",
 			resultCollector);
 	} finally {
 		deleteProject("P1");
@@ -681,16 +681,16 @@ public void testBug151189_Workspace() throws CoreException {
 		createFolder("/P1/pack");
 		createFile(
 			"/P1/pack/Declaration.java",
-			"package pack;\n" + 
-			"public class Declaration implements Interface {\n" + 
-			"	public void doOperation(int val) {}\n" + 
+			"package pack;\n" +
+			"public class Declaration implements Interface {\n" +
+			"	public void doOperation(int val) {}\n" +
 			"}\n"
 		);
 		createFile(
 			"/P1/pack/Interface.java",
-			"package pack;\n" + 
-			"public interface Interface {\n" + 
-			"	void doOperation(int val);\n" + 
+			"package pack;\n" +
+			"public interface Interface {\n" +
+			"	void doOperation(int val);\n" +
 			"}\n"
 		);
 
@@ -699,10 +699,10 @@ public void testBug151189_Workspace() throws CoreException {
 		createFolder("/P2/test");
 		createFile(
 			"/P2/test/Declaration_bis.java",
-			"package test;\n" + 
-			"import pack.Interface;\n" + 
-			"public class Declaration_bis implements Interface {\n" + 
-			"	public void doOperation(int val) {}\n" + 
+			"package test;\n" +
+			"import pack.Interface;\n" +
+			"public class Declaration_bis implements Interface {\n" +
+			"	public void doOperation(int val) {}\n" +
 			"}\n"
 		);
 
@@ -714,9 +714,9 @@ public void testBug151189_Workspace() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		search(
-			method, 
+			method,
 			DECLARATIONS,
-			scope, 
+			scope,
 			resultCollector);
 		assertSearchResults(
 			"Unexpected declarations of method test.Declaration_bis.doOperation(int)",
@@ -727,14 +727,14 @@ public void testBug151189_Workspace() throws CoreException {
 		resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		search(
-			method, 
+			method,
 			UI_DECLARATIONS,
-			scope, 
+			scope,
 			resultCollector);
 		assertSearchResults(
 			"Unexpected declarations of method test.Declaration_bis.doOperation(int)",
-			"pack/Declaration.java [in P1] void pack.Declaration.doOperation(int) [doOperation]\n" + 
-			"pack/Interface.java [in P1] void pack.Interface.doOperation(int) [doOperation]\n" + 
+			"pack/Declaration.java [in P1] void pack.Declaration.doOperation(int) [doOperation]\n" +
+			"pack/Interface.java [in P1] void pack.Interface.doOperation(int) [doOperation]\n" +
 			"test/Declaration_bis.java [in P2] void test.Declaration_bis.doOperation(int) [doOperation]",
 			resultCollector);
 	} finally {
@@ -749,16 +749,16 @@ public void testBug151189_Project() throws CoreException {
 		createFolder("/P1/pack");
 		createFile(
 			"/P1/pack/Declaration.java",
-			"package pack;\n" + 
-			"public class Declaration implements Interface {\n" + 
-			"	public void doOperation(int val) {}\n" + 
+			"package pack;\n" +
+			"public class Declaration implements Interface {\n" +
+			"	public void doOperation(int val) {}\n" +
 			"}\n"
 		);
 		createFile(
 			"/P1/pack/Interface.java",
-			"package pack;\n" + 
-			"public interface Interface {\n" + 
-			"	void doOperation(int val);\n" + 
+			"package pack;\n" +
+			"public interface Interface {\n" +
+			"	void doOperation(int val);\n" +
 			"}\n"
 		);
 
@@ -767,10 +767,10 @@ public void testBug151189_Project() throws CoreException {
 		createFolder("/P2/test");
 		createFile(
 			"/P2/test/Declaration_bis.java",
-			"package test;\n" + 
-			"import pack.Interface;\n" + 
-			"public class Declaration_bis implements Interface {\n" + 
-			"	public void doOperation(int val) {}\n" + 
+			"package test;\n" +
+			"import pack.Interface;\n" +
+			"public class Declaration_bis implements Interface {\n" +
+			"	public void doOperation(int val) {}\n" +
 			"}\n"
 		);
 
@@ -782,14 +782,14 @@ public void testBug151189_Project() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		search(
-			method, 
+			method,
 			UI_DECLARATIONS,
-			scope, 
+			scope,
 			resultCollector);
 		assertSearchResults(
 			"Unexpected declarations of method test.Declaration_bis.doOperation(int)",
-			"pack/Declaration.java [in P1] void pack.Declaration.doOperation(int) [doOperation]\n" + 
-			"pack/Interface.java [in P1] void pack.Interface.doOperation(int) [doOperation]\n" + 
+			"pack/Declaration.java [in P1] void pack.Declaration.doOperation(int) [doOperation]\n" +
+			"pack/Interface.java [in P1] void pack.Interface.doOperation(int) [doOperation]\n" +
 			"test/Declaration_bis.java [in P2] void test.Declaration_bis.doOperation(int) [doOperation]",
 			resultCollector);
 	} finally {
@@ -810,16 +810,16 @@ public void testBug163072() throws CoreException {
 		createFolder("/P1/test");
 		createFile(
 			"/P1/test/Test.java",
-			"package test;\n" + 
-			"public class Test {\n" + 
-			"	public Object getType() {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	public void foo() {\n" + 
-			"		if (getType() == null) {\n" + 
-			"			System.out.println(\"null\");\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"package test;\n" +
+			"public class Test {\n" +
+			"	public Object getType() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public void foo() {\n" +
+			"		if (getType() == null) {\n" +
+			"			System.out.println(\"null\");\n" +
+			"		}\n" +
+			"	}\n" +
 			"}\n"
 		);
 
@@ -828,25 +828,25 @@ public void testBug163072() throws CoreException {
 		createFolder("/P2/pack");
 		createFile(
 			"/P2/pack/FactoryContainer.java",
-			"package pack;\n" + 
-			"public class FactoryContainer {\n" + 
-			"	public enum FactoryType { PLUGIN }\n" + 
-			"	public FactoryType getType() {\n" + 
-			"		return FactoryType.PLUGIN;\n" + 
-			"	}\n" + 
+			"package pack;\n" +
+			"public class FactoryContainer {\n" +
+			"	public enum FactoryType { PLUGIN }\n" +
+			"	public FactoryType getType() {\n" +
+			"		return FactoryType.PLUGIN;\n" +
+			"	}\n" +
 			"}\n"
 		);
 		createFile(
 			"/P2/pack/Reference.java",
-			"package pack;\n" + 
-			"public class Reference {\n" + 
-			"	private final FactoryContainer _fc;\n" + 
-			"	public Reference() {\n" + 
-			"		_fc = new FactoryContainer();\n" + 
-			"	}\n" + 
-			"	boolean foo() {\n" + 
-			"		return _fc.getType() == FactoryContainer.FactoryType.PLUGIN;\n" + 
-			"	}\n" + 
+			"package pack;\n" +
+			"public class Reference {\n" +
+			"	private final FactoryContainer _fc;\n" +
+			"	public Reference() {\n" +
+			"		_fc = new FactoryContainer();\n" +
+			"	}\n" +
+			"	boolean foo() {\n" +
+			"		return _fc.getType() == FactoryContainer.FactoryType.PLUGIN;\n" +
+			"	}\n" +
 			"}\n"
 		);
 
@@ -881,8 +881,8 @@ public void testBug167743() throws CoreException {
 		createFolder("/P/test");
 		createFile(
 			"/P/test/TestClass.java",
-			"package test;\n" + 
-			"public class Test {\n" + 
+			"package test;\n" +
+			"public class Test {\n" +
 			"}\n"
 		);
 
@@ -933,7 +933,7 @@ public void testBug176831() throws CoreException {
 		// Create projects and files
 		final IJavaProject p1 = createJavaProject("P1", new String[] {"src"}, null, new String[] {"/P2"}, "bin");
 		final IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, new String[] { getExternalJCLPathString() }, "bin");
-		
+
 		// Create scope and search
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p1, p2 }, IJavaSearchScope.SOURCES | IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.REFERENCED_PROJECTS);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -961,7 +961,7 @@ public void testBug176831b() throws CoreException {
 		final IJavaProject p1 = createJavaProject("P1", new String[] {"src"}, null, new String[] {"/P2"}, "bin");
 		final IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, null, new String[] {"/P3"}, "bin");
 		final IJavaProject p3 = createJavaProject("P3", new String[] {"src"}, new String[] { getExternalJCLPathString() }, "bin");
-		
+
 		// Create scope and search
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p1, p2, p3 }, IJavaSearchScope.SOURCES | IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.REFERENCED_PROJECTS);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1013,7 +1013,7 @@ public void testBug195228() throws CoreException {
 		createJavaProject("P2", new String[] {"src"}, "bin");
 		createJavaProject("P3", new String[] {"src"}, "bin");
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-		
+
 		// Store all types found in project
 		TypeNameMatchCollector requestor = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
@@ -1027,7 +1027,7 @@ public void testBug195228() throws CoreException {
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null);
 		String allTypes = requestor.toString();
-		
+
 		// Add project folder to classpath with inclusion and exclusion patterns
 		getWorkspace().run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -1038,7 +1038,7 @@ public void testBug195228() throws CoreException {
 				project.setRawClasspath(entries, null);
 			}
 		}, null);
-		
+
 		// Search for all types and verify that same are found
 		requestor = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
@@ -1070,8 +1070,8 @@ public void testBug199392_Jar() throws CoreException {
 		createFolder("/Test.jar/test");
 		createFile(
 			"/Test.jar/test/MyClass.java",
-			"package test;\n" + 
-			"public class MyClass {\n" + 
+			"package test;\n" +
+			"public class MyClass {\n" +
 			"}\n"
 		);
 
@@ -1092,7 +1092,7 @@ public void testBug199392_Jar() throws CoreException {
 			collector,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null);
-		assertEquals("Found types sounds not to be correct", 
+		assertEquals("Found types sounds not to be correct",
 			"test.MyClass",
 			collector.toString()
 		);
@@ -1106,8 +1106,8 @@ public void testBug199392_Jar_SamePartCount() throws CoreException {
 		createFolder("/Test.jar/test");
 		createFile(
 			"/Test.jar/test/MyClass.java",
-			"package test;\n" + 
-			"public class MyClass {\n" + 
+			"package test;\n" +
+			"public class MyClass {\n" +
 			"}\n"
 		);
 
@@ -1128,7 +1128,7 @@ public void testBug199392_Jar_SamePartCount() throws CoreException {
 			collector,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null);
-		assertEquals("Found types sounds not to be correct", 
+		assertEquals("Found types sounds not to be correct",
 			"",
 			collector.toString()
 		);
@@ -1142,8 +1142,8 @@ public void testBug199392_Zip() throws CoreException {
 		createFolder("/Test.zip/test");
 		createFile(
 			"/Test.zip/test/MyClass.java",
-			"package test;\n" + 
-			"public class MyClass {\n" + 
+			"package test;\n" +
+			"public class MyClass {\n" +
 			"}\n"
 		);
 
@@ -1164,7 +1164,7 @@ public void testBug199392_Zip() throws CoreException {
 			collector,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null);
-		assertEquals("Found types sounds not to be correct", 
+		assertEquals("Found types sounds not to be correct",
 			"test.MyClass",
 			collector.toString()
 		);
@@ -1178,8 +1178,8 @@ public void testBug199392_Zip_SamePartCount() throws CoreException {
 		createFolder("/Test.zip/test");
 		createFile(
 			"/Test.zip/test/MyClass.java",
-			"package test;\n" + 
-			"public class MyClass {\n" + 
+			"package test;\n" +
+			"public class MyClass {\n" +
 			"}\n"
 		);
 
@@ -1200,7 +1200,7 @@ public void testBug199392_Zip_SamePartCount() throws CoreException {
 			collector,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null);
-		assertEquals("Found types sounds not to be correct", 
+		assertEquals("Found types sounds not to be correct",
 			"",
 			collector.toString()
 		);
@@ -1221,7 +1221,7 @@ public void testBug210689() throws CoreException {
 		createFolder("/P0/p");
 		createFile(
 			"/P0/p/A.java",
-			"package p;\n" + 
+			"package p;\n" +
 			"public class A {}\n"
 		);
 
@@ -1230,7 +1230,7 @@ public void testBug210689() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/A.java",
-			"package p;\n" + 
+			"package p;\n" +
 			"public class A {}\n"
 		);
 
@@ -1239,15 +1239,15 @@ public void testBug210689() throws CoreException {
 		createFolder("/P2/p");
 		createFile(
 			"/P2/p/B.java",
-			"package p;\n" + 
+			"package p;\n" +
 			"public class B {}\n"
 		);
 		createFile(
 			"/P2/p/Ref.java",
-			"package p;\n" + 
-			"public class Ref {\n" + 
-			"	A a;\n" + 
-			"	B b;\n" + 
+			"package p;\n" +
+			"public class Ref {\n" +
+			"	A a;\n" +
+			"	B b;\n" +
 			"}\n"
 		);
 
@@ -1291,15 +1291,15 @@ public void testBug229128() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/MyAnnot.java",
-			"package p;\n" + 
-			"public @interface MyAnnot {\n" + 
+			"package p;\n" +
+			"public @interface MyAnnot {\n" +
 			"}\n"
 		);
 		copies[0] = getWorkingCopy(
 			"/P1/p/X.java",
-			"package p;\n" + 
+			"package p;\n" +
 			"@MyAnnot\n" +
-			"public class X {\n" + 
+			"public class X {\n" +
 			"}\n",
 			null/*default working copy owner*/
 		);
@@ -1309,9 +1309,9 @@ public void testBug229128() throws CoreException {
 		createFolder("/P2/q");
 		copies[1] = getWorkingCopy(
 			"/P2/q/Y.java",
-			"package q;\n" + 
+			"package q;\n" +
 			"@p.MyAnnot\n" +
-			"public class Y {\n" + 
+			"public class Y {\n" +
 			"}\n",
 			null/*default working copy owner*/
 		);
@@ -1347,22 +1347,22 @@ public void testBug229951a() throws Exception {
 		createFile("/P1/test.jar", "");
 		editFile(
 			"/P1/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-			"<classpath>\n" + 
-			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" + 
-			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P2\"/>\n" + 
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" +
+			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P2\"/>\n" +
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
 		createJavaProject("P2");
 		createFile("/P2/test.jar", "");
 		editFile(
 			"/P2/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-			"<classpath>\n" + 
-			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" + 
-			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P1\"/>\n" + 
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" +
+			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P1\"/>\n" +
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
 		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P2"}, "");
@@ -1394,22 +1394,22 @@ public void testBug229951b() throws Exception {
 		createFile("/P1/test.jar", "");
 		editFile(
 			"/P1/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-			"<classpath>\n" + 
-			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" + 
-			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P2\"/>\n" + 
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" +
+			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P2\"/>\n" +
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
 		createJavaProject("P2");
 		createFile("/P2/test.jar", "");
 		editFile(
 			"/P2/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-			"<classpath>\n" + 
-			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" + 
-			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P1\"/>\n" + 
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" +
+			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P1\"/>\n" +
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
 		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P2"}, "");
@@ -1420,9 +1420,9 @@ public void testBug229951b() throws Exception {
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p3});
 		assertScopeEquals(
-			"JavaSearchScope on [\n" + 
-			"	/P3\n" + 
-			"	" + getExternalJCLPathString() + "\n" + 
+			"JavaSearchScope on [\n" +
+			"	/P3\n" +
+			"	" + getExternalJCLPathString() + "\n" +
 			"]",
 			scope);
 	} finally {

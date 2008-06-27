@@ -18,11 +18,11 @@ import org.eclipse.jdt.core.IType;
 import junit.framework.Test;
 
 public class LocalElementTests extends ModifyingResourceTests {
-	
+
 	public LocalElementTests(String name) {
 		super(name);
 	}
-	
+
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
@@ -64,10 +64,10 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
-				"    void foo()\n" + 
-				"      class <anonymous #1>\n" + 
+				"X.java\n" +
+				"  class X\n" +
+				"    void foo()\n" +
+				"      class <anonymous #1>\n" +
 				"    void run(X)",
 				cu);
 		} finally {
@@ -98,12 +98,12 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
+				"X.java\n" +
+				"  class X\n" +
 				"    class Y\n" +
-				"    void foo()\n" + 
-				"      class <anonymous #1>\n" + 
-				"      class <anonymous #2>\n" + 
+				"    void foo()\n" +
+				"      class <anonymous #1>\n" +
+				"      class <anonymous #2>\n" +
 				"    void run(X)",
 				cu);
 		} finally {
@@ -134,12 +134,12 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
-				"    void foo()\n" + 
-				"      class <anonymous #1>\n" + 
+				"X.java\n" +
+				"  class X\n" +
+				"    void foo()\n" +
+				"      class <anonymous #1>\n" +
 				"        void bar()\n" +
-				"          class <anonymous #1>\n" + 
+				"          class <anonymous #1>\n" +
 				"    void run(X)",
 				cu);
 		} finally {
@@ -172,21 +172,21 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
-				"    <initializer #1>\n" + 
-				"      class <anonymous #1>\n" + 
-				"    Object field\n" + 
-				"      class <anonymous #1>\n" + 
-				"    void foo()\n" + 
-				"      class <anonymous #1>\n" + 
+				"X.java\n" +
+				"  class X\n" +
+				"    <initializer #1>\n" +
+				"      class <anonymous #1>\n" +
+				"    Object field\n" +
+				"      class <anonymous #1>\n" +
+				"    void foo()\n" +
+				"      class <anonymous #1>\n" +
 				"    void run(X)",
 				cu);
 		} finally {
 			deleteFile("/P/X.java");
 		}
 	}
-	
+
 	/*
 	 * Anonymous type test.
 	 * (regression test for bug 69028 Anonymous type in argument of super() is not in type hierarchy)
@@ -208,18 +208,18 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
-				"    X(Object)\n" + 
-				"  class Y\n" + 
-				"    Y()\n" + 
+				"X.java\n" +
+				"  class X\n" +
+				"    X(Object)\n" +
+				"  class Y\n" +
+				"    Y()\n" +
 				"      class <anonymous #1>",
 				cu);
 		} finally {
 			deleteFile("/P/X.java");
 		}
 	}
-	
+
 	/*
 	 * Ensures that an anonymous in an enum constant is said to be local.
 	 * (regression test for bug 85298 [1.5][enum] IType of anonymous enum declaration says isLocal() == false)
@@ -248,38 +248,38 @@ public class LocalElementTests extends ModifyingResourceTests {
 		try {
 			createFile(
 				"/P/X.java",
-				"public class X {\n" + 
-				"	class Y {\n" + 
-				"	}\n" + 
-				"	{\n" + 
-				"		new Y() {\n" + 
-				"			class Z {\n" + 
-				"			}\n" + 
-				"			{\n" + 
-				"				new Y() {\n" + 
-				"				};\n" + 
-				"			}\n" + 
-				"		};\n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	class Y {\n" +
+				"	}\n" +
+				"	{\n" +
+				"		new Y() {\n" +
+				"			class Z {\n" +
+				"			}\n" +
+				"			{\n" +
+				"				new Y() {\n" +
+				"				};\n" +
+				"			}\n" +
+				"		};\n" +
+				"	}\n" +
 				"}"
 			);
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
-				"    class Y\n" + 
-				"    <initializer #1>\n" + 
-				"      class <anonymous #1>\n" + 
-				"        class Z\n" + 
-				"        <initializer #1>\n" + 
+				"X.java\n" +
+				"  class X\n" +
+				"    class Y\n" +
+				"    <initializer #1>\n" +
+				"      class <anonymous #1>\n" +
+				"        class Z\n" +
+				"        <initializer #1>\n" +
 				"          class <anonymous #1>",
 				cu);
 		} finally {
 			deleteFile("/P/X.java");
 		}
 	}
-	
+
 	/*
 	 * IType.getSuperclassName() test
 	 */
@@ -321,14 +321,14 @@ public class LocalElementTests extends ModifyingResourceTests {
 		types[4] = topLevelType.getMethod("foo", new String[] {"I", "QString;"}).getType("Z", 1);
 		assertElementsEqual(
 			"Unexpected types",
-			"<anonymous #1> [in <initializer #1> [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
-			"Y [in <initializer #1> [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
-			"<anonymous #1> [in f [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
-			"<anonymous #1> [in foo(int, String) [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
+			"<anonymous #1> [in <initializer #1> [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" +
+			"Y [in <initializer #1> [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" +
+			"<anonymous #1> [in f [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" +
+			"<anonymous #1> [in foo(int, String) [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" +
 			"Z [in foo(int, String) [in X [in X.java [in <default> [in <project root> [in P]]]]]]",
 			types);
 	}
-	
+
 	/*
 	 * Local type test.
 	 */
@@ -346,9 +346,9 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
-				"    void foo()\n" + 
+				"X.java\n" +
+				"  class X\n" +
+				"    void foo()\n" +
 				"      class Y",
 				cu);
 		} finally {
@@ -375,11 +375,11 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
-				"    void foo()\n" + 
-				"      class Y\n" + 
-				"      class Z", 
+				"X.java\n" +
+				"  class X\n" +
+				"    void foo()\n" +
+				"      class Y\n" +
+				"      class Z",
 				cu);
 		} finally {
 			deleteFile("/P/X.java");
@@ -407,10 +407,10 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
-				"    void foo()\n" + 
-				"      class Y\n" + 
+				"X.java\n" +
+				"  class X\n" +
+				"    void foo()\n" +
+				"      class Y\n" +
 				"        void bar()\n" +
 				"          class Z",
 				cu);
@@ -440,18 +440,18 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
-				"    <initializer #1>\n" + 
-				"      class Y\n" + 
-				"    void foo()\n" + 
+				"X.java\n" +
+				"  class X\n" +
+				"    <initializer #1>\n" +
+				"      class Y\n" +
+				"    void foo()\n" +
 				"      class Z",
 				cu);
 		} finally {
 			deleteFile("/P/X.java");
 		}
 	}
-	
+
 	/*
 	 * Local type test.
 	 */
@@ -470,9 +470,9 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 				"Unexpected compilation unit contents",
-				"X.java\n" + 
-				"  class X\n" + 
-				"    void foo()\n" + 
+				"X.java\n" +
+				"  class X\n" +
+				"    void foo()\n" +
 				"      class Z",
 				cu);
 		} finally {
@@ -499,11 +499,11 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 					"Unexpected compilation unit contents",
-					"X.java\n" + 
-					"  class X\n" + 
-					"    void foo()\n" + 
-					"      class Y\n" + 
-					"        <initializer #1>\n" + 
+					"X.java\n" +
+					"  class X\n" +
+					"    void foo()\n" +
+					"      class Y\n" +
+					"        <initializer #1>\n" +
 					"          class Z",
 					cu);
 		} finally {
@@ -531,13 +531,13 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 					"Unexpected compilation unit contents",
-					"X.java\n" + 
-					"  class X\n" + 
-					"    void foo()\n" + 
-					"      class Y\n" + 
-					"        <initializer #1>\n" + 
+					"X.java\n" +
+					"  class X\n" +
+					"    void foo()\n" +
+					"      class Y\n" +
+					"        <initializer #1>\n" +
 					"          class Z\n" +
-					"        String s", 
+					"        String s",
 					cu);
 		} finally {
 			deleteFile("/P/X.java");
@@ -564,12 +564,12 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 					"Unexpected compilation unit contents",
-					"X.java\n" + 
-					"  class X\n" + 
-					"    void foo()\n" + 
-					"      class Y\n" + 
-					"        String s\n"+ 
-					"        <initializer #1>\n" + 
+					"X.java\n" +
+					"  class X\n" +
+					"    void foo()\n" +
+					"      class Y\n" +
+					"        String s\n"+
+					"        <initializer #1>\n" +
 					"          class Z",
 					cu);
 		} finally {
@@ -597,12 +597,12 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 					"Unexpected compilation unit contents",
-					"X.java\n" + 
-					"  class X\n" + 
-					"    <initializer #1>\n" + 
-					"      class Y\n" + 
-					"        String s\n"+ 
-					"        <initializer #1>\n" + 
+					"X.java\n" +
+					"  class X\n" +
+					"    <initializer #1>\n" +
+					"      class Y\n" +
+					"        String s\n"+
+					"        <initializer #1>\n" +
 					"          class Z",
 					cu);
 		} finally {
@@ -631,12 +631,12 @@ public class LocalElementTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("/P/X.java");
 			assertElementDescendants(
 					"Unexpected compilation unit contents",
-					"X.java\n" + 
-					"  class X\n" + 
-					"    void foo()\n" + 
-					"      class Y\n" + 
-					"        String s\n"+ 
-					"        <initializer #1>\n" + 
+					"X.java\n" +
+					"  class X\n" +
+					"    void foo()\n" +
+					"      class Y\n" +
+					"        String s\n"+
+					"        <initializer #1>\n" +
 					"          class Z",
 					cu);
 		} finally {

@@ -28,16 +28,16 @@ import junit.framework.Test;
  * Tests APIs that take a WorkingCopyOwner.
  */
 public class WorkingCopyOwnerTests extends ModifyingResourceTests {
-	
+
 	ICompilationUnit workingCopy = null;
 
 	public class TestWorkingCopyOwner extends WorkingCopyOwner {
-		
+
 		public String toString() {
 			return "Test working copy owner";
 		}
 	}
-	
+
 	public static Test suite() {
 		return buildModelTestSuite(WorkingCopyOwnerTests.class);
 	}
@@ -56,7 +56,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		
+
 		createJavaProject("P");
 		createFile(
 			"P/X.java",
@@ -64,10 +64,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			"}"
 		);
 	}
-	
+
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
-		
+
 		super.tearDownSuite();
 	}
 
@@ -78,7 +78,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		}
 		super.tearDown();
 	}
-	
+
 	protected void assertTypeBindingsEqual(String message, String expected, ITypeBinding[] types) {
 		StringBuffer buffer = new StringBuffer();
 		if (types == null) {
@@ -100,31 +100,31 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			buffer.toString()
 		);
 	}
-	
+
 	/*
 	 * Tests that a primary compilation unit can become a working copy.
 	 */
 	public void testBecomeWorkingCopy1() throws CoreException {
 		this.workingCopy = getCompilationUnit("P/X.java");
 		assertTrue("should not be in working copy mode", !this.workingCopy.isWorkingCopy());
-		
+
 		this.workingCopy.becomeWorkingCopy(null);
 		assertTrue("should be in working copy mode", this.workingCopy.isWorkingCopy());
 	}
-	
+
 	/*
 	 * Tests that a working copy remains a working copy when becomeWorkingCopy() is called.
 	 */
 	public void testBecomeWorkingCopy2() throws CoreException {
 		this.workingCopy = getCompilationUnit("P/X.java").getWorkingCopy(new TestWorkingCopyOwner(), null);
 		assertTrue("should be in working copy mode", this.workingCopy.isWorkingCopy());
-		
+
 		this.workingCopy.becomeWorkingCopy(null);
 		assertTrue("should still be in working copy mode", this.workingCopy.isWorkingCopy());
 	}
-	
+
 	/*
-	 * Tests that a primary compilation unit is added from to its parent after it becomes a working copy and 
+	 * Tests that a primary compilation unit is added from to its parent after it becomes a working copy and
 	 * there is no underlying resource.
 	 */
 	public void testBecomeWorkingCopy3() throws CoreException {
@@ -137,7 +137,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			"[Working copy] Y.java [in <default> [in <project root> [in P]]]",
 			getPackage("/P").getChildren());
 	}
-	
+
 	/*
 	 * Ensure an OperationCanceledException is correcly thrown when progress monitor is canceled
 	 */
@@ -160,11 +160,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			assertTrue("Should get an OperationCanceledException (" + i + ")", gotException);
 			this.workingCopy.discardWorkingCopy();
 		}
-		
+
 		// last should not throw an OperationCanceledException
 		this.workingCopy.becomeWorkingCopy(new Canceler(counter.count));
 	}
-	
+
 	/*
 	 * Tests that a primary working copy can be commited.
 	 */
@@ -177,7 +177,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			);
 			this.workingCopy = getCompilationUnit("P/Y.java");
 			this.workingCopy.becomeWorkingCopy(null);
-			String newContents = 
+			String newContents =
 				"public class Y {\n" +
 				"  void foo() {\n" +
 				"  }\n" +
@@ -192,7 +192,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			deleteFile("P/Y.java");
 		}
 	}
-	
+
 	/*
 	 * Ensures that no delta is issued when a primary working copy that is consistent is commited.
 	 * (regression test for bug 40782 Primary working copies: unnecessary deltas on save)
@@ -213,14 +213,14 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"}"
 			);
 			this.workingCopy.makeConsistent(null);
-			
+
 			startDeltas();
 			this.workingCopy.commitWorkingCopy(false, null);
 			assertDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
+				"P[*]: {CHILDREN}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
 				"			[Working copy] Y.java[*]: {PRIMARY RESOURCE}"
 			);
 		} finally {
@@ -247,16 +247,16 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"  }\n" +
 				"}"
 			);
-			
+
 			startDeltas();
 			this.workingCopy.commitWorkingCopy(false, null);
 			assertDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
-				"			[Working copy] Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
-				"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
+				"P[*]: {CHILDREN}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
+				"			[Working copy] Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
+				"				Y[*]: {CHILDREN | FINE GRAINED}\n" +
 				"					foo()[+]: {}"
 			);
 		} finally {
@@ -280,16 +280,16 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy = cu.getWorkingCopy(null);
 			assertDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
+				"P[*]: {CHILDREN}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
 				"			[Working copy] Y.java[+]: {}"
 			);
 		} finally {
 			stopDeltas();
 			deleteFile("P/Y.java");
 		}
-		
+
 	}
 
 	/*
@@ -307,16 +307,16 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.becomeWorkingCopy(null);
 			assertDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
+				"P[*]: {CHILDREN}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
 				"			[Working copy] Y.java[*]: {PRIMARY WORKING COPY}"
 			);
 		} finally {
 			stopDeltas();
 			deleteFile("P/Y.java");
 		}
-		
+
 	}
 
 	/*
@@ -331,15 +331,15 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.becomeWorkingCopy(null);
 			assertDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
+				"P[*]: {CHILDREN}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
 				"			[Working copy] Y.java[+]: {PRIMARY WORKING COPY}"
 			);
 		} finally {
 			stopDeltas();
 		}
-		
+
 	}
 
 	/*
@@ -359,16 +359,16 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.discardWorkingCopy();
 			assertDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
+				"P[*]: {CHILDREN}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
 				"			[Working copy] Y.java[-]: {}"
 			);
 		} finally {
 			stopDeltas();
 			deleteFile("P/Y.java");
 		}
-		
+
 	}
 
 	/*
@@ -388,16 +388,16 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.discardWorkingCopy();
 			assertDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
+				"P[*]: {CHILDREN}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
 				"			Y.java[*]: {PRIMARY WORKING COPY}"
 			);
 		} finally {
 			stopDeltas();
 			deleteFile("P/Y.java");
 		}
-		
+
 	}
 
 	/*
@@ -421,11 +421,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.discardWorkingCopy();
 			assertDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
-				"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY WORKING COPY}\n" + 
-				"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
+				"P[*]: {CHILDREN}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
+				"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY WORKING COPY}\n" +
+				"				Y[*]: {CHILDREN | FINE GRAINED}\n" +
 				"					x[-]: {}"
 			);
 		} finally {
@@ -448,9 +448,9 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.discardWorkingCopy();
 			assertDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
+				"P[*]: {CHILDREN}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
 				"			Y.java[-]: {PRIMARY WORKING COPY}"
 			);
 		} finally {
@@ -473,9 +473,9 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.discardWorkingCopy();
 			assertDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
+				"P[*]: {CHILDREN}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
 				"			X.java[*]: {CONTENT | FINE GRAINED | PRIMARY WORKING COPY}"
 			);
 		} finally {
@@ -492,7 +492,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			cu = getCompilationUnit("P/X.java");
 			cu.becomeWorkingCopy(null);
 			assertTrue("should be in working copy mode", cu.isWorkingCopy());
-			
+
 			cu.discardWorkingCopy();
 			assertTrue("should no longer be in working copy mode", !cu.isWorkingCopy());
 		} finally {
@@ -503,7 +503,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 
 	/*
-	 * Tests that the same number of calls to discardWorkingCopy() is needed for primary working copy to be back 
+	 * Tests that the same number of calls to discardWorkingCopy() is needed for primary working copy to be back
 	 * in compilation uint mode.
 	 */
 	public void testDiscardWorkingCopy2() throws CoreException {
@@ -514,7 +514,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			cu.becomeWorkingCopy(null);
 			cu.becomeWorkingCopy(null);
 			assertTrue("should be in working copy mode", cu.isWorkingCopy());
-			
+
 			cu.discardWorkingCopy();
 			assertTrue("should still be in working copy mode", cu.isWorkingCopy());
 
@@ -532,7 +532,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 
 	/*
-	 * Tests that the same number of calls to discardWorkingCopy() is needed for non-primary working copy 
+	 * Tests that the same number of calls to discardWorkingCopy() is needed for non-primary working copy
 	 * to be discarded.
 	 */
 	public void testDiscardWorkingCopy3() throws CoreException {
@@ -545,7 +545,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			assertTrue("should be in working copy mode", this.workingCopy.isWorkingCopy());
 			assertTrue("should be opened", this.workingCopy.isOpen());
 			assertTrue("should exist", this.workingCopy.exists());
-			
+
 			this.workingCopy.discardWorkingCopy();
 			assertTrue("should still be in working copy mode (1)", this.workingCopy.isWorkingCopy());
 			assertTrue("should still be opened", this.workingCopy.isOpen());
@@ -556,7 +556,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			assertTrue("should still be in working copy mode (2)", this.workingCopy.isWorkingCopy());
 			assertTrue("should no longer be opened", !this.workingCopy.isOpen());
 			assertTrue("should no longer exist", !this.workingCopy.exists());
-						
+
 		} finally {
 			if (this.workingCopy != null) {
 				int max = 3;
@@ -584,7 +584,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		assertTrue("should not get a JavaModelException before discarding working copy", !gotException);
 
 		this.workingCopy.discardWorkingCopy();
-		
+
 		gotException = false;
 		try {
 			this.workingCopy.getAllTypes();
@@ -593,9 +593,9 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		}
 		assertTrue("should get a JavaModelException after discarding working copy", gotException);
 	}
-	
+
 	/*
-	 * Tests that a primary working copy  is removed from its parent after it is discarded and 
+	 * Tests that a primary working copy  is removed from its parent after it is discarded and
 	 * there is no underlying resource.
 	 */
 	public void testDiscardWorkingCopy5() throws CoreException {
@@ -603,7 +603,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		try {
 			cu = getCompilationUnit("P/Y.java");
 			cu.becomeWorkingCopy(null);
-			
+
 			cu.discardWorkingCopy();
 			assertElementsEqual(
 				"Unexpected children of default package",
@@ -665,7 +665,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 		assertEquals("Unexpected compilation unit", cu, this.workingCopy.getPrimary());
 	}
-	
+
 	/*
 	 * Ensures that getPrimary() on a primary working copy returns the same handle.
 	 */
@@ -677,7 +677,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 
 	/*
-	 * Ensures that getPrimaryElement() on an element of a non-primary working copy returns 
+	 * Ensures that getPrimaryElement() on an element of a non-primary working copy returns
 	 * an element ofthe primary compilation unit.
 	 */
 	public void testGetPrimaryElement1() throws CoreException {
@@ -688,7 +688,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 		assertEquals("Unexpected element", cu.getType("X"), element.getPrimaryElement());
 	}
-	
+
 	/*
 	 * Ensures that getPrimaryElement() on an element of primary working copy returns the same handle.
 	 */
@@ -707,7 +707,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		IPackageFragment pkg = getPackage("P");
 		assertEquals("Unexpected element", pkg, pkg.getPrimaryElement());
 	}
-	
+
 	/*
 	 * Ensures that getPrimaryElement() on an initializer of a .class file returns the same handle.
 	 */
@@ -715,7 +715,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		IInitializer initializer = getClassFile("P/X.class").getType().getInitializer(1);
 		assertEquals("Unexpected element", initializer, initializer.getPrimaryElement());
 	}
-	
+
 	/*
 	 * Ensures that the correct working copies are returned by JavaCore.getWorkingCopies(WorkingCopyOwner)
 	 */
@@ -731,7 +731,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"",
 				JavaCore.getWorkingCopies(owner1)
 			);
-			
+
 			// create working copy on existing cu
 			ICompilationUnit cu1 = getCompilationUnit("P/X.java");
 			workingCopy11 = cu1.getWorkingCopy(owner1, null);
@@ -740,7 +740,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"[Working copy] X.java [in <default> [in <project root> [in P]]]",
 				JavaCore.getWorkingCopies(owner1)
 			);
-			
+
 			// create working copy on non-existing cu
 			ICompilationUnit cu2 = getCompilationUnit("P/Y.java");
 			workingCopy12 = cu2.getWorkingCopy(owner1, null);
@@ -754,14 +754,14 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			// create working copy for another owner
 			TestWorkingCopyOwner owner2 = new TestWorkingCopyOwner();
 			workingCopy21 = cu1.getWorkingCopy(owner2, null);
-			
+
 			// owner2 should have the new working copy
 			assertSortedElementsEqual(
 				"Unexpected working copies (4)",
 				"[Working copy] X.java [in <default> [in <project root> [in P]]]",
 				JavaCore.getWorkingCopies(owner2)
 			);
-			
+
 			// owner1 should still have the same working copies
 			assertSortedElementsEqual(
 				"Unexpected working copies (5)",
@@ -769,7 +769,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"[Working copy] Y.java [in <default> [in <project root> [in P]]]",
 				JavaCore.getWorkingCopies(owner1)
 			);
-			
+
 			// discard first working copy
 			workingCopy11.discardWorkingCopy();
 			assertSortedElementsEqual(
@@ -810,7 +810,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			}
 		}
 	}
-	
+
 	/*
 	 * Ensures that getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
 	 * returns a different working copy if called twice with a different working copy owner.
@@ -835,7 +835,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			}
 		}
 	}
-	
+
 	/*
 	 * Ensure that the hierarchy using a working copy owner doesn't have primary working copy owner type
 	 * that are hidden by a type of the working copy owner
@@ -854,16 +854,16 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			ITypeHierarchy hierarchy = focus.newTypeHierarchy(owner, null/*no progress*/);
 			IType[] subtypes = hierarchy.getSubtypes(focus);
 			assertTypesEqual(
-				"Unexpected types", 
+				"Unexpected types",
 				"Y\n",
 				subtypes);
 		} finally {
 			deleteFile("/P/Y.java");
 		}
 	}
-	
+
 	/*
-	 * Ensures that moving a primary working copy from one package to another removes that 
+	 * Ensures that moving a primary working copy from one package to another removes that
 	 * working copy from the original package.
 	 * (regression test for bug 43847 IPackageFragment not updated after CUs have moved)
 	 */
@@ -879,10 +879,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			createFolder("/P/p2");
 			this.workingCopy = getCompilationUnit("P/p1/Y.java");
 			this.workingCopy.becomeWorkingCopy(null);
-			
+
 			// ensure the package is open
 			getPackage("/P/p1").open(null);
-			
+
 			this.workingCopy.move(getPackage("/P/p2"), null, null, false, null);
 			assertElementDescendants(
 				"Unexpected content of /P/p1",
@@ -917,7 +917,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		);
 		assertElementDescendants(
 			"Unexpected children",
-			"[Working copy] X.java\n" + 
+			"[Working copy] X.java\n" +
 			"  class X",
 			this.workingCopy);
 	}
@@ -965,7 +965,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 			assertDeltas(
 				"Unexpected delta",
-				"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+				"X[*]: {CHILDREN | FINE GRAINED}\n" +
 				"	field[+]: {}"
 			);
 		} finally {
@@ -990,8 +990,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, false, null, null);
 		assertASTNodeEquals(
 			"Unexpected AST",
-			"public class X {\n" + 
-			"  int field;\n" + 
+			"public class X {\n" +
+			"  int field;\n" +
 			"}\n",
 			ast);
 	}
@@ -1033,7 +1033,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		this.workingCopy.commitWorkingCopy(true, null);
 		assertFalse("Should not have unsaved changes", this.workingCopy.hasUnsavedChanges());
 	}
-	
+
 	/*
 	 * Ensures that a Java project named " " doesn't exist if a working copy with no resource is created.
 	 * (regression test for bug 138999 Regression: Fix for 128258 introduces regression in JavaProject.exists())
@@ -1063,14 +1063,14 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"}"
 			);
 			workingCopy1.makeConsistent(null);
-			
+
 			workingCopy2 = getCompilationUnit("P/I.java").getWorkingCopy(owner, null);
 			workingCopy2.getBuffer().setContents(
 				"public interface I {\n" +
 				"}"
 			);
 			workingCopy2.makeConsistent(null);
-			
+
 			ASTParser parser = ASTParser.newParser(AST.JLS2);
 			parser.setSource(workingCopy1);
 			parser.setResolveBindings(true);
@@ -1081,7 +1081,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			TypeDeclaration type = (TypeDeclaration)types.get(0);
 			ITypeBinding typeBinding = type.resolveBinding();
 			assertTypeBindingsEqual(
-				"Unexpected interfaces", 
+				"Unexpected interfaces",
 				"I",
 				typeBinding.getInterfaces());
 		} finally {
@@ -1093,7 +1093,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			}
 		}
 	}
-	
+
 	/**
 	 * Ensures that creating a DOM AST and computing the bindings takes the owner's working copies into account.
 	 * @deprecated using deprecated code
@@ -1124,11 +1124,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertNotNull("No binding", typeBinding);
 		assertEquals(
-			"Unexpected super type", 
+			"Unexpected super type",
 			"Y",
 			typeBinding.getSuperclass().getQualifiedName());
 	}
-	
+
 	/**
 	 * Ensures that creating a DOM AST and computing the bindings takes the owner's working copies into account.
 	 * @deprecated using deprecated code
@@ -1136,7 +1136,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	public void testParseCompilationUnit3() throws CoreException {
 		try {
 			createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin");
-			
+
 			// create X.class in lib folder
 			/* Evaluate the following in a scrapbook:
 				org.eclipse.jdt.core.tests.model.ModifyingResourceTests.generateClassFile(
@@ -1145,12 +1145,12 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 					"}")
 			*/
 			byte[] bytes = new byte[] {
-				-54, -2, -70, -66, 0, 3, 0, 45, 0, 13, 1, 0, 1, 88, 7, 0, 1, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 79, 98, 106, 101, 99, 116, 7, 0, 3, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111, 100, 101, 12, 0, 5, 0, 6, 10, 0, 4, 0, 8, 1, 0, 15, 76, 105, 110, 101, 78, 117, 
-				109, 98, 101, 114, 84, 97, 98, 108, 101, 1, 0, 10, 83, 111, 117, 114, 99, 101, 70, 105, 108, 101, 1, 0, 6, 88, 46, 106, 97, 118, 97, 0, 33, 0, 2, 0, 4, 0, 0, 0, 0, 0, 1, 0, 1, 0, 5, 0, 6, 0, 1, 0, 7, 0, 0, 0, 29, 0, 1, 0, 1, 0, 0, 0, 5, 42, -73, 0, 9, -79, 0, 0, 0, 1, 0, 10, 0, 0, 0, 6, 
-				0, 1, 0, 0, 0, 1, 0, 1, 0, 11, 0, 0, 0, 2, 0, 12, 
+				-54, -2, -70, -66, 0, 3, 0, 45, 0, 13, 1, 0, 1, 88, 7, 0, 1, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 79, 98, 106, 101, 99, 116, 7, 0, 3, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111, 100, 101, 12, 0, 5, 0, 6, 10, 0, 4, 0, 8, 1, 0, 15, 76, 105, 110, 101, 78, 117,
+				109, 98, 101, 114, 84, 97, 98, 108, 101, 1, 0, 10, 83, 111, 117, 114, 99, 101, 70, 105, 108, 101, 1, 0, 6, 88, 46, 106, 97, 118, 97, 0, 33, 0, 2, 0, 4, 0, 0, 0, 0, 0, 1, 0, 1, 0, 5, 0, 6, 0, 1, 0, 7, 0, 0, 0, 29, 0, 1, 0, 1, 0, 0, 0, 5, 42, -73, 0, 9, -79, 0, 0, 0, 1, 0, 10, 0, 0, 0, 6,
+				0, 1, 0, 0, 0, 1, 0, 1, 0, 11, 0, 0, 0, 2, 0, 12,
 			};
 			this.createFile("P1/lib/X.class", bytes);
-						
+
 			// create libsrc and attach source
 			createFolder("P1/libsrc");
 			createFile(
@@ -1160,10 +1160,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			);
 			IPackageFragmentRoot lib = getPackageFragmentRoot("P1/lib");
 			lib.attachSource(new Path("/P1/libsrc"), null, null);
-			
+
 			// create Y.java in src folder
 			createFile("P1/src/Y.java", "");
-			
+
 			// create working copy on Y.java
 			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
 			this.workingCopy = getCompilationUnit("P1/src/Y.java").getWorkingCopy(owner, null);
@@ -1186,14 +1186,14 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			ITypeBinding typeBinding = type.resolveBinding();
 			ITypeBinding superType = typeBinding.getSuperclass();
 			assertEquals(
-				"Unexpected super type", 
+				"Unexpected super type",
 				"Y",
 				superType == null ? "<null>" : superType.getQualifiedName());
 		} finally {
 			deleteProject("P1");
 		}
 	}
-	
+
 	/*
 	 * Ensures that searching takes the owner's working copies into account.
 	 */
@@ -1209,15 +1209,15 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		this.workingCopy.makeConsistent(null);
 
 		SearchPattern pattern = SearchPattern.createPattern(
-			"X", 
+			"X",
 			IJavaSearchConstants.TYPE,
-			IJavaSearchConstants.REFERENCES, 
+			IJavaSearchConstants.REFERENCES,
 			SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 		JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 		new SearchEngine(owner).search(
-			pattern, 
+			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			SearchEngine.createWorkspaceScope(), 
+			SearchEngine.createWorkspaceScope(),
 			resultCollector,
 			null);
 		assertEquals(
@@ -1232,21 +1232,21 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
 		this.workingCopy = cu.getWorkingCopy(owner, null);
-		
+
 		// remove type X
 		this.workingCopy.getBuffer().setContents("");
 		this.workingCopy.makeConsistent(null);
 
 		SearchPattern pattern = SearchPattern.createPattern(
-			"X", 
+			"X",
 			IJavaSearchConstants.TYPE,
-			IJavaSearchConstants.DECLARATIONS, 
+			IJavaSearchConstants.DECLARATIONS,
 			SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 		JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 		new SearchEngine(owner).search(
-			pattern, 
+			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			SearchEngine.createWorkspaceScope(), 
+			SearchEngine.createWorkspaceScope(),
 			resultCollector,
 			null);
 		assertEquals(
@@ -1263,30 +1263,30 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			createFile("/P/Y.java", "");
 			this.workingCopy = getCompilationUnit("P/Y.java");
 			this.workingCopy.becomeWorkingCopy(null);
-			
+
 			// create type Y in working copy
 			this.workingCopy.getBuffer().setContents("public class Y {}");
 			this.workingCopy.makeConsistent(null);
 
 			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 			search(
-				"Y", 
-				IJavaSearchConstants.TYPE, 
+				"Y",
+				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS,
-				SearchEngine.createWorkspaceScope(), 
+				SearchEngine.createWorkspaceScope(),
 				resultCollector);
 			assertEquals(
 				"Y.java Y [Y]",
 				resultCollector.toString());
-			
+
 			//	commit new type
 			this.workingCopy.commitWorkingCopy(false, null);
 			resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 			search(
-				"Y", 
-				IJavaSearchConstants.TYPE, 
+				"Y",
+				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS,
-				SearchEngine.createWorkspaceScope(), 
+				SearchEngine.createWorkspaceScope(),
 				resultCollector);
 			assertEquals(
 				"Y.java Y [Y]",
@@ -1307,14 +1307,14 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			createFile("/P/p/Y.java", "");
 			primaryWorkingCopy = getCompilationUnit("P/p/Y.java");
 			primaryWorkingCopy.becomeWorkingCopy(null);
-			
+
 			// create type Y in working copy
 			primaryWorkingCopy.getBuffer().setContents(
 				"package p;\n" +
 				"public class Y {\n" +
 				"}");
 			primaryWorkingCopy.makeConsistent(null);
-			
+
 			// create new working copy on X.java and add type X
 			this.workingCopy = getCompilationUnit("P/p/X.java").getWorkingCopy(null);
 			this.workingCopy.getBuffer().setContents(
@@ -1327,21 +1327,21 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {primaryWorkingCopy.getParent()});
 			SearchPattern pattern = SearchPattern.createPattern(
-				"*", 
+				"*",
 				IJavaSearchConstants.TYPE,
-				IJavaSearchConstants.DECLARATIONS, 
+				IJavaSearchConstants.DECLARATIONS,
 				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE);
 			new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
-				pattern, 
+				pattern,
 				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-				scope, 
+				scope,
 				resultCollector,
 				null);
 			assertEquals(
 				"p/X.java p.X [X]\n" +
 				"p/Y.java p.Y [Y]",
 				resultCollector.toString());
-			
+
 		} finally {
 			if (primaryWorkingCopy != null) {
 				primaryWorkingCopy.discardWorkingCopy();

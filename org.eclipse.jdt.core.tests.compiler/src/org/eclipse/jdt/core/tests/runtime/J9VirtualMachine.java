@@ -27,18 +27,18 @@ public J9VirtualMachine(Process vmProcess, int debugPort, String evalTargetPath,
 	super(vmProcess, debugPort, evalTargetPath);
 	this.proxyProcess = proxyProcess;
 	this.proxyOutputFile = proxyOutputFile;
-	
+
 	// Start the Proxy console reader so that the proxy is not blocked on its stdout.
 	if (this.proxyProcess != null) {
 		if (this.proxyOutputFile == null) {
-			this.proxyConsoleReader= 
+			this.proxyConsoleReader=
 				new NullConsoleReader(
-					"J9 Proxy Console Reader", 
+					"J9 Proxy Console Reader",
 					this.proxyProcess.getInputStream());
 		} else {
-			this.proxyConsoleReader= 
+			this.proxyConsoleReader=
 				new ProxyConsoleReader(
-					"J9 Proxy Console Reader", 
+					"J9 Proxy Console Reader",
 					this.proxyProcess.getInputStream(),
 					this.proxyOutputFile);
 		}
@@ -53,7 +53,7 @@ public synchronized void shutDown() throws TargetException {
 	super.shutDown();
 	if (this.proxyConsoleReader != null)
 		this.proxyConsoleReader.stop();
-	if (this.proxyProcess != null) { 
+	if (this.proxyProcess != null) {
 		this.proxyProcess.destroy();
 		this.proxyProcess = null;
 	}

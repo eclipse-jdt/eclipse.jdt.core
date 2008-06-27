@@ -31,7 +31,7 @@ public ThreadSafetyTests(String name) {
 }
 
 public static Test suite() {
-	return buildModelTestSuite(ThreadSafetyTests.class);	
+	return buildModelTestSuite(ThreadSafetyTests.class);
 }
 /**
  * 33231 - deadlocked if activating initializer while some concurrent action is populating the JavaModel
@@ -41,11 +41,11 @@ public void testDeadlock01() throws CoreException {
 	System.out.println("Test deadlock scenario");
 	try {
 		final IJavaProject project = this.createJavaProject(
-				"P", 
-				new String[] {}, 
-				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"P",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
-		
+
 		// simulate state on startup (flush containers, and discard their previous values)
 		waitUntilIndexesReady();
 		project.getJavaModel().close();
@@ -57,8 +57,8 @@ public void testDeadlock01() throws CoreException {
 		// use a thread to hold the lock, so as to recreate potential deadlock situation
 		final Semaphore step1 = new Semaphore("<1:permission to populate JavaModel inducing containers inits>", 0); // first acquisition will wait
 		final Semaphore step2 = new Semaphore("<2:permission to perform resource modification >", 0); // first acquisition to wait
-		final Semaphore hasCompleted = new Semaphore(0); 
-		
+		final Semaphore hasCompleted = new Semaphore(0);
+
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", ""}){
 			public void initialize(IPath containerPath, IJavaProject javaProject) throws CoreException {
 				step2.release();
@@ -111,7 +111,7 @@ public void testDeadlock01() throws CoreException {
 		hasCompleted.acquire();
 		System.out.println("SUCCESS - no deadlock encountered");
 	} finally {
-		// cleanup  
+		// cleanup
 		this.deleteProject("P");
 	}
 }

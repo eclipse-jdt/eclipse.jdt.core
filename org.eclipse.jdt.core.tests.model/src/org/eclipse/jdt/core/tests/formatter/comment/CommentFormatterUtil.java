@@ -29,7 +29,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 /**
  * Utilities for the comment formatter.
- * 
+ *
  * @since 3.0
  */
 public class CommentFormatterUtil {
@@ -39,7 +39,7 @@ public class CommentFormatterUtil {
 	 * Both offset and length must denote a valid comment partition, that is
 	 * to say a substring that starts and ends with the corresponding
 	 * comment delimiter tokens.
-	 * 
+	 *
 	 * @param kind the kind of the comment
 	 * @param source the source string to format
 	 * @param offset the offset relative to the source string where to
@@ -51,7 +51,7 @@ public class CommentFormatterUtil {
 	public static String format(int kind, String source, int offset, int length, Map preferences) {
 		Assert.isNotNull(source);
 		IDocument document= new Document(source);
-		
+
 		try {
 			int indentOffset= document.getLineOffset(document.getLineOfOffset(offset));
 			int indentationLevel= inferIndentationLevel(document.get(indentOffset, offset - indentOffset), getTabSize(preferences));
@@ -60,14 +60,14 @@ public class CommentFormatterUtil {
 			throw new RuntimeException(x);
 		}
 	}
-	
+
 	/**
 	 * Formats the source string as a comment region of the specified kind.
 	 * <p>
 	 * Both offset and length must denote a valid comment partition, that is
 	 * to say a substring that starts and ends with the corresponding
 	 * comment delimiter tokens.
-	 * 
+	 *
 	 * @param kind the kind of the comment
 	 * @param source the source string to format
 	 * @param offset the offset relative to the source string where to
@@ -86,10 +86,10 @@ public class CommentFormatterUtil {
 		Assert.isTrue(length <= source.length());
 
 		IDocument document= new Document(source);
-		
+
 		TextEdit edit;
 		edit= ToolFactory.createCodeFormatter(preferences).format(kind, source, offset, length, indentationLevel, TextUtilities.getDefaultLineDelimiter(document));
-		
+
 		try {
 			if (edit != null)
 				edit.apply(document);
@@ -104,7 +104,7 @@ public class CommentFormatterUtil {
 	/**
 	 * Infer the indentation level based on the given reference indentation,
 	 * tab size and text measurement.
-	 * 
+	 *
 	 * @param reference the reference indentation
 	 * @param tabSize the tab size
 	 * @return the inferred indentation level
@@ -112,20 +112,20 @@ public class CommentFormatterUtil {
 	 */
 	private static int inferIndentationLevel(String reference, int tabSize) {
 		StringBuffer expanded= expandTabs(reference, tabSize);
-		
+
 		int spaceWidth, referenceWidth;
 		spaceWidth= 1;
 		referenceWidth= expanded.length();
-		
+
 		int level= referenceWidth / (tabSize * spaceWidth);
 		if (referenceWidth % (tabSize * spaceWidth) > 0)
 			level++;
 		return level;
 	}
-	
+
 	/**
 	 * Expands the given string's tabs according to the given tab size.
-	 * 
+	 *
 	 * @param string the string
 	 * @param tabSize the tab size
 	 * @return the expanded string
@@ -145,7 +145,7 @@ public class CommentFormatterUtil {
 				if (chars >= tabSize)
 					chars= 0;
 			}
-		
+
 		}
 		return expanded;
 	}
@@ -153,7 +153,7 @@ public class CommentFormatterUtil {
 	/**
 	 * Returns the value of {@link DefaultCodeFormatterConstants#FORMATTER_TAB_SIZE}
 	 * from the given preferences.
-	 * 
+	 *
 	 * @param preferences the preferences
 	 * @return the value of {@link DefaultCodeFormatterConstants#FORMATTER_TAB_SIZE}
 	 *         from the given preferences
@@ -171,7 +171,7 @@ public class CommentFormatterUtil {
 
 	/**
 	 * Creates a formatting options with all default options and the given custom user options.
-	 * 
+	 *
 	 * @param user the custom user options
 	 * @return the formatting options
 	 * @since 3.1

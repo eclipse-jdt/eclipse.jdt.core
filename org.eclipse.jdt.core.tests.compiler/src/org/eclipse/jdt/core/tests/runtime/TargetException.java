@@ -23,8 +23,8 @@ public TargetException() {
 	super();
 }
 /**
- * Constructs a <code>TargetException</code> with the specified 
- * detail message. 
+ * Constructs a <code>TargetException</code> with the specified
+ * detail message.
  *
  * @param   s   the detail message.
  */

@@ -47,7 +47,7 @@ public void setCanceled(boolean b) {
 }
 /*
  * Sets the number of time isCanceled() can be called before it returns true.
- */ 
+ */
 public void setCancelledCounter(int counter) {
 	this.isCanceledCounter = counter;
 }

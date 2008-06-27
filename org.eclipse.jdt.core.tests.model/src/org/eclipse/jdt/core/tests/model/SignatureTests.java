@@ -50,28 +50,28 @@ static {
  */
 public void testCreateArraySignature() {
 	assertEquals(
-		"Signature#createArraySignature not correct", 
+		"Signature#createArraySignature not correct",
 		"[[[[QString",
 		Signature.createArraySignature("QString", 4));
-		
+
 	// tests with 1.5-specific elements
 	assertEquals(
-		"Signature#createArraySignature not correct", 
+		"Signature#createArraySignature not correct",
 		"[[[[Qlist<Qstring;>;",
 		Signature.createArraySignature("Qlist<Qstring;>;", 4));
-		
+
 }
 /**
  * @see Signature
  */
 public void testCreateMethodSignature() {
 	assertEquals(
-		"Signature#createMethodSignature is not correct 1", 
-		"(QString;QObject;I)I", 
+		"Signature#createMethodSignature is not correct 1",
+		"(QString;QObject;I)I",
 		Signature.createMethodSignature(new String[] {"QString;", "QObject;", "I"}, "I"));
 	assertEquals(
-		"Signature#createMethodSignature is not correct 2", 
-		"()Ljava.lang.String;", 
+		"Signature#createMethodSignature is not correct 2",
+		"()Ljava.lang.String;",
 		Signature.createMethodSignature(new String[] {}, "Ljava.lang.String;"));
 }
 /**
@@ -82,9 +82,9 @@ public void testCreateTypeSignature() {
 			Signature.createTypeSignature("int".toCharArray(), false));
 	assertEquals("Signature#createTypeSignature is not correct2", "Ljava.lang.String;",
 			Signature.createTypeSignature("java.lang.String".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct3", "QString;", 
+	assertEquals("Signature#createTypeSignature is not correct3", "QString;",
 			Signature.createTypeSignature("String".toCharArray(), false));
-	assertEquals("Signature#createTypeSignature is not correct4", "Qjava.lang.String;", 
+	assertEquals("Signature#createTypeSignature is not correct4", "Qjava.lang.String;",
 			Signature.createTypeSignature("java.lang.String".toCharArray(), false));
 	assertEquals("Signature#createTypeSignature is not correct5", "[I",
 			Signature.createTypeSignature("int []".toCharArray(), false));
@@ -120,7 +120,7 @@ public void testCreateTypeSignature() {
 	assertEquals("Signature#createTypeSignature is not correct20", "[QList<QList<[I>;>;",
 			Signature.createTypeSignature("List<List<int[]>>[]".toCharArray(), false));
 	assertEquals("Signature#createTypeSignature is not correct21", "Qjava.y.Map<[QObject;QString;>.MapEntry<[Qp.K<QT;>;[Qq.r.V2;>;",
-			Signature.createTypeSignature("java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>".toCharArray(), false));	
+			Signature.createTypeSignature("java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>".toCharArray(), false));
 }
 /**
  * Ensures that creating an invalid type signature throws an IllegalArgumentException.
@@ -167,7 +167,7 @@ public void testGetElementType() {
 	} catch (IllegalArgumentException iae) {
 		// do nothing
 	}
-	
+
 	// tests with 1.5-specific elements
 	assertEquals(
 		"Signature#getElementType not correct", "Qlist<Qstring;>;",
@@ -329,7 +329,7 @@ public void testGetParameterTypes() {
 			Signature.getParameterTypes(methodSig)[4]);
 	assertEquals("Signature#getParameterTypes 5", "[Lstring;",
 			Signature.getParameterTypes(methodSig)[5]);
-	
+
 	// resolved types
 	methodSig = "(La;)V";
 	assertEquals("Signature#getParameterTypes 6", 1,
@@ -353,8 +353,8 @@ public void testGetParameterTypes() {
 public void testGetTypeParameters1() {
 	String sig = "<X:TF;Y::Ljava.lang.Cloneable;>";
 	assertStringsEqual(
-			"Unexpected type parameters", 
-			"X:TF;\n" + 
+			"Unexpected type parameters",
+			"X:TF;\n" +
 			"Y::Ljava.lang.Cloneable;\n",
 			Signature.getTypeParameters(sig));
 }
@@ -364,8 +364,8 @@ public void testGetTypeParameters1() {
 public void testGetTypeParameters2() {
 	String sig = "<X:TF;Y::Ljava.lang.Cloneable;>()V";
 	assertStringsEqual(
-			"Unexpected type parameters", 
-			"X:TF;\n" + 
+			"Unexpected type parameters",
+			"X:TF;\n" +
 			"Y::Ljava.lang.Cloneable;\n",
 			Signature.getTypeParameters(sig));
 }
@@ -375,7 +375,7 @@ public void testGetTypeParameters2() {
 public void testGetTypeParameters3() {
 	String sig = "<E:>Ljava.util.AbstractCollection;";
 	assertStringsEqual(
-			"Unexpected type parameters", 
+			"Unexpected type parameters",
 			"E:\n",
 			Signature.getTypeParameters(sig));
 }
@@ -386,7 +386,7 @@ public void testGetTypeParameters3() {
 public void testGetTypeParameters4() {
 	String sig = "<K:V:>Ljava.util.AbstractMap;";
 	assertStringsEqual(
-			"Unexpected type parameters", 
+			"Unexpected type parameters",
 			"K:\n" +
 			"V:\n",
 			Signature.getTypeParameters(sig));
@@ -398,7 +398,7 @@ public void testGetTypeParameters4() {
 public void testGetTypeParameters5() {
 	String sig = "<L:T:>Ljava.util.AbstractMap;";
 	assertStringsEqual(
-			"Unexpected type parameters", 
+			"Unexpected type parameters",
 			"L:\n" +
 			"T:\n",
 			Signature.getTypeParameters(sig));
@@ -409,7 +409,7 @@ public void testGetTypeParameters5() {
 public void testGetTypeParameters6() {
 	String sig = "<E::Lp/I;>Lp1/X;";
 	assertStringsEqual(
-			"Unexpected type parameters", 
+			"Unexpected type parameters",
 			"E::Lp/I;\n",
 			Signature.getTypeParameters(sig));
 }
@@ -444,7 +444,7 @@ public void testGetReturnType() {
 	} catch (IllegalArgumentException iae) {
 		// do nothing
 	}
-	
+
 	// tests with 1.5-specific elements
 	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)IQexception;Qerror;";
 	assertEquals("Signature#getReturnType is not correct2", "I",
@@ -475,7 +475,7 @@ public void testGetThrownExceptionTypes() {
 	} catch (IllegalArgumentException iae) {
 		// do nothing
 	}
-	
+
 	// tests with 1.5-specific elements
 	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)I^Qexception;^Qerror;";
 	assertStringsEqual("Signature#getThrownExceptionTypes is not correct2", "Qexception;\nQerror;\n",
@@ -483,21 +483,21 @@ public void testGetThrownExceptionTypes() {
 	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;^Qexception<TT;>;^Qerror;";
 	assertStringsEqual("Signature#getThrownExceptionTypes is not correct3", "Qexception<TT;>;\nQerror;\n",
 			Signature.getThrownExceptionTypes(methodSig));
-	
+
 	methodSig = "<T:Ljava/lang/Exception;>()V^TT;";
 	assertStringsEqual("Signature#getThrownExceptionTypes is not correct3", "TT;\n",
 			Signature.getThrownExceptionTypes(methodSig));
 	methodSig = "<T:Ljava/lang/Exception;>()V^TT;^Ljava/lang/Exception;";
 	assertStringsEqual("Signature#getThrownExceptionTypes is not correct3", "TT;\nLjava/lang/Exception;\n",
 			Signature.getThrownExceptionTypes(methodSig));
-	
+
 	try {
 		Signature.getThrownExceptionTypes("<T:Ljava/lang/Exception;>()VTT;");
 		assertTrue("Signature#getThrownExceptionTypes is not correct: exception", false);
 	} catch (IllegalArgumentException iae) {
 		// do nothing
 	}
-	
+
 	try {
 		Signature.getThrownExceptionTypes("<T:Ljava/lang/Exception;>()V^TT;Ljava/lang/Exception;");
 		assertTrue("Signature#getThrownExceptionTypes is not correct: exception", false);
@@ -750,14 +750,14 @@ public void testGetSimpleName02() {
 			Signature.getSimpleName(""));
 }
 public void testGetSimpleName03() {
-	assertEquals("Signature#getSimpleName is not correct 3", 
+	assertEquals("Signature#getSimpleName is not correct 3",
 			"MapEntry<K<T>[],V2[]>",
 			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>"));
 }
 public void testGetSimpleName04() {
-	assertEquals("Signature#getSimpleName is not correct 4", 
+	assertEquals("Signature#getSimpleName is not correct 4",
 			"MapEntry<K<T>[],? extends V2>",
-			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],? extends q.r.V2>"));	
+			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],? extends q.r.V2>"));
 }
 public void testGetSimpleName05() {
 	assertEquals("Unexpected simple name", "List<?>", Signature.getSimpleName("List<?>"));
@@ -777,8 +777,8 @@ public void testGetSimpleName08() {
 public void testGetSimpleNames01() {
 	assertStringsEqual(
 		"Unexpected simple names",
-		"java\n" + 
-		"lang\n" + 
+		"java\n" +
+		"lang\n" +
 		"Object\n",
 		Signature.getSimpleNames("java.lang.Object"));
 }
@@ -797,8 +797,8 @@ public void testGetSimpleNames03() {
 public void testGetSimpleNames04() {
 	assertStringsEqual(
 		"Unexpected simple names",
-		"java\n" + 
-		"util\n" + 
+		"java\n" +
+		"util\n" +
 		"List<java.lang.String>\n",
 		Signature.getSimpleNames("java.util.List<java.lang.String>"));
 }
@@ -820,7 +820,7 @@ public void testToQualifiedName() {
  */
 public void testToStringAnonymousType() {
 	assertEquals(
-		"Signature#toString is not correct", 
+		"Signature#toString is not correct",
 		"new X(){}",
 		Signature.toString("LX$123;"));
 }
@@ -967,7 +967,7 @@ public void testToStringType27() {
 		Signature.toString("-QInputStream;"));
 }
 
-/* 
+/*
  * Ensures that the toString() signature of a capture with no bounds is correct
  */
 public void testToStringType28() {
@@ -976,7 +976,7 @@ public void testToStringType28() {
 		Signature.toString("!*"));
 }
 
-/* 
+/*
  * Ensures that the toString() signature of a capture with a super bound is correct
  */
 public void testToStringType29() {
@@ -985,7 +985,7 @@ public void testToStringType29() {
 		Signature.toString("!-Ljava.util.List<TT;>;"));
 }
 
-/* 
+/*
  * Ensures that the toString() signature of a capture with an extends bound is correct
  */
 public void testToStringType30() {
@@ -1066,7 +1066,7 @@ public void testToStringMethod12() {
  */
 public void testToStringInnerType() {
 	assertEquals(
-		"Signature#toString is not correct", 
+		"Signature#toString is not correct",
 		"x.y.A.Inner",
 		Signature.toString("Lx.y.A$Inner;"));
 }
@@ -1077,7 +1077,7 @@ public void testToStringInnerType() {
  */
 public void testToStringInnerType2() {
 	assertEquals(
-		"Signature#toString is not correct", 
+		"Signature#toString is not correct",
 		"X.Y1",
 		Signature.toString("LX$Y1;"));
 }
@@ -1087,148 +1087,148 @@ public void testToStringInnerType2() {
  */
 public void testGetTypeSignatureKind01() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 1", 
+		"Signature#getTypeSignatureKind(String) is not correct 1",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("Ljava.lang.String;"));
 }
 public void testGetTypeSignatureKind02() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 2", 
+		"Signature#getTypeSignatureKind(String) is not correct 2",
 		Signature.ARRAY_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("[Ljava.lang.String;"));
 }
 public void testGetTypeSignatureKind03() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 3", 
+		"Signature#getTypeSignatureKind(String) is not correct 3",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("QString;"));
 }
 public void testGetTypeSignatureKind04() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 4", 
+		"Signature#getTypeSignatureKind(String) is not correct 4",
 		Signature.ARRAY_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("[[QString;"));
 }
 public void testGetTypeSignatureKind05() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 5", 
+		"Signature#getTypeSignatureKind(String) is not correct 5",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("Z"));
 }
 public void testGetTypeSignatureKind06() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 6", 
+		"Signature#getTypeSignatureKind(String) is not correct 6",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("B"));
 }
 public void testGetTypeSignatureKind07() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 7", 
+		"Signature#getTypeSignatureKind(String) is not correct 7",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("C"));
 }
 public void testGetTypeSignatureKind08() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 8", 
+		"Signature#getTypeSignatureKind(String) is not correct 8",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("D"));
 }
 public void testGetTypeSignatureKind09() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 9", 
+		"Signature#getTypeSignatureKind(String) is not correct 9",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("F"));
 }
 public void testGetTypeSignatureKind10() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 10", 
+		"Signature#getTypeSignatureKind(String) is not correct 10",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("I"));
 }
 public void testGetTypeSignatureKind11() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 11", 
+		"Signature#getTypeSignatureKind(String) is not correct 11",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("J"));
 }
 public void testGetTypeSignatureKind12() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 12", 
+		"Signature#getTypeSignatureKind(String) is not correct 12",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("S"));
 }
 public void testGetTypeSignatureKind13() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 13", 
+		"Signature#getTypeSignatureKind(String) is not correct 13",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("V"));
 }
 public void testGetTypeSignatureKind14() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 14", 
+		"Signature#getTypeSignatureKind(String) is not correct 14",
 		Signature.ARRAY_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("[[[I"));
 }
-	
+
 // signatures with 1.5 elements
 
 public void testGetTypeSignatureKind15() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 15", 
+		"Signature#getTypeSignatureKind(String) is not correct 15",
 		Signature.TYPE_VARIABLE_SIGNATURE,
 		Signature.getTypeSignatureKind("TVAR;"));
 }
 public void testGetTypeSignatureKind16() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 16", 
+		"Signature#getTypeSignatureKind(String) is not correct 16",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("QA<QB;>;"));
 }
 public void testGetTypeSignatureKind17() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 17", 
+		"Signature#getTypeSignatureKind(String) is not correct 17",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("QA<*>;"));
 }
 public void testGetTypeSignatureKind18() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 18", 
+		"Signature#getTypeSignatureKind(String) is not correct 18",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("QA<+QB;>;"));
 }
 public void testGetTypeSignatureKind19() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 19", 
+		"Signature#getTypeSignatureKind(String) is not correct 19",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("QA<-QB;>;"));
 }
 public void testGetTypeSignatureKind20() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 20", 
+		"Signature#getTypeSignatureKind(String) is not correct 20",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("LA<*****>;"));
 }
 public void testGetTypeSignatureKind21() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 21", 
+		"Signature#getTypeSignatureKind(String) is not correct 21",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("La<TV;>.b<QW;>.c<LX;>;"));
 }
 public void testGetTypeSignatureKind22() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 22", 
+		"Signature#getTypeSignatureKind(String) is not correct 22",
 		Signature.WILDCARD_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("*"));
 }
 public void testGetTypeSignatureKind23() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 23", 
+		"Signature#getTypeSignatureKind(String) is not correct 23",
 		Signature.WILDCARD_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("-Ljava.lang.Object;"));
 }
 public void testGetTypeSignatureKind24() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 24", 
+		"Signature#getTypeSignatureKind(String) is not correct 24",
 		Signature.WILDCARD_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("+Ljava.lang.Object;"));
 }
@@ -1239,7 +1239,7 @@ public void testGetTypeSignatureKind24() {
  */
 public void testGetTypeSignatureKind25() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(String) is not correct 25", 
+		"Signature#getTypeSignatureKind(String) is not correct 25",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("<T:>Ljava.lang.Class;"));
 }
@@ -1249,148 +1249,148 @@ public void testGetTypeSignatureKind25() {
  */
 public void testGetTypeSignatureKindCharArray01() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 1", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 1",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("Ljava.lang.String;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray02() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 2", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 2",
 		Signature.ARRAY_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("[Ljava.lang.String;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray03() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 3", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 3",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("QString;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray04() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 4", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 4",
 		Signature.ARRAY_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("[[QString;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray05() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 5", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 5",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("Z".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray06() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 6", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 6",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("B".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray07() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 7", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 7",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("C".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray08() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 8", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 8",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("D".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray09() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 9", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 9",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("F".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray10() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 10", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 10",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("I".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray11() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 11", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 11",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("J".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray12() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 12", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 12",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("S".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray13() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 13", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 13",
 		Signature.BASE_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("V".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray14() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 14", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 14",
 		Signature.ARRAY_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("[[[I".toCharArray()));
-}	
+}
 
 // signatures with 1.5 elements
 
 public void testGetTypeSignatureKindCharArray15() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 15", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 15",
 		Signature.TYPE_VARIABLE_SIGNATURE,
 		Signature.getTypeSignatureKind("TVAR;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray16() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 16", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 16",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("QA<QB;>;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray17() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 17", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 17",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("QA<*>;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray18() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 18", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 18",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("QA<+QB;>;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray19() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 19", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 19",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("QA<-QB;>;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray20() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 20", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 20",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("LA<*****>;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray21() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 21", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 21",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("La<TV;>.b<QW;>.c<LX;>;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray22() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 22", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 22",
 		Signature.WILDCARD_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("*".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray23() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 23", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 23",
 		Signature.WILDCARD_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("-Ljava.lang.Object;".toCharArray()));
 }
 public void testGetTypeSignatureKindCharArray24() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 24", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 24",
 		Signature.WILDCARD_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("+Ljava.lang.Object;".toCharArray()));
 }
@@ -1400,7 +1400,7 @@ public void testGetTypeSignatureKindCharArray24() {
  */
 public void testGetTypeSignatureKindCharArray25() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 25", 
+		"Signature#getTypeSignatureKind(char[]) is not correct 25",
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("<T:>Ljava.lang.Class;".toCharArray()));
 }

@@ -30,17 +30,17 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  */
 public class JarEntryFile  extends JarEntryResource {
 	private static final IJarEntryResource[] NO_CHILDREN = new IJarEntryResource[0];
-	
+
 	public JarEntryFile(String simpleName) {
 		super(simpleName);
 	}
-	
+
 	public JarEntryResource clone(Object newParent) {
-		JarEntryFile file = new JarEntryFile(simpleName);
+		JarEntryFile file = new JarEntryFile(this.simpleName);
 		file.setParent(newParent);
 		return file;
 	}
-	
+
 	public InputStream getContents() throws CoreException {
 		ZipFile zipFile = null;
 		try {
@@ -62,15 +62,15 @@ public class JarEntryFile  extends JarEntryResource {
 			JavaModelManager.getJavaModelManager().closeZipFile(zipFile);
 		}
 	}
-	
+
 	public IJarEntryResource[] getChildren() {
 		return NO_CHILDREN;
 	}
-	
+
 	public boolean isFile() {
 		return true;
 	}
-	
+
 	public String toString() {
 		return "JarEntryFile["+getEntryName()+"]"; //$NON-NLS-2$ //$NON-NLS-1$
 	}

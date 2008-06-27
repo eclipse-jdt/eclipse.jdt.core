@@ -42,7 +42,7 @@ private IJavaElement[] select(String path, String source, String selection) thro
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	setUpJavaProject("Resolve");
 }
 protected void setUp() throws Exception {
@@ -52,7 +52,7 @@ protected void setUp() throws Exception {
 
 public void tearDownSuite() throws Exception {
 	deleteProject("Resolve");
-	
+
 	super.tearDownSuite();
 }
 protected void tearDown() throws Exception {
@@ -80,16 +80,16 @@ public void testAmbiguousMethod1() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;\n"+
-		"public class Test {\n" + 
-		"  void foo(Test1 t) {}\n" + 
-		"  void foo(Test2 t) {}\n" + 
-		"  void bar(Object o) {\n" + 
-		"    foo(o);\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"class Test1 {\n" + 
-		"}\n" + 
-		"class Test2 {\n" + 
+		"public class Test {\n" +
+		"  void foo(Test1 t) {}\n" +
+		"  void foo(Test2 t) {}\n" +
+		"  void bar(Object o) {\n" +
+		"    foo(o);\n" +
+		"  }\n" +
+		"}\n" +
+		"class Test1 {\n" +
+		"}\n" +
+		"class Test2 {\n" +
 		"}"
 	);
 
@@ -97,7 +97,7 @@ public void testAmbiguousMethod1() throws JavaModelException {
 	int start = str.lastIndexOf("foo(o)");
 	int length = "foo".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Test1) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
@@ -292,11 +292,11 @@ public void testConstructor3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/p/Type.java",
-		"package test.p;\n" + 
+		"package test.p;\n" +
 		"public class Type {\n" +
 		"  void foo() {\n" +
 		"    new AClass(unknown) {};\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n" +
 		"class AClass {\n" +
 		"}\n"
@@ -315,11 +315,11 @@ public void testConstructor4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/p/Type.java",
-		"package test.p;\n" + 
+		"package test.p;\n" +
 		"public class Type {\n" +
 		"  void foo() {\n" +
 		"    new AClass(unknown) {};\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n" +
 		"class AClass {\n" +
 		"  public AClass(Object o) {}\n" +
@@ -343,7 +343,7 @@ public void testConstructor5() throws JavaModelException {
 		"public class Test {\n" +
 		"  void foo() {\n" +
 		"    new ResolveConstructorCall2();\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n" +
 		"\n"
 	);
@@ -365,7 +365,7 @@ public void testConstructor6() throws JavaModelException {
 		"public class Test {\n" +
 		"  void foo() {\n" +
 		"    new ResolveConstructorCall3();\n" +
-		"  }\n" + 
+		"  }\n" +
 		"}\n" +
 		"\n"
 	);
@@ -566,7 +566,7 @@ public void testInterface() throws JavaModelException {
 public void testInvalidResolve() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "p1", "X.java");
 	try {
-		cu.codeSelect(-1, 10); 
+		cu.codeSelect(-1, 10);
 	} catch (JavaModelException e) {
 		return;
 	}
@@ -671,7 +671,7 @@ public void testLocalClass8() throws JavaModelException {
 			"  }\n" +
 			"}\n",
 			"LocalClass");
-	
+
 	assertElementsEqual(
 		"Unexpected elements",
 		"LocalClass [in foo() [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
@@ -686,9 +686,9 @@ public void testLocalClass9() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P");
 		addLibrary(
-			project, 
-			"lib.jar", 
-			"libsrc.zip", 
+			project,
+			"lib.jar",
+			"libsrc.zip",
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -697,7 +697,7 @@ public void testLocalClass9() throws CoreException, IOException {
 				"    }\n" +
 				"  }\n" +
 				"}"
-			}, 
+			},
 			"1.4");
 		IClassFile classFile = getClassFile("P", "/P/lib.jar", "", "X.class");
 		IJavaElement[] elements = codeSelect(classFile, "Y", "Y");
@@ -1079,7 +1079,7 @@ public void testMethodWithIncorrectParameter2() throws JavaModelException {
 			"  }\n" +
 			"}\n",
 			"called");
-	
+
 	assertElementsEqual(
 		"Unexpected elements",
 		"called(String) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
@@ -1110,7 +1110,7 @@ public void testMethodWithInnerTypeInClassFile2() throws JavaModelException {
 		"method(MyClass2.Inner[]) [in MyClass2 [in MyClass2.class [in <default> [in zzz.jar [in Resolve]]]]]",
 		elements
 	);
-		
+
 	IMethod method = (IMethod) elements[0];
 	ISourceRange sourceRange = method.getSourceRange();
 	String methodString = "void method(MyClass2.Inner[] arg){}";
@@ -1221,17 +1221,17 @@ public void testUnicode2() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/B.java",
 		"package test;\n"+
-		"public class \\u0042 {\n" + 
-		"  void foo() {\n" + 
-		"    \\u0042 var = null;\n" + 
-		"  }\n" + 
+		"public class \\u0042 {\n" +
+		"  void foo() {\n" +
+		"    \\u0042 var = null;\n" +
+		"  }\n" +
 		"}");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("42");
 	int length = "".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"B [in [Working copy] B.java [in test [in src [in Resolve]]]]",
@@ -1244,15 +1244,15 @@ public void testUnicode3() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/B.java",
 		"package test;\n"+
-		"public class \\u0042 {\n" + 
-		"  void foo() {\n" + 
+		"public class \\u0042 {\n" +
+		"  void foo() {\n" +
 		"    \\u004");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("4");
 	int length = "".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"",
@@ -1312,7 +1312,7 @@ public void testLocalNameForClassFile() throws JavaModelException {
 			"var3 [in foo() [in ResolveLocalName [in ResolveLocalName.class [in <default> [in test47177.jar [in Resolve]]]]]]",
 			elements
 	);
-	
+
 	// Resolve a local variable reference
 	elements = codeSelect(cu, "var4;", "var4");
 	assertElementsEqual(
@@ -1356,14 +1356,14 @@ public void testMethodInAnonymous1() throws JavaModelException {
 			"        if (v) {}\n" +
 			"    }\n" +
 			"}");
-	
+
 	String str = this.workingCopies[0].getSource();
 	String selectAt = "foo(false)";
 	String selection = "foo";
 	int start = str.indexOf(selectAt);
 	int length = selection.length();
 	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(boolean) [in Test2 [in [Working copy] Test2.java [in <default> [in src [in Resolve]]]]]",
@@ -1387,33 +1387,33 @@ public void testDuplicateLocals1() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"	void foo() {\n" + 
-		"		int x = 0;\n" + 
-		"		TestString x = null;\n" + 
-		"		x.bar;\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"	void foo() {\n" +
+		"		int x = 0;\n" +
+		"		TestString x = null;\n" +
+		"		x.bar;\n" +
+		"	}\n" +
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
 		"package test;"+
-		"public class TestString {\n" + 
-		"	public void bar() {\n" + 
-		"	}\n" + 
+		"public class TestString {\n" +
+		"	public void bar() {\n" +
+		"	}\n" +
 		"}");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x");
 	int length = "x".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"x [in foo() [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
 			elements
 		);
-	
+
 	assertEquals(
 			"Unexpected type",
 			"QTestString;",
@@ -1425,37 +1425,37 @@ public void testDuplicateLocals2() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"        public static void main(String[] args) {\n" + 
-		"                int x = 2;\n" + 
-		"                try {\n" + 
-		"                \n" + 
-		"                } catch(TestException x) {\n" + 
-		"                        x.bar();\n" + 
-		"                } catch(Exception e) {\n" + 
-		"                }\n" + 
-		"        }\n" + 
+		"public class Test {\n" +
+		"        public static void main(String[] args) {\n" +
+		"                int x = 2;\n" +
+		"                try {\n" +
+		"                \n" +
+		"                } catch(TestException x) {\n" +
+		"                        x.bar();\n" +
+		"                } catch(Exception e) {\n" +
+		"                }\n" +
+		"        }\n" +
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestException.java",
 		"package test;"+
-		"public class TestException extends Exception {\n" + 
-		"	public void bar() {\n" + 
-		"	}\n" + 
+		"public class TestException extends Exception {\n" +
+		"	public void bar() {\n" +
+		"	}\n" +
 		"}");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x.");
 	int length = "x".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"x [in main(String[]) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
 			elements
 		);
-	
+
 	assertEquals(
 			"Unexpected type",
 			"QTestException;",
@@ -1467,34 +1467,34 @@ public void testDuplicateLocals3() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"        public static void main(String[] args) {\n" + 
-		"                int x = x = 0;\n" + 
-		"                if (true) {\n" + 
-		"                        TestString x = x = null;\n" + 
-		"                }\n" + 
-		"        }\n" + 
+		"public class Test {\n" +
+		"        public static void main(String[] args) {\n" +
+		"                int x = x = 0;\n" +
+		"                if (true) {\n" +
+		"                        TestString x = x = null;\n" +
+		"                }\n" +
+		"        }\n" +
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
 		"package test;"+
-		"public class TestString {\n" + 
-		"	public void bar() {\n" + 
-		"	}\n" + 
+		"public class TestString {\n" +
+		"	public void bar() {\n" +
+		"	}\n" +
 		"}");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x");
 	int length = "x".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"x [in main(String[]) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
 			elements
 		);
-	
+
 	assertEquals(
 			"Unexpected type",
 			"QTestString;",
@@ -1506,36 +1506,36 @@ public void testDuplicateLocals4() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"        public static void main(String[] args) {\n" + 
-		"                for (int x = 0; x < 10; x++) {\n" + 
-		"                        for (TestString x = null; x.bar() < 5;)  {\n" + 
-		"                                // do something\n" + 
-		"                        }\n" + 
-		"                }\n" + 
-		"        }\n" + 
+		"public class Test {\n" +
+		"        public static void main(String[] args) {\n" +
+		"                for (int x = 0; x < 10; x++) {\n" +
+		"                        for (TestString x = null; x.bar() < 5;)  {\n" +
+		"                                // do something\n" +
+		"                        }\n" +
+		"                }\n" +
+		"        }\n" +
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
 		"package test;"+
-		"public class TestString {\n" + 
-		"	public int bar() {\n" + 
-		"		return 0;\n" + 
-		"	}\n" + 
+		"public class TestString {\n" +
+		"	public int bar() {\n" +
+		"		return 0;\n" +
+		"	}\n" +
 		"}");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x");
 	int length = "x".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"x [in main(String[]) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
 			elements
 		);
-	
+
 	assertEquals(
 			"Unexpected type",
 			"QTestString;",
@@ -1547,36 +1547,36 @@ public void testDuplicateLocals5() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"        public static void main(String[] args) {\n" + 
-		"                for (int x = 0; x < 10; x++) {\n" + 
-		"                        for (TestString x = null; x.bar() < 5;)  {\n" + 
-		"                                x.bar(); // do something\n" + 
-		"                        }\n" + 
-		"                }\n" + 
-		"        }\n" + 
+		"public class Test {\n" +
+		"        public static void main(String[] args) {\n" +
+		"                for (int x = 0; x < 10; x++) {\n" +
+		"                        for (TestString x = null; x.bar() < 5;)  {\n" +
+		"                                x.bar(); // do something\n" +
+		"                        }\n" +
+		"                }\n" +
+		"        }\n" +
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
 		"package test;"+
-		"public class TestString {\n" + 
-		"	public int bar() {\n" + 
-		"		return 0;\n" + 
-		"	}\n" + 
+		"public class TestString {\n" +
+		"	public int bar() {\n" +
+		"		return 0;\n" +
+		"	}\n" +
 		"}");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("x");
 	int length = "x".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"x [in main(String[]) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
 			elements
 		);
-	
+
 	assertEquals(
 			"Unexpected type",
 			"QTestString;",
@@ -1588,39 +1588,39 @@ public void testDuplicateLocalsType1() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
-		"     class Local {\n" + 
-		"        public void foo() {}\n" + 
-		"     }\n" + 
-		"     {\n" + 
-		"        class Local {\n" + 
-		"                Local(int i) {\n" + 
-		"                        this.init(i);\n" + 
-		"                }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"     class Local {\n" +
+		"        public void foo() {}\n" +
+		"     }\n" +
+		"     {\n" +
+		"        class Local {\n" +
+		"                Local(int i) {\n" +
+		"                        this.init(i);\n" +
+		"                }\n" +
 		"				 void init(int i) {}\n" +
 		"                public void bar() {}\n" +
-		"        }\n" + 
-		"        Local l = new Local(0);\n" + 
-		"        l.bar();\n" + 
-		"     }\n" + 
-		"  }\n" + 
+		"        }\n" +
+		"        Local l = new Local(0);\n" +
+		"        l.bar();\n" +
+		"     }\n" +
+		"  }\n" +
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
 		"package test;"+
-		"public class TestString {\n" + 
-		"	public int bar() {\n" + 
-		"		return 0;\n" + 
-		"	}\n" + 
+		"public class TestString {\n" +
+		"	public int bar() {\n" +
+		"		return 0;\n" +
+		"	}\n" +
 		"}");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("bar");
 	int length = "bar".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"bar() [in Local#2 [in foo() [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]]",
@@ -1633,43 +1633,43 @@ public void testDuplicateLocalsType2() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"        void foo() {\n" + 
-		"                class Local {\n" + 
-		"                        void foo() {\n" + 
-		"                        }\n" + 
-		"                }\n" + 
-		"                {\n" + 
-		"                        class Local {\n" + 
-		"                               Local(int i) {\n" + 
-		"                                       this.init(i);\n" + 
-		"                                       this.bar();\n" + 
-		"                               }\n" + 
+		"public class Test {\n" +
+		"        void foo() {\n" +
+		"                class Local {\n" +
+		"                        void foo() {\n" +
+		"                        }\n" +
+		"                }\n" +
+		"                {\n" +
+		"                        class Local {\n" +
+		"                               Local(int i) {\n" +
+		"                                       this.init(i);\n" +
+		"                                       this.bar();\n" +
+		"                               }\n" +
 		"				 				void init(int i) {}\n" +
-		"                        		void bar() {\n" + 
-		"                        		}\n" + 
-		"                        }\n" + 
-		"                        Local l = new Local(0);\n" + 
-		"                }\n" + 
-		"                Local l = new Local();\n" + 
-		"                l.foo();\n" + 
-		"        }\n" + 
+		"                        		void bar() {\n" +
+		"                        		}\n" +
+		"                        }\n" +
+		"                        Local l = new Local(0);\n" +
+		"                }\n" +
+		"                Local l = new Local();\n" +
+		"                l.foo();\n" +
+		"        }\n" +
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/TestString.java",
 		"package test;"+
-		"public class TestString {\n" + 
-		"	public int bar() {\n" + 
-		"		return 0;\n" + 
-		"	}\n" + 
+		"public class TestString {\n" +
+		"	public int bar() {\n" +
+		"		return 0;\n" +
+		"	}\n" +
 		"}");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo");
 	int length = "foo".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo() [in Local [in foo() [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]]",
@@ -1681,12 +1681,12 @@ public void testDuplicateLocalsType2() throws JavaModelException {
  */
 public void testDuplicateMethodDeclaration() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("foo");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo() [in ResolveDuplicateMethodDeclaration [in ResolveDuplicateMethodDeclaration.java [in <default> [in src [in Resolve]]]]]",
@@ -1698,12 +1698,12 @@ public void testDuplicateMethodDeclaration() throws JavaModelException {
  */
 public void testDuplicateMethodDeclaration2() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("foo");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo()#2 [in ResolveDuplicateMethodDeclaration [in ResolveDuplicateMethodDeclaration.java [in <default> [in src [in Resolve]]]]]",
@@ -1712,12 +1712,12 @@ public void testDuplicateMethodDeclaration2() throws JavaModelException {
 }
 public void testDuplicateMethodDeclaration3() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration3.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("foo");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Object) [in ResolveDuplicateMethodDeclaration3 [in ResolveDuplicateMethodDeclaration3.java [in <default> [in src [in Resolve]]]]]",
@@ -1726,12 +1726,12 @@ public void testDuplicateMethodDeclaration3() throws JavaModelException {
 }
 public void testDuplicateMethodDeclaration4() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration3.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("foo");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Object)#2 [in ResolveDuplicateMethodDeclaration3 [in ResolveDuplicateMethodDeclaration3.java [in <default> [in src [in Resolve]]]]]",
@@ -1740,12 +1740,12 @@ public void testDuplicateMethodDeclaration4() throws JavaModelException {
 }
 public void testDuplicateMethodDeclaration5() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration5.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("foo");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Zork) [in ResolveDuplicateMethodDeclaration5 [in ResolveDuplicateMethodDeclaration5.java [in <default> [in src [in Resolve]]]]]",
@@ -1754,12 +1754,12 @@ public void testDuplicateMethodDeclaration5() throws JavaModelException {
 }
 public void testDuplicateMethodDeclaration6() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration5.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("foo");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Zork)#2 [in ResolveDuplicateMethodDeclaration5 [in ResolveDuplicateMethodDeclaration5.java [in <default> [in src [in Resolve]]]]]",
@@ -1768,12 +1768,12 @@ public void testDuplicateMethodDeclaration6() throws JavaModelException {
 }
 public void testDuplicateMethodDeclaration7() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration7.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("foo");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Zork) [in Inner [in ResolveDuplicateMethodDeclaration7 [in ResolveDuplicateMethodDeclaration7.java [in <default> [in src [in Resolve]]]]]]",
@@ -1782,12 +1782,12 @@ public void testDuplicateMethodDeclaration7() throws JavaModelException {
 }
 public void testDuplicateMethodDeclaration8() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration7.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("foo");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Zork)#2 [in Inner [in ResolveDuplicateMethodDeclaration7 [in ResolveDuplicateMethodDeclaration7.java [in <default> [in src [in Resolve]]]]]]",
@@ -1796,12 +1796,12 @@ public void testDuplicateMethodDeclaration8() throws JavaModelException {
 }
 public void testDuplicateMethodDeclaration9() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration9.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("foo(/*1*/");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Zork) [in Inner [in ResolveDuplicateMethodDeclaration9 [in ResolveDuplicateMethodDeclaration9.java [in <default> [in src [in Resolve]]]]]]",
@@ -1810,12 +1810,12 @@ public void testDuplicateMethodDeclaration9() throws JavaModelException {
 }
 public void testDuplicateMethodDeclaration10() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration9.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("foo(/*1*/");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Zork)#2 [in Inner [in ResolveDuplicateMethodDeclaration9 [in ResolveDuplicateMethodDeclaration9.java [in <default> [in src [in Resolve]]]]]]",
@@ -1824,12 +1824,12 @@ public void testDuplicateMethodDeclaration10() throws JavaModelException {
 }
 public void testDuplicateMethodDeclaration11() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration11.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("foo(/*2*/");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Zork) [in Inner#2 [in ResolveDuplicateMethodDeclaration11 [in ResolveDuplicateMethodDeclaration11.java [in <default> [in src [in Resolve]]]]]]",
@@ -1838,12 +1838,12 @@ public void testDuplicateMethodDeclaration11() throws JavaModelException {
 }
 public void testDuplicateMethodDeclaration12() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDeclaration11.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("foo(/*2*/");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Zork)#2 [in Inner#2 [in ResolveDuplicateMethodDeclaration11 [in ResolveDuplicateMethodDeclaration11.java [in <default> [in src [in Resolve]]]]]]",
@@ -1852,12 +1852,12 @@ public void testDuplicateMethodDeclaration12() throws JavaModelException {
 }
 public void testDuplicateFieldDeclaration() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateFieldDeclaration.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("var;/*1*/");
 	int length = "var".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"var [in Inner [in ResolveDuplicateFieldDeclaration [in ResolveDuplicateFieldDeclaration.java [in <default> [in src [in Resolve]]]]]]",
@@ -1866,12 +1866,12 @@ public void testDuplicateFieldDeclaration() throws JavaModelException {
 }
 public void testDuplicateFieldDeclaration2() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateFieldDeclaration.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("var;/*1*/");
 	int length = "var".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"var#2 [in Inner [in ResolveDuplicateFieldDeclaration [in ResolveDuplicateFieldDeclaration.java [in <default> [in src [in Resolve]]]]]]",
@@ -1880,12 +1880,12 @@ public void testDuplicateFieldDeclaration2() throws JavaModelException {
 }
 public void testDuplicateFieldDeclaration3() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateFieldDeclaration3.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("var;/*2*/");
 	int length = "var".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"var [in Inner#2 [in ResolveDuplicateFieldDeclaration3 [in ResolveDuplicateFieldDeclaration3.java [in <default> [in src [in Resolve]]]]]]",
@@ -1894,12 +1894,12 @@ public void testDuplicateFieldDeclaration3() throws JavaModelException {
 }
 public void testDuplicateFieldDeclaration4() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateFieldDeclaration3.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("var;/*2*/");
 	int length = "var".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"var#2 [in Inner#2 [in ResolveDuplicateFieldDeclaration3 [in ResolveDuplicateFieldDeclaration3.java [in <default> [in src [in Resolve]]]]]]",
@@ -1908,12 +1908,12 @@ public void testDuplicateFieldDeclaration4() throws JavaModelException {
 }
 public void testDuplicateTypeDeclaration() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("Inner");
 	int length = "Inner".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"Inner [in ResolveDuplicateTypeDeclaration [in ResolveDuplicateTypeDeclaration.java [in <default> [in src [in Resolve]]]]]",
@@ -1922,12 +1922,12 @@ public void testDuplicateTypeDeclaration() throws JavaModelException {
 }
 public void testDuplicateTypeDeclaration2() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("Inner");
 	int length = "Inner".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"Inner#2 [in ResolveDuplicateTypeDeclaration [in ResolveDuplicateTypeDeclaration.java [in <default> [in src [in Resolve]]]]]",
@@ -1936,12 +1936,12 @@ public void testDuplicateTypeDeclaration2() throws JavaModelException {
 }
 public void testDuplicateTypeDeclaration3() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration3.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("Inner2/*1*/");
 	int length = "Inner2".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"Inner2 [in Inner [in ResolveDuplicateTypeDeclaration3 [in ResolveDuplicateTypeDeclaration3.java [in <default> [in src [in Resolve]]]]]]",
@@ -1950,12 +1950,12 @@ public void testDuplicateTypeDeclaration3() throws JavaModelException {
 }
 public void testDuplicateTypeDeclaration4() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration3.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("Inner2/*1*/");
 	int length = "Inner2".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"Inner2#2 [in Inner [in ResolveDuplicateTypeDeclaration3 [in ResolveDuplicateTypeDeclaration3.java [in <default> [in src [in Resolve]]]]]]",
@@ -1964,12 +1964,12 @@ public void testDuplicateTypeDeclaration4() throws JavaModelException {
 }
 public void testDuplicateTypeDeclaration5() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration5.java");
-	
+
 	String str = cu.getSource();
 	int start = str.indexOf("Inner2/*2*/");
 	int length = "Inner2".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"Inner2 [in Inner#2 [in ResolveDuplicateTypeDeclaration5 [in ResolveDuplicateTypeDeclaration5.java [in <default> [in src [in Resolve]]]]]]",
@@ -1978,12 +1978,12 @@ public void testDuplicateTypeDeclaration5() throws JavaModelException {
 }
 public void testDuplicateTypeDeclaration6() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateTypeDeclaration5.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("Inner2/*2*/");
 	int length = "Inner2".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"Inner2#2 [in Inner#2 [in ResolveDuplicateTypeDeclaration5 [in ResolveDuplicateTypeDeclaration5.java [in <default> [in src [in Resolve]]]]]]",
@@ -1998,31 +1998,31 @@ public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
 		String[] pathAndContents = new String[] {
 			"test/p/Type.java",
 			"package test.p;"+
-			"public class Type {\n" + 
+			"public class Type {\n" +
 			"}\n"
 		};
-		
+
 		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_4);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
 			"package test;"+
 			"import test.p.Type;"+
-			"public class Test {\n" + 
+			"public class Test {\n" +
 			"}\n");
-		
+
 		this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/p/Type.java",
 			"package test.p;"+
-			"public class Type {\n" + 
+			"public class Type {\n" +
 			"}\n");
-		
+
 		String str = this.workingCopies[0].getSource();
 		int start = str.lastIndexOf("Type");
 		int length = "Type".length();
 		IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-		
+
 		assertElementsEqual(
 			"Unexpected elements",
 			"Type [in [Working copy] Type.java [in test.p [in src [in Resolve]]]]",
@@ -2038,30 +2038,30 @@ public void testDuplicateTypeDeclaration8() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Test {\n" + 
-		"  void foo() {\n" + 
-		"    test.p1.Type t = new test.p1.Type();\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    test.p1.Type t = new test.p1.Type();\n" +
+		"  }\n" +
 		"}\n");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Resolve/src/test/p1/Type.java",
 		"package test.p1;"+
-		"public class Type {\n" + 
-		"  public Type(int i) {}\n" + 
+		"public class Type {\n" +
+		"  public Type(int i) {}\n" +
 		"}\n");
-	
+
 	this.workingCopies[2] = getWorkingCopy(
 		"/Resolve/src/test/p2/Type.java",
 		"package test.p2;"+
-		"public class Type {\n" + 
+		"public class Type {\n" +
 		"}\n");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("Type");
 	int length = "Type".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"Type [in [Working copy] Type.java [in test.p1 [in src [in Resolve]]]]",
@@ -2070,12 +2070,12 @@ public void testDuplicateTypeDeclaration8() throws JavaModelException {
 }
 public void testArrayParameterInsideParent1() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveArrayParameterInsideParent1.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("var");
 	int length = "var".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"var [in test(int[]) [in ResolveArrayParameterInsideParent1 [in ResolveArrayParameterInsideParent1.java [in <default> [in src [in Resolve]]]]]]",
@@ -2084,12 +2084,12 @@ public void testArrayParameterInsideParent1() throws JavaModelException {
 }
 public void testDeepLocalVariable() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDeepLocalVariable.java");
-	
+
 	String str = cu.getSource();
 	int start = str.lastIndexOf("foo");
 	int length = "foo".length();
 	IJavaElement[] elements =  cu.codeSelect(start, length);
-	
+
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo [in D9() [in D9 [in D8 [in D7 [in D6 [in D5 [in D4 [in D3 [in D2 [in D1 [in ResolveDeepLocalVariable [in ResolveDeepLocalVariable.java [in <default> [in src [in Resolve]]]]]]]]]]]]]]]",
@@ -2113,9 +2113,9 @@ public void testLocalVariable() throws JavaModelException {
  */
 public void testQualifiedName1() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveQualifiedName1.java");
-	
+
 	IJavaElement[] elements = codeSelect(cu, "pp.qq.XX.YY.ZZ", "pp.qq.XX.YY.ZZ");
-	
+
 	assertElementsEqual(
 		"Unexpected elements",
 		"ZZ [in YY [in XX [in XX.java [in pp.qq [in src [in Resolve]]]]]]",
@@ -2127,9 +2127,9 @@ public void testQualifiedName1() throws JavaModelException {
  */
 public void testQualifiedName2() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveQualifiedName2.java");
-	
+
 	IJavaElement[] elements = codeSelect(cu, "qq.XX.YY.ZZ", "qq.XX.YY.ZZ");
-	
+
 	assertElementsEqual(
 		"Unexpected elements",
 		"ZZ [in YY [in XX [in XX.java [in pp.qq [in src [in Resolve]]]]]]",
@@ -2141,9 +2141,9 @@ public void testQualifiedName2() throws JavaModelException {
  */
 public void testQualifiedName3() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveQualifiedName3.java");
-	
+
 	IJavaElement[] elements = codeSelect(cu, "XX.YY.ZZ", "XX.YY.ZZ");
-	
+
 	assertElementsEqual(
 		"Unexpected elements",
 		"ZZ [in YY [in XX [in XX.java [in pp.qq [in src [in Resolve]]]]]]",
@@ -2155,9 +2155,9 @@ public void testQualifiedName3() throws JavaModelException {
  */
 public void testQualifiedName4() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveQualifiedName4.java");
-	
+
 	IJavaElement[] elements = codeSelect(cu, "YY.ZZ", "YY.ZZ");
-	
+
 	assertElementsEqual(
 		"Unexpected elements",
 		"ZZ [in YY [in XX [in XX.java [in pp.qq [in src [in Resolve]]]]]]",
@@ -2169,9 +2169,9 @@ public void testQualifiedName4() throws JavaModelException {
  */
 public void testQualifiedName5() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveQualifiedName5.java");
-	
+
 	IJavaElement[] elements = codeSelect(cu, "YY.ZZ", "YY.ZZ");
-	
+
 	assertElementsEqual(
 		"Unexpected elements",
 		"ZZ [in YY [in XX [in ResolveQualifiedName5 [in ResolveQualifiedName5.java [in <default> [in src [in Resolve]]]]]]]",
@@ -2197,7 +2197,7 @@ public void testTypeInsideConstructor() throws JavaModelException {
 				"	}\n" +
 				"}\n",
 				"Test");
-		
+
 		assertElementsEqual(
 			"Unexpected elements",
 			"Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]",
@@ -2226,7 +2226,7 @@ public void testMemberTypeInImport() throws JavaModelException {
 				"public class Test\n" +
 				"}\n",
 				"Sub");
-		
+
 		assertElementsEqual(
 			"Unexpected elements",
 			"Sub [in AType [in [Working copy] AType.java [in test [in src [in Resolve]]]]]",
@@ -2255,7 +2255,7 @@ public void testSingleNameInImport() throws JavaModelException {
 				"public class Test\n" +
 				"}\n",
 				"zzz");
-		
+
 		assertElementsEqual(
 			"Unexpected elements",
 			"zzz [in src [in Resolve]]",
@@ -2294,7 +2294,7 @@ public void testSelectOnCursor1() throws JavaModelException {
 			"    doLoad();\n" +
 			"  }\n" +
 			"}\n");
-	
+
 	String str = cu.getSource();
 	// perform code select between 'd' and 'o'
 	int start = str.indexOf("oLoad();");
@@ -2317,9 +2317,9 @@ public void testSelectOnCursor2() throws JavaModelException {
 			"                return \"aaa\n" +
 			"        }\n" +
 			"}n");
-	
+
 	String str = cu.getSource();
-	
+
 	int start = str.indexOf("foo") + "fo".length();
 	int length = 0;
 	IJavaElement[] elements = cu.codeSelect(start, length);
@@ -2339,14 +2339,14 @@ public void testWorkingCopyOrder1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/p/Type.java",
-		"package test.p;\n" + 
-		"public class Type {\n" + 
+		"package test.p;\n" +
+		"public class Type {\n" +
 		"}\n"
 	);
 	this.workingCopies[1] = getWorkingCopy(
-		"/Resolve/src2/test/p/Type.java", 
-		"package test.p;\n" + 
-		"public class Type {\n" + 
+		"/Resolve/src2/test/p/Type.java",
+		"package test.p;\n" +
+		"public class Type {\n" +
 		"}\n"
 	);
 	IJavaProject javaProject = getJavaProject("Resolve");
@@ -2365,18 +2365,18 @@ public void testWorkingCopyOrder2() throws Exception {
 	String jarName = "bug194432.jar";
 	String srcName = "bug194432_src.zip";
 	try {
-		String[] pathAndContents = new String[] { 
+		String[] pathAndContents = new String[] {
 			"test/p/Type.java",
-			"package test.p;\n" + 
-			"public class Type {\n" + 
-			"}\n" 
+			"package test.p;\n" +
+			"public class Type {\n" +
+			"}\n"
 		};
 		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_4);
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
-			"/Resolve/src/test/p/Type.java", 
-			"package test.p;\n" + 
-			"public class Type {\n" + 
+			"/Resolve/src/test/p/Type.java",
+			"package test.p;\n" +
+			"public class Type {\n" +
 			"}\n"
 		);
 		IJavaProject javaProject = getJavaProject("Resolve");
@@ -2394,15 +2394,15 @@ public void testInvalidField1() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Event {\n" + 
-		"        public int x;\n" + 
-		"\n" + 
-		"        public void handle(Event e) {\n" + 
-		"                e.x.eee.foo();\n" + 
-		"        }\n" + 
+		"public class Event {\n" +
+		"        public int x;\n" +
+		"\n" +
+		"        public void handle(Event e) {\n" +
+		"                e.x.eee.foo();\n" +
+		"        }\n" +
 		"}");
 	String str = cu.getSource();
-	
+
 	int start = str.indexOf("eee") + "e".length();
 	int length = 0;
 	IJavaElement[] elements = cu.codeSelect(start, length);
@@ -2417,15 +2417,15 @@ public void testInvalidField2() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Event {\n" + 
-		"        public int x;\n" + 
-		"\n" + 
-		"        public void handle(Event e) {\n" + 
-		"                this.x.eee.foo();\n" + 
-		"        }\n" + 
+		"public class Event {\n" +
+		"        public int x;\n" +
+		"\n" +
+		"        public void handle(Event e) {\n" +
+		"                this.x.eee.foo();\n" +
+		"        }\n" +
 		"}");
 	String str = cu.getSource();
-	
+
 	int start = str.indexOf("eee") + "e".length();
 	int length = 0;
 	IJavaElement[] elements = cu.codeSelect(start, length);
@@ -2440,15 +2440,15 @@ public void testInvalidField3() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Event {\n" + 
-		"        public int x;\n" + 
-		"\n" + 
-		"        public void handle(Event e) {\n" + 
-		"                e.x.e.foo();\n" + 
-		"        }\n" + 
+		"public class Event {\n" +
+		"        public int x;\n" +
+		"\n" +
+		"        public void handle(Event e) {\n" +
+		"                e.x.e.foo();\n" +
+		"        }\n" +
 		"}");
 	String str = cu.getSource();
-	
+
 	int start = str.indexOf("foo") + "fo".length();
 	int length = 0;
 	IJavaElement[] elements = cu.codeSelect(start, length);
@@ -2463,15 +2463,15 @@ public void testInvalidField4() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Event {\n" + 
-		"        public int x;\n" + 
-		"\n" + 
-		"        public void handle(Event e) {\n" + 
-		"                this.x.e.foo();\n" + 
-		"        }\n" + 
+		"public class Event {\n" +
+		"        public int x;\n" +
+		"\n" +
+		"        public void handle(Event e) {\n" +
+		"                this.x.e.foo();\n" +
+		"        }\n" +
 		"}");
 	String str = cu.getSource();
-	
+
 	int start = str.indexOf("foo") + "fo".length();
 	int length = 0;
 	IJavaElement[] elements = cu.codeSelect(start, length);
@@ -2486,15 +2486,15 @@ public void testInvalidMethod1() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Event {\n" + 
-		"        public int x;\n" + 
-		"\n" + 
-		"        public void handle(Event e) {\n" + 
-		"                e.x.e().foo();\n" + 
-		"        }\n" + 
+		"public class Event {\n" +
+		"        public int x;\n" +
+		"\n" +
+		"        public void handle(Event e) {\n" +
+		"                e.x.e().foo();\n" +
+		"        }\n" +
 		"}");
 	String str = cu.getSource();
-	
+
 	int start = str.indexOf("foo") + "fo".length();
 	int length = 0;
 	IJavaElement[] elements = cu.codeSelect(start, length);
@@ -2509,15 +2509,15 @@ public void testInvalidMethod2() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
 		"package test;"+
-		"public class Event {\n" + 
-		"        public int x;\n" + 
-		"\n" + 
-		"        public void handle(Event e) {\n" + 
-		"                this.x.e().foo();\n" + 
-		"        }\n" + 
+		"public class Event {\n" +
+		"        public int x;\n" +
+		"\n" +
+		"        public void handle(Event e) {\n" +
+		"                this.x.e().foo();\n" +
+		"        }\n" +
 		"}");
 	String str = cu.getSource();
-	
+
 	int start = str.indexOf("foo") + "fo".length();
 	int length = 0;
 	IJavaElement[] elements = cu.codeSelect(start, length);

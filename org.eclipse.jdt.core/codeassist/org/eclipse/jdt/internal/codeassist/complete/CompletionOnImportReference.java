@@ -42,9 +42,9 @@ public CompletionOnImportReference(char[][] tokens , long[] positions, int modif
 public StringBuffer print(int indent, StringBuffer output, boolean withOnDemand) {
 
 	printIndent(indent, output).append("<CompleteOnImport:"); //$NON-NLS-1$
-	for (int i = 0; i < tokens.length; i++) {
+	for (int i = 0; i < this.tokens.length; i++) {
 		if (i > 0) output.append('.');
-		output.append(tokens[i]);
+		output.append(this.tokens[i]);
 	}
 	return output.append('>');
 }

@@ -23,6 +23,6 @@ public class SelectionOnFieldType extends FieldDeclaration {
 		this.name = CharOperation.NO_CHAR;
 	}
 	public StringBuffer printStatement(int tab, StringBuffer output) {
-		return type.print(tab, output).append(';'); 
+		return this.type.print(tab, output).append(';');
 	}
 }

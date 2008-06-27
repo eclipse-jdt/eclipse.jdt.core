@@ -21,7 +21,7 @@ import junit.framework.TestSuite;
  * Test for generic constructor search using R_EXACT_MATCH rule.
  */
 public class JavaSearchGenericConstructorExactTests extends JavaSearchGenericConstructorTests {
-	
+
 	/**
 	 * @param name
 	 */

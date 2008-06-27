@@ -20,18 +20,18 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import junit.framework.*;
 
 public class SnippetCompletionTests extends AbstractJavaModelTests implements RelevanceConstants {
-	
+
 public SnippetCompletionTests(String name) {
 	super(name);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	setUpJavaProject("SnippetCompletion");
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("SnippetCompletion");
-	
+
 	super.tearDownSuite();
 }
 
@@ -39,7 +39,7 @@ public static Test suite() {
 	return buildModelTestSuite(SnippetCompletionTests.class);
 	/*
 	TestSuite suite = new Suite(SnippetCompletionTests.class.getName());
-	
+
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFile"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForCompilationUnit"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileWithSource"));
@@ -49,7 +49,7 @@ public static Test suite() {
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInterface2"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileWithDollar"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistInsideNumber"));
-	
+
 	return suite;
 	*/
 }
@@ -66,18 +66,18 @@ public void testCodeSnippetAssistForClassFile() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass.class");
 	IType type = cf.getType();
-	
-	String snippet = 
+
+	String snippet =
 		"int varX;\n" +
 		"int varY;\n" +
 		"var";
-		
+
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
 	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
-	
+
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
-	
+
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
@@ -93,11 +93,11 @@ public void testCodeSnippetAssistForCompilationUnit() throws JavaModelException 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	ICompilationUnit cu = getCompilationUnit("SnippetCompletion", "src", "aa.bb.cc", "BClass.java");
 	IType type = cu.getTypes()[0];
-	String snippet = 
+	String snippet =
 		"int varX;\n" +
 		"int varY;\n" +
 		"var";
-		
+
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
 	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
@@ -109,7 +109,7 @@ public void testCodeSnippetAssistForCompilationUnit() throws JavaModelException 
 		insertion = s.lastIndexOf(insertAftrer) + insertAftrer.length();
 
 	type.codeComplete(snippet.toCharArray(), insertion, snippet.length()-2, typeNames, names, modifiers, false, requestor);
-	
+
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
@@ -125,12 +125,12 @@ public void testCodeSnippetAssistForClassFileWithSource() throws JavaModelExcept
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "CClass.class");
 	IType type = cf.getType();
-	
-	String snippet = 
+
+	String snippet =
 		"int varX;\n" +
 		"int varY;\n" +
 		"var";
-		
+
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
 	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
@@ -140,9 +140,9 @@ public void testCodeSnippetAssistForClassFileWithSource() throws JavaModelExcept
 	int insertion = -1;
 	if(s != null)
 		insertion = s.lastIndexOf(insertAftrer) + insertAftrer.length();
-	
+
 	type.codeComplete(snippet.toCharArray(), insertion, snippet.length()-2, typeNames, names, modifiers, false, requestor);
-	
+
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
@@ -159,12 +159,12 @@ public void testCodeSnippetAssistForCompilationUnitWithoutSource() throws JavaMo
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	ICompilationUnit cu = getCompilationUnit("SnippetCompletion", "src", "aa.bb.cc", "BClass.java");
 	IType type = cu.getTypes()[0];
-	
-	String snippet = 
+
+	String snippet =
 		"int varX;\n" +
 		"int varY;\n" +
 		"var";
-		
+
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
 	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
@@ -172,7 +172,7 @@ public void testCodeSnippetAssistForCompilationUnitWithoutSource() throws JavaMo
 	int insertion = -1;
 
 	type.codeComplete(snippet.toCharArray(), insertion, snippet.length()-2, typeNames, names, modifiers, false, requestor);
-	
+
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
@@ -188,12 +188,12 @@ public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelExce
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass$Inner.class");
 	IType type = cf.getType();
-	
-	String snippet = 
+
+	String snippet =
 		"int varX;\n" +
 		"int varY;\n" +
 		"var";
-		
+
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
 	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
@@ -203,9 +203,9 @@ public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelExce
 	int insertion = -1;
 	if(s != null)
 		insertion = s.lastIndexOf(insertAftrer) + insertAftrer.length();
-	
+
 	type.codeComplete(snippet.toCharArray(), insertion, snippet.length()-2, typeNames, names, modifiers, false, requestor);
-	
+
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
@@ -222,18 +222,18 @@ public void testCodeSnippetAssistForClassFileInInterface() throws JavaModelExcep
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "xx.yy", "MyInterface.class");
 	IType type = cf.getType();
-	
-	String snippet = 
+
+	String snippet =
 		"int varX;\n" +
 		"int varY;\n" +
 		"var";
-		
+
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
 	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
-	
+
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
-	
+
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
@@ -250,18 +250,18 @@ public void testCodeSnippetAssistForClassFileInInterface2() throws JavaModelExce
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "xx.yy", "MyInterface2.class");
 	IType type = cf.getType();
-	
-	String snippet = 
+
+	String snippet =
 		"int varX;\n" +
 		"int varY;\n" +
 		"var";
-		
+
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
 	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
-	
+
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
-	
+
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
@@ -276,18 +276,18 @@ public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelExcept
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "test00XX", "Test.class");
 	IType type = cf.getType();
-	
-	String snippet = 
+
+	String snippet =
 		"int varX;\n" +
 		"int varY;\n" +
 		"var";
-		
+
 	char[][] typeNames = {};
 	char[][] names = {};
 	int[] modifiers = {};
 
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
-	
+
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
@@ -300,16 +300,16 @@ public void testCodeSnippetAssistInsideNumber() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
 	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass.class");
 	IType type = cf.getType();
-	
-	String snippet = 
+
+	String snippet =
 		"new double[] {1.2, 3.\n";
-		
+
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
 	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
-	
+
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
-	
+
 	assertResults(
 		"",
 		requestor.getResults());

@@ -40,15 +40,15 @@ public void testInitializerProblem() {
 	// Problem in first variable
 	GlobalVariable var = null;
 	try {
-		var = context.newVariable("int".toCharArray(), "i".toCharArray(), buildCharArray(new String[] {
+		var = this.context.newVariable("int".toCharArray(), "i".toCharArray(), buildCharArray(new String[] {
 			"(1 + 1) *",
 			"(j + 2)"}));
 		evaluateWithExpectedProblem(
-			var, 
+			var,
 			newProblem(IProblem.UndefinedName, Error, 11, 11, 2)); // j cannot be resolved
 	} finally {
 		if (var != null) {
-			context.deleteVariable(var);
+			this.context.deleteVariable(var);
 		}
 	}
 
@@ -56,22 +56,22 @@ public void testInitializerProblem() {
 	GlobalVariable var1 = null;
 	GlobalVariable var2 = null;
 	try {
-		var1 = context.newVariable("Object".toCharArray(), "o".toCharArray(), "new Object()".toCharArray());
-		var2 = context.newVariable("int".toCharArray(), "i".toCharArray(), buildCharArray(new String[] {
+		var1 = this.context.newVariable("Object".toCharArray(), "o".toCharArray(), "new Object()".toCharArray());
+		var2 = this.context.newVariable("int".toCharArray(), "i".toCharArray(), buildCharArray(new String[] {
 			"(1 + 1) *",
 			"(1 ++ 2)"}));
 		evaluateWithExpectedProblem(
-			var2, 
+			var2,
 			newProblem(IProblem.InvalidUnaryExpression, Error, 11, 11, 2)); // Invalid argument to operation ++/--
 	} finally {
 		if (var1 != null) {
-			context.deleteVariable(var1);
+			this.context.deleteVariable(var1);
 		}
 		if (var2 != null) {
-			context.deleteVariable(var2);
+			this.context.deleteVariable(var2);
 		}
 	}
-	
+
 }
 /**
  * Test a variable that has a problem in its name.
@@ -81,13 +81,13 @@ public void _testInvalidName() {
 	// Problem in first variable
 	GlobalVariable var = null;
 	try {
-		var = context.newVariable("int".toCharArray(), "!@#$%^&*()_".toCharArray(), "1".toCharArray());
+		var = this.context.newVariable("int".toCharArray(), "!@#$%^&*()_".toCharArray(), "1".toCharArray());
 		evaluateWithExpectedProblem(
-			var, 
+			var,
 			newProblem(IProblem.ParsingErrorDeleteTokens, Error, 0, 9, 0)); // Syntax error, delete these tokens
 	} finally {
 		if (var != null) {
-			context.deleteVariable(var);
+			this.context.deleteVariable(var);
 		}
 	}
 
@@ -95,17 +95,17 @@ public void _testInvalidName() {
 	GlobalVariable var1 = null;
 	GlobalVariable var2 = null;
 	try {
-		var1 = context.newVariable("String".toCharArray(), "foo".toCharArray(), "\"bar\"".toCharArray());
-		var2 = context.newVariable("int".toCharArray(), "!@#$%^&*()_".toCharArray(), "1".toCharArray());
+		var1 = this.context.newVariable("String".toCharArray(), "foo".toCharArray(), "\"bar\"".toCharArray());
+		var2 = this.context.newVariable("int".toCharArray(), "!@#$%^&*()_".toCharArray(), "1".toCharArray());
 		evaluateWithExpectedProblem(
-			var2, 
+			var2,
 			newProblem(IProblem.ParsingErrorDeleteTokens, Error, 0, 9, 0)); // Syntax error, delete these tokens
 	} finally {
 		if (var1 != null) {
-			context.deleteVariable(var1);
+			this.context.deleteVariable(var1);
 		}
 		if (var2 != null) {
-			context.deleteVariable(var2);
+			this.context.deleteVariable(var2);
 		}
 	}
 }
@@ -116,13 +116,13 @@ public void testUnknownType() {
 	// Problem in first variable
 	GlobalVariable var = null;
 	try {
-		var = context.newVariable("foo.Bar".toCharArray(), "var".toCharArray(), null);
+		var = this.context.newVariable("foo.Bar".toCharArray(), "var".toCharArray(), null);
 		evaluateWithExpectedProblem(
-			var, 
+			var,
 			newProblem(IProblem.UndefinedType, Error, 0, 2, -1)); // The type foo is undefined
 	} finally {
 		if (var != null) {
-			context.deleteVariable(var);
+			this.context.deleteVariable(var);
 		}
 	}
 
@@ -130,17 +130,17 @@ public void testUnknownType() {
 	GlobalVariable var1 = null;
 	GlobalVariable var2 = null;
 	try {
-		var1 = context.newVariable("int".toCharArray(), "x".toCharArray(), null);
-		var2 = context.newVariable("foo.Bar".toCharArray(), "var".toCharArray(), null);
+		var1 = this.context.newVariable("int".toCharArray(), "x".toCharArray(), null);
+		var2 = this.context.newVariable("foo.Bar".toCharArray(), "var".toCharArray(), null);
 		evaluateWithExpectedProblem(
-			var2, 
+			var2,
 			newProblem(IProblem.UndefinedType, Error, 0, 2, -1)); // The type foo is undefined
 	} finally {
 		if (var1 != null) {
-			context.deleteVariable(var1);
+			this.context.deleteVariable(var1);
 		}
 		if (var2 != null) {
-			context.deleteVariable(var2);
+			this.context.deleteVariable(var2);
 		}
 	}
 }

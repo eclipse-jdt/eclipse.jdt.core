@@ -18,7 +18,7 @@ package org.eclipse.jdt.core;
  * </p>
  */
 public interface IElementChangedListener {
-	
+
 /**
  * Notifies that one or more attributes of one or more Java elements have changed.
  * The specific details of the change are described by the given event.

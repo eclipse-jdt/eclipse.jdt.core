@@ -22,10 +22,10 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 public class ReconcilerStatementsRecoveryTests extends ModifyingResourceTests {
-	
+
 	protected ICompilationUnit workingCopy;
 	protected ProblemRequestor problemRequestor;
-	
+
 	/* A problem requestor that auto-cancels on first problem */
 	class CancelingProblemRequestor extends ProblemRequestor {
 		IProgressMonitor progressMonitor = new IProgressMonitor() {
@@ -43,12 +43,12 @@ public class ReconcilerStatementsRecoveryTests extends ModifyingResourceTests {
 			public void subTask(String name) {}
 			public void worked(int work) {}
 		};
-	
+
 		boolean isCanceling = false;
 		public void acceptProblem(IProblem problem) {
 			if (this.isCanceling) this.progressMonitor.setCanceled(true); // auto-cancel on first problem
 			super.acceptProblem(problem);
-		}		
+		}
 	}
 
 /**
@@ -101,7 +101,7 @@ protected void addClasspathEntries(IClasspathEntry[] entries, boolean enableForb
 	System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 	System.arraycopy(entries, 0, newClasspath, oldLength, length);
 	project.setRawClasspath(newClasspath, null);
-	
+
 	if (enableForbiddenReferences) {
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 	}
@@ -133,7 +133,7 @@ public void setUpSuite() throws Exception {
 	createFolder("/Reconciler/src/p1");
 	createFolder("/Reconciler/src/p2");
 	createFile(
-		"/Reconciler/src/p1/X.java", 
+		"/Reconciler/src/p1/X.java",
 		"package p1;\n" +
 		"import p2.*;\n" +
 		"public class X {\n" +
@@ -147,9 +147,9 @@ public void setUpSuite() throws Exception {
 	// Create project with 1.5 compliance
 	IJavaProject project15 = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 	addLibrary(
-		project15, 
-		"lib15.jar", 
-		"lib15src.zip", 
+		project15,
+		"lib15.jar",
+		"lib15src.zip",
 		new String[] {
 			"java/util/List.java",
 			"package java.util;\n" +
@@ -176,7 +176,7 @@ public void setUpSuite() throws Exception {
 			"public @interface SuppressWarnings {\n" +
 			"   String[] value();\n" +
 			"}"
-		}, 
+		},
 		JavaCore.VERSION_1_5
 	);
 	project15.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
@@ -232,19 +232,19 @@ public void testStatementsRecovery01() throws CoreException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, false, null, null);
 	assertDeltas(
-		"Unexpected delta after syntax error", 
+		"Unexpected delta after syntax error",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" + 
-		"	UnknownType name\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
+		"	UnknownType name\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n"
 	);
-	
+
 	clearDeltas();
 }
 /*
@@ -262,19 +262,19 @@ public void testStatementsRecovery02() throws CoreException {
 		"}");
 	this.workingCopy.reconcile(AST.JLS3, false, false, null, null);
 	assertDeltas(
-		"Unexpected delta after syntax error", 
+		"Unexpected delta after syntax error",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" + 
-		"	UnknownType name\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
+		"	UnknownType name\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n"
 	);
-	
+
 	clearDeltas();
 }
 /*
@@ -292,24 +292,24 @@ public void testStatementsRecovery03() throws CoreException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, true, null, null);
 	assertDeltas(
-		"Unexpected delta after syntax error", 
+		"Unexpected delta after syntax error",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" + 
-		"	UnknownType name\n" + 
-		"	^^^^^^^^^^^\n" + 
-		"UnknownType cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" + 
-		"	UnknownType name\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
+		"	UnknownType name\n" +
+		"	^^^^^^^^^^^\n" +
+		"UnknownType cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
+		"	UnknownType name\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n"
 	);
-	
+
 	clearDeltas();
 }
 /*
@@ -327,24 +327,24 @@ public void testStatementsRecovery04() throws CoreException {
 		"}");
 	this.workingCopy.reconcile(AST.JLS3, false, true, null, null);
 	assertDeltas(
-		"Unexpected delta after syntax error", 
+		"Unexpected delta after syntax error",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" + 
-		"	UnknownType name\n" + 
-		"	^^^^^^^^^^^\n" + 
-		"UnknownType cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" + 
-		"	UnknownType name\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
+		"	UnknownType name\n" +
+		"	^^^^^^^^^^^\n" +
+		"UnknownType cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
+		"	UnknownType name\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n"
 	);
-	
+
 	clearDeltas();
 }
 }

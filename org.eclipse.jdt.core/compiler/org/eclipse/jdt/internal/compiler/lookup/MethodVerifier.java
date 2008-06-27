@@ -68,7 +68,7 @@ boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
 	if (one.returnType == two.returnType) return true;
 
 	if (areTypesEqual(one.returnType, two.returnType)) return true;
-	
+
 	// when sourceLevel < 1.5 but compliance >= 1.5, allow return types in binaries to be compatible instead of just equal
 	if (this.allowCompatibleReturnTypes &&
 			one.declaringClass instanceof BinaryTypeBinding &&
@@ -139,7 +139,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		problemReporter().annotationCannotOverrideMethod(currentMethod, methods[length - 1]);
 		return; // do not repoort against subsequent inherited methods
 	}
-	CompilerOptions options = type.scope.compilerOptions();
+	CompilerOptions options = this.type.scope.compilerOptions();
 	// need to find the overridden methods to avoid blaming this type for issues which are already reported against a supertype
 	// but cannot ignore an overridden inherited method completely when it comes to checking for bridge methods
 	int[] overriddenInheritedMethods = length > 1 ? findOverriddenInheritedMethods(methods, length) : null;
@@ -162,17 +162,17 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 //			if (!currentMethod.isAbstract() && inheritedMethod.isAbstract()) {
 //				if ((currentMethod.modifiers & CompilerModifiers.AccOverriding) == 0)
 //					currentMethod.modifiers |= CompilerModifiers.AccImplementing;
-			} else if (inheritedMethod.isPublic() || !type.isInterface()) {
+			} else if (inheritedMethod.isPublic() || !this.type.isInterface()) {
 				// interface I { @Override Object clone(); } does not override Object#clone()
 				currentMethod.modifiers |= ExtraCompilerModifiers.AccOverriding;
 			}
-	
+
 			if (!areReturnTypesCompatible(currentMethod, inheritedMethod)
 					&& (currentMethod.returnType.tagBits & TagBits.HasMissingType) == 0) {
 				if (reportIncompatibleReturnTypeError(currentMethod, inheritedMethod))
 					continue nextMethod;
 			}
-	
+
 			if (currentMethod.thrownExceptions != Binding.NO_EXCEPTIONS)
 				checkExceptions(currentMethod, inheritedMethod);
 			if (inheritedMethod.isFinal())
@@ -187,7 +187,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 						for (int j = length; --j >= 0;)
 							if (i != j && methods[j].declaringClass.implementsInterface(declaringClass, false))
 								continue nextMethod;
-	
+
 					problemReporter(currentMethod).overridesDeprecatedMethod(currentMethod, inheritedMethod);
 				}
 			}
@@ -200,7 +200,7 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 	// Remember that interfaces can only define public instance methods
 	if (concreteMethod.isStatic())
 		// Cannot inherit a static method which is specified as an instance method by an interface
-		problemReporter().staticInheritedMethodConflicts(type, concreteMethod, abstractMethods);	
+		problemReporter().staticInheritedMethodConflicts(this.type, concreteMethod, abstractMethods);
 	if (!concreteMethod.isPublic()) {
 		int index = 0, length = abstractMethods.length;
 		if (concreteMethod.isProtected()) {
@@ -211,7 +211,7 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 				if (!abstractMethods[index].isDefault()) break;
 		}
 		if (index < length)
-			problemReporter().inheritedMethodReducesVisibility(type, concreteMethod, abstractMethods);
+			problemReporter().inheritedMethodReducesVisibility(this.type, concreteMethod, abstractMethods);
 	}
 	if (concreteMethod.thrownExceptions != Binding.NO_EXCEPTIONS)
 		for (int i = abstractMethods.length; --i >= 0;)
@@ -324,7 +324,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 	}
 
 	MethodBinding concreteMethod = null;
-	if (!type.isInterface()) {  // ignore concrete methods for interfaces
+	if (!this.type.isInterface()) {  // ignore concrete methods for interfaces
 		for (int i = length; --i >= 0;) {  // Remember that only one of the methods can be non-abstract
 			if (!methods[i].isAbstract()) {
 				concreteMethod = methods[i];
@@ -364,7 +364,7 @@ boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
 	MethodBinding first = methods[0];
 	int index = length;
 	while (--index > 0 && areReturnTypesCompatible(first, methods[index])){/*empty*/}
-	if (index == 0) 
+	if (index == 0)
 		return true;
 
 	// All inherited methods do NOT have the same vmSignature
@@ -378,7 +378,7 @@ boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
 /*
 For each inherited method identifier (message pattern - vm signature minus the return type)
 	if current method exists
-		if current's vm signature does not match an inherited signature then complain 
+		if current's vm signature does not match an inherited signature then complain
 		else compare current's exceptions & visibility against each inherited method
 	else
 		if inherited methods = 1
@@ -490,8 +490,8 @@ void computeInheritedMethods() {
 	ReferenceBinding superclass = this.type.isInterface()
 		? this.type.scope.getJavaLangObject() // check interface methods against Object
 		: this.type.superclass(); // class or enum
-	computeInheritedMethods(superclass, type.superInterfaces());
-	checkForRedundantSuperinterfaces(superclass, type.superInterfaces());
+	computeInheritedMethods(superclass, this.type.superInterfaces());
+	checkForRedundantSuperinterfaces(superclass, this.type.superInterfaces());
 }
 
 /*
@@ -569,7 +569,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 					if (areMethodsCompatible(nonVisible[i], inheritedMethod))
 						continue nextMethod;
 
-			if (!inheritedMethod.isDefault() || inheritedMethod.declaringClass.fPackage == type.fPackage) {
+			if (!inheritedMethod.isDefault() || inheritedMethod.declaringClass.fPackage == this.type.fPackage) {
 				if (existingMethods == null) {
 					existingMethods = new MethodBinding[] {inheritedMethod};
 				} else {
@@ -645,7 +645,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 }
 
 void computeMethods() {
-	MethodBinding[] methods = type.methods();
+	MethodBinding[] methods = this.type.methods();
 	int size = methods.length;
 	this.currentMethods = new HashtableOfObject(size == 0 ? 1 : size); // maps method selectors to an array of methods... must search to match paramaters & return type
 	for (int m = size; --m >= 0;) {
@@ -697,7 +697,7 @@ public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedM
 	inheritedMethod = inheritedMethod.original();
 	TypeBinding match = method.declaringClass.findSuperTypeOriginatingFrom(inheritedMethod.declaringClass);
 	if (!(match instanceof ReferenceBinding))
-		return false; // method's declaringClass does not inherit from inheritedMethod's 
+		return false; // method's declaringClass does not inherit from inheritedMethod's
 
 	return isParameterSubsignature(method, inheritedMethod);
 }
@@ -819,14 +819,14 @@ ProblemReporter problemReporter() {
 
 ProblemReporter problemReporter(MethodBinding currentMethod) {
 	ProblemReporter reporter = problemReporter();
-	if (currentMethod.declaringClass == type && currentMethod.sourceMethod() != null)	// only report against the currentMethod if its implemented by the type
+	if (currentMethod.declaringClass == this.type && currentMethod.sourceMethod() != null)	// only report against the currentMethod if its implemented by the type
 		reporter.referenceContext = currentMethod.sourceMethod();
 	return reporter;
 }
 
 /**
  * Return true and report an incompatibleReturnType error if currentMethod's
- * return type is strictly incompatible with inheritedMethod's, else return 
+ * return type is strictly incompatible with inheritedMethod's, else return
  * false and report an unchecked conversion warning. Do not call when
  * areReturnTypesCompatible(currentMethod, inheritedMethod) returns true.
  * @param currentMethod the (potentially) inheriting method
@@ -862,7 +862,7 @@ void verify(SourceTypeBinding someType) {
 public String toString() {
 	StringBuffer buffer = new StringBuffer(10);
 	buffer.append("MethodVerifier for type: "); //$NON-NLS-1$
-	buffer.append(type.readableName());
+	buffer.append(this.type.readableName());
 	buffer.append('\n');
 	buffer.append("\t-inherited methods: "); //$NON-NLS-1$
 	buffer.append(this.inheritedMethods);

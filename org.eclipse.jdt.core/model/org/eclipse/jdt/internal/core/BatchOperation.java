@@ -30,7 +30,7 @@ public class BatchOperation extends JavaModelOperation {
 		// anything in the workspace runnable can modify the roots
 		return true;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.JavaModelOperation#executeOperation()
 	 */
@@ -51,7 +51,7 @@ public class BatchOperation extends JavaModelOperation {
 			}
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.JavaModelOperation#verify()
 	 */
@@ -60,5 +60,5 @@ public class BatchOperation extends JavaModelOperation {
 		return JavaModelStatus.VERIFIED_OK;
 	}
 
-	
+
 }

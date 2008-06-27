@@ -14,7 +14,7 @@ import org.eclipse.jdt.core.eval.IGlobalVariable;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
 
 /**
- * A wrapper around the infrastructure global variable.  
+ * A wrapper around the infrastructure global variable.
  */
 class GlobalVariableWrapper implements IGlobalVariable {
 	GlobalVariable variable;

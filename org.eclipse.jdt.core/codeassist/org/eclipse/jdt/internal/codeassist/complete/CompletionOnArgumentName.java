@@ -29,15 +29,15 @@ public class CompletionOnArgumentName extends Argument {
 		super(CharOperation.concat(name, FAKENAMESUFFIX), posNom, tr, modifiers);
 		this.realName = name;
 	}
-	
+
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
 
 		super.bind(scope, typeBinding, used);
 		throw new CompletionNodeFound(this, scope);
 	}
-	
+
 	public StringBuffer print(int indent, StringBuffer output) {
-		
+
 		printIndent(indent, output);
 		output.append("<CompleteOnArgumentName:"); //$NON-NLS-1$
 		if (this.type != null) this.type.print(0, output).append(' ');
@@ -47,7 +47,7 @@ public class CompletionOnArgumentName extends Argument {
 			this.initialization.printExpression(0, output);
 		}
 		return output.append('>');
-	}	
+	}
 
 	public void resolve(BlockScope scope) {
 

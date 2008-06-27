@@ -39,13 +39,13 @@ public void test1FVVWS8_1() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:fred()>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    int i;\n" +
-		"    <CompleteOnMessageSend:fred()>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -72,12 +72,12 @@ public void test1FVVWS8_2() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:fred()>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnMessageSend:fred()>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -108,12 +108,12 @@ public void test1FW2ZTB_1() {
 		// expectedUnitDisplayString:
 		"class X {\n" +
 		"  int[] array;\n" +
-		"  X() {\n" + 
-		"  }\n" + 
+		"  X() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    int i;\n" +
-		"    <CompleteOnMessageSend:fred()>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -143,11 +143,11 @@ public void test1FW2ZTB_2() {
 		// expectedUnitDisplayString:
 		"class X {\n" +
 		"  int[] array;\n" +
-		"  X() {\n" + 
-		"  }\n" + 
+		"  X() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnMessageSend:fred()>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -174,12 +174,12 @@ public void test1FW35YZ_1() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:primary().fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:primary().fred()>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:primary().fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -206,12 +206,12 @@ public void test1FW35YZ_2() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnQualifiedAllocationExpression:primary().new X()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnQualifiedAllocationExpression:primary().new X()>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnQualifiedAllocationExpression:primary().new X()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -237,12 +237,12 @@ public void test1FWYBKF() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:this.x.bar()>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnMessageSend:this.x.bar()>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:this.x.bar()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -268,12 +268,12 @@ public void test1GAJBUQ() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:x.y.Z.fred(buzz())>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:x.y.Z.fred(buzz())>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:x.y.Z.fred(buzz())>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -300,13 +300,13 @@ public void testAfterEmptyAnonymous() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:this.fred(new Runnable() {\n})>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:this.fred(new Runnable() {\n" + 
-		"})>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:this.fred(new Runnable() {\n" +
+		"})>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -332,12 +332,12 @@ public void testAfterFirstParameter() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:this.fred(\"abc\")>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:this.fred(\"abc\")>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:this.fred(\"abc\")>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -363,12 +363,12 @@ public void testBeforeFirstParameter() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:this.fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:this.fred()>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:this.fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -394,12 +394,12 @@ public void testBeforeLastParameter() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:this.fred(1, 2)>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:this.fred(1, 2)>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:this.fred(1, 2)>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -425,12 +425,12 @@ public void testBeforeSecondParameter() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:this.fred(1)>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:this.fred(1)>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:this.fred(1)>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -456,12 +456,12 @@ public void testEmptyInFirstParameter() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    (\"abc\" + <CompleteOnName:>);\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    (\"abc\" + <CompleteOnName:>);\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -487,12 +487,12 @@ public void testInFirstParameter() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:bi>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    (\"abc\" + <CompleteOnName:bi>);\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    (\"abc\" + <CompleteOnName:bi>);\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"bi",
@@ -520,14 +520,14 @@ public void testInIfStatement() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:bar.fred()>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    {\n" + 
-		"      <CompleteOnMessageSend:bar.fred()>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    {\n" +
+		"      <CompleteOnMessageSend:bar.fred()>;\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -553,12 +553,12 @@ public void testLabeledWithExpressionReceiver() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:bar().fred(1, 2)>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnMessageSend:bar().fred(1, 2)>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:bar().fred(1, 2)>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -586,12 +586,12 @@ public void testLabeledWithoutReceiver() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:fred(1, 2)>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnMessageSend:fred(1, 2)>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:fred(1, 2)>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -619,12 +619,12 @@ public void testNoReceiver() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:fred()>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -650,12 +650,12 @@ public void testSpaceThenFirstParameter() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:this.fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:this.fred()>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:this.fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -681,12 +681,12 @@ public void testSuper() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:super.fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:super.fred()>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:super.fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -712,12 +712,12 @@ public void testWithExpressionReceiver() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:bar().fred()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnMessageSend:bar().fred()>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMessageSend:bar().fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -744,13 +744,13 @@ public void testWithNameReceiver() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:v.addElement()>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    Vector v;\n" +
-		"    <CompleteOnMessageSend:v.addElement()>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:v.addElement()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -777,12 +777,12 @@ public void testWithNameReceiverAfterConditionalExpression() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:bar.fred()>",
 		// expectedUnitDisplayString:
-		"class X {\n" + 
-		"  X() {\n" + 
-		"  }\n" + 
+		"class X {\n" +
+		"  X() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnMessageSend:bar.fred()>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:bar.fred()>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -811,13 +811,13 @@ public void testWithNameReceiverAndTwoArgs() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:x.fred(1, 2)>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    X x;\n" +
-		"    <CompleteOnMessageSend:x.fred(1, 2)>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:x.fred(1, 2)>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -844,13 +844,13 @@ public void testWithQualifiedNameReceiver() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnMessageSend:y.x.fred(1, 2)>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
 		"  void foo() {\n" +
 		"    X x;\n" +
-		"    <CompleteOnMessageSend:y.x.fred(1, 2)>;\n" + 
-		"  }\n" + 
+		"    <CompleteOnMessageSend:y.x.fred(1, 2)>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",

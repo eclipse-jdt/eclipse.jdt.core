@@ -37,16 +37,16 @@ public FlowInfo analyseCode(
 		FlowInfo flowInfo) {
 	LocalVariableBinding local = this.expression.localVariableBinding();
 	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
-		flowContext.recordUsingNullReference(currentScope, local, 
+		flowContext.recordUsingNullReference(currentScope, local,
 			this.expression, FlowContext.CAN_ONLY_NULL | FlowContext.IN_INSTANCEOF, flowInfo);
-		flowInfo = expression.analyseCode(currentScope, flowContext, flowInfo).
+		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo).
 			unconditionalInits();
 		FlowInfo initsWhenTrue = flowInfo.copy();
 		initsWhenTrue.markAsComparedEqualToNonNull(local);
 		// no impact upon enclosing try context
 		return FlowInfo.conditional(initsWhenTrue, flowInfo.copy());
 	}
-	return expression.analyseCode(currentScope, flowContext, flowInfo).
+	return this.expression.analyseCode(currentScope, flowContext, flowInfo).
 			unconditionalInits();
 }
 
@@ -63,10 +63,10 @@ public FlowInfo analyseCode(
 		boolean valueRequired) {
 
 		int pc = codeStream.position;
-		expression.generateCode(currentScope, codeStream, true);
-		codeStream.instance_of(type.resolvedType);
+		this.expression.generateCode(currentScope, codeStream, true);
+		codeStream.instance_of(this.type.resolvedType);
 		if (valueRequired) {
-			codeStream.generateImplicitConversion(implicitConversion);
+			codeStream.generateImplicitConversion(this.implicitConversion);
 		} else {
 			codeStream.pop();
 		}
@@ -75,15 +75,15 @@ public FlowInfo analyseCode(
 
 	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
 
-		expression.printExpression(indent, output).append(" instanceof "); //$NON-NLS-1$
-		return type.print(0, output);
+		this.expression.printExpression(indent, output).append(" instanceof "); //$NON-NLS-1$
+		return this.type.print(0, output);
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
 
-		constant = Constant.NotAConstant;
-		TypeBinding expressionType = expression.resolveType(scope);
-		TypeBinding checkedType = type.resolveType(scope, true /* check bounds*/);
+		this.constant = Constant.NotAConstant;
+		TypeBinding expressionType = this.expression.resolveType(scope);
+		TypeBinding checkedType = this.type.resolveType(scope, true /* check bounds*/);
 		if (expressionType == null || checkedType == null)
 			return null;
 
@@ -100,14 +100,14 @@ public FlowInfo analyseCode(
 	 */
 	public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
 		// null is not instanceof Type, recognize direct scenario
-		if (expression.resolvedType != TypeBinding.NULL)
+		if (this.expression.resolvedType != TypeBinding.NULL)
 			scope.problemReporter().unnecessaryInstanceof(this, castType);
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {
-			expression.traverse(visitor, scope);
-			type.traverse(visitor, scope);
+			this.expression.traverse(visitor, scope);
+			this.type.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}

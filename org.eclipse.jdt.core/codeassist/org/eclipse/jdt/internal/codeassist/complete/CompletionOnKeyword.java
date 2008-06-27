@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.codeassist.complete;
 
 public interface CompletionOnKeyword {
-	
+
 	char[] getToken();
 	char[][] getPossibleKeywords();
 	boolean canCompleteEmptyToken();

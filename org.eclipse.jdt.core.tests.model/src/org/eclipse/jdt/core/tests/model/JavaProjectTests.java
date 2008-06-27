@@ -42,7 +42,7 @@ public static Test suite() {
 	// on other tests
 	if (suite.testCount() > 1) // if not running only 1 test
 		suite.addTest(new JavaProjectTests("lastlyTestDeletePackageWithAutobuild"));
-	
+
 	return suite;
 }
 public void setUpSuite() throws Exception {
@@ -67,9 +67,9 @@ public void testAddExternalLibFolder1() throws CoreException {
 		createExternalFolder("externalLib");
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib")), null, null)});
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib\n" +
 			"    <default> (...)",
 			p
 		);
@@ -88,7 +88,7 @@ public void testAddExternalLibFolder2() throws CoreException {
 		IPath path = new Path(getExternalResourcePath("externalLib"));
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(path, null, null)});
 		assertElementDescendants(
-			"Unexpected project content", 
+			"Unexpected project content",
 			"P",
 			p
 		);
@@ -107,11 +107,11 @@ public void testAddExternalLibFolder3() throws CoreException, IOException {
 		createExternalFile("externalLib/p/X.class", "");
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib")), null, null)});
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib\n" + 
-			"    <default> (...)\n" + 
-			"    p (...)\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib\n" +
+			"    <default> (...)\n" +
+			"    p (...)\n" +
 			"      X.class",
 			p
 		);
@@ -131,9 +131,9 @@ public void testAddExternalLibFolder4() throws CoreException {
 		createExternalFolder("externalLib");
 		refresh(p);
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib\n" +
 			"    <default> (...)",
 			p
 		);
@@ -155,11 +155,11 @@ public void testAddExternalLibFolder5() throws CoreException {
 		IJavaProject p = importJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		waitForAutoBuild(); // since the project is imported, the linked folder can only be created by auto-build
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib\n" + 
-			"    <default> (...)\n" + 
-			"    p (...)\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib\n" +
+			"    <default> (...)\n" +
+			"    p (...)\n" +
 			"      X.class",
 			p
 		);
@@ -176,11 +176,11 @@ public void testAddZIPArchive1() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P");
 		createExternalFile("externalLib.abc", "");
-		
+
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
+			"Unexpected project content",
+			"P\n" +
 			"  "+ getExternalPath() + "externalLib.abc",
 			p
 		);
@@ -197,10 +197,10 @@ public void testAddZIPArchive2() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P");
 		refreshExternalArchives(p);
-		
+
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertElementDescendants(
-			"Unexpected project content", 
+			"Unexpected project content",
 			"P",
 			p
 		);
@@ -225,13 +225,13 @@ public void testAddZIPArchive3() throws CoreException, IOException {
 			getExternalResourcePath("externalLib.abc"));
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib.abc\n" + 
-			"    <default> (...)\n" + 
-			"    p (...)\n" + 
-			"      X.class\n" + 
-			"        class X\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib.abc\n" +
+			"    <default> (...)\n" +
+			"    p (...)\n" +
+			"      X.class\n" +
+			"        class X\n" +
 			"          X()",
 			p
 		);
@@ -249,12 +249,12 @@ public void testAddZIPArchive4() throws Exception {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
 		expandAll(p);
-		
+
 		createExternalFile("externalLib.abc", "");
 		refreshExternalArchives(p);
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
+			"Unexpected project content",
+			"P\n" +
 			"  "+ getExternalPath() + "externalLib.abc",
 			p
 		);
@@ -281,13 +281,13 @@ public void testAddZIPArchive5() throws Exception {
 			getExternalResourcePath("externalLib.abc"));
 		IJavaProject p = importJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib.abc\n" + 
-			"    <default> (...)\n" + 
-			"    p (...)\n" + 
-			"      X.class\n" + 
-			"        class X\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib.abc\n" +
+			"    <default> (...)\n" +
+			"    p (...)\n" +
+			"      X.class\n" +
+			"        class X\n" +
 			"          X()",
 			p
 		);
@@ -306,8 +306,8 @@ public void testAddZIPArchive6() throws Exception {
 		createFile("/P/internalLib.abc", "");
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/internalLib.abc"), null, null)});
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
+			"Unexpected project content",
+			"P\n" +
 			"  internalLib.abc",
 			p
 		);
@@ -327,8 +327,8 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 	Object[] resources = root.getNonJavaResources();
 	assertResourceNamesEqual(
 		"unexpected non Java resources",
-		".classpath\n" + 
-		".project\n" + 
+		".classpath\n" +
+		".project\n" +
 		".settings",
 		resources);
 	IFile resource = (IFile)resources[0];
@@ -336,14 +336,14 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 	try {
 		// copy and rename resource
 		resource.copy(
-			newPath, 
-			true, 
+			newPath,
+			true,
 			null);
-		
+
 		// ensure the new resource is present
 		resources = root.getNonJavaResources();
 		assertResourcesEqual(
-			"incorrect non java resources", 
+			"incorrect non java resources",
 			"/JavaProjectTests/.classpath\n" +
 			"/JavaProjectTests/.project\n" +
 			"/JavaProjectTests/.settings\n" +
@@ -363,7 +363,7 @@ public void testAddProjectPrerequisite() throws CoreException {
 		createJavaProject("P2");
 		waitForAutoBuild();
 		editFile(
-			"/P2/.classpath", 
+			"/P2/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<classpath>\n" +
 			"    <classpathentry kind=\"src\" path=\"/P1\"/>\n" +
@@ -373,8 +373,8 @@ public void testAddProjectPrerequisite() throws CoreException {
 		waitForAutoBuild();
 		IProject[] referencedProjects = getProject("P2").getReferencedProjects();
 		assertResourcesEqual(
-			"Unexpected project references", 
-			"/P1", 
+			"Unexpected project references",
+			"/P1",
 			referencedProjects);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2"});
@@ -409,16 +409,16 @@ public void testChangeExternalLibFolder1() throws CoreException, IOException {
 		createExternalFolder("externalLib");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "bin");
 		expandAll(p);
-		
+
 		createExternalFolder("externalLib/p");
 		createExternalFile("externalLib/p/X.class", "");
 		refresh(p);
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib\n" + 
-			"    <default> (...)\n" + 
-			"    p (...)\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib\n" +
+			"    <default> (...)\n" +
+			"    p (...)\n" +
 			"      X.class",
 			p
 		);
@@ -437,13 +437,13 @@ public void testChangeExternalLibFolder2() throws CoreException, IOException {
 		createExternalFile("externalLib/p/X.class", "");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "bin");
 		expandAll(p);
-		
+
 		deleteExternalResource("externalLib/p");
 		refresh(p);
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib\n" +
 			"    <default> (...)",
 			p
 		);
@@ -462,7 +462,7 @@ public void testChangeZIPArchive1() throws CoreException, IOException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "bin");
 		refreshExternalArchives(p);
 		expandAll(p);
-		
+
 		createJar(
 			new String[] {
 				"p/X.java",
@@ -473,13 +473,13 @@ public void testChangeZIPArchive1() throws CoreException, IOException {
 			getExternalResourcePath("externalLib.abc"));
 		refreshExternalArchives(p);
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib.abc\n" + 
-			"    <default> (...)\n" + 
-			"    p (...)\n" + 
-			"      X.class\n" + 
-			"        class X\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib.abc\n" +
+			"    <default> (...)\n" +
+			"    p (...)\n" +
+			"      X.class\n" +
+			"        class X\n" +
 			"          X()",
 			p
 		);
@@ -505,7 +505,7 @@ public void testChangeZIPArchive2() throws CoreException, IOException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "bin");
 		refreshExternalArchives(p);
 		expandAll(p);
-		
+
 		createJar(
 			new String[] {
 				"p2/X.java",
@@ -516,13 +516,13 @@ public void testChangeZIPArchive2() throws CoreException, IOException {
 			getExternalResourcePath("externalLib.abc"));
 		refreshExternalArchives(p);
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib.abc\n" + 
-			"    <default> (...)\n" + 
-			"    p2 (...)\n" + 
-			"      X.class\n" + 
-			"        class X\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib.abc\n" +
+			"    <default> (...)\n" +
+			"    p2 (...)\n" +
+			"      X.class\n" +
+			"        class X\n" +
 			"          X()",
 			p
 		);
@@ -540,7 +540,7 @@ public void testChangeZIPArchive3() throws CoreException, IOException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "bin");
 		IFile lib = createFile("/P/internalLib.abc", "");
 		expandAll(p);
-		
+
 		createJar(
 			new String[] {
 				"p/X.java",
@@ -551,13 +551,13 @@ public void testChangeZIPArchive3() throws CoreException, IOException {
 			lib.getLocation().toOSString());
 		p.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		assertElementDescendants(
-			"Unexpected project content", 
-			"P\n" + 
-			"  internalLib.abc\n" + 
-			"    <default> (...)\n" + 
-			"    p (...)\n" + 
-			"      X.class\n" + 
-			"        class X\n" + 
+			"Unexpected project content",
+			"P\n" +
+			"  internalLib.abc\n" +
+			"    <default> (...)\n" +
+			"    p (...)\n" +
+			"      X.class\n" +
+			"        class X\n" +
 			"          X()",
 			p
 		);
@@ -579,22 +579,22 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 		project.setOutputLocation(folder.getFullPath(), null);
 		assertDeltas(
 			"Unexpected delta 1",
-			"JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
-			"	<project root>[*]: {CHILDREN}\n" + 
-			"		bin[+]: {}\n" + 
+			"JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		bin[+]: {}\n" +
 			"	ResourceDelta(/JavaProjectTests/.classpath)[*]"
 		);
 	} finally {
 		stopDeltas();
 		try {
 			startDeltas();
-			folder= underLyingResource.getFolder(new Path("bin"));	
+			folder= underLyingResource.getFolder(new Path("bin"));
 			project.setOutputLocation(folder.getFullPath(), null);
 			assertDeltas(
 				"Unexpected delta 2",
-				"JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
-				"	<project root>[*]: {CHILDREN}\n" + 
-				"		bin[-]: {}\n" + 
+				"JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+				"	<project root>[*]: {CHILDREN}\n" +
+				"		bin[-]: {}\n" +
 				"	ResourceDelta(/JavaProjectTests/.classpath)[*]"
 			);
 		} finally {
@@ -649,13 +649,13 @@ public void lastlyTestDeletePackageWithAutobuild() throws CoreException {
 		deleteResource(folder);
 		assertDeltas(
 			"Unexpected delta",
-			"JavaProjectTests[*]: {CHILDREN}\n" + 
-			"	<project root>[*]: {CHILDREN}\n" + 
+			"JavaProjectTests[*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
 			"		x.y[-]: {}"
 		);
 	} finally {
 		stopDeltas();
-		
+
 		// turn autobuild off
 		description.setAutoBuilding(autoBuild);
 		workspace.setDescription(description);
@@ -690,8 +690,8 @@ public void testExtraJavaLikeExtension1() throws CoreException {
 		createFile("/P/pack/Y.bar", "package pack; public class Y {}");
 		IPackageFragment pkg = getPackage("/P/pack");
 		assertSortedElementsEqual(
-			"Unexpected children of package pack", 
-			"X.java [in pack [in <project root> [in P]]]\n" + 
+			"Unexpected children of package pack",
+			"X.java [in pack [in <project root> [in P]]]\n" +
 			"Y.bar [in pack [in <project root> [in P]]]",
 			pkg.getChildren());
 	} finally {
@@ -709,7 +709,7 @@ public void testExtraJavaLikeExtension2() throws CoreException {
 		createFile("/P/pack/Y.bar", "package pack; public class Y {}");
 		IPackageFragment pkg = getPackage("/P/pack");
 		assertResourceNamesEqual(
-			"Unexpected non-Java resources of package pack", 
+			"Unexpected non-Java resources of package pack",
 			"X.txt",
 			pkg.getNonJavaResources());
 	} finally {
@@ -756,7 +756,7 @@ public void testFindElementInvalidPath() throws JavaModelException {
 		assertTrue("wrong status code" , e.getStatus().getCode() == IJavaModelStatusConstants.INVALID_PATH);
 	}
 	assertTrue("Shold have failed", failed);
-	
+
 	failed = false;
 	try {
 		project.findElement(new Path("/something/absolute"));
@@ -784,7 +784,7 @@ public void testFindElementPackage() throws JavaModelException {
  */
 public void testFindElementPrereqSimpleProject() throws CoreException {
 	try {
-		this.createProject("R");
+		createProject("R");
 		IJavaProject project = this.createJavaProject("J", new String[] {"src"}, new String[] {}, new String[] {"/R"}, "bin");
 		this.createFile(
 			"J/src/X.java",
@@ -802,13 +802,13 @@ public void testFindElementPrereqSimpleProject() throws CoreException {
  */
 public void testFindPackageFragmentRootFromClasspathEntry() {
 	IJavaProject project = getJavaProject("JavaProjectTests");
-	
+
 	// existing classpath entry
 	IClasspathEntry entry = JavaCore.newLibraryEntry(new Path("/JavaProjectTests/lib.jar"), null, null);
 	IPackageFragmentRoot[] roots = project.findPackageFragmentRoots(entry);
 	assertEquals("Unexpected number of roots for existing entry", 1, roots.length);
 	assertEquals("Unexpected root", "/JavaProjectTests/lib.jar", roots[0].getPath().toString());
-	
+
 	// non-existing classpath entry
 	entry = JavaCore.newSourceEntry(new Path("/JavaProjectTests/nonExisting"));
 	roots = project.findPackageFragmentRoots(entry);
@@ -852,7 +852,7 @@ public void testFolderWithDotName() throws JavaModelException, CoreException {
 		startDeltas();
 		folder.getFolder(new Path("org.eclipse")).create(false, true, null);
 		assertTrue("should be one Java Delta", this.deltaListener.deltas.length == 1);
-		
+
 		stopDeltas();
 		IJavaElement[] children = root.getChildren();
 		IPackageFragment bogus = root.getPackageFragment("org.eclipse");
@@ -862,12 +862,12 @@ public void testFolderWithDotName() throws JavaModelException, CoreException {
 		assertTrue("org.eclipse should not exist", !bogus.exists());
 	} finally {
 		deleteResource(folder.getFolder(new Path("org.eclipse")));
-	}	
+	}
 }
 /*
  * Ensures that getting the classpath on a closed project throws a JavaModelException
  * (regression test for bug 25358 Creating a new Java class - Browse for parent)
- */ 
+ */
 public void testGetClasspathOnClosedProject() throws CoreException {
 	IProject project = getProject("JavaProjectTests");
 	try {
@@ -896,7 +896,7 @@ public void testGetClasspathOnClosedProject() throws CoreException {
 	}
 }
 /*
- * Ensures that the non-java resources for a project do not contain the project output location. 
+ * Ensures that the non-java resources for a project do not contain the project output location.
  */
 public void testGetNonJavaResources1() throws CoreException {
 	try {
@@ -911,7 +911,7 @@ public void testGetNonJavaResources1() throws CoreException {
 	}
 }
 /*
- * Ensures that the non-java resources for a project do not contain a custom output location. 
+ * Ensures that the non-java resources for a project do not contain a custom output location.
  * (regression test for 27494  Source folder output folder shown in Package explorer)
  */
 public void testGetNonJavaResources2() throws CoreException {
@@ -952,14 +952,14 @@ public void testGetNonJavaResources4() throws CoreException {
 		this.createFolder("/P/x.y");
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
-			"/P/.classpath\n" + 
-			"/P/.project\n" + 
+			"/P/.classpath\n" +
+			"/P/.project\n" +
 			"/P/x.y",
 			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
 	}
-} 
+}
 /*
  * Ensures that getRequiredProjectNames() returns the project names in the classpath order
  * (regression test for bug 25605 [API] someJavaProject.getRequiredProjectNames(); API should specify that the array is returned in ClassPath order)
@@ -967,10 +967,10 @@ public void testGetNonJavaResources4() throws CoreException {
 public void testGetRequiredProjectNames() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject(
-			"P", 
-			new String[] {}, 
-			new String[] {}, 
-			new String[] {"/JavaProjectTests", "/P1", "/P0", "/P2", "/JavaProjectSrcTests"}, 
+			"P",
+			new String[] {},
+			new String[] {},
+			new String[] {"/JavaProjectTests", "/P1", "/P0", "/P2", "/JavaProjectSrcTests"},
 			"");
 		String[] requiredProjectNames = project.getRequiredProjectNames();
 		StringBuffer buffer = new StringBuffer();
@@ -1040,7 +1040,7 @@ public void testOutputLocationNestedInRoot() throws JavaModelException, CoreExce
 		failed= true;
 	}
 	assertTrue("should have failed", failed);
-	
+
 }
 /**
  * Test that an output location folder is not created as a package fragment.
@@ -1050,9 +1050,9 @@ public void testOutputLocationNotAddedAsPackageFragment() throws JavaModelExcept
 	IJavaElement[] packages= root.getChildren();
 	assertElementsEqual(
 		"unexpected package fragments in source folder",
-		"<default> [in <project root> [in JavaProjectTests]]\n" + 
-		"q [in <project root> [in JavaProjectTests]]\n" + 
-		"x [in <project root> [in JavaProjectTests]]\n" + 
+		"<default> [in <project root> [in JavaProjectTests]]\n" +
+		"q [in <project root> [in JavaProjectTests]]\n" +
+		"x [in <project root> [in JavaProjectTests]]\n" +
 		"x.y [in <project root> [in JavaProjectTests]]",
 		packages);
 
@@ -1116,10 +1116,10 @@ public void testPackageFragmentIsStructureKnown2() throws CoreException {
 		IPackageFragment pkg = getPackage("/P/pack");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-			"<classpath>\n" + 
-			"	<classpathentry excluding=\"pack/\" kind=\"src\" path=\"\"/>\n" + 
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"	<classpathentry excluding=\"pack/\" kind=\"src\" path=\"\"/>\n" +
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
 			"</classpath>"
 		);
 		JavaModelException exception = null;
@@ -1129,7 +1129,7 @@ public void testPackageFragmentIsStructureKnown2() throws CoreException {
 			exception = e;
 		}
 		assertExceptionEquals(
-			"Unexpected exception", 
+			"Unexpected exception",
 			"pack [in <project root> [in P]] does not exist",
 			exception);
 	} finally {
@@ -1145,8 +1145,8 @@ public void testPackageFragmentNonJavaResources01() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "", "x");
 	Object[] resources = pkg.getNonJavaResources();
 	assertResourceTreeEquals(
-		"Unexpected resources", 
-		"readme.txt\n" + 
+		"Unexpected resources",
+		"readme.txt\n" +
 		"readme2.txt",
 		resources);
 }
@@ -1154,11 +1154,11 @@ public void testPackageFragmentNonJavaResources01() throws CoreException {
 /*
  * Ensure that the non-Java resources of a source package without resources are correct.
  */
-public void testPackageFragmentNonJavaResources02() throws CoreException {	
+public void testPackageFragmentNonJavaResources02() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "", "x.y");
 	Object[] resources = pkg.getNonJavaResources();
 	assertResourceTreeEquals(
-		"Unexpected resources", 
+		"Unexpected resources",
 		"",
 		resources);
 }
@@ -1166,11 +1166,11 @@ public void testPackageFragmentNonJavaResources02() throws CoreException {
 /*
  * Ensure that the non-Java resources of the default package are correct.
  */
-public void testPackageFragmentNonJavaResources03() throws CoreException {	
+public void testPackageFragmentNonJavaResources03() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "", "");
 	Object[] resources = pkg.getNonJavaResources();
 	assertResourceTreeEquals(
-		"Unexpected resources", 
+		"Unexpected resources",
 		"",
 		resources);
 }
@@ -1178,11 +1178,11 @@ public void testPackageFragmentNonJavaResources03() throws CoreException {
 /*
  * Ensure that the non-Java resources of a jar package fragment without resources are correct.
  */
-public void testPackageFragmentNonJavaResources04() throws CoreException {	
+public void testPackageFragmentNonJavaResources04() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "lib.jar", "p");
 	Object[] resources = pkg.getNonJavaResources();
 	assertResourceTreeEquals(
-		"Unexpected resources", 
+		"Unexpected resources",
 		"",
 		resources);
 }
@@ -1192,25 +1192,25 @@ public void testPackageFragmentNonJavaResources04() throws CoreException {
 /*
  * Ensure that the non-Java resources of a zip default package without resources are correct.
  */
-public void testPackageFragmentNonJavaResources05() throws CoreException {	
+public void testPackageFragmentNonJavaResources05() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "lib.jar", "");
 	Object[] resources = pkg.getNonJavaResources();
 	assertResourceTreeEquals(
-		"Unexpected resources", 
+		"Unexpected resources",
 		"",
-		resources);	
+		resources);
 }
 
 /*
  * Ensure that the non-Java resources of a jar package fragment with resources are correct.
  * (regression test for bug 142530 [hierarchical packages] '.' in folder names confuses package explorer)
  */
-public void testPackageFragmentNonJavaResources06() throws CoreException {	
+public void testPackageFragmentNonJavaResources06() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "lib142530.jar", "p");
 	Object[] resources = pkg.getNonJavaResources();
 	assertResourceTreeEquals(
-		"Unexpected resources", 
-		"x.y\n" + 
+		"Unexpected resources",
+		"x.y\n" +
 		"  Test.txt",
 		resources);
 }
@@ -1219,11 +1219,11 @@ public void testPackageFragmentNonJavaResources06() throws CoreException {
  * Ensure that the non-Java resources of a jar package fragment with resources are correct.
  * (regression test for bug 148949 JarEntryFile now returning 'null')
  */
-public void testPackageFragmentNonJavaResources07() throws CoreException {	
+public void testPackageFragmentNonJavaResources07() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "lib148949.jar", "p");
 	Object[] resources = pkg.getNonJavaResources();
 	assertResourceTreeEquals(
-		"Unexpected resources", 
+		"Unexpected resources",
 		"test.txt",
 		resources);
 }
@@ -1236,7 +1236,7 @@ public void testPackageFragmentNonJavaResources08() throws CoreException {
 	Object[] resources = pkg.getNonJavaResources();
 	Object parent = ((IJarEntryResource) resources[0]).getParent();
 	assertElementEquals(
-		"unexpected parent", 
+		"unexpected parent",
 		"p [in lib148949.jar [in JavaProjectTests]]",
 		(IPackageFragment) parent);
 }
@@ -1249,7 +1249,7 @@ public void testPackageFragmentNonJavaResources09() throws CoreException {
 	Object[] resources = pkg.getNonJavaResources();
 	IPath path = ((IJarEntryResource) resources[0]).getFullPath();
 	assertEquals(
-		"unexpected full path", 
+		"unexpected full path",
 		"/p/test.txt",
 		path.toString());
 }
@@ -1263,7 +1263,7 @@ public void testPackageFragmentNonJavaResources10() throws CoreException {
 	IJarEntryResource resource = (IJarEntryResource) resources[0];
 	IPath path = resource.getChildren()[0].getFullPath();
 	assertEquals(
-		"unexpected full path", 
+		"unexpected full path",
 		"/p/x.y/Test.txt",
 		path.toString());
 }
@@ -1276,7 +1276,7 @@ public void testPackageFragmentNonJavaResources11() throws CoreException {
 	Object[] resources = pkg.getNonJavaResources();
 	IPackageFragmentRoot parentRoot = ((IJarEntryResource) resources[0]).getPackageFragmentRoot();
 	assertElementEquals(
-		"unexpected package fragment root", 
+		"unexpected package fragment root",
 		"lib148949.jar [in JavaProjectTests]",
 		parentRoot);
 }
@@ -1292,8 +1292,8 @@ public void testPackageFragmentNonJavaResources12() throws CoreException {
 		IPackageFragment pkg = getPackageFragmentRoot("P", getExternalResourcePath("externalLib")).getPackageFragment("p");
 		Object[] resources = pkg.getNonJavaResources();
 		assertResourceTreeEquals(
-			"unexpected non java resources", 
-			"META-INF\n" + 
+			"unexpected non java resources",
+			"META-INF\n" +
 			"test.txt",
 			resources);
 	} finally {
@@ -1331,7 +1331,7 @@ public void testPackageFragmentRenameAndCreate() throws JavaModelException, Core
 	IFolder yFolder = (IFolder) y.getUnderlyingResource();
 	IPath yPath = yFolder.getFullPath();
 	IPath fooPath = yPath.removeLastSegments(1).append("foo");
-	
+
 	yFolder.move(fooPath, true, null);
 	try {
 		yFolder.create(true, true, null);
@@ -1364,9 +1364,9 @@ public void testPackageFragmentRootNonJavaResources1() throws JavaModelException
 	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectTests", "");
 	Object[] resources = root.getNonJavaResources();
 	assertResourceNamesEqual(
-		"unexpected non java resources", 
-		".classpath\n" + 
-		".project\n" + 
+		"unexpected non java resources",
+		".classpath\n" +
+		".project\n" +
 		".settings",
 		resources);
 }
@@ -1379,7 +1379,7 @@ public void testPackageFragmentRootNonJavaResources2() throws JavaModelException
  	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectSrcTests", "src");
 	Object[] resources = root.getNonJavaResources();
 	assertResourceNamesEqual(
-		"unexpected non java resources", 
+		"unexpected non java resources",
 		"",
 		resources);
 }
@@ -1390,8 +1390,8 @@ public void testPackageFragmentRootNonJavaResources3() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectTests", "lib.jar");
 	Object[] resources = root.getNonJavaResources();
 	assertResourceTreeEquals(
-		"unexpected non java resources", 
-		"META-INF\n" + 
+		"unexpected non java resources",
+		"META-INF\n" +
 		"  MANIFEST.MF",
 		resources);
 }
@@ -1403,7 +1403,7 @@ public void testPackageFragmentRootNonJavaResources4() throws CoreException {
 	Object[] resources = root.getNonJavaResources();
 	Object parent = ((IJarEntryResource) resources[0]).getParent();
 	assertElementEquals(
-		"unexpected parent", 
+		"unexpected parent",
 		"lib.jar [in JavaProjectTests]",
 		(IPackageFragmentRoot) parent);
 }
@@ -1415,7 +1415,7 @@ public void testPackageFragmentRootNonJavaResources5() throws CoreException {
 	Object[] resources = root.getNonJavaResources();
 	IPath path = ((IJarEntryResource) resources[0]).getFullPath();
 	assertEquals(
-		"unexpected full path", 
+		"unexpected full path",
 		"/META-INF",
 		path.toString());
 }
@@ -1428,7 +1428,7 @@ public void testPackageFragmentRootNonJavaResources6() throws CoreException {
 	IJarEntryResource resource = (IJarEntryResource) resources[0];
 	IPath path = resource.getChildren()[0].getFullPath();
 	assertEquals(
-		"unexpected full path", 
+		"unexpected full path",
 		"/META-INF/MANIFEST.MF",
 		path.toString());
 }
@@ -1440,7 +1440,7 @@ public void testPackageFragmentRootNonJavaResources7() throws CoreException {
 	Object[] resources = root.getNonJavaResources();
 	IPackageFragmentRoot parentRoot = ((IJarEntryResource) resources[0]).getPackageFragmentRoot();
 	assertElementEquals(
-		"unexpected package fragment root", 
+		"unexpected package fragment root",
 		"lib.jar [in JavaProjectTests]",
 		parentRoot);
 }
@@ -1455,8 +1455,8 @@ public void testPackageFragmentRootNonJavaResources8() throws CoreException {
 		IPackageFragmentRoot root = getPackageFragmentRoot("P", getExternalResourcePath("externalLib"));
 		Object[] resources = root.getNonJavaResources();
 		assertResourceTreeEquals(
-			"unexpected non java resources", 
-			"META-INF\n" + 
+			"unexpected non java resources",
+			"META-INF\n" +
 			"test.txt",
 			resources);
 	} finally {
@@ -1484,8 +1484,8 @@ public void testPackageFragmentRootNonJavaResources9() throws Exception {
 		IPackageFragmentRoot root = getPackageFragmentRoot("P", getExternalResourcePath("lib.jar"));
 		Object[] resources = root.getNonJavaResources();
 		assertResourceTreeEquals(
-			"unexpected non java resources", 
-			"META-INF\n" + 
+			"unexpected non java resources",
+			"META-INF\n" +
 			"  MANIFEST.MF",
 			resources);
 	} finally {
@@ -1512,7 +1512,7 @@ public void testPackageFragmentRootRawEntry() throws CoreException, IOException 
 			classpath[i] = JavaCore.newVariableEntry(new Path("/MyVar/lib"+i+".jar"), null, null);
 		}
 		proj.setRawClasspath(classpath, null);
-		
+
 		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
 		assertEquals("wrong number of entries:", length, roots.length);
 		//long start = System.currentTimeMillis();
@@ -1549,7 +1549,7 @@ public void testPackageFragmentRootRawEntryWhenDuplicate() throws CoreException,
 		classpath[1] = JavaCore.newVariableEntry(new Path("/MyVar").append("lib.jar"), null, null);
 		proj.setRawClasspath(classpath, null);
 		JavaCore.setClasspathVariable("MyVar", new Path(libPath), null); // change CP var value to cause collision
-		
+
 		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
 		assertEquals("wrong number of entries:", 1, roots.length);
 		IClasspathEntry rawEntry = roots[0].getRawClasspathEntry();
@@ -1641,7 +1641,7 @@ public void testProjectOpen2() throws JavaModelException, CoreException {
 		project.open(null);
 		assertDeltas(
 			"Unexpected delta 2",
-			"JavaProjectTests[*]: {OPENED}\n" + 
+			"JavaProjectTests[*]: {OPENED}\n" +
 			"ResourceDelta(/JavaProjectTests)"
 		);
 	} finally {
@@ -1676,7 +1676,7 @@ public void testProjectClose() throws JavaModelException, CoreException {
 		project.close(null);
 		assertDeltas(
 			"Unexpected delta 1",
-			"JavaProjectTests[*]: {CLOSED}\n" + 
+			"JavaProjectTests[*]: {CLOSED}\n" +
 			"ResourceDelta(/JavaProjectTests)"
 		);
 	} finally {
@@ -1701,10 +1701,10 @@ public void testProjectGetChildren() throws JavaModelException {
 	IJavaElement[] roots= project.getChildren();
 	assertElementsEqual(
 		"Unexpected package fragment roots",
-		"<project root> [in JavaProjectTests]\n" + 
-		getExternalJCLPathString() + "\n" + 
-		"lib.jar [in JavaProjectTests]\n" + 
-		"lib142530.jar [in JavaProjectTests]\n" + 
+		"<project root> [in JavaProjectTests]\n" +
+		getExternalJCLPathString() + "\n" +
+		"lib.jar [in JavaProjectTests]\n" +
+		"lib142530.jar [in JavaProjectTests]\n" +
 		"lib148949.jar [in JavaProjectTests]",
 		roots);
 }
@@ -1716,19 +1716,19 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 	IPackageFragment[] fragments= project.getPackageFragments();
 	assertSortedElementsEqual(
 		"unexpected package fragments",
-		"<default> [in "+ getExternalJCLPathString() + "]\n" + 
-		"<default> [in <project root> [in JavaProjectTests]]\n" + 
-		"<default> [in lib.jar [in JavaProjectTests]]\n" + 
-		"<default> [in lib142530.jar [in JavaProjectTests]]\n" + 
-		"<default> [in lib148949.jar [in JavaProjectTests]]\n" + 
-		"java [in "+ getExternalJCLPathString() + "]\n" + 
-		"java.io [in "+ getExternalJCLPathString() + "]\n" + 
-		"java.lang [in "+ getExternalJCLPathString() + "]\n" + 
-		"p [in lib.jar [in JavaProjectTests]]\n" + 
-		"p [in lib142530.jar [in JavaProjectTests]]\n" + 
-		"p [in lib148949.jar [in JavaProjectTests]]\n" + 
-		"q [in <project root> [in JavaProjectTests]]\n" + 
-		"x [in <project root> [in JavaProjectTests]]\n" + 
+		"<default> [in "+ getExternalJCLPathString() + "]\n" +
+		"<default> [in <project root> [in JavaProjectTests]]\n" +
+		"<default> [in lib.jar [in JavaProjectTests]]\n" +
+		"<default> [in lib142530.jar [in JavaProjectTests]]\n" +
+		"<default> [in lib148949.jar [in JavaProjectTests]]\n" +
+		"java [in "+ getExternalJCLPathString() + "]\n" +
+		"java.io [in "+ getExternalJCLPathString() + "]\n" +
+		"java.lang [in "+ getExternalJCLPathString() + "]\n" +
+		"p [in lib.jar [in JavaProjectTests]]\n" +
+		"p [in lib142530.jar [in JavaProjectTests]]\n" +
+		"p [in lib148949.jar [in JavaProjectTests]]\n" +
+		"q [in <project root> [in JavaProjectTests]]\n" +
+		"x [in <project root> [in JavaProjectTests]]\n" +
 		"x.y [in <project root> [in JavaProjectTests]]",
 		fragments);
 }
@@ -1743,7 +1743,7 @@ public void testProjectImport() throws CoreException {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				createJavaProject("P2");
 				editFile(
-					"/P2/.classpath", 
+					"/P2/.classpath",
 					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 					"<classpath>\n" +
 					"    <classpathentry kind=\"src\" path=\"/P1\"/>\n" +
@@ -1756,8 +1756,8 @@ public void testProjectImport() throws CoreException {
 		waitForAutoBuild();
 		IProject[] referencedProjects = getProject("P2").getReferencedProjects();
 		assertResourcesEqual(
-			"Unexpected project references", 
-			"/P1", 
+			"Unexpected project references",
+			"/P1",
 			referencedProjects);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2"});
@@ -1777,7 +1777,7 @@ public void testProjectImport2() throws CoreException {
 				e.printStackTrace();
 			}
 		}
-	
+
 	};
 	try {
 		createJavaProject("P1");
@@ -1786,7 +1786,7 @@ public void testProjectImport2() throws CoreException {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				createProject("P2");
 				createFile(
-					"/P2/.classpath", 
+					"/P2/.classpath",
 					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 					"<classpath>\n" +
 					"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
@@ -1796,22 +1796,22 @@ public void testProjectImport2() throws CoreException {
 				getWorkspace().checkpoint(false/*don't build*/);
 				editFile(
 					"/P2/.project",
-					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-					"<projectDescription>\n" + 
-					"	<name>P2</name>\n" + 
-					"	<comment></comment>\n" + 
-					"	<projects>\n" + 
-					"	</projects>\n" + 
-					"	<buildSpec>\n" + 
-					"		<buildCommand>\n" + 
-					"			<name>org.eclipse.jdt.core.javabuilder</name>\n" + 
-					"			<arguments>\n" + 
-					"			</arguments>\n" + 
-					"		</buildCommand>\n" + 
-					"	</buildSpec>\n" + 
-					"	<natures>\n" + 
-					"		<nature>org.eclipse.jdt.core.javanature</nature>\n" + 
-					"	</natures>\n" + 
+					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+					"<projectDescription>\n" +
+					"	<name>P2</name>\n" +
+					"	<comment></comment>\n" +
+					"	<projects>\n" +
+					"	</projects>\n" +
+					"	<buildSpec>\n" +
+					"		<buildCommand>\n" +
+					"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+					"			<arguments>\n" +
+					"			</arguments>\n" +
+					"		</buildCommand>\n" +
+					"	</buildSpec>\n" +
+					"	<natures>\n" +
+					"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+					"	</natures>\n" +
 					"</projectDescription>"
 				);
 				ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
@@ -1822,8 +1822,8 @@ public void testProjectImport2() throws CoreException {
 		waitForAutoBuild();
 		IProject[] referencedProjects = getProject("P2").getReferencedProjects();
 		assertResourcesEqual(
-			"Unexpected project references", 
-			"/P1", 
+			"Unexpected project references",
+			"/P1",
 			referencedProjects);
 	} finally {
 		JavaCore.removePreProcessingResourceChangedListener(resourceChangeListener);
@@ -1844,14 +1844,14 @@ public void testProjectImport3() throws CoreException {
 				e.printStackTrace();
 			}
 		}
-	
+
 	};
 	try {
 		createJavaProject("P1");
 		createFile("/P1/lib.jar", "");
 		createProject("P2");
 		createFile(
-			"/P2/.classpath", 
+			"/P2/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<classpath>\n" +
 			"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
@@ -1861,29 +1861,29 @@ public void testProjectImport3() throws CoreException {
 		JavaCore.addPreProcessingResourceChangedListener(resourceChangeListener, IResourceChangeEvent.POST_CHANGE);
 		editFile(
 			"/P2/.project",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-			"<projectDescription>\n" + 
-			"	<name>P2</name>\n" + 
-			"	<comment></comment>\n" + 
-			"	<projects>\n" + 
-			"	</projects>\n" + 
-			"	<buildSpec>\n" + 
-			"		<buildCommand>\n" + 
-			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" + 
-			"			<arguments>\n" + 
-			"			</arguments>\n" + 
-			"		</buildCommand>\n" + 
-			"	</buildSpec>\n" + 
-			"	<natures>\n" + 
-			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" + 
-			"	</natures>\n" + 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<projectDescription>\n" +
+			"	<name>P2</name>\n" +
+			"	<comment></comment>\n" +
+			"	<projects>\n" +
+			"	</projects>\n" +
+			"	<buildSpec>\n" +
+			"		<buildCommand>\n" +
+			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+			"			<arguments>\n" +
+			"			</arguments>\n" +
+			"		</buildCommand>\n" +
+			"	</buildSpec>\n" +
+			"	<natures>\n" +
+			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+			"	</natures>\n" +
 			"</projectDescription>"
 		);
 		waitForAutoBuild();
 		IProject[] referencedProjects = getProject("P2").getReferencedProjects();
 		assertResourcesEqual(
-			"Unexpected project references", 
-			"/P1", 
+			"Unexpected project references",
+			"/P1",
 			referencedProjects);
 	} finally {
 		JavaCore.removePreProcessingResourceChangedListener(resourceChangeListener);
@@ -1901,7 +1901,7 @@ public void testRemoveExternalLibFolder1() throws CoreException {
 		expandAll(p);
 		setClasspath(p, new IClasspathEntry[] {});
 		assertElementDescendants(
-			"Unexpected project content", 
+			"Unexpected project content",
 			"P",
 			p
 		);
@@ -1920,7 +1920,7 @@ public void testRemoveExternalLibFolder2() throws CoreException {
 		expandAll(p);
 		setClasspath(p, new IClasspathEntry[] {});
 		assertElementDescendants(
-			"Unexpected project content", 
+			"Unexpected project content",
 			"P",
 			p
 		);
@@ -1941,7 +1941,7 @@ public void testRemoveExternalLibFolder3() throws CoreException {
 		deleteExternalResource("externalLib");
 		refresh(p);
 		assertElementDescendants(
-			"Unexpected project content", 
+			"Unexpected project content",
 			"P",
 			p
 		);
@@ -1960,10 +1960,10 @@ public void testRemoveZIPArchive1() throws CoreException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
 		expandAll(p);
-		
+
 		setClasspath(p, new IClasspathEntry[] {});
 		assertElementDescendants(
-			"Unexpected project content", 
+			"Unexpected project content",
 			"P",
 			p
 		);
@@ -1981,10 +1981,10 @@ public void testRemoveZIPArchive2() throws CoreException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
 		expandAll(p);
-		
+
 		setClasspath(p, new IClasspathEntry[] {});
 		assertElementDescendants(
-			"Unexpected project content", 
+			"Unexpected project content",
 			"P",
 			p
 		);
@@ -2003,11 +2003,11 @@ public void testRemoveZIPArchive3() throws CoreException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
 		expandAll(p);
-		
+
 		deleteExternalResource("externalLib.abc");
 		refreshExternalArchives(p);
 		assertElementDescendants(
-			"Unexpected project content", 
+			"Unexpected project content",
 			"P",
 			p
 		);
@@ -2025,10 +2025,10 @@ public void testRemoveZIPArchive4() throws CoreException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "");
 		createFile("/P/internalLib.abc", "");
 		expandAll(p);
-		
+
 		setClasspath(p, new IClasspathEntry[] {});
 		assertElementDescendants(
-			"Unexpected project content", 
+			"Unexpected project content",
 			"P",
 			p
 		);
@@ -2045,17 +2045,17 @@ public void testRootGetPackageFragments() throws JavaModelException {
 	IJavaElement[] fragments= root.getChildren();
 	assertElementsEqual(
 		"unexpected package fragments in source folder",
-		"<default> [in <project root> [in JavaProjectTests]]\n" + 
-		"q [in <project root> [in JavaProjectTests]]\n" + 
-		"x [in <project root> [in JavaProjectTests]]\n" + 
+		"<default> [in <project root> [in JavaProjectTests]]\n" +
+		"q [in <project root> [in JavaProjectTests]]\n" +
+		"x [in <project root> [in JavaProjectTests]]\n" +
 		"x.y [in <project root> [in JavaProjectTests]]",
 		fragments);
 
 	root= getPackageFragmentRoot("JavaProjectTests", "lib.jar");
-	fragments= root.getChildren();	
+	fragments= root.getChildren();
 	assertSortedElementsEqual(
 		"unexpected package fragments in library",
-		"<default> [in lib.jar [in JavaProjectTests]]\n" + 
+		"<default> [in lib.jar [in JavaProjectTests]]\n" +
 		"p [in lib.jar [in JavaProjectTests]]",
 		fragments);
 }
@@ -2068,8 +2068,8 @@ public void testRootGetPackageFragments2() throws CoreException {
 		this.createJavaProject("P");
 		this.createFolder("/P/bin");
 		this.createFolder("/P/bin2");
-		this.editFile(
-			"/P/.classpath", 
+		editFile(
+			"/P/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<classpath>\n" +
 			"    <classpathentry kind=\"src\" output=\"bin2\" path=\"\"/>\n" +
@@ -2100,7 +2100,7 @@ public void testRootGetPackageFragments3() throws CoreException {
 		getProject("P1").build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IJavaProject p2 = createJavaProject("P2");
 		editFile(
-			"/P2/.classpath", 
+			"/P2/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<classpath>\n" +
 			"    <classpathentry kind=\"src\" path=\"\"/>\n" +
@@ -2117,7 +2117,7 @@ public void testRootGetPackageFragments3() throws CoreException {
 		assertElementsEqual(
 			"Unexpected packages for P2",
 			"X.class [in <default> [in /P1 [in P2]]]",
-			pkg.getChildren());	
+			pkg.getChildren());
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
@@ -2159,7 +2159,7 @@ public void testJdkLevelRoot() throws JavaModelException {
 /**
  * Test User Library preference. External jar file referenced in library entry does not exist.
  * It does not need to as we only test the preference value...
- * 
+ *
  * @test bug 88719: UserLibrary.serialize /createFromString need support for access restriction / attributes
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88719"
  */
@@ -2188,10 +2188,10 @@ public void testUserLibrary() throws JavaModelException {
 	extraAttributes[0] = JavaCore.newClasspathAttribute("javadoc_location", "http://www.sample-url.org/doc/");
 	extraAttributes[1] = JavaCore.newClasspathAttribute("org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY", "/tmp");
 	userEntries[1] = JavaCore.newLibraryEntry(path, null, null, pathRules, extraAttributes, false);
-	
+
 	// Create user library
 	JavaModelManager.getUserLibraryManager().setUserLibrary("TEST", userEntries, false);
-	
+
 	// Verify it has been written in preferences
 	IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
 	String containerKey = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"TEST";
@@ -2199,32 +2199,32 @@ public void testUserLibrary() throws JavaModelException {
 	assertNotNull("Should get a preference for TEST user library", libraryPreference);
 
 	assertSourceEquals(
-		"Invalid library contents", 
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-		"<userlibrary systemlibrary=\"false\" version=\"1\">\n" + 
-		"	<archive path=\"/tmp/test.jar\">\n" + 
-		"		<attributes>\n" + 
-		"			<attribute name=\"javadoc_location\" value=\"http://www.sample-url.org/doc/\"/>\n" + 
-		"			<attribute name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\" value=\"/tmp\"/>\n" + 
-		"		</attributes>\n" + 
-		"		<accessrules>\n" + 
-		"			<accessrule kind=\"nonaccessible\" pattern=\"**/forbidden/**\"/>\n" + 
-		"			<accessrule kind=\"discouraged\" pattern=\"**/discouraged/**\"/>\n" + 
-		"			<accessrule kind=\"accessible\" pattern=\"**/accessible/**\"/>\n" + 
-		"		</accessrules>\n" + 
-		"	</archive>\n" + 
-		"	<archive path=\"/tmp/test.jar\">\n" + 
-		"		<attributes>\n" + 
-		"			<attribute name=\"javadoc_location\" value=\"http://www.sample-url.org/doc/\"/>\n" + 
-		"			<attribute name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\" value=\"/tmp\"/>\n" + 
-		"		</attributes>\n" + 
-		"		<accessrules>\n" + 
-		"			<accessrule kind=\"nonaccessible\" pattern=\"/org/eclipse/forbidden/**\"/>\n" + 
-		"			<accessrule kind=\"discouraged\" pattern=\"/org/eclipse/discouraged/**\"/>\n" + 
-		"			<accessrule kind=\"accessible\" pattern=\"/org/eclipse/accessible/**\"/>\n" + 
-		"		</accessrules>\n" + 
-		"	</archive>\n" + 
-		"</userlibrary>\n", 
+		"Invalid library contents",
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+		"<userlibrary systemlibrary=\"false\" version=\"1\">\n" +
+		"	<archive path=\"/tmp/test.jar\">\n" +
+		"		<attributes>\n" +
+		"			<attribute name=\"javadoc_location\" value=\"http://www.sample-url.org/doc/\"/>\n" +
+		"			<attribute name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\" value=\"/tmp\"/>\n" +
+		"		</attributes>\n" +
+		"		<accessrules>\n" +
+		"			<accessrule kind=\"nonaccessible\" pattern=\"**/forbidden/**\"/>\n" +
+		"			<accessrule kind=\"discouraged\" pattern=\"**/discouraged/**\"/>\n" +
+		"			<accessrule kind=\"accessible\" pattern=\"**/accessible/**\"/>\n" +
+		"		</accessrules>\n" +
+		"	</archive>\n" +
+		"	<archive path=\"/tmp/test.jar\">\n" +
+		"		<attributes>\n" +
+		"			<attribute name=\"javadoc_location\" value=\"http://www.sample-url.org/doc/\"/>\n" +
+		"			<attribute name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\" value=\"/tmp\"/>\n" +
+		"		</attributes>\n" +
+		"		<accessrules>\n" +
+		"			<accessrule kind=\"nonaccessible\" pattern=\"/org/eclipse/forbidden/**\"/>\n" +
+		"			<accessrule kind=\"discouraged\" pattern=\"/org/eclipse/discouraged/**\"/>\n" +
+		"			<accessrule kind=\"accessible\" pattern=\"/org/eclipse/accessible/**\"/>\n" +
+		"		</accessrules>\n" +
+		"	</archive>\n" +
+		"</userlibrary>\n",
 		libraryPreference);
 }
 
@@ -2246,7 +2246,7 @@ public void testBug148859() throws CoreException {
 		IPackageFragmentRoot root = getPackageFragmentRoot("P", "");
 		assertElementsEqual(
 			"Unexpected children size in 'P' default source folder",
-			"<default> [in <project root> [in P]]\n" + 
+			"<default> [in <project root> [in P]]\n" +
 			"pack [in <project root> [in P]]",
 			root.getChildren());
 	} finally {

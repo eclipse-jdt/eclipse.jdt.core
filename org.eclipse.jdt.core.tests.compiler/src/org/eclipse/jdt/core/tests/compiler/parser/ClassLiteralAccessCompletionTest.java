@@ -27,7 +27,7 @@ public static Test suite() {
  */
 public void testArrayType() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {										\n" +
 		"	void foo() {									\n" +
 		"		String[].;									\n" +
@@ -38,12 +38,12 @@ public void testArrayType() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnClassLiteralAccess:String[].>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnClassLiteralAccess:String[].>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnClassLiteralAccess:String[].>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -59,7 +59,7 @@ public void testArrayType() {
  */
 public void testArrayTypeWithNonEmptyIdentifier() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {										\n" +
 		"	void foo() {									\n" +
 		"		String[].class;								\n" +
@@ -70,12 +70,12 @@ public void testArrayTypeWithNonEmptyIdentifier() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnClassLiteralAccess:String[].cl>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnClassLiteralAccess:String[].cl>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnClassLiteralAccess:String[].cl>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"cl",
@@ -90,7 +90,7 @@ public void testArrayTypeWithNonEmptyIdentifier() {
  */
 public void testPrimitiveArrayType() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {										\n" +
 		"	void foo() {									\n" +
 		"		int[].;										\n" +
@@ -101,12 +101,12 @@ public void testPrimitiveArrayType() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnClassLiteralAccess:int[].>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnClassLiteralAccess:int[].>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnClassLiteralAccess:int[].>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -122,7 +122,7 @@ public void testPrimitiveArrayType() {
  */
 public void testPrimitiveArrayTypeWithNonEmptyIdentifier() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {										\n" +
 		"	void foo() {									\n" +
 		"		int[].class;								\n" +
@@ -133,12 +133,12 @@ public void testPrimitiveArrayTypeWithNonEmptyIdentifier() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnClassLiteralAccess:int[].cl>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnClassLiteralAccess:int[].cl>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnClassLiteralAccess:int[].cl>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"cl",
@@ -153,7 +153,7 @@ public void testPrimitiveArrayTypeWithNonEmptyIdentifier() {
  */
 public void testPrimitiveType() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {										\n" +
 		"	void foo() {									\n" +
 		"		int.;										\n" +
@@ -164,12 +164,12 @@ public void testPrimitiveType() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnClassLiteralAccess:int.>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnClassLiteralAccess:int.>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnClassLiteralAccess:int.>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
@@ -185,7 +185,7 @@ public void testPrimitiveType() {
  */
 public void testPrimitiveTypeWithNonEmptyIdentifier() {
 	this.runTestCheckMethodParse(
-		// compilationUnit: 
+		// compilationUnit:
 		"class Bar {										\n" +
 		"	void foo() {									\n" +
 		"		int.class;									\n" +
@@ -196,12 +196,12 @@ public void testPrimitiveTypeWithNonEmptyIdentifier() {
 		// expectedCompletionNodeToString:
 		"<CompleteOnClassLiteralAccess:int.cl>",
 		// expectedUnitDisplayString:
-		"class Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnClassLiteralAccess:int.cl>;\n" + 
-		"  }\n" + 
+		"class Bar {\n" +
+		"  Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnClassLiteralAccess:int.cl>;\n" +
+		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:
 		"cl",
