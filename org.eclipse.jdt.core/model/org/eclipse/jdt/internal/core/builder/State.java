@@ -648,8 +648,8 @@ private void writeRestriction(AccessRuleSet accessRuleSet, DataOutputStream out)
  * Returns a string representation of the receiver.
  */
 public String toString() {
-	return "State for " + this.javaProjectName
-		+ " (#" + this.buildNumber
+	return "State for " + this.javaProjectName //$NON-NLS-1$
+		+ " (#" + this.buildNumber //$NON-NLS-1$
 			+ " @ " + new Date(this.lastStructuralBuildTime) //$NON-NLS-1$
 				+ ")"; //$NON-NLS-1$
 }

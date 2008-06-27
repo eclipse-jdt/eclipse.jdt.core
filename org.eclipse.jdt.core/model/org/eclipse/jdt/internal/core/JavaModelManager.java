@@ -2922,7 +2922,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		public String getDescription() {
-			return "Persisted container [" + this.containerPath
+			return "Persisted container [" + this.containerPath //$NON-NLS-1$
 					+ " for project [" + this.project.getElementName() //$NON-NLS-1$
 					+ "]]"; //$NON-NLS-1$
 		}
