@@ -45409,4 +45409,158 @@ public void test1349() {
 			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=238484
+public void test1350() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"import java.io.IOException;\n" + 
+				"\n" + 
+				"interface TreeVisitor<T, U> {\n" + 
+				"	public T visit(U location);\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface TreeVisitable<U> {\n" + 
+				"	public <T> T visit(TreeVisitor<T, U> visitor) throws IOException;\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Param implements TreeVisitable<Param> {\n" + 
+				"	public final Param lookforParam(final String name) {\n" + 
+				"		TreeVisitor<Param, Param> visitor = new TreeVisitor<Param, Param>() {\n" + 
+				"			public Param visit(Param location) {\n" + 
+				"				return null;\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		return visit(visitor);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public abstract <T> T visit(TreeVisitor<T, Param> visitor);\n" + 
+				"}\n" + 
+				"\n" + 
+				"class StructParam extends Param {\n" + 
+				"	public <T> T visit(TreeVisitor<T, Param> visitor) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		StructParam p = new StructParam();\n" + 
+				"		p.lookforParam(\"abc\");\n" + 
+				"		System.out.println(\"done\");\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=238484 - variation
+public void test1351() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"import java.io.IOException;\n" + 
+				"\n" + 
+				"interface IFoo {\n" + 
+				"	<T> T foo(T t) throws IOException;\n" + 
+				"}\n" + 
+				"interface JFoo {\n" + 
+				"	<T> T foo(T t) throws Exception;\n" + 
+				"}\n" + 
+				"abstract class Foo implements IFoo, JFoo {}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Foo f = createFoo();\n" + 
+				"		try {\n" + 
+				"			f.foo(null);\n" + 
+				"		} catch(IOException e) {\n" + 
+				"		}\n" + 
+				"		System.out.println(\"done\");\n" + 
+				"	}\n" + 
+				"	static Foo createFoo() {\n" + 
+				"		return new Foo() {\n" + 
+				"			public <T> T foo(T t) {\n" + 
+				"				return t;\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=238484 - variation
+public void test1352() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"import java.io.IOException;\n" + 
+				"\n" + 
+				"interface IFoo<U> {\n" + 
+				"	<T> T foo(T t) throws IOException;\n" + 
+				"}\n" + 
+				"interface JFoo<U> {\n" + 
+				"	<T> T foo(T t) throws Exception;\n" + 
+				"}\n" + 
+				"abstract class Foo implements IFoo<String>, JFoo<String> {}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Foo f = createFoo();\n" + 
+				"		try {\n" + 
+				"			f.foo(null);\n" + 
+				"		} catch(IOException e) {\n" + 
+				"		}\n" + 
+				"		System.out.println(\"done\"); //dd\n" + 
+				"	}\n" + 
+				"	static Foo createFoo() {\n" + 
+				"		return new Foo() {\n" + 
+				"			public <T> T foo(T t) {\n" + 
+				"				return t;\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=238484 - variation
+public void test1353() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.io.IOException;\n" + 
+				"\n" + 
+				"interface IFoo<U> {\n" + 
+				"	<T> T foo(T t) throws IOException;\n" + 
+				"}\n" + 
+				"interface JFoo<U> {\n" + 
+				"	<T> T foo(T t);\n" + 
+				"}\n" + 
+				"abstract class Foo implements IFoo<String>, JFoo<String> {}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Foo f = createFoo();\n" + 
+				"		try {\n" + 
+				"			f.foo(null);\n" + 
+				"		} catch(IOException e) {\n" + 
+				"		}\n" + 
+				"		System.out.println(\"done\"); //dd\n" + 
+				"	}\n" + 
+				"	static Foo createFoo() {\n" + 
+				"		return new Foo() {\n" + 
+				"			public <T> T foo(T t) {\n" + 
+				"				return t;\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 16)\n" + 
+			"	} catch(IOException e) {\n" + 
+			"	        ^^^^^^^^^^^\n" + 
+			"Unreachable catch block for IOException. This exception is never thrown from the try statement body\n" + 
+			"----------\n");
+}
 }
