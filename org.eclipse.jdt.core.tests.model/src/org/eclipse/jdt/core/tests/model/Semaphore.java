@@ -18,7 +18,7 @@ public class Semaphore {
 	private String name = null;
 	private int permissions = 0;
 	
-	public class TimeOutException extends Exception {
+	public static class TimeOutException extends Exception {
 		private static final long serialVersionUID = 1L;
 	}
 	public Semaphore() {
@@ -57,6 +57,9 @@ public class Semaphore {
 		}
 		this.permissions--;
 		if (this.name != null) System.out.println(Thread.currentThread() + " - acquired: " + this.name); //$NON-NLS-1$
+	}
+	public int getCurrentPemissions() {
+		return this.permissions;
 	}
 	public synchronized void release() {
 		if (this.name != null) System.out.println(Thread.currentThread() + " - releasing: " + this.name); //$NON-NLS-1$

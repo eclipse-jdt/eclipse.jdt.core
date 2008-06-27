@@ -218,22 +218,22 @@ public class ClasspathChange {
 			PerProjectInfo perProjectInfo = this.project.getPerProjectInfo();
 			
 			// get new info
-			this.project.resolveClasspath(perProjectInfo);
+			this.project.resolveClasspath(perProjectInfo, false/*don't use previous session values*/);
 			IClasspathEntry[] newRawClasspath;
 			
 			// use synchronized block to ensure consistency
 			synchronized (perProjectInfo) {
 				newRawClasspath = perProjectInfo.rawClasspath;
-				newResolvedClasspath = perProjectInfo.resolvedClasspath;
+				newResolvedClasspath = perProjectInfo.getResolvedClasspath();
 				newOutputLocation = perProjectInfo.outputLocation;				
 			}
 			
 			if (newResolvedClasspath == null) {
 				// another thread reset the resolved classpath, use a temporary PerProjectInfo
 				PerProjectInfo temporaryInfo = new PerProjectInfo(this.project.getProject());
-				this.project.resolveClasspath(temporaryInfo);
+				this.project.resolveClasspath(temporaryInfo, false/*don't use previous session values*/);
 				newRawClasspath = temporaryInfo.rawClasspath;
-				newResolvedClasspath = temporaryInfo.resolvedClasspath;
+				newResolvedClasspath = temporaryInfo.getResolvedClasspath();
 				newOutputLocation = temporaryInfo.outputLocation;				
 			}
 			

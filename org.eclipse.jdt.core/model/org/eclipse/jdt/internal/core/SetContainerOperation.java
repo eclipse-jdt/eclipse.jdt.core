@@ -52,7 +52,6 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 			final int projectLength = this.affectedProjects.length;	
 			final IJavaProject[] modifiedProjects;
 			System.arraycopy(this.affectedProjects, 0, modifiedProjects = new IJavaProject[projectLength], 0, projectLength);
-			final IClasspathEntry[][] oldResolvedPaths = new IClasspathEntry[projectLength][];
 				
 			// filter out unmodified project containers
 			int remaining = 0;
@@ -88,7 +87,6 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 					continue;
 				}
 				remaining++; 
-				oldResolvedPaths[i] = affectedProject.getResolvedClasspath();
 				manager.containerPut(affectedProject, this.containerPath, newContainer);
 			}
 			
