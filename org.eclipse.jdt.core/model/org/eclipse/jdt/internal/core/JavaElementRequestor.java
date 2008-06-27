@@ -27,200 +27,200 @@ public class JavaElementRequestor implements IJavaElementRequestor {
 	 * True if this requestor no longer wants to receive
 	 * results from its <code>IRequestorNameLookup</code>.
 	 */
-	protected boolean fCanceled= false;
+	protected boolean canceled= false;
 	
 	/**
 	 * A collection of the resulting fields, or <code>null</code>
 	 * if no field results have been received.
 	 */
-	protected ArrayList fFields= null;
+	protected ArrayList fields= null;
 
 	/**
 	 * A collection of the resulting initializers, or <code>null</code>
 	 * if no initializer results have been received.
 	 */
-	protected ArrayList fInitializers= null;
+	protected ArrayList initializers= null;
 
 	/**
 	 * A collection of the resulting member types, or <code>null</code>
 	 * if no member type results have been received.
 	 */
-	protected ArrayList fMemberTypes= null;
+	protected ArrayList memberTypes= null;
 
 	/**
 	 * A collection of the resulting methods, or <code>null</code>
 	 * if no method results have been received.
 	 */
-	protected ArrayList fMethods= null;
+	protected ArrayList methods= null;
 
 	/**
 	 * A collection of the resulting package fragments, or <code>null</code>
 	 * if no package fragment results have been received.
 	 */
-	protected ArrayList fPackageFragments= null;
+	protected ArrayList packageFragments= null;
 
 	/**
 	 * A collection of the resulting types, or <code>null</code>
 	 * if no type results have been received.
 	 */
-	protected ArrayList fTypes= null;
+	protected ArrayList types= null;
 
 	/**
 	 * Empty arrays used for efficiency
 	 */
-	protected static IField[] fgEmptyFieldArray= new IField[0];
-	protected static IInitializer[] fgEmptyInitializerArray= new IInitializer[0];
-	protected static IType[] fgEmptyTypeArray= new IType[0];
-	protected static IPackageFragment[] fgEmptyPackageFragmentArray= new IPackageFragment[0];
-	protected static IMethod[] fgEmptyMethodArray= new IMethod[0];
+	protected static IField[] EMPTY_FIELD_ARRAY= new IField[0];
+	protected static IInitializer[] EMPTY_INITIALIZER_ARRAY= new IInitializer[0];
+	protected static IType[] EMPTY_TYPE_ARRAY= new IType[0];
+	protected static IPackageFragment[] EMPTY_PACKAGE_FRAGMENT_ARRAY= new IPackageFragment[0];
+	protected static IMethod[] EMPTY_METHOD_ARRAY= new IMethod[0];
 /**
  * @see IJavaElementRequestor
  */
 public void acceptField(IField field) {
-	if (fFields == null) {
-		fFields= new ArrayList();
+	if (fields == null) {
+		fields= new ArrayList();
 	}
-	fFields.add(field);
+	fields.add(field);
 }
 /**
  * @see IJavaElementRequestor
  */
 public void acceptInitializer(IInitializer initializer) {
-	if (fInitializers == null) {
-		fInitializers= new ArrayList();
+	if (initializers == null) {
+		initializers= new ArrayList();
 	}
-	fInitializers.add(initializer);
+	initializers.add(initializer);
 }
 /**
  * @see IJavaElementRequestor
  */
 public void acceptMemberType(IType type) {
-	if (fMemberTypes == null) {
-		fMemberTypes= new ArrayList();
+	if (memberTypes == null) {
+		memberTypes= new ArrayList();
 	}
-	fMemberTypes.add(type);
+	memberTypes.add(type);
 }
 /**
  * @see IJavaElementRequestor
  */
 public void acceptMethod(IMethod method) {
-	if (fMethods == null) {
-		fMethods = new ArrayList();
+	if (methods == null) {
+		methods = new ArrayList();
 	}
-	fMethods.add(method);
+	methods.add(method);
 }
 /**
  * @see IJavaElementRequestor
  */
 public void acceptPackageFragment(IPackageFragment packageFragment) {
-	if (fPackageFragments== null) {
-		fPackageFragments= new ArrayList();
+	if (packageFragments== null) {
+		packageFragments= new ArrayList();
 	}
-	fPackageFragments.add(packageFragment);
+	packageFragments.add(packageFragment);
 }
 /**
  * @see IJavaElementRequestor
  */
 public void acceptType(IType type) {
-	if (fTypes == null) {
-		fTypes= new ArrayList();
+	if (types == null) {
+		types= new ArrayList();
 	}
-	fTypes.add(type);
+	types.add(type);
 }
 /**
  * @see IJavaElementRequestor
  */
 public IField[] getFields() {
-	if (fFields == null) {
-		return fgEmptyFieldArray;
+	if (fields == null) {
+		return EMPTY_FIELD_ARRAY;
 	}
-	int size = fFields.size();
+	int size = fields.size();
 	IField[] results = new IField[size];
-	fFields.toArray(results);
+	fields.toArray(results);
 	return results;
 }
 /**
  * @see IJavaElementRequestor
  */
 public IInitializer[] getInitializers() {
-	if (fInitializers == null) {
-		return fgEmptyInitializerArray;
+	if (initializers == null) {
+		return EMPTY_INITIALIZER_ARRAY;
 	}
-	int size = fInitializers.size();
+	int size = initializers.size();
 	IInitializer[] results = new IInitializer[size];
-	fInitializers.toArray(results);
+	initializers.toArray(results);
 	return results;
 }
 /**
  * @see IJavaElementRequestor
  */
 public IType[] getMemberTypes() {
-	if (fMemberTypes == null) {
-		return fgEmptyTypeArray;
+	if (memberTypes == null) {
+		return EMPTY_TYPE_ARRAY;
 	}
-	int size = fMemberTypes.size();
+	int size = memberTypes.size();
 	IType[] results = new IType[size];
-	fMemberTypes.toArray(results);
+	memberTypes.toArray(results);
 	return results;
 }
 /**
  * @see IJavaElementRequestor
  */
 public IMethod[] getMethods() {
-	if (fMethods == null) {
-		return fgEmptyMethodArray;
+	if (methods == null) {
+		return EMPTY_METHOD_ARRAY;
 	}
-	int size = fMethods.size();
+	int size = methods.size();
 	IMethod[] results = new IMethod[size];
-	fMethods.toArray(results);
+	methods.toArray(results);
 	return results;
 }
 /**
  * @see IJavaElementRequestor
  */
 public IPackageFragment[] getPackageFragments() {
-	if (fPackageFragments== null) {
-		return fgEmptyPackageFragmentArray;
+	if (packageFragments== null) {
+		return EMPTY_PACKAGE_FRAGMENT_ARRAY;
 	}
-	int size = fPackageFragments.size();
+	int size = packageFragments.size();
 	IPackageFragment[] results = new IPackageFragment[size];
-	fPackageFragments.toArray(results);
+	packageFragments.toArray(results);
 	return results;
 }
 /**
  * @see IJavaElementRequestor
  */
 public IType[] getTypes() {
-	if (fTypes== null) {
-		return fgEmptyTypeArray;
+	if (types== null) {
+		return EMPTY_TYPE_ARRAY;
 	}
-	int size = fTypes.size();
+	int size = types.size();
 	IType[] results = new IType[size];
-	fTypes.toArray(results);
+	types.toArray(results);
 	return results;
 }
 /**
  * @see IJavaElementRequestor
  */
 public boolean isCanceled() {
-	return fCanceled;
+	return canceled;
 }
 /**
  * Reset the state of this requestor.
  */
 public void reset() {
-	fCanceled = false;
-	fFields = null;
-	fInitializers = null;
-	fMemberTypes = null;
-	fMethods = null;
-	fPackageFragments = null;
-	fTypes = null;
+	canceled = false;
+	fields = null;
+	initializers = null;
+	memberTypes = null;
+	methods = null;
+	packageFragments = null;
+	types = null;
 }
 /**
  * Sets the #isCanceled state of this requestor to true or false.
  */
 public void setCanceled(boolean b) {
-	fCanceled= b;
+	canceled= b;
 }
 }

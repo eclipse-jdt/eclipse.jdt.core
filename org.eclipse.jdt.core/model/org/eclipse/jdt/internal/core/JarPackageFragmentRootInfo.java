@@ -22,7 +22,7 @@ class JarPackageFragmentRootInfo extends PackageFragmentRootInfo {
  * Returns an array of non-java resources contained in the receiver.
  */
 public Object[] getNonJavaResources() {
-	fNonJavaResources = NO_NON_JAVA_RESOURCES;
-	return fNonJavaResources;
+	nonJavaResources = NO_NON_JAVA_RESOURCES;
+	return nonJavaResources;
 }
 }

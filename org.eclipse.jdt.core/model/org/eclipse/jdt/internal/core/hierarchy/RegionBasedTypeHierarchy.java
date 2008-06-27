@@ -42,7 +42,7 @@ public RegionBasedTypeHierarchy(IRegion region, ICompilationUnit[] workingCopies
 			if (!contains(element)) {
 				//"new" element added to region
 				removeAllChildren(element);
-				fRootElements.add(element);
+				rootElements.add(element);
 				if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
 					// add jar roots as well so that jars don't rely on their parent to know 
 					// if they are contained in the region
@@ -50,14 +50,14 @@ public RegionBasedTypeHierarchy(IRegion region, ICompilationUnit[] workingCopies
 					try {
 						IPackageFragmentRoot[] roots = ((IJavaProject) element).getPackageFragmentRoots();
 						for (int i = 0, length = roots.length; i < length; i++) {
-							if (roots[i].isArchive() && !fRootElements.contains(roots[i]))
-								fRootElements.add(roots[i]);
+							if (roots[i].isArchive() && !rootElements.contains(roots[i]))
+								rootElements.add(roots[i]);
 						}
 					} catch (JavaModelException e) {
 						// project doesn't exist
 					}
 				}
-				fRootElements.trimToSize();
+				rootElements.trimToSize();
 			}
 		}
 	};

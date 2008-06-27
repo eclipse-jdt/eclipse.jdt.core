@@ -57,19 +57,19 @@ public class CreateCompilationUnitOperation extends JavaModelOperation {
 	/**
 	 * The name of the compilation unit being created.
 	 */
-	protected String fName;
+	protected String name;
 	/**
 	 * The source code to use when creating the element.
 	 */
-	protected String fSource= null;
+	protected String source= null;
 /**
  * When executed, this operation will create a compilation unit with the given name.
  * The name should have the ".java" suffix.
  */
 public CreateCompilationUnitOperation(IPackageFragment parentElement, String name, String source, boolean force) {
 	super(null, new IJavaElement[] {parentElement}, force);
-	fName = name;
-	fSource = source;
+	this.name = name;
+	this.source = source;
 }
 /**
  * Creates a compilation unit.
@@ -84,13 +84,13 @@ protected void executeOperation() throws JavaModelException {
 		IPackageFragment pkg = (IPackageFragment) getParentElement();
 		IContainer folder = (IContainer) pkg.getResource();
 		worked(1);
-		IFile compilationUnitFile = folder.getFile(new Path(fName));
+		IFile compilationUnitFile = folder.getFile(new Path(name));
 		if (compilationUnitFile.exists()) {
 			// update the contents of the existing unit if fForce is true
 			if (force) {
 				IBuffer buffer = unit.getBuffer();
 				if (buffer == null) return;
-				buffer.setContents(fSource);
+				buffer.setContents(source);
 				unit.save(new NullProgressMonitor(), false);
 				resultElements = new IJavaElement[] {unit};
 				if (!Util.isExcluded(unit)
@@ -114,7 +114,7 @@ protected void executeOperation() throws JavaModelException {
 				catch (CoreException ce) {
 					// use no encoding
 				}
-				InputStream stream = new ByteArrayInputStream(encoding == null ? fSource.getBytes() : fSource.getBytes(encoding));
+				InputStream stream = new ByteArrayInputStream(encoding == null ? source.getBytes() : source.getBytes(encoding));
 				createFile(folder, unit.getElementName(), stream, force);
 				resultElements = new IJavaElement[] {unit};
 				if (!Util.isExcluded(unit)
@@ -137,7 +137,7 @@ protected void executeOperation() throws JavaModelException {
  * @see CreateElementInCUOperation#getCompilationUnit()
  */
 protected ICompilationUnit getCompilationUnit() {
-	return ((IPackageFragment)getParentElement()).getCompilationUnit(fName);
+	return ((IPackageFragment)getParentElement()).getCompilationUnit(name);
 }
 protected ISchedulingRule getSchedulingRule() {
 	IResource resource  = getCompilationUnit().getResource();
@@ -162,10 +162,10 @@ public IJavaModelStatus verify() {
 		return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 	}
 	IJavaProject project = getParentElement().getJavaProject();
-	if (JavaConventions.validateCompilationUnitName(fName, project.getOption(JavaCore.COMPILER_SOURCE, true), project.getOption(JavaCore.COMPILER_COMPLIANCE, true)).getSeverity() == IStatus.ERROR) {
-		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, fName);
+	if (JavaConventions.validateCompilationUnitName(name, project.getOption(JavaCore.COMPILER_SOURCE, true), project.getOption(JavaCore.COMPILER_COMPLIANCE, true)).getSeverity() == IStatus.ERROR) {
+		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, name);
 	}
-	if (fSource == null) {
+	if (source == null) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS);
 	}
 	return JavaModelStatus.VERIFIED_OK;

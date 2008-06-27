@@ -33,7 +33,7 @@ public class CharArrayBuffer {
 	 * This is the buffer of char arrays which must be appended together
 	 * during the getContents method.
 	 */
-	protected char[][] fBuffer;
+	protected char[][] buffer;
 
 	/**
 	 * The default buffer size.
@@ -43,19 +43,19 @@ public class CharArrayBuffer {
 	/**
 	 * The end of the buffer
 	 */
-	protected int fEnd;
+	protected int end;
 
 	/**
 	 * The current size of the buffer.
 	 */
-	protected int fSize;
+	protected int size;
 
 	/**
 	 * A buffer of ranges which is maintained along with
 	 * the buffer.  Ranges are of the form {start, length}.
 	 * Enables append(char[] array, int start, int end).
 	 */
-	protected int[][] fRanges;
+	protected int[][] ranges;
 /**
  * Creates a <code>CharArrayBuffer</code> with the default buffer size (10).
  */
@@ -79,10 +79,10 @@ public CharArrayBuffer(char[] first) {
  * @param size - the buffer size, if less than 1, set to the DEFAULT_BUFFER_SIZE.
  */
 public CharArrayBuffer(char[] first, int size) {
-	fSize = (size > 0) ? size : DEFAULT_BUFFER_SIZE;
-	fBuffer = new char[fSize][];
-	fRanges = new int[fSize][];
-	fEnd = 0;
+	this.size = (size > 0) ? size : DEFAULT_BUFFER_SIZE;
+	this.buffer = new char[this.size][];
+	this.ranges = new int[this.size][];
+	this.end = 0;
 	if (first != null)
 		append(first, 0, first.length);
 }
@@ -122,15 +122,15 @@ public CharArrayBuffer append(char[] src, int start, int length) {
 		if (length + start > srcLength) throw new ArrayIndexOutOfBoundsException();
 		/** do length check here to allow exceptions to be thrown */
 		if (length > 0) {
-			if (fEnd == fSize) {
-				int size2 = fSize * 2;
-				System.arraycopy(fBuffer, 0, (fBuffer = new char[size2][]), 0, fSize);
-				System.arraycopy(fRanges, 0, (fRanges = new int[size2][]), 0, fSize);
-				fSize *= 2;
+			if (end == size) {
+				int size2 = size * 2;
+				System.arraycopy(buffer, 0, (buffer = new char[size2][]), 0, size);
+				System.arraycopy(ranges, 0, (ranges = new int[size2][]), 0, size);
+				size *= 2;
 			}
-			fBuffer[fEnd] = src;
-			fRanges[fEnd] = new int[] {start, length};
-			fEnd++;
+			buffer[end] = src;
+			ranges[end] = new int[] {start, length};
+			end++;
 		}
 	}
 	return this;
@@ -160,22 +160,22 @@ public CharArrayBuffer append(String src) {
  * char[] or null if nothing has been put in the buffer.
  */
 public char[] getContents() {
-	if (fEnd == 0)
+	if (end == 0)
 		return null;
 
 	// determine the size of the array
 	int size = 0;
-	for (int i = 0; i < fEnd; i++)
-		size += fRanges[i][1];
+	for (int i = 0; i < end; i++)
+		size += ranges[i][1];
 
 	if (size > 0) {
 		char[] result = new char[size];
 		int current = 0;
 		// copy the results
-		for(int i = 0; i < fEnd; i++) {
-			int[] range = fRanges[i];
+		for(int i = 0; i < end; i++) {
+			int[] range = ranges[i];
 			int length = range[1];
-			System.arraycopy(fBuffer[i], range[0], result, current, length);
+			System.arraycopy(buffer[i], range[0], result, current, length);
 			current += length;
 		}
 		return result;

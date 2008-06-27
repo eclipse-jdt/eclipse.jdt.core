@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.IType;
 	/**
 	 * The single accepted element
 	 */
-	protected IType fElement= null;
+	protected IType element= null;
 /**
  * @see IJavaElementRequestor
  */
@@ -41,7 +41,7 @@ public void acceptInitializer(IInitializer initializer) {
  * @see IJavaElementRequestor
  */
 public void acceptMemberType(IType type) {
-	fElement= type;
+	element= type;
 }
 /**
  * @see IJavaElementRequestor
@@ -59,25 +59,25 @@ public void acceptPackageFragment(IPackageFragment packageFragment) {
  * @see IJavaElementRequestor
  */
 public void acceptType(IType type) {
-	fElement= type;
+	element= type;
 }
 /**
  * Returns the type accepted by this requestor, or <code>null</code>
  * if no type has been accepted.
  */
 public IType getType() {
-	return fElement;
+	return element;
 }
 /**
  * @see IJavaElementRequestor
  */
 public boolean isCanceled() {
-	return fElement != null;
+	return element != null;
 }
 /**
  * Reset the state of this requestor
  */
 public void reset() {
-	fElement= null;
+	element= null;
 }
 }

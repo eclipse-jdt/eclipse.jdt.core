@@ -26,14 +26,14 @@ public class Region implements IRegion {
 	 * A collection of the top level elements
 	 * that have been added to the region
 	 */
-	protected ArrayList fRootElements;
+	protected ArrayList rootElements;
 /**
  * Creates an empty region.
  *
  * @see IRegion
  */
 public Region() {
-	fRootElements = new ArrayList(1);
+	this.rootElements = new ArrayList(1);
 }
 /**
  * @see IRegion#add(IJavaElement)
@@ -42,8 +42,8 @@ public void add(IJavaElement element) {
 	if (!contains(element)) {
 		//"new" element added to region
 		removeAllChildren(element);
-		fRootElements.add(element);
-		fRootElements.trimToSize();
+		rootElements.add(element);
+		rootElements.trimToSize();
 	}
 }
 /**
@@ -51,11 +51,11 @@ public void add(IJavaElement element) {
  */
 public boolean contains(IJavaElement element) {
 	
-	int size = fRootElements.size();
+	int size = rootElements.size();
 	ArrayList parents = getAncestors(element);
 	
 	for (int i = 0; i < size; i++) {
-		IJavaElement aTop = (IJavaElement) fRootElements.get(i);
+		IJavaElement aTop = (IJavaElement) rootElements.get(i);
 		if (aTop.equals(element)) {
 			return true;
 		}
@@ -87,10 +87,10 @@ private ArrayList getAncestors(IJavaElement element) {
  * @see IRegion
  */
 public IJavaElement[] getElements() {
-	int size= fRootElements.size();
+	int size= rootElements.size();
 	IJavaElement[] roots= new IJavaElement[size];
 	for (int i = 0; i < size; i++) {
-		roots[i]= (IJavaElement) fRootElements.get(i);
+		roots[i]= (IJavaElement) rootElements.get(i);
 	}
 
 	return roots;
@@ -101,7 +101,7 @@ public IJavaElement[] getElements() {
 public boolean remove(IJavaElement element) {
 
 	removeAllChildren(element);
-	return fRootElements.remove(element);
+	return rootElements.remove(element);
 }
 /**
  * Removes any children of this element that are contained within this
@@ -112,8 +112,8 @@ public boolean remove(IJavaElement element) {
 protected void removeAllChildren(IJavaElement element) {
 	if (element instanceof IParent) {
 		ArrayList newRootElements = new ArrayList();
-		for (int i = 0, size = fRootElements.size(); i < size; i++) {
-			IJavaElement currentRoot = (IJavaElement)fRootElements.get(i);
+		for (int i = 0, size = rootElements.size(); i < size; i++) {
+			IJavaElement currentRoot = (IJavaElement)rootElements.get(i);
 			//walk the current root hierarchy
 			IJavaElement parent = currentRoot.getParent();
 			boolean isChild= false;
@@ -128,7 +128,7 @@ protected void removeAllChildren(IJavaElement element) {
 				newRootElements.add(currentRoot);
 			}
 		}
-		fRootElements= newRootElements;
+		rootElements= newRootElements;
 	}
 }
 /**

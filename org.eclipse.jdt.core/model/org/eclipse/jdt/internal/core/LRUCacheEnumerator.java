@@ -26,44 +26,44 @@ public class LRUCacheEnumerator implements Enumeration {
 	/**
 	 *	Current element;
 	 */
-	protected LRUEnumeratorElement fElementQueue;
+	protected LRUEnumeratorElement elementQueue;
 
 	public static class LRUEnumeratorElement {
 		/**
 		 *	Value returned by <code>nextElement()</code>;
 		 */
-		public Object fValue;
+		public Object value;
 		
 		/**
 		 *	Next element
 		 */
-		public LRUEnumeratorElement fNext;
+		public LRUEnumeratorElement next;
 
 		/**
 		 * Constructor
 		 */
 		public LRUEnumeratorElement(Object value) {
-			fValue = value;
+			this.value = value;
 		}
 	}
 /**
  *	Creates a CacheEnumerator on the list of <code>LRUEnumeratorElements</code>.
  */
 public LRUCacheEnumerator(LRUEnumeratorElement firstElement) {
-	fElementQueue = firstElement;
+	this.elementQueue = firstElement;
 }
 /**
  * Returns true if more elements exist.
  */
 public boolean hasMoreElements() {
-	return fElementQueue != null;
+	return elementQueue != null;
 }
 /**
  * Returns the next element.
  */
 public Object nextElement() {
-	Object temp = fElementQueue.fValue;
-	fElementQueue = fElementQueue.fNext;
+	Object temp = elementQueue.value;
+	elementQueue = elementQueue.next;
 	return temp;
 }
 }
