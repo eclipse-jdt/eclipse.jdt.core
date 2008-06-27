@@ -3378,8 +3378,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			MethodBinding current = moreSpecific[i];
 			if (current != null) {
 				ReferenceBinding[] mostSpecificExceptions = null;
-				SimpleSet possibleMethods = null;
 				MethodBinding original = current.original();
+				boolean shouldIntersectExceptions = original.declaringClass.isInterface() && original.thrownExceptions != Binding.NO_EXCEPTIONS; // only needed when selecting from interface methods
 				for (int j = 0; j < visibleSize; j++) {
 					MethodBinding next = moreSpecific[j];
 					if (next == null || i == j) continue;
@@ -3443,58 +3443,44 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							// 15.12.2
 							continue nextSpecific; // choose original2 instead
 						}
-						if (original.thrownExceptions != original2.thrownExceptions) {
-							if (mostSpecificExceptions == null)
-								mostSpecificExceptions = original.thrownExceptions;
-							if (possibleMethods == null)
-								possibleMethods = new SimpleSet(3);
-							int mostSpecificLength = mostSpecificExceptions.length;
-							int original2Length = original2.thrownExceptions.length;
-							SimpleSet temp = new SimpleSet(mostSpecificLength);
-							nextException : for (int t = 0; t < mostSpecificLength; t++) {
-								ReferenceBinding exception = mostSpecificExceptions[t];
-								for (int s = 0; s < original2Length; s++) {
-									if (exception.isCompatibleWith(original2.thrownExceptions[s])) {
-										possibleMethods.add(current);
-										temp.add(exception);
-										continue nextException;
-									} else if (original2.thrownExceptions[s].isCompatibleWith(exception)) {
-										possibleMethods.add(next);
-										temp.add(original2.thrownExceptions[s]);
-										continue nextException;
+						if (shouldIntersectExceptions && original2.declaringClass.isInterface()) {
+							if (original.thrownExceptions != original2.thrownExceptions) {
+								if (original2.thrownExceptions == Binding.NO_EXCEPTIONS) {
+									mostSpecificExceptions = Binding.NO_EXCEPTIONS;
+								} else {
+									if (mostSpecificExceptions == null) {
+										mostSpecificExceptions = original.thrownExceptions;
+									}
+									int mostSpecificLength = mostSpecificExceptions.length;
+									int original2Length = original2.thrownExceptions.length;
+									SimpleSet temp = new SimpleSet(mostSpecificLength);
+									boolean changed = false;
+									nextException : for (int t = 0; t < mostSpecificLength; t++) {
+										ReferenceBinding exception = mostSpecificExceptions[t];
+										for (int s = 0; s < original2Length; s++) {
+											if (exception.isCompatibleWith(original2.thrownExceptions[s])) {
+												temp.add(exception);
+												continue nextException;
+											} else if (original2.thrownExceptions[s].isCompatibleWith(exception)) {
+												temp.add(original2.thrownExceptions[s]);
+												changed = true;
+												continue nextException;
+											} else {
+												changed = true;
+											}
+										}
+									}
+									if (changed) {
+										mostSpecificExceptions = temp.elementSize == 0 ? Binding.NO_EXCEPTIONS : new ReferenceBinding[temp.elementSize];
+										temp.asArray(mostSpecificExceptions);
 									}
 								}
 							}
-							mostSpecificExceptions = temp.elementSize == 0 ? Binding.NO_EXCEPTIONS : new ReferenceBinding[temp.elementSize];
-							temp.asArray(mostSpecificExceptions);
 						}
 					}
 				}
-				if (mostSpecificExceptions != null) {
-					Object[] values = possibleMethods.values;
-					int exceptionLength = mostSpecificExceptions.length;
-					nextMethod : for (int p = 0, vLength = values.length; p < vLength; p++) {
-						MethodBinding possible = (MethodBinding) values[p];
-						if (possible == null) continue nextMethod;
-						ReferenceBinding[] itsExceptions = possible.thrownExceptions;
-						if (itsExceptions.length == exceptionLength) {
-							nextException : for (int e = 0; e < exceptionLength; e++) {
-								ReferenceBinding exception = itsExceptions[e];
-								for (int f = 0; f < exceptionLength; f++)
-									if (exception == mostSpecificExceptions[f]) continue nextException;
-								continue nextMethod;
-							}
-							return possible;
-						}
-					}
-					return new MethodBinding(
-						current.modifiers | ClassFileConstants.AccSynthetic,
-						current.selector,
-						current.returnType,
-						current.parameters,
-						mostSpecificExceptions,
-						current.declaringClass
-					);
+				if (mostSpecificExceptions != null && mostSpecificExceptions != current.thrownExceptions) {
+					return new MostSpecificExceptionMethodBinding(current, mostSpecificExceptions);
 				}
 				return current;
 			}
