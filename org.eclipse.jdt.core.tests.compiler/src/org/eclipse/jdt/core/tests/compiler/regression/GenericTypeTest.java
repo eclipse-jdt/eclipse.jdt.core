@@ -41832,5 +41832,94 @@ public void test1353() {
 			"Unreachable catch block for IOException. This exception is never thrown from the try statement body\n" + 
 			"----------\n");
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=237912
+public void test1354() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"interface Operation<In> extends CheckedOperation<In, RuntimeException> {\n" + 
+				"  void op(In o);\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface CheckedOperation<In, E extends Exception> {\n" + 
+				"  void op(In o) throws E;\n" + 
+				"}\n" + 
+				"\n" + 
+				"class ToUpper implements Operation<String> {\n" + 
+				"  public void op(String o) {\n" + 
+				"    System.out.print(\"[\"+o.toUpperCase()+\"]\");\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    new ToUpper().op(\"hello world 1\"); // Works\n" + 
+				"    Operation<String> t = new ToUpper();\n" + 
+				"    t.op(\"hello world 2\"); // Doesn\'t work: Exception in thread \"main\" java.lang.NoSuchMethodError: Operation.op(Ljava/lang/String;)V\n" + 
+				"  }\n" + 
+				"}\n", // =================
+			},
+			"[HELLO WORLD 1][HELLO WORLD 2]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=237912 - variation
+public void test1355() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"interface Operation<In> extends CheckedOperation<In, RuntimeException> {\n" + 
+				"  void op(In o) throws RuntimeException;\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface CheckedOperation<In, E extends Exception> {\n" + 
+				"  void op(In o) throws E;\n" + 
+				"}\n" + 
+				"\n" + 
+				"class ToUpper implements Operation<String> {\n" + 
+				"  public void op(String o) {\n" + 
+				"    System.out.print(\"[\"+o.toUpperCase()+\"]\");\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    new ToUpper().op(\"hello world 1\"); // Works\n" + 
+				"    Operation<String> t = new ToUpper();\n" + 
+				"    t.op(\"hello world 2\"); // Doesn\'t work: Exception in thread \"main\" java.lang.NoSuchMethodError: Operation.op(Ljava/lang/String;)V\n" + 
+				"  }\n" + 
+				"}\n", // =================
+			},
+			"[HELLO WORLD 1][HELLO WORLD 2]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=237912 - variation
+public void test1356() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"class Activator {\n" + 
+				"}\n" + 
+				"interface Child<T> extends Parent<T> {\n" + 
+				"	Activator get(T value);\n" + 
+				"}\n" + 
+				"interface Parent<T> {\n" + 
+				"	Activator get(T value) throws RuntimeException;\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	static class Impl<T> implements Child<T> {\n" + 
+				"		public Activator get(T value) {\n" + 
+				"			System.out.println(\"done\");\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Child<Boolean> c = new Impl<Boolean>();\n" + 
+				"		try {\n" + 
+				"			c.get(true);\n" + 
+				"		} catch (Throwable t) {			\n" + 
+				"			t.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"done");
+}
 }
