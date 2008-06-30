@@ -4560,7 +4560,7 @@ public void test153() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565
-public void _test154() {
+public void test154() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4592,7 +4592,7 @@ public void _test154() {
 		"000");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
-public void _test155() {
+public void test155() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4624,7 +4624,7 @@ public void _test155() {
 		"000");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
-public void _test156() {
+public void test156() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4643,7 +4643,7 @@ public void _test156() {
 		"HIdone");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
-public void _test157() {
+public void test157() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4663,7 +4663,7 @@ public void _test157() {
 		"HIdone");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
-public void _test158() {
+public void test158() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4721,5 +4721,130 @@ public void test159() {
 		"	       ^^^^\n" + 
 		"Type mismatch: cannot convert from null to int\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+public void test160() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"        T counter;\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"        	 bar(new X<Integer>());\n" + 
+			"        	 new Y().foo();\n" + 
+			"        	 new Y().baz();\n" + 
+			"        }\n" + 
+			"        static void bar(X<Integer> x) {\n" + 
+			"        	x.counter = 0;\n" + 
+			"            System.out.print(Integer.toString(++x.counter));\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Y extends X<Integer> {\n" + 
+			"	Y() {\n" + 
+			"		this.counter = 0;\n" + 
+			"	}\n" + 
+			"    void foo() {\n" + 
+			"        System.out.print(Integer.toString(++counter));\n" + 
+			"    }\n" + 
+			"    void baz() {\n" + 
+			"        System.out.println(Integer.toString(++this.counter));\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"111");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+public void test161() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"        T[] counter;\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"        	 bar(new X<Integer>());\n" + 
+			"        	 new Y().foo();\n" + 
+			"        	 new Y().baz();\n" + 
+			"        }\n" + 
+			"        static void bar(X<Integer> x) {\n" + 
+			"        	x.counter = new Integer[]{ 0 };\n" + 
+			"            System.out.print(Integer.toString(++x.counter[0]));\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Y extends X<Integer> {\n" + 
+			"	Y() {\n" + 
+			"		this.counter =  new Integer[]{ 0 };\n" + 
+			"	}\n" + 
+			"    void foo() {\n" + 
+			"        System.out.print(Integer.toString(++counter[0]));\n" + 
+			"    }\n" + 
+			"    void baz() {\n" + 
+			"        System.out.println(Integer.toString(++this.counter[0]));\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"111");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+public void test162() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static void print(Character c) {\n" + 
+			"		System.out.print((char) c);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		char c = \'H\';\n" + 
+			"		print(++c);\n" + 
+			"		print(++c);\n" + 
+			"		System.out.println(\"done\");\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"IJdone");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+public void test163() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	char c = \'H\';\n" + 
+			"	static void print(Character c) {\n" + 
+			"		System.out.print((char) c);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X x = new X();\n" + 
+			"		print(++x.c);\n" + 
+			"		print(++x.c);\n" + 
+			"		System.out.println(\"done\");\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"IJdone");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+public void test164() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static X singleton = new X();\n" + 
+			"	static X singleton() { return singleton; }\n" + 
+			"	char c = \'H\';\n" + 
+			"	\n" + 
+			"	static void print(Character c) {\n" + 
+			"		System.out.print((char) c);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		print(++singleton().c);\n" + 
+			"		print(++singleton().c);\n" + 
+			"		System.out.println(\"done\");\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"IJdone");
 }
 }
