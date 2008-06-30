@@ -606,23 +606,28 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 					codeStream.invokestatic(this.syntheticAccessors[SingleNameReference.READ]);
 				}
 			}
+			TypeBinding operandType;
+			if (this.genericCast != null) {
+				codeStream.checkcast(this.genericCast);
+				operandType = this.genericCast;
+			} else {
+				operandType = fieldBinding.type;
+			}
 			if (valueRequired) {
 				if (fieldBinding.isStatic()) {
-					if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
+					if ((operandType == TypeBinding.LONG) || (operandType == TypeBinding.DOUBLE)) {
 						codeStream.dup2();
 					} else {
 						codeStream.dup();
 					}
 				} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-					if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
+					if ((operandType == TypeBinding.LONG) || (operandType == TypeBinding.DOUBLE)) {
 						codeStream.dup2_x1();
 					} else {
 						codeStream.dup_x1();
 					}
 				}
 			}
-			if (this.genericCast != null) 
-				codeStream.checkcast(this.genericCast);
 			codeStream.generateImplicitConversion(this.implicitConversion);		
 			codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 			codeStream.sendOperator(postIncrement.operator, this.implicitConversion & TypeIds.COMPILE_TYPE_MASK);
@@ -655,7 +660,6 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 				codeStream.sendOperator(postIncrement.operator, this.implicitConversion & TypeIds.COMPILE_TYPE_MASK);
 				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-
 				codeStream.store(localBinding, false);
 			}
 	}

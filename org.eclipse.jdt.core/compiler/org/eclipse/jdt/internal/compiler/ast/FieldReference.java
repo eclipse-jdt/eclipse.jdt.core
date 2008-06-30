@@ -359,25 +359,30 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			codeStream.invokestatic(this.syntheticAccessors[FieldReference.READ]);
 		}
 	}
+	TypeBinding operandType;
+	if (this.genericCast != null) {
+		codeStream.checkcast(this.genericCast);
+		operandType = this.genericCast;
+	} else {
+		operandType = this.codegenBinding.type;
+	}	
 	if (valueRequired) {
 		if (isStatic) {
-			if ((this.codegenBinding.type == TypeBinding.LONG)
-				|| (this.codegenBinding.type == TypeBinding.DOUBLE)) {
+			if ((operandType == TypeBinding.LONG)
+				|| (operandType == TypeBinding.DOUBLE)) {
 				codeStream.dup2();
 			} else {
 				codeStream.dup();
 			}
 		} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-			if ((this.codegenBinding.type == TypeBinding.LONG)
-				|| (this.codegenBinding.type == TypeBinding.DOUBLE)) {
+			if ((operandType == TypeBinding.LONG)
+				|| (operandType == TypeBinding.DOUBLE)) {
 				codeStream.dup2_x1();
 			} else {
 				codeStream.dup_x1();
 			}
 		}
 	}
-	if (this.genericCast != null)
-		codeStream.checkcast(this.genericCast);
 	codeStream.generateImplicitConversion(this.implicitConversion);		
 	codeStream.generateConstant(
 		postIncrement.expression.constant,

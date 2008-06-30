@@ -520,27 +520,32 @@ public void generatePostIncrement(
 			codeStream.invokestatic(accessor);
 		}
 	}
+	TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
+	TypeBinding operandType;
+	if (requiredGenericCast != null) {
+		codeStream.checkcast(requiredGenericCast);
+		operandType = requiredGenericCast;
+	} else {
+		operandType = lastFieldBinding.type;
+	}		
 	// duplicate the old field value
 	if (valueRequired) {
 		if (lastFieldBinding.isStatic()) {
-			if ((lastFieldBinding.type == TypeBinding.LONG)
-				|| (lastFieldBinding.type == TypeBinding.DOUBLE)) {
+			if ((operandType == TypeBinding.LONG)
+				|| (operandType == TypeBinding.DOUBLE)) {
 				codeStream.dup2();
 			} else {
 				codeStream.dup();
 			}
 		} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-			if ((lastFieldBinding.type == TypeBinding.LONG)
-				|| (lastFieldBinding.type == TypeBinding.DOUBLE)) {
+			if ((operandType == TypeBinding.LONG)
+				|| (operandType == TypeBinding.DOUBLE)) {
 				codeStream.dup2_x1();
 			} else {
 				codeStream.dup_x1();
 			}
 		}
 	}
-	TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
-	if (requiredGenericCast != null) codeStream.checkcast(requiredGenericCast);
-	
 	codeStream.generateImplicitConversion(this.implicitConversion);		
 	codeStream.generateConstant(
 		postIncrement.expression.constant,
