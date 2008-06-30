@@ -2125,6 +2125,8 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 				} else if (requestor.hasErrors) {
 					if (!"".equals(requestor.problemLog)) {
 						logTestFiles(true, testFiles);
+						System.out.println("Copy-paste compiler log:");
+						System.out.println(Util.displayString(Util.convertToIndependantLineDelimiter(requestor.problemLog.toString()), INDENT, SHIFT));
 						assertEquals("Unexpected failure", "", requestor.problemLog);
 					}
 				}
