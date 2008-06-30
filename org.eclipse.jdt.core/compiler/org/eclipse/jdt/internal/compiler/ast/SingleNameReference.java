@@ -575,84 +575,88 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	}
 	
 	public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
-		switch (bits & RestrictiveFlagMASK) {
-			case Binding.FIELD : // assigning to a field
-				FieldBinding fieldBinding;
-				if ((fieldBinding = (FieldBinding) this.codegenBinding).isStatic()) {
-					if ((syntheticAccessors == null) || (syntheticAccessors[READ] == null)) {
-						codeStream.getstatic(fieldBinding);
-					} else {
-						codeStream.invokestatic(syntheticAccessors[READ]);
-					}
+	switch (this.bits & ASTNode.RestrictiveFlagMASK) {
+		case Binding.FIELD : // assigning to a field
+			FieldBinding fieldBinding;
+			if ((fieldBinding = (FieldBinding) this.codegenBinding).isStatic()) {
+				if ((this.syntheticAccessors == null) || (this.syntheticAccessors[SingleNameReference.READ] == null)) {
+					codeStream.getstatic(fieldBinding);
 				} else {
-					if ((bits & DepthMASK) != 0) {
-						ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
-						Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
-						codeStream.generateOuterAccess(emulationPath, this, targetType, currentScope);
+					codeStream.invokestatic(this.syntheticAccessors[SingleNameReference.READ]);
+				}
+			} else {
+				if ((this.bits & ASTNode.DepthMASK) != 0) {
+					ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT);
+					Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
+					codeStream.generateOuterAccess(emulationPath, this, targetType, currentScope);
+				} else {
+					codeStream.aload_0();
+				}
+				codeStream.dup();
+				if ((this.syntheticAccessors == null) || (this.syntheticAccessors[SingleNameReference.READ] == null)) {
+					codeStream.getfield(fieldBinding);
+				} else {
+					codeStream.invokestatic(this.syntheticAccessors[SingleNameReference.READ]);
+				}
+			}
+			TypeBinding operandType;
+			if (this.genericCast != null) {
+				codeStream.checkcast(this.genericCast);
+				operandType = this.genericCast;
+			} else {
+				operandType = fieldBinding.type;
+			}
+			if (valueRequired) {
+				if (fieldBinding.isStatic()) {
+					if ((operandType == TypeBinding.LONG) || (operandType == TypeBinding.DOUBLE)) {
+						codeStream.dup2();
 					} else {
-						codeStream.aload_0();
+						codeStream.dup();
 					}
-					codeStream.dup();
-					if ((syntheticAccessors == null) || (syntheticAccessors[READ] == null)) {
-						codeStream.getfield(fieldBinding);
+				} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
+					if ((operandType == TypeBinding.LONG) || (operandType == TypeBinding.DOUBLE)) {
+						codeStream.dup2_x1();
 					} else {
-						codeStream.invokestatic(syntheticAccessors[READ]);
+						codeStream.dup_x1();
 					}
 				}
+			}
+			codeStream.generateImplicitConversion(this.implicitConversion);		
+			codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
+			codeStream.sendOperator(postIncrement.operator, this.implicitConversion & TypeIds.COMPILE_TYPE_MASK);
+			codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
+			fieldStore(codeStream, fieldBinding, this.syntheticAccessors == null ? null : this.syntheticAccessors[SingleNameReference.WRITE], false);
+			// no need for generic cast 
+			return;
+		case Binding.LOCAL : // assigning to a local variable
+			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
+			// using incr bytecode if possible
+			if (localBinding.type == TypeBinding.INT) {
 				if (valueRequired) {
-					if (fieldBinding.isStatic()) {
-						if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
-							codeStream.dup2();
-						} else {
-							codeStream.dup();
-						}
-					} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-						if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
-							codeStream.dup2_x1();
-						} else {
-							codeStream.dup_x1();
-						}
-					}
-				}
-				if (this.genericCast != null) 
-					codeStream.checkcast(this.genericCast);
-				codeStream.generateImplicitConversion(this.implicitConversion);		
-				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
-				codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
-				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-				fieldStore(codeStream, fieldBinding, this.syntheticAccessors == null ? null : this.syntheticAccessors[WRITE], false);
-				// no need for generic cast 
-				return;
-			case Binding.LOCAL : // assigning to a local variable
-				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
-				// using incr bytecode if possible
-				if (localBinding.type == TypeBinding.INT) {
-					if (valueRequired) {
-						codeStream.load(localBinding);
-					}
-					if (postIncrement.operator == PLUS) {
-						codeStream.iinc(localBinding.resolvedPosition, 1);
-					} else {
-						codeStream.iinc(localBinding.resolvedPosition, -1);
-					}
-				} else {
 					codeStream.load(localBinding);
-					if (valueRequired){
-						if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
-							codeStream.dup2();
-						} else {
-							codeStream.dup();
-						}
-					}
-					codeStream.generateImplicitConversion(implicitConversion);
-					codeStream.generateConstant(postIncrement.expression.constant, implicitConversion);
-					codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
-					codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-	
-					codeStream.store(localBinding, false);
 				}
-		}
-	}	
+				if (postIncrement.operator == OperatorIds.PLUS) {
+					codeStream.iinc(localBinding.resolvedPosition, 1);
+				} else {
+					codeStream.iinc(localBinding.resolvedPosition, -1);
+				}
+			} else {
+				codeStream.load(localBinding);
+				if (valueRequired){
+					if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
+						codeStream.dup2();
+					} else {
+						codeStream.dup();
+					}
+				}
+				codeStream.generateImplicitConversion(this.implicitConversion);
+				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
+				codeStream.sendOperator(postIncrement.operator, this.implicitConversion & TypeIds.COMPILE_TYPE_MASK);
+				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
+				codeStream.store(localBinding, false);
+			}
+	}
+}	
 	
 	public void generateReceiver(CodeStream codeStream) {
 		codeStream.aload_0();
