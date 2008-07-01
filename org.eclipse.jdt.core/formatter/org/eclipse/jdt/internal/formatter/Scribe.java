@@ -2004,20 +2004,19 @@ public class Scribe implements IJavaDocTagConstants {
 
 		// Consume the comment prefix
 		this.scanner.resetTo(commentStart, commentEnd);
-		StringBuffer buffer = new StringBuffer();
 		this.scanner.getNextChar();
 		this.scanner.getNextChar();
 		this.column += 2;
-		int editStart = this.scanner.currentPosition;
-		StringBuffer tokensBuffer = new StringBuffer();
-		boolean bufferHasTokens = false;
 
 		// Scan the text token per token to compact it and size it the max line length
 		int maxColumn = this.formatter.preferences.comment_line_length + 1;
 		int previousToken = -1;
-		int previousPosition = commentStart;
-		boolean firstWord = true;
+		int lastTokenEndPosition = commentStart;
+		int spaceStartPosition = -1;
+		int spaceEndPosition = -1;
 		this.scanner.skipComments = true;
+		String newLineString = null;
+		this.commentIndentation = null;
 
 		// Consume text token per token
 		while (!this.scanner.atEnd()) {
@@ -2029,84 +2028,86 @@ public class Scribe implements IJavaDocTagConstants {
 			}
 			switch (token) {
 				case TerminalTokens.TokenNameWHITESPACE:
-					previousToken = token;
-					if (tokensBuffer.length() > 0) {
-						buffer.append(tokensBuffer);
-						this.column += tokensBuffer.length();
-						tokensBuffer.setLength(0);
-						bufferHasTokens = true;
+					if (previousToken == -1) {
+						// do not remember the first whitespace
+						previousToken = SKIP_FIRST_WHITESPACE_TOKEN;
+					} else {
+						previousToken = token;
 					}
+					// Remember space position
+					spaceStartPosition = this.scanner.getCurrentTokenStartPosition();
+					spaceEndPosition = this.scanner.getCurrentTokenEndPosition();
 					continue;
 				case TerminalTokens.TokenNameEOF:
 					continue;
 			}
 			int tokenStart = this.scanner.getCurrentTokenStartPosition();
     		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
-    		boolean insertSpace = previousToken == -1 || previousToken == TerminalTokens.TokenNameWHITESPACE;
-    		int lastColumn = this.column + tokensBuffer.length() + tokenLength;
-    		if (insertSpace) lastColumn++;
-			if (!firstWord && lastColumn > maxColumn) {
-				// not enough space on the line
-				this.line++;
-				if ((firstColumn+tokensBuffer.length()+tokenLength) > maxColumn) {
-					// there won't be enough room even if we break the line before the buffered tokens
-					// So add the buffered tokens now
-					buffer.append(tokensBuffer);
-					this.column += tokensBuffer.length();
-					tokensBuffer.setLength(0);
-					bufferHasTokens = true;
-				}
-				if (bufferHasTokens) {
-			    	buffer.append(this.lineSeparator);
-			    	this.column = 1;
-			    	printIndentationIfNecessary(buffer);
-	    			buffer.append(LINE_COMMENT_PREFIX);
-		    		this.column += LINE_COMMENT_PREFIX_LENGTH;
-				}
-		    	if (tokensBuffer.length() > 0) {
-		    		if (ScannerHelper.isWhitespace(tokensBuffer.charAt(0))) {
-						buffer.append(tokensBuffer.substring(1));
-						this.column += tokensBuffer.length() - 1;
-		    		} else {
-						buffer.append(tokensBuffer);
-						this.column += tokensBuffer.length();
-		    		}
-					tokensBuffer.setLength(0);
-					if (insertSpace)  {
-		    			buffer.append(' ');
-		    			this.column++;
-					}
-		    	}
-				buffer.append(this.scanner.source, tokenStart, tokenLength);
-				bufferHasTokens = true;
-				this.column += tokenLength;
-				firstColumn = this.indentationLevel + LINE_COMMENT_PREFIX_LENGTH;
-			} else {
-				// append token to the line
-				if (insertSpace)  {
-	    			tokensBuffer.append(' ');
-				}
-				tokensBuffer.append(this.scanner.source, tokenStart, tokenLength);
+
+			// insert space at the beginning if not present
+			if (previousToken == -1 ) {
+    			addInsertEdit(this.scanner.startPosition, " "); //$NON-NLS-1$
+				this.column++;
 			}
+			// replace space at the beginning if present
+			else if (previousToken == SKIP_FIRST_WHITESPACE_TOKEN) {
+				addReplaceEdit(spaceStartPosition, this.scanner.startPosition-1, " "); //$NON-NLS-1$
+				this.column++;
+				spaceStartPosition = -1; // do not use this position to split the comment
+			} else {
+				// not on the first token
+				boolean insertSpace = previousToken == TerminalTokens.TokenNameWHITESPACE;
+				if (insertSpace) {
+					// count inserted space if any in token length
+					tokenLength++;
+				}
+				// insert new line if max line width is reached and a space was previously encountered
+				if (spaceStartPosition > 0 && (this.column+tokenLength) > maxColumn) {
+					this.lastNumberOfNewLines++;
+					this.line++;
+					if (newLineString == null) {
+						StringBuffer newLineBuffer = new StringBuffer(this.lineSeparator);
+						this.column = 1;
+						printIndentationIfNecessary(newLineBuffer);
+					    newLineBuffer.append(LINE_COMMENT_PREFIX);
+						this.column += LINE_COMMENT_PREFIX_LENGTH;
+						newLineString = newLineBuffer.toString();
+				    	firstColumn = this.column;
+					} else {
+						this.column = firstColumn;
+					}
+					if (lastTokenEndPosition > spaceEndPosition) {
+						this.column += lastTokenEndPosition - (spaceEndPosition + 1); // add all previous tokens lengths since last space
+					}
+					if (this.edits[this.editsIndex-1].offset == spaceStartPosition) {
+						// previous space was already edited, so remove it
+						this.editsIndex--;
+					}
+					addReplaceEdit(spaceStartPosition, spaceEndPosition, newLineString);
+					spaceStartPosition = -1;
+					if (insertSpace) {
+						tokenLength--; // reduce token length as the space will be replaced by the new line
+					}
+				}
+				// replace space if needed
+				else if (insertSpace) {
+					addReplaceEdit(spaceStartPosition, this.scanner.startPosition-1, " "); //$NON-NLS-1$
+				}
+			}
+			// update column position and store info of the current token
+			this.column += tokenLength;
 			previousToken = token;
-			previousPosition = this.scanner.currentPosition;
-			firstWord = false;
+			lastTokenEndPosition = this.scanner.currentPosition;
 		}
 		this.scanner.skipComments = false;
 
-		// Add remaining buffered tokens
-		if (tokensBuffer.length() > 0) {
-			buffer.append(tokensBuffer);
-			this.column += tokensBuffer.length();
-		}
-
-		// Append separator if the comment is not at the end of file
+		// Skip separator if the comment is not at the end of file
 		this.indentationLevel = indentLevel;
 		this.numberOfIndentations = indentations;
 		this.lastNumberOfNewLines = 0;
-		this.scanner.resetTo(previousPosition, commentEnd);
+		this.scanner.resetTo(lastTokenEndPosition, commentEnd);
 		while (!this.scanner.atEnd()) {
-			previousPosition = this.scanner.currentPosition;
+			spaceEndPosition = this.scanner.currentPosition;
 			this.scanner.getNextChar();
 			if (this.scanner.currentCharacter == '\n' || this.scanner.currentCharacter == '\r') {
 				// line comment is normally ended with new line
@@ -2116,10 +2117,10 @@ public class Scribe implements IJavaDocTagConstants {
 				break;
 			}
 		}
-
-		// Replace the existing comment with new one
-		if (buffer.length() > 0) {
-			addReplaceEdit(editStart, previousPosition - 1, buffer.toString());
+		
+		// Delete leading whitespaces if any
+		if (previousToken != -1 && lastTokenEndPosition != commentStart && spaceEndPosition > lastTokenEndPosition) {
+			addDeleteEdit(lastTokenEndPosition, spaceEndPosition-1);
 		}
 	}
 
@@ -2507,7 +2508,6 @@ public class Scribe implements IJavaDocTagConstants {
 		int previousToken = -1;
 		int spacePosition = -1;
 		String newLineString = null;
-		StringBuffer newLineBuffer = null;
 		int firstColumn = -1;
 		while (!this.scanner.atEnd()) {
 			int token;
@@ -2538,7 +2538,7 @@ public class Scribe implements IJavaDocTagConstants {
 							this.lastNumberOfNewLines++;
 							this.line++;
 							if (newLineString == null) {
-								newLineBuffer = new StringBuffer(this.lineSeparator);
+								StringBuffer newLineBuffer = new StringBuffer(this.lineSeparator);
 						    	this.column = 1;
 						    	printIndentationIfNecessary(newLineBuffer);
 					    		newLineBuffer.append(BLOCK_LINE_PREFIX);
