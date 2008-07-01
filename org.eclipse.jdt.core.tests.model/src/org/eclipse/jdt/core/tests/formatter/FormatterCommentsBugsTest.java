@@ -72,7 +72,7 @@ public void _testBug228652() {
 			"	}\r\n" +
 			"}";
 
-	formatSource(input, expected, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, false, 62, 19, null);
+	formatSource(input, expected, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, false, 62, 19, null, false);
 }
 
 /**
@@ -1157,7 +1157,8 @@ public void testBug234336() throws JavaModelException {
 		"	 */\n" +
 		"}\n",
 		CodeFormatter.K_JAVA_DOC,
-		1 /* indentation level */
+		1, /* indentation level */
+		true /* formatting twice */
 	);
 }
 
@@ -1568,52 +1569,110 @@ public void testBug238210() throws JavaModelException {
 		"}\n"
 	);
 }
-public void _testBug238210_block() throws JavaModelException {
+// possible side effects detected while running massive tests
+public void testBug238210_X01() throws JavaModelException {
 	String source = 
-		"public class BlockCommentTestCase {\n" + 
+		"package eclipse30;\n" + 
 		"\n" + 
-		"    public void someGeneratedMethod() {\n" + 
-		"        /*\n" + 
-		"         * protected-region-start_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
-		"         * some manually written code\n" + 
-		"         * protected-region-end_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
-		"         */\n" + 
-		"    }\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		\n" + 
+		"		binding = new LocalVariableBinding(this, tb, modifiers, false); // argument decl, but local var  (where isArgument = false)\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	public class LocalVariableBinding {\n" + 
+		"\n" + 
+		"		public LocalVariableBinding(X01 x01, Object tb, Object modifiers,\n" + 
+		"				boolean b) {\n" + 
+		"		}\n" + 
+		"\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	Object modifiers;\n" + 
+		"	Object tb;\n" + 
+		"	LocalVariableBinding binding;\n" + 
 		"}\n";
 	formatSource(source,
-		"public class BlockCommentTestCase {\n" + 
+		"package eclipse30;\n" + 
 		"\n" + 
-		"	public void someGeneratedMethod() {\n" + 
-		"		/*\n" + 
-		"		 * protected-region-start_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
-		"		 * some manually written code\n" + 
-		"		 * protected-region-end_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
-		"		 */\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"\n" + 
+		"		binding = new LocalVariableBinding(this, tb, modifiers, false); // argument\n" + 
+		"																		// decl,\n" + 
+		"																		// but\n" + 
+		"																		// local\n" + 
+		"																		// var\n" + 
+		"																		// (where\n" + 
+		"																		// isArgument\n" + 
+		"																		// =\n" + 
+		"																		// false)\n" + 
 		"	}\n" + 
+		"\n" + 
+		"	public class LocalVariableBinding {\n" + 
+		"\n" + 
+		"		public LocalVariableBinding(X01 x01, Object tb, Object modifiers,\n" + 
+		"				boolean b) {\n" + 
+		"		}\n" + 
+		"\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	Object modifiers;\n" + 
+		"	Object tb;\n" + 
+		"	LocalVariableBinding binding;\n" + 
+		"}\n",
+		false /*do not formatting twice*/
+	);
+}
+public void testBug238210_X02() throws JavaModelException {
+	String source = 
+		"package eclipse30;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"	//private static short[] randomArray = {213, 231, 37, 85, 211, 29, 161, 175, 187, 3, 147, 246, 170, 30, 202, 183, 242, 47, 254, 189, 25, 248, 193, 2};\n" + 
+		"}\n";
+	formatSource(source,
+		"package eclipse30;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"	// private static short[] randomArray = {213, 231, 37, 85, 211, 29, 161,\n" + 
+		"	// 175, 187, 3, 147, 246, 170, 30, 202, 183, 242, 47, 254, 189, 25, 248,\n" + 
+		"	// 193, 2};\n" + 
 		"}\n"
 	);
 }
-public void _testBug238210_javadoc() throws JavaModelException {
+// Output will need to be changed while fixing
+// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=239130
+public void testBug238210_X03() throws JavaModelException {
 	String source = 
-		"public class JavadocCommentTestCase {\n" + 
+		"package eclipse30;\n" + 
 		"\n" + 
-		"    public void someGeneratedMethod() {\n" + 
-		"        /**\n" + 
-		"         * protected-region-start_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
-		"         * some manually written code\n" + 
-		"         * protected-region-end_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
-		"         */\n" + 
-		"    }\n" + 
+		"public class X03 {\n" + 
+		"\n" + 
+		"	\n" + 
+		"	/**\n" + 
+		"	 * @see org.eclipse.jdt.internal.debug.core.breakpoints.JavaBreakpoint#handleBreakpointEvent(com.sun.jdi.event.Event, org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget, org.eclipse.jdt.internal.debug.core.model.JDIThread)\n" + 
+		"	 * \n" + 
+		"	 * (From referenced JavaDoc:\n" + 
+		"	 * 	Returns whethers the thread should be resumed\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
 		"}\n";
 	formatSource(source,
-		"public class JavadocCommentTestCase {\n" + 
+		"package eclipse30;\n" + 
 		"\n" + 
-		"	public void someGeneratedMethod() {\n" + 
-		"		/**\n" + 
-		"		 * protected-region-start_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
-		"		 * some manually written code\n" + 
-		"		 * protected-region-end_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
-		"		 */\n" + 
+		"public class X03 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @see org.eclipse.jdt.internal.debug.core.breakpoints.JavaBreakpoint#handleBreakpointEvent(com.sun.jdi.event.Event,\n" + 
+		"	 *      org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget,\n" + 
+		"	 *      org.eclipse.jdt.internal.debug.core.model.JDIThread) (From\n" + 
+		"	 *      referenced JavaDoc: Returns whethers the thread should be resumed\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
 		"	}\n" + 
 		"}\n"
 	);

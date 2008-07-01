@@ -397,7 +397,7 @@ void compareFormattedSource() throws IOException, Exception {
 	String source = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.file, null));
 	try {
 		// Format the source
-		String actualResult = runFormatter(codeFormatter(), source, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, 0, source.length(), null);
+		String actualResult = runFormatter(codeFormatter(), source, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, 0, source.length(), null, true);
 
 		// Look for output to compare with
 		File outputFile = new Path(OUTPUT_DIR.getPath()).append(this.path).toFile();
@@ -549,7 +549,7 @@ private boolean runFormatterWithoutComments(CodeFormatter codeFormatter, String 
 }
 */
 
-String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
+String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator, boolean repeat) {
 	TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
 	try {
 		assertNotNull("Formatted source should not be null!", edit);

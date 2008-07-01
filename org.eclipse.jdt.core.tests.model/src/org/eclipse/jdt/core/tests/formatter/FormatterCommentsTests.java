@@ -111,10 +111,14 @@ void assertLineEquals(String actualContents, String originalSource, String expec
 }
 
 void formatSource(String source, String formattedOutput) {
-	formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0);
+	formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, true /*repeat formatting twice*/);
 }
 
-void formatSource(String source, String formattedOutput, int kind, int indentationLevel) {
+void formatSource(String source, String formattedOutput, boolean repeat) {
+	formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, repeat);
+}
+
+void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean repeat) {
 	int regionStart = source.indexOf("[#");
 	if (regionStart != -1) {
 		IRegion[] regions =  new Region[10];
@@ -136,24 +140,24 @@ void formatSource(String source, String formattedOutput, int kind, int indentati
 		String result;
 		if (idx == 1) {
 			// Use offset and length until bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=233967 is fixed
-			result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions[0].getOffset(), regions[0].getLength(), Util.LINE_SEPARATOR);
+			result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions[0].getOffset(), regions[0].getLength(), Util.LINE_SEPARATOR, repeat);
 		} else {
 			System.arraycopy(regions, 0, regions = new Region[idx], 0, idx);
 			result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions, Util.LINE_SEPARATOR);
 		}
 		assertLineEquals(result, newSource, formattedOutput, false);
 	} else {
-		formatSource(source, formattedOutput, kind, indentationLevel, false, 0, -1, null);
+		formatSource(source, formattedOutput, kind, indentationLevel, false, 0, -1, null, repeat);
 	}
 }
 
-void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
+void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator, boolean repeat) {
 	DefaultCodeFormatter codeFormatter = codeFormatter();
 	String result;
 	if (length == -1) {
-		result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), lineSeparator);
+		result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), lineSeparator, repeat);
 	} else {
-		result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, lineSeparator);
+		result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, lineSeparator, repeat);
 	}
 	assertLineEquals(result, source, formattedOutput, checkNull);
 }
@@ -162,7 +166,7 @@ void compareFormattedSource(ICompilationUnit compilationUnit) throws JavaModelEx
 	DefaultCodeFormatter codeFormatter = codeFormatter();
 	String source = compilationUnit.getSource();
 	String expectedResult = expectedFormattedSource(source);
-	String actualResult = runFormatter(codeFormatter, source, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, 0, source.length(), null);
+	String actualResult = runFormatter(codeFormatter, source, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, 0, source.length(), null, true);
 	assumeSourceEquals(compilationUnit.getPath()+" is not formatted the same way than before!",
 		org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(expectedResult),
 		org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actualResult));
@@ -205,7 +209,7 @@ private String expectedFormattedSource(String source) {
 		int commentStart = positions[0] > 0 ? positions [0] : -positions[0];
 		int commentEnd = positions[1] > 0 ? positions [1] : -positions[1];
 		int indentationLevel = getIndentationLevel(scanner, commentStart);
-		formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), CodeFormatter.K_JAVA_DOC, indentationLevel, 0, commentEnd - commentStart, Util.LINE_SEPARATOR);
+		formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), CodeFormatter.K_JAVA_DOC, indentationLevel, 0, commentEnd - commentStart, Util.LINE_SEPARATOR, true);
 	}
 	SimpleDocument document = new SimpleDocument(source);
 	for (int i=length-1; i>=0; i--) {
@@ -215,7 +219,7 @@ private String expectedFormattedSource(String source) {
 		document.replace(commentStart, commentEnd - commentStart, formattedComments[i]);
 	}
 	String newSource = document.get();
-	String oldResult = runFormatter(codeFormatter, newSource, CodeFormatter.K_COMPILATION_UNIT, 0, 0, newSource.length(), null);
+	String oldResult = runFormatter(codeFormatter, newSource, CodeFormatter.K_COMPILATION_UNIT, 0, 0, newSource.length(), null, true);
 	return oldResult;
 }
 
@@ -328,7 +332,7 @@ void formatUnit(String packageName, String unitName, int kind, int indentationLe
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getCompilationUnit(JAVA_PROJECT.getElementName() , "", "test."+packageName, unitName); //$NON-NLS-1$ //$NON-NLS-2$
 	String outputSource = getOutputSource(this.workingCopies[0]);
-	formatSource(this.workingCopies[0].getSource(), outputSource, kind, indentationLevel, checkNull, offset, length, lineSeparator);
+	formatSource(this.workingCopies[0].getSource(), outputSource, kind, indentationLevel, checkNull, offset, length, lineSeparator, true);
 }
 
 /**

@@ -117,7 +117,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	*/
 
-	String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
+	String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator, boolean repeat) {
 //		long time = System.currentTimeMillis();
 		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
 //		System.out.println((System.currentTimeMillis() - time) + " ms");
@@ -125,7 +125,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 //		System.out.println(edit.getChildrenSize() + " edits");
 		String result = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 
-		if (length == source.length()) {
+		if (repeat && length == source.length()) {
 //			time = System.currentTimeMillis();
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
 //			System.out.println((System.currentTimeMillis() - time) + " ms");
@@ -239,9 +239,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void runTest(String input, String output, CodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
 		String result;
 		if (length == -1) {
-			result = runFormatter(codeFormatter, input, kind, indentationLevel, offset, input.length(), lineSeparator);
+			result = runFormatter(codeFormatter, input, kind, indentationLevel, offset, input.length(), lineSeparator, true);
 		} else {
-			result = runFormatter(codeFormatter, input, kind, indentationLevel, offset, length, lineSeparator);
+			result = runFormatter(codeFormatter, input, kind, indentationLevel, offset, length, lineSeparator, true);
 		}
 		assertLineEquals(result, input, output, checkNull);
 	}
@@ -249,9 +249,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void runTest(String source, String expectedResult, CodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
 		String result;
 		if (length == -1) {
-			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), null);
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), null, true);
 		} else {
-			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, null);
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, null, true);
 		}
 		assertLineEquals(result, source, expectedResult, checkNull);
 	}
@@ -259,17 +259,17 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void runTest(CodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", packageName, getIn(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
-			String s = sourceUnit.getSource();
-			assertNotNull(s);
+			String source = sourceUnit.getSource();
+			assertNotNull(source);
 			ICompilationUnit outputUnit = getCompilationUnit("Formatter" , "", packageName, getOut(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
 			assertNotNull(outputUnit);
 			String result;
 			if (length == -1) {
-				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, s.length(), lineSeparator);
+				result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), lineSeparator, true);
 			} else {
-				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, length, lineSeparator);
+				result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, lineSeparator, true);
 			}
-			assertLineEquals(result, s, outputUnit.getSource(), checkNull);
+			assertLineEquals(result, source, outputUnit.getSource(), checkNull);
 		} catch (JavaModelException e) {
 			e.printStackTrace();
 			assertTrue(false);
