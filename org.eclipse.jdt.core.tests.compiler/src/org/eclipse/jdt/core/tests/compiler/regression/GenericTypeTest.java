@@ -45745,4 +45745,20 @@ public void test1361() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239118 - variation
+public void test1362() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"    public static <T> T getValue(T t1, T t2) {\n" + 
+				"        return t1;\n" + 
+				"    }\n" + 
+				"    public void testGenerics() {\n" + 
+				"        getValue(0, this);\n" + 
+				"    }\n" + 
+				"}\n", // =================
+			},
+			"");
+}
 }
