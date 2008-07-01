@@ -4570,126 +4570,126 @@ public void test153() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565
-public void _test154() {
+public void test154() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"        T counter;\n" +
-			"        public static void main(String[] args) {\n" +
-			"        	 bar(new X<Integer>());\n" +
-			"        	 new Y().foo();\n" +
-			"        	 new Y().baz();\n" +
-			"        }\n" +
-			"        static void bar(X<Integer> x) {\n" +
-			"        	x.counter = 0;\n" +
-			"            System.out.print(Integer.toString(x.counter++));\n" +
-			"        }\n" +
-			"}\n" +
-			"\n" +
-			"class Y extends X<Integer> {\n" +
-			"	Y() {\n" +
-			"		this.counter = 0;\n" +
-			"	}\n" +
-			"    void foo() {\n" +
-			"        System.out.print(Integer.toString(counter++));\n" +
-			"    }\n" +
-			"    void baz() {\n" +
-			"        System.out.println(Integer.toString(this.counter++));\n" +
-			"    }\n" +
+			"public class X<T> {\n" + 
+			"        T counter;\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"        	 bar(new X<Integer>());\n" + 
+			"        	 new Y().foo();\n" + 
+			"        	 new Y().baz();\n" + 
+			"        }\n" + 
+			"        static void bar(X<Integer> x) {\n" + 
+			"        	x.counter = 0;\n" + 
+			"            System.out.print(Integer.toString(x.counter++));\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Y extends X<Integer> {\n" + 
+			"	Y() {\n" + 
+			"		this.counter = 0;\n" + 
+			"	}\n" + 
+			"    void foo() {\n" + 
+			"        System.out.print(Integer.toString(counter++));\n" + 
+			"    }\n" + 
+			"    void baz() {\n" + 
+			"        System.out.println(Integer.toString(this.counter++));\n" + 
+			"    }\n" + 
 			"}\n",
 		},
 		"000");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
-public void _test155() {
+public void test155() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"        T[] counter;\n" +
-			"        public static void main(String[] args) {\n" +
-			"        	 bar(new X<Integer>());\n" +
-			"        	 new Y().foo();\n" +
-			"        	 new Y().baz();\n" +
-			"        }\n" +
-			"        static void bar(X<Integer> x) {\n" +
-			"        	x.counter = new Integer[]{ 0 };\n" +
-			"            System.out.print(Integer.toString(x.counter[0]++));\n" +
-			"        }\n" +
-			"}\n" +
-			"\n" +
-			"class Y extends X<Integer> {\n" +
-			"	Y() {\n" +
-			"		this.counter =  new Integer[]{ 0 };\n" +
-			"	}\n" +
-			"    void foo() {\n" +
-			"        System.out.print(Integer.toString(counter[0]++));\n" +
-			"    }\n" +
-			"    void baz() {\n" +
-			"        System.out.println(Integer.toString(this.counter[0]++));\n" +
-			"    }\n" +
+			"public class X<T> {\n" + 
+			"        T[] counter;\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"        	 bar(new X<Integer>());\n" + 
+			"        	 new Y().foo();\n" + 
+			"        	 new Y().baz();\n" + 
+			"        }\n" + 
+			"        static void bar(X<Integer> x) {\n" + 
+			"        	x.counter = new Integer[]{ 0 };\n" + 
+			"            System.out.print(Integer.toString(x.counter[0]++));\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Y extends X<Integer> {\n" + 
+			"	Y() {\n" + 
+			"		this.counter =  new Integer[]{ 0 };\n" + 
+			"	}\n" + 
+			"    void foo() {\n" + 
+			"        System.out.print(Integer.toString(counter[0]++));\n" + 
+			"    }\n" + 
+			"    void baz() {\n" + 
+			"        System.out.println(Integer.toString(this.counter[0]++));\n" + 
+			"    }\n" + 
 			"}\n",
 		},
 		"000");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
-public void _test156() {
+public void test156() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static void print(Character c) {\n" +
-			"		System.out.print((char) c);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		char c = \'H\';\n" +
-			"		print(c++);\n" +
-			"		print(c++);\n" +
-			"		System.out.println(\"done\");\n" +
-			"    }\n" +
+			"public class X {\n" + 
+			"	static void print(Character c) {\n" + 
+			"		System.out.print((char) c);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		char c = \'H\';\n" + 
+			"		print(c++);\n" + 
+			"		print(c++);\n" + 
+			"		System.out.println(\"done\");\n" + 
+			"    }\n" + 
 			"}\n",
 		},
 		"HIdone");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
-public void _test157() {
+public void test157() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	char c = \'H\';\n" +
-			"	static void print(Character c) {\n" +
-			"		System.out.print((char) c);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X();\n" +
-			"		print(x.c++);\n" +
-			"		print(x.c++);\n" +
-			"		System.out.println(\"done\");\n" +
-			"    }\n" +
+			"public class X {\n" + 
+			"	char c = \'H\';\n" + 
+			"	static void print(Character c) {\n" + 
+			"		System.out.print((char) c);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X x = new X();\n" + 
+			"		print(x.c++);\n" + 
+			"		print(x.c++);\n" + 
+			"		System.out.println(\"done\");\n" + 
+			"    }\n" + 
 			"}\n",
 		},
 		"HIdone");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
-public void _test158() {
+public void test158() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static X singleton = new X();\n" +
-			"	static X singleton() { return singleton; }\n" +
-			"	char c = \'H\';\n" +
-			"	\n" +
-			"	static void print(Character c) {\n" +
-			"		System.out.print((char) c);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		print(singleton().c++);\n" +
-			"		print(singleton().c++);\n" +
-			"		System.out.println(\"done\");\n" +
-			"    }\n" +
+			"public class X {\n" + 
+			"	static X singleton = new X();\n" + 
+			"	static X singleton() { return singleton; }\n" + 
+			"	char c = \'H\';\n" + 
+			"	\n" + 
+			"	static void print(Character c) {\n" + 
+			"		System.out.print((char) c);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		print(singleton().c++);\n" + 
+			"		print(singleton().c++);\n" + 
+			"		System.out.println(\"done\");\n" + 
+			"    }\n" + 
 			"}\n",
 		},
 		"HIdone");
@@ -4699,37 +4699,162 @@ public void test159() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"public class X {\n" +
-			"    ArrayList params;\n" +
-			"    public int getSqlParamCount() {\n" +
-			"        return params == null ? null:params.size();\n" +
-			"    }\n" +
-			"    public int getSqlParamCount2() {\n" +
-			"        return null;\n" +
-			"    }\n" +
+			"import java.util.ArrayList;\n" + 
+			"public class X {\n" + 
+			"    ArrayList params;\n" + 
+			"    public int getSqlParamCount() {\n" + 
+			"        return params == null ? null:params.size();\n" + 
+			"    }\n" + 
+			"    public int getSqlParamCount2() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
 			"}\n",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	ArrayList params;\n" +
-		"	^^^^^^^^^\n" +
-		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	return params == null ? null:params.size();\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The expression of type Integer is unboxed into int\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
-		"	return params == null ? null:params.size();\n" +
-		"	                             ^^^^^^^^^^^^^\n" +
-		"The expression of type int is boxed into Integer\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 8)\n" +
-		"	return null;\n" +
-		"	       ^^^^\n" +
-		"Type mismatch: cannot convert from null to int\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	ArrayList params;\n" + 
+		"	^^^^^^^^^\n" + 
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	return params == null ? null:params.size();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The expression of type Integer is unboxed into int\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	return params == null ? null:params.size();\n" + 
+		"	                             ^^^^^^^^^^^^^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	return null;\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: cannot convert from null to int\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+public void test160() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"        T counter;\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"        	 bar(new X<Integer>());\n" + 
+			"        	 new Y().foo();\n" + 
+			"        	 new Y().baz();\n" + 
+			"        }\n" + 
+			"        static void bar(X<Integer> x) {\n" + 
+			"        	x.counter = 0;\n" + 
+			"            System.out.print(Integer.toString(++x.counter));\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Y extends X<Integer> {\n" + 
+			"	Y() {\n" + 
+			"		this.counter = 0;\n" + 
+			"	}\n" + 
+			"    void foo() {\n" + 
+			"        System.out.print(Integer.toString(++counter));\n" + 
+			"    }\n" + 
+			"    void baz() {\n" + 
+			"        System.out.println(Integer.toString(++this.counter));\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"111");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+public void test161() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"        T[] counter;\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"        	 bar(new X<Integer>());\n" + 
+			"        	 new Y().foo();\n" + 
+			"        	 new Y().baz();\n" + 
+			"        }\n" + 
+			"        static void bar(X<Integer> x) {\n" + 
+			"        	x.counter = new Integer[]{ 0 };\n" + 
+			"            System.out.print(Integer.toString(++x.counter[0]));\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Y extends X<Integer> {\n" + 
+			"	Y() {\n" + 
+			"		this.counter =  new Integer[]{ 0 };\n" + 
+			"	}\n" + 
+			"    void foo() {\n" + 
+			"        System.out.print(Integer.toString(++counter[0]));\n" + 
+			"    }\n" + 
+			"    void baz() {\n" + 
+			"        System.out.println(Integer.toString(++this.counter[0]));\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"111");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+public void test162() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static void print(Character c) {\n" + 
+			"		System.out.print((char) c);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		char c = \'H\';\n" + 
+			"		print(++c);\n" + 
+			"		print(++c);\n" + 
+			"		System.out.println(\"done\");\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"IJdone");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+public void test163() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	char c = \'H\';\n" + 
+			"	static void print(Character c) {\n" + 
+			"		System.out.print((char) c);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X x = new X();\n" + 
+			"		print(++x.c);\n" + 
+			"		print(++x.c);\n" + 
+			"		System.out.println(\"done\");\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"IJdone");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+public void test164() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static X singleton = new X();\n" + 
+			"	static X singleton() { return singleton; }\n" + 
+			"	char c = \'H\';\n" + 
+			"	\n" + 
+			"	static void print(Character c) {\n" + 
+			"		System.out.print((char) c);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		print(++singleton().c);\n" + 
+			"		print(++singleton().c);\n" + 
+			"		System.out.println(\"done\");\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"IJdone");
 }
 }
