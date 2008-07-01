@@ -45713,4 +45713,36 @@ public void test1359() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239118
+public void test1360() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"    public static <T> T getValue(final Object bean, final String property) {\n" + 
+				"        return (T)new Object();\n" + 
+				"    }\n" + 
+				"    public void testGenerics() {\n" + 
+				"        int value = getValue(new Object(), \"\");\n" + 
+				"    }\n" + 
+				"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239118 - variation
+public void test1361() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"    public static <T> T getValue(T t) {\n" + 
+				"        return t;\n" + 
+				"    }\n" + 
+				"    public void testGenerics() {\n" + 
+				"        int value = getValue(0);\n" + 
+				"    }\n" + 
+				"}\n", // =================
+			},
+			"");
+}
 }
