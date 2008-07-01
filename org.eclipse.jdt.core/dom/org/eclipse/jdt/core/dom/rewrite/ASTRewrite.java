@@ -429,6 +429,7 @@ public class ASTRewrite {
 		}
 		validateIsCorrectAST(node);
 		validatePropertyType(property, value);
+		validateIsPropertyOfNode(property, node);
 
 		NodeRewriteEvent nodeEvent= this.eventStore.getNodeEvent(node, property, true);
 		nodeEvent.setNewValue(value);
@@ -476,7 +477,10 @@ public class ASTRewrite {
 		if (node == null || property == null) {
 			throw new IllegalArgumentException();
 		}
+		
+		validateIsCorrectAST(node);
 		validateIsListProperty(property);
+		validateIsPropertyOfNode(property, node);
 
 		return new ListRewrite(this, node, property);
 	}
@@ -524,23 +528,19 @@ public class ASTRewrite {
 			throw new IllegalArgumentException(message);
 		}
 	}
+	
+	private void validateIsPropertyOfNode(StructuralPropertyDescriptor property, ASTNode node) {
+		if (!property.getNodeClass().isInstance(node)) {
+			String message= property.getId() + " is not a property of type " + node.getClass().getName(); //$NON-NLS-1$
+			throw new IllegalArgumentException(message);
+		}
+	}
 
 	private void validatePropertyType(StructuralPropertyDescriptor prop, Object node) {
 		if (prop.isChildListProperty()) {
 			String message= "Can not modify a list property, use a list rewriter"; //$NON-NLS-1$
 			throw new IllegalArgumentException(message);
 		}
-//		if (node == null) {
-//			if (prop.isSimpleProperty() || (prop.isChildProperty() && ((ChildPropertyDescriptor) prop).isMandatory())) {
-//				String message= "Can not remove property " + prop.getId();
-//				throw new IllegalArgumentException(message);
-//			}
-//		} else {
-//			if (!prop.getNodeClass().isInstance(node)) {
-//				String message= node.getClass().getName() +  " is not a valid type for property " + prop.getId();
-//				throw new IllegalArgumentException(message);
-//			}
-//		}
 	}
 
 	/**
