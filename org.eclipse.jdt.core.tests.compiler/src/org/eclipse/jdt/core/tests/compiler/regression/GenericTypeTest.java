@@ -45761,4 +45761,26 @@ public void test1362() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239118 - variation
+public void test1363() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"    public static <T> T getValue(T t1, T t2) {\n" + 
+				"        return t1;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public void testGenerics(Comparable<String> s) {\n" + 
+				"        int i = getValue(0, s);\n" + 
+				"    }\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	int i = getValue(0, s);\n" + 
+			"	        ^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Comparable<capture#1-of ? extends Object&Comparable<?>&Serializable> to int\n" + 
+			"----------\n");
+}
 }
