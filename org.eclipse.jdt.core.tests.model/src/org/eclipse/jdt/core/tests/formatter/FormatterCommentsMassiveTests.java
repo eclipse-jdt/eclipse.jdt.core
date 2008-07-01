@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.ComparisonFailure;
@@ -135,17 +136,30 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 	private DefaultCodeFormatterOptions preferences;
 	private final static File INPUT_DIR = new File(System.getProperty("inputDir"));
 	private final static File OUTPUT_DIR;
+	private final static File WRITE_DIR;
 	private final static boolean COMPARE;
 	static {
 		String dir = System.getProperty("outputDir"); //$NON-NLS-1$
-		File outputDir = null;
+		File outputDir = null, writeDir = null;
 		boolean compare = true;
 		if (dir != null) {
-			outputDir = new File(dir);
-			if (!outputDir.exists()) {
+			StringTokenizer tokenizer = new StringTokenizer(dir, ",");
+			outputDir = new File(tokenizer.nextToken());
+			while (tokenizer.hasMoreTokens()) {
+				String arg = tokenizer.nextToken();
+				if (arg.equals("clean") && outputDir.exists()) {
+					System.out.print("Removing all output files located in "+outputDir+"...");
+					Util.delete(outputDir);
+					System.out.println("done");
+				}
+			}
+			if (outputDir.exists()) {
+				System.out.println("Comparison done with output files located in "+outputDir);
+			} else {
+				writeDir = outputDir;
 				compare = false;
-				System.err.println("WARNING: The output directory "+dir+" does not exist...");
-				System.err.println("=> NO comparison will be done! The formatted files will be written there instead.");
+				System.err.println("WARNING: The output directory "+outputDir+" does not exist...");
+				System.err.println("=> So, NO comparison could be done! The formatted files will be written there instead.");
 				try {
 	                Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -153,7 +167,19 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
                 }
 			}
 		}
+		if (writeDir == null) {
+			String wdir = System.getProperty("writeDir"); //$NON-NLS-1$
+			if (wdir != null) {
+				writeDir = new File(wdir);
+				if (writeDir.exists()) {
+					Util.delete(writeDir);
+				}
+				writeDir.mkdirs();
+				System.out.println("The formatted files will be written in "+writeDir);
+			}
+		}
 		OUTPUT_DIR = outputDir;
+		WRITE_DIR = writeDir;
 		COMPARE = compare;
 	}
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2")); //$NON-NLS-1$
@@ -308,11 +334,6 @@ public void tearDown() throws Exception {
  * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#tearDownSuite()
  */
 public void tearDownSuite() throws Exception {
-	if (OUTPUT_DIR != null) {
-		if (COMPARE) {
-			System.out.println("Comparison done with output files located in "+OUTPUT_DIR);
-		}
-	}
 	// skip standard model suite tear down
 	System.out.println();
 	int max = FAILURES.length;
@@ -393,9 +414,11 @@ void compareFormattedSource() throws IOException, Exception {
 				this.failureIndex = COMPARISON_FAILURE;
 				throw afe;
 			}
-		} else {
-			outputFile.getParentFile().mkdirs();
-			Util.writeToFile(actualResult, outputFile.getAbsolutePath());
+		}
+		if (WRITE_DIR != null) {
+			File writtenFile = new Path(WRITE_DIR.getPath()).append(this.path).toFile();
+			writtenFile.getParentFile().mkdirs();
+			Util.writeToFile(actualResult, writtenFile.getAbsolutePath());
 		}
 	}
 	catch (Exception e) {
