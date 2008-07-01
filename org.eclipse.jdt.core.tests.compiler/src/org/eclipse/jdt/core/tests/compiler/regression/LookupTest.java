@@ -2895,6 +2895,28 @@ public void test086() {
 		"y.length cannot be resolved or is not a field\n" +
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422 - variation
+public void _test087() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.*;\n" + 
+				"/**\n" + 
+				" * @see Private - Private is not visible here\n" + 
+				" */\n" + 
+				"public abstract class X implements X.Private, Secondary.SecondaryPrivate {\n" + 
+				"	/**\n" + 
+				" * @see Private - Private is visible here\n" + 
+				"	 */\n" + 
+				"	private static interface Private {}\n" + 
+				"	Private field;\n" + 
+				"}\n" + 
+				"class Secondary {\n" + 
+				"	private static interface SecondaryPrivate {}\n" + 
+				"}\n", // =================
+			},
+			"done");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }

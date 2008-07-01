@@ -45653,4 +45653,47 @@ public void test1356() {
 			},
 			"done");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
+public void _test1357() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.*;\n" + 
+				"@interface Ann { Class<?> value(); }\n" + 
+				"\n" + 
+				"/**\n" + 
+				" * @see Private - Private is not visible here\n" + 
+				" */\n" + 
+				"@Ann(X.Private.class) // Private is not visible here\n" + 
+				"public abstract class X implements Map<X.Private,Secondary.SecondaryPrivate> {\n" + 
+				"	/**\n" + 
+				" * @see Private - Private is visible here\n" + 
+				"	 */\n" + 
+				"	private static interface Private {}\n" + 
+				"	Private field;\n" + 
+				"}\n" + 
+				"class Secondary {\n" + 
+				"	private static interface SecondaryPrivate {}\n" + 
+				"}\n", // =================
+			},
+			"done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422 - variation
+public void _test1358() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.List;\n" + 
+				"public abstract class X implements List<X.Inter.Private> {\n" + 
+				"	/**\n" + 
+				"	 * @see Inter.Private - Private is visible here\n" + 
+				"	 */\n" + 
+				"	class Inter {\n" + 
+				"		private class Private {}\n" + 
+				"	}\n" + 
+				"	Inter.Private field;\n" + 
+				"}\n", // =================
+			},
+			"done");
+}
 }
