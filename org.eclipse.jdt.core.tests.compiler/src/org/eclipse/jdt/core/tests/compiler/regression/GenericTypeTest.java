@@ -45696,4 +45696,21 @@ public void _test1358() {
 			},
 			"done");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422 - variation
+public void test1359() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"public class X<T> {\n" + 
+				"	class M1 <U>{\n" + 
+				"		private class Private<U> {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	void foo() {\n" + 
+				"		M1<String>.Private<?> p;\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"");
+}
 }
