@@ -25,6 +25,14 @@ public class BPThread {
 	public boolean isSuspended() {
 		return this.sem.getCurrentPemissions() <= 0;
 	}
+	public void runToEnd() {
+		resume();
+		try {
+			this.thread.join(TIMEOUT);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 	void suspend(int bp) {
 		if (this.thread != Thread.currentThread())
 			return;

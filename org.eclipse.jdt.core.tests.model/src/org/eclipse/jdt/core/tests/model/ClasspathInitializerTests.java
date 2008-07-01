@@ -995,7 +995,7 @@ public void testContainerInitializer24() throws Exception {
 
 	} finally {
 		JavaProject.removeCPResolutionBPListener(listener);
-		thread.resume();
+		thread.runToEnd();
 		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
