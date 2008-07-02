@@ -768,7 +768,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			if (isReadOnly()) {
 				run(monitor);
 			} else {
-				// Use IWorkspace.run(...) to ensure that a build will be done in autobuild mode.
+				// Use IWorkspace.run(...) to ensure that resource changes are batched
 				// Note that if the tree is locked, this will throw a CoreException, but this is ok
 				// as this operation is modifying the tree (not read-only) and a CoreException will be thrown anyway.
 				ResourcesPlugin.getWorkspace().run(this, getSchedulingRule(), IWorkspace.AVOID_UPDATE, monitor);
