@@ -308,6 +308,19 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 }
 
 /* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseIdentifierTag(boolean)
+ */
+protected boolean parseIdentifierTag(boolean report) {
+	if (super.parseIdentifierTag(report)) {
+		createTag();
+		this.index = this.tagSourceEnd+1;
+		this.scanner.resetTo(this.index, this.javadocEnd);
+		return true;
+	}
+	return false;
+}
+
+/* (non-Javadoc)
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#parseParam()
  */
 protected boolean parseParam() throws InvalidInputException {

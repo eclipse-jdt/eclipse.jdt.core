@@ -1711,4 +1711,74 @@ public void testBug238853() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 238920: [formatter] Code Formatter removes javadoc status if @category present
+ * @test Ensure that line without spaces are not wrapped by the comment formatter
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=238920"
+ */
+public void testBug238920() throws JavaModelException {
+	String source = 
+		"public class X01 {\n" + 
+		"/**\n" + 
+		" * @category test\n" + 
+		" */\n" + 
+		"void foo() {\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	/**\n" + 
+		"	 * @category test\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug238920b() throws JavaModelException {
+	String source = 
+		"public class X02 {\n" + 
+		"/**\n" + 
+		" * Test for bug 238920\n" + 
+		" * @category test\n" + 
+		" */\n" + 
+		"void foo() {\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"	/**\n" + 
+		"	 * Test for bug 238920\n" + 
+		"	 * \n" + 
+		"	 * @category test\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug238920c() throws JavaModelException {
+	String source = 
+		"public class X03 {\n" + 
+		"/**\n" + 
+		" * @category test\n" + 
+		" * @return zero\n" + 
+		" */\n" + 
+		"int foo() {\n" + 
+		"	return 0;\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"	/**\n" + 
+		"	 * @category test\n" + 
+		"	 * @return zero\n" + 
+		"	 */\n" + 
+		"	int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
