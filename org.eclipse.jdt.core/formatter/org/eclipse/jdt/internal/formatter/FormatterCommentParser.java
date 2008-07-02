@@ -234,6 +234,10 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 						incremented = true;
 		    		}
 				}
+				// Accept xhtml syntax
+				if (readToken() == TerminalTokens.TokenNameDIVIDE) {
+					consumeToken();
+				}
 		    	break;
 	    	case TerminalTokens.TokenNameDIVIDE:
 	    		// HTML tag closing
@@ -280,7 +284,7 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 
 	    // Push texts
 		if (this.lineStarted && this.textStart != -1 && this.textStart < endTextPosition) {
-			pushText(this.textStart, endTextPosition, -1, htmlPtr == -1 ? 0 : htmlPtr);
+			pushText(this.textStart, endTextPosition, -1, htmlPtr);
 		}
 		pushText(previousPosition, this.index, htmlIndex, this.htmlTagsPtr);
 		this.textStart = -1;
@@ -645,7 +649,7 @@ private void pushText(int start, int end, int htmlIndex, int htmlDepth) {
 	}
 
 	// Add the text
-	FormatJavadocText text = new FormatJavadocText(start, end-1, lineStart, htmlIndex, htmlDepth);
+	FormatJavadocText text = new FormatJavadocText(start, end-1, lineStart, htmlIndex, htmlDepth==-1 ? 0 : htmlDepth);
 	previousBlock.addText(text);
 	previousBlock.sourceStart = previousStart;
 	if (lineStart == previousBlock.lineStart) {

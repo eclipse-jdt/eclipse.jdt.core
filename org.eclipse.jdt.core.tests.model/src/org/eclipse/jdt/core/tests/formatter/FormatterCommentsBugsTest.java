@@ -1677,4 +1677,38 @@ public void testBug238210_X03() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 238853: [formatter] Code Formatter does not properly format valid xhtml in javadoc.
+ * @test Ensure that xhtml valid tags are taken into account by the comment formatter
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=238853"
+ */
+public void testBug238853() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * This is a test comment. \n" + 
+		" * <p /> \n" + 
+		" * Another comment. <br /> \n" + 
+		" * Another comment.\n" + 
+		" */\n" + 
+		"public void testMethod1()\n" + 
+		"{\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * This is a test comment.\n" + 
+		"	 * <p />\n" + 
+		"	 * Another comment. <br />\n" + 
+		"	 * Another comment.\n" + 
+		"	 */\n" + 
+		"	public void testMethod1() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
