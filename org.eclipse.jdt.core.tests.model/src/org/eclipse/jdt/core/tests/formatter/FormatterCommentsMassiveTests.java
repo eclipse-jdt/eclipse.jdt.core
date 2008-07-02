@@ -145,12 +145,15 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 		if (dir != null) {
 			StringTokenizer tokenizer = new StringTokenizer(dir, ",");
 			outputDir = new File(tokenizer.nextToken());
+			boolean removed = false;
 			while (tokenizer.hasMoreTokens()) {
 				String arg = tokenizer.nextToken();
 				if (arg.equals("clean") && outputDir.exists()) {
 					System.out.print("Removing all output files located in "+outputDir+"...");
 					Util.delete(outputDir);
 					System.out.println("done");
+					System.out.println("There won't be any comparison, but the formatted files will be written there instead.");
+					removed = true;
 				}
 			}
 			if (outputDir.exists()) {
@@ -158,8 +161,10 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 			} else {
 				writeDir = outputDir;
 				compare = false;
-				System.err.println("WARNING: The output directory "+outputDir+" does not exist...");
-				System.err.println("=> So, NO comparison could be done! The formatted files will be written there instead.");
+				if (!removed) {
+					System.err.println("WARNING: The output directory "+outputDir+" does not exist...");
+					System.err.println("=> NO comparison could be done!");
+				}
 				try {
 	                Thread.sleep(1000);
                 } catch (InterruptedException e) {
