@@ -45783,4 +45783,44 @@ public void test1363() {
 			"Type mismatch: cannot convert from Comparable<capture#1-of ? extends Object&Comparable<?>&Serializable> to int\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239225
+public void test1364() {
+	this.runNegativeTest(
+			new String[] {
+				"Status.java", // =================
+				"import java.util.HashMap;\n" + 
+				"import java.util.Map;\n" + 
+				"\n" + 
+				"public enum Status {\n" + 
+				"	GOOD((byte) 0x00), BAD((byte) 0x02);\n" + 
+				"\n" + 
+				"	private static Map<Byte, Status> mapping;\n" + 
+				"\n" + 
+				"	private Status(final byte newValue) {\n" + 
+				"\n" + 
+				"		if (Status.mapping == null) {\n" + 
+				"			Status.mapping = new HashMap<Byte, Status>();\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		Status.mapping.put(newValue, this);\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in Status.java (at line 11)\n" + 
+			"	if (Status.mapping == null) {\n" + 
+			"	           ^^^^^^^\n" + 
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
+			"----------\n" + 
+			"2. ERROR in Status.java (at line 12)\n" + 
+			"	Status.mapping = new HashMap<Byte, Status>();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
+			"----------\n" + 
+			"3. ERROR in Status.java (at line 15)\n" + 
+			"	Status.mapping.put(newValue, this);\n" + 
+			"	       ^^^^^^^\n" + 
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
+			"----------\n");
+}
 }

@@ -5609,4 +5609,69 @@ public void test161() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239225
+public void test162() {
+	this.runNegativeTest(
+			new String[] {
+				"Status.java", // =================
+				"import java.util.HashMap;\n" + 
+				"import java.util.Map;\n" + 
+				"\n" + 
+				"public enum Status {\n" + 
+				"	GOOD((byte) 0x00), BAD((byte) 0x02);\n" + 
+				"\n" + 
+				"	private static Map<Byte, Status> mapping;\n" + 
+				"\n" + 
+				"	private Status(final byte newValue) {\n" + 
+				"\n" + 
+				"		if (Status.mapping == null) {\n" + 
+				"			Status.mapping = new HashMap<Byte, Status>();\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		Status.mapping.put(newValue, this);\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in Status.java (at line 11)\n" + 
+			"	if (Status.mapping == null) {\n" + 
+			"	           ^^^^^^^\n" + 
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
+			"----------\n" + 
+			"2. ERROR in Status.java (at line 12)\n" + 
+			"	Status.mapping = new HashMap<Byte, Status>();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
+			"----------\n" + 
+			"3. ERROR in Status.java (at line 15)\n" + 
+			"	Status.mapping.put(newValue, this);\n" + 
+			"	       ^^^^^^^\n" + 
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239225 - variation
+public void test163() {
+	this.runConformTest(
+			new String[] {
+				"Status.java", // =================
+				"import java.util.HashMap;\n" + 
+				"import java.util.Map;\n" + 
+				"\n" + 
+				"enum Status {\n" + 
+				"	GOOD((byte) 0x00), BAD((byte) 0x02);\n" + 
+				"	private byte value;\n" + 
+				"	private static Map<Byte, Status> mapping;\n" + 
+				"	private Status(final byte newValue) {\n" + 
+				"		this.value = newValue;\n" + 
+				"	}\n" + 
+				"	static {\n" + 
+				"		Status.mapping = new HashMap<Byte, Status>();\n" + 
+				"		for (Status s : values()) {\n" + 
+				"			Status.mapping.put(s.value, s);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"");
+}
 }
