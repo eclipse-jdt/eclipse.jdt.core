@@ -742,4 +742,35 @@ public void test027() {
 		"----------\n"
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=239198
+ */
+public void test028() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" +
+			"    public static void foo(String param) {\n" +
+			"    	String foo= param;\n" +
+			"    	Srtring bar = \"\"\"\n" +
+			"    }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Srtring bar = \"\"\"\n" + 
+		"	              ^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	Srtring bar = \"\"\"\n" + 
+		"	                ^\n" + 
+		"String literal is not properly closed by a double-quote\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
 }

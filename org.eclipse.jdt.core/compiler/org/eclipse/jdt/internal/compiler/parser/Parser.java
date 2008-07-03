@@ -9219,6 +9219,7 @@ protected void parse() {
 					this.hasReportedError = true;
 				}
 				this.lastCheckPoint = this.scanner.currentPosition;
+				this.currentToken = 0;
 				this.restartRecovery = true;
 			}				
 			if(this.statementRecoveryActivated) {
@@ -9247,6 +9248,7 @@ protected void parse() {
 						this.hasReportedError = true;
 					}
 					this.lastCheckPoint = this.scanner.currentPosition;
+					this.currentToken = 0;
 					this.restartRecovery = true;
 				}					
 				if(this.statementRecoveryActivated) {
