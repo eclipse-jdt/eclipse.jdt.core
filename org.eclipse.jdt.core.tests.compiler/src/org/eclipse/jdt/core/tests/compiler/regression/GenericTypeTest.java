@@ -45823,4 +45823,28 @@ public void test1364() {
 			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239203
+public void test1365() {
+	this.runConformTest(
+			new String[] {
+				"C.java", // =================
+				"class A<I extends B> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class B {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class C {\n" + 
+				"	<U extends B, V extends A<U>> A<U> foo(Class<V> clazz) {\n" + 
+				"		A<U> ret = bar(\"bla\");\n" + 
+				"		return ret;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	<U extends B, V extends A<U>> A<U> bar(String clazzName) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"");
+}
 }
