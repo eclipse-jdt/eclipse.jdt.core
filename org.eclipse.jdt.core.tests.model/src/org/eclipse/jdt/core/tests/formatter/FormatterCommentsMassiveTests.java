@@ -148,12 +148,16 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 			boolean removed = false;
 			while (tokenizer.hasMoreTokens()) {
 				String arg = tokenizer.nextToken();
-				if (arg.equals("clean") && outputDir.exists()) {
-					System.out.print("Removing all output files located in "+outputDir+"...");
-					Util.delete(outputDir);
-					System.out.println("done");
-					System.out.println("There won't be any comparison, but the formatted files will be written there instead.");
+				if (arg.equals("clean")) {
 					removed = true;
+					if (outputDir.exists()) {
+						System.out.print("Removing all output files located in "+outputDir+"...");
+						Util.delete(outputDir);
+						System.out.println("done");
+						System.out.println("There won't be any comparison, but the formatted files will be written there instead.");
+					} else {
+						System.out.println(outputDir+" does not exist, hence no comparison will be done, but the formatted files will be written there instead.");
+					}
 				}
 			}
 			if (outputDir.exists()) {
