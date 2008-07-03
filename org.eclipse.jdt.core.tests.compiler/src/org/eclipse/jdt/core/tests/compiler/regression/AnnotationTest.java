@@ -8475,4 +8475,38 @@ public void test258() {
 		},
 		expectedOutput);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273
+public void test259() {
+	this.runConformTest(
+		new String[] {
+			"Jpf.java",
+			"public class Jpf {\n" + 
+			"	@interface Action {\n" + 
+			"		Forward[] forwards();\n" + 
+			"	}\n" + 
+			"	@interface Forward {\n" + 
+			"		String name();\n" + 
+			"		String path();\n" + 
+			"		ActionOutput[] actionOutputs();\n" + 
+			"	}\n" + 
+			"	@interface ActionOutput {\n" + 
+			"		String name();\n" + 
+			"		Class type();\n" + 
+			"	}\n" + 
+			"	@Jpf.Action( \n" + 
+			"			forwards = { \n" + 
+			"					@Jpf.Forward(\n" + 
+			"							name = \"success\", \n" + 
+			"							path = \"results.jsp\", \n" + 
+			"							actionOutputs = { \n" + 
+			"									@Jpf.ActionOutput(\n" + 
+			"											name = \"mybeanmethodResult\", \n" + 
+			"											type = java.lang.String[].class) }) })\n" + 
+			"	public Forward mybeanmethod() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"");
+}
 }
