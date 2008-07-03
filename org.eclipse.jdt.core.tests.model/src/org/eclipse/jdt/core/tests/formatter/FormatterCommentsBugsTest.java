@@ -1522,4 +1522,100 @@ public void testBug238090() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 238210: [formatter] CodeFormatter wraps line comments without whitespaces
+ * @test Ensure that line without spaces are not wrapped by the comment formatter
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=238210"
+ */
+public void testBug238210() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * LineCommentTestCase\n" + 
+		" * \n" + 
+		" * Formatting this compilation unit with line comment enabled and comment line width set to 100 or\n" + 
+		" * lower will result in both protected region comments to be wrapped although they do not contain\n" + 
+		" * any whitespace (excluding leading whitespace which should be / is being ignored altogether)\n" + 
+		" * \n" + 
+		" * @author Axel Faust, PRODYNA AG\n" + 
+		" */\n" + 
+		"public class LineCommentTestCase {\n" + 
+		"\n" + 
+		"    public void someGeneratedMethod() {\n" + 
+		"        //protected-region-start_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"        // some manually written code\n" + 
+		"        // protected-region-end_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * LineCommentTestCase\n" + 
+		" * \n" + 
+		" * Formatting this compilation unit with line comment enabled and comment line\n" + 
+		" * width set to 100 or lower will result in both protected region comments to be\n" + 
+		" * wrapped although they do not contain any whitespace (excluding leading\n" + 
+		" * whitespace which should be / is being ignored altogether)\n" + 
+		" * \n" + 
+		" * @author Axel Faust, PRODYNA AG\n" + 
+		" */\n" + 
+		"public class LineCommentTestCase {\n" + 
+		"\n" + 
+		"	public void someGeneratedMethod() {\n" + 
+		"		// protected-region-start_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"		// some manually written code\n" + 
+		"		// protected-region-end_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void _testBug238210_block() throws JavaModelException {
+	String source = 
+		"public class BlockCommentTestCase {\n" + 
+		"\n" + 
+		"    public void someGeneratedMethod() {\n" + 
+		"        /*\n" + 
+		"         * protected-region-start_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"         * some manually written code\n" + 
+		"         * protected-region-end_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"         */\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class BlockCommentTestCase {\n" + 
+		"\n" + 
+		"	public void someGeneratedMethod() {\n" + 
+		"		/*\n" + 
+		"		 * protected-region-start_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"		 * some manually written code\n" + 
+		"		 * protected-region-end_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"		 */\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void _testBug238210_javadoc() throws JavaModelException {
+	String source = 
+		"public class JavadocCommentTestCase {\n" + 
+		"\n" + 
+		"    public void someGeneratedMethod() {\n" + 
+		"        /**\n" + 
+		"         * protected-region-start_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"         * some manually written code\n" + 
+		"         * protected-region-end_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"         */\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class JavadocCommentTestCase {\n" + 
+		"\n" + 
+		"	public void someGeneratedMethod() {\n" + 
+		"		/**\n" + 
+		"		 * protected-region-start_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"		 * some manually written code\n" + 
+		"		 * protected-region-end_[id=_14_0_1_3dd20592_1202209856234_914658_24183_someGeneratedMethod]\n" + 
+		"		 */\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
