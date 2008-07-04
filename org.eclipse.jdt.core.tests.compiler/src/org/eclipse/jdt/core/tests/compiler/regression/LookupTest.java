@@ -2917,6 +2917,44 @@ public void _test087() {
 			},
 			"done");
 }
+public void test088() {
+	this.runNegativeTest(
+		new String[] {
+			"java/lang/Object.java",	//===================
+			"package java.lang;\n" + 
+			"public class Object {\n" + 
+			"	public Object() {\n" + 
+			"		super();\n" + 
+			"	}\n" + 
+			"}\n", 		// =================
+		},
+		"----------\n" + 
+		"1. ERROR in java\\lang\\Object.java (at line 4)\n" + 
+		"	super();\n" + 
+		"	^^^^^^^^\n" + 
+		"super cannot be used in java.lang.Object\n" + 
+		"----------\n");
+}
+
+public void test089() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",	//===================
+			"public class X {\n" + 
+			"	static class Member implements X {\n" + 
+			"		Member () {\n" + 
+			"			super();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n", 		// =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	static class Member implements X {\n" + 
+		"	                               ^\n" + 
+		"The type X cannot be a superinterface of Member; a superinterface must be an interface\n" + 
+		"----------\n");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }
