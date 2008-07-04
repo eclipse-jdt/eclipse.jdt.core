@@ -81,10 +81,8 @@ public static void checkNeedForCastCast(BlockScope scope, CastExpression enclosi
 	// check if could cast directly to enclosing cast type, without intermediate type cast
 	CastExpression alternateCast = new CastExpression(null, enclosingCast.type);
 	alternateCast.resolvedType = enclosingCast.resolvedType;
-	if (!alternateCast.checkCastTypesCompatibility(scope, enclosingCast.resolvedType, nestedCast.expression.resolvedType, nestedCast.expression)) {
-		return;
-	}
-	scope.problemReporter().unnecessaryCast(nestedCast); 
+	if (!alternateCast.checkCastTypesCompatibility(scope, enclosingCast.resolvedType, nestedCast.expression.resolvedType, null /* no expr to avoid side-effects*/)) return;
+	scope.problemReporter().unnecessaryCast(nestedCast);
 }
 
 
