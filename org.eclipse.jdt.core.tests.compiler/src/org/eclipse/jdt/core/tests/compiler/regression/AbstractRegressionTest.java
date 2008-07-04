@@ -2176,6 +2176,14 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 					vmArguments);
 			if (!passed) {
 				System.out.println(getClass().getName() + '#' + getName());
+				String execErrorString = this.verifier.getExecutionError();
+				if (execErrorString != null && execErrorString.length() > 0) {
+					System.out.println("[ERR]:"+execErrorString); //$NON-NLS-1$
+				}
+				String execOutputString = this.verifier.getExecutionOutput();
+				if (execOutputString != null && execOutputString.length() > 0) {
+					System.out.println("[OUT]:"+execOutputString); //$NON-NLS-1$
+				}
 				for (int i = 0; i < testFiles.length; i += 2) {
 					System.out.print(testFiles[i]);
 					System.out.println(" ["); //$NON-NLS-1$

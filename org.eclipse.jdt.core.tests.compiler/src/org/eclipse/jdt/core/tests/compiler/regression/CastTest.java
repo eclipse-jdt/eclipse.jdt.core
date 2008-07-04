@@ -1702,6 +1702,22 @@ public void test044() {
 		},
 		"null");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239305
+public void test045() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(castLongToInt(3));\n" + 
+			"	}\n" + 
+			"	private static int castLongToInt(long longVal) {\n" + 
+			"		return (int)((long)longVal);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"3");
+}
 public static Class testClass() {
 	return CastTest.class;
 }
