@@ -41922,4 +41922,223 @@ public void test1356() {
 			},
 			"done");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
+public void _test1357() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.*;\n" + 
+				"@interface Ann { Class<?> value(); }\n" + 
+				"\n" + 
+				"/**\n" + 
+				" * @see Private - Private is not visible here\n" + 
+				" */\n" + 
+				"@Ann(X.Private.class) // Private is not visible here\n" + 
+				"public abstract class X implements Map<X.Private,Secondary.SecondaryPrivate> {\n" + 
+				"	/**\n" + 
+				" * @see Private - Private is visible here\n" + 
+				"	 */\n" + 
+				"	private static interface Private {}\n" + 
+				"	Private field;\n" + 
+				"}\n" + 
+				"class Secondary {\n" + 
+				"	private static interface SecondaryPrivate {}\n" + 
+				"}\n", // =================
+			},
+			"done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422 - variation
+public void _test1358() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.List;\n" + 
+				"public abstract class X implements List<X.Inter.Private> {\n" + 
+				"	/**\n" + 
+				"	 * @see Inter.Private - Private is visible here\n" + 
+				"	 */\n" + 
+				"	class Inter {\n" + 
+				"		private class Private {}\n" + 
+				"	}\n" + 
+				"	Inter.Private field;\n" + 
+				"}\n", // =================
+			},
+			"done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422 - variation
+public void test1359() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"public class X<T> {\n" + 
+				"	class M1 <U>{\n" + 
+				"		private class Private<U> {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	void foo() {\n" + 
+				"		M1<String>.Private<?> p;\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239118
+public void test1360() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"    public static <T> T getValue(final Object bean, final String property) {\n" + 
+				"        return (T)new Object();\n" + 
+				"    }\n" + 
+				"    public void testGenerics() {\n" + 
+				"        int value = getValue(new Object(), \"\");\n" + 
+				"    }\n" + 
+				"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239118 - variation
+public void test1361() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"    public static <T> T getValue(T t) {\n" + 
+				"        return t;\n" + 
+				"    }\n" + 
+				"    public void testGenerics() {\n" + 
+				"        int value = getValue(0);\n" + 
+				"    }\n" + 
+				"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239118 - variation
+public void test1362() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"    public static <T> T getValue(T t1, T t2) {\n" + 
+				"        return t1;\n" + 
+				"    }\n" + 
+				"    public void testGenerics() {\n" + 
+				"        getValue(0, this);\n" + 
+				"    }\n" + 
+				"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239118 - variation
+public void test1363() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"    public static <T> T getValue(T t1, T t2) {\n" + 
+				"        return t1;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public void testGenerics(Comparable<String> s) {\n" + 
+				"        int i = getValue(0, s);\n" + 
+				"    }\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	int i = getValue(0, s);\n" + 
+			"	        ^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Comparable<capture#1-of ? extends Object&Comparable<?>&Serializable> to int\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239225
+public void test1364() {
+	this.runNegativeTest(
+			new String[] {
+				"Status.java", // =================
+				"import java.util.HashMap;\n" + 
+				"import java.util.Map;\n" + 
+				"\n" + 
+				"public enum Status {\n" + 
+				"	GOOD((byte) 0x00), BAD((byte) 0x02);\n" + 
+				"\n" + 
+				"	private static Map<Byte, Status> mapping;\n" + 
+				"\n" + 
+				"	private Status(final byte newValue) {\n" + 
+				"\n" + 
+				"		if (Status.mapping == null) {\n" + 
+				"			Status.mapping = new HashMap<Byte, Status>();\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		Status.mapping.put(newValue, this);\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in Status.java (at line 11)\n" + 
+			"	if (Status.mapping == null) {\n" + 
+			"	           ^^^^^^^\n" + 
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
+			"----------\n" + 
+			"2. ERROR in Status.java (at line 12)\n" + 
+			"	Status.mapping = new HashMap<Byte, Status>();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
+			"----------\n" + 
+			"3. ERROR in Status.java (at line 15)\n" + 
+			"	Status.mapping.put(newValue, this);\n" + 
+			"	       ^^^^^^^\n" + 
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239203
+public void test1365() {
+	this.runConformTest(
+			new String[] {
+				"C.java", // =================
+				"class A<I extends B> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class B {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class C {\n" + 
+				"	<U extends B, V extends A<U>> A<U> foo(Class<V> clazz) {\n" + 
+				"		A<U> ret = bar(\"bla\");\n" + 
+				"		return ret;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	<U extends B, V extends A<U>> A<U> bar(String clazzName) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758
+public void test1366() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"import java.io.IOException;\n" + 
+				"\n" + 
+				"interface IServiceAction<Response, Request, Fault extends Exception> {\n" + 
+				"	Response execute(Request parameter) throws Fault;\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IServiceOperation<Response, Request, Fault extends Exception> extends IServiceAction<Response, Request, Fault> {\n" + 
+				"	Response execute(Request parameter) throws Fault;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public String execute(String parameter) throws IOException {\n" + 
+				"		return serviceOperation.execute(parameter);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private final IServiceOperation<String, String, IOException> serviceOperation = null;\n" + 
+				"}\n", // =================
+			},
+			"");
+}
 }

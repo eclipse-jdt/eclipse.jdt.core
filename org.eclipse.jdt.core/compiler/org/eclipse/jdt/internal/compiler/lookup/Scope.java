@@ -3444,25 +3444,26 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							continue nextSpecific; // choose original2 instead
 						}
 						if (shouldIntersectExceptions && original2.declaringClass.isInterface()) {
-							if (original.thrownExceptions != original2.thrownExceptions) {
-								if (original2.thrownExceptions == Binding.NO_EXCEPTIONS) {
+							if (current.thrownExceptions != next.thrownExceptions) {
+								if (next.thrownExceptions == Binding.NO_EXCEPTIONS) {
 									mostSpecificExceptions = Binding.NO_EXCEPTIONS;
 								} else {
 									if (mostSpecificExceptions == null) {
-										mostSpecificExceptions = original.thrownExceptions;
+										mostSpecificExceptions = current.thrownExceptions;
 									}
 									int mostSpecificLength = mostSpecificExceptions.length;
-									int original2Length = original2.thrownExceptions.length;
+									int nextLength = next.thrownExceptions.length;
 									SimpleSet temp = new SimpleSet(mostSpecificLength);
 									boolean changed = false;
 									nextException : for (int t = 0; t < mostSpecificLength; t++) {
 										ReferenceBinding exception = mostSpecificExceptions[t];
-										for (int s = 0; s < original2Length; s++) {
-											if (exception.isCompatibleWith(original2.thrownExceptions[s])) {
+										for (int s = 0; s < nextLength; s++) {
+											ReferenceBinding nextException = next.thrownExceptions[s];
+											if (exception.isCompatibleWith(nextException)) {
 												temp.add(exception);
 												continue nextException;
-											} else if (original2.thrownExceptions[s].isCompatibleWith(exception)) {
-												temp.add(original2.thrownExceptions[s]);
+											} else if (nextException.isCompatibleWith(exception)) {
+												temp.add(nextException);
 												changed = true;
 												continue nextException;
 											} else {
