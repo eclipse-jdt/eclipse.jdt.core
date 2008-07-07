@@ -42053,7 +42053,7 @@ public void test1363() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239225
-public void test1364() {
+public void _test1364() {
 	this.runNegativeTest(
 			new String[] {
 				"Status.java", // =================
