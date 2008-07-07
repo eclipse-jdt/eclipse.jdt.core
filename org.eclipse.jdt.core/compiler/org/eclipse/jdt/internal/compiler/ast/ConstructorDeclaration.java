@@ -196,7 +196,7 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 			try {
 				classFile.contentsOffset = problemResetPC;
 				classFile.methodCount--;
-				classFile.codeStream.wideMode = true; // request wide mode
+				classFile.codeStream.resetInWideMode(); // request wide mode
 				internalGenerateCode(classScope, classFile); // restart method generation
 			} catch (AbortMethod e2) {
 				int problemsLength;

@@ -6698,4 +6698,7 @@ protected void writeWidePosition(BranchLabel label) {
 		this.writeSignedWord(forward, offset);
 	}
 }
+public void resetInWideMode() {
+	this.wideMode = true;
+}
 }

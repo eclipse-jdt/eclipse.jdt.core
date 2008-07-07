@@ -7491,10 +7491,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					break;
 				case Opcodes.OPC_aload:
 					index = u1At(bytecodes, 1, pc);
-					VerificationTypeInfo localsN = frame.locals[index];
-					if (localsN == null) {
-						localsN = retrieveLocal(currentPC, index);
-					}
+					VerificationTypeInfo localsN = retrieveLocal(currentPC, index);
 					frame.addStackItem(localsN);
 					pc += 2;
 					break;

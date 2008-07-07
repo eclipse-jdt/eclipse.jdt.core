@@ -114,7 +114,7 @@ public class Clinit extends AbstractMethodDeclaration {
 				try {
 					classFile.contentsOffset = clinitOffset;
 					classFile.methodCount--;
-					classFile.codeStream.wideMode = true; // request wide mode
+					classFile.codeStream.resetInWideMode(); // request wide mode
 					this.generateCode(classScope, classFile, clinitOffset);
 					// restart method generation
 				} catch (AbortMethod e2) {

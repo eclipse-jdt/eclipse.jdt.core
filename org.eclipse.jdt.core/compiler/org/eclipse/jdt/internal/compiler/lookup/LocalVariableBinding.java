@@ -211,6 +211,11 @@ public class LocalVariableBinding extends VariableBinding {
 			sourceType.storeAnnotations(this, annotations);
 	}
 
+	public void resetInitializations() {
+		this.initializationCount = 0;
+		this.initializationPCs = null;
+	}
+
 	public String toString() {
 
 		String s = super.toString();
