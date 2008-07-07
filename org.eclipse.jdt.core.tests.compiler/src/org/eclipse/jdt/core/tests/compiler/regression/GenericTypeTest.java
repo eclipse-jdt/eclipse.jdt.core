@@ -45847,4 +45847,29 @@ public void test1365() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758
+public void test1366() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"import java.io.IOException;\n" + 
+				"\n" + 
+				"interface IServiceAction<Response, Request, Fault extends Exception> {\n" + 
+				"	Response execute(Request parameter) throws Fault;\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IServiceOperation<Response, Request, Fault extends Exception> extends IServiceAction<Response, Request, Fault> {\n" + 
+				"	Response execute(Request parameter) throws Fault;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public String execute(String parameter) throws IOException {\n" + 
+				"		return serviceOperation.execute(parameter);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private final IServiceOperation<String, String, IOException> serviceOperation = null;\n" + 
+				"}\n", // =================
+			},
+			"");
+}
 }
