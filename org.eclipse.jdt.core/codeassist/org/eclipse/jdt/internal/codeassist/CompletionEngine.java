@@ -2540,6 +2540,7 @@ public final class CompletionEngine
 					} catch (CompletionNodeFound e) {
 						//					completionNodeFound = true;
 						if (e.astNode != null) {
+							// if null then we found a problem in the completion node
 							if(DEBUG) {
 								System.out.print("COMPLETION - Completion node : "); //$NON-NLS-1$
 								System.out.println(e.astNode.toString());
@@ -2548,7 +2549,7 @@ public final class CompletionEngine
 									System.out.println(this.parser.assistNodeParent);
 								}
 							}
-							// if null then we found a problem in the completion node
+							this.lookupEnvironment.unitBeingCompleted = parsedUnit; // better resilient to further error reporting
 							contextAccepted =
 								complete(
 									e.astNode,
