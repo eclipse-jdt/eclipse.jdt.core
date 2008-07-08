@@ -1868,4 +1868,51 @@ public void testBug239719b() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 239941: [formatter] Unclosed html tags make the formatter to produce incorrect outputs
+ * @test Ensure that unclosed html tags do not screw up the formatter in following javadoc comments
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=239941"
+ */
+public void testBug239941() throws JavaModelException {
+	String source = 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 * Unclosed pre tag\n" + 
+		"	 */\n" + 
+		"	int foo;\n" + 
+		"\n" + 
+		"    /**\n" + 
+		"     * Gets the signers of this class.\n" + 
+		"     *\n" + 
+		"     * @return  the signers of this class, or null if there are no signers.  In\n" + 
+		"     * 		particular, this method returns null if this object represents\n" + 
+		"     * 		a primitive type or void.\n" + 
+		"     * @since 	JDK1.1\n" + 
+		"     */\n" + 
+		"    public native Object[] getSigners();\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 * Unclosed pre tag\n" + 
+		"	 */\n" + 
+		"	int foo;\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Gets the signers of this class.\n" + 
+		"	 * \n" + 
+		"	 * @return the signers of this class, or null if there are no signers. In\n" + 
+		"	 *         particular, this method returns null if this object represents a\n" + 
+		"	 *         primitive type or void.\n" + 
+		"	 * @since JDK1.1\n" + 
+		"	 */\n" + 
+		"	public native Object[] getSigners();\n" + 
+		"}\n"
+	);
+}
 }

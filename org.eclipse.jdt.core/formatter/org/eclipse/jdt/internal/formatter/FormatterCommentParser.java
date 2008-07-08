@@ -42,6 +42,9 @@ public boolean parse(int start, int end) {
 	this.javadocStart = start;
 	this.javadocEnd = end;
 	this.firstTagPosition = this.javadocStart;
+	// Need to flush html tags stack in case of unclosed ones in previous javadoc comments
+	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=239941
+	this.htmlTagsPtr = -1;
 
 	// parse comment
 	boolean valid = commentParse();
