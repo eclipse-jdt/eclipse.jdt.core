@@ -140,12 +140,20 @@ public void aload_3() {
 }
 public void anewarray(TypeBinding typeBinding) {
     super.anewarray(typeBinding);
-    char[] constantPoolName = typeBinding.constantPoolName();
-    int length = constantPoolName.length;
-    System.arraycopy(constantPoolName, 0, (constantPoolName = new char[length + 3]), 2, length);
-    constantPoolName[0] = '[';
-    constantPoolName[1] = 'L';
-    constantPoolName[length + 2] = ';';
+    char[] currentConstantPoolName = typeBinding.constantPoolName();
+    int length = currentConstantPoolName.length;
+    char[] constantPoolName;
+    if (currentConstantPoolName[0] != '[') {
+    	// a class or an interface type name
+	    System.arraycopy(currentConstantPoolName, 0, (constantPoolName = new char[length + 3]), 2, length);
+	    constantPoolName[0] = '[';
+	    constantPoolName[1] = 'L';
+	    constantPoolName[length + 2] = ';';
+    } else {
+    	// an array type
+	    System.arraycopy(currentConstantPoolName, 0, (constantPoolName = new char[length + 1]), 1, length);
+	    constantPoolName[0] = '[';
+    }
     int numberOfStackItems = this.currentFrame.numberOfStackItems;
     if (numberOfStackItems >= 1) {
         this.currentFrame.stackItems[numberOfStackItems - 1] = new VerificationTypeInfo(typeBinding.id, constantPoolName);
