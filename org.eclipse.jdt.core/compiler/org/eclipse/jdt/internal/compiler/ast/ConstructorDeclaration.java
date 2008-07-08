@@ -335,6 +335,11 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		codeStream.recordPositionsFrom(0, this.bodyEnd);
 		classFile.completeCodeAttribute(codeAttributeOffset);
 		attributeNumber++;
+		if ((codeStream instanceof StackMapFrameCodeStream)
+				&& needFieldInitializations
+				&& declaringType.fields != null) {
+			((StackMapFrameCodeStream) codeStream).resetSecretLocals();
+		}
 	}
 	classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
 }
