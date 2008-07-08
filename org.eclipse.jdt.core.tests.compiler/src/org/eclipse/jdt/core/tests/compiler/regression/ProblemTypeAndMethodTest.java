@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.Map;
 
 import junit.framework.Test;
 
@@ -20,6 +21,7 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ProblemTypeAndMethodTest extends AbstractRegressionTest {
 public ProblemTypeAndMethodTest(String name) {
@@ -3792,6 +3794,327 @@ public void test080() {
 			"	public void m() throws IOException {\n" +
 			"	                       ^^^^^^^^^^^\n" +
 			"IOException cannot be resolved to a type\n" +
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758
+public void test081() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(	CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);	
+	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+			new String[] {
+				"com/ost/util/report/Matrix.java", // =================
+				"package com.ost.util.report;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import com.ost.util.report.exceptions.InvalidRowSizeException;\n" + 
+				"public class Matrix<T> implements Serializable {\n" + 
+				"	/**\n" + 
+				"	 * @see exceptions.InvalidRowSizeException2\n" + 
+				"	 */\n" + 
+				"	public synchronized final void addRow(Object[] row){\n" + 
+				"			throw new InvalidRowSizeException();\n" + 
+				"	}\n" + 
+				"}\n",
+				"com/ost/util/report/FilterConstraintSpecification.java", // =================
+				"package com.ost.util.report;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import com.ost.util.report.exceptions.MalformedFilterConstraintSpecification;\n" + 
+				"public final class FilterConstraintSpecification implements Serializable, Cloneable {\n" + 
+				"	private final void makeConstraint(){\n" + 
+				"		throw new MalformedFilterConstraintSpecification();\n" + 
+				"	}\n" + 
+				"}\n",
+				"com/ost/util/report/exceptions/MalformedFilterConstraintSpecification.java", // =================
+				"package com.ost.util.report.exceptions;\n" + 
+				"public class MalformedFilterConstraintSpecification extends RuntimeException {\n" + 
+				"	/** Creates a new instance of MalformedFilterConstraintSpecification */\n" + 
+				"	public MalformedFilterConstraintSpecification() {\n" + 
+				"		super();\n" + 
+				"	}\n" + 
+				"	/* Creates a new instance of MalformedFilterConstraintSpecification */\n" + 
+				"	public MalformedFilterConstraintSpecification(String message) {\n" + 
+				"		super(message);\n" + 
+				"	}\n" + 
+				"}\n",
+				"com/ost/util/report/exceptions/InvalidRowSizeException.java", // =================
+				"package com.ost.util.report.exceptions;\n" + 
+				"public class InvalidRowSizeException extends RuntimeException {\n" + 
+				"	/** Creates a new instance of InvalidRowSizeException */\n" + 
+				"	public InvalidRowSizeException() {\n" + 
+				"		super();\n" + 
+				"	}\n" + 
+				"	/* Creates a new instance of InvalidRowSizeException */\n" + 
+				"	public InvalidRowSizeException(String message) {\n" + 
+				"		super(message);\n" + 
+				"	}\n" + 
+				"}\n"				
+			},
+			"----------\n" + 
+			"1. WARNING in com\\ost\\util\\report\\Matrix.java (at line 4)\n" + 
+			"	public class Matrix<T> implements Serializable {\n" + 
+			"	             ^^^^^^\n" + 
+			"The serializable class Matrix does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in com\\ost\\util\\report\\Matrix.java (at line 6)\n" + 
+			"	* @see exceptions.InvalidRowSizeException2\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: exceptions cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in com\\ost\\util\\report\\FilterConstraintSpecification.java (at line 4)\n" + 
+			"	public final class FilterConstraintSpecification implements Serializable, Cloneable {\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The serializable class FilterConstraintSpecification does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. WARNING in com\\ost\\util\\report\\FilterConstraintSpecification.java (at line 5)\n" + 
+			"	private final void makeConstraint(){\n" + 
+			"	                   ^^^^^^^^^^^^^^^^\n" + 
+			"The method makeConstraint() from the type FilterConstraintSpecification is never used locally\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in com\\ost\\util\\report\\exceptions\\MalformedFilterConstraintSpecification.java (at line 2)\n" + 
+			"	public class MalformedFilterConstraintSpecification extends RuntimeException {\n" + 
+			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The serializable class MalformedFilterConstraintSpecification does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in com\\ost\\util\\report\\exceptions\\InvalidRowSizeException.java (at line 2)\n" + 
+			"	public class InvalidRowSizeException extends RuntimeException {\n" + 
+			"	             ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The serializable class InvalidRowSizeException does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n",
+			null,
+			false,
+			customOptions);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+public void test082() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	this.runConformTest(
+			new String[] {
+				"com/ost/util/report/Matrix.java", // =================
+				"package com.ost.util.report;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import com.ost.util.report.exceptions.InvalidRowSizeException;\n" + 
+				"public class Matrix<T> implements Serializable {\n" + 
+				"	/**\n" + 
+				"	 * @see exceptions.InvalidRowSizeException2\n" + 
+				"	 */\n" + 
+				"	public synchronized final void addRow(Object[] row){\n" + 
+				"			throw new InvalidRowSizeException();\n" + 
+				"	}\n" + 
+				"}\n",
+				"com/ost/util/report/FilterConstraintSpecification.java", // =================
+				"package com.ost.util.report;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import com.ost.util.report.exceptions.MalformedFilterConstraintSpecification;\n" + 
+				"public final class FilterConstraintSpecification implements Serializable, Cloneable {\n" + 
+				"	private final void makeConstraint(){\n" + 
+				"		throw new MalformedFilterConstraintSpecification();\n" + 
+				"	}\n" + 
+				"}\n",
+				"com/ost/util/report/exceptions/MalformedFilterConstraintSpecification.java", // =================
+				"package com.ost.util.report.exceptions;\n" + 
+				"public class MalformedFilterConstraintSpecification extends RuntimeException {\n" + 
+				"	/** Creates a new instance of MalformedFilterConstraintSpecification */\n" + 
+				"	public MalformedFilterConstraintSpecification() {\n" + 
+				"		super();\n" + 
+				"	}\n" + 
+				"	/* Creates a new instance of MalformedFilterConstraintSpecification */\n" + 
+				"	public MalformedFilterConstraintSpecification(String message) {\n" + 
+				"		super(message);\n" + 
+				"	}\n" + 
+				"}\n",
+				"com/ost/util/report/exceptions/InvalidRowSizeException.java", // =================
+				"package com.ost.util.report.exceptions;\n" + 
+				"public class InvalidRowSizeException extends RuntimeException {\n" + 
+				"	/** Creates a new instance of InvalidRowSizeException */\n" + 
+				"	public InvalidRowSizeException() {\n" + 
+				"		super();\n" + 
+				"	}\n" + 
+				"	/* Creates a new instance of InvalidRowSizeException */\n" + 
+				"	public InvalidRowSizeException(String message) {\n" + 
+				"		super(message);\n" + 
+				"	}\n" + 
+				"}\n"				
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+public void test083() {
+	this.runConformTest(
+			new String[] {
+				"foo/X.java", // =================
+				"package foo;\n" + 
+				"import foo.exceptions.*;\n" + 
+				"public class X {\n" + 
+				"  class exceptions {}\n" + 
+				"  exceptions E;\n" + 
+				"}\n",
+				"foo/exceptions/Z.java", // =================
+				"package foo.exceptions;\n" + 
+				"public class Z {\n" + 
+				"}\n"			
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+public void test084() {
+	this.runNegativeTest(
+			new String[] {
+				"foo/X.java", // =================
+				"package foo;\n" + 
+				"import foo.exceptions.*;\n" + 
+				"public class X {\n" + 
+				"  exceptions E;\n" + 
+				"}\n" +
+				"class exceptions {}\n",
+				"foo/exceptions/Z.java", // =================
+				"package foo.exceptions;\n" + 
+				"public class Z {\n" + 
+				"}\n"			
+			},
+			"----------\n" + 
+			"1. WARNING in foo\\X.java (at line 2)\n" + 
+			"	import foo.exceptions.*;\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"The import foo.exceptions is never used\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in foo\\exceptions\\Z.java (at line 1)\n" + 
+			"	package foo.exceptions;\n" + 
+			"	        ^^^^^^^^^^^^^^\n" + 
+			"The package foo.exceptions collides with a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+public void test085() {
+	this.runNegativeTest(
+			new String[] {
+				"p/X.java", // =================
+				"package p;\n" + 
+				"public class X extends zork.Z {\n" + 
+				"}\n",
+				"p/Y.java", // =================
+				"package p;\n" + 
+				"import p.zork.Z;\n" + 
+				"public class Y {\n" + 
+				"}\n",
+				"p/zork/Z.java", // =================
+				"package p.zork;\n" + 
+				"public class Z {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 2)\n" + 
+			"	public class X extends zork.Z {\n" + 
+			"	                       ^^^^\n" + 
+			"zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in p\\Y.java (at line 2)\n" + 
+			"	import p.zork.Z;\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The import p.zork.Z is never used\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+public void test086() {
+	this.runNegativeTest(
+			new String[] {
+				"p/X.java", // =================
+				"package p;\n" + 
+				"public class X extends zork.Z {\n" + 
+				"}\n",
+				"p/Y.java", // =================
+				"package p;\n" + 
+				"import p.zork.*;\n" + 
+				"public class Y {\n" + 
+				"}\n",
+				"p/zork/Z.java", // =================
+				"package p.zork;\n" + 
+				"public class Z {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 2)\n" + 
+			"	public class X extends zork.Z {\n" + 
+			"	                       ^^^^\n" + 
+			"zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in p\\Y.java (at line 2)\n" + 
+			"	import p.zork.*;\n" + 
+			"	       ^^^^^^\n" + 
+			"The import p.zork is never used\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+public void test087() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+			new String[] {
+				"p/X.java", // =================
+				"package p;\n" + 
+				"public class X extends zork.Z {\n" + 
+				"}\n",
+				"p/Y.java", // =================
+				"package p;\n" + 
+				"import static p.zork.Z.M;\n" + 
+				"public class Y {\n" + 
+				"}\n",
+				"p/zork/Z.java", // =================
+				"package p.zork;\n" + 
+				"public class Z {\n" + 
+				"	public static class M {}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 2)\n" + 
+			"	public class X extends zork.Z {\n" + 
+			"	                       ^^^^\n" + 
+			"zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in p\\Y.java (at line 2)\n" + 
+			"	import static p.zork.Z.M;\n" + 
+			"	              ^^^^^^^^^^\n" + 
+			"The import p.zork.Z.M is never used\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+public void test088() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+			new String[] {
+				"p/X.java", // =================
+				"package p;\n" + 
+				"public class X extends zork.Z {\n" + 
+				"}\n",
+				"p/Y.java", // =================
+				"package p;\n" + 
+				"import static p.zork.Z.*;\n" + 
+				"public class Y {\n" + 
+				"}\n",
+				"p/zork/Z.java", // =================
+				"package p.zork;\n" + 
+				"public class Z {\n" + 
+				"	static class M {}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 2)\n" + 
+			"	public class X extends zork.Z {\n" + 
+			"	                       ^^^^\n" + 
+			"zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in p\\Y.java (at line 2)\n" + 
+			"	import static p.zork.Z.*;\n" + 
+			"	              ^^^^^^^^\n" + 
+			"The import p.zork.Z is never used\n" + 
 			"----------\n");
 }
 }

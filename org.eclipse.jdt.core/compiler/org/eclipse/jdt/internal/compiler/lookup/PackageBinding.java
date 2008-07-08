@@ -165,20 +165,24 @@ ReferenceBinding getType0(char[] name) {
 public Binding getTypeOrPackage(char[] name) {
 	ReferenceBinding referenceBinding = getType0(name);
 	if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
-		referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this.environment, false /* no raw conversion for now */);
-		if (referenceBinding.isNestedType())
-			return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
-		return referenceBinding;
+		if ((referenceBinding.tagBits & TagBits.HasMissingType) == 0) {
+			referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this.environment, false /* no raw conversion for now */);
+			if (referenceBinding.isNestedType()) {
+				return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
+			}
+			return referenceBinding;
+		}
 	}
 
 	PackageBinding packageBinding = getPackage0(name);
-	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage)
+	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage) {
 		return packageBinding;
-
+	}
 	if (referenceBinding == null) { // have not looked for it before
 		if ((referenceBinding = this.environment.askForType(this, name)) != null) {
-			if (referenceBinding.isNestedType())
+			if (referenceBinding.isNestedType()) {
 				return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
+			}
 			return referenceBinding;
 		}
 
@@ -188,8 +192,12 @@ public Binding getTypeOrPackage(char[] name) {
 	}
 
 	if (packageBinding == null) { // have not looked for it before
-		if ((packageBinding = findPackage(name)) != null)
+		if ((packageBinding = findPackage(name)) != null) {
 			return packageBinding;
+		}
+		if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
+			return referenceBinding; // found cached missing type - check if package conflict
+		}
 		addNotFoundPackage(name);
 	}
 
