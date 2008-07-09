@@ -2549,6 +2549,7 @@ public final class CompletionEngine
 								}
 							}
 							// if null then we found a problem in the completion node
+							this.lookupEnvironment.unitBeingCompleted = parsedUnit; // better resilient to further error reporting
 							contextAccepted =
 								complete(
 									e.astNode,
