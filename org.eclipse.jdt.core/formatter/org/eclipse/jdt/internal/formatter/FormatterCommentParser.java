@@ -371,9 +371,20 @@ protected boolean parseReturn() {
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#parseTag(int)
  */
 protected boolean parseTag(int previousPosition) throws InvalidInputException {
-	int ptr = this.astPtr;
-	
+
+	// Do not parse javadoc tag inside <pre>...</pre> tags
+	if (this.htmlTagsPtr >= 0) {
+		int ptr = this.htmlTagsPtr;
+   		while (ptr >= 0) {
+			if (getHtmlTagIndex(this.htmlTags[ptr--]) == JAVADOC_CODE_TAGS_ID) {
+				if (this.textStart == -1) this.textStart = previousPosition;
+				return true;
+			}
+		}
+	}
+
 	// Read tag name
+	int ptr = this.astPtr;
 	this.tagSourceStart = previousPosition;
 	this.scanner.startPosition = this.index;
 	this.scanner.currentCharacter = readChar();

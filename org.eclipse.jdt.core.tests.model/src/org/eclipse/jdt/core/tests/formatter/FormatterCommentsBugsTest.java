@@ -1722,4 +1722,91 @@ public void testBug238920c() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 239719: [formatter] Code formatter destroys pre formatted javadoc comments
+ * @test Ensure that annotations inside <pre>...</pre> tags are not considered as javadoc tags
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=239719"
+ */
+public void testBug239719() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * <pre>\n" + 
+		" *  public class Test implements Runnable\n" + 
+		" *  {\n" + 
+		" *    @Override\n" + 
+		" *    public void run()\n" + 
+		" *    { \n" + 
+		" *      // Hello really bad Ganymede formatter !!!\n" + 
+		" *      // Shit happens when somebody tries to change a running system\n" + 
+		" *      System.out.println(\"Press Shift+Ctrl+F to format\");\n" + 
+		" *    }\n" + 
+		" *  }</pre>\n" + 
+		" */\n" + 
+		" public class Test \n" + 
+		" {\n" + 
+		" }\n";
+	formatSource(source,
+		"/**\n" + 
+		" * <pre>\n" + 
+		" * public class Test implements Runnable {\n" + 
+		" * 	&#064;Override\n" + 
+		" * 	public void run() {\n" + 
+		" * 		// Hello really bad Ganymede formatter !!!\n" + 
+		" * 		// Shit happens when somebody tries to change a running system\n" + 
+		" * 		System.out.println(&quot;Press Shift+Ctrl+F to format&quot;);\n" + 
+		" * 	}\n" + 
+		" * }\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"}\n"
+	);
+}
+public void testBug239719b() throws JavaModelException {
+	String source = 
+		"public class X01 {\n" + 
+		"	\n" + 
+		"	private int fLength;\n" + 
+		"	private int fOffset;\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Returns the inclusive end position of this edit. The inclusive end\n" + 
+		"	 * position denotes the last character of the region manipulated by\n" + 
+		"	 * this edit. The returned value is the result of the following\n" + 
+		"	 * calculation:\n" + 
+		"	 * <pre>\n" + 
+		"	 *   getOffset() + getLength() - 1;\n" + 
+		"	 * <pre>\n" + 
+		"	 * \n" + 
+		"	 * @return the inclusive end position\n" + 
+		"	 */\n" + 
+		"	public final int getInclusiveEnd() {\n" + 
+		"		return fOffset + fLength - 1;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"	private int fLength;\n" + 
+		"	private int fOffset;\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Returns the inclusive end position of this edit. The inclusive end\n" + 
+		"	 * position denotes the last character of the region manipulated by this\n" + 
+		"	 * edit. The returned value is the result of the following calculation:\n" + 
+		"	 * \n" + 
+		"	 * <pre>\n" + 
+		"	 * getOffset() + getLength() - 1;\n" + 
+		"	 * \n" + 
+		"	 * <pre>\n" + 
+		"	 * \n" + 
+		"	 * @return the inclusive end position\n" + 
+		"	 */\n" + 
+		"	public final int getInclusiveEnd() {\n" + 
+		"		return fOffset + fLength - 1;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
