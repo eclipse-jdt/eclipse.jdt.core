@@ -623,83 +623,90 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * Parse an URL link reference in @see tag
 	 */
 	protected boolean parseHref() throws InvalidInputException {
-		int start = this.scanner.getCurrentTokenStartPosition();
-		char currentChar = readChar();
-		if (currentChar == 'a' || currentChar == 'A') {
-			this.scanner.currentPosition = this.index;
-			if (readToken() == TerminalTokens.TokenNameIdentifier) {
-				consumeToken();
-				try {
-					if (CharOperation.equals(this.scanner.getCurrentIdentifierSource(), HREF_TAG, false) &&
-						readToken() == TerminalTokens.TokenNameEQUAL) {
-						consumeToken();
-						if (readToken() == TerminalTokens.TokenNameStringLiteral) {
+		boolean skipComments = this.scanner.skipComments;
+		this.scanner.skipComments = true;
+		try {
+			int start = this.scanner.getCurrentTokenStartPosition();
+			char currentChar = readChar();
+			if (currentChar == 'a' || currentChar == 'A') {
+				this.scanner.currentPosition = this.index;
+				if (readToken() == TerminalTokens.TokenNameIdentifier) {
+					consumeToken();
+					try {
+						if (CharOperation.equals(this.scanner.getCurrentIdentifierSource(), HREF_TAG, false) &&
+							readToken() == TerminalTokens.TokenNameEQUAL) {
 							consumeToken();
-							while (this.index < this.javadocEnd) { // main loop to search for the </a> pattern
-								// Skip all characters after string literal until closing '>' (see bug 68726)
-								while (readToken() != TerminalTokens.TokenNameGREATER) {
-									if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
-											(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
-										// Reset position: we want to rescan last token
-										this.index = this.tokenPreviousPosition;
-										this.scanner.currentPosition = this.tokenPreviousPosition;
-										this.currentTokenType = -1;
-										// Signal syntax error
-										if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
-											if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeHref(start, this.lineEnd);
+							if (readToken() == TerminalTokens.TokenNameStringLiteral) {
+								consumeToken();
+								while (this.index < this.javadocEnd) { // main loop to search for the </a> pattern
+									// Skip all characters after string literal until closing '>' (see bug 68726)
+									while (readToken() != TerminalTokens.TokenNameGREATER) {
+										if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
+												(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
+											// Reset position: we want to rescan last token
+											this.index = this.tokenPreviousPosition;
+											this.scanner.currentPosition = this.tokenPreviousPosition;
+											this.currentTokenType = -1;
+											// Signal syntax error
+											if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
+												if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeHref(start, this.lineEnd);
+											}
+											return false;
 										}
-										return false;
+										this.currentTokenType = -1; // consume token without updating line end
 									}
-									this.currentTokenType = -1; // consume token without updating line end
-								}
-								consumeToken(); // update line end as new lines are allowed in URL description
-								while (readToken() != TerminalTokens.TokenNameLESS) {
-									if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
-											(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
-										// Reset position: we want to rescan last token
-										this.index = this.tokenPreviousPosition;
-										this.scanner.currentPosition = this.tokenPreviousPosition;
-										this.currentTokenType = -1;
-										// Signal syntax error
-										if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
-											if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeHref(start, this.lineEnd);
+									consumeToken(); // update line end as new lines are allowed in URL description
+									while (readToken() != TerminalTokens.TokenNameLESS) {
+										if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
+												(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
+											// Reset position: we want to rescan last token
+											this.index = this.tokenPreviousPosition;
+											this.scanner.currentPosition = this.tokenPreviousPosition;
+											this.currentTokenType = -1;
+											// Signal syntax error
+											if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
+												if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeHref(start, this.lineEnd);
+											}
+											return false;
 										}
-										return false;
+										consumeToken();
 									}
 									consumeToken();
-								}
-								consumeToken();
-								start = this.scanner.getCurrentTokenStartPosition();
-								currentChar = readChar();
-								// search for the </a> pattern and store last char read
-								if (currentChar == '/') {
+									start = this.scanner.getCurrentTokenStartPosition();
 									currentChar = readChar();
-									if (currentChar == 'a' || currentChar =='A') {
+									// search for the </a> pattern and store last char read
+									if (currentChar == '/') {
 										currentChar = readChar();
-										if (currentChar == '>') {
-											return true; // valid href
+										if (currentChar == 'a' || currentChar =='A') {
+											currentChar = readChar();
+											if (currentChar == '>') {
+												return true; // valid href
+											}
 										}
 									}
-								}
-								// search for invalid char in tags
-								if (currentChar == '\r' || currentChar == '\n' || currentChar == '\t' || currentChar == ' ') {
-									break;
+									// search for invalid char in tags
+									if (currentChar == '\r' || currentChar == '\n' || currentChar == '\t' || currentChar == ' ') {
+										break;
+									}
 								}
 							}
 						}
+					} catch (InvalidInputException ex) {
+						// Do nothing as we want to keep positions for error message
 					}
-				} catch (InvalidInputException ex) {
-					// Do nothing as we want to keep positions for error message
 				}
 			}
+			// Reset position: we want to rescan last token
+			this.index = this.tokenPreviousPosition;
+			this.scanner.currentPosition = this.tokenPreviousPosition;
+			this.currentTokenType = -1;
+			// Signal syntax error
+			if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
+				if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeHref(start, this.lineEnd);
+			}
 		}
-		// Reset position: we want to rescan last token
-		this.index = this.tokenPreviousPosition;
-		this.scanner.currentPosition = this.tokenPreviousPosition;
-		this.currentTokenType = -1;
-		// Signal syntax error
-		if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
-			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeHref(start, this.lineEnd);
+		finally {
+			this.scanner.skipComments = skipComments;
 		}
 		return false;
 	}

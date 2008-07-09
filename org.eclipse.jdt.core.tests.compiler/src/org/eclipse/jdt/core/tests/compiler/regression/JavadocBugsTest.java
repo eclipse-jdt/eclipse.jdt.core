@@ -7415,4 +7415,22 @@ public void testBug233887() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+
+/**
+ * @bug 237937: [javadoc] Wrong "Javadoc: Malformed link reference" if href label contains //
+ * @test Ensure that no warning is raised when href label contains '//'
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237937"
+ */
+public void testBug237937() {
+	runConformTest(
+		new String[] {
+			"src/Link.java",
+			"/**\n" + 
+			" * @see <a href=\"http://www.eclipse.org/\">http://www.eclipse.org</a>\n" + 
+			" * @see <a href=\"http://www.eclipse.org/\">//</a>\n" + 
+			" */\n" + 
+			"public class Link {}\n"
+		}
+	);
+}
 }
