@@ -5842,6 +5842,10 @@ public class ClassFile
 					| ClassFileConstants.AccSynchronized
 					| ClassFileConstants.AccNative);
 					
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=240214
+		if (aType.isAnonymousType()) {
+			accessFlags &= ~ClassFileConstants.AccFinal;
+		}
 		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
 		if (!aType.isInterface()) { // class or enum
 			accessFlags |= ClassFileConstants.AccSuper;

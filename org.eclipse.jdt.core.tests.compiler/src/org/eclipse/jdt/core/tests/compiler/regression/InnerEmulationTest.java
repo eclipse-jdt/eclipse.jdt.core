@@ -15,9 +15,11 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -5163,6 +5165,20 @@ public void test134() {
 			},
 			"XI\nXI");
 	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=
+public void test135() throws Exception {
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	Object foo() {\n" +
+		"		return new X() {};\n" +
+		"	}\n" +
+		"}"
+	});
+	File fileX = new File(OUTPUT_DIR + File.separator  +"X$1.class");
+	IClassFileReader reader = ToolFactory.createDefaultClassFileReader(fileX.getAbsolutePath(), IClassFileReader.CONSTANT_POOL);
+	assertFalse("Should not be final", Flags.isFinal(reader.getAccessFlags()));
 }
 public static Class testClass() {
 	return InnerEmulationTest.class;
