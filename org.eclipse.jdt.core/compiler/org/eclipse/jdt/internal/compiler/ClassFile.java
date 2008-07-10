@@ -6873,7 +6873,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (!aType.isInterface()) { // class or enum
 			accessFlags |= ClassFileConstants.AccSuper;
 		}
-
+		if (aType.isAnonymousType()) {
+			accessFlags &= ~ClassFileConstants.AccFinal;
+		}
 		this.enclosingClassFile = parentClassFile;
 		// innerclasses get their names computed at code gen time
 
