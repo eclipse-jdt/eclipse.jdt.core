@@ -6377,7 +6377,7 @@ public void _test153() {
 				"");	
 	}
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=201487 - variatiion
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=201487 - variation
 public void test154() {
 	long compliance = new CompilerOptions(getCompilerOptions()).complianceLevel;
 	if (compliance <= ClassFileConstants.JDK1_4) {
