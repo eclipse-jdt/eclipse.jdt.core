@@ -43,7 +43,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 152 };
+	TESTS_NUMBERS = new int[] { 288 };
 //	TESTS_RANGE = new int[] { 107, -1 };
 	}
 public BatchCompilerTest(String name) {
@@ -10941,7 +10941,6 @@ public void test286_option_files() {
         "1 problem (1 error)",
         true /*shouldFlushOutput*/);
 }
-
 // command-line expansion
 // shows that we don't recurse
 public void test287_option_files() {
@@ -10960,5 +10959,47 @@ public void test287_option_files() {
         "" /* expectedOutOutputString */,
         "Unrecognized option : @options2.txt\n" /* stderr */,
         true /*shouldFlushOutput*/);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=229092
+public void test288(){
+	String setting= System.getProperty("jdt.compiler.useSingleThread");
+	try {
+//		System.setProperty("jdt.compiler.useSingleThread", "false");
+		this.runNegativeTest(
+			new String[] {
+					"C1.java",
+					"public class C1 {\r\n" + 
+					"  void bar(C2 other) {\r\n" + 
+					"    other.missing();\r\n" + 
+					"  }\r\n" + 
+					"}",
+					"C2.java",
+					"public class C2 {\r\n" + 
+					"  void foo() {\r\n" + 
+					"    this.wrong();\r\n" + 
+					"  }\r\n" + 
+					"}",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "C1.java\""
+			+ " -classpath \"" + OUTPUT_DIR + "\""
+			+ " -g -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"----------\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/C1.java (at line 3)\n" + 
+			"	other.missing();\n" + 
+			"	      ^^^^^^^\n" + 
+			"The method missing() is undefined for the type C2\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/C2.java (at line 3)\n" + 
+			"	this.wrong();\n" + 
+			"	     ^^^^^\n" + 
+			"The method wrong() is undefined for the type C2\n" + 
+			"----------\n" + 
+			"2 problems (2 errors)",
+			true);
+	} finally {
+		System.setProperty("jdt.compiler.useSingleThread", setting == null ? "false" : setting);
+	}
 }
 }

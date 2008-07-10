@@ -5656,7 +5656,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"  // Method descriptor #17 ()Ljava/lang/Object;\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public bridge synthetic java.lang.Object bar() throws java.lang.Exception;\n" +
-			"    0  aload_0\n" +
+			"    0  aload_0 [this]\n" +
 			"    1  invokevirtual X.bar() : java.lang.String [21]\n" +
 			"    4  areturn\n" +
 			"      Line numbers:\n" +
@@ -5665,7 +5665,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"  // Method descriptor #17 ()Ljava/lang/Object;\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  protected bridge synthetic java.lang.Object foo() throws java.lang.Exception;\n" +
-			"    0  aload_0\n" +
+			"    0  aload_0 [this]\n" +
 			"    1  invokevirtual X.foo() : java.lang.String [23]\n" +
 			"    4  areturn\n" +
 			"      Line numbers:\n" +

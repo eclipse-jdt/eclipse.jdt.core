@@ -41,17 +41,20 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private String lineSeparator;
 	private int tabNumber;
 	private int digitNumberForPC;
-    private ILocalVariableTableEntry[] localVariableTableEntries;
-    private int localVariableAttributeLength;
+	private ILocalVariableTableEntry[] localVariableTableEntries;
+	private int localVariableAttributeLength;
 	private int mode;
+	private char[][] parameterNames;
+	private boolean isStatic;
+	private int[] argumentSizes;
 
-	public DefaultBytecodeVisitor(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+	public DefaultBytecodeVisitor(ICodeAttribute codeAttribute, char[][] parameterNames, char[] methodDescriptor, boolean isStatic, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
 		this.localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
 		if (this.localVariableAttributeLength != 0) {
 			this.localVariableTableEntries = localVariableAttribute.getLocalVariableTable();
 		} else {
-            this.localVariableTableEntries = null;
+			this.localVariableTableEntries = null;
 		}
 		this.buffer = buffer;
 		this.lineSeparator = lineSeparator;
@@ -59,6 +62,18 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		long codeLength = codeAttribute.getCodeLength();
 		this.digitNumberForPC = Long.toString(codeLength).length();
 		this.mode = mode;
+		this.parameterNames = parameterNames;
+		this.isStatic = isStatic;
+		// compute argument sizes
+		if (parameterNames != null) {
+			char[][] parameterTypes = Signature.getParameterTypes(methodDescriptor);
+			int length = parameterTypes.length;
+			this.argumentSizes = new int[length];
+			for (int i = 0; i < length; i++) {
+				char[] parameterType = parameterTypes[i];
+				this.argumentSizes[i] = parameterType.length == 1 && (parameterType[0] == 'D' || parameterType[0] == 'J') ? 2 : 1;
+			}
+		}
 	}
 	/**
 	 * @see IBytecodeVisitor#_aaload(int)
@@ -220,35 +235,68 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	}
 
 	private String getLocalVariableName(int pc, int index, boolean showIndex) {
-        int nextPC = pc + 1;
-        switch(index) {
-            case 0 :
-            case 1 :
-            case 2 :
-            case 3 :
-                break;
-            default :
-                nextPC = index <= 255 ? pc + 2 : pc + 3;
-        }
+		int nextPC = pc + 1;
+		switch(index) {
+			case 0 :
+			case 1 :
+			case 2 :
+			case 3 :
+				break;
+			default :
+				nextPC = index <= 255 ? pc + 2 : pc + 3;
+		}
 
-        for (int i = 0, max = this.localVariableAttributeLength; i < max; i++) {
-            final ILocalVariableTableEntry entry = this.localVariableTableEntries[i];
-            final int startPC = entry.getStartPC();
-            if (entry.getIndex() == index && (startPC <= nextPC) && ((startPC + entry.getLength()) > nextPC)) {
-            	final StringBuffer stringBuffer = new StringBuffer();
-            	if (showIndex) {
-            		stringBuffer.append(' ').append(index);
-            	}
-            	stringBuffer.append(' ').append('[').append(entry.getName()).append(']');
-            	return String.valueOf(stringBuffer);
-            }
-        }
-    	if (showIndex) {
-        	final StringBuffer stringBuffer = new StringBuffer();
-        	stringBuffer.append(' ').append(index);
-         	return String.valueOf(stringBuffer);
-    	}
-        return EMPTY_LOCAL_NAME;
+		for (int i = 0, max = this.localVariableAttributeLength; i < max; i++) {
+			final ILocalVariableTableEntry entry = this.localVariableTableEntries[i];
+			final int startPC = entry.getStartPC();
+			if (entry.getIndex() == index && (startPC <= nextPC) && ((startPC + entry.getLength()) > nextPC)) {
+				final StringBuffer stringBuffer = new StringBuffer();
+				if (showIndex) {
+					stringBuffer.append(' ').append(index);
+				}
+				stringBuffer.append(' ').append('[').append(entry.getName()).append(']');
+				return String.valueOf(stringBuffer);
+			}
+		}
+		if (this.parameterNames != null) {
+			if (index == 0) {
+				if (!this.isStatic) {
+					final StringBuffer stringBuffer = new StringBuffer();
+					stringBuffer.append(' ').append('[').append("this").append(']'); //$NON-NLS-1$
+					return String.valueOf(stringBuffer);
+				}
+			}
+			int indexInParameterNames = index;
+			if (index != 0) {
+				int resolvedPosition = 0;
+				if (!this.isStatic) {
+					resolvedPosition = 1;
+				}
+				int i = 0;
+				loop: for (int max = this.argumentSizes.length; i < max; i++) {
+					if (index == resolvedPosition) {
+						break loop;
+					}
+					resolvedPosition += this.argumentSizes[i];
+				}
+				indexInParameterNames = i;
+			}
+			if (indexInParameterNames < this.parameterNames.length
+					&& this.parameterNames[indexInParameterNames] != null) {
+				final StringBuffer stringBuffer = new StringBuffer();
+				if (showIndex) {
+					stringBuffer.append(' ').append(index);
+				}
+				stringBuffer.append(' ').append('[').append(this.parameterNames[indexInParameterNames]).append(']');
+				return String.valueOf(stringBuffer);
+			}
+		}
+		if (showIndex) {
+			final StringBuffer stringBuffer = new StringBuffer();
+			stringBuffer.append(' ').append(index);
+			return String.valueOf(stringBuffer);
+		}
+		return EMPTY_LOCAL_NAME;
 	}
 
 	/**

@@ -4862,10 +4862,10 @@ public void test125() throws Exception {
 			"     0  aload_0 [this]\n" +
 			"     1  invokespecial java.lang.Object() [13]\n" +
 			"     4  aload_0 [this]\n" +
-			"     5  aload_1\n" +
+			"     5  aload_1 [arg0]\n" +
 			"     6  putfield X$1$Local.this$0 : X [16]\n" +
 			"     9  aload_0 [this]\n" +
-			"    10  aload_2\n" +
+			"    10  aload_2 [arg1]\n" +
 			"    11  putfield X$1$Local.val$s : java.lang.String [18]\n" +
 			"    14  return\n" +
 			"      Line numbers:\n" +
@@ -4890,9 +4890,9 @@ public void test125() throws Exception {
 			"  // Method descriptor #37 (LX;Ljava/lang/String;LX$1$Local;)V\n" +
 			"  // Stack: 3, Locals: 4\n" +
 			"  synthetic X$1$Local(X arg0, java.lang.String arg1, new X(){}.Local arg2);\n" +
-			"    0  aload_0\n" +
-			"    1  aload_1\n" +
-			"    2  aload_2\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  aload_1 [arg0]\n" +
+			"    2  aload_2 [arg1]\n" +
 			"    3  invokespecial X$1$Local(X, java.lang.String) [38]\n" +
 			"    6  return\n" +
 			"      Line numbers:\n" +
@@ -4915,10 +4915,10 @@ public void test125() throws Exception {
 			"  // Stack: 2, Locals: 3\n" +
 			"  X$1$Local(X arg0, java.lang.String arg1);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  aload_1\n" +
+			"     1  aload_1 [arg0]\n" +
 			"     2  putfield X$1$Local.this$0 : X [13]\n" +
 			"     5  aload_0 [this]\n" +
-			"     6  aload_2\n" +
+			"     6  aload_2 [arg1]\n" +
 			"     7  putfield X$1$Local.val$s : java.lang.String [15]\n" +
 			"    10  aload_0 [this]\n" +
 			"    11  invokespecial java.lang.Object() [17]\n" +
@@ -4958,10 +4958,10 @@ public void test125() throws Exception {
 				"  // Stack: 2, Locals: 3\n" +
 				"  X$1Local(X arg0, java.lang.String arg1);\n" +
 				"     0  aload_0 [this]\n" +
-				"     1  aload_1\n" +
+				"     1  aload_1 [arg0]\n" +
 				"     2  putfield X$1Local.this$0 : X [12]\n" +
 				"     5  aload_0 [this]\n" +
-				"     6  aload_2\n" +
+				"     6  aload_2 [arg1]\n" +
 				"     7  putfield X$1Local.val$s : java.lang.String [14]\n" +
 				"    10  aload_0 [this]\n" +
 				"    11  invokespecial java.lang.Object() [16]\n" +

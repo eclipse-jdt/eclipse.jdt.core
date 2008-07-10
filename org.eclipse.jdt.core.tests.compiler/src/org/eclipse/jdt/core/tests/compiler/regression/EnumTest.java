@@ -2023,8 +2023,8 @@ public void test070() throws Exception {
 		"  // Stack: 3, Locals: 3\n" +
 		"  private X(java.lang.String arg0, int arg1);\n" +
 		"    0  aload_0 [this]\n" +
-		"    1  aload_1\n" +
-		"    2  iload_2\n" +
+		"    1  aload_1 [arg0]\n" +
+		"    2  iload_2 [arg1]\n" +
 		"    3  invokespecial java.lang.Enum(java.lang.String, int) [25]\n" +
 		"    6  return\n";
 
@@ -2888,8 +2888,8 @@ public void test094() throws Exception {
 		"  // Stack: 3, Locals: 3\n" +
 		"  private X(java.lang.String arg0, int arg1);\n" +
 		"    0  aload_0 [this]\n" +
-		"    1  aload_1\n" +
-		"    2  iload_2\n" +
+		"    1  aload_1 [arg0]\n" +
+		"    2  iload_2 [arg1]\n" +
 		"    3  invokespecial java.lang.Enum(java.lang.String, int) [16]\n" +
 		"    6  return\n" +
 		"      Line numbers:\n" +
@@ -2923,7 +2923,7 @@ public void test094() throws Exception {
 		"  // Stack: 2, Locals: 1\n" +
 		"  public static X valueOf(java.lang.String arg0);\n" +
 		"     0  ldc <Class X> [1]\n" +
-		"     2  aload_0\n" +
+		"     2  aload_0 [arg0]\n" +
 		"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [30]\n" +
 		"     6  checkcast X [1]\n" +
 		"     9  areturn\n" +
@@ -4394,8 +4394,8 @@ public void test129() throws Exception {
 		"  // Stack: 3, Locals: 3\n" +
 		"  private X(java.lang.String arg0, int arg1);\n" +
 		"    0  aload_0 [this]\n" +
-		"    1  aload_1\n" +
-		"    2  iload_2\n" +
+		"    1  aload_1 [arg0]\n" +
+		"    2  iload_2 [arg1]\n" +
 		"    3  invokespecial java.lang.Enum(java.lang.String, int) [31]\n" +
 		"    6  return\n" +
 		"      Line numbers:\n" +
@@ -4429,7 +4429,7 @@ public void test129() throws Exception {
 		"  // Stack: 2, Locals: 1\n" +
 		"  public static X valueOf(java.lang.String arg0);\n" +
 		"     0  ldc <Class X> [1]\n" +
-		"     2  aload_0\n" +
+		"     2  aload_0 [arg0]\n" +
 		"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [43]\n" +
 		"     6  checkcast X [1]\n" +
 		"     9  areturn\n" +

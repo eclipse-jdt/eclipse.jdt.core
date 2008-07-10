@@ -24073,7 +24073,7 @@ public void test0772() throws Exception {
 			"  // Method descriptor #18 ()Ljava/lang/Object;\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public bridge synthetic java.lang.Object getIt();\n" +
-			"    0  aload_0\n" +
+			"    0  aload_0 [this]\n" +
 			"    1  invokevirtual FooImpl.getIt() : java.lang.String [19]\n" +
 			"    4  areturn\n" +
 			"      Line numbers:\n" +
@@ -24129,7 +24129,7 @@ public void test0773() throws Exception {
 			"  // Method descriptor #18 ()Ljava/lang/Exception;\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public bridge synthetic java.lang.Exception getIt() throws java.lang.Exception;\n" +
-			"    0  aload_0\n" +
+			"    0  aload_0 [this]\n" +
 			"    1  invokevirtual FooImpl.getIt() : java.lang.NullPointerException [22]\n" +
 			"    4  areturn\n" +
 			"      Line numbers:\n" +
@@ -24413,8 +24413,8 @@ public void test0779() throws Exception {
 		"  // Method descriptor #31 (I)Ljava/lang/Object;\n" +
 		"  // Stack: 2, Locals: 2\n" +
 		"  public bridge synthetic java.lang.Object get(int arg0);\n" +
-		"    0  aload_0\n" +
-		"    1  iload_1\n" +
+		"    0  aload_0 [this]\n" +
+		"    1  iload_1 [arg0]\n" +
 		"    2  invokevirtual X$Entry$1.get(int) : java.lang.String [36]\n" +
 		"    5  areturn\n" +
 		"      Line numbers:\n" +

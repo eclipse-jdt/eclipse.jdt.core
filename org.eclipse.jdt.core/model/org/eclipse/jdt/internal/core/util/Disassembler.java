@@ -563,15 +563,19 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		CharOperation.replace(methodDescriptor, '/', '.');
 		final boolean isVarArgs = isVarArgs(methodInfo);
 		char[] methodHeader = null;
+		char[][] parameterNames = null;
+		if (!methodInfo.isClinit()) {
+			parameterNames = getParameterNames(methodDescriptor, codeAttribute, accessFlags);
+		}
 		if (methodInfo.isConstructor()) {
 			if (checkMode(mode, WORKING_COPY) && signatureAttribute != null) {
 				final char[] signature = signatureAttribute.getSignature();
 				CharOperation.replace(signature, '/', '.');
 				disassembleGenericSignature(mode, buffer, signature);
 				buffer.append(' ');
-				methodHeader = Signature.toCharArray(signature, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs);
+				methodHeader = Signature.toCharArray(signature, returnClassName(className, '.', COMPACT), parameterNames, !checkMode(mode, COMPACT), false, isVarArgs);
 			} else {
-				methodHeader = Signature.toCharArray(methodDescriptor, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs);
+				methodHeader = Signature.toCharArray(methodDescriptor, returnClassName(className, '.', COMPACT), parameterNames, !checkMode(mode, COMPACT), false, isVarArgs);
 			}
 		} else if (methodInfo.isClinit()) {
 			methodHeader = Messages.bind(Messages.classfileformat_clinitname).toCharArray();
@@ -581,9 +585,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				CharOperation.replace(signature, '/', '.');
 				disassembleGenericSignature(mode, buffer, signature);
 				buffer.append(' ');
-				methodHeader = Signature.toCharArray(signature, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, isVarArgs);
+				methodHeader = Signature.toCharArray(signature, methodInfo.getName(), parameterNames, !checkMode(mode, COMPACT), true, isVarArgs);
 			} else {
-				methodHeader = Signature.toCharArray(methodDescriptor, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, isVarArgs);
+				methodHeader = Signature.toCharArray(methodDescriptor, methodInfo.getName(), parameterNames, !checkMode(mode, COMPACT), true, isVarArgs);
 			}
 		}
 		if (checkMode(mode, DETAILED) && (runtimeInvisibleParameterAnnotationsAttribute != null || runtimeVisibleParameterAnnotationsAttribute != null)) {
@@ -704,7 +708,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			if (codeAttribute != null) {
-				disassemble(codeAttribute, buffer, lineSeparator, tabNumber, mode);
+				disassemble(codeAttribute, parameterNames, methodDescriptor, (accessFlags & IModifierConstants.ACC_STATIC) != 0, buffer, lineSeparator, tabNumber, mode);
 			}
 		}
 		if (checkMode(mode, SYSTEM)) {
@@ -1037,9 +1041,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		// check the presence of the unspecified Varargs attribute
 		return Util.getAttribute(methodInfo, AttributeNamesConstants.VarargsName) != null;
 	}
-	private void disassemble(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+	private void disassemble(ICodeAttribute codeAttribute, char[][] parameterNames, char[] methodDescriptor, boolean isStatic, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber - 1);
-		DefaultBytecodeVisitor visitor = new DefaultBytecodeVisitor(codeAttribute, buffer, lineSeparator, tabNumber, mode);
+		DefaultBytecodeVisitor visitor = new DefaultBytecodeVisitor(codeAttribute, parameterNames, methodDescriptor, isStatic, buffer, lineSeparator, tabNumber, mode);
 		try {
 			codeAttribute.traverse(visitor);
 		} catch(ClassFormatException e) {
