@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
@@ -2336,6 +2337,215 @@ public void testChangeInternalJar() throws CoreException, IOException {
 	} finally {
 		removeClasspathEntry(this.currentProject, new Path(jarName));
 		deleteResource(new File(jarName));
+	}
+}
+public void testBug237469a() throws Exception {
+	String externalJar1 = Util.getOutputDirectory() + File.separator + "bug237469a.jar"; //$NON-NLS-1$
+	String externalJar2 = Util.getOutputDirectory() + File.separator + "bug237469b.jar"; //$NON-NLS-1$
+	
+	try {
+		// create variable
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
+		
+		
+		// create external jar 1
+		Util.createJar(
+				new String[] {
+					"test/IProject.java", //$NON-NLS-1$
+					"package test;\n" + //$NON-NLS-1$
+					"public class IProject {\n" + //$NON-NLS-1$
+					"}" //$NON-NLS-1$
+				},
+				new HashMap(),
+				externalJar1);
+		
+		// create external jar 2
+		Util.createJar(
+				new String[] {
+					"test/IJavaProject.java", //$NON-NLS-1$
+					"package test;\n" + //$NON-NLS-1$
+					"import test.IProject;\n" + //$NON-NLS-1$
+					"public class IJavaProject {\n" + //$NON-NLS-1$
+					"	IProject project = null;\n" + //$NON-NLS-1$
+					"}" //$NON-NLS-1$
+				},
+				null,
+				new HashMap(),
+				new String[]{externalJar1},
+				externalJar2);
+
+		// create P1
+		this.createJavaProject(
+			"PS1",
+			new String[]{"src"},
+			new String[]{"JCL_LIB", externalJar1, externalJar2},
+			 "bin");
+
+		this.createFolder("/PS1/src/test");
+		this.createFile(
+				"/PS1/src/test/Y.java",
+				"package test;\n"+
+				"import test.IProject;\n"+
+				"import test.IJavaProject;\n"+
+				"public class Y {\n"+
+				"  IProject project;\n"+
+				"  IJavaProject javaProject;\n"+
+				"}");
+
+		// create P2
+		this.createJavaProject(
+			"PS2",
+			new String[]{"src"},
+			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"/PS1"},
+			"bin");
+
+		this.createFolder("/PS2/src/test");
+		this.createFile(
+				"/PS2/src/test/X.java",
+				"package test;\n"+
+				"public class X extends test.Y {\n"+
+				"  private Object initializer;\n"+
+				"  public void foo() {\n"+
+				"    initializer\n"+
+				"  }\n"+
+				"}");
+
+		waitUntilIndexesReady();
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("PS2", "src", "test", "X.java");
+
+		String str = cu.getSource();
+		String completeBehind = "initializer";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertResults(
+			"initializer[FIELD_REF]{initializer, Ltest.X;, Ljava.lang.Object;, initializer, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("PS1");
+		this.deleteProject("PS2");
+		this.deleteFile(externalJar1);
+		this.deleteFile(externalJar2);
+	}
+}
+public void testBug237469b() throws Exception {
+	String externalJar1 = Util.getOutputDirectory() + File.separator + "bug237469a.jar"; //$NON-NLS-1$
+	String externalJar2 = Util.getOutputDirectory() + File.separator + "bug237469b.jar"; //$NON-NLS-1$
+	
+	try {
+		// create variable
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
+		
+		
+		// create external jar 1
+		Util.createJar(
+				new String[] {
+					"test/IProject.java", //$NON-NLS-1$
+					"package test;\n" + //$NON-NLS-1$
+					"public class IProject {\n" + //$NON-NLS-1$
+					"}" //$NON-NLS-1$
+				},
+				new HashMap(),
+				externalJar1);
+		
+		// create external jar 2
+		Util.createJar(
+				new String[] {
+					"test/IJavaProject.java", //$NON-NLS-1$
+					"package test;\n" + //$NON-NLS-1$
+					"import test.IProject;\n" + //$NON-NLS-1$
+					"public class IJavaProject {\n" + //$NON-NLS-1$
+					"	IProject project = null;\n" + //$NON-NLS-1$
+					"}" //$NON-NLS-1$
+				},
+				null,
+				new HashMap(),
+				new String[]{externalJar1},
+				externalJar2);
+
+		// create P1
+		this.createJavaProject(
+			"PS1",
+			new String[]{"src"},
+			new String[]{"JCL_LIB", externalJar1, externalJar2},
+			 "bin");
+
+		this.createFolder("/PS1/src/test");
+		this.createFile(
+				"/PS1/src/test/Y.java",
+				"package test;\n"+
+				"import test.IProject;\n"+
+				"import test.IJavaProject;\n"+
+				"public class Y {\n"+
+				"  IProject project;\n"+
+				"  IJavaProject javaProject;\n"+
+				"}");
+
+		// create P2
+		this.createJavaProject(
+			"PS2",
+			new String[]{"src"},
+			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"/PS1"},
+			"bin");
+
+		this.createFolder("/PS2/src/test");
+		this.createFile(
+				"/PS2/src/test/X.java",
+				"package test;\n"+
+				"public class X extends test.Y {\n"+
+				"  private X initializer;\n"+
+				"  public void foo() {\n"+
+				"    Object o; o.equals\n"+
+				"  }\n"+
+				"}");
+
+		waitUntilIndexesReady();
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, false, false);
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeEnclosingElement(false);
+		requestor.setComputeVisibleElements(true);
+		requestor.setAssignableType("Ltest/X;");
+		
+		ICompilationUnit cu= getCompilationUnit("PS2", "src", "test", "X.java");
+
+		String str = cu.getSource();
+		String completeBehind = "equals";
+		
+		int tokenStart = str.lastIndexOf(completeBehind);
+		int tokenEnd = tokenStart + completeBehind.length() - 1;
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+				"completion offset="+(cursorLocation)+"\n" +
+				"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+				"completion token=\"equals\"\n" +
+				"completion token kind=TOKEN_KIND_NAME\n" +
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null\n"+
+				"completion token location=UNKNOWN\n"+
+				"visibleElements={\n" +
+				"	initializer {key=Ltest/X;.initializer)Ltest/X;} [in X [in X.java [in test [in src [in PS2]]]]],\n" +
+				"}",
+				requestor.getContext());
+	} finally {
+		this.deleteProject("PS1");
+		this.deleteProject("PS2");
+		this.deleteFile(externalJar1);
+		this.deleteFile(externalJar2);
 	}
 }
 }

@@ -155,46 +155,52 @@ public class InternalExtendedCompletionContext {
 	}
 
 	private void computeVisibleElementBindings() {
-		this.hasComputedVisibleElementBindings = true;
-
-		Scope scope = this.assistScope;
-		ASTNode astNode = this.assistNode;
-		boolean notInJavadoc = this.completionContext.javadoc == 0;
-
-		this.visibleLocalVariables = new ObjectVector();
-		this.visibleFields = new ObjectVector();
-		this.visibleMethods = new ObjectVector();
-		this.bindingsToNodes = new HashMap();
-
-		ReferenceContext referenceContext = scope.referenceContext();
-		if (referenceContext instanceof AbstractMethodDeclaration) {
-			// completion is inside a method body
-			searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
-		} else if (referenceContext instanceof TypeDeclaration) {
-			TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
-			FieldDeclaration[] fields = typeDeclaration.fields;
-			if (fields != null) {
-				done : for (int i = 0; i < fields.length; i++) {
-					if (fields[i] instanceof Initializer) {
-						Initializer initializer = (Initializer) fields[i];
-						if (initializer.block.sourceStart <= astNode.sourceStart &&
-								astNode.sourceStart < initializer.bodyEnd) {
-							// completion is inside an initializer
-							searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
-							break done;
-						}
-					} else {
-						FieldDeclaration fieldDeclaration = fields[i];
-						if (fieldDeclaration.initialization != null &&
-								fieldDeclaration.initialization.sourceStart <= astNode.sourceStart &&
-								astNode.sourceEnd <= fieldDeclaration.initialization.sourceEnd) {
-							// completion is inside a field initializer
-							searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
-							break done;
+		CompilationUnitDeclaration previousUnitBeingCompleted = this.lookupEnvironment.unitBeingCompleted;
+		this.lookupEnvironment.unitBeingCompleted = this.compilationUnitDeclaration;
+		try {
+			this.hasComputedVisibleElementBindings = true;
+	
+			Scope scope = this.assistScope;
+			ASTNode astNode = this.assistNode;
+			boolean notInJavadoc = this.completionContext.javadoc == 0;
+	
+			this.visibleLocalVariables = new ObjectVector();
+			this.visibleFields = new ObjectVector();
+			this.visibleMethods = new ObjectVector();
+			this.bindingsToNodes = new HashMap();
+	
+			ReferenceContext referenceContext = scope.referenceContext();
+			if (referenceContext instanceof AbstractMethodDeclaration) {
+				// completion is inside a method body
+				searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
+			} else if (referenceContext instanceof TypeDeclaration) {
+				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
+				FieldDeclaration[] fields = typeDeclaration.fields;
+				if (fields != null) {
+					done : for (int i = 0; i < fields.length; i++) {
+						if (fields[i] instanceof Initializer) {
+							Initializer initializer = (Initializer) fields[i];
+							if (initializer.block.sourceStart <= astNode.sourceStart &&
+									astNode.sourceStart < initializer.bodyEnd) {
+								// completion is inside an initializer
+								searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
+								break done;
+							}
+						} else {
+							FieldDeclaration fieldDeclaration = fields[i];
+							if (fieldDeclaration.initialization != null &&
+									fieldDeclaration.initialization.sourceStart <= astNode.sourceStart &&
+									astNode.sourceEnd <= fieldDeclaration.initialization.sourceEnd) {
+								// completion is inside a field initializer
+								searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
+								break done;
+							}
 						}
 					}
 				}
 			}
+		} finally {
+			this.lookupEnvironment.unitBeingCompleted = previousUnitBeingCompleted;
 		}
 	}
 
