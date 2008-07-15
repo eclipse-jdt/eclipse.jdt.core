@@ -433,10 +433,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Upper bound doesn't perform erasure
 	 */
 	public TypeBinding upperBound() {
-	    if (this.firstBound != null) {
+		if (this.firstBound != null) {
 			return this.firstBound;
-	    }
-	    return this.superclass; // java/lang/Object
+		}
+		return this.superclass; // java/lang/Object
 	}
 
 	public TypeBinding[] otherUpperBounds() {
