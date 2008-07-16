@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IInitializer;
@@ -121,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 688 };
+//		TESTS_NUMBERS =  new int[] { 689, 690 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9721,5 +9722,64 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ISourceRange sourceRange = field.getNameRange();
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=240815
+	 */
+	public void test0689() throws JavaModelException {
+		IJavaProject project = getJavaProject("Converter");
+		if (project == null) {
+			return;
+		}
+		// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		try {
+			ArrayList newClasspathEntries = new ArrayList();
+			for (int i = 0, length = classpath.length; i < length; i++) {
+				IClasspathEntry entry = classpath[i];
+				if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE) {
+					newClasspathEntries.add(entry);
+				}
+			}
+			IClasspathEntry[] newClasspath = new IClasspathEntry[newClasspathEntries.size()];
+			newClasspathEntries.toArray(newClasspath);
+			project.setRawClasspath(newClasspath, null);
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0689", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode result = runConversion(AST.JLS3, sourceUnit, true, true);
+			assertNotNull(result);
+			ITypeBinding typeBinding = result.getAST().resolveWellKnownType("java.lang.Boolean");
+			assertNull("Should be null", typeBinding);
+		} finally {
+			project.setRawClasspath(classpath, null);
+		}	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=240815
+	 */
+	public void test0690() throws JavaModelException {
+		IJavaProject project = getJavaProject("Converter");
+		if (project == null) {
+			return;
+		}
+		// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		try {
+			ArrayList newClasspathEntries = new ArrayList();
+			for (int i = 0, length = classpath.length; i < length; i++) {
+				IClasspathEntry entry = classpath[i];
+				if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE) {
+					newClasspathEntries.add(entry);
+				}
+			}
+			IClasspathEntry[] newClasspath = new IClasspathEntry[newClasspathEntries.size()];
+			newClasspathEntries.toArray(newClasspath);
+			project.setRawClasspath(newClasspath, null);
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0690", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode result = runConversion(AST.JLS3, sourceUnit, true, true, true);
+			assertNotNull(result);
+			ITypeBinding typeBinding = result.getAST().resolveWellKnownType("java.lang.Boolean");
+			assertNull("Should be null", typeBinding);
+		} finally {
+			project.setRawClasspath(classpath, null);
+		}
 	}
 }

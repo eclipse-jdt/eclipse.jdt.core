@@ -2231,6 +2231,13 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			return new ProblemReferenceBinding(qName, environment().createMissingType(compilationUnitScope().getCurrentPackage(), qName), ProblemReasons.NotFound);
 		}
 		if (!binding.isValidBinding()) {
+			if (binding instanceof PackageBinding) {
+				char[][] qName = new char[][] { compoundName[0] };
+				return new ProblemReferenceBinding(
+						qName,
+						environment().createMissingType(null, qName),
+						ProblemReasons.NotFound);
+			}
 			return (ReferenceBinding) binding;
 		}
 		int currentIndex = 1;

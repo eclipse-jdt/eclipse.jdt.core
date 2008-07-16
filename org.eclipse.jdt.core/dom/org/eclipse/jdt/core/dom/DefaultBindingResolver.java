@@ -1656,6 +1656,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	synchronized ITypeBinding resolveWellKnownType(String name) {
 		if (this.scope == null) return null;
+		ITypeBinding typeBinding = null;
 		try {
 			if (("boolean".equals(name))//$NON-NLS-1$
 				|| ("char".equals(name))//$NON-NLS-1$
@@ -1666,48 +1667,51 @@ class DefaultBindingResolver extends BindingResolver {
 				|| ("float".equals(name))//$NON-NLS-1$
 				|| ("double".equals(name))//$NON-NLS-1$
 				|| ("void".equals(name))) {//$NON-NLS-1$
-				return this.getTypeBinding(Scope.getBaseType(name.toCharArray()));
+				typeBinding = this.getTypeBinding(Scope.getBaseType(name.toCharArray()));
 			} else if ("java.lang.Object".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getJavaLangObject());
+				typeBinding = this.getTypeBinding(this.scope.getJavaLangObject());
 			} else if ("java.lang.String".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getJavaLangString());
+				typeBinding = this.getTypeBinding(this.scope.getJavaLangString());
 			} else if ("java.lang.StringBuffer".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_STRINGBUFFER, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_STRINGBUFFER, 3));
 			} else if ("java.lang.Throwable".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getJavaLangThrowable());
+				typeBinding = this.getTypeBinding(this.scope.getJavaLangThrowable());
 			} else if ("java.lang.Exception".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_EXCEPTION, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_EXCEPTION, 3));
 			} else if ("java.lang.RuntimeException".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION, 3));
 			} else if ("java.lang.Error".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_ERROR, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_ERROR, 3));
 			} else if ("java.lang.Class".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getJavaLangClass());
+				typeBinding = this.getTypeBinding(this.scope.getJavaLangClass());
 			} else if ("java.lang.Cloneable".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getJavaLangCloneable());
+				typeBinding = this.getTypeBinding(this.scope.getJavaLangCloneable());
 			} else if ("java.io.Serializable".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getJavaIoSerializable());
+				typeBinding = this.getTypeBinding(this.scope.getJavaIoSerializable());
 			} else if ("java.lang.Boolean".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_BOOLEAN, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_BOOLEAN, 3));
 			} else if ("java.lang.Byte".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_BYTE, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_BYTE, 3));
 			} else if ("java.lang.Character".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_CHARACTER, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_CHARACTER, 3));
 			} else if ("java.lang.Double".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_DOUBLE, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_DOUBLE, 3));
 			} else if ("java.lang.Float".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_FLOAT, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_FLOAT, 3));
 			} else if ("java.lang.Integer".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_INTEGER, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_INTEGER, 3));
 			} else if ("java.lang.Long".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_LONG, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_LONG, 3));
 			} else if ("java.lang.Short".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_SHORT, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_SHORT, 3));
 			} else if ("java.lang.Void".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_VOID, 3));
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_VOID, 3));
 			}
 		} catch (AbortCompilation e) {
 			// ignore missing types
+		}
+		if (typeBinding != null && !typeBinding.isRecovered()) {
+			return typeBinding;
 		}
 		return null;
 	}

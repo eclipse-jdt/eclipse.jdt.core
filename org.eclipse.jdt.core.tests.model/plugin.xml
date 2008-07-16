@@ -38,7 +38,7 @@
 	</extension>
 
 	<!-- Extra Java-like file extensions -->
-	<extension point="org.eclipse.core.runtime.contentTypes">
+	<extension point="org.eclipse.core.contenttype.contentTypes"> 
 	    <file-association 
 	        content-type="org.eclipse.jdt.core.javaSource"
 	        file-extensions="foo,bar"/>
