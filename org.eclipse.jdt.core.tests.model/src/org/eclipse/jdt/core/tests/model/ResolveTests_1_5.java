@@ -2610,4 +2610,98 @@ public void test0114() throws Exception {
 		deleteResource(rootLocation.append("test0114").toFile());
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=238534
+public void test0115() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/X.java",
+			"package test;\n" +
+			"\n" +
+			"import java.io.IOException;\n" +
+			"\n" +
+			"interface TreeVisitor<T, U> {\n" +
+			"        public T visit(U location);\n" +
+			"}\n" +
+			"\n" +
+			"interface TreeVisitable<U> {\n" +
+			"        public <T> T visit(TreeVisitor<T, U> visitor) throws IOException;\n" +
+			"}\n" +
+			"\n" +
+			"abstract class Param implements TreeVisitable<Param> {\n" +
+			"        public final Param lookforParam(final String name) {\n" +
+			"                TreeVisitor<Param, Param> visitor = new TreeVisitor<Param,Param>() {\n" +
+			"                        public Param visit(Param location) {\n" +
+			"                                return null;\n" +
+			"                        }\n" +
+			"                };\n" +
+			"                return visit(visitor); // SELECT #visit(...)\n" +
+			"        }\n" +
+			"\n" +
+			"        public abstract <T> T visit(TreeVisitor<T, Param> visitor);\n" +
+			"}\n" +
+			"\n" +
+			"class StructParam extends Param {\n" +
+			"        public <T> T visit(TreeVisitor<T, Param> visitor) {\n" +
+			"                return null;\n" +
+			"        }\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"        public static void main(String[] args) {\n" +
+			"                StructParam p = new StructParam();\n" +
+			"                p.lookforParam(\"abc\");\n" +
+			"                System.out.println(\"done\");\n" +
+			"        }\n" +
+			"\n" +
+			"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("visit(visitor); // SELECT #visit(...)");
+	int length = "visit".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"visit(TreeVisitor<T,Param>) [in Param [in [Working copy] X.java [in test [in src [in Resolve]]]]]",
+			elements
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=238534
+public void test0116() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import java.io.IOException;\n" +
+			"\n" +
+			"public abstract class Test implements A, B {\n" +
+			"	public void bar(String i) {\n" +
+			"		foo(i);\n" +
+			"	}\n" +
+			"}\n" +
+			"interface A {\n" +
+			"	public <T> void foo(T a) throws EA{\n" +
+			"	}\n" +
+			"}\n" +
+			"interface B {\n" +
+			"	public <T> void foo(T b) throws EB {\n" +
+			"	}\n" +
+			"}\n" +
+			"class EA extends Exception {\n" +
+			"}\n" +
+			"class EB extends Exception {\n" +
+			"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo(i)");
+	int length = "foo".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(T) [in A [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			elements
+		);
+}
 }
