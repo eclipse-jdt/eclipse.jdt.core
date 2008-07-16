@@ -884,11 +884,6 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 				repair.distance = j;
 				repair.symbol = symbol;
 				repair.code = INSERTION_CODE;
-			} else if (j == repair.distance && k == repair.misspellIndex && isBetterSymbol(symbol, repair.symbol)) {
-				repair.misspellIndex = k;
-				repair.distance = j;
-				repair.symbol = symbol;
-				repair.code = INSERTION_CODE;
 			}
 
 			symbol = this.list[symbol];
@@ -914,10 +909,6 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 					repair.symbol = symbol;
 					repair.code = SUBSTITUTION_CODE;
 				} else if (j == repair.distance && k > repair.misspellIndex) {
-					repair.misspellIndex = k;
-					repair.symbol = symbol;
-					repair.code = SUBSTITUTION_CODE;
-				} else if (j == repair.distance && k > repair.misspellIndex && isBetterSymbol(symbol, repair.symbol)) {
 					repair.misspellIndex = k;
 					repair.symbol = symbol;
 					repair.code = SUBSTITUTION_CODE;
@@ -1241,17 +1232,6 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		}
 
 		return Parser.non_terminal_index[highest_symbol];
-	}
-
-	private boolean isBetterSymbol(int symbol, int actualSymbol) {
-//		switch (actualSymbol) {
-//			case TokenNameinterface :
-//				if(symbol == TokenNameclass) {
-//					return true;
-//				}
-//				break;
-//		}
-		return false;
 	}
 
 //
