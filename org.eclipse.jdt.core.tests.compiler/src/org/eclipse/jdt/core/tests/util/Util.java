@@ -152,6 +152,9 @@ public static CompilationUnit[] compilationUnits(String[] testFiles) {
     return result;
 }
 public static void compile(String[] pathsAndContents, Map options, String outputPath) {
+	compile(pathsAndContents, options, null, outputPath);
+}
+public static void compile(String[] pathsAndContents, Map options, String[] classpath, String outputPath) {
         IProblemFactory problemFactory = new DefaultProblemFactory(Locale.getDefault());
         Requestor requestor =
             new Requestor(
@@ -161,7 +164,17 @@ public static void compile(String[] pathsAndContents, Map options, String output
                 false /* show warning token*/);
         requestor.outputPath = outputPath.endsWith(File.separator) ? outputPath : outputPath + File.separator;
 
-        INameEnvironment nameEnvironment = new FileSystem(getJavaClassLibs(), new String[] {}, null);
+        String[] classLibs = getJavaClassLibs();
+        if (classpath != null) {
+        	int length = classpath.length;
+        	int classLibsLength = classLibs.length;
+        	System.arraycopy(classpath, 0, classpath = new String[classLibsLength + length], classLibsLength, length);
+        	System.arraycopy(classLibs, 0, classpath, 0, classLibsLength);
+        } else {
+        	classpath = classLibs;
+        }
+        
+        INameEnvironment nameEnvironment = new FileSystem(classpath, new String[] {}, null);
         IErrorHandlingPolicy errorHandlingPolicy =
             new IErrorHandlingPolicy() {
                 public boolean proceedOnErrors() {
@@ -316,14 +329,21 @@ public static void createClassFolder(String[] pathsAndContents, String folderPat
     compile(pathsAndContents, getCompileOptions(compliance), folderPath);
 }
 public static void createJar(String[] pathsAndContents, Map options, String jarPath) throws IOException {
-	createJar(pathsAndContents, null, options, jarPath);
+	createJar(pathsAndContents, null, options, null, jarPath);
 }
 public static void createJar(String[] pathsAndContents, String[] extraPathsAndContents, Map options, String jarPath) throws IOException {
+	createJar(pathsAndContents, extraPathsAndContents, options, null, jarPath);
+}
+public static void createJar(String[] pathsAndContents, String[] extraPathsAndContents, Map options, String jarPath, String[] classpath) throws IOException {
+	createJar(pathsAndContents, extraPathsAndContents, options, classpath, jarPath);
+}
+
+public static void createJar(String[] pathsAndContents, String[] extraPathsAndContents, Map options, String[] classpath, String jarPath) throws IOException {
     String classesPath = getOutputDirectory() + File.separator + "classes";
     File classesDir = new File(classesPath);
     flushDirectoryContent(classesDir);
 	if (pathsAndContents != null) {
-		compile(pathsAndContents, options, classesPath);
+		compile(pathsAndContents, options, classpath, classesPath);
 	}
 	for (int i = 0, l = extraPathsAndContents == null ? 0 : extraPathsAndContents.length; i < l; /* inc in loop */) {
 		File  outputFile = new File(classesPath, extraPathsAndContents[i++]);
@@ -336,7 +356,7 @@ public static void createJar(String[] javaPathsAndContents, String jarPath, Stri
 	createJar(javaPathsAndContents, null, jarPath, compliance);
 }
 public static void createJar(String[] javaPathsAndContents, String[] extraPathsAndContents, String jarPath, String compliance) throws IOException {
-	createJar(javaPathsAndContents, extraPathsAndContents, getCompileOptions(compliance), jarPath);
+	createJar(javaPathsAndContents, extraPathsAndContents, getCompileOptions(compliance), null, jarPath);
 }
 public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
     String sourcesPath = getOutputDirectory() + File.separator + "sources";
