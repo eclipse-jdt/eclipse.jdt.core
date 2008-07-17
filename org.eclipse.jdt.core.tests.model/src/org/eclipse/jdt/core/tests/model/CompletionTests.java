@@ -163,6 +163,150 @@ public void testBug99811() throws JavaModelException {
 		}
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=169682
+public void testBug169682a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	String source =
+		"package test;\n"+
+		"\n"+
+		"public class Test \n"+
+		"{\n"+
+		"        public Test() \n"+
+		"        {\n"+
+		"                this.t// do ctrl+space here\n"+
+		"        }\n"+
+		"\n"+
+		"        Object field = new Object() \n"+
+		"        {\n"+
+		"                public void foo() {\n"+
+		"\n"+
+		"                        if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {}\n"+
+		"                        else if(true)\n"+
+		"                        {\n"+
+		"                                if(true)\n"+
+		"                                {\n"+
+		"                                        if(true)\n"+
+		"                                        {\n"+
+		"                                                boolean result[][];\n"+
+		"                                        }\n"+
+		"                                }\n"+
+		"                        }       \n"+
+		"                }\n"+
+		"        };   \n"+   
+		"}";
+	
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		source);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "this.t";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=169682
+public void testBug169682b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	String source =
+		"package test;\n"+
+		"public class Test\n"+
+		"{\n"+
+		"        #\n"+
+		"        int[] i;\n"+
+		"        Obj x; // do ctrl+space at |\n"+
+		"}";
+	
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		source);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Obj";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Obj[POTENTIAL_METHOD_DECLARATION]{Obj, Ltest.Test;, ()V, Obj, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseField1() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();

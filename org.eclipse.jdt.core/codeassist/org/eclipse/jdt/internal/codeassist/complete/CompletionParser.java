@@ -2221,11 +2221,10 @@ protected void consumeEnterVariable() {
 
 	boolean isLocalDeclaration = this.nestedMethod[this.nestedType] != 0;
 	int variableIndex = this.variablesCounter[this.nestedType];
-	int extendedDimension = this.intStack[this.intPtr + 1];
 
 	this.hasUnusedModifiers = false;
 
-	if(isLocalDeclaration || indexOfAssistIdentifier() < 0 || variableIndex != 0 || extendedDimension != 0) {
+	if(isLocalDeclaration || indexOfAssistIdentifier() < 0 || variableIndex != 0) {
 		this.identifierPtr++;
 		this.identifierLengthPtr++;
 
