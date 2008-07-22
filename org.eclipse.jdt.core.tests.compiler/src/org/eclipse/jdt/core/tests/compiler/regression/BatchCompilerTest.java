@@ -43,7 +43,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
-	TESTS_NUMBERS = new int[] { 288 };
+//	TESTS_NUMBERS = new int[] { 288 };
 //	TESTS_RANGE = new int[] { 107, -1 };
 	}
 public BatchCompilerTest(String name) {
