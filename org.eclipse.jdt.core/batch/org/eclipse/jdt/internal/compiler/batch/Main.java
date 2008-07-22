@@ -55,7 +55,6 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -2700,26 +2699,7 @@ public ICompilerRequestor getBatchRequestor() {
 			}
 			Main.this.logger.startLoggingSource(compilationResult);
 			if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
-				int localErrorCount = Main.this.logger.logProblems(compilationResult.getAllProblems(), compilationResult.compilationUnit.getContents(), Main.this);
-				// exit?
-				if (Main.this.systemExitWhenFinished && !Main.this.proceedOnError && (localErrorCount > 0)) {
-					// ensure dumping problems for enqueued units as well, since may contain primary errors (123476)
-					CompilationUnitDeclaration[] queuedUnits = Main.this.batchCompiler.unitsToProcess;
-					for (int i = 0, length = Main.this.batchCompiler.totalUnits; i < length; i++) {
-						CompilationUnitDeclaration queuedUnit = queuedUnits[i];
-						if (queuedUnit == null) continue;
-						CompilationResult result = queuedUnit.compilationResult;
-						if (result.hasProblems() && !result.hasBeenAccepted) {
-							Main.this.logger.logProblems(result.getAllProblems(), result.compilationUnit.getContents(), Main.this);
-						}
-					}
-					Main.this.logger.endLoggingSource();
-					Main.this.logger.endLoggingSources();
-					Main.this.logger.printStats();
-					Main.this.logger.flush();
-					Main.this.logger.close();
-					System.exit(-1);
-				}
+				Main.this.logger.logProblems(compilationResult.getAllProblems(), compilationResult.compilationUnit.getContents(), Main.this);
 			}
 			outputClassFiles(compilationResult);
 			Main.this.logger.endLoggingSource();
