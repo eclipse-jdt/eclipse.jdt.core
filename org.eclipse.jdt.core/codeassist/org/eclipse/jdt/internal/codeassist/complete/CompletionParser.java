@@ -168,6 +168,7 @@ public CompletionParser(ProblemReporter problemReporter, boolean storeExtraSourc
 	super(problemReporter);
 	this.reportSyntaxErrorIsRequired = false;
 	this.javadocParser.checkDocComment = true;
+	this.annotationRecoveryActivated = false;
 	if (storeExtraSourceEnds) {
 		this.storeSourceEnds = true;
 		this.sourceEnds = new HashtableOfObjectToInt();

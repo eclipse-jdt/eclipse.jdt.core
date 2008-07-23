@@ -2704,4 +2704,75 @@ public void test0116() throws Exception {
 			elements
 		);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=230830
+public void test0117() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	public void foo() {\n" +
+			"		@A(n=) String str;\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/A.java",
+			"package test;\n" +
+			"\n" +
+			"public @interface A {\n" +
+			"	public String n();\n" +
+			"}");
+
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("str");
+	int length = "str".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"str [in foo() [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
+			elements
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=230830
+public void test0118() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	public void foo() {\n" +
+			"		@A(n=) String str;\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/A.java",
+			"package test;\n" +
+			"\n" +
+			"public @interface A {\n" +
+			"	public String n();\n" +
+			"}");
+
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("str");
+	int length = "str".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	if (elements != null &&
+			elements.length > 0 &&
+			elements[0] instanceof IAnnotatable) {
+		IAnnotation[] annotations = ((IAnnotatable)elements[0]).getAnnotations();
+		assertAnnotationsEqual(
+			"@A(n=<null>)\n",
+			annotations);
+	} else {
+		assertTrue("Unexpected elements", false);
+	}
+}
 }
