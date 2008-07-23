@@ -514,7 +514,8 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		Statement statement2 = forStatement.getBody();
 		assertTrue("Not an empty statement", statement2.getNodeType() == ASTNode.EMPTY_STATEMENT); //$NON-NLS-1$
 		EmptyStatement emptyStatement = (EmptyStatement)statement2;
-		checkSourceRange(emptyStatement, "i", source); //$NON-NLS-1$
+		assertEquals("Wrong start position", fragment.getStartPosition() + fragment.getLength(), emptyStatement.getStartPosition());
+		assertEquals("Wrong length", 0, emptyStatement.getLength());
 		assertTrue("Not flag as RECOVERED", (emptyStatement.getFlags() & ASTNode.RECOVERED) != 0);
 	}
 
@@ -950,5 +951,41 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		assertTrue("No message expression", message != null); //$NON-NLS-1$
 		checkSourceRange(message, "(\"aa\"", source); //$NON-NLS-1$
 		assertTrue("Not flag as RECOVERED", (message.getFlags() & ASTNode.RECOVERED) != 0);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=239117
+	public void test0018() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[0];
+	
+		ASTResult result = this.buildMarkedAST(
+				"/Converter/src/p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"	void m(Object var) {\n" +
+				"		if (1==1 && var.equals(1)[*1*][*1*] {\n" +
+				"		}\n" +
+				"	}\n" +
+				"}");
+	
+		assertASTResult(
+				"===== AST =====\n" + 
+				"package p;\n" + 
+				"public class X {\n" + 
+				"  void m(  Object var){\n" + 
+				"    if (1 == 1 && var.equals(1))     [*1*];[*1*]\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"===== Details =====\n" + 
+				"1:EMPTY_STATEMENT,[77,0],,RECOVERED,[N/A]\n" + 
+				"===== Problems =====\n" + 
+				"1. ERROR in /Converter/src/p/X.java (at line 4)\n" + 
+				"	if (1==1 && var.equals(1) {\n" + 
+				"	                ^^^^^^\n" + 
+				"The method equals(Object) in the type Object is not applicable for the arguments (int)\n" + 
+				"2. ERROR in /Converter/src/p/X.java (at line 4)\n" + 
+				"	if (1==1 && var.equals(1) {\n" + 
+				"	                        ^\n" + 
+				"Syntax error, insert \") Statement\" to complete BlockStatements\n",
+				result);
 	}
 }

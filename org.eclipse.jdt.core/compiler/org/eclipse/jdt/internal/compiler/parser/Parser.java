@@ -2895,7 +2895,7 @@ protected void consumeEmptyStatement() {
 				return;
 			}
 		}
-		pushOnAstStack(new EmptyStatement(this.endStatementPosition, this.endStatementPosition));
+		pushOnAstStack(new EmptyStatement(this.endPosition + 1, this.endStatementPosition));
 	}
 }
 protected void consumeEmptySwitchBlock() {
