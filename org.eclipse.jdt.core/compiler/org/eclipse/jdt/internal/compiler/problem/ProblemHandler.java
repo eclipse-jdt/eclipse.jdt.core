@@ -153,7 +153,7 @@ public void handle(
 				referenceContext.tagAsHavingErrors();
 				// should abort ?
 				int abortLevel;
-				if ((abortLevel = 	this.policy.stopOnFirstError() ? ProblemSeverities.AbortCompilation : severity & ProblemSeverities.Abort) != 0) {
+				if ((abortLevel = this.policy.stopOnFirstError() ? ProblemSeverities.AbortCompilation : severity & ProblemSeverities.Abort) != 0) {
 					referenceContext.abort(abortLevel, problem);
 				}
 			}
