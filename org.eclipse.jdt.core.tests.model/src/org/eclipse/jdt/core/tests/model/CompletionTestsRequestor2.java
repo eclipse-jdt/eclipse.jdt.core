@@ -16,6 +16,7 @@ import java.util.Comparator;
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -36,6 +37,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private boolean showTokenPositions;
 	private boolean shortContext;
 	private boolean showMissingTypes;
+	private boolean showModifiers;
 
 	private boolean computeVisibleElements;
 	private boolean computeEnclosingElement;
@@ -63,9 +65,17 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this(showParamNames, showUniqueKeys, showPositions, shortContext, showMissingTypes, false);
 	}
 	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys, boolean showPositions, boolean shortContext, boolean showMissingTypes, boolean showTokenPositions) {
-		this(false, showParamNames, showUniqueKeys, showPositions, shortContext, showMissingTypes, showTokenPositions);
+		this(false, showParamNames, showUniqueKeys, showPositions, shortContext, showMissingTypes, showTokenPositions, false);
 	}
-	public CompletionTestsRequestor2(boolean ignoreAll, boolean showParamNames, boolean showUniqueKeys, boolean showPositions, boolean shortContext, boolean showMissingTypes, boolean showTokenPositions) {
+	public CompletionTestsRequestor2(
+			boolean ignoreAll,
+			boolean showParamNames,
+			boolean showUniqueKeys,
+			boolean showPositions,
+			boolean shortContext,
+			boolean showMissingTypes,
+			boolean showTokenPositions,
+			boolean showModifiers) {
 		super(ignoreAll);
 		this.showParameterNames = showParamNames;
 		this.showUniqueKeys = showUniqueKeys;
@@ -73,6 +83,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this.showTokenPositions =  showTokenPositions;
 		this.shortContext = shortContext;
 		this.showMissingTypes = showMissingTypes;
+		this.showModifiers = showModifiers;
 
 	}
 	public void acceptContext(CompletionContext cc) {
@@ -446,6 +457,14 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			buffer.append(", ");
 			buffer.append(proposal.getReceiverEnd());
 			buffer.append("]");
+		}
+		if(this.showModifiers) {
+			int flags = proposal.getFlags();
+			buffer.append(", ");
+			buffer.append(Flags.toString(flags));
+			if (Flags.isDeprecated(flags)) {
+				buffer.append(" deprecated"); //$NON-NLS-1$
+			}
 		}
 		buffer.append(", ");
 		buffer.append(proposal.getRelevance());

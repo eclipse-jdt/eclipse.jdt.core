@@ -675,6 +675,7 @@ public int getNextToken() throws InvalidInputException {
 							try { //get the next char
 								boolean isJavadoc = false, star = false;
 								boolean isUnicode = false;
+								int previous;
 								// consume next character
 								this.unicodeAsBackSlash = false;
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
@@ -701,6 +702,7 @@ public int getNextToken() throws InvalidInputException {
 									}
 								}
 								isUnicode = false;
+								previous = this.currentPosition;
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 									&& (this.source[this.currentPosition] == 'u')) {
 									//-------------unicode traitement ------------
@@ -719,6 +721,7 @@ public int getNextToken() throws InvalidInputException {
 									isJavadoc = false;
 								}
 								//loop until end of comment */
+								int firstTag = 0;
 								while ((this.currentCharacter != '/') || (!star)) {
 									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 										//checkNonExternalizedString();
@@ -727,9 +730,21 @@ public int getNextToken() throws InvalidInputException {
 												pushLineSeparator();
 											}
 										}
+									}									
+									switch (this.currentCharacter) {
+										case '*':
+											star = true;
+											break;
+										case '@':
+											if (firstTag == 0 && this.isFirstTag()) {
+												firstTag = previous;
+											}
+											// fall through default case to set star to false
+										default:
+											star = false;
 									}
-									star = this.currentCharacter == '*';
-									//get next char
+ 									//get next char
+									previous = this.currentPosition;
 									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 										&& (this.source[this.currentPosition] == 'u')) {
 										//-------------unicode traitement ------------
@@ -746,6 +761,7 @@ public int getNextToken() throws InvalidInputException {
 								}
 								int token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
 								recordComment(token);
+								this.commentTagStarts[this.commentPtr] = firstTag;
 								if (!isJavadoc && this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition-1){
 									throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 								}
@@ -809,6 +825,19 @@ public final void getNextUnicodeChar() throws InvalidInputException {
 	if (temp < this.cursorLocation && this.cursorLocation < this.currentPosition-1){
 		throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_UNICODE);
 	}
+}
+protected boolean isFirstTag() {
+	return
+		getNextChar('d') &&
+		getNextChar('e') &&
+		getNextChar('p') &&
+		getNextChar('r') &&
+		getNextChar('e') &&
+		getNextChar('c') &&
+		getNextChar('a') &&
+		getNextChar('t') &&
+		getNextChar('e') &&
+		getNextChar('d');
 }
 public final void jumpOverBlock() {
 	jumpOverMethodBody();

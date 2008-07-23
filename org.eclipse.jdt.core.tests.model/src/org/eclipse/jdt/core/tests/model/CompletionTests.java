@@ -4173,7 +4173,7 @@ public void testCompletionBasicType3() throws JavaModelException {
 		"	}\n"+
 		"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, false, true, true, false, true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, false, true, true, false, true, false);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "Objec";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();

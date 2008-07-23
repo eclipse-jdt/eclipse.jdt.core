@@ -1605,7 +1605,7 @@ public int getNextToken() throws InvalidInputException {
 											star = true;
 											break;
 										case '@':
-											if (firstTag == 0) {
+											if (firstTag == 0 && this.isFirstTag()) {
 												firstTag = previous;
 											}
 											// fall through default case to set star to false
@@ -1768,6 +1768,9 @@ public NLSTag[] getNLSTags() {
 }
 public char[] getSource(){
 	return this.source;
+}
+protected boolean isFirstTag() {
+	return true;
 }
 public final void jumpOverMethodBody() {
 
@@ -2046,7 +2049,7 @@ public final void jumpOverMethodBody() {
 											star = true;
 											break;
 										case '@':
-											if (firstTag == 0) {
+											if (firstTag == 0 && this.isFirstTag()) {
 												firstTag = previous;
 											}
 											// fall through default case to set star to false

@@ -11982,6 +11982,39 @@ public void test0374() throws JavaModelException {
 			"",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106821
+public void test0375() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test\n"+
+		"{\n"+
+		"        /**\n"+
+		"         * @deprecated\n"+
+		"         */\n"+
+		"        public void foo1() {\n"+
+		"        }\n"+
+		"        @Deprecated\n"+
+		"        public void foo2() {\n"+
+		"        }\n"+
+		"        {\n"+
+		"               foo\n"+
+		"               Thread.\n"+
+		"        }\n"+
+		"}");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, true, false, false, true, false, false, true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"foo1[METHOD_REF]{foo1(), Ltest.Test;, ()V, foo1, null, public deprecated, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"foo2[METHOD_REF]{foo2(), Ltest.Test;, ()V, foo2, null, public deprecated, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
 public void testEC001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
