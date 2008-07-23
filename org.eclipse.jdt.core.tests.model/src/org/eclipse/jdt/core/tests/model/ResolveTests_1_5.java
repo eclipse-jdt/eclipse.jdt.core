@@ -2775,4 +2775,138 @@ public void test0118() throws Exception {
 		assertTrue("Unexpected elements", false);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209639
+public void test0119() throws Exception {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"public class Test  {\n" +
+			"	public List<String> foo() {\n" +
+			"		return Collections.emptyList();\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/Collections.java",
+			"package test;\n" +
+			"public class Collections  {\n" +
+			"	public static final <T> List<T> emptyList() {return null;}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/List.java",
+			"package test;\n" +
+			"public class List<E>  {\n" +
+			"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("emptyList");
+	int length = "emptyList".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"emptyList() {key=Ltest/Collections;.emptyList<T:Ljava/lang/Object;>()Ltest/List<TT;>;%<Ljava/lang/String;>} [in Collections [in [Working copy] Collections.java [in test [in src [in Resolve]]]]]",
+			elements,
+			true
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209639
+public void test0120() throws Exception {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"public class Test  {\n" +
+			"	public void foo() {\n" +
+			"		List<String> local = Collections.emptyList();\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/Collections.java",
+			"package test;\n" +
+			"public class Collections  {\n" +
+			"	public static final <T> List<T> emptyList() {return null;}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/List.java",
+			"package test;\n" +
+			"public class List<E>  {\n" +
+			"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("emptyList");
+	int length = "emptyList".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"emptyList() {key=Ltest/Collections;.emptyList<T:Ljava/lang/Object;>()Ltest/List<TT;>;%<Ljava/lang/String;>} [in Collections [in [Working copy] Collections.java [in test [in src [in Resolve]]]]]",
+			elements,
+			true
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209639
+public void test0121() throws Exception {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"public class Test  {\n" +
+			"	List<String> field = Collections.emptyList();\n" +
+			"	public void foo() {\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/Collections.java",
+			"package test;\n" +
+			"public class Collections  {\n" +
+			"	public static final <T> List<T> emptyList() {return null;}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/List.java",
+			"package test;\n" +
+			"public class List<E>  {\n" +
+			"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("emptyList");
+	int length = "emptyList".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"emptyList() {key=Ltest/Collections;.emptyList<T:Ljava/lang/Object;>()Ltest/List<TT;>;%<Ljava/lang/String;>} [in Collections [in [Working copy] Collections.java [in test [in src [in Resolve]]]]]",
+			elements,
+			true
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209639
+public void test0122() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"public class Test  {\n" +
+			"	static <T> T foo() { return null; }\n" +
+			"	String[] strings = { foo() };\n" +
+			"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo() {key=Ltest/Test;.foo<T:Ljava/lang/Object;>()TT;%<Ljava/lang/String;>} [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			elements,
+			true
+		);
+}
 }

@@ -794,7 +794,7 @@ public void test19() {
 		"  public X() {\n" +
 		"  }\n" +
 		"  Object foo() {\n" +
-		"    <SelectOnName:Object>;\n" +
+		"    return <SelectOnName:Object>;\n" +
 		"  }\n" +
 		"}\n";
 
@@ -1064,7 +1064,7 @@ public void test25() {
 		"  public G() {\n" +
 		"  }\n" +
 		"  Object foo() {\n" +
-		"    <SelectOnSuper:super>;\n" +
+		"    return <SelectOnSuper:super>;\n" +
 		"  }\n" +
 		"}\n";
 
@@ -1113,7 +1113,7 @@ public void test26() {
 		"  Object foo() {\n" +
 		"    new X() {\n" +
 		"      Object bar() {\n" +
-		"        <SelectOnQualifiedSuper:G.super>;\n" +
+		"        return <SelectOnQualifiedSuper:G.super>;\n" +
 		"      }\n" +
 		"    };\n" +
 		"  }\n" +

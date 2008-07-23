@@ -40,6 +40,8 @@ public class SelectionParser extends AssistParser {
 
 	// KIND : all values known by SelectionParser are between 1025 and 1549
 	protected static final int K_BETWEEN_CASE_AND_COLON = SELECTION_PARSER + 1; // whether we are inside a block
+	protected static final int K_INSIDE_RETURN_STATEMENT = SELECTION_PARSER + 2; // whether we are between the keyword 'return' and the end of a return statement
+	
 
 	public ASTNode assistNodeParent; // the parent node of assist node
 
@@ -90,8 +92,8 @@ private void buildMoreCompletionContext(Expression expression) {
 
 	int kind = topKnownElementKind(SELECTION_OR_ASSIST_PARSER);
 	if(kind != 0) {
-//		int info = topKnownElementInfo(SELECTION_OR_ASSIST_PARSER);
-		switch (kind) {
+		int info = topKnownElementInfo(SELECTION_OR_ASSIST_PARSER);
+		nextElement : switch (kind) {
 			case K_BETWEEN_CASE_AND_COLON :
 				if(this.expressionPtr > 0) {
 					SwitchStatement switchStatement = new SwitchStatement();
@@ -119,7 +121,14 @@ private void buildMoreCompletionContext(Expression expression) {
 					parentNode = switchStatement;
 					this.assistNodeParent = parentNode;
 				}
-				break;
+				break nextElement;
+			case K_INSIDE_RETURN_STATEMENT :
+				if(info == this.bracketDepth) {
+					ReturnStatement returnStatement = new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd);
+					parentNode = returnStatement;
+					this.assistNodeParent = parentNode;
+				}
+				break nextElement;
 		}
 	}
 	if(parentNode != null) {
@@ -916,6 +925,18 @@ protected void consumeToken(int token) {
 			case TokenNameCOLON:
 				if(topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON) {
 					popElement(K_BETWEEN_CASE_AND_COLON);
+				}
+				break;
+			case TokenNamereturn:
+				pushOnElementStack(K_INSIDE_RETURN_STATEMENT, this.bracketDepth);
+				break;
+			case TokenNameSEMICOLON:
+				switch(topKnownElementKind(SELECTION_OR_ASSIST_PARSER)) {
+					case K_INSIDE_RETURN_STATEMENT :
+						if(topKnownElementInfo(SELECTION_OR_ASSIST_PARSER) == this.bracketDepth) {
+							popElement(K_INSIDE_RETURN_STATEMENT);
+						}
+						break;
 				}
 				break;
 		}

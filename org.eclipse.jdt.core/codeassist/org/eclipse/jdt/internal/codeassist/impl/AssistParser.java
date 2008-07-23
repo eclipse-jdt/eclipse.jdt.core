@@ -42,6 +42,9 @@ public abstract class AssistParser extends Parser {
 
 	// the index in the identifier stack of the previous identifier
 	protected int previousIdentifierPtr;
+	
+	// depth of '(', '{' and '[]'
+	protected int bracketDepth;
 
 	// element stack
 	protected static final int ElementStackIncrement = 100;
@@ -740,6 +743,7 @@ protected void consumeToken(int token) {
 	if (isInsideMethod() || isInsideFieldInitialization() || isInsideAttributeValue()) {
 		switch (token) {
 			case TokenNameLPAREN :
+				this.bracketDepth++;
 				switch (this.previousToken) {
 					case TokenNameIdentifier:
 						this.pushOnElementStack(K_SELECTOR, this.identifierPtr);
@@ -758,6 +762,21 @@ protected void consumeToken(int token) {
 						}
 						break;
 				}
+				break;
+			case TokenNameLBRACE:
+				this.bracketDepth++;
+				break;
+			case TokenNameLBRACKET:
+				this.bracketDepth++;
+				break;
+			case TokenNameRBRACE:
+				this.bracketDepth--;
+				break;
+			case TokenNameRBRACKET:
+				this.bracketDepth--;
+				break;
+			case TokenNameRPAREN:
+				this.bracketDepth--;
 				break;
 		}
 	} else {
@@ -1119,12 +1138,14 @@ public void initialize() {
 	flushAssistState();
 	flushElementStack();
 	this.previousIdentifierPtr = -1;
+	this.bracketDepth = 0;
 }
 public void initialize(boolean initializeNLS) {
 	super.initialize(initializeNLS);
 	flushAssistState();
 	flushElementStack();
 	this.previousIdentifierPtr = -1;
+	this.bracketDepth = 0;
 }
 public abstract void initializeScanner();
 protected boolean isIndirectlyInsideFieldInitialization(){

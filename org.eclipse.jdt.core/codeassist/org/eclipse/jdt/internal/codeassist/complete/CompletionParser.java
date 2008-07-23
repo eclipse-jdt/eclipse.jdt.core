@@ -135,9 +135,6 @@ public class CompletionParser extends AssistParser {
 	// used to find if there is unused modifiers when building completion inside a method or an initializer
 	boolean hasUnusedModifiers;
 
-	// depth of '(', '{' and '[]'
-	int bracketDepth;
-
 	// show if the current token can be an explicit constructor
 	int canBeExplicitConstructor = NO;
 	static final int NO = 0;
@@ -3262,7 +3259,6 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BETWEEN_CATCH_AND_RIGHT_PAREN);
 				break;
 			case TokenNameLPAREN:
-				this.bracketDepth++;
 				if (this.invocationType == NO_RECEIVER || this.invocationType == NAME_RECEIVER || this.invocationType == SUPER_RECEIVER) {
 					this.qualifier = this.expressionPtr; // remenber the last expression so that arguments are correctly computed
 				}
@@ -3323,7 +3319,6 @@ protected void consumeToken(int token) {
 				}
 				break;
 			case TokenNameLBRACE:
-				this.bracketDepth++;
 				int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
 				if(kind == K_FIELD_INITIALIZER_DELIMITER
 					|| kind == K_LOCAL_INITIALIZER_DELIMITER
@@ -3380,16 +3375,8 @@ protected void consumeToken(int token) {
 						this.qualifier = -1;
 					}
 				}
-				this.bracketDepth++;
-				break;
-			case TokenNameRBRACE:
-				this.bracketDepth--;
-				break;
-			case TokenNameRBRACKET:
-				this.bracketDepth--;
 				break;
 			case TokenNameRPAREN:
-			this.bracketDepth--;
 				switch(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 					case K_BETWEEN_CATCH_AND_RIGHT_PAREN :
 						popElement(K_BETWEEN_CATCH_AND_RIGHT_PAREN);
@@ -4209,7 +4196,6 @@ public void initialize(boolean initializeNLS) {
 private void initializeForBlockStatements() {
 	this.previousToken = -1;
 	this.previousIdentifierPtr = -1;
-	this.bracketDepth = 0;
 	this.invocationType = NO_RECEIVER;
 	this.qualifier = -1;
 	popUntilElement(K_SWITCH_LABEL);

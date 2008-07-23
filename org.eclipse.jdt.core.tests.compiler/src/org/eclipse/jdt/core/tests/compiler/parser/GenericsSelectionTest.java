@@ -893,4 +893,45 @@ public void test0022() {
 		expectedReplacedSource,
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209639
+public void test0023() {
+
+	String str =
+		"package test;\n" +
+		"public class Test  {\n" +
+		"	public List<String> foo() {\n" +
+		"		return Collections.emptyList();\n" +
+		"	}\n" +
+		"}";
+
+	String selection = "emptyList";
+
+	String expectedCompletionNodeToString = "<SelectOnMessageSend:Collections.emptyList()>";
+
+	String completionIdentifier = "emptyList";
+	String expectedUnitDisplayString =
+		"package test;\n" + 
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public List<String> foo() {\n" + 
+		"    return <SelectOnMessageSend:Collections.emptyList()>;\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "Collections.emptyList()";
+	String testName = "<select method>";
+
+	int selectionStart = str.lastIndexOf(selection);
+	int selectionEnd = str.lastIndexOf(selection) + selection.length() - 1;
+
+	this.checkMethodParse(
+		str.toCharArray(),
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
 }
