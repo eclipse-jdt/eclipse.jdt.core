@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1054 };
+//		TESTS_NUMBERS = new int[] { 1367 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -45871,5 +45871,34 @@ public void test1366() {
 				"}\n", // =================
 			},
 			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239439
+public void test1367() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" +
+				"	private static Map<String, String> var;\n" +
+				"	static {\n" +
+				"		var= new HashMap<String, String>();\n" +
+				"	}\n" +
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	private static Map<String, String> var;\n" + 
+			"	               ^^^\n" + 
+			"Map cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	var= new HashMap<String, String>();\n" + 
+			"	^^^\n" + 
+			"Map<String,String> cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	var= new HashMap<String, String>();\n" + 
+			"	         ^^^^^^^\n" + 
+			"HashMap cannot be resolved to a type\n" + 
+			"----------\n");
 }
 }
