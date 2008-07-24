@@ -6373,15 +6373,21 @@ public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, 
 				expectingLocation.sourceEnd);
 			return;
 	}
+	char[] actualShortReadableName = actualType.shortReadableName();
+	char[] expectedShortReadableName = expectedType.shortReadableName();
+	if (CharOperation.equals(actualShortReadableName, expectedShortReadableName)) {
+		actualShortReadableName = actualType.readableName();
+		expectedShortReadableName = expectedType.readableName();
+	}
 	this.handle(
 		IProblem.TypeMismatch,
 		new String[] {new String(actualType.readableName()), new String(expectedType.readableName())},
-		new String[] {new String(actualType.shortReadableName()), new String(expectedType.shortReadableName())},
+		new String[] {new String(actualShortReadableName), new String(expectedShortReadableName)},
 		location.sourceStart,
 		location.sourceEnd);
 }
 public void typeMismatchError(TypeBinding typeArgument, TypeVariableBinding typeParameter, ReferenceBinding genericType, ASTNode location) {
-    if (location == null) { // binary case
+	if (location == null) { // binary case
 		this.handle(
 			IProblem.TypeArgumentMismatch,
 			new String[] { new String(typeArgument.readableName()), new String(genericType.readableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, false) },

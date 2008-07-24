@@ -33,7 +33,7 @@ protected Map getCompilerOptions() {
 // All specified tests which does not belong to the class are skipped...
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 45 };
+//	TESTS_NUMBERS = new int[] { 61 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public static Test suite() {
@@ -1490,6 +1490,22 @@ public void test060_definite_unassignment_assign_in_for_condition() {
 	 	},
 	 	// runtime results
 		"SUCCESS" /* expected output string */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=241841
+public void test61() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	java.sql.Date d = new java.util.Date();\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	java.sql.Date d = new java.util.Date();\n" + 
+		"	                  ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from java.util.Date to java.sql.Date\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return AssignmentTest.class;
