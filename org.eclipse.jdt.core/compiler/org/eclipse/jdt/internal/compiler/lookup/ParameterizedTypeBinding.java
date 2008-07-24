@@ -786,7 +786,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		return this.methods;
 	}
-
+	/**
+	 * Define to be able to get the computeId() for the inner type binding.
+	 *
+	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#problemId()
+	 */
+	public int problemId() {
+		return this.type.problemId();
+	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#qualifiedPackageName()
 	 */

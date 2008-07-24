@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 239 };
+//		TESTS_NUMBERS = new int[] { 316, 317 };
 //		TESTS_RANGE = new int[] { 308, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10122,10 +10122,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0312() throws JavaModelException {
 		String[] bindingKeys =  new String[] {"Ljava/util/Map<Ljava/lang/Class<Ljava/lang/Class;*>;Ljava/util/List<LUnknown;>;>;"};
 		BindingRequestor requestor = new BindingRequestor();
-    	resolveASTs(new ICompilationUnit[] {} , bindingKeys, requestor, getJavaProject("Converter15"), null);
+		resolveASTs(new ICompilationUnit[] {} , bindingKeys, requestor, getJavaProject("Converter15"), null);
 		assertBindingsEqual(
-			"<null>",
-			requestor.getBindings(bindingKeys));
+				"<null>",
+				requestor.getBindings(bindingKeys));
 	}
 
 	/*
@@ -10135,10 +10135,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0313() throws JavaModelException {
 		String[] bindingKeys =  new String[] {"Ljava/util/Collections;.emptyMap<K:Ljava/lang/Object;V:Ljava/lang/Object;>()Ljava/util/Map<TK;TV;>;%<Ljava/lang/Class<Ljava/lang/Class;*>;Ljava/util/List<LUnknown;>;>"};
 		BindingRequestor requestor = new BindingRequestor();
-    	resolveASTs(new ICompilationUnit[] {} , bindingKeys, requestor, getJavaProject("Converter15"), null);
+		resolveASTs(new ICompilationUnit[] {} , bindingKeys, requestor, getJavaProject("Converter15"), null);
 		assertBindingsEqual(
-			"<null>",
-			requestor.getBindings(bindingKeys));
+				"<null>",
+				requestor.getBindings(bindingKeys));
 	}
 
 	/*
@@ -10148,10 +10148,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0314() throws JavaModelException {
 		String[] bindingKeys =  new String[] {"Ljava/util/List<LZork;>.Map<Ljava/lang/Object;Ljava/lang/Number;>;"};
 		BindingRequestor requestor = new BindingRequestor();
-    	resolveASTs(new ICompilationUnit[] {} , bindingKeys, requestor, getJavaProject("Converter15"), null);
+		resolveASTs(new ICompilationUnit[] {} , bindingKeys, requestor, getJavaProject("Converter15"), null);
 		assertBindingsEqual(
-			"<null>",
-			requestor.getBindings(bindingKeys));
+				"<null>",
+				requestor.getBindings(bindingKeys));
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=120082
@@ -10159,21 +10159,67 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0315() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/pack1/E.java", true/*resolve*/);
 		ASTNode node = buildAST(
-	    	"package pack1;\n" +
-    		"public class E<X> {\n" +
-    		"	public static <T> E<T> bar(T t) {\n" +
-    		"		return null;\n" +
-    		"	}\n" +
-    		"\n" +
-    		"	public void foo(E<?> e) {\n" +
-    		"		/*start*/bar(e)/*end*/;\n" +
-    		"	}\n" +
-    		"}",
-			this.workingCopy);
+				"package pack1;\n" +
+				"public class E<X> {\n" +
+				"	public static <T> E<T> bar(T t) {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo(E<?> e) {\n" +
+				"		/*start*/bar(e)/*end*/;\n" +
+				"	}\n" +
+				"}",
+				this.workingCopy);
 		IBinding binding = ((MethodInvocation) node).resolveTypeBinding();
 		assertBindingKeyEquals(
-			"Lpack1/E<Lpack1/E<!Lpack1/E;*122;>;>;",
-			binding.getKey());
+				"Lpack1/E<Lpack1/E<!Lpack1/E;*122;>;>;",
+				binding.getKey());
 	}
-
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=239439
+	 */
+	public void test0316() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0316/X.java", true/*resolve*/);
+		ClassInstanceCreation expression = (ClassInstanceCreation) buildAST(
+				"package test0316;\n" +
+				"class AbstractClass {\n" + 
+				"	XXList<Class> statements = null;\n" + 
+				"}\n" + 
+				"import java.util.ArrayList;\n" +
+				"public class X extends AbstractClass {\n" + 
+				"	public List<Class> compute() {\n" + 
+				"		statements = /*start*/new ArrayList<Class>()/*end*/;\n" + 
+				"		return statements;\n" + 
+				"	}\n" + 
+				"}",
+				this.workingCopy,
+				false,
+				true,
+				true);
+		ITypeBinding typeBinding = expression.resolveTypeBinding();
+		assertNotNull("No type binding", typeBinding);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=239439
+	 */
+	public void test0317() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0317/X.java", true/*resolve*/);
+		ClassInstanceCreation expression = (ClassInstanceCreation) buildAST(
+				"package test0317;\n" +
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"	XXList<Class> statements = null;\n" + 
+				"	public List<Class> compute() {\n" + 
+				"		statements = /*start*/new ArrayList<Class>()/*end*/;\n" + 
+				"		return statements;\n" + 
+				"	}\n" + 
+				"}",
+				this.workingCopy,
+				false,
+				true,
+				true);
+		ITypeBinding typeBinding = expression.resolveTypeBinding();
+		assertNotNull("No type binding", typeBinding);
+	}
 }
