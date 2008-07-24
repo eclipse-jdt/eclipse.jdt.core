@@ -90,6 +90,12 @@ public char[] getContents(ICompilationUnit unit) throws Error {
 					wait(250);
 				} catch (InterruptedException ignore) { // ignore
 				}
+				if (this.caughtException != null) {
+					// rethrow the caught exception from the readingThreads in the main compiler thread
+					if (this.caughtException instanceof Error)
+						throw (Error) this.caughtException;
+					throw (RuntimeException) this.caughtException;
+				}
 				result = this.contentsRead[this.readyToReadPosition];
 			}
 			// free spot for next file
