@@ -187,7 +187,7 @@
 <!-- =================================================================================== -->
 <!-- Extension: Java Content Types                                                       -->
 <!-- =================================================================================== -->
-<extension point="org.eclipse.core.runtime.contentTypes">
+<extension point="org.eclipse.core.contenttype.contentTypes">
 	<!-- declares a content type for Java Properties files -->
 	<content-type id="javaProperties" name="%javaPropertiesName" 
 		base-type="org.eclipse.core.runtime.text"
