@@ -8676,4 +8676,91 @@ public void test165() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=238014
+public void test166() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X extends A implements I<String> {}\n" +
+			"interface I<T> { void foo(T item); }\n" +
+			"class A {\n" +
+			"	public void foo(Object item) {}\n" +
+			"	public void foo(String item) {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	class X extends A implements I<String> {}\n" + 
+		"	      ^\n" + 
+		"Name clash: The method foo(Object) of type A has the same erasure as foo(T) of type I<T> but does not override it\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=238817
+public void test167() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X implements I<String>, J<String> {\n" +
+			"	public <T3> void foo(T3 t, String s) {}\n" +
+			"}\n" +
+			"interface I<U1> { <T1> void foo(T1 t, U1 u); }\n" +
+			"interface J<U2> { <T2> void foo(T2 t, U2 u); }\n"
+		},
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236096
+public void test168() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> extends Y {\n" +
+			"	@Override <V> void foo(M m) { }\n" +
+			"	@Override <V> M bar() { return null; }\n" +
+			"}\n" +
+			"class Y<T> {\n" +
+			"	class M<V> {}\n" +
+			"	<V> void foo(M<V> m) {}\n" +
+			"	<V> M<V> bar() { return null; }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	class X<T> extends Y {\n" + 
+		"	                   ^\n" + 
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	@Override <V> void foo(M m) { }\n" + 
+		"	                   ^^^^^^^^\n" + 
+		"Name clash: The method foo(Y.M) of type X<T> has the same erasure as foo(Y.M) of type Y but does not override it\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	@Override <V> void foo(M m) { }\n" + 
+		"	                   ^^^^^^^^\n" + 
+		mustOverrideMessage("foo(Y.M)", "X<T>") +
+		"----------\n" + 
+		"4. WARNING in X.java (at line 2)\n" + 
+		"	@Override <V> void foo(M m) { }\n" + 
+		"	                       ^\n" + 
+		"Y.M is a raw type. References to generic type Y<T>.M<V> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 3)\n" + 
+		"	@Override <V> M bar() { return null; }\n" + 
+		"	              ^\n" + 
+		"Y.M is a raw type. References to generic type Y<T>.M<V> should be parameterized\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 3)\n" + 
+		"	@Override <V> M bar() { return null; }\n" + 
+		"	                ^^^^^\n" + 
+		"Name clash: The method bar() of type X<T> has the same erasure as bar() of type Y but does not override it\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 3)\n" + 
+		"	@Override <V> M bar() { return null; }\n" + 
+		"	                ^^^^^\n" + 
+		mustOverrideMessage("bar()", "X<T>") +
+		"----------\n"
+	);
+}
 }
