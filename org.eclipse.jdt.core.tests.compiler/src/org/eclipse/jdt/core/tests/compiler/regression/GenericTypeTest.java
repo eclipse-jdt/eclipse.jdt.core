@@ -45162,7 +45162,7 @@ public void test1343() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921 - variation
 public void test1344() throws Exception {
-	this.runConformTest(
+	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
 				"import java.util.*;\n" + 
@@ -45180,7 +45180,43 @@ public void test1344() throws Exception {
 				"  }\n" + 
 				"}\n", // =================
 			},
-			"");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	public class X<T> extends Adapter {\n" + 
+			"	                          ^^^^^^^\n" + 
+			"Adapter is a raw type. References to generic type Adapter<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	public <V> X.Setter makeSetter() {\n" + 
+			"	           ^^^^^^^^\n" + 
+			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	public <V> X.Setter makeSetter() {\n" + 
+			"	                    ^^^^^^^^^^^^\n" + 
+			"Name clash: The method makeSetter() of type X<T> has the same erasure as makeSetter() of type Adapter but does not override it\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	return new X().new Setter() {};\n" + 
+			"	           ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 9)\n" + 
+			"	return new X().new Setter() {};\n" + 
+			"	                   ^^^^^^\n" + 
+			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 12)\n" + 
+			"	List<Adapter.Setter> l = new ArrayList<X.Setter>();\n" + 
+			"	     ^^^^^^^^^^^^^^\n" + 
+			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 12)\n" + 
+			"	List<Adapter.Setter> l = new ArrayList<X.Setter>();\n" + 
+			"	                                       ^^^^^^^^\n" + 
+			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
+			"----------\n"
+		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921 - variation
 public void test1345() throws Exception {
@@ -45213,10 +45249,10 @@ public void test1345() throws Exception {
 			"	           ^^^^^^^^\n" + 
 			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 8)\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
 			"	public <V> X.Setter makeSetter() {\n" + 
 			"	                    ^^^^^^^^^^^^\n" + 
-			"The method makeSetter() of type X<T> should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"Name clash: The method makeSetter() of type X<T> has the same erasure as makeSetter() of type Adapter but does not override it\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
 			"	return (String) new X().new Setter() {};\n" + 
@@ -45247,7 +45283,8 @@ public void test1345() throws Exception {
 			"	List<Adapter.Setter> l = new ArrayList<X.Setter>();\n" + 
 			"	                                       ^^^^^^^^\n" + 
 			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
-			"----------\n");
+			"----------\n"
+		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921 - variation
 public void test1346() throws Exception {

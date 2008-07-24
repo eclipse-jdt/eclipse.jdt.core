@@ -26,7 +26,7 @@ boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
 
 	TypeBinding match = one.declaringClass.findSuperTypeOriginatingFrom(two.declaringClass);
 	if (!(match instanceof ReferenceBinding))
-		return false; // method's declaringClass does not inherit from inheritedMethod's 
+		return false; // method's declaringClass does not inherit from inheritedMethod's
 
 	if (match != two.declaringClass) {
 		MethodBinding[] superMethods = ((ReferenceBinding) match).getMethods(two.selector);
@@ -165,17 +165,8 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	}
 
 	if (this.type.addSyntheticBridgeMethod(originalInherited, currentMethod.original()) != null) {
-		for (int i = 0, l = allInheritedMethods.length; i < l; i++) {
-			MethodBinding otherInheritedMethod = allInheritedMethods[i];
-			MethodBinding otherOriginal = otherInheritedMethod.original();
-			// only check inherited methods that are different & come from separate inheritance paths
-			if (otherOriginal == originalInherited || otherOriginal == otherInheritedMethod) continue;
-			if (inheritedMethod.areParametersEqual(otherInheritedMethod)) continue;
-			// skip it if otherInheritedMethod is defined by a subtype of inheritedMethod's declaringClass
-			if (otherInheritedMethod.declaringClass.erasure() != inheritedMethod.declaringClass.erasure())
-				if (otherInheritedMethod.declaringClass.findSuperTypeOriginatingFrom(inheritedMethod.declaringClass) != null)
-					continue;
-			if (detectInheritedNameClash(originalInherited, otherOriginal))
+		for (int i = 0, l = allInheritedMethods == null ? 0 : allInheritedMethods.length; i < l; i++) {
+			if (allInheritedMethods[i] != null && detectInheritedNameClash(originalInherited, allInheritedMethods[i].original()))
 				return;
 		}
 	}
@@ -295,9 +286,6 @@ void checkInheritedMethods(MethodBinding inheritedMethod, MethodBinding otherInh
 			problemReporter().duplicateInheritedMethods(this.type, inheritedMethod, otherInheritedMethod);
 			return;
 		}
-	} else if (inheritedMethod.declaringClass.findSuperTypeOriginatingFrom(otherInheritedMethod.declaringClass) != null) {
-		// skip it if inheritedMethod is defined by a subtype of otherInheritedMethod declaringClass
-		return;
 	}
 
 	// the 2 inherited methods clash because of a parameterized type overrides a raw type
@@ -437,19 +425,27 @@ void checkMethods() {
 		}
 
 		int index = -1;
+		int inheritedLength = inherited.length;
 		MethodBinding[] matchingInherited = new MethodBinding[inherited.length];
-		byte[] foundMatch = new byte[inherited.length];
+		MethodBinding[] foundMatch = new MethodBinding[inherited.length]; // null is no match, otherwise value is matching currentMethod
 		if (current != null) {
 			for (int i = 0, length1 = current.length; i < length1; i++) {
 				MethodBinding currentMethod = current[i];
-				for (int j = 0, length2 = inherited.length; j < length2; j++) {
+				MethodBinding[] nonMatchingInherited = null;
+				for (int j = 0; j < inheritedLength; j++) {
 					MethodBinding inheritedMethod = computeSubstituteMethod(inherited[j], currentMethod);
 					if (inheritedMethod != null) {
-						if (foundMatch[j] == 0 && isSubstituteParameterSubsignature(currentMethod, inheritedMethod)) {
+						if (foundMatch[j] == null && isSubstituteParameterSubsignature(currentMethod, inheritedMethod)) {
 							matchingInherited[++index] = inheritedMethod;
-							foundMatch[j] = 1; // cannot null out inherited methods
+							foundMatch[j] = currentMethod;
 						} else {
+							// best place to check each currentMethod against each non-matching inheritedMethod
 							checkForNameClash(currentMethod, inheritedMethod);
+							if (inheritedLength > 1) {
+								if (nonMatchingInherited == null)
+									nonMatchingInherited = new MethodBinding[inheritedLength];
+								nonMatchingInherited[j] = inheritedMethod;
+							}
 						}
 					}
 				}
@@ -457,28 +453,36 @@ void checkMethods() {
 					// see addtional comments in https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
 					// if (index > 0 && currentMethod.declaringClass.isInterface()) // only check when inherited methods are from interfaces
 					//	checkInheritedReturnTypes(matchingInherited, index + 1);
-					checkAgainstInheritedMethods(currentMethod, matchingInherited, index + 1, inherited); // pass in the length of matching
+					checkAgainstInheritedMethods(currentMethod, matchingInherited, index + 1, nonMatchingInherited); // pass in the length of matching
 					while (index >= 0) matchingInherited[index--] = null; // clear the contents of the matching methods
 				}
 			}
 		}
 
-		for (int i = 0, length = inherited.length; i < length; i++) {
-			if (foundMatch[i] == 1) continue;
-
+		// skip tracks which inherited methods have matched other inherited methods
+		// either because they match the same currentMethod or match each other
+		boolean[] skip = new boolean[inheritedLength];
+		for (int i = 0; i < inheritedLength; i++) {
+			if (skip[i]) continue;
 			MethodBinding inheritedMethod = inherited[i];
-			matchingInherited[++index] = inheritedMethod;
-			for (int j = i + 1; j < length; j++) {
+			MethodBinding matchMethod = foundMatch[i];
+			if (matchMethod == null)
+				matchingInherited[++index] = inheritedMethod;
+			for (int j = i + 1; j < inheritedLength; j++) {
 				MethodBinding otherInheritedMethod = inherited[j];
-				if (foundMatch[j] == 1 || canSkipInheritedMethods(inheritedMethod, otherInheritedMethod))
+				if (matchMethod == foundMatch[j] && matchMethod != null)
+					continue; // both inherited methods matched the same currentMethod
+				if (canSkipInheritedMethods(inheritedMethod, otherInheritedMethod))
 					continue;
 				otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
 				if (otherInheritedMethod != null) {
 					if (inheritedMethod.declaringClass != otherInheritedMethod.declaringClass
 						&& isSubstituteParameterSubsignature(inheritedMethod, otherInheritedMethod)) {
+							if (index == -1)
+								matchingInherited[++index] = inheritedMethod;
 							matchingInherited[++index] = otherInheritedMethod;
-							foundMatch[j] = 1; // cannot null out inherited methods
-					} else {
+							skip[j] = true;
+					} else if (matchMethod == null && foundMatch[j] == null) {
 						checkInheritedMethods(inheritedMethod, otherInheritedMethod);
 					}
 				}
@@ -487,7 +491,7 @@ void checkMethods() {
 
 			if (index > 0)
 				checkInheritedMethods(matchingInherited, index + 1); // pass in the length of matching
-			else if (mustImplementAbstractMethods && index == 0 && matchingInherited[0].isAbstract())
+			else if (mustImplementAbstractMethods && matchingInherited[0].isAbstract())
 				checkAbstractMethod(matchingInherited[0]);
 			while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
 		}
@@ -593,17 +597,22 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
    return substitute;
 }
 boolean detectInheritedNameClash(MethodBinding inherited, MethodBinding otherInherited) {
-	if (!inherited.areParameterErasuresEqual(otherInherited) || inherited.returnType.erasure() != otherInherited.returnType.erasure()) return false;
+	if (!inherited.areParameterErasuresEqual(otherInherited) || inherited.returnType.erasure() != otherInherited.returnType.erasure())
+		return false;
+	// skip it if otherInherited is defined by a subtype of inherited's declaringClass
+	if (inherited.declaringClass.erasure() != otherInherited.declaringClass.erasure())
+		if (inherited.declaringClass.findSuperTypeOriginatingFrom(otherInherited.declaringClass) != null)
+			return false;
 
 	problemReporter().inheritedMethodsHaveNameClash(this.type, inherited, otherInherited);
 	return true;
 }
 boolean detectNameClash(MethodBinding current, MethodBinding inherited) {
 	MethodBinding original = inherited.original(); // can be the same as inherited
-	if (!current.areParameterErasuresEqual(original) || current.returnType.erasure() != original.returnType.erasure()) return false;
+	if (!current.areParameterErasuresEqual(original) || current.returnType.erasure() != original.returnType.erasure())
+		return false;
 
-	problemReporter(current).methodNameClash(current, 
-			inherited.declaringClass.isRawType() ? inherited : original);
+	problemReporter(current).methodNameClash(current, inherited.declaringClass.isRawType() ? inherited : original);
 	return true;
 }
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
@@ -744,8 +753,10 @@ boolean isSubstituteParameterSubsignature(MethodBinding method, MethodBinding su
 	}
 
 	if (substituteMethod instanceof ParameterizedGenericMethodBinding) {
+		if (method.typeVariables != Binding.NO_TYPE_VARIABLES)
+			return !((ParameterizedGenericMethodBinding) substituteMethod).isRaw;
 		// since substituteMethod has substituted type variables, method cannot have a generic signature AND no variables -> its a name clash if it does
-		return ! (hasGenericParameter(method) && method.typeVariables == Binding.NO_TYPE_VARIABLES);
+		return !hasGenericParameter(method);
 	}
 
 	// if method has its own variables, then substituteMethod failed bounds check in computeSubstituteMethod()
