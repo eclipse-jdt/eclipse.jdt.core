@@ -9751,7 +9751,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNull("Should be null", typeBinding);
 		} finally {
 			project.setRawClasspath(classpath, null);
-		}	}
+		}
+	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=240815
 	 */
