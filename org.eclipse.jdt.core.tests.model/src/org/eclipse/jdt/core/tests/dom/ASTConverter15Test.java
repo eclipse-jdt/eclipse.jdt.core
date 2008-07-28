@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 316, 317 };
+//		TESTS_NUMBERS = new int[] { 318 };
 //		TESTS_RANGE = new int[] { 308, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10221,5 +10221,28 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				true);
 		ITypeBinding typeBinding = expression.resolveTypeBinding();
 		assertNotNull("No type binding", typeBinding);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=218500
+	 */
+	public void test0318() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0317/X.java", true/*resolve*/);
+		SimpleType type = (SimpleType) buildAST(
+				"class X {\n" + 
+				"	{\n" + 
+				"		abstract class B<T> {\n" + 
+				"			abstract class A {}\n" + 
+				"			public void foo() {\n" + 
+				"				new /*start*/A/*end*/() {};\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				this.workingCopy,
+				false,
+				true,
+				true);
+		ITypeBinding typeBinding = type.getName().resolveTypeBinding();
+		assertEquals("Not an empty name", 0, typeBinding.getQualifiedName().length());
 	}
 }

@@ -685,6 +685,9 @@ class TypeBinding implements ITypeBinding {
 				return new String(typeVariableBinding.sourceName);
 
 			case Binding.PARAMETERIZED_TYPE :
+				if (this.binding.isLocalType()) {
+					return NO_NAME;
+				}
 				buffer = new StringBuffer();
 				if (isMember()) {
 					buffer
@@ -720,7 +723,6 @@ class TypeBinding implements ITypeBinding {
 					buffer.append('>');
 				}
 				return String.valueOf(buffer);
-
 			default :
 				if (isAnonymous() || this.binding.isLocalType()) {
 					return NO_NAME;
