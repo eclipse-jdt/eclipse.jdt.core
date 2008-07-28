@@ -45860,4 +45860,33 @@ public void test1366() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239439
+public void test1367() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" +
+				"	private static Map<String, String> var;\n" +
+				"	static {\n" +
+				"		var= new HashMap<String, String>();\n" +
+				"	}\n" +
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	private static Map<String, String> var;\n" + 
+			"	               ^^^\n" + 
+			"Map cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	var= new HashMap<String, String>();\n" + 
+			"	^^^\n" + 
+			"Map<String,String> cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	var= new HashMap<String, String>();\n" + 
+			"	         ^^^^^^^\n" + 
+			"HashMap cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }

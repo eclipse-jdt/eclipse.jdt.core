@@ -786,7 +786,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}		
 		return this.methods;
 	}
-
+	public int problemId() {
+		return this.type.problemId();
+	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#qualifiedPackageName()
 	 */
