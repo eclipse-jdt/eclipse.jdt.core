@@ -2611,7 +2611,10 @@ public class JavaProject
 			// store resolved info along with the raw info to ensure consistency
 			IClasspathEntry[] resolvedClasspath = new IClasspathEntry[resolvedEntries.size()];
 			resolvedEntries.toArray(resolvedClasspath);
-			perProjectInfo.setClasspath(rawClasspath, outputLocation, rawClasspathStatus, resolvedClasspath, rawReverseMap, rootPathToResolvedEntries, unresolvedEntryStatus);
+			synchronized (perProjectInfo) {
+				if (perProjectInfo.rawClasspath == rawClasspath)	 // set resolved only if raw classpath has not changed
+					perProjectInfo.setClasspath(rawClasspath, outputLocation, rawClasspathStatus, resolvedClasspath, rawReverseMap, rootPathToResolvedEntries, unresolvedEntryStatus);
+			}
 		} finally {
 			manager.setClasspathBeingResolved(this, false);
 		}
