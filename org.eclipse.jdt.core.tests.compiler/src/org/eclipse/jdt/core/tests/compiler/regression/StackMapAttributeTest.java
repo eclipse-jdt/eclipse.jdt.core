@@ -32,7 +32,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 38 };
+//		TESTS_NUMBERS = new int[] { 39 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
