@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 318 };
+//		TESTS_NUMBERS = new int[] { 319, 320 };
 //		TESTS_RANGE = new int[] { 308, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10244,5 +10244,49 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				true);
 		ITypeBinding typeBinding = type.getName().resolveTypeBinding();
 		assertEquals("Not an empty name", 0, typeBinding.getQualifiedName().length());
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=212034
+	 */
+	public void test0319() throws JavaModelException {
+		String contents =
+			"package test0319;\n" +
+			"public class Test {\n" +
+			"	/*start*/@Deprecated\n" +
+			"	@Invalid\n" +
+			"	public void foo() {}/*end*/" +
+			"}\n";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0319/Test.java",
+				contents,
+				true/*resolve*/
+			);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) buildAST(contents, workingCopy, false, false, false);
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		IAnnotationBinding[] annotations = methodBinding.getAnnotations();
+		assertEquals("Got more than one annotation binding", 1, annotations.length);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=212034
+	 */
+	public void test0320() throws JavaModelException {
+		String contents =
+			"package test0320;\n" +
+			"public class Test {\n" +
+			"	/*start*/@Deprecated\n" +
+			"	@Invalid\n" +
+			"	public int i;/*end*/" +
+			"}\n";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0320/Test.java",
+				contents,
+				true/*resolve*/
+			);
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) buildAST(contents, workingCopy, false, false, false);
+		List fragments = fieldDeclaration.fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		IAnnotationBinding[] annotations = variableBinding.getAnnotations();
+		assertEquals("Got more than one annotation binding", 1, annotations.length);
 	}
 }
