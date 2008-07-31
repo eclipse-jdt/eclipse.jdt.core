@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 319, 320 };
+//		TESTS_NUMBERS = new int[] { 321 };
 //		TESTS_RANGE = new int[] { 308, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10288,5 +10288,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		IAnnotationBinding[] annotations = variableBinding.getAnnotations();
 		assertEquals("Got more than one annotation binding", 1, annotations.length);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=103643
+	 */
+	public void _test0321() throws JavaModelException {
+		String contents =
+			"package test0321;\n" +
+			"import java.util.*;\n" +
+			"class X {\n" + 
+			"	<T extends Collection<? extends Number>> T getLonger(T t1, T t2) {\n" + 
+			"		return t1.size() > t2.size() ? t1 : t2;\n" + 
+			"	}\n" + 
+			"	void m(HashSet<? extends Double> list, ArrayList<? extends Integer> set) {\n" + 
+			"		/*start*/getLonger(list, set)/*end*/;\n" + 
+			"	}\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0321/X.java",
+				contents,
+				true/*resolve*/
+			);
+		MethodInvocation invocation = (MethodInvocation) buildAST(contents, workingCopy, true, true, true);
+		IMethodBinding methodBinding = invocation.resolveMethodBinding();
+		System.out.println(methodBinding.getReturnType().getQualifiedName());
 	}
 }

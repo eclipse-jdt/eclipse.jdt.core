@@ -538,7 +538,7 @@ public class ASTParser {
      *
      * @param offset the index of the first character to parse
      * @param length the number of characters to parse, or -1 if
-     * the remainder of the source string is
+     * the remainder of the source string is to be parsed
      */
 	public void setSourceRange(int offset, int length) {
 		if (offset < 0 || length < -1) {
@@ -745,22 +745,22 @@ public class ASTParser {
 	}
 
 	/**
-     * Creates bindings for a batch of Java elements. These elements are either
-     * enclosed in {@link ICompilationUnit}s or in {@link IClassFile}s.
-     * <p>
-     * All enclosing compilation units and class files must
-     * come from the same Java project, which must be set beforehand
-     * with <code>setProject</code>.
-     * </p>
-     * <p>
-     * All elements must exist. If one doesn't exist, an <code>IllegalStateException</code>
-     * is thrown.
-     * </p>
-     * <p>
-     * The returned array has the same size as the given elements array. At a given position
-     * it contains the binding of the corresponding Java element, or <code>null</code>
-     * if no binding could be created.
-     * </p>
+	 * Creates bindings for a batch of Java elements. These elements are either
+	 * enclosed in {@link ICompilationUnit}s or in {@link IClassFile}s.
+	 * <p>
+	 * All enclosing compilation units and class files must
+	 * come from the same Java project, which must be set beforehand
+	 * with <code>setProject</code>.
+	 * </p>
+	 * <p>
+	 * All elements must exist. If one doesn't exist, an <code>IllegalStateException</code>
+	 * is thrown.
+	 * </p>
+	 * <p>
+	 * The returned array has the same size as the given elements array. At a given position
+	 * it contains the binding of the corresponding Java element, or <code>null</code>
+	 * if no binding could be created.
+	 * </p>
 	 * <p>
 	 * Note also the following parser parameters are used, regardless of what
 	 * may have been specified:
@@ -771,18 +771,18 @@ public class ASTParser {
 	 * <li>The {@linkplain #setFocalPosition(int) focal position} is not set</li>
 	 * </ul>
 	 * </p>
-     * <p>
-     * A successful call to this method returns all settings to their
-     * default values so the object is ready to be reused.
-     * </p>
-     *
-     * @param elements the Java elements to create bindings for
-     * @return the bindings for the given Java elements, possibly containing <code>null</code>s
-     *              if some bindings could not be created
+	 * <p>
+	 * A successful call to this method returns all settings to their
+	 * default values so the object is ready to be reused.
+	 * </p>
+	 *
+	 * @param elements the Java elements to create bindings for
+	 * @return the bindings for the given Java elements, possibly containing <code>null</code>s
+	 *              if some bindings could not be created
 	 * @exception IllegalStateException if the settings provided
 	 * are insufficient, contradictory, or otherwise unsupported
 	 * @since 3.1
-     */
+	 */
 	public IBinding[] createBindings(IJavaElement[] elements, IProgressMonitor monitor) {
 		try {
 			if (this.project == null)
@@ -803,9 +803,36 @@ public class ASTParser {
 			case K_CLASS_BODY_DECLARATIONS :
 			case K_EXPRESSION :
 			case K_STATEMENTS :
+				if (this.rawSource == null) {
+					if (this.typeRoot != null) {
+						// get the source from the type root
+						if (this.typeRoot instanceof ICompilationUnit) {
+							org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) this.typeRoot;
+							this.rawSource = sourceUnit.getContents();
+						} else if (this.typeRoot instanceof IClassFile) {
+							try {
+								String sourceString = this.typeRoot.getSource();
+								if (sourceString != null) {
+									this.rawSource = sourceString.toCharArray();
+								}
+							} catch(JavaModelException e) {
+								// an error occured accessing the java element
+								StringWriter stringWriter = new StringWriter();
+								PrintWriter writer = null;
+								try {
+									writer = new PrintWriter(stringWriter);
+									e.printStackTrace(writer);
+								} finally {
+									if (writer != null) writer.close();
+								}
+								throw new IllegalStateException(String.valueOf(stringWriter.getBuffer()));
+							}
+						}
+					}
+				}
 				if (this.rawSource != null) {
 					if (this.sourceOffset + this.sourceLength > this.rawSource.length) {
-					    throw new IllegalStateException();
+						throw new IllegalStateException();
 					}
 					return internalCreateASTForKind();
 				}

@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 689, 690 };
+//		TESTS_NUMBERS =  new int[] { 691 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9782,5 +9782,25 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		} finally {
 			project.setRawClasspath(classpath, null);
 		}
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=242292
+	 */
+	public void test0691() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0691", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType type = unit.getType("X");
+		IMethod method = type.getMethod("foo", new String[0]);
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setSource(unit);
+		Hashtable options = JavaCore.getOptions();
+		options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
+		parser.setCompilerOptions(options);
+		ISourceRange range = method.getSourceRange();
+		parser.setSourceRange(range.getOffset(), range.getLength());
+		ASTNode node = parser.createAST(null);
+		assertNotNull("No node", node);
 	}
 }
