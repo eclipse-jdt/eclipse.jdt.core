@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 691 };
+//		TESTS_NUMBERS =  new int[] { 692 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9802,5 +9802,32 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setSourceRange(range.getOffset(), range.getLength());
 		ASTNode node = parser.createAST(null);
 		assertNotNull("No node", node);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=242961
+	 */
+	public void test0692() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"/*start*/public class X {\n" +
+				"	int k;\n" +
+				"	Zork z;\n" +
+				"}/*end*/";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			TypeDeclaration typeDeclaration = (TypeDeclaration) buildAST(
+				contents,
+				workingCopy,
+				false,
+				false,
+				false);
+			ITypeBinding binding = typeDeclaration.resolveBinding();
+			IVariableBinding[] declaredFields = binding.getDeclaredFields();
+			assertEquals("Wrong size", 1, declaredFields.length);
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
 	}
 }

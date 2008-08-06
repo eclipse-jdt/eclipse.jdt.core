@@ -193,10 +193,9 @@ class TypeBinding implements ITypeBinding {
 					for (int i = 0; i < length; i++) {
 						FieldBinding fieldBinding = fieldBindings[i];
 						IVariableBinding variableBinding = this.resolver.getVariableBinding(fieldBinding);
-						if (variableBinding == null) {
-							return this.fields = NO_VARIABLE_BINDINGS;
+						if (variableBinding != null) {
+							newFields[convertedFieldCount++] = variableBinding;
 						}
-						newFields[convertedFieldCount++] = variableBinding;
 					}
 
 					if (convertedFieldCount != length) {
