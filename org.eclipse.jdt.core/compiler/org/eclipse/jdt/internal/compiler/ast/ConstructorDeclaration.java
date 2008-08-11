@@ -196,7 +196,7 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 			try {
 				classFile.contentsOffset = problemResetPC;
 				classFile.methodCount--;
-				classFile.codeStream.wideMode = true; // request wide mode 
+				classFile.codeStream.resetInWideMode();
 				this.internalGenerateCode(classScope, classFile); // restart method generation
 			} catch (AbortMethod e2) {
 				int problemsLength;
@@ -335,6 +335,11 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		codeStream.recordPositionsFrom(0, this.bodyEnd);
 		classFile.completeCodeAttribute(codeAttributeOffset);
 		attributeNumber++;
+		if ((codeStream instanceof StackMapFrameCodeStream)
+				&& needFieldInitializations
+				&& declaringType.fields != null) {
+			((StackMapFrameCodeStream) codeStream).resetSecretLocals();
+		}
 	}
 	classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
 }

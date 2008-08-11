@@ -535,4 +535,17 @@ public void goto_w(BranchLabel label) {
 	super.goto_w(label);
 	this.addFramePosition(this.position);
 }
+public void resetInWideMode() {
+	this.resetSecretLocals();
+	super.resetInWideMode();
+}
+public void resetSecretLocals() {
+	for (int i = 0, max = this.locals.length; i < max; i++) {
+		LocalVariableBinding localVariableBinding = this.locals[i];
+		if (localVariableBinding != null && localVariableBinding.isSecret()) {
+			// all other locals are reinitialized inside the computation of their resolved positions
+			localVariableBinding.resetInitializations();
+		}
+	}
+}
 }

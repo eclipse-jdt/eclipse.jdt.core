@@ -7491,10 +7491,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					break;
 				case Opcodes.OPC_aload:
 					index = u1At(bytecodes, 1, pc);
-					VerificationTypeInfo localsN = frame.locals[index];
-					if (localsN == null) {
-						localsN = retrieveLocal(currentPC, index);
-					}
+					VerificationTypeInfo localsN = retrieveLocal(currentPC, index);
 					frame.addStackItem(localsN);
 					pc += 2;
 					break;
@@ -8351,10 +8348,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 									poolContents, 1,
 									constantPoolOffsets[utf8index]));
 					int classNameLength = className.length;
-					System.arraycopy(className, 0, (constantPoolName = new char[classNameLength + 3]), 2, classNameLength);
-					constantPoolName[0] = '[';
-					constantPoolName[1] = 'L';
-					constantPoolName[classNameLength + 2] = ';';
+					if (className[0] != '[') {
+						// this is a type name (class or interface). So we add appropriate '[', 'L' and ';'.
+						System.arraycopy(className, 0, (constantPoolName = new char[classNameLength + 3]), 2, classNameLength);
+						constantPoolName[0] = '[';
+						constantPoolName[1] = 'L';
+						constantPoolName[classNameLength + 2] = ';';
+					} else {
+						// if class name is already an array, we just need to add one dimension
+						System.arraycopy(className, 0, (constantPoolName = new char[classNameLength + 1]), 1, classNameLength);
+						constantPoolName[0] = '[';
+					}
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(0, constantPoolName);
 					pc += 3;
 					break;
