@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1367 };
+//		TESTS_NUMBERS = new int[] { 1368 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -45937,5 +45937,25 @@ public void test1367() {
 			"	         ^^^^^^^\n" + 
 			"HashMap cannot be resolved to a type\n" + 
 			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=243820
+public void _test1368() {
+	this.runConformTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X<T> {\n" + 
+				"	static class Inner {\n" + 
+				"	}\n" + 
+				"	static interface AsyncCallback<S> {\n" + 
+				"	}\n" + 
+				"	static interface Intf {\n" + 
+				"		public void foo(Inner x, AsyncCallback<String> cb);\n" + 
+				"	}\n" + 
+				"	static class Impl implements Intf {\n" + 
+				"		public void foo(Inner x, AsyncCallback cb) {}\n" + 
+				"	}\n" + 
+				"}",//-----------------------------------------------------------------------
+			},
+			"");
 }
 }
