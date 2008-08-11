@@ -34,8 +34,10 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.TrackedNodePosition;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.PropertyLocation;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
@@ -58,7 +60,7 @@ import org.eclipse.text.edits.TextEditGroup;
  * <pre>
  * Document document = new Document("import java.util.List;\nclass X {}\n");
  * ASTParser parser = ASTParser.newParser(AST.JLS3);
- * parser.setSource(doc.get().toCharArray());
+ * parser.setSource(document.get().toCharArray());
  * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
  * AST ast = cu.getAST();
  * ImportDeclaration id = ast.newImportDeclaration();
@@ -69,10 +71,17 @@ import org.eclipse.text.edits.TextEditGroup;
  * ListRewrite lrw = rewriter.getListRewrite(cu, CompilationUnit.IMPORTS_PROPERTY);
  * lrw.insertLast(id, null);
  * TextEdit edits = rewriter.rewriteAST(document, null);
- * UndoEdit undo = edits.apply(document);
- * assert "import java.util.List;\nimport java.util.Set;\nclass X {}".equals(doc.get().toCharArray());
+ * UndoEdit undo = null;
+ * try {
+ *     undo = edits.apply(document);
+ * } catch(MalformedTreeException e) {
+ *     e.printStackTrace();
+ * } catch(BadLocationException e) {
+ *     e.printStackTrace();
+ * }
+ * assert "import java.util.List;\nimport java.util.Set;\nclass X {}\n".equals(document.get());
  * // tdLocation.getStartPosition() and tdLocation.getLength()
- * // are new source range for "class X {}" in doc.get()
+ * // are new source range for "class X {}" in document.get()
  * </pre>
  * <p>
  * This class is not intended to be subclassed.
