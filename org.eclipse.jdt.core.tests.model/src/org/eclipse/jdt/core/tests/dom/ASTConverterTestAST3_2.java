@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 692 };
+//		TESTS_NUMBERS =  new int[] { 693, 694 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9828,6 +9828,48 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
 			}
+		}
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=243715
+	 */
+	public void test0693() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0693", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ICompilationUnit unit2 = getCompilationUnit("Converter" , "src", "test0693", "Y.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTRequestor requestor = new ASTRequestor() {};
+		ICompilationUnit[] cus = new ICompilationUnit[2];
+		cus[0] = unit;
+		cus[1] = unit2;
+		
+		try {
+			// the following line will throw exception but seemingly shouldn't 
+			parser.createASTs(cus, new String[0], requestor, null);
+		} catch(Exception e) {
+			e.printStackTrace();
+			assertFalse("Should not get there", true);
+		}
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=243715
+	 */
+	public void test0694() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0694", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ICompilationUnit unit2 = getCompilationUnit("Converter" , "src", "test0694", "Y.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTRequestor requestor = new ASTRequestor() {};
+		ICompilationUnit[] cus = new ICompilationUnit[2];
+		cus[0] = unit;
+		cus[1] = unit2;
+		
+		try {
+			// the following line will throw exception but seemingly shouldn't 
+			parser.createASTs(cus, new String[0], requestor, null);
+		} catch(Exception e) {
+			e.printStackTrace();
+			assertFalse("Should not get there", true);
 		}
 	}
 }

@@ -3122,8 +3122,8 @@ protected void consumeEnterVariable() {
 			// Store javadoc only on first declaration as it is the same for all ones
 			FieldDeclaration fieldDeclaration = (FieldDeclaration) declaration;
 			fieldDeclaration.javadoc = this.javadoc;
-			this.javadoc = null;
 		}
+		this.javadoc = null;
 	} else {
 		type = (TypeReference) this.astStack[this.astPtr - variableIndex];
 		typeDim = type.dimensions();
