@@ -1060,7 +1060,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\r\n" +
 			"	transient private X() {}\r\n" +
 			"	                  ^^^\n" +
-			"Illegal modifier for the method X.X()\n" +
+			"Illegal modifier for the constructor in type X; only public, protected & private are permitted\n" +
 			"----------\n"
 		);
 		this.runNegativeTest(
@@ -1075,7 +1075,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" +
 			"	transient private X(Object... o) {}\n" +
 			"	                  ^^^^^^^^^^^^^^\n" +
-			"Illegal modifier for the method X.X()\n" +
+			"Illegal modifier for the constructor in type X; only public, protected & private are permitted\n" +
 			"----------\n"
 		);
 	}

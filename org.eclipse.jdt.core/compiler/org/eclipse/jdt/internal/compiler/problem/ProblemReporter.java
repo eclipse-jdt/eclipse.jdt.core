@@ -2176,17 +2176,15 @@ public void illegalModifierForInterfaceField(FieldDeclaration fieldDecl) {
 		fieldDecl.sourceEnd);
 }
 public void illegalModifierForInterfaceMethod(AbstractMethodDeclaration methodDecl) {
+	// cannot include parameter types since they are not resolved yet
+	// and the error message would be too long
 	this.handle(
 		IProblem.IllegalModifierForInterfaceMethod,
 		new String[] {
-			new String(methodDecl.binding.declaringClass.readableName()),
-			new String(methodDecl.selector),
-			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, false),
+			new String(methodDecl.selector)
 		},
 		new String[] {
-			new String(methodDecl.binding.declaringClass.shortReadableName()),
-			new String(methodDecl.selector),
-			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, true),
+			new String(methodDecl.selector)
 		},
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
@@ -2237,17 +2235,15 @@ public void illegalModifierForMemberInterface(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void illegalModifierForMethod(AbstractMethodDeclaration methodDecl) {
+	// cannot include parameter types since they are not resolved yet
+	// and the error message would be too long
 	this.handle(
-		IProblem.IllegalModifierForMethod,
+		methodDecl.isConstructor() ? IProblem.IllegalModifierForConstructor : IProblem.IllegalModifierForMethod,
 		new String[] {
-			new String(methodDecl.selector),
-			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, false),
-			new String(methodDecl.binding.declaringClass.readableName()),
+			new String(methodDecl.selector)
 		},
 		new String[] {
-			new String(methodDecl.selector),
-			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, true),
-			new String(methodDecl.binding.declaringClass.shortReadableName()),
+			new String(methodDecl.selector)
 		},
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);

@@ -2955,6 +2955,36 @@ public void test089() {
 		"The type X cannot be a superinterface of Member; a superinterface must be an interface\n" + 
 		"----------\n");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239833
+public void test090() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public synchronized int f;\n" + 
+			"	public synchronized X() {}\n" + 
+			"	public volatile void foo() {}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public synchronized int f;\n" + 
+		"	                        ^\n" + 
+		"Illegal modifier for the field f; only public, protected, private, static, final, transient & volatile are permitted\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	public synchronized X() {}\n" + 
+		"	                    ^^^\n" + 
+		"Illegal modifier for the constructor in type X; only public, protected & private are permitted\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	public volatile void foo() {}\n" + 
+		"	                     ^^^^^\n" + 
+		"Illegal modifier for the method foo; only public, protected, private, static, final, abstract, synchronized & native are permitted\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }

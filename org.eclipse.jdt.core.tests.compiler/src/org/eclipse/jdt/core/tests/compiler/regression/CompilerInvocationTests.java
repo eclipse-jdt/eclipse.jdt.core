@@ -577,6 +577,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ReturnTypeCannotBeVoidArray", DEPRECATED);
 		expectedProblemAttributes.put("NativeMethodsCannotBeStrictfp", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateModifierForArgument", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("IllegalModifierForConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ArgumentTypeNotFound", DEPRECATED);
 		expectedProblemAttributes.put("ArgumentTypeNotVisible", DEPRECATED);
 		expectedProblemAttributes.put("ArgumentTypeAmbiguous", DEPRECATED);
@@ -1187,6 +1188,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ReturnTypeCannotBeVoidArray", SKIP);
 		expectedProblemAttributes.put("NativeMethodsCannotBeStrictfp", SKIP);
 		expectedProblemAttributes.put("DuplicateModifierForArgument", SKIP);
+		expectedProblemAttributes.put("IllegalModifierForConstructor", SKIP);
 		expectedProblemAttributes.put("ArgumentTypeNotFound", SKIP);
 		expectedProblemAttributes.put("ArgumentTypeNotVisible", SKIP);
 		expectedProblemAttributes.put("ArgumentTypeAmbiguous", SKIP);
@@ -1724,6 +1726,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ReturnTypeCannotBeVoidArray", SKIP);
 		expectedProblemAttributes.put("NativeMethodsCannotBeStrictfp", SKIP);
 		expectedProblemAttributes.put("DuplicateModifierForArgument", SKIP);
+		expectedProblemAttributes.put("IllegalModifierForConstructor", SKIP);
 		expectedProblemAttributes.put("ArgumentTypeNotFound", SKIP);
 		expectedProblemAttributes.put("ArgumentTypeNotVisible", SKIP);
 		expectedProblemAttributes.put("ArgumentTypeAmbiguous", SKIP);

@@ -2416,7 +2416,7 @@ public void test079() throws Exception {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	private strictfp X() {}\n" +
 		"	                 ^^^\n" +
-		"Illegal modifier for the method X.X()\n" +
+		"Illegal modifier for the constructor in type X; only public, protected & private are permitted\n" +
 		"----------\n"
 	);
 	this.runConformTest(

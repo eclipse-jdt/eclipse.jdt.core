@@ -684,6 +684,7 @@ void setSourceStart(int sourceStart);
 	int ReturnTypeCannotBeVoidArray = MethodRelated + 366;
 	int NativeMethodsCannotBeStrictfp = MethodRelated + 367;
 	int DuplicateModifierForArgument = MethodRelated + 368;
+	int IllegalModifierForConstructor = MethodRelated + 369;
 
 	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int ArgumentTypeNotFound =  MethodRelated + 369 + ProblemReasons.NotFound; // MethodRelated + 370
