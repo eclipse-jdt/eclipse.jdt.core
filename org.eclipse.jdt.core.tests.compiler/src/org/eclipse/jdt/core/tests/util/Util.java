@@ -1258,7 +1258,8 @@ public static void zip(File rootDir, String zipPath) throws IOException {
     ZipOutputStream zip = null;
     try {
         File zipFile = new File(zipPath);
-        if (zipFile.exists()) delete(zipFile);
+        if (zipFile.exists() && !delete(zipFile))
+        	throw new IOException("Could not delete " + zipPath);
         zip = new ZipOutputStream(new FileOutputStream(zipFile));
         zip(rootDir, zip, rootDir.getPath().length()+1); // 1 for last slash
     } finally {
