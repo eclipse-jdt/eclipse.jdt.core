@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1368 };
+//		TESTS_NUMBERS = new int[] { 1369 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -45957,5 +45957,31 @@ public void _test1368() {
 				"}",//-----------------------------------------------------------------------
 			},
 			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=244164
+public void _test1369() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.HashMap;\n" + 
+				"import java.util.Map;\n" + 
+				"public class X {\n" + 
+				"	private static Map<String, Zork> map = new HashMap<String, X>();\n" + 
+				"	public static X foo(String s) {\n" + 
+				"		return map.get(s);\n" + 
+				"	}\n" + 
+				"}",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	private static Map<String, Zork> map = new HashMap<String, X>();\n" + 
+			"	                           ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	return map.get(s);\n" + 
+			"	       ^^^\n" + 
+			"Map<String,Zork> cannot be resolved to a type\n" + 
+			"----------\n");
 }
 }
