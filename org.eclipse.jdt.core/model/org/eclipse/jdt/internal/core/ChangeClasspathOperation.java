@@ -52,7 +52,7 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 			}
 
 			// delta, indexing and classpath markers are going to be created by the delta processor
-			// while handling the .classpath file change
+			// while handling the resource change (either .classpath change, or project touched)
 
 			// however ensure project references are updated
 			// since some clients rely on the project references when run inside an IWorkspaceRunnable
