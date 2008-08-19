@@ -27,6 +27,7 @@ public class FormatterCommentParser extends JavadocParser implements IJavaDocTag
 	char[][] htmlTags;
 	int htmlTagsPtr = -1;
 	private boolean invalidTagName;
+	public boolean parseHtmlTags;
 
 public FormatterCommentParser(long sourceLevel) {
 	super(null);
@@ -187,6 +188,7 @@ private int getHtmlTagIndex(char[] htmlTag) {
  * closing (e.g. </tag_name>).
  */
 protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws InvalidInputException {
+	if (!this.parseHtmlTags) return false;
     boolean closing = false;
     boolean valid = false;
     boolean incremented = false;

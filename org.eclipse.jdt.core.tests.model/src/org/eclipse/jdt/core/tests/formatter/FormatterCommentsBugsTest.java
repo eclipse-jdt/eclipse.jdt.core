@@ -1915,4 +1915,40 @@ public void testBug239941() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 241345: [formatter] Didn't Format HTML tags is unavailable
+ * @test Ensure that unset 'Format HTML tags' preference format HTML tags like simple text
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=241345"
+ */
+public void testBug241345() throws JavaModelException {
+	this.preferences.comment_format_html = false;
+	String source = 
+		"/**\n" + 
+		" * <p>Should not format HTML paragraph</p>\n" + 
+		" */\n" + 
+		"public interface Test {\n" + 
+		"	/**\n" + 
+		"	 * \n" + 
+		"	 * These possibilities include: <ul><li>Formatting of header\n" + 
+		"	 * comments.</li><li>Formatting of Javadoc tags</li></ul>\n" + 
+		"	 */\n" + 
+		"	int bar();\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * <p>Should not format HTML paragraph</p>\n" + 
+		" */\n" + 
+		"public interface Test {\n" + 
+		"	/**\n" + 
+		"	 * \n" + 
+		"	 * These possibilities include: <ul><li>Formatting of header\n" + 
+		"	 * comments.</li><li>Formatting of Javadoc tags</li></ul>\n" + 
+		"	 */\n" + 
+		"	int bar();\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
 }
