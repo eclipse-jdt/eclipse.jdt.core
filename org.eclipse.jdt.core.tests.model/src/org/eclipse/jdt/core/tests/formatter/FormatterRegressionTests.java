@@ -55,8 +55,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 669 };
-//		TESTS_RANGE = new int[] { 658, -1 };
+//		TESTS_NUMBERS = new int[] { 715 };
+//		TESTS_RANGE = new int[] { 715, -1 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -10141,5 +10141,41 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.comment_format_javadoc_comment = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test714", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=244477
+	public void test715() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.keep_empty_array_initializer_on_one_line = true;
+		preferences.insert_space_before_comma_in_array_initializer = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test715", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=244477
+	public void test716() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.keep_empty_array_initializer_on_one_line = true;
+		preferences.insert_space_before_comma_in_array_initializer = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test716", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=244477
+	public void test717() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.keep_empty_array_initializer_on_one_line = false;
+		preferences.insert_space_before_comma_in_array_initializer = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test717", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=244477
+	public void test718() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.keep_empty_array_initializer_on_one_line = false;
+		preferences.insert_space_before_comma_in_array_initializer = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test718", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
