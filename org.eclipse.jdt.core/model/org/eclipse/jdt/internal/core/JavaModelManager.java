@@ -2395,8 +2395,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						allContainerPaths.put(javaProject, paths);
 					}
 					paths.add(path);
-					// mark container as being initialized
-					containerAddInitializationInProgress(javaProject, path);
 				}
 			}
 			/* TODO (frederic) put back when JDT/UI dummy project will be thrown away...
@@ -2419,8 +2417,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				allContainerPaths.put(javaProjectToInit, containerPaths);
 			}
 			containerPaths.add(containerToInit);
-			// mark container as being initialized
-			containerAddInitializationInProgress(javaProjectToInit, containerToInit);
 		}
 		// end block
 

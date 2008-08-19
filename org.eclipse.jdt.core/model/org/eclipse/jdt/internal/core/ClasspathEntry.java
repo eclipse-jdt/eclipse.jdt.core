@@ -1544,23 +1544,27 @@ public class ClasspathEntry implements IClasspathEntry {
 			case IClasspathEntry.CPE_CONTAINER :
 				if (path.segmentCount() >= 1){
 					try {
-						IClasspathContainer container = JavaModelManager.getJavaModelManager().getClasspathContainer(path, project);
-						// container retrieval is performing validation check on container entry kinds.
-						if (container == null){
-							return new JavaModelStatus(IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND, project, path);
-						} else if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
-							// Validate extra attributes
-							IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
-							if (extraAttributes != null) {
-								int length = extraAttributes.length;
-								HashSet set = new HashSet(length);
-								for (int i=0; i<length; i++) {
-									String attName = extraAttributes[i].getName();
-									if (!set.add(attName)) {
-										return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Messages.bind(Messages.classpath_duplicateEntryExtraAttribute, new String[] {attName, entryPathMsg, projectName}));
-									}
+						IJavaModelStatus status = null;
+						// Validate extra attributes
+						IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
+						if (extraAttributes != null) {
+							int length = extraAttributes.length;
+							HashSet set = new HashSet(length);
+							for (int i=0; i<length; i++) {
+								String attName = extraAttributes[i].getName();
+								if (!set.add(attName)) {
+									status = new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Messages.bind(Messages.classpath_duplicateEntryExtraAttribute, new String[] {attName, entryPathMsg, projectName}));
+									break;
 								}
 							}
+						}
+						IClasspathContainer container = JavaModelManager.getJavaModelManager().getClasspathContainer(path, project);
+						// container retrieval is performing validation check on container entry kinds.
+						if (container == null) {
+							if (status != null)
+								return status;
+							return new JavaModelStatus(IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND, project, path);
+						} else if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
 							// don't create a marker if initialization is in progress (case of cp initialization batching)
 							return JavaModelStatus.VERIFIED_OK;
 						}
