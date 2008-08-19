@@ -2031,7 +2031,7 @@ public void testClasspathWithDuplicateEntries() throws CoreException {
  * Bug 94404: [model] Disallow classpath attributes with same key
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94404"
  */
-public void testClasspathDuplicateExtraAttribute() throws CoreException {
+public void testClasspathDuplicateExtraAttribute1() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P1", new String[] {}, "bin");
 		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[2];
@@ -2044,42 +2044,103 @@ public void testClasspathDuplicateExtraAttribute() throws CoreException {
 		assertStatus(
 			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'JRE_CONTAINER\' for project 'P1'",
 			status);
+	} finally {
+		deleteProject("P1");
+	}
+}
+
+/**
+ * Bug 94404: [model] Disallow classpath attributes with same key
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94404"
+ */
+public void testClasspathDuplicateExtraAttribute2() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P1", new String[] {}, "bin");
+		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[2];
+		extraAttributes[0] = JavaCore.newClasspathAttribute("javadoc_location", "http://www.sample-url.org/doc/");
+		extraAttributes[1] = JavaCore.newClasspathAttribute("javadoc_location", "d:/tmp");
 
 		// Verify library entry validation
 		IClasspathEntry library = JavaCore.newLibraryEntry(new Path(getExternalJCLPathString()), null, null, ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
-		status = JavaConventions.validateClasspathEntry(proj, library, false);
-		assertStatus(
-			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'"+getExternalJCLPath()+"\' for project 'P1'",
-			status);
-
-		// Verify project entry validation
-		createJavaProject("P2");
-		IClasspathEntry projectEntry = JavaCore.newProjectEntry(new Path("/P2"), ClasspathEntry.NO_ACCESS_RULES, false, extraAttributes, false);
-		status = JavaConventions.validateClasspathEntry(proj, projectEntry, false);
-		assertStatus(
-			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'/P2\' for project 'P1'",
-			status);
-
-		// Verify source entry validation
-		createFolder("/P1/src");
-		IClasspathEntry sourceEntry = JavaCore.newSourceEntry(new Path("/P1/src"), new IPath[0], new IPath[0], null, extraAttributes);
-		status = JavaConventions.validateClasspathEntry(proj, sourceEntry, false);
-		assertStatus(
-			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'src\' for project 'P1'",
-			status);
-
-		// Verify variable entry validation
-		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("JCL_LIB"), new Path("JCL_SRC"), null, ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
-		status = JavaConventions.validateClasspathEntry(proj, variable, false);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, library, false);
 		assertStatus(
 			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'"+getExternalJCLPath()+"\' for project 'P1'",
 			status);
 	} finally {
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
 	}
 }
 
+/**
+ * Bug 94404: [model] Disallow classpath attributes with same key
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94404"
+ */
+public void testClasspathDuplicateExtraAttribute3() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P1", new String[] {}, "bin");
+		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[2];
+		extraAttributes[0] = JavaCore.newClasspathAttribute("javadoc_location", "http://www.sample-url.org/doc/");
+		extraAttributes[1] = JavaCore.newClasspathAttribute("javadoc_location", "d:/tmp");
+
+		// Verify project entry validation
+		createJavaProject("P2");
+		IClasspathEntry projectEntry = JavaCore.newProjectEntry(new Path("/P2"), ClasspathEntry.NO_ACCESS_RULES, false, extraAttributes, false);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, projectEntry, false);
+		assertStatus(
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'/P2\' for project 'P1'",
+			status);
+
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+/**
+ * Bug 94404: [model] Disallow classpath attributes with same key
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94404"
+ */
+public void testClasspathDuplicateExtraAttribute4() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P1", new String[] {}, "bin");
+		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[2];
+		extraAttributes[0] = JavaCore.newClasspathAttribute("javadoc_location", "http://www.sample-url.org/doc/");
+		extraAttributes[1] = JavaCore.newClasspathAttribute("javadoc_location", "d:/tmp");
+
+		// Verify source entry validation
+		createFolder("/P1/src");
+		IClasspathEntry sourceEntry = JavaCore.newSourceEntry(new Path("/P1/src"), new IPath[0], new IPath[0], null, extraAttributes);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, sourceEntry, false);
+		assertStatus(
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'src\' for project 'P1'",
+			status);
+
+	} finally {
+		deleteProject("P1");
+	}
+}
+
+/**
+ * Bug 94404: [model] Disallow classpath attributes with same key
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94404"
+ */
+public void testClasspathDuplicateExtraAttribute5() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P1", new String[] {}, "bin");
+		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[2];
+		extraAttributes[0] = JavaCore.newClasspathAttribute("javadoc_location", "http://www.sample-url.org/doc/");
+		extraAttributes[1] = JavaCore.newClasspathAttribute("javadoc_location", "d:/tmp");
+
+		// Verify variable entry validation
+		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("JCL_LIB"), new Path("JCL_SRC"), null, ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, variable, false);
+		assertStatus(
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'"+getExternalJCLPath()+"\' for project 'P1'",
+			status);
+	} finally {
+		deleteProject("P1");
+	}
+}
 /**
  * Adding an entry to the classpath for a library that does not exist
  * should not break the model. The classpath should contain the
