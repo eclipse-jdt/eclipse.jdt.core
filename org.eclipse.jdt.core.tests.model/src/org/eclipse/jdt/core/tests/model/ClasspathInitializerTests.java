@@ -957,7 +957,7 @@ public void testContainerInitializer23() throws CoreException {
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=232478 )
  */
 public void testContainerInitializer24() throws Exception {
-	BPThread.TIMEOUT = Integer.MAX_VALUE;
+	BPThread.TIMEOUT = 30000; // wait 30s max
 	BPThread thread = new BPThread("getResolvedClasspath()");
 	ClasspathResolutionBreakpointListener listener = new ClasspathResolutionBreakpointListener(new BPThread[] {thread});
 	try {
@@ -997,6 +997,35 @@ public void testContainerInitializer24() throws Exception {
 		JavaProject.removeCPResolutionBPListener(listener);
 		thread.runToEnd();
 		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+
+/*
+ * Ensures that the project references are updated on startup if the initializer gives a different value.
+ */
+public void testContainerInitializer25() throws CoreException {
+	try {
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
+		IJavaProject p2 = createJavaProject(
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
+				"");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
+
+		// simulate state on startup
+		simulateExitRestart();
+
+		p2.getResolvedClasspath(true);
+		assertResourcesEqual(
+			"Unexpected project references on startup",
+			"/P1",
+			p2.getProject().getDescription().getDynamicReferences());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 
