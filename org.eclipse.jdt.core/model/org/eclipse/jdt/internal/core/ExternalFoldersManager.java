@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -114,28 +115,43 @@ public class ExternalFoldersManager {
 		return result;
 	}
 	
-	public synchronized void cleanUp(IProgressMonitor monitor) throws CoreException {
-		DeltaProcessingState state = JavaModelManager.getDeltaState();
-		HashMap roots = state.roots;
-		HashMap sourceAttachments = state.sourceAttachments;
-		if (roots == null && sourceAttachments == null)
+	public void cleanUp(IProgressMonitor monitor) throws CoreException {
+		ArrayList toDelete = getFoldersToCleanUp(monitor);
+		if (toDelete == null)
 			return;
-		HashMap knownFolders = getFolders();
-		Iterator iterator = knownFolders.keySet().iterator();
-		while (iterator.hasNext()) {
-			IPath path = (IPath) iterator.next();
-			if ((roots != null && !roots.containsKey(path))
-					&& (sourceAttachments != null && !sourceAttachments.containsKey(path))) {
-				IFolder folder = (IFolder) knownFolders.get(path);
-				if (folder != null)
-					folder.delete(true, monitor);
-			}
+		for (Iterator iterator = toDelete.iterator(); iterator.hasNext();) {
+			IFolder folder = (IFolder) iterator.next();
+			folder.delete(true, monitor);
 		}
 		IProject project = getExternalFoldersProject();
 		if (project.isAccessible() && project.members().length == 1/*remaining member is .project*/)
 			project.delete(true, monitor);
 	}
-	
+
+	private synchronized ArrayList getFoldersToCleanUp(IProgressMonitor monitor) throws CoreException {
+		DeltaProcessingState state = JavaModelManager.getDeltaState();
+		HashMap roots = state.roots;
+		HashMap sourceAttachments = state.sourceAttachments;
+		if (roots == null && sourceAttachments == null)
+			return null;
+		HashMap knownFolders = getFolders();
+		Iterator iterator = knownFolders.keySet().iterator();
+		ArrayList result = null;
+		while (iterator.hasNext()) {
+			IPath path = (IPath) iterator.next();
+			if ((roots != null && !roots.containsKey(path))
+					&& (sourceAttachments != null && !sourceAttachments.containsKey(path))) {
+				IFolder folder = (IFolder) knownFolders.get(path);
+				if (folder != null) {
+					if (result == null)
+						result = new ArrayList();
+					result.add(folder);
+				}
+			}
+		}
+		return result;
+	}
+
 	public IProject getExternalFoldersProject() {
 		return ResourcesPlugin.getWorkspace().getRoot().getProject(EXTERNAL_PROJECT_NAME);
 	}
