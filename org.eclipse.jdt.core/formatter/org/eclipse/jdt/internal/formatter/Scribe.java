@@ -949,6 +949,7 @@ public class Scribe implements IJavaDocTagConstants {
 		this.formatterCommentParser.source = this.scanner.source;
 		this.formatterCommentParser.scanner.lineEnds = this.lineEnds;
 		this.formatterCommentParser.scanner.linePtr = this.maxLines;
+		this.formatterCommentParser.parseHtmlTags = this.formatter.preferences.comment_format_html;
 	}
 	
 	/**
