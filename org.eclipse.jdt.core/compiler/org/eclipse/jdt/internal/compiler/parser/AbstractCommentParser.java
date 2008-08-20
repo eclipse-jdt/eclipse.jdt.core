@@ -312,6 +312,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 							textEndPosition = this.index;
 						} else if (peekChar() != '@') {
+							if (this.textStart == -1) this.textStart = previousPosition;
 							textEndPosition = this.index;
 						}
 						if (!this.lineStarted) {
