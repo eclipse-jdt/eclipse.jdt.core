@@ -438,54 +438,62 @@ public IType[] getAllSuperclasses(IType type) {
  * @see ITypeHierarchy
  */
 public IType[] getAllSuperInterfaces(IType type) {
-	ArrayList supers = new ArrayList();
-	if (this.typeToSuperInterfaces.get(type) == null) {
+	ArrayList supers = getAllSuperInterfaces0(type, null);
+	if (supers == null)
 		return NO_TYPE;
-	}
-	getAllSuperInterfaces0(type, supers);
 	IType[] superinterfaces = new IType[supers.size()];
 	supers.toArray(superinterfaces);
 	return superinterfaces;
 }
-private void getAllSuperInterfaces0(IType type, ArrayList supers) {
+private ArrayList getAllSuperInterfaces0(IType type, ArrayList supers) {
 	IType[] superinterfaces = (IType[]) this.typeToSuperInterfaces.get(type);
-	if (superinterfaces != null && superinterfaces.length != 0) {
+	if (superinterfaces == null) // type is not part of the hierarchy
+		return supers;
+	if (superinterfaces.length != 0) {
+		if (supers == null)
+			supers = new ArrayList();
 		addAllCheckingDuplicates(supers, superinterfaces);
 		for (int i = 0; i < superinterfaces.length; i++) {
-			getAllSuperInterfaces0(superinterfaces[i], supers);
+			supers = getAllSuperInterfaces0(superinterfaces[i], supers);
 		}
 	}
 	IType superclass = (IType) this.classToSuperclass.get(type);
 	if (superclass != null) {
-		getAllSuperInterfaces0(superclass, supers);
+		supers = getAllSuperInterfaces0(superclass, supers);
 	}
+	return supers;
 }
 /**
  * @see ITypeHierarchy
  */
 public IType[] getAllSupertypes(IType type) {
-	ArrayList supers = new ArrayList();
-	if (this.typeToSuperInterfaces.get(type) == null) {
+	ArrayList supers = getAllSupertypes0(type, null);
+	if (supers == null)
 		return NO_TYPE;
-	}
-	getAllSupertypes0(type, supers);
 	IType[] supertypes = new IType[supers.size()];
 	supers.toArray(supertypes);
 	return supertypes;
 }
-private void getAllSupertypes0(IType type, ArrayList supers) {
+private ArrayList getAllSupertypes0(IType type, ArrayList supers) {
 	IType[] superinterfaces = (IType[]) this.typeToSuperInterfaces.get(type);
-	if (superinterfaces != null && superinterfaces.length != 0) {
+	if (superinterfaces == null) // type is not part of the hierarchy
+		return supers;
+	if (superinterfaces.length != 0) {
+		if (supers == null)
+			supers = new ArrayList();
 		addAllCheckingDuplicates(supers, superinterfaces);
 		for (int i = 0; i < superinterfaces.length; i++) {
-			getAllSuperInterfaces0(superinterfaces[i], supers);
+			supers = getAllSuperInterfaces0(superinterfaces[i], supers);
 		}
 	}
 	IType superclass = (IType) this.classToSuperclass.get(type);
 	if (superclass != null) {
+		if (supers == null)
+			supers = new ArrayList();
 		supers.add(superclass);
-		getAllSupertypes0(superclass, supers);
+		supers = getAllSupertypes0(superclass, supers);
 	}
+	return supers;
 }
 /**
  * @see ITypeHierarchy
