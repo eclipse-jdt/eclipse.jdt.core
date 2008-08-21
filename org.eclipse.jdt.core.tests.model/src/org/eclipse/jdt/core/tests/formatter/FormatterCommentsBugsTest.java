@@ -1811,6 +1811,48 @@ public void testBug239719b() throws JavaModelException {
 }
 
 /**
+ * @bug 240686: [formatter] Formatter do unexpected things
+ * @test Ensure that open brace are well taken into account just after the HTML tag opening
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=240686"
+ */
+public void testBug240686() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"/** \n" + 
+		" * <pre>{ }</pre>\n" + 
+		" * \n" + 
+		" * <table>\n" + 
+		" * <tr>{ \"1\",\n" + 
+		" * \"2\"}\n" + 
+		" * </tr>\n" + 
+		" * </table>\n" + 
+		" */\n" + 
+		"void foo() {}\n" + 
+		"}\n";
+	// output is different than 3.3 one: <tr> is considered as new line tag
+	// hence the text inside the tag is put on a new line
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 * {}\n" + 
+		"	 * </pre>\n" + 
+		"	 * \n" + 
+		"	 * <table>\n" + 
+		"	 * <tr>\n" + 
+		"	 * { \"1\", \"2\"}\n" + 
+		"	 * </tr>\n" + 
+		"	 * </table>\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 241345: [formatter] Didn't Format HTML tags is unavailable
  * @test Ensure that unset 'Format HTML tags' preference format HTML tags like simple text
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=241345"
