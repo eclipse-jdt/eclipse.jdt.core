@@ -1389,6 +1389,7 @@ public class Scribe implements IJavaDocTagConstants {
 						continue;
 					}
 				case TerminalTokens.TokenNameMINUS:
+				case TerminalTokens.TokenNameMINUS_MINUS:
 					if (previousToken == -1) {
 						// Do not format comment starting with /*-
 						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=230944
