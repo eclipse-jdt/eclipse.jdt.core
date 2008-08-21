@@ -1889,6 +1889,39 @@ public void testBug241345() throws JavaModelException {
 }
 
 /**
+ * @bug 241687: [formatter] problem formatting block comments
+ * @test Ensure that the comment formatter always honors the tacit contract of not modifying block comments starting with '/*-'
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=241687"
+ */
+public void testBug241687() throws JavaModelException {
+	String source = 
+		"public interface Test {\n" + 
+		"\n" + 
+		"/*---------------------\n" + 
+		" * END OF SETS AND GETS\n" + 
+		" * test test test test test test test\n" + 
+		"test test test test test test \n" + 
+		" * \n" + 
+		"*\n" + 
+		" *---------------------*/\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface Test {\n" + 
+		"\n" + 
+		"	/*---------------------\n" + 
+		"	 * END OF SETS AND GETS\n" + 
+		"	 * test test test test test test test\n" + 
+		"	 test test test test test test \n" + 
+		"	 * \n" + 
+		"	 *\n" + 
+		"	 *---------------------*/\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 239941: [formatter] Unclosed html tags make the formatter to produce incorrect outputs
  * @test Ensure that unclosed html tags do not screw up the formatter in following javadoc comments
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=239941"
