@@ -470,6 +470,18 @@ public void testLocalVariableMemento1() {
 /**
  * Tests that a local variable can be persisted and restored using its memento.
  */
+public void testLocalVariableMemento2() throws JavaModelException {
+	IType type = getClassFile("/P/src/p/X.class").getType();
+	IMethod method = type.getMethod("foo", new String[]{"I"});
+
+	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4, "Z", null);
+	assertMemento(
+		"=P/src<p(X.class[X~foo~I@var!1!2!3!4!Z",
+		localVar);
+}
+/**
+ * Tests that a local variable can be persisted and restored using its memento.
+ */
 public void testLocalVariableMemento3() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	IInitializer initializer = type.getInitializer(1);
@@ -481,15 +493,27 @@ public void testLocalVariableMemento3() {
 }
 /**
  * Tests that a local variable can be persisted and restored using its memento.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=244549 )
  */
-public void testLocalVariableMemento2() throws JavaModelException {
-	IType type = getClassFile("/P/src/p/X.class").getType();
-	IMethod method = type.getMethod("foo", new String[]{"I"});
-
-	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4, "Z", null);
-	assertMemento(
-		"=P/src<p(X.class[X~foo~I@var!1!2!3!4!Z",
-		localVar);
+public void testLocalVariableMemento4() throws Exception {
+	try {
+		createJavaProject("P1", new String[] {"src"}, new String[] {getExternalJCLPathString("1.5")}, "bin", "1.5");
+		createFile(
+			"/P1/src/X.java",
+			"public class X<T> {\n" +
+			"  void foo() {\n" +
+			"    X<String> var = null;\n" +
+			"  }\n" +
+			"}"
+		);
+		ILocalVariable localVar = getLocalVariable(getCompilationUnit("/P1/src/X.java"), "var", "var");
+		String memento = localVar.getHandleIdentifier();
+		IJavaElement restored = JavaCore.create(memento);
+		String restoredMemento = restored.getHandleIdentifier();
+		assertEquals("Unexpected restored memento", memento, restoredMemento);
+	} finally {
+		deleteProject("P1");
+	}
 }
 /**
  * Tests that a package declaration can be persisted and restored using its memento.

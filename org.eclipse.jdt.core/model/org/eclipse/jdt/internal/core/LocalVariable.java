@@ -228,7 +228,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		buff.append(JEM_COUNT);
 		buff.append(this.nameEnd);
 		buff.append(JEM_COUNT);
-		buff.append(this.typeSignature);
+		escapeMementoName(buff, this.typeSignature);
 		if (this.occurrenceCount > 1) {
 			buff.append(JEM_COUNT);
 			buff.append(this.occurrenceCount);
