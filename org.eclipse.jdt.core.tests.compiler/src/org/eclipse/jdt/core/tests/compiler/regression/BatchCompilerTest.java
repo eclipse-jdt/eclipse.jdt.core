@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Benjamin Muskalla - Contribution for bug 239066
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1678,6 +1679,7 @@ public void test012b(){
         "      staticReceiver     + non-static reference to static member\n" +
         "      super                overriding a method without making a super invocation\n" +
         "      suppress           + enable @SuppressWarnings\n" +
+        "      syncOverride     overriding a synchronized method without synchronizing it\n" +
         "      synthetic-access     same as syntheticAccess\n" +
         "      syntheticAccess      synthetic access for innerclass\n" +
         "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" +
@@ -1808,6 +1810,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility\" value=\"public\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSerialVersion\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" +

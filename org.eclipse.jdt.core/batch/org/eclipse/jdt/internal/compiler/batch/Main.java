@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - Contribution for bug 125961
  *     Tom Tromey - Contribution for bug 159641
+ *     Benjamin Muskalla - Contribution for bug 239066
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -3148,6 +3149,10 @@ protected void handleWarningToken(String token, boolean isEnabling) throws Inval
 		this.options.put(
 				CompilerOptions.OPTION_ReportComparingIdentical,
 				isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("syncOverride")) { //$NON-NLS-1$
+		this.options.put(
+				CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod,
+				isEnabling ? CompilerOptions.ERROR : CompilerOptions.IGNORE);
 	} else if (token.equals("intfNonInherited") || token.equals("interfaceNonInherited")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 		this.options.put(
 			CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,

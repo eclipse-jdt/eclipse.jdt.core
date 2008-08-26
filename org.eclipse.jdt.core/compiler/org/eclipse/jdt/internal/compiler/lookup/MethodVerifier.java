@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Benjamin Muskalla - Contribution for bug 239066
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -179,6 +180,9 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 				problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
 			if (!isAsVisible(currentMethod, inheritedMethod))
 				problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
+			if(inheritedMethod.isSynchronized() && !currentMethod.isSynchronized()) {
+				problemReporter(currentMethod).missingSynchronizedOnInheritedMethod(currentMethod, inheritedMethod);
+			}
 			if (options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
 				if (!currentMethod.isViewedAsDeprecated() || options.reportDeprecationInsideDeprecatedCode) {
 					// check against the other inherited methods to see if they hide this inheritedMethod

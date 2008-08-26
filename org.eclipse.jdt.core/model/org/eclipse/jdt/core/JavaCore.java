@@ -80,6 +80,7 @@
  *     IBM Corporation - added the following constant:
  *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE
  *     IBM Corporation - added getOptionForConfigurableSeverity(int)
+ *     Benjamin Muskalla - added COMPILER_PB_MISSING_SYNCHRONIZED_ON_INHERITED_METHOD
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -1468,7 +1469,19 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_COMPARING_IDENTICAL = PLUGIN_ID + ".compiler.problem.comparingIdentical"; //$NON-NLS-1$
-
+	/**
+	 * Compiler option ID: Reporting Missing Synchronized Modifier On Inherited Method.
+	 * <p>When enabled, the compiler will issue an error or a warning if a method
+	 * overrides a synchronized method without having a synchronized modifier.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @since 3.5
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_MISSING_SYNCHRONIZED_ON_INHERITED_METHOD = PLUGIN_ID + ".compiler.problem.missingSynchronizedOnInheritedMethod"; //$NON-NLS-1$
 	/**
 	 * Core option ID: Computing Project Build Order.
 	 * <p>Indicate whether JavaCore should enforce the project build order to be based on

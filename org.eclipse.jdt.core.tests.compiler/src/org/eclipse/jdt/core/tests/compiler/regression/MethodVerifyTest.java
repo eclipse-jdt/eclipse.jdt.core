@@ -8791,4 +8791,75 @@ public void _test169() {
 		"----------\n"
 	);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066
+public void test170() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X { synchronized void foo() {} }\n" +
+			"class Y extends X { @Override void foo() { } }"
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	class Y extends X { @Override void foo() { } }\n" +
+		"	                                   ^^^^^\n" +
+		"The method Y.foo() is overriding a synchronized method without being synchronized\n" +
+		"----------\n"
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
+public void test171() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public enum X {\n" + 
+			"  FOO { @Override void foo() { super.foo(); } };\n"+
+			"  synchronized void foo() { }\n"+
+			"}"
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	FOO { @Override void foo() { super.foo(); } };\n" +
+		"	                     ^^^^^\n" +
+		"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
+public void test172() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"  void bar() { new X() { @Override void foo() {} }; }\n"+
+					"  synchronized void foo() { }\n"+
+					"}"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	void bar() { new X() { @Override void foo() {} }; }\n"+
+			"	                                      ^^^^^\n" +
+			"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
+			"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
+public void test173() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X { synchronized void foo() {} }\n" +
+					"class Y extends X {}\n" +
+					"class Z extends Y { @Override void foo() {} }\n"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	class Z extends Y { @Override void foo() {} }\n" +
+			"	                                   ^^^^^\n" +
+			"The method Z.foo() is overriding a synchronized method without being synchronized\n" +
+	"----------\n");
+}
+
 }

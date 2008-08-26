@@ -113,6 +113,9 @@
  *                                 InvalidUsageOfTypeParametersForEnumDeclaration
  *     IBM Corporation - added the following constants
  *								   RedundantSuperinterface
+ *		Benjamin Muskalla - added the following constants
+ *									MissingSynchronizedModifierInInheritedMethod
+ *									
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -771,6 +774,8 @@ void setSourceStart(int sourceStart);
 	int IllegalVararg = MethodRelated + 415;
 	/** @since 3.3 */
 	int OverridingMethodWithoutSuperInvocation = MethodRelated + 416;
+	/** @since 3.5 */
+	int MissingSynchronizedModifierInInheritedMethod= MethodRelated + 417;
 
 	// code snippet support
 	int CodeSnippetMissingClass = Internal + 420;

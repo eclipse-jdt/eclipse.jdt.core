@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Benjamin Muskalla - Contribution for bug 239066
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -318,6 +319,9 @@ public static long getIrritant(int problemID) {
 
 		case IProblem.ComparingIdentical:
 			return CompilerOptions.ComparingIdentical;
+			
+		case IProblem.MissingSynchronizedModifierInInheritedMethod:
+			return CompilerOptions.MissingSynchronizedModifierInInheritedMethod;
 	}
 	return 0;
 }
@@ -410,6 +414,7 @@ public static int getProblemCategory(int severity, int problemID) {
 				case (int)(CompilerOptions.FallthroughCase >>> 32):
 				case (int)(CompilerOptions.OverridingMethodWithoutSuperInvocation >>> 32):
 				case (int)(CompilerOptions.ComparingIdentical >>> 32):
+				case (int)(CompilerOptions.MissingSynchronizedModifierInInheritedMethod >> 32):
 					return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 
 				case (int)(CompilerOptions.TypeHiding >>> 32):
@@ -4905,6 +4910,22 @@ public void missingSerialVersion(TypeDeclaration typeDecl) {
 		arguments,
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
+}
+public void missingSynchronizedOnInheritedMethod(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	this.handle(
+			IProblem.MissingSynchronizedModifierInInheritedMethod,
+			new String[] {
+					new String(currentMethod.declaringClass.readableName()),
+					new String(currentMethod.selector),
+					typesAsString(currentMethod.isVarargs(), currentMethod.parameters, false),
+			},
+			new String[] {
+					new String(currentMethod.declaringClass.shortReadableName()),
+					new String(currentMethod.selector),
+					typesAsString(currentMethod.isVarargs(), currentMethod.parameters, true),
+			},
+			currentMethod.sourceStart(),
+			currentMethod.sourceEnd());
 }
 public void missingTypeInConstructor(ASTNode location, MethodBinding constructor) {
 	List missingTypes = constructor.collectMissingTypes(null);
