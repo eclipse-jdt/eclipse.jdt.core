@@ -226,11 +226,8 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		FieldBinding field = (FieldBinding) this.binding;
 		FieldBinding originalBinding = field.original();
 		TypeBinding originalType = originalBinding.type;
-	    // extra cast needed if method return type is type variable
-		if (originalBinding != field
-				&& originalType != field.type
-				&& runtimeTimeType.id != TypeIds.T_JavaLangObject
-				&& (originalType.tagBits & TagBits.HasTypeVariable) != 0) {
+		// extra cast needed if field type is type variable
+		if (originalType.leafComponentType().isTypeVariable()) {
 	    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType())
 	    		? compileTimeType  // unboxing: checkcast before conversion
 	    		: runtimeTimeType;

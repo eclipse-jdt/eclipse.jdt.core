@@ -1871,34 +1871,34 @@ public void test037() throws Exception {
 		"ab");
 
 	String expectedOutput =
-		"  // Method descriptor #43 (Ljava/util/ArrayList;)V\n" +
-		"  // Signature: <T:Ljava/util/ArrayList<Ljava/lang/String;>;>(TT;)V\n" +
-		"  // Stack: 2, Locals: 3\n" +
-		"  public static void foo(java.util.ArrayList t);\n" +
-		"     0  aload_0 [t]\n" +
-		"     1  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [45]\n" +
-		"     4  astore_2\n" +
-		"     5  goto 25\n" +
-		"     8  aload_2\n" +
-		"     9  invokeinterface java.util.Iterator.next() : java.lang.Object [49] [nargs: 1]\n" +
-		"    14  checkcast java.lang.String [19]\n" +
-		"    17  astore_1 [s]\n" +
-		"    18  getstatic java.lang.System.out : java.io.PrintStream [55]\n" +
-		"    21  aload_1 [s]\n" +
-		"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void [61]\n" +
-		"    25  aload_2\n" +
-		"    26  invokeinterface java.util.Iterator.hasNext() : boolean [67] [nargs: 1]\n" +
-		"    31  ifne 8\n" +
-		"    34  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 8]\n" +
-		"        [pc: 18, line: 9]\n" +
-		"        [pc: 25, line: 8]\n" +
-		"        [pc: 34, line: 10]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 35] local: t index: 0 type: java.util.ArrayList\n" +
-		"        [pc: 18, pc: 25] local: s index: 1 type: java.lang.String\n" +
-		"      Local variable type table:\n" +
+		"  // Method descriptor #41 (Ljava/util/ArrayList;)V\n" + 
+		"  // Signature: <T:Ljava/util/ArrayList<Ljava/lang/String;>;>(TT;)V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  public static void foo(java.util.ArrayList t);\n" + 
+		"     0  aload_0 [t]\n" + 
+		"     1  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [43]\n" + 
+		"     4  astore_2\n" + 
+		"     5  goto 25\n" + 
+		"     8  aload_2\n" + 
+		"     9  invokeinterface java.util.Iterator.next() : java.lang.Object [47] [nargs: 1]\n" + 
+		"    14  checkcast java.lang.String [19]\n" + 
+		"    17  astore_1 [s]\n" + 
+		"    18  getstatic java.lang.System.out : java.io.PrintStream [53]\n" + 
+		"    21  aload_1 [s]\n" + 
+		"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
+		"    25  aload_2\n" + 
+		"    26  invokeinterface java.util.Iterator.hasNext() : boolean [65] [nargs: 1]\n" + 
+		"    31  ifne 8\n" + 
+		"    34  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 8]\n" + 
+		"        [pc: 18, line: 9]\n" + 
+		"        [pc: 25, line: 8]\n" + 
+		"        [pc: 34, line: 10]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 35] local: t index: 0 type: java.util.ArrayList\n" + 
+		"        [pc: 18, pc: 25] local: s index: 1 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
 		"        [pc: 0, pc: 35] local: t index: 0 type: T\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");

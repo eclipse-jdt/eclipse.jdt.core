@@ -15235,205 +15235,210 @@ public void test0500(){
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
 	public void test0503() throws Exception {
 		this.runConformTest(
-			new String[] {
-				"X.java",
-				"class XA {}\n" +
-				"interface XB {\n" +
-				"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" +
-				"}\n" +
-				"class XAB extends XA implements XB {}\n" +
-				"\n" +
-				"public class X <E extends XA&XB> {\n" +
-				"	E e;\n" +
-				"  public static void main(String[] args) {\n" +
-				"	  System.out.print(new X<XAB>().e.CONST);\n" +
-				"	  new X<XAB>().foo();\n" +
-				"  }\n" +
-				"  public void foo() {\n" +
-				"    System.out.print(this.e.CONST);\n" +
-				"  }\n" +
-				"}\n",
-			},
-			"SUCCESSSUCCESS");
-		String expectedOutput =
-			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" +
-			"public class X {\n" +
-			"  \n" +
-			"  // Field descriptor #6 LXA;\n" +
-			"  // Signature: TE;\n" +
-			"  XA e;\n" +
-			"  \n" +
-			"  // Method descriptor #10 ()V\n" +
-			"  // Stack: 1, Locals: 1\n" +
-			"  public X();\n" +
-			"    0  aload_0 [this]\n" +
-			"    1  invokespecial java.lang.Object() [12]\n" +
-			"    4  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 7]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
-			"      Local variable type table:\n" +
-			"        [pc: 0, pc: 5] local: this index: 0 type: X<E>\n" +
-			"  \n" +
-			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" +
-			"  // Stack: 3, Locals: 1\n" +
-			"  public static void main(java.lang.String[] args);\n" +
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" +
-			"     3  new X [1]\n" +
-			"     6  dup\n" +
-			"     7  invokespecial X() [28]\n" +
-			"    10  getfield X.e : XA [29]\n" +
-			"    13  checkcast XAB [31]\n" +
-			"    16  pop\n" +
-			"    17  getstatic XAB.CONST : XB [33]\n" +
-			"    20  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" +
-			"    23  new X [1]\n" +
-			"    26  dup\n" +
-			"    27  invokespecial X() [28]\n" +
-			"    30  invokevirtual X.foo() : void [43]\n" +
-			"    33  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 10]\n" +
-			"        [pc: 23, line: 11]\n" +
-			"        [pc: 33, line: 12]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 34] local: args index: 0 type: java.lang.String[]\n" +
-			"  \n" +
-			"  // Method descriptor #10 ()V\n" +
-			"  // Stack: 2, Locals: 1\n" +
-			"  public void foo();\n" +
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" +
-			"     3  getstatic XB.CONST : XB [48]\n" +
-			"     6  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" +
-			"     9  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 14]\n" +
-			"        [pc: 9, line: 15]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
-			"      Local variable type table:\n" +
-			"        [pc: 0, pc: 10] local: this index: 0 type: X<E>\n";
-
-		File f = new File(OUTPUT_DIR + File.separator + "X.class");
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
+				new String[] {
+					"X.java",
+					"class XA {}\n" + 
+					"interface XB {\n" + 
+					"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" + 
+					"}\n" + 
+					"class XAB extends XA implements XB {}\n" + 
+					"\n" + 
+					"public class X <E extends XA&XB> {\n" + 
+					"	E e;\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"	  System.out.print(new X<XAB>().e.CONST);\n" + 
+					"	  new X<XAB>().foo();\n" + 
+					"  }\n" + 
+					"  public void foo() {\n" + 
+					"    System.out.print(this.e.CONST);\n" + 
+					"  }\n" + 
+					"}\n",
+				},
+				"SUCCESSSUCCESS");		
+			String expectedOutput =
+				"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
+				"public class X {\n" + 
+				"  \n" + 
+				"  // Field descriptor #6 LXA;\n" + 
+				"  // Signature: TE;\n" + 
+				"  XA e;\n" + 
+				"  \n" + 
+				"  // Method descriptor #10 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  public X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [12]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X<E>\n" + 
+				"  \n" + 
+				"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
+				"  // Stack: 3, Locals: 1\n" + 
+				"  public static void main(java.lang.String[] args);\n" + 
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+				"     3  new X [1]\n" + 
+				"     6  dup\n" + 
+				"     7  invokespecial X() [28]\n" + 
+				"    10  getfield X.e : XA [29]\n" + 
+				"    13  checkcast XAB [31]\n" + 
+				"    16  pop\n" + 
+				"    17  getstatic XAB.CONST : XB [33]\n" + 
+				"    20  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+				"    23  new X [1]\n" + 
+				"    26  dup\n" + 
+				"    27  invokespecial X() [28]\n" + 
+				"    30  invokevirtual X.foo() : void [43]\n" + 
+				"    33  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 10]\n" + 
+				"        [pc: 23, line: 11]\n" + 
+				"        [pc: 33, line: 12]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 34] local: args index: 0 type: java.lang.String[]\n" + 
+				"  \n" + 
+				"  // Method descriptor #10 ()V\n" + 
+				"  // Stack: 2, Locals: 1\n" + 
+				"  public void foo();\n" + 
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+				"     3  aload_0 [this]\n" + 
+				"     4  getfield X.e : XA [29]\n" + 
+				"     7  checkcast XB [48]\n" + 
+				"    10  pop\n" + 
+				"    11  getstatic XB.CONST : XB [50]\n" + 
+				"    14  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+				"    17  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 14]\n" + 
+				"        [pc: 17, line: 15]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 18] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 18] local: this index: 0 type: X<E>\n";
+			
+			File f = new File(OUTPUT_DIR + File.separator + "X.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
 		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
 	public void test0504() throws Exception {
 		this.runConformTest(
-			new String[] {
-				"X.java",
-				"class XA {}\n" +
-				"interface XB {\n" +
-				"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" +
-				"}\n" +
-				"class XAB extends XA implements XB {}\n" +
-				"\n" +
-				"public class X <E extends XA&XB> {\n" +
-				"  E e() { return null; }\n" +
-				"  public static void main(String[] args) {\n" +
-				"	  System.out.print(new X<XAB>().e().CONST);\n" +
-				"	  new X<XAB>().foo();\n" +
-				"  }\n" +
-				"  public void foo() {\n" +
-				"    System.out.print(this.e().CONST);\n" +
-				"  }\n" +
-				"}\n",
-			},
-			"SUCCESSSUCCESS");
-		String expectedOutput =
-			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" +
-			"public class X {\n" +
-			"  \n" +
-			"  // Method descriptor #6 ()V\n" +
-			"  // Stack: 1, Locals: 1\n" +
-			"  public X();\n" +
-			"    0  aload_0 [this]\n" +
-			"    1  invokespecial java.lang.Object() [8]\n" +
-			"    4  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 7]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
-			"      Local variable type table:\n" +
-			"        [pc: 0, pc: 5] local: this index: 0 type: X<E>\n" +
-			"  \n" +
-			"  // Method descriptor #17 ()LXA;\n" +
-			"  // Signature: ()TE;\n" +
-			"  // Stack: 1, Locals: 1\n" +
-			"  XA e();\n" +
-			"    0  aconst_null\n" +
-			"    1  areturn\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 8]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 2] local: this index: 0 type: X\n" +
-			"      Local variable type table:\n" +
-			"        [pc: 0, pc: 2] local: this index: 0 type: X<E>\n" +
-			"  \n" +
-			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" +
-			"  // Stack: 3, Locals: 1\n" +
-			"  public static void main(java.lang.String[] args);\n" +
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" +
-			"     3  new X [1]\n" +
-			"     6  dup\n" +
-			"     7  invokespecial X() [28]\n" +
-			"    10  invokevirtual X.e() : XA [29]\n" +
-			"    13  checkcast XAB [31]\n" +
-			"    16  pop\n" +
-			"    17  getstatic XAB.CONST : XB [33]\n" +
-			"    20  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" +
-			"    23  new X [1]\n" +
-			"    26  dup\n" +
-			"    27  invokespecial X() [28]\n" +
-			"    30  invokevirtual X.foo() : void [43]\n" +
-			"    33  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 10]\n" +
-			"        [pc: 23, line: 11]\n" +
-			"        [pc: 33, line: 12]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 34] local: args index: 0 type: java.lang.String[]\n" +
-			"  \n" +
-			"  // Method descriptor #6 ()V\n" +
-			"  // Stack: 2, Locals: 1\n" +
-			"  public void foo();\n" +
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" +
-			"     3  aload_0 [this]\n" +
-			"     4  invokevirtual X.e() : XA [29]\n" +
-			"     7  pop\n" +
-			"     8  getstatic XB.CONST : XB [48]\n" +
-			"    11  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" +
-			"    14  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 14]\n" +
-			"        [pc: 14, line: 15]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 15] local: this index: 0 type: X\n" +
-			"      Local variable type table:\n" +
-			"        [pc: 0, pc: 15] local: this index: 0 type: X<E>\n";
-
-		File f = new File(OUTPUT_DIR + File.separator + "X.class");
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
+				new String[] {
+					"X.java",
+					"class XA {}\n" + 
+					"interface XB {\n" + 
+					"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" + 
+					"}\n" + 
+					"class XAB extends XA implements XB {}\n" + 
+					"\n" + 
+					"public class X <E extends XA&XB> {\n" + 
+					"  E e() { return null; }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"	  System.out.print(new X<XAB>().e().CONST);\n" + 
+					"	  new X<XAB>().foo();\n" + 
+					"  }\n" + 
+					"  public void foo() {\n" + 
+					"    System.out.print(this.e().CONST);\n" + 
+					"  }\n" + 
+					"}\n",
+				},
+				"SUCCESSSUCCESS");		
+			String expectedOutput =
+				"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
+				"public class X {\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  public X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [8]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X<E>\n" + 
+				"  \n" + 
+				"  // Method descriptor #17 ()LXA;\n" + 
+				"  // Signature: ()TE;\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  XA e();\n" + 
+				"    0  aconst_null\n" + 
+				"    1  areturn\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 8]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 2] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 2] local: this index: 0 type: X<E>\n" + 
+				"  \n" + 
+				"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
+				"  // Stack: 3, Locals: 1\n" + 
+				"  public static void main(java.lang.String[] args);\n" + 
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+				"     3  new X [1]\n" + 
+				"     6  dup\n" + 
+				"     7  invokespecial X() [28]\n" + 
+				"    10  invokevirtual X.e() : XA [29]\n" + 
+				"    13  checkcast XAB [31]\n" + 
+				"    16  pop\n" + 
+				"    17  getstatic XAB.CONST : XB [33]\n" + 
+				"    20  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+				"    23  new X [1]\n" + 
+				"    26  dup\n" + 
+				"    27  invokespecial X() [28]\n" + 
+				"    30  invokevirtual X.foo() : void [43]\n" + 
+				"    33  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 10]\n" + 
+				"        [pc: 23, line: 11]\n" + 
+				"        [pc: 33, line: 12]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 34] local: args index: 0 type: java.lang.String[]\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 2, Locals: 1\n" + 
+				"  public void foo();\n" + 
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+				"     3  aload_0 [this]\n" + 
+				"     4  invokevirtual X.e() : XA [29]\n" + 
+				"     7  checkcast XB [48]\n" + 
+				"    10  pop\n" + 
+				"    11  getstatic XB.CONST : XB [50]\n" + 
+				"    14  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+				"    17  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 14]\n" + 
+				"        [pc: 17, line: 15]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 18] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 18] local: this index: 0 type: X<E>\n";
+			
+			File f = new File(OUTPUT_DIR + File.separator + "X.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
 		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
 	public void test0505() throws Exception {
 		this.runConformTest(
@@ -26819,97 +26824,96 @@ public void test0847() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106451
 public void test0848() throws Exception {
 	this.runNegativeTest(
-		new String[] {
-			"X.java", // =================
-			"import java.util.*;\n" +
-			"\n" +
-			"public class X<E> {\n" +
-			"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" +
-			"	List<Number> nums= (List<Number>) asList; // correct warning\n" +
-			"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" +
-			"	Zork z;\n" +
-			"}\n", // =================
-		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" +
-		"	                                     ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	List<Number> nums= (List<Number>) asList; // correct warning\n" +
-		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Collection<capture#1-of ? extends Number> to List<Number>\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 6)\n" +
-		"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" +
-		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Collection<capture#2-of ? extends Number> to LinkedList<Number>\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 7)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
-
-	this.runConformTest(
 			new String[] {
 				"X.java", // =================
-				"import java.util.*;\n" +
-				"\n" +
-				"public class X<E> {\n" +
-				"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" +
-				"	List<Number> nums= (List<Number>) asList; // correct warning\n" +
-				"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" +
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X<E> {\n" + 
+				"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" + 
+				"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
+				"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
+				"	Zork z;\n" + 
 				"}\n", // =================
 			},
-			"");
-	// 	ensure proper declaring class for #run() invocation
-	String expectedOutput =
-		"  // Method descriptor #14 ()V\n" +
-		"  // Stack: 6, Locals: 1\n" +
-		"  public X();\n" +
-		"     0  aload_0 [this]\n" +
-		"     1  invokespecial java.lang.Object() [16]\n" +
-		"     4  aload_0 [this]\n" +
-		"     5  iconst_2\n" +
-		"     6  anewarray java.lang.Number [18]\n" +
-		"     9  dup\n" +
-		"    10  iconst_0\n" +
-		"    11  iconst_1\n" +
-		"    12  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [20]\n" +
-		"    15  aastore\n" +
-		"    16  dup\n" +
-		"    17  iconst_1\n" +
-		"    18  ldc2_w <Double 2.2> [26]\n" +
-		"    21  invokestatic java.lang.Double.valueOf(double) : java.lang.Double [28]\n" +
-		"    24  aastore\n" +
-		"    25  invokestatic java.util.Arrays.asList(java.lang.Object[]) : java.util.List [33]\n" +
-		"    28  checkcast java.util.Collection [38]\n" +
-		"    31  putfield X.asList : java.util.Collection [40]\n" +
-		"    34  aload_0 [this]\n" +
-		"    35  aload_0 [this]\n" +
-		"    36  getfield X.asList : java.util.Collection [40]\n" +
-		"    39  checkcast java.util.List [42]\n" +
-		"    42  putfield X.nums : java.util.List [44]\n" +
-		"    45  aload_0 [this]\n" +
-		"    46  aload_0 [this]\n" +
-		"    47  getfield X.asList : java.util.Collection [40]\n" +
-		"    50  checkcast java.util.LinkedList [46]\n" + // <--- checkcast must appear
-		"    53  putfield X.numz : java.util.List [48]\n" +
-		"    56  return\n";
-
-	File f = new File(OUTPUT_DIR + File.separator + "X.class");
-	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-	int index = result.indexOf(expectedOutput);
-	if (index == -1 || expectedOutput.length() == 0) {
-		System.out.println(Util.displayString(result, 3));
-	}
-	if (index == -1) {
-		assertEquals("Wrong contents", expectedOutput, result);
-	}
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" + 
+			"	                                     ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from Collection<capture#1-of ? extends Number> to List<Number>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from Collection<capture#2-of ? extends Number> to LinkedList<Number>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+		
+		this.runConformTest(
+				new String[] {
+					"X.java", // =================
+					"import java.util.*;\n" + 
+					"\n" + 
+					"public class X<E> {\n" + 
+					"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" + 
+					"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
+					"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
+					"}\n", // =================
+				},
+				"");
+		// 	ensure presence of: "checkcast java.util.LinkedList" before putfield X.numz
+		String expectedOutput =
+		"  // Method descriptor #14 ()V\n" + 
+		"  // Stack: 6, Locals: 1\n" + 
+		"  public X();\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [16]\n" + 
+		"     4  aload_0 [this]\n" + 
+		"     5  iconst_2\n" + 
+		"     6  anewarray java.lang.Number [18]\n" + 
+		"     9  dup\n" + 
+		"    10  iconst_0\n" + 
+		"    11  iconst_1\n" + 
+		"    12  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [20]\n" + 
+		"    15  aastore\n" + 
+		"    16  dup\n" + 
+		"    17  iconst_1\n" + 
+		"    18  ldc2_w <Double 2.2> [26]\n" + 
+		"    21  invokestatic java.lang.Double.valueOf(double) : java.lang.Double [28]\n" + 
+		"    24  aastore\n" + 
+		"    25  invokestatic java.util.Arrays.asList(java.lang.Object[]) : java.util.List [33]\n" + 
+		"    28  putfield X.asList : java.util.Collection [38]\n" + 
+		"    31  aload_0 [this]\n" + 
+		"    32  aload_0 [this]\n" + 
+		"    33  getfield X.asList : java.util.Collection [38]\n" + 
+		"    36  checkcast java.util.List [40]\n" + 
+		"    39  putfield X.nums : java.util.List [42]\n" + 
+		"    42  aload_0 [this]\n" + 
+		"    43  aload_0 [this]\n" + 
+		"    44  getfield X.asList : java.util.Collection [38]\n" + 
+		"    47  checkcast java.util.LinkedList [44]\n" + 
+		"    50  putfield X.numz : java.util.List [46]\n" + 
+		"    53  return\n";
+		
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
 }
 //ensure no unsafe cast is diagnosed
 public void test0849() {
@@ -45963,5 +45967,215 @@ public void _test1368() {
 			"	       ^^^\n" + 
 			"Map<String,Zork> cannot be resolved to a type\n" + 
 			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448
+public void test1370() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E> implements NonPublicInterface {\n" + 
+				"    public NonPublicInterfaceImplementor<E> selfCall() {\n" + 
+				"        return this;\n" + 
+				"    }\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(new NonPublicInterfaceImplementor().selfCall());\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1371() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E extends NonPublicInterface> implements NonPublicInterface {\n" + 
+				"    public E selfCall() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(new NonPublicInterfaceImplementor().selfCall());\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1372() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E extends NonPublicInterfaceImplementor> implements NonPublicInterface {\n" + 
+				"    public E selfCall() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(new NonPublicInterfaceImplementor().selfCall());\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1373() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E> implements NonPublicInterface {\n" + 
+				"    public NonPublicInterfaceImplementor<E> next;\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(new NonPublicInterfaceImplementor().next);\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1374() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E> implements NonPublicInterface {\n" + 
+				"    public NonPublicInterfaceImplementor<E> next;\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        NonPublicInterfaceImplementor impl = new NonPublicInterfaceImplementor();\n" +		
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(impl.next);\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1375() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E> implements NonPublicInterface {\n" + 
+				"    public NonPublicInterfaceImplementor<E> next;\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        NonPublicInterfaceImplementor impl = new NonPublicInterfaceImplementor();\n" +		
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(impl.next.next);\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1376() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E> implements NonPublicInterface {}\n",
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj<E> {\n" + 
+				"    public NonPublicInterfaceImplementor<E> next;\n" + 
+				"    public void foo() {\n" + 
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(next);\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
 }
 }
