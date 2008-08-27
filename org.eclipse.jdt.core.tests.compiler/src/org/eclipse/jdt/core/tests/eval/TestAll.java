@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 /**
  * Run all tests defined in this package.
  */
@@ -24,19 +23,15 @@ public TestAll(String name) {
 	super(name);
 }
 public static Test suite() {
-	if (System.getProperty("os.name").indexOf("Linux") == -1) {//$NON-NLS-1$//$NON-NLS-2$
-		ArrayList testClasses = new ArrayList();
-		testClasses.add(SanityTestEvaluationContext.class);
-		testClasses.add(SanityTestEvaluationResult.class);
-		testClasses.add(VariableTest.class);
-		testClasses.add(CodeSnippetTest.class);
-		testClasses.add(NegativeCodeSnippetTest.class);
-		testClasses.add(NegativeVariableTest.class);
-		testClasses.add(DebugEvaluationTest.class);
+	ArrayList testClasses = new ArrayList();
+	testClasses.add(SanityTestEvaluationContext.class);
+	testClasses.add(SanityTestEvaluationResult.class);
+	testClasses.add(VariableTest.class);
+	testClasses.add(CodeSnippetTest.class);
+	testClasses.add(NegativeCodeSnippetTest.class);
+	testClasses.add(NegativeVariableTest.class);
+	testClasses.add(DebugEvaluationTest.class);
 
-		return AbstractCompilerTest.buildAllCompliancesTestSuite(TestAll.class, DebugEvaluationSetup.class, testClasses);
-	}
-	// Disable evaluation tests on Linux
-	return new TestSuite(TestAll.class.getName());
+	return AbstractCompilerTest.buildAllCompliancesTestSuite(TestAll.class, DebugEvaluationSetup.class, testClasses);
 }
 }
