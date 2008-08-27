@@ -4117,4 +4117,39 @@ public void test088() {
 			"The import p.zork.Z is never used\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=245304
+public void test089() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+	this.runConformTest(
+			new String[] {
+					"com/foo/bar/baz/reporting/dom/ReportExceptionBase.java", // ================
+					"package com.foo.bar.baz.reporting.dom;\n" + 
+					"public class ReportExceptionBase extends Exception  {\n" + 
+					"}\n",			
+					"com/foo/bar/baz/reporting/Report.java", // ================
+					"package com.foo.bar.baz.reporting;\n" + 
+					"import com.foo.bar.baz.reporting.dom.ReportExceptionBase;\n" + 
+					"/**\n" + 
+					" * {@link dom.ReportDefs.ReportType.foo foo}\n" + 
+					" */\n" + 
+					"public abstract class Report {\n" + 
+					"}\n",
+					"com/foo/bar/baz/reporting/Derived.java", // ================
+					"package com.foo.bar.baz.reporting;\n" + 
+					"import com.foo.bar.baz.reporting.dom.ReportExceptionBase;\n" + 
+					"public class Derived {\n" + 
+					"  public Derived() throws ReportExceptionBase {\n" + 
+					"    throw new ReportExceptionBase();\n" + 
+					"  }\n" + 
+					"}\n",
+			},
+			"",
+			null,
+			true,
+			null,
+			options,
+			null);
+}
 }
