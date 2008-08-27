@@ -696,8 +696,9 @@ class ASTConverter {
 		return infixExpression;
 	}
 
-	public AnnotationTypeDeclaration convertToAnnotationDeclaration(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
+	private AnnotationTypeDeclaration convertToAnnotationDeclaration(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 		checkCanceled();
+		if (this.scanner.sourceLevel < ClassFileConstants.JDK1_5) return null;
 		AnnotationTypeDeclaration typeDecl = this.ast.newAnnotationTypeDeclaration();
 		setModifiers(typeDecl, typeDeclaration);
 		final SimpleName typeName = new SimpleName(this.ast);
@@ -2871,6 +2872,7 @@ class ASTConverter {
 
 	private EnumDeclaration convertToEnumDeclaration(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 		checkCanceled();
+		// enum declaration cannot be built if the source is not >= 1.5, since enum is then seen as an identifier
 		final EnumDeclaration enumDeclaration2 = new EnumDeclaration(this.ast);
 		setModifiers(enumDeclaration2, typeDeclaration);
 		final SimpleName typeName = new SimpleName(this.ast);

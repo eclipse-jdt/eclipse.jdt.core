@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 693, 694 };
+//		TESTS_NUMBERS =  new int[] { 695, 696 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9871,5 +9871,55 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			e.printStackTrace();
 			assertFalse("Should not get there", true);
 		}
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=245348
+	 */
+	public void test0695() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0695", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(unit.getSource().toCharArray());
+		Map options = JavaCore.getOptions();
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+		parser.setCompilerOptions(options);
+
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+		ASTVisitor visitor = new ASTVisitor() {
+			public boolean visit(EnumDeclaration node) {
+				assertFalse("Should not be there", true);
+				return false;
+			}
+		};
+		astRoot.accept(visitor);
+		assertEquals("No problem found", 1, astRoot.getProblems().length);
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=245348
+	 */
+	public void test0696() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0696", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(unit.getSource().toCharArray());
+		Map options = JavaCore.getOptions();
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+		parser.setCompilerOptions(options);
+
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+		ASTVisitor visitor = new ASTVisitor() {
+			public boolean visit(AnnotationTypeDeclaration node) {
+				assertFalse("Should not be there", true);
+				return false;
+			}
+		};
+		astRoot.accept(visitor);
+		assertEquals("No problem found", 1, astRoot.getProblems().length);
 	}
 }
