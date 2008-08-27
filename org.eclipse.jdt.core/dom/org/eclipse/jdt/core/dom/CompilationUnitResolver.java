@@ -401,7 +401,7 @@ class CompilationUnitResolver extends Compiler {
 		if (compilationUnitDeclaration.ignoreMethodBodies) {
 			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
 			// if initial diet parse did not work, no need to dig into method bodies.
-			return null;
+			return compilationUnitDeclaration;
 		}
 
 		if (nodeSearcher != null) {
@@ -409,17 +409,17 @@ class CompilationUnitResolver extends Compiler {
 			int searchPosition = nodeSearcher.position;
 			if (searchPosition < 0 || searchPosition > source.length) {
 				// the position is out of range. There is no need to search for a node.
-	 			return compilationUnitDeclaration;
+				return compilationUnitDeclaration;
 			}
 
 			compilationUnitDeclaration.traverse(nodeSearcher, compilationUnitDeclaration.scope);
 
 			org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
-	 		if (node == null) {
-	 			return compilationUnitDeclaration;
-	 		}
+			if (node == null) {
+				return compilationUnitDeclaration;
+			}
 
-	 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
 
 			if (node instanceof AbstractMethodDeclaration) {
 				((AbstractMethodDeclaration)node).parseStatements(parser, compilationUnitDeclaration);
