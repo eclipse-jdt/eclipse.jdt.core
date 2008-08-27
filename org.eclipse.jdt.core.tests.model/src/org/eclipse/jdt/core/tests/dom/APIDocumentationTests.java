@@ -104,7 +104,7 @@ class JavaCoreJavadocAnalyzer {
 // checks that option ids and option default values match between the code and
 // the javadoc
 // TODO maxime: reactivate in early 3.4 M6 and refine for remote execution
-public void _test001() throws CoreException, IllegalArgumentException, IllegalAccessException, IOException {
+public void test001() throws CoreException, IllegalArgumentException, IllegalAccessException, IOException {
 	// fetch JavaCore class
 	Class javaCoreClass = JavaCore.class;
 	// fetch JavaCore source file

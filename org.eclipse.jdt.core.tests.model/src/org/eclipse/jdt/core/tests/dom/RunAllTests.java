@@ -35,7 +35,9 @@ public static Class[] getAllTestClasses() {
 		org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest.class,
 		org.eclipse.jdt.core.tests.rewrite.modifying.ASTRewritingModifyingTest.class,
 		org.eclipse.jdt.core.tests.dom.ASTPositionsTest.class,
-		org.eclipse.jdt.core.tests.dom.APIDocumentationTests.class,
+		
+		// disable since the APIDocumentationTests can only run in a dev workspace
+		// org.eclipse.jdt.core.tests.dom.APIDocumentationTests.class,
 	};
 }
 public static Test suite() {
