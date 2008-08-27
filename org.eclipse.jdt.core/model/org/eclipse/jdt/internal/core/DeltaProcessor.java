@@ -1963,6 +1963,11 @@ public class DeltaProcessor {
 				return;
 
 			case IResourceChangeEvent.PRE_BUILD :
+				// force initialization of roots before builders run to avoid deadlock in another thread
+				// (note this is no-op if already initialized)
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=241751
+				this.state.initializeRoots(false/*not initiAfterLoad*/);
+				
 				boolean isAffected = isAffectedBy(delta);
 				boolean needCycleValidation = isAffected && validateClasspaths(delta);
 
