@@ -89,7 +89,14 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) t
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
 		} else {
 			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
-			this.createdNode = (ASTNode) typeDeclaration.bodyDeclarations().iterator().next();
+			if ((typeDeclaration.getFlags() & ASTNode.MALFORMED) != 0) {
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+			}
+			List bodyDeclarations = typeDeclaration.bodyDeclarations();
+			if (bodyDeclarations.size() == 0) {
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+			}
+			this.createdNode = (ASTNode) bodyDeclarations.iterator().next();
 			createdNodeSource = this.source;
 		}
 		if (this.alteredName != null) {
