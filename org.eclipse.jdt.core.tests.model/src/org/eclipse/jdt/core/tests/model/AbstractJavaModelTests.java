@@ -110,15 +110,31 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		 */
 		public IJavaElementDelta[] deltas;
 
+		int eventType;
+
 		public ByteArrayOutputStream stackTraces;
 
-		public void elementChanged(ElementChangedEvent ev) {
-			IJavaElementDelta[] copy= new IJavaElementDelta[this.deltas.length + 1];
-			System.arraycopy(this.deltas, 0, copy, 0, this.deltas.length);
-			copy[this.deltas.length]= ev.getDelta();
-			this.deltas= copy;
+		public DeltaListener() {
+			flush();
+			this.eventType = -1;
+		}
+		public DeltaListener(int eventType) {
+			flush();
+			this.eventType = eventType;
+		}
 
-			new Throwable("Caller of IElementChangedListener#elementChanged").printStackTrace(new PrintStream(this.stackTraces));
+		public void elementChanged(ElementChangedEvent event) {
+			if (this.eventType == -1 || event.getType() == this.eventType) {
+				if (this.eventType == IResourceChangeEvent.POST_CHANGE && !"main".equals(Thread.currentThread().getName())) {
+					System.out.println("POST_CHANGE not in main");
+				}
+				IJavaElementDelta[] copy= new IJavaElementDelta[this.deltas.length + 1];
+				System.arraycopy(this.deltas, 0, copy, 0, this.deltas.length);
+				copy[this.deltas.length]= event.getDelta();
+				this.deltas= copy;
+	
+				new Throwable("Caller of IElementChangedListener#elementChanged").printStackTrace(new PrintStream(this.stackTraces));
+			}
 		}
 		public CompilationUnit getCompilationUnitAST(ICompilationUnit workingCopy) {
 			for (int i=0, length= this.deltas.length; i<length; i++) {
@@ -132,6 +148,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			if ((delta.getFlags() & IJavaElementDelta.F_AST_AFFECTED) != 0 && workingCopy.equals(delta.getElement()))
 				return delta.getCompilationUnitAST();
 			return null;
+		}
+		public void flush() {
+			this.deltas = new IJavaElementDelta[0];
+			this.stackTraces = new ByteArrayOutputStream();
 		}
 		protected void sortDeltas(IJavaElementDelta[] elementDeltas) {
         	org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
@@ -925,8 +945,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Empties the current deltas.
 	 */
 	public void clearDeltas() {
-		this.deltaListener.deltas = new IJavaElementDelta[0];
-		this.deltaListener.stackTraces = new ByteArrayOutputStream();
+		this.deltaListener.flush();
 	}
 	protected IJavaElement[] codeSelect(ISourceReference sourceReference, String selectAt, String selection) throws JavaModelException {
 		String str = sourceReference.getSource();
@@ -1532,10 +1551,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	public void deleteResource(IResource resource) throws CoreException {
 		int retryCount = 0; // wait 1 minute at most
 		while (++retryCount <= 60) {
-			if (!org.eclipse.jdt.core.tests.util.Util.delete(resource)) {
+			if (org.eclipse.jdt.core.tests.util.Util.delete(resource)) {
+				return;
+			} else {
 				System.gc();
 			}
 		}
+		throw new RuntimeException("Could not delete " + resource.getFullPath());
 	}
 	/**
 	 * Returns true if this delta is flagged as having changed children.
