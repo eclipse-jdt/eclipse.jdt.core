@@ -199,7 +199,7 @@ public Constant constant() {
 						fieldDecl.resolve(initScope); //side effect on binding
 					} finally {
 						initScope.insideTypeAnnotation = old;
-					}					
+					}
 					fieldConstant = originalField.constant == null ? Constant.NotAConstant : originalField.constant;
 				} else {
 					fieldConstant = Constant.NotAConstant; // shouldn't occur per construction (paranoid null check)
