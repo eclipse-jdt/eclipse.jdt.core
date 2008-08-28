@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 322 };
+//		TESTS_NUMBERS = new int[] { 323 };
 //		TESTS_RANGE = new int[] { 308, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10341,5 +10341,32 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMemberValuePairBinding[] memberValuePairBindings = annotationBinding.getDeclaredMemberValuePairs();
 		IMemberValuePairBinding pairBinding = memberValuePairBindings[0];
 		assertNull("Got a value", pairBinding.getValue());
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=245563
+	 */
+	public void test0323() throws JavaModelException {
+		String contents =
+			"class X {\n" + 
+			"	{\n" + 
+			"		for(Object obj:\n" +
+			"			new Object[]{\n" +
+			"				new Object(){\n" + 
+			"					int field=method(\n" +
+			"					});\n" + 
+			"				}\n" +
+			"			});\n" + 
+			"	}\n" + 
+			"	int method(int...args){\n" +
+			"		return args.length;\n" +
+			"	}\n" + 
+			"}\n" + 
+			"";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0322/X.java",
+				contents,
+				true/*resolve*/
+			);
+		assertNotNull("No node", buildAST(contents, workingCopy, false, true, true));
 	}
 }

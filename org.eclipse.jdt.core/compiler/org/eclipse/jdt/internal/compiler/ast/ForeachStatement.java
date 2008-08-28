@@ -373,7 +373,11 @@ public class ForeachStatement extends Statement {
 		printIndent(indent, output).append("for ("); //$NON-NLS-1$
 		this.elementVariable.printAsExpression(0, output);
 		output.append(" : ");//$NON-NLS-1$
-		this.collection.print(0, output).append(") "); //$NON-NLS-1$
+		if (this.collection != null) {
+			this.collection.print(0, output).append(") "); //$NON-NLS-1$
+		} else {
+			output.append(')');
+		}
 		//block
 		if (this.action == null) {
 			output.append(';');
@@ -525,7 +529,9 @@ public class ForeachStatement extends Statement {
 
 		if (visitor.visit(this, blockScope)) {
 			this.elementVariable.traverse(visitor, this.scope);
-			this.collection.traverse(visitor, this.scope);
+			if (this.collection != null) {
+				this.collection.traverse(visitor, this.scope);
+			}
 			if (this.action != null) {
 				this.action.traverse(visitor, this.scope);
 			}
