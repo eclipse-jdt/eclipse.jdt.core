@@ -46213,4 +46213,49 @@ public void test1377() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=241502
+public void test1378() {
+	this.runConformTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"//the remote-usable interface\n" + 
+				"class RemoteException extends Throwable {}\n" + 
+				"	\n" + 
+				"interface RemoteStore {\n" + 
+				"    public abstract <P> P get(Class<P> c) throws RemoteException;\n" + 
+				"}\n" + 
+				"\n" + 
+				"//the interface for local use\n" + 
+				"interface Store extends RemoteStore{\n" + 
+				"    public <P> P get(Class<P> c) ;\n" + 
+				"}\n" + 
+				"\n" + 
+				"//the implementation\n" + 
+				"class StoreImpl implements Store {\n" + 
+				"    public <P> P get(Class<P> c) {\n" + 
+				"        System.out.print(\"[get]\");\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Persistent {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"public static void main(String[] args) {\n" + 
+				"    try {\n" + 
+				"        RemoteStore t = new StoreImpl();\n" + 
+				"        t.get(Object.class); //works\n" + 
+				"        t.get(Persistent.class); //works\n" + 
+				"    } catch (RemoteException e) {\n" + 
+				"        e.printStackTrace();\n" + 
+				"    }\n" + 
+				"    Store t = new StoreImpl();\n" + 
+				"    t.get(Object.class); //works\n" + 
+				"    t.get(Persistent.class); //NoSuchMethodError\n" + 
+				"} \n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"[get][get][get][get]");
+}
 }
