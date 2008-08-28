@@ -46178,4 +46178,39 @@ public void test1376() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=245453
+public void test1377() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.rmi.RemoteException;\n" + 
+				"public class X {\n" + 
+				"        private static <T extends Exception> T foo() throws T {\n" + 
+				"                throw (T) new InterruptedException();\n" + 
+				"        }\n" + 
+				"        private static void foo2() {\n" + 
+				"                try {\n" + 
+				"                        RemoteException ex = foo();\n" + 
+				"                } catch (RemoteException e) {\n" + 
+				"                        e.printStackTrace();\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"        public static void main( String[] args) {\n" + 
+			"               foo2();\n" + 
+				"			Zork z;\n" +
+				"        }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	throw (T) new InterruptedException();\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from InterruptedException to T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }
