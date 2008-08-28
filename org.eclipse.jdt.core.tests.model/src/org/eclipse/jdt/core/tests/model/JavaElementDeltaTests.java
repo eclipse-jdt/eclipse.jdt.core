@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -27,50 +25,6 @@ import junit.framework.Test;
  * IJavaElementDeltas.
  */
 public class JavaElementDeltaTests extends ModifyingResourceTests {
-
-	public class DeltaListener implements IElementChangedListener {
-		ArrayList deltas;
-		int eventType;
-
-		public DeltaListener() {
-			DeltaListener.this.deltas = new ArrayList();
-			DeltaListener.this.eventType = -1;
-		}
-		public DeltaListener(int eventType) {
-			DeltaListener.this.deltas = new ArrayList();
-			DeltaListener.this.eventType = eventType;
-		}
-		public void elementChanged(ElementChangedEvent event) {
-			if (DeltaListener.this.eventType == -1 || event.getType() == DeltaListener.this.eventType) {
-				DeltaListener.this.deltas.add(event.getDelta());
-			}
-		}
-		public void flush() {
-			DeltaListener.this.deltas = new ArrayList();
-		}
-		public String toString() {
-			StringBuffer buffer = new StringBuffer();
-			for (int i = 0, length = DeltaListener.this.deltas.size(); i < length; i++) {
-				IJavaElementDelta delta = (IJavaElementDelta)this.deltas.get(i);
-				IJavaElementDelta[] children = delta.getAffectedChildren();
-				if (children.length > 0) {
-					for (int j=0, childrenLength=children.length; j<childrenLength; j++) {
-						buffer.append(children[j]);
-						if (j != childrenLength-1) {
-							buffer.append("\n");
-						}
-					}
-				} else {
-					buffer.append(delta);
-				}
-				if (i != length-1) {
-					buffer.append("\n\n");
-				}
-			}
-			return buffer.toString();
-		}
-	}
-
 
 public static Test suite() {
 	return buildModelTestSuite(JavaElementDeltaTests.class, ALPHABETICAL_SORT/*some tests may fail if run in a random order*/);
@@ -1621,9 +1575,9 @@ public void testListenerPostChange() throws CoreException {
 			"	<project root>[*]: {CHILDREN}\n" +
 			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
+			"				A[-]: {}\n" +
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo()[+]: {}\n" +
-			"				A[-]: {}",
+			"					foo()[+]: {}",
 			listener.toString());
 		listener.flush();
 
@@ -1709,9 +1663,9 @@ public void testListenerReconcile() throws CoreException {
 		wc.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertEquals(
 			"Unexpected delta after reconciling working copy",
+			"A[-]: {}\n" +
 			"X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"	foo()[+]: {}\n" +
-			"A[-]: {}",
+			"	foo()[+]: {}",
 			listener.toString());
 		listener.flush();
 

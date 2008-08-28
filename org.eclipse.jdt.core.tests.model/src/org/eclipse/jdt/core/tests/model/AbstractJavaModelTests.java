@@ -125,9 +125,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 		public void elementChanged(ElementChangedEvent event) {
 			if (this.eventType == -1 || event.getType() == this.eventType) {
-				if (this.eventType == IResourceChangeEvent.POST_CHANGE && !"main".equals(Thread.currentThread().getName())) {
-					System.out.println("POST_CHANGE not in main");
-				}
 				IJavaElementDelta[] copy= new IJavaElementDelta[this.deltas.length + 1];
 				System.arraycopy(this.deltas, 0, copy, 0, this.deltas.length);
 				copy[this.deltas.length]= event.getDelta();
