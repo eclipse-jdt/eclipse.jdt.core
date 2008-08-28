@@ -364,4 +364,7 @@ public IClasspathEntry createSourceEntry(String referingProjectName, String src,
 		return JavaCore.newSourceEntry(folderPath, accessibleFiles, nonAccessibleFiles, null);
 	}
 }
+protected void deleteExternalFile(String filePath) throws CoreException {
+	deleteResource(new File(filePath));
+}
 }
