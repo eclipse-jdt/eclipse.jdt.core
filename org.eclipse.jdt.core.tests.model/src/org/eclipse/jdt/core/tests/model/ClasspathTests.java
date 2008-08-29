@@ -698,28 +698,21 @@ public void testClasspathCreateLibraryEntry() throws CoreException {
  */
 public void testClasspathCreateLocalJarLibraryEntry() throws CoreException {
 	IJavaProject proj = this.createJavaProject("P", new String[] {""}, "");
-	IPackageFragmentRoot root = getPackageFragmentRoot("P", "");
 	IClasspathEntry newEntry= JavaCore.newLibraryEntry(getExternalJCLPath(), null, null, false);
 	IClasspathEntry[] newEntries= new IClasspathEntry[]{newEntry};
-	IPackageFragmentRoot newRoot= proj.getPackageFragmentRoot(getExternalJCLPathString());
 
 	startDeltas();
 
 	setClasspath(proj,newEntries);
 
 	try {
-		assertTrue(
-			"should be one delta with 2 grand-children - removed & added",
-			this.deltaListener.deltas.length == 1 &&
-			this.deltaListener.deltas[0].getAffectedChildren().length == 1 &&
-			this.deltaListener.deltas[0].getAffectedChildren()[0].getAffectedChildren().length == 2);
-		IJavaElementDelta d= null;
-		assertTrue("root should be removed from classpath",(d= getDeltaFor(root, true)) != null &&
-				(d.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) > 0);
-
-
-		assertTrue("root should be added to classpath", (d= getDeltaFor(newRoot, true)) != null &&
-				(d.getFlags() & IJavaElementDelta.F_ADDED_TO_CLASSPATH) > 0);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	"+ getExternalJCLPathString() + "[*]: {ADDED TO CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
 	} finally {
 		stopDeltas();
 
@@ -740,7 +733,7 @@ public void testClasspathCrossProject() throws CoreException {
 		IClasspathEntry[] newClasspath= new IClasspathEntry[]{projectEntry};
 		project.setRawClasspath(newClasspath, null);
 		project.getAllPackageFragmentRoots();
-		IJavaElementDelta removedDelta= getDeltaFor(oldRoot, true);
+		IJavaElementDelta removedDelta= this.deltaListener.getDeltaFor(oldRoot, true);
 		assertDeltas(
 			"Unexpected delta",
 			"<project root>[*]: {REMOVED FROM CLASSPATH}",
@@ -883,8 +876,8 @@ public void testClasspathMoveNestedRoot() throws CoreException {
 			newCP[1].equals(originalCP[1]) &&
 			newCP[0].equals(originalCP[0]));
 
-		IJavaElementDelta rootDelta = getDeltaFor(root, true);
-		IJavaElementDelta projectDelta = getDeltaFor(newRoot.getParent(), true);
+		IJavaElementDelta rootDelta = this.deltaListener.getDeltaFor(root, true);
+		IJavaElementDelta projectDelta = this.deltaListener.getDeltaFor(newRoot.getParent(), true);
 		assertTrue("should get delta for moved root", rootDelta != null &&
 				rootDelta.getKind() == IJavaElementDelta.REMOVED &&
 				rootDelta.getFlags() == 0);
@@ -946,7 +939,6 @@ public void testClasspathNoChanges() throws CoreException {
 public void testClasspathReordering() throws CoreException {
 	IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin");
 	IClasspathEntry[] originalCP = proj.getRawClasspath();
-	IPackageFragmentRoot root = getPackageFragmentRoot("P", "src");
 	try {
 		IClasspathEntry[] newEntries = new IClasspathEntry[originalCP.length];
 		int index = originalCP.length - 1;
@@ -956,10 +948,13 @@ public void testClasspathReordering() throws CoreException {
 		}
 		startDeltas();
 		setClasspath(proj, newEntries);
-		assertTrue("should be one delta - two roots reordered", this.deltaListener.deltas.length == 1);
-		IJavaElementDelta d = null;
-		assertTrue("root should be reordered in the classpath", (d = getDeltaFor(root, true)) != null
-			&& (d.getFlags() & IJavaElementDelta.F_REORDER) > 0);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	src[*]: {REORDERED}\n" + 
+			"	"+ getExternalJCLPathString() + "[*]: {REORDERED}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");

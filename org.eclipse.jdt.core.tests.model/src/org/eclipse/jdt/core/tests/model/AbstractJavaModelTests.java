@@ -108,11 +108,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		 * <code>#startDeltas</code> and
 		 * <code>#stopDeltas</code>.
 		 */
-		public IJavaElementDelta[] deltas;
+		private IJavaElementDelta[] deltas;
 
-		int eventType;
+		private int eventType;
 
-		public ByteArrayOutputStream stackTraces;
+		private ByteArrayOutputStream stackTraces;
 
 		public DeltaListener() {
 			flush();
@@ -123,7 +123,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			this.eventType = eventType;
 		}
 
-		public void elementChanged(ElementChangedEvent event) {
+		public synchronized void elementChanged(ElementChangedEvent event) {
 			if (this.eventType == -1 || event.getType() == this.eventType) {
 				IJavaElementDelta[] copy= new IJavaElementDelta[this.deltas.length + 1];
 				System.arraycopy(this.deltas, 0, copy, 0, this.deltas.length);
@@ -133,7 +133,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				new Throwable("Caller of IElementChangedListener#elementChanged").printStackTrace(new PrintStream(this.stackTraces));
 			}
 		}
-		public CompilationUnit getCompilationUnitAST(ICompilationUnit workingCopy) {
+		public synchronized CompilationUnit getCompilationUnitAST(ICompilationUnit workingCopy) {
 			for (int i=0, length= this.deltas.length; i<length; i++) {
 				CompilationUnit result = getCompilationUnitAST(workingCopy, this.deltas[i]);
 				if (result != null)
@@ -146,7 +146,38 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				return delta.getCompilationUnitAST();
 			return null;
 		}
-		public void flush() {
+		
+		/**
+		 * Returns the last delta for the given element from the cached delta.
+		 */
+		public IJavaElementDelta getDeltaFor(IJavaElement element) {
+			return getDeltaFor(element, false);
+		}
+		
+		/**
+		 * Returns the delta for the given element from the cached delta.
+		 * If the boolean is true returns the first delta found.
+		 */
+		public synchronized IJavaElementDelta getDeltaFor(IJavaElement element, boolean returnFirst) {
+			if (this.deltas == null) return null;
+			IJavaElementDelta result = null;
+			for (int i = 0; i < this.deltas.length; i++) {
+				IJavaElementDelta delta = searchForDelta(element, this.deltas[i]);
+				if (delta != null) {
+					if (returnFirst) {
+						return delta;
+					}
+					result = delta;
+				}
+			}
+			return result;
+		}
+		
+		public synchronized IJavaElementDelta getLastDelta() {
+			return this.deltas[this.deltas.length - 1];
+		}
+
+		public synchronized void flush() {
 			this.deltas = new IJavaElementDelta[0];
 			this.stackTraces = new ByteArrayOutputStream();
 		}
@@ -173,7 +204,28 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
         		}
         	}
         }
-		public String toString() {
+		/**
+		 * Returns a delta for the given element in the delta tree
+		 */
+		private IJavaElementDelta searchForDelta(IJavaElement element, IJavaElementDelta delta) {
+			if (delta == null) {
+				return null;
+			}
+			if (delta.getElement().equals(element)) {
+				return delta;
+			}
+			for (int i= 0; i < delta.getAffectedChildren().length; i++) {
+				IJavaElementDelta child= searchForDelta(element, delta.getAffectedChildren()[i]);
+				if (child != null) {
+					return child;
+				}
+			}
+			return null;
+		}
+		public synchronized String stackTraces() {
+			return this.stackTraces.toString();
+		}
+		public synchronized String toString() {
 			StringBuffer buffer = new StringBuffer();
 			for (int i=0, length= this.deltas.length; i<length; i++) {
 				IJavaElementDelta delta = this.deltas[i];
@@ -832,7 +884,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		String actual = this.deltaListener.toString();
 		if (!expected.equals(actual)) {
 			System.out.println(displayString(actual, 2));
-			System.err.println(this.deltaListener.stackTraces.toString());
+			System.err.println(this.deltaListener.stackTraces());
 		}
 		assertEquals(
 			message,
@@ -843,7 +895,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		String actual = delta == null ? "<null>" : delta.toString();
 		if (!expected.equals(actual)) {
 			System.out.println(displayString(actual, 2));
-			System.err.println(this.deltaListener.stackTraces.toString());
+			System.err.println(this.deltaListener.stackTraces());
 		}
 		assertEquals(
 			message,
@@ -1656,32 +1708,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return null;
 
 	}
-	/**
-	 * Returns the last delta for the given element from the cached delta.
-	 */
-	protected IJavaElementDelta getDeltaFor(IJavaElement element) {
-		return getDeltaFor(element, false);
-	}
-	/**
-	 * Returns the delta for the given element from the cached delta.
-	 * If the boolean is true returns the first delta found.
-	 */
-	protected IJavaElementDelta getDeltaFor(IJavaElement element, boolean returnFirst) {
-		IJavaElementDelta[] deltas = this.deltaListener.deltas;
-		if (deltas == null) return null;
-		IJavaElementDelta result = null;
-		for (int i = 0; i < deltas.length; i++) {
-			IJavaElementDelta delta = searchForDelta(element, this.deltaListener.deltas[i]);
-			if (delta != null) {
-				if (returnFirst) {
-					return delta;
-				}
-				result = delta;
-			}
-		}
-		return result;
-	}
-
 	protected File getExternalFile(String relativePath) {
 		return new File(getExternalPath(), relativePath);
 	}
@@ -2113,25 +2139,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			project.setRawClasspath(newEntries, null);
 	}
 
-	/**
-	 * Returns a delta for the given element in the delta tree
-	 */
-	protected IJavaElementDelta searchForDelta(IJavaElement element, IJavaElementDelta delta) {
-
-		if (delta == null) {
-			return null;
-		}
-		if (delta.getElement().equals(element)) {
-			return delta;
-		}
-		for (int i= 0; i < delta.getAffectedChildren().length; i++) {
-			IJavaElementDelta child= searchForDelta(element, delta.getAffectedChildren()[i]);
-			if (child != null) {
-				return child;
-			}
-		}
-		return null;
-	}
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		search(element, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE, scope, requestor);
 	}

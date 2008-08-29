@@ -664,11 +664,11 @@ public void testAddTwoJavaProjects() throws CoreException {
 				}
 			},
 			null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta",
 			"P1[+]: {}\n" +
-			"P2[+]: {}",
-			getSortedByProjectDeltas());
+			"P2[+]: {}"
+		);
 	} finally {
 		stopDeltas();
 		deleteProject("P1");
@@ -692,11 +692,11 @@ public void testAddTwoJavaProjectsWithExtraSetClasspath() throws CoreException {
 				}
 			},
 			null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta",
 			"P1[+]: {}\n" +
-			"P2[+]: {}",
-			getSortedByProjectDeltas());
+			"P2[+]: {}"
+		);
 	} finally {
 		stopDeltas();
 		deleteProject("P1");
@@ -2976,15 +2976,15 @@ public void testSetClasspathVariable2() throws CoreException {
 		createJavaProject("P2", new String[] {""}, new String[] {"LIB"}, "");
 		startDeltas();
 		JavaCore.setClasspathVariables(new String[] {"LIB"}, new IPath[] {new Path("/LibProj/otherlib.jar")}, null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta after setting classpath variable",
 			"P1[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
 			"	/LibProj/mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	/LibProj/otherlib.jar[*]: {ADDED TO CLASSPATH}\n" +
 			"P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
 			"	/LibProj/mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
-			"	/LibProj/otherlib.jar[*]: {ADDED TO CLASSPATH}",
-			getSortedByProjectDeltas());
+			"	/LibProj/otherlib.jar[*]: {ADDED TO CLASSPATH}"
+		);
 	} finally {
 		stopDeltas();
 		deleteProject("P1");

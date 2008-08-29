@@ -851,9 +851,13 @@ public void testFolderWithDotName() throws JavaModelException, CoreException {
 	try {
 		startDeltas();
 		folder.getFolder(new Path("org.eclipse")).create(false, true, null);
-		assertTrue("should be one Java Delta", this.deltaListener.deltas.length == 1);
-
+		assertDeltas(
+			"Unexpected delta", 
+			"JavaProjectTests[*]: {CONTENT}\n" + 
+			"	ResourceDelta(/JavaProjectTests/org.eclipse)[+]"
+		);
 		stopDeltas();
+
 		IJavaElement[] children = root.getChildren();
 		IPackageFragment bogus = root.getPackageFragment("org.eclipse");
 		for (int i = 0; i < children.length; i++) {
@@ -1064,7 +1068,10 @@ public void testOutputLocationNotAddedAsPackageFragment() throws JavaModelExcept
 	try {
 		startDeltas();
 		newFolder.create(false, true, null);
-		assertTrue("should be one delta (resource deltas)", this.deltaListener.deltas != null || this.deltaListener.deltas.length == 1);
+		assertDeltas(
+			"Unexpected delta", 
+			""
+		);
 	} finally {
 		stopDeltas();
 		deleteResource(newFolder);

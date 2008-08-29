@@ -192,35 +192,6 @@ protected IPackageFragmentRoot getPackageFragmentRoot(String path) {
 	IProject project = getProject(path);
 	return JavaCore.create(project).getPackageFragmentRoot(project);
 }
-protected String getSortedByProjectDeltas() {
-	StringBuffer buffer = new StringBuffer();
-	for (int i=0, length = this.deltaListener.deltas.length; i<length; i++) {
-		IJavaElementDelta[] projects = this.deltaListener.deltas[i].getAffectedChildren();
-		int projectsLength = projects.length;
-
-		// sort by project
-		IJavaElementDelta[] sorted = new IJavaElementDelta[projectsLength];
-		System.arraycopy(projects, 0, sorted, 0, projectsLength);
-		org.eclipse.jdt.internal.core.util.Util.sort(
-			sorted,
-			new  org.eclipse.jdt.internal.core.util.Util.Comparer() {
-				public int compare(Object a, Object b) {
-					return a.toString().compareTo(b.toString());
-				}
-			});
-
-		for (int j=0; j<projectsLength; j++) {
-			buffer.append(sorted[j]);
-			if (j != projectsLength-1) {
-				buffer.append("\n");
-			}
-		}
-		if (i != length-1) {
-			buffer.append("\n\n");
-		}
-	}
-	return buffer.toString();
-}
 protected void moveFile(String sourcePath, String destPath) throws CoreException {
 	getFile(sourcePath).move(getFile(destPath).getFullPath(), false, null);
 }

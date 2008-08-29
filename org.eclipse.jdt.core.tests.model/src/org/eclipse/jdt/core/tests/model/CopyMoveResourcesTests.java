@@ -76,7 +76,7 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 				assertTrue("Did not find package decl", found);
 			}
 		}
-		IJavaElementDelta destDelta = getDeltaFor(container, true);
+		IJavaElementDelta destDelta = this.deltaListener.getDeltaFor(container, true);
 		assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
 		IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 		// FIXME: not strong enough
@@ -161,14 +161,14 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 			}
 			IJavaElementDelta destDelta = null;
 			if (isMainType(element, destinations[i]) && names != null && names[i] != null) { //moved/renamed main type to same cu
-				destDelta = getDeltaFor(moved.getParent());
+				destDelta = this.deltaListener.getDeltaFor(moved.getParent());
 				assertTrue("Renamed compilation unit as result of main type not added", destDelta != null && destDelta.getKind() == IJavaElementDelta.ADDED);
 				IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 				assertTrue("Added children not correct for element copy", deltas[0].getElement().equals(moved));
 				assertTrue("flag should be F_MOVED_FROM", (deltas[0].getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
 				assertTrue("moved from handle should be original", deltas[0].getMovedFromElement().equals(element));
 			} else {
-				destDelta = getDeltaFor(destinations[i], true);
+				destDelta = this.deltaListener.getDeltaFor(destinations[i], true);
 				assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
 				IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 				for (int j = 0; j < deltas.length - 1; j++) {
@@ -181,7 +181,7 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 				assertTrue("Added children not correct for element copy", pkgDelta.getElement().equals(moved));
 				assertTrue("flag should be F_MOVED_FROM", (pkgDelta.getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
 				assertTrue("moved from handle shoud be original", pkgDelta.getMovedFromElement().equals(element));
-				IJavaElementDelta sourceDelta = getDeltaFor(element, true);
+				IJavaElementDelta sourceDelta = this.deltaListener.getDeltaFor(element, true);
 				assertTrue("moved to handle should be original", sourceDelta.getMovedToElement().equals(moved));
 			}
 		}

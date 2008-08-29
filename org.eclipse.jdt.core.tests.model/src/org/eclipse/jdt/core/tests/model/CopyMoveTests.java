@@ -106,7 +106,7 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		}
 		if (copy.getElementType() == IJavaElement.IMPORT_DECLARATION)
 			container = ((ICompilationUnit) container).getImportContainer();
-		IJavaElementDelta destDelta = getDeltaFor(container, true);
+		IJavaElementDelta destDelta = this.deltaListener.getDeltaFor(container, true);
 		assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
 		IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 		assertTrue("Added children not correct for element copy", deltas[0].getElement().equals(copy));
@@ -343,17 +343,17 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 			}
 			IJavaElementDelta destDelta = null;
 			if (isMainType(element, destinations[i]) && names != null && names[i] != null) { //moved/renamed main type to same cu
-				destDelta = getDeltaFor(moved.getParent());
+				destDelta = this.deltaListener.getDeltaFor(moved.getParent());
 				assertTrue("Renamed compilation unit as result of main type not added", destDelta != null && destDelta.getKind() == IJavaElementDelta.ADDED);
 				assertTrue("flag should be F_MOVED_FROM", (destDelta.getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
 				assertTrue("moved from handle should be original", destDelta.getMovedFromElement().equals(element.getParent()));
 			} else {
-				destDelta = getDeltaFor(destinations[i], true);
+				destDelta = this.deltaListener.getDeltaFor(destinations[i], true);
 				assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
 				IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 				assertTrue("Added children not correct for element copy", deltas[i].getElement().equals(moved));
 				assertTrue("should be K_ADDED", deltas[i].getKind() == IJavaElementDelta.ADDED);
-				IJavaElementDelta sourceDelta= getDeltaFor(element, false);
+				IJavaElementDelta sourceDelta= this.deltaListener.getDeltaFor(element, false);
 				assertTrue("should be K_REMOVED", sourceDelta.getKind() == IJavaElementDelta.REMOVED);
 			}
 		}

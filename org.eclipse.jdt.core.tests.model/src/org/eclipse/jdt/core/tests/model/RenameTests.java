@@ -106,7 +106,7 @@ public void renamePositive(IJavaElement[] elements, IJavaElement[] destinations,
 		if (!originalShouldExist) {
 			assertTrue("Original element should not exist", !e.exists());
 		}
-		IJavaElementDelta destDelta = getDeltaFor(renamed.getParent());
+		IJavaElementDelta destDelta = this.deltaListener.getDeltaFor(renamed.getParent());
 		if (isMainType(e, e.getParent())) {
 			assertTrue("Renamed compilation unit as result of main type not added", destDelta != null && destDelta.getKind() == IJavaElementDelta.ADDED);
 			assertTrue("Added children not correct for element copy", destDelta.getElement().equals(renamed.getParent()));
