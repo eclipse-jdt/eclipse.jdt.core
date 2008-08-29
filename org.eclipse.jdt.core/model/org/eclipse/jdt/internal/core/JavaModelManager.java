@@ -1226,8 +1226,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				this.project, // use project scheduling rule as this is needed to create the .classpath file if it doesn't exist yet
 				IWorkspace.AVOID_UPDATE,
 				null);
+			} catch (JavaModelException e) {
+			    // rethrow exception (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=245576 )
+				throw e;
 			} catch (CoreException e) {
-				Util.log(e, "Exception while writing the .classpath file for " + javaProject); //$NON-NLS-1$
+			    // rethrow exception (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=245576 )
+				throw new JavaModelException(e);
 			}
 			return result[0];
 		}
