@@ -4857,4 +4857,155 @@ public void test164() {
 		},
 		"IJdone");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231709
+public void test165() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public void foo() {\n" + 
+			"        Integer i1 = 10 ;\n" + 
+			"        final short s = 100;\n" + 
+			"        i1 = s;\n" + 
+			"        switch (i1)\n" + 
+			"        {\n" + 
+			"            case s:\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public void bar() {\n" + 
+			"        Integer i2 = 10 ;\n" + 
+			"        final byte b = 100;\n" + 
+			"        i2 = b;\n" + 
+			"        switch (i2)\n" + 
+			"        {\n" + 
+			"            case b:\n" + 
+			"        }\n" + 
+			"    }   \n" + 
+			"    public void baz() {\n" + 
+			"        Integer i3 = 10 ;\n" + 
+			"        final char c = 100;\n" + 
+			"        i3 = c;\n" + 
+			"        switch (i3)\n" + 
+			"        {\n" + 
+			"            case c:\n" + 
+			"        }\n" + 
+			"    }     \n" + 
+			"}\n",
+		},
+		"");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231709 - variation
+public void test166() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(short s, byte b, char c) {\n" + 
+			"		Integer is = s;\n" + 
+			"		Integer ib = b;\n" + 
+			"		Integer ic = c;	\n" + 
+			"	}\n" + 
+			"	void foo() {\n" + 
+			"		final short s = 0;\n" + 
+			"		final byte b = 0;\n" + 
+			"		final char c = 0;\n" + 
+			"		Integer is = s;\n" + 
+			"		Integer ib = b;\n" + 
+			"		Integer ic = c;	\n" + 
+			"	}\n" + 
+			"	void foo2() {\n" + 
+			"		Integer is = (short)0;\n" + 
+			"		Integer ib = (byte)0;\n" + 
+			"		Integer ic = (char)0;	\n" + 
+			"	}\n" + 
+			"	void foo3() {\n" + 
+			"		Short si = 0;\n" + 
+			"		Byte bi = 0;\n" + 
+			"		Character ci = 0;\n" + 
+			"	}\n" + 
+			"	void foo4() {\n" + 
+			"		Short si = (byte) 0;\n" + 
+			"		Byte bi = (short) 0;\n" + 
+			"		Character ci = (short) 0;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Integer is = s;\n" + 
+		"	             ^\n" + 
+		"Type mismatch: cannot convert from short to Integer\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	Integer ib = b;\n" + 
+		"	             ^\n" + 
+		"Type mismatch: cannot convert from byte to Integer\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Integer ic = c;	\n" + 
+		"	             ^\n" + 
+		"Type mismatch: cannot convert from char to Integer\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 11)\n" + 
+		"	Integer is = s;\n" + 
+		"	             ^\n" + 
+		"The expression of type short is boxed into Integer\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 12)\n" + 
+		"	Integer ib = b;\n" + 
+		"	             ^\n" + 
+		"The expression of type byte is boxed into Integer\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 13)\n" + 
+		"	Integer ic = c;	\n" + 
+		"	             ^\n" + 
+		"The expression of type char is boxed into Integer\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 16)\n" + 
+		"	Integer is = (short)0;\n" + 
+		"	             ^^^^^^^^\n" + 
+		"The expression of type short is boxed into Integer\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 17)\n" + 
+		"	Integer ib = (byte)0;\n" + 
+		"	             ^^^^^^^\n" + 
+		"The expression of type byte is boxed into Integer\n" + 
+		"----------\n" + 
+		"9. WARNING in X.java (at line 18)\n" + 
+		"	Integer ic = (char)0;	\n" + 
+		"	             ^^^^^^^\n" + 
+		"The expression of type char is boxed into Integer\n" + 
+		"----------\n" + 
+		"10. WARNING in X.java (at line 21)\n" + 
+		"	Short si = 0;\n" + 
+		"	           ^\n" + 
+		"The expression of type int is boxed into Short\n" + 
+		"----------\n" + 
+		"11. WARNING in X.java (at line 22)\n" + 
+		"	Byte bi = 0;\n" + 
+		"	          ^\n" + 
+		"The expression of type int is boxed into Byte\n" + 
+		"----------\n" + 
+		"12. WARNING in X.java (at line 23)\n" + 
+		"	Character ci = 0;\n" + 
+		"	               ^\n" + 
+		"The expression of type int is boxed into Character\n" + 
+		"----------\n" + 
+		"13. WARNING in X.java (at line 26)\n" + 
+		"	Short si = (byte) 0;\n" + 
+		"	           ^^^^^^^^\n" + 
+		"The expression of type byte is boxed into Short\n" + 
+		"----------\n" + 
+		"14. WARNING in X.java (at line 27)\n" + 
+		"	Byte bi = (short) 0;\n" + 
+		"	          ^^^^^^^^^\n" + 
+		"The expression of type short is boxed into Byte\n" + 
+		"----------\n" + 
+		"15. WARNING in X.java (at line 28)\n" + 
+		"	Character ci = (short) 0;\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"The expression of type short is boxed into Character\n" + 
+		"----------\n");
+}
 }
