@@ -1358,6 +1358,31 @@ public void testBug110172() throws JavaModelException {
 	}
 }
 /**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=242029
+ */
+public void testRootPath13() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/test7.jar"));
+	attachSource(root, "/AttachSourceTests/test7src/", null);
+	
+	IClassFile cf = root.getPackageFragment("p1.p2").getClassFile("X.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package p1.p2;\n" +
+		"public class X {\n" +
+		"}",
+		cf.getSource());
+	cf = root.getPackageFragment("tests.p1").getClassFile("TestforX.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package tests.p1;\n" +
+		"public class TestforX {\n" +
+		"}",
+		cf.getSource());
+	attachSource(root, null, null); // detach source
+	root.close();
+}
+/**
  * @test bug 153133: [model] toggle breakpoint in constructor creates a class load breakpoint
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=153133"
  */

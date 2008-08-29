@@ -507,21 +507,21 @@ public class SourceMapper
 	private void computeRootPath(IContainer container, HashSet firstLevelPackageNames, boolean hasDefaultPackage, Set set, int sourcePathSegmentCount) {
 		try {
 			IResource[] resources = container.members();
-			boolean hasSubDirectories = false;
-			loop: for (int i = 0, max = resources.length; i < max; i++) {
+			for (int i = 0, max = resources.length; i < max; i++) {
 				IResource resource = resources[i];
 				if (resource.getType() == IResource.FOLDER) {
-					hasSubDirectories = true;
 					if (firstLevelPackageNames.contains(resource.getName())) {
 						IPath fullPath = container.getFullPath();
 						IPath rootPathEntry = fullPath.removeFirstSegments(sourcePathSegmentCount).setDevice(null);
-						set.add(rootPathEntry);
-						break loop;
+						if (rootPathEntry.segmentCount() >= 1) {
+							set.add(rootPathEntry);
+						}
+						computeRootPath((IFolder) resource, firstLevelPackageNames, hasDefaultPackage, set, sourcePathSegmentCount);
 					} else {
 						computeRootPath((IFolder) resource, firstLevelPackageNames, hasDefaultPackage, set, sourcePathSegmentCount);
 					}
 				}
-				if (i == max - 1 && !hasSubDirectories && hasDefaultPackage) {
+				if (i == max - 1 && hasDefaultPackage) {
 					// check if one member is a .java file
 					boolean hasJavaSourceFile = false;
 					for (int j = 0; j < max; j++) {
