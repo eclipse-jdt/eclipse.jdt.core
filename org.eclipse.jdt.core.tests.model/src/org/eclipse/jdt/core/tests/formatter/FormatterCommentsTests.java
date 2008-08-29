@@ -38,9 +38,6 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.SimpleDocument;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
-import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.Region;
 
 /**
  * Javadoc formatter test suite using the Eclipse default settings.
@@ -59,18 +56,12 @@ public class FormatterCommentsTests extends FormatterRegressionTests {
 
 	public static List ALL_TEST_SUITES = null;
 
-	DefaultCodeFormatterOptions preferences;
-
 public static Test suite() {
 	return buildModelTestSuite(FormatterCommentsTests.class);
 }
 
 public FormatterCommentsTests(String name) {
 	super(name);
-}
-protected void setUp() throws Exception {
-    super.setUp();
-	this.preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
 }
 
 /**
@@ -95,71 +86,6 @@ public void tearDownSuite() throws Exception {
 			deleteProject(JAVA_PROJECT); //$NON-NLS-1$
 		}
 	}
-}
-
-DefaultCodeFormatter codeFormatter() {
-	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.preferences, JAVA_PROJECT.getOptions(true));
-	return codeFormatter;
-}
-
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#assertLineEquals(java.lang.String, java.lang.String, java.lang.String, boolean)
- */
-void assertLineEquals(String actualContents, String originalSource, String expectedContents, boolean checkNull) {
-	String outputSource = expectedContents == null ? originalSource : expectedContents;
-	super.assertLineEquals(actualContents, originalSource, outputSource, checkNull);
-}
-
-void formatSource(String source, String formattedOutput) {
-	formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, true /*repeat formatting twice*/);
-}
-
-void formatSource(String source, String formattedOutput, boolean repeat) {
-	formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, repeat);
-}
-
-void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean repeat) {
-	int regionStart = source.indexOf("[#");
-	if (regionStart != -1) {
-		IRegion[] regions =  new Region[10];
-		int idx = 0;
-		int start = 0;
-		int delta = 0;
-		StringBuffer buffer = new StringBuffer();
-		while (regionStart != -1) {
-			buffer.append(source.substring(start, regionStart));
-			int regionEnd = source.indexOf("#]", regionStart+2);
-			buffer.append(source.substring(regionStart+2, regionEnd));
-			regions[idx++] = new Region(regionStart-delta, regionEnd-(regionStart+2));
-			delta += 4;
-			start = regionEnd + 2;
-			regionStart = source.indexOf("[#", start);
-		}
-		buffer.append(source.substring(start, source.length()));
-		String newSource = buffer.toString();
-		String result;
-		if (idx == 1) {
-			// Use offset and length until bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=233967 is fixed
-			result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions[0].getOffset(), regions[0].getLength(), Util.LINE_SEPARATOR, repeat);
-		} else {
-			System.arraycopy(regions, 0, regions = new Region[idx], 0, idx);
-			result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions, Util.LINE_SEPARATOR);
-		}
-		assertLineEquals(result, newSource, formattedOutput, false);
-	} else {
-		formatSource(source, formattedOutput, kind, indentationLevel, false, 0, -1, null, repeat);
-	}
-}
-
-void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator, boolean repeat) {
-	DefaultCodeFormatter codeFormatter = codeFormatter();
-	String result;
-	if (length == -1) {
-		result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), lineSeparator, repeat);
-	} else {
-		result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, lineSeparator, repeat);
-	}
-	assertLineEquals(result, source, formattedOutput, checkNull);
 }
 
 void compareFormattedSource(ICompilationUnit compilationUnit) throws JavaModelException {
@@ -849,7 +775,7 @@ public void testLineComments10() throws JavaModelException {
 }
 // TODO Pass this test
 public void _testLineComments11() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("comments.line", "X11.java");
 }
 

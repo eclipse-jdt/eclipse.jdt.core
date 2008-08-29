@@ -84,7 +84,7 @@ public void testBug230944a() throws JavaModelException {
 	formatUnit("bugs.b230944", "X01.java");
 }
 public void testBug230944b() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b230944", "X02.java");
 }
 
@@ -97,7 +97,7 @@ public void testBug231263() throws JavaModelException {
 	formatUnit("bugs.b231263", "BadFormattingSample.java");
 }
 public void testBug231263a() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b231263", "X.java");
 }
 
@@ -107,29 +107,29 @@ public void testBug231263a() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297"
  */
 public void testBug231297() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b231297", "X.java");
 }
 public void testBug231297a() throws JavaModelException {
-	this.preferences.comment_line_length = 30;
+	this.formatterPrefs.comment_line_length = 30;
 	formatUnit("bugs.b231297", "X01.java");
 }
 public void testBug231297b() throws JavaModelException {
 	// Difference with old formatter:
 	// 1) fixed non formatted inline tag description
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b231297", "X02.java");
 }
 public void testBug231297c() throws JavaModelException {
 	// Difference with old formatter:
 	// 1) fixed non formatted inline tag description
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b231297", "X03.java");
 }
 public void testBug231297d() throws JavaModelException {
 	// Difference with old formatter:
 	// 1) fixed non formatted inline tag description
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b231297", "X03b.java");
 }
 
@@ -139,43 +139,43 @@ public void testBug231297d() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232285"
  */
 public void testBug232285a() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X01.java");
 }
 public void testBug232285b() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X01b.java");
 }
 public void testBug232285c() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X01c.java");
 }
 public void testBug232285d() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X01d.java");
 }
 public void testBug232285e() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X01e.java");
 }
 public void testBug232285f() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X01f.java");
 }
 public void testBug232285g() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X02.java");
 }
 public void testBug232285h() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X03.java");
 }
 public void testBug232285i() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X04.java");
 }
 public void testBug232285j() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X04b.java");
 }
 
@@ -185,7 +185,7 @@ public void testBug232285j() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232488"
  */
 public void testBug232488() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232488", "X01.java");
 }
 
@@ -195,11 +195,11 @@ public void testBug232488() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232466"
  */
 public void testBug232466a() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232466", "X01.java");
 }
 public void testBug232466b() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b232466", "X02.java");
 }
 
@@ -218,11 +218,10 @@ public void testBug232768a() throws JavaModelException {
 			"\r\n#]" +
 			"}\r\n" +
 			"";
-	// TODO fix the incorrect indentation before the javadoc comment (also in 3.3 and 3.4M6)
 	formatSource(source,
 		"public class A {\n" +
 		"\n" +
-		"        /*\n" +
+		"	/*\n" +
 		"	 * A block comment on two lines\n" +
 		"	 */\n" +
 		"\n" +
@@ -247,7 +246,7 @@ public void testBug232768b() throws JavaModelException {
 		"	public void foo() {\n" +
 		"	}\n" +
 		"\n" +
-		"	/*\n" +
+		"        /*\r\n" +
 		"         * A block comment \n" +
 		"         * on two lines\n" +
 		"         */\n" +
@@ -272,17 +271,15 @@ public void testBug232768_Javadoc01() throws JavaModelException {
 		"#]\n" +
 		"\n" +
 		"}";
-	// TODO fix the incorrect indentation before the javadoc comment (also in 3.3 and 3.4M6)
 	formatSource(source,
 		"public class C {\n" +
 		"	\n" +
-		"        /**\n" +
+		"	/**\n" +
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"	void m1() {\n" +
 		"\n" +
-		"	}     \n" +
-		"\n" +
+		"	}\n" +
 		"\n" +
 		"}"
 	);
@@ -313,7 +310,7 @@ public void testBug232768_Javadoc02() throws JavaModelException {
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"	void m1() {\n" +
-		"	\n" +
+		"\n" +
 		"        }     \n" +
 		"\n" +
 		"\n" +
@@ -370,11 +367,10 @@ public void testBug232768_Javadoc04() throws JavaModelException {
 		"\n" +
 		"\n" +
 		"}";
-	// TODO fix the incorrect indentation before the javadoc comment (also in 3.3 and 3.4M6)
 	formatSource(source,
 		"public class C {\n" +
-		"	\n" +
-		"        /**\n" +
+		"\n" +
+		"	/**\n" +
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"        void		m1  (   )   {\n" +
@@ -468,17 +464,15 @@ public void testBug232768_Block01() throws JavaModelException {
 		"#]\n" +
 		"\n" +
 		"}";
-	// TODO fix the incorrect indentation before the block comment (also in 3.3 and 3.4M6)
 	formatSource(source,
 		"public class D {\n" +
 		"	\n" +
-		"        /*\n" +
+		"	/*\n" +
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"	void m2() {\n" +
 		"\n" +
-		"	}     \n" +
-		"\n" +
+		"	}\n" +
 		"\n" +
 		"}"
 	);
@@ -509,7 +503,7 @@ public void testBug232768_Block02() throws JavaModelException {
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"	void m2() {\n" +
-		"	\n" +
+		"\n" +
 		"        }     \n" +
 		"\n" +
 		"\n" +
@@ -566,11 +560,10 @@ public void testBug232768_Block04() throws JavaModelException {
 		"\n" +
 		"\n" +
 		"}";
-	// TODO fix the incorrect indentation before the block comment (also in 3.3 and 3.4M6)
 	formatSource(source,
 		"public class D {\n" +
-		"	\n" +
-		"        /*\n" +
+		"\n" +
+		"	/*\n" +
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"        void		m2  (   )   {\n" +
@@ -657,13 +650,11 @@ public void testBug232768_Line01() throws JavaModelException {
 		"        }\n" +
 		"#]   \n" +
 		"}";
-	// TODO fix the incorrect indentation before the method declaration (also in 3.3 and 3.4M6)
-	// Note that the line comment wasn't formatted using 3.3 and 3.4 M6
 	formatSource(source,
 		"public class E {\n" +
 		"	\n" +
 		"\n" +
-		"        void m3() { // this is a bug\n" +
+		"	void m3() { // this is a bug\n" +
 		"\n" +
 		"	}\n" +
 		"   \n" +
@@ -707,7 +698,7 @@ public void testBug232768_Line03() throws JavaModelException {
 		"public class E {\n" +
 		"	\n" +
 		"\n" +
-		"        void            m3()         { // this is a bug\n" +
+		"        void            m3()         { // this        is a bug\n" +
 		"\n" +
 		"	}\n" +
 		"\n" +
@@ -750,7 +741,7 @@ public void testBug232768_Line05() throws JavaModelException {
 		"public class E {       \n" +
 		"	\n" +
 		"\n" +
-		"        void m3() { // this is a bug\n" +
+		"	void m3() { // this      is        a    bug\n" +
 		"\n" +
 		"        }\n" +
 		"   \n" +
@@ -772,7 +763,7 @@ public void testBug232768_Line06() throws JavaModelException {
 		"public class E {       \n" +
 		"	\n" +
 		"\n" +
-		"        void            m3()         { // this is a bug\n" +
+		"        void            m3()         { // this        is        a    bug\n" +
 		"\n" +
 		"        }\n" +
 		"   \n" +
@@ -796,7 +787,7 @@ public void testBug232768_Line07() throws JavaModelException {
 		"	\n" +
 		"\n" +
 		"        void            m3()         {     \n" +
-		"        	// this is a bug\n" +
+		"		// this is a bug\n" +
 		"\n" +
 		"        }\n" +
 		"   \n" +
@@ -832,63 +823,63 @@ public void testBug232768_Line08() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232788"
  */
 public void testBug232788_Tabs01() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
-	this.preferences.tab_size = 1;
-	this.preferences.indentation_size = 1;
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.tab_size = 1;
+	this.formatterPrefs.indentation_size = 1;
 	formatUnit("bugs.b232788", "X01_tabs.java");
 }
 public void testBug232788_Spaces01() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
-	this.preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
-	this.preferences.tab_size = 1;
-	this.preferences.indentation_size = 1;
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.tab_size = 1;
+	this.formatterPrefs.indentation_size = 1;
 	formatUnit("bugs.b232788", "X01_spaces.java");
 }
 public void testBug232788_Mixed01() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
-	this.preferences.tab_char = DefaultCodeFormatterOptions.MIXED;
-	this.preferences.tab_size = 1;
-	this.preferences.indentation_size = 1;
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	this.formatterPrefs.tab_size = 1;
+	this.formatterPrefs.indentation_size = 1;
 	formatUnit("bugs.b232788", "X01_mixed.java");
 }
 public void testBug232788_Tabs02() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
-	this.preferences.tab_size = 0;
-	this.preferences.indentation_size = 0;
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.tab_size = 0;
+	this.formatterPrefs.indentation_size = 0;
 	formatUnit("bugs.b232788", "X02_tabs.java");
 }
 public void testBug232788_Spaces02() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
-	this.preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
-	this.preferences.tab_size = 0;
-	this.preferences.indentation_size = 0;
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.tab_size = 0;
+	this.formatterPrefs.indentation_size = 0;
 	formatUnit("bugs.b232788", "X02_spaces.java");
 }
 public void testBug232788_Mixed02() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
-	this.preferences.tab_char = DefaultCodeFormatterOptions.MIXED;
-	this.preferences.tab_size = 0;
-	this.preferences.indentation_size = 0;
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	this.formatterPrefs.tab_size = 0;
+	this.formatterPrefs.indentation_size = 0;
 	formatUnit("bugs.b232788", "X02_mixed.java");
 }
 public void testBug232788_Tabs03() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
-	this.preferences.tab_size = 1;
-	this.preferences.indentation_size = 1;
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.tab_size = 1;
+	this.formatterPrefs.indentation_size = 1;
 	formatUnit("bugs.b232788", "X03_tabs.java");
 }
 public void testBug232788_Spaces03() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
-	this.preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
-	this.preferences.tab_size = 1;
-	this.preferences.indentation_size = 1;
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.tab_size = 1;
+	this.formatterPrefs.indentation_size = 1;
 	formatUnit("bugs.b232788", "X03_spaces.java");
 }
 public void testBug232788_Mixed03() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
-	this.preferences.tab_char = DefaultCodeFormatterOptions.MIXED;
-	this.preferences.tab_size = 1;
-	this.preferences.indentation_size = 1;
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	this.formatterPrefs.tab_size = 1;
+	this.formatterPrefs.indentation_size = 1;
 	formatUnit("bugs.b232788", "X03_mixed.java");
 }
 
@@ -908,7 +899,7 @@ public void testBug233011() throws JavaModelException {
 		"         * block           [# #]            \n" +
 		"         * comment\n" +
 		"         */\n" +
-		"        // single          [# #]            line comment\n" +
+		"        // [#single                       line#] comment\n" +
 		"}";
 	formatSource(source,
 		"\n" +
@@ -916,10 +907,10 @@ public void testBug233011() throws JavaModelException {
 		"	/**\n" +
 		"	 * Javadoc comment\n" +
 		"	 */\n" +
-		"	/*\n" +
+		"        /*\n" +
 		"	 * block comment\n" +
 		"	 */\n" +
-		"	// single line comment\n" +
+		"        // single line comment\n" +
 		"}"
 	);
 }
@@ -951,7 +942,7 @@ public void testBug233228e() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233224"
  */
 public void testBug233224() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	formatUnit("bugs.b233224", "X01.java");
 }
 
@@ -961,7 +952,7 @@ public void testBug233224() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233259"
  */
 public void testBug233259a() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	String source =
 		"public class X {\n" +
 		"        /**\n" +
@@ -981,7 +972,7 @@ public void testBug233259a() throws JavaModelException {
 	);
 }
 public void testBug233259b() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	// difference with 3.3 formatter:
 	// split html reference as this allow not to go over the max line width
 	String source =
@@ -1004,7 +995,7 @@ public void testBug233259b() throws JavaModelException {
 	);
 }
 public void testBug233259c() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	String source =
 		"public class X {\n" +
 		"        /**\n" +
@@ -1025,7 +1016,7 @@ public void testBug233259c() throws JavaModelException {
 	);
 }
 public void testBug233259d() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	String source =
 		"public class X {\n" +
 		"        /**\n" +
@@ -1052,7 +1043,7 @@ public void testBug233259d() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237942"
  */
 public void testBug237942a() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	String source =
 		"public class X {\n" +
 		"        /**\n" +
@@ -1072,7 +1063,7 @@ public void testBug237942a() throws JavaModelException {
 	);
 }
 public void testBug237942b() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	// difference with 3.3 formatter:
 	// do not split string reference as this can lead to javadoc syntax error
 	String source =
@@ -1094,7 +1085,7 @@ public void testBug237942b() throws JavaModelException {
 	);
 }
 public void testBug237942c() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	// difference with 3.3 formatter:
 	// do not split string reference as this can lead to javadoc syntax error
 	String source =
@@ -1116,7 +1107,7 @@ public void testBug237942c() throws JavaModelException {
 	);
 }
 public void testBug237942d() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	// difference with 3.3 formatter:
 	// do not split string reference as this can lead to javadoc syntax error
 	String source =
@@ -1159,6 +1150,317 @@ public void testBug234336() throws JavaModelException {
 		CodeFormatter.K_JAVA_DOC,
 		1, /* indentation level */
 		true /* formatting twice */
+	);
+}
+
+//static { TESTS_PREFIX = "testBug234583"; }
+/**
+ * @bug 234583: [formatter] Code formatter should adapt edits instead of regions
+ * @test Ensure that selected region(s) are correctly formatted
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583"
+ */
+public void testBug234583a() throws JavaModelException {
+	String source = 
+		"public class X {\n" + 
+		"[#                        int i= 1;               #]\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	int i = 1;\n" + 
+		"}\n"
+	);
+}
+public void testBug234583b() throws JavaModelException {
+	String source = 
+		"public class X {      \n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"[#                        int i= 1;               #]\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"     }\n";
+	formatSource(source,
+		"public class X {      \n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"	int i = 1;\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"     }\n"
+	);
+}
+public void testBug234583c() throws JavaModelException {
+	String source = 
+		"public class X {      \n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"[#                        int i= 1;               \n" + 
+		"#]\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"     }\n";
+	formatSource(source,
+		"public class X {      \n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"	int i = 1;\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"     }\n"
+	);
+}
+public void testBug234583d() throws JavaModelException {
+	String source = 
+		"public class X {      \n" + 
+		"\n" + 
+		"\n" + 
+		"[#\n" + 
+		"                        int i= 1;               \n" + 
+		"\n" + 
+		"#]\n" + 
+		"\n" + 
+		"\n" + 
+		"     }\n";
+	formatSource(source,
+		"public class X {      \n" + 
+		"\n" + 
+		"\n" + 
+		"	int i = 1;\n" + 
+		"\n" + 
+		"\n" + 
+		"     }\n"
+	);
+}
+public void testBug234583e() throws JavaModelException {
+	String source = 
+		"public class X {      \n" + 
+		"\n" + 
+		"[#\n" + 
+		"\n" + 
+		"                        int i= 1;               \n" + 
+		"\n" + 
+		"\n" + 
+		"#]\n" + 
+		"\n" + 
+		"     }\n";
+	formatSource(source,
+		"public class X {      \n" + 
+		"\n" + 
+		"	int i = 1;\n" + 
+		"\n" + 
+		"     }\n"
+	);
+}
+public void testBug234583f() throws JavaModelException {
+	String source = 
+		"public class X {      \n" + 
+		"[#\n" + 
+		"\n" + 
+		"\n" + 
+		"                        int i= 1;               \n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"#]\n" + 
+		"     }\n";
+	formatSource(source,
+		"public class X {      \n" + 
+		"\n" + 
+		"	int i = 1;\n" + 
+		"\n" + 
+		"     }\n"
+	);
+}
+public void testBug234583g() throws JavaModelException {
+	String source = 
+		"public class X {      [#\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"                        int i= 1;               \n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"#]     }\n";
+	formatSource(source,
+		"public class X {      \n" + 
+		"\n" + 
+		"	int i = 1;\n" + 
+		"\n" + 
+		"     }\n"
+	);
+}
+public void testBug234583h() throws JavaModelException {
+	String source = 
+		"public class X {   [#   \n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"                        int i= 1;               \n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"   #]  }\n";
+	formatSource(source,
+		"public class X {   \n" + 
+		"\n" + 
+		"	int i = 1;\n" + 
+		"\n" + 
+		"  }\n"
+	);
+}
+public void testBug234583i() throws JavaModelException {
+	String source = 
+		"public class X {[#      \n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"                        int i= 1;               \n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"     #]}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"\n" + 
+		"	int i = 1;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+// duplicate https://bugs.eclipse.org/bugs/show_bug.cgi?id=239447
+public void testBug234583_Bug239447() throws JavaModelException {
+	String source = 
+		"public class Bug239447 {\n" + 
+		"	private static final String CONTENT = \"test.ObjectB {\\n\"\n" + 
+		"[#			     + \"     multiEle = { name=\\\"Foo\\\" }\\n\"#]\n" + 
+		"			+ \"     multiEle = :x { name=\\\"Bar\\\" }\\n\" + \"   singleEle = x;\\n\"\n" + 
+		"			+ \"}\";\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Bug239447 {\n" + 
+		"	private static final String CONTENT = \"test.ObjectB {\\n\"\n" + 
+		"			+ \"     multiEle = { name=\\\"Foo\\\" }\\n\"\n" + 
+		"			+ \"     multiEle = :x { name=\\\"Bar\\\" }\\n\" + \"   singleEle = x;\\n\"\n" + 
+		"			+ \"}\";\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=237453
+public void testBug234583_Bug237453a() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	[#\n" + 
+		"	#]\n" + 
+		" 	void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		" 	void bar() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void testBug234583_Bug237453b() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"[#	#]\n" + 
+		" 	void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	\n" + 
+		" 	void bar() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+// duplicate https://bugs.eclipse.org/bugs/show_bug.cgi?id=237592
+public void testBug234583_Bug237592() throws JavaModelException {
+	String source = 
+		"package test;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"[#	  #]\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"[#	 #]\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	void bar() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	 \n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	void bar() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
 	);
 }
 
@@ -1239,7 +1541,7 @@ public void testBug236230b() throws JavaModelException {
 	);
 }
 public void testBug236230c() throws JavaModelException {
-	this.preferences.comment_format_header = true;
+	this.formatterPrefs.comment_format_header = true;
 	String source =
 		"/**\n" +
 		" * Need a javadoc comment before to get the exception.\n" +
@@ -1493,7 +1795,7 @@ public void testBug237051d() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=238090"
  */
 public void testBug238090() throws JavaModelException {
-	this.preferences.comment_line_length = 40;
+	this.formatterPrefs.comment_line_length = 40;
 	String source =
 		"package test.bugs;\n" +
 		"public class LongNameClass {\n" +
@@ -1964,7 +2266,7 @@ public void testBug240686() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=241345"
  */
 public void testBug241345() throws JavaModelException {
-	this.preferences.comment_format_html = false;
+	this.formatterPrefs.comment_format_html = false;
 	String source = 
 		"/**\n" + 
 		" * <p>Should not format HTML paragraph</p>\n" + 

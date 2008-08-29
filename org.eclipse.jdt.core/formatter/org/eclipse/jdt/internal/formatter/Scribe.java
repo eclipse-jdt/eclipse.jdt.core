@@ -165,26 +165,31 @@ public class Scribe implements IJavaDocTagConstants {
 			if (index >= 0) {
 				// the offset of the region is inside a comment => restart the region from the comment start
 				adaptedOffset = this.commentPositions[index][0];
-				if (adaptedOffset < 0) adaptedOffset = -adaptedOffset;
-				adaptedLength = length + offset - adaptedOffset;
-				commentIndex = index;
-				// include also the indentation edit just before the comment if any
-				for (int j=0; j<this.editsIndex; j++) {
-					int editOffset = this.edits[j].offset;
-					int editEnd = editOffset + this.edits[j].length;
-					if (editEnd == adaptedOffset) {
-						if (j > 0 && this.edits[j].replacement.trim().length() == 0) {
-							adaptedLength += adaptedOffset - this.edits[j].offset;
-							adaptedOffset = editOffset;
+				if (adaptedOffset >= 0) {
+					// adapt only javadoc or block commments. Since fix for bug
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=238210
+					// edits in line comments only concerns whitespaces hence can be
+					// treated as edits in code
+					adaptedLength = length + offset - adaptedOffset;
+					commentIndex = index;
+					// include also the indentation edit just before the comment if any
+					for (int j=0; j<this.editsIndex; j++) {
+						int editOffset = this.edits[j].offset;
+						int editEnd = editOffset + this.edits[j].length;
+						if (editEnd == adaptedOffset) {
+							if (j > 0 && this.edits[j].replacement.trim().length() == 0) {
+								adaptedLength += adaptedOffset - this.edits[j].offset;
+								adaptedOffset = editOffset;
+								break;
+							}
+						} else if (editEnd > adaptedOffset) {
 							break;
 						}
-					} else if (editEnd > adaptedOffset) {
-						break;
 					}
 				}
 			}
 			index = getCommentIndex(commentIndex, offset+length-1);
-			if (index >= 0) {
+			if (index >= 0 && this.commentPositions[index][0] >= 0) { // only javadoc or block comment
 				// the region end is inside a comment => set the region end at the comment end
 				int commentEnd = this.commentPositions[index][1];
 				if (commentEnd < 0) commentEnd = -commentEnd;
@@ -194,68 +199,207 @@ public class Scribe implements IJavaDocTagConstants {
 			if (adaptedLength != length) {
 				// adapt the region and jump to next one
 				this.adaptedRegions[i] = new Region(adaptedOffset, adaptedLength);
-				continue;
-			}
-
-			if (offset > 0) {
-				if (isAdaptableRegion(offset, length)) {
-					// if we have a selection, search for overlapping edits
-					int upperBound = offset;
-					int lowerBound = 0;
-					boolean upperFound = false;
-					int regionEnd = offset + length;
-					for (int j = 0, max2 = this.editsIndex - 1; j <= max2; j++) {
-						// search for lower bound
-						int editOffset = this.edits[j].offset;
-						if (upperFound && lowerBound == 0) {
-							int editLength = this.edits[j].length;
-							if (editOffset == regionEnd) { // matching edit found
-								lowerBound = regionEnd;
-								break;
-							} else if (editOffset + editLength < regionEnd) {
-								continue;
-							} else {
-								lowerBound = editOffset + editLength; // upper and lower bounds found
-								break;
-							}
-							// search for upper bound
-						} else {
-							int next = j+1;
-							if (next == max2) {
-								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=213284
-								// checked all edits, no upper bound found: leave the loop
-								break;
-							}
-							if (this.edits[next].offset < offset) {
-								continue;
-							} else {
-								upperBound = editOffset;
-								upperFound = true;
-								// verify if region end is at EOF
-								if (this.scannerEndPosition == regionEnd) {
-									lowerBound = this.scannerEndPosition - 1;
-									break;
-								}
-							}
-						}
-					}
-					if (lowerBound != 0) {
-						if (offset != upperBound || regionEnd != lowerBound) { // ensure we found a different region
-							this.adaptedRegions[i] = new Region(upperBound,
-									lowerBound - upperBound);
-						}
-						// keep other unadaptable region
-					} else {
-						this.adaptedRegions[i] = this.regions[i];
-					}
-				} else {
-					this.adaptedRegions[i] = this.regions[i];
-				}
 			} else {
-				this.adaptedRegions[i] = this.regions[i];
+				this.adaptedRegions[i] = aRegion;
 			}
 		}
 	}
+
+	/*
+	 * Adapt edits to regions.
+	 * 
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583"
+	 * 	for more details
+	 */
+	private void adaptEdits() {
+
+		// See if adapting edits is really necessary
+		int max = this.regions.length;
+		if (max == 1) {
+			if (this.regions[0].getOffset() == 0 && this.regions[0].getLength() == this.scannerEndPosition) {
+				// No need to adapt as the regions covers the whole source
+				return;
+			}
+		}
+
+		// Sort edits
+		OptimizedReplaceEdit[] sortedEdits = new OptimizedReplaceEdit[this.editsIndex];
+		System.arraycopy(this.edits, 0, sortedEdits, 0, this.editsIndex);
+		Arrays.sort(sortedEdits, new Comparator() {
+			public int compare(Object o1, Object o2) {
+		    	OptimizedReplaceEdit edit1 = (OptimizedReplaceEdit) o1;
+		    	OptimizedReplaceEdit edit2 = (OptimizedReplaceEdit) o2;
+				return edit1.offset - edit2.offset;
+            }
+		});
+
+		// Adapt overlapping edits
+		int currentEdit = -1;
+		for (int i = 0; i < max; i++) {
+			IRegion region = this.adaptedRegions[i];
+			int offset = region.getOffset();
+			int length = region.getLength();
+
+			// modify overlapping edits on the region (if any)
+			int index = adaptEdit(sortedEdits, currentEdit, offset, offset+length);
+			if (index != -1) {
+				currentEdit = index;
+			}
+		}
+	}
+
+	/*
+     * Search whether a region overlap edit(s) at its start and/or at its end.
+     * If so, modify the concerned edits to keep only the modifications which are
+     * inside the given region.
+     * 
+     * The edit modification is done as follow:
+     * 1) start it from the region start if it overlaps the region's start
+     * 2) end it at the region end if it overlaps the region's end
+     * 3) remove from the replacement string the number of lines which are outside
+     * the region: before when overlapping region's start and after when overlapping
+     * region's end. Note that the trailing indentation of the replacement string is not
+     * kept when the region's end is overlapped because it's always outside the
+     * region.
+     */
+    private int adaptEdit(OptimizedReplaceEdit[] sortedEdits, int start, int regionStart, int regionEnd) {
+    	int bottom = start==-1?0:start, top = sortedEdits.length - 1;
+    	int topEnd = top;
+    	int i = 0;
+    	OptimizedReplaceEdit edit = null;
+    	int overlapIndex = -1;
+        int linesOutside= -1;
+    	
+    	// Look for an edit overlapping the region start 
+    	while (bottom <= top) {
+    		i = bottom + (top - bottom) /2;
+    		edit = sortedEdits[i];
+    		int editStart = edit.offset;
+   			int editEnd = editStart + edit.length;
+    		if (regionStart < editStart) {  // the edit starts after the region's start => no possible overlap of region's start
+    			top = i-1;
+    			if (regionEnd < editStart) { // the edit starts after the region's end => no possible overlap of region's end
+    				topEnd = top;
+    			}
+    		} else {
+    			if (regionStart >= editEnd) { // the edit ends before the region's start => no possible overlap of region's start
+	    			bottom = i+1;
+				} else {
+					// Count the lines of the edit which are outside the region
+					linesOutside = 0;
+					this.scanner.resetTo(editStart, editEnd-1);
+					while (!this.scanner.atEnd()) {
+						boolean before = this.scanner.currentPosition < regionStart;
+	                    char ch = (char) this.scanner.getNextChar();
+                    	if (ch == '\n' ) {
+                    		if (before) linesOutside++;
+                    	}
+                    }
+					
+					// Restart the edit at the beginning of the line where the region start
+					edit.offset = regionStart;
+					edit.length -= edit.offset - editStart;
+
+					// Cut replacement string if necessary
+					int length = edit.replacement.length();
+					if (length > 0) {
+
+						// Count the lines in replacement string
+						int linesReplaced = 0;
+						for (int idx=0; idx < length; idx++) {
+							if (edit.replacement.charAt(idx) == '\n') linesReplaced++;
+						}
+
+						// As the edit starts outside the region, remove first lines from edit string if any
+						if (linesReplaced > 0) {
+					    	int linesCount = linesOutside >= linesReplaced ? linesReplaced : linesOutside;
+					    	if (linesCount > 0) {
+					    		int idx=0;
+					    		while (idx < length) {
+					    			char ch = edit.replacement.charAt(idx);
+					    			if (ch == '\n') {
+					    				linesCount--;
+					    				if (linesCount == 0) {
+					    					idx++;
+					    					break;
+					    				}
+					    			}
+					    			else if (ch != '\r') {
+					    				break;
+					    			}
+					    			idx++;
+					    		}
+					    		if (idx >= length) {
+					    			edit.replacement = ""; //$NON-NLS-1$
+					    		} else {
+					    			edit.replacement = edit.replacement.substring(idx);
+					    		}
+					    	}
+						}
+					}
+					overlapIndex = i;
+					break;
+				}
+			}
+    	}
+    	
+    	// Look for an edit overlapping the region end 
+    	if (overlapIndex != -1) bottom = overlapIndex;
+    	while (bottom <= topEnd) {
+    		i = bottom + (topEnd - bottom) /2;
+    		edit = sortedEdits[i];
+    		int editStart = edit.offset;
+   			int editEnd = editStart + edit.length;
+    		if (regionEnd < editStart) {	// the edit starts after the region's end => no possible overlap of region's end
+    			topEnd = i-1;
+    		} else {
+    			if (regionEnd >= editEnd) {	// the edit ends before the region's end => no possible overlap of region's end
+	    			bottom = i+1;
+				} else {
+					// Count the lines of the edit which are outside the region
+					linesOutside = 0;
+					this.scanner.resetTo(editStart, editEnd-1);
+					while (!this.scanner.atEnd()) {
+						boolean after = this.scanner.currentPosition >= regionEnd;
+	                    char ch = (char) this.scanner.getNextChar();
+                    	if (ch == '\n' ) {
+                    		if (after) linesOutside++;
+                    	}
+                    }
+
+					// Cut replacement string if necessary
+					int length = edit.replacement.length();
+					if (length > 0) {
+
+						// Count the lines in replacement string
+						int linesReplaced = 0;
+						for (int idx=0; idx < length; idx++) {
+							if (edit.replacement.charAt(idx) == '\n') linesReplaced++;
+						}
+
+						// Set the replacement string to the number of missing new lines
+						// As the end of the edit is out of the region, the possible trailing
+						// indentation should not be added...
+						if (linesReplaced > 0) {
+							int linesCount = linesReplaced > linesOutside ? linesReplaced - linesOutside : 0;
+							if (linesCount == 0) {
+				    			edit.replacement = ""; //$NON-NLS-1$
+							} else {
+								StringBuffer buffer = new StringBuffer();
+								for (int j=0; j<linesCount; j++) {
+									buffer.append(this.lineSeparator);
+								}
+								edit.replacement = buffer.toString();
+							}
+						}
+					}
+					edit.length -= editEnd - regionEnd;
+					return i;
+				}
+			}
+    	}
+    	return overlapIndex;
+    }
 
 	private final void addDeleteEdit(int start, int end) {
 		if (this.edits.length == this.editsIndex) {
@@ -805,6 +949,8 @@ public class Scribe implements IJavaDocTagConstants {
 	public TextEdit getRootEdit() {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
 		adaptRegions();
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
+		adaptEdits();
 
 		MultiTextEdit edit = null;
 		int regionsLength = this.adaptedRegions.length;
@@ -950,56 +1096,6 @@ public class Scribe implements IJavaDocTagConstants {
 		this.formatterCommentParser.scanner.lineEnds = this.lineEnds;
 		this.formatterCommentParser.scanner.linePtr = this.maxLines;
 		this.formatterCommentParser.parseHtmlTags = this.formatter.preferences.comment_format_html;
-	}
-
-	/**
-	 * Returns whether the given region should be adpated of not.
-	 * A region should be adapted only if:
-	 * - region does not exceed the page width
-	 * - on a single line when more than one line in CU
-	 * @param offset the offset of the region to consider
-	 * @param length the length of the region to consider
-	 * @return boolean true if line should be adapted, false otherwhise
-	 */
-	private boolean isAdaptableRegion(int offset, int length) {
-		int regionEnd = offset + length;
-
-		// first check region width
-		if (regionEnd > this.pageWidth) {
-			return false;
-		}
-
-		int numberOfLineEnds = this.lineEnds != null && this.lineEnds.length > 0 ? this.lineEnds.length : 0;
-		if (this.line == numberOfLineEnds + 1) {
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=213283
-			return true; // last line of the CU
-		}
-
-		if (this.line > 1 && numberOfLineEnds > 0) { // CU has more than one line
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=222182
-			// take the max number of line ends as right bound when searching for line number
-			int lineNumber = Util.getLineNumber(offset, this.lineEnds, 0, numberOfLineEnds);
-			int lineEnd = getLineEnd(lineNumber);
-			if (regionEnd > lineEnd) {
-				// if more than one line selected, check whether selection is at line end
-				for (int i = lineNumber + 1 ; i <=  numberOfLineEnds ; i++) {
-					int nextLineEnd = getLineEnd(i);
-					// accept both line ends and line starts
-					if (regionEnd == nextLineEnd) {
-						return length > 1; // except when formatting a single character
-					} else if (regionEnd == lineEnd + 1 || regionEnd == nextLineEnd + 1) {
-						return true;
-					}
-				}
-				return false; // more than one line selected, no need to adapt region
-			} else {
-				if (this.scannerEndPosition - 1 == lineEnd) { // EOF reached?
-					return false;
-				}
-				return true; // a single line was selected
-			}
-		}
-		return false;
 	}
 
 	private boolean isOnFirstColumn(int start) {

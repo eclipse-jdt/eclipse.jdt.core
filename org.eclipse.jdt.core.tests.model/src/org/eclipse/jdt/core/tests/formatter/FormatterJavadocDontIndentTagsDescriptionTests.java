@@ -50,8 +50,8 @@ protected void setUp() throws Exception {
 }
 
 DefaultCodeFormatter codeFormatter() {
-	this.preferences.comment_indent_parameter_description = false; // Eclipse default is true
-	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.preferences);
+	this.formatterPrefs.comment_indent_parameter_description = false; // Eclipse default is true
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.formatterPrefs);
 	return codeFormatter;
 }
 

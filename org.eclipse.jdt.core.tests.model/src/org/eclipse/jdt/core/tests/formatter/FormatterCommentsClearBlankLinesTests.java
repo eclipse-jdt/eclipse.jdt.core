@@ -51,10 +51,10 @@ protected void setUp() throws Exception {
 }
 
 DefaultCodeFormatter codeFormatter() {
-	this.preferences.comment_clear_blank_lines_in_block_comment = true;
-	this.preferences.comment_clear_blank_lines_in_javadoc_comment = true;
-	this.preferences.comment_format_header = true;
-	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.preferences);
+	this.formatterPrefs.comment_clear_blank_lines_in_block_comment = true;
+	this.formatterPrefs.comment_clear_blank_lines_in_javadoc_comment = true;
+	this.formatterPrefs.comment_format_header = true;
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.formatterPrefs);
 	return codeFormatter;
 }
 

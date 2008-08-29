@@ -54,6 +54,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	private long time;
 
+	DefaultCodeFormatterOptions formatterPrefs;
+
 	static {
 //		TESTS_NUMBERS = new int[] { 715 };
 //		TESTS_RANGE = new int[] { 715, -1 };
@@ -147,6 +149,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 		return org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 	}
+	
+	/**
+	 * Init formatter preferences with Eclipse default settings.
+	 */
+	protected void setUp() throws Exception {
+	    super.setUp();
+		this.formatterPrefs = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
+	}
 
 	/**
 	 * Create project and set the jar placeholder.
@@ -202,6 +212,69 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 		assertSourceEquals("Different number of length", Util.convertToIndependantLineDelimiter(expectedContents), actualContents);
 	}
+
+	DefaultCodeFormatter codeFormatter() {
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.formatterPrefs, JAVA_PROJECT.getOptions(true));
+		return codeFormatter;
+	}
+	
+	void assertLineEquals(String actualContents, String originalSource, String expectedContents) {
+		String outputSource = expectedContents == null ? originalSource : expectedContents;
+		assertLineEquals(actualContents, originalSource, outputSource, false /* do not check null */);
+	}
+	
+	void formatSource(String source, String formattedOutput) {
+		formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, true /*repeat formatting twice*/);
+	}
+	
+	void formatSource(String source, String formattedOutput, boolean repeat) {
+		formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, repeat);
+	}
+	
+	void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean repeat) {
+		int regionStart = source.indexOf("[#");
+		if (regionStart != -1) {
+			IRegion[] regions =  new Region[10];
+			int idx = 0;
+			int start = 0;
+			int delta = 0;
+			StringBuffer buffer = new StringBuffer();
+			while (regionStart != -1) {
+				buffer.append(source.substring(start, regionStart));
+				int regionEnd = source.indexOf("#]", regionStart+2);
+				buffer.append(source.substring(regionStart+2, regionEnd));
+				regions[idx++] = new Region(regionStart-delta, regionEnd-(regionStart+2));
+				delta += 4;
+				start = regionEnd + 2;
+				regionStart = source.indexOf("[#", start);
+			}
+			buffer.append(source.substring(start, source.length()));
+			String newSource = buffer.toString();
+			String result;
+			if (idx == 1) {
+				// Use offset and length until bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=233967 is fixed
+				result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions[0].getOffset(), regions[0].getLength(), LINE_SEPARATOR, repeat);
+			} else {
+				System.arraycopy(regions, 0, regions = new Region[idx], 0, idx);
+				result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions, LINE_SEPARATOR);
+			}
+			assertLineEquals(result, newSource, formattedOutput);
+		} else {
+			formatSource(source, formattedOutput, kind, indentationLevel, false, 0, -1, null, repeat);
+		}
+	}
+	
+	void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator, boolean repeat) {
+		DefaultCodeFormatter codeFormatter = codeFormatter();
+		String result;
+		if (length == -1) {
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), lineSeparator, repeat);
+		} else {
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, lineSeparator, repeat);
+		}
+		assertLineEquals(result, source, formattedOutput);
+	}
+
 
 	private void runTest(String packageName, String compilationUnitName) {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
@@ -9456,6 +9529,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
 	public void test671() {
+		/* old version
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -9464,6 +9538,27 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(101, 20)
 		};
 		runTest(codeFormatter, "test671", "A.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		String source = 
+			"public class A {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"[#		int a     =     1;#]\n" + 
+			"		int b     =     2;\n" + 
+			"[#		int c     =     3;#]\n" + 
+			"	}\n" + 
+			"}\n";
+		formatSource(source,
+			"public class A {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int a = 1;\n" + 
+			"		int b     =     2;\n" + 
+			"		int c = 3;\n" + 
+			"	}\n" + 
+			"}\n",
+			CodeFormatter.K_COMPILATION_UNIT,
+			0 /*no indentation*/,
+			true /*repeat formatting twice*/
+		);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
@@ -9492,6 +9587,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
 	public void test674() {
+		/* old version
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -9500,6 +9596,64 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(276, 54)
 		};
 		runTest(codeFormatter, "test674", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		String source = 
+			"public class A {\n" + 
+			"	\n" + 
+			"	\n" + 
+			"	private class Inner1 {[#\n" + 
+			"	    	 \n" + 
+			"	    	 \n" + 
+			"	    	      void    bar () {   }\n" + 
+			"	    	      \n" + 
+			"	    	   void    i()\n" + 
+			"	    	   {\n" + 
+			"	    		   \n" + 
+			"	    	      }\n" + 
+			"	     #]}\n" + 
+			"	     \n" + 
+			"	     \n" + 
+			"	private class Inner2 {\n" + 
+			"	    	     void    xy()  {\n" + 
+			"	    	    	 \n" + 
+			"	    }\n" + 
+			"	     }\n" + 
+			"}\n" + 
+			"class B {[#\n" + 
+			"	     private      void foo() {\n" + 
+			"	    	 \n" + 
+			"	          }\n" + 
+			"#]}\n";
+		formatSource(source,
+			"public class A {\n" + 
+			"	\n" + 
+			"	\n" + 
+			"	private class Inner1 {\n" + 
+			"\n" + 
+			"		void bar() {\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		void i() {\n" + 
+			"\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	     \n" + 
+			"	     \n" + 
+			"	private class Inner2 {\n" + 
+			"	    	     void    xy()  {\n" + 
+			"	    	    	 \n" + 
+			"	    }\n" + 
+			"	     }\n" + 
+			"}\n" + 
+			"class B {\n" + 
+			"	private void foo() {\n" + 
+			"\n" + 
+			"	}\n" + 
+			"}\n",
+			CodeFormatter.K_CLASS_BODY_DECLARATIONS,
+			0 /*no indentation*/,
+			true /*repeat formatting twice*/
+		);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
@@ -9631,6 +9785,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
 	public void test685() {
+		/* old version
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -9638,6 +9793,22 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(18, 35)
 		};
 		runTest(codeFormatter, "test685", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		String source = 
+			"public class A {\n" + 
+			" [#                       int i=1;    #]           \n" + 
+			"}\n";
+		// Note that whitespaces outside the region are kept after the formatting
+		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
+		// The formatter should not touch code outside the given region(s)...
+		formatSource(source,
+			"public class A {\n" + 
+			" 	int i = 1;           \n" + 
+			"}\n",
+			CodeFormatter.K_UNKNOWN,
+			0 /*no indentation*/,
+			true /*repeat formatting twice*/
+		);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
@@ -9661,6 +9832,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
 	public void test688a() {
+		/* old version
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -9668,9 +9840,26 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(18, 48)
 		};
 		runTest(codeFormatter, "test688", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		String source = 
+			"public class A {\n" + 
+			" [#                       int i=1;               \n" + 
+			"}#]\n";
+		// Note that whitespaces outside the region are kept after the formatting
+		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
+		// The formatter should not touch code outside the given region(s)...
+		formatSource(source,
+			"public class A {\n" + 
+			" 	int i = 1;\n" + 
+			"}\n",
+			CodeFormatter.K_UNKNOWN,
+			0 /*no indentation*/,
+			true /*repeat formatting twice*/
+		);
 	}
 
 	public void test688b() {
+		/* old version
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -9678,6 +9867,19 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(18, 49)
 		};
 		runTest(codeFormatter, "test688", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		String source = 
+			"public class A {\n" + 
+			" [#                       int i=1;               \n" + 
+			"}\n#]";
+		// Note that whitespaces outside the region are kept after the formatting
+		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
+		// The formatter should not touch code outside the given region(s)...
+		formatSource(source,
+			"public class A {\n" + 
+			" 	int i = 1;\n" + 
+			"}\n"
+		);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
@@ -9694,6 +9896,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
 	public void test690() {
+		/* old version
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\r";//$NON-NLS-1$
@@ -9702,10 +9905,32 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(31, 23)
 		};
 		runTest(codeFormatter, "test689", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\r");//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		this.formatterPrefs.line_separator = "\r";//$NON-NLS-1$
+		String source = 
+			"package pkg1;\n" + 
+			"public class A {\n" + 
+			"[#        int i = 1;     #]\n" + 
+			"\n" + 
+			"}\n";
+		// Note that whitespaces outside the region are kept after the formatting
+		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
+		// The formatter should not touch code outside the given region(s)...
+		formatSource(source,
+			"package pkg1;\n" + 
+			"public class A {\n" + 
+			"	int i = 1;\n" + 
+			"\n" + 
+			"}\n",
+			CodeFormatter.K_UNKNOWN,
+			0 /*no indentation*/,
+			true /*repeat formatting twice*/
+		);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
 	public void test691() {
+		/* old version
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\r\n";//$NON-NLS-1$
@@ -9714,6 +9939,27 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(31, 22)
 		};
 		runTest(codeFormatter, "test689", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\r\n");//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		this.formatterPrefs.line_separator = "\r\n";//$NON-NLS-1$
+		String source = 
+			"package pkg1;\n" + 
+			"public class A {\n" + 
+			"[#        int i = 1;    #] \n" + 
+			"\n" + 
+			"}\n";
+		// Note that whitespaces outside the region are kept after the formatting
+		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
+		// The formatter should not touch code outside the given region(s)...
+		formatSource(source,
+			"package pkg1;\n" + 
+			"public class A {\n" + 
+			"	int i = 1; \n" + 
+			"\n" + 
+			"}\n",
+			CodeFormatter.K_UNKNOWN,
+			0 /*no indentation*/,
+			true /*repeat formatting twice*/
+		);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
@@ -9774,6 +10020,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=213284
 	public void test695() {
+		/* old version 
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\n";//$NON-NLS-1$
@@ -9782,6 +10029,29 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(59, 1)
 		};
 		runTest(codeFormatter, "test695", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		String source = 
+			"package test1;\n" + 
+			"public class A {\n" + 
+			"\n" + 
+			"        public int field;\n" + 
+			"[#\n#]" + 
+			"\n" + 
+			"}\r\n";
+		// Note that whitespaces outside the region are kept after the formatting
+		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
+		// The formatter should not touch code outside the given region(s)...
+		formatSource(source,
+			"package test1;\n" + 
+			"public class A {\n" + 
+			"\n" + 
+			"        public int field;\n" + 
+			"\n" + 
+			"}\r\n",
+			CodeFormatter.K_UNKNOWN,
+			0 /*no indentation*/,
+			true /*repeat formatting twice*/
+		);
 	}
 
 	// variation on bugs 208541, 213283, 213284
@@ -9810,6 +10080,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	// variation on bugs 208541, 213283, 213284
 	public void test697a() {
+		/* old version
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\n";//$NON-NLS-1$
@@ -9818,10 +10089,38 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(17, 55) // end of line selection
 		};
 		runTest(codeFormatter, "test697", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		String source = 
+			"public class A {\n" + 
+			"[#	\n" + 
+			"	\n" + 
+			"	\n" + 
+			"                        int i = 1;               #]\n" + 
+			"\n" + 
+			"\n" + 
+			"\n" + 
+			"}\n" + 
+			"";
+		// Note that whitespaces outside the region are kept after the formatting
+		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
+		// The formatter should not touch code outside the given region(s)...
+		formatSource(source,
+			"public class A {\n" + 
+			"\n" + 
+			"	int i = 1;\n" + 
+			"\n" + 
+			"\n" + 
+			"\n" + 
+			"}\n",
+			CodeFormatter.K_UNKNOWN,
+			0 /*no indentation*/,
+			true /*repeat formatting twice*/
+		);
 	}
 
 	// variation on bugs 208541, 213283, 213284
 	public void test697b() {
+		/* old version
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\n";//$NON-NLS-1$
@@ -9830,6 +10129,32 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(17, 56) // end of line selection + 1
 		};
 		runTest(codeFormatter, "test697", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		String source = 
+			"public class A {\n" + 
+			"[#	\n" + 
+			"	\n" + 
+			"	\n" + 
+			"                        int i = 1;               \n" + 
+			"#]\n" + 
+			"\n" + 
+			"\n" + 
+			"}\n" + 
+			"";
+		// Note that whitespaces outside the region are kept after the formatting
+		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
+		// The formatter should not touch code outside the given region(s)...
+		formatSource(source,
+			"public class A {\n" + 
+			"\n" + 
+			"	int i = 1;\n" + 
+			"\n" + 
+			"\n" + 
+			"}\n",
+			CodeFormatter.K_UNKNOWN,
+			0 /*no indentation*/,
+			true /*repeat formatting twice*/
+		);
 	}
 
 	// variation on bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
@@ -10128,9 +10453,32 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		String resourcePath = getResource("test713", "formatter.xml");
 		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Dani");
 		assertNotNull("No preferences", options);
+		/* old version
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test713", "A.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 76, 27);//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		this.formatterPrefs = new DefaultCodeFormatterOptions(options);
+		String source = 
+			"package pack;\n" + 
+			"\n" + 
+			"public class A {\n" + 
+			"    /**\n" + 
+			"         * @see A.Inner\n" + 
+			"         */\n" + 
+			"[#    public class Inner { }\n" + 
+			"#]}";
+		formatSource(source,
+			"package pack;\n" + 
+			"\n" + 
+			"public class A {\n" + 
+			"    /**\n" + 
+			"         * @see A.Inner\n" + 
+			"         */\n" + 
+			"	public class Inner {\n" + 
+			"	}\n" + 
+			"}"
+		);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
