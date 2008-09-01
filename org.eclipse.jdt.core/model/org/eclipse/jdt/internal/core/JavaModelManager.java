@@ -1134,7 +1134,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						new JavaModelStatus(
 							IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
 							Messages.bind(Messages.classpath_cannotReadClasspathFile, javaProject.getElementName()));
-			} catch (AssertionFailedException e) {
+			} catch (ClasspathEntry.AssertionFailedException e) {
 				classpath = JavaProject.INVALID_CLASSPATH;
 				status =
 					new JavaModelStatus(

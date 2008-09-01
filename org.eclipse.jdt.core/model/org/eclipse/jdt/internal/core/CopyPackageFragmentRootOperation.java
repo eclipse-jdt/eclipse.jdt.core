@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
@@ -188,7 +187,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 			case IClasspathEntry.CPE_LIBRARY:
 				try {
 					return JavaCore.newLibraryEntry(this.destination, entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), entry.getExtraAttributes(), entry.isExported());
-				} catch (AssertionFailedException e) {
+				} catch (ClasspathEntry.AssertionFailedException e) {
 					IJavaModelStatus status = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
 					throw new JavaModelException(status);
 				}
@@ -199,7 +198,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 			case IClasspathEntry.CPE_VARIABLE:
 				try {
 					return JavaCore.newVariableEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), entry.getExtraAttributes(), entry.isExported());
-				} catch (AssertionFailedException e) {
+				} catch (ClasspathEntry.AssertionFailedException e) {
 					IJavaModelStatus status = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
 					throw new JavaModelException(status);
 				}

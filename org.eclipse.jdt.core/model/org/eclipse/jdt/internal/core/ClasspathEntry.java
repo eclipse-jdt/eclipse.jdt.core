@@ -24,7 +24,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -58,6 +57,15 @@ import org.w3c.dom.Text;
  * @see IClasspathEntry
  */
 public class ClasspathEntry implements IClasspathEntry {
+	
+	public static class AssertionFailedException extends RuntimeException {
+		
+		private static final long serialVersionUID = -171699380721189572L;
+
+		public AssertionFailedException(String message) {
+			super(message);
+		}
+	}
 
 	public static final String TAG_CLASSPATH = "classpath"; //$NON-NLS-1$
 	public static final String TAG_CLASSPATHENTRY = "classpathentry"; //$NON-NLS-1$

@@ -34,7 +34,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -844,7 +843,7 @@ public class JavaProject
 	/*
 	 * Reads and decode an XML classpath string
 	 */
-	public IClasspathEntry[] decodeClasspath(String xmlClasspath, Map unknownElements) throws IOException, AssertionFailedException {
+	public IClasspathEntry[] decodeClasspath(String xmlClasspath, Map unknownElements) throws IOException, ClasspathEntry.AssertionFailedException {
 
 		ArrayList paths = new ArrayList();
 		IClasspathEntry defaultOutput = null;
@@ -2357,7 +2356,7 @@ public class JavaProject
 	 * As a side effect, unknown elements are stored in the given map (if not null)
 	 * Throws exceptions if the file cannot be accessed or is malformed.
 	 */
-	public IClasspathEntry[] readFileEntriesWithException(Map unknownElements) throws CoreException, IOException, AssertionFailedException {
+	public IClasspathEntry[] readFileEntriesWithException(Map unknownElements) throws CoreException, IOException, ClasspathEntry.AssertionFailedException {
 		String xmlClasspath;
 		IFile rscFile = this.project.getFile(JavaProject.CLASSPATH_FILENAME);
 		if (rscFile.exists()) {
@@ -2412,7 +2411,7 @@ public class JavaProject
 		} catch (IOException e) {
 			Util.log(e, "Exception while reading " + getPath().append(JavaProject.CLASSPATH_FILENAME)); //$NON-NLS-1$
 			return JavaProject.INVALID_CLASSPATH;
-		} catch (AssertionFailedException e) {
+		} catch (ClasspathEntry.AssertionFailedException e) {
 			Util.log(e, "Exception while reading " + getPath().append(JavaProject.CLASSPATH_FILENAME)); //$NON-NLS-1$
 			return JavaProject.INVALID_CLASSPATH;
 		}
@@ -2500,7 +2499,7 @@ public class JavaProject
 					IClasspathEntry resolvedEntry = null;
 					try {
 						resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
-					} catch (AssertionFailedException e) {
+					} catch (ClasspathEntry.AssertionFailedException e) {
 						// Catch the assertion failure
 						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
 						break;
@@ -2585,7 +2584,7 @@ public class JavaProject
 						IClasspathEntry resolvedEntry = null;
 						try {
 							resolvedEntry = manager.getResolvedClasspathEntry(rawEntry, usePreviousSession);
-						} catch (AssertionFailedException e) {
+						} catch (ClasspathEntry.AssertionFailedException e) {
 							// Catch the assertion failure and set status instead
 							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
 							unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());

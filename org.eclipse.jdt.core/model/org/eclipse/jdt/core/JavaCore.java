@@ -103,7 +103,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -3765,11 +3764,9 @@ public final class JavaCore extends Plugin {
 			boolean isExported) {
 
 		if (containerPath == null) {
-			Assert.isTrue(false, "Container path cannot be null"); //$NON-NLS-1$
+			throw new ClasspathEntry.AssertionFailedException("Container path cannot be null"); //$NON-NLS-1$
 		} else if (containerPath.segmentCount() < 1) {
-			Assert.isTrue(
-				false,
-				"Illegal classpath container path: \'" + containerPath.makeRelative().toString() + "\', must have at least one segment (containerID+hints)"); //$NON-NLS-1$//$NON-NLS-2$
+			throw new ClasspathEntry.AssertionFailedException("Illegal classpath container path: \'" + containerPath.makeRelative().toString() + "\', must have at least one segment (containerID+hints)"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
@@ -3952,13 +3949,13 @@ public final class JavaCore extends Plugin {
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
 
-		if (path == null) Assert.isTrue(false, "Library path cannot be null"); //$NON-NLS-1$
-		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute: " + path); //$NON-NLS-1$
+		if (path == null) throw new ClasspathEntry.AssertionFailedException("Library path cannot be null"); //$NON-NLS-1$
+		if (!path.isAbsolute()) throw new ClasspathEntry.AssertionFailedException("Path for IClasspathEntry must be absolute: " + path); //$NON-NLS-1$
 		if (sourceAttachmentPath != null) {
 			if (sourceAttachmentPath.isEmpty()) {
 				sourceAttachmentPath = null; // treat empty path as none
 			} else if (!sourceAttachmentPath.isAbsolute()) {
-				Assert.isTrue(false, "Source attachment path '" //$NON-NLS-1$
+				throw new ClasspathEntry.AssertionFailedException("Source attachment path '" //$NON-NLS-1$
 						+ sourceAttachmentPath
 						+ "' for IClasspathEntry must be absolute"); //$NON-NLS-1$
 			}
@@ -4007,7 +4004,7 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathEntry newProjectEntry(IPath path, boolean isExported) {
 
-		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
+		if (!path.isAbsolute()) throw new ClasspathEntry.AssertionFailedException("Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 
 		return newProjectEntry(
 			path,
@@ -4072,7 +4069,7 @@ public final class JavaCore extends Plugin {
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
 
-		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
+		if (!path.isAbsolute()) throw new ClasspathEntry.AssertionFailedException("Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
@@ -4274,10 +4271,10 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] inclusionPatterns, IPath[] exclusionPatterns, IPath specificOutputLocation, IClasspathAttribute[] extraAttributes) {
 
-		if (path == null) Assert.isTrue(false, "Source path cannot be null"); //$NON-NLS-1$
-		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
-		if (exclusionPatterns == null) Assert.isTrue(false, "Exclusion pattern set cannot be null"); //$NON-NLS-1$
-		if (inclusionPatterns == null) Assert.isTrue(false, "Inclusion pattern set cannot be null"); //$NON-NLS-1$
+		if (path == null) throw new ClasspathEntry.AssertionFailedException("Source path cannot be null"); //$NON-NLS-1$
+		if (!path.isAbsolute()) throw new ClasspathEntry.AssertionFailedException("Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
+		if (exclusionPatterns == null) throw new ClasspathEntry.AssertionFailedException("Exclusion pattern set cannot be null"); //$NON-NLS-1$
+		if (inclusionPatterns == null) throw new ClasspathEntry.AssertionFailedException("Inclusion pattern set cannot be null"); //$NON-NLS-1$
 
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
@@ -4418,11 +4415,9 @@ public final class JavaCore extends Plugin {
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
 
-		if (variablePath == null) Assert.isTrue(false, "Variable path cannot be null"); //$NON-NLS-1$
+		if (variablePath == null) throw new ClasspathEntry.AssertionFailedException("Variable path cannot be null"); //$NON-NLS-1$
 		if (variablePath.segmentCount() < 1) {
-			Assert.isTrue(
-				false,
-				"Illegal classpath variable path: \'" + variablePath.makeRelative().toString() + "\', must have at least one segment"); //$NON-NLS-1$//$NON-NLS-2$
+			throw new ClasspathEntry.AssertionFailedException("Illegal classpath variable path: \'" + variablePath.makeRelative().toString() + "\', must have at least one segment"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
 		return new ClasspathEntry(
@@ -4641,7 +4636,7 @@ public final class JavaCore extends Plugin {
 	 */
 	public static void setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
 		if (affectedProjects.length != respectiveContainers.length)
-			Assert.isTrue(false, "Projects and containers collections should have the same size"); //$NON-NLS-1$
+			throw new ClasspathEntry.AssertionFailedException("Projects and containers collections should have the same size"); //$NON-NLS-1$
 		SetContainerOperation operation = new SetContainerOperation(containerPath, affectedProjects, respectiveContainers);
 		operation.runOperation(monitor);
 	}
@@ -4692,7 +4687,7 @@ public final class JavaCore extends Plugin {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		if (path == null) Assert.isTrue(false, "Variable path cannot be null"); //$NON-NLS-1$
+		if (path == null) throw new ClasspathEntry.AssertionFailedException("Variable path cannot be null"); //$NON-NLS-1$
 		setClasspathVariables(new String[]{variableName}, new IPath[]{ path }, monitor);
 	}
 
@@ -4727,7 +4722,7 @@ public final class JavaCore extends Plugin {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		if (variableNames.length != paths.length)	Assert.isTrue(false, "Variable names and paths collections should have the same size"); //$NON-NLS-1$
+		if (variableNames.length != paths.length)	throw new ClasspathEntry.AssertionFailedException("Variable names and paths collections should have the same size"); //$NON-NLS-1$
 		SetVariablesOperation operation = new SetVariablesOperation(variableNames, paths, true/*update preferences*/);
 		operation.runOperation(monitor);
 	}
