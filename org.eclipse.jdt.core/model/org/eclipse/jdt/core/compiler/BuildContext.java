@@ -29,11 +29,9 @@ public class BuildContext extends CompilationParticipantResult {
 
 /**
  * Creates a build context for the given source file.
- * <p>
- * This constructor is not intended to be called by clients.
- * </p>
  *
  * @param sourceFile the source file being built
+ * @noreference This constructor is not intended to be called by clients.
  */
 public BuildContext(SourceFile sourceFile) {
 	super(sourceFile);

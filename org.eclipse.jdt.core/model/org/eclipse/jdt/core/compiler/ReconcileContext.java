@@ -53,11 +53,9 @@ public class ReconcileContext {
 
 /**
  * Creates a reconcile context for the given reconcile operation.
- * <p>
- * This constructor is not intended to be called by clients.
- * </p>
  *
  * @param operation the reconcile operation
+ * @noreference This constructor is not intended to be called by clients.
  */
 public ReconcileContext(ReconcileWorkingCopyOperation operation, CompilationUnit workingCopy) {
 	this.operation = operation;
