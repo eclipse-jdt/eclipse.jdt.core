@@ -380,7 +380,9 @@ public class Scribe implements IJavaDocTagConstants {
 						// Set the replacement string to the number of missing new lines
 						// As the end of the edit is out of the region, the possible trailing
 						// indentation should not be added...
-						if (linesReplaced > 0) {
+						if (linesReplaced == 0) {
+			    			edit.replacement = ""; //$NON-NLS-1$
+						} else {
 							int linesCount = linesReplaced > linesOutside ? linesReplaced - linesOutside : 0;
 							if (linesCount == 0) {
 				    			edit.replacement = ""; //$NON-NLS-1$

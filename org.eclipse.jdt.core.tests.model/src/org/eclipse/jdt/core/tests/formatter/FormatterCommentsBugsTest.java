@@ -741,7 +741,7 @@ public void testBug232768_Line05() throws JavaModelException {
 		"public class E {       \n" +
 		"	\n" +
 		"\n" +
-		"	void m3() { // this      is        a    bug\n" +
+		"	void m3() { // this     is        a    bug\n" +
 		"\n" +
 		"        }\n" +
 		"   \n" +
@@ -1361,56 +1361,6 @@ public void testBug234583_Bug239447() throws JavaModelException {
 		"}\n"
 	);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=237453
-public void testBug234583_Bug237453a() throws JavaModelException {
-	String source = 
-		"package test1;\n" + 
-		"\n" + 
-		"public class E1 {\n" + 
-		" 	void foo() {\n" + 
-		"	}\n" + 
-		" 	[#\n" + 
-		"	#]\n" + 
-		" 	void bar() {\n" + 
-		"	}\n" + 
-		"}";
-	formatSource(source,
-		"package test1;\n" + 
-		"\n" + 
-		"public class E1 {\n" + 
-		" 	void foo() {\n" + 
-		"	}\n" + 
-		" 	\n" + 
-		" 	void bar() {\n" + 
-		"	}\n" + 
-		"}"
-	);
-}
-public void testBug234583_Bug237453b() throws JavaModelException {
-	String source = 
-		"package test1;\n" + 
-		"\n" + 
-		"public class E1 {\n" + 
-		" 	void foo() {\n" + 
-		"	}\n" + 
-		" 	\n" + 
-		"[#	#]\n" + 
-		" 	void bar() {\n" + 
-		"	}\n" + 
-		"}";
-	formatSource(source,
-		"package test1;\n" + 
-		"\n" + 
-		"public class E1 {\n" + 
-		" 	void foo() {\n" + 
-		"	}\n" + 
-		" 	\n" + 
-		"	\n" + 
-		" 	void bar() {\n" + 
-		"	}\n" + 
-		"}"
-	);
-}
 // duplicate https://bugs.eclipse.org/bugs/show_bug.cgi?id=237592
 public void testBug234583_Bug237592() throws JavaModelException {
 	String source = 
@@ -1445,7 +1395,7 @@ public void testBug234583_Bug237592() throws JavaModelException {
 		"	void foo() {\n" + 
 		"	}\n" + 
 		"\n" + 
-		"	\n" + 
+		"\n" + 
 		"	\n" + 
 		"	\n" + 
 		"	\n" + 
@@ -1786,6 +1736,233 @@ public void testBug237051d() throws JavaModelException {
 		"		return -1;\n" +
 		"	}\n" +
 		"}\n"
+	);
+}
+
+/**
+ * @bug 237453: [formatter] Save actions fails to remove excess new lines when set to "format edited lines"
+ * @test Ensure that empty lines/spaces selection is well formatted
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237453"
+ */
+public void testBug237453a() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	[#\n" + 
+		"	#]\n" + 
+		" 	void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		" 	void bar() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void testBug237453b() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"[#	#]\n" + 
+		" 	void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"\n" + 
+		" 	void bar() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void testBug237453c() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"[#	\n" + 
+		"#] 	void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		" 	void bar() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void testBug237453d() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"[#	\n" + 
+		" #]	void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	void bar() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void testBug237453e() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"[#	\n" + 
+		" 	#]void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	void bar() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void testBug237453f() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	\n" + 
+		"[# #]	void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	\n" + 
+		"	void bar() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void testBug237453g() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	\n" + 
+		"[# #] void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	\n" + 
+		" void bar() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void testBug237453h() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	\n" + 
+		"[# 	#]void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	\n" + 
+		"	void bar() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void testBug237453i() throws JavaModelException {
+	String source = 
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	\n" + 
+		"[#  #]void bar() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"public class E1 {\n" + 
+		" 	void foo() {\n" + 
+		"	}\n" + 
+		" 	\n" + 
+		"	\n" + 
+		"	void bar() {\n" + 
+		"	}\n" + 
+		"}"
 	);
 }
 
