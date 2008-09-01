@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -30,7 +29,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
  * @see IJavaModelStatus
  */
 
-public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaModelStatusConstants, IResourceStatus {
+public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaModelStatusConstants {
 
 	/**
 	 * The elements related to the failure, or <code>null</code>
