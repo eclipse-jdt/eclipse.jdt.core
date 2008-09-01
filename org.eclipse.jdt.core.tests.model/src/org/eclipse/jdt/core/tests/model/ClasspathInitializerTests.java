@@ -290,7 +290,7 @@ public void testContainerInitializer06() throws CoreException {
 		workingCopy = getCompilationUnit("/P2/src/X.java");
 		workingCopy.becomeWorkingCopy(null);
 
-		assertDeltas(
+		assertWorkingCopyDeltas(
 			"Unexpected delta on startup",
 			"P2[*]: {CHILDREN}\n" +
 			"	src[*]: {CHILDREN}\n" +

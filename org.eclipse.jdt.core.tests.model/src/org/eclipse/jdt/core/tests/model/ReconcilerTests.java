@@ -433,7 +433,7 @@ public void testAddDuplicateMember() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()#2[+]: {}"
@@ -458,7 +458,7 @@ public void testAddFieldAndConstructor() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	X(int)[+]: {}\n" +
@@ -482,7 +482,7 @@ public void testAddImports() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	import java.lang.reflect.*[+]: {}\n" +
@@ -506,7 +506,7 @@ public void testAddMethod1() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	bar()[+]: {}"
@@ -528,7 +528,7 @@ public void testAddPartialMethod1() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	some()[+]: {}"
@@ -564,7 +564,7 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
@@ -585,7 +585,7 @@ public void testAnnotations1() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {ANNOTATIONS}\n" +
@@ -618,7 +618,7 @@ public void testAnnotations2() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {ANNOTATIONS}\n" +
@@ -652,7 +652,7 @@ public void testAnnotations3() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {ANNOTATIONS}\n" +
@@ -686,7 +686,7 @@ public void testAnnotations4() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {ANNOTATIONS}\n" +
@@ -972,7 +972,7 @@ public void testCategories1() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {CATEGORIES}"
@@ -1004,7 +1004,7 @@ public void testCategories2() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {CATEGORIES}"
@@ -1039,7 +1039,7 @@ public void testCategories3() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {CATEGORIES}"
@@ -1078,7 +1078,7 @@ public void testCategories4() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	f2[*]: {CATEGORIES}"
@@ -1409,7 +1409,7 @@ public void testChangeMethodTypeParameters() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {CONTENT}"
@@ -1432,7 +1432,7 @@ public void testChangeTypeTypeParameters() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CONTENT}"
 	);
@@ -1452,7 +1452,7 @@ public void testChangeMethodVisibility() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {MODIFIERS CHANGED}"
@@ -1474,7 +1474,7 @@ public void testCloseWorkingCopy() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	bar()[+]: {}"
@@ -1562,7 +1562,7 @@ public void testDeleteMethod1() throws JavaModelException {
 		"public class X {\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[-]: {}"
@@ -1595,7 +1595,7 @@ public void testDeleteTwoMethods() throws JavaModelException {
 		"public class X {\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	bar()[-]: {}\n" +
@@ -1860,7 +1860,7 @@ public void testGrowImports() throws JavaModelException {
 		"public class X {\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"<import container>[+]: {}"
 	);
@@ -1873,7 +1873,7 @@ public void testGrowImports() throws JavaModelException {
 		"public class X {\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	import p2[+]: {}\n" +
@@ -2061,7 +2061,7 @@ public void testMethodWithError01() throws CoreException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {MODIFIERS CHANGED}"
@@ -2087,7 +2087,7 @@ public void testMethodWithError01() throws CoreException {
 		"}";
 	setWorkingCopyContents(contents);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta after fixing syntax error",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {MODIFIERS CHANGED}"
@@ -2695,7 +2695,7 @@ public void testMoveMember() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	bar()[*]: {REORDERED}\n" +
@@ -2709,7 +2709,7 @@ public void testMoveMember() throws JavaModelException {
 public void testNoChanges1() throws JavaModelException {
 	setWorkingCopyContents(this.workingCopy.getSource());
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
@@ -2729,7 +2729,7 @@ public void testNoChanges2() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
@@ -3062,7 +3062,7 @@ public void testReconcileParticipant11() throws CoreException {
 		"}"
 	);
 	this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {MODIFIERS CHANGED}"
@@ -3136,7 +3136,7 @@ public void testRenameMethod1() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	bar()[+]: {}\n" +
@@ -3159,7 +3159,7 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	bar()[+]: {}\n" +
@@ -3375,7 +3375,7 @@ public void testMakeConsistentFoolingReconciler() throws JavaModelException {
 	setWorkingCopyContents("");
 	this.workingCopy.makeConsistent(null);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Should have got NO delta",
 		""
 	);

@@ -216,7 +216,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			startDeltas();
 			this.workingCopy.commitWorkingCopy(false, null);
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
@@ -250,7 +250,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			startDeltas();
 			this.workingCopy.commitWorkingCopy(false, null);
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
@@ -278,7 +278,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			ICompilationUnit cu = getCompilationUnit("P/Y.java");
 			startDeltas();
 			this.workingCopy = cu.getWorkingCopy(null);
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
@@ -305,7 +305,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy = getCompilationUnit("P/Y.java");
 			startDeltas();
 			this.workingCopy.becomeWorkingCopy(null);
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
@@ -329,7 +329,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy = getCompilationUnit("P/Y.java");
 			startDeltas();
 			this.workingCopy.becomeWorkingCopy(null);
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
@@ -357,7 +357,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			startDeltas();
 			this.workingCopy.discardWorkingCopy();
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
@@ -386,7 +386,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			startDeltas();
 			this.workingCopy.discardWorkingCopy();
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
@@ -419,7 +419,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			startDeltas();
 			this.workingCopy.discardWorkingCopy();
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
@@ -446,7 +446,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			startDeltas();
 			this.workingCopy.discardWorkingCopy();
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
@@ -471,7 +471,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.getBuffer().setContents("/*annotation*/public class X {}");
 			startDeltas();
 			this.workingCopy.discardWorkingCopy();
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
@@ -963,7 +963,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		try {
 			startDeltas();
 			this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"X[*]: {CHILDREN | FINE GRAINED}\n" +
 				"	field[+]: {}"

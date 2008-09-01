@@ -271,7 +271,7 @@ public void testDelete2Fields() throws CoreException {
 				}
 			},
 			null);
-		assertDeltas(
+		assertWorkingCopyDeltas(
 			"Unexpected delta",
 			"A[*]: {CHILDREN | FINE GRAINED}\n" +
 			"	field1[-]: {}\n" +

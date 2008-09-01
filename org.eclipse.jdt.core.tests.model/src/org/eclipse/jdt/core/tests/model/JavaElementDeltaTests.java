@@ -1183,7 +1183,7 @@ public void testCreateSharedWorkingCopy() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("P", "", "", "X.java");
 		startDeltas();
 		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null);
-		assertDeltas(
+		assertWorkingCopyDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
@@ -1206,7 +1206,7 @@ public void testCreateWorkingCopy() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("P", "", "", "X.java");
 		startDeltas();
 		copy = unit.getWorkingCopy(null);
-		assertDeltas(
+		assertWorkingCopyDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
@@ -1406,7 +1406,7 @@ public void testDiscardWorkingCopy1() throws CoreException { // renamed from tes
 		copy = unit.getWorkingCopy(null);
 		startDeltas();
 		copy.discardWorkingCopy();
-		assertDeltas(
+		assertWorkingCopyDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
@@ -1431,7 +1431,7 @@ public void testDiscardWorkingCopy2() throws CoreException { // renamed from tes
 		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null);
 		startDeltas();
 		copy.discardWorkingCopy();
-		assertDeltas(
+		assertWorkingCopyDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
@@ -2879,7 +2879,7 @@ public void testSaveWorkingCopy() throws CoreException {
 		copy.getType("X").createMethod("void foo() {}", null, true, null);
 		startDeltas();
 		copy.save(null, true);
-		assertDeltas(
+		assertWorkingCopyDeltas(
 			"Unexpected delta after saving working copy",
 			""
 		);
