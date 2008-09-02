@@ -38,6 +38,10 @@ public class JavadocParser extends AbstractCommentParser {
 	// returns whether this JavadocParser should report errors or not (overrides reportProblems)
 	// see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=192449"
 	public boolean shouldReportProblems = true;
+	
+	// flag to let the parser know that the current tag is waiting for a description
+	// see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222900"
+	private int tagWaitingForDescription;
 
 	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
@@ -58,6 +62,7 @@ public class JavadocParser extends AbstractCommentParser {
 		this.firstTagPosition = this.sourceParser.scanner.commentTagStarts[commentPtr];
 		this.validValuePositions = -1;
 		this.invalidValuePositions = -1;
+		this.tagWaitingForDescription = NO_TAG_VALUE;
 
 		// Init javadoc if necessary
 		if (this.checkDocComment) {
@@ -339,13 +344,7 @@ public class JavadocParser extends AbstractCommentParser {
 	 */
 	protected boolean parseThrows() {
 		boolean valid = super.parseThrows();
-		if (valid && this.reportProblems && verifyEndLine(this.scanner.currentPosition)) {
-			// retrieve last identifier position (valid as, in the super method, we already parsed an identifier)
-			int start = (int) (this.identifierPositionStack[0] >>> 32);
-			int end = (int) this.identifierPositionStack[this.identifierPtr];
-			this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
-			return false;
-		}
+		this.tagWaitingForDescription = valid && this.reportProblems ? TAG_THROWS_VALUE : NO_TAG_VALUE;
 		return valid;
 	}
 
@@ -407,6 +406,22 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
+
+		// Signal tag missing description if necessary
+		switch (this.tagWaitingForDescription) {
+			case TAG_PARAM_VALUE:
+			case TAG_THROWS_VALUE:
+				int start = (int) (this.identifierPositionStack[0] >>> 32);
+				int end = (int) this.identifierPositionStack[this.identifierPtr];
+				this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
+				break;
+			case NO_TAG_VALUE:
+				break;
+			default:
+				this.sourceParser.problemReporter().javadocMissingTagDescription(TAG_NAMES[this.tagWaitingForDescription], this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
+				break;
+		}
+		this.tagWaitingForDescription = NO_TAG_VALUE;
 
 		// Read tag name
 		int currentPosition = this.index;
@@ -486,7 +501,6 @@ public class JavadocParser extends AbstractCommentParser {
 
 		// Decide which parse to perform depending on tag name
 		this.tagValue = TAG_OTHERS_VALUE;
-		boolean alreadyParsedTag = false;
 		boolean valid = false;
 		switch (token) {
 			case TerminalTokens.TokenNameIdentifier :
@@ -494,6 +508,7 @@ public class JavadocParser extends AbstractCommentParser {
 					case 'a':
 						if (length == TAG_AUTHOR_LENGTH && CharOperation.equals(TAG_AUTHOR, tagName)) {
 							this.tagValue = TAG_AUTHOR_VALUE;
+							this.tagWaitingForDescription = this.tagValue;
 						}
 						break;
 					case 'c':
@@ -502,6 +517,7 @@ public class JavadocParser extends AbstractCommentParser {
 							valid = parseIdentifierTag(false); // TODO (frederic) reconsider parameter value when @category will be significant in spec
 						} else if (length == TAG_CODE_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_CODE, tagName)) {
 							this.tagValue = TAG_CODE_VALUE;
+							this.tagWaitingForDescription = this.tagValue;
 						}
 						break;
 					case 'd':
@@ -509,19 +525,18 @@ public class JavadocParser extends AbstractCommentParser {
 							this.deprecated = true;
 							valid = true;
 							this.tagValue = TAG_DEPRECATED_VALUE;
+							this.tagWaitingForDescription = this.tagValue;
 						} else if (length == TAG_DOC_ROOT_LENGTH && CharOperation.equals(TAG_DOC_ROOT, tagName)) {
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730
 							// identify @docRoot tag as a base tag that does not expect any argument
 							valid = true;
 							this.tagValue = TAG_DOC_ROOT_VALUE;
-							alreadyParsedTag = true;
 						}
 						break;
 					case 'e':
 						if (length == TAG_EXCEPTION_LENGTH && CharOperation.equals(TAG_EXCEPTION, tagName)) {
 							this.tagValue = TAG_EXCEPTION_VALUE;
 							valid = parseThrows();
-							alreadyParsedTag = true;
 						}
 						break;
 					case 'i':
@@ -536,9 +551,6 @@ public class JavadocParser extends AbstractCommentParser {
 							}
 							valid = true;
 							this.tagValue = TAG_INHERITDOC_VALUE;
-							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730
-							// no argument expected for @inheritedDoc tag
-							alreadyParsedTag = true;
 						}
 						break;
 					case 'l':
@@ -554,7 +566,6 @@ public class JavadocParser extends AbstractCommentParser {
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 								}
 							}
-							alreadyParsedTag = true;
 						} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, tagName)) {
 							this.tagValue = TAG_LINKPLAIN_VALUE;
 							if (this.inlineTagStarted) {
@@ -565,16 +576,15 @@ public class JavadocParser extends AbstractCommentParser {
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 								}
 							}
-							alreadyParsedTag = true;
 						} else if (length == TAG_LITERAL_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_LITERAL, tagName)) {
 							this.tagValue = TAG_LITERAL_VALUE;
+							this.tagWaitingForDescription = this.tagValue;
 						}
 						break;
 					case 'p':
 						if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, tagName)) {
 							this.tagValue = TAG_PARAM_VALUE;
 							valid = parseParam();
-							alreadyParsedTag = true;
 						}
 						break;
 					case 's':
@@ -590,15 +600,18 @@ public class JavadocParser extends AbstractCommentParser {
 								this.tagValue = TAG_SEE_VALUE;
 								valid = parseReference();
 							}
-							alreadyParsedTag = true;
 						} else if (length == TAG_SERIAL_LENGTH && CharOperation.equals(TAG_SERIAL, tagName)) {
 							this.tagValue = TAG_SERIAL_VALUE;
+							this.tagWaitingForDescription = this.tagValue;
 						} else if (length == TAG_SERIAL_DATA_LENGTH && CharOperation.equals(TAG_SERIAL_DATA, tagName)) {
 							this.tagValue = TAG_SERIAL_DATA_VALUE;
+							this.tagWaitingForDescription = this.tagValue;
 						} else if (length == TAG_SERIAL_FIELD_LENGTH && CharOperation.equals(TAG_SERIAL_FIELD, tagName)) {
 							this.tagValue = TAG_SERIAL_FIELD_VALUE;
+							this.tagWaitingForDescription = this.tagValue;
 						} else if (length == TAG_SINCE_LENGTH && CharOperation.equals(TAG_SINCE, tagName)) {
 							this.tagValue = TAG_SINCE_VALUE;
+							this.tagWaitingForDescription = this.tagValue;
 						}
 						break;
 					case 'v':
@@ -626,9 +639,9 @@ public class JavadocParser extends AbstractCommentParser {
 									if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 								}
 							}
-							alreadyParsedTag = true;
 						} else if (length == TAG_VERSION_LENGTH && CharOperation.equals(TAG_VERSION, tagName)) {
 							this.tagValue = TAG_VERSION_VALUE;
+							this.tagWaitingForDescription = this.tagValue;
 						} else {
 							createTag();
 						}
@@ -641,27 +654,13 @@ public class JavadocParser extends AbstractCommentParser {
 			case TerminalTokens.TokenNamereturn :
 				this.tagValue = TAG_RETURN_VALUE;
 				valid = parseReturn();
-				alreadyParsedTag = true;
-				/* verify characters after return tag (we're expecting text description)
-				if(!verifyCharsAfterReturnTag(this.index)) {
-					if (this.sourceParser != null) {
-						int end = this.starPosition == -1 || this.lineEnd<this.starPosition ? this.lineEnd : this.starPosition;
-						this.sourceParser.problemReporter().javadocEmptyReturnTag(this.tagSourceStart, end);
-					}
-				}
-				*/
 				break;
 			case TerminalTokens.TokenNamethrows :
 				this.tagValue = TAG_THROWS_VALUE;
 				valid = parseThrows();
-				alreadyParsedTag = true;
 				break;
 		}
 		this.textStart = this.index;
-		if (this.tagValue != TAG_OTHERS_VALUE && ! alreadyParsedTag && this.reportProblems && verifyEndLine(this.scanner.currentPosition)) {
-			this.sourceParser.problemReporter().javadocMissingTagDescription(tagName, this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
-			return false;
-		}
 		return valid;
 	}
 
@@ -670,13 +669,7 @@ public class JavadocParser extends AbstractCommentParser {
 	 */
 	protected boolean parseParam() throws InvalidInputException {
 		boolean valid = super.parseParam();
-		if (valid && this.reportProblems && verifyEndLine(this.scanner.currentPosition)) {
-			// retrieve last identifier position (valid as, in the super method, we already parsed an identifier)
-			int start = (int) (this.identifierPositionStack[0] >>> 32);
-			int end = (int) this.identifierPositionStack[this.identifierPtr];
-			this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
-			return false;
-		}
+		this.tagWaitingForDescription = valid && this.reportProblems ? TAG_PARAM_VALUE : NO_TAG_VALUE;
 		return valid;
 	}
 
@@ -771,6 +764,14 @@ public class JavadocParser extends AbstractCommentParser {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
+	 */
+	protected void pushText(int start, int end) {
+		// The tag gets its description => clear the flag
+		this.tagWaitingForDescription = NO_TAG_VALUE;
+	}
+
 	/*
 	 * Push a throws type ref in ast node stack.
 	 */
@@ -800,6 +801,18 @@ public class JavadocParser extends AbstractCommentParser {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#refreshInlineTagPosition(int)
+	 */
+	protected void refreshInlineTagPosition(int previousPosition) {
+
+		// Signal tag missing description if necessary
+		if (this.tagWaitingForDescription!= NO_TAG_VALUE) {
+			this.sourceParser.problemReporter().javadocMissingTagDescription(TAG_NAMES[this.tagWaitingForDescription], this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
+			this.tagWaitingForDescription = NO_TAG_VALUE;
+		}
+	}
+
 	/*
 	 * Refresh return statement
 	 */
@@ -819,6 +832,22 @@ public class JavadocParser extends AbstractCommentParser {
 	 * Fill associated comment fields with ast nodes information stored in stack.
 	 */
 	protected void updateDocComment() {
+
+		// Signal tag missing description if necessary
+		switch (this.tagWaitingForDescription) {
+			case TAG_PARAM_VALUE:
+			case TAG_THROWS_VALUE:
+				int start = (int) (this.identifierPositionStack[0] >>> 32);
+				int end = (int) this.identifierPositionStack[this.identifierPtr];
+				this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
+				break;
+			case NO_TAG_VALUE:
+				break;
+			default:
+				this.sourceParser.problemReporter().javadocMissingTagDescription(TAG_NAMES[this.tagWaitingForDescription], this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
+				break;
+		}
+		this.tagWaitingForDescription = NO_TAG_VALUE;
 
 		// Set positions
 		this.docComment.inheritedPositions = this.inheritedPositions;

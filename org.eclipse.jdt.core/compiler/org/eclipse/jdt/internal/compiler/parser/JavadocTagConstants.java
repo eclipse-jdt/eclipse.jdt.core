@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.internal.compiler.parser;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
+
 /**
  * Javadoc tag constants.
  *
@@ -62,7 +64,6 @@ public interface JavadocTagConstants {
 	public static final int TAG_LITERAL_LENGTH = TAG_LITERAL.length;
 	public static final int TAG_DOC_ROOT_LENGTH = TAG_DOC_ROOT.length;
 
-
 	// tags value
 	public static final int NO_TAG_VALUE = 0;
 	public static final int TAG_DEPRECATED_VALUE = 1;
@@ -86,6 +87,31 @@ public interface JavadocTagConstants {
 	public static final int TAG_LITERAL_VALUE = 19;
 	public static final int TAG_DOC_ROOT_VALUE = 20;
 	public static final int TAG_OTHERS_VALUE = 100;
+	
+	// Tag names array
+	public static final char[][] TAG_NAMES = {
+		CharOperation.NO_CHAR,
+		TAG_DEPRECATED,		/* 1 */
+		TAG_PARAM,				/* 2 */
+		TAG_RETURN,				/* 3 */
+		TAG_THROWS,				/* 4 */
+		TAG_EXCEPTION,			/* 5 */
+		TAG_SEE,						/* 6 */
+		TAG_LINK,						/* 7 */
+		TAG_LINKPLAIN,			/* 8 */
+		TAG_INHERITDOC,		/* 9 */
+		TAG_VALUE,					/* 10 */
+		TAG_CATEGORY,			/* 11 */
+		TAG_AUTHOR,				/* 12 */
+		TAG_SERIAL,				/* 13 */
+		TAG_SERIAL_DATA,	/* 14 */
+		TAG_SERIAL_FIELD,	/* 15 */
+		TAG_SINCE,					/* 16 */
+		TAG_VERSION,				/* 17 */
+		TAG_CODE,					/* 18 */
+		TAG_LITERAL,				/* 19 */
+		TAG_DOC_ROOT,			/* 20 */
+	};
 
 	// tags expected positions
 	public final static int ORDERED_TAGS_NUMBER = 3;

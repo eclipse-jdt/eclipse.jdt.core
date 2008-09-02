@@ -7227,6 +7227,95 @@ public void testBug168849j() {
 			null, null,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
+
+/**
+ * @bug 222900: [Javadoc] Missing description is warned if valid description is on a new line
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222900"
+ */
+public void testBug222900a() {
+	String[] units = new String[] {
+		"X.java",
+		"/**\n" + 
+		"* @since\n" + 
+		"* 	description\n" + 
+		"* @author\n" + 
+		"* 	description\n" + 
+		"* @version\n" + 
+		"* 	description\n" + 
+		"*/\n" + 
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @param  aParam\n" + 
+		"	 *         description\n" + 
+		"	 * @return\n" + 
+		"	 *         description\n" + 
+		"	 * @since\n" + 
+		"	 *         description\n" + 
+		"	 * @throws NullPointerException\n" + 
+		"	 *         description\n" + 
+		"	 * @exception NullPointerException\n" + 
+		"	 *            description\n" + 
+		"	 * @serial\n" + 
+		"	 *         description\n" + 
+		"	 * @serialData\n" + 
+		"	 *         description\n" + 
+		"	 * @serialField\n" + 
+		"	 *         description\n" + 
+		"	 * @deprecated\n" + 
+		"	 *         description\n" + 
+		"	 */\n" + 
+		"	public String foo(String aParam) {\n" + 
+		"		return new String();\n" + 
+		"	}\n" + 
+		"}\n"
+	};
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runConformTest(units);
+}
+public void testBug222900b() {
+	String[] units = new String[] {
+		"X.java",
+		"/**\n" + 
+		" * {@code\n" + 
+		" *        description}\n" + 
+		" * {@literal\n" + 
+		" *        description}\n" + 
+		"*/\n" + 
+		"public class X {\n" + 
+		"}\n"
+	};
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runConformTest(units);
+}
+public void testBug222900c() {
+	String[] units = new String[] {
+		"X.java",
+		"/**\n" + 
+		" * Test the {@code} missing description\n" + 
+		" * Test the {@code\n" + 
+		" * } missing description\n" + 
+		" * Test the {@code X} with description\n" + 
+		" * Test the {@code\n" + 
+		" * public class X} with description\n" + 
+		"*/\n" + 
+		"public class X {\n" + 
+		"}\n"
+	};
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	* Test the {@code} missing description\n" + 
+		"	             ^^^^\n" + 
+		"Javadoc: Description expected after @code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	* Test the {@code\n" + 
+		"	             ^^^^\n" + 
+		"Javadoc: Description expected after @code\n" + 
+		"----------\n"
+	);
+}
 /**
  * @bug 222902: [Javadoc] Missing description should not be warned in some cases
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222902"
@@ -7336,6 +7425,7 @@ public void testBug222902() {
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 	);
 }
+
 /**
  * @bug 227730: [Javadoc] Missing description should not be warned for @inheritDoc
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730"
