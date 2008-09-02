@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2008 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -275,6 +275,10 @@ public class MirrorDeclarationTests extends APTTestBase {
 		
 		assertTrue(pos.column() == 32);
 		assertTrue(pos.line() == 3);
+		
+		// Bad type should gracefully return null
+		TypeDeclaration tBad = env.getTypeDeclaration("test.XYZ");
+		assertTrue(null == tBad);
 	}
 
 }
