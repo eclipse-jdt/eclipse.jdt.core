@@ -46286,4 +46286,24 @@ public void test1379() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174447
+public void test1380() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"    public static <E extends Enum<E>> void f() {\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"      f();\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	f();\n" + 
+			"	^\n" + 
+			"Bound mismatch: The generic method f() of type X is not applicable for the arguments (). The inferred type Enum<Enum<E>> is not a valid substitute for the bounded parameter <E extends Enum<E>>\n" + 
+			"----------\n");
+}
 }
