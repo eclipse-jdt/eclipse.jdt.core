@@ -1042,6 +1042,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				// thus it was a type
 				this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 				this.bits |= Binding.TYPE;
+				// fallthrough
 			case Binding.TYPE : //=============only type ==============
 			    TypeBinding type = (TypeBinding) this.binding;
 //					if (isTypeUseDeprecated(type, scope))

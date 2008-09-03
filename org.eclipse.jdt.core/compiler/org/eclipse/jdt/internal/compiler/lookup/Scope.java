@@ -2335,6 +2335,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						}
 						insideStaticContext |= methodScope.isStatic;
 						insideTypeAnnotation = methodScope.insideTypeAnnotation;
+						// fallthrough
 					case BLOCK_SCOPE :
 						ReferenceBinding localType = ((BlockScope) scope).findLocalType(name); // looks in this scope only
 						if (localType != null) {

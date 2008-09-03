@@ -695,7 +695,7 @@ public class InternalExtendedCompletionContext {
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
 					MethodScope methodScope = (MethodScope) currentScope;
 					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
-
+					// fallthrough
 				case Scope.BLOCK_SCOPE :
 					BlockScope blockScope = (BlockScope) currentScope;
 

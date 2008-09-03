@@ -891,6 +891,7 @@ private boolean isCompatibleWith0(TypeBinding otherType) {
 					return isCompatibleWith(otherLowerBound);
 				}
 			}
+			// fallthrough
 		case Binding.GENERIC_TYPE :
 		case Binding.TYPE :
 		case Binding.PARAMETERIZED_TYPE :
