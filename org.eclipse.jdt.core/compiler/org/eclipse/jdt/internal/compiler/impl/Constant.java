@@ -1144,11 +1144,12 @@ public abstract class Constant implements TypeIds, OperatorIds {
 				if (rightId == T_JavaLangString) {
 					return StringConstant.fromValue(left.stringValue() + right.stringValue());
 				}
+				break;
 			case T_boolean :
 				if (rightId == T_JavaLangString) {
 					return StringConstant.fromValue(left.stringValue() + right.stringValue());
 				}
-			break;
+				break;
 			case T_char :
 				switch (rightId){
 					case T_char :	return IntConstant.fromValue(left.charValue() + right.charValue());
@@ -1160,7 +1161,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_long:	return LongConstant.fromValue(left.charValue() + right.longValue());
 					case T_JavaLangString:	return StringConstant.fromValue(left.stringValue() + right.stringValue());
 				}
-			break;
+				break;
 			case T_float :
 				switch (rightId){
 					case T_char :	return FloatConstant.fromValue(left.floatValue() + right.charValue());
@@ -1172,7 +1173,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_long:	return FloatConstant.fromValue(left.floatValue() + right.longValue());
 					case T_JavaLangString:	return StringConstant.fromValue(left.stringValue() + right.stringValue());
 				}
-			break;
+				break;
 			case T_double :
 				switch (rightId){
 					case T_char :	return DoubleConstant.fromValue(left.doubleValue() + right.charValue());
@@ -1184,7 +1185,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_long:	return DoubleConstant.fromValue(left.doubleValue() + right.longValue());
 					case T_JavaLangString:	return StringConstant.fromValue(left.stringValue() + right.stringValue());
 				}
-			break;
+				break;
 			case T_byte :
 				switch (rightId){
 					case T_char :	return IntConstant.fromValue(left.byteValue() + right.charValue());
@@ -1196,8 +1197,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_long:	return LongConstant.fromValue(left.byteValue() + right.longValue());
 					case T_JavaLangString:	return StringConstant.fromValue(left.stringValue() + right.stringValue());
 				}
-
-			break;
+				break;
 			case T_short :
 				switch (rightId){
 					case T_char :	return IntConstant.fromValue(left.shortValue() + right.charValue());
@@ -1209,7 +1209,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_long:	return LongConstant.fromValue(left.shortValue() + right.longValue());
 					case T_JavaLangString:	return StringConstant.fromValue(left.stringValue() + right.stringValue());
 				}
-			break;
+				break;
 			case T_int :
 				switch (rightId){
 					case T_char :	return IntConstant.fromValue(left.intValue() + right.charValue());
@@ -1221,7 +1221,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_long:	return LongConstant.fromValue(left.intValue() + right.longValue());
 					case T_JavaLangString:	return StringConstant.fromValue(left.stringValue() + right.stringValue());
 				}
-			break;
+				break;
 			case T_long :
 				switch (rightId){
 					case T_char :	return LongConstant.fromValue(left.longValue() + right.charValue());
@@ -1233,7 +1233,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_long:	return LongConstant.fromValue(left.longValue() + right.longValue());
 					case T_JavaLangString:	return StringConstant.fromValue(left.stringValue() + right.stringValue());
 				}
-			break;
+				break;
 			case T_JavaLangString :
 				switch (rightId){
 					case T_char :	return StringConstant.fromValue(left.stringValue() + String.valueOf(right.charValue()));
@@ -1246,7 +1246,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_JavaLangString:	return StringConstant.fromValue(left.stringValue() + right.stringValue());
 					case T_boolean:	return StringConstant.fromValue(left.stringValue() + right.booleanValue());
 				}
-			break;
+				break;
 //			case T_null :
 //				switch (rightId){
 //					case T_char :	return Constant.fromValue(left.stringValue() + String.valueOf(right.charValue()));
