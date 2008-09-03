@@ -293,6 +293,7 @@ public class Alignment {
 					}
 					return this.wasSplit = true;
 				}
+				break;
 			/*  # aligned fragment
 			 *  foo(#AAAAA,
 			 *      #BBBBB,
