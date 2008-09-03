@@ -167,7 +167,7 @@ public TypeBinding erasure() {
  * (using id avoids triggering the load of well-known type: 73740)
  * NOTE: only works for erasures of well-known types, as random other types may share
  * same id though being distincts.
- *
+ * @see TypeIds
  */
 public ReferenceBinding findSuperTypeOriginatingFrom(int wellKnownOriginalID, boolean originalIsClass) {
 

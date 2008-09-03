@@ -448,7 +448,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			case ProblemReasons.ParameterBoundMismatch :
 				// only steal returnType in cases listed above
 				if (closestMatch != null) this.resolvedType = closestMatch.returnType;
-			default :
+				break;
 		}
 		// record the closest match, for clients who may still need hint about possible method match
 		if (closestMatch != null) {
