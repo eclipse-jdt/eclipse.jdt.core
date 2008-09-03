@@ -10200,33 +10200,4 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = expression.resolveTypeBinding();
 		assertNotNull("No type binding", typeBinding);
 	}
-	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=242933
-	 */
-	public void test0322() throws JavaModelException {
-		String contents =
-			"package test0322;\n" +
-			"@interface Range {\n" + 
-			"	long min() default -9223372036854775808L;\n" + 
-			"	long max() default 9223372036854775807L;\n" + 
-			"	String message() default \"\";\n" + 
-			"}\n" + 
-			"public class X {\n" + 
-			"	private int id;\n" + 
-			"	/*start*/@Range(max=9999999999999999)/*end*/\n" + 
-			"	public long getId() {\n" + 
-			"		return id;\n" + 
-			"	}\n" + 
-			"}";
-		this.workingCopy = getWorkingCopy(
-				"/Converter15/src/test0322/X.java",
-				contents,
-				true/*resolve*/
-			);
-		NormalAnnotation annotation = (NormalAnnotation) buildAST(contents, workingCopy, false, true, true);
-		IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
-		IMemberValuePairBinding[] memberValuePairBindings = annotationBinding.getDeclaredMemberValuePairs();
-		IMemberValuePairBinding pairBinding = memberValuePairBindings[0];
-		assertNull("Got a value", pairBinding.getValue());
-	}
 }
