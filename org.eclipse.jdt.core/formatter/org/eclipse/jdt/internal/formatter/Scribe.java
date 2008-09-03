@@ -1486,6 +1486,7 @@ public class Scribe implements IJavaDocTagConstants {
 						scannerLine = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 						continue;
 					}
+					break;
 				case TerminalTokens.TokenNameMINUS:
 				case TerminalTokens.TokenNameMINUS_MINUS:
 					if (previousToken == -1) {
@@ -1499,6 +1500,10 @@ public class Scribe implements IJavaDocTagConstants {
 						this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
 						return false;
 					}
+					break;
+				default:
+					// do nothing
+					break;
 			}
 
 			// Look at gap and insert corresponding lines if necessary
