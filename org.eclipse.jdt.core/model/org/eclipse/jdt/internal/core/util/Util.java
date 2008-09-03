@@ -3000,6 +3000,10 @@ public class Util {
 	 * Creates a member value from the given constant, and sets the valueKind on the given memberValuePair
 	 */
 	public static Object getAnnotationMemberValue(MemberValuePair memberValuePair, Constant constant) {
+		if (constant == null) {
+			memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+			return null;
+		}
 		switch (constant.typeID()) {
 			case TypeIds.T_int : 
 				memberValuePair.valueKind = IMemberValuePair.K_INT;
