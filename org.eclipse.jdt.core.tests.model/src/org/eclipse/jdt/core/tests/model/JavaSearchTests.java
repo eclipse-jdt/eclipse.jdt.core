@@ -508,7 +508,7 @@ public void testDeclarationsOfSentMessages01() throws CoreException { // was tes
 		"src/p/X.java void p.X.foo(int, String, X) [foo(int i, String s, X x)]\n" +
 		"src/p/Y.java void p.Y.bar() [bar()]\n" +
 		"src/p/Z.java void p.Z.foo(int, String, X) [foo(int i, String s, X x)]\n" +
-		"src/p/A.java void p.A.foo(int, String, X) [foo()]",
+		"src/p/A.java void p.A.foo(int, String, X) [foo(int i, String s, X x)]",
 		this.resultCollector);
 }
 

@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
-import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 
 public class MethodLocator extends PatternLocator {
@@ -498,12 +497,11 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 	IType type = locator.lookupType(declaringClass);
 	if (type == null) return; // case of a secondary type
 
-	char[] bindingSelector = methodBinding.selector;
-	boolean isBinary = type.isBinary();
-	IMethod method = null;
-	TypeBinding[] parameters = methodBinding.original().parameters;
-	int parameterLength = parameters.length;
-	if (isBinary) {
+	// Report match for binary
+	if (type.isBinary()) {
+		IMethod method = null;
+		TypeBinding[] parameters = methodBinding.original().parameters;
+		int parameterLength = parameters.length;
 		char[][] parameterTypes = new char[parameterLength][];
 		for (int i = 0; i<parameterLength; i++) {
 			char[] typeName = parameters[i].qualifiedSourceName();
@@ -513,48 +511,41 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 			parameterTypes[i] = typeName;
 		}
 		method = locator.createBinaryMethodHandle(type, methodBinding.selector, parameterTypes);
-	} else {
-		String[] parameterTypes = new String[parameterLength];
-		for (int i = 0; i  < parameterLength; i++) {
-			char[] typeName = parameters[i].shortReadableName();
-			if (parameters[i].isMemberType()) {
-				typeName = CharOperation.subarray(typeName, CharOperation.indexOf('.', typeName)+1, typeName.length);
-			}
-			parameterTypes[i] = Signature.createTypeSignature(typeName, false);
-		}
-		method = type.getMethod(new String(bindingSelector), parameterTypes);
-	}
-	if (method == null || knownMethods.addIfNotIncluded(method) == null) return;
-
-	IResource resource = type.getResource();
-	IBinaryType info = null;
-	if (isBinary) {
+		if (method == null || knownMethods.addIfNotIncluded(method) == null) return;
+	
+		IResource resource = type.getResource();
 		if (resource == null)
 			resource = type.getJavaProject().getProject();
-		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
+		IBinaryType info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
 		locator.reportBinaryMemberDeclaration(resource, method, methodBinding, info, SearchMatch.A_ACCURATE);
-	} else {
-		if (declaringClass instanceof ParameterizedTypeBinding)
-			declaringClass = ((ParameterizedTypeBinding) declaringClass).genericType();
-		ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
-		if (scope != null) {
-			TypeDeclaration typeDecl = scope.referenceContext;
-			AbstractMethodDeclaration methodDecl = null;
-			AbstractMethodDeclaration[] methodDecls = typeDecl.methods;
-			for (int i = 0, length = methodDecls.length; i < length; i++) {
-				if (CharOperation.equals(bindingSelector, methodDecls[i].selector)) {
-					methodDecl = methodDecls[i];
-					break;
-				}
+		return;
+	}
+
+	// When source is available, report match if method is found in the declaring type
+	IResource resource = type.getResource();
+	if (declaringClass instanceof ParameterizedTypeBinding)
+		declaringClass = ((ParameterizedTypeBinding) declaringClass).genericType();
+	ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
+	if (scope != null) {
+		TypeDeclaration typeDecl = scope.referenceContext;
+		AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(methodBinding.original());
+		if (methodDecl != null) {
+			// Create method handle from method declaration
+			String methodName = new String(methodBinding.selector);
+			Argument[] arguments = methodDecl.arguments;
+			int length = arguments == null ? 0 : arguments.length;
+			String[] parameterTypes = new String[length];
+			for (int i = 0; i  < length; i++) {
+				char[][] typeName = arguments[i].type.getParameterizedTypeName();
+				parameterTypes[i] = Signature.createTypeSignature(CharOperation.concatWith(typeName, '.'), false);
 			}
-			if (methodDecl != null) {
-				int offset = methodDecl.sourceStart;
-				Binding binding = methodDecl.binding;
-				if (binding != null)
-					method = (IMethod) ((JavaElement) method).resolved(binding);
-				this.match = new MethodDeclarationMatch(method, SearchMatch.A_ACCURATE, offset, methodDecl.sourceEnd-offset+1, locator.getParticipant(), resource);
-				locator.report(this.match);
-			}
+			IMethod method = type.getMethod(methodName, parameterTypes);
+			if (method == null || knownMethods.addIfNotIncluded(method) == null) return;
+
+			// Create and report corresponding match
+			int offset = methodDecl.sourceStart;
+			this.match = new MethodDeclarationMatch(method, SearchMatch.A_ACCURATE, offset, methodDecl.sourceEnd-offset+1, locator.getParticipant(), resource);
+			locator.report(this.match);
 		}
 	}
 }

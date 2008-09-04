@@ -9189,6 +9189,44 @@ public void testBug204652() throws CoreException {
 }
 
 /**
+ * @bug 207657: [search] Exception when refactoring member type to top-level.
+ * @test Ensure that searching method reference does not find wrong interface call
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=207657"
+ */
+public void testBug207657() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Relationship.java",
+		"package test;\n" + 
+		"public class Relationship {\n" + 
+		"    static public class End extends ConnectionEnd<Visitor> {\n" +
+		"        public void accept(Visitor visitor) {\n" + 
+		"            visitor.visitRelationshipEnd(this);\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}\n" +
+		"interface Visitor {\n" + 
+		"    boolean visitRelationshipEnd(Relationship.End end);\n" + 
+		"    boolean visitAssociationEnd(Association.End end);\n" + 
+		"}\n" +
+		"abstract class ConnectionEnd<V extends Visitor> {\n" + 
+		"    public abstract void accept( V visitor );\n" + 
+		"}\n" +
+		"class Association extends Relationship {\n" + 
+		"    static public class RelEnd extends Relationship.End {\n" + 
+		"        public void accept(Visitor visitor) {\n" + 
+		"            visitor.visitAssociationEnd(this);\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Relationship").getType("End");
+	searchDeclarationsOfSentMessages(type, this.resultCollector);
+	assertSearchResults(
+		"src/test/Relationship.java boolean test.Visitor.visitRelationshipEnd(Relationship.End) [visitRelationshipEnd(Relationship.End end)] EXACT_MATCH"
+	);
+}
+
+/**
  * @bug 209054: [search] for references to method finds wrong interface call
  * @test Ensure that searching method reference does not find wrong interface call
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209054"
