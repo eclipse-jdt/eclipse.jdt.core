@@ -4899,4 +4899,33 @@ public void test0165() throws JavaModelException {
 		"visibleElements={}",
 		result.context);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=243023
+public void test0166() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0001/X.java",
+		"package test0001;\n" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"    if ( null == /**/\n" +
+		"  }\n" +
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("/**/");
+	int tokenEnd = tokenStart + "".length() - 1;
+	int cursorLocation = str.lastIndexOf("/**/") + "".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n"+
+		"completion token location=UNKNOWN",
+		result.context);
+}
 }

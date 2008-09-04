@@ -9803,7 +9803,7 @@ public final class CompletionEngine
 		}
 	}
 	private void addExpectedType(TypeBinding type, Scope scope){
-		if (type == null || !type.isValidBinding()) return;
+		if (type == null || !type.isValidBinding() || type == TypeBinding.NULL) return;
 
 		// do not add twice the same type
 		for (int i = 0; i <= this.expectedTypesPtr; i++) {
