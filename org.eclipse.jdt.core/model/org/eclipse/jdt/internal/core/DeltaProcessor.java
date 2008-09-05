@@ -1016,7 +1016,7 @@ public class DeltaProcessor {
 			IProject project;
 			if (delta != null && JavaProject.hasJavaNature(project = (IProject)delta.getResource())) {
 				addToParentInfo(element);
-				this.manager.getPerProjectInfo(project, false /* don't create info */).rememberExternalLibTimestamps();
+				this.manager.getPerProjectInfo(project, true /*create info if needed*/).rememberExternalLibTimestamps();
 				if ((delta.getFlags() & IResourceDelta.MOVED_FROM) != 0) {
 					Openable movedFromElement = (Openable)element.getJavaModel().getJavaProject(delta.getMovedFromPath().lastSegment());
 					currentDelta().movedTo(element, movedFromElement);
