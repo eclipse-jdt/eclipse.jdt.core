@@ -1660,6 +1660,7 @@ public void test012b(){
         "      indirectStatic       indirect reference to static member\n" +
         "      intfAnnotation     + annotation type used as super interface\n" +
         "      intfNonInherited   + interface non-inherited method compatibility\n" +
+        "      intfRedundant      + find redundant superinterfaces\n" + 
         "      javadoc              invalid javadoc\n" +
         "      localHiding          local variable hiding another variable\n" +
         "      maskedCatchBlock   + hidden catch block\n" +
@@ -1671,7 +1672,6 @@ public void test012b(){
         "      paramAssign          assignment to a parameter\n" +
         "      pkgDefaultMethod   + attempt to override package-default method\n" +
         "      raw                + usage of raw type\n" +
-        "      redundantSuperinterface                + find redundant superinterfaces\n" +
         "      semicolon            unnecessary semicolon, empty statement\n" +
         "      serial             + missing serialVersionUID\n" +
         "      specialParamHiding   constructor or setter parameter hiding a field\n" +
@@ -1679,14 +1679,12 @@ public void test012b(){
         "      staticReceiver     + non-static reference to static member\n" +
         "      super                overriding a method without making a super invocation\n" +
         "      suppress           + enable @SuppressWarnings\n" +
-        "      syncOverride     overriding a synchronized method without synchronizing it\n" +
-        "      synthetic-access     same as syntheticAccess\n" +
+        "      syncOverride         missing synchronized in synchr. method override\n" +
         "      syntheticAccess      synthetic access for innerclass\n" +
         "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" +
         "      typeHiding         + type parameter hiding another type\n" +
         "      unchecked          + unchecked type operation\n" +
         "      unnecessaryElse      unnecessary else clause\n" +
-        "      unqualified-field-access same as unqualifiedField\n" +
         "      unqualifiedField     unqualified reference to field\n" +
         "      unused               macro for unusedArgument, unusedImport, unusedLabel,\n" +
         "                               unusedLocal, unusedPrivate, unusedThrown,\n" +
@@ -10962,5 +10960,68 @@ public void test287_option_files() {
         "" /* expectedOutOutputString */,
         "Unrecognized option : @options2.txt\n" /* stderr */,
         true /*shouldFlushOutput*/);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=246066
+public void test288_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface IX {}\n" + 
+			"class BaseX implements IX {}\n" + 
+			"public class X extends BaseX implements IX {\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:+intfRedundant -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	public class X extends BaseX implements IX {\n" + 
+		"	                                        ^^\n" + 
+		"Redundant superinterface IX for the type X, already defined by BaseX\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=246066 - variation
+public void test289_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface IX {}\n" + 
+			"class BaseX implements IX {}\n" + 
+			"public class X extends BaseX implements IX {\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:+redundantSuperinterface -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	public class X extends BaseX implements IX {\n" + 
+		"	                                        ^^\n" + 
+		"Redundant superinterface IX for the type X, already defined by BaseX\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=246066 - variation
+public void test290_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface IX {}\n" + 
+			"class BaseX implements IX {}\n" + 
+			"public class X extends BaseX implements IX {\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:+intfRedundant -warn:-intfRedundant -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
 }
 }
