@@ -377,9 +377,11 @@ public void computeId() {
 						this.id = TypeIds.T_JavaIoObjectStreamException;
 					else if (CharOperation.equals(TypeConstants.JAVA_IO_IOEXCEPTION[2], this.compoundName[2]))
 						this.id = TypeIds.T_JavaIoException;
-				} else if (CharOperation.equals(TypeConstants.UTIL, this.compoundName[1])
-						&& CharOperation.equals(TypeConstants.JAVA_UTIL_ITERATOR[2], this.compoundName[2])) {
-					this.id = TypeIds.T_JavaUtilIterator;
+				} else if (CharOperation.equals(TypeConstants.UTIL, this.compoundName[1])){
+					if (CharOperation.equals(TypeConstants.JAVA_UTIL_ITERATOR[2], this.compoundName[2]))
+						this.id = TypeIds.T_JavaUtilIterator;
+					else if (CharOperation.equals(TypeConstants.JAVA_UTIL_COLLECTION[2], this.compoundName[2]))
+						this.id = TypeIds.T_JavaUtilCollection;
 				}
 				return;
 			}

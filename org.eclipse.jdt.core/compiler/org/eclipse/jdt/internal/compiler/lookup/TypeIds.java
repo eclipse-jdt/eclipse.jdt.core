@@ -86,6 +86,8 @@ public interface TypeIds {
 	final int T_JavaIoExternalizable = 56;
 	final int T_JavaIoObjectStreamException = 57;
 	final int T_JavaIoException = 58;
+	
+	final int T_JavaUtilCollection = 59;
 
 	final int NoId = Integer.MAX_VALUE;
 

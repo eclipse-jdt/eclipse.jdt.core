@@ -12015,6 +12015,91 @@ public void test0375() throws JavaModelException {
 			"foo2[METHOD_REF]{foo2(), Ltest.Test;, ()V, foo2, null, public deprecated, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114116
+public void test0376() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n"+
+		"        MyCollection<String> \n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/MyCollection.java",
+		"package test;\n"+
+		"public abstract class MyCollection<T> implements java.util.Collection<T> {\n"+
+		"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "MyCollection<String> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"collection[VARIABLE_DECLARATION]{collection, null, Ltest.MyCollection<Ljava.lang.String;>;, collection, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"myCollection[VARIABLE_DECLARATION]{myCollection, null, Ltest.MyCollection<Ljava.lang.String;>;, myCollection, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"strings[VARIABLE_DECLARATION]{strings, null, Ltest.MyCollection<Ljava.lang.String;>;, strings, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114116
+public void test0377() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n"+
+		"        MyCollection \n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/MyCollection.java",
+		"package test;\n"+
+		"public abstract class MyCollection<T> implements java.util.Collection<T> {\n"+
+		"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "MyCollection ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"collection[VARIABLE_DECLARATION]{collection, null, Ltest.MyCollection;, collection, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"myCollection[VARIABLE_DECLARATION]{myCollection, null, Ltest.MyCollection;, myCollection, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114116
+public void test0378() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n"+
+		"        MyCollection<String, String> \n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/MyCollection.java",
+		"package test;\n"+
+		"public abstract class MyCollection<T, U> implements java.util.Collection<T> {\n"+
+		"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "MyCollection<String, String> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"collection[VARIABLE_DECLARATION]{collection, null, Ltest.MyCollection<Ljava.lang.String;Ljava.lang.String;>;, collection, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"myCollection[VARIABLE_DECLARATION]{myCollection, null, Ltest.MyCollection<Ljava.lang.String;Ljava.lang.String;>;, myCollection, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
 public void testEC001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];

@@ -8895,32 +8895,61 @@ public final class CompletionEngine
 	}
 		// Helper method for private void findVariableNames(char[] name, TypeReference type )
 	private void findVariableName(
-		char[] token,
-		char[] qualifiedPackageName,
-		char[] qualifiedSourceName,
-		char[] sourceName,
-		final TypeBinding typeBinding,
-		char[][] discouragedNames,
-		final char[][] forbiddenNames,
-		int dim,
-		int kind,
-		int modifiers){
+			char[] token,
+			char[] qualifiedPackageName,
+			char[] qualifiedSourceName,
+			char[] sourceName,
+			final TypeBinding typeBinding,
+			char[][] discouragedNames,
+			final char[][] forbiddenNames,
+			int dim,
+			int kind,
+			int modifiers){
+		findVariableName(
+				token,
+				qualifiedPackageName,
+				qualifiedSourceName,
+				sourceName,
+				typeBinding,
+				discouragedNames,
+				forbiddenNames,
+				false,
+				dim,
+				kind,
+				modifiers);
+	}
+	private void findVariableName(
+			char[] token,
+			char[] qualifiedPackageName,
+			char[] qualifiedSourceName,
+			char[] sourceName,
+			final TypeBinding typeBinding,
+			char[][] discouragedNames,
+			final char[][] forbiddenNames,
+			boolean forCollection,
+			int dim,
+			int kind,
+			int modifiers){
 
 		if(sourceName == null || sourceName.length == 0)
 			return;
 
 		// compute variable name for non base type
 		final char[] displayName;
-		if (dim > 0){
-			int l = qualifiedSourceName.length;
-			displayName = new char[l+(2*dim)];
-			System.arraycopy(qualifiedSourceName, 0, displayName, 0, l);
-			for(int i = 0; i < dim; i++){
-				displayName[l+(i*2)] = '[';
-				displayName[l+(i*2)+1] = ']';
+		if (!forCollection) {
+			if (dim > 0){
+				int l = qualifiedSourceName.length;
+				displayName = new char[l+(2*dim)];
+				System.arraycopy(qualifiedSourceName, 0, displayName, 0, l);
+				for(int i = 0; i < dim; i++){
+					displayName[l+(i*2)] = '[';
+					displayName[l+(i*2)+1] = ']';
+				}
+			} else {
+				displayName = qualifiedSourceName;
 			}
 		} else {
-			displayName = qualifiedSourceName;
+			displayName = typeBinding.qualifiedSourceName();
 		}
 
 		final char[] t = token;
@@ -9014,6 +9043,31 @@ public final class CompletionEngine
 				break;
 		}
 	}
+	
+	private void findVariableNameForCollection(
+			char[] token,
+			char[] qualifiedPackageName,
+			char[] qualifiedSourceName,
+			char[] sourceName,
+			final TypeBinding typeBinding,
+			char[][] discouragedNames,
+			final char[][] forbiddenNames,
+			int kind,
+			int modifiers){
+
+		findVariableName(
+				token,
+				qualifiedPackageName,
+				qualifiedSourceName,
+				sourceName,
+				typeBinding,
+				discouragedNames,
+				forbiddenNames,
+				false,
+				1,
+				kind,
+				modifiers);
+	}
 
 	private void findVariableNames(char[] name, TypeReference type , char[][] discouragedNames, char[][] forbiddenNames, int kind, int modifiers){
 		if(type != null &&
@@ -9033,6 +9087,25 @@ public final class CompletionEngine
 					type.dimensions(),
 					kind,
 					modifiers);
+				
+				if (tb.isParameterizedType() &&
+						tb.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilCollection, false) != null) {
+					ParameterizedTypeBinding ptb = ((ParameterizedTypeBinding) tb);
+					TypeBinding[] arguments = ptb.arguments;
+					if (arguments != null && arguments.length == 1) {
+						TypeBinding argument = arguments[0];
+						findVariableNameForCollection(
+							name,
+							argument.leafComponentType().qualifiedPackageName(),
+							argument.leafComponentType().qualifiedSourceName(),
+							argument.leafComponentType().sourceName(),
+							tb,
+							discouragedNames,
+							forbiddenNames,
+							kind,
+							modifiers);
+					}
+				}
 			}
 		}
 
