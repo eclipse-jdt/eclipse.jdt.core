@@ -40,7 +40,7 @@ private Class delegateLoadClass(String name) throws ClassNotFoundException {
  * If only  the class definition is known to this runner, makes it a class and returns it.
  * Otherwise delegates to the real class loader.
  */
-protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
 	if (DEVELOPMENT_MODE) {
 		try {
 			return delegateLoadClass(name);
