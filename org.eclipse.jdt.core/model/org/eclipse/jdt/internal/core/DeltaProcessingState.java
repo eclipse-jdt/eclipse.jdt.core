@@ -507,18 +507,33 @@ public class DeltaProcessingState implements IResourceChangeListener {
 
 	public void saveExternalLibTimeStamps() throws CoreException {
 		if (this.externalTimeStamps == null) return;
+		
+		// cleanup to avoid any leak ( https://bugs.eclipse.org/bugs/show_bug.cgi?id=244849 )
+		HashSet toRemove = new HashSet();
+		if (this.roots != null) {
+			Enumeration keys = this.externalTimeStamps.keys();
+			while (keys.hasMoreElements()) {
+				Object key = keys.nextElement();
+				if (this.roots.get(key) == null) {
+					toRemove.add(key);
+				}
+			}
+		}
+		
 		File timestamps = getTimeStampsFile();
 		DataOutputStream out = null;
 		try {
 			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(timestamps)));
-			out.writeInt(this.externalTimeStamps.size());
+			out.writeInt(this.externalTimeStamps.size() - toRemove.size());
 			Iterator entries = this.externalTimeStamps.entrySet().iterator();
 			while (entries.hasNext()) {
 				Map.Entry entry = (Map.Entry) entries.next();
 				IPath key = (IPath) entry.getKey();
-				out.writeUTF(key.toPortableString());
-				Long timestamp = (Long) entry.getValue();
-				out.writeLong(timestamp.longValue());
+				if (!toRemove.contains(key)) {
+					out.writeUTF(key.toPortableString());
+					Long timestamp = (Long) entry.getValue();
+					out.writeLong(timestamp.longValue());
+				}
 			}
 		} catch (IOException e) {
 			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving timestamps", e); //$NON-NLS-1$

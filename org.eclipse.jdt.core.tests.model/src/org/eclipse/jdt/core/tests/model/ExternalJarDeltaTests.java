@@ -533,7 +533,7 @@ public void testExternalJarInternalExternalJar() throws CoreException, IOExcepti
 			"Unexpected delta",
 			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n"+
 			"	foo.jar[*]: {REMOVED FROM CLASSPATH}\n"+
-			"	"+externalFooPathString+"[*]: {ADDED TO CLASSPATH}\n"+
+			"	"+externalFooPathString+"[+]: {}\n"+
 			"	ResourceDelta(/P/.classpath)[*]\n"+
 			"\n"+
 			"P[*]: {CHILDREN}\n"+

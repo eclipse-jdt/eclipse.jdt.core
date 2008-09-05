@@ -1055,6 +1055,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				return null;
 			return this.resolvedClasspath;
 		}
+		
+		public void forgetExternalTimestamps() {
+			IClasspathEntry[] classpath = this.resolvedClasspath;
+			if (classpath == null) return;
+			Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaState.getExternalLibTimeStamps();
+			HashMap rootInfos = JavaModelManager.getDeltaState().otherRoots;
+			for (int i = 0, length = classpath.length; i < length; i++) {
+				IClasspathEntry entry = classpath[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+					IPath path = entry.getPath();
+					if (rootInfos.get(path) == null) {
+						externalTimeStamps.remove(path);
+					}
+				}
+			}
+		}
 
 		public void rememberExternalLibTimestamps() {
 			IClasspathEntry[] classpath = this.resolvedClasspath;
@@ -3417,6 +3433,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(project);
 			if (info != null) {
 				this.perProjectInfos.remove(project);
+				info.forgetExternalTimestamps();
 			}
 		}
 	}
@@ -3877,7 +3894,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (!JavaProject.hasJavaNature(savedProject)) return; // ignore
 			PerProjectInfo info = getPerProjectInfo(savedProject, true /* create info */);
 			saveState(info, context);
-			info.rememberExternalLibTimestamps();
 			return;
 		}
 
@@ -3891,7 +3907,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			try {
 				PerProjectInfo info = (PerProjectInfo) iterator.next();
 				saveState(info, context);
-				info.rememberExternalLibTimestamps();
 			} catch (CoreException e) {
 				if (vStats == null)
 					vStats= new ArrayList();

@@ -710,7 +710,7 @@ public void testClasspathCreateLocalJarLibraryEntry() throws CoreException {
 			"Unexpected delta", 
 			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	"+ getExternalJCLPathString() + "[*]: {ADDED TO CLASSPATH}\n" + 
+			"	"+ getExternalJCLPathString() + "[+]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {

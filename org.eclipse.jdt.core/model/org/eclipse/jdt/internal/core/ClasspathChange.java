@@ -333,26 +333,6 @@ public class ClasspathChange {
 					}
 				}
 				addClasspathDeltas(delta, pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH);
-
-				// remember timestamp of jars that were removed (in case they are added as external jar in the same operation)
-				for (int j = 0, length = pkgFragmentRoots.length; j < length; j++) {
-					PackageFragmentRoot root = pkgFragmentRoots[j];
-					if (root.isArchive() && !root.isExternal()) {
-						URI location = root.resource().getLocationURI();
-						File file = null;
-						try {
-							IFileStore fileStore = EFS.getStore(location);
-							file = fileStore.toLocalFile(EFS.NONE, null);
-						} catch (CoreException e) {
-							// continue
-						}
-						if (file == null)
-							continue;
-						long timeStamp = DeltaProcessor.getTimeStamp(file);
-						IPath externalPath = new org.eclipse.core.runtime.Path(file.getAbsolutePath());
-						state.getExternalLibTimeStamps().put(externalPath, new Long(timeStamp));
-					}
-				}
 			} else {
 				// remote project changes
 				if (this.oldResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) {

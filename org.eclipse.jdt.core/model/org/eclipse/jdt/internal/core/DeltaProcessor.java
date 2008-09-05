@@ -1013,8 +1013,10 @@ public class DeltaProcessor {
 		if (elementType == IJavaElement.JAVA_PROJECT) {
 			// project add is handled by JavaProject.configure() because
 			// when a project is created, it does not yet have a java nature
-			if (delta != null && JavaProject.hasJavaNature((IProject)delta.getResource())) {
+			IProject project;
+			if (delta != null && JavaProject.hasJavaNature(project = (IProject)delta.getResource())) {
 				addToParentInfo(element);
+				this.manager.getPerProjectInfo(project, false /* don't create info */).rememberExternalLibTimestamps();
 				if ((delta.getFlags() & IResourceDelta.MOVED_FROM) != 0) {
 					Openable movedFromElement = (Openable)element.getJavaModel().getJavaProject(delta.getMovedFromPath().lastSegment());
 					currentDelta().movedTo(element, movedFromElement);

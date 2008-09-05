@@ -440,9 +440,6 @@ public class JavaProject
 		// compute the pkg fragment roots
 		info.setChildren(computePackageFragmentRoots(resolvedClasspath, false, null /*no reverse map*/));
 
-		// remember the timestamps of external libraries the first time they are looked up
-		getPerProjectInfo().rememberExternalLibTimestamps();
-
 		return true;
 	}
 
