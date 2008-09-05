@@ -709,6 +709,7 @@ public final class JavaCore extends Plugin {
 	 * </dl>
 	 * @since 3.0
 	 * @category CompilerOptionID
+	 * @deprecated - this option has no effect
 	 */
 	public static final String COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION = PLUGIN_ID + ".compiler.problem.booleanMethodThrowingException"; //$NON-NLS-1$
 	/**
