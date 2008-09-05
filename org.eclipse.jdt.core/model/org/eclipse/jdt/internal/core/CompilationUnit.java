@@ -1104,6 +1104,14 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 			? this.owner.createBuffer(this)
 			: BufferManager.createBuffer(this);
 	if (buffer == null) return null;
+	
+	ICompilationUnit original = null;
+	boolean mustSetToOriginalContent = false;
+	if (isWorkingCopy) {
+		// ensure that isOpen() is called outside the bufManager synchronized block
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=237772
+		mustSetToOriginalContent = !isPrimary() && (original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY)).isOpen() ;
+	}
 
 	// synchronize to ensure that 2 threads are not putting 2 different buffers at the same time
 	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146331
@@ -1115,9 +1123,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 		// set the buffer source
 		if (buffer.getCharacters() == null) {
 			if (isWorkingCopy) {
-				ICompilationUnit original;
-				if (!isPrimary()
-						&& (original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY)).isOpen()) {
+				if (mustSetToOriginalContent) {
 					buffer.setContents(original.getSource());
 				} else {
 					IFile file = (IFile)getResource();
