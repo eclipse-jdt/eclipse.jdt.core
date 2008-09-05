@@ -357,84 +357,147 @@ public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 }
 
 public void computeId() {
-
+	// try to avoid multiple checks against a package/type name
 	switch (this.compoundName.length) {
 
 		case 3 :
 			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0]))
 				return;
 
+			char[] packageName = this.compoundName[1];
+			if (packageName.length == 0) return; // just to be safe
+			char[] typeName = this.compoundName[2];
+			if (typeName.length == 0) return; // just to be safe
 			// remaining types MUST be in java.*.*
 			if (!CharOperation.equals(TypeConstants.LANG, this.compoundName[1])) {
-				if (CharOperation.equals(TypeConstants.IO, this.compoundName[1])) {
-					if (CharOperation.equals(TypeConstants.JAVA_IO_PRINTSTREAM[2], this.compoundName[2]))
-						this.id = TypeIds.T_JavaIoPrintStream;
-					else if (CharOperation.equals(TypeConstants.JAVA_IO_SERIALIZABLE[2], this.compoundName[2]))
-					    this.id = TypeIds.T_JavaIoSerializable;
-					else if (CharOperation.equals(TypeConstants.JAVA_IO_EXTERNALIZABLE[2], this.compoundName[2]))
-					    this.id = TypeIds.T_JavaIoExternalizable;
-					else if (CharOperation.equals(TypeConstants.JAVA_IO_OBJECTSTREAMEXCEPTION[2], this.compoundName[2]))
-						this.id = TypeIds.T_JavaIoObjectStreamException;
-					else if (CharOperation.equals(TypeConstants.JAVA_IO_IOEXCEPTION[2], this.compoundName[2]))
-						this.id = TypeIds.T_JavaIoException;
-				} else if (CharOperation.equals(TypeConstants.UTIL, this.compoundName[1])){
-					if (CharOperation.equals(TypeConstants.JAVA_UTIL_ITERATOR[2], this.compoundName[2]))
-						this.id = TypeIds.T_JavaUtilIterator;
-					else if (CharOperation.equals(TypeConstants.JAVA_UTIL_COLLECTION[2], this.compoundName[2]))
-						this.id = TypeIds.T_JavaUtilCollection;
+				switch (packageName[0]) {
+					case 'i' :
+						if (CharOperation.equals(packageName, TypeConstants.IO)) {
+							switch (typeName[0]) {
+								case 'E' :
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_IO_EXTERNALIZABLE[2]))
+										this.id = TypeIds.T_JavaIoExternalizable;
+									return;
+								case 'I' :
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_IO_IOEXCEPTION[2]))
+										this.id = TypeIds.T_JavaIoException;
+									return;
+								case 'O' :
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_IO_OBJECTSTREAMEXCEPTION[2]))
+										this.id = TypeIds.T_JavaIoObjectStreamException;
+									return;
+								case 'P' :
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_IO_PRINTSTREAM[2]))
+										this.id = TypeIds.T_JavaIoPrintStream;
+									return;
+								case 'S' :
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_IO_SERIALIZABLE[2]))
+										this.id = TypeIds.T_JavaIoSerializable;
+									return;
+							}
+						}
+						return;
+					case 'u' :
+						if (CharOperation.equals(packageName, TypeConstants.UTIL)) {
+							switch (typeName[0]) {
+								case 'C' :
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_UTIL_COLLECTION[2]))
+										this.id = TypeIds.T_JavaUtilCollection;
+									return;
+								case 'I' :
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_UTIL_ITERATOR[2]))
+										this.id = TypeIds.T_JavaUtilIterator;
+									return;
+							}
+						}
+						return;
 				}
 				return;
 			}
 
 			// remaining types MUST be in java.lang.*
-			char[] typeName = this.compoundName[2];
-			if (typeName.length == 0) return; // just to be safe
 			switch (typeName[0]) {
 				case 'A' :
 					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ASSERTIONERROR[2]))
 						this.id = TypeIds.T_JavaLangAssertionError;
 					return;
 				case 'B' :
-					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_BOOLEAN[2]))
-						this.id = TypeIds.T_JavaLangBoolean;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_BYTE[2]))
-						this.id = TypeIds.T_JavaLangByte;
+					switch (typeName.length) {
+						case 4 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_BYTE[2]))
+								this.id = TypeIds.T_JavaLangByte;
+							return;
+						case 7 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_BOOLEAN[2]))
+								this.id = TypeIds.T_JavaLangBoolean;
+							return;
+					}
 					return;
 				case 'C' :
-					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CHARACTER[2]))
-						this.id = TypeIds.T_JavaLangCharacter;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CLASS[2]))
-						this.id = TypeIds.T_JavaLangClass;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
-						this.id = TypeIds.T_JavaLangClassNotFoundException;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CLONEABLE[2]))
-					    this.id = TypeIds.T_JavaLangCloneable;
+					switch (typeName.length) {
+						case 5 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CLASS[2]))
+								this.id = TypeIds.T_JavaLangClass;
+							return;
+						case 9 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CHARACTER[2]))
+								this.id = TypeIds.T_JavaLangCharacter;
+							else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CLONEABLE[2]))
+							    this.id = TypeIds.T_JavaLangCloneable;
+							return;
+						case 22 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
+								this.id = TypeIds.T_JavaLangClassNotFoundException;
+							return;
+					}
 					return;
 				case 'D' :
-					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_DOUBLE[2]))
-						this.id = TypeIds.T_JavaLangDouble;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_DEPRECATED[2]))
-						this.id = TypeIds.T_JavaLangDeprecated;
+					switch (typeName.length) {
+						case 6 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_DOUBLE[2]))
+								this.id = TypeIds.T_JavaLangDouble;
+							return;
+						case 10 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_DEPRECATED[2]))
+								this.id = TypeIds.T_JavaLangDeprecated;
+							return;
+					}
 					return;
 				case 'E' :
-					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ERROR[2]))
-						this.id = TypeIds.T_JavaLangError;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_EXCEPTION[2]))
-						this.id = TypeIds.T_JavaLangException;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ENUM[2]))
-						this.id = TypeIds.T_JavaLangEnum;
+					switch (typeName.length) {
+						case 4 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ENUM[2]))
+								this.id = TypeIds.T_JavaLangEnum;
+							return;
+						case 5 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ERROR[2]))
+								this.id = TypeIds.T_JavaLangError;
+							return;
+						case 9 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_EXCEPTION[2]))
+								this.id = TypeIds.T_JavaLangException;
+							return;
+					}
 					return;
 				case 'F' :
 					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_FLOAT[2]))
 						this.id = TypeIds.T_JavaLangFloat;
 					return;
 				case 'I' :
-					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_INTEGER[2]))
-						this.id = TypeIds.T_JavaLangInteger;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ITERABLE[2]))
-						this.id = TypeIds.T_JavaLangIterable;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ILLEGALARGUMENTEXCEPTION[2]))
-						this.id = TypeIds.T_JavaLangIllegalArgumentException;
+					switch (typeName.length) {
+						case 7 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_INTEGER[2]))
+								this.id = TypeIds.T_JavaLangInteger;
+							return;
+						case 8 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ITERABLE[2]))
+								this.id = TypeIds.T_JavaLangIterable;
+							return;
+						case 24 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ILLEGALARGUMENTEXCEPTION[2]))
+								this.id = TypeIds.T_JavaLangIllegalArgumentException;
+							return;
+					}
 					return;
 				case 'L' :
 					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_LONG[2]))
@@ -445,28 +508,46 @@ public void computeId() {
 						this.id = TypeIds.T_JavaLangNoClassDefError;
 					return;
 				case 'O' :
-					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_OBJECT[2]))
-						this.id = TypeIds.T_JavaLangObject;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_OVERRIDE[2]))
-						this.id = TypeIds.T_JavaLangOverride;
+					switch (typeName.length) {
+						case 6 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_OBJECT[2]))
+								this.id = TypeIds.T_JavaLangObject;
+							return;
+						case 8 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_OVERRIDE[2]))
+								this.id = TypeIds.T_JavaLangOverride;
+							return;
+					}
 					return;
 				case 'R' :
 					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION[2]))
 						this.id = 	TypeIds.T_JavaLangRuntimeException;
 					break;
 				case 'S' :
-					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_STRING[2]))
-						this.id = TypeIds.T_JavaLangString;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_STRINGBUFFER[2]))
-						this.id = TypeIds.T_JavaLangStringBuffer;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_STRINGBUILDER[2]))
-						this.id = TypeIds.T_JavaLangStringBuilder;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_SYSTEM[2]))
-						this.id = TypeIds.T_JavaLangSystem;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_SHORT[2]))
-						this.id = TypeIds.T_JavaLangShort;
-					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_SUPPRESSWARNINGS[2]))
-						this.id = TypeIds.T_JavaLangSuppressWarnings;
+					switch (typeName.length) {
+						case 5 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_SHORT[2]))
+								this.id = TypeIds.T_JavaLangShort;
+							return;
+						case 6 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_STRING[2]))
+								this.id = TypeIds.T_JavaLangString;
+							else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_SYSTEM[2]))
+								this.id = TypeIds.T_JavaLangSystem;
+							return;
+						case 12 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_STRINGBUFFER[2]))
+								this.id = TypeIds.T_JavaLangStringBuffer;
+							return;
+						case 13 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_STRINGBUILDER[2]))
+								this.id = TypeIds.T_JavaLangStringBuilder;
+							return;
+						case 16 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_SUPPRESSWARNINGS[2]))
+								this.id = TypeIds.T_JavaLangSuppressWarnings;
+							return;
+					}
 					return;
 				case 'T' :
 					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_THROWABLE[2]))
@@ -484,48 +565,67 @@ public void computeId() {
 				return;
 			if (!CharOperation.equals(TypeConstants.LANG, this.compoundName[1]))
 				return;
-			char[] packageName = this.compoundName[2];
+			packageName = this.compoundName[2];
 			if (packageName.length == 0) return; // just to be safe
 			typeName = this.compoundName[3];
 			if (typeName.length == 0) return; // just to be safe
-			if (CharOperation.equals(packageName, TypeConstants.REFLECT)) {
-				if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_REFLECT_CONSTRUCTOR[3])) {
-					this.id = TypeIds.T_JavaLangReflectConstructor;
-				} else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_REFLECT_FIELD[3])) {
-					this.id = TypeIds.T_JavaLangReflectField;
-				} else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_REFLECT_METHOD[3])) {
-					this.id = TypeIds.T_JavaLangReflectMethod;
-				}
-				return;
-			} else if (CharOperation.equals(packageName, TypeConstants.ANNOTATION)) {
-				switch (typeName[0]) {
-					case 'A' :
-						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION[3]))
-							this.id = TypeIds.T_JavaLangAnnotationAnnotation;
-						return;
-					case 'D' :
-						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED[3]))
-							this.id = TypeIds.T_JavaLangAnnotationDocumented;
-						return;
-					case 'E' :
-						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE[3]))
-							this.id = TypeIds.T_JavaLangAnnotationElementType;
-						return;
-					case 'I' :
-						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_INHERITED[3]))
-							this.id = TypeIds.T_JavaLangAnnotationInherited;
-						return;
-					case 'R' :
-						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_RETENTION[3]))
-							this.id = TypeIds.T_JavaLangAnnotationRetention;
-						else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY[3]))
-							this.id = TypeIds.T_JavaLangAnnotationRetentionPolicy;
-						return;
-					case 'T' :
-						if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_TARGET[3]))
-							this.id = TypeIds.T_JavaLangAnnotationTarget;
-						return;
-				}
+			switch (packageName[0]) {
+				case 'a' :
+					if (CharOperation.equals(packageName, TypeConstants.ANNOTATION)) {
+						switch (typeName[0]) {
+							case 'A' :
+								if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION[3]))
+									this.id = TypeIds.T_JavaLangAnnotationAnnotation;
+								return;
+							case 'D' :
+								if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED[3]))
+									this.id = TypeIds.T_JavaLangAnnotationDocumented;
+								return;
+							case 'E' :
+								if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE[3]))
+									this.id = TypeIds.T_JavaLangAnnotationElementType;
+								return;
+							case 'I' :
+								if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_INHERITED[3]))
+									this.id = TypeIds.T_JavaLangAnnotationInherited;
+								return;
+							case 'R' :
+								switch (typeName.length) {
+									case 9 :
+										if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_RETENTION[3]))
+											this.id = TypeIds.T_JavaLangAnnotationRetention;
+										return;
+									case 15 :
+										if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY[3]))
+											this.id = TypeIds.T_JavaLangAnnotationRetentionPolicy;
+										return;
+								}
+								return;
+							case 'T' :
+								if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_TARGET[3]))
+									this.id = TypeIds.T_JavaLangAnnotationTarget;
+								return;
+						}
+					}
+					return;
+				case 'r' :
+					if (CharOperation.equals(packageName, TypeConstants.REFLECT)) {
+						switch (typeName[0]) {
+							case 'C' :
+								if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_REFLECT_CONSTRUCTOR[2]))
+									this.id = TypeIds.T_JavaLangReflectConstructor;
+								return;
+							case 'F' :
+								if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_REFLECT_FIELD[2]))
+									this.id = TypeIds.T_JavaLangReflectField;
+								return;
+							case 'M' :
+								if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_REFLECT_METHOD[2]))
+									this.id = TypeIds.T_JavaLangReflectMethod;
+								return;
+						}
+					}
+					return;
 			}
 			break;
 	}
