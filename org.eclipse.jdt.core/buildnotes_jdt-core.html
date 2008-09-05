@@ -69,7 +69,8 @@ Eclipse SDK 3.5M2 - September 2, 2008
 Added a new compiler warning to signal absence of <code>synchronized</code> modifier when overriding a synchronized method. 
 This diagnosis is controlled by option: 
 <code>JavaCore.COMPILER_PB_MISSING_SYNCHRONIZED_ON_INHERITED_METHOD</code> and produces a problem marker which ID is
-<code>IProblem.MissingSynchronizedModifierInInheritedMethod</code> problem ID.
+<code>IProblem.MissingSynchronizedModifierInInheritedMethod</code> problem ID;
+it may be suppressed using <code>@SuppressWarnings("super")</code>.
 <pre>
   Compiler option ID: Reporting Missing Synchronized Modifier On Inherited Method.
   When enabled, the compiler will issue an error or a warning if a method
