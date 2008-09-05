@@ -460,7 +460,7 @@ public class CorrectionEngine implements ProblemReasons {
 	 * @since 3.1
 	 */
 	public static String getWarningToken(int problemID){
-		long irritant = ProblemReporter.getIrritant(problemID);
+		int irritant = ProblemReporter.getIrritant(problemID);
 		if (irritant != 0) {
 			return CompilerOptions.warningTokenFromIrritant(irritant);
 		}

@@ -45,7 +45,7 @@ private static int getElaborationId (int leadProblemId, byte elaborationVariant)
 	return leadProblemId << 8 | elaborationVariant; // leadProblemId comes into the higher order bytes
 }
 
-public static long getIrritant(int problemID) {
+public static int getIrritant(int problemID) {
 	switch(problemID){
 
 		case IProblem.MaskedCatch :
@@ -336,106 +336,87 @@ public static int getProblemCategory(int severity, int problemID) {
 		// fatal problems even if optional are all falling into same category (not irritant based)
 		if ((severity & ProblemSeverities.Fatal) != 0)
 			break categorizeOnIrritant;
-		long irritant = getIrritant(problemID);
-		int irritantInt = (int) irritant;
-		if (irritantInt == irritant) {
-			switch (irritantInt) {
-				case (int)CompilerOptions.MethodWithConstructorName:
-				case (int)CompilerOptions.AccessEmulation:
-				case (int)CompilerOptions.AssertUsedAsAnIdentifier:
-				case (int)CompilerOptions.NonStaticAccessToStatic:
-				case (int)CompilerOptions.UnqualifiedFieldAccess:
-				case (int)CompilerOptions.UndocumentedEmptyBlock:
-				case (int)CompilerOptions.IndirectStaticAccess:
-					return CategorizedProblem.CAT_CODE_STYLE;
+		int irritant = getIrritant(problemID);
+		switch (irritant) {
+			case CompilerOptions.MethodWithConstructorName :
+			case CompilerOptions.AccessEmulation :
+			case CompilerOptions.AssertUsedAsAnIdentifier :
+			case CompilerOptions.NonStaticAccessToStatic :
+			case CompilerOptions.UnqualifiedFieldAccess :
+			case CompilerOptions.UndocumentedEmptyBlock :
+			case CompilerOptions.IndirectStaticAccess :
+			case CompilerOptions.FinalParameterBound :
+			case CompilerOptions.EnumUsedAsAnIdentifier :
+			case CompilerOptions.AnnotationSuperInterface :
+			case CompilerOptions.AutoBoxing :
+			case CompilerOptions.MissingOverrideAnnotation :
+			case CompilerOptions.MissingDeprecatedAnnotation :
+			case CompilerOptions.ParameterAssignment :				
+				return CategorizedProblem.CAT_CODE_STYLE;
 
-				case (int)CompilerOptions.MaskedCatchBlock:
-				case (int)CompilerOptions.NoImplicitStringConversion:
-				case (int)CompilerOptions.NoEffectAssignment:
-				case (int)CompilerOptions.AccidentalBooleanAssign:
-				case (int)CompilerOptions.EmptyStatement:
-				case (int)CompilerOptions.FinallyBlockNotCompleting:
-					return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
+			case CompilerOptions.MaskedCatchBlock :
+			case CompilerOptions.NoImplicitStringConversion :
+			case CompilerOptions.NoEffectAssignment :
+			case CompilerOptions.AccidentalBooleanAssign :
+			case CompilerOptions.EmptyStatement :
+			case CompilerOptions.FinallyBlockNotCompleting :
+			case CompilerOptions.MissingSerialVersion :
+			case CompilerOptions.VarargsArgumentNeedCast :
+			case CompilerOptions.NullReference :
+			case CompilerOptions.PotentialNullReference :
+			case CompilerOptions.RedundantNullCheck :
+			case CompilerOptions.IncompleteEnumSwitch :
+			case CompilerOptions.FallthroughCase :
+			case CompilerOptions.OverridingMethodWithoutSuperInvocation :
+			case CompilerOptions.ComparingIdentical :
+			case CompilerOptions.MissingSynchronizedModifierInInheritedMethod :				
+				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
+			
+			case CompilerOptions.OverriddenPackageDefaultMethod :
+			case CompilerOptions.IncompatibleNonInheritedInterfaceMethod :
+			case CompilerOptions.LocalVariableHiding :
+			case CompilerOptions.FieldHiding :
+			case CompilerOptions.TypeHiding :
+				return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;		
 
-				case (int)CompilerOptions.OverriddenPackageDefaultMethod:
-				case (int)CompilerOptions.IncompatibleNonInheritedInterfaceMethod:
-				case (int)CompilerOptions.LocalVariableHiding:
-				case (int)CompilerOptions.FieldHiding:
-					return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;
+			case CompilerOptions.UnusedLocalVariable :
+			case CompilerOptions.UnusedArgument :
+			case CompilerOptions.UnusedImport :
+			case CompilerOptions.UnusedPrivateMember :
+			case CompilerOptions.UnusedDeclaredThrownException :
+			case CompilerOptions.UnnecessaryTypeCheck :
+			case CompilerOptions.UnnecessaryElse :
+			case CompilerOptions.UnhandledWarningToken :
+			case CompilerOptions.UnusedWarningToken :
+			case CompilerOptions.UnusedLabel :
+			case CompilerOptions.RedundantSuperinterface :				
+				return CategorizedProblem.CAT_UNNECESSARY_CODE;					
 
-				case (int)CompilerOptions.UnusedLocalVariable:
-				case (int)CompilerOptions.UnusedArgument:
-				case (int)CompilerOptions.UnusedImport:
-				case (int)CompilerOptions.UnusedPrivateMember:
-				case (int)CompilerOptions.UnusedDeclaredThrownException:
-				case (int)CompilerOptions.UnnecessaryTypeCheck:
-				case (int)CompilerOptions.UnnecessaryElse:
-					return CategorizedProblem.CAT_UNNECESSARY_CODE;
+			case CompilerOptions.UsingDeprecatedAPI :
+				return CategorizedProblem.CAT_DEPRECATION;
 
-				case (int)CompilerOptions.UsingDeprecatedAPI:
-					return CategorizedProblem.CAT_DEPRECATION;
+			case CompilerOptions.NonExternalizedString :
+				return CategorizedProblem.CAT_NLS;
 
-				case (int)CompilerOptions.NonExternalizedString:
-					return CategorizedProblem.CAT_NLS;
+			case CompilerOptions.Task :
+				return CategorizedProblem.CAT_UNSPECIFIED; // TODO may want to improve
+			
+			case CompilerOptions.MissingJavadocComments :
+			case CompilerOptions.MissingJavadocTags :
+			case CompilerOptions.InvalidJavadoc :
+			case CompilerOptions.InvalidJavadoc|CompilerOptions.UsingDeprecatedAPI :
+				return CategorizedProblem.CAT_JAVADOC;					
 
-				case (int)CompilerOptions.Task:
-					return CategorizedProblem.CAT_UNSPECIFIED; // TODO may want to improve
-
-				case (int)CompilerOptions.MissingJavadocComments:
-				case (int)CompilerOptions.MissingJavadocTags:
-				case (int)CompilerOptions.InvalidJavadoc:
-				case (int)(CompilerOptions.InvalidJavadoc | CompilerOptions.UsingDeprecatedAPI):
-					return CategorizedProblem.CAT_JAVADOC;
-
-				case (int)CompilerOptions.UncheckedTypeOperation:
-					return CategorizedProblem.CAT_UNCHECKED_RAW;
-
-				default:
-					break categorizeOnIrritant;
-			}
-		} else {
-			irritantInt = (int)(irritant >>> 32);
-			switch (irritantInt) {
-				case (int)(CompilerOptions.FinalParameterBound >>> 32):
-				case (int)(CompilerOptions.EnumUsedAsAnIdentifier >>> 32):
-				case (int)(CompilerOptions.AnnotationSuperInterface >>> 32):
-				case (int)(CompilerOptions.AutoBoxing >>> 32):
-				case (int)(CompilerOptions.MissingOverrideAnnotation >>> 32):
-				case (int)(CompilerOptions.MissingDeprecatedAnnotation >>> 32):
-				case (int)(CompilerOptions.ParameterAssignment >>> 32):
-					return CategorizedProblem.CAT_CODE_STYLE;
-
-				case (int)(CompilerOptions.MissingSerialVersion >>> 32):
-				case (int)(CompilerOptions.VarargsArgumentNeedCast >>> 32):
-				case (int)(CompilerOptions.NullReference >>> 32):
-				case (int)(CompilerOptions.PotentialNullReference >>> 32):
-				case (int)(CompilerOptions.RedundantNullCheck >>> 32):
-				case (int)(CompilerOptions.IncompleteEnumSwitch >>> 32):
-				case (int)(CompilerOptions.FallthroughCase >>> 32):
-				case (int)(CompilerOptions.OverridingMethodWithoutSuperInvocation >>> 32):
-				case (int)(CompilerOptions.ComparingIdentical >>> 32):
-				case (int)(CompilerOptions.MissingSynchronizedModifierInInheritedMethod >> 32):
-					return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
-
-				case (int)(CompilerOptions.TypeHiding >>> 32):
-					return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;
-
-				case (int)(CompilerOptions.UnhandledWarningToken >>> 32):
-				case (int)(CompilerOptions.UnusedWarningToken >>> 32):
-				case (int)(CompilerOptions.UnusedLabel >>> 32):
-				case (int)(CompilerOptions.RedundantSuperinterface >>> 32):
-					return CategorizedProblem.CAT_UNNECESSARY_CODE;
-
-				case (int)(CompilerOptions.ForbiddenReference >>> 32):
-				case (int)(CompilerOptions.DiscouragedReference >>> 32):
-					return CategorizedProblem.CAT_RESTRICTION;
-
-				case (int)(CompilerOptions.RawTypeReference >>> 32):
-					return CategorizedProblem.CAT_UNCHECKED_RAW;
-
-				default:
-					break categorizeOnIrritant;
-			}
+			case CompilerOptions.UncheckedTypeOperation :
+			case CompilerOptions.RawTypeReference :
+				return CategorizedProblem.CAT_UNCHECKED_RAW;				
+			
+			case CompilerOptions.ForbiddenReference :
+			case CompilerOptions.DiscouragedReference :
+				return CategorizedProblem.CAT_RESTRICTION;
+			
+			default:
+				break categorizeOnIrritant;
 		}
 	}
 	// categorize fatal problems per ID
@@ -1163,7 +1144,7 @@ public int computeSeverity(int problemID){
 			}
 			break;
 	}
-	long irritant = getIrritant(problemID);
+	int irritant = getIrritant(problemID);
 	if (irritant != 0) {
 		if ((problemID & IProblem.Javadoc) != 0 && !this.options.docCommentSupport)
 			return ProblemSeverities.Ignore;

@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -60,14 +61,15 @@ public static Class testClass() {
 
 // irritant vs warning token - check To/From symmetry
 public void test001_irritant_warning_token() {
-	String [] tokens = new String[64];
 	Map matcher = new HashMap();
-	long irritant;
-	String token;
-	for (int i = 0; i < 64; i++) {
-		if ((token = tokens[i] = CompilerOptions.warningTokenFromIrritant(irritant = 1L << i)) != null) {
-			matcher.put(token, token);
-			assertTrue((irritant & CompilerOptions.warningTokenToIrritants(token)) != 0);
+	for (int group = 0; group < IrritantSet.GROUP_MAX; group++) {
+		for (int i = 0; i < 29; i++) {
+			int irritant = (group << IrritantSet.GROUP_SHIFT) + (1 << i);
+			String token = CompilerOptions.warningTokenFromIrritant(irritant);
+			if (token != null) {
+				matcher.put(token, token);
+				assertTrue(CompilerOptions.warningTokenToIrritants(token) != null);
+			}
 		}
 	}
 	String [] allTokens = CompilerOptions.warningTokens;

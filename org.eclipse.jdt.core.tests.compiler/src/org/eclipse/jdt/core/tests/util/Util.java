@@ -1321,7 +1321,7 @@ public static String getProblemLog(CompilationResult compilationResult, boolean 
 						}
 					}
 					if (showWarningToken) {
-						long irritant = ProblemReporter.getIrritant(problem.getID());
+						int irritant = ProblemReporter.getIrritant(problem.getID());
 						if (irritant != 0) {
 							String warningToken = CompilerOptions.warningTokenFromIrritant(irritant);
 							if (warningToken != null) {

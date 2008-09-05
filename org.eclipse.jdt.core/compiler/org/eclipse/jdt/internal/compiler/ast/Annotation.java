@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
@@ -177,7 +178,7 @@ public abstract class Annotation extends Expression {
 	}
 
 	public void recordSuppressWarnings(Scope scope, int startSuppresss, int endSuppress, boolean isSuppressingWarnings) {
-		long suppressWarningIrritants = 0;
+		IrritantSet suppressWarningIrritants = null;
 		MemberValuePair[] pairs = memberValuePairs();
 		pairLoop: for (int i = 0, length = pairs.length; i < length; i++) {
 			MemberValuePair pair = pairs[i];
@@ -190,12 +191,12 @@ public abstract class Annotation extends Expression {
 						for (int j = 0, initsLength = inits.length; j < initsLength; j++) {
 							Constant cst = inits[j].constant;
 							if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
-								long irritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
-								if (irritants != 0) {
-									if ((suppressWarningIrritants & irritants) == irritants) {
-										scope.problemReporter().unusedWarningToken(inits[j]);
-									} else {
-										suppressWarningIrritants |= irritants;
+								IrritantSet irritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
+								if (irritants != null) {
+									if (suppressWarningIrritants == null) {
+										suppressWarningIrritants = new IrritantSet(irritants);
+									} else if (suppressWarningIrritants.set(irritants) == null) {
+											scope.problemReporter().unusedWarningToken(inits[j]);
 									}
 								} else {
 									scope.problemReporter().unhandledWarningToken(inits[j]);
@@ -206,9 +207,10 @@ public abstract class Annotation extends Expression {
 				} else {
 					Constant cst = value.constant;
 					if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
-						long irritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
-						if (irritants != 0) {
-							suppressWarningIrritants |= irritants;
+						IrritantSet irritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
+						if (irritants != null) {
+							suppressWarningIrritants = new IrritantSet(irritants);
+							// TODO: should check for unused warning token against enclosing annotation as well ?
 						} else {
 							scope.problemReporter().unhandledWarningToken(value);
 						}
@@ -217,7 +219,7 @@ public abstract class Annotation extends Expression {
 				break pairLoop;
 			}
 		}
-		if (isSuppressingWarnings && suppressWarningIrritants != 0) {
+		if (isSuppressingWarnings && suppressWarningIrritants != null) {
 			scope.referenceCompilationUnit().recordSuppressWarnings(suppressWarningIrritants, this, startSuppresss, endSuppress);
 		}
 	}
@@ -307,7 +309,7 @@ public abstract class Annotation extends Expression {
 		long tagBits = detectStandardAnnotation(scope, annotationType, valueAttribute);
 
 		// record annotation positions in the compilation result
-		scope.referenceCompilationUnit().recordSuppressWarnings(CompilerOptions.NonExternalizedString, null, this.sourceStart, this.declarationSourceEnd);
+		scope.referenceCompilationUnit().recordSuppressWarnings(IrritantSet.NLS, null, this.sourceStart, this.declarationSourceEnd);
 		if (this.recipient != null) {
 			if (tagBits != 0) {
 				// tag bits onto recipient
