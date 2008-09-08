@@ -39,6 +39,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -2333,7 +2334,7 @@ public void testEmptyClasspath() throws CoreException {
  * Ensures that a source folder that contains character that must be encoded can be written.
  * (regression test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=70193)
  */
-public void testEncoding() throws CoreException {
+public void testEncoding1() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src\u3400"}, "bin");
 		IFile file = getFile("/P/.classpath");
@@ -2346,6 +2347,35 @@ public void testEncoding() throws CoreException {
 			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>\n",
 			encodedContents);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a .classpath encoded with a BOM can be read
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=240034 )
+ */
+public void testEncoding2() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, "bin");
+		IFile file = getFile("/P/.classpath");
+		byte[] contents = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsByteArray(file);
+		FileOutputStream output = null;
+		try {
+			output = new FileOutputStream(file.getLocation().toFile());
+			output.write(IContentDescription.BOM_UTF_8); // UTF-8 BOM
+			output.write(contents);
+			output.flush();
+		} finally {
+			if (output != null)
+				output.close();
+		}
+		file.refreshLocal(IResource.DEPTH_ONE, null);
+		
+		assertClasspathEquals(
+			p.getResolvedClasspath(false), 
+			"/P/src[CPE_SOURCE][K_SOURCE][isExported:false]"
+		);
 	} finally {
 		deleteProject("P");
 	}
