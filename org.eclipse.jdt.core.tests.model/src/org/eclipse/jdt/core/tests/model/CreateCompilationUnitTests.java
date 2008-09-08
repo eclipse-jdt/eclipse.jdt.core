@@ -13,7 +13,10 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 
 import junit.framework.Test;
@@ -212,5 +215,23 @@ public void testSimpleCreation() throws JavaModelException {
 		"		p[*]: {CHILDREN}\n" +
 		"			HelloWorld.java[+]: {}"
 	);
+}
+/*
+ * Ensures that the correct scheduling rule is used when running createCompilationUnit
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=233270 )
+ */
+public void testSchedulingRule() throws Exception {
+	IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+		public void run(IProgressMonitor monitor) throws CoreException {
+			IPackageFragment pkg = getPackage("/P/p");
+			ICompilationUnit cu= pkg.createCompilationUnit("HelloWorld.java",
+				("package p;\n" +
+				"\n" +
+				"public class HelloWorld {\n" +
+				"}\n"), false, null);
+			assertCreation(cu);
+		}
+	};
+	getWorkspace().run(runnable, getFolder("/P/p"), IResource.NONE, null);
 }
 }
