@@ -59,7 +59,10 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	public static Integer UNKNOWN_STATE = new Integer(2);
 	public static Integer REBUILDING_STATE = new Integer(3);
 
-public synchronized void aboutToUpdateIndex(IPath containerPath, Integer newIndexState) {
+	// Debug
+	public static boolean DEBUG = false;
+
+	public synchronized void aboutToUpdateIndex(IPath containerPath, Integer newIndexState) {
 	// newIndexState is either UPDATING_STATE or REBUILDING_STATE
 	// must tag the index as inconsistent, in case we exit before the update job is started
 	IPath indexLocation = computeIndexLocation(containerPath);
@@ -142,6 +145,8 @@ public IPath computeIndexLocation(IPath containerPath) {
 	return indexLocation;
 }
 public void deleteIndexFiles() {
+	if (DEBUG)
+		Util.verbose("Deleting index files"); //$NON-NLS-1$
 	this.savedIndexNamesFile.delete(); // forget saved indexes & delete each index file
 	deleteIndexFiles(null);
 }
@@ -154,7 +159,7 @@ private void deleteIndexFiles(SimpleSet pathsToKeep) {
 		if (pathsToKeep != null && pathsToKeep.includes(fileName)) continue;
 		String suffix = ".index"; //$NON-NLS-1$
 		if (fileName.regionMatches(true, fileName.length() - suffix.length(), suffix, 0, suffix.length())) {
-			if (VERBOSE)
+			if (VERBOSE || DEBUG)
 				Util.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
 			indexesFiles[i].delete();
 		}
@@ -516,7 +521,7 @@ public void remove(String containerRelativePath, IPath indexedContainer){
  * This is a no-op if the index did not exist.
  */
 public synchronized void removeIndex(IPath containerPath) {
-	if (VERBOSE)
+	if (VERBOSE || DEBUG)
 		Util.verbose("removing index " + containerPath); //$NON-NLS-1$
 	IPath indexLocation = computeIndexLocation(containerPath);
 	Index index = getIndex(indexLocation);
@@ -527,8 +532,11 @@ public synchronized void removeIndex(IPath containerPath) {
 	}
 	if (indexFile == null)
 		indexFile = new File(indexLocation.toOSString()); // index is not cached yet, but still want to delete the file
-	if (indexFile.exists())
+	if (indexFile.exists()) {
+		if (DEBUG)
+			Util.verbose("removing index file " + indexFile); //$NON-NLS-1$
 		indexFile.delete();
+	}
 	this.indexes.removeKey(indexLocation);
 	updateIndexState(indexLocation, null);
 }
@@ -536,6 +544,8 @@ public synchronized void removeIndex(IPath containerPath) {
  * Removes all indexes whose paths start with (or are equal to) the given path.
  */
 public synchronized void removeIndexPath(IPath path) {
+	if (VERBOSE || DEBUG)
+		Util.verbose("removing index path " + path); //$NON-NLS-1$
 	Object[] keyTable = this.indexes.keyTable;
 	Object[] valueTable = this.indexes.valueTable;
 	IPath[] locations = null;
@@ -552,8 +562,11 @@ public synchronized void removeIndexPath(IPath path) {
 				locations = new IPath[max];
 			locations[count++] = indexLocation;
 			File indexFile = index.getIndexFile();
-			if (indexFile.exists())
+			if (indexFile.exists()) {
+				if (DEBUG)
+					Util.verbose("removing index file " + indexFile); //$NON-NLS-1$
 				indexFile.delete();
+			}
 		} else {
 			max--;
 		}
@@ -777,6 +790,7 @@ private synchronized void updateIndexState(IPath indexLocation, Integer indexSta
 			Util.verbose("-> index state updated to: " + state + " for: "+indexLocation); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
+
 }
 private void writeSavedIndexNamesFile() {
 	BufferedWriter writer = null;

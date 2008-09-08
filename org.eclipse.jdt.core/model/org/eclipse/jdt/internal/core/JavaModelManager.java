@@ -186,6 +186,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	private static final String BUFFER_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/buffermanager" ; //$NON-NLS-1$
 	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
+	private static final String INDEX_MANAGER_ADVANCED_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager/advanced" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = JavaCore.PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
 	private static final String JAVAMODELCACHE_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel/cache" ; //$NON-NLS-1$
@@ -1520,6 +1521,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 			option = Platform.getDebugOption(INDEX_MANAGER_DEBUG);
 			if(option != null) JobManager.VERBOSE = option.equalsIgnoreCase(TRUE) ;
+
+			option = Platform.getDebugOption(INDEX_MANAGER_ADVANCED_DEBUG);
+			if(option != null) IndexManager.DEBUG = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
 			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase(TRUE) ;
