@@ -552,25 +552,23 @@ public void processDelta(IJavaElementDelta delta, int eventType) {
 				if (this.elements != null) {
 					this.elements.remove(element);
 				}
-				IPath path = null;
+				String path = null;
 				switch (element.getElementType()) {
 					case IJavaElement.JAVA_PROJECT:
-						path = ((IJavaProject)element).getProject().getFullPath();
+						path = ((IJavaProject)element).getProject().getFullPath().toString();
+						break;
 					case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-						if (path == null) {
-							path = ((IPackageFragmentRoot)element).getPath();
-						}
-						int toRemove = -1;
-						for (int i = 0; i < this.pathsCount; i++) {
-							if (this.relativePaths[i].equals(path)) { // TODO (jerome) this compares String and IPath !
-								toRemove = i;
-								break;
-							}
-						}
-						if (toRemove != -1) {
-							this.relativePaths[toRemove] = null;
-							rehash();
-						}
+						path = ((IPackageFragmentRoot)element).getPath().toString();
+						break;
+					default:
+						return;
+				}
+				for (int i = 0; i < this.pathsCount; i++) {
+					if (this.relativePaths[i].equals(path)) {
+						this.relativePaths[i] = null;
+						rehash();
+						break;
+					}
 				}
 			}
 			break;

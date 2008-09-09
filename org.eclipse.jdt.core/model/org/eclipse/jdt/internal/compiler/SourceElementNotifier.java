@@ -463,7 +463,7 @@ protected void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, T
 						alloc.sourceStart);
 				}
 			}
-			// fall through next case
+			// $FALL-THROUGH$
 		case AbstractVariableDeclaration.FIELD:
 			int fieldEndPosition = this.sourceEnds.get(fieldDeclaration);
 			if (fieldEndPosition == -1) {

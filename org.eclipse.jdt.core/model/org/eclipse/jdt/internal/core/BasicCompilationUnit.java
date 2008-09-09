@@ -76,6 +76,7 @@ private void initEncoding(IJavaElement javaElement) {
 						break;
 					}
 					// if no file, then get project encoding
+					// $FALL-THROUGH$
 				default:
 					IProject project = (IProject) javaProject.getResource();
 					if (project != null) {

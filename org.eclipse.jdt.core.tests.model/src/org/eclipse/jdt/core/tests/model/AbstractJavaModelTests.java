@@ -2517,39 +2517,21 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {
 		// Look for version to set and return if that's already done
-		String version = CompilerOptions.VERSION_1_4;
-		String jclLibString = null;
-		String newJclLibString = null;
-		String newJclSrcString = null;
-		switch (compliance.charAt(2)) {
-			case '6':
-				version = CompilerOptions.VERSION_1_6;
-				if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
-					return;
-				}
-				jclLibString = "JCL_LIB";
-				newJclLibString = "JCL15_LIB";
-				newJclSrcString = "JCL15_SRC";
-				break;
-			case '5':
-				version = CompilerOptions.VERSION_1_5;
-				if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
-					return;
-				}
-				jclLibString = "JCL_LIB";
-				newJclLibString = "JCL15_LIB";
-				newJclSrcString = "JCL15_SRC";
-				break;
-			case '3':
-				version = CompilerOptions.VERSION_1_3;
-			default:
-				if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
-					return;
-				}
-				jclLibString = "JCL15_LIB";
-				newJclLibString = "JCL_LIB";
-				newJclSrcString = "JCL_SRC";
-				break;
+		String version = compliance; // assume that the values of CompilerOptions.VERSION_* are used
+		if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
+			return;
+		}
+		String jclLibString;
+		String newJclLibString;
+		String newJclSrcString;
+		if (compliance.charAt(2) > '4') {
+			jclLibString = "JCL_LIB";
+			newJclLibString = "JCL15_LIB";
+			newJclSrcString = "JCL15_SRC";
+		} else {
+			jclLibString = "JCL15_LIB";
+			newJclLibString = "JCL_LIB";
+			newJclSrcString = "JCL_SRC";
 		}
 
 		// ensure variables are set

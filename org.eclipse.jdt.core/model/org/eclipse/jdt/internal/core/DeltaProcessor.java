@@ -451,7 +451,7 @@ public class DeltaProcessor {
 								&& (flags & IResourceDelta.MOVED_FROM) == 0) {// and also move and overide scenario (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21420)
 								break;
 							}
-						// fall through
+						//$FALL-THROUGH$
 						case IResourceDelta.ADDED :
 						case IResourceDelta.REMOVED :
 							javaProject = (JavaProject)JavaCore.create(file.getProject());
@@ -1235,7 +1235,7 @@ public class DeltaProcessor {
 				}
 				// not yet in a package fragment root or root of another project
 				// or package fragment to be included (see below)
-				// -> let it go through
+				// $FALL-THROUGH$
 
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			case IJavaElement.PACKAGE_FRAGMENT:
@@ -2517,11 +2517,13 @@ public class DeltaProcessor {
 					break;
 				}
 				// don't break as packages of the package fragment root can be indexed below
+				// $FALL-THROUGH$
 			case IJavaElement.PACKAGE_FRAGMENT :
 				switch (delta.getKind()) {
 					case IResourceDelta.CHANGED:
 						if ((delta.getFlags() & IResourceDelta.LOCAL_CHANGED) == 0)
 							break;
+						// $FALL-THROUGH$
 					case IResourceDelta.ADDED:
 					case IResourceDelta.REMOVED:
 						IPackageFragment pkg = null;
@@ -2576,6 +2578,7 @@ public class DeltaProcessor {
 						int flags = delta.getFlags();
 						if ((flags & IResourceDelta.CONTENT) == 0 && (flags & IResourceDelta.ENCODING) == 0)
 							break;
+						// $FALL-THROUGH$
 					case IResourceDelta.ADDED :
 						indexManager.addBinary(file, binaryFolderPath);
 						break;
@@ -2593,6 +2596,7 @@ public class DeltaProcessor {
 						int flags = delta.getFlags();
 						if ((flags & IResourceDelta.CONTENT) == 0 && (flags & IResourceDelta.ENCODING) == 0)
 							break;
+						// $FALL-THROUGH$
 					case IResourceDelta.ADDED :
 						indexManager.addSource(file, file.getProject().getFullPath(), getSourceElementParser(element));
 						// Clean file from secondary types cache but do not update indexing secondary type cache as it will be updated through indexing itself

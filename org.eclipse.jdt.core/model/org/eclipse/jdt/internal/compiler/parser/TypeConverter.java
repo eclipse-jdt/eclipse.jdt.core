@@ -253,6 +253,7 @@ public abstract class TypeConverter {
 				case Signature.C_DOLLAR:
 					if (this.memberTypeSeparator != Signature.C_DOLLAR)
 						break;
+					// $FALL-THROUGH$
 				case Signature.C_DOT :
 					if (!nameStarted) {
 						nameFragmentStart = this.namePos+1;

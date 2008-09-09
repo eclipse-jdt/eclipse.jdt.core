@@ -16,25 +16,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 
 public class ModelTestsUtil {
@@ -437,38 +430,6 @@ static public void setupExternalJCL(String jclName) throws IOException {
 	}
 }
 
-static public IJavaProject setUpJavaProject(final String projectName) throws CoreException, IOException {
-	return setUpJavaProject(projectName, "1.4");
-}
-
-static public IJavaProject setUpJavaProject(final String projectName, String compliance) throws CoreException, IOException {
-	// copy files in project from source workspace to target workspace
-	String sourceWorkspacePath = getSourceWorkspacePath("workspace");
-	String targetWorkspacePath = getWorkspaceRoot().getLocation().toFile().getCanonicalPath();
-	copyDirectory(new File(sourceWorkspacePath, projectName), new File(targetWorkspacePath, projectName));
-
-	// ensure variables are set
-	setUpJCLClasspathVariables(compliance);
-
-	// create project
-	final IProject project = getWorkspaceRoot().getProject(projectName);
-	IWorkspaceRunnable populate = new IWorkspaceRunnable() {
-		public void run(IProgressMonitor monitor) throws CoreException {
-			project.create(null);
-			project.open(null);
-		}
-	};
-	getWorkspace().run(populate, null);
-	IJavaProject javaProject = JavaCore.create(project);
-	setUpProjectCompliance(javaProject, compliance);
-	javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
-	javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
-	javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
-	javaProject.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
-	javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
-	return javaProject;
-}
-
 static public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 	if ("1.5".equals(compliance)) {
 		if (JavaCore.getClasspathVariable("JCL15_LIB") == null) {
@@ -487,72 +448,6 @@ static public void setUpJCLClasspathVariables(String compliance) throws JavaMode
 				null);
 		}
 	}
-}
-
-static public void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {
-	// Look for version to set and return if that's already done
-	String version = CompilerOptions.VERSION_1_4;
-	String jclLibString = null;
-	String newJclLibString = null;
-	String newJclSrcString = null;
-	switch (compliance.charAt(2)) {
-		case '6':
-			version = CompilerOptions.VERSION_1_6;
-			if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
-				return;
-			}
-			jclLibString = "JCL_LIB";
-			newJclLibString = "JCL15_LIB";
-			newJclSrcString = "JCL15_SRC";
-			break;
-		case '5':
-			version = CompilerOptions.VERSION_1_5;
-			if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
-				return;
-			}
-			jclLibString = "JCL_LIB";
-			newJclLibString = "JCL15_LIB";
-			newJclSrcString = "JCL15_SRC";
-			break;
-		case '3':
-			version = CompilerOptions.VERSION_1_3;
-		default:
-			if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
-				return;
-			}
-			jclLibString = "JCL15_LIB";
-			newJclLibString = "JCL_LIB";
-			newJclSrcString = "JCL_SRC";
-			break;
-	}
-
-	// ensure variables are set
-	setUpJCLClasspathVariables(compliance);
-
-	// set options
-	Map options = new HashMap();
-	options.put(CompilerOptions.OPTION_Compliance, version);
-	options.put(CompilerOptions.OPTION_Source, version);
-	options.put(CompilerOptions.OPTION_TargetPlatform, version);
-	javaProject.setOptions(options);
-
-	// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
-	IClasspathEntry[] classpath = javaProject.getRawClasspath();
-	IPath jclLib = new Path(jclLibString);
-	for (int i = 0, length = classpath.length; i < length; i++) {
-		IClasspathEntry entry = classpath[i];
-		if (entry.getPath().equals(jclLib)) {
-			classpath[i] = JavaCore.newVariableEntry(
-					new Path(newJclLibString),
-					new Path(newJclSrcString),
-					entry.getSourceAttachmentRootPath(),
-					entry.getAccessRules(),
-					new IClasspathAttribute[0],
-					entry.isExported());
-			break;
-		}
-	}
-	javaProject.setRawClasspath(classpath, null);
 }
 
 /**

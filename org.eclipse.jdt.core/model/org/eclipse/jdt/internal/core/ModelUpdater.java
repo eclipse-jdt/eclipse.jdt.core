@@ -210,6 +210,7 @@ public class ModelUpdater {
 				if (cu.isWorkingCopy() && !cu.isPrimary()) {
 					return;
 				}
+				// $FALL-THROUGH$
 			case IJavaElement.CLASS_FILE :
 				processChildren = false;
 				break;

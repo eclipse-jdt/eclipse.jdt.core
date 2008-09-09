@@ -815,7 +815,7 @@ private static int encodeTypeSignature(char[] typeName, int start, boolean isRes
 				}
 			}
 			buffer.append(C_CAPTURE);
-			// fall-thru for wildcard part of capture typecheckPos
+			//$FALL-THROUGH$ for wildcard part of capture typecheckPos
 		case '?':
 			// wildcard
 			pos = consumeWhitespace(typeName, pos+1, length);
