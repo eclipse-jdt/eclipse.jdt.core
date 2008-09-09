@@ -411,9 +411,11 @@ public class JavadocParser extends AbstractCommentParser {
 		switch (this.tagWaitingForDescription) {
 			case TAG_PARAM_VALUE:
 			case TAG_THROWS_VALUE:
-				int start = (int) (this.identifierPositionStack[0] >>> 32);
-				int end = (int) this.identifierPositionStack[this.identifierPtr];
-				this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
+				if (!this.inlineTagStarted) { // if an inline tag is started, then consider as the expected description...
+					int start = (int) (this.identifierPositionStack[0] >>> 32);
+					int end = (int) this.identifierPositionStack[this.identifierPtr];
+					this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
+				}
 				break;
 			case NO_TAG_VALUE:
 				break;
@@ -837,9 +839,11 @@ public class JavadocParser extends AbstractCommentParser {
 		switch (this.tagWaitingForDescription) {
 			case TAG_PARAM_VALUE:
 			case TAG_THROWS_VALUE:
-				int start = (int) (this.identifierPositionStack[0] >>> 32);
-				int end = (int) this.identifierPositionStack[this.identifierPtr];
-				this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
+				if (!this.inlineTagStarted) { // if an inline tag is started, then consider as the expected description...
+					int start = (int) (this.identifierPositionStack[0] >>> 32);
+					int end = (int) this.identifierPositionStack[this.identifierPtr];
+					this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
+				}
 				break;
 			case NO_TAG_VALUE:
 				break;

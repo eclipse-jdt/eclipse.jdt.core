@@ -958,12 +958,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				this.currentTokenType = -1;
 				int restart = this.scanner.currentPosition;
 				try {
-					token = readToken();
+					token = readTokenAndConsume();
 				} catch (InvalidInputException e) {
 					valid = false;
 				}
 				if (token == TerminalTokens.TokenNameWHITESPACE) {
-					this.scanner.currentPosition = restart;
+					this.scanner.resetTo(restart, this.javadocEnd);
 					this.index = restart;
 					return pushParamName(isTypeParam);
 				}

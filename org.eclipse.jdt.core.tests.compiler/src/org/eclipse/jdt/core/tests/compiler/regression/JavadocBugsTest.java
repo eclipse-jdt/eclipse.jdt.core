@@ -4760,6 +4760,7 @@ public void testBug128954() {
 		true,
 		true);
 }
+
 /**
  * Bug 128954: Javadoc problems with category CAT_INTERNAL - variation
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=128954"
@@ -7316,6 +7317,7 @@ public void testBug222900c() {
 		"----------\n"
 	);
 }
+
 /**
  * @bug 222902: [Javadoc] Missing description should not be warned in some cases
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222902"
@@ -7520,6 +7522,70 @@ public void testBug237937() {
 			" * @see <a href=\"http://www.eclipse.org/\">//</a>\n" + 
 			" */\n" + 
 			"public class Link {}\n"
+		}
+	);
+}
+
+/**
+ * @bug 246712: [javadoc] Unexpected warning about missing parameter doc in case of @inheritDoc
+ * @test Ensure inline tag are considered as description
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=246712"
+ */
+public void testBug246712() {
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runConformTest(
+		new String[] {
+			"src/X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Do something more.\n" + 
+			"	 * \n" + 
+			"	 * @param monitor The monitor\n" + 
+			"	 * @return {@link String X}\n" + 
+			"	 */\n" + 
+			"	String foo(Object monitor) {\n" + 
+			"		return \"X\";\n" + 
+			"	}\n" + 
+			"}\n",
+			"src/Y.java",
+			"public class Y extends X {\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Do something more.\n" + 
+			"	 * \n" + 
+			"	 * {@inheritDoc}\n" + 
+			"	 * \n" + 
+			"	 * @param monitor {@inheritDoc}\n" + 
+			"	 * @return {@link String Y}\n" + 
+			"	 */\n" + 
+			"	String foo(Object monitor) {\n" + 
+			"		return \"Y\";\n" + 
+			"	}\n" + 
+			"}\n"
+		}
+	);
+}
+// duplicate
+public void testBug246715() {
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runConformTest(
+		new String[] {
+			"src/X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"	final static int WAIT_YES = 0;\n" + 
+			"	final static int WAIT_NO = 1;\n" + 
+			"	\n" + 
+			"	/**\n" + 
+			"	 * Do something more.\n" + 
+			"	 * \n" + 
+			"	 * @param waitFlag {@link #WAIT_YES} or {@link #WAIT_NO}\n" + 
+			"	 */\n" + 
+			"	String foo(int waitFlag) {\n" + 
+			"		return \"X\";\n" + 
+			"	}\n" + 
+			"}\n"
 		}
 	);
 }
