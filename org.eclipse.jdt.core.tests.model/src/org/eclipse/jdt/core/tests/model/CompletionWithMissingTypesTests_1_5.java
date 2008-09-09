@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import junit.framework.Test;
 
-import junit.framework.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
 
-public class CompletionWithMissingTypesTests_1_5 extends AbstractJavaModelCompletionTests implements RelevanceConstants {
+public class CompletionWithMissingTypesTests_1_5 extends AbstractJavaModelCompletionTests {
 	static {
 //		TESTS_NAMES = new String[]{"test0040"};
 	}

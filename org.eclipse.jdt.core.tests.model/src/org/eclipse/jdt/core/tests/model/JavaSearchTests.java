@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.core.JavaModelStatus;
 /**
  * Tests the Java search engine where results are JavaElements and source positions.
  */
-public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSearchConstants {
+public class JavaSearchTests extends AbstractJavaSearchTests {
 
 public JavaSearchTests(String name) {
 	super(name);

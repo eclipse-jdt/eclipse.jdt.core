@@ -12,11 +12,9 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.jdt.core.*;
 
-import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
-
 import junit.framework.*;
 
-public class JavadocCompletionContextTests extends AbstractJavaModelCompletionTests implements RelevanceConstants {
+public class JavadocCompletionContextTests extends AbstractJavaModelCompletionTests {
 
 public JavadocCompletionContextTests(String name) {
 	super(name);

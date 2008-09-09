@@ -12,14 +12,13 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 
+import junit.framework.Test;
+
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
-
-import junit.framework.*;
-
-public class CompletionContextTests extends AbstractJavaModelCompletionTests implements RelevanceConstants {
+public class CompletionContextTests extends AbstractJavaModelCompletionTests {
 
 public CompletionContextTests(String name) {
 	super(name);

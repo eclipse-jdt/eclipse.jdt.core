@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.runtime;
 
-import java.io.*;
-
+import java.io.File;
+import java.io.IOException;
 import java.util.Vector;
 
 import org.eclipse.jdt.core.tests.util.Util;
@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.tests.util.Util;
  * must also be specified. This port is used for the communication between the
  * Proxy and the VM.
  */
-public class J9VMLauncher extends LocalVMLauncher implements RuntimeConstants {
+public class J9VMLauncher extends LocalVMLauncher {
 	int internalDebugPort = -1;
 	String proxyOutFile;
 	String symbolPath;

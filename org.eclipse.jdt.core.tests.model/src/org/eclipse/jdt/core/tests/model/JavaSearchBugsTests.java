@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
  */
-public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJavaSearchConstants {
+public class JavaSearchBugsTests extends AbstractJavaSearchTests {
 	private final static int UI_DECLARATIONS = DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE;
 
 public JavaSearchBugsTests(String name) {

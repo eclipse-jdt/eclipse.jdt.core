@@ -397,8 +397,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						comment = 0;
 						break;
 					}
-					// do not break, directly go to next case...
 					comment = this.DOC_COMMENT;
+					// $FALL-THROUGH$ - do not break, directly go to next case...
 				case DOC_COMMENT:
 					if (tag != null) {
 						if (currentChar >= 'a' && currentChar <= 'z') {

@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.jdt.core.*;
+import junit.framework.Test;
 
-import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 
-import junit.framework.*;
-
-public class SnippetCompletionContextTests extends AbstractJavaModelCompletionTests implements RelevanceConstants {
+public class SnippetCompletionContextTests extends AbstractJavaModelCompletionTests {
 
 public SnippetCompletionContextTests(String name) {
 	super(name);

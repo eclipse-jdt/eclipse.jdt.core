@@ -11,16 +11,18 @@
 package org.eclipse.jdt.core.tests.runtime;
 
 
-import java.io.*;
-
-import java.util.Vector;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * A standard VM launcher launches an external standard VM with
  * the given arguments on the same machine.
  */
-public class JRockitVMLauncher extends LocalVMLauncher implements RuntimeConstants {
+public class JRockitVMLauncher extends LocalVMLauncher {
 	String batchFileName;
 /**
  * Creates a new StandardVMLauncher that launches a standard VM
