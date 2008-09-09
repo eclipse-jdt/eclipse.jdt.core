@@ -403,7 +403,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 						if (JavaBuilder.DEBUG)
 							System.out.println("Skipped dependents of removed package " + packageName); //$NON-NLS-1$
 					}
-					// fall thru & traverse the sub-packages and .class files
+					//$FALL-THROUGH$ traverse the sub-packages and .class files
 				case IResourceDelta.CHANGED :
 					IResourceDelta[] children = binaryDelta.getAffectedChildren();
 					for (int i = 0, l = children.length; i < l; i++)
@@ -515,7 +515,7 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 							addDependentsOf(addedPackagePath, true);
 						}
 				    }
-					// fall thru & collect all the source files
+					//$FALL-THROUGH$ collect all the source files
 				case IResourceDelta.CHANGED :
 					IResourceDelta[] children = sourceDelta.getAffectedChildren();
 					for (int i = 0, l = children.length; i < l; i++)

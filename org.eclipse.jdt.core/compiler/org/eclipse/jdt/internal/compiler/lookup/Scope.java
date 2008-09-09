@@ -1449,7 +1449,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							insideConstructorCall |= methodScope.isConstructorCall;
 							insideTypeAnnotation = methodScope.insideTypeAnnotation;
 
-							// Fall through... could duplicate the code below to save a cast - questionable optimization
+							//$FALL-THROUGH$ could duplicate the code below to save a cast - questionable optimization
 						case BLOCK_SCOPE :
 							LocalVariableBinding variableBinding = scope.findVariable(name);
 							// looks in this scope only
@@ -2335,7 +2335,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						}
 						insideStaticContext |= methodScope.isStatic;
 						insideTypeAnnotation = methodScope.insideTypeAnnotation;
-						// fallthrough
+						//$FALL-THROUGH$
 					case BLOCK_SCOPE :
 						ReferenceBinding localType = ((BlockScope) scope).findLocalType(name); // looks in this scope only
 						if (localType != null) {
@@ -3127,7 +3127,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							}
 							continue;
 						}
-						// fallthrough
+						//$FALL-THROUGH$
 					case T_byte:
 					case T_short:
 					case T_char:

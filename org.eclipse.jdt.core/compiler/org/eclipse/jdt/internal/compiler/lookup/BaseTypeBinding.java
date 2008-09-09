@@ -115,23 +115,29 @@ public final class BaseTypeBinding extends TypeBinding {
 			case TypeIds.T_byte :
 				if (right == TypeIds.T_byte)
 					return true;
+				//$FALL-THROUGH$
 			case TypeIds.T_short :
 				if (right == TypeIds.T_short)
 					return true;
 				if (right == TypeIds.T_char)
 					return true;
+				//$FALL-THROUGH$
 			case TypeIds.T_int :
 				if (right == TypeIds.T_int)
 					return true;
+				//$FALL-THROUGH$
 			case TypeIds.T_long :
 				if (right == TypeIds.T_long)
 					return true;
+				//$FALL-THROUGH$
 			case TypeIds.T_float :
 				if (right == TypeIds.T_float)
 					return true;
+				//$FALL-THROUGH$
 			case TypeIds.T_double :
 				if (right == TypeIds.T_double)
 					return true;
+				//$FALL-THROUGH$
 			default :
 				return false;
 		}
@@ -155,23 +161,29 @@ public final class BaseTypeBinding extends TypeBinding {
 			case TypeIds.T_double :
 				if (right == TypeIds.T_double)
 					return true;
+				//$FALL-THROUGH$
 			case TypeIds.T_float :
 				if (right == TypeIds.T_float)
 					return true;
+				//$FALL-THROUGH$
 			case TypeIds.T_long :
 				if (right == TypeIds.T_long)
 					return true;
+				//$FALL-THROUGH$
 			case TypeIds.T_int :
 				if (right == TypeIds.T_int)
 					return true;
 				if (right == TypeIds.T_char)
 					return true;
+				//$FALL-THROUGH$
 			case TypeIds.T_short :
 				if (right == TypeIds.T_short)
 					return true;
+				//$FALL-THROUGH$
 			case TypeIds.T_byte :
 				if (right == TypeIds.T_byte)
 					return true;
+				//$FALL-THROUGH$
 			default :
 				return false;
 		}

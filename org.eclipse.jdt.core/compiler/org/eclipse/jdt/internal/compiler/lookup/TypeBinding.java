@@ -268,7 +268,7 @@ public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
 		    		if (match != null) return match;
 		    	}
 		    }
-			// fall-through
+			//$FALL-THROUGH$
 		case Binding.TYPE :
 		case Binding.PARAMETERIZED_TYPE :
 		case Binding.GENERIC_TYPE :
