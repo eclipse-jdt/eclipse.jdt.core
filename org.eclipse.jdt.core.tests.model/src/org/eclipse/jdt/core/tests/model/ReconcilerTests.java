@@ -4246,4 +4246,48 @@ public void test1002() throws CoreException, InterruptedException, IOException {
 		deleteProject("P3");
 	}
 }
+/*
+ * Ensure that fallthrough diagnostics are silenced by $FALL-THROUGH$ comments
+ */
+public void testFallthroughDiagnosis() throws CoreException, InterruptedException {
+	try {
+		// Resources creation
+		IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		p1.setOption(JavaCore.COMPILER_PB_FALLTHROUGH_CASE, JavaCore.ERROR);
+		String source = 
+			"public class X {\n" + 
+			"	void foo(int i) {\n" + 
+			"		switch(i) {\n" + 
+			"		case 0:\n" + 
+			"			i ++;\n" + 
+			"			// $FALL-THROUGH$\n" + 
+			"		case 1:\n" + 
+			"			i++;\n" + 
+			"			/* $FALL-THROUGH$ */\n" + 
+			"		case 2:\n" + 
+			"			i++;\n" + 
+			"		case 3:\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n";
+			
+		createFile("/P1/X.java", source);
+		this.workingCopies = new ICompilationUnit[3];
+
+		// Get first working copy and verify that there's no error
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		getCompilationUnit("/P1/X.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems("Working copy should have problems:",
+				"----------\n" + 
+				"1. ERROR in /P1/X.java (at line 12)\n" + 
+				"	case 3:\n" + 
+				"	^^^^^^\n" + 
+				"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" + 
+				"----------\n"
+		);
+	} finally {
+		deleteProject("P1");
+	}
+}
 }

@@ -45,9 +45,11 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class Parser implements  ParserBasicInformation, TerminalTokens, OperatorIds, TypeIds {
+	
 	protected static final int THIS_CALL = ExplicitConstructorCall.This;
 	protected static final int SUPER_CALL = ExplicitConstructorCall.Super;
-
+	protected static final char[] FALL_THROUGH_TAG = "$FALL-THROUGH$".toCharArray(); //$NON-NLS-1$
+	
 	public static char asb[] = null;
 	public static char asr[] = null;
 	//ast stack
@@ -113,13 +115,668 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	private static final String UNEXPECTED_EOF = "Unexpected End Of File" ; //$NON-NLS-1$
 	public static boolean VERBOSE_RECOVERY = false;
 
+	static {
+		try{
+			initTables();
+		} catch(java.io.IOException ex){
+			throw new ExceptionInInitializerError(ex.getMessage());
+		}
+	}
+	public static int asi(int state) {
+	
+		return asb[original_state(state)];
+	}
+	public final static short base_check(int i) {
+		return check_table[i - (NUM_RULES + 1)];
+	}
+	private final static void buildFile(String filename, List listToDump) {
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(filename));
+	    	for (Iterator iterator = listToDump.iterator(); iterator.hasNext(); ) {
+	    		writer.write(String.valueOf(iterator.next()));
+	    	}
+	    	writer.flush();
+		} catch(IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+	        	try {
+					writer.close();
+				} catch (IOException e1) {
+					// ignore
+				}
+			}
+		}
+		System.out.println(filename + " creation complete"); //$NON-NLS-1$
+	}
+	private static void buildFileForCompliance(
+			String file,
+			int length,
+			String[] tokens) {
+	
+			byte[] result = new byte[length * 8];
+	
+			for (int i = 0; i < tokens.length; i = i + 3) {
+				if("2".equals(tokens[i])) { //$NON-NLS-1$
+					int index = Integer.parseInt(tokens[i + 1]);
+					String token = tokens[i + 2].trim();
+					long compliance = 0;
+					if("1.4".equals(token)) { //$NON-NLS-1$
+						compliance = ClassFileConstants.JDK1_4;
+					} else if("1.5".equals(token)) { //$NON-NLS-1$
+						compliance = ClassFileConstants.JDK1_5;
+					} else if("recovery".equals(token)) { //$NON-NLS-1$
+						compliance = ClassFileConstants.JDK_DEFERRED;
+					}
+	
+					int j = index * 8;
+					result[j] = 	(byte)(compliance >>> 56);
+					result[j + 1] = (byte)(compliance >>> 48);
+					result[j + 2] = (byte)(compliance >>> 40);
+					result[j + 3] = (byte)(compliance >>> 32);
+					result[j + 4] = (byte)(compliance >>> 24);
+					result[j + 5] = (byte)(compliance >>> 16);
+					result[j + 6] = (byte)(compliance >>> 8);
+					result[j + 7] = (byte)(compliance);
+				}
+			}
+	
+			buildFileForTable(file, result);
+		}
+	private final static String[] buildFileForName(String filename, String contents) {
+		String[] result = new String[contents.length()];
+		result[0] = null;
+		int resultCount = 1;
+	
+		StringBuffer buffer = new StringBuffer();
+	
+		int start = contents.indexOf("name[]"); //$NON-NLS-1$
+		start = contents.indexOf('\"', start);
+		int end = contents.indexOf("};", start); //$NON-NLS-1$
+	
+		contents = contents.substring(start, end);
+	
+		boolean addLineSeparator = false;
+		int tokenStart = -1;
+		StringBuffer currentToken = new StringBuffer();
+		for (int i = 0; i < contents.length(); i++) {
+			char c = contents.charAt(i);
+			if(c == '\"') {
+				if(tokenStart == -1) {
+					tokenStart = i + 1;
+				} else {
+					if(addLineSeparator) {
+						buffer.append('\n');
+						result[resultCount++] = currentToken.toString();
+						currentToken = new StringBuffer();
+					}
+					String token = contents.substring(tokenStart, i);
+					if(token.equals(ERROR_TOKEN)){
+						token = INVALID_CHARACTER;
+					} else if(token.equals(EOF_TOKEN)) {
+						token = UNEXPECTED_EOF;
+					}
+					buffer.append(token);
+					currentToken.append(token);
+					addLineSeparator = true;
+					tokenStart = -1;
+				}
+			}
+			if(tokenStart == -1 && c == '+'){
+				addLineSeparator = false;
+			}
+		}
+		if(currentToken.length() > 0) {
+			result[resultCount++] = currentToken.toString();
+		}
+	
+		buildFileForTable(filename, buffer.toString().toCharArray());
+	
+		System.arraycopy(result, 0, result = new String[resultCount], 0, resultCount);
+		return result;
+	}
+	private static void buildFileForReadableName(
+		String file,
+		char[] newLhs,
+		char[] newNonTerminalIndex,
+		String[] newName,
+		String[] tokens) {
+	
+		ArrayList entries = new ArrayList();
+	
+		boolean[] alreadyAdded = new boolean[newName.length];
+	
+		for (int i = 0; i < tokens.length; i = i + 3) {
+			if("1".equals(tokens[i])) { //$NON-NLS-1$
+				int index = newNonTerminalIndex[newLhs[Integer.parseInt(tokens[i + 1])]];
+				StringBuffer buffer = new StringBuffer();
+				if(!alreadyAdded[index]) {
+					alreadyAdded[index] = true;
+					buffer.append(newName[index]);
+					buffer.append('=');
+					buffer.append(tokens[i+2].trim());
+					buffer.append('\n');
+					entries.add(String.valueOf(buffer));
+				}
+			}
+		}
+		int i = 1;
+		while(!INVALID_CHARACTER.equals(newName[i])) i++;
+		i++;
+		for (; i < alreadyAdded.length; i++) {
+			if(!alreadyAdded[i]) {
+				System.out.println(newName[i] + " has no readable name"); //$NON-NLS-1$
+			}
+		}
+		Collections.sort(entries);
+		buildFile(file, entries);
+	}
+	private final static void buildFileForTable(String filename, byte[] bytes) {
+		java.io.FileOutputStream stream = null;
+		try {
+			stream = new java.io.FileOutputStream(filename);
+			stream.write(bytes);
+		} catch(IOException e) {
+			// ignore
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		System.out.println(filename + " creation complete"); //$NON-NLS-1$
+	}
+	private final static void buildFileForTable(String filename, char[] chars) {
+		byte[] bytes = new byte[chars.length * 2];
+		for (int i = 0; i < chars.length; i++) {
+			bytes[2 * i] = (byte) (chars[i] >>> 8);
+			bytes[2 * i + 1] = (byte) (chars[i] & 0xFF);
+		}
+	
+		java.io.FileOutputStream stream = null;
+		try {
+			stream = new java.io.FileOutputStream(filename);
+			stream.write(bytes);
+		} catch(IOException e) {
+			// ignore
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		System.out.println(filename + " creation complete"); //$NON-NLS-1$
+	}
+	private final static byte[] buildFileOfByteFor(String filename, String tag, String[] tokens) {
+	
+		//transform the String tokens into chars before dumping then into file
+	
+		int i = 0;
+		//read upto the tag
+		while (!tokens[i++].equals(tag)){/*empty*/}
+		//read upto the }
+	
+		byte[] bytes = new byte[tokens.length]; //can't be bigger
+		int ic = 0;
+		String token;
+		while (!(token = tokens[i++]).equals("}")) { //$NON-NLS-1$
+			int c = Integer.parseInt(token);
+			bytes[ic++] = (byte) c;
+		}
+	
+		//resize
+		System.arraycopy(bytes, 0, bytes = new byte[ic], 0, ic);
+	
+		buildFileForTable(filename, bytes);
+		return bytes;
+	}
+	private final static char[] buildFileOfIntFor(String filename, String tag, String[] tokens) {
+	
+		//transform the String tokens into chars before dumping then into file
+	
+		int i = 0;
+		//read upto the tag
+		while (!tokens[i++].equals(tag)){/*empty*/}
+		//read upto the }
+	
+		char[] chars = new char[tokens.length]; //can't be bigger
+		int ic = 0;
+		String token;
+		while (!(token = tokens[i++]).equals("}")) { //$NON-NLS-1$
+			int c = Integer.parseInt(token);
+			chars[ic++] = (char) c;
+		}
+	
+		//resize
+		System.arraycopy(chars, 0, chars = new char[ic], 0, ic);
+	
+		buildFileForTable(filename, chars);
+		return chars;
+	}
+	private final static void buildFileOfShortFor(String filename, String tag, String[] tokens) {
+	
+		//transform the String tokens into chars before dumping then into file
+	
+		int i = 0;
+		//read upto the tag
+		while (!tokens[i++].equals(tag)){/*empty*/}
+		//read upto the }
+	
+		char[] chars = new char[tokens.length]; //can't be bigger
+		int ic = 0;
+		String token;
+		while (!(token = tokens[i++]).equals("}")) { //$NON-NLS-1$
+			int c = Integer.parseInt(token);
+			chars[ic++] = (char) (c + 32768);
+		}
+	
+		//resize
+		System.arraycopy(chars, 0, chars = new char[ic], 0, ic);
+	
+		buildFileForTable(filename, chars);
+	}
+	private static void buildFilesForRecoveryTemplates(
+		String indexFilename,
+		String templatesFilename,
+		char[] newTerminalIndex,
+		char[] newNonTerminalIndex,
+		String[] newName,
+		char[] newLhs,
+		String[] tokens) {
+	
+		int[] newReverse = computeReverseTable(newTerminalIndex, newNonTerminalIndex, newName);
+	
+		char[] newRecoveyTemplatesIndex = new char[newNonTerminalIndex.length];
+		char[] newRecoveyTemplates = new char[newNonTerminalIndex.length];
+		int newRecoveyTemplatesPtr = 0;
+	
+		for (int i = 0; i < tokens.length; i = i + 3) {
+			if("3".equals(tokens[i])) { //$NON-NLS-1$
+				int length = newRecoveyTemplates.length;
+				if(length == newRecoveyTemplatesPtr + 1) {
+					System.arraycopy(newRecoveyTemplates, 0, newRecoveyTemplates = new char[length * 2], 0, length);
+				}
+				newRecoveyTemplates[newRecoveyTemplatesPtr++] = 0;
+	
+				int index = newLhs[Integer.parseInt(tokens[i + 1])];
+	
+				newRecoveyTemplatesIndex[index] = (char)newRecoveyTemplatesPtr;
+	
+				String token = tokens[i + 2].trim();
+				java.util.StringTokenizer st = new java.util.StringTokenizer(new String(token), " ");  //$NON-NLS-1$
+				String[] terminalNames = new String[st.countTokens()];
+				int t = 0;
+				while (st.hasMoreTokens()) {
+					terminalNames[t++] = st.nextToken();
+				}
+	
+				for (int j = 0; j < terminalNames.length; j++) {
+					int symbol = getSymbol(terminalNames[j], newName, newReverse);
+					if(symbol > -1) {
+						length = newRecoveyTemplates.length;
+						if(length == newRecoveyTemplatesPtr + 1) {
+							System.arraycopy(newRecoveyTemplates, 0, newRecoveyTemplates = new char[length * 2], 0, length);
+						}
+						newRecoveyTemplates[newRecoveyTemplatesPtr++] = (char)symbol;
+					}
+				}
+			}
+		}
+		newRecoveyTemplates[newRecoveyTemplatesPtr++] = 0;
+		System.arraycopy(newRecoveyTemplates, 0, newRecoveyTemplates = new char[newRecoveyTemplatesPtr], 0, newRecoveyTemplatesPtr);
+	
+		buildFileForTable(indexFilename, newRecoveyTemplatesIndex);
+		buildFileForTable(templatesFilename, newRecoveyTemplates);
+	}
+	private static void buildFilesForStatementsRecoveryFilter(
+			String filename,
+			char[] newNonTerminalIndex,
+			char[] newLhs,
+			String[] tokens) {
+	
+			char[] newStatementsRecoveryFilter = new char[newNonTerminalIndex.length];
+	
+			for (int i = 0; i < tokens.length; i = i + 3) {
+				if("4".equals(tokens[i])) { //$NON-NLS-1$
+					int index = newLhs[Integer.parseInt(tokens[i + 1])];
+	
+					newStatementsRecoveryFilter[index] = 1;
+				}
+			}
+			buildFileForTable(filename, newStatementsRecoveryFilter);
+		}
+	public final static void buildFilesFromLPG(String dataFilename, String dataFilename2) {
+	
+		//RUN THIS METHOD TO GENERATE PARSER*.RSC FILES
+	
+		//build from the lpg javadcl.java files that represents the parser tables
+		//lhs check_table asb asr symbol_index
+	
+		//[org.eclipse.jdt.internal.compiler.parser.Parser.buildFilesFromLPG("d:/leapfrog/grammar/javadcl.java")]
+		char[] contents = CharOperation.NO_CHAR;
+		try {
+			contents = Util.getFileCharContent(new File(dataFilename), null);
+		} catch (IOException ex) {
+			System.out.println(Messages.parser_incorrectPath);
+			return;
+		}
+		java.util.StringTokenizer st =
+			new java.util.StringTokenizer(new String(contents), " \t\n\r[]={,;");  //$NON-NLS-1$
+		String[] tokens = new String[st.countTokens()];
+		int j = 0;
+		while (st.hasMoreTokens()) {
+			tokens[j++] = st.nextToken();
+		}
+		final String prefix = FILEPREFIX;
+		int i = 0;
+	
+		char[] newLhs = buildFileOfIntFor(prefix + (++i) + ".rsc", "lhs", tokens); //$NON-NLS-1$ //$NON-NLS-2$
+		buildFileOfShortFor(prefix + (++i) + ".rsc", "check_table", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "asb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "asr", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "nasb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "nasr", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		char[] newTerminalIndex = buildFileOfIntFor(prefix + (++i) + ".rsc", "terminal_index", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		char[] newNonTerminalIndex = buildFileOfIntFor(prefix + (++i) + ".rsc", "non_terminal_index", tokens); //$NON-NLS-1$ //$NON-NLS-2$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "term_action", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+	
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_prefix", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_suffix", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_lhs", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_state_set", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_rhs", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_state", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfIntFor(prefix + (++i) + ".rsc", "in_symb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+	
+		byte[] newRhs = buildFileOfByteFor(prefix + (++i) + ".rsc", "rhs", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfByteFor(prefix + (++i) + ".rsc", "term_check", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+		buildFileOfByteFor(prefix + (++i) + ".rsc", "scope_la", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+	
+		String[] newName = buildFileForName(prefix + (++i) + ".rsc", new String(contents)); //$NON-NLS-1$
+	
+		contents = CharOperation.NO_CHAR;
+		try {
+			contents = Util.getFileCharContent(new File(dataFilename2), null);
+		} catch (IOException ex) {
+			System.out.println(Messages.parser_incorrectPath);
+			return;
+		}
+		st = new java.util.StringTokenizer(new String(contents), "\t\n\r#");  //$NON-NLS-1$
+		tokens = new String[st.countTokens()];
+		j = 0;
+		while (st.hasMoreTokens()) {
+			tokens[j++] = st.nextToken();
+		}
+	
+		buildFileForCompliance(prefix + (++i) + ".rsc", newRhs.length, tokens);//$NON-NLS-1$
+		buildFileForReadableName(READABLE_NAMES_FILE+".properties", newLhs, newNonTerminalIndex, newName, tokens);//$NON-NLS-1$
+	
+		buildFilesForRecoveryTemplates(
+				prefix + (++i) + ".rsc", //$NON-NLS-1$
+				prefix + (++i) + ".rsc", //$NON-NLS-1$
+				newTerminalIndex,
+				newNonTerminalIndex,
+				newName,
+				newLhs,
+				tokens);
+	
+		buildFilesForStatementsRecoveryFilter(
+				prefix + (++i) + ".rsc", //$NON-NLS-1$
+				newNonTerminalIndex,
+				newLhs,
+				tokens);
+	
+	
+		System.out.println(Messages.parser_moveFiles);
+	}
+	protected static int[] computeReverseTable(char[] newTerminalIndex, char[] newNonTerminalIndex, String[] newName) {
+		int[] newReverseTable = new int[newName.length];
+		for (int j = 0; j < newName.length; j++) {
+			found : {
+				for (int k = 0; k < newTerminalIndex.length; k++) {
+					if(newTerminalIndex[k] == j) {
+						newReverseTable[j] = k;
+						break found;
+					}
+				}
+				for (int k = 0; k < newNonTerminalIndex.length; k++) {
+					if(newNonTerminalIndex[k] == j) {
+						newReverseTable[j] = -k;
+						break found;
+					}
+				}
+			}
+		}
+		return newReverseTable;
+	}
 
+	private static int getSymbol(String terminalName, String[] newName, int[] newReverse) {
+		for (int j = 0; j < newName.length; j++) {
+			if(terminalName.equals(newName[j])) {
+				return newReverse[j];
+			}
+		}
+		return -1;
+	}
+	public static int in_symbol(int state) {
+		return in_symb[original_state(state)];
+	}
+	public final static void initTables() throws java.io.IOException {
+	
+		final String prefix = FILEPREFIX;
+		int i = 0;
+		lhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		char[] chars = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		check_table = new short[chars.length];
+		for (int c = chars.length; c-- > 0;) {
+			check_table[c] = (short) (chars[c] - 32768);
+		}
+		asb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		asr = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		nasb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		nasr = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		terminal_index = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		non_terminal_index = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		term_action = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+		scope_prefix = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		scope_suffix = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		scope_lhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		scope_state_set = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		scope_rhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		scope_state = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		in_symb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+		rhs = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		term_check = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		scope_la = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+		name = readNameTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+		rules_compliance = readLongTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+		readableName = readReadableNameTable(READABLE_NAMES_FILE_NAME);
+	
+		reverse_index = computeReverseTable(terminal_index, non_terminal_index, name);
+	
+		recovery_templates_index = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+		recovery_templates = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+		statements_recovery_filter = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+		base_action = lhs;
+	}
+	public static int nasi(int state) {
+		return nasb[original_state(state)];
+	}
+	public static int ntAction(int state, int sym) {
+		return base_action[state + sym];
+	}
+	protected static int original_state(int state) {
+		return -base_check(state);
+	}
 
+	protected static byte[] readByteTable(String filename) throws java.io.IOException {
+	
+		//files are located at Parser.class directory
+	
+		InputStream stream = Parser.class.getResourceAsStream(filename);
+		if (stream == null) {
+			throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
+		}
+		byte[] bytes = null;
+		try {
+			stream = new BufferedInputStream(stream);
+			bytes = Util.getInputStreamAsByteArray(stream, -1);
+		} finally {
+			try {
+				stream.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+		return bytes;
+	}
+	protected static long[] readLongTable(String filename) throws java.io.IOException {
+	
+		//files are located at Parser.class directory
+	
+		InputStream stream = Parser.class.getResourceAsStream(filename);
+		if (stream == null) {
+			throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
+		}
+		byte[] bytes = null;
+		try {
+			stream = new BufferedInputStream(stream);
+			bytes = Util.getInputStreamAsByteArray(stream, -1);
+		} finally {
+			try {
+				stream.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	
+		//minimal integrity check (even size expected)
+		int length = bytes.length;
+		if (length % 8 != 0)
+			throw new java.io.IOException(Messages.bind(Messages.parser_corruptedFile, filename));
+	
+		// convert bytes into longs
+		long[] longs = new long[length / 8];
+		int i = 0;
+		int longIndex = 0;
+	
+		while (true) {
+			longs[longIndex++] =
+			  (((long) (bytes[i++] & 0xFF)) << 56)
+			+ (((long) (bytes[i++] & 0xFF)) << 48)
+			+ (((long) (bytes[i++] & 0xFF)) << 40)
+			+ (((long) (bytes[i++] & 0xFF)) << 32)
+			+ (((long) (bytes[i++] & 0xFF)) << 24)
+			+ (((long) (bytes[i++] & 0xFF)) << 16)
+			+ (((long) (bytes[i++] & 0xFF)) << 8)
+			+ (bytes[i++] & 0xFF);
+	
+			if (i == length)
+				break;
+		}
+		return longs;
+	}
+
+	protected static String[] readNameTable(String filename) throws java.io.IOException {
+		char[] contents = readTable(filename);
+		char[][] nameAsChar = CharOperation.splitOn('\n', contents);
+	
+		String[] result = new String[nameAsChar.length + 1];
+		result[0] = null;
+		for (int i = 0; i < nameAsChar.length; i++) {
+			result[i + 1] = new String(nameAsChar[i]);
+		}
+	
+		return result;
+	}
+	protected static String[] readReadableNameTable(String filename) {
+		String[] result = new String[name.length];
+	
+		ResourceBundle bundle;
+		try {
+			bundle = ResourceBundle.getBundle(filename, Locale.getDefault());
+		} catch(MissingResourceException e) {
+			System.out.println("Missing resource : " + filename.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
+			throw e;
+		}
+		for (int i = 0; i < NT_OFFSET + 1; i++) {
+			result[i] = name[i];
+		}
+		for (int i = NT_OFFSET; i < name.length; i++) {
+			try {
+				String n = bundle.getString(name[i]);
+				if(n != null && n.length() > 0) {
+					result[i] = n;
+				} else {
+					result[i] = name[i];
+				}
+			} catch(MissingResourceException e) {
+				result[i] = name[i];
+			}
+		}
+		return result;
+	}
+	protected static char[] readTable(String filename) throws java.io.IOException {
+	
+		//files are located at Parser.class directory
+	
+		InputStream stream = Parser.class.getResourceAsStream(filename);
+		if (stream == null) {
+			throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
+		}
+		byte[] bytes = null;
+		try {
+			stream = new BufferedInputStream(stream);
+			bytes = Util.getInputStreamAsByteArray(stream, -1);
+		} finally {
+			try {
+				stream.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	
+		//minimal integrity check (even size expected)
+		int length = bytes.length;
+		if ((length & 1) != 0)
+			throw new java.io.IOException(Messages.bind(Messages.parser_corruptedFile, filename));
+	
+		// convert bytes into chars
+		char[] chars = new char[length / 2];
+		int i = 0;
+		int charIndex = 0;
+	
+		while (true) {
+			chars[charIndex++] = (char) (((bytes[i++] & 0xFF) << 8) + (bytes[i++] & 0xFF));
+			if (i == length)
+				break;
+		}
+		return chars;
+	}
+	public static int tAction(int state, int sym) {
+		return term_action[term_check[base_action[state]+sym] == sym ? base_action[state] + sym : base_action[state]];
+	}
 	protected int astLengthPtr;
+
 	protected int[] astLengthStack;
 	protected int astPtr;
 	protected ASTNode[] astStack = new ASTNode[AstStackIncrement];
 	public CompilationUnitDeclaration compilationUnit; /*the result from parse()*/
+
 	protected RecoveredElement currentElement;
 	public int currentToken;
 	protected boolean diet = false; //tells the scanner to jump over some parts of the code/expressions like method bodies
@@ -131,7 +788,6 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	protected int expressionPtr;
 	protected Expression[] expressionStack = new Expression[ExpressionStackIncrement];
 	public int firstToken ; // handle for multiple parsing goals
-
 	// generics management
 	protected int genericsIdentifiersLengthPtr;
 	protected int[] genericsIdentifiersLengthStack = new int[GenericsStackIncrement];
@@ -139,736 +795,80 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	protected int[] genericsLengthStack = new int[GenericsStackIncrement];
 	protected int genericsPtr;
 	protected ASTNode[] genericsStack = new ASTNode[GenericsStackIncrement];
-
 	protected boolean hasError;
 	protected boolean hasReportedError;
-
 	//identifiers stacks
 	protected int identifierLengthPtr;
 	protected int[] identifierLengthStack;
 	protected long[] identifierPositionStack;
 	protected int identifierPtr;
 	protected char[][] identifierStack;
-
 	protected boolean ignoreNextOpeningBrace;
+
 	//positions , dimensions , .... (int stacks)
 	protected int intPtr;
+
 	protected int[] intStack;
 	public int lastAct ; //handle for multiple parsing goals
-
 	//error recovery management
 	protected int lastCheckPoint;
 	protected int lastErrorEndPosition;
 	protected int lastErrorEndPositionBeforeRecovery = -1;
 	protected int lastIgnoredToken, nextIgnoredToken;
+
 	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
+
 	protected int listTypeParameterLength; // for recovering some incomplete list (type parameters)
 	protected int lParenPos,rParenPos; //accurate only when used !
 	protected int modifiers;
 	protected int modifiersSourceStart;
 	protected int[] nestedMethod; //the ptr is nestedType
+
 	protected int nestedType, dimensions;
 	ASTNode [] noAstNodes = new ASTNode[AstStackIncrement];
+
 	Expression [] noExpressions = new Expression[ExpressionStackIncrement];
 	//modifiers dimensions nestedType etc.......
 	protected boolean optimizeStringLiterals =true;
 	protected CompilerOptions options;
+
 	protected ProblemReporter problemReporter;
+
 	protected int rBraceStart, rBraceEnd, rBraceSuccessorStart; //accurate only when used !
-	protected int realBlockPtr;
-	protected int[] realBlockStack;
-	protected int recoveredStaticInitializerStart;
-	public ReferenceContext referenceContext;
-	public boolean reportOnlyOneSyntaxError = false;
-	public boolean reportSyntaxErrorIsRequired = true;
-	protected boolean restartRecovery;
-	protected boolean annotationRecoveryActivated = true;
-
-	protected int lastPosistion;
-
-	// statement recovery
-	public boolean methodRecoveryActivated = false;
-	protected boolean statementRecoveryActivated = false;
-	protected TypeDeclaration[] recoveredTypes;
-	protected int recoveredTypePtr;
-	protected int nextTypeStart;
-	protected TypeDeclaration pendingRecoveredType;
-
-	public RecoveryScanner recoveryScanner;
-
-	//scanner token
-	public Scanner scanner;
-	protected int[] stack = new int[StackIncrement];
-	protected int stateStackTop;
-	protected int synchronizedBlockSourceStart;
-	protected int[] variablesCounter;
-
-	protected boolean checkExternalizeStrings;
-	protected boolean recordStringLiterals;
-
-	// javadoc
-	public Javadoc javadoc;
-	public JavadocParser javadocParser;
-	// used for recovery
-	protected int lastJavadocEnd;
-
-	public org.eclipse.jdt.internal.compiler.ReadManager readManager;
-
-	static {
-		try{
-			initTables();
-		} catch(java.io.IOException ex){
-			throw new ExceptionInInitializerError(ex.getMessage());
-		}
-	}
-public static int asi(int state) {
-
-	return asb[original_state(state)];
-}
-public final static short base_check(int i) {
-	return check_table[i - (NUM_RULES + 1)];
-}
-private final static void buildFile(String filename, List listToDump) {
-	BufferedWriter writer = null;
-	try {
-		writer = new BufferedWriter(new FileWriter(filename));
-    	for (Iterator iterator = listToDump.iterator(); iterator.hasNext(); ) {
-    		writer.write(String.valueOf(iterator.next()));
-    	}
-    	writer.flush();
-	} catch(IOException e) {
-		// ignore
-	} finally {
-		if (writer != null) {
-        	try {
-				writer.close();
-			} catch (IOException e1) {
-				// ignore
-			}
-		}
-	}
-	System.out.println(filename + " creation complete"); //$NON-NLS-1$
-}
-private final static String[] buildFileForName(String filename, String contents) {
-	String[] result = new String[contents.length()];
-	result[0] = null;
-	int resultCount = 1;
-
-	StringBuffer buffer = new StringBuffer();
-
-	int start = contents.indexOf("name[]"); //$NON-NLS-1$
-	start = contents.indexOf('\"', start);
-	int end = contents.indexOf("};", start); //$NON-NLS-1$
-
-	contents = contents.substring(start, end);
-
-	boolean addLineSeparator = false;
-	int tokenStart = -1;
-	StringBuffer currentToken = new StringBuffer();
-	for (int i = 0; i < contents.length(); i++) {
-		char c = contents.charAt(i);
-		if(c == '\"') {
-			if(tokenStart == -1) {
-				tokenStart = i + 1;
-			} else {
-				if(addLineSeparator) {
-					buffer.append('\n');
-					result[resultCount++] = currentToken.toString();
-					currentToken = new StringBuffer();
-				}
-				String token = contents.substring(tokenStart, i);
-				if(token.equals(ERROR_TOKEN)){
-					token = INVALID_CHARACTER;
-				} else if(token.equals(EOF_TOKEN)) {
-					token = UNEXPECTED_EOF;
-				}
-				buffer.append(token);
-				currentToken.append(token);
-				addLineSeparator = true;
-				tokenStart = -1;
-			}
-		}
-		if(tokenStart == -1 && c == '+'){
-			addLineSeparator = false;
-		}
-	}
-	if(currentToken.length() > 0) {
-		result[resultCount++] = currentToken.toString();
-	}
-
-	buildFileForTable(filename, buffer.toString().toCharArray());
-
-	System.arraycopy(result, 0, result = new String[resultCount], 0, resultCount);
-	return result;
-}
-private static void buildFileForReadableName(
-	String file,
-	char[] newLhs,
-	char[] newNonTerminalIndex,
-	String[] newName,
-	String[] tokens) {
-
-	ArrayList entries = new ArrayList();
-
-	boolean[] alreadyAdded = new boolean[newName.length];
-
-	for (int i = 0; i < tokens.length; i = i + 3) {
-		if("1".equals(tokens[i])) { //$NON-NLS-1$
-			int index = newNonTerminalIndex[newLhs[Integer.parseInt(tokens[i + 1])]];
-			StringBuffer buffer = new StringBuffer();
-			if(!alreadyAdded[index]) {
-				alreadyAdded[index] = true;
-				buffer.append(newName[index]);
-				buffer.append('=');
-				buffer.append(tokens[i+2].trim());
-				buffer.append('\n');
-				entries.add(String.valueOf(buffer));
-			}
-		}
-	}
-	int i = 1;
-	while(!INVALID_CHARACTER.equals(newName[i])) i++;
-	i++;
-	for (; i < alreadyAdded.length; i++) {
-		if(!alreadyAdded[i]) {
-			System.out.println(newName[i] + " has no readable name"); //$NON-NLS-1$
-		}
-	}
-	Collections.sort(entries);
-	buildFile(file, entries);
-}
-private static void buildFilesForRecoveryTemplates(
-	String indexFilename,
-	String templatesFilename,
-	char[] newTerminalIndex,
-	char[] newNonTerminalIndex,
-	String[] newName,
-	char[] newLhs,
-	String[] tokens) {
-
-	int[] newReverse = computeReverseTable(newTerminalIndex, newNonTerminalIndex, newName);
-
-	char[] newRecoveyTemplatesIndex = new char[newNonTerminalIndex.length];
-	char[] newRecoveyTemplates = new char[newNonTerminalIndex.length];
-	int newRecoveyTemplatesPtr = 0;
-
-	for (int i = 0; i < tokens.length; i = i + 3) {
-		if("3".equals(tokens[i])) { //$NON-NLS-1$
-			int length = newRecoveyTemplates.length;
-			if(length == newRecoveyTemplatesPtr + 1) {
-				System.arraycopy(newRecoveyTemplates, 0, newRecoveyTemplates = new char[length * 2], 0, length);
-			}
-			newRecoveyTemplates[newRecoveyTemplatesPtr++] = 0;
-
-			int index = newLhs[Integer.parseInt(tokens[i + 1])];
-
-			newRecoveyTemplatesIndex[index] = (char)newRecoveyTemplatesPtr;
-
-			String token = tokens[i + 2].trim();
-			java.util.StringTokenizer st = new java.util.StringTokenizer(new String(token), " ");  //$NON-NLS-1$
-			String[] terminalNames = new String[st.countTokens()];
-			int t = 0;
-			while (st.hasMoreTokens()) {
-				terminalNames[t++] = st.nextToken();
-			}
-
-			for (int j = 0; j < terminalNames.length; j++) {
-				int symbol = getSymbol(terminalNames[j], newName, newReverse);
-				if(symbol > -1) {
-					length = newRecoveyTemplates.length;
-					if(length == newRecoveyTemplatesPtr + 1) {
-						System.arraycopy(newRecoveyTemplates, 0, newRecoveyTemplates = new char[length * 2], 0, length);
-					}
-					newRecoveyTemplates[newRecoveyTemplatesPtr++] = (char)symbol;
-				}
-			}
-		}
-	}
-	newRecoveyTemplates[newRecoveyTemplatesPtr++] = 0;
-	System.arraycopy(newRecoveyTemplates, 0, newRecoveyTemplates = new char[newRecoveyTemplatesPtr], 0, newRecoveyTemplatesPtr);
-
-	buildFileForTable(indexFilename, newRecoveyTemplatesIndex);
-	buildFileForTable(templatesFilename, newRecoveyTemplates);
-}
-private static void buildFilesForStatementsRecoveryFilter(
-		String filename,
-		char[] newNonTerminalIndex,
-		char[] newLhs,
-		String[] tokens) {
-
-		char[] newStatementsRecoveryFilter = new char[newNonTerminalIndex.length];
-
-		for (int i = 0; i < tokens.length; i = i + 3) {
-			if("4".equals(tokens[i])) { //$NON-NLS-1$
-				int index = newLhs[Integer.parseInt(tokens[i + 1])];
-
-				newStatementsRecoveryFilter[index] = 1;
-			}
-		}
-		buildFileForTable(filename, newStatementsRecoveryFilter);
-	}
-private static void buildFileForCompliance(
-		String file,
-		int length,
-		String[] tokens) {
-
-		byte[] result = new byte[length * 8];
-
-		for (int i = 0; i < tokens.length; i = i + 3) {
-			if("2".equals(tokens[i])) { //$NON-NLS-1$
-				int index = Integer.parseInt(tokens[i + 1]);
-				String token = tokens[i + 2].trim();
-				long compliance = 0;
-				if("1.4".equals(token)) { //$NON-NLS-1$
-					compliance = ClassFileConstants.JDK1_4;
-				} else if("1.5".equals(token)) { //$NON-NLS-1$
-					compliance = ClassFileConstants.JDK1_5;
-				} else if("recovery".equals(token)) { //$NON-NLS-1$
-					compliance = ClassFileConstants.JDK_DEFERRED;
-				}
-
-				int j = index * 8;
-				result[j] = 	(byte)(compliance >>> 56);
-				result[j + 1] = (byte)(compliance >>> 48);
-				result[j + 2] = (byte)(compliance >>> 40);
-				result[j + 3] = (byte)(compliance >>> 32);
-				result[j + 4] = (byte)(compliance >>> 24);
-				result[j + 5] = (byte)(compliance >>> 16);
-				result[j + 6] = (byte)(compliance >>> 8);
-				result[j + 7] = (byte)(compliance);
-			}
-		}
-
-		buildFileForTable(file, result);
-	}
-private final static void buildFileForTable(String filename, byte[] bytes) {
-	java.io.FileOutputStream stream = null;
-	try {
-		stream = new java.io.FileOutputStream(filename);
-		stream.write(bytes);
-	} catch(IOException e) {
-		// ignore
-	} finally {
-		if (stream != null) {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				// ignore
-			}
-		}
-	}
-	System.out.println(filename + " creation complete"); //$NON-NLS-1$
-}
-private final static void buildFileForTable(String filename, char[] chars) {
-	byte[] bytes = new byte[chars.length * 2];
-	for (int i = 0; i < chars.length; i++) {
-		bytes[2 * i] = (byte) (chars[i] >>> 8);
-		bytes[2 * i + 1] = (byte) (chars[i] & 0xFF);
-	}
-
-	java.io.FileOutputStream stream = null;
-	try {
-		stream = new java.io.FileOutputStream(filename);
-		stream.write(bytes);
-	} catch(IOException e) {
-		// ignore
-	} finally {
-		if (stream != null) {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				// ignore
-			}
-		}
-	}
-	System.out.println(filename + " creation complete"); //$NON-NLS-1$
-}
-private final static byte[] buildFileOfByteFor(String filename, String tag, String[] tokens) {
-
-	//transform the String tokens into chars before dumping then into file
-
-	int i = 0;
-	//read upto the tag
-	while (!tokens[i++].equals(tag)){/*empty*/}
-	//read upto the }
-
-	byte[] bytes = new byte[tokens.length]; //can't be bigger
-	int ic = 0;
-	String token;
-	while (!(token = tokens[i++]).equals("}")) { //$NON-NLS-1$
-		int c = Integer.parseInt(token);
-		bytes[ic++] = (byte) c;
-	}
-
-	//resize
-	System.arraycopy(bytes, 0, bytes = new byte[ic], 0, ic);
-
-	buildFileForTable(filename, bytes);
-	return bytes;
-}
-private final static char[] buildFileOfIntFor(String filename, String tag, String[] tokens) {
-
-	//transform the String tokens into chars before dumping then into file
-
-	int i = 0;
-	//read upto the tag
-	while (!tokens[i++].equals(tag)){/*empty*/}
-	//read upto the }
-
-	char[] chars = new char[tokens.length]; //can't be bigger
-	int ic = 0;
-	String token;
-	while (!(token = tokens[i++]).equals("}")) { //$NON-NLS-1$
-		int c = Integer.parseInt(token);
-		chars[ic++] = (char) c;
-	}
-
-	//resize
-	System.arraycopy(chars, 0, chars = new char[ic], 0, ic);
-
-	buildFileForTable(filename, chars);
-	return chars;
-}
-private final static void buildFileOfShortFor(String filename, String tag, String[] tokens) {
-
-	//transform the String tokens into chars before dumping then into file
-
-	int i = 0;
-	//read upto the tag
-	while (!tokens[i++].equals(tag)){/*empty*/}
-	//read upto the }
-
-	char[] chars = new char[tokens.length]; //can't be bigger
-	int ic = 0;
-	String token;
-	while (!(token = tokens[i++]).equals("}")) { //$NON-NLS-1$
-		int c = Integer.parseInt(token);
-		chars[ic++] = (char) (c + 32768);
-	}
-
-	//resize
-	System.arraycopy(chars, 0, chars = new char[ic], 0, ic);
-
-	buildFileForTable(filename, chars);
-}
-public final static void buildFilesFromLPG(String dataFilename, String dataFilename2) {
-
-	//RUN THIS METHOD TO GENERATE PARSER*.RSC FILES
-
-	//build from the lpg javadcl.java files that represents the parser tables
-	//lhs check_table asb asr symbol_index
-
-	//[org.eclipse.jdt.internal.compiler.parser.Parser.buildFilesFromLPG("d:/leapfrog/grammar/javadcl.java")]
-	char[] contents = CharOperation.NO_CHAR;
-	try {
-		contents = Util.getFileCharContent(new File(dataFilename), null);
-	} catch (IOException ex) {
-		System.out.println(Messages.parser_incorrectPath);
-		return;
-	}
-	java.util.StringTokenizer st =
-		new java.util.StringTokenizer(new String(contents), " \t\n\r[]={,;");  //$NON-NLS-1$
-	String[] tokens = new String[st.countTokens()];
-	int j = 0;
-	while (st.hasMoreTokens()) {
-		tokens[j++] = st.nextToken();
-	}
-	final String prefix = FILEPREFIX;
-	int i = 0;
-
-	char[] newLhs = buildFileOfIntFor(prefix + (++i) + ".rsc", "lhs", tokens); //$NON-NLS-1$ //$NON-NLS-2$
-	buildFileOfShortFor(prefix + (++i) + ".rsc", "check_table", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "asb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "asr", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "nasb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "nasr", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	char[] newTerminalIndex = buildFileOfIntFor(prefix + (++i) + ".rsc", "terminal_index", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	char[] newNonTerminalIndex = buildFileOfIntFor(prefix + (++i) + ".rsc", "non_terminal_index", tokens); //$NON-NLS-1$ //$NON-NLS-2$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "term_action", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_prefix", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_suffix", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_lhs", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_state_set", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_rhs", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_state", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfIntFor(prefix + (++i) + ".rsc", "in_symb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-
-	byte[] newRhs = buildFileOfByteFor(prefix + (++i) + ".rsc", "rhs", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfByteFor(prefix + (++i) + ".rsc", "term_check", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	buildFileOfByteFor(prefix + (++i) + ".rsc", "scope_la", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-
-	String[] newName = buildFileForName(prefix + (++i) + ".rsc", new String(contents)); //$NON-NLS-1$
-
-	contents = CharOperation.NO_CHAR;
-	try {
-		contents = Util.getFileCharContent(new File(dataFilename2), null);
-	} catch (IOException ex) {
-		System.out.println(Messages.parser_incorrectPath);
-		return;
-	}
-	st = new java.util.StringTokenizer(new String(contents), "\t\n\r#");  //$NON-NLS-1$
-	tokens = new String[st.countTokens()];
-	j = 0;
-	while (st.hasMoreTokens()) {
-		tokens[j++] = st.nextToken();
-	}
-
-	buildFileForCompliance(prefix + (++i) + ".rsc", newRhs.length, tokens);//$NON-NLS-1$
-	buildFileForReadableName(READABLE_NAMES_FILE+".properties", newLhs, newNonTerminalIndex, newName, tokens);//$NON-NLS-1$
-
-	buildFilesForRecoveryTemplates(
-			prefix + (++i) + ".rsc", //$NON-NLS-1$
-			prefix + (++i) + ".rsc", //$NON-NLS-1$
-			newTerminalIndex,
-			newNonTerminalIndex,
-			newName,
-			newLhs,
-			tokens);
-
-	buildFilesForStatementsRecoveryFilter(
-			prefix + (++i) + ".rsc", //$NON-NLS-1$
-			newNonTerminalIndex,
-			newLhs,
-			tokens);
-
-
-	System.out.println(Messages.parser_moveFiles);
-}
-public static int in_symbol(int state) {
-	return in_symb[original_state(state)];
-}
-public final static void initTables() throws java.io.IOException {
-
-	final String prefix = FILEPREFIX;
-	int i = 0;
-	lhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	char[] chars = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	check_table = new short[chars.length];
-	for (int c = chars.length; c-- > 0;) {
-		check_table[c] = (short) (chars[c] - 32768);
-	}
-	asb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	asr = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	nasb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	nasr = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	terminal_index = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	non_terminal_index = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	term_action = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-
-	scope_prefix = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_suffix = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_lhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_state_set = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_rhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_state = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	in_symb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-
-	rhs = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	term_check = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_la = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-
-	name = readNameTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-
-	rules_compliance = readLongTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-
-	readableName = readReadableNameTable(READABLE_NAMES_FILE_NAME);
-
-	reverse_index = computeReverseTable(terminal_index, non_terminal_index, name);
-
-	recovery_templates_index = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	recovery_templates = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-
-	statements_recovery_filter = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-
-	base_action = lhs;
-}
-public static int nasi(int state) {
-	return nasb[original_state(state)];
-}
-public static int ntAction(int state, int sym) {
-	return base_action[state + sym];
-}
-protected static int original_state(int state) {
-	return -base_check(state);
-}
-protected static int[] computeReverseTable(char[] newTerminalIndex, char[] newNonTerminalIndex, String[] newName) {
-	int[] newReverseTable = new int[newName.length];
-	for (int j = 0; j < newName.length; j++) {
-		found : {
-			for (int k = 0; k < newTerminalIndex.length; k++) {
-				if(newTerminalIndex[k] == j) {
-					newReverseTable[j] = k;
-					break found;
-				}
-			}
-			for (int k = 0; k < newNonTerminalIndex.length; k++) {
-				if(newNonTerminalIndex[k] == j) {
-					newReverseTable[j] = -k;
-					break found;
-				}
-			}
-		}
-	}
-	return newReverseTable;
-}
-
-private static int getSymbol(String terminalName, String[] newName, int[] newReverse) {
-	for (int j = 0; j < newName.length; j++) {
-		if(terminalName.equals(newName[j])) {
-			return newReverse[j];
-		}
-	}
-	return -1;
-}
-
-protected static byte[] readByteTable(String filename) throws java.io.IOException {
-
-	//files are located at Parser.class directory
-
-	InputStream stream = Parser.class.getResourceAsStream(filename);
-	if (stream == null) {
-		throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
-	}
-	byte[] bytes = null;
-	try {
-		stream = new BufferedInputStream(stream);
-		bytes = Util.getInputStreamAsByteArray(stream, -1);
-	} finally {
-		try {
-			stream.close();
-		} catch (IOException e) {
-			// ignore
-		}
-	}
-	return bytes;
-}
-
-protected static String[] readNameTable(String filename) throws java.io.IOException {
-	char[] contents = readTable(filename);
-	char[][] nameAsChar = CharOperation.splitOn('\n', contents);
-
-	String[] result = new String[nameAsChar.length + 1];
-	result[0] = null;
-	for (int i = 0; i < nameAsChar.length; i++) {
-		result[i + 1] = new String(nameAsChar[i]);
-	}
-
-	return result;
-}
-protected static String[] readReadableNameTable(String filename) {
-	String[] result = new String[name.length];
-
-	ResourceBundle bundle;
-	try {
-		bundle = ResourceBundle.getBundle(filename, Locale.getDefault());
-	} catch(MissingResourceException e) {
-		System.out.println("Missing resource : " + filename.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
-		throw e;
-	}
-	for (int i = 0; i < NT_OFFSET + 1; i++) {
-		result[i] = name[i];
-	}
-	for (int i = NT_OFFSET; i < name.length; i++) {
-		try {
-			String n = bundle.getString(name[i]);
-			if(n != null && n.length() > 0) {
-				result[i] = n;
-			} else {
-				result[i] = name[i];
-			}
-		} catch(MissingResourceException e) {
-			result[i] = name[i];
-		}
-	}
-	return result;
-}
-protected static char[] readTable(String filename) throws java.io.IOException {
-
-	//files are located at Parser.class directory
-
-	InputStream stream = Parser.class.getResourceAsStream(filename);
-	if (stream == null) {
-		throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
-	}
-	byte[] bytes = null;
-	try {
-		stream = new BufferedInputStream(stream);
-		bytes = Util.getInputStreamAsByteArray(stream, -1);
-	} finally {
-		try {
-			stream.close();
-		} catch (IOException e) {
-			// ignore
-		}
-	}
-
-	//minimal integrity check (even size expected)
-	int length = bytes.length;
-	if ((length & 1) != 0)
-		throw new java.io.IOException(Messages.bind(Messages.parser_corruptedFile, filename));
-
-	// convert bytes into chars
-	char[] chars = new char[length / 2];
-	int i = 0;
-	int charIndex = 0;
-
-	while (true) {
-		chars[charIndex++] = (char) (((bytes[i++] & 0xFF) << 8) + (bytes[i++] & 0xFF));
-		if (i == length)
-			break;
-	}
-	return chars;
-}
-protected static long[] readLongTable(String filename) throws java.io.IOException {
-
-	//files are located at Parser.class directory
-
-	InputStream stream = Parser.class.getResourceAsStream(filename);
-	if (stream == null) {
-		throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
-	}
-	byte[] bytes = null;
-	try {
-		stream = new BufferedInputStream(stream);
-		bytes = Util.getInputStreamAsByteArray(stream, -1);
-	} finally {
-		try {
-			stream.close();
-		} catch (IOException e) {
-			// ignore
-		}
-	}
-
-	//minimal integrity check (even size expected)
-	int length = bytes.length;
-	if (length % 8 != 0)
-		throw new java.io.IOException(Messages.bind(Messages.parser_corruptedFile, filename));
-
-	// convert bytes into longs
-	long[] longs = new long[length / 8];
-	int i = 0;
-	int longIndex = 0;
-
-	while (true) {
-		longs[longIndex++] =
-		  (((long) (bytes[i++] & 0xFF)) << 56)
-		+ (((long) (bytes[i++] & 0xFF)) << 48)
-		+ (((long) (bytes[i++] & 0xFF)) << 40)
-		+ (((long) (bytes[i++] & 0xFF)) << 32)
-		+ (((long) (bytes[i++] & 0xFF)) << 24)
-		+ (((long) (bytes[i++] & 0xFF)) << 16)
-		+ (((long) (bytes[i++] & 0xFF)) << 8)
-		+ (bytes[i++] & 0xFF);
-
-		if (i == length)
-			break;
-	}
-	return longs;
-}
-public static int tAction(int state, int sym) {
-	return term_action[term_check[base_action[state]+sym] == sym ? base_action[state] + sym : base_action[state]];
-}
+protected int realBlockPtr;
+protected int[] realBlockStack;
+protected int recoveredStaticInitializerStart;
+public ReferenceContext referenceContext;
+public boolean reportOnlyOneSyntaxError = false;
+public boolean reportSyntaxErrorIsRequired = true;
+protected boolean restartRecovery;
+protected boolean annotationRecoveryActivated = true;
+protected int lastPosistion;
+// statement recovery
+public boolean methodRecoveryActivated = false;
+protected boolean statementRecoveryActivated = false;
+protected TypeDeclaration[] recoveredTypes;
+protected int recoveredTypePtr;
+protected int nextTypeStart;
+protected TypeDeclaration pendingRecoveredType;
+public RecoveryScanner recoveryScanner;
+//scanner token
+public Scanner scanner;
+protected int[] stack = new int[StackIncrement];
+protected int stateStackTop;
+protected int synchronizedBlockSourceStart;
+
+protected int[] variablesCounter;
+
+protected boolean checkExternalizeStrings;
+
+protected boolean recordStringLiterals;
+// javadoc
+public Javadoc javadoc;
+public JavadocParser javadocParser;
+// used for recovery
+protected int lastJavadocEnd;
+public org.eclipse.jdt.internal.compiler.ReadManager readManager;
 
 public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 
@@ -1193,6 +1193,64 @@ protected void classInstanceCreation(boolean isQualified) {
 		this.astLengthPtr--;
 	}
 }
+protected ParameterizedQualifiedTypeReference computeQualifiedGenericsFromRightSide(TypeReference rightSide, int dim) {
+	int nameSize = this.identifierLengthStack[this.identifierLengthPtr];
+	int tokensSize = nameSize;
+	if (rightSide instanceof ParameterizedSingleTypeReference) {
+		tokensSize ++;
+	} else if (rightSide instanceof SingleTypeReference) {
+		tokensSize ++;
+	} else if (rightSide instanceof ParameterizedQualifiedTypeReference) {
+		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
+	} else if (rightSide instanceof QualifiedTypeReference) {
+		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
+	}
+	TypeReference[][] typeArguments = new TypeReference[tokensSize][];
+	char[][] tokens = new char[tokensSize][];
+	long[] positions = new long[tokensSize];
+	if (rightSide instanceof ParameterizedSingleTypeReference) {
+		ParameterizedSingleTypeReference singleParameterizedTypeReference = (ParameterizedSingleTypeReference) rightSide;
+		tokens[nameSize] = singleParameterizedTypeReference.token;
+		positions[nameSize] = (((long) singleParameterizedTypeReference.sourceStart) << 32) + singleParameterizedTypeReference.sourceEnd;
+		typeArguments[nameSize] = singleParameterizedTypeReference.typeArguments;
+	} else if (rightSide instanceof SingleTypeReference) {
+		SingleTypeReference singleTypeReference = (SingleTypeReference) rightSide;
+		tokens[nameSize] = singleTypeReference.token;
+		positions[nameSize] = (((long) singleTypeReference.sourceStart) << 32) + singleTypeReference.sourceEnd;
+	} else if (rightSide instanceof ParameterizedQualifiedTypeReference) {
+		ParameterizedQualifiedTypeReference parameterizedTypeReference = (ParameterizedQualifiedTypeReference) rightSide;
+		TypeReference[][] rightSideTypeArguments = parameterizedTypeReference.typeArguments;
+		System.arraycopy(rightSideTypeArguments, 0, typeArguments, nameSize, rightSideTypeArguments.length);
+		char[][] rightSideTokens = parameterizedTypeReference.tokens;
+		System.arraycopy(rightSideTokens, 0, tokens, nameSize, rightSideTokens.length);
+		long[] rightSidePositions = parameterizedTypeReference.sourcePositions;
+		System.arraycopy(rightSidePositions, 0, positions, nameSize, rightSidePositions.length);
+	} else if (rightSide instanceof QualifiedTypeReference) {
+		QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) rightSide;
+		char[][] rightSideTokens = qualifiedTypeReference.tokens;
+		System.arraycopy(rightSideTokens, 0, tokens, nameSize, rightSideTokens.length);
+		long[] rightSidePositions = qualifiedTypeReference.sourcePositions;
+		System.arraycopy(rightSidePositions, 0, positions, nameSize, rightSidePositions.length);
+	}
+
+	int currentTypeArgumentsLength = this.genericsLengthStack[this.genericsLengthPtr--];
+	TypeReference[] currentTypeArguments = new TypeReference[currentTypeArgumentsLength];
+	this.genericsPtr -= currentTypeArgumentsLength;
+	System.arraycopy(this.genericsStack, this.genericsPtr + 1, currentTypeArguments, 0, currentTypeArgumentsLength);
+
+	if (nameSize == 1) {
+		tokens[0] = this.identifierStack[this.identifierPtr];
+		positions[0] = this.identifierPositionStack[this.identifierPtr--];
+		typeArguments[0] = currentTypeArguments;
+	} else {
+		this.identifierPtr -= nameSize;
+		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, nameSize);
+		System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, nameSize);
+		typeArguments[nameSize - 1] = currentTypeArguments;
+	}
+	this.identifierLengthPtr--;
+	return new ParameterizedQualifiedTypeReference(tokens, typeArguments, dim, positions);
+}
 protected void concatExpressionLists() {
 	this.expressionLengthStack[--this.expressionLengthPtr]++;
 }
@@ -1483,6 +1541,9 @@ protected void consumeAnnotationTypeMemberDeclaration() {
 protected void consumeAnnotationTypeMemberDeclarations() {
 	// AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclarations AnnotationTypeMemberDeclaration
 	concatNodeLists();
+}
+protected void consumeAnnotationTypeMemberDeclarationsopt() {
+	this.nestedType-- ;
 }
 protected void consumeArgumentList() {
 	// ArgumentList ::= ArgumentList ',' Expression
@@ -1944,7 +2005,12 @@ protected void consumeCaseLabel() {
 	// SwitchLabel ::= 'case' ConstantExpression ':'
 	this.expressionLengthPtr--;
 	Expression expression = this.expressionStack[this.expressionPtr--];
-	pushOnAstStack(new CaseStatement(expression, expression.sourceEnd, this.intStack[this.intPtr--]));
+	CaseStatement caseStatement = new CaseStatement(expression, expression.sourceEnd, this.intStack[this.intPtr--]);
+	// Look for $fall-through$ tag in leading comment for case statement
+	if (hasLeadingTagComment(FALL_THROUGH_TAG, caseStatement.sourceStart)) {
+		caseStatement.bits |= ASTNode.DocumentedFallthrough;
+	}
+	pushOnAstStack(caseStatement);
 }
 protected void consumeCastExpressionLL1() {
 	//CastExpression ::= '(' Expression ')' InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
@@ -2005,64 +2071,6 @@ protected void consumeCastExpressionWithPrimitiveType() {
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = this.intStack[this.intPtr--]) + 1;
 	cast.sourceEnd = exp.sourceEnd;
-}
-protected ParameterizedQualifiedTypeReference computeQualifiedGenericsFromRightSide(TypeReference rightSide, int dim) {
-	int nameSize = this.identifierLengthStack[this.identifierLengthPtr];
-	int tokensSize = nameSize;
-	if (rightSide instanceof ParameterizedSingleTypeReference) {
-		tokensSize ++;
-	} else if (rightSide instanceof SingleTypeReference) {
-		tokensSize ++;
-	} else if (rightSide instanceof ParameterizedQualifiedTypeReference) {
-		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
-	} else if (rightSide instanceof QualifiedTypeReference) {
-		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
-	}
-	TypeReference[][] typeArguments = new TypeReference[tokensSize][];
-	char[][] tokens = new char[tokensSize][];
-	long[] positions = new long[tokensSize];
-	if (rightSide instanceof ParameterizedSingleTypeReference) {
-		ParameterizedSingleTypeReference singleParameterizedTypeReference = (ParameterizedSingleTypeReference) rightSide;
-		tokens[nameSize] = singleParameterizedTypeReference.token;
-		positions[nameSize] = (((long) singleParameterizedTypeReference.sourceStart) << 32) + singleParameterizedTypeReference.sourceEnd;
-		typeArguments[nameSize] = singleParameterizedTypeReference.typeArguments;
-	} else if (rightSide instanceof SingleTypeReference) {
-		SingleTypeReference singleTypeReference = (SingleTypeReference) rightSide;
-		tokens[nameSize] = singleTypeReference.token;
-		positions[nameSize] = (((long) singleTypeReference.sourceStart) << 32) + singleTypeReference.sourceEnd;
-	} else if (rightSide instanceof ParameterizedQualifiedTypeReference) {
-		ParameterizedQualifiedTypeReference parameterizedTypeReference = (ParameterizedQualifiedTypeReference) rightSide;
-		TypeReference[][] rightSideTypeArguments = parameterizedTypeReference.typeArguments;
-		System.arraycopy(rightSideTypeArguments, 0, typeArguments, nameSize, rightSideTypeArguments.length);
-		char[][] rightSideTokens = parameterizedTypeReference.tokens;
-		System.arraycopy(rightSideTokens, 0, tokens, nameSize, rightSideTokens.length);
-		long[] rightSidePositions = parameterizedTypeReference.sourcePositions;
-		System.arraycopy(rightSidePositions, 0, positions, nameSize, rightSidePositions.length);
-	} else if (rightSide instanceof QualifiedTypeReference) {
-		QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) rightSide;
-		char[][] rightSideTokens = qualifiedTypeReference.tokens;
-		System.arraycopy(rightSideTokens, 0, tokens, nameSize, rightSideTokens.length);
-		long[] rightSidePositions = qualifiedTypeReference.sourcePositions;
-		System.arraycopy(rightSidePositions, 0, positions, nameSize, rightSidePositions.length);
-	}
-
-	int currentTypeArgumentsLength = this.genericsLengthStack[this.genericsLengthPtr--];
-	TypeReference[] currentTypeArguments = new TypeReference[currentTypeArgumentsLength];
-	this.genericsPtr -= currentTypeArgumentsLength;
-	System.arraycopy(this.genericsStack, this.genericsPtr + 1, currentTypeArguments, 0, currentTypeArgumentsLength);
-
-	if (nameSize == 1) {
-		tokens[0] = this.identifierStack[this.identifierPtr];
-		positions[0] = this.identifierPositionStack[this.identifierPtr--];
-		typeArguments[0] = currentTypeArguments;
-	} else {
-		this.identifierPtr -= nameSize;
-		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, nameSize);
-		System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, nameSize);
-		typeArguments[nameSize - 1] = currentTypeArguments;
-	}
-	this.identifierLengthPtr--;
-	return new ParameterizedQualifiedTypeReference(tokens, typeArguments, dim, positions);
 }
 protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	// CastExpression ::= PushLPAREN Name OnlyTypeArguments '.' ClassOrInterfaceType Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
@@ -2142,9 +2150,6 @@ protected void consumeClassBodyDeclarations() {
 }
 protected void consumeClassBodyDeclarationsopt() {
 	// ClassBodyDeclarationsopt ::= NestedType ClassBodyDeclarations
-	this.nestedType-- ;
-}
-protected void consumeAnnotationTypeMemberDeclarationsopt() {
 	this.nestedType-- ;
 }
 protected void consumeClassBodyopt() {
@@ -2310,27 +2315,6 @@ protected void consumeClassHeaderName1() {
 	// javadoc
 	typeDecl.javadoc = this.javadoc;
 	this.javadoc = null;
-}
-protected void consumeTypeHeaderNameWithTypeParameters() {
-	// ClassHeaderName ::= ClassHeaderName1 TypeParameters
-	// InterfaceHeaderName ::= InterfaceHeaderName1 TypeParameters
-	TypeDeclaration typeDecl = (TypeDeclaration)this.astStack[this.astPtr];
-
-	// consume type parameters
-	int length = this.genericsLengthStack[this.genericsLengthPtr--];
-	this.genericsPtr -= length;
-	System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeDecl.typeParameters = new TypeParameter[length], 0, length);
-
-	typeDecl.bodyStart = typeDecl.typeParameters[length-1].declarationSourceEnd + 1;
-
-	this.listTypeParameterLength = 0;
-
-	if (this.currentElement != null) { // is recovering
-		RecoveredType recoveredType = (RecoveredType) this.currentElement;
-		recoveredType.pendingTypeParameters = null;
-
-		this.lastCheckPoint = typeDecl.bodyStart;
-	}
 }
 protected void consumeClassInstanceCreationExpression() {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -2740,12 +2724,17 @@ protected void consumeConstructorHeaderNameWithTypeParameters() {
 		}
 	}
 }
-protected void consumeDefaultLabel() {
-	// SwitchLabel ::= 'default' ':'
-	pushOnAstStack(new CaseStatement(null, this.intStack[this.intPtr--], this.intStack[this.intPtr--]));
-}
 protected void consumeCreateInitializer() {
 	pushOnAstStack(new Initializer(null, 0));
+}
+protected void consumeDefaultLabel() {
+	// SwitchLabel ::= 'default' ':'
+	CaseStatement defaultStatement = new CaseStatement(null, this.intStack[this.intPtr--], this.intStack[this.intPtr--]);
+	// Look for $fall-through$ tag in leading comment for case statement
+	if (hasLeadingTagComment(FALL_THROUGH_TAG, defaultStatement.sourceStart)) {
+		defaultStatement.bits |= ASTNode.DocumentedFallthrough;
+	}	
+	pushOnAstStack(defaultStatement);
 }
 protected void consumeDefaultModifiers() {
 	checkComment(); // might update modifiers with AccDeprecated
@@ -2814,14 +2803,6 @@ protected void consumeEmptyClassBodyDeclarationsopt() {
 	// ClassBodyDeclarationsopt ::= $empty
 	pushOnAstLengthStack(0);
 }
-protected void consumeEmptyMethodHeaderDefaultValue() {
-	// DefaultValueopt ::= $empty
-	AbstractMethodDeclaration method = (AbstractMethodDeclaration)this.astStack[this.astPtr];
-	if(method.isAnnotationMethod()) { //'method' can be a MethodDeclaration when recovery is started
-		pushOnExpressionStackLengthStack(0);
-	}
-	this.recordStringLiterals = true;
-}
 protected void consumeEmptyDimsopt() {
 	// Dimsopt ::= $empty
 	pushOnIntStack(0);
@@ -2859,14 +2840,22 @@ protected void consumeEmptyInternalCompilationUnit() {
 		declaration.javadoc = this.compilationUnit.javadoc;
 	}
 }
-protected void consumeEmptyMemberValuePairsopt() {
-	// MemberValuePairsopt ::= $empty
-	pushOnAstLengthStack(0);
-}
 protected void consumeEmptyMemberValueArrayInitializer() {
 	// MemberValueArrayInitializer ::= '{' ',' '}'
 	// MemberValueArrayInitializer ::= '{' '}'
 	arrayInitializer(0);
+}
+protected void consumeEmptyMemberValuePairsopt() {
+	// MemberValuePairsopt ::= $empty
+	pushOnAstLengthStack(0);
+}
+protected void consumeEmptyMethodHeaderDefaultValue() {
+	// DefaultValueopt ::= $empty
+	AbstractMethodDeclaration method = (AbstractMethodDeclaration)this.astStack[this.astPtr];
+	if(method.isAnnotationMethod()) { //'method' can be a MethodDeclaration when recovery is started
+		pushOnExpressionStackLengthStack(0);
+	}
+	this.recordStringLiterals = true;
 }
 protected void consumeEmptyStatement() {
 	// EmptyStatement ::= ';'
@@ -2909,6 +2898,37 @@ protected void consumeEmptyTypeDeclaration() {
 	pushOnAstLengthStack(0);
 	if(!this.statementRecoveryActivated) problemReporter().superfluousSemicolon(this.endPosition+1, this.endStatementPosition);
 	flushCommentsDefinedPriorTo(this.endStatementPosition);
+}
+protected void consumeEnhancedForStatement() {
+	// EnhancedForStatement ::= EnhancedForStatementHeader Statement
+	// EnhancedForStatementNoShortIf ::= EnhancedForStatementHeader StatementNoShortIf
+
+	//statements
+	this.astLengthPtr--;
+	Statement statement = (Statement) this.astStack[this.astPtr--];
+
+	// foreach statement is on the ast stack
+	ForeachStatement foreachStatement = (ForeachStatement) this.astStack[this.astPtr];
+	foreachStatement.action = statement;
+	// remember useful empty statement
+	if (statement instanceof EmptyStatement) statement.bits |= ASTNode.IsUsefulEmptyStatement;
+
+	foreachStatement.sourceEnd = this.endStatementPosition;
+}
+protected void consumeEnhancedForStatementHeader(){
+	// EnhancedForStatementHeader ::= EnhancedForStatementHeaderInit ':' Expression ')'
+	final ForeachStatement statement = (ForeachStatement) this.astStack[this.astPtr];
+	//updates are on the expression stack
+	this.expressionLengthPtr--;
+	final Expression collection = this.expressionStack[this.expressionPtr--];
+	statement.collection = collection;
+	statement.sourceEnd = this.rParenPos;
+
+	if(!this.statementRecoveryActivated &&
+			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
+		problemReporter().invalidUsageOfForeachStatements(statement.elementVariable, collection);
+	}
 }
 protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 	TypeReference type;
@@ -2959,37 +2979,6 @@ protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 	pushOnAstStack(iteratorForStatement);
 
 	iteratorForStatement.sourceEnd = localDeclaration.declarationSourceEnd;
-}
-protected void consumeEnhancedForStatementHeader(){
-	// EnhancedForStatementHeader ::= EnhancedForStatementHeaderInit ':' Expression ')'
-	final ForeachStatement statement = (ForeachStatement) this.astStack[this.astPtr];
-	//updates are on the expression stack
-	this.expressionLengthPtr--;
-	final Expression collection = this.expressionStack[this.expressionPtr--];
-	statement.collection = collection;
-	statement.sourceEnd = this.rParenPos;
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfForeachStatements(statement.elementVariable, collection);
-	}
-}
-protected void consumeEnhancedForStatement() {
-	// EnhancedForStatement ::= EnhancedForStatementHeader Statement
-	// EnhancedForStatementNoShortIf ::= EnhancedForStatementHeader StatementNoShortIf
-
-	//statements
-	this.astLengthPtr--;
-	Statement statement = (Statement) this.astStack[this.astPtr--];
-
-	// foreach statement is on the ast stack
-	ForeachStatement foreachStatement = (ForeachStatement) this.astStack[this.astPtr];
-	foreachStatement.action = statement;
-	// remember useful empty statement
-	if (statement instanceof EmptyStatement) statement.bits |= ASTNode.IsUsefulEmptyStatement;
-
-	foreachStatement.sourceEnd = this.endStatementPosition;
 }
 protected void consumeEnterAnonymousClassBody() {
 	// EnterAnonymousClassBody ::= $empty
@@ -3177,52 +3166,6 @@ protected void consumeEnumBodyWithConstants() {
 	// merge the constants values with the class body
 	concatNodeLists();
 }
-protected void consumeEnumConstantHeaderName() {
-	if (this.currentElement != null) {
-		if (!(this.currentElement instanceof RecoveredType
-					|| (this.currentElement instanceof RecoveredField && ((RecoveredField)this.currentElement).fieldDeclaration.type == null))
-				|| (this.lastIgnoredToken == TokenNameDOT)) {
-			this.lastCheckPoint = this.scanner.startPosition;
-			this.restartRecovery = true;
-			return;
-		}
-	}
-   long namePosition = this.identifierPositionStack[this.identifierPtr];
-   char[] constantName = this.identifierStack[this.identifierPtr];
-   final int sourceEnd = (int) namePosition;
-   FieldDeclaration enumConstant = createFieldDeclaration(constantName, (int) (namePosition >>> 32), sourceEnd);
-   this.identifierPtr--;
-   this.identifierLengthPtr--;
-   enumConstant.modifiersSourceStart = this.intStack[this.intPtr--];
-   enumConstant.modifiers = this.intStack[this.intPtr--];
-   enumConstant.declarationSourceStart = enumConstant.modifiersSourceStart;
-
-	// Store secondary info
-	if ((enumConstant.bits & ASTNode.IsMemberType) == 0 && (enumConstant.bits & ASTNode.IsLocalType) == 0) {
-		if (this.compilationUnit != null && !CharOperation.equals(enumConstant.name, this.compilationUnit.getMainTypeName())) {
-			enumConstant.bits |= ASTNode.IsSecondaryType;
-		}
-	}
-
-	// consume annotations
-   int length;
-   if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
-      System.arraycopy(
-         this.expressionStack,
-         (this.expressionPtr -= length) + 1,
-         enumConstant.annotations = new Annotation[length],
-         0,
-         length);
-   }
-   pushOnAstStack(enumConstant);
-	if (this.currentElement != null){
-		this.lastCheckPoint = enumConstant.sourceEnd + 1;
-		this.currentElement = this.currentElement.add(enumConstant, 0);
-	}
-	// javadoc
-	enumConstant.javadoc = this.javadoc;
-	this.javadoc = null;
-}
 protected void consumeEnumConstantHeader() {
    FieldDeclaration enumConstant = (FieldDeclaration) this.astStack[this.astPtr];
    boolean foundOpeningBrace = this.currentToken == TokenNameLBRACE;
@@ -3291,6 +3234,52 @@ protected void consumeEnumConstantHeader() {
 	      this.restartRecovery = true;
 	  }
    }
+}
+protected void consumeEnumConstantHeaderName() {
+	if (this.currentElement != null) {
+		if (!(this.currentElement instanceof RecoveredType
+					|| (this.currentElement instanceof RecoveredField && ((RecoveredField)this.currentElement).fieldDeclaration.type == null))
+				|| (this.lastIgnoredToken == TokenNameDOT)) {
+			this.lastCheckPoint = this.scanner.startPosition;
+			this.restartRecovery = true;
+			return;
+		}
+	}
+   long namePosition = this.identifierPositionStack[this.identifierPtr];
+   char[] constantName = this.identifierStack[this.identifierPtr];
+   final int sourceEnd = (int) namePosition;
+   FieldDeclaration enumConstant = createFieldDeclaration(constantName, (int) (namePosition >>> 32), sourceEnd);
+   this.identifierPtr--;
+   this.identifierLengthPtr--;
+   enumConstant.modifiersSourceStart = this.intStack[this.intPtr--];
+   enumConstant.modifiers = this.intStack[this.intPtr--];
+   enumConstant.declarationSourceStart = enumConstant.modifiersSourceStart;
+
+	// Store secondary info
+	if ((enumConstant.bits & ASTNode.IsMemberType) == 0 && (enumConstant.bits & ASTNode.IsLocalType) == 0) {
+		if (this.compilationUnit != null && !CharOperation.equals(enumConstant.name, this.compilationUnit.getMainTypeName())) {
+			enumConstant.bits |= ASTNode.IsSecondaryType;
+		}
+	}
+
+	// consume annotations
+   int length;
+   if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+      System.arraycopy(
+         this.expressionStack,
+         (this.expressionPtr -= length) + 1,
+         enumConstant.annotations = new Annotation[length],
+         0,
+         length);
+   }
+   pushOnAstStack(enumConstant);
+	if (this.currentElement != null){
+		this.lastCheckPoint = enumConstant.sourceEnd + 1;
+		this.currentElement = this.currentElement.add(enumConstant, 0);
+	}
+	// javadoc
+	enumConstant.javadoc = this.javadoc;
+	this.javadoc = null;
 }
 protected void consumeEnumConstantNoClassBody() {
 	// set declarationEnd and declarationSourceEnd
@@ -4137,9 +4126,8 @@ protected void consumeInvalidConstructorDeclaration(boolean hasBody) {
 		constructorDeclaration.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
 	}
 }
-protected void consumeInvalidInterfaceDeclaration() {
-	// BlockStatement ::= InvalidInterfaceDeclaration
-	//InterfaceDeclaration ::= Modifiersopt 'interface' 'Identifier' ExtendsInterfacesopt InterfaceHeader InterfaceBody
+protected void consumeInvalidEnumDeclaration() {
+	// BlockStatement ::= EnumDeclaration
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	if(!this.statementRecoveryActivated) problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
@@ -4147,8 +4135,9 @@ protected void consumeInvalidInterfaceDeclaration() {
 	pushOnAstLengthStack(-1);
 	concatNodeLists();
 }
-protected void consumeInvalidEnumDeclaration() {
-	// BlockStatement ::= EnumDeclaration
+protected void consumeInvalidInterfaceDeclaration() {
+	// BlockStatement ::= InvalidInterfaceDeclaration
+	//InterfaceDeclaration ::= Modifiersopt 'interface' 'Identifier' ExtendsInterfacesopt InterfaceHeader InterfaceBody
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	if(!this.statementRecoveryActivated) problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
@@ -5041,12 +5030,6 @@ protected void consumePrimitiveType() {
 protected void consumePushLeftBrace() {
 	pushOnIntStack(this.endPosition); // modifiers
 }
-protected void consumePushRealModifiers() {
-	checkComment(); // might update modifiers with AccDeprecated
-	pushOnIntStack(this.modifiers); // modifiers
-	pushOnIntStack(this.modifiersSourceStart);
-	resetModifiers();
-}
 protected void consumePushModifiers() {
 	pushOnIntStack(this.modifiers); // modifiers
 	pushOnIntStack(this.modifiersSourceStart);
@@ -5064,6 +5047,12 @@ protected void consumePushPosition() {
 	// for source managment purpose
 	// PushPosition ::= $empty
 	pushOnIntStack(this.endPosition);
+}
+protected void consumePushRealModifiers() {
+	checkComment(); // might update modifiers with AccDeprecated
+	pushOnIntStack(this.modifiers); // modifiers
+	pushOnIntStack(this.modifiersSourceStart);
+	resetModifiers();
 }
 protected void consumeQualifiedName() {
 	// QualifiedName ::= Name '.' SimpleName
@@ -6840,7 +6829,6 @@ protected void consumeSingleMemberAnnotation() {
 	}
 	this.recordStringLiterals = true;
 }
-
 protected void consumeSingleMemberAnnotationMemberValue() {
 	// this rule is used for syntax recovery only
 	if (this.currentElement != null && this.currentElement instanceof RecoveredAnnotation) {
@@ -6850,6 +6838,7 @@ protected void consumeSingleMemberAnnotationMemberValue() {
 	}
 
 }
+
 protected void consumeSingleStaticImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
 	/* push an ImportRef build from the last name
@@ -7714,6 +7703,27 @@ protected void consumeTypeDeclarations() {
 	// TypeDeclarations ::= TypeDeclarations TypeDeclaration
 	concatNodeLists();
 }
+protected void consumeTypeHeaderNameWithTypeParameters() {
+	// ClassHeaderName ::= ClassHeaderName1 TypeParameters
+	// InterfaceHeaderName ::= InterfaceHeaderName1 TypeParameters
+	TypeDeclaration typeDecl = (TypeDeclaration)this.astStack[this.astPtr];
+
+	// consume type parameters
+	int length = this.genericsLengthStack[this.genericsLengthPtr--];
+	this.genericsPtr -= length;
+	System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeDecl.typeParameters = new TypeParameter[length], 0, length);
+
+	typeDecl.bodyStart = typeDecl.typeParameters[length-1].declarationSourceEnd + 1;
+
+	this.listTypeParameterLength = 0;
+
+	if (this.currentElement != null) { // is recovering
+		RecoveredType recoveredType = (RecoveredType) this.currentElement;
+		recoveredType.pendingTypeParameters = null;
+
+		this.lastCheckPoint = typeDecl.bodyStart;
+	}
+}
 protected void consumeTypeImportOnDemandDeclarationName() {
 	// TypeImportOnDemandDeclarationName ::= 'import' Name '.' '*'
 	/* push an ImportRef build from the last name
@@ -7745,22 +7755,6 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
-protected void consumeTypeParameterHeader() {
-	//TypeParameterHeader ::= Identifier
-	TypeParameter typeParameter = new TypeParameter();
-	long pos = this.identifierPositionStack[this.identifierPtr];
-	final int end = (int) pos;
-	typeParameter.declarationSourceEnd = end;
-	typeParameter.sourceEnd = end;
-	final int start = (int) (pos >>> 32);
-	typeParameter.declarationSourceStart = start;
-	typeParameter.sourceStart = start;
-	typeParameter.name = this.identifierStack[this.identifierPtr--];
-	this.identifierLengthPtr--;
-	pushOnGenericsStack(typeParameter);
-
-	this.listTypeParameterLength++;
-}
 protected void consumeTypeParameter1() {
 	// nothing to do
 }
@@ -7789,6 +7783,22 @@ protected void consumeTypeParameter1WithExtendsAndBounds() {
 	for (int i = 0, max = bounds.length; i < max; i++) {
 		bounds[i].bits |= ASTNode.IsSuperType;
 	}
+}
+protected void consumeTypeParameterHeader() {
+	//TypeParameterHeader ::= Identifier
+	TypeParameter typeParameter = new TypeParameter();
+	long pos = this.identifierPositionStack[this.identifierPtr];
+	final int end = (int) pos;
+	typeParameter.declarationSourceEnd = end;
+	typeParameter.sourceEnd = end;
+	final int start = (int) (pos >>> 32);
+	typeParameter.declarationSourceStart = start;
+	typeParameter.sourceStart = start;
+	typeParameter.name = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+	pushOnGenericsStack(typeParameter);
+
+	this.listTypeParameterLength++;
 }
 protected void consumeTypeParameterList() {
 	//TypeParameterList ::= TypeParameterList ',' TypeParameter
@@ -8048,6 +8058,7 @@ public boolean containsComment(int sourceStart, int sourceEnd) {
 	}
 	return false;
 }
+
 public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, CompilationResult compilationResult) {
 	MethodDeclaration m = new MethodDeclaration(compilationResult);
 	m.typeParameters = c.typeParameters;
@@ -8068,6 +8079,7 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	m.javadoc = c.javadoc;
 	return m;
 }
+
 protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	return typeRef.copyDims(dim);
 }
@@ -8338,7 +8350,6 @@ protected CompilationUnitDeclaration endParse(int act) {
  * void foo(){
  * } // end of method foo
  */
-
 public int flushCommentsDefinedPriorTo(int position) {
 
 	int lastCommentIndex = this.scanner.commentPtr;
@@ -8400,6 +8411,7 @@ public int flushCommentsDefinedPriorTo(int position) {
 	this.scanner.commentPtr = validCount - 1;
 	return position;
 }
+
 protected TypeReference getAnnotationType() {
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];
 	if (length == 1) {
@@ -8479,66 +8491,66 @@ public int[] getJavaDocPositions() {
 	}
 	return positions;
 }
-	public void getMethodBodies(CompilationUnitDeclaration unit) {
-		//fill the methods bodies in order for the code to be generated
+public void getMethodBodies(CompilationUnitDeclaration unit) {
+	//fill the methods bodies in order for the code to be generated
 
-		if (unit == null) return;
+	if (unit == null) return;
 
-		if (unit.ignoreMethodBodies) {
-			unit.ignoreFurtherInvestigation = true;
-			return;
-			// if initial diet parse did not work, no need to dig into method bodies.
-		}
-
-		if ((unit.bits & ASTNode.HasAllMethodBodies) != 0)
-			return; //work already done ...
-
-		// save existing values to restore them at the end of the parsing process
-		// see bug 47079 for more details
-		int[] oldLineEnds = this.scanner.lineEnds;
-		int oldLinePtr = this.scanner.linePtr;
-
-		//real parse of the method....
-		CompilationResult compilationResult = unit.compilationResult;
-		char[] contents = this.readManager != null
-			? this.readManager.getContents(compilationResult.compilationUnit)
-			: compilationResult.compilationUnit.getContents();
-		this.scanner.setSource(contents, compilationResult);
-
-		if (this.javadocParser != null && this.javadocParser.checkDocComment) {
-			this.javadocParser.scanner.setSource(contents);
-		}
-		if (unit.types != null) {
-			for (int i = 0, length = unit.types.length; i < length; i++)
-				unit.types[i].parseMethods(this, unit);
-		}
-
-		// tag unit has having read bodies
-		unit.bits |= ASTNode.HasAllMethodBodies;
-
-		// this is done to prevent any side effects on the compilation unit result
-		// line separator positions array.
-		this.scanner.lineEnds = oldLineEnds;
-		this.scanner.linePtr = oldLinePtr;
+	if (unit.ignoreMethodBodies) {
+		unit.ignoreFurtherInvestigation = true;
+		return;
+		// if initial diet parse did not work, no need to dig into method bodies.
 	}
-protected char getNextCharacter(char[] comment, int[] index) {
-	char nextCharacter = comment[index[0]++];
-	switch(nextCharacter) {
-		case '\\' :
-			int c1, c2, c3, c4;
-			index[0]++;
-			while (comment[index[0]] == 'u') index[0]++;
-			if (!(((c1 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15
-				|| c1 < 0)
-				|| ((c2 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15 || c2 < 0)
-				|| ((c3 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15 || c3 < 0)
-				|| ((c4 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15 || c4 < 0))) {
-					nextCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-			}
-			break;
+
+	if ((unit.bits & ASTNode.HasAllMethodBodies) != 0)
+		return; //work already done ...
+
+	// save existing values to restore them at the end of the parsing process
+	// see bug 47079 for more details
+	int[] oldLineEnds = this.scanner.lineEnds;
+	int oldLinePtr = this.scanner.linePtr;
+
+	//real parse of the method....
+	CompilationResult compilationResult = unit.compilationResult;
+	char[] contents = this.readManager != null
+		? this.readManager.getContents(compilationResult.compilationUnit)
+		: compilationResult.compilationUnit.getContents();
+	this.scanner.setSource(contents, compilationResult);
+
+	if (this.javadocParser != null && this.javadocParser.checkDocComment) {
+		this.javadocParser.scanner.setSource(contents);
 	}
-	return nextCharacter;
+	if (unit.types != null) {
+		for (int i = 0, length = unit.types.length; i < length; i++)
+			unit.types[i].parseMethods(this, unit);
+	}
+
+	// tag unit has having read bodies
+	unit.bits |= ASTNode.HasAllMethodBodies;
+
+	// this is done to prevent any side effects on the compilation unit result
+	// line separator positions array.
+	this.scanner.lineEnds = oldLineEnds;
+	this.scanner.linePtr = oldLinePtr;
 }
+	protected char getNextCharacter(char[] comment, int[] index) {
+		char nextCharacter = comment[index[0]++];
+		switch(nextCharacter) {
+			case '\\' :
+				int c1, c2, c3, c4;
+				index[0]++;
+				while (comment[index[0]] == 'u') index[0]++;
+				if (!(((c1 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15
+					|| c1 < 0)
+					|| ((c2 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15 || c2 < 0)
+					|| ((c3 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15 || c3 < 0)
+					|| ((c4 = ScannerHelper.getNumericValue(comment[index[0]++])) > 15 || c4 < 0))) {
+						nextCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+				}
+				break;
+		}
+		return nextCharacter;
+	}
 protected Expression getTypeReference(Expression exp) {
 
 	exp.bits &= ~ASTNode.RestrictiveFlagMASK;
@@ -8807,6 +8819,44 @@ public void goForTypeDeclaration() {
 
 	this.firstToken = TokenNamePLUS;
 	this.scanner.recordLineSeparator = true;
+}
+/**
+ * Look for a specific tag comment leading a given source range (comment located after any statement in astStack)
+ * @param rangeEnd int
+ * @return boolean
+ */
+public boolean hasLeadingTagComment(char[] commentPrefixTag, int rangeEnd) {
+	int iComment = this.scanner.commentPtr;
+	if (iComment < 0) return false; // no comment available
+	int iStatement = this.astLengthPtr;
+	if (iStatement < 0 || this.astLengthStack[iStatement] <= 1) return false; // no statement available
+	// Fallthrough comment must be located after the previous statement
+	ASTNode lastNode = this.astStack[this.astPtr];
+	int rangeStart = lastNode.sourceEnd;
+	previousComment: for (; iComment >= 0; iComment--) {
+		int commentStart = this.scanner.commentStarts[iComment];
+		if (commentStart < 0) commentStart = -commentStart; // line comments have negative start positions
+		// ignore comments before start
+		if (commentStart < rangeStart) return false; // no more comments in range
+		// ignore comments after end
+		if (commentStart > rangeEnd) continue previousComment;
+		// found last comment in range - only check the last comment in range
+		char[] source = this.scanner.source;
+		int charPos = commentStart+2; // skip // or /*
+		// tag can be leaded by optional spaces
+		for (; charPos < rangeEnd; charPos++) {
+			char c = source[charPos];
+			if (c >= ScannerHelper.MAX_OBVIOUS || (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_JLS_SPACE) == 0) {
+				break;
+			}
+		}
+		for (int iTag = 0, length = commentPrefixTag.length; iTag < length; iTag++, charPos++) {
+			if (charPos >= rangeEnd) return false; // comment is too small to host tag
+			if (source[charPos] != commentPrefixTag[iTag]) return false;
+		}
+		return true;
+	}
+	return false;
 }
 protected void ignoreExpressionAssignment() {
 	// Assignment ::= InvalidArrayInitializerAssignement
@@ -9901,6 +9951,26 @@ protected void pushOnExpressionStackLengthStack(int pos) {
 	}
 	this.expressionLengthStack[this.expressionLengthPtr] = pos;
 }
+protected void pushOnGenericsIdentifiersLengthStack(int pos) {
+	int stackLength = this.genericsIdentifiersLengthStack.length;
+	if (++this.genericsIdentifiersLengthPtr >= stackLength) {
+		System.arraycopy(
+			this.genericsIdentifiersLengthStack, 0,
+			this.genericsIdentifiersLengthStack = new int[stackLength + GenericsStackIncrement], 0,
+			stackLength);
+	}
+	this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr] = pos;
+}
+protected void pushOnGenericsLengthStack(int pos) {
+	int stackLength = this.genericsLengthStack.length;
+	if (++this.genericsLengthPtr >= stackLength) {
+		System.arraycopy(
+			this.genericsLengthStack, 0,
+			this.genericsLengthStack = new int[stackLength + GenericsStackIncrement], 0,
+			stackLength);
+	}
+	this.genericsLengthStack[this.genericsLengthPtr] = pos;
+}
 protected void pushOnGenericsStack(ASTNode node) {
 	/*add a new obj on top of the generics stack
 	genericsPtr points on the top*/
@@ -9922,26 +9992,6 @@ protected void pushOnGenericsStack(ASTNode node) {
 			stackLength);
 	}
 	this.genericsLengthStack[this.genericsLengthPtr] = 1;
-}
-protected void pushOnGenericsIdentifiersLengthStack(int pos) {
-	int stackLength = this.genericsIdentifiersLengthStack.length;
-	if (++this.genericsIdentifiersLengthPtr >= stackLength) {
-		System.arraycopy(
-			this.genericsIdentifiersLengthStack, 0,
-			this.genericsIdentifiersLengthStack = new int[stackLength + GenericsStackIncrement], 0,
-			stackLength);
-	}
-	this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr] = pos;
-}
-protected void pushOnGenericsLengthStack(int pos) {
-	int stackLength = this.genericsLengthStack.length;
-	if (++this.genericsLengthPtr >= stackLength) {
-		System.arraycopy(
-			this.genericsLengthStack, 0,
-			this.genericsLengthStack = new int[stackLength + GenericsStackIncrement], 0,
-			stackLength);
-	}
-	this.genericsLengthStack[this.genericsLengthPtr] = pos;
 }
 protected void pushOnIntStack(int pos) {
 
@@ -9973,35 +10023,34 @@ protected void recoverStatements() {
 
 		TypeDeclaration[] types = new TypeDeclaration[0];
 		int typePtr = -1;
-		public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
-			this.typePtr = -1;
-			return true;
-		}
-		public boolean visit(Initializer initializer, MethodScope scope) {
-			this.typePtr = -1;
-			if (initializer.block == null) return false;
-			return true;
-		}
-		public boolean visit(MethodDeclaration methodDeclaration,ClassScope scope) {
-			this.typePtr = -1;
-			return true;
-		}
-		public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
-			return this.visit(typeDeclaration);
-		}
-		public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
-			return this.visit(typeDeclaration);
-		}
-		private boolean visit(TypeDeclaration typeDeclaration) {
-			if(this.types.length <= ++this.typePtr) {
-				int length = this.typePtr;
-				System.arraycopy(this.types, 0, this.types = new TypeDeclaration[length * 2 + 1], 0, length);
-			}
-			this.types[this.typePtr] = typeDeclaration;
-			return false;
-		}
 		public void endVisit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 			endVisitMethod(constructorDeclaration, scope);
+		}
+		public void endVisit(Initializer initializer, MethodScope scope) {
+			if (initializer.block == null) return;
+			TypeDeclaration[] foundTypes = null;
+			int length = 0;
+			if(this.typePtr > -1) {
+				length = this.typePtr + 1;
+				foundTypes = new TypeDeclaration[length];
+				System.arraycopy(this.types, 0, foundTypes, 0, length);
+			}
+			ReferenceContext oldContext = Parser.this.referenceContext;
+			Parser.this.recoveryScanner.resetTo(initializer.bodyStart, initializer.bodyEnd);
+			Scanner oldScanner = Parser.this.scanner;
+			Parser.this.scanner = Parser.this.recoveryScanner;
+			parseStatements(
+					this.enclosingType,
+					initializer.bodyStart,
+					initializer.bodyEnd,
+					foundTypes,
+					Parser.this.compilationUnit);
+			Parser.this.scanner = oldScanner;
+			Parser.this.referenceContext = oldContext;
+
+			for (int i = 0; i < length; i++) {
+				foundTypes[i].traverse(this.typeVisitor, scope);
+			}
 		}
 		public void endVisit(MethodDeclaration methodDeclaration, ClassScope scope) {
 			endVisitMethod(methodDeclaration, scope);
@@ -10031,31 +10080,32 @@ protected void recoverStatements() {
 				foundTypes[i].traverse(this.typeVisitor, scope);
 			}
 		}
-		public void endVisit(Initializer initializer, MethodScope scope) {
-			if (initializer.block == null) return;
-			TypeDeclaration[] foundTypes = null;
-			int length = 0;
-			if(this.typePtr > -1) {
-				length = this.typePtr + 1;
-				foundTypes = new TypeDeclaration[length];
-				System.arraycopy(this.types, 0, foundTypes, 0, length);
+		public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
+			this.typePtr = -1;
+			return true;
+		}
+		public boolean visit(Initializer initializer, MethodScope scope) {
+			this.typePtr = -1;
+			if (initializer.block == null) return false;
+			return true;
+		}
+		public boolean visit(MethodDeclaration methodDeclaration,ClassScope scope) {
+			this.typePtr = -1;
+			return true;
+		}
+		private boolean visit(TypeDeclaration typeDeclaration) {
+			if(this.types.length <= ++this.typePtr) {
+				int length = this.typePtr;
+				System.arraycopy(this.types, 0, this.types = new TypeDeclaration[length * 2 + 1], 0, length);
 			}
-			ReferenceContext oldContext = Parser.this.referenceContext;
-			Parser.this.recoveryScanner.resetTo(initializer.bodyStart, initializer.bodyEnd);
-			Scanner oldScanner = Parser.this.scanner;
-			Parser.this.scanner = Parser.this.recoveryScanner;
-			parseStatements(
-					this.enclosingType,
-					initializer.bodyStart,
-					initializer.bodyEnd,
-					foundTypes,
-					Parser.this.compilationUnit);
-			Parser.this.scanner = oldScanner;
-			Parser.this.referenceContext = oldContext;
-
-			for (int i = 0; i < length; i++) {
-				foundTypes[i].traverse(this.typeVisitor, scope);
-			}
+			this.types[this.typePtr] = typeDeclaration;
+			return false;
+		}
+		public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
+			return this.visit(typeDeclaration);
+		}
+		public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
+			return this.visit(typeDeclaration);
 		}
 	}
 	class TypeVisitor extends ASTVisitor {
@@ -10073,20 +10123,6 @@ protected void recoverStatements() {
 		private void endVisitType() {
 			this.typePtr--;
 		}
-		public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
-			return this.visit(typeDeclaration);
-		}
-		public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
-			return this.visit(typeDeclaration);
-		}
-		private boolean visit(TypeDeclaration typeDeclaration) {
-			if(this.types.length <= ++this.typePtr) {
-				int length = this.typePtr;
-				System.arraycopy(this.types, 0, this.types = new TypeDeclaration[length * 2 + 1], 0, length);
-			}
-			this.types[this.typePtr] = typeDeclaration;
-			return true;
-		}
 		public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 			if(constructorDeclaration.isDefaultConstructor()) return false;
 
@@ -10102,6 +10138,20 @@ protected void recoverStatements() {
 		public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
 			methodDeclaration.traverse(this.methodVisitor, scope);
 			return false;
+		}
+		private boolean visit(TypeDeclaration typeDeclaration) {
+			if(this.types.length <= ++this.typePtr) {
+				int length = this.typePtr;
+				System.arraycopy(this.types, 0, this.types = new TypeDeclaration[length * 2 + 1], 0, length);
+			}
+			this.types[this.typePtr] = typeDeclaration;
+			return true;
+		}
+		public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
+			return this.visit(typeDeclaration);
+		}
+		public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
+			return this.visit(typeDeclaration);
 		}
 	}
 

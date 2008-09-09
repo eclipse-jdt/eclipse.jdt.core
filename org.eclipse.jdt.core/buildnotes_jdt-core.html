@@ -47,9 +47,28 @@ Eclipse SDK 3.5M2 - %date% - 3.5 MILESTONE 2
 <br>Project org.eclipse.jdt.core v_912
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_912">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Introduced a marker comment (<code>$FALL-THROUGH$</code>) for silencing compiler diagnosis for switch case 
+falling through next case. This allows to document intended fall through situations in the code.
+Note: The marker comment can also be a block comment, i.e. <code>/* $FALL-THROUGH$ */</code>.
+<br>e.g. 
+<pre>
+    switch(val) {
+        case 0 :
+            doit(0);
+            // $FALL-THROUGH$ - also fall into next case
+       case 1:
+            doit(1);
+            break;
+    }
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=240034">240034</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=245257">245257</a>
+[compiler] Allow to suppress fall-through warning
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=240034">240034</a>
 [buildpath] Eclipse ignores .classpath file if it is encoded in UTF8 with BOM
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=245963">245963</a>
 deprecate unused JavaCore.COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION

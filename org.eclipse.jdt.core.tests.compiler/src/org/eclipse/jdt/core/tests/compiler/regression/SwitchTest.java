@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.Map;
 
 import junit.framework.Test;
 
@@ -560,6 +561,151 @@ public void test013() throws Exception {
 	if (index == -1) {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=245257
+public void test014() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	void foo1(int i) {\n" + 
+		"		switch (i) {\n" + 
+		"			case 0://OK\n" + 
+		"			case 1://OK\n" + 
+		"				System.out.println();\n" + 
+		"				//$FALL-THROUGH$\n" + 
+		"			case 2://OK\n" + 
+		"				System.out.println(); //$FALL-THROUGH$\n" + 
+		"			case 3://OK\n" + 
+		"				System.out.println();\n" + 
+		"				//$FALL-THROUGH$ - some allowed explanation\n" + 
+		"			case 4://OK\n" + 
+		"			case 5://OK\n" + 
+		"				System.out.println();\n" + 
+		"				//$FALL-THROUGH$ - not last comment, thus inoperant\n" + 
+		"				// last comment is not fall-through explanation\n" + 
+		"			case 6://WRONG\n" + 
+		"				//$FALL-THROUGH$ - useless since not leading the case\n" + 
+		"				System.out.println();\n" + 
+		"				/*$FALL-THROUGH$ - block comment, is also allowed */\n" + 
+		"			case 7://OK\n" + 
+		"				System.out.println(\"aa\"); //$NON-NLS-1$\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 18)\n" + 
+	"	case 6://WRONG\n" + 
+	"	^^^^^^\n" + 
+	"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" + 
+	"----------\n",
+	null,
+	true,
+	options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=245257 - variation
+public void test015() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	void foo1(int i) {\n" + 
+		"		switch (i) {\n" + 
+		"			case 0://OK\n" + 
+		"			case 1://OK\n" + 
+		"				System.out.println();\n" + 
+		"				//	  $FALL-THROUGH$\n" + 
+		"			case 2://OK\n" + 
+		"				System.out.println(); // 	 $FALL-THROUGH$\n" + 
+		"			case 3://OK\n" + 
+		"				System.out.println();\n" + 
+		"				//	$FALL-THROUGH$ - some allowed explanation\n" + 
+		"			case 4://OK\n" + 
+		"			case 5://OK\n" + 
+		"				System.out.println();\n" + 
+		"				// $FALL-THROUGH$ - not last comment, thus inoperant\n" + 
+		"				// last comment is not fall-through explanation\n" + 
+		"			case 6://WRONG\n" + 
+		"				// $FALL-THROUGH$ - useless since not leading the case\n" + 
+		"				System.out.println();\n" + 
+		"				/* $FALL-THROUGH$ - block comment, is also allowed */\n" + 
+		"			case 7://OK\n" + 
+		"				System.out.println(\"aa\"); //$NON-NLS-1$\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 18)\n" + 
+	"	case 6://WRONG\n" + 
+	"	^^^^^^\n" + 
+	"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" + 
+	"----------\n",
+	null,
+	true,
+	options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=245257 - variation
+public void test016() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	void foo1(int i) {\n" + 
+		"		switch (i) {\n" + 
+		"			case 0://OK\n" + 
+		"			case 1://OK\n" + 
+		"				System.out.println();\n" + 
+		"				//	  $FALL-THROUGH - missing trailing $ in tag\n" + 
+		"			case 2://WRONG\n" + 
+		"				System.out.println();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 8)\n" + 
+	"	case 2://WRONG\n" + 
+	"	^^^^^^\n" + 
+	"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" + 
+	"----------\n",
+	null,
+	true,
+	options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=245257 - variation
+public void test017() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	void foo1(char previousChar) {\n" + 
+		"		switch(previousChar) {\n" + 
+		"			case \'/\':\n" + 
+		"				if (previousChar == \'*\') {\n" + 
+		"					// End of javadoc\n" + 
+		"					break;\n" + 
+		"					//$FALL-THROUGH$ into default case\n" + 
+		"				}\n" + 
+		"			default :\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 10)\n" + 
+	"	default :\n" + 
+	"	^^^^^^^\n" + 
+	"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" + 
+	"----------\n",
+	null,
+	true,
+	options);
 }
 public static Class testClass() {
 	return SwitchTest.class;
