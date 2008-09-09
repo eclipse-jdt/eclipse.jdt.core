@@ -4272,12 +4272,12 @@ public void testFallthroughDiagnosis() throws CoreException, InterruptedExceptio
 			"}\n";
 			
 		createFile("/P1/X.java", source);
-		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies = new ICompilationUnit[1];
 
 		// Get first working copy and verify that there's no error
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		getCompilationUnit("/P1/X.java").getWorkingCopy(this.wcOwner, null);
+		this.workingCopies[0] = getCompilationUnit("/P1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems("Working copy should have problems:",
 				"----------\n" + 
 				"1. ERROR in /P1/X.java (at line 12)\n" + 
