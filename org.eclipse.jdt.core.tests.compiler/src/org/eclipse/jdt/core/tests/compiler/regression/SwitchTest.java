@@ -599,7 +599,7 @@ public void test014() {
 	"1. ERROR in X.java (at line 18)\n" + 
 	"	case 6://WRONG\n" + 
 	"	^^^^^^\n" + 
-	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" + 
+	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
 	"----------\n",
 	null,
 	true,
@@ -642,7 +642,7 @@ public void test015() {
 	"1. ERROR in X.java (at line 18)\n" + 
 	"	case 6://WRONG\n" + 
 	"	^^^^^^\n" + 
-	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" + 
+	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
 	"----------\n",
 	null,
 	true,
@@ -671,7 +671,7 @@ public void test016() {
 	"1. ERROR in X.java (at line 8)\n" + 
 	"	case 2://WRONG\n" + 
 	"	^^^^^^\n" + 
-	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" + 
+	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
 	"----------\n",
 	null,
 	true,
@@ -701,7 +701,7 @@ public void test017() {
 	"1. ERROR in X.java (at line 10)\n" + 
 	"	default :\n" + 
 	"	^^^^^^^\n" + 
-	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" + 
+	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
 	"----------\n",
 	null,
 	true,
