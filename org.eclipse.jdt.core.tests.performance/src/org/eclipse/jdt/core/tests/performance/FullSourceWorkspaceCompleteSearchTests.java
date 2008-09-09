@@ -34,7 +34,7 @@ import org.eclipse.jdt.internal.core.search.processing.IJob;
  * Note that this test suite was not supposed to be included in releng performance tests
  * as it would take too much time to be run...
  */
-public class FullSourceWorkspaceCompleteSearchTests extends FullSourceWorkspaceSearchTests implements IJavaSearchConstants {
+public class FullSourceWorkspaceCompleteSearchTests extends FullSourceWorkspaceSearchTests {
 
 	// Tests counters
 	private static int TESTS_COUNT = 0;
