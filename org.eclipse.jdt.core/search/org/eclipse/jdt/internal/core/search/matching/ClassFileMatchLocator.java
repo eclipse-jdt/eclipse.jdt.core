@@ -317,7 +317,7 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 			for (int i = 0, length = patterns.length; i < length; i++) {
 				matchAnnotations(patterns[i], locator, classFile, binaryType);
 			}
-			// fall through default to return
+			// $FALL-THROUGH$ - fall through default to return
 		default:
 			return;
 	}

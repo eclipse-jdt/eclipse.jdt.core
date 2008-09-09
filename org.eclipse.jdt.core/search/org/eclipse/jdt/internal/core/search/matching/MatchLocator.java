@@ -576,6 +576,7 @@ protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclarat
 					variableDeclaration.annotations
 				);
 			}
+			break;
 		case AbstractVariableDeclaration.PARAMETER:
 			if (variableDeclaration.type.resolvedType != null) {
 				return new LocalVariable((JavaElement)parent,
@@ -588,6 +589,7 @@ protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclarat
 					variableDeclaration.annotations
 				);
 			}
+			break;
 		case AbstractVariableDeclaration.TYPE_PARAMETER:
 			return new org.eclipse.jdt.internal.core.TypeParameter((JavaElement)parent, new String(variableDeclaration.name));
 	}

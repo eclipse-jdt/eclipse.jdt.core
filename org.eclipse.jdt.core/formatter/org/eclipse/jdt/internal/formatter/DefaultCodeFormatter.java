@@ -175,6 +175,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				if (ENABLE_NEW_COMMENTS_FORMAT) {
 	                return formatComment(kind & K_MASK, source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)});
 				}
+				// $FALL-THROUGH$ - fall through next case when old comment formatter is activated
 			case K_MULTI_LINE_COMMENT :
 			case K_SINGLE_LINE_COMMENT :
 				if (ENABLE_NEW_COMMENTS_FORMAT) {

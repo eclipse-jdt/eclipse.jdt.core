@@ -348,7 +348,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							// End of javadoc
 							break;
 						}
-						// fall through default case
+						// $FALL-THROUGH$ - fall through default case
 					default :
 						if (isFormatterParser && nextCharacter == '<') {
 							// html tags are meaningful for formatter parser
@@ -828,7 +828,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
 							break nextToken;
 						}
-						// fall through next case to report error
+						// $FALL-THROUGH$ - fall through next case to report error
 					case TerminalTokens.TokenNameLESS:
 						if (valid && mayBeGeneric) {
 							// store '<' in identifiers stack as we need to add it to tag element (bug 79809)
@@ -838,7 +838,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							isTypeParam = true;
 							break nextToken;
 						}
-						// fall through next case to report error
+						// $FALL-THROUGH$ - fall through next case to report error
 					default:
 						if (token == TerminalTokens.TokenNameLEFT_SHIFT) isTypeParam = true;
 						if (valid && !hasMultiLines) start = this.scanner.getCurrentTokenStartPosition();
@@ -849,11 +849,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							break;
 						}
 						end = this.lineEnd;
-						// when several lines, fall through next case to report problem immediately
+						// $FALL-THROUGH$ - when several lines, fall through next case to report problem immediately
 					case TerminalTokens.TokenNameWHITESPACE:
 						if (this.scanner.currentPosition > (this.lineEnd+1)) hasMultiLines = true;
 						if (valid) break;
-						// if not valid fall through next case to report error
+						// $FALL-THROUGH$ - if not valid fall through next case to report error
 					case TerminalTokens.TokenNameEOF:
 						if (this.reportProblems)
 							if (empty)
@@ -883,8 +883,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					}
 					switch (token) {
 						case TerminalTokens.TokenNameWHITESPACE:
-							if (valid && this.scanner.currentPosition <= (this.lineEnd+1)) break;
-							// if not valid fall through next case to report error
+							if (valid && this.scanner.currentPosition <= (this.lineEnd+1)) {
+								break;
+							}
+							// $FALL-THROUGH$ - if not valid fall through next case to report error
 						case TerminalTokens.TokenNameEOF:
 							if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidParamTypeParameter(start, end);
 							if (!isCompletionParser) {
@@ -926,7 +928,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 							spaces = true;
 							if (valid) break;
-							// if not valid fall through next case to report error
+							// $FALL-THROUGH$ - if not valid fall through next case to report error
 						case TerminalTokens.TokenNameEOF:
 							if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidParamTypeParameter(start, end);
 							if (!isCompletionParser) {
@@ -1059,7 +1061,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									this.scanner.currentPosition = this.tokenPreviousPosition;
 									this.currentTokenType = -1;
 								}
-								// fall through default case to raise exception
+								// $FALL-THROUGH$ - fall through default case to raise exception
 							default:
 								throw new InvalidInputException();
 						}
@@ -1158,6 +1160,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							if (this.abort) return false; // May be aborted by specialized parser
 							break;
 						}
+						break nextToken;
 					default :
 						break nextToken;
 				}
@@ -1572,13 +1575,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					this.starPosition = previousPosition;
 					break;
 				case '/':
-					if (this.starPosition >= textPosition) {
+					if (this.starPosition >= textPosition) { // valid only if a star was the previous character
 						if (domParser) {
 							createTag();
 							pushText(textPosition, this.starPosition);
 						}
 						return true;
 					}
+					break nextChar;
 				default :
 					// leave loop
 					break nextChar;
@@ -1621,9 +1625,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					this.starPosition = previousPosition;
 					break;
 				case '/':
-					if (this.starPosition >= startPosition) { // valid only if a star was previous character
+					if (this.starPosition >= startPosition) { // valid only if a star was the previous character
 						return true;
 					}
+					// $FALL-THROUGH$ - fall through to invalid case
 				default :
 					// invalid whatever other character, even white spaces
 					this.index = startPosition;

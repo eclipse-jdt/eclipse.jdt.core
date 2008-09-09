@@ -475,6 +475,7 @@ public class CompletionJavadocParser extends JavadocParser {
 						if (!valid && completionScanner.completionIdentifier != null && completionScanner.completionIdentifier.length == 0) {
 							valid = pushParamName(true);
 						}
+						// $FALL-THROUGH$ - fall through next case to verify and get identifiers stack contents
 					case 1:
 						isTypeParam = this.identifierStack[0][0] == '<';
 						identifier = this.identifierStack[1];

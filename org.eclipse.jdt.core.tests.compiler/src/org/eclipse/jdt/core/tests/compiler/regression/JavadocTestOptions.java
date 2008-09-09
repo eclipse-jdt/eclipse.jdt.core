@@ -927,21 +927,23 @@ public class JavadocTestOptions extends JavadocTest {
 				StringBuffer error = new StringBuffer();
 				boolean add = true;
 				for (int j=0; j<5; j++) {
-					String line = tokenizer.nextToken();
+					String token = tokenizer.nextToken();
 					switch (j) {
 						case 0:
 							error.append(count);
-							error.append(line.substring(line.indexOf('.')));
+							error.append(token.substring(token.indexOf('.')));
 							break;
 						case 3:
+							// may not want to add the error message in certain circumstances
 							if (CompilerOptions.DISABLED.equals(this.reportInvalidJavadocTagsDeprecatedRef)) {
-								add = line.indexOf("is deprecated") == -1;
+								add = token.indexOf("is deprecated") == -1;
 							}
 							if (add && CompilerOptions.DISABLED.equals(this.reportInvalidJavadocTagsNotVisibleRef)) {
-								add = line.indexOf("is not visible") == -1 && line.indexOf("visibility for malformed doc comments") == -1;
+								add = token.indexOf("is not visible") == -1 && token.indexOf("visibility for malformed doc comments") == -1;
 							}
+							// $FALL-THROUGH$ - fall through next case to append the token to the error message
 						default:
-							error.append(line);
+							error.append(token);
 					}
 					error.append('\n');
 				}
@@ -972,21 +974,23 @@ public class JavadocTestOptions extends JavadocTest {
 				StringBuffer error = new StringBuffer();
 				boolean add = true;
 				for (int j=0; j<5; j++) {
-					String line = tokenizer.nextToken();
+					String token = tokenizer.nextToken();
 					switch (j) {
 						case 0:
 							error.append(count);
-							error.append(line.substring(line.indexOf('.')));
+							error.append(token.substring(token.indexOf('.')));
 							break;
 						case 3:
+							// may not want to add the error message in certain circumstances
 							if (CompilerOptions.DISABLED.equals(this.reportInvalidJavadocTagsDeprecatedRef)) {
-								add = line.indexOf("is deprecated") == -1;
+								add = token.indexOf("is deprecated") == -1;
 							}
 							if (add && CompilerOptions.DISABLED.equals(this.reportInvalidJavadocTagsNotVisibleRef)) {
-								add = line.indexOf("is not visible") == -1 && line.indexOf("visibility for malformed doc comments") == -1;
+								add = token.indexOf("is not visible") == -1 && token.indexOf("visibility for malformed doc comments") == -1;
 							}
+							// $FALL-THROUGH$ - fall through next case to append the token to the error message
 						default:
-							error.append(line);
+							error.append(token);
 					}
 					error.append('\n');
 				}

@@ -2628,7 +2628,7 @@ public class Scribe implements IJavaDocTagConstants {
 								break;
 							default:	// space between method arguments
 								spacePosition = buffer.length();
-								// fall through next case
+								// $FALL-THROUGH$ - fall through next case
 							case -1:
 								buffer.append(' ');
 								this.column++;
@@ -3702,7 +3702,7 @@ public class Scribe implements IJavaDocTagConstants {
 						break;
 					case TerminalTokens.TokenNameRPAREN:
 						currentTokenStartPosition = this.scanner.startPosition;
-						// fall through default case...
+						// $FALL-THROUGH$ - fall through default case...
 					default:
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;
@@ -3743,7 +3743,7 @@ public class Scribe implements IJavaDocTagConstants {
 						if (expectParenthesis) {
 							currentTokenStartPosition = this.scanner.startPosition;
 						}
-						// fall through default case...
+						// $FALL-THROUGH$ - fall through default case...
 					default:
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;

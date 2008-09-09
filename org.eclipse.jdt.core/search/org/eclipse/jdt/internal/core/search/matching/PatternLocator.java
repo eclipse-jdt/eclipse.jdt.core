@@ -564,6 +564,7 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 				case Signature.C_SUPER :
 					patternWildcardKind = Wildcard.SUPER;
 					patternTypeName = CharOperation.subarray(patternTypeArgument, 1, patternTypeArgument.length);
+					break;
 				default :
 					break;
 			}
@@ -849,6 +850,7 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 				case Signature.C_EXTENDS :
 					// remove wildcard from patter type argument
 					patternTypeArgument = CharOperation.subarray(patternTypeArgument, 1, patternTypeArgument.length);
+					break;
 				default :
 					// no wildcard
 					break;
@@ -870,6 +872,7 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 					case Wildcard.EXTENDS:
 						// Invalid if type argument is not exact
 						if (patternTypeArgHasAnyChars) return impossible;
+						continue nextTypeArgument;
 					case Wildcard.UNBOUND:
 						// there's no bound name to match => valid
 						continue nextTypeArgument;

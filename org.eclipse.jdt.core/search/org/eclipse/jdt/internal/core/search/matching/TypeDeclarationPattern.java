@@ -273,7 +273,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 				break; // do a prefix query with the simpleName and possibly the pkg
 			}
 			matchRule |= R_PATTERN_MATCH;
-			// fall thru to encode the key and do a pattern query
+			// $FALL-THROUGH$ - fall thru to encode the key and do a pattern query
 		case R_PATTERN_MATCH :
 			if (this.pkg == null) {
 				if (this.simpleName == null) {

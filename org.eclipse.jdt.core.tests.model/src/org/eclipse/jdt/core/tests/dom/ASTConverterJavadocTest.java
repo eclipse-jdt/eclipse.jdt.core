@@ -312,7 +312,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			currentChar = getNextChar(source, i);
 			i += (this.chars==null) ? 1 : this.chars.length();
 
-			//
 			switch (comment) {
 				case 0:
 					switch (currentChar) {
@@ -400,7 +399,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					comment = this.DOC_COMMENT;
 					// $FALL-THROUGH$ - do not break, directly go to next case...
 				case DOC_COMMENT:
-					if (tag != null) {
+					if (tag != null) { // a tag name is currently scanned
 						if (currentChar >= 'a' && currentChar <= 'z') {
 							tag += currentChar;
 						} else {
@@ -408,6 +407,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 							tag = null;
 						}
 					}
+					// Some characters are special in javadoc comments
 					switch (currentChar) {
 						case '@':
 							if (!lineStarted || previousChar == '{') {
@@ -426,6 +426,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 								lineStarted = true;
 							}
 					}
+					// $FALL-THROUGH$ - common treatment for block and javadoc comments
 				case BLOCK_COMMENT:
 					if (this.chars == null) buffer.append(currentChar);
 					else buffer.append(this.chars);

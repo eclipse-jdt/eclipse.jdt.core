@@ -1004,7 +1004,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 						case TerminalTokens.TokenNameLESS:
 							argCount++;
 							if (parameterType == null) return null; // invalid syntax
-							// fall through next case to add token
+							// $FALL-THROUGH$ - fall through next case to add token
 						default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 							if (parameterType == null)
 								parameterType = scanner.getCurrentTokenString();
@@ -1040,7 +1040,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 						case TerminalTokens.TokenNameLESS:
 							argCount++;
 							if (returnType == null) return null; // invalid syntax
-							// fall through next case to add token
+							// $FALL-THROUGH$ - fall through next case to add token
 						default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 							if (returnType == null)
 								returnType = scanner.getCurrentTokenString();
@@ -1871,7 +1871,7 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 					break;
 				case TerminalTokens.TokenNameLESS:
 					argCount++;
-					// fall through default case to add token to type
+					// $FALL-THROUGH$ - fall through default case to add token to type
 				default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 					if (type == null)
 						type = scanner.getCurrentTokenString();
