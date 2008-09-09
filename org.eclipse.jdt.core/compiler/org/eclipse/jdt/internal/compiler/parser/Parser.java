@@ -1110,11 +1110,17 @@ public void checkComment() {
 
 	if (this.modifiersSourceStart >= 0) {
 		// eliminate comments located after modifierSourceStart if positionned
-		while (lastComment >= 0 && this.scanner.commentStarts[lastComment] > this.modifiersSourceStart) lastComment--;
+		while (lastComment >= 0) {
+			int commentSourceStart = this.scanner.commentStarts[lastComment];
+			if (commentSourceStart < 0) commentSourceStart = -commentSourceStart;
+			if (commentSourceStart <= this.modifiersSourceStart) break;
+			lastComment--;
+		}
 	}
 	if (lastComment >= 0) {
 		// consider all remaining leading comments to be part of current declaration
 		this.modifiersSourceStart = this.scanner.commentStarts[0];
+		if (this.modifiersSourceStart < 0) this.modifiersSourceStart = -this.modifiersSourceStart;
 
 		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)
 		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
@@ -8050,6 +8056,7 @@ public boolean containsComment(int sourceStart, int sourceEnd) {
 	int iComment = this.scanner.commentPtr;
 	for (; iComment >= 0; iComment--) {
 		int commentStart = this.scanner.commentStarts[iComment];
+		if (commentStart < 0) commentStart = -commentStart;
 		// ignore comments before start
 		if (commentStart < sourceStart) continue;
 		// ignore comments after end
@@ -8472,9 +8479,10 @@ public int getFirstToken() {
 public int[] getJavaDocPositions() {
 
 	int javadocCount = 0;
-	for (int i = 0, max = this.scanner.commentPtr; i <= max; i++){
-		// javadoc only (non javadoc comment have negative end positions.)
-		if (this.scanner.commentStops[i] > 0){
+	int max = this.scanner.commentPtr;
+	for (int i = 0; i <= max; i++){
+		// javadoc only (non javadoc comment have negative start and/or end positions.)
+		if (this.scanner.commentStarts[i] >= 0 && this.scanner.commentStops[i] > 0) {
 			javadocCount++;
 		}
 	}
@@ -8482,11 +8490,15 @@ public int[] getJavaDocPositions() {
 
 	int[] positions = new int[2*javadocCount];
 	int index = 0;
-	for (int i = 0, max = this.scanner.commentPtr; i <= max; i++){
-		// javadoc only (non javadoc comment have negative end positions.)
-		if (this.scanner.commentStops[i] > 0){
-			positions[index++] = this.scanner.commentStarts[i];
-			positions[index++] = this.scanner.commentStops[i]-1; //stop is one over
+	for (int i = 0; i <= max; i++){
+		// javadoc only (non javadoc comment have negative start and/or end positions.)
+		int commentStart = this.scanner.commentStarts[i];
+		if (commentStart >= 0) {
+			int commentStop = this.scanner.commentStops[i];
+			if (commentStop > 0){
+				positions[index++] = commentStart;
+				positions[index++] = commentStop-1; //stop is one over
+			}
 		}
 	}
 	return positions;

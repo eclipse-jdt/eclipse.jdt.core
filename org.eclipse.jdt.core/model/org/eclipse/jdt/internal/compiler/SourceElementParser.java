@@ -135,11 +135,17 @@ public void checkComment() {
 
 	if (this.modifiersSourceStart >= 0) {
 		// eliminate comments located after modifierSourceStart if positionned
-		while (lastComment >= 0 && Math.abs(this.scanner.commentStarts[lastComment]) > this.modifiersSourceStart) lastComment--;
+		while (lastComment >= 0) {
+			int commentSourceStart = this.scanner.commentStarts[lastComment];
+			if (commentSourceStart < 0) commentSourceStart = -commentSourceStart;
+			if (commentSourceStart <= this.modifiersSourceStart) break;
+			lastComment--;
+		}
 	}
 	if (lastComment >= 0) {
 		// consider all remaining leading comments to be part of current declaration
-		this.modifiersSourceStart = Math.abs(this.scanner.commentStarts[0]);
+		this.modifiersSourceStart = this.scanner.commentStarts[0];
+		if (this.modifiersSourceStart < 0) this.modifiersSourceStart = -this.modifiersSourceStart;
 
 		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)
 		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions

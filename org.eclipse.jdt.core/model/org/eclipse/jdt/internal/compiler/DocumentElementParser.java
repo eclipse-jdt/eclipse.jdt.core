@@ -68,17 +68,16 @@ public void checkComment() {
 
 	//since jdk1.2 look only in the last java doc comment...
 	nextComment : for (lastCommentIndex = this.scanner.commentPtr; lastCommentIndex >= 0; lastCommentIndex--){
-		//look for @deprecated into the first javadoc comment preceeding the declaration
+		// skip all non-javadoc comments or those which are after the last modifier
 		int commentSourceStart = this.scanner.commentStarts[lastCommentIndex];
-		// javadoc only (non javadoc comment have negative end positions.)
-		if (this.modifiersSourceStart != -1 && this.modifiersSourceStart < commentSourceStart) {
+		if (commentSourceStart < 0 || // line comment
+			this.scanner.commentStops[lastCommentIndex] < 0 || // block comment
+			(this.modifiersSourceStart != -1 && this.modifiersSourceStart < commentSourceStart)) // the comment is after the modifier
+		{
 			continue nextComment;
 		}
-		if (this.scanner.commentStops[lastCommentIndex] < 0) {
-			continue nextComment;
-		}
-		deprecated =
-			this.javadocParser.checkDeprecation(lastCommentIndex);
+		// check comment
+		deprecated = this.javadocParser.checkDeprecation(lastCommentIndex);
 		break nextComment;
 	}
 	if (deprecated) {
@@ -87,6 +86,7 @@ public void checkComment() {
 	// modify the modifier source start to point at the first comment
 	if (commentPtr >= 0) {
 		this.declarationSourceStart = this.scanner.commentStarts[0];
+		if (this.declarationSourceStart < 0) this.declarationSourceStart = -this.declarationSourceStart;
 	}
 }
 /*

@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
@@ -54,7 +55,7 @@ public class CommentRecorderParser extends Parser {
 		nextComment : for (lastCommentIndex = this.scanner.commentPtr; lastCommentIndex >= 0; lastCommentIndex--){
 			//look for @deprecated into the first javadoc comment preceeding the declaration
 			int commentSourceStart = this.scanner.commentStarts[lastCommentIndex];
-			// javadoc only (non javadoc comment have negative end positions.)
+			// javadoc only (non javadoc comment have negative start and/or end positions.)
 			if ((commentSourceStart < 0) ||
 				(this.modifiersSourceStart != -1 && this.modifiersSourceStart < commentSourceStart) ||
 				(this.scanner.commentStops[lastCommentIndex] < 0))
@@ -106,26 +107,6 @@ public class CommentRecorderParser extends Parser {
 	protected void consumeInterfaceHeader() {
 		pushOnCommentsStack(0, this.scanner.commentPtr);
 		super.consumeInterfaceHeader();
-	}
-
-	/**
-	 * Insure that start position is always positive.
-	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#containsComment(int, int)
-	 */
-	public boolean containsComment(int sourceStart, int sourceEnd) {
-		int iComment = this.scanner.commentPtr;
-		for (; iComment >= 0; iComment--) {
-			int commentStart = this.scanner.commentStarts[iComment];
-			if (commentStart < 0) {
-				commentStart = -commentStart;
-			}
-			// ignore comments before start
-			if (commentStart < sourceStart) continue;
-			// ignore comments after end
-			if (commentStart > sourceEnd) continue;
-			return true;
-		}
-		return false;
 	}
 
 	/* (non-Javadoc)
@@ -239,7 +220,7 @@ public class CommentRecorderParser extends Parser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initializeScanner()
 	 */
 	public void initializeScanner() {
-		this.scanner = new CommentRecorderScanner(
+		this.scanner = new Scanner(
 				false /*comment*/,
 				false /*whitespace*/,
 				this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/,

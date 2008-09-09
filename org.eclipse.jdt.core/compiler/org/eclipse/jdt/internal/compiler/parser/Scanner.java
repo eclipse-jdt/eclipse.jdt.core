@@ -2552,12 +2552,16 @@ public final void pushUnicodeLineSeparator() {
 
 public void recordComment(int token) {
 	// compute position
+	int commentStart = this.startPosition;
 	int stopPosition = this.currentPosition;
 	switch (token) {
 		case TokenNameCOMMENT_LINE:
+			// both positions are negative
+			commentStart = -this.startPosition;
 			stopPosition = -this.lastCommentLinePosition;
 			break;
 		case TokenNameCOMMENT_BLOCK:
+			// only end position is negative
 			stopPosition = -this.currentPosition;
 			break;
 	}
@@ -2571,7 +2575,7 @@ public void recordComment(int token) {
 		System.arraycopy(this.commentTagStarts, 0, this.commentTagStarts = new int[newLength], 0, length);
 	}
 	this.commentStops[this.commentPtr] = stopPosition;
-	this.commentStarts[this.commentPtr] = this.startPosition;
+	this.commentStarts[this.commentPtr] = commentStart;
 }
 
 /**
