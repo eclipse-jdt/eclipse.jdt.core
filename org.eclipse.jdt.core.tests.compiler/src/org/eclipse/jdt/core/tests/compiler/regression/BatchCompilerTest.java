@@ -3705,7 +3705,7 @@ public void test051(){
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
 		"	case 1:\n" +
 		"	^^^^^^\n" +
-		"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" +
+		"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" +
 		"----------\n" +
 		"1 problem (1 warning)",
         true);

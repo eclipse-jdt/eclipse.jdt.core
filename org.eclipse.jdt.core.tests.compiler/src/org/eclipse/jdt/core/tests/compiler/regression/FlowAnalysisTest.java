@@ -197,7 +197,7 @@ public void test006() {
 		"1. ERROR in X.java (at line 6)\n" +
 		"	case 1:\n" +
 		"	^^^^^^\n" +
-		"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" +
+		"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -270,7 +270,7 @@ public void test008() {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	case 1:\n" +
 		"	^^^^^^\n" +
-		"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" +
+		"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -335,7 +335,7 @@ public void test010() {
 		"1. ERROR in X.java (at line 6)\n" +
 		"	case 1:\n" +
 		"	^^^^^^\n" +
-		"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" +
+		"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -455,7 +455,7 @@ public void test014() {
 		"1. ERROR in X.java (at line 6)\n" +
 		"	default:\n" +
 		"	^^^^^^^\n" +
-		"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" +
+		"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -492,7 +492,7 @@ public void test015() {
 		"1. ERROR in X.java (at line 8)\n" +
 		"	case 1:\n" +
 		"	^^^^^^\n" +
-		"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" +
+		"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -529,7 +529,7 @@ public void test016() {
 		"1. ERROR in X.java (at line 8)\n" +
 		"	case 1:\n" +
 		"	^^^^^^\n" +
-		"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" +
+		"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -616,7 +616,7 @@ public void test019() {
 		"1. ERROR in X.java (at line 8)\n" +
 		"	case 1:\n" +
 		"	^^^^^^\n" +
-		"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" +
+		"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);

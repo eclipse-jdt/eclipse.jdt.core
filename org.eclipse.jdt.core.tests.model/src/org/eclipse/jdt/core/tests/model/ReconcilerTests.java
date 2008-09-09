@@ -4283,7 +4283,7 @@ public void testFallthroughDiagnosis() throws CoreException, InterruptedExceptio
 				"1. ERROR in /P1/X.java (at line 12)\n" + 
 				"	case 3:\n" + 
 				"	^^^^^^\n" + 
-				"Switch case may be entered by falling through previous case. If intended, it should be documented with //$FALL-THROUGH$\n" + 
+				"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the above line\n" + 
 				"----------\n"
 		);
 	} finally {
