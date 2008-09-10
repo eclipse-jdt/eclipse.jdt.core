@@ -407,11 +407,13 @@ public class JavadocParser extends AbstractCommentParser {
 
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
 
-		// Signal tag missing description if necessary
+		// Complain when tag is missing a description
+		// Note that if the parse of an inline tag has already started, consider it
+		// as the expected description, hence do not report any warning
 		switch (this.tagWaitingForDescription) {
 			case TAG_PARAM_VALUE:
 			case TAG_THROWS_VALUE:
-				if (!this.inlineTagStarted) { // if an inline tag is started, then consider as the expected description...
+				if (!this.inlineTagStarted) {
 					int start = (int) (this.identifierPositionStack[0] >>> 32);
 					int end = (int) this.identifierPositionStack[this.identifierPtr];
 					this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
@@ -420,7 +422,9 @@ public class JavadocParser extends AbstractCommentParser {
 			case NO_TAG_VALUE:
 				break;
 			default:
-				this.sourceParser.problemReporter().javadocMissingTagDescription(TAG_NAMES[this.tagWaitingForDescription], this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
+				if (!this.inlineTagStarted) {
+					this.sourceParser.problemReporter().javadocMissingTagDescription(TAG_NAMES[this.tagWaitingForDescription], this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
+				}
 				break;
 		}
 		this.tagWaitingForDescription = NO_TAG_VALUE;
@@ -835,11 +839,13 @@ public class JavadocParser extends AbstractCommentParser {
 	 */
 	protected void updateDocComment() {
 
-		// Signal tag missing description if necessary
+		// Complain when tag is missing a description
+		// Note that if the parse of an inline tag has already started, consider it
+		// as the expected description, hence do not report any warning
 		switch (this.tagWaitingForDescription) {
 			case TAG_PARAM_VALUE:
 			case TAG_THROWS_VALUE:
-				if (!this.inlineTagStarted) { // if an inline tag is started, then consider as the expected description...
+				if (!this.inlineTagStarted) {
 					int start = (int) (this.identifierPositionStack[0] >>> 32);
 					int end = (int) this.identifierPositionStack[this.identifierPtr];
 					this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
@@ -848,7 +854,9 @@ public class JavadocParser extends AbstractCommentParser {
 			case NO_TAG_VALUE:
 				break;
 			default:
-				this.sourceParser.problemReporter().javadocMissingTagDescription(TAG_NAMES[this.tagWaitingForDescription], this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
+				if (!this.inlineTagStarted) {
+					this.sourceParser.problemReporter().javadocMissingTagDescription(TAG_NAMES[this.tagWaitingForDescription], this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
+				}
 				break;
 		}
 		this.tagWaitingForDescription = NO_TAG_VALUE;

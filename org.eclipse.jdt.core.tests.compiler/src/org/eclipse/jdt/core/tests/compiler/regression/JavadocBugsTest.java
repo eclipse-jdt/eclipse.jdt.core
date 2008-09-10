@@ -7326,10 +7326,10 @@ public void testBug222902() {
 	String[] units = new String[] {
 		"X.java",
 		"/**\n" +
-		" * @author\n" +
 		" * {@code}\n" +
-		" * @deprecated\n" +
 		" * {@literal}\n" +
+		" * @author\n" +
+		" * @deprecated\n" +
 		" * @since\n" +
 		" * @version\n" +
 		" * @generated\n" + // should not get a warning for missing description on non-standard tag
@@ -7359,24 +7359,24 @@ public void testBug222902() {
 	runConformTest(true, units,
 		"----------\n" +
 		"1. WARNING in X.java (at line 2)\n" +
-		"	* @author\n" +
-		"	   ^^^^^^\n" +
-		"Javadoc: Description expected after @author\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 3)\n" +
 		"	* {@code}\n" +
 		"	    ^^^^\n" +
 		"Javadoc: Description expected after @code\n" +
 		"----------\n" +
-		"3. WARNING in X.java (at line 4)\n" +
-		"	* @deprecated\n" +
-		"	   ^^^^^^^^^^\n" +
-		"Javadoc: Description expected after @deprecated\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 5)\n" +
+		"2. WARNING in X.java (at line 3)\n" +
 		"	* {@literal}\n" +
 		"	    ^^^^^^^\n" +
 		"Javadoc: Description expected after @literal\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 4)\n" +
+		"	* @author\n" +
+		"	   ^^^^^^\n" +
+		"Javadoc: Description expected after @author\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 5)\n" +
+		"	* @deprecated\n" +
+		"	   ^^^^^^^^^^\n" +
+		"Javadoc: Description expected after @deprecated\n" +
 		"----------\n" +
 		"5. WARNING in X.java (at line 6)\n" +
 		"	* @since\n" +
@@ -7563,6 +7563,35 @@ public void testBug246712() {
 			"		return \"Y\";\n" + 
 			"	}\n" + 
 			"}\n"
+		}
+	);
+}
+public void testBug246712b() {
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runConformTest(
+		new String[] {
+			"src/X.java",
+			"/**\n" + 
+			" * @author {@link String}\n" + 
+			" * @since {@link String}\n" + 
+			" * @version {@link String}\n" + 
+			" * @deprecated {@link String}\n" + 
+			"*/\n" + 
+			"public class X {\n" + 
+			"	/**\n" + 
+			"	 * @return {@link String}\n" + 
+			"	 * @since {@link String}\n" + 
+			"	 * @throws  Exception {@link String}\n" + 
+			"	 * @exception Exception {@link String}\n" + 
+			"	 * @serial {@link String}\n" + 
+			"	 * @serialData {@link String}\n" + 
+			"	 * @serialField {@link String}\n" + 
+			"	 * @deprecated {@link String}\n" + 
+			"	 */\n" + 
+			"	public String foo(String aParam) throws Exception {\n" + 
+			"		return new String();\n" + 
+			"	}\n" + 
+			"}"
 		}
 	);
 }
