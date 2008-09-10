@@ -1716,6 +1716,7 @@ public static void main(String[] args) {
 				printHelp(false);
 				System.exit(1);
 			}
+			break;
 		case 2:
 			if (args[0].equals("--printTruthTables")) {
 				File outputDir = new File(args[1]);
@@ -1733,12 +1734,14 @@ public static void main(String[] args) {
 				printHelp(false);
 				System.exit(1);
 			}
+			break;
 		case 3:
 			if (args[0].equals("--reinitializeFromComputedValues")) {
 				reinitializeFromComputedValues(args[1], args[2]);
 				System.out.println("Generator generated new file into " + args[2]);
 				System.exit(0);
 			}
+			//$FALL-THROUGH$
 		case 5:
 			if (args[0].equals("--reinitializeFromComments")) {
 				reinitializeFromComments(args[1], args[2], args[3], args[4]);
@@ -1746,6 +1749,7 @@ public static void main(String[] args) {
 					+ " and " + args[4]);
 				System.exit(0);
 			}
+			//$FALL-THROUGH$
 		default:
 			printHelp(false);
 			System.exit(1);
