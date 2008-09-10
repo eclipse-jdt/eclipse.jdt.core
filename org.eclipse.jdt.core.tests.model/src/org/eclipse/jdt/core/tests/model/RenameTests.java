@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.model;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -316,7 +317,7 @@ public void testRenameConstructor() {
 /**
  *
  */
-public void testRenameCU() throws CoreException {
+public void testRenameCU1() throws CoreException {
 	this.cu.rename("NewX.java", false, null);
 	assertTrue("Original CU should not exist", !this.cu.exists());
 
@@ -337,7 +338,7 @@ public void testRenameCU() throws CoreException {
 		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}"
 	);
 }
-public void testRenameCUForce() throws CoreException {
+public void testRenameCU2() throws CoreException {
 	this.createFile(
 		"/P/src/Y.java",
 		"public class Y {\n" +
@@ -369,6 +370,35 @@ public void testRenameCUForce() throws CoreException {
 		"			X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}\n" +
 		"			Y.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}"
 	);
+}
+/*
+ * Ensures that the correct scheduling rule is used when running ICompilationUnit.rename(...)
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=142990 )
+ */
+public void testRenameCU3() throws Exception {
+	IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+		public void run(IProgressMonitor monitor) throws CoreException {
+			RenameTests.this.cu.rename("NewX.java", false, null);
+			assertTrue("Original CU should not exist", !RenameTests.this.cu.exists());
+		}
+	};
+	getWorkspace().run(runnable, getFolder("/P/src"), IResource.NONE, null);
+}
+/*
+ * Ensures that the correct scheduling rule is used when running ICompilationUnit.rename(...)
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=142990 )
+ */
+public void testRenameCU4() throws Exception {
+	createFolder("/P/src/p1");
+	createFile("/P/src/p1/X.java", "package p1; public class X {}");
+	IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+		public void run(IProgressMonitor monitor) throws CoreException {
+			ICompilationUnit x = getCompilationUnit("/P/src/p1/X.java");
+			x.rename("NewX.java", false, null);
+			assertTrue("Original CU should not exist", !x.exists());
+		}
+	};
+	getWorkspace().run(runnable, getFolder("/P/src/p1"), IResource.NONE, null);
 }
 /*
  * Ensures that renaming an empty package fragment doesn't make it disappear

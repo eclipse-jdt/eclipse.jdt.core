@@ -16,6 +16,8 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -71,13 +73,6 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * <code>ICompilationUnit</code>.
 	 */
 	protected ASTParser parser;
-	/**
-	 * When executed, this operation will copy the given resources to the
-	 * given container.
-	 */
-	public CopyResourceElementsOperation(IJavaElement[] resourcesToCopy, IJavaElement destContainer, boolean force) {
-		this(resourcesToCopy, new IJavaElement[]{destContainer}, force);
-	}
 	/**
 	 * When executed, this operation will copy the given resources to the
 	 * given containers.  The resources and destination containers must be in
@@ -191,6 +186,76 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 */
 	protected String getMainTaskName() {
 		return Messages.operation_copyResourceProgress;
+	}
+	protected ISchedulingRule getSchedulingRule() {
+		if (this.elementsToProcess == null)
+			return null;
+		int length = this.elementsToProcess.length;
+		if (length == 1)
+			return getSchedulingRule(this.elementsToProcess[0]);
+		ISchedulingRule[] rules = new ISchedulingRule[length];
+		int index = 0;
+		for (int i = 0; i < length; i++) {
+			ISchedulingRule rule = getSchedulingRule(this.elementsToProcess[i]);
+			if (rule != null) {
+				rules[index++] = rule;
+			}
+		}
+		if (index != length)
+			System.arraycopy(rules, 0, rules = new ISchedulingRule[index], 0, index);
+		return new MultiRule(rules);
+	}
+	private ISchedulingRule getSchedulingRule(IJavaElement element) {
+		if (element == null)
+			return null;
+		IResource sourceResource = getResource(element);
+		IResource destContainer = getResource(getDestinationParent(element));
+		if (!(destContainer instanceof IContainer)) {
+			return null;
+		}
+		String newName;
+		try {
+			newName = getNewNameFor(element);
+		} catch (JavaModelException e) {
+			return null;
+		}
+		if (newName == null)
+			newName = element.getElementName();
+		IResource destResource;
+		String sourceEncoding = null;
+		if (sourceResource.getType() == IResource.FILE) {
+			destResource = ((IContainer) destContainer).getFile(new Path(newName));
+			try {
+				sourceEncoding = ((IFile) sourceResource).getCharset(false);
+			} catch (CoreException ce) {
+				// use default encoding
+			}
+		} else {
+			destResource = ((IContainer) destContainer).getFolder(new Path(newName));
+		}
+		IResourceRuleFactory factory = ResourcesPlugin.getWorkspace().getRuleFactory();
+		ISchedulingRule rule;
+		if (isMove()) {
+			rule = factory.moveRule(sourceResource, destResource);
+		} else {
+			rule = factory.copyRule(sourceResource, destResource);
+		}
+		if (sourceEncoding != null) {
+			rule = new MultiRule(new ISchedulingRule[] {rule, factory.charsetRule(destResource)});
+		}
+		return rule;
+	}
+	private IResource getResource(IJavaElement element) {
+		if (element == null)
+			return null;
+		if (element.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+			String pkgName = element.getElementName();
+			int firstDot = pkgName.indexOf('.');
+			if (firstDot != -1) {
+				element = ((IPackageFragmentRoot) element.getParent()).getPackageFragment(pkgName.substring(0, firstDot));
+			}
+		}
+		return element.getResource();
 	}
 	/**
 	 * Sets the deltas to register the changes resulting from this operation

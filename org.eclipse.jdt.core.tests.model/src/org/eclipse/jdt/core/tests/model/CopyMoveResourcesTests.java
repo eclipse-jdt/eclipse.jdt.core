@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.tests.model;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
@@ -214,7 +216,7 @@ public void tearDown() throws Exception {
 /**
  * Ensures that a CU can be copied to a different package.
  */
-public void testCopyCU() throws CoreException {
+public void testCopyCU01() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -236,7 +238,7 @@ public void testCopyCU() throws CoreException {
  * This operation should fail as copying a CU and a CU member at the
  * same time is not supported.
  */
-public void testCopyCUAndType() throws CoreException {
+public void testCopyCU02() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -257,7 +259,7 @@ public void testCopyCUAndType() throws CoreException {
 /**
  * Ensures that a CU can be copied to a different package, replacing an existing CU.
  */
-public void testCopyCUForce() throws CoreException {
+public void testCopyCU03() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -281,7 +283,7 @@ public void testCopyCUForce() throws CoreException {
 /**
  * Ensures that a CU can be copied from a default package to a non-default package.
  */
-public void testCopyCUFromDefaultToNonDefault() throws CoreException {
+public void testCopyCU04() throws CoreException {
 	createFile(
 		"/P/src/X.java",
 		"public class X {\n" +
@@ -301,7 +303,7 @@ public void testCopyCUFromDefaultToNonDefault() throws CoreException {
  * Ensures that a CU can be copied to a different package,
  * and be renamed.
  */
-public void testCopyCURename() throws CoreException {
+public void testCopyCU05() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -319,7 +321,7 @@ public void testCopyCURename() throws CoreException {
 /**
  * Ensures that a read-only CU can be copied to a different package.
  */
-public void testCopyCUReadOnly() throws CoreException {
+public void testCopyCU06() throws CoreException {
 	if (!Util.isReadOnlySupported()) {
 		// Do not test if file system does not support read-only attribute
 		return;
@@ -359,7 +361,7 @@ public void testCopyCUReadOnly() throws CoreException {
  * Ensures that a CU can be copied to a different package,
  * and be renamed, overwriting an existing CU
  */
-public void testCopyCURenameForce() throws CoreException {
+public void testCopyCU07() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -383,7 +385,7 @@ public void testCopyCURenameForce() throws CoreException {
 /**
  * Ensures that a CU cannot be copied to a different package,over an existing CU when no force.
  */
-public void testCopyCUWithCollision() throws CoreException {
+public void testCopyCU08() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -407,7 +409,7 @@ public void testCopyCUWithCollision() throws CoreException {
 /**
  * Ensures that a CU cannot be copied to an invalid destination
  */
-public void testCopyCUWithInvalidDestination() throws CoreException {
+public void testCopyCU09() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -422,7 +424,7 @@ public void testCopyCUWithInvalidDestination() throws CoreException {
 /**
  * Ensures that a CU can be copied to a null container
  */
-public void testCopyCUWithNullContainer() throws CoreException {
+public void testCopyCU10() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -443,7 +445,7 @@ public void testCopyCUWithNullContainer() throws CoreException {
  * Ensures that a CU can be copied to along with its server properties.
  * (Regression test for PR #1G56QT9)
  */
-public void testCopyCUWithServerProperties() throws CoreException {
+public void testCopyCU11() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -469,6 +471,25 @@ public void testCopyCUWithServerProperties() throws CoreException {
 		"some value",
 		propertyValue
 	);
+}
+/*
+ * Ensures that the correct scheduling rule is used when copying a CU
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=142990 )
+ */
+public void testCopyCU12() throws Exception {
+	createFolder("/P/src/p1");
+	createFile("/P/src/p1/X.java", "package p1; public class X {}");
+	this.createFolder("/P/src/p2");
+
+	IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+		public void run(IProgressMonitor monitor) throws CoreException {
+			ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+			IPackageFragment pkgDest = getPackage("/P/src/p2");
+			cuSource.copy(pkgDest, null, null, false, null);
+			assertTrue("/P/src/p2/X.java should exist", getCompilationUnit("/P/src/p2/X.java").exists());
+		}
+	};
+	getWorkspace().run(runnable, getFolder("/P/src/p2"), IResource.NONE, null);
 }
 /**
  * Ensures that a package fragment can be copied to a different package fragment root.
@@ -743,7 +764,7 @@ public void testCopyWorkingCopyWithInvalidDestination() throws CoreException {
 /**
  * Ensures that a CU can be moved to a different package.
  */
-public void testMoveCU() throws CoreException {
+public void testMoveCU01() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -765,7 +786,7 @@ public void testMoveCU() throws CoreException {
  * This operation should fail as moving a CU and a CU member at the
  * same time is not supported.
  */
-public void testMoveCUAndType() throws CoreException {
+public void testMoveCU02() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -787,7 +808,7 @@ public void testMoveCUAndType() throws CoreException {
  * Ensures that a CU can be moved to a different package, replacing an
  * existing CU.
  */
-public void testMoveCUForce() throws CoreException {
+public void testMoveCU03() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -812,7 +833,7 @@ public void testMoveCUForce() throws CoreException {
  * Ensures that a CU can be moved to a different package,
  * be renamed
  */
-public void testMoveCURename() throws CoreException {
+public void testMoveCU04() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -831,7 +852,7 @@ public void testMoveCURename() throws CoreException {
  * Ensures that a CU can be moved to a different package,
  * be renamed, overwriting an existing resource.
  */
-public void testMoveCURenameForce() throws CoreException {
+public void testMoveCU05() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -856,7 +877,7 @@ public void testMoveCURenameForce() throws CoreException {
  * Ensures that a CU cannot be moved to a different package, replacing an
  * existing CU when not forced.
  */
-public void testMoveCUWithCollision() throws CoreException {
+public void testMoveCU06() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -880,7 +901,7 @@ public void testMoveCUWithCollision() throws CoreException {
 /**
  * Ensures that a CU cannot be moved to an invalid destination.
  */
-public void testMoveCUWithInvalidDestination() throws CoreException {
+public void testMoveCU07() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -895,7 +916,7 @@ public void testMoveCUWithInvalidDestination() throws CoreException {
 /**
  * Ensures that a CU cannot be moved to a null container
  */
-public void testMoveCUWithNullContainer() throws CoreException {
+public void testMoveCU08() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
@@ -911,6 +932,25 @@ public void testMoveCUWithNullContainer() throws CoreException {
 		return;
 	}
 	assertTrue("Should not be able to move a cu to a null container", false);
+}
+/*
+ * Ensures that the correct scheduling rule is used when moving a CU
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=142990 )
+ */
+public void testMoveCU09() throws Exception {
+	createFolder("/P/src/p1");
+	createFile("/P/src/p1/X.java", "package p1; public class X {}");
+	this.createFolder("/P/src/p2");
+
+	IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+		public void run(IProgressMonitor monitor) throws CoreException {
+			ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+			IPackageFragment pkgDest = getPackage("/P/src/p2");
+			cuSource.move(pkgDest, null, null, false, null);
+			assertFalse("/P/src/p1/X.java should no longer exist", cuSource.exists());
+		}
+	};
+	getWorkspace().run(runnable, getFolder("/P/src"), IResource.NONE, null);
 }
 /**
  * Ensures that a package fragment can be moved to a different package fragment root.

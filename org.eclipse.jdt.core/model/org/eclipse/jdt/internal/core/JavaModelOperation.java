@@ -247,11 +247,17 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/**
 	 * Convenience method to copy resources
 	 */
-	protected void copyResources(IResource[] resources, IPath destinationPath) throws JavaModelException {
+	protected void copyResources(IResource[] resources, IPath container) throws JavaModelException {
 		IProgressMonitor subProgressMonitor = getSubProgressMonitor(resources.length);
-		IWorkspace workspace = resources[0].getWorkspace();
+		IWorkspaceRoot root =  ResourcesPlugin.getWorkspace().getRoot();
 		try {
-			workspace.copy(resources, destinationPath, false, subProgressMonitor);
+			for (int i = 0, length = resources.length; i < length; i++) {
+				IResource resource = resources[i];
+				IPath destination = container.append(resource.getName());
+				if (root.findMember(destination) == null) {
+					resource.copy(destination, false, subProgressMonitor);
+				}
+			}
 			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
@@ -561,14 +567,20 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/**
 	 * Convenience method to move resources
 	 */
-	protected void moveResources(IResource[] resources, IPath destinationPath) throws JavaModelException {
+	protected void moveResources(IResource[] resources, IPath container) throws JavaModelException {
 		IProgressMonitor subProgressMonitor = null;
 		if (this.progressMonitor != null) {
 			subProgressMonitor = new SubProgressMonitor(this.progressMonitor, resources.length, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
 		}
-		IWorkspace workspace = resources[0].getWorkspace();
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		try {
-			workspace.move(resources, destinationPath, false, subProgressMonitor);
+			for (int i = 0, length = resources.length; i < length; i++) {
+				IResource resource = resources[i];
+				IPath destination = container.append(resource.getName());
+				if (root.findMember(destination) == null) {
+					resource.move(destination, false, subProgressMonitor);
+				}
+			}
 			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
