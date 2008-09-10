@@ -1507,6 +1507,318 @@ public void test61() {
 		"Type mismatch: cannot convert from java.util.Date to java.sql.Date\n" + 
 		"----------\n");
 }
+
+// challenge widening conversion
+public void test62() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  byte b;\n" + 
+			"  short s;\n" + 
+			"  char c;\n" + 
+			"  boolean z;\n" + 
+			"  int i;\n" + 
+			"  long j;\n" + 
+			"  float f;\n" + 
+			"  double d;\n" + 
+			"void foo() {\n" + 
+			"	boolean[] booleans = { b, s, c, z, i, j, f, d, };\n" + 
+			"	byte[] bytes = { b, s, c, z, i, j, f, d, };\n" + 
+			"	short[] shorts = { b, s, c, z, i, j, f, d, };\n" + 
+			"	char[] chars = { b, s, c, z, i, j, f, d, };\n" + 
+			"	int[] ints = { b, s, c, z, i, j, f, d, };\n" + 
+			"	long[] longs = { b, s, c, z, i, j, f, d, };\n" + 
+			"	float[] floats = { b, s, c, z, i, j, f, d, };\n" + 
+			"	double[] doubles = { b, s, c, z, i, j, f, d, };\n" + 
+			"}\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                       ^\n" + 
+		"Type mismatch: cannot convert from byte to boolean\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                          ^\n" + 
+		"Type mismatch: cannot convert from short to boolean\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                             ^\n" + 
+		"Type mismatch: cannot convert from char to boolean\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                   ^\n" + 
+		"Type mismatch: cannot convert from int to boolean\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                      ^\n" + 
+		"Type mismatch: cannot convert from long to boolean\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                         ^\n" + 
+		"Type mismatch: cannot convert from float to boolean\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                            ^\n" + 
+		"Type mismatch: cannot convert from double to boolean\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 12)\n" + 
+		"	byte[] bytes = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                    ^\n" + 
+		"Type mismatch: cannot convert from short to byte\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 12)\n" + 
+		"	byte[] bytes = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                       ^\n" + 
+		"Type mismatch: cannot convert from char to byte\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 12)\n" + 
+		"	byte[] bytes = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                          ^\n" + 
+		"Type mismatch: cannot convert from boolean to byte\n" + 
+		"----------\n" + 
+		"11. ERROR in X.java (at line 12)\n" + 
+		"	byte[] bytes = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                             ^\n" + 
+		"Type mismatch: cannot convert from int to byte\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 12)\n" + 
+		"	byte[] bytes = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                ^\n" + 
+		"Type mismatch: cannot convert from long to byte\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 12)\n" + 
+		"	byte[] bytes = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                   ^\n" + 
+		"Type mismatch: cannot convert from float to byte\n" + 
+		"----------\n" + 
+		"14. ERROR in X.java (at line 12)\n" + 
+		"	byte[] bytes = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                      ^\n" + 
+		"Type mismatch: cannot convert from double to byte\n" + 
+		"----------\n" + 
+		"15. ERROR in X.java (at line 13)\n" + 
+		"	short[] shorts = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                         ^\n" + 
+		"Type mismatch: cannot convert from char to short\n" + 
+		"----------\n" + 
+		"16. ERROR in X.java (at line 13)\n" + 
+		"	short[] shorts = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                            ^\n" + 
+		"Type mismatch: cannot convert from boolean to short\n" + 
+		"----------\n" + 
+		"17. ERROR in X.java (at line 13)\n" + 
+		"	short[] shorts = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                               ^\n" + 
+		"Type mismatch: cannot convert from int to short\n" + 
+		"----------\n" + 
+		"18. ERROR in X.java (at line 13)\n" + 
+		"	short[] shorts = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                  ^\n" + 
+		"Type mismatch: cannot convert from long to short\n" + 
+		"----------\n" + 
+		"19. ERROR in X.java (at line 13)\n" + 
+		"	short[] shorts = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                     ^\n" + 
+		"Type mismatch: cannot convert from float to short\n" + 
+		"----------\n" + 
+		"20. ERROR in X.java (at line 13)\n" + 
+		"	short[] shorts = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                        ^\n" + 
+		"Type mismatch: cannot convert from double to short\n" + 
+		"----------\n" + 
+		"21. ERROR in X.java (at line 14)\n" + 
+		"	char[] chars = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                 ^\n" + 
+		"Type mismatch: cannot convert from byte to char\n" + 
+		"----------\n" + 
+		"22. ERROR in X.java (at line 14)\n" + 
+		"	char[] chars = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                    ^\n" + 
+		"Type mismatch: cannot convert from short to char\n" + 
+		"----------\n" + 
+		"23. ERROR in X.java (at line 14)\n" + 
+		"	char[] chars = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                          ^\n" + 
+		"Type mismatch: cannot convert from boolean to char\n" + 
+		"----------\n" + 
+		"24. ERROR in X.java (at line 14)\n" + 
+		"	char[] chars = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                             ^\n" + 
+		"Type mismatch: cannot convert from int to char\n" + 
+		"----------\n" + 
+		"25. ERROR in X.java (at line 14)\n" + 
+		"	char[] chars = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                ^\n" + 
+		"Type mismatch: cannot convert from long to char\n" + 
+		"----------\n" + 
+		"26. ERROR in X.java (at line 14)\n" + 
+		"	char[] chars = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                   ^\n" + 
+		"Type mismatch: cannot convert from float to char\n" + 
+		"----------\n" + 
+		"27. ERROR in X.java (at line 14)\n" + 
+		"	char[] chars = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                      ^\n" + 
+		"Type mismatch: cannot convert from double to char\n" + 
+		"----------\n" + 
+		"28. ERROR in X.java (at line 15)\n" + 
+		"	int[] ints = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                        ^\n" + 
+		"Type mismatch: cannot convert from boolean to int\n" + 
+		"----------\n" + 
+		"29. ERROR in X.java (at line 15)\n" + 
+		"	int[] ints = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                              ^\n" + 
+		"Type mismatch: cannot convert from long to int\n" + 
+		"----------\n" + 
+		"30. ERROR in X.java (at line 15)\n" + 
+		"	int[] ints = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                 ^\n" + 
+		"Type mismatch: cannot convert from float to int\n" + 
+		"----------\n" + 
+		"31. ERROR in X.java (at line 15)\n" + 
+		"	int[] ints = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                    ^\n" + 
+		"Type mismatch: cannot convert from double to int\n" + 
+		"----------\n" + 
+		"32. ERROR in X.java (at line 16)\n" + 
+		"	long[] longs = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                          ^\n" + 
+		"Type mismatch: cannot convert from boolean to long\n" + 
+		"----------\n" + 
+		"33. ERROR in X.java (at line 16)\n" + 
+		"	long[] longs = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                   ^\n" + 
+		"Type mismatch: cannot convert from float to long\n" + 
+		"----------\n" + 
+		"34. ERROR in X.java (at line 16)\n" + 
+		"	long[] longs = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                      ^\n" + 
+		"Type mismatch: cannot convert from double to long\n" + 
+		"----------\n" + 
+		"35. ERROR in X.java (at line 17)\n" + 
+		"	float[] floats = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                            ^\n" + 
+		"Type mismatch: cannot convert from boolean to float\n" + 
+		"----------\n" + 
+		"36. ERROR in X.java (at line 17)\n" + 
+		"	float[] floats = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                                        ^\n" + 
+		"Type mismatch: cannot convert from double to float\n" + 
+		"----------\n" + 
+		"37. ERROR in X.java (at line 18)\n" + 
+		"	double[] doubles = { b, s, c, z, i, j, f, d, };\n" + 
+		"	                              ^\n" + 
+		"Type mismatch: cannot convert from boolean to double\n" + 
+		"----------\n");
+}
+//challenge narrowing conversion
+public void test63() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  byte b;\n" + 
+			"  short s;\n" + 
+			"  char c;\n" + 
+			"  boolean z;\n" + 
+			"  int i;\n" + 
+			"  long j;\n" + 
+			"  float f;\n" + 
+			"  double d;\n" + 
+			"void foo() {\n" + 
+			"	boolean[] booleans = { (boolean)b, (boolean)s, (boolean)c, (boolean)z, (boolean)i, (boolean)j, (boolean)f, (boolean)d, };\n" + 
+			"	byte[] bytes = { (byte)b, (byte)s, (byte)c, (byte)z, (byte)i, (byte)j, (byte)f, (byte)d, };\n" + 
+			"	short[] shorts = { (short)b, (short)s, (short)c, (short)z, (short)i, (short)j, (short)f, (short)d, };\n" + 
+			"	char[] chars = { (char)b, (char)s, (char)c, (char)z, (char)i, (char)j, (char)f, (char)d, };\n" + 
+			"	int[] ints = { (int)b, (int)s, (int)c, (int)z, (int)i, (int)j, (int)f, (int)d, };\n" + 
+			"	long[] longs = { (long)b, (long)s, (long)c, (long)z, (long)i, (long)j, (long)f, (long)d, };\n" + 
+			"	float[] floats = { (float)b, (float)s, (float)c, (float)z, (float)i, (float)j, (float)f, (float)d, };\n" + 
+			"	double[] doubles = { (double)b, (double)s, (double)c, (double)z, (double)i, (double)j, (double)f, (double)d, };\n" + 
+			"}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { (boolean)b, (boolean)s, (boolean)c, (boolean)z, (boolean)i, (boolean)j, (boolean)f, (boolean)d, };\n" + 
+		"	                       ^^^^^^^^^^\n" + 
+		"Cannot cast from byte to boolean\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { (boolean)b, (boolean)s, (boolean)c, (boolean)z, (boolean)i, (boolean)j, (boolean)f, (boolean)d, };\n" + 
+		"	                                   ^^^^^^^^^^\n" + 
+		"Cannot cast from short to boolean\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { (boolean)b, (boolean)s, (boolean)c, (boolean)z, (boolean)i, (boolean)j, (boolean)f, (boolean)d, };\n" + 
+		"	                                               ^^^^^^^^^^\n" + 
+		"Cannot cast from char to boolean\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { (boolean)b, (boolean)s, (boolean)c, (boolean)z, (boolean)i, (boolean)j, (boolean)f, (boolean)d, };\n" + 
+		"	                                                                       ^^^^^^^^^^\n" + 
+		"Cannot cast from int to boolean\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { (boolean)b, (boolean)s, (boolean)c, (boolean)z, (boolean)i, (boolean)j, (boolean)f, (boolean)d, };\n" + 
+		"	                                                                                   ^^^^^^^^^^\n" + 
+		"Cannot cast from long to boolean\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { (boolean)b, (boolean)s, (boolean)c, (boolean)z, (boolean)i, (boolean)j, (boolean)f, (boolean)d, };\n" + 
+		"	                                                                                               ^^^^^^^^^^\n" + 
+		"Cannot cast from float to boolean\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 11)\n" + 
+		"	boolean[] booleans = { (boolean)b, (boolean)s, (boolean)c, (boolean)z, (boolean)i, (boolean)j, (boolean)f, (boolean)d, };\n" + 
+		"	                                                                                                           ^^^^^^^^^^\n" + 
+		"Cannot cast from double to boolean\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 12)\n" + 
+		"	byte[] bytes = { (byte)b, (byte)s, (byte)c, (byte)z, (byte)i, (byte)j, (byte)f, (byte)d, };\n" + 
+		"	                                            ^^^^^^^\n" + 
+		"Cannot cast from boolean to byte\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 13)\n" + 
+		"	short[] shorts = { (short)b, (short)s, (short)c, (short)z, (short)i, (short)j, (short)f, (short)d, };\n" + 
+		"	                                                 ^^^^^^^^\n" + 
+		"Cannot cast from boolean to short\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 14)\n" + 
+		"	char[] chars = { (char)b, (char)s, (char)c, (char)z, (char)i, (char)j, (char)f, (char)d, };\n" + 
+		"	                                            ^^^^^^^\n" + 
+		"Cannot cast from boolean to char\n" + 
+		"----------\n" + 
+		"11. ERROR in X.java (at line 15)\n" + 
+		"	int[] ints = { (int)b, (int)s, (int)c, (int)z, (int)i, (int)j, (int)f, (int)d, };\n" + 
+		"	                                       ^^^^^^\n" + 
+		"Cannot cast from boolean to int\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 16)\n" + 
+		"	long[] longs = { (long)b, (long)s, (long)c, (long)z, (long)i, (long)j, (long)f, (long)d, };\n" + 
+		"	                                            ^^^^^^^\n" + 
+		"Cannot cast from boolean to long\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 17)\n" + 
+		"	float[] floats = { (float)b, (float)s, (float)c, (float)z, (float)i, (float)j, (float)f, (float)d, };\n" + 
+		"	                                                 ^^^^^^^^\n" + 
+		"Cannot cast from boolean to float\n" + 
+		"----------\n" + 
+		"14. ERROR in X.java (at line 18)\n" + 
+		"	double[] doubles = { (double)b, (double)s, (double)c, (double)z, (double)i, (double)j, (double)f, (double)d, };\n" + 
+		"	                                                      ^^^^^^^^^\n" + 
+		"Cannot cast from boolean to double\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }

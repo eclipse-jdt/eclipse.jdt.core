@@ -89,13 +89,13 @@ public class MemberValuePair extends ASTNode {
 
 		TypeBinding leafType = requiredType.leafComponentType();
 		if (!((this.value.isConstantValueOfTypeAssignableToType(valueType, requiredType)
-				|| (requiredType.isBaseType() && BaseTypeBinding.isWidening(requiredType.id, valueType.id)))
+				|| BaseTypeBinding.isWidening(requiredType.id, valueType.id))
 				|| valueType.isCompatibleWith(requiredType))) {
 
 			if (!(requiredType.isArrayType()
 					&& requiredType.dimensions() == 1
 					&& (this.value.isConstantValueOfTypeAssignableToType(valueType, leafType)
-							|| (leafType.isBaseType() && BaseTypeBinding.isWidening(leafType.id, valueType.id)))
+							|| BaseTypeBinding.isWidening(leafType.id, valueType.id))
 							|| valueType.isCompatibleWith(leafType))) {
 
 				if (leafType.isAnnotationType() && !valueType.isAnnotationType()) {

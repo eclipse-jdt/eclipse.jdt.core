@@ -171,7 +171,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.compilationUnitScope().recordTypeConversion(lhsType, rhsType);
 	}
 	if ((this.expression.isConstantValueOfTypeAssignableToType(rhsType, lhsType)
-			|| (lhsType.isBaseType() && BaseTypeBinding.isWidening(lhsType.id, rhsType.id)))
+			|| BaseTypeBinding.isWidening(lhsType.id, rhsType.id))
 			|| rhsType.isCompatibleWith(lhsType)) {
 		this.expression.computeConversion(scope, lhsType, rhsType);
 		checkAssignment(scope, lhsType, rhsType);

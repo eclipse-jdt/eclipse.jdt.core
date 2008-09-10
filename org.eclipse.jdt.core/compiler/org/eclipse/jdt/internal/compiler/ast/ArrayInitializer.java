@@ -166,7 +166,7 @@ public class ArrayInitializer extends Expression {
 					scope.compilationUnitScope().recordTypeConversion(elementType, expressionType);
 
 				if ((expression.isConstantValueOfTypeAssignableToType(expressionType, elementType)
-						|| (elementType.isBaseType() && BaseTypeBinding.isWidening(elementType.id, expressionType.id)))
+						|| BaseTypeBinding.isWidening(elementType.id, expressionType.id))
 						|| expressionType.isCompatibleWith(elementType)) {
 					expression.computeConversion(scope, elementType, expressionType);
 				} else if (scope.isBoxingCompatibleWith(expressionType, elementType)
