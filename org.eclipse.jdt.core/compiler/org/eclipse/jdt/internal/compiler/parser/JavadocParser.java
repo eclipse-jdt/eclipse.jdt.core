@@ -896,7 +896,7 @@ public class JavadocParser extends AbstractCommentParser {
 		// Store nodes in arrays
 		while (this.astLengthPtr >= 0) {
 			int ptr = this.astLengthPtr % ORDERED_TAGS_NUMBER;
-			// Starting with the stack top, so get references (eg. Expression) coming from @see declarations
+			// Starting with the stack top, so get references (Expression) coming from @see declarations
 			switch(ptr) {
 				case SEE_TAG_EXPECTED_ORDER:
 					int size = this.astLengthStack[this.astLengthPtr--];
@@ -905,7 +905,7 @@ public class JavadocParser extends AbstractCommentParser {
 					}
 					break;
 
-				// Then continuing with class names (eg. TypeReference) coming from @throw/@exception declarations
+				// Then continuing with class names (TypeReference) coming from @throw/@exception declarations
 				case THROWS_TAG_EXPECTED_ORDER:
 					size = this.astLengthStack[this.astLengthPtr--];
 					for (int i=0; i<size; i++) {
@@ -913,7 +913,7 @@ public class JavadocParser extends AbstractCommentParser {
 					}
 					break;
 
-				// Finally, finishing with parameters nales (ie. Argument) coming from @param declaration
+				// Finally, finishing with parameters names (Argument) coming from @param declaration
 				case PARAM_TAG_EXPECTED_ORDER:
 					size = this.astLengthStack[this.astLengthPtr--];
 					for (int i=0; i<size; i++) {
