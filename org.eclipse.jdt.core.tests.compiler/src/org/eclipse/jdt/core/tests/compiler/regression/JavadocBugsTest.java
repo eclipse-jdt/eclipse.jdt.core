@@ -4126,6 +4126,471 @@ public void testBug83285c() {
 }
 
 /**
+ * Bug 86769: [javadoc] Warn/Error for 'Missing javadoc comments' doesn't recognize private inner classes
+ * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=86769"
+ */
+public void testBug86769_Classes1() {
+	this.reportMissingJavadocComments = CompilerOptions.ERROR;
+	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
+	runNegativeTest(
+		new String[] {
+			"A.java",
+			"/**\n" +
+			" * Test bug 86769 \n" +
+			" */\n" +
+			"public class A {\n" +
+			"	private class Level1Private {\n" +
+			"		private class Level2_PrivPriv {}\n" +
+			"		class Level2_PrivDef {}\n" +
+			"		protected class Level2_PrivPro {}\n" +
+			"		public class Level2_PrivPub {}\n" +
+			"	}\n" +
+			"	class Level1Default{\n" +
+			"		private class Level2_DefPriv {}\n" +
+			"		class Level2_DefDef {}\n" +
+			"		protected class Level2_DefPro {}\n" +
+			"		public class Level2_DefPub {}\n" +
+			"	}\n" +
+			"	protected class Level1Protected {\n" +
+			"		private class Level2_ProtPriv {}\n" +
+			"		class Level2_ProDef {}\n" +
+			"		protected class Level2_ProPro {}\n" +
+			"		public class Level2_ProPub {} \n" +
+			"	}\n" +
+			"	public class Level1Public {\n" +
+			"		private class Level2_PubPriv {}\n" +
+			"		class Level2_PubDef {}\n" +
+			"		protected class Level2_PubPro {}\n" +
+			"		public class Level2_PubPub {}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in A.java (at line 17)\n" +
+		"	protected class Level1Protected {\n" +
+		"	                ^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for protected declaration\n" +
+		"----------\n" +
+		"2. ERROR in A.java (at line 20)\n" +
+		"	protected class Level2_ProPro {}\n" +
+		"	                ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for protected declaration\n" +
+		"----------\n" +
+		"3. ERROR in A.java (at line 21)\n" +
+		"	public class Level2_ProPub {} \n" +
+		"	             ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for protected declaration\n" +
+		"----------\n" +
+		"4. ERROR in A.java (at line 23)\n" +
+		"	public class Level1Public {\n" +
+		"	             ^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for public declaration\n" +
+		"----------\n" +
+		"5. ERROR in A.java (at line 26)\n" +
+		"	protected class Level2_PubPro {}\n" +
+		"	                ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for protected declaration\n" +
+		"----------\n" +
+		"6. ERROR in A.java (at line 27)\n" +
+		"	public class Level2_PubPub {}\n" +
+		"	             ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for public declaration\n" +
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+public void testBug86769_Classes2() {
+	this.reportMissingJavadocComments = CompilerOptions.ERROR;
+	this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
+	runNegativeTest(
+		new String[] {
+			"B.java",
+			"/**\n" +
+			" * Test bug 86769\n" +
+			" */\n" +
+			"public class B {\n" +
+			"	class Level0_Default {\n" +
+			"		private class Level1Private {\n" +
+			"			private class Level2_PrivPriv {}\n" +
+			"			class Level2_PrivDef {}\n" +
+			"			protected class Level2_PrivPro {}\n" +
+			"			public class Level2_PrivPub {}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public class Level0_Public {\n" +
+			"		class Level1Default{\n" +
+			"			private class Level2_DefPriv {}\n" +
+			"			class Level2_DefDef {}\n" +
+			"			protected class Level2_DefPro {}\n" +
+			"			public class Level2_DefPub {}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	protected class Level0_Protected {\n" +
+			"		protected class Level1Protected {\n" +
+			"			private class Level2_ProtPriv {}\n" +
+			"			class Level2_ProDef {}\n" +
+			"			protected class Level2_ProPro {}\n" +
+			"			public class Level2_ProPub {} \n" +
+			"		}\n" +
+			"	}\n" +
+			"	private class Level0_Private {\n" +
+			"		public class Level1Public {\n" +
+			"			private class Level2_PubPriv {}\n" +
+			"			class Level2_PubDef {}\n" +
+			"			protected class Level2_PubPro {}\n" +
+			"			public class Level2_PubPub {}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in B.java (at line 5)\n" +
+		"	class Level0_Default {\n" +
+		"	      ^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for default declaration\n" +
+		"----------\n" +
+		"2. ERROR in B.java (at line 13)\n" +
+		"	public class Level0_Public {\n" +
+		"	             ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for public declaration\n" +
+		"----------\n" +
+		"3. ERROR in B.java (at line 14)\n" +
+		"	class Level1Default{\n" +
+		"	      ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for default declaration\n" +
+		"----------\n" +
+		"4. ERROR in B.java (at line 16)\n" +
+		"	class Level2_DefDef {}\n" +
+		"	      ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for default declaration\n" +
+		"----------\n" +
+		"5. ERROR in B.java (at line 17)\n" +
+		"	protected class Level2_DefPro {}\n" +
+		"	                ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for default declaration\n" +
+		"----------\n" +
+		"6. ERROR in B.java (at line 18)\n" +
+		"	public class Level2_DefPub {}\n" +
+		"	             ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for default declaration\n" +
+		"----------\n" +
+		"7. ERROR in B.java (at line 21)\n" +
+		"	protected class Level0_Protected {\n" +
+		"	                ^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for protected declaration\n" +
+		"----------\n" +
+		"8. ERROR in B.java (at line 22)\n" +
+		"	protected class Level1Protected {\n" +
+		"	                ^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for protected declaration\n" +
+		"----------\n" +
+		"9. ERROR in B.java (at line 24)\n" +
+		"	class Level2_ProDef {}\n" +
+		"	      ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for default declaration\n" +
+		"----------\n" +
+		"10. ERROR in B.java (at line 25)\n" +
+		"	protected class Level2_ProPro {}\n" +
+		"	                ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for protected declaration\n" +
+		"----------\n" +
+		"11. ERROR in B.java (at line 26)\n" +
+		"	public class Level2_ProPub {} \n" +
+		"	             ^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for protected declaration\n" +
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+public void testBug86769_Field1() {
+	this.reportMissingJavadocComments = CompilerOptions.ERROR;
+	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
+	runNegativeTest(
+		new String[] {
+			"A.java",
+			"/**\n" +
+			" * Test bug 86769\n" +
+			" */\n" +
+			"public class A {\n" +
+			"	private class InnerPrivate {\n" +
+			"		private int pri_pri;\n" +
+			"		int pri_def;\n" +
+			"		protected int pri_pro;\n" +
+			"		public int pri_pub;\n" +
+			"	}\n" +
+			"	class InnerDefault{\n" +
+			"		private int def_pri;\n" +
+			"		int def_def;\n" +
+			"		protected int def_pro;\n" +
+			"		public int def_pub;\n" +
+			"	}\n" +
+			"	protected class InnerProtected {\n" +
+			"		private int pro_pri;\n" +
+			"		int pro_def;\n" +
+			"		protected int pro_pro;\n" +
+			"		public int pro_pub; \n" +
+			"	}\n" +
+			"	public class InnerPublic {\n" +
+			"		private int pub_pri;\n" +
+			"		int pub_def;\n" +
+			"		protected int pub_pro;\n" +
+			"		public int pub_pub;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in A.java (at line 23)\n" +
+		"	public class InnerPublic {\n" +
+		"	             ^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for public declaration\n" +
+		"----------\n" +
+		"2. ERROR in A.java (at line 27)\n" +
+		"	public int pub_pub;\n" +
+		"	           ^^^^^^^\n" +
+		"Javadoc: Missing comment for public declaration\n" +
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+public void testBug86769_Fields2() {
+	this.reportMissingJavadocComments = CompilerOptions.ERROR;
+	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
+	runNegativeTest(
+		new String[] {
+			"B.java",
+			"/**\n" +
+			" * Test bug 86769\n" +
+			" */\n" +
+			"public class B {\n" +
+			"	private class Level1 {\n" +
+			"		private class InnerPrivate {\n" +
+			"			private int pri_pri;\n" +
+			"			int pri_def;\n" +
+			"			protected int pri_pro;\n" +
+			"			public int pri_pub;\n" +
+			"		}\n" +
+			"		class InnerDefault{\n" +
+			"			private int def_pri;\n" +
+			"			int def_def;\n" +
+			"			protected int def_pro;\n" +
+			"			public int def_pub;\n" +
+			"		}\n" +
+			"		protected class InnerProtected {\n" +
+			"			private int pro_pri;\n" +
+			"			int pro_def;\n" +
+			"			protected int pro_pro;\n" +
+			"			public int pro_pub; \n" +
+			"		}\n" +
+			"		public class InnerPublic {\n" +
+			"			private int pub_pri;\n" +
+			"			int pub_def;\n" +
+			"			protected int pub_pro;\n" +
+			"			public int pub_pub;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in B.java (at line 5)\n" +
+		"	private class Level1 {\n" +
+		"	              ^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"2. ERROR in B.java (at line 6)\n" +
+		"	private class InnerPrivate {\n" +
+		"	              ^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"3. ERROR in B.java (at line 7)\n" +
+		"	private int pri_pri;\n" +
+		"	            ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"4. ERROR in B.java (at line 8)\n" +
+		"	int pri_def;\n" +
+		"	    ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"5. ERROR in B.java (at line 9)\n" +
+		"	protected int pri_pro;\n" +
+		"	              ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"6. ERROR in B.java (at line 10)\n" +
+		"	public int pri_pub;\n" +
+		"	           ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"7. ERROR in B.java (at line 12)\n" +
+		"	class InnerDefault{\n" +
+		"	      ^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"8. ERROR in B.java (at line 13)\n" +
+		"	private int def_pri;\n" +
+		"	            ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"9. ERROR in B.java (at line 14)\n" +
+		"	int def_def;\n" +
+		"	    ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"10. ERROR in B.java (at line 15)\n" +
+		"	protected int def_pro;\n" +
+		"	              ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"11. ERROR in B.java (at line 16)\n" +
+		"	public int def_pub;\n" +
+		"	           ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"12. ERROR in B.java (at line 18)\n" +
+		"	protected class InnerProtected {\n" +
+		"	                ^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"13. ERROR in B.java (at line 19)\n" +
+		"	private int pro_pri;\n" +
+		"	            ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"14. ERROR in B.java (at line 20)\n" +
+		"	int pro_def;\n" +
+		"	    ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"15. ERROR in B.java (at line 21)\n" +
+		"	protected int pro_pro;\n" +
+		"	              ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"16. ERROR in B.java (at line 22)\n" +
+		"	public int pro_pub; \n" +
+		"	           ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"17. ERROR in B.java (at line 24)\n" +
+		"	public class InnerPublic {\n" +
+		"	             ^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"18. ERROR in B.java (at line 25)\n" +
+		"	private int pub_pri;\n" +
+		"	            ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"19. ERROR in B.java (at line 26)\n" +
+		"	int pub_def;\n" +
+		"	    ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"20. ERROR in B.java (at line 27)\n" +
+		"	protected int pub_pro;\n" +
+		"	              ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n" +
+		"21. ERROR in B.java (at line 28)\n" +
+		"	public int pub_pub;\n" +
+		"	           ^^^^^^^\n" +
+		"Javadoc: Missing comment for private declaration\n" +
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+public void testBug86769_Metthods1() {
+	this.reportMissingJavadocComments = CompilerOptions.ERROR;
+	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
+	runNegativeTest(
+		new String[] {
+			"A.java",
+			"/**\n" +
+			" * Test bug 86769\n" +
+			" */\n" +
+			"public class A {\n" +
+			"	private class InnerPrivate {\n" +
+			"		private void pri_pri() {}\n" +
+			"		void pri_def() {}\n" +
+			"		protected void pri_pro() {}\n" +
+			"		public void pri_pub() {}\n" +
+			"	}\n" +
+			"	class InnerDefault{\n" +
+			"		private void def_pri() {}\n" +
+			"		void def_def() {}\n" +
+			"		protected void def_pro() {}\n" +
+			"		public void def_pub() {}\n" +
+			"	}\n" +
+			"	protected class InnerProtected {\n" +
+			"		private void pro_pri() {}\n" +
+			"		void pro_def() {}\n" +
+			"		protected void pro_pro() {}\n" +
+			"		public void pro_pub() {} \n" +
+			"	}\n" +
+			"	public class InnerPublic {\n" +
+			"		private void pub_pri() {}\n" +
+			"		void pub_def() {}\n" +
+			"		protected void pub_pro() {}\n" +
+			"		public void pub_pub() {}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in A.java (at line 23)\n" +
+		"	public class InnerPublic {\n" +
+		"	             ^^^^^^^^^^^\n" +
+		"Javadoc: Missing comment for public declaration\n" +
+		"----------\n" +
+		"2. ERROR in A.java (at line 27)\n" +
+		"	public void pub_pub() {}\n" +
+		"	            ^^^^^^^^^\n" +
+		"Javadoc: Missing comment for public declaration\n" +
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+public void testBug86769_Methods2() {
+	this.reportMissingJavadocComments = CompilerOptions.ERROR;
+	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
+	runConformTest(
+		new String[] {
+			"B.java",
+			"/**\n" +
+			" * Test bug 86769\n" +
+			" */\n" +
+			"public class B {\n" +
+			"	private class Level1 {\n" +
+			"		private class InnerPrivate {\n" +
+			"			private void pri_pri() {}\n" +
+			"			void pri_def() {}\n" +
+			"			protected void pri_pro() {}\n" +
+			"			public void pri_pub() {}\n" +
+			"		}\n" +
+			"		class InnerDefault{\n" +
+			"			private void def_pri() {}\n" +
+			"			void def_def() {}\n" +
+			"			protected void def_pro() {}\n" +
+			"			public void def_pub() {}\n" +
+			"		}\n" +
+			"		protected class InnerProtected {\n" +
+			"			private void pro_pri() {}\n" +
+			"			void pro_def() {}\n" +
+			"			protected void pro_pro() {}\n" +
+			"			public void pro_pub() {} \n" +
+			"		}\n" +
+			"		public class InnerPublic {\n" +
+			"			private void pub_pri() {}\n" +
+			"			void pub_def() {}\n" +
+			"			protected void pub_pro() {}\n" +
+			"			public void pub_pub() {}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		}
+	);
+}
+
+/**
  * Bug 87404: [javadoc] Unexpected not defined warning on constructor
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=87404"
  */
@@ -4683,6 +5148,132 @@ public void testBug116464() {
 			"}\n"
 		}
 	);
+}
+
+/**
+ * @bug 125518: [javadoc] Embedding html in a link placed in a @see JavaDoc tag causes a warning
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125518"
+ */
+public void testBug125518a() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></\n" +
+			"	                                                     ^^\n" +
+			"Javadoc: Malformed link reference\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug125518b() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></a\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></a\n" +
+			"	                                                     ^^^\n" +
+			"Javadoc: Malformed link reference\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug125518c() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></>\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></>\n" +
+			"	                                                     ^^^\n" +
+			"Javadoc: Malformed link reference\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug125518d() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></aa>\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></aa>\n" +
+			"	                                                     ^^^^^\n" +
+			"Javadoc: Malformed link reference\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug125518e() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see <a href=\"http\u003A\u002F\u002Fwww.eclipse.org\"><valid>value</valid></a>\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+		};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(units);
 }
 
 /**
@@ -5570,6 +6161,529 @@ public void testBug166436() {
 }
 
 /**
+ * @bug 168849: [javadoc] Javadoc warning on @see reference in class level docs.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=168849"
+ */
+public void testBug168849a() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see http://www.eclipse.org/\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see http://www.eclipse.org/\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug168849b() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see http://ftp.eclipse.org/\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see http://ftp.eclipse.org/\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug168849c() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see ://\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(
+			true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see ://\n" +
+			"	   ^^^\n" +
+			"Javadoc: Missing reference\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug168849d() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see http\u003A\u002F\u002Fwww.eclipse.org\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see http://www.eclipse.org\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug168849e() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see \"http\u003A\u002F\u002Fwww.eclipse.org\"\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(units);
+}
+
+public void testBug168849f() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see \"http://www.eclipse.org/\"\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(units);
+}
+
+public void testBug168849g() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see http:/ invalid reference\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see http:/ invalid reference\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: Malformed reference (missing end space separator)\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug168849h() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see Object:/ invalid reference\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see Object:/ invalid reference\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: Malformed reference (missing end space separator)\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug168849i() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see http\u003A\u002F invalid reference\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see http:/ invalid reference\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: Malformed reference (missing end space separator)\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+public void testBug168849j() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see Object\u003A\u002F invalid reference\n" +
+		"	 */\n" +
+		"	public void foo() { \n" +
+		"	 \n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.WARNING;
+	runConformTest(true, units,
+			"----------\n" +
+			"1. WARNING in pkg\\X.java (at line 5)\n" +
+			"	* @see Object:/ invalid reference\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: Malformed reference (missing end space separator)\n" +
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+/**
+ * @bug 170637: [javadoc] incorrect warning about missing parameter javadoc when using many links
+ * @test Verify that javadoc parser is not blown-up when there's a lot of inline tags
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170637"
+ */
+public void testBug170637() {
+	this.reportMissingJavadocTags = CompilerOptions.ERROR;
+	runConformTest(
+		new String[] {
+			"src/JavaDocTest.java",
+			"public interface JavaDocTest\n" + 
+			"{\n" + 
+			"  /**\n" + 
+			"   * This is some stupid test...\n" + 
+			"   * \n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * \n" + 
+			"   * @param bar1 {@link JavaDocTest}\n" + 
+			"   * @param bar2 {@link JavaDocTest}\n" + 
+			"   * @param bar3 {@link JavaDocTest}\n" + 
+			"   * @param bar4 {@link JavaDocTest}\n" + 
+			"   * @param bar5 {@link JavaDocTest}\n" + 
+			"   * @param bar6 {@link JavaDocTest}\n" + 
+			"   * @param bar7 {@link JavaDocTest}\n" + 
+			"   * @param bar8 {@link JavaDocTest}\n" + 
+			"   * @param bar9 {@link JavaDocTest}\n" + 
+			"   * @param bar10 {@link JavaDocTest}\n" + 
+			"   * @param bar11 {@link JavaDocTest}\n" + 
+			"   * @param bar12 {@link JavaDocTest}\n" + 
+			"   * @param bar13 {@link JavaDocTest}\n" + 
+			"   * \n" + 
+			"   * @return A string!\n" + 
+			"   */\n" + 
+			"  public String foo(String bar1,\n" + 
+			"      String bar2,\n" + 
+			"      String bar3,\n" + 
+			"      String bar4,\n" + 
+			"      String bar5,\n" + 
+			"      String bar6,\n" + 
+			"      String bar7,\n" + 
+			"      String bar8,\n" + 
+			"      String bar9,\n" + 
+			"      String bar10,\n" + 
+			"      String bar11,\n" + 
+			"      String bar12,\n" + 
+			"      String bar13\n" + 
+			"      );\n" + 
+			"\n" + 
+			"  /**\n" + 
+			"   * This is some more stupid test...\n" + 
+			"   * \n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * {@link JavaDocTest}\n" + 
+			"   * \n" + 
+			"   * @param bar1 \n" + 
+			"   * @param bar2 \n" + 
+			"   * @param bar3 \n" + 
+			"   * @param bar4 \n" + 
+			"   * @param bar5 \n" + 
+			"   * @param bar6 \n" + 
+			"   * @param bar7 \n" + 
+			"   * @param bar8 \n" + 
+			"   * @param bar9 \n" + 
+			"   * @param bar10 \n" + 
+			"   * @param bar11 \n" + 
+			"   * @param bar12 \n" + 
+			"   * @param bar13 \n" + 
+			"   * \n" + 
+			"   * @return A string!\n" + 
+			"   */\n" + 
+			"  public String foo2(String bar1,\n" + 
+			"      String bar2,\n" + 
+			"      String bar3,\n" + 
+			"      String bar4,\n" + 
+			"      String bar5,\n" + 
+			"      String bar6,\n" + 
+			"      String bar7,\n" + 
+			"      String bar8,\n" + 
+			"      String bar9,\n" + 
+			"      String bar10,\n" + 
+			"      String bar11,\n" + 
+			"      String bar12,\n" + 
+			"      String bar13\n" + 
+			"      );\n" + 
+			"}\n"
+		}
+	);
+}
+public void testBug170637a() {
+	// conform test: verify we can handle a large number of tags
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"public interface X\n" +
+		"{\n" +
+		"  /**\n" +
+		"   * Test for bug {@link \"https://bugs.eclipse.org/bugs/show_bug.cgi?id=170637\"}\n" +
+		"   * \n" +
+		"   * \n" +
+		"   * @param bar1 {@link X}\n" +
+		"   * @param bar2 {@link X}\n" +
+		"   * @param bar3 {@link X}\n" +
+		"   * @param bar4 {@link X}\n" +
+		"   * @param bar5 {@link X}\n" +
+		"   * @param bar6 {@link X}\n" +
+		"   * @param bar7 {@link X}\n" +
+		"   * @param bar8 {@link X}\n" +
+		"   * @param bar9 {@link X}\n" +
+		"   * @param bar10 {@link X}\n" +
+		"   * @param bar11 {@link X}\n" +
+		"   * @param bar12 {@link X}\n" +
+		"   * @param bar13 {@link X}\n" +
+		"   * @param bar14 {@link X}\n" +
+		"   * @param bar15 {@link X}\n" +
+		"   * @param bar16 {@link X}\n" +
+		"   * @param bar17 {@link X}\n" +
+		"   * @param bar18 {@link X}\n" +
+		"   * @param bar19 {@link X}\n" +
+		"   * @param bar20 {@link X}\n" +
+		"   * @param bar21 {@link X}\n" +
+		"   * @param bar22 {@link X}\n" +
+		"   * @param bar23 {@link X}\n" +
+		"   * @param bar24 {@link X}\n" +
+		"   * @param bar25 {@link X}\n" +
+		"   * @param bar26 {@link X}\n" +
+		"   * @param bar27 {@link X}\n" +
+		"   * @param bar28 {@link X}\n" +
+		"   * @param bar29 {@link X}\n" +
+		"   * @param bar30 {@link X}\n" +
+		"   * \n" +
+		"   * @return A string\n" +
+		"   */\n" +
+		"  public String foo(String bar1,\n" +
+		"      String bar2,\n" +
+		"      String bar3,\n" +
+		"      String bar4,\n" +
+		"      String bar5,\n" +
+		"      String bar6,\n" +
+		"      String bar7,\n" +
+		"      String bar8,\n" +
+		"      String bar9,\n" +
+		"      String bar10,\n" +
+		"      String bar11,\n" +
+		"      String bar12,\n" +
+		"      String bar13,\n" +
+		"      String bar14,\n" +
+		"      String bar15,\n" +
+		"      String bar16,\n" +
+		"      String bar17,\n" +
+		"      String bar18,\n" +
+		"      String bar19,\n" +
+		"      String bar20,\n" +
+		"      String bar21,\n" +
+		"      String bar22,\n" +
+		"      String bar23,\n" +
+		"      String bar24,\n" +
+		"      String bar25,\n" +
+		"      String bar26,\n" +
+		"      String bar27,\n" +
+		"      String bar28,\n" +
+		"      String bar29,\n" +
+		"      String bar30\n" +
+		"      );\n" +
+		"}\n"
+	};
+	this.reportMissingJavadocTags = CompilerOptions.ERROR;
+	runConformTest(units);
+}
+public void testBug170637b() {
+	// conform test: verify we are able to raise warnings when dealing with a large number of tags
+	String[] units = new String[] {
+		"X.java",
+		"public interface X\n" +
+		"{\n" +
+		"  /**\n" +
+		"   * Test for bug {@link \"https://bugs.eclipse.org/bugs/show_bug.cgi?id=170637\"}\n" +
+		"   * \n" +
+		"   * \n" +
+		"   * @param bar1 {@link X}\n" +
+		"   * @param bar2 {@link X}\n" +
+		"   * @param bar3 {@link X}\n" +
+		"   * @param bar4 {@link X}\n" +
+		"   * @param bar5 {@link X}\n" +
+		"   * @param bar6 {@link X}\n" +
+		"   * @param bar7 {@link X}\n" +
+		"   * @param bar8 {@link X}\n" +
+		"   * @param bar9 {@link X}\n" +
+		"   * @param bar10 {@link X}\n" +
+		"   * @param bar11 {@link X}\n" +
+		"   * @param bar12 {@link X}\n" +
+		"   * @param bar13 {@link X}\n" +
+		"   * @param bar14 {@link X}\n" +
+		"   * @param bar15 {@link X}\n" +
+		"   * @param bar16 {@link X}\n" +
+		"   * @param bar17 {@link X}\n" +
+		"   * @param bar18 {@link X}\n" +
+		"   * @param bar19 {@link X}\n" +
+		"   * @param bar20 {@link X}\n" +
+		"   * @param bar21 {@link X}\n" +
+		"   * @param bar22 {@link X}\n" +
+		"   * @param bar23 {@link X}\n" +
+		"   * @param bar24 {@link X}\n" +
+		"   * @param bar25 {@link X}\n" +
+		"   * @param bar26 {@link X}\n" +
+		"   * @param bar27 {@link X}\n" +
+		"   * @param bar28 {@link X}\n" +
+		"   * @param bar29 {@link X}\n" +
+		"   * @param bar30 {@link X}\n" +
+		"   * \n" +
+		"   * @return A string\n" +
+		"   */\n" +
+		"  public String foo(String bar1,\n" +
+		"      String bar2,\n" +
+		"      String bar3,\n" +
+		"      String bar4,\n" +
+		"      String bar5,\n" +
+		"      String bar6,\n" +
+		"      String bar7,\n" +
+		"      String bar8,\n" +
+		"      String bar9,\n" +
+		"      String bar10,\n" +
+		"      String bar11,\n" +
+		"      String bar12,\n" +
+		"      String bar13,\n" +
+		"      String bar14,\n" +
+		"      String bar15,\n" +
+		"      String bar16,\n" +
+		"      String bar17,\n" +
+		"      String bar18,\n" +
+		"      String bar19,\n" +
+		"      String bar20,\n" +
+		"      String bar21,\n" +
+		"      String bar22,\n" +
+		"      String bar23,\n" +
+		"      String bar24,\n" +
+		"      String bar25,\n" +
+		"      String bar26,\n" +
+		"      String bar27,\n" +
+		"      String bar28,\n" +
+		"      String bar29,\n" +
+		"      String bar30,\n" +
+		"      String bar31\n" +
+		"      );\n" +
+		"}\n"
+	};
+	this.reportMissingJavadocTags = CompilerOptions.ERROR;
+	runNegativeTest(units,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 70)\n" + 
+		"	String bar31\n" + 
+		"	       ^^^^^\n" + 
+		"Javadoc: Missing tag for parameter bar31\n" + 
+		"----------\n");
+}
+
+/**
  * Bug 176027: [javadoc] @link to member type handled incorrectly
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=176027"
  */
@@ -6387,846 +7501,6 @@ public void testBug195374() {
 	else {
 		runConformTest(units);
 	}
-}
-
-/**
- * Bug 86769: [javadoc] Warn/Error for 'Missing javadoc comments' doesn't recognize private inner classes
- * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=86769"
- */
-public void testBug86769_Classes1() {
-	this.reportMissingJavadocComments = CompilerOptions.ERROR;
-	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
-	runNegativeTest(
-		new String[] {
-			"A.java",
-			"/**\n" +
-			" * Test bug 86769 \n" +
-			" */\n" +
-			"public class A {\n" +
-			"	private class Level1Private {\n" +
-			"		private class Level2_PrivPriv {}\n" +
-			"		class Level2_PrivDef {}\n" +
-			"		protected class Level2_PrivPro {}\n" +
-			"		public class Level2_PrivPub {}\n" +
-			"	}\n" +
-			"	class Level1Default{\n" +
-			"		private class Level2_DefPriv {}\n" +
-			"		class Level2_DefDef {}\n" +
-			"		protected class Level2_DefPro {}\n" +
-			"		public class Level2_DefPub {}\n" +
-			"	}\n" +
-			"	protected class Level1Protected {\n" +
-			"		private class Level2_ProtPriv {}\n" +
-			"		class Level2_ProDef {}\n" +
-			"		protected class Level2_ProPro {}\n" +
-			"		public class Level2_ProPub {} \n" +
-			"	}\n" +
-			"	public class Level1Public {\n" +
-			"		private class Level2_PubPriv {}\n" +
-			"		class Level2_PubDef {}\n" +
-			"		protected class Level2_PubPro {}\n" +
-			"		public class Level2_PubPub {}\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"----------\n" +
-		"1. ERROR in A.java (at line 17)\n" +
-		"	protected class Level1Protected {\n" +
-		"	                ^^^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for protected declaration\n" +
-		"----------\n" +
-		"2. ERROR in A.java (at line 20)\n" +
-		"	protected class Level2_ProPro {}\n" +
-		"	                ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for protected declaration\n" +
-		"----------\n" +
-		"3. ERROR in A.java (at line 21)\n" +
-		"	public class Level2_ProPub {} \n" +
-		"	             ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for protected declaration\n" +
-		"----------\n" +
-		"4. ERROR in A.java (at line 23)\n" +
-		"	public class Level1Public {\n" +
-		"	             ^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n" +
-		"5. ERROR in A.java (at line 26)\n" +
-		"	protected class Level2_PubPro {}\n" +
-		"	                ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for protected declaration\n" +
-		"----------\n" +
-		"6. ERROR in A.java (at line 27)\n" +
-		"	public class Level2_PubPub {}\n" +
-		"	             ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
-	);
-}
-public void testBug86769_Classes2() {
-	this.reportMissingJavadocComments = CompilerOptions.ERROR;
-	this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
-	runNegativeTest(
-		new String[] {
-			"B.java",
-			"/**\n" +
-			" * Test bug 86769\n" +
-			" */\n" +
-			"public class B {\n" +
-			"	class Level0_Default {\n" +
-			"		private class Level1Private {\n" +
-			"			private class Level2_PrivPriv {}\n" +
-			"			class Level2_PrivDef {}\n" +
-			"			protected class Level2_PrivPro {}\n" +
-			"			public class Level2_PrivPub {}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public class Level0_Public {\n" +
-			"		class Level1Default{\n" +
-			"			private class Level2_DefPriv {}\n" +
-			"			class Level2_DefDef {}\n" +
-			"			protected class Level2_DefPro {}\n" +
-			"			public class Level2_DefPub {}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	protected class Level0_Protected {\n" +
-			"		protected class Level1Protected {\n" +
-			"			private class Level2_ProtPriv {}\n" +
-			"			class Level2_ProDef {}\n" +
-			"			protected class Level2_ProPro {}\n" +
-			"			public class Level2_ProPub {} \n" +
-			"		}\n" +
-			"	}\n" +
-			"	private class Level0_Private {\n" +
-			"		public class Level1Public {\n" +
-			"			private class Level2_PubPriv {}\n" +
-			"			class Level2_PubDef {}\n" +
-			"			protected class Level2_PubPro {}\n" +
-			"			public class Level2_PubPub {}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"----------\n" +
-		"1. ERROR in B.java (at line 5)\n" +
-		"	class Level0_Default {\n" +
-		"	      ^^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for default declaration\n" +
-		"----------\n" +
-		"2. ERROR in B.java (at line 13)\n" +
-		"	public class Level0_Public {\n" +
-		"	             ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n" +
-		"3. ERROR in B.java (at line 14)\n" +
-		"	class Level1Default{\n" +
-		"	      ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for default declaration\n" +
-		"----------\n" +
-		"4. ERROR in B.java (at line 16)\n" +
-		"	class Level2_DefDef {}\n" +
-		"	      ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for default declaration\n" +
-		"----------\n" +
-		"5. ERROR in B.java (at line 17)\n" +
-		"	protected class Level2_DefPro {}\n" +
-		"	                ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for default declaration\n" +
-		"----------\n" +
-		"6. ERROR in B.java (at line 18)\n" +
-		"	public class Level2_DefPub {}\n" +
-		"	             ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for default declaration\n" +
-		"----------\n" +
-		"7. ERROR in B.java (at line 21)\n" +
-		"	protected class Level0_Protected {\n" +
-		"	                ^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for protected declaration\n" +
-		"----------\n" +
-		"8. ERROR in B.java (at line 22)\n" +
-		"	protected class Level1Protected {\n" +
-		"	                ^^^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for protected declaration\n" +
-		"----------\n" +
-		"9. ERROR in B.java (at line 24)\n" +
-		"	class Level2_ProDef {}\n" +
-		"	      ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for default declaration\n" +
-		"----------\n" +
-		"10. ERROR in B.java (at line 25)\n" +
-		"	protected class Level2_ProPro {}\n" +
-		"	                ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for protected declaration\n" +
-		"----------\n" +
-		"11. ERROR in B.java (at line 26)\n" +
-		"	public class Level2_ProPub {} \n" +
-		"	             ^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for protected declaration\n" +
-		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
-	);
-}
-public void testBug86769_Field1() {
-	this.reportMissingJavadocComments = CompilerOptions.ERROR;
-	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
-	runNegativeTest(
-		new String[] {
-			"A.java",
-			"/**\n" +
-			" * Test bug 86769\n" +
-			" */\n" +
-			"public class A {\n" +
-			"	private class InnerPrivate {\n" +
-			"		private int pri_pri;\n" +
-			"		int pri_def;\n" +
-			"		protected int pri_pro;\n" +
-			"		public int pri_pub;\n" +
-			"	}\n" +
-			"	class InnerDefault{\n" +
-			"		private int def_pri;\n" +
-			"		int def_def;\n" +
-			"		protected int def_pro;\n" +
-			"		public int def_pub;\n" +
-			"	}\n" +
-			"	protected class InnerProtected {\n" +
-			"		private int pro_pri;\n" +
-			"		int pro_def;\n" +
-			"		protected int pro_pro;\n" +
-			"		public int pro_pub; \n" +
-			"	}\n" +
-			"	public class InnerPublic {\n" +
-			"		private int pub_pri;\n" +
-			"		int pub_def;\n" +
-			"		protected int pub_pro;\n" +
-			"		public int pub_pub;\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"----------\n" +
-		"1. ERROR in A.java (at line 23)\n" +
-		"	public class InnerPublic {\n" +
-		"	             ^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n" +
-		"2. ERROR in A.java (at line 27)\n" +
-		"	public int pub_pub;\n" +
-		"	           ^^^^^^^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
-	);
-}
-public void testBug86769_Fields2() {
-	this.reportMissingJavadocComments = CompilerOptions.ERROR;
-	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
-	runNegativeTest(
-		new String[] {
-			"B.java",
-			"/**\n" +
-			" * Test bug 86769\n" +
-			" */\n" +
-			"public class B {\n" +
-			"	private class Level1 {\n" +
-			"		private class InnerPrivate {\n" +
-			"			private int pri_pri;\n" +
-			"			int pri_def;\n" +
-			"			protected int pri_pro;\n" +
-			"			public int pri_pub;\n" +
-			"		}\n" +
-			"		class InnerDefault{\n" +
-			"			private int def_pri;\n" +
-			"			int def_def;\n" +
-			"			protected int def_pro;\n" +
-			"			public int def_pub;\n" +
-			"		}\n" +
-			"		protected class InnerProtected {\n" +
-			"			private int pro_pri;\n" +
-			"			int pro_def;\n" +
-			"			protected int pro_pro;\n" +
-			"			public int pro_pub; \n" +
-			"		}\n" +
-			"		public class InnerPublic {\n" +
-			"			private int pub_pri;\n" +
-			"			int pub_def;\n" +
-			"			protected int pub_pro;\n" +
-			"			public int pub_pub;\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"----------\n" +
-		"1. ERROR in B.java (at line 5)\n" +
-		"	private class Level1 {\n" +
-		"	              ^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"2. ERROR in B.java (at line 6)\n" +
-		"	private class InnerPrivate {\n" +
-		"	              ^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"3. ERROR in B.java (at line 7)\n" +
-		"	private int pri_pri;\n" +
-		"	            ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"4. ERROR in B.java (at line 8)\n" +
-		"	int pri_def;\n" +
-		"	    ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"5. ERROR in B.java (at line 9)\n" +
-		"	protected int pri_pro;\n" +
-		"	              ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"6. ERROR in B.java (at line 10)\n" +
-		"	public int pri_pub;\n" +
-		"	           ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"7. ERROR in B.java (at line 12)\n" +
-		"	class InnerDefault{\n" +
-		"	      ^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"8. ERROR in B.java (at line 13)\n" +
-		"	private int def_pri;\n" +
-		"	            ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"9. ERROR in B.java (at line 14)\n" +
-		"	int def_def;\n" +
-		"	    ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"10. ERROR in B.java (at line 15)\n" +
-		"	protected int def_pro;\n" +
-		"	              ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"11. ERROR in B.java (at line 16)\n" +
-		"	public int def_pub;\n" +
-		"	           ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"12. ERROR in B.java (at line 18)\n" +
-		"	protected class InnerProtected {\n" +
-		"	                ^^^^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"13. ERROR in B.java (at line 19)\n" +
-		"	private int pro_pri;\n" +
-		"	            ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"14. ERROR in B.java (at line 20)\n" +
-		"	int pro_def;\n" +
-		"	    ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"15. ERROR in B.java (at line 21)\n" +
-		"	protected int pro_pro;\n" +
-		"	              ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"16. ERROR in B.java (at line 22)\n" +
-		"	public int pro_pub; \n" +
-		"	           ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"17. ERROR in B.java (at line 24)\n" +
-		"	public class InnerPublic {\n" +
-		"	             ^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"18. ERROR in B.java (at line 25)\n" +
-		"	private int pub_pri;\n" +
-		"	            ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"19. ERROR in B.java (at line 26)\n" +
-		"	int pub_def;\n" +
-		"	    ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"20. ERROR in B.java (at line 27)\n" +
-		"	protected int pub_pro;\n" +
-		"	              ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n" +
-		"21. ERROR in B.java (at line 28)\n" +
-		"	public int pub_pub;\n" +
-		"	           ^^^^^^^\n" +
-		"Javadoc: Missing comment for private declaration\n" +
-		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
-	);
-}
-public void testBug86769_Metthods1() {
-	this.reportMissingJavadocComments = CompilerOptions.ERROR;
-	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
-	runNegativeTest(
-		new String[] {
-			"A.java",
-			"/**\n" +
-			" * Test bug 86769\n" +
-			" */\n" +
-			"public class A {\n" +
-			"	private class InnerPrivate {\n" +
-			"		private void pri_pri() {}\n" +
-			"		void pri_def() {}\n" +
-			"		protected void pri_pro() {}\n" +
-			"		public void pri_pub() {}\n" +
-			"	}\n" +
-			"	class InnerDefault{\n" +
-			"		private void def_pri() {}\n" +
-			"		void def_def() {}\n" +
-			"		protected void def_pro() {}\n" +
-			"		public void def_pub() {}\n" +
-			"	}\n" +
-			"	protected class InnerProtected {\n" +
-			"		private void pro_pri() {}\n" +
-			"		void pro_def() {}\n" +
-			"		protected void pro_pro() {}\n" +
-			"		public void pro_pub() {} \n" +
-			"	}\n" +
-			"	public class InnerPublic {\n" +
-			"		private void pub_pri() {}\n" +
-			"		void pub_def() {}\n" +
-			"		protected void pub_pro() {}\n" +
-			"		public void pub_pub() {}\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"----------\n" +
-		"1. ERROR in A.java (at line 23)\n" +
-		"	public class InnerPublic {\n" +
-		"	             ^^^^^^^^^^^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n" +
-		"2. ERROR in A.java (at line 27)\n" +
-		"	public void pub_pub() {}\n" +
-		"	            ^^^^^^^^^\n" +
-		"Javadoc: Missing comment for public declaration\n" +
-		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
-	);
-}
-public void testBug86769_Methods2() {
-	this.reportMissingJavadocComments = CompilerOptions.ERROR;
-	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
-	runConformTest(
-		new String[] {
-			"B.java",
-			"/**\n" +
-			" * Test bug 86769\n" +
-			" */\n" +
-			"public class B {\n" +
-			"	private class Level1 {\n" +
-			"		private class InnerPrivate {\n" +
-			"			private void pri_pri() {}\n" +
-			"			void pri_def() {}\n" +
-			"			protected void pri_pro() {}\n" +
-			"			public void pri_pub() {}\n" +
-			"		}\n" +
-			"		class InnerDefault{\n" +
-			"			private void def_pri() {}\n" +
-			"			void def_def() {}\n" +
-			"			protected void def_pro() {}\n" +
-			"			public void def_pub() {}\n" +
-			"		}\n" +
-			"		protected class InnerProtected {\n" +
-			"			private void pro_pri() {}\n" +
-			"			void pro_def() {}\n" +
-			"			protected void pro_pro() {}\n" +
-			"			public void pro_pub() {} \n" +
-			"		}\n" +
-			"		public class InnerPublic {\n" +
-			"			private void pub_pri() {}\n" +
-			"			void pub_def() {}\n" +
-			"			protected void pub_pro() {}\n" +
-			"			public void pub_pub() {}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
-		}
-	);
-}
-
-/**
- * @bug 125518: [javadoc] Embedding html in a link placed in a @see JavaDoc tag causes a warning
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125518"
- */
-public void testBug125518a() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></\n" +
-			"	                                                     ^^\n" +
-			"Javadoc: Malformed link reference\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug125518b() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></a\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></a\n" +
-			"	                                                     ^^^\n" +
-			"Javadoc: Malformed link reference\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug125518c() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></>\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></>\n" +
-			"	                                                     ^^^\n" +
-			"Javadoc: Malformed link reference\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug125518d() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></aa>\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></aa>\n" +
-			"	                                                     ^^^^^\n" +
-			"Javadoc: Malformed link reference\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug125518e() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see <a href=\"http\u003A\u002F\u002Fwww.eclipse.org\"><valid>value</valid></a>\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-		};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(units);
-}
-
-/**
- * @bug 168849: [javadoc] Javadoc warning on @see reference in class level docs.
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=168849"
- */
-public void testBug168849a() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see http://www.eclipse.org/\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see http://www.eclipse.org/\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug168849b() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see http://ftp.eclipse.org/\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see http://ftp.eclipse.org/\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug168849c() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see ://\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(
-			true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see ://\n" +
-			"	   ^^^\n" +
-			"Javadoc: Missing reference\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug168849d() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see http\u003A\u002F\u002Fwww.eclipse.org\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see http://www.eclipse.org\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug168849e() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see \"http\u003A\u002F\u002Fwww.eclipse.org\"\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(units);
-}
-
-public void testBug168849f() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see \"http://www.eclipse.org/\"\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(units);
-}
-
-public void testBug168849g() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see http:/ invalid reference\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see http:/ invalid reference\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Malformed reference (missing end space separator)\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug168849h() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see Object:/ invalid reference\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see Object:/ invalid reference\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Malformed reference (missing end space separator)\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug168849i() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see http\u003A\u002F invalid reference\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see http:/ invalid reference\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Malformed reference (missing end space separator)\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-}
-
-public void testBug168849j() {
-	String[] units = new String[] {
-		"pkg/X.java",
-		"package pkg;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * @see Object\u003A\u002F invalid reference\n" +
-		"	 */\n" +
-		"	public void foo() { \n" +
-		"	 \n" +
-		"	}\n" +
-		"}\n"
-	};
-	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
-			"----------\n" +
-			"1. WARNING in pkg\\X.java (at line 5)\n" +
-			"	* @see Object:/ invalid reference\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Malformed reference (missing end space separator)\n" +
-			"----------\n",
-			null, null,
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
 /**

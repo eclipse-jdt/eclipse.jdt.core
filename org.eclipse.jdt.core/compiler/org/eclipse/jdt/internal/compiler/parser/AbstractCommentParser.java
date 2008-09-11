@@ -1326,7 +1326,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected void pushOnAstStack(Object node, boolean newLength) {
 
 		if (node == null) {
-			this.astLengthStack[++this.astLengthPtr] = 0;
+			int stackLength = this.astLengthStack.length;
+			if (++this.astLengthPtr >= stackLength) {
+				System.arraycopy(
+					this.astLengthStack, 0,
+					this.astLengthStack = new int[stackLength + AST_STACK_INCREMENT], 0,
+					stackLength);
+			}
+			this.astLengthStack[this.astLengthPtr] = 0;
 			return;
 		}
 
