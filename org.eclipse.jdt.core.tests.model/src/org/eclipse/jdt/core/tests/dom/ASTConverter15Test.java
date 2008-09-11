@@ -10261,7 +10261,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				contents,
 				true/*resolve*/
 			);
-		MethodDeclaration methodDeclaration = (MethodDeclaration) buildAST(contents, workingCopy, false, false, false);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) buildAST(contents, this.workingCopy, false, false, false);
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
 		IAnnotationBinding[] annotations = methodBinding.getAnnotations();
 		assertEquals("Got more than one annotation binding", 1, annotations.length);
@@ -10282,7 +10282,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				contents,
 				true/*resolve*/
 			);
-		FieldDeclaration fieldDeclaration = (FieldDeclaration) buildAST(contents, workingCopy, false, false, false);
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) buildAST(contents, this.workingCopy, false, false, false);
 		List fragments = fieldDeclaration.fragments();
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
@@ -10309,7 +10309,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				contents,
 				true/*resolve*/
 			);
-		MethodInvocation invocation = (MethodInvocation) buildAST(contents, workingCopy, true, true, true);
+		MethodInvocation invocation = (MethodInvocation) buildAST(contents, this.workingCopy, true, true, true);
 		IMethodBinding methodBinding = invocation.resolveMethodBinding();
 		System.out.println(methodBinding.getReturnType().getQualifiedName());
 	}
@@ -10336,7 +10336,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				contents,
 				true/*resolve*/
 			);
-		NormalAnnotation annotation = (NormalAnnotation) buildAST(contents, workingCopy, false, true, true);
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(contents, this.workingCopy, false, true, true);
 		IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
 		IMemberValuePairBinding[] memberValuePairBindings = annotationBinding.getDeclaredMemberValuePairs();
 		IMemberValuePairBinding pairBinding = memberValuePairBindings[0];
@@ -10367,6 +10367,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				contents,
 				true/*resolve*/
 			);
-		assertNotNull("No node", buildAST(contents, workingCopy, false, true, true));
+		assertNotNull("No node", buildAST(contents, this.workingCopy, false, true, true));
 	}
 }

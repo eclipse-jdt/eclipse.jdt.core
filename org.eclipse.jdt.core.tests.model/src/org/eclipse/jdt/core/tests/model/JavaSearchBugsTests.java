@@ -9195,8 +9195,8 @@ public void testBug204652() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=207657"
  */
 public void testBug207657() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Relationship.java",
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Relationship.java",
 		"package test;\n" + 
 		"public class Relationship {\n" + 
 		"    static public class End extends ConnectionEnd<Visitor> {\n" +

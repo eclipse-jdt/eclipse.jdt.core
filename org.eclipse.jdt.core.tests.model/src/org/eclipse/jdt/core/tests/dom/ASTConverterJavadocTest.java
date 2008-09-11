@@ -71,9 +71,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	final String docCommentSupport;
 
 	// List of comments read from source of test
-	private final int LINE_COMMENT = 100;
-	private final int BLOCK_COMMENT =200;
-	private final int DOC_COMMENT = 300;
+	private static final int LINE_COMMENT = 100;
+	private static final int BLOCK_COMMENT =200;
+	private static final int DOC_COMMENT = 300;
 	List comments = new ArrayList();
 	private String chars;
 	// List of tags contained in each comment read from test source.
@@ -366,7 +366,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						case '/':
 							if (this.chars == null) buffer.append(currentChar);
 							else buffer.append(this.chars);
-							comment = this.LINE_COMMENT;
+							comment = LINE_COMMENT;
 							break;
 						case '*':
 							if (this.chars == null) buffer.append(currentChar);
@@ -382,7 +382,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					if (currentChar == '*') {
 						comment = 3; // next step...
 					} else {
-						comment = this.BLOCK_COMMENT;
+						comment = BLOCK_COMMENT;
 					}
 					if (this.chars == null) buffer.append(currentChar);
 					else buffer.append(this.chars);
@@ -396,7 +396,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						comment = 0;
 						break;
 					}
-					comment = this.DOC_COMMENT;
+					comment = DOC_COMMENT;
 					// $FALL-THROUGH$ - do not break, directly go to next case...
 				case DOC_COMMENT:
 					if (tag != null) { // a tag name is currently scanned
