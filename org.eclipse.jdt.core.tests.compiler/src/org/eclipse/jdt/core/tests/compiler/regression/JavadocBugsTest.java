@@ -7745,6 +7745,122 @@ public void testBug227730b() {
 }
 
 /**
+ * @bug 233187: [javadoc] partially qualified inner types  should be warned
+ * @test verify that partial inner class qualification are warned as javadoc tools does
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233187"
+ */
+public void testBug233187a() {
+	String[] units = new String[] {
+		"X.java",
+		"package test.bug;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"   public static class Y {\n" + 
+		"        public static class Z { \n" + 
+		"            /**\n" + 
+		"             * The position in the new method signature depends on\n" + 
+		"             * the position in the array passed to\n" + 
+		"             * {@link X.Y#foo(test.bug.X.Y.Z[])} OK for javadoc tool\n" + 
+		"             * {@link X.Y#foo(test.bug.X.Y.Z)} KO for javadoc tool\n" + 
+		"             * {@link X.Y#foo(no_test.bug.X.Y.Z[])} KO for javadoc tool\n" + 
+		"             * {@link X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
+		"             * {@link test.bug.X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
+		"             */\n" + 
+		"            public int bar() {\n" + 
+		"                return 0;\n" + 
+		"            }\n" + 
+		"        }\n" + 
+		"\n" + 
+		"        public void foo(Z[] params) {\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}\n"
+	};
+	runNegativeTest(units,
+		// warning - Tag @link: can't find foo(test.bug.X.Y.Z) in test.bug.X.Y
+		// warning - Tag @link: can't find foo(no_test.bug.X.Y.Z[]) in test.bug.X.Y
+		// warning - Tag @link: can't find foo(Y.Z[]) in test.bug.X.Y
+		// warning - Tag @link: can't find foo(Y.Z[]) in test.bug.X.Y
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	* {@link X.Y#foo(test.bug.X.Y.Z)} KO for javadoc tool\n" + 
+		"	             ^^^\n" + 
+		"Javadoc: The method foo(X.Y.Z[]) in the type X.Y is not applicable for the arguments (X.Y.Z)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	* {@link X.Y#foo(no_test.bug.X.Y.Z[])} KO for javadoc tool\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: no_test[] cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 12)\n" + 
+		"	* {@link X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
+		"	                 ^^^\n" + 
+		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
+		"	* {@link test.bug.X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
+		"	                          ^^^\n" + 
+		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n"
+	);
+}
+public void testBug233187b() {
+	String[] units = new String[] {
+		"X.java",
+		"package test.bug;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"   public static class Y {\n" + 
+		"        public static class Z { \n" + 
+		"            /**\n" + 
+		"             * The position in the new method signature depends on\n" + 
+		"             * the position in the array passed to\n" + 
+		"             * {@link X.Y#foo(test.bug.X.Y.Z)} OK for javadoc tool\n" +
+		"            * {@link X.Y#foo(test.bug.X.Y.Z[])} KO for javadoc tool\n" +
+		"             * {@link X.Y#foo(no_test.bug.X.Y.Z)} KO for javadoc tool\n" +
+		"             * {@link X.Y#foo(Y.Z)} KO for javadoc tool\n" +
+		"             * {@link test.bug.X.Y#foo(Y.Z)} KO for javadoc tool\n" +
+		"             */\n" + 
+		"            public int bar() {\n" + 
+		"                return 0;\n" + 
+		"            }\n" + 
+		"        }\n" + 
+		"\n" + 
+		"        public void foo(Z params) {\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}\n"
+	};
+	runNegativeTest(units,
+		// warning - Tag @link: can't find foo(test.bug.X.Y.Z[]) in test.bug.X.Y
+		// warning - Tag @link: can't find foo(no_test.bug.X.Y.Z) in test.bug.X.Y
+		// warning - Tag @link: can't find foo(Y.Z) in test.bug.X.Y
+		// warning - Tag @link: can't find foo(Y.Z) in test.bug.X.Y
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	* {@link X.Y#foo(test.bug.X.Y.Z[])} KO for javadoc tool\n" + 
+		"	             ^^^\n" + 
+		"Javadoc: The method foo(X.Y.Z) in the type X.Y is not applicable for the arguments (X.Y.Z[])\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	* {@link X.Y#foo(no_test.bug.X.Y.Z)} KO for javadoc tool\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: no_test cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 12)\n" + 
+		"	* {@link X.Y#foo(Y.Z)} KO for javadoc tool\n" + 
+		"	                 ^^^\n" + 
+		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
+		"	* {@link test.bug.X.Y#foo(Y.Z)} KO for javadoc tool\n" + 
+		"	                          ^^^\n" + 
+		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n"
+	);
+}
+
+/**
  * @bug 233887: Build of Eclipse project stop by NullPointerException and will not continue on Eclipse version later than 3.4M7
  * @test Ensure that no NPE is raised when a 1.5 param tag syntax is incorrectly used on a fiel with an initializer
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233887"

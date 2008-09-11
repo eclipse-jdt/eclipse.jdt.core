@@ -49,6 +49,18 @@ public class JavadocArgumentExpression extends Expression {
 					scope.problemReporter().javadocInvalidMemberTypeQualification(this.sourceStart, this.sourceEnd, scope.getDeclarationModifiers());
 					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=228648
 					// do not return now but report unresolved reference as expected depending on compliance settings
+				} else if (typeRef instanceof QualifiedTypeReference) {
+					TypeBinding enclosingType = this.resolvedType.leafComponentType().enclosingType();
+					if (enclosingType != null) {
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=233187
+						// inner type references should be fully qualified
+						int compoundLength = 2;
+						while ((enclosingType = enclosingType.enclosingType()) != null) compoundLength++;
+						compoundLength+=this.resolvedType.getPackage().compoundName.length;
+						if (typeRef.getTypeName().length != compoundLength) {
+							scope.problemReporter().javadocInvalidMemberTypeQualification(typeRef.sourceStart, typeRef.sourceEnd, scope.getDeclarationModifiers());
+						}
+					}
 				}
 				if (!this.resolvedType.isValidBinding()) {
 					scope.problemReporter().javadocInvalidType(typeRef, this.resolvedType, scope.getDeclarationModifiers());
