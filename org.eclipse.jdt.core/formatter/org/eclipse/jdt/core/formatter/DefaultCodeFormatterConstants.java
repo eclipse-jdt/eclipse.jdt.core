@@ -3153,7 +3153,7 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to use tabulations only for leading indentations
+	 * FORMATTER / Option to use tabulations for indentation and spaces for line wrapping
 	 *     - option id:         "org.eclipse.jdt.core.formatter.use_tabs_only_for_leading_indentations"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
