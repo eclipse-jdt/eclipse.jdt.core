@@ -150,64 +150,15 @@ public final class BaseTypeBinding extends TypeBinding {
 	
 	/* Answer true if the receiver type can be assigned to the argument type (right)
 	*/
-	public final boolean isCompatibleWith(TypeBinding right) {
-
-		if (this == right)
+	public final boolean isCompatibleWith(TypeBinding left) {
+		if (this == left)
 			return true;
-		if (!right.isBaseType())
-			return this == TypeBinding.NULL;
-
-		switch (right.id) {
-			case TypeIds.T_boolean :
-			case TypeIds.T_byte :
-			case TypeIds.T_char :
-				return false;
-			case TypeIds.T_double :
-				switch (this.id) {
-					case TypeIds.T_byte :
-					case TypeIds.T_char :
-					case TypeIds.T_short :
-					case TypeIds.T_int :
-					case TypeIds.T_long :
-					case TypeIds.T_float :
-						return true;
-					default :
-						return false;
-				}
-			case TypeIds.T_float :
-				switch (this.id) {
-					case TypeIds.T_byte :
-					case TypeIds.T_char :
-					case TypeIds.T_short :
-					case TypeIds.T_int :
-					case TypeIds.T_long :
-						return true;
-					default :
-						return false;
-				}
-			case TypeIds.T_long :
-				switch (this.id) {
-					case TypeIds.T_byte :
-					case TypeIds.T_char :
-					case TypeIds.T_short :
-					case TypeIds.T_int :
-						return true;
-					default :
-						return false;
-				}
-			case TypeIds.T_int :
-				switch (this.id) {
-					case TypeIds.T_byte :
-					case TypeIds.T_char :
-					case TypeIds.T_short :
-						return true;
-					default :
-						return false;
-				}
-			case TypeIds.T_short :
-				return (this.id == TypeIds.T_byte);
-		}
-		return false;
+		int right2left = this.id + (left.id<<4);
+		if (right2left >= 0 
+				&& right2left < MAX_CONVERSIONS 
+				&& (CONVERSIONS[right2left] & (IDENTITY|WIDENING)) != 0)
+			return true;
+		return this == TypeBinding.NULL && !left.isBaseType();
 	}
 	
 	/**

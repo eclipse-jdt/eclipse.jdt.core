@@ -220,7 +220,6 @@ public void resolve(MethodScope initializationScope) {
 				if (fieldType != initializationType) // must call before computeConversion() and typeMismatchError()
 					initializationScope.compilationUnitScope().recordTypeConversion(fieldType, initializationType);
 				if (this.initialization.isConstantValueOfTypeAssignableToType(initializationType, fieldType)
-						|| BaseTypeBinding.isWidening(fieldType.id, initializationType.id)
 						|| initializationType.isCompatibleWith(fieldType)) {
 					this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 					if (initializationType.needsUncheckedConversion(fieldType)) {

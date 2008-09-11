@@ -188,7 +188,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					if (variableType != initializationType) // must call before computeConversion() and typeMismatchError()
 						scope.compilationUnitScope().recordTypeConversion(variableType, initializationType);
 					if (this.initialization.isConstantValueOfTypeAssignableToType(initializationType, variableType)
-						|| BaseTypeBinding.isWidening(variableType.id, initializationType.id)
 						|| initializationType.isCompatibleWith(variableType)) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
 						if (initializationType.needsUncheckedConversion(variableType)) {

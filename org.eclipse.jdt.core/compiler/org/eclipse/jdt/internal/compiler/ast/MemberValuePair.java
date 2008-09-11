@@ -88,15 +88,13 @@ public class MemberValuePair extends ASTNode {
 			return;
 
 		TypeBinding leafType = requiredType.leafComponentType();
-		if (!((this.value.isConstantValueOfTypeAssignableToType(valueType, requiredType)
-				|| BaseTypeBinding.isWidening(requiredType.id, valueType.id))
+		if (!(this.value.isConstantValueOfTypeAssignableToType(valueType, requiredType)
 				|| valueType.isCompatibleWith(requiredType))) {
 
 			if (!(requiredType.isArrayType()
 					&& requiredType.dimensions() == 1
 					&& (this.value.isConstantValueOfTypeAssignableToType(valueType, leafType)
-							|| BaseTypeBinding.isWidening(leafType.id, valueType.id))
-							|| valueType.isCompatibleWith(leafType))) {
+							|| valueType.isCompatibleWith(leafType)))) {
 
 				if (leafType.isAnnotationType() && !valueType.isAnnotationType()) {
 					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);

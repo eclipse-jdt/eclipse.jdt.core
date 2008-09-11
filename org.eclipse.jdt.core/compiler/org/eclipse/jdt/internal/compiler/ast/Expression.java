@@ -797,14 +797,11 @@ public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, T
 		return false;
 	if (constantType == targetType)
 		return true;
-	if (constantType.isBaseType() && targetType.isBaseType()) {
-		//No free assignment conversion from anything but to integral ones.
-		if ((constantType == TypeBinding.INT
-			|| BaseTypeBinding.isWidening(TypeIds.T_int, constantType.id))
+	//No free assignment conversion from anything but to integral ones.
+	if (BaseTypeBinding.isWidening(TypeIds.T_int, constantType.id)
 			&& (BaseTypeBinding.isNarrowing(targetType.id, TypeIds.T_int))) {
-			//use current explicit conversion in order to get some new value to compare with current one
-			return isConstantValueRepresentable(this.constant, constantType.id, targetType.id);
-		}
+		//use current explicit conversion in order to get some new value to compare with current one
+		return isConstantValueRepresentable(this.constant, constantType.id, targetType.id);
 	}
 	return false;
 }
