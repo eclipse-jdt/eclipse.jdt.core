@@ -1053,5 +1053,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 			});
 		assertTrue("Y#foo() should be a subsignature of X#foo()", bindings[1].isSubsignature(bindings[0]));
 	}
+	
+	/*
+	 * Ensures that the byte base type is assignment compatible with the int base type
+	 */
+	public void test045() throws JavaModelException {
+		ITypeBinding[] bindings = createTypeBindings(
+			new String[] {},
+			new String[] {
+				"B",
+				"I"
+			});
+		assertTrue("byte should be assignment compatible with int", bindings[0].isAssignmentCompatible(bindings[1]));
+	}
+
 
 }
