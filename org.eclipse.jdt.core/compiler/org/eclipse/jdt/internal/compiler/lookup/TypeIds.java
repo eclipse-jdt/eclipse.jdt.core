@@ -156,6 +156,7 @@ public interface TypeIds {
 	final int Double2String = T_double + (T_JavaLangString << 4);
 	final int String2String = T_JavaLangString + (T_JavaLangString << 4);
 	final int Object2String = T_JavaLangObject + (T_JavaLangString << 4);
+	final int Null2Null = T_null + (T_null << 4);
 	final int Null2String = T_null + (T_JavaLangString << 4);
 	final int Object2Object = T_JavaLangObject + (T_JavaLangObject << 4);
 	final int BOXING = 0x200;
