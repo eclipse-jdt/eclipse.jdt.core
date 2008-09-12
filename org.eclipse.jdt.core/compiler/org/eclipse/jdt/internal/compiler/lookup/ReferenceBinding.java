@@ -42,7 +42,7 @@ abstract public class ReferenceBinding extends TypeBinding implements IDependent
 
 	private SimpleLookupTable compatibleCache;
 
-	public static ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */};
+	public static final ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */};
 
 	private static final Comparator FIELD_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
