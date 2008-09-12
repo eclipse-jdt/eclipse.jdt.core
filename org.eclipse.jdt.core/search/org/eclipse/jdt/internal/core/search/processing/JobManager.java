@@ -59,7 +59,7 @@ public abstract class JobManager implements Runnable {
 			return this.awaitingJobs[this.jobStart];
 		return null;
 	}
-	public void disable() {
+	public synchronized void disable() {
 		this.enableCount--;
 		if (VERBOSE)
 			Util.verbose("DISABLING background indexing"); //$NON-NLS-1$
