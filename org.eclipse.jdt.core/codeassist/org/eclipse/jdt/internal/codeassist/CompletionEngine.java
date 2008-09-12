@@ -4403,10 +4403,7 @@ public final class CompletionEngine
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
 					MethodScope methodScope = (MethodScope) currentScope;
 					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
-
-				case Scope.BLOCK_SCOPE :
 					break;
-
 				case Scope.CLASS_SCOPE :
 					ClassScope classScope = (ClassScope) currentScope;
 					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
@@ -4460,10 +4457,7 @@ public final class CompletionEngine
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
 					MethodScope methodScope = (MethodScope) currentScope;
 					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
-
-				case Scope.BLOCK_SCOPE :
 					break;
-
 				case Scope.CLASS_SCOPE :
 					ClassScope classScope = (ClassScope) currentScope;
 					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
@@ -8354,6 +8348,7 @@ public final class CompletionEngine
 						MethodScope methodScope = (MethodScope) currentScope;
 						staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
 
+					//$FALL-THROUGH$
 					case Scope.BLOCK_SCOPE :
 						BlockScope blockScope = (BlockScope) currentScope;
 
@@ -9343,6 +9338,7 @@ public final class CompletionEngine
 					MethodScope methodScope = (MethodScope) currentScope;
 					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
 
+				//$FALL-THROUGH$
 				case Scope.BLOCK_SCOPE :
 					BlockScope blockScope = (BlockScope) currentScope;
 

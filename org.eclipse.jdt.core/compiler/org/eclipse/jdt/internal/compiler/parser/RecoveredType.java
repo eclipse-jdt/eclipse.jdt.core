@@ -707,6 +707,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 			case TokenNameRIGHT_SHIFT :
 			case TokenNameUNSIGNED_RIGHT_SHIFT :
 				if (parser.recoveredStaticInitializerStart == 0) break;
+			//$FALL-THROUGH$
 			default:
 				this.foundOpeningBrace = true;
 				this.bracketBalance = 1; // pretend the brace was already there
