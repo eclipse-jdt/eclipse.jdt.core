@@ -7504,6 +7504,41 @@ public void testBug195374() {
 }
 
 /**
+ * @bug 207765: [javadoc] Javadoc warning on @see reference could be improved
+ * @test Ensure we have different message depending on tag value
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=207765"
+ */
+public void testBug207765() {
+	runNegativeTest(
+		new String[] {
+			"pkg/X.java",
+			"package pkg;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	/**\n" + 
+			"	 * {@link \"http://www.eclipse.org/}\n" +
+			"	 * @see \"http://www.eclipse.org/\n" +
+			"	 */\n" +
+			"	public void foo() { \n" +
+			"	 \n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 5)\n" + 
+		"	* {@link \"http://www.eclipse.org/}\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Invalid reference\n" + 
+		"----------\n" + 
+		"2. ERROR in pkg\\X.java (at line 6)\n" + 
+		"	* @see \"http://www.eclipse.org/\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" + 
+		"----------\n"
+	);
+}
+
+/**
  * @bug 222900: [Javadoc] Missing description is warned if valid description is on a new line
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222900"
  */

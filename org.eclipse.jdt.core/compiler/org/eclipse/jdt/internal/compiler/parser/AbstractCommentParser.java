@@ -1149,7 +1149,25 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						char[] currentError = this.scanner.getCurrentIdentifierSource();
 						if (currentError.length>0 && currentError[0] == '"') {
-							if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidReference(this.scanner.getCurrentTokenStartPosition(), getTokenEndPosition());
+							if (this.reportProblems) {
+								boolean isUrlRef = false;
+								if (this.tagValue == TAG_SEE_VALUE) {
+									int length=currentError.length, i=1 /* first char is " */;
+									while (i<length && ScannerHelper.isLetter(currentError[i])) {
+										i++;
+									}
+									if (i<(length-2) && currentError[i] == ':' && currentError[i+1] == '/' && currentError[i+2] == '/') {
+										isUrlRef = true;
+									}
+								}
+								if (isUrlRef) {
+									// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207765
+									// handle invalid URL references in javadoc with dedicated message
+									this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(this.scanner.getCurrentTokenStartPosition(), getTokenEndPosition());
+								} else {
+									this.sourceParser.problemReporter().javadocInvalidReference(this.scanner.getCurrentTokenStartPosition(), getTokenEndPosition());
+								}
+							}
 							return false;
 						}
 						break nextToken;
