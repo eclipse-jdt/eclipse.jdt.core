@@ -542,6 +542,16 @@ public void testGetTypeVariable() {
 	}
 }
 
+/*
+ * Ensures that an invalid character doesn't cause an infinite loop
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247118 )
+ */
+public void testInvalidCharacter() {
+	assertEquals(
+		"Lorg.eclipse.Identified.ClassName;",
+		Signature.createTypeSignature("org.eclipse." + (char) 5760 + "Identified.ClassName", true));
+}
+
 /**
  * @see Signature
  * @since 3.0
