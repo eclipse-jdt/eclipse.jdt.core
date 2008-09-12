@@ -41,7 +41,6 @@ class MemberDeclarationVisitor extends ASTVisitor {
 	int nodesCount = 0;
 
 	// Local and other elements storage
-	IJavaElement currentDeclaration;
 	private Annotation annotation;
 	private LocalDeclaration localDeclaration;
 	IJavaElement localElement;
