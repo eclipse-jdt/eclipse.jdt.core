@@ -892,11 +892,11 @@ public Constant optimizedBooleanConstant() {
 			if (this.constant != Constant.NotAConstant) return this.constant;
 			switch (this.bits & ASTNode.RestrictiveFlagMASK) {
 				case Binding.FIELD : // reading a field
-				if (this.otherBindings == null)
-					return ((FieldBinding)this.binding).constant();
-				// fall thru
-			case Binding.LOCAL : // reading a local variable
-				return this.otherBindings[this.otherBindings.length-1].constant();
+					if (this.otherBindings == null)
+						return ((FieldBinding)this.binding).constant();
+					//$FALL-THROUGH$
+				case Binding.LOCAL : // reading a local variable
+					return this.otherBindings[this.otherBindings.length-1].constant();
 		}
 	}
 	return Constant.NotAConstant;
@@ -1042,7 +1042,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				// thus it was a type
 				this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 				this.bits |= Binding.TYPE;
-				// fallthrough
+				//$FALL-THROUGH$
 			case Binding.TYPE : //=============only type ==============
 			    TypeBinding type = (TypeBinding) this.binding;
 //					if (isTypeUseDeprecated(type, scope))

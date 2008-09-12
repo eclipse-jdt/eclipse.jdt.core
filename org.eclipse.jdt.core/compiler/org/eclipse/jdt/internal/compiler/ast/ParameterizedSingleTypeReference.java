@@ -125,7 +125,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 							currentType = (ReferenceBinding) type;
 							break;
 						}
-						// fallthrough - unable to complete type binding, but still resolve type arguments
+						//$FALL-THROUGH$ - unable to complete type binding, but still resolve type arguments
 					default :
 						boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 					int argLength = this.typeArguments.length;

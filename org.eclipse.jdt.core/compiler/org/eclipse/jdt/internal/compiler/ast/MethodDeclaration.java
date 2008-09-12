@@ -175,6 +175,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			case TypeDeclaration.ENUM_DECL :
 				if (this.selector == TypeConstants.VALUES) break;
 				if (this.selector == TypeConstants.VALUEOF) break;
+				//$FALL-THROUGH$
 			case TypeDeclaration.CLASS_DECL :
 				// if a method has an semicolon body and is not declared as abstract==>error
 				// native methods may have a semicolon body

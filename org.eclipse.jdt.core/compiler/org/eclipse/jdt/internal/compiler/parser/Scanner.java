@@ -1611,7 +1611,7 @@ public int getNextToken() throws InvalidInputException {
 											if (firstTag == 0 && this.isFirstTag()) {
 												firstTag = previous;
 											}
-											// fall through default case to set star to false
+											//$FALL-THROUGH$ default case to set star to false
 										default:
 											star = false;
 									}
@@ -2055,7 +2055,7 @@ public final void jumpOverMethodBody() {
 											if (firstTag == 0 && this.isFirstTag()) {
 												firstTag = previous;
 											}
-											// fall through default case to set star to false
+											//$FALL-THROUGH$ default case to set star to false
 										default:
 											star = false;
 									}

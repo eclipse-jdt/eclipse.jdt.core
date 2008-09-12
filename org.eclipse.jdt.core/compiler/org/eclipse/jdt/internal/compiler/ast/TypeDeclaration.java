@@ -1025,7 +1025,7 @@ public void resolve() {
 								enumConstantsWithoutBody = new FieldDeclaration[count];
 							enumConstantsWithoutBody[i] = field;
 						}
-						// fallthrough
+						//$FALL-THROUGH$
 					case AbstractVariableDeclaration.FIELD:
 						FieldBinding fieldBinding = field.binding;
 						if (fieldBinding == null) {

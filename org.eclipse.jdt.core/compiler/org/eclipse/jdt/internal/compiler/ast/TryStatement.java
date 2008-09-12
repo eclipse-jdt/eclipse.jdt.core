@@ -483,7 +483,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 							break;
 						case FINALLY_SUBROUTINE :
 							requiresNaturalExit = true;
-							// fall through
+							//$FALL-THROUGH$
 						case NO_FINALLY :
 							if (this.naturalExitMergeInitStateIndex != -1) {
 								codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);

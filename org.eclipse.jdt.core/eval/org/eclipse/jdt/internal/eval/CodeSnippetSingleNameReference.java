@@ -357,7 +357,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 								return;
 						}
 					}
-					// fallthrough
+					//$FALL-THROUGH$
 				default :
 					codeStream.load(localBinding);
 			}

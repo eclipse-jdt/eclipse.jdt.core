@@ -1737,7 +1737,7 @@ public void optimizedBooleanConstant(int leftId, int operator, int rightId) {
 		case AND :
 			if ((leftId != TypeIds.T_boolean) || (rightId != TypeIds.T_boolean))
 				return;
-			// fallthrough
+			//$FALL-THROUGH$
 		case AND_AND :
 			Constant cst;
 			if ((cst = this.left.optimizedBooleanConstant()) != Constant.NotAConstant) {
@@ -1761,7 +1761,7 @@ public void optimizedBooleanConstant(int leftId, int operator, int rightId) {
 		case OR :
 			if ((leftId != TypeIds.T_boolean) || (rightId != TypeIds.T_boolean))
 				return;
-			// fallthrough
+			//$FALL-THROUGH$
 		case OR_OR :
 			if ((cst = this.left.optimizedBooleanConstant()) != Constant.NotAConstant) {
 				if (cst.booleanValue() == true) { // left is equivalent to true

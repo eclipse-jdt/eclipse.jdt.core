@@ -728,6 +728,7 @@ public class CompilerOptions {
 			case 'h' :
 				if ("hiding".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.HIDING;
+				break;
 			case 'i' :
 				if ("incomplete-switch".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.INCOMPLETE_SWITCH;

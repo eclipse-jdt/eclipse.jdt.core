@@ -3799,9 +3799,11 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 			switch (state) {
 			case start:
 				currentClasspathName = ""; //$NON-NLS-1$
-			case readyToClose:
+				//$FALL-THROUGH$
+				case readyToClose:
 				bracket = cursor - 1;
-			case bracketClosed:
+				//$FALL-THROUGH$
+				case bracketClosed:
 				state = bracketOpened;
 				break;
 			case readyToCloseEndingWithRules:
@@ -3848,6 +3850,7 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 					state = destinationPathReadyToClose;
 					break;
 				} // else we proceed with a rule
+				//$FALL-THROUGH$
 			case rulesNeedAnotherRule:
 				if (currentDestinationPath != null) {
 					throw new InvalidInputException(

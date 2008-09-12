@@ -7579,6 +7579,7 @@ protected void consumeToken(int type) {
 			break;
 		case TokenNameLBRACE :
 			this.endStatementPosition = this.scanner.currentPosition - 1;
+			//$FALL-THROUGH$
 		case TokenNamePLUS :
 		case TokenNameMINUS :
 		case TokenNameNOT :
@@ -10261,7 +10262,7 @@ public void recoveryTokenCheck() {
 			if(currentType != null) {
 				currentType.insideEnumConstantPart = false;
 			}
-			// fall through
+			//$FALL-THROUGH$
 		default : {
 			if (this.rBraceEnd > this.rBraceSuccessorStart && this.scanner.currentPosition != this.scanner.startPosition){
 				this.rBraceSuccessorStart = this.scanner.startPosition;

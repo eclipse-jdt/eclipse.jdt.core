@@ -527,7 +527,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 								return;
 						}
 					}
-					// fallthrough
+					//$FALL-THROUGH$
 				default :
 					codeStream.load(localBinding);
 			}
@@ -870,7 +870,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				// thus it was a type
 				this.bits &= ~ASTNode.RestrictiveFlagMASK;  // clear bits
 				this.bits |= Binding.TYPE;
-				// fallthrough
+				//$FALL-THROUGH$
 			case Binding.TYPE : //========only type==============
 				this.constant = Constant.NotAConstant;
 				//deprecated test
