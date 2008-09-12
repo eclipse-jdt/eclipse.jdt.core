@@ -209,6 +209,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 						}
 						continue;
 					}
+					//$FALL-THROUGH$
 				case CAN_ONLY_NULL | IN_COMPARISON_NULL:
 				case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 				case CAN_ONLY_NULL | IN_ASSIGNMENT:

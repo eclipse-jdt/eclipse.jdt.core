@@ -528,6 +528,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 			else if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
 				return;
 			}
+			//$FALL-THROUGH$
 		case CAN_ONLY_NULL | IN_COMPARISON_NULL:
 		case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 		case CAN_ONLY_NULL | IN_ASSIGNMENT:

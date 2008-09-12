@@ -132,7 +132,6 @@ public class AssertStatement extends Statement {
 	}
 
 	public void resolve(BlockScope scope) {
-
 		this.assertExpression.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 		if (this.exceptionArgument != null) {
 			TypeBinding exceptionArgumentType = this.exceptionArgument.resolveType(scope);
@@ -141,8 +140,10 @@ public class AssertStatement extends Statement {
 			    switch(id) {
 					case T_void :
 						scope.problemReporter().illegalVoidExpression(this.exceptionArgument);
+						//$FALL-THROUGH$
 					default:
 					    id = T_JavaLangObject;
+					//$FALL-THROUGH$
 					case T_boolean :
 					case T_byte :
 					case T_char :

@@ -102,6 +102,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						}
 						continue;
 					}
+					//$FALL-THROUGH$
 				case CAN_ONLY_NULL | IN_COMPARISON_NULL:
 				case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 				case CAN_ONLY_NULL | IN_ASSIGNMENT:
@@ -238,6 +239,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 							}
 							return;
 						}
+						//$FALL-THROUGH$
 					case CAN_ONLY_NULL | IN_COMPARISON_NULL:
 					case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 					case CAN_ONLY_NULL | IN_ASSIGNMENT:
