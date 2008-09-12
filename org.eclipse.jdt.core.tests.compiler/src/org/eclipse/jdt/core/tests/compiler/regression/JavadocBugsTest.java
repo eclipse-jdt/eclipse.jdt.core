@@ -7786,8 +7786,8 @@ public void testBug227730b() {
  */
 public void testBug233187a() {
 	String[] units = new String[] {
-		"X.java",
-		"package test.bug;\n" + 
+		"test/a/X.java",
+		"package test.a;\n" + 
 		"\n" + 
 		"public class X {\n" + 
 		"   public static class Y {\n" + 
@@ -7795,11 +7795,11 @@ public void testBug233187a() {
 		"            /**\n" + 
 		"             * The position in the new method signature depends on\n" + 
 		"             * the position in the array passed to\n" + 
-		"             * {@link X.Y#foo(test.bug.X.Y.Z[])} OK for javadoc tool\n" + 
-		"             * {@link X.Y#foo(test.bug.X.Y.Z)} KO for javadoc tool\n" + 
-		"             * {@link X.Y#foo(no_test.bug.X.Y.Z[])} KO for javadoc tool\n" + 
+		"             * {@link X.Y#foo(test.a.X.Y.Z[])} OK for javadoc tool\n" + 
+		"             * {@link X.Y#foo(test.a.X.Y.Z)} KO for javadoc tool\n" + 
+		"             * {@link X.Y#foo(no_test.a.X.Y.Z[])} KO for javadoc tool\n" + 
 		"             * {@link X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
-		"             * {@link test.bug.X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
+		"             * {@link test.a.X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
 		"             */\n" + 
 		"            public int bar() {\n" + 
 		"                return 0;\n" + 
@@ -7812,86 +7812,104 @@ public void testBug233187a() {
 		"}\n"
 	};
 	runNegativeTest(units,
-		// warning - Tag @link: can't find foo(test.bug.X.Y.Z) in test.bug.X.Y
-		// warning - Tag @link: can't find foo(no_test.bug.X.Y.Z[]) in test.bug.X.Y
-		// warning - Tag @link: can't find foo(Y.Z[]) in test.bug.X.Y
-		// warning - Tag @link: can't find foo(Y.Z[]) in test.bug.X.Y
+		// warning - Tag @link: can't find foo(test.a.X.Y.Z) in test.a.X.Y
+		// warning - Tag @link: can't find foo(no_test.a.X.Y.Z[]) in test.a.X.Y
+		// warning - Tag @link: can't find foo(Y.Z[]) in test.a.X.Y
+		// warning - Tag @link: can't find foo(Y.Z[]) in test.a.X.Y
 		"----------\n" + 
-		"1. ERROR in X.java (at line 10)\n" + 
-		"	* {@link X.Y#foo(test.bug.X.Y.Z)} KO for javadoc tool\n" + 
+		"1. ERROR in test\\a\\X.java (at line 10)\n" + 
+		"	* {@link X.Y#foo(test.a.X.Y.Z)} KO for javadoc tool\n" + 
 		"	             ^^^\n" + 
 		"Javadoc: The method foo(X.Y.Z[]) in the type X.Y is not applicable for the arguments (X.Y.Z)\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	* {@link X.Y#foo(no_test.bug.X.Y.Z[])} KO for javadoc tool\n" + 
-		"	                 ^^^^^^^^^^^^^^^^^\n" + 
+		"2. ERROR in test\\a\\X.java (at line 11)\n" + 
+		"	* {@link X.Y#foo(no_test.a.X.Y.Z[])} KO for javadoc tool\n" + 
+		"	                 ^^^^^^^^^^^^^^^\n" + 
 		"Javadoc: no_test[] cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 12)\n" + 
+		"3. ERROR in test\\a\\X.java (at line 12)\n" + 
 		"	* {@link X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
 		"	                 ^^^\n" + 
 		"Javadoc: Invalid member type qualification\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 13)\n" + 
-		"	* {@link test.bug.X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
-		"	                          ^^^\n" + 
+		"4. ERROR in test\\a\\X.java (at line 13)\n" + 
+		"	* {@link test.a.X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
+		"	                        ^^^\n" + 
 		"Javadoc: Invalid member type qualification\n" + 
 		"----------\n"
 	);
 }
 public void testBug233187b() {
-	String[] units = new String[] {
-		"X.java",
-		"package test.bug;\n" + 
-		"\n" + 
-		"public class X {\n" + 
-		"   public static class Y {\n" + 
-		"        public static class Z { \n" + 
-		"            /**\n" + 
-		"             * The position in the new method signature depends on\n" + 
-		"             * the position in the array passed to\n" + 
-		"             * {@link X.Y#foo(test.bug.X.Y.Z)} OK for javadoc tool\n" +
-		"            * {@link X.Y#foo(test.bug.X.Y.Z[])} KO for javadoc tool\n" +
-		"             * {@link X.Y#foo(no_test.bug.X.Y.Z)} KO for javadoc tool\n" +
-		"             * {@link X.Y#foo(Y.Z)} KO for javadoc tool\n" +
-		"             * {@link test.bug.X.Y#foo(Y.Z)} KO for javadoc tool\n" +
-		"             */\n" + 
-		"            public int bar() {\n" + 
-		"                return 0;\n" + 
-		"            }\n" + 
-		"        }\n" + 
-		"\n" + 
-		"        public void foo(Z params) {\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"}\n"
-	};
-	runNegativeTest(units,
-		// warning - Tag @link: can't find foo(test.bug.X.Y.Z[]) in test.bug.X.Y
-		// warning - Tag @link: can't find foo(no_test.bug.X.Y.Z) in test.bug.X.Y
-		// warning - Tag @link: can't find foo(Y.Z) in test.bug.X.Y
-		// warning - Tag @link: can't find foo(Y.Z) in test.bug.X.Y
+	runNegativeTest(
+		new String[] {
+			"test/b/X.java",
+			"package test.b;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"   public static class Y {\n" + 
+			"        public static class Z { \n" + 
+			"            /**\n" + 
+			"             * The position in the new method signature depends on\n" + 
+			"             * the position in the array passed to\n" + 
+			"             * {@link X.Y#foo(test.b.X.Y.Z)} OK for javadoc tool\n" +
+			"            * {@link X.Y#foo(test.b.X.Y.Z[])} KO for javadoc tool\n" +
+			"             * {@link X.Y#foo(no_test.b.X.Y.Z)} KO for javadoc tool\n" +
+			"             * {@link X.Y#foo(Y.Z)} KO for javadoc tool\n" +
+			"             * {@link test.b.X.Y#foo(Y.Z)} KO for javadoc tool\n" +
+			"             */\n" + 
+			"            public int bar() {\n" + 
+			"                return 0;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        public void foo(Z params) {\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		// warning - Tag @link: can't find foo(test.b.X.Y.Z[]) in test.b.X.Y
+		// warning - Tag @link: can't find foo(no_test.b.X.Y.Z) in test.b.X.Y
+		// warning - Tag @link: can't find foo(Y.Z) in test.b.X.Y
+		// warning - Tag @link: can't find foo(Y.Z) in test.b.X.Y
 		"----------\n" + 
-		"1. ERROR in X.java (at line 10)\n" + 
-		"	* {@link X.Y#foo(test.bug.X.Y.Z[])} KO for javadoc tool\n" + 
+		"1. ERROR in test\\b\\X.java (at line 10)\n" + 
+		"	* {@link X.Y#foo(test.b.X.Y.Z[])} KO for javadoc tool\n" + 
 		"	             ^^^\n" + 
 		"Javadoc: The method foo(X.Y.Z) in the type X.Y is not applicable for the arguments (X.Y.Z[])\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	* {@link X.Y#foo(no_test.bug.X.Y.Z)} KO for javadoc tool\n" + 
-		"	                 ^^^^^^^^^^^^^^^^^\n" + 
+		"2. ERROR in test\\b\\X.java (at line 11)\n" + 
+		"	* {@link X.Y#foo(no_test.b.X.Y.Z)} KO for javadoc tool\n" + 
+		"	                 ^^^^^^^^^^^^^^^\n" + 
 		"Javadoc: no_test cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 12)\n" + 
+		"3. ERROR in test\\b\\X.java (at line 12)\n" + 
 		"	* {@link X.Y#foo(Y.Z)} KO for javadoc tool\n" + 
 		"	                 ^^^\n" + 
 		"Javadoc: Invalid member type qualification\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 13)\n" + 
-		"	* {@link test.bug.X.Y#foo(Y.Z)} KO for javadoc tool\n" + 
-		"	                          ^^^\n" + 
+		"4. ERROR in test\\b\\X.java (at line 13)\n" + 
+		"	* {@link test.b.X.Y#foo(Y.Z)} KO for javadoc tool\n" + 
+		"	                        ^^^\n" + 
 		"Javadoc: Invalid member type qualification\n" + 
 		"----------\n"
+	);
+}
+public void testBug233187c() {
+	runConformTest(
+		new String[] {
+			"test/c/X.java",
+			"package test.c;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	static class Y { \n" + 
+			"	}\n" + 
+			"	void foo(Y y) {}\n" + 
+			"	/**\n" + 
+			"	 * @see #foo(X.Y)\n" + 
+			"	 */\n" + 
+			"	void bar() {}\n" + 
+			"}\n"
+		}
 	);
 }
 

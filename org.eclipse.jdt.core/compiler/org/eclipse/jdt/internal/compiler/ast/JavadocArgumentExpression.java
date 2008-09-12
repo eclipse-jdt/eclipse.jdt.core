@@ -56,8 +56,8 @@ public class JavadocArgumentExpression extends Expression {
 						// inner type references should be fully qualified
 						int compoundLength = 2;
 						while ((enclosingType = enclosingType.enclosingType()) != null) compoundLength++;
-						compoundLength+=this.resolvedType.getPackage().compoundName.length;
-						if (typeRef.getTypeName().length != compoundLength) {
+						int typeNameLength = typeRef.getTypeName().length;
+						if (typeNameLength != compoundLength && typeNameLength != (compoundLength+this.resolvedType.getPackage().compoundName.length)) {
 							scope.problemReporter().javadocInvalidMemberTypeQualification(typeRef.sourceStart, typeRef.sourceEnd, scope.getDeclarationModifiers());
 						}
 					}
