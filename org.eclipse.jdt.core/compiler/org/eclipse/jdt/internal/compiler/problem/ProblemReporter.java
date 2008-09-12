@@ -2598,7 +2598,7 @@ public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBindi
 			concreteSignature.toString(),
 			new String(abstractMethods[0].declaringClass.readableName())},
 		new String[] {
-			new String(shortSignature.toString()),
+			shortSignature.toString(),
 			new String(abstractMethods[0].declaringClass.shortReadableName())},
 		type.sourceStart(),
 		type.sourceEnd());
