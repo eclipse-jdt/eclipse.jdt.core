@@ -1240,7 +1240,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						}
 					}
 				},
-				this.project, // use project scheduling rule as this is needed to create the .classpath file if it doesn't exist yet
+				workspace.getRuleFactory().modifyRule(this.project), // use project modification rule as this is needed to create the .classpath file if it doesn't exist yet
 				IWorkspace.AVOID_UPDATE,
 				null);
 			} catch (JavaModelException e) {
