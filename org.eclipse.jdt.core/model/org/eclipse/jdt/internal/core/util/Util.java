@@ -96,7 +96,6 @@ public class Util {
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
 
 	private static char[][] JAVA_LIKE_EXTENSIONS;
-	public static boolean ENABLE_JAVA_LIKE_EXTENSIONS = true;
 
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
@@ -799,36 +798,31 @@ public class Util {
 	 */
 	public static char[][] getJavaLikeExtensions() {
 		if (JAVA_LIKE_EXTENSIONS == null) {
-			// TODO (jerome) reenable once JDT UI supports other file extensions (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460)
-			if (!ENABLE_JAVA_LIKE_EXTENSIONS)
-				JAVA_LIKE_EXTENSIONS = new char[][] {SuffixConstants.EXTENSION_java.toCharArray()};
-			else {
-				IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
-				HashSet fileExtensions = new HashSet();
-				// content types derived from java content type should be included (https://bugs.eclipse.org/bugs/show_bug.cgi?id=121715)
-				IContentType[] contentTypes = Platform.getContentTypeManager().getAllContentTypes();
-				for (int i = 0, length = contentTypes.length; i < length; i++) {
-					if (contentTypes[i].isKindOf(javaContentType)) { // note that javaContentType.isKindOf(javaContentType) == true
-						String[] fileExtension = contentTypes[i].getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
-						for (int j = 0, length2 = fileExtension.length; j < length2; j++) {
-							fileExtensions.add(fileExtension[j]);
-						}
+			IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
+			HashSet fileExtensions = new HashSet();
+			// content types derived from java content type should be included (https://bugs.eclipse.org/bugs/show_bug.cgi?id=121715)
+			IContentType[] contentTypes = Platform.getContentTypeManager().getAllContentTypes();
+			for (int i = 0, length = contentTypes.length; i < length; i++) {
+				if (contentTypes[i].isKindOf(javaContentType)) { // note that javaContentType.isKindOf(javaContentType) == true
+					String[] fileExtension = contentTypes[i].getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+					for (int j = 0, length2 = fileExtension.length; j < length2; j++) {
+						fileExtensions.add(fileExtension[j]);
 					}
 				}
-				int length = fileExtensions.size();
-				// note that file extensions contains "java" as it is defined in JDT Core's plugin.xml
-				char[][] extensions = new char[length][];
-				extensions[0] = SuffixConstants.EXTENSION_java.toCharArray(); // ensure that "java" is first
-				int index = 1;
-				Iterator iterator = fileExtensions.iterator();
-				while (iterator.hasNext()) {
-					String fileExtension = (String) iterator.next();
-					if (SuffixConstants.EXTENSION_java.equals(fileExtension))
-						continue;
-					extensions[index++] = fileExtension.toCharArray();
-				}
-				JAVA_LIKE_EXTENSIONS = extensions;
 			}
+			int length = fileExtensions.size();
+			// note that file extensions contains "java" as it is defined in JDT Core's plugin.xml
+			char[][] extensions = new char[length][];
+			extensions[0] = SuffixConstants.EXTENSION_java.toCharArray(); // ensure that "java" is first
+			int index = 1;
+			Iterator iterator = fileExtensions.iterator();
+			while (iterator.hasNext()) {
+				String fileExtension = (String) iterator.next();
+				if (SuffixConstants.EXTENSION_java.equals(fileExtension))
+					continue;
+				extensions[index++] = fileExtension.toCharArray();
+			}
+			JAVA_LIKE_EXTENSIONS = extensions;
 		}
 		return JAVA_LIKE_EXTENSIONS;
 	}
