@@ -50,6 +50,11 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 			Binding binding = scope.getTypeOrPackage(this.tokens);
 			if (binding instanceof PackageBinding) {
 				this.packageBinding = (PackageBinding) binding;
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211054
+				// allow references to current package only. All other package references should be reported as invalid
+				if (scope.compilationUnitScope().fPackage != this.packageBinding) {
+					scope.problemReporter().javadocInvalidReference(this.sourceStart, this.sourceEnd);
+				}
 			} else {
 				reportInvalidType(scope);
 			}
