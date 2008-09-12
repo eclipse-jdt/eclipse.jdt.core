@@ -509,8 +509,8 @@ public Object getDefaultValue() {
  * 	if there's no parameter or no annotation at all.
  */
 public AnnotationBinding[][] getParameterAnnotations() {
-	int length = this.parameters.length;
-	if (this.parameters == null || length == 0) {
+	int length;
+	if ((length = this.parameters.length) == 0) {
 		return null;
 	}
 	MethodBinding originalMethod = original();
