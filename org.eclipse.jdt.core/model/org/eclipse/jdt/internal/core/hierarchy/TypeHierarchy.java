@@ -344,7 +344,7 @@ public boolean exists() {
  * through the list.
  */
 public void fireChange() {
-	ArrayList listeners = this.changeListeners;
+	ArrayList listeners = getClonedChangeListeners(); // clone so that a listener cannot have a side-effect on this list when being notified
 	if (listeners == null) {
 		return;
 	}
@@ -354,8 +354,7 @@ public void fireChange() {
 			System.out.println("    for hierarchy focused on " + ((JavaElement)this.focusType).toStringWithAncestors()); //$NON-NLS-1$
 		}
 	}
-	// clone so that a listener cannot have a side-effect on this list when being notified
-	listeners = (ArrayList)listeners.clone();
+	
 	for (int i= 0; i < listeners.size(); i++) {
 		final ITypeHierarchyChangedListener listener= (ITypeHierarchyChangedListener)listeners.get(i);
 		SafeRunner.run(new ISafeRunnable() {
@@ -367,6 +366,13 @@ public void fireChange() {
 			}
 		});
 	}
+}
+private synchronized ArrayList getClonedChangeListeners() {
+	ArrayList listeners = this.changeListeners;
+	if (listeners == null) {
+		return null;
+	}
+	return (ArrayList) listeners.clone();
 }
 private static byte[] flagsToBytes(Integer flags){
 	if(flags != null) {
