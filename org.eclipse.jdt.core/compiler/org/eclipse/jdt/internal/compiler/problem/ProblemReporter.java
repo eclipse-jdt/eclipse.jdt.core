@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.compiler.problem;
 import java.io.CharConversionException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -3479,6 +3480,15 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		}
 	}
 
+	if (type.isParameterizedType()) {
+		List missingTypes = type.collectMissingTypes(null);
+		if (missingTypes != null) {
+			for (Iterator iterator = missingTypes.iterator(); iterator.hasNext(); ) {
+				invalidType(location, (TypeBinding) iterator.next());
+			}
+			return;
+		}
+	}
 	int id = IProblem.UndefinedType; // default
 	switch (type.problemId()) {
 		case ProblemReasons.NotFound :

@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1369 };
+//		TESTS_NUMBERS = new int[] { 1367, 1368, 1369 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -45934,7 +45934,7 @@ public void test1367() {
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	var= new HashMap<String, String>();\n" + 
 			"	^^^\n" + 
-			"Map<String,String> cannot be resolved to a type\n" + 
+			"Map cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 4)\n" + 
 			"	var= new HashMap<String, String>();\n" + 
@@ -45943,7 +45943,7 @@ public void test1367() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=244164
-public void _test1368() {
+public void test1368() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", //-----------------------------------------------------------------------
@@ -45965,7 +45965,36 @@ public void _test1368() {
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	return map.get(s);\n" + 
 			"	       ^^^\n" + 
-			"Map<String,Zork> cannot be resolved to a type\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=244164
+public void test1369() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"class X {\n" + 
+				"	A<E> a; // E is undefined on purpose\n" + 
+				"	X() { a = new A<E>(); } // causes Missing code implementation\n" + 
+				"}",
+				"A.java",
+				"class A<E> {}",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	A<E> a; // E is undefined on purpose\n" + 
+			"	  ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	X() { a = new A<E>(); } // causes Missing code implementation\n" + 
+			"	      ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	X() { a = new A<E>(); } // causes Missing code implementation\n" + 
+			"	                ^\n" + 
+			"E cannot be resolved to a type\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448
