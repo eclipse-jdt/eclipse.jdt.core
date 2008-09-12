@@ -25,9 +25,9 @@ public class ReadManager implements Runnable {
 	int sleepingThreadCount;
 	private Throwable caughtException;
 
-	static int START_CUSHION = 5;
-	public static int THRESHOLD = 10;
-	static int CACHE_SIZE = 15; // do not waste memory by keeping too many files in memory
+	static final int START_CUSHION = 5;
+	public static final int THRESHOLD = 10;
+	static final int CACHE_SIZE = 15; // do not waste memory by keeping too many files in memory
 
 public ReadManager(ICompilationUnit[] files, int length) {
 	// start the background threads to read the file's contents
