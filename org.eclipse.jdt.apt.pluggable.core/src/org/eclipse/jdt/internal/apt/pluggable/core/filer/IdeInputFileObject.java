@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 
@@ -51,8 +52,22 @@ public class IdeInputFileObject implements FileObject {
 	 */
 	@Override
 	public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-		//TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+		// Use buffer size at least as big as the default size of the
+		// BufferedReader returned by openReader(), to reduce redundant
+		// copying.  See BufferedReader.read1() for details.
+		char[] buffer = new char[8192];
+		StringWriter w = new StringWriter();
+		Reader r = openReader(ignoreEncodingErrors);
+		try {
+			int read = -1;
+			while ((read = r.read(buffer)) != -1) {
+				w.write(buffer, 0, read);
+			}
+		}
+		finally {
+			r.close();
+		}
+		return w.getBuffer();
 	}
 
 	/* (non-Javadoc)

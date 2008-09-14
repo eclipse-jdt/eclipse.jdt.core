@@ -62,6 +62,27 @@ public class FilerTesterProc extends AbstractProcessor {
 	public static final String resource02Name =
 		"bin/t/Test.txt";
 
+	/**
+	 * @return a string representing a large Java class.
+	 */
+	public static String largeJavaClass() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("package g;\n");
+		sb.append("public class Test {\n");
+		sb.append("    public static final String bigString = \n");
+		for (int i = 0; i < 500; ++i) {
+			sb.append("        \"the quick brown dog jumped over the lazy fox, in a peculiar reversal\\n\" +\n");
+		}
+		sb.append("    \"\";\n");
+		sb.append("\n");
+		sb.append("    /** This file is at least this big */\n");
+		sb.append("    public static final int SIZE = ");
+		sb.append(sb.length());
+		sb.append(";\n");
+		sb.append("}\n");
+		return sb.toString();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -138,6 +159,20 @@ public class FilerTesterProc extends AbstractProcessor {
 	}
 	
 	/**
+	 * Attempt to get an existing resource from the SOURCE_OUTPUT.
+	 */
+	public void testGetCharContentLarge(Element e, String arg0, String arg1) throws Exception {
+		FileObject resource = _filer.getResource(StandardLocation.SOURCE_OUTPUT, arg0, arg1);
+		CharSequence actualCharContent = resource.getCharContent(true);
+		String expectedContents = largeJavaClass();
+		if (!expectedContents.equals(actualCharContent.toString())) {
+			System.out.println("Expected getCharContent to return:\n" + expectedContents);
+			System.out.println("Actual getCharContent returned:\n" + actualCharContent);
+			ProcessorTestStatus.fail("getCharContent() did not return expected contents");
+		}
+	}
+	
+	/**
 	 * Check that the resource can be opened, examined, and its contents match
 	 * {@link #checkResourceContents01(FileObject)}getResource01FileContents
 	 */
@@ -179,6 +214,13 @@ public class FilerTesterProc extends AbstractProcessor {
 			ProcessorTestStatus.fail("reader did not contain expected contents");
 		}
 		reader.close();
+		
+		CharSequence actualCharContent = resource.getCharContent(true);
+		if (!expectedContents.equals(actualCharContent.toString())) {
+			System.out.println("Expected getCharContent to return:\n" + expectedContents);
+			System.out.println("Actual getCharContent returned:\n" + actualCharContent);
+			ProcessorTestStatus.fail("getCharContent() did not return expected contents");
+		}
 	}
 
 }
