@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -377,7 +378,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					if ((this.syntheticAccessors == null) || (this.syntheticAccessors[SingleNameReference.READ] == null)) {
 						codeStream.getstatic(fieldBinding);
 					} else {
-						codeStream.invokestatic(this.syntheticAccessors[SingleNameReference.READ]);
+						codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[SingleNameReference.READ], null /* default declaringClass */);
 					}
 				} else {
 					if (!valueRequired
@@ -399,7 +400,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					if ((this.syntheticAccessors == null) || (this.syntheticAccessors[SingleNameReference.READ] == null)) {
 						codeStream.getfield(fieldBinding);
 					} else {
-						codeStream.invokestatic(this.syntheticAccessors[SingleNameReference.READ]);
+						codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[SingleNameReference.READ], null /* default declaringClass */);
 					}
 				}
 				break;
@@ -474,7 +475,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 				if ((this.syntheticAccessors == null) || (this.syntheticAccessors[SingleNameReference.READ] == null)) {
 					codeStream.getstatic(fieldBinding);
 				} else {
-					codeStream.invokestatic(this.syntheticAccessors[SingleNameReference.READ]);
+					codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[SingleNameReference.READ], null /* default declaringClass */);
 				}
 			} else {
 				if ((this.bits & ASTNode.DepthMASK) != 0) {
@@ -488,7 +489,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 				if ((this.syntheticAccessors == null) || (this.syntheticAccessors[SingleNameReference.READ] == null)) {
 					codeStream.getfield(fieldBinding);
 				} else {
-					codeStream.invokestatic(this.syntheticAccessors[SingleNameReference.READ]);
+					codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[SingleNameReference.READ], null /* default declaringClass */);
 				}
 			}
 			break;
@@ -587,7 +588,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				if ((this.syntheticAccessors == null) || (this.syntheticAccessors[SingleNameReference.READ] == null)) {
 					codeStream.getstatic(fieldBinding);
 				} else {
-					codeStream.invokestatic(this.syntheticAccessors[SingleNameReference.READ]);
+					codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[SingleNameReference.READ], null /* default declaringClass */);
 				}
 			} else {
 				if ((this.bits & ASTNode.DepthMASK) != 0) {
@@ -601,7 +602,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				if ((this.syntheticAccessors == null) || (this.syntheticAccessors[SingleNameReference.READ] == null)) {
 					codeStream.getfield(fieldBinding);
 				} else {
-					codeStream.invokestatic(this.syntheticAccessors[SingleNameReference.READ]);
+					codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[SingleNameReference.READ], null /* default declaringClass */);
 				}
 			}
 			TypeBinding operandType;

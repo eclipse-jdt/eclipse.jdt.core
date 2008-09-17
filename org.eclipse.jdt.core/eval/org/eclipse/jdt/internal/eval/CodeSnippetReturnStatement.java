@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -83,7 +84,7 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 	}
 
 	// generate the invoke virtual to "setResult(Object,Class)"
-	codeStream.invokevirtual(this.setResultMethod);
+	codeStream.invoke(Opcodes.OPC_invokevirtual, this.setResultMethod, null /* default declaringClass */);
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()

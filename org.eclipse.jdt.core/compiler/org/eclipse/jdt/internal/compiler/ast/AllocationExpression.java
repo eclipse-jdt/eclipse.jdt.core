@@ -115,7 +115,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	// invoke constructor
 	if (this.syntheticAccessor == null) {
-		codeStream.invokespecial(this.codegenBinding);
+		codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, null /* default declaringClass */);
 	} else {
 		// synthetic accessor got some extra arguments appended to its signature, which need values
 		for (int i = 0,
@@ -124,7 +124,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			i++) {
 			codeStream.aconst_null();
 		}
-		codeStream.invokespecial(this.syntheticAccessor);
+		codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */);
 	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);

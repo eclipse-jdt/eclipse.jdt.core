@@ -156,7 +156,7 @@ public class SwitchStatement extends Statement {
 			if (resolvedType.isEnum()) {
 				if (needSwitch) {
 					// go through the translation table
-					codeStream.invokestatic(this.synthetic);
+					codeStream.invoke(Opcodes.OPC_invokestatic, this.synthetic, null /* default declaringClass */);
 					this.expression.generateCode(currentScope, codeStream, true);
 					// get enum constant ordinal()
 					codeStream.invokeEnumOrdinal(resolvedType.constantPoolName());

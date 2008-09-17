@@ -12,8 +12,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -62,7 +61,7 @@ public class ForeachStatement extends Statement {
 
 	int postCollectionInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
-
+	
 	public ForeachStatement(
 		LocalDeclaration elementVariable,
 		int start) {
@@ -212,19 +211,7 @@ public class ForeachStatement extends Statement {
 			case GENERIC_ITERABLE :
 				this.collection.generateCode(this.scope, codeStream, true);
 				// declaringClass.iterator();
-				MethodBinding iteratorMethodBinding =
-					new MethodBinding(
-							ClassFileConstants.AccPublic,
-							"iterator".toCharArray(),//$NON-NLS-1$
-							this.scope.getJavaUtilIterator(),
-							Binding.NO_PARAMETERS,
-							Binding.NO_EXCEPTIONS,
-							(ReferenceBinding) this.iteratorReceiverType.erasure());
-				if (this.iteratorReceiverType.isInterface()) {
-					codeStream.invokeinterface(iteratorMethodBinding);
-				} else {
-					codeStream.invokevirtual(iteratorMethodBinding);
-				}
+				codeStream.invokeIterableIterator(this.iteratorReceiverType);
 				codeStream.store(this.indexVariable, false);
 				codeStream.addVariable(this.indexVariable);
 				break;

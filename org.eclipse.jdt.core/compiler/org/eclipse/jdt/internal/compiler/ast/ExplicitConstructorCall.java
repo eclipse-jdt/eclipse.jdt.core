@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -148,9 +149,9 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 					i++) {
 					codeStream.aconst_null();
 				}
-				codeStream.invokespecial(this.syntheticAccessor);
+				codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */);
 			} else {
-				codeStream.invokespecial(this.codegenBinding);
+				codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, null /* default declaringClass */);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {

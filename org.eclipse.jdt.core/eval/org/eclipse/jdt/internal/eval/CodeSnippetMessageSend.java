@@ -17,8 +17,8 @@ import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
-public class CodeSnippetMessageSend extends MessageSend implements ProblemReasons, EvaluationConstants {
+public class CodeSnippetMessageSend extends MessageSend {
 	EvaluationContext evaluationContext;
 	FieldBinding delegateThis;
 /**
@@ -78,17 +78,16 @@ public void generateCode(
 		// generate arguments
 		generateArguments(this.binding, this.arguments, currentScope, codeStream);
 		// actual message invocation
+		TypeBinding constantPoolDeclaringClass = getConstantPoolDeclaringClass(currentScope);
 		if (isStatic) {
-			codeStream.invokestatic(this.codegenBinding);
+			codeStream.invoke(Opcodes.OPC_invokestatic, this.codegenBinding, constantPoolDeclaringClass);
+		} else if( (this.receiver.isSuper()) || this.codegenBinding.isPrivate()){
+			codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, constantPoolDeclaringClass);
 		} else {
-			if (this.receiver.isSuper()) {
-				codeStream.invokespecial(this.codegenBinding);
+			if (constantPoolDeclaringClass.isInterface()) { // interface or annotation type
+				codeStream.invoke(Opcodes.OPC_invokeinterface, this.codegenBinding, constantPoolDeclaringClass);
 			} else {
-				if (this.codegenBinding.declaringClass.isInterface()) {
-					codeStream.invokeinterface(this.codegenBinding);
-				} else {
-					codeStream.invokevirtual(this.codegenBinding);
-				}
+				codeStream.invoke(Opcodes.OPC_invokevirtual, this.codegenBinding, constantPoolDeclaringClass);
 			}
 		}
 	} else {
@@ -171,37 +170,17 @@ public void generateCode(
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
-
-	// if method from parameterized type got found, use the original method at codegen time
-	this.codegenBinding = this.binding.original();
-	if (this.codegenBinding != this.binding) {
-	    // extra cast needed if method return type was type variable
-	    if (this.codegenBinding.returnType.isTypeVariable()) {
-	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
-	        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
-			    this.valueCast = this.binding.returnType;
-	        }
-	    }
-	}
-
-	// if the binding declaring class is not visible, need special action
-	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
-	// and not from Object or implicit static method call.
-	if (this.binding.declaringClass != this.actualReceiverType
-			&& !this.actualReceiverType.isArrayType()) {
-		CompilerOptions options = currentScope.compilerOptions();
-		if ((options.targetJDK >= ClassFileConstants.JDK1_2
-				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !this.receiver.isImplicitThis() || !this.codegenBinding.isStatic())
-				&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object methods
-			|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
-
-			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(
-			        										this.codegenBinding, (ReferenceBinding) this.actualReceiverType.erasure());
+		// if method from parameterized type got found, use the original method at codegen time
+		this.codegenBinding = this.binding.original();
+		if (this.codegenBinding != this.binding) {
+		    // extra cast needed if method return type was type variable
+		    if (this.codegenBinding.returnType.isTypeVariable()) {
+		        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
+		        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
+				    this.valueCast = this.binding.returnType;
+		        }
+		    }
 		}
-		// Post 1.4.0 target, array clone() invocations are qualified with array type
-		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
-	}
 	}
 }
 public TypeBinding resolveType(BlockScope scope) {
@@ -273,9 +252,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
 	if (!this.binding.isValidBinding()) {
 		if (this.binding instanceof ProblemMethodBinding
-			&& ((ProblemMethodBinding) this.binding).problemId() == NotVisible) {
+			&& ((ProblemMethodBinding) this.binding).problemId() == ProblemReasons.NotVisible) {
 			if (this.evaluationContext.declaringTypeName != null) {
-				this.delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
+				this.delegateThis = scope.getField(scope.enclosingSourceType(), EvaluationConstants.DELEGATE_THIS, this);
 				if (this.delegateThis == null){ // if not found then internal error, field should have been found
 					this.constant = Constant.NotAConstant;
 					scope.problemReporter().invalidMethod(this, this.binding);

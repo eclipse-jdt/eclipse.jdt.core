@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class CodeStream {
-	public static final boolean DEBUG = false;
 
 	// It will be responsible for the following items.
 	// -> Tracking Max Stack.
@@ -41,89 +40,7 @@ public class CodeStream {
 	static LocalVariableBinding[] noLocals = new LocalVariableBinding[LOCALS_INCREMENT];
 	static LocalVariableBinding[] noVisibleLocals = new LocalVariableBinding[LOCALS_INCREMENT];
 	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0, 0);
-	/**
-	 * This methods searches for an existing entry inside the pcToSourceMap table with a pc equals to @pc.
-	 * If there is an existing entry it returns -1 (no insertion required).
-	 * Otherwise it returns the index where the entry for the pc has to be inserted.
-	 * This is based on the fact that the pcToSourceMap table is sorted according to the pc.
-	 *
-	 * @param pcToSourceMap the given pcToSourceMap array
-	 * @param length the given length
-	 * @param pc the given pc
-	 * @return int
-	 */
-	public static int insertionIndex(int[] pcToSourceMap, int length, int pc) {
-		int g = 0;
-		int d = length - 2;
-		int m = 0;
-		while (g <= d) {
-			m = (g + d) / 2;
-			// we search only on even indexes
-			if ((m & 1) != 0) // faster than ((m % 2) != 0)
-				m--;
-			int currentPC = pcToSourceMap[m];
-			if (pc < currentPC) {
-				d = m - 2;
-			} else
-				if (pc > currentPC) {
-					g = m + 2;
-				} else {
-					return -1;
-				}
-		}
-		if (pc < pcToSourceMap[m])
-			return m;
-		return m + 2;
-	}
-	public static final void sort(int[] tab, int lo0, int hi0, int[] result) {
-		int lo = lo0;
-		int hi = hi0;
-		int mid;
-		if (hi0 > lo0) {
-			/* Arbitrarily establishing partition element as the midpoint of
-			  * the array.
-			  */
-			mid = tab[lo0 + (hi0 - lo0) / 2];
-			// loop through the array until indices cross
-			while (lo <= hi) {
-				/* find the first element that is greater than or equal to
-				 * the partition element starting from the left Index.
-				 */
-				while ((lo < hi0) && (tab[lo] < mid))
-					++lo;
-				/* find an element that is smaller than or equal to
-				 * the partition element starting from the right Index.
-				 */
-				while ((hi > lo0) && (tab[hi] > mid))
-					--hi;
-				// if the indexes have not crossed, swap
-				if (lo <= hi) {
-					swap(tab, lo, hi, result);
-					++lo;
-					--hi;
-				}
-			}
-			/* If the right index has not reached the left side of array
-			  * must now sort the left partition.
-			  */
-			if (lo0 < hi)
-				sort(tab, lo0, hi, result);
-			/* If the left index has not reached the right side of array
-			  * must now sort the right partition.
-			  */
-			if (lo < hi0)
-				sort(tab, lo, hi0, result);
-		}
-	}
-	private static final void swap(int a[], int i, int j, int result[]) {
-		int T;
-		T = a[i];
-		a[i] = a[j];
-		a[j] = T;
-		T = result[j];
-		result[j] = result[i];
-		result[i] = T;
-	}
+	
 	public int allLocalsCounter;
 	public byte[] bCodeStream;
 	public ClassFile classFile; // The current classfile it is associated to.
@@ -139,31 +56,35 @@ public class CodeStream {
 	public BranchLabel[] labels = new BranchLabel[LABELS_INCREMENT];
 	public int lastEntryPC; // last entry recorded
 	public int lastAbruptCompletion; // position of last instruction which abrupts completion: goto/return/athrow
+
 	public int[] lineSeparatorPositions;
 	// line number of the body start and the body end
 	public int lineNumberStart;
-	public int lineNumberEnd;
 
+	public int lineNumberEnd;
 	public LocalVariableBinding[] locals = new LocalVariableBinding[LOCALS_INCREMENT];
 	public int maxFieldCount;
-
 	public int maxLocals;
 	public AbstractMethodDeclaration methodDeclaration;
 	public int[] pcToSourceMap = new int[24];
 	public int pcToSourceMapSize;
 	public int position; // So when first set can be incremented
 	public boolean preserveUnusedLocals;
+
 	public int stackDepth; // Use Ints to keep from using extra bc when adding
+
 	public int stackMax; // Use Ints to keep from using extra bc when adding
 	public int startingClassFileOffset; // I need to keep the starting point inside the byte array
-
 	// target level to manage different code generation between different target levels
 	protected long targetLevel;
 
-public LocalVariableBinding[] visibleLocals = new LocalVariableBinding[LOCALS_INCREMENT];
-int visibleLocalsCount;
-// to handle goto_w
-public boolean wideMode = false;
+	public LocalVariableBinding[] visibleLocals = new LocalVariableBinding[LOCALS_INCREMENT];
+		
+	int visibleLocalsCount;
+	
+	// to handle goto_w
+	public boolean wideMode = false;	
+	
 public CodeStream(ClassFile givenClassFile) {
 	this.targetLevel = givenClassFile.targetJDK;
 	this.generateAttributes = givenClassFile.produceAttributes;
@@ -171,8 +92,93 @@ public CodeStream(ClassFile givenClassFile) {
 		this.lineSeparatorPositions = givenClassFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.getLineSeparatorPositions();
 	}
 }
+/**
+ * This methods searches for an existing entry inside the pcToSourceMap table with a pc equals to @pc.
+ * If there is an existing entry it returns -1 (no insertion required).
+ * Otherwise it returns the index where the entry for the pc has to be inserted.
+ * This is based on the fact that the pcToSourceMap table is sorted according to the pc.
+ *
+ * @param pcToSourceMap the given pcToSourceMap array
+ * @param length the given length
+ * @param pc the given pc
+ * @return int
+ */
+public static int insertionIndex(int[] pcToSourceMap, int length, int pc) {
+	int g = 0;
+	int d = length - 2;
+	int m = 0;
+	while (g <= d) {
+		m = (g + d) / 2;
+		// we search only on even indexes
+		if ((m & 1) != 0) // faster than ((m % 2) != 0)
+			m--;
+		int currentPC = pcToSourceMap[m];
+		if (pc < currentPC) {
+			d = m - 2;
+		} else
+			if (pc > currentPC) {
+				g = m + 2;
+			} else {
+				return -1;
+			}
+	}
+	if (pc < pcToSourceMap[m])
+		return m;
+	return m + 2;
+}
+public static final void sort(int[] tab, int lo0, int hi0, int[] result) {
+	int lo = lo0;
+	int hi = hi0;
+	int mid;
+	if (hi0 > lo0) {
+		/* Arbitrarily establishing partition element as the midpoint of
+		  * the array.
+		  */
+		mid = tab[lo0 + (hi0 - lo0) / 2];
+		// loop through the array until indices cross
+		while (lo <= hi) {
+			/* find the first element that is greater than or equal to
+			 * the partition element starting from the left Index.
+			 */
+			while ((lo < hi0) && (tab[lo] < mid))
+				++lo;
+			/* find an element that is smaller than or equal to
+			 * the partition element starting from the right Index.
+			 */
+			while ((hi > lo0) && (tab[hi] > mid))
+				--hi;
+			// if the indexes have not crossed, swap
+			if (lo <= hi) {
+				swap(tab, lo, hi, result);
+				++lo;
+				--hi;
+			}
+		}
+		/* If the right index has not reached the left side of array
+		  * must now sort the left partition.
+		  */
+		if (lo0 < hi)
+			sort(tab, lo0, hi, result);
+		/* If the left index has not reached the right side of array
+		  * must now sort the right partition.
+		  */
+		if (lo < hi0)
+			sort(tab, lo, hi0, result);
+	}
+}
+
+
+private static final void swap(int a[], int i, int j, int result[]) {
+	int T;
+	T = a[i];
+	a[i] = a[j];
+	a[j] = T;
+	T = result[j];
+	result[j] = result[i];
+	result[i] = T;
+}
+
 public void aaload() {
-	if (DEBUG) System.out.println(this.position + "\t\taaload"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -181,8 +187,8 @@ public void aaload() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_aaload;
 }
+
 public void aastore() {
-	if (DEBUG) System.out.println(this.position + "\t\taastore"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 3;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -191,8 +197,8 @@ public void aastore() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_aastore;
 }
+
 public void aconst_null() {
-	if (DEBUG) System.out.println(this.position + "\t\taconst_null"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax) {
@@ -204,6 +210,7 @@ public void aconst_null() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_aconst_null;
 }
+
 public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
 	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
@@ -231,11 +238,17 @@ public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 		}
 	}
 }
+
 public void addLabel(BranchLabel aLabel) {
 	if (this.countLabels == this.labels.length)
 		System.arraycopy(this.labels, 0, this.labels = new BranchLabel[this.countLabels + LABELS_INCREMENT], 0, this.countLabels);
 	this.labels[this.countLabels++] = aLabel;
 }
+
+public void addVariable(LocalVariableBinding localBinding) {
+	/* do nothing */
+}
+
 public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
 	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
 			| ClassFileConstants.ATTR_STACK_MAP_TABLE
@@ -247,11 +260,7 @@ public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
 	this.visibleLocals[this.visibleLocalsCount++] = localBinding;
 }
 
-public void addVariable(LocalVariableBinding localBinding) {
-	/* do nothing */
-}
 public void aload(int iArg) {
-	if (DEBUG) System.out.println(this.position + "\t\taload:"+iArg); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -277,8 +286,8 @@ public void aload(int iArg) {
 		this.bCodeStream[this.classFileOffset++] = (byte) iArg;
 	}
 }
+
 public void aload_0() {
-	if (DEBUG) System.out.println(this.position + "\t\taload_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax) {
@@ -293,8 +302,8 @@ public void aload_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_aload_0;
 }
+
 public void aload_1() {
-	if (DEBUG) System.out.println(this.position + "\t\taload_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -308,8 +317,8 @@ public void aload_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_aload_1;
 }
+
 public void aload_2() {
-	if (DEBUG) System.out.println(this.position + "\t\taload_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -323,8 +332,8 @@ public void aload_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_aload_2;
 }
+
 public void aload_3() {
-	if (DEBUG) System.out.println(this.position + "\t\taload_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -338,8 +347,8 @@ public void aload_3() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_aload_3;
 }
+
 public void anewarray(TypeBinding typeBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tanewarray: " + typeBinding); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -348,8 +357,8 @@ public void anewarray(TypeBinding typeBinding) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_anewarray;
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 }
+
 public void areturn() {
-	if (DEBUG) System.out.println(this.position + "\t\tareturn"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	// the stackDepth should be equal to 0
@@ -360,6 +369,7 @@ public void areturn() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_areturn;
 	this.lastAbruptCompletion = this.position;
 }
+
 public void arrayAt(int typeBindingID) {
 	switch (typeBindingID) {
 		case TypeIds.T_int :
@@ -388,6 +398,7 @@ public void arrayAt(int typeBindingID) {
 			aaload();
 	}
 }
+
 public void arrayAtPut(int elementTypeID, boolean valueRequired) {
 	switch (elementTypeID) {
 		case TypeIds.T_int :
@@ -432,8 +443,8 @@ public void arrayAtPut(int elementTypeID, boolean valueRequired) {
 			aastore();
 	}
 }
+
 public void arraylength() {
-	if (DEBUG) System.out.println(this.position + "\t\tarraylength"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -441,8 +452,8 @@ public void arraylength() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_arraylength;
 }
+
 public void astore(int iArg) {
-	if (DEBUG) System.out.println(this.position + "\t\tastore:"+iArg); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= iArg) {
@@ -465,8 +476,8 @@ public void astore(int iArg) {
 		this.bCodeStream[this.classFileOffset++] = (byte) iArg;
 	}
 }
+
 public void astore_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tastore_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals == 0) {
@@ -478,8 +489,8 @@ public void astore_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_astore_0;
 }
+
 public void astore_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tastore_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= 1) {
@@ -491,8 +502,8 @@ public void astore_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_astore_1;
 }
+
 public void astore_2() {
-	if (DEBUG) System.out.println(this.position + "\t\tastore_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= 2) {
@@ -504,8 +515,8 @@ public void astore_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_astore_2;
 }
+
 public void astore_3() {
-	if (DEBUG) System.out.println(this.position + "\t\tastore_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= 3) {
@@ -517,8 +528,8 @@ public void astore_3() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_astore_3;
 }
+
 public void athrow() {
-	if (DEBUG) System.out.println(this.position + "\t\tathrow"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -528,8 +539,8 @@ public void athrow() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_athrow;
 	this.lastAbruptCompletion = this.position;
 }
+
 public void baload() {
-	if (DEBUG) System.out.println(this.position + "\t\tbaload"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -538,8 +549,8 @@ public void baload() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_baload;
 }
+
 public void bastore() {
-	if (DEBUG) System.out.println(this.position + "\t\tbastore"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 3;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -548,8 +559,8 @@ public void bastore() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_bastore;
 }
+
 public void bipush(byte b) {
-	if (DEBUG) System.out.println(this.position + "\t\tbipush "+b); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -561,8 +572,8 @@ public void bipush(byte b) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_bipush;
 	this.bCodeStream[this.classFileOffset++] = b;
 }
+
 public void caload() {
-	if (DEBUG) System.out.println(this.position + "\t\tcaload"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -571,8 +582,8 @@ public void caload() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_caload;
 }
+
 public void castore() {
-	if (DEBUG) System.out.println(this.position + "\t\tcastore"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 3;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -581,6 +592,7 @@ public void castore() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_castore;
 }
+
 public void checkcast(int baseId) {
 	this.countLabels = 0;
 	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
@@ -614,8 +626,8 @@ public void checkcast(int baseId) {
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangBooleanConstantPoolName));
 	}
 }
+
 public void checkcast(TypeBinding typeBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tcheckcast:"+typeBinding.debugName()); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -624,8 +636,8 @@ public void checkcast(TypeBinding typeBinding) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_checkcast;
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 }
+
 public void d2f() {
-	if (DEBUG) System.out.println(this.position + "\t\td2f"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -634,8 +646,8 @@ public void d2f() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_d2f;
 }
+
 public void d2i() {
-	if (DEBUG) System.out.println(this.position + "\t\td2i"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -644,8 +656,8 @@ public void d2i() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_d2i;
 }
+
 public void d2l() {
-	if (DEBUG) System.out.println(this.position + "\t\td2l"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -653,8 +665,8 @@ public void d2l() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_d2l;
 }
+
 public void dadd() {
-	if (DEBUG) System.out.println(this.position + "\t\tdadd"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -663,8 +675,8 @@ public void dadd() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dadd;
 }
+
 public void daload() {
-	if (DEBUG) System.out.println(this.position + "\t\tdaload"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -672,8 +684,8 @@ public void daload() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_daload;
 }
+
 public void dastore() {
-	if (DEBUG) System.out.println(this.position + "\t\tdastore"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 4;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -682,8 +694,8 @@ public void dastore() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dastore;
 }
+
 public void dcmpg() {
-	if (DEBUG) System.out.println(this.position + "\t\tdcmpg"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 3;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -692,8 +704,8 @@ public void dcmpg() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dcmpg;
 }
+
 public void dcmpl() {
-	if (DEBUG) System.out.println(this.position + "\t\tdcmpl"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 3;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -702,8 +714,8 @@ public void dcmpl() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dcmpl;
 }
+
 public void dconst_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tdconst_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -714,8 +726,8 @@ public void dconst_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dconst_0;
 }
+
 public void dconst_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tdconst_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -726,8 +738,8 @@ public void dconst_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dconst_1;
 }
+
 public void ddiv() {
-	if (DEBUG) System.out.println(this.position + "\t\tddiv"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -736,11 +748,12 @@ public void ddiv() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ddiv;
 }
+
 public void decrStackSize(int offset) {
 	this.stackDepth -= offset;
 }
+
 public void dload(int iArg) {
-	if (DEBUG) System.out.println(this.position + "\t\tdload:"+iArg); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -766,8 +779,8 @@ public void dload(int iArg) {
 		this.bCodeStream[this.classFileOffset++] = (byte) iArg;
 	}
 }
+
 public void dload_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tdload_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -781,8 +794,8 @@ public void dload_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dload_0;
 }
+
 public void dload_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tdload_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -796,8 +809,8 @@ public void dload_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dload_1;
 }
+
 public void dload_2() {
-	if (DEBUG) System.out.println(this.position + "\t\tdload_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -811,8 +824,8 @@ public void dload_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dload_2;
 }
+
 public void dload_3() {
-	if (DEBUG) System.out.println(this.position + "\t\tdload_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -826,8 +839,8 @@ public void dload_3() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dload_3;
 }
+
 public void dmul() {
-	if (DEBUG) System.out.println(this.position + "\t\tdmul"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -836,8 +849,8 @@ public void dmul() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dmul;
 }
+
 public void dneg() {
-	if (DEBUG) System.out.println(this.position + "\t\tdneg"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -845,8 +858,8 @@ public void dneg() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dneg;
 }
+
 public void drem() {
-	if (DEBUG) System.out.println(this.position + "\t\tdrem"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -855,8 +868,8 @@ public void drem() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_drem;
 }
+
 public void dreturn() {
-	if (DEBUG) System.out.println(this.position + "\t\tdreturn"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	// the stackDepth should be equal to 0
@@ -867,8 +880,8 @@ public void dreturn() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dreturn;
 	this.lastAbruptCompletion = this.position;
 }
+
 public void dstore(int iArg) {
-	if (DEBUG) System.out.println(this.position + "\t\tdstore:"+iArg); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.maxLocals <= iArg + 1) {
@@ -891,8 +904,8 @@ public void dstore(int iArg) {
 		this.bCodeStream[this.classFileOffset++] = (byte) iArg;
 	}
 }
+
 public void dstore_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tdstore_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.maxLocals < 2) {
@@ -904,8 +917,8 @@ public void dstore_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dstore_0;
 }
+
 public void dstore_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tdstore_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.maxLocals < 3) {
@@ -917,8 +930,8 @@ public void dstore_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dstore_1;
 }
+
 public void dstore_2() {
-	if (DEBUG) System.out.println(this.position + "\t\tdstore_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.maxLocals < 4) {
@@ -930,8 +943,8 @@ public void dstore_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dstore_2;
 }
+
 public void dstore_3() {
-	if (DEBUG) System.out.println(this.position + "\t\tdstore_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.maxLocals < 5) {
@@ -943,8 +956,8 @@ public void dstore_3() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dstore_3;
 }
+
 public void dsub() {
-	if (DEBUG) System.out.println(this.position + "\t\tdsub"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -953,8 +966,8 @@ public void dsub() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dsub;
 }
+
 public void dup() {
-	if (DEBUG) System.out.println(this.position + "\t\tdup"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax) {
@@ -966,8 +979,8 @@ public void dup() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dup;
 }
+
 public void dup_x1() {
-	if (DEBUG) System.out.println(this.position + "\t\tdup_x1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -978,8 +991,8 @@ public void dup_x1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dup_x1;
 }
+
 public void dup_x2() {
-	if (DEBUG) System.out.println(this.position + "\t\tdup_x2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -990,8 +1003,8 @@ public void dup_x2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dup_x2;
 }
+
 public void dup2() {
-	if (DEBUG) System.out.println(this.position + "\t\tdup2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -1002,8 +1015,8 @@ public void dup2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dup2;
 }
+
 public void dup2_x1() {
-	if (DEBUG) System.out.println(this.position + "\t\tdup2_x1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -1014,8 +1027,8 @@ public void dup2_x1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dup2_x1;
 }
+
 public void dup2_x2() {
-	if (DEBUG) System.out.println(this.position + "\t\tdup2_x2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -1026,9 +1039,9 @@ public void dup2_x2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dup2_x2;
 }
+
 public void exitUserScope(BlockScope currentScope) {
 	// mark all the scope's locals as losing their definite assignment
-
 	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
 			| ClassFileConstants.ATTR_STACK_MAP_TABLE
 			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
@@ -1049,6 +1062,7 @@ public void exitUserScope(BlockScope currentScope) {
 		this.visibleLocals[index--] = null; // this variable is no longer visible afterwards
 	}
 }
+
 public void exitUserScope(BlockScope currentScope, LocalVariableBinding binding) {
 	// mark all the scope's locals as losing their definite assignment
 	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
@@ -1070,8 +1084,8 @@ public void exitUserScope(BlockScope currentScope, LocalVariableBinding binding)
 		this.visibleLocals[index--] = null; // this variable is no longer visible afterwards
 	}
 }
+
 public void f2d() {
-	if (DEBUG) System.out.println(this.position + "\t\tf2d"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -1082,8 +1096,8 @@ public void f2d() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_f2d;
 }
+
 public void f2i() {
-	if (DEBUG) System.out.println(this.position + "\t\tf2i"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -1091,8 +1105,8 @@ public void f2i() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_f2i;
 }
+
 public void f2l() {
-	if (DEBUG) System.out.println(this.position + "\t\tf2l"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -1103,8 +1117,8 @@ public void f2l() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_f2l;
 }
+
 public void fadd() {
-	if (DEBUG) System.out.println(this.position + "\t\tfadd"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -1113,8 +1127,8 @@ public void fadd() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fadd;
 }
+
 public void faload() {
-	if (DEBUG) System.out.println(this.position + "\t\tfaload"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -1123,8 +1137,8 @@ public void faload() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_faload;
 }
+
 public void fastore() {
-	if (DEBUG) System.out.println(this.position + "\t\tfaload"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 3;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -1133,8 +1147,8 @@ public void fastore() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fastore;
 }
+
 public void fcmpg() {
-	if (DEBUG) System.out.println(this.position + "\t\tfcmpg"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -1143,8 +1157,8 @@ public void fcmpg() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fcmpg;
 }
+
 public void fcmpl() {
-	if (DEBUG) System.out.println(this.position + "\t\tfcmpl"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -1153,8 +1167,8 @@ public void fcmpl() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fcmpl;
 }
+
 public void fconst_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tfconst_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -1165,8 +1179,8 @@ public void fconst_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fconst_0;
 }
+
 public void fconst_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tfconst_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -1177,8 +1191,8 @@ public void fconst_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fconst_1;
 }
+
 public void fconst_2() {
-	if (DEBUG) System.out.println(this.position + "\t\tfconst_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -1189,8 +1203,8 @@ public void fconst_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fconst_2;
 }
+
 public void fdiv() {
-	if (DEBUG) System.out.println(this.position + "\t\tfdiv"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -1199,8 +1213,8 @@ public void fdiv() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fdiv;
 }
+
 public void fload(int iArg) {
-	if (DEBUG) System.out.println(this.position + "\t\tfload:"+iArg); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.maxLocals <= iArg) {
@@ -1225,8 +1239,8 @@ public void fload(int iArg) {
 		this.bCodeStream[this.classFileOffset++] = (byte) iArg;
 	}
 }
+
 public void fload_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tfload_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.maxLocals == 0) {
@@ -1240,8 +1254,8 @@ public void fload_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fload_0;
 }
+
 public void fload_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tfload_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.maxLocals <= 1) {
@@ -1255,8 +1269,8 @@ public void fload_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fload_1;
 }
+
 public void fload_2() {
-	if (DEBUG) System.out.println(this.position + "\t\tfload_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.maxLocals <= 2) {
@@ -1270,8 +1284,8 @@ public void fload_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fload_2;
 }
+
 public void fload_3() {
-	if (DEBUG) System.out.println(this.position + "\t\tfload_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.maxLocals <= 3) {
@@ -1285,8 +1299,8 @@ public void fload_3() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fload_3;
 }
+
 public void fmul() {
-	if (DEBUG) System.out.println(this.position + "\t\tfmul"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -1295,8 +1309,8 @@ public void fmul() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fmul;
 }
+
 public void fneg() {
-	if (DEBUG) System.out.println(this.position + "\t\tfneg"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -1304,8 +1318,8 @@ public void fneg() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fneg;
 }
+
 public void frem() {
-	if (DEBUG) System.out.println(this.position + "\t\tfrem"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -1314,8 +1328,8 @@ public void frem() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_frem;
 }
+
 public void freturn() {
-	if (DEBUG) System.out.println(this.position + "\t\tfreturn"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	// the stackDepth should be equal to 0
@@ -1326,8 +1340,8 @@ public void freturn() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_freturn;
 	this.lastAbruptCompletion = this.position;
 }
+
 public void fstore(int iArg) {
-	if (DEBUG) System.out.println(this.position + "\t\tfstore:"+iArg); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= iArg) {
@@ -1350,8 +1364,8 @@ public void fstore(int iArg) {
 		this.bCodeStream[this.classFileOffset++] = (byte) iArg;
 	}
 }
+
 public void fstore_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tfstore_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals == 0) {
@@ -1363,8 +1377,8 @@ public void fstore_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fstore_0;
 }
+
 public void fstore_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tfstore_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= 1) {
@@ -1376,8 +1390,8 @@ public void fstore_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fstore_1;
 }
+
 public void fstore_2() {
-	if (DEBUG) System.out.println(this.position + "\t\tfstore_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= 2) {
@@ -1389,8 +1403,8 @@ public void fstore_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fstore_2;
 }
+
 public void fstore_3() {
-	if (DEBUG) System.out.println(this.position + "\t\tfstore_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= 3) {
@@ -1404,7 +1418,6 @@ public void fstore_3() {
 }
 
 public void fsub() {
-	if (DEBUG) System.out.println(this.position + "\t\tfsub"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -1413,28 +1426,27 @@ public void fsub() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fsub;
 }
+
 public void generateBoxingConversion(int unboxedTypeID) {
     switch (unboxedTypeID) {
         case TypeIds.T_byte :
             if (this.targetLevel >= ClassFileConstants.JDK1_5) {
-    			if (DEBUG) System.out.println(this.position + "\t\tinvokestatic java.lang.Byte.valueOf(byte)"); //$NON-NLS-1$
                // invokestatic: Byte.valueOf(byte)
                 invoke(
                     Opcodes.OPC_invokestatic,
-                    1, // argCount
+                    1, // receiverAndArgsSize
                     1, // return type size
                     ConstantPool.JavaLangByteConstantPoolName,
                     ConstantPool.ValueOf,
                     ConstantPool.byteByteSignature);
             } else {
                // new Byte( byte )
-    			if (DEBUG) System.out.println(this.position + "\t\tinvokespecial java.lang.Byte(byte)"); //$NON-NLS-1$
                 newWrapperFor(unboxedTypeID);
                 dup_x1();
                 swap();
                 invoke(
                     Opcodes.OPC_invokespecial,
-                    1, // argCount
+                    2, // receiverAndArgsSize
                     0, // return type size
                     ConstantPool.JavaLangByteConstantPoolName,
                     ConstantPool.Init,
@@ -1444,23 +1456,21 @@ public void generateBoxingConversion(int unboxedTypeID) {
         case TypeIds.T_short :
             if ( this.targetLevel >= ClassFileConstants.JDK1_5 ) {
                 // invokestatic: Short.valueOf(short)
-    			if (DEBUG) System.out.println(this.position + "\t\tinvokestatic java.lang.Short.valueOf(short)"); //$NON-NLS-1$
                 invoke(
                     Opcodes.OPC_invokestatic,
-                    1, // argCount
+                    1, // receiverAndArgsSize
                     1, // return type size
                     ConstantPool.JavaLangShortConstantPoolName,
                     ConstantPool.ValueOf,
                     ConstantPool.shortShortSignature);
             } else {
                 // new Short(short)
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial java.lang.Short(short)"); //$NON-NLS-1$
             	newWrapperFor(unboxedTypeID);
                 dup_x1();
                 swap();
                 invoke(
                     Opcodes.OPC_invokespecial,
-                    1, // argCount
+                    2, // receiverAndArgsSize
                     0, // return type size
                     ConstantPool.JavaLangShortConstantPoolName,
                     ConstantPool.Init,
@@ -1470,23 +1480,21 @@ public void generateBoxingConversion(int unboxedTypeID) {
         case TypeIds.T_char :
             if ( this.targetLevel >= ClassFileConstants.JDK1_5 ) {
                 // invokestatic: Character.valueOf(char)
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokestatic java.lang.Character.valueOf(char)"); //$NON-NLS-1$
                 invoke(
                     Opcodes.OPC_invokestatic,
-                    1, // argCount
+                    1, // receiverAndArgsSize
                     1, // return type size
                     ConstantPool.JavaLangCharacterConstantPoolName,
                     ConstantPool.ValueOf,
                     ConstantPool.charCharacterSignature);
             } else {
                 // new Char( char )
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial java.lang.Character(char)"); //$NON-NLS-1$
                 newWrapperFor(unboxedTypeID);
                 dup_x1();
                 swap();
                 invoke(
                     Opcodes.OPC_invokespecial,
-                    1, // argCount
+                    2, // receiverAndArgsSize
                     0, // return type size
                     ConstantPool.JavaLangCharacterConstantPoolName,
                     ConstantPool.Init,
@@ -1496,23 +1504,21 @@ public void generateBoxingConversion(int unboxedTypeID) {
         case TypeIds.T_int :
             if (this.targetLevel >= ClassFileConstants.JDK1_5) {
                 // invokestatic: Integer.valueOf(int)
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokestatic java.lang.Integer.valueOf(int)"); //$NON-NLS-1$
                 invoke(
                     Opcodes.OPC_invokestatic,
-                    1, // argCount
+                    1, // receiverAndArgsSize
                     1, // return type size
                     ConstantPool.JavaLangIntegerConstantPoolName,
                     ConstantPool.ValueOf,
                     ConstantPool.IntIntegerSignature);
             } else {
                 // new Integer(int)
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial java.lang.Integer(int)"); //$NON-NLS-1$
                 newWrapperFor(unboxedTypeID);
                 dup_x1();
                 swap();
                 invoke(
                     Opcodes.OPC_invokespecial,
-                    1, // argCount
+                    2, // receiverAndArgsSize
                     0, // return type size
                     ConstantPool.JavaLangIntegerConstantPoolName,
                     ConstantPool.Init,
@@ -1522,24 +1528,22 @@ public void generateBoxingConversion(int unboxedTypeID) {
         case TypeIds.T_long :
             if (this.targetLevel >= ClassFileConstants.JDK1_5) {
                 // invokestatic: Long.valueOf(long)
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokestatic java.lang.Long.valueOf(long)"); //$NON-NLS-1$
                 invoke(
                     Opcodes.OPC_invokestatic,
-                    2, // argCount
+                    2, // receiverAndArgsSize
                     1, // return type size
                     ConstantPool.JavaLangLongConstantPoolName,
                     ConstantPool.ValueOf,
                     ConstantPool.longLongSignature);
             } else {
                 // new Long( long )
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial java.lang.Long(long)"); //$NON-NLS-1$
                 newWrapperFor(unboxedTypeID);
                 dup_x2();
                 dup_x2();
                 pop();
                 invoke(
                     Opcodes.OPC_invokespecial,
-                    2, // argCount
+                    3, // receiverAndArgsSize
                     0, // return type size
                     ConstantPool.JavaLangLongConstantPoolName,
                     ConstantPool.Init,
@@ -1549,23 +1553,21 @@ public void generateBoxingConversion(int unboxedTypeID) {
         case TypeIds.T_float :
             if ( this.targetLevel >= ClassFileConstants.JDK1_5 ) {
                 // invokestatic: Float.valueOf(float)
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokestatic java.lang.Float.valueOf(float)"); //$NON-NLS-1$
                 invoke(
                     Opcodes.OPC_invokestatic,
-                    1, // argCount
+                    1, // receiverAndArgsSize
                     1, // return type size
                     ConstantPool.JavaLangFloatConstantPoolName,
                     ConstantPool.ValueOf,
                     ConstantPool.floatFloatSignature);
             } else {
                 // new Float(float)
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial java.lang.Float(float)"); //$NON-NLS-1$
                 newWrapperFor(unboxedTypeID);
                 dup_x1();
                 swap();
                 invoke(
                     Opcodes.OPC_invokespecial,
-                    1, // argCount
+                    2, // receiverAndArgsSize
                     0, // return type size
                     ConstantPool.JavaLangFloatConstantPoolName,
                     ConstantPool.Init,
@@ -1575,17 +1577,15 @@ public void generateBoxingConversion(int unboxedTypeID) {
         case TypeIds.T_double :
             if ( this.targetLevel >= ClassFileConstants.JDK1_5 ) {
                 // invokestatic: Double.valueOf(double)
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokestatic java.lang.Double.valueOf(double)"); //$NON-NLS-1$
                 invoke(
                     Opcodes.OPC_invokestatic,
-                    2, // argCount
+                    2, // receiverAndArgsSize
                     1, // return type size
                     ConstantPool.JavaLangDoubleConstantPoolName,
                     ConstantPool.ValueOf,
                     ConstantPool.doubleDoubleSignature);
             } else {
                 // new Double( double )
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial java.lang.Double(double)"); //$NON-NLS-1$
             	newWrapperFor(unboxedTypeID);
                 dup_x2();
                 dup_x2();
@@ -1593,7 +1593,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 
                 invoke(
                     Opcodes.OPC_invokespecial,
-                    2, // argCount
+                    3, // receiverAndArgsSize
                     0, // return type size
                     ConstantPool.JavaLangDoubleConstantPoolName,
                     ConstantPool.Init,
@@ -1604,23 +1604,21 @@ public void generateBoxingConversion(int unboxedTypeID) {
         case TypeIds.T_boolean :
             if ( this.targetLevel >= ClassFileConstants.JDK1_5 ) {
                 // invokestatic: Boolean.valueOf(boolean)
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokestatic java.lang.Boolean.valueOf(boolean)"); //$NON-NLS-1$
                 invoke(
                     Opcodes.OPC_invokestatic,
-                    1, // argCount
+                    1, // receiverAndArgsSize
                     1, // return type size
                     ConstantPool.JavaLangBooleanConstantPoolName,
                     ConstantPool.ValueOf,
                     ConstantPool.booleanBooleanSignature);
             } else {
                 // new Boolean(boolean)
-            	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial java.lang.Boolean(boolean)"); //$NON-NLS-1$
                 newWrapperFor(unboxedTypeID);
                 dup_x1();
                 swap();
                 invoke(
                     Opcodes.OPC_invokespecial,
-                    1, // argCount
+                    2, // receiverAndArgsSize
                     0, // return type size
                     ConstantPool.JavaLangBooleanConstantPoolName,
                     ConstantPool.Init,
@@ -1628,6 +1626,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
             }
     }
 }
+
 /**
  * Macro for building a class descriptor object
  */
@@ -1636,7 +1635,6 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		getTYPE(accessedType.id);
 		return;
 	}
-
 	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 		// generation using the new ldc_w bytecode
 		this.ldc(accessedType);
@@ -1716,6 +1714,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		this.stackDepth = savedStackDepth;
 	}
 }
+
 /**
  * This method generates the code attribute bytecode
  */
@@ -1726,6 +1725,7 @@ final public void generateCodeAttributeForProblemMethod(String problemMessage) {
 	invokeJavaLangErrorConstructor();
 	athrow();
 }
+
 public void generateConstant(Constant constant, int implicitConversionCode) {
 	int targetTypeID = (implicitConversionCode & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
 	if (targetTypeID == 0) targetTypeID = constant.typeID(); // use default constant type
@@ -1762,6 +1762,7 @@ public void generateConstant(Constant constant, int implicitConversionCode) {
 		generateBoxingConversion(targetTypeID);
 	}
 }
+
 public void generateEmulatedReadAccessForField(FieldBinding fieldBinding) {
 	generateEmulationForField(fieldBinding);
 	// swap  the field with the receiver
@@ -1771,9 +1772,11 @@ public void generateEmulatedReadAccessForField(FieldBinding fieldBinding) {
 		this.checkcast(fieldBinding.type);
 	}
 }
+
 public void generateEmulatedWriteAccessForField(FieldBinding fieldBinding) {
 	invokeJavaLangReflectFieldSetter(fieldBinding.type.id);
 }
+
 public void generateEmulationForConstructor(Scope scope, MethodBinding methodBinding) {
 	// leave a java.lang.reflect.Field object on the stack
 	this.ldc(String.valueOf(methodBinding.declaringClass.constantPoolName()).replace('/', '.'));
@@ -1817,6 +1820,7 @@ public void generateEmulationForConstructor(Scope scope, MethodBinding methodBin
 	iconst_1();
 	invokeAccessibleObjectSetAccessible();
 }
+
 public void generateEmulationForField(FieldBinding fieldBinding) {
 	// leave a java.lang.reflect.Field object on the stack
 	this.ldc(String.valueOf(fieldBinding.declaringClass.constantPoolName()).replace('/', '.'));
@@ -1827,6 +1831,7 @@ public void generateEmulationForField(FieldBinding fieldBinding) {
 	iconst_1();
 	invokeAccessibleObjectSetAccessible();
 }
+
 public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding) {
 	// leave a java.lang.reflect.Field object on the stack
 	this.ldc(String.valueOf(methodBinding.declaringClass.constantPoolName()).replace('/', '.'));
@@ -1871,6 +1876,7 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 	iconst_1();
 	invokeAccessibleObjectSetAccessible();
 }
+
 private void generateFieldAccess(byte opcode, int returnTypeSize, char[] declaringClass, char[] name, char[] signature) {
 	this.countLabels = 0;
 	switch(opcode) {
@@ -1910,6 +1916,7 @@ private void generateFieldAccess(byte opcode, int returnTypeSize, char[] declari
 	this.bCodeStream[this.classFileOffset++] = opcode;
 	writeUnsignedShort(this.constantPool.literalIndexForField(declaringClass, name, signature));
 }
+
 private void generateFieldAccess(byte opcode, int returnTypeSize, ReferenceBinding binding, char[] name, TypeBinding type) {
 	if (binding.isNestedType()) {
 		this.classFile.recordInnerClasses(binding);
@@ -1920,6 +1927,7 @@ private void generateFieldAccess(byte opcode, int returnTypeSize, ReferenceBindi
 	}
 	this.generateFieldAccess(opcode, returnTypeSize, binding.constantPoolName(), name, type.signature());
 }
+
 /**
  * Generates the sequence of instructions which will perform the conversion of the expression
  * on the stack into a different type (e.g. long l = someInt; --> i2l must be inserted).
@@ -2034,6 +2042,7 @@ public void generateImplicitConversion(int implicitConversionCode) {
 		generateBoxingConversion(typeId);
 	}
 }
+
 public void generateInlinedValue(boolean inlinedValue) {
 	if (inlinedValue)
 		iconst_1();
@@ -2104,6 +2113,7 @@ public void generateInlinedValue(char inlinedValue) {
 			this.ldc(inlinedValue);
 	}
 }
+
 public void generateInlinedValue(double inlinedValue) {
 	if (inlinedValue == 0.0) {
 		if (Double.doubleToLongBits(inlinedValue) != 0L)
@@ -2118,6 +2128,7 @@ public void generateInlinedValue(double inlinedValue) {
 	}
 	this.ldc2_w(inlinedValue);
 }
+
 public void generateInlinedValue(float inlinedValue) {
 	if (inlinedValue == 0.0f) {
 		if (Float.floatToIntBits(inlinedValue) != 0)
@@ -2136,6 +2147,7 @@ public void generateInlinedValue(float inlinedValue) {
 	}
 	this.ldc(inlinedValue);
 }
+
 public void generateInlinedValue(int inlinedValue) {
 	switch (inlinedValue) {
 		case -1 :
@@ -2171,6 +2183,7 @@ public void generateInlinedValue(int inlinedValue) {
 			this.ldc(inlinedValue);
 	}
 }
+
 public void generateInlinedValue(long inlinedValue) {
 	if (inlinedValue == 0) {
 		lconst_0();
@@ -2182,6 +2195,7 @@ public void generateInlinedValue(long inlinedValue) {
 	}
 	this.ldc2_w(inlinedValue);
 }
+
 public void generateInlinedValue(short inlinedValue) {
 	switch (inlinedValue) {
 		case -1 :
@@ -2213,6 +2227,7 @@ public void generateInlinedValue(short inlinedValue) {
 			sipush(inlinedValue);
 	}
 }
+
 public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite, Binding target, Scope scope) {
 	if (mappingSequence == null) {
 		if (target instanceof LocalVariableBinding) {
@@ -2245,12 +2260,12 @@ public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite
 			FieldBinding fieldBinding = (FieldBinding) mappingSequence[i];
 			getfield(fieldBinding);
 		} else {
-			invokestatic((MethodBinding) mappingSequence[i]);
+			invoke(Opcodes.OPC_invokestatic, (MethodBinding) mappingSequence[i], null /* default declaringClass */);
 		}
 	}
 }
-public void generateReturnBytecode(Expression expression) {
 
+public void generateReturnBytecode(Expression expression) {
 	if (expression == null) {
 		return_();
 	} else {
@@ -2279,6 +2294,7 @@ public void generateReturnBytecode(Expression expression) {
 		}
 	}
 }
+
 /**
  * The equivalent code performs a string conversion:
  *
@@ -2308,13 +2324,12 @@ public void generateStringConcatenationAppend(BlockScope blockScope, Expression 
 	this.recordPositionsFrom(pc, oper2.sourceStart);
 	invokeStringConcatenationToString();
 }
+
 /**
  * @param accessBinding the access method binding to generate
  */
 public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding accessBinding) {
-
 	initializeMaxLocals(accessBinding);
-
 	MethodBinding constructorBinding = accessBinding.targetMethod;
 	TypeBinding[] parameters = constructorBinding.parameters;
 	int length = parameters.length;
@@ -2359,9 +2374,10 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 				resolvedPosition++;
 		}
 	}
-	invokespecial(constructorBinding);
+	invoke(Opcodes.OPC_invokespecial, constructorBinding, null /* default declaringClass */);
 	return_();
 }
+
 //static X valueOf(String name) {
 // return (X) Enum.valueOf(X.class, name);
 //}
@@ -2374,6 +2390,7 @@ public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBin
 	this.checkcast(declaringClass);
 	areturn();
 }
+
 //static X[] values() {
 // X[] values;
 // int length;
@@ -2404,6 +2421,7 @@ public void generateSyntheticBodyForEnumValues(SyntheticMethodBinding methodBind
 	aload_2();
 	areturn();
 }
+
 public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessBinding) {
 	initializeMaxLocals(accessBinding);
 	FieldBinding fieldBinding = accessBinding.targetReadField;
@@ -2437,6 +2455,7 @@ public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding acces
 			areturn();
 	}
 }
+
 public void generateSyntheticBodyForFieldWriteAccess(SyntheticMethodBinding accessBinding) {
 	initializeMaxLocals(accessBinding);
 	FieldBinding fieldBinding = accessBinding.targetWriteField;
@@ -2450,8 +2469,8 @@ public void generateSyntheticBodyForFieldWriteAccess(SyntheticMethodBinding acce
 	}
 	return_();
 }
-public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMethod) {
 
+public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMethod) {
 	initializeMaxLocals(accessMethod);
 	MethodBinding targetMethod = accessMethod.targetMethod;
 	TypeBinding[] parameters = targetMethod.parameters;
@@ -2482,18 +2501,18 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 			resolvedPosition++;
 	}
 	if (targetMethod.isStatic())
-		invokestatic(targetMethod);
+		invoke(Opcodes.OPC_invokestatic, targetMethod, null /* default declaringClass */);
 	else {
 		if (targetMethod.isConstructor()
 			|| targetMethod.isPrivate()
 			// qualified super "X.super.foo()" targets methods from superclass
 			|| accessMethod.purpose == SyntheticMethodBinding.SuperMethodAccess){
-			invokespecial(targetMethod);
+			invoke(Opcodes.OPC_invokespecial, targetMethod, null /* default declaringClass */);
 		} else {
 			if (targetMethod.declaringClass.isInterface()) { // interface or annotation type
-				invokeinterface(targetMethod);
+				invoke(Opcodes.OPC_invokeinterface, targetMethod, null /* default declaringClass */);
 			} else {
-				invokevirtual(targetMethod);
+				invoke(Opcodes.OPC_invokevirtual, targetMethod, accessMethod.declaringClass);
 			}
 		}
 	}
@@ -2526,12 +2545,12 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 			areturn();
 	}
 }
+
 public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBinding) {
 	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
 	initializeMaxLocals(methodBinding);
 	final BranchLabel nullLabel = new BranchLabel(this);
 	FieldBinding syntheticFieldBinding = methodBinding.targetReadField;
-
 	getstatic(syntheticFieldBinding);
 	dup();
 	ifnull(nullLabel);
@@ -2576,16 +2595,12 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 	areturn();
 	removeVariable(localVariableBinding);
 }
+
 /**
  * Code responsible to generate the suitable code to supply values for the synthetic enclosing
  * instance arguments of a constructor invocation of a nested type.
  */
-public void generateSyntheticEnclosingInstanceValues(
-		BlockScope currentScope,
-		ReferenceBinding targetType,
-		Expression enclosingInstance,
-		ASTNode invocationSite) {
-
+public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, ReferenceBinding targetType, Expression enclosingInstance, ASTNode invocationSite) {
 	// supplying enclosing instance for the anonymous type's superclass
 	ReferenceBinding checkedTargetType = targetType.isAnonymousType() ? (ReferenceBinding)targetType.superclass().erasure() : targetType;
 	boolean hasExtraEnclosingInstance = enclosingInstance != null;
@@ -2641,13 +2656,13 @@ public void generateSyntheticEnclosingInstanceValues(
 		}
 	}
 }
+
 /**
  * Code responsible to generate the suitable code to supply values for the synthetic outer local
  * variable arguments of a constructor invocation of a nested type.
  * (bug 26122) - synthetic values for outer locals must be passed after user arguments, e.g. new X(i = 1){}
  */
 public void generateSyntheticOuterArgumentValues(BlockScope currentScope, ReferenceBinding targetType, ASTNode invocationSite) {
-
 	// generate the synthetic outer arguments then
 	SyntheticArgumentBinding syntheticArguments[];
 	if ((syntheticArguments = targetType.syntheticOuterLocalVariables()) != null) {
@@ -2658,13 +2673,14 @@ public void generateSyntheticOuterArgumentValues(BlockScope currentScope, Refere
 		}
 	}
 }
+
 public void generateUnboxingConversion(int unboxedTypeID) {
 	switch (unboxedTypeID) {
 		case TypeIds.T_byte :
 			// invokevirtual: byteValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangByteConstantPoolName,
 					ConstantPool.BYTEVALUE_BYTE_METHOD_NAME,
@@ -2674,7 +2690,7 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 			// invokevirtual: shortValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangShortConstantPoolName,
 					ConstantPool.SHORTVALUE_SHORT_METHOD_NAME,
@@ -2684,7 +2700,7 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 			// invokevirtual: charValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangCharacterConstantPoolName,
 					ConstantPool.CHARVALUE_CHARACTER_METHOD_NAME,
@@ -2694,7 +2710,7 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 			// invokevirtual: intValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangIntegerConstantPoolName,
 					ConstantPool.INTVALUE_INTEGER_METHOD_NAME,
@@ -2704,7 +2720,7 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 			// invokevirtual: longValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					2, // return type size
 					ConstantPool.JavaLangLongConstantPoolName,
 					ConstantPool.LONGVALUE_LONG_METHOD_NAME,
@@ -2714,7 +2730,7 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 			// invokevirtual: floatValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangFloatConstantPoolName,
 					ConstantPool.FLOATVALUE_FLOAT_METHOD_NAME,
@@ -2724,7 +2740,7 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 			// invokevirtual: doubleValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					2, // return type size
 					ConstantPool.JavaLangDoubleConstantPoolName,
 					ConstantPool.DOUBLEVALUE_DOUBLE_METHOD_NAME,
@@ -2734,13 +2750,14 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 			// invokevirtual: booleanValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangBooleanConstantPoolName,
 					ConstantPool.BOOLEANVALUE_BOOLEAN_METHOD_NAME,
 					ConstantPool.BOOLEANVALUE_BOOLEAN_METHOD_SIGNATURE);
 	}
 }
+
 /*
  * Wide conditional branch compare, improved by swapping comparison opcode
  *   ifeq WideTarget
@@ -2760,13 +2777,14 @@ public void generateWideRevertedConditionalBranch(byte revertedOpcode, BranchLab
 		goto_w(wideTarget);
 		intermediate.place();
 }
+
 public void getBaseTypeValue(int baseTypeID) {
 	switch (baseTypeID) {
 		case TypeIds.T_byte :
 			// invokevirtual: byteValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangByteConstantPoolName,
 					ConstantPool.BYTEVALUE_BYTE_METHOD_NAME,
@@ -2776,7 +2794,7 @@ public void getBaseTypeValue(int baseTypeID) {
 			// invokevirtual: shortValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangShortConstantPoolName,
 					ConstantPool.SHORTVALUE_SHORT_METHOD_NAME,
@@ -2786,7 +2804,7 @@ public void getBaseTypeValue(int baseTypeID) {
 			// invokevirtual: charValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangCharacterConstantPoolName,
 					ConstantPool.CHARVALUE_CHARACTER_METHOD_NAME,
@@ -2796,7 +2814,7 @@ public void getBaseTypeValue(int baseTypeID) {
 			// invokevirtual: intValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangIntegerConstantPoolName,
 					ConstantPool.INTVALUE_INTEGER_METHOD_NAME,
@@ -2806,7 +2824,7 @@ public void getBaseTypeValue(int baseTypeID) {
 			// invokevirtual: longValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					2, // return type size
 					ConstantPool.JavaLangLongConstantPoolName,
 					ConstantPool.LONGVALUE_LONG_METHOD_NAME,
@@ -2816,7 +2834,7 @@ public void getBaseTypeValue(int baseTypeID) {
 			// invokevirtual: floatValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangFloatConstantPoolName,
 					ConstantPool.FLOATVALUE_FLOAT_METHOD_NAME,
@@ -2826,7 +2844,7 @@ public void getBaseTypeValue(int baseTypeID) {
 			// invokevirtual: doubleValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					2, // return type size
 					ConstantPool.JavaLangDoubleConstantPoolName,
 					ConstantPool.DOUBLEVALUE_DOUBLE_METHOD_NAME,
@@ -2836,20 +2854,21 @@ public void getBaseTypeValue(int baseTypeID) {
 			// invokevirtual: booleanValue()
 			invoke(
 					Opcodes.OPC_invokevirtual,
-					0, // argCount
+					1, // receiverAndArgsSize
 					1, // return type size
 					ConstantPool.JavaLangBooleanConstantPoolName,
 					ConstantPool.BOOLEANVALUE_BOOLEAN_METHOD_NAME,
 					ConstantPool.BOOLEANVALUE_BOOLEAN_METHOD_SIGNATURE);
 	}
 }
+
 final public byte[] getContents() {
 	byte[] contents;
 	System.arraycopy(this.bCodeStream, 0, contents = new byte[this.position], 0, this.position);
 	return contents;
 }
+
 public void getfield(FieldBinding fieldBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tgetfield:"+fieldBinding); //$NON-NLS-1$
 	int returnTypeSize = 1;
 	if ((fieldBinding.type.id == TypeIds.T_double) || (fieldBinding.type.id == TypeIds.T_long)) {
 		returnTypeSize = 2;
@@ -2861,11 +2880,12 @@ public void getfield(FieldBinding fieldBinding) {
 			fieldBinding.name,
 			fieldBinding.type);
 }
+
 protected int getPosition() {
 	return this.position;
 }
+
 public void getstatic(FieldBinding fieldBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tgetstatic:"+fieldBinding); //$NON-NLS-1$
 	int returnTypeSize = 1;
 	if ((fieldBinding.type.id == TypeIds.T_double) || (fieldBinding.type.id == TypeIds.T_long)) {
 		returnTypeSize = 2;
@@ -2877,12 +2897,12 @@ public void getstatic(FieldBinding fieldBinding) {
 			fieldBinding.name,
 			fieldBinding.type);
 }
+
 public void getTYPE(int baseTypeID) {
 	this.countLabels = 0;
 	switch (baseTypeID) {
 		case TypeIds.T_byte :
 			// getstatic: java.lang.Byte.TYPE
-			if (DEBUG) System.out.println(this.position + "\t\tgetstatic: java.lang.Byte.TYPE"); //$NON-NLS-1$
 			generateFieldAccess(
 					Opcodes.OPC_getstatic,
 					1,
@@ -2892,7 +2912,6 @@ public void getTYPE(int baseTypeID) {
 			break;
 		case TypeIds.T_short :
 			// getstatic: java.lang.Short.TYPE
-			if (DEBUG) System.out.println(this.position + "\t\tgetstatic: java.lang.Short.TYPE"); //$NON-NLS-1$
 			generateFieldAccess(
 					Opcodes.OPC_getstatic,
 					1,
@@ -2902,7 +2921,6 @@ public void getTYPE(int baseTypeID) {
 			break;
 		case TypeIds.T_char :
 			// getstatic: java.lang.Character.TYPE
-			if (DEBUG) System.out.println(this.position + "\t\tgetstatic: java.lang.Character.TYPE"); //$NON-NLS-1$
 			generateFieldAccess(
 					Opcodes.OPC_getstatic,
 					1,
@@ -2912,7 +2930,6 @@ public void getTYPE(int baseTypeID) {
 			break;
 		case TypeIds.T_int :
 			// getstatic: java.lang.Integer.TYPE
-			if (DEBUG) System.out.println(this.position + "\t\tgetstatic: java.lang.Integer.TYPE"); //$NON-NLS-1$
 			generateFieldAccess(
 					Opcodes.OPC_getstatic,
 					1,
@@ -2922,7 +2939,6 @@ public void getTYPE(int baseTypeID) {
 			break;
 		case TypeIds.T_long :
 			// getstatic: java.lang.Long.TYPE
-			if (DEBUG) System.out.println(this.position + "\t\tgetstatic: java.lang.Long.TYPE"); //$NON-NLS-1$
 			generateFieldAccess(
 					Opcodes.OPC_getstatic,
 					1,
@@ -2932,7 +2948,6 @@ public void getTYPE(int baseTypeID) {
 			break;
 		case TypeIds.T_float :
 			// getstatic: java.lang.Float.TYPE
-			if (DEBUG) System.out.println(this.position + "\t\tgetstatic: java.lang.Float.TYPE"); //$NON-NLS-1$
 			generateFieldAccess(
 					Opcodes.OPC_getstatic,
 					1,
@@ -2942,7 +2957,6 @@ public void getTYPE(int baseTypeID) {
 			break;
 		case TypeIds.T_double :
 			// getstatic: java.lang.Double.TYPE
-			if (DEBUG) System.out.println(this.position + "\t\tgetstatic: java.lang.Double.TYPE"); //$NON-NLS-1$
 			generateFieldAccess(
 					Opcodes.OPC_getstatic,
 					1,
@@ -2952,7 +2966,6 @@ public void getTYPE(int baseTypeID) {
 			break;
 		case TypeIds.T_boolean :
 			// getstatic: java.lang.Boolean.TYPE
-			if (DEBUG) System.out.println(this.position + "\t\tgetstatic: java.lang.Boolean.TYPE"); //$NON-NLS-1$
 			generateFieldAccess(
 					Opcodes.OPC_getstatic,
 					1,
@@ -2962,7 +2975,6 @@ public void getTYPE(int baseTypeID) {
 			break;
 		case TypeIds.T_void :
 			// getstatic: java.lang.Void.TYPE
-			if (DEBUG) System.out.println(this.position + "\t\tgetstatic: java.lang.Void.TYPE"); //$NON-NLS-1$
 			generateFieldAccess(
 					Opcodes.OPC_getstatic,
 					1,
@@ -2972,6 +2984,7 @@ public void getTYPE(int baseTypeID) {
 			break;
 	}
 }
+
 /**
  * We didn't call it goto, because there is a conflit with the goto keyword
  */
@@ -2980,20 +2993,10 @@ public void goto_(BranchLabel label) {
 		goto_w(label);
 		return;
 	}
-	if (DEBUG) System.out.println(this.position + "\t\tgoto:"+label); //$NON-NLS-1$
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
 	boolean chained = inlineForwardReferencesFromLabelsTargeting(label, this.position);
-	if (DEBUG && chained) {
-		if (DEBUG) {
-			if (this.lastAbruptCompletion == this.position) {
-				System.out.println("\t\t\t\t<branch chaining - goto eliminated : "+this.position+","+label+">");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			} else {
-				System.out.println("\t\t\t\t<branch chaining - goto issued : "+this.position+","+label+">");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			}
-		}
-	}
 	/*
 	 Possible optimization for code such as:
 	 public Object foo() {
@@ -3027,8 +3030,8 @@ public void goto_(BranchLabel label) {
 	label.branch();
 	this.lastAbruptCompletion = this.position;
 }
+
 public void goto_w(BranchLabel label) {
-	if (DEBUG) System.out.println(this.position + "\t\tgotow:"+label); //$NON-NLS-1$
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -3037,8 +3040,8 @@ public void goto_w(BranchLabel label) {
 	label.branchWide();
 	this.lastAbruptCompletion = this.position;
 }
+
 public void i2b() {
-	if (DEBUG) System.out.println(this.position + "\t\ti2b"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -3046,8 +3049,8 @@ public void i2b() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_i2b;
 }
+
 public void i2c() {
-	if (DEBUG) System.out.println(this.position + "\t\ti2c"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -3055,8 +3058,8 @@ public void i2c() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_i2c;
 }
+
 public void i2d() {
-	if (DEBUG) System.out.println(this.position + "\t\ti2d"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -3067,8 +3070,8 @@ public void i2d() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_i2d;
 }
+
 public void i2f() {
-	if (DEBUG) System.out.println(this.position + "\t\ti2f"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -3076,8 +3079,8 @@ public void i2f() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_i2f;
 }
+
 public void i2l() {
-	if (DEBUG) System.out.println(this.position + "\t\ti2l"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -3088,8 +3091,8 @@ public void i2l() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_i2l;
 }
+
 public void i2s() {
-	if (DEBUG) System.out.println(this.position + "\t\ti2s"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -3097,8 +3100,8 @@ public void i2s() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_i2s;
 }
+
 public void iadd() {
-	if (DEBUG) System.out.println(this.position + "\t\tiadd"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -3107,8 +3110,8 @@ public void iadd() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iadd;
 }
+
 public void iaload() {
-	if (DEBUG) System.out.println(this.position + "\t\tiaload"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -3117,8 +3120,8 @@ public void iaload() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iaload;
 }
+
 public void iand() {
-	if (DEBUG) System.out.println(this.position + "\t\tiand"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -3127,8 +3130,8 @@ public void iand() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iand;
 }
+
 public void iastore() {
-	if (DEBUG) System.out.println(this.position + "\t\tiastore"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 3;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -3137,8 +3140,8 @@ public void iastore() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iastore;
 }
+
 public void iconst_0() {
-	if (DEBUG) System.out.println(this.position + "\t\ticonst_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -3149,8 +3152,8 @@ public void iconst_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iconst_0;
 }
+
 public void iconst_1() {
-	if (DEBUG) System.out.println(this.position + "\t\ticonst_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -3161,8 +3164,8 @@ public void iconst_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iconst_1;
 }
+
 public void iconst_2() {
-	if (DEBUG) System.out.println(this.position + "\t\ticonst_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -3174,7 +3177,6 @@ public void iconst_2() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iconst_2;
 }
 public void iconst_3() {
-	if (DEBUG) System.out.println(this.position + "\t\ticonst_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -3185,8 +3187,8 @@ public void iconst_3() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iconst_3;
 }
+
 public void iconst_4() {
-	if (DEBUG) System.out.println(this.position + "\t\ticonst_4"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -3197,8 +3199,8 @@ public void iconst_4() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iconst_4;
 }
+
 public void iconst_5() {
-	if (DEBUG) System.out.println(this.position + "\t\ticonst_5"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -3209,8 +3211,8 @@ public void iconst_5() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iconst_5;
 }
+
 public void iconst_m1() {
-	if (DEBUG) System.out.println(this.position + "\t\ticonst_m1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -3221,8 +3223,8 @@ public void iconst_m1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iconst_m1;
 }
+
 public void idiv() {
-	if (DEBUG) System.out.println(this.position + "\t\tidiv"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -3231,8 +3233,8 @@ public void idiv() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_idiv;
 }
+
 public void if_acmpeq(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tif_acmpeq:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth-=2;
 	if (this.wideMode) {
@@ -3246,8 +3248,8 @@ public void if_acmpeq(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void if_acmpne(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tif_acmpne:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth-=2;
 	if (this.wideMode) {
@@ -3261,8 +3263,8 @@ public void if_acmpne(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void if_icmpeq(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tif_cmpeq:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.wideMode) {
@@ -3276,8 +3278,8 @@ public void if_icmpeq(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void if_icmpge(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tif_icmpge:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.wideMode) {
@@ -3291,8 +3293,8 @@ public void if_icmpge(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void if_icmpgt(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tif_icmpgt:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.wideMode) {
@@ -3306,8 +3308,8 @@ public void if_icmpgt(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void if_icmple(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tif_icmple:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.wideMode) {
@@ -3321,8 +3323,8 @@ public void if_icmple(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void if_icmplt(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tif_icmplt:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.wideMode) {
@@ -3336,8 +3338,8 @@ public void if_icmplt(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void if_icmpne(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tif_icmpne:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.wideMode) {
@@ -3351,8 +3353,8 @@ public void if_icmpne(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void ifeq(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tifeq:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.wideMode) {
@@ -3366,8 +3368,8 @@ public void ifeq(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void ifge(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tifge:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.wideMode) {
@@ -3381,8 +3383,8 @@ public void ifge(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void ifgt(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tifgt:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.wideMode) {
@@ -3396,8 +3398,8 @@ public void ifgt(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void ifle(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tifle:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.wideMode) {
@@ -3411,8 +3413,8 @@ public void ifle(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void iflt(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tiflt:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.wideMode) {
@@ -3426,8 +3428,8 @@ public void iflt(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void ifne(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tifne:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.wideMode) {
@@ -3441,8 +3443,8 @@ public void ifne(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void ifnonnull(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tifnonnull:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.wideMode) {
@@ -3456,8 +3458,8 @@ public void ifnonnull(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 public void ifnull(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tifnull:"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.wideMode) {
@@ -3471,8 +3473,8 @@ public void ifnull(BranchLabel lbl) {
 		lbl.branch();
 	}
 }
+
 final public void iinc(int index, int value) {
-	if (DEBUG) System.out.println(this.position + "\t\tiinc:"+index+","+value); //$NON-NLS-1$ //$NON-NLS-2$
 	this.countLabels = 0;
 	if ((index > 255) || (value < -128 || value > 127)) { // have to widen
 		if (this.classFileOffset + 3 >= this.bCodeStream.length) {
@@ -3493,8 +3495,8 @@ final public void iinc(int index, int value) {
 		this.bCodeStream[this.classFileOffset++] = (byte) value;
 	}
 }
+
 public void iload(int iArg) {
-	if (DEBUG) System.out.println(this.position + "\t\tiload:"+iArg); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.maxLocals <= iArg) {
@@ -3519,8 +3521,8 @@ public void iload(int iArg) {
 		this.bCodeStream[this.classFileOffset++] = (byte) iArg;
 	}
 }
+
 public void iload_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tiload_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.maxLocals <= 0) {
@@ -3534,8 +3536,8 @@ public void iload_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iload_0;
 }
+
 public void iload_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tiload_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.maxLocals <= 1) {
@@ -3549,8 +3551,8 @@ public void iload_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iload_1;
 }
+
 public void iload_2() {
-	if (DEBUG) System.out.println(this.position + "\t\tiload_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.maxLocals <= 2) {
@@ -3564,8 +3566,8 @@ public void iload_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iload_2;
 }
+
 public void iload_3() {
-	if (DEBUG) System.out.println(this.position + "\t\tiload_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.maxLocals <= 3) {
@@ -3579,8 +3581,8 @@ public void iload_3() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iload_3;
 }
+
 public void imul() {
-	if (DEBUG) System.out.println(this.position + "\t\timul"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -3589,6 +3591,7 @@ public void imul() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_imul;
 }
+
 public int indexOfSameLineEntrySincePC(int pc, int line) {
 	for (int index = pc, max = this.pcToSourceMapSize; index < max; index+=2) {
 		if (this.pcToSourceMap[index+1] == line)
@@ -3596,8 +3599,8 @@ public int indexOfSameLineEntrySincePC(int pc, int line) {
 	}
 	return -1;
 }
+
 public void ineg() {
-	if (DEBUG) System.out.println(this.position + "\t\tineg"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -3605,30 +3608,7 @@ public void ineg() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ineg;
 }
-/*
- * Some placed labels might be branching to a goto bytecode which we can optimize better.
- */
-public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel targetLabel, int gotoLocation) {
-	if (targetLabel.delegate != null) return false; // already inlined
-	int chaining = L_UNKNOWN;
-	for (int i = this.countLabels - 1; i >= 0; i--) {
-		BranchLabel currentLabel = this.labels[i];
-		if (currentLabel.position != gotoLocation) break;
-		if (currentLabel == targetLabel) {
-			chaining |= L_CANNOT_OPTIMIZE; // recursive
-			continue;
-		}
-		if (currentLabel.isStandardLabel()) {
-			if (currentLabel.delegate != null) continue; // ignore since already inlined
-			targetLabel.becomeDelegateFor(currentLabel);
-			chaining |= L_OPTIMIZABLE; // optimizable, providing no vetoing
-			continue;
-		}
-		// case label
-		chaining |= L_CANNOT_OPTIMIZE;
-	}
-	return (chaining & (L_OPTIMIZABLE|L_CANNOT_OPTIMIZE)) == L_OPTIMIZABLE; // check was some standards, and no case/recursive
-}
+
 public void init(ClassFile targetClassFile) {
 	this.classFile = targetClassFile;
 	this.constantPool = targetClassFile.constantPool;
@@ -3671,16 +3651,15 @@ public void init(ClassFile targetClassFile) {
 	this.maxLocals = 0;
 	this.position = 0;
 }
+
 /**
  * @param methodBinding the given method binding to initialize the max locals
  */
 public void initializeMaxLocals(MethodBinding methodBinding) {
-
 	if (methodBinding == null) {
 		this.maxLocals = 0;
 		return;
 	}
-
 	this.maxLocals = methodBinding.isStatic() ? 0 : 1;
 
 	// take into account enum constructor synthetic name+ordinal
@@ -3721,12 +3700,37 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
 		}
 	}
 }
+
+/**
+ * Some placed labels might be branching to a goto bytecode which we can optimize better.
+ */
+public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel targetLabel, int gotoLocation) {
+	if (targetLabel.delegate != null) return false; // already inlined
+	int chaining = L_UNKNOWN;
+	for (int i = this.countLabels - 1; i >= 0; i--) {
+		BranchLabel currentLabel = this.labels[i];
+		if (currentLabel.position != gotoLocation) break;
+		if (currentLabel == targetLabel) {
+			chaining |= L_CANNOT_OPTIMIZE; // recursive
+			continue;
+		}
+		if (currentLabel.isStandardLabel()) {
+			if (currentLabel.delegate != null) continue; // ignore since already inlined
+			targetLabel.becomeDelegateFor(currentLabel);
+			chaining |= L_OPTIMIZABLE; // optimizable, providing no vetoing
+			continue;
+		}
+		// case label
+		chaining |= L_CANNOT_OPTIMIZE;
+	}
+	return (chaining & (L_OPTIMIZABLE|L_CANNOT_OPTIMIZE)) == L_OPTIMIZABLE; // check was some standards, and no case/recursive
+}
+
 /**
  * We didn't call it instanceof because there is a conflit with the
  * instanceof keyword
  */
 public void instance_of(TypeBinding typeBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tinstance_of:"+typeBinding); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -3735,59 +3739,147 @@ public void instance_of(TypeBinding typeBinding) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_instanceof;
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 }
-protected void invoke(int opcode, int argsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature) {
-	this.countLabels = 0;
-	int argCount = argsSize;
-	switch(opcode) {
-		case Opcodes.OPC_invokeinterface :
-			if (this.classFileOffset + 4 >= this.bCodeStream.length) {
-				resizeByteArray();
-			}
-			this.position +=3;
-			this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_invokeinterface;
-			writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, true));
-			argCount++;
-			this.bCodeStream[this.classFileOffset++] = (byte) argCount;
-			this.bCodeStream[this.classFileOffset++] = 0;
-			break;
-		case Opcodes.OPC_invokevirtual :
-		case Opcodes.OPC_invokespecial :
-			if (this.classFileOffset + 2 >= this.bCodeStream.length) {
-				resizeByteArray();
-			}
-			this.position++;
-			this.bCodeStream[this.classFileOffset++] = (byte) opcode;
-			writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, false));
-			argCount++;
-			break;
-		case Opcodes.OPC_invokestatic :
-			if (this.classFileOffset + 2 >= this.bCodeStream.length) {
-				resizeByteArray();
-			}
-			this.position++;
-			this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_invokestatic;
-			writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, false));
+
+public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declaringClass) {
+	if (declaringClass == null) declaringClass = methodBinding.declaringClass;
+    if (declaringClass.isNestedType()) {
+        this.classFile.recordInnerClasses(declaringClass);
+    }
+    // compute receiverAndArgsSize
+    int receiverAndArgsSize;
+    switch(opcode) {
+    	case Opcodes.OPC_invokestatic :
+    		receiverAndArgsSize = 0; // no receiver
+    		break;
+    	case Opcodes.OPC_invokeinterface :
+    	case Opcodes.OPC_invokevirtual :
+    		receiverAndArgsSize = 1; // receiver
+    		break;
+    	case Opcodes.OPC_invokespecial :
+    		receiverAndArgsSize = 1; // receiver
+    		if (methodBinding.isConstructor()) {
+    			if (declaringClass.isNestedType()) {
+        			ReferenceBinding nestedType = (ReferenceBinding) declaringClass;
+    				// enclosing instances
+    				TypeBinding[] syntheticArgumentTypes = nestedType.syntheticEnclosingInstanceTypes();
+    				if (syntheticArgumentTypes != null) {
+    					for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
+    						switch (syntheticArgumentTypes[i].id)  {
+    							case TypeIds.T_double :
+    							case TypeIds.T_long :
+	    							receiverAndArgsSize += 2;
+									break;
+    							default: 
+	    							receiverAndArgsSize++;
+    								break;
+    						}
+    					}
+    				}
+    				// outer local variables
+    				SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticOuterLocalVariables();
+    				if (syntheticArguments != null) {
+    					for (int i = 0, max = syntheticArguments.length; i < max; i++) {
+    						switch (syntheticArguments[i].id)  {
+    							case TypeIds.T_double :
+    							case TypeIds.T_long :
+	    							receiverAndArgsSize += 2;
+									break;
+    							default: 
+	    							receiverAndArgsSize++;
+    								break;
+    						}    						
+    					}
+    				}
+    			}
+    			if (declaringClass.isEnum()) {
+    				// adding String (name) and int (ordinal)
+    				receiverAndArgsSize += 2;
+    			}
+    		}    		
+    		break;
+    	default :
+    		return; // should not occur
+    		
+    }
+	for (int i = methodBinding.parameters.length - 1; i >= 0; i--) {
+		switch (methodBinding.parameters[i].id) {
+			case TypeIds.T_double :
+			case TypeIds.T_long :
+				receiverAndArgsSize += 2;
+				break;
+			default :
+				receiverAndArgsSize ++;
+				break;
+		}
 	}
-	this.stackDepth += returnTypeSize - argCount;
+	// compute return type size
+	int returnTypeSize;
+	switch (methodBinding.returnType.id) {
+		case TypeIds.T_double :
+		case TypeIds.T_long :
+			returnTypeSize = 2;
+			break;
+		case TypeIds.T_void :
+			returnTypeSize = 0;
+			break;
+		default :
+			returnTypeSize = 1;
+			break;
+	}
+	invoke(
+			opcode, 
+			receiverAndArgsSize, 
+			returnTypeSize, 
+			declaringClass.constantPoolName(), 
+			methodBinding.selector, 
+			methodBinding.signature(this.classFile));
+}
+
+protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature) {
+	this.countLabels = 0;
+	if (opcode == Opcodes.OPC_invokeinterface) {
+		// invokeinterface
+		if (this.classFileOffset + 4 >= this.bCodeStream.length) {
+			resizeByteArray();
+		}
+		this.position +=3;
+		this.bCodeStream[this.classFileOffset++] = opcode;
+		writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, true));
+		this.bCodeStream[this.classFileOffset++] = (byte) receiverAndArgsSize;
+		this.bCodeStream[this.classFileOffset++] = 0;
+	} else {
+		// invokespecial
+		// invokestatic
+		// invokevirtual
+		if (this.classFileOffset + 2 >= this.bCodeStream.length) {
+			resizeByteArray();
+		}
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = opcode;
+		writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, false));
+	}
+	this.stackDepth += returnTypeSize - receiverAndArgsSize;
 	if (this.stackDepth > this.stackMax) {
 		this.stackMax = this.stackDepth;
 	}
 }
+
 protected void invokeAccessibleObjectSetAccessible() {
 	// invokevirtual: java.lang.reflect.AccessibleObject.setAccessible(Z)V;
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			1, // argCount
+			2, // receiverAndArgsSize
 			0, // return type size
 			ConstantPool.JAVALANGREFLECTACCESSIBLEOBJECT_CONSTANTPOOLNAME,
 			ConstantPool.SETACCESSIBLE_NAME,
 			ConstantPool.SETACCESSIBLE_SIGNATURE);
 }
+
 protected void invokeArrayNewInstance() {
 	// invokestatic: java.lang.reflect.Array.newInstance(Ljava.lang.Class;int[])Ljava.lang.Object;
 	invoke(
 			Opcodes.OPC_invokestatic,
-			2, // argCount
+			2, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JAVALANGREFLECTARRAY_CONSTANTPOOLNAME,
 			ConstantPool.NewInstance,
@@ -3795,212 +3887,208 @@ protected void invokeArrayNewInstance() {
 }
 public void invokeClassForName() {
 	// invokestatic: java.lang.Class.forName(Ljava.lang.String;)Ljava.lang.Class;
-	if (DEBUG) System.out.println(this.position + "\t\tinvokestatic: java.lang.Class.forName(Ljava.lang.String;)Ljava.lang.Class;"); //$NON-NLS-1$
 	invoke(
 		Opcodes.OPC_invokestatic,
-		1, // argCount
+		1, // receiverAndArgsSize
 		1, // return type size
 		ConstantPool.JavaLangClassConstantPoolName,
 		ConstantPool.ForName,
 		ConstantPool.ForNameSignature);
 }
+
 protected void invokeClassGetDeclaredConstructor() {
 	// invokevirtual: java.lang.Class getDeclaredConstructor([Ljava.lang.Class)Ljava.lang.reflect.Constructor;
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			1, // argCount
+			2, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaLangClassConstantPoolName,
 			ConstantPool.GETDECLAREDCONSTRUCTOR_NAME,
 			ConstantPool.GETDECLAREDCONSTRUCTOR_SIGNATURE);
 }
+
 protected void invokeClassGetDeclaredField() {
 	// invokevirtual: java.lang.Class.getDeclaredField(Ljava.lang.String)Ljava.lang.reflect.Field;
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			1, // argCount
+			2, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaLangClassConstantPoolName,
 			ConstantPool.GETDECLAREDFIELD_NAME,
 			ConstantPool.GETDECLAREDFIELD_SIGNATURE);
 }
+
 protected void invokeClassGetDeclaredMethod() {
 	// invokevirtual: java.lang.Class getDeclaredMethod(Ljava.lang.String, [Ljava.lang.Class)Ljava.lang.reflect.Method;
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			2, // argCount
+			3, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaLangClassConstantPoolName,
 			ConstantPool.GETDECLAREDMETHOD_NAME,
 			ConstantPool.GETDECLAREDMETHOD_SIGNATURE);
 }
+
 public void invokeEnumOrdinal(char[] enumTypeConstantPoolName) {
 	// invokevirtual: <enumConstantPoolName>.ordinal()
-	if (DEBUG) System.out.println(this.position + "\t\tinvokevirtual: "+new String(enumTypeConstantPoolName)+".ordinal()"); //$NON-NLS-1$ //$NON-NLS-2$
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			0, // argCount
+			1, // receiverAndArgsSize
 			1, // return type size
 			enumTypeConstantPoolName,
 			ConstantPool.Ordinal,
 			ConstantPool.OrdinalSignature);
 }
-public void invokeinterface(MethodBinding methodBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tinvokeinterface: " + methodBinding); //$NON-NLS-1$
-	this.countLabels = 0;
-	// initialized to 1 to take into account this  immediately
-	int argCount = 1;
-	int id;
-	if (this.classFileOffset + 4 >= this.bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position += 3;
-	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_invokeinterface;
-	writeUnsignedShort(
-		this.constantPool.literalIndexForMethod(
-			methodBinding.constantPoolDeclaringClass(),
-			methodBinding.selector,
-			methodBinding.signature(this.classFile),
-			true));
-	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
-		if (((id = methodBinding.parameters[i].id) == TypeIds.T_double) || (id == TypeIds.T_long))
-			argCount += 2;
-		else
-			argCount += 1;
-	this.bCodeStream[this.classFileOffset++] = (byte) argCount;
-	// Generate a  0 into the byte array. Like the array is already fill with 0, we just need to increment
-	// the number of bytes.
-	this.bCodeStream[this.classFileOffset++] = 0;
-	if (((id = methodBinding.returnType.id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
-		this.stackDepth += (2 - argCount);
-	} else {
-		if (id == TypeIds.T_void) {
-			this.stackDepth -= argCount;
-		} else {
-			this.stackDepth += (1 - argCount);
-		}
-	}
-	if (this.stackDepth > this.stackMax) {
-		this.stackMax = this.stackDepth;
-	}
+
+public void invokeIterableIterator(TypeBinding iterableReceiverType) {
+	// invokevirtual/interface: <iterableReceiverType>.iterator()
+    if (iterableReceiverType.isNestedType()) {
+        this.classFile.recordInnerClasses(iterableReceiverType);
+    }	
+	invoke(
+			iterableReceiverType.isInterface() ? Opcodes.OPC_invokeinterface : Opcodes.OPC_invokevirtual,
+			1, // receiverAndArgsSize
+			1, // returnTypeSize
+			iterableReceiverType.constantPoolName(), 
+			ConstantPool.ITERATOR_NAME, 
+			ConstantPool.ITERATOR_SIGNATURE);
 }
+
 public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
 	// invokespecial: java.lang.AssertionError.<init>(typeBindingID)V
-	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial: java.lang.AssertionError.<init>(typeBindingID)V"); //$NON-NLS-1$
-	int argCount = 1;
-	char[] signature = null;
+	int receiverAndArgsSize;
+	char[] signature;
 	switch (typeBindingID) {
 		case TypeIds.T_int :
 		case TypeIds.T_byte :
 		case TypeIds.T_short :
 			signature = ConstantPool.IntConstrSignature;
+			receiverAndArgsSize = 2;
 			break;
 		case TypeIds.T_long :
 			signature = ConstantPool.LongConstrSignature;
-			argCount = 2;
+			receiverAndArgsSize = 3;
 			break;
 		case TypeIds.T_float :
 			signature = ConstantPool.FloatConstrSignature;
+			receiverAndArgsSize = 2;
 			break;
 		case TypeIds.T_double :
 			signature = ConstantPool.DoubleConstrSignature;
-			argCount = 2;
+			receiverAndArgsSize = 3;
 			break;
 		case TypeIds.T_char :
 			signature = ConstantPool.CharConstrSignature;
+			receiverAndArgsSize = 2;
 			break;
 		case TypeIds.T_boolean :
 			signature = ConstantPool.BooleanConstrSignature;
+			receiverAndArgsSize = 2;
 			break;
 		case TypeIds.T_JavaLangObject :
 		case TypeIds.T_JavaLangString :
 		case TypeIds.T_null :
 			signature = ConstantPool.ObjectConstrSignature;
+			receiverAndArgsSize = 2;
 			break;
+		default:
+			return; // should not occur
 	}
 	invoke(
 			Opcodes.OPC_invokespecial,
-			argCount, // argCount
+			receiverAndArgsSize,
 			0, // return type size
 			ConstantPool.JavaLangAssertionErrorConstantPoolName,
 			ConstantPool.Init,
 			signature);
 }
+
 public void invokeJavaLangAssertionErrorDefaultConstructor() {
 	// invokespecial: java.lang.AssertionError.<init>()V
-	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial: java.lang.AssertionError.<init>()V"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokespecial,
-			0, // argCount
+			1, // receiverAndArgsSize
 			0, // return type size
 			ConstantPool.JavaLangAssertionErrorConstantPoolName,
 			ConstantPool.Init,
 			ConstantPool.DefaultConstructorSignature);
 }
+
 public void invokeJavaLangClassDesiredAssertionStatus() {
 	// invokevirtual: java.lang.Class.desiredAssertionStatus()Z;
-	if (DEBUG) System.out.println(this.position + "\t\tinvokevirtual: java.lang.Class.desiredAssertionStatus()Z;"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			0, // argCount
+			1, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaLangClassConstantPoolName,
 			ConstantPool.DesiredAssertionStatus,
 			ConstantPool.DesiredAssertionStatusSignature);
 }
+
 public void invokeJavaLangEnumvalueOf(ReferenceBinding binding) {
 	// invokestatic: java.lang.Enum.valueOf(Class,String)
-	if (DEBUG) System.out.println(this.position + "\t\tinvokestatic: java.lang.Enum.valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokestatic,
-			2, // argCount
+			2, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaLangEnumConstantPoolName,
 			ConstantPool.ValueOf,
 			ConstantPool.ValueOfStringClassSignature);
 }
+
 public void invokeJavaLangEnumValues(TypeBinding enumBinding, ArrayBinding arrayBinding) {
 	char[] signature = "()".toCharArray(); //$NON-NLS-1$
 	signature = CharOperation.concat(signature, arrayBinding.constantPoolName());
-	invoke(Opcodes.OPC_invokestatic, 0, 1, enumBinding.constantPoolName(), TypeConstants.VALUES, signature);
+	invoke(
+			Opcodes.OPC_invokestatic, 
+			0,  // receiverAndArgsSize
+			1,  // return type size
+			enumBinding.constantPoolName(), 
+			TypeConstants.VALUES, 
+			signature);
 }
+
 public void invokeJavaLangErrorConstructor() {
 	// invokespecial: java.lang.Error<init>(Ljava.lang.String;)V
-	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial: java.lang.Error<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokespecial,
-			1, // argCount
+			2, // receiverAndArgsSize
 			0, // return type size
 			ConstantPool.JavaLangErrorConstantPoolName,
 			ConstantPool.Init,
 			ConstantPool.StringConstructorSignature);
 }
+
 public void invokeJavaLangReflectConstructorNewInstance() {
 	// invokevirtual: java.lang.reflect.Constructor.newInstance([Ljava.lang.Object;)Ljava.lang.Object;
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			1, // argCount
+			2, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaLangReflectConstructorConstantPoolName,
 			ConstantPool.NewInstance,
 			ConstantPool.JavaLangReflectConstructorNewInstanceSignature);
 }
+
 protected void invokeJavaLangReflectFieldGetter(int typeID) {
-	int returnTypeSize = 1;
-	char[] signature = null;
-	char[] selector = null;
+	char[] selector;
+	char[] signature;
+	int returnTypeSize;
 	switch (typeID) {
 		case TypeIds.T_int :
 			selector = ConstantPool.GET_INT_METHOD_NAME;
 			signature = ConstantPool.GET_INT_METHOD_SIGNATURE;
+			returnTypeSize = 1;
 			break;
 		case TypeIds.T_byte :
 			selector = ConstantPool.GET_BYTE_METHOD_NAME;
 			signature = ConstantPool.GET_BYTE_METHOD_SIGNATURE;
+			returnTypeSize = 1;
 			break;
 		case TypeIds.T_short :
 			selector = ConstantPool.GET_SHORT_METHOD_NAME;
 			signature = ConstantPool.GET_SHORT_METHOD_SIGNATURE;
+			returnTypeSize = 1;
 			break;
 		case TypeIds.T_long :
 			selector = ConstantPool.GET_LONG_METHOD_NAME;
@@ -4010,6 +4098,7 @@ protected void invokeJavaLangReflectFieldGetter(int typeID) {
 		case TypeIds.T_float :
 			selector = ConstantPool.GET_FLOAT_METHOD_NAME;
 			signature = ConstantPool.GET_FLOAT_METHOD_SIGNATURE;
+			returnTypeSize = 1;
 			break;
 		case TypeIds.T_double :
 			selector = ConstantPool.GET_DOUBLE_METHOD_NAME;
@@ -4019,240 +4108,149 @@ protected void invokeJavaLangReflectFieldGetter(int typeID) {
 		case TypeIds.T_char :
 			selector = ConstantPool.GET_CHAR_METHOD_NAME;
 			signature = ConstantPool.GET_CHAR_METHOD_SIGNATURE;
+			returnTypeSize = 1;
 			break;
 		case TypeIds.T_boolean :
 			selector = ConstantPool.GET_BOOLEAN_METHOD_NAME;
 			signature = ConstantPool.GET_BOOLEAN_METHOD_SIGNATURE;
+			returnTypeSize = 1;
 			break;
 		default :
 			selector = ConstantPool.GET_OBJECT_METHOD_NAME;
 			signature = ConstantPool.GET_OBJECT_METHOD_SIGNATURE;
+			returnTypeSize = 1;
 			break;
 	}
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			1, // argCount
+			2, // receiverAndArgsSize
 			returnTypeSize, // return type size
 			ConstantPool.JAVALANGREFLECTFIELD_CONSTANTPOOLNAME,
 			selector,
 			signature);
 }
+
 protected void invokeJavaLangReflectFieldSetter(int typeID) {
-	int argCount = 2;
-	char[] signature = null;
-	char[] selector = null;
+	char[] selector;
+	char[] signature;
+	int receiverAndArgsSize;
 	switch (typeID) {
 		case TypeIds.T_int :
 			selector = ConstantPool.SET_INT_METHOD_NAME;
 			signature = ConstantPool.SET_INT_METHOD_SIGNATURE;
+			receiverAndArgsSize = 3;
 			break;
 		case TypeIds.T_byte :
 			selector = ConstantPool.SET_BYTE_METHOD_NAME;
 			signature = ConstantPool.SET_BYTE_METHOD_SIGNATURE;
+			receiverAndArgsSize = 3;
 			break;
 		case TypeIds.T_short :
 			selector = ConstantPool.SET_SHORT_METHOD_NAME;
 			signature = ConstantPool.SET_SHORT_METHOD_SIGNATURE;
+			receiverAndArgsSize = 3;
 			break;
 		case TypeIds.T_long :
 			selector = ConstantPool.SET_LONG_METHOD_NAME;
 			signature = ConstantPool.SET_LONG_METHOD_SIGNATURE;
-			argCount = 3;
+			receiverAndArgsSize = 4;
 			break;
 		case TypeIds.T_float :
 			selector = ConstantPool.SET_FLOAT_METHOD_NAME;
 			signature = ConstantPool.SET_FLOAT_METHOD_SIGNATURE;
+			receiverAndArgsSize = 3;
 			break;
 		case TypeIds.T_double :
 			selector = ConstantPool.SET_DOUBLE_METHOD_NAME;
 			signature = ConstantPool.SET_DOUBLE_METHOD_SIGNATURE;
-			argCount = 3;
+			receiverAndArgsSize = 4;
 			break;
 		case TypeIds.T_char :
 			selector = ConstantPool.SET_CHAR_METHOD_NAME;
 			signature = ConstantPool.SET_CHAR_METHOD_SIGNATURE;
+			receiverAndArgsSize = 3;
 			break;
 		case TypeIds.T_boolean :
 			selector = ConstantPool.SET_BOOLEAN_METHOD_NAME;
 			signature = ConstantPool.SET_BOOLEAN_METHOD_SIGNATURE;
+			receiverAndArgsSize = 3;
 			break;
 		default :
 			selector = ConstantPool.SET_OBJECT_METHOD_NAME;
 			signature = ConstantPool.SET_OBJECT_METHOD_SIGNATURE;
+			receiverAndArgsSize = 3;
 			break;
 	}
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			argCount, // argCount
+			receiverAndArgsSize,
 			0, // return type size
 			ConstantPool.JAVALANGREFLECTFIELD_CONSTANTPOOLNAME,
 			selector,
 			signature);
 }
+
 public void invokeJavaLangReflectMethodInvoke() {
 	// invokevirtual: java.lang.reflect.Method.invoke(Ljava.lang.Object;[Ljava.lang.Object;)Ljava.lang.Object;
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			2, // argCount
+			3, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JAVALANGREFLECTMETHOD_CONSTANTPOOLNAME,
 			ConstantPool.INVOKE_METHOD_METHOD_NAME,
 			ConstantPool.INVOKE_METHOD_METHOD_SIGNATURE);
 }
+
 public void invokeJavaUtilIteratorHasNext() {
 	// invokeinterface java.util.Iterator.hasNext()Z
-	if (DEBUG) System.out.println(this.position + "\t\tinvokeinterface: java.util.Iterator.hasNext()Z"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokeinterface,
-			0, // argCount
+			1, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaUtilIteratorConstantPoolName,
 			ConstantPool.HasNext,
 			ConstantPool.HasNextSignature);
 }
+
 public void invokeJavaUtilIteratorNext() {
 	// invokeinterface java.util.Iterator.next()java.lang.Object
-	if (DEBUG) System.out.println(this.position + "\t\tinvokeinterface: java.util.Iterator.next()java.lang.Object"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokeinterface,
-			0, // argCount
+			1, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaUtilIteratorConstantPoolName,
 			ConstantPool.Next,
 			ConstantPool.NextSignature);
 }
+
 public void invokeNoClassDefFoundErrorStringConstructor() {
 	// invokespecial: java.lang.NoClassDefFoundError.<init>(Ljava.lang.String;)V
-	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial: java.lang.NoClassDefFoundError.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokespecial,
-			1, // argCount
+			2, // receiverAndArgsSize
 			0, // return type size
 			ConstantPool.JavaLangNoClassDefFoundErrorConstantPoolName,
 			ConstantPool.Init,
 			ConstantPool.StringConstructorSignature);
 }
+
 public void invokeObjectGetClass() {
 	// invokevirtual: java.lang.Object.getClass()Ljava.lang.Class;
-	if (DEBUG) System.out.println(this.position + "\t\tinvokevirtual: java.lang.Object.getClass()Ljava.lang.Class;"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			0, // argCount
+			1, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaLangObjectConstantPoolName,
 			ConstantPool.GetClass,
 			ConstantPool.GetClassSignature);
 }
-public void invokespecial(MethodBinding methodBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tinvokespecial:"+methodBinding); //$NON-NLS-1$
-	this.countLabels = 0;
-	// initialized to 1 to take into account this immediately
-	int argCount = 1;
-	int id;
-	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_invokespecial;
-	writeUnsignedShort(
-		this.constantPool.literalIndexForMethod(
-			methodBinding.constantPoolDeclaringClass(),
-			methodBinding.selector,
-			methodBinding.signature(this.classFile),
-			false));
-	if (methodBinding.isConstructor()) {
-		final ReferenceBinding declaringClass = methodBinding.declaringClass;
-		if (declaringClass.isNestedType()) {
-			// enclosing instances
-			TypeBinding[] syntheticArgumentTypes = declaringClass.syntheticEnclosingInstanceTypes();
-			if (syntheticArgumentTypes != null) {
-				for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
-					if (((id = syntheticArgumentTypes[i].id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
-						argCount += 2;
-					} else {
-						argCount++;
-					}
-				}
-			}
-			// outer local variables
-			SyntheticArgumentBinding[] syntheticArguments = declaringClass.syntheticOuterLocalVariables();
-			if (syntheticArguments != null) {
-				for (int i = 0, max = syntheticArguments.length; i < max; i++) {
-					if (((id = syntheticArguments[i].type.id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
-						argCount += 2;
-					} else {
-						argCount++;
-					}
-				}
-			}
-		}
-		if (declaringClass.isEnum()) {
-			// adding String and int
-			argCount += 2;
-		}
-	}
-	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
-		if (((id = methodBinding.parameters[i].id) == TypeIds.T_double) || (id == TypeIds.T_long))
-			argCount += 2;
-		else
-			argCount++;
-	if (((id = methodBinding.returnType.id) == TypeIds.T_double) || (id == TypeIds.T_long))
-		this.stackDepth += (2 - argCount);
-	else
-		if (id == TypeIds.T_void)
-			this.stackDepth -= argCount;
-		else
-			this.stackDepth += (1 - argCount);
-	if (this.stackDepth > this.stackMax)
-		this.stackMax = this.stackDepth;
-}
-public void invokestatic(MethodBinding methodBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tinvokestatic:"+methodBinding); //$NON-NLS-1$
-	// initialized to 0 to take into account that there is no this for
-	// a static method
-	this.countLabels = 0;
-	int argCount = 0;
-	int id;
-	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_invokestatic;
-	writeUnsignedShort(
-		this.constantPool.literalIndexForMethod(
-			methodBinding.constantPoolDeclaringClass(),
-			methodBinding.selector,
-			methodBinding.signature(this.classFile),
-			false));
-	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
-		if (((id = methodBinding.parameters[i].id) == TypeIds.T_double) || (id == TypeIds.T_long))
-			argCount += 2;
-		else
-			argCount += 1;
-	if (((id = methodBinding.returnType.id) == TypeIds.T_double) || (id == TypeIds.T_long))
-		this.stackDepth += (2 - argCount);
-	else
-		if (id == TypeIds.T_void)
-			this.stackDepth -= argCount;
-		else
-			this.stackDepth += (1 - argCount);
-	if (this.stackDepth > this.stackMax)
-		this.stackMax = this.stackDepth;
-}
+
 /**
  * The equivalent code performs a string conversion of the TOS
  * @param typeID <CODE>int</CODE>
  */
 public void invokeStringConcatenationAppendForType(int typeID) {
-	if (DEBUG) {
-		if (this.targetLevel >= ClassFileConstants.JDK1_5) {
-			System.out.println(this.position + "\t\tinvokevirtual: java.lang.StringBuilder.append(...)"); //$NON-NLS-1$
-		} else {
-			System.out.println(this.position + "\t\tinvokevirtual: java.lang.StringBuffer.append(...)"); //$NON-NLS-1$
-		}
-	}
-	int argCount = 1;
-	int returnType = 1;
+	int receiverAndArgsSize;
 	char[] declaringClass = null;
 	char[] selector = ConstantPool.Append;
 	char[] signature = null;
@@ -4267,6 +4265,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 				declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
 				signature = ConstantPool.StringBufferAppendIntSignature;
 			}
+			receiverAndArgsSize = 2;
 			break;
 		case TypeIds.T_long :
 			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
@@ -4276,7 +4275,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 				declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
 				signature = ConstantPool.StringBufferAppendLongSignature;
 			}
-			argCount = 2;
+			receiverAndArgsSize = 3;
 			break;
 		case TypeIds.T_float :
 			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
@@ -4286,6 +4285,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 				declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
 				signature = ConstantPool.StringBufferAppendFloatSignature;
 			}
+			receiverAndArgsSize = 2;
 			break;
 		case TypeIds.T_double :
 			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
@@ -4295,7 +4295,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 				declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
 				signature = ConstantPool.StringBufferAppendDoubleSignature;
 			}
-			argCount = 2;
+			receiverAndArgsSize = 3;
 			break;
 		case TypeIds.T_char :
 			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
@@ -4305,6 +4305,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 				declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
 				signature = ConstantPool.StringBufferAppendCharSignature;
 			}
+			receiverAndArgsSize = 2;
 			break;
 		case TypeIds.T_boolean :
 			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
@@ -4314,17 +4315,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 				declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
 				signature = ConstantPool.StringBufferAppendBooleanSignature;
 			}
-			break;
-		case TypeIds.T_undefined :
-		case TypeIds.T_JavaLangObject :
-		case TypeIds.T_null :
-			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
-				declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
-				signature = ConstantPool.StringBuilderAppendObjectSignature;
-			} else {
-				declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
-				signature = ConstantPool.StringBufferAppendObjectSignature;
-			}
+			receiverAndArgsSize = 2;
 			break;
 		case TypeIds.T_JavaLangString :
 			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
@@ -4334,187 +4325,170 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 				declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
 				signature = ConstantPool.StringBufferAppendStringSignature;
 			}
+			receiverAndArgsSize = 2;
+			break;
+		default :
+			if (this.targetLevel >= ClassFileConstants.JDK1_5) {
+				declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
+				signature = ConstantPool.StringBuilderAppendObjectSignature;
+			} else {
+				declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+				signature = ConstantPool.StringBufferAppendObjectSignature;
+			}
+			receiverAndArgsSize = 2;
 			break;
 	}
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			argCount, // argCount
-			returnType, // return type size
+			receiverAndArgsSize,
+			1, // return type size
 			declaringClass,
 			selector,
 			signature);
 }
+
 public void invokeStringConcatenationDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V
-	if (DEBUG) {
-		if (this.targetLevel >= ClassFileConstants.JDK1_5) {
-			System.out.println(this.position + "\t\tinvokespecial: java.lang.StringBuilder.<init>()V"); //$NON-NLS-1$
-		} else {
-			System.out.println(this.position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$
-		}
-	}
-	char[] declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
-	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
+	// or invokespecial: java.lang.StringBuilder.<init>()V
+	char[] declaringClass;
+	if (this.targetLevel < ClassFileConstants.JDK1_5) {
+		declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+	} else {
 		declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 	}
 	invoke(
 			Opcodes.OPC_invokespecial,
-			0, // argCount
+			1, // receiverAndArgsSize
 			0, // return type size
 			declaringClass,
 			ConstantPool.Init,
 			ConstantPool.DefaultConstructorSignature);
 }
+
 public void invokeStringConcatenationStringConstructor() {
-	if (DEBUG) {
-		if (this.targetLevel >= ClassFileConstants.JDK1_5) {
-			System.out.println(this.position + "\t\tjava.lang.StringBuilder.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
-		} else {
-			System.out.println(this.position + "\t\tjava.lang.StringBuffer.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
-		}
-	}
-	char[] declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
-	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
+	// invokespecial: java.lang.StringBuffer.<init>(java.lang.String)V
+	// or invokespecial: java.lang.StringBuilder.<init>(java.lang.String)V
+	char[] declaringClass;
+	if (this.targetLevel < ClassFileConstants.JDK1_5) {
+		// invokespecial: java.lang.StringBuffer.<init>()V
+		declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+	} else {
+		// invokespecial: java.lang.StringStringBuilder.<init>(java.langString)V
 		declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 	}
 	invoke(
 			Opcodes.OPC_invokespecial,
-			1, // argCount
+			2, // receiverAndArgsSize
 			0, // return type size
 			declaringClass,
 			ConstantPool.Init,
 			ConstantPool.StringConstructorSignature);
 }
+
 public void invokeStringConcatenationToString() {
-	if (DEBUG) {
-		if (this.targetLevel >= ClassFileConstants.JDK1_5) {
-			System.out.println(this.position + "\t\tinvokevirtual: StringBuilder.toString()Ljava.lang.String;"); //$NON-NLS-1$
-		} else {
-			System.out.println(this.position + "\t\tinvokevirtual: StringBuffer.toString()Ljava.lang.String;"); //$NON-NLS-1$
-		}
-	}
-	char[] declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
-	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
+	// invokespecial: java.lang.StringBuffer.toString()java.lang.String
+	// or invokespecial: java.lang.StringBuilder.toString()java.lang.String
+	char[] declaringClass;
+	if (this.targetLevel < ClassFileConstants.JDK1_5) {
+		// invokespecial: java.lang.StringBuffer.<init>()V
+		declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+	} else {
+		// invokespecial: java.lang.StringStringBuilder.<init>(java.langString)V
 		declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
-	}
+	}	
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			0, // argCount
+			1, // receiverAndArgsSize
 			1, // return type size
 			declaringClass,
 			ConstantPool.ToString,
 			ConstantPool.ToStringSignature);
 }
+
 public void invokeStringIntern() {
 	// invokevirtual: java.lang.String.intern()
-	if (DEBUG) System.out.println(this.position + "\t\tinvokevirtual: java.lang.String.intern()"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			0, // argCount
+			1, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaLangStringConstantPoolName,
 			ConstantPool.Intern,
 			ConstantPool.InternSignature);
 }
+
 public void invokeStringValueOf(int typeID) {
 	// invokestatic: java.lang.String.valueOf(argumentType)
-	if (DEBUG) System.out.println(this.position + "\t\tinvokestatic: java.lang.String.valueOf(...)"); //$NON-NLS-1$
-	int argCount = 1;
-	char[] signature = null;
+	char[] signature;
+	int receiverAndArgsSize;
 	switch (typeID) {
 		case TypeIds.T_int :
 		case TypeIds.T_byte :
 		case TypeIds.T_short :
 			signature = ConstantPool.ValueOfIntSignature;
+			receiverAndArgsSize = 1;
 			break;
 		case TypeIds.T_long :
 			signature = ConstantPool.ValueOfLongSignature;
-			argCount = 2;
+			receiverAndArgsSize = 2;
 			break;
 		case TypeIds.T_float :
 			signature = ConstantPool.ValueOfFloatSignature;
+			receiverAndArgsSize = 1;
 			break;
 		case TypeIds.T_double :
 			signature = ConstantPool.ValueOfDoubleSignature;
-			argCount = 2;
+			receiverAndArgsSize = 2;
 			break;
 		case TypeIds.T_char :
 			signature = ConstantPool.ValueOfCharSignature;
+			receiverAndArgsSize = 1;
 			break;
 		case TypeIds.T_boolean :
 			signature = ConstantPool.ValueOfBooleanSignature;
+			receiverAndArgsSize = 1;
 			break;
 		case TypeIds.T_JavaLangObject :
 		case TypeIds.T_JavaLangString :
 		case TypeIds.T_null :
 		case TypeIds.T_undefined :
 			signature = ConstantPool.ValueOfObjectSignature;
+			receiverAndArgsSize = 1;
 			break;
+		default :
+			return; // should not occur
 	}
 	invoke(
 			Opcodes.OPC_invokestatic,
-			argCount, // argCount
+			receiverAndArgsSize, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaLangStringConstantPoolName,
 			ConstantPool.ValueOf,
 			signature);
 }
+
 public void invokeSystemArraycopy() {
 	// invokestatic #21 <Method java/lang/System.arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V>
-	if (DEBUG) System.out.println(this.position + "\t\tinvokevirtual: java.lang.System.arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokestatic,
-			5, // argCount
+			5, // receiverAndArgsSize
 			0, // return type size
 			ConstantPool.JavaLangSystemConstantPoolName,
 			ConstantPool.ArrayCopy,
 			ConstantPool.ArrayCopySignature);
 }
+
 public void invokeThrowableGetMessage() {
 	// invokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;
-	if (DEBUG) System.out.println(this.position + "\t\tinvokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;"); //$NON-NLS-1$
 	invoke(
 			Opcodes.OPC_invokevirtual,
-			0, // argCount
+			1, // receiverAndArgsSize
 			1, // return type size
 			ConstantPool.JavaLangThrowableConstantPoolName,
 			ConstantPool.GetMessage,
 			ConstantPool.GetMessageSignature);
 }
-public void invokevirtual(MethodBinding methodBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tinvokevirtual:"+methodBinding); //$NON-NLS-1$
-	this.countLabels = 0;
-	// initialized to 1 to take into account this  immediately
-	int argCount = 1;
-	int id;
-	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_invokevirtual;
-	writeUnsignedShort(
-		this.constantPool.literalIndexForMethod(
-			methodBinding.constantPoolDeclaringClass(),
-			methodBinding.selector,
-			methodBinding.signature(this.classFile),
-			false));
-	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
-		if (((id = methodBinding.parameters[i].id) == TypeIds.T_double) || (id == TypeIds.T_long))
-			argCount += 2;
-		else
-			argCount++;
-	if (((id = methodBinding.returnType.id) == TypeIds.T_double) || (id == TypeIds.T_long))
-		this.stackDepth += (2 - argCount);
-	else
-		if (id == TypeIds.T_void)
-			this.stackDepth -= argCount;
-		else
-			this.stackDepth += (1 - argCount);
-	if (this.stackDepth > this.stackMax)
-		this.stackMax = this.stackDepth;
-}
+
 public void ior() {
-	if (DEBUG) System.out.println(this.position + "\t\tior"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4523,8 +4497,8 @@ public void ior() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ior;
 }
+
 public void irem() {
-	if (DEBUG) System.out.println(this.position + "\t\tirem"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4533,8 +4507,8 @@ public void irem() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_irem;
 }
+
 public void ireturn() {
-	if (DEBUG) System.out.println(this.position + "\t\tireturn"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	// the stackDepth should be equal to 0
@@ -4545,6 +4519,7 @@ public void ireturn() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ireturn;
 	this.lastAbruptCompletion = this.position;
 }
+
 public boolean isDefinitelyAssigned(Scope scope, int initStateIndex, LocalVariableBinding local) {
 	// Mirror of UnconditionalFlowInfo.isDefinitelyAssigned(..)
 	if ((local.tagBits & TagBits.IsArgument) != 0) {
@@ -4567,8 +4542,8 @@ public boolean isDefinitelyAssigned(Scope scope, int initStateIndex, LocalVariab
 		return false; // if not enough room in vector, then not initialized
 	return ((extraInits[vectorIndex]) & (1L << (localPosition % UnconditionalFlowInfo.BitCacheSize))) != 0;
 }
+
 public void ishl() {
-	if (DEBUG) System.out.println(this.position + "\t\tishl"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4577,8 +4552,8 @@ public void ishl() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ishl;
 }
+
 public void ishr() {
-	if (DEBUG) System.out.println(this.position + "\t\tishr"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4587,8 +4562,8 @@ public void ishr() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ishr;
 }
+
 public void istore(int iArg) {
-	if (DEBUG) System.out.println(this.position + "\t\tistore:"+iArg); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= iArg) {
@@ -4611,8 +4586,8 @@ public void istore(int iArg) {
 		this.bCodeStream[this.classFileOffset++] = (byte) iArg;
 	}
 }
+
 public void istore_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tistore_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals == 0) {
@@ -4624,8 +4599,8 @@ public void istore_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_istore_0;
 }
+
 public void istore_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tistore_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= 1) {
@@ -4637,8 +4612,8 @@ public void istore_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_istore_1;
 }
+
 public void istore_2() {
-	if (DEBUG) System.out.println(this.position + "\t\tistore_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= 2) {
@@ -4650,8 +4625,8 @@ public void istore_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_istore_2;
 }
+
 public void istore_3() {
-	if (DEBUG) System.out.println(this.position + "\t\tistore_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.maxLocals <= 3) {
@@ -4663,8 +4638,8 @@ public void istore_3() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_istore_3;
 }
+
 public void isub() {
-	if (DEBUG) System.out.println(this.position + "\t\tisub"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4673,8 +4648,8 @@ public void isub() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_isub;
 }
+
 public void iushr() {
-	if (DEBUG) System.out.println(this.position + "\t\tiushr"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4683,8 +4658,8 @@ public void iushr() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_iushr;
 }
+
 public void ixor() {
-	if (DEBUG) System.out.println(this.position + "\t\tixor"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4693,12 +4668,12 @@ public void ixor() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ixor;
 }
+
 final public void jsr(BranchLabel lbl) {
 	if (this.wideMode) {
 		jsr_w(lbl);
 		return;
 	}
-	if (DEBUG) System.out.println(this.position + "\t\tjsr"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -4707,8 +4682,8 @@ final public void jsr(BranchLabel lbl) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_jsr;
 	lbl.branch();
 }
+
 final public void jsr_w(BranchLabel lbl) {
-	if (DEBUG) System.out.println(this.position + "\t\tjsr_w"+lbl); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -4717,8 +4692,8 @@ final public void jsr_w(BranchLabel lbl) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_jsr_w;
 	lbl.branchWide();
 }
+
 public void l2d() {
-	if (DEBUG) System.out.println(this.position + "\t\tl2d"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -4726,8 +4701,8 @@ public void l2d() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_l2d;
 }
+
 public void l2f() {
-	if (DEBUG) System.out.println(this.position + "\t\tl2f"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4736,8 +4711,8 @@ public void l2f() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_l2f;
 }
+
 public void l2i() {
-	if (DEBUG) System.out.println(this.position + "\t\tl2i"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4746,8 +4721,8 @@ public void l2i() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_l2i;
 }
+
 public void ladd() {
-	if (DEBUG) System.out.println(this.position + "\t\tladd"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4756,8 +4731,8 @@ public void ladd() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ladd;
 }
+
 public void laload() {
-	if (DEBUG) System.out.println(this.position + "\t\tlaload"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -4765,8 +4740,8 @@ public void laload() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_laload;
 }
+
 public void land() {
-	if (DEBUG) System.out.println(this.position + "\t\tland"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4775,8 +4750,8 @@ public void land() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_land;
 }
+
 public void lastore() {
-	if (DEBUG) System.out.println(this.position + "\t\tlastore"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 4;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4785,8 +4760,8 @@ public void lastore() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lastore;
 }
+
 public void lcmp() {
-	if (DEBUG) System.out.println(this.position + "\t\tlcmp"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 3;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4795,8 +4770,8 @@ public void lcmp() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lcmp;
 }
+
 public void lconst_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tlconst_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -4807,8 +4782,8 @@ public void lconst_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lconst_0;
 }
+
 public void lconst_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tlconst_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.stackDepth > this.stackMax)
@@ -4819,6 +4794,7 @@ public void lconst_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lconst_1;
 }
+
 public void ldc(float constant) {
 	this.countLabels = 0;
 	int index = this.constantPool.literalIndex(constant);
@@ -4826,7 +4802,6 @@ public void ldc(float constant) {
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (index > 255) {
-		if (DEBUG) System.out.println(this.position + "\t\tldc_w:"+constant); //$NON-NLS-1$
 		// Generate a ldc_w
 		if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 			resizeByteArray();
@@ -4835,7 +4810,6 @@ public void ldc(float constant) {
 		this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ldc_w;
 		writeUnsignedShort(index);
 	} else {
-		if (DEBUG) System.out.println(this.position + "\t\tldc:"+constant); //$NON-NLS-1$
 		// Generate a ldc
 		if (this.classFileOffset + 1 >= this.bCodeStream.length) {
 			resizeByteArray();
@@ -4845,6 +4819,7 @@ public void ldc(float constant) {
 		this.bCodeStream[this.classFileOffset++] = (byte) index;
 	}
 }
+
 public void ldc(int constant) {
 	this.countLabels = 0;
 	int index = this.constantPool.literalIndex(constant);
@@ -4852,7 +4827,6 @@ public void ldc(int constant) {
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (index > 255) {
-		if (DEBUG) System.out.println(this.position + "\t\tldc_w:"+constant); //$NON-NLS-1$
 		// Generate a ldc_w
 		if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 			resizeByteArray();
@@ -4861,7 +4835,6 @@ public void ldc(int constant) {
 		this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ldc_w;
 		writeUnsignedShort(index);
 	} else {
-		if (DEBUG) System.out.println(this.position + "\t\tldc:"+constant); //$NON-NLS-1$
 		// Generate a ldc
 		if (this.classFileOffset + 1 >= this.bCodeStream.length) {
 			resizeByteArray();
@@ -4871,6 +4844,7 @@ public void ldc(int constant) {
 		this.bCodeStream[this.classFileOffset++] = (byte) index;
 	}
 }
+
 public void ldc(String constant) {
 	this.countLabels = 0;
 	int currentCodeStreamPosition = this.position;
@@ -4969,6 +4943,7 @@ public void ldc(String constant) {
 		invokeStringIntern();
 	}
 }
+
 public void ldc(TypeBinding typeBinding) {
 	this.countLabels = 0;
 	int index = this.constantPool.literalIndexForType(typeBinding);
@@ -4976,7 +4951,6 @@ public void ldc(TypeBinding typeBinding) {
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (index > 255) {
-		if (DEBUG) System.out.println(this.position + "\t\tldc_w:"+ typeBinding); //$NON-NLS-1$
 		// Generate a ldc_w
 		if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 			resizeByteArray();
@@ -4985,7 +4959,6 @@ public void ldc(TypeBinding typeBinding) {
 		this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ldc_w;
 		writeUnsignedShort(index);
 	} else {
-		if (DEBUG) System.out.println(this.position + "\t\tldw:"+ typeBinding); //$NON-NLS-1$
 		// Generate a ldc
 		if (this.classFileOffset + 1 >= this.bCodeStream.length) {
 			resizeByteArray();
@@ -4995,8 +4968,8 @@ public void ldc(TypeBinding typeBinding) {
 		this.bCodeStream[this.classFileOffset++] = (byte) index;
 	}
 }
+
 public void ldc2_w(double constant) {
-	if (DEBUG) System.out.println(this.position + "\t\tldc2_w:"+constant); //$NON-NLS-1$
 	this.countLabels = 0;
 	int index = this.constantPool.literalIndex(constant);
 	this.stackDepth += 2;
@@ -5010,8 +4983,8 @@ public void ldc2_w(double constant) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ldc2_w;
 	writeUnsignedShort(index);
 }
+
 public void ldc2_w(long constant) {
-	if (DEBUG) System.out.println(this.position + "\t\tldc2_w:"+constant); //$NON-NLS-1$
 	this.countLabels = 0;
 	int index = this.constantPool.literalIndex(constant);
 	this.stackDepth += 2;
@@ -5025,6 +4998,7 @@ public void ldc2_w(long constant) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ldc2_w;
 	writeUnsignedShort(index);
 }
+
 public void ldcForIndex(int index, char[] constant) {
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax) {
@@ -5032,7 +5006,6 @@ public void ldcForIndex(int index, char[] constant) {
 	}
 	if (index > 255) {
 		// Generate a ldc_w
-		if (DEBUG) System.out.println(this.position + "\t\tldc_w:"+ new String(constant)); //$NON-NLS-1$
 		if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 			resizeByteArray();
 		}
@@ -5041,7 +5014,6 @@ public void ldcForIndex(int index, char[] constant) {
 		writeUnsignedShort(index);
 	} else {
 		// Generate a ldc
-		if (DEBUG) System.out.println(this.position + "\t\tldc:"+ new String(constant)); //$NON-NLS-1$
 		if (this.classFileOffset + 1 >= this.bCodeStream.length) {
 			resizeByteArray();
 		}
@@ -5050,8 +5022,8 @@ public void ldcForIndex(int index, char[] constant) {
 		this.bCodeStream[this.classFileOffset++] = (byte) index;
 	}
 }
+
 public void ldiv() {
-	if (DEBUG) System.out.println(this.position + "\t\tldiv"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5060,8 +5032,8 @@ public void ldiv() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_ldiv;
 }
+
 public void lload(int iArg) {
-	if (DEBUG) System.out.println(this.position + "\t\tlload:"+iArg); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.maxLocals <= iArg + 1) {
@@ -5086,8 +5058,8 @@ public void lload(int iArg) {
 		this.bCodeStream[this.classFileOffset++] = (byte) iArg;
 	}
 }
+
 public void lload_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tlload_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.maxLocals < 2) {
@@ -5101,8 +5073,8 @@ public void lload_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lload_0;
 }
+
 public void lload_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tlload_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.maxLocals < 3) {
@@ -5116,8 +5088,8 @@ public void lload_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lload_1;
 }
+
 public void lload_2() {
-	if (DEBUG) System.out.println(this.position + "\t\tlload_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.maxLocals < 4) {
@@ -5131,8 +5103,8 @@ public void lload_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lload_2;
 }
+
 public void lload_3() {
-	if (DEBUG) System.out.println(this.position + "\t\tlload_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth += 2;
 	if (this.maxLocals < 5) {
@@ -5146,8 +5118,8 @@ public void lload_3() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lload_3;
 }
+
 public void lmul() {
-	if (DEBUG) System.out.println(this.position + "\t\tlmul"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5156,8 +5128,8 @@ public void lmul() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lmul;
 }
+
 public void lneg() {
-	if (DEBUG) System.out.println(this.position + "\t\tlneg"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -5165,9 +5137,11 @@ public void lneg() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lneg;
 }
+
 public final void load(LocalVariableBinding localBinding) {
 	load(localBinding.type, localBinding.resolvedPosition);
 }
+
 public final void load(TypeBinding typeBinding, int resolvedPosition) {
 	this.countLabels = 0;
 	// Using dedicated int bytecode
@@ -5270,8 +5244,8 @@ public final void load(TypeBinding typeBinding, int resolvedPosition) {
 			}
 	}
 }
+
 public void lookupswitch(CaseLabel defaultLabel, int[] keys, int[] sortedIndexes, CaseLabel[] casesLabel) {
-	if (DEBUG) System.out.println(this.position + "\t\tlookupswitch"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	int length = keys.length;
@@ -5299,8 +5273,8 @@ public void lookupswitch(CaseLabel defaultLabel, int[] keys, int[] sortedIndexes
 		casesLabel[sortedIndexes[i]].branch();
 	}
 }
+
 public void lor() {
-	if (DEBUG) System.out.println(this.position + "\t\tlor"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5309,8 +5283,8 @@ public void lor() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lor;
 }
+
 public void lrem() {
-	if (DEBUG) System.out.println(this.position + "\t\tlrem"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5319,8 +5293,8 @@ public void lrem() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lrem;
 }
+
 public void lreturn() {
-	if (DEBUG) System.out.println(this.position + "\t\tlreturn"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	// the stackDepth should be equal to 0
@@ -5331,8 +5305,8 @@ public void lreturn() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lreturn;
 	this.lastAbruptCompletion = this.position;
 }
+
 public void lshl() {
-	if (DEBUG) System.out.println(this.position + "\t\tlshl"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5341,8 +5315,8 @@ public void lshl() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lshl;
 }
+
 public void lshr() {
-	if (DEBUG) System.out.println(this.position + "\t\tlshr"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5351,8 +5325,8 @@ public void lshr() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lshr;
 }
+
 public void lstore(int iArg) {
-	if (DEBUG) System.out.println(this.position + "\t\tlstore:"+iArg); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.maxLocals <= iArg + 1) {
@@ -5375,8 +5349,8 @@ public void lstore(int iArg) {
 		this.bCodeStream[this.classFileOffset++] = (byte) iArg;
 	}
 }
+
 public void lstore_0() {
-	if (DEBUG) System.out.println(this.position + "\t\tlstore_0"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.maxLocals < 2) {
@@ -5388,8 +5362,8 @@ public void lstore_0() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lstore_0;
 }
+
 public void lstore_1() {
-	if (DEBUG) System.out.println(this.position + "\t\tlstore_1"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.maxLocals < 3) {
@@ -5401,8 +5375,8 @@ public void lstore_1() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lstore_1;
 }
+
 public void lstore_2() {
-	if (DEBUG) System.out.println(this.position + "\t\tlstore_2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.maxLocals < 4) {
@@ -5414,8 +5388,8 @@ public void lstore_2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lstore_2;
 }
+
 public void lstore_3() {
-	if (DEBUG) System.out.println(this.position + "\t\tlstore_3"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.maxLocals < 5) {
@@ -5427,8 +5401,8 @@ public void lstore_3() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lstore_3;
 }
+
 public void lsub() {
-	if (DEBUG) System.out.println(this.position + "\t\tlsub"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5437,8 +5411,8 @@ public void lsub() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lsub;
 }
+
 public void lushr() {
-	if (DEBUG) System.out.println(this.position + "\t\tlushr"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5447,8 +5421,8 @@ public void lushr() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lushr;
 }
+
 public void lxor() {
-	if (DEBUG) System.out.println(this.position + "\t\tlxor"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5457,8 +5431,8 @@ public void lxor() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_lxor;
 }
+
 public void monitorenter() {
-	if (DEBUG) System.out.println(this.position + "\t\tmonitorenter"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5467,8 +5441,8 @@ public void monitorenter() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_monitorenter;
 }
+
 public void monitorexit() {
-	if (DEBUG) System.out.println(this.position + "\t\tmonitorexit"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5477,8 +5451,8 @@ public void monitorexit() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_monitorexit;
 }
+
 public void multianewarray(TypeBinding typeBinding, int dimensions) {
-	if (DEBUG) System.out.println(this.position + "\t\tmultinewarray:"+typeBinding+","+dimensions); //$NON-NLS-1$ //$NON-NLS-2$
 	this.countLabels = 0;
 	this.stackDepth += (1 - dimensions);
 	if (this.classFileOffset + 3 >= this.bCodeStream.length) {
@@ -5489,9 +5463,9 @@ public void multianewarray(TypeBinding typeBinding, int dimensions) {
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 	this.bCodeStream[this.classFileOffset++] = (byte) dimensions;
 }
+
 // We didn't call it new, because there is a conflit with the new keyword
 public void new_(TypeBinding typeBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tnew:"+typeBinding.debugName()); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -5503,8 +5477,8 @@ public void new_(TypeBinding typeBinding) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_new;
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 }
+
 public void newarray(int array_Type) {
-	if (DEBUG) System.out.println(this.position + "\t\tnewarray:"+array_Type); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset + 1 >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -5513,6 +5487,7 @@ public void newarray(int array_Type) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_newarray;
 	this.bCodeStream[this.classFileOffset++] = (byte) array_Type;
 }
+
 public void newArray(ArrayBinding arrayBinding) {
 	TypeBinding component = arrayBinding.elementsType();
 	switch (component.id) {
@@ -5544,9 +5519,9 @@ public void newArray(ArrayBinding arrayBinding) {
 			anewarray(component);
 	}
 }
+
 public void newJavaLangAssertionError() {
 	// new: java.lang.AssertionError
-	if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.AssertionError"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -5558,9 +5533,9 @@ public void newJavaLangAssertionError() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_new;
 	writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangAssertionErrorConstantPoolName));
 }
+
 public void newJavaLangError() {
 	// new: java.lang.Error
-	if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.Error"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -5572,9 +5547,9 @@ public void newJavaLangError() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_new;
 	writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangErrorConstantPoolName));
 }
+
 public void newNoClassDefFoundError() {
 	// new: java.lang.NoClassDefFoundError
-	if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.NoClassDefFoundError"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -5586,16 +5561,10 @@ public void newNoClassDefFoundError() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_new;
 	writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangNoClassDefFoundErrorConstantPoolName));
 }
+
 public void newStringContatenation() {
 	// new: java.lang.StringBuffer
 	// new: java.lang.StringBuilder
-	if (DEBUG) {
-		if (this.targetLevel >= ClassFileConstants.JDK1_5) {
-			System.out.println(this.position + "\t\tnew: java.lang.StringBuilder"); //$NON-NLS-1$
-		} else {
-			System.out.println(this.position + "\t\tnew: java.lang.StringBuffer"); //$NON-NLS-1$
-		}
-	}
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax) {
@@ -5612,6 +5581,7 @@ public void newStringContatenation() {
 		writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangStringBufferConstantPoolName));
 	}
 }
+
 public void newWrapperFor(int typeID) {
 	this.countLabels = 0;
 	this.stackDepth++;
@@ -5624,44 +5594,35 @@ public void newWrapperFor(int typeID) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_new;
 	switch (typeID) {
 		case TypeIds.T_int : // new: java.lang.Integer
-			if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.Integer"); //$NON-NLS-1$
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangIntegerConstantPoolName));
 			break;
 		case TypeIds.T_boolean : // new: java.lang.Boolean
-			if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.Boolean"); //$NON-NLS-1$
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangBooleanConstantPoolName));
 			break;
 		case TypeIds.T_byte : // new: java.lang.Byte
-			if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.Byte"); //$NON-NLS-1$
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangByteConstantPoolName));
 			break;
 		case TypeIds.T_char : // new: java.lang.Character
-			if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.Character"); //$NON-NLS-1$
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangCharacterConstantPoolName));
 			break;
 		case TypeIds.T_float : // new: java.lang.Float
-			if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.Float"); //$NON-NLS-1$
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangFloatConstantPoolName));
 			break;
 		case TypeIds.T_double : // new: java.lang.Double
-			if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.Double"); //$NON-NLS-1$
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangDoubleConstantPoolName));
 			break;
 		case TypeIds.T_short : // new: java.lang.Short
-			if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.Short"); //$NON-NLS-1$
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangShortConstantPoolName));
 			break;
 		case TypeIds.T_long : // new: java.lang.Long
-			if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.Long"); //$NON-NLS-1$
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangLongConstantPoolName));
 			break;
 		case TypeIds.T_void : // new: java.lang.Void
-			if (DEBUG) System.out.println(this.position + "\t\tnew: java.lang.Void"); //$NON-NLS-1$
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangVoidConstantPoolName));
 	}
 }
+
 public void nop() {
-	if (DEBUG) System.out.println(this.position + "\t\tnop"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -5669,6 +5630,7 @@ public void nop() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_nop;
 }
+
 public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 	for (int i = 0; i < this.countLabels; i++) {
 		BranchLabel label = this.labels[i];
@@ -5691,8 +5653,8 @@ public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 		}
 	}
 }
+
 public void pop() {
-	if (DEBUG) System.out.println(this.position + "\t\tpop"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5701,8 +5663,8 @@ public void pop() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_pop;
 }
+
 public void pop2() {
-	if (DEBUG) System.out.println(this.position + "\t\tpop2"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 2;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -5711,17 +5673,19 @@ public void pop2() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_pop2;
 }
-public void pushOnStack(TypeBinding binding) {
-	if (++this.stackDepth > this.stackMax)
-		this.stackMax = this.stackDepth;
-}
+
 public void pushExceptionOnStack(TypeBinding binding) {
 	this.stackDepth = 1;
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 }
+
+public void pushOnStack(TypeBinding binding) {
+	if (++this.stackDepth > this.stackMax)
+		this.stackMax = this.stackDepth;
+}
+
 public void putfield(FieldBinding fieldBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tputfield:"+fieldBinding); //$NON-NLS-1$
 	int returnTypeSize = 1;
 	if ((fieldBinding.type.id == TypeIds.T_double) || (fieldBinding.type.id == TypeIds.T_long)) {
 		returnTypeSize = 2;
@@ -5733,8 +5697,8 @@ public void putfield(FieldBinding fieldBinding) {
 			fieldBinding.name,
 			fieldBinding.type);
 }
+
 public void putstatic(FieldBinding fieldBinding) {
-	if (DEBUG) System.out.println(this.position + "\t\tputstatic:"+fieldBinding); //$NON-NLS-1$
 	int returnTypeSize = 1;
 	if ((fieldBinding.type.id == TypeIds.T_double) || (fieldBinding.type.id == TypeIds.T_long)) {
 		returnTypeSize = 2;
@@ -5746,6 +5710,7 @@ public void putstatic(FieldBinding fieldBinding) {
 			fieldBinding.name,
 			fieldBinding.type);
 }
+
 public void record(LocalVariableBinding local) {
 	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
 			| ClassFileConstants.ATTR_STACK_MAP_TABLE
@@ -5763,17 +5728,17 @@ public void record(LocalVariableBinding local) {
 public void recordExpressionType(TypeBinding typeBinding) {
 	// nothing to do
 }
+
 public void recordPositionsFrom(int startPC, int sourcePos) {
 	this.recordPositionsFrom(startPC, sourcePos, false);
 }
-public void recordPositionsFrom(int startPC, int sourcePos, boolean widen) {
 
+public void recordPositionsFrom(int startPC, int sourcePos, boolean widen) {
 	/* Record positions in the table, only if nothing has
 	 * already been recorded. Since we output them on the way
 	 * up (children first for more specific info)
 	 * The pcToSourceMap table is always sorted.
 	 */
-
 	if ((this.generateAttributes & ClassFileConstants.ATTR_LINES) == 0
 			|| sourcePos == 0
 			|| (startPC == this.position && !widen))
@@ -6099,6 +6064,7 @@ public void recordPositionsFrom(int startPC, int sourcePos, boolean widen) {
 		this.lastEntryPC = this.position;
 	}
 }
+
 /**
  * @param anExceptionLabel org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel
  */
@@ -6111,6 +6077,7 @@ public void registerExceptionHandler(ExceptionLabel anExceptionLabel) {
 	// no need to resize. So just add the new exception label
 	this.exceptionLabels[this.exceptionLabelsCounter++] = anExceptionLabel;
 }
+
 public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// given some flow info, make sure we did not loose some variables initialization
 	// if this happens, then we must update their pc entries to reflect it in debug attributes
@@ -6125,6 +6092,7 @@ public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex
 		}
 	}
 }
+
 /**
  * Remove all entries in pcToSourceMap table that are beyond this.position
  */
@@ -6148,6 +6116,7 @@ public void removeVariable(LocalVariableBinding localBinding) {
 		}
 	}
 }
+
 /**
  * @param referenceMethod org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
  * @param targetClassFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
@@ -6180,6 +6149,7 @@ public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetCla
 	this.preserveUnusedLocals = referenceMethod.scope.compilerOptions().preserveAllLocalVariables;
 	initializeMaxLocals(referenceMethod.binding);
 }
+
 public void reset(ClassFile givenClassFile) {
 	this.targetLevel = givenClassFile.targetJDK;
 	int produceAttributes = givenClassFile.produceAttributes;
@@ -6190,6 +6160,7 @@ public void reset(ClassFile givenClassFile) {
 		this.lineSeparatorPositions = null;
 	}
 }
+
 /**
  * @param targetClassFile The given classfile to reset the code stream
  */
@@ -6197,6 +6168,11 @@ public void resetForProblemClinit(ClassFile targetClassFile) {
 	init(targetClassFile);
 	initializeMaxLocals(null);
 }
+
+public void resetInWideMode() {
+	this.wideMode = true;
+}
+
 private final void resizeByteArray() {
 	int length = this.bCodeStream.length;
 	int requiredSize = length + length;
@@ -6206,8 +6182,8 @@ private final void resizeByteArray() {
 	}
 	System.arraycopy(this.bCodeStream, 0, this.bCodeStream = new byte[requiredSize], 0, length);
 }
+
 final public void ret(int index) {
-	if (DEBUG) System.out.println(this.position + "\t\tret:"+index); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (index > 255) { // Widen
 		if (this.classFileOffset + 3 >= this.bCodeStream.length) {
@@ -6226,8 +6202,8 @@ final public void ret(int index) {
 		this.bCodeStream[this.classFileOffset++] = (byte) index;
 	}
 }
+
 public void return_() {
-	if (DEBUG) System.out.println(this.position + "\t\treturn"); //$NON-NLS-1$
 	this.countLabels = 0;
 	// the stackDepth should be equal to 0
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -6237,8 +6213,8 @@ public void return_() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_return;
 	this.lastAbruptCompletion = this.position;
 }
+
 public void saload() {
-	if (DEBUG) System.out.println(this.position + "\t\tsaload"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -6247,8 +6223,8 @@ public void saload() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_saload;
 }
+
 public void sastore() {
-	if (DEBUG) System.out.println(this.position + "\t\tsastore"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth -= 3;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -6257,6 +6233,7 @@ public void sastore() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_sastore;
 }
+
 /**
  * @param operatorConstant int
  * @param type_ID int
@@ -6380,7 +6357,6 @@ public void sendOperator(int operatorConstant, int type_ID) {
 }
 
 public void sipush(int s) {
-	if (DEBUG) System.out.println(this.position + "\t\tsipush:"+s); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -6392,6 +6368,7 @@ public void sipush(int s) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_sipush;
 	writeSignedShort(s);
 }
+
 public void store(LocalVariableBinding localBinding, boolean valueRequired) {
 	int localPosition = localBinding.resolvedPosition;
 	// Using dedicated int bytecode
@@ -6505,8 +6482,8 @@ public void store(LocalVariableBinding localBinding, boolean valueRequired) {
 			}
 	}
 }
+
 public void swap() {
-	if (DEBUG) System.out.println(this.position + "\t\tswap"); //$NON-NLS-1$
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -6514,8 +6491,8 @@ public void swap() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_swap;
 }
+
 public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, int[] sortedIndexes, CaseLabel[] casesLabel) {
-	if (DEBUG) System.out.println(this.position + "\t\ttableswitch"); //$NON-NLS-1$
 	this.countLabels = 0;
 	this.stackDepth--;
 	int length = casesLabel.length;
@@ -6555,10 +6532,12 @@ public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, i
 		i++;
 	}
 }
+
 public void throwAnyException(LocalVariableBinding anyExceptionVariable) {
 	this.load(anyExceptionVariable);
 	athrow();
 }
+
 public String toString() {
 	StringBuffer buffer = new StringBuffer("( position:"); //$NON-NLS-1$
 	buffer.append(this.position);
@@ -6571,6 +6550,7 @@ public String toString() {
 	buffer.append(")"); //$NON-NLS-1$
 	return buffer.toString();
 }
+
 /**
  * Note: it will walk the locals table and extend the end range for all matching ones, no matter if
  * visible or not.
@@ -6609,6 +6589,7 @@ public void updateLastRecordedEndPC(Scope scope, int pos) {
 		}
 	}
 }
+
 protected void writePosition(BranchLabel label) {
 	int offset = label.position - this.position + 1;
 	if (Math.abs(offset) > 0x7FFF && !this.wideMode) {
@@ -6620,6 +6601,7 @@ protected void writePosition(BranchLabel label) {
 		this.writePosition(label, forwardRefs[i]);
 	}
 }
+
 protected void writePosition(BranchLabel label, int forwardReference) {
 	final int offset = label.position - forwardReference + 1;
 	if (Math.abs(offset) > 0x7FFF && !this.wideMode) {
@@ -6635,6 +6617,7 @@ protected void writePosition(BranchLabel label, int forwardReference) {
 		this.writeSignedShort(forwardReference, offset);
 	}
 }
+
 /**
  * Write a signed 16 bits value into the byte array
  * @param value the signed short
@@ -6648,6 +6631,7 @@ private final void writeSignedShort(int value) {
 	this.bCodeStream[this.classFileOffset++] = (byte) (value >> 8);
 	this.bCodeStream[this.classFileOffset++] = (byte) value;
 }
+
 private final void writeSignedShort(int pos, int value) {
 	int currentOffset = this.startingClassFileOffset + pos;
 	if (currentOffset + 1 >= this.bCodeStream.length) {
@@ -6656,6 +6640,7 @@ private final void writeSignedShort(int pos, int value) {
 	this.bCodeStream[currentOffset] = (byte) (value >> 8);
 	this.bCodeStream[currentOffset + 1] = (byte) value;
 }
+
 protected final void writeSignedWord(int value) {
 	// we keep the resize in here because it is used outside the code stream
 	if (this.classFileOffset + 3 >= this.bCodeStream.length) {
@@ -6667,6 +6652,7 @@ protected final void writeSignedWord(int value) {
 	this.bCodeStream[this.classFileOffset++] = (byte) ((value & 0xFF00) >> 8);
 	this.bCodeStream[this.classFileOffset++] = (byte) (value & 0xFF);
 }
+
 protected void writeSignedWord(int pos, int value) {
 	int currentOffset = this.startingClassFileOffset + pos;
 	if (currentOffset + 3 >= this.bCodeStream.length) {
@@ -6677,6 +6663,7 @@ protected void writeSignedWord(int pos, int value) {
 	this.bCodeStream[currentOffset++] = (byte) ((value & 0xFF00) >> 8);
 	this.bCodeStream[currentOffset++] = (byte) (value & 0xFF);
 }
+
 /**
  * Write a unsigned 16 bits value into the byte array
  * @param value the unsigned short
@@ -6687,6 +6674,7 @@ private final void writeUnsignedShort(int value) {
 	this.bCodeStream[this.classFileOffset++] = (byte) (value >>> 8);
 	this.bCodeStream[this.classFileOffset++] = (byte) value;
 }
+
 protected void writeWidePosition(BranchLabel label) {
 	int labelPos = label.position;
 	int offset = labelPos - this.position + 1;
@@ -6697,8 +6685,5 @@ protected void writeWidePosition(BranchLabel label) {
 		offset = labelPos - forward + 1;
 		this.writeSignedWord(forward, offset);
 	}
-}
-public void resetInWideMode() {
-	this.wideMode = true;
 }
 }

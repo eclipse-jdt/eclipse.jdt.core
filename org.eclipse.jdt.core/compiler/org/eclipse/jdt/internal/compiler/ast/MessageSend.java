@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -34,7 +35,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
@@ -96,12 +96,10 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	    		? compileTimeType  // unboxing: checkcast before conversion
 	    		: runtimeTimeType;
 	        this.valueCast = originalType.genericCast(targetType);
-		} 	else if (this.actualReceiverType.isArrayType()
-						&& runtimeTimeType.id != TypeIds.T_JavaLangObject
-						&& this.binding.parameters == Binding.NO_PARAMETERS
-						&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5
-						&& CharOperation.equals(this.binding.selector, TypeConstants.CLONE)) {
-					// from 1.5 compliant mode on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
+		} 	else if (this.binding == scope.environment().arrayClone
+				&& runtimeTimeType.id != TypeIds.T_JavaLangObject
+				&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+					// from 1.5 source level on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
 			this.valueCast = runtimeTimeType;
 		}
         if (this.valueCast instanceof ReferenceBinding) {
@@ -148,23 +146,23 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	// generate arguments
 	generateArguments(this.binding, this.arguments, currentScope, codeStream);
+
 	// actual message invocation
 	if (this.syntheticAccessor == null){
+		TypeBinding constantPoolDeclaringClass = getConstantPoolDeclaringClass(currentScope);
 		if (isStatic){
-			codeStream.invokestatic(this.codegenBinding);
+			codeStream.invoke(Opcodes.OPC_invokestatic, this.codegenBinding, constantPoolDeclaringClass);
+		} else if( (this.receiver.isSuper()) || this.codegenBinding.isPrivate()){
+			codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, constantPoolDeclaringClass);
 		} else {
-			if( (this.receiver.isSuper()) || this.codegenBinding.isPrivate()){
-				codeStream.invokespecial(this.codegenBinding);
+			if (constantPoolDeclaringClass.isInterface()) { // interface or annotation type
+				codeStream.invoke(Opcodes.OPC_invokeinterface, this.codegenBinding, constantPoolDeclaringClass);
 			} else {
-				if (this.codegenBinding.declaringClass.isInterface()) { // interface or annotation type
-					codeStream.invokeinterface(this.codegenBinding);
-				} else {
-					codeStream.invokevirtual(this.codegenBinding);
-				}
+				codeStream.invoke(Opcodes.OPC_invokevirtual, this.codegenBinding, constantPoolDeclaringClass);
 			}
 		}
 	} else {
-		codeStream.invokestatic(this.syntheticAccessor);
+		codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessor, null /* default declaringClass */);
 	}
 	// required cast must occur even if no value is required
 	if (this.valueCast != null) codeStream.checkcast(this.valueCast);
@@ -188,12 +186,39 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	codeStream.recordPositionsFrom(pc, (int)(this.nameSourcePosition >>> 32)); // highlight selector
 }
-
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
  */
 public TypeBinding[] genericTypeArguments() {
 	return this.genericTypeArguments;
+}
+
+protected TypeBinding getConstantPoolDeclaringClass(BlockScope currentScope) {
+	// constantpool declaringClass
+	TypeBinding constantPoolDeclaringClass = this.codegenBinding.declaringClass;
+	// Post 1.4.0 target, array clone() invocations are qualified with array type
+	// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
+	if (this.codegenBinding == currentScope.environment().arrayClone) {
+		CompilerOptions options = currentScope.compilerOptions();
+		if (options.sourceLevel > ClassFileConstants.JDK1_4 ) {
+			constantPoolDeclaringClass = this.actualReceiverType.erasure();
+		}
+	} else {
+		// if the binding declaring class is not visible, need special action
+		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+		// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
+		// and not from Object or implicit static method call.
+		if (constantPoolDeclaringClass != this.actualReceiverType && this.receiverGenericCast == null && !this.actualReceiverType.isArrayType()) {
+			CompilerOptions options = currentScope.compilerOptions();
+			if ((options.targetJDK >= ClassFileConstants.JDK1_2
+						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(this.receiver.isImplicitThis() && this.codegenBinding.isStatic()))
+						&& this.binding.declaringClass.id != TypeIds.T_JavaLangObject) // no change for Object methods
+					|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
+				constantPoolDeclaringClass = this.actualReceiverType.erasure();
+			}
+		}				
+	}
+	return constantPoolDeclaringClass;
 }
 
 public boolean isSuperAccess() {
@@ -238,26 +263,6 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			return;
 		}
-	}
-
-	// if the binding declaring class is not visible, need special action
-	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
-	// and not from Object or implicit static method call.
-	if (this.binding.declaringClass != this.actualReceiverType
-			&& this.receiverGenericCast == null
-			&& !this.actualReceiverType.isArrayType()) {
-		CompilerOptions options = currentScope.compilerOptions();
-		if ((options.targetJDK >= ClassFileConstants.JDK1_2
-				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(this.receiver.isImplicitThis() && this.codegenBinding.isStatic()))
-				&& this.binding.declaringClass.id != TypeIds.T_JavaLangObject) // no change for Object methods
-			|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
-
-			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(
-			        										this.codegenBinding, (ReferenceBinding) this.actualReceiverType.erasure());
-		}
-		// Post 1.4.0 target, array clone() invocations are qualified with array type
-		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
 	}
 }
 public int nullStatus(FlowInfo flowInfo) {
@@ -507,11 +512,8 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (isMethodUseDeprecated(this.binding, scope, true))
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 
-	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)
-	if (this.actualReceiverType.isArrayType()
-			&& this.binding.parameters == Binding.NO_PARAMETERS
-			&& compilerOptions.complianceLevel >= ClassFileConstants.JDK1_5
-			&& CharOperation.equals(this.binding.selector, TypeConstants.CLONE)) {
+	// from 1.5 source level on, array#clone() returns the array type (but binding still shows Object)
+	if (this.binding == scope.environment().arrayClone && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_5) {
 		this.resolvedType = this.actualReceiverType;
 	} else {
 		TypeBinding returnType = this.binding.returnType;

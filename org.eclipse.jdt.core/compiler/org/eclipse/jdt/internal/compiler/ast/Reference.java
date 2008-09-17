@@ -44,7 +44,7 @@ public void fieldStore(CodeStream codeStream, FieldBinding fieldBinding, MethodB
 		if (syntheticWriteAccessor == null) {
 			codeStream.putstatic(fieldBinding);
 		} else {
-			codeStream.invokestatic(syntheticWriteAccessor);
+			codeStream.invoke(Opcodes.OPC_invokestatic, syntheticWriteAccessor, null /* default declaringClass */);
 		}
 	} else { // Stack:  [owner][new field value]  ---> [new field value][owner][new field value]
 		if (valueRequired) {
@@ -57,7 +57,7 @@ public void fieldStore(CodeStream codeStream, FieldBinding fieldBinding, MethodB
 		if (syntheticWriteAccessor == null) {
 			codeStream.putfield(fieldBinding);
 		} else {
-			codeStream.invokestatic(syntheticWriteAccessor);
+			codeStream.invoke(Opcodes.OPC_invokestatic, syntheticWriteAccessor, null /* default declaringClass */);
 		}
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);

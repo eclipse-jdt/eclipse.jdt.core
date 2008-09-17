@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
-public abstract class Scope implements TypeConstants, TypeIds {
+public abstract class Scope {
 
 	/* Scope kinds */
 	public final static int BLOCK_SCOPE = 1;
@@ -781,7 +781,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 				if (argumentTypes == Binding.NO_PARAMETERS
-				    && CharOperation.equals(selector, GETCLASS)
+				    && CharOperation.equals(selector, TypeConstants.GETCLASS)
 				    && exactMethod.returnType.isParameterizedType()/*1.5*/) {
 						return ParameterizedMethodBinding.instantiateGetClass(receiverType, exactMethod, this);
 			    }
@@ -832,7 +832,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			if (leafType instanceof ReferenceBinding)
 				if (!((ReferenceBinding) leafType).canBeSeenBy(this))
 					return new ProblemFieldBinding((ReferenceBinding)leafType, fieldName, ProblemReasons.ReceiverTypeNotVisible);
-			if (CharOperation.equals(fieldName, LENGTH)) {
+			if (CharOperation.equals(fieldName, TypeConstants.LENGTH)) {
 				if ((leafType.tagBits & TagBits.HasMissingType) != 0) {
 					return new ProblemFieldBinding(ArrayBinding.ArrayLength, null, fieldName, ProblemReasons.NotFound);
 				}
@@ -1314,19 +1314,12 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			if (argumentTypes == Binding.NO_PARAMETERS) {
 			    switch (selector[0]) {
 			        case 'c':
-			            if (CharOperation.equals(selector, CLONE)) {
-							return new UpdatedMethodBinding(
-								compilerOptions().targetJDK >= ClassFileConstants.JDK1_4 ? (TypeBinding)receiverType : (TypeBinding)object, // remember its array type for codegen purpose on target>=1.4.0
-								(methodBinding.modifiers & ~ClassFileConstants.AccProtected) | ClassFileConstants.AccPublic,
-								CLONE,
-								methodBinding.returnType,
-								argumentTypes,
-								null,
-								object);
+			            if (CharOperation.equals(selector, TypeConstants.CLONE)) {
+			            	return environment().computeArrayClone(methodBinding);
 			            }
 			            break;
 			        case 'g':
-			            if (CharOperation.equals(selector, GETCLASS) && methodBinding.returnType.isParameterizedType()/*1.5*/) {
+			            if (CharOperation.equals(selector, TypeConstants.GETCLASS) && methodBinding.returnType.isParameterizedType()/*1.5*/) {
 							return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
 			            }
 			            break;
@@ -1854,7 +1847,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 										}
 										// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 										if (argumentTypes == Binding.NO_PARAMETERS
-										    && CharOperation.equals(selector, GETCLASS)
+										    && CharOperation.equals(selector, TypeConstants.GETCLASS)
 										    && methodBinding.returnType.isParameterizedType()/*1.5*/) {
 												return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
 										}
@@ -2014,65 +2007,65 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 	public final ReferenceBinding getJavaIoSerializable() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_IO_SERIALIZABLE);
-		return unitScope.environment.getResolvedType(JAVA_IO_SERIALIZABLE, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_IO_SERIALIZABLE);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_IO_SERIALIZABLE, this);
 	}
 
 	public final ReferenceBinding getJavaLangAnnotationAnnotation() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_LANG_ANNOTATION_ANNOTATION);
-		return unitScope.environment.getResolvedType(JAVA_LANG_ANNOTATION_ANNOTATION, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION, this);
 	}
 
 	public final ReferenceBinding getJavaLangAssertionError() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_LANG_ASSERTIONERROR);
-		return unitScope.environment.getResolvedType(JAVA_LANG_ASSERTIONERROR, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ASSERTIONERROR);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ASSERTIONERROR, this);
 	}
 
 	public final ReferenceBinding getJavaLangClass() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_LANG_CLASS);
-		return unitScope.environment.getResolvedType(JAVA_LANG_CLASS, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_CLASS);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_CLASS, this);
 	}
 
 	public final ReferenceBinding getJavaLangCloneable() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_LANG_CLONEABLE);
-		return unitScope.environment.getResolvedType(JAVA_LANG_CLONEABLE, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_CLONEABLE);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_CLONEABLE, this);
 	}
 	public final ReferenceBinding getJavaLangEnum() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_LANG_ENUM);
-		return unitScope.environment.getResolvedType(JAVA_LANG_ENUM, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ENUM);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ENUM, this);
 	}
 
 	public final ReferenceBinding getJavaLangIterable() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_LANG_ITERABLE);
-		return unitScope.environment.getResolvedType(JAVA_LANG_ITERABLE, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ITERABLE);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ITERABLE, this);
 	}
 	public final ReferenceBinding getJavaLangObject() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_LANG_OBJECT);
-		return unitScope.environment.getResolvedType(JAVA_LANG_OBJECT, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_OBJECT);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, this);
 	}
 
 	public final ReferenceBinding getJavaLangString() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_LANG_STRING);
-		return unitScope.environment.getResolvedType(JAVA_LANG_STRING, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_STRING);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_STRING, this);
 	}
 
 	public final ReferenceBinding getJavaLangThrowable() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_LANG_THROWABLE);
-		return unitScope.environment.getResolvedType(JAVA_LANG_THROWABLE, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_THROWABLE);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_THROWABLE, this);
 	}
 	public final ReferenceBinding getJavaUtilIterator() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(JAVA_UTIL_ITERATOR);
-		return unitScope.environment.getResolvedType(JAVA_UTIL_ITERATOR, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_UTIL_ITERATOR);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_UTIL_ITERATOR, this);
 	}
 
 	/* Answer the type binding corresponding to the typeName argument, relative to the enclosingType.
@@ -2114,7 +2107,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (argumentTypes == Binding.NO_PARAMETERS
-			    && CharOperation.equals(selector, GETCLASS)
+			    && CharOperation.equals(selector, TypeConstants.GETCLASS)
 			    && methodBinding.returnType.isParameterizedType()/*1.5*/) {
 					return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
 		    }
@@ -3038,8 +3031,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			case 0 : return TypeBinding.VOID;
 			case 1 : return mecs[0];
 			case 2 :
-				if ((commonDim == 0 ? mecs[1].id : mecs[1].leafComponentType().id) == T_JavaLangObject) return mecs[0];
-				if ((commonDim == 0 ? mecs[0].id : mecs[0].leafComponentType().id) == T_JavaLangObject) return mecs[1];
+				if ((commonDim == 0 ? mecs[1].id : mecs[1].leafComponentType().id) == TypeIds.T_JavaLangObject) return mecs[0];
+				if ((commonDim == 0 ? mecs[0].id : mecs[0].leafComponentType().id) == TypeIds.T_JavaLangObject) return mecs[1];
 		}
 		TypeBinding[] otherBounds = new TypeBinding[count - 1];
 		int rank = 0;
@@ -3118,7 +3111,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			if (dim > 0) {
 				leafType = typeToVisit.leafComponentType();
 				switch(leafType.id) {
-					case T_JavaLangObject:
+					case TypeIds.T_JavaLangObject:
 						if (dim > 1) { // Object[][] supertype is Object[]
 							TypeBinding elementType = ((ArrayBinding)typeToVisit).elementsType();
 							if (!typesToVisit.contains(elementType)) {
@@ -3128,14 +3121,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							continue;
 						}
 						//$FALL-THROUGH$
-					case T_byte:
-					case T_short:
-					case T_char:
-					case T_boolean:
-					case T_int:
-					case T_long:
-					case T_float:
-					case T_double:
+					case TypeIds.T_byte:
+					case TypeIds.T_short:
+					case TypeIds.T_char:
+					case TypeIds.T_boolean:
+					case TypeIds.T_int:
+					case TypeIds.T_long:
+					case TypeIds.T_float:
+					case TypeIds.T_double:
 						TypeBinding superType = getJavaIoSerializable();
 						if (!typesToVisit.contains(superType)) {
 							typesToVisit.add(superType);
@@ -3254,7 +3247,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				TypeBinding erasedSuperType = erasedSuperTypes[j];
 				if (erasedSuperType == null) continue nextSuperType;
 				TypeBinding match;
-				if (erasedSuperType == otherType || erasedSuperType.id == T_JavaLangObject && otherType.isInterface()) {
+				if (erasedSuperType == otherType || erasedSuperType.id == TypeIds.T_JavaLangObject && otherType.isInterface()) {
 					match = erasedSuperType;
 				} else {
 					if (erasedSuperType.isArrayType()) {
@@ -3302,14 +3295,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					TypeBinding otherType = erasedSuperTypes[j];
 					if (otherType == null) continue nextOtherType;
 					if (erasedSuperType instanceof ReferenceBinding) {
-						if (otherType.id == T_JavaLangObject && erasedSuperType.isInterface()) continue nextOtherType; // keep Object for an interface
+						if (otherType.id == TypeIds.T_JavaLangObject && erasedSuperType.isInterface()) continue nextOtherType; // keep Object for an interface
 						if (erasedSuperType.findSuperTypeOriginatingFrom(otherType) != null) {
 							erasedSuperTypes[j] = null; // discard non minimal supertype
 							remaining--;
 						}
 					} else if (erasedSuperType.isArrayType()) {
 					if (otherType.isArrayType() // keep Object[...] for an interface array (same dimensions)
-							&& otherType.leafComponentType().id == T_JavaLangObject
+							&& otherType.leafComponentType().id == TypeIds.T_JavaLangObject
 							&& otherType.dimensions() == erasedSuperType.dimensions()
 							&& erasedSuperType.leafComponentType().isInterface()) continue nextOtherType;
 						if (erasedSuperType.findSuperTypeOriginatingFrom(otherType) != null) {

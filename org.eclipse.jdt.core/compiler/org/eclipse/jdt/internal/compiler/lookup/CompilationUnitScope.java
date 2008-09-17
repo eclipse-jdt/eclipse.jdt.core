@@ -154,7 +154,7 @@ void checkAndSetImports() {
 	int numberOfImports = numberOfStatements + 1;
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
-		if (((importReference.bits & ASTNode.OnDemand) != 0) && CharOperation.equals(JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
+		if (((importReference.bits & ASTNode.OnDemand) != 0) && CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
 			numberOfImports--;
 			break;
 		}
@@ -313,7 +313,7 @@ void faultInImports() {
 	int numberOfImports = numberOfStatements + 1;
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
-		if (((importReference.bits & ASTNode.OnDemand) != 0) && CharOperation.equals(JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
+		if (((importReference.bits & ASTNode.OnDemand) != 0) && CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
 			numberOfImports--;
 			break;
 		}
@@ -569,21 +569,21 @@ ImportBinding[] getDefaultImports() {
 	// initialize the default imports if necessary... share the default java.lang.* import
 	if (this.environment.defaultImports != null) return this.environment.defaultImports;
 
-	Binding importBinding = this.environment.getTopLevelPackage(JAVA);
+	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
 	if (importBinding != null)
-		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(JAVA_LANG[1]);
+		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1]);
 
 	if (importBinding == null || !importBinding.isValidBinding()) {
 		// create a proxy for the missing BinaryType
 		problemReporter().isClassPathCorrect(
-			JAVA_LANG_OBJECT,
+				TypeConstants.JAVA_LANG_OBJECT,
 			this.referenceContext,
 			this.environment.missingClassFileLocation);
-		BinaryTypeBinding missingObject = this.environment.createMissingType(null, JAVA_LANG_OBJECT);
+		BinaryTypeBinding missingObject = this.environment.createMissingType(null, TypeConstants.JAVA_LANG_OBJECT);
 		importBinding = missingObject.fPackage;
 	}
 
-	return this.environment.defaultImports = new ImportBinding[] {new ImportBinding(JAVA_LANG, true, importBinding, null)};
+	return this.environment.defaultImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
 }
 // NOT Public API
 public final Binding getImport(char[][] compoundName, boolean onDemand, boolean isStaticImport) {

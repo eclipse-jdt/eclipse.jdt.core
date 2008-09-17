@@ -44,6 +44,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private final static int METHOD_EMUL = 0;
 	private final static int FIELD_EMUL = 1;
 	private final static int CLASS_LITERAL_EMUL = 2;
+	/** @deprecated */
 	private final static int RECEIVER_TYPE_EMUL = 3;
 
 	private final static int MAX_SYNTHETICS = 4;
@@ -1064,6 +1065,7 @@ public boolean isGenericType() {
 public ReferenceBinding[] memberTypes() {
 	return this.memberTypes;
 }
+/** @deprecated */
 public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBinding newDeclaringClass) {
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
@@ -1082,27 +1084,11 @@ public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBi
 	}
 	return updatedField;
 }
-public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, ReferenceBinding newDeclaringClass) {
-	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
-	if (this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] == null)
-		this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] = new HashMap(5);
 
-	Hashtable methodMap = (Hashtable) this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL].get(targetMethod);
-	if (methodMap == null) {
-		methodMap = new Hashtable(5);
-		this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL].put(targetMethod, methodMap);
-	}
-	MethodBinding updatedMethod = (MethodBinding) methodMap.get(newDeclaringClass);
-	if (updatedMethod == null){
-		updatedMethod = new MethodBinding(targetMethod, newDeclaringClass);
-		methodMap.put(newDeclaringClass, updatedMethod);
-	}
-	return updatedMethod;
-}
 public boolean hasMemberTypes() {
     return this.memberTypes.length > 0;
 }
+
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] methods() {
 	if ((this.tagBits & TagBits.AreMethodsComplete) != 0)

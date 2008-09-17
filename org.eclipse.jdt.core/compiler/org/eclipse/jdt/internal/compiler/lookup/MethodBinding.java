@@ -391,14 +391,6 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	return uniqueKey;
 }
 
-/*
- * Answer the declaring class to use in the constant pool
- * may not be a reference binding (see subtypes)
- */
-public TypeBinding constantPoolDeclaringClass() {
-	return this.declaringClass;
-}
-
 /* Answer the receiver's constant pool name.
 *
 * <init> for constructors

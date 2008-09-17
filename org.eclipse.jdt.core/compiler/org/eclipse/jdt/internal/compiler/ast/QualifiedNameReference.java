@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -401,7 +402,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 								codeStream.getfield(lastFieldBinding);
 							}
 						} else {
-							codeStream.invokestatic(accessor);
+							codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
 						}
 						if (requiredGenericCast != null) codeStream.checkcast(requiredGenericCast);
 						if (valueRequired) {
@@ -452,14 +453,14 @@ public void generateCompoundAssignment(
 		if (accessor == null) {
 			codeStream.getstatic(lastFieldBinding);
 		} else {
-			codeStream.invokestatic(accessor);
+			codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
 		}
 	} else {
 		codeStream.dup();
 		if (accessor == null) {
 			codeStream.getfield(lastFieldBinding);
 		} else {
-			codeStream.invokestatic(accessor);
+			codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
 		}
 	}
 	// the last field access is a write access
@@ -501,14 +502,14 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		if (accessor == null) {
 			codeStream.getstatic(lastFieldBinding);
 		} else {
-			codeStream.invokestatic(accessor);
+			codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
 		}
 	} else {
 		codeStream.dup();
 		if (accessor == null) {
 			codeStream.getfield(lastFieldBinding);
 		} else {
-			codeStream.invokestatic(accessor);
+			codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
 		}
 	}
 	TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
@@ -628,7 +629,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 								codeStream.getfield(lastFieldBinding);
 							}
 						} else {
-							codeStream.invokestatic(accessor);
+							codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
 						}
 						if (lastGenericCast != null) codeStream.checkcast(lastGenericCast);
 						if (!needValue) codeStream.pop();
@@ -641,7 +642,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 									if (accessor == null) {
 										codeStream.getstatic(lastFieldBinding);
 									} else {
-										codeStream.invokestatic(accessor);
+										codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
 									}
 									codeStream.pop();
 								}

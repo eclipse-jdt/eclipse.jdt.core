@@ -111,7 +111,6 @@ public class NestedTypeBinding extends SourceTypeBinding {
 	 * Compute the resolved positions for all the synthetic arguments
 	 */
 	final public void computeSyntheticArgumentSlotSizes() {
-
 		int slotSize = 0;
 		// insert enclosing instances first, followed by the outerLocals
 		int enclosingInstancesCount = this.enclosingInstances == null ? 0 : this.enclosingInstances.length;
@@ -147,16 +146,13 @@ public class NestedTypeBinding extends SourceTypeBinding {
 	/* Answer the receiver's enclosing type... null if the receiver is a top level type.
 	*/
 	public ReferenceBinding enclosingType() {
-
 		return this.enclosingType;
 	}
 
 	/* Answer the synthetic argument for <actualOuterLocalVariable> or null if one does not exist.
 	*/
 	public SyntheticArgumentBinding getSyntheticArgument(LocalVariableBinding actualOuterLocalVariable) {
-
 		if (this.outerLocalVariables == null) return null;		// is null if no outer local variables are known
-
 		for (int i = this.outerLocalVariables.length; --i >= 0;)
 			if (this.outerLocalVariables[i].actualOuterLocalVariable == actualOuterLocalVariable)
 				return this.outerLocalVariables[i];
@@ -170,7 +166,6 @@ public class NestedTypeBinding extends SourceTypeBinding {
 	public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 		if (this.enclosingInstances == null)
 			return null;
-
 		int length = this.enclosingInstances.length;
 		ReferenceBinding types[] = new ReferenceBinding[length];
 		for (int i = 0; i < length; i++)
@@ -194,9 +189,7 @@ public class NestedTypeBinding extends SourceTypeBinding {
 	/* Answer the synthetic argument for <targetEnclosingType> or null if one does not exist.
 	*/
 	public SyntheticArgumentBinding getSyntheticArgument(ReferenceBinding targetEnclosingType, boolean onlyExactMatch) {
-
 		if (this.enclosingInstances == null) return null;		// is null if no enclosing instances are known
-
 		// exact match
 		for (int i = this.enclosingInstances.length; --i >= 0;)
 			if (this.enclosingInstances[i].type == targetEnclosingType)

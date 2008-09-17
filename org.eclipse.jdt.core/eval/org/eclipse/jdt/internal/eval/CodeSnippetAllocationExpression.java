@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -73,7 +74,7 @@ public void generateCode(
 				this);
 		}
 		// invoke constructor
-		codeStream.invokespecial(this.codegenBinding);
+		codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, null /* default declaringClass */);
 	} else {
 		// private emulation using reflect
 		codeStream.generateEmulationForConstructor(currentScope, this.codegenBinding);

@@ -271,7 +271,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 		if (!((ReferenceBinding)leafType).canBeSeenBy(this)) {
 			return new ProblemFieldBinding((ReferenceBinding)leafType, fieldName, ProblemReasons.ReceiverTypeNotVisible);
 		}
-		if (CharOperation.equals(fieldName, LENGTH))
+		if (CharOperation.equals(fieldName, TypeConstants.LENGTH))
 			return ArrayBinding.ArrayLength;
 		return null;
 	}
@@ -371,8 +371,8 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 	MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes, null);
 	if (methodBinding != null) {
 		// handle the method clone() specially... cannot be protected or throw exceptions
-		if (argumentTypes == Binding.NO_PARAMETERS && CharOperation.equals(selector, CLONE))
-			return new MethodBinding((methodBinding.modifiers & ~ClassFileConstants.AccProtected) | ClassFileConstants.AccPublic, CLONE, methodBinding.returnType, argumentTypes, null, object);
+		if (argumentTypes == Binding.NO_PARAMETERS && CharOperation.equals(selector, TypeConstants.CLONE))
+			return new MethodBinding((methodBinding.modifiers & ~ClassFileConstants.AccProtected) | ClassFileConstants.AccPublic, TypeConstants.CLONE, methodBinding.returnType, argumentTypes, null, object);
 		if (canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this))
 			return methodBinding;
 	}

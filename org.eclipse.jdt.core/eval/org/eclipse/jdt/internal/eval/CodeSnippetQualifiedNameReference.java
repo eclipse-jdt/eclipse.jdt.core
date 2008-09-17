@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -222,14 +223,14 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			if (accessor == null) {
 				codeStream.getstatic(lastFieldBinding);
 			} else {
-				codeStream.invokestatic(accessor);
+				codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
 			}
 		} else {
 			codeStream.dup();
 			if (accessor == null) {
 				codeStream.getfield(lastFieldBinding);
 			} else {
-				codeStream.invokestatic(accessor);
+				codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
 			}
 		}
 

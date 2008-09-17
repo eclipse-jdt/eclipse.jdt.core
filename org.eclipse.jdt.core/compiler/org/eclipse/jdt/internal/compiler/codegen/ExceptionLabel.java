@@ -27,7 +27,6 @@ public ExceptionLabel(CodeStream codeStream, TypeBinding exceptionType) {
 public void place() {
 	// register the handler inside the codeStream then normal place
 	this.codeStream.registerExceptionHandler(this);
-	if (CodeStream.DEBUG) System.out.println("\t\t\t\t<place at: "+this.codeStream.position+" - "+ this); //$NON-NLS-1$ //$NON-NLS-2$
 	this.position = this.codeStream.getPosition();
 }
 

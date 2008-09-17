@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -233,7 +234,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					codeStream.getfield(this.codegenBinding);
 				}
 			} else {
-				codeStream.invokestatic(this.syntheticAccessors[FieldReference.READ]);
+				codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
 			}
 			// required cast must occur even if no value is required
 			if (this.genericCast != null) codeStream.checkcast(this.genericCast);
@@ -262,7 +263,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					if (accessor == null) {
 						codeStream.getstatic(this.codegenBinding);
 					} else {
-						codeStream.invokestatic(accessor);
+						codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
 					}
 					switch (this.codegenBinding.type.id) {
 						case T_long :
@@ -295,14 +296,14 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		if (this.syntheticAccessors == null || this.syntheticAccessors[FieldReference.READ] == null) {
 			codeStream.getstatic(this.codegenBinding);
 		} else {
-			codeStream.invokestatic(this.syntheticAccessors[FieldReference.READ]);
+			codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
 		}
 	} else {
 		codeStream.dup();
 		if (this.syntheticAccessors == null || this.syntheticAccessors[FieldReference.READ] == null) {
 			codeStream.getfield(this.codegenBinding);
 		} else {
-			codeStream.invokestatic(this.syntheticAccessors[FieldReference.READ]);
+			codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
 		}
 	}
 	int operationTypeID;
@@ -346,14 +347,14 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		if (this.syntheticAccessors == null || this.syntheticAccessors[FieldReference.READ] == null) {
 			codeStream.getstatic(this.codegenBinding);
 		} else {
-			codeStream.invokestatic(this.syntheticAccessors[FieldReference.READ]);
+			codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
 		}
 	} else {
 		codeStream.dup();
 		if (this.syntheticAccessors == null || this.syntheticAccessors[FieldReference.READ] == null) {
 			codeStream.getfield(this.codegenBinding);
 		} else {
-			codeStream.invokestatic(this.syntheticAccessors[FieldReference.READ]);
+			codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
 		}
 	}
 	TypeBinding operandType;

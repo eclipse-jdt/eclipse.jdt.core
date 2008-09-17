@@ -62,6 +62,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private MethodVerifier verifier;
 
+	public MethodBinding arrayClone;
+	
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
 	final static int CHECK_AND_SET_IMPORTS = 2;
@@ -251,7 +253,19 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean 
 		parsedUnit.scope.buildFieldsAndMethods();
 	this.unitBeingCompleted = null;
 }
-
+public MethodBinding computeArrayClone(MethodBinding objectClone) {
+	if (this.arrayClone == null) {
+		this.arrayClone = new MethodBinding(
+				(objectClone.modifiers & ~ClassFileConstants.AccProtected) | ClassFileConstants.AccPublic,
+				TypeConstants.CLONE,
+				objectClone.returnType,
+				Binding.NO_PARAMETERS,
+				Binding.NO_EXCEPTIONS, // no exception for array specific method
+				(ReferenceBinding)objectClone.returnType);
+	}
+	return this.arrayClone;
+	
+}
 public TypeBinding computeBoxingType(TypeBinding type) {
 	TypeBinding boxedType;
 	switch (type.id) {

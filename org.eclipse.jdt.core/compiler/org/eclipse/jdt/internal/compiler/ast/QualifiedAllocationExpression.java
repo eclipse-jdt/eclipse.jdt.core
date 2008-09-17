@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -138,7 +139,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		// invoke constructor
 		if (this.syntheticAccessor == null) {
-			codeStream.invokespecial(this.codegenBinding);
+			codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, null /* default declaringClass */);
 		} else {
 			// synthetic accessor got some extra arguments appended to its signature, which need values
 			for (int i = 0,
@@ -147,7 +148,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				i++) {
 				codeStream.aconst_null();
 			}
-			codeStream.invokespecial(this.syntheticAccessor);
+			codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */);
 		}
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(this.implicitConversion);

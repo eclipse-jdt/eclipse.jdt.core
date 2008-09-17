@@ -120,6 +120,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
     public static final char[] HasNextSignature = "()Z".toCharArray();//$NON-NLS-1$
     public static final char[] Init = "<init>".toCharArray(); //$NON-NLS-1$
     public static final char[] IntConstrSignature = "(I)V".toCharArray(); //$NON-NLS-1$
+    public static final char[] ITERATOR_NAME = "iterator".toCharArray(); //$NON-NLS-1$
+    public static final char[] ITERATOR_SIGNATURE = "()Ljava/util/Iterator;".toCharArray(); //$NON-NLS-1$
     public static final char[] Intern = "intern".toCharArray(); //$NON-NLS-1$
     public static final char[] InternSignature = GetMessageSignature;
     public static final char[] IntIntegerSignature = "(I)Ljava/lang/Integer;".toCharArray(); //$NON-NLS-1$
@@ -685,11 +687,11 @@ public int literalIndexForMethod(char[] declaringClass, char[] selector, char[] 
     }
     return index;
 }
-public int literalIndexForMethod(TypeBinding binding, char[] selector, char[] signature, boolean isInterface) {
-    if (binding.isNestedType()) {
-        this.classFile.recordInnerClasses(binding);
+public int literalIndexForMethod(TypeBinding declaringClass, char[] selector, char[] signature, boolean isInterface) {
+    if (declaringClass.isNestedType()) {
+        this.classFile.recordInnerClasses(declaringClass);
     }
-    return this.literalIndexForMethod(binding.constantPoolName(), selector, signature, isInterface);
+    return this.literalIndexForMethod(declaringClass.constantPoolName(), selector, signature, isInterface);
 }
 public int literalIndexForNameAndType(char[] name, char[] signature) {
     int index;
