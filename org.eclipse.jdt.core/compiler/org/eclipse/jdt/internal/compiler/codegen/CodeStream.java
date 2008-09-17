@@ -2512,7 +2512,7 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 			if (targetMethod.declaringClass.isInterface()) { // interface or annotation type
 				invoke(Opcodes.OPC_invokeinterface, targetMethod, null /* default declaringClass */);
 			} else {
-				invoke(Opcodes.OPC_invokevirtual, targetMethod, accessMethod.declaringClass);
+				invoke(Opcodes.OPC_invokevirtual, targetMethod, accessMethod.declaringClass); // target method declaring class may not be accessible (128563)
 			}
 		}
 	}

@@ -1065,7 +1065,7 @@ public boolean isGenericType() {
 public ReferenceBinding[] memberTypes() {
 	return this.memberTypes;
 }
-/** @deprecated */
+///** @deprecated */
 public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBinding newDeclaringClass) {
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
