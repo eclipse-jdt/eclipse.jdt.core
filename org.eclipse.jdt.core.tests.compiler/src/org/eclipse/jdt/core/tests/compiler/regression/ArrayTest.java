@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
+import java.util.Map;
 
 import junit.framework.Test;
 
@@ -392,5 +393,155 @@ public void test013() {
 		"	                                           ^^^^^^^^\n" +
 		"argument cannot be resolved\n" +
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247307
+// Check return type of array#clone()
+public void test014() throws Exception {
+	Map optionsMap = getCompilerOptions();
+	CompilerOptions options = new CompilerOptions(optionsMap);
+	if (options.complianceLevel > ClassFileConstants.JDK1_4) {
+		// check that #clone() return type is changed ONLY from -source 1.5 only (independant from compliance level)
+		optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);		
+	}	
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(long[] longs) throws Exception {\n" + 
+				"		long[] other = longs.clone();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	long[] other = longs.clone();\n" + 
+			"	               ^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to long[]\n" + 
+			"----------\n",
+			null,
+			true,
+			optionsMap);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247307 - variation
+//Check return type of array#clone()
+public void test015() throws Exception {
+	if ( new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_5) {
+		return;
+	}
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(long[] longs) throws Exception {\n" + 
+			"		long[] other = longs.clone();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https:bugs.eclipse.org/bugs/show_bug.cgi?id=247307 - variation
+//Check constant pool declaring class of array#clone()
+public void test016() throws Exception {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(long[] longs) throws Exception {\n" + 
+				"		Object other = longs.clone();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED);
+
+	String expectedOutput =	new CompilerOptions(getCompilerOptions()).sourceLevel <= ClassFileConstants.JDK1_4
+		?	"  // Method descriptor #15 ([J)V\n" + 
+			"  // Stack: 1, Locals: 3\n" + 
+			"  void foo(long[] longs) throws java.lang.Exception;\n" + 
+			"    0  aload_1 [longs]\n" + 
+			"    1  invokevirtual java.lang.Object.clone() : java.lang.Object [19]\n" + 
+			"    4  astore_2 [other]\n" + 
+			"    5  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 5, line: 4]\n"
+		:	"  // Method descriptor #15 ([J)V\n" + 
+			"  // Stack: 1, Locals: 3\n" + 
+			"  void foo(long[] longs) throws java.lang.Exception;\n" + 
+			"    0  aload_1 [longs]\n" + 
+			"    1  invokevirtual long[].clone() : java.lang.Object [19]\n" + 
+			"    4  astore_2 [other]\n" + 
+			"    5  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 5, line: 4]\n";
+
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 3));
+	}
+	if (index == -1) {
+		assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+	}		
+	return;
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247307 - variation
+//Check constant pool declaring class of array#clone()
+public void test017() throws Exception {
+	Map optionsMap = getCompilerOptions();
+	CompilerOptions options = new CompilerOptions(optionsMap);
+	if (options.complianceLevel > ClassFileConstants.JDK1_4) {
+		// check that #clone() return type is changed ONLY from -source 1.5 only (independant from compliance level)
+		optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);		
+	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(long[] longs) throws Exception {\n" + 
+				"		Object other = longs.clone();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"",
+			null,
+			true,
+			null,
+			optionsMap,
+			null);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED);
+
+	String expectedOutput =
+		"  // Method descriptor #15 ([J)V\n" + 
+		"  // Stack: 1, Locals: 3\n" + 
+		"  void foo(long[] longs) throws java.lang.Exception;\n" + 
+		"    0  aload_1 [longs]\n" + 
+		"    1  invokevirtual java.lang.Object.clone() : java.lang.Object [19]\n" + 
+		"    4  astore_2 [other]\n" + 
+		"    5  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 5, line: 4]\n";
+
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 3));
+	}
+	if (index == -1) {
+		assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+	}		
 }
 }

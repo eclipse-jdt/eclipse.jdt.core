@@ -1423,8 +1423,9 @@ public void test044() throws Exception {
 			"\n",
 			ClassFileBytesDisassembler.DETAILED);
 
-	String expectedOutput =
-		"     1  invokevirtual java.lang.String[].clone() : java.lang.Object [16]\n";
+	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel <= ClassFileConstants.JDK1_4
+		?	"     1  invokevirtual java.lang.Object.clone() : java.lang.Object [16]\n"
+		:	"     1  invokevirtual java.lang.String[].clone() : java.lang.Object [16]\n";
 
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
