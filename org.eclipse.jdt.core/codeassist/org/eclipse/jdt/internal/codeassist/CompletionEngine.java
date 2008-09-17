@@ -868,7 +868,7 @@ public final class CompletionEngine
 			CompilationUnitDeclaration compilationUnitDeclaration,
 			Binding qualifiedBinding,
 			Scope scope) {
-		CompletionContext context = new CompletionContext();
+		InternalCompletionContext context = new InternalCompletionContext();
 		if (this.requestor.isExtendedContextRequired()) {
 			context.setExtendedData(
 					this.typeRoot,
@@ -938,7 +938,7 @@ public final class CompletionEngine
 		this.requestor.acceptContext(context);
 	}
 
-	private void buildTokenLocationContext(CompletionContext context, Scope scope, ASTNode astNode, ASTNode astNodeParent) {
+	private void buildTokenLocationContext(InternalCompletionContext context, Scope scope, ASTNode astNode, ASTNode astNodeParent) {
 		if (scope == null || context.isInJavadoc()) return;
 
 		if (astNode instanceof CompletionOnFieldType) {
@@ -2311,7 +2311,7 @@ public final class CompletionEngine
 				if(this.noProposal && this.problem != null) {
 					if(!contextAccepted) {
 						contextAccepted = true;
-						CompletionContext context = new CompletionContext();
+						InternalCompletionContext context = new InternalCompletionContext();
 						if (this.requestor.isExtendedContextRequired()) context.setExtended();
 						this.requestor.acceptContext(context);
 					}
@@ -2346,7 +2346,7 @@ public final class CompletionEngine
 		}
 		if(!contextAccepted) {
 			contextAccepted = true;
-			CompletionContext context = new CompletionContext();
+			InternalCompletionContext context = new InternalCompletionContext();
 			if (this.requestor.isExtendedContextRequired()) context.setExtended();
 			this.requestor.acceptContext(context);
 		}
@@ -2567,7 +2567,7 @@ public final class CompletionEngine
 			if(this.noProposal && this.problem != null) {
 				if(!contextAccepted) {
 					contextAccepted = true;
-					CompletionContext context = new CompletionContext();
+					InternalCompletionContext context = new InternalCompletionContext();
 					context.setOffset(completionPosition - this.offset);
 					context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
 					if (this.requestor.isExtendedContextRequired()) context.setExtended();
@@ -2613,7 +2613,7 @@ public final class CompletionEngine
 			reset();
 			if(!contextAccepted) {
 				contextAccepted = true;
-				CompletionContext context = new CompletionContext();
+				InternalCompletionContext context = new InternalCompletionContext();
 				context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
 				context.setOffset(completionPosition - this.offset);
 				if (this.requestor.isExtendedContextRequired()) context.setExtended();

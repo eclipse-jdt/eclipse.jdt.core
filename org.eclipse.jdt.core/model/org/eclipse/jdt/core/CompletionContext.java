@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.codeassist.InternalCompletionContext;
-import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadoc;
-
 /**
  * Completion context.
  *
@@ -22,7 +19,7 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadoc;
  * @since 3.1
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
-public final class CompletionContext extends InternalCompletionContext {
+public class CompletionContext {
 
 	/**
 	 * The completed token is the first token of a member declaration.<br>
@@ -82,7 +79,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.2
 	 */
 	public boolean isInJavadoc() {
-		return this.javadoc != 0;
+		return false; // default overridden by concrete implementation
 	}
 
 	/**
@@ -91,8 +88,8 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @return boolean true if completion takes place in a text area of a javadoc comment, false otherwise.
 	 * @since 3.2
 	 */
-	public boolean isInJavadocText() {
-		return (this.javadoc & CompletionOnJavadoc.TEXT) != 0;
+	public  boolean isInJavadocText() {
+		return false; // default overridden by concrete implementation
 	}
 
 	/**
@@ -111,7 +108,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.2
 	 */
 	public boolean isInJavadocFormalReference() {
-		return (this.javadoc & CompletionOnJavadoc.FORMAL_REFERENCE) != 0;
+		return false; // default overridden by concrete implementation
 	}
 
 	/**
@@ -123,7 +120,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.4
 	 */
 	public boolean isExtended() {
-		return this.isExtended;
+		return false; // default overridden by concrete implementation
 	}
 
 	/**
@@ -137,8 +134,9 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @see Signature
 	 */
 	public char[][] getExpectedTypesSignatures() {
-		return this.expectedTypesSignatures;
+		return null; // default overridden by concrete implementation
 	}
+	
 	/**
 	 * Return keys of expected types of a potential completion proposal at the completion position.
 	 *
@@ -150,7 +148,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @see org.eclipse.jdt.core.dom.ASTParser#createASTs(ICompilationUnit[], String[], org.eclipse.jdt.core.dom.ASTRequestor, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public char[][] getExpectedTypesKeys() {
-		return this.expectedTypesKeys;
+		return null; // default overridden by concrete implementation
 	}
 
 	/**
@@ -165,7 +163,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.2
 	 */
 	public char[] getToken() {
-		return this.token;
+		return null; // default overridden by concrete implementation
 	}
 
 	/**
@@ -184,7 +182,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.2
 	 */
 	public int getTokenKind() {
-		return this.tokenKind;
+		return -1; // default overridden by concrete implementation
 	}
 
 	/**
@@ -205,7 +203,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.4
 	 */
 	public int getTokenLocation() {
-		return this.tokenLocation;
+		return -1; // default overridden by concrete implementation
 	}
 
 	/**
@@ -223,7 +221,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.2
 	 */
 	public int getTokenStart() {
-		return this.tokenStart;
+		return -1; // default overridden by concrete implementation
 	}
 
 	/**
@@ -238,7 +236,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 */
 	// TODO (david) https://bugs.eclipse.org/bugs/show_bug.cgi?id=132558
 	public int getTokenEnd() {
-		return this.tokenEnd;
+		return -1; // default overridden by concrete implementation
 	}
 
 	/**
@@ -249,7 +247,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.2
 	 */
 	public int getOffset() {
-		return this.offset;
+		return -1; // default overridden by concrete implementation
 	}
 
 	/**
@@ -275,11 +273,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.4
 	 */
 	public IJavaElement getEnclosingElement() {
-		if (!this.isExtended) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
-
-		if (this.extendedContext == null) return null;
-
-		return this.extendedContext.getEnclosingElement();
+		return null; // default overridden by concrete implementation
 	}
 
 	/**
@@ -320,84 +314,7 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.4
 	 */
 	public IJavaElement[] getVisibleElements(String typeSignature) {
-		if (!this.isExtended) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
-
-		if (this.extendedContext == null) return new IJavaElement[0];
-
-		return this.extendedContext.getVisibleElements(typeSignature);
+		return null; // default overridden by concrete implementation
 	}
 
-	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-
-		buffer.append("completion offset="); //$NON-NLS-1$
-		buffer.append(this.offset);
-		buffer.append('\n');
-
-		buffer.append("completion range=["); //$NON-NLS-1$
-		buffer.append(this.tokenStart);
-		buffer.append(", "); //$NON-NLS-1$
-		buffer.append(this.tokenEnd);
-		buffer.append("]\n"); //$NON-NLS-1$
-
-		buffer.append("completion token="); //$NON-NLS-1$
-		String string = "null"; //$NON-NLS-1$
-		if(this.token == null) {
-			buffer.append(string);
-		} else {
-			buffer.append('\"');
-			buffer.append(this.token);
-			buffer.append('\"');
-		}
-		buffer.append('\n');
-
-		buffer.append("expectedTypesSignatures="); //$NON-NLS-1$
-		if(this.expectedTypesSignatures == null) {
-			buffer.append(string);
-		} else {
-			buffer.append('{');
-			for (int i = 0; i < this.expectedTypesSignatures.length; i++) {
-				if(i > 0) buffer.append(',');
-				buffer.append(this.expectedTypesSignatures[i]);
-
-			}
-			buffer.append('}');
-		}
-		buffer.append('\n');
-
-		buffer.append("expectedTypesKeys="); //$NON-NLS-1$
-		if(this.expectedTypesSignatures == null) {
-			buffer.append(string);
-		} else {
-			buffer.append('{');
-			for (int i = 0; i < this.expectedTypesKeys.length; i++) {
-				if(i > 0) buffer.append(',');
-				buffer.append(this.expectedTypesKeys[i]);
-
-			}
-			buffer.append('}');
-		}
-		buffer.append('\n');
-
-		if (this.tokenLocation == 0) {
-			buffer.append("tokenLocation=UNKNOWN"); //$NON-NLS-1$
-		} else {
-			buffer.append("tokenLocation={"); //$NON-NLS-1$
-			boolean first = true;
-			if ((this.tokenLocation & CompletionContext.TL_MEMBER_START) != 0) {
-				if (!first) buffer.append(',');
-				buffer.append("MEMBER_START"); //$NON-NLS-1$
-				first = false;
-			}
-			if ((this.tokenLocation & CompletionContext.TL_STATEMENT_START) != 0) {
-				if (!first) buffer.append(',');
-				buffer.append("STATEMENT_START"); //$NON-NLS-1$
-				first = false;
-			}
-			buffer.append('}');
-		}
-		buffer.append('\n');
-
-		return buffer.toString();
-	}
 }
