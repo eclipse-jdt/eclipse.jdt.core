@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.search;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.search.matching.InternalReferenceMatch;
 
 /**
  * A Java search match that represents a type reference.
@@ -23,8 +22,9 @@ import org.eclipse.jdt.internal.core.search.matching.InternalReferenceMatch;
  *
  * @since 3.0
  */
-public class TypeReferenceMatch extends InternalReferenceMatch {
+public class TypeReferenceMatch extends ReferenceMatch {
 
+	private IJavaElement localElement;
 	private IJavaElement[] otherElements;
 
 /**
@@ -77,22 +77,30 @@ public TypeReferenceMatch(IJavaElement enclosingElement, int accuracy, int offse
  * @since 3.2
  */
 public final IJavaElement[] getOtherElements() {
-	IJavaElement localElement = localElement();
-	if (localElement == null || localElement.getElementType() != IJavaElement.ANNOTATION) {
+	if (this.localElement == null || this.localElement.getElementType() != IJavaElement.ANNOTATION) {
 		return this.otherElements;
 	}
 	return null;
 }
 
 /**
+ * Return the stored local element.
+ *
+ * @see org.eclipse.jdt.core.search.ReferenceMatch#getLocalElement()
+ */
+protected IJavaElement localElement() {
+	return this.localElement;
+}
+
+/**
  * Sets the local element of this search match.
  *
- * @param localElement A more specific local element that corresponds to the match,
+ * @param element A more specific local element that corresponds to the match,
  * 	or <code>null</code> if none
  * @since 3.2
  */
-public final void setLocalElement(IJavaElement localElement) {
-	localElement(localElement);
+public final void setLocalElement(IJavaElement element) {
+	this.localElement = element;
 }
 
 /**

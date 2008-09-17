@@ -333,7 +333,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 			reportDeclaration(methodBinding, locator, declPattern.knownMethods);
 		}
 	} else {
-		MethodReferenceMatch methodReferenceMatch = locator.newMethodReferenceMatch(element, elementBinding, accuracy, -1, -1, false /*not constructor*/, false/*not synthetic*/, reference);
+		InternalMethodReferenceMatch methodReferenceMatch = locator.newMethodReferenceMatch(element, elementBinding, accuracy, -1, -1, false /*not constructor*/, false/*not synthetic*/, reference);
 		methodReferenceMatch.localElement(localElement);
 		this.match = methodReferenceMatch;
 		if (this.pattern.findReferences && reference instanceof MessageSend) {

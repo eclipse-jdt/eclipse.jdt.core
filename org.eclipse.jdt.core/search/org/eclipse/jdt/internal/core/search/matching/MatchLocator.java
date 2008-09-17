@@ -1420,7 +1420,7 @@ public FieldReferenceMatch newFieldReferenceMatch(
 	if (enclosingBinding != null) {
 		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
 	}
-	FieldReferenceMatch match = new FieldReferenceMatch(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
+	InternalFieldReferenceMatch match = new InternalFieldReferenceMatch(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
 	match.localElement(localElement);
 	return match;
 }
@@ -1451,7 +1451,7 @@ public SearchMatch newLocalVariableReferenceMatch(
 	return new LocalVariableReferenceMatch(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
 }
 
-public MethodReferenceMatch newMethodReferenceMatch(
+public InternalMethodReferenceMatch newMethodReferenceMatch(
 		IJavaElement enclosingElement,
 		Binding enclosingBinding,
 		int accuracy,
@@ -1466,10 +1466,10 @@ public MethodReferenceMatch newMethodReferenceMatch(
 	if (enclosingBinding != null)
 		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
 	boolean isOverridden = (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0;
-	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, isConstructor, isSynthetic, isOverridden, insideDocComment, participant, resource);
+	return new InternalMethodReferenceMatch(enclosingElement, accuracy, offset, length, isConstructor, isSynthetic, isOverridden, insideDocComment, participant, resource);
 }
 
-public PackageReferenceMatch newPackageReferenceMatch(
+public InternalPackageReferenceMatch newPackageReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
 		int offset,
@@ -1478,7 +1478,7 @@ public PackageReferenceMatch newPackageReferenceMatch(
 	SearchParticipant participant = getParticipant();
 	IResource resource = this.currentPossibleMatch.resource;
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
-	return new PackageReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
+	return new InternalPackageReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
 }
 
 public SearchMatch newTypeParameterReferenceMatch(

@@ -15,17 +15,14 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 
 /**
- * An intermediate class to store data in the search match and access them
- * in a private manner.
- *
- * @since 3.4
+ * A method reference match that stores the local element
  */
-public abstract class InternalReferenceMatch extends ReferenceMatch {
+public class InternalFieldReferenceMatch extends FieldReferenceMatch {
 
 	IJavaElement localElement;
 
-public InternalReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, int length, boolean insideDocComment, SearchParticipant participant, IResource resource) {
-	super(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
+public InternalFieldReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, int length, boolean isReadAccess, boolean isWriteAccess, boolean insideDocComment, SearchParticipant participant, IResource resource) {
+	super(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
 }
 
 /**

@@ -16,7 +16,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.search.PackageReferenceMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -263,7 +262,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 	if (last > positions.length) last = positions.length;
 	int sourceStart = (int) (positions[0] >>> 32);
 	int sourceEnd = ((int) positions[last - 1]);
-	PackageReferenceMatch packageReferenceMatch = locator.newPackageReferenceMatch(element, accuracy, sourceStart, sourceEnd-sourceStart+1, reference);
+	InternalPackageReferenceMatch packageReferenceMatch = locator.newPackageReferenceMatch(element, accuracy, sourceStart, sourceEnd-sourceStart+1, reference);
 	packageReferenceMatch.localElement(localElement);
 	this.match = packageReferenceMatch;
 	locator.report(this.match);

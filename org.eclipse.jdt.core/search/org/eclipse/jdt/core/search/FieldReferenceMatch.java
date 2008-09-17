@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.search;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.core.search.matching.InternalReferenceMatch;
 
 /**
  * A Java search match that represents a field reference.
@@ -23,7 +22,7 @@ import org.eclipse.jdt.internal.core.search.matching.InternalReferenceMatch;
  *
  * @since 3.0
  */
-public class FieldReferenceMatch extends InternalReferenceMatch {
+public class FieldReferenceMatch extends ReferenceMatch {
 
 private boolean isReadAccess;
 private boolean isWriteAccess;
