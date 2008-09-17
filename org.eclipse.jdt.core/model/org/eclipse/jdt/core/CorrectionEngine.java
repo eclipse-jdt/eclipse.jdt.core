@@ -16,7 +16,6 @@ import java.util.Map;
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -30,7 +29,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.
  */
-public class CorrectionEngine implements ProblemReasons {
+public class CorrectionEngine {
 
 	/**
 	 * This field is not intended to be used by client.
