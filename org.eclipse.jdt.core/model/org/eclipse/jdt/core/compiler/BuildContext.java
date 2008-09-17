@@ -13,8 +13,6 @@
 package org.eclipse.jdt.core.compiler;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.internal.core.builder.CompilationParticipantResult;
-import org.eclipse.jdt.internal.core.builder.SourceFile;
 
 /**
  * The context of a build event that is notified to interested compilation
@@ -25,17 +23,7 @@ import org.eclipse.jdt.internal.core.builder.SourceFile;
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
-public class BuildContext extends CompilationParticipantResult {
-
-/**
- * Creates a build context for the given source file.
- *
- * @param sourceFile the source file being built
- * @noreference This constructor is not intended to be called by clients.
- */
-public BuildContext(SourceFile sourceFile) {
-	super(sourceFile);
-}
+public class BuildContext {
 
 /**
  * Returns the contents of the compilation unit.
@@ -43,7 +31,7 @@ public BuildContext(SourceFile sourceFile) {
  * @return the contents of the compilation unit
  */
 public char[] getContents() {
-	return this.sourceFile.getContents();
+	return null; // default overridden by concrete implementation
 }
 
 /**
@@ -52,7 +40,7 @@ public char[] getContents() {
  * @return the <code>IFile</code> representing the compilation unit
  */
 public IFile getFile() {
-	return this.sourceFile.resource;
+	return null; // default overridden by concrete implementation
 }
 
 /**
@@ -63,7 +51,7 @@ public IFile getFile() {
  * @return whether the compilation unit contained any annotations when it was compiled
  */
 public boolean hasAnnotations() {
-	return this.hasAnnotations; // only set during processAnnotations
+	return false; // default overridden by concrete implementation
 }
 
 /**
@@ -72,15 +60,7 @@ public boolean hasAnnotations() {
  * @param addedGeneratedFiles the added/changed files
  */
 public void recordAddedGeneratedFiles(IFile[] addedGeneratedFiles) {
-	int length2 = addedGeneratedFiles.length;
-	if (length2 == 0) return;
-
-	int length1 = this.addedFiles == null ? 0 : this.addedFiles.length;
-	IFile[] merged = new IFile[length1 + length2];
-	if (length1 > 0) // always make a copy even if currently empty
-		System.arraycopy(this.addedFiles, 0, merged, 0, length1);
-	System.arraycopy(addedGeneratedFiles, 0, merged, length1, length2);
-	this.addedFiles = merged;
+	// default overridden by concrete implementation
 }
 
 /**
@@ -89,15 +69,7 @@ public void recordAddedGeneratedFiles(IFile[] addedGeneratedFiles) {
  * @param deletedGeneratedFiles the files that need to be deleted
  */
 public void recordDeletedGeneratedFiles(IFile[] deletedGeneratedFiles) {
-	int length2 = deletedGeneratedFiles.length;
-	if (length2 == 0) return;
-
-	int length1 = this.deletedFiles == null ? 0 : this.deletedFiles.length;
-	IFile[] merged = new IFile[length1 + length2];
-	if (length1 > 0) // always make a copy even if currently empty
-		System.arraycopy(this.deletedFiles, 0, merged, 0, length1);
-	System.arraycopy(deletedGeneratedFiles, 0, merged, length1, length2);
-	this.deletedFiles = merged;
+	// default overridden by concrete implementation
 }
 
 /**
@@ -106,15 +78,7 @@ public void recordDeletedGeneratedFiles(IFile[] deletedGeneratedFiles) {
  * @param typeNameDependencies the fully-qualified type names of new dependencies
  */
 public void recordDependencies(String[] typeNameDependencies) {
-	int length2 = typeNameDependencies.length;
-	if (length2 == 0) return;
-
-	int length1 = this.dependencies == null ? 0 : this.dependencies.length;
-	String[] merged = new String[length1 + length2];
-	if (length1 > 0) // always make a copy even if currently empty
-		System.arraycopy(this.dependencies, 0, merged, 0, length1);
-	System.arraycopy(typeNameDependencies, 0, merged, length1, length2);
-	this.dependencies = merged;
+	// default overridden by concrete implementation
 }
 
 /**
@@ -125,15 +89,7 @@ public void recordDependencies(String[] typeNameDependencies) {
  * @param newProblems the problems to report
  */
 public void recordNewProblems(CategorizedProblem[] newProblems) {
-	int length2 = newProblems.length;
-	if (length2 == 0) return;
-
-	int length1 = this.problems == null ? 0 : this.problems.length;
-	CategorizedProblem[] merged = new CategorizedProblem[length1 + length2];
-	if (length1 > 0) // always make a copy even if currently empty
-		System.arraycopy(this.problems, 0, merged, 0, length1);
-	System.arraycopy(newProblems, 0, merged, length1, length2);
-	this.problems = merged;
+	// default overridden by concrete implementation
 }
 
 }
