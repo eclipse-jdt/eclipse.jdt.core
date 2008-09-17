@@ -36,15 +36,12 @@ public class CodeSnippetAllocationExpression extends AllocationExpression implem
 public CodeSnippetAllocationExpression(EvaluationContext evaluationContext) {
 	this.evaluationContext = evaluationContext;
 }
-public void generateCode(
-	BlockScope currentScope,
-	CodeStream codeStream,
-	boolean valueRequired) {
-
+public void generateCode(BlockScope currentScope, CodeStream codeStream, 	boolean valueRequired) {
 	int pc = codeStream.position;
-	ReferenceBinding allocatedType = this.codegenBinding.declaringClass;
+	MethodBinding codegenBinding = this.binding.original();
+	ReferenceBinding allocatedType = codegenBinding.declaringClass;
 
-	if (this.codegenBinding.canBeSeenBy(allocatedType, this, currentScope)) {
+	if (codegenBinding.canBeSeenBy(allocatedType, this, currentScope)) {
 		codeStream.new_(allocatedType);
 		if (valueRequired) {
 			codeStream.dup();
@@ -74,10 +71,10 @@ public void generateCode(
 				this);
 		}
 		// invoke constructor
-		codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, null /* default declaringClass */);
+		codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */);
 	} else {
 		// private emulation using reflect
-		codeStream.generateEmulationForConstructor(currentScope, this.codegenBinding);
+		codeStream.generateEmulationForConstructor(currentScope, codegenBinding);
 		// generate arguments
 		if (this.arguments != null) {
 			int argsLength = this.arguments.length;
@@ -87,9 +84,9 @@ public void generateCode(
 			for (int i = 0; i < argsLength; i++) {
 				codeStream.generateInlinedValue(i);
 				this.arguments[i].generateCode(currentScope, codeStream, true);
-				TypeBinding parameterBinding = this.codegenBinding.parameters[i];
+				TypeBinding parameterBinding = codegenBinding.parameters[i];
 				if (parameterBinding.isBaseType() && parameterBinding != TypeBinding.NULL) {
-					codeStream.generateBoxingConversion(this.codegenBinding.parameters[i].id);
+					codeStream.generateBoxingConversion(codegenBinding.parameters[i].id);
 				}
 				codeStream.aastore();
 				if (i < argsLength - 1) {
@@ -116,11 +113,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 	// not supported yet
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
-
-		// if constructor from parameterized type got found, use the original constructor at codegen time
-		this.codegenBinding = this.binding.original();
-		}
+	// do nothing
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Propagate the type checking to the arguments, and check if the constructor is defined.

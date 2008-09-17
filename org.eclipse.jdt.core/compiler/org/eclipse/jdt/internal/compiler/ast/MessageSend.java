@@ -44,7 +44,6 @@ public class MessageSend extends Expression implements InvocationSite {
 	public char[] selector;
 	public Expression[] arguments;
 	public MethodBinding binding;							// exact binding resulting from lookup
-	public MethodBinding codegenBinding;		// actual binding used for code generation (if no synthetic accessor)
 	public MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
 	public TypeBinding expectedType;					// for generic method invocation (return type inference)
 
@@ -128,7 +127,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	int pc = codeStream.position;
 
 	// generate receiver/enclosing instance access
-	boolean isStatic = this.codegenBinding.isStatic();
+	MethodBinding codegenBinding = this.binding.original();
+	boolean isStatic = codegenBinding.isStatic();
 	if (isStatic) {
 		this.receiver.generateCode(currentScope, codeStream, false);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
@@ -151,14 +151,14 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (this.syntheticAccessor == null){
 		TypeBinding constantPoolDeclaringClass = getConstantPoolDeclaringClass(currentScope);
 		if (isStatic){
-			codeStream.invoke(Opcodes.OPC_invokestatic, this.codegenBinding, constantPoolDeclaringClass);
-		} else if( (this.receiver.isSuper()) || this.codegenBinding.isPrivate()){
-			codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, constantPoolDeclaringClass);
+			codeStream.invoke(Opcodes.OPC_invokestatic, codegenBinding, constantPoolDeclaringClass);
+		} else if( (this.receiver.isSuper()) || codegenBinding.isPrivate()){
+			codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, constantPoolDeclaringClass);
 		} else {
 			if (constantPoolDeclaringClass.isInterface()) { // interface or annotation type
-				codeStream.invoke(Opcodes.OPC_invokeinterface, this.codegenBinding, constantPoolDeclaringClass);
+				codeStream.invoke(Opcodes.OPC_invokeinterface, codegenBinding, constantPoolDeclaringClass);
 			} else {
-				codeStream.invoke(Opcodes.OPC_invokevirtual, this.codegenBinding, constantPoolDeclaringClass);
+				codeStream.invoke(Opcodes.OPC_invokevirtual, codegenBinding, constantPoolDeclaringClass);
 			}
 		}
 	} else {
@@ -173,7 +173,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		boolean isUnboxing = (this.implicitConversion & TypeIds.UNBOXING) != 0;
 		// conversion only generated if unboxing
 		if (isUnboxing) codeStream.generateImplicitConversion(this.implicitConversion);
-		switch (isUnboxing ? postConversionType(currentScope).id : this.codegenBinding.returnType.id) {
+		switch (isUnboxing ? postConversionType(currentScope).id : codegenBinding.returnType.id) {
 			case T_long :
 			case T_double :
 				codeStream.pop2();
@@ -195,10 +195,11 @@ public TypeBinding[] genericTypeArguments() {
 
 protected TypeBinding getConstantPoolDeclaringClass(BlockScope currentScope) {
 	// constantpool declaringClass
-	TypeBinding constantPoolDeclaringClass = this.codegenBinding.declaringClass;
+	MethodBinding codegenBinding = this.binding.original();
+	TypeBinding constantPoolDeclaringClass = codegenBinding.declaringClass;
 	// Post 1.4.0 target, array clone() invocations are qualified with array type
 	// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
-	if (this.codegenBinding == currentScope.environment().arrayClone) {
+	if (codegenBinding == currentScope.environment().arrayClone) {
 		CompilerOptions options = currentScope.compilerOptions();
 		if (options.sourceLevel > ClassFileConstants.JDK1_4 ) {
 			constantPoolDeclaringClass = this.actualReceiverType.erasure();
@@ -211,7 +212,7 @@ protected TypeBinding getConstantPoolDeclaringClass(BlockScope currentScope) {
 		if (constantPoolDeclaringClass != this.actualReceiverType && this.receiverGenericCast == null && !this.actualReceiverType.isArrayType()) {
 			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
-						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(this.receiver.isImplicitThis() && this.codegenBinding.isStatic()))
+						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(this.receiver.isImplicitThis() && codegenBinding.isStatic()))
 						&& this.binding.declaringClass.id != TypeIds.T_JavaLangObject) // no change for Object methods
 					|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
 				constantPoolDeclaringClass = this.actualReceiverType.erasure();
@@ -232,14 +233,14 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0)	return;
 
 	// if method from parameterized type got found, use the original method at codegen time
-	this.codegenBinding = this.binding.original();
+	MethodBinding codegenBinding = this.binding.original();
 	if (this.binding.isPrivate()){
 
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)
-		if (currentScope.enclosingSourceType() != this.codegenBinding.declaringClass){
+		if (currentScope.enclosingSourceType() != codegenBinding.declaringClass){
 
-			this.syntheticAccessor = ((SourceTypeBinding)this.codegenBinding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
-			currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
+			this.syntheticAccessor = ((SourceTypeBinding)codegenBinding.declaringClass).addSyntheticMethod(codegenBinding, isSuperAccess());
+			currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
 			return;
 		}
 
@@ -247,20 +248,20 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 
 		// qualified super need emulation always
 		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)this.receiver).currentCompatibleType);
-		this.syntheticAccessor = destinationType.addSyntheticMethod(this.codegenBinding, isSuperAccess());
-		currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
+		this.syntheticAccessor = destinationType.addSyntheticMethod(codegenBinding, isSuperAccess());
+		currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
 		return;
 
 	} else if (this.binding.isProtected()){
 
 		SourceTypeBinding enclosingSourceType;
 		if (((this.bits & ASTNode.DepthMASK) != 0)
-				&& this.codegenBinding.declaringClass.getPackage()
+				&& codegenBinding.declaringClass.getPackage()
 					!= (enclosingSourceType = currentScope.enclosingSourceType()).getPackage()){
 
 			SourceTypeBinding currentCompatibleType = (SourceTypeBinding)enclosingSourceType.enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT);
-			this.syntheticAccessor = currentCompatibleType.addSyntheticMethod(this.codegenBinding, isSuperAccess());
-			currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
+			this.syntheticAccessor = currentCompatibleType.addSyntheticMethod(codegenBinding, isSuperAccess());
+			currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
 			return;
 		}
 	}

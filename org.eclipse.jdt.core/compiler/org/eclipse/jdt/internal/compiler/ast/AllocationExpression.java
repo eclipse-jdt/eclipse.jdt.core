@@ -22,7 +22,6 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	public TypeReference type;
 	public Expression[] arguments;
 	public MethodBinding binding;							// exact binding resulting from lookup
-	protected MethodBinding codegenBinding;	// actual binding used for code generation (if no synthetic accessor)
 	MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
@@ -80,7 +79,8 @@ public Expression enclosingInstance() {
 
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
-	ReferenceBinding allocatedType = this.codegenBinding.declaringClass;
+	 MethodBinding codegenBinding = this.binding.original();
+	ReferenceBinding allocatedType = codegenBinding.declaringClass;
 
 	codeStream.new_(allocatedType);
 	boolean isUnboxing = (this.implicitConversion & TypeIds.UNBOXING) != 0;
@@ -115,11 +115,11 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	// invoke constructor
 	if (this.syntheticAccessor == null) {
-		codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, null /* default declaringClass */);
+		codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */);
 	} else {
 		// synthetic accessor got some extra arguments appended to its signature, which need values
 		for (int i = 0,
-			max = this.syntheticAccessor.parameters.length - this.codegenBinding.parameters.length;
+			max = this.syntheticAccessor.parameters.length - codegenBinding.parameters.length;
 			i < max;
 			i++) {
 			codeStream.aconst_null();
@@ -187,18 +187,18 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) return;
 	// if constructor from parameterized type got found, use the original constructor at codegen time
-	this.codegenBinding = this.binding.original();
+	MethodBinding codegenBinding = this.binding.original();
 
 	ReferenceBinding declaringClass;
-	if (this.codegenBinding.isPrivate() && currentScope.enclosingSourceType() != (declaringClass = this.codegenBinding.declaringClass)) {
+	if (codegenBinding.isPrivate() && currentScope.enclosingSourceType() != (declaringClass = codegenBinding.declaringClass)) {
 
 		// from 1.4 on, local type constructor can lose their private flag to ease emulation
 		if ((declaringClass.tagBits & TagBits.IsLocalType) != 0 	&& currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 			// constructor will not be dumped as private, no emulation required thus
-			this.codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
+			codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
 		} else {
-			this.syntheticAccessor = ((SourceTypeBinding) declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
-			currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
+			this.syntheticAccessor = ((SourceTypeBinding) declaringClass).addSyntheticMethod(codegenBinding, isSuperAccess());
+			currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
 		}
 	}
 }

@@ -48,16 +48,12 @@ public CodeSnippetMessageSend(EvaluationContext evaluationContext) {
  * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
  * @param valueRequired boolean
  */
-public void generateCode(
-	BlockScope currentScope,
-	CodeStream codeStream,
-	boolean valueRequired) {
-
+public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
-
-	if (this.codegenBinding.canBeSeenBy(this.actualReceiverType, this, currentScope)) {
+	MethodBinding codegenBinding = this.binding.original();
+	if (codegenBinding.canBeSeenBy(this.actualReceiverType, this, currentScope)) {
 		// generate receiver/enclosing instance access
-		boolean isStatic = this.codegenBinding.isStatic();
+		boolean isStatic = codegenBinding.isStatic();
 		// outer access ?
 		if (!isStatic && ((this.bits & DepthMASK) != 0)) {
 			// outer method can be reached through emulation
@@ -80,20 +76,20 @@ public void generateCode(
 		// actual message invocation
 		TypeBinding constantPoolDeclaringClass = getConstantPoolDeclaringClass(currentScope);
 		if (isStatic) {
-			codeStream.invoke(Opcodes.OPC_invokestatic, this.codegenBinding, constantPoolDeclaringClass);
-		} else if( (this.receiver.isSuper()) || this.codegenBinding.isPrivate()){
-			codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, constantPoolDeclaringClass);
+			codeStream.invoke(Opcodes.OPC_invokestatic, codegenBinding, constantPoolDeclaringClass);
+		} else if( (this.receiver.isSuper()) || codegenBinding.isPrivate()){
+			codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, constantPoolDeclaringClass);
 		} else {
 			if (constantPoolDeclaringClass.isInterface()) { // interface or annotation type
-				codeStream.invoke(Opcodes.OPC_invokeinterface, this.codegenBinding, constantPoolDeclaringClass);
+				codeStream.invoke(Opcodes.OPC_invokeinterface, codegenBinding, constantPoolDeclaringClass);
 			} else {
-				codeStream.invoke(Opcodes.OPC_invokevirtual, this.codegenBinding, constantPoolDeclaringClass);
+				codeStream.invoke(Opcodes.OPC_invokevirtual, codegenBinding, constantPoolDeclaringClass);
 			}
 		}
 	} else {
-		codeStream.generateEmulationForMethod(currentScope, this.codegenBinding);
+		codeStream.generateEmulationForMethod(currentScope, codegenBinding);
 		// generate receiver/enclosing instance access
-		boolean isStatic = this.codegenBinding.isStatic();
+		boolean isStatic = codegenBinding.isStatic();
 		// outer access ?
 		if (!isStatic && ((this.bits & DepthMASK) != 0)) {
 			// not supported yet
@@ -117,9 +113,9 @@ public void generateCode(
 			for (int i = 0; i < argsLength; i++) {
 				codeStream.generateInlinedValue(i);
 				this.arguments[i].generateCode(currentScope, codeStream, true);
-				TypeBinding parameterBinding = this.codegenBinding.parameters[i];
+				TypeBinding parameterBinding = codegenBinding.parameters[i];
 				if (parameterBinding.isBaseType() && parameterBinding != TypeBinding.NULL) {
-					codeStream.generateBoxingConversion(this.codegenBinding.parameters[i].id);
+					codeStream.generateBoxingConversion(codegenBinding.parameters[i].id);
 				}
 				codeStream.aastore();
 				if (i < argsLength - 1) {
@@ -133,8 +129,8 @@ public void generateCode(
 		codeStream.invokeJavaLangReflectMethodInvoke();
 
 		// convert the return value to the appropriate type for primitive types
-		if (this.codegenBinding.returnType.isBaseType()) {
-			int typeID = this.codegenBinding.returnType.id;
+		if (codegenBinding.returnType.isBaseType()) {
+			int typeID = codegenBinding.returnType.id;
 			if (typeID == T_void) {
 				// remove the null from the stack
 				codeStream.pop();
@@ -142,7 +138,7 @@ public void generateCode(
 			codeStream.checkcast(typeID);
 			codeStream.getBaseTypeValue(typeID);
 		} else {
-			codeStream.checkcast(this.codegenBinding.returnType);
+			codeStream.checkcast(codegenBinding.returnType);
 		}
 	}
 	// required cast must occur even if no value is required
@@ -154,7 +150,7 @@ public void generateCode(
 		boolean isUnboxing = (this.implicitConversion & TypeIds.UNBOXING) != 0;
 		// conversion only generated if unboxing
 		if (isUnboxing) codeStream.generateImplicitConversion(this.implicitConversion);
-		switch (isUnboxing ? postConversionType(currentScope).id : this.codegenBinding.returnType.id) {
+		switch (isUnboxing ? postConversionType(currentScope).id : codegenBinding.returnType.id) {
 			case T_long :
 			case T_double :
 				codeStream.pop2();
@@ -171,11 +167,11 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 		// if method from parameterized type got found, use the original method at codegen time
-		this.codegenBinding = this.binding.original();
-		if (this.codegenBinding != this.binding) {
+		MethodBinding codegenBinding = this.binding.original();
+		if (codegenBinding != this.binding) {
 		    // extra cast needed if method return type was type variable
-		    if (this.codegenBinding.returnType.isTypeVariable()) {
-		        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
+		    if (codegenBinding.returnType.isTypeVariable()) {
+		        TypeVariableBinding variableReturnType = (TypeVariableBinding) codegenBinding.returnType;
 		        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
 				    this.valueCast = this.binding.returnType;
 		        }

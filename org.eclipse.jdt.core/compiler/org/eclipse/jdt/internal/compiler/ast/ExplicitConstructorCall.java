@@ -38,7 +38,6 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 	public Expression[] arguments;
 	public Expression qualification;
 	public MethodBinding binding;							// exact binding resulting from lookup
-	protected MethodBinding codegenBinding;		// actual binding used for code generation (if no synthetic accessor)
 	MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
 	public int accessMode;
 	public TypeReference[] typeArguments;
@@ -115,7 +114,8 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 			int pc = codeStream.position;
 			codeStream.aload_0();
 
-			ReferenceBinding targetType = this.codegenBinding.declaringClass;
+			MethodBinding codegenBinding = this.binding.original();
+			ReferenceBinding targetType = codegenBinding.declaringClass;
 
 			// special name&ordinal argument generation for enum constructors
 			if (targetType.erasure().id == TypeIds.T_JavaLangEnum || targetType.isEnum()) {
@@ -144,14 +144,14 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 			if (this.syntheticAccessor != null) {
 				// synthetic accessor got some extra arguments appended to its signature, which need values
 				for (int i = 0,
-					max = this.syntheticAccessor.parameters.length - this.codegenBinding.parameters.length;
+					max = this.syntheticAccessor.parameters.length - codegenBinding.parameters.length;
 					i < max;
 					i++) {
 					codeStream.aconst_null();
 				}
 				codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */);
 			} else {
-				codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, null /* default declaringClass */);
+				codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
@@ -206,18 +206,18 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 			// if constructor from parameterized type got found, use the original constructor at codegen time
-			this.codegenBinding = this.binding.original();
+			MethodBinding codegenBinding = this.binding.original();
 
 			// perform some emulation work in case there is some and we are inside a local type only
 			if (this.binding.isPrivate() && this.accessMode != ExplicitConstructorCall.This) {
-				ReferenceBinding declaringClass = this.codegenBinding.declaringClass;
+				ReferenceBinding declaringClass = codegenBinding.declaringClass;
 				// from 1.4 on, local type constructor can lose their private flag to ease emulation
 				if ((declaringClass.tagBits & TagBits.IsLocalType) != 0 	&& currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 					// constructor will not be dumped as private, no emulation required thus
-					this.codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
+					codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
 				} else {
-					this.syntheticAccessor = ((SourceTypeBinding) declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
-					currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
+					this.syntheticAccessor = ((SourceTypeBinding) declaringClass).addSyntheticMethod(codegenBinding, isSuperAccess());
+					currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
 				}
 			}
 		}

@@ -99,13 +99,10 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		return this.enclosingInstance;
 	}
 
-	public void generateCode(
-		BlockScope currentScope,
-		CodeStream codeStream,
-		boolean valueRequired) {
-
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		int pc = codeStream.position;
-		ReferenceBinding allocatedType = this.codegenBinding.declaringClass;
+		MethodBinding codegenBinding = this.binding.original();
+		ReferenceBinding allocatedType = codegenBinding.declaringClass;
 		codeStream.new_(allocatedType);
 		boolean isUnboxing = (this.implicitConversion & TypeIds.UNBOXING) != 0;
 		if (valueRequired || isUnboxing) {
@@ -139,11 +136,11 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		// invoke constructor
 		if (this.syntheticAccessor == null) {
-			codeStream.invoke(Opcodes.OPC_invokespecial, this.codegenBinding, null /* default declaringClass */);
+			codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */);
 		} else {
 			// synthetic accessor got some extra arguments appended to its signature, which need values
 			for (int i = 0,
-				max = this.syntheticAccessor.parameters.length - this.codegenBinding.parameters.length;
+				max = this.syntheticAccessor.parameters.length - codegenBinding.parameters.length;
 				i < max;
 				i++) {
 				codeStream.aconst_null();
