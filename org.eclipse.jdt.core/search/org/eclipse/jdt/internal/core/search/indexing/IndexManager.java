@@ -98,7 +98,7 @@ public void addSource(IFile resource, IPath containerPath, SourceElementParser p
 	if (JavaCore.getPlugin() == null) return;
 	SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
 	SearchDocument document = participant.getDocument(resource.getFullPath().toString());
-	((InternalSearchDocument) document).parser = parser;
+	document.setParser(parser);
 	IPath indexLocation = computeIndexLocation(containerPath);
 	scheduleDocumentIndexing(document, containerPath, indexLocation, participant);
 }
@@ -355,10 +355,10 @@ private File getSavedIndexesDirectory() {
 }
 public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexLocation) {
 	try {
-		((InternalSearchDocument) searchDocument).index = index;
+		searchDocument.setIndex(index);
 		searchParticipant.indexDocument(searchDocument, indexLocation);
 	} finally {
-		((InternalSearchDocument) searchDocument).index = null;
+		searchDocument.setIndex(null);
 	}
 }
 /**

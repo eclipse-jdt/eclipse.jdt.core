@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
-import org.eclipse.jdt.internal.core.search.indexing.InternalSearchDocument;
+import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.core.index.Index;
 
 /**
  * A search document encapsulates a content to be either indexed or searched in.
@@ -21,7 +22,10 @@ import org.eclipse.jdt.internal.core.search.indexing.InternalSearchDocument;
  *
  * @since 3.0
  */
-public abstract class SearchDocument extends InternalSearchDocument {
+public abstract class SearchDocument {
+	private Index index;
+	private String containerRelativePath;
+	private SourceElementParser parser;
 	private String documentPath;
 	private SearchParticipant participant;
 
@@ -47,7 +51,8 @@ public abstract class SearchDocument extends InternalSearchDocument {
 	 * @param key the key of the index entry
 	 */
 	public void addIndexEntry(char[] category, char[] key) {
-		super.addIndexEntry(category, key);
+		if (this.index != null)
+			this.index.addIndexEntry(category, key, getContainerRelativePath());
 	}
 
 	/**
@@ -88,6 +93,12 @@ public abstract class SearchDocument extends InternalSearchDocument {
 	 */
 	public abstract char[] getCharContents();
 
+	private String getContainerRelativePath() {
+		if (this.containerRelativePath == null)
+			this.containerRelativePath = this.index.containerRelativePath(getPath());
+		return this.containerRelativePath;
+	}
+
 	/**
 	 * Returns the encoding for this document.
 	 * <p>
@@ -99,6 +110,14 @@ public abstract class SearchDocument extends InternalSearchDocument {
 	 */
 	public abstract String getEncoding();
 
+	/**
+	 * @nooverride This method is not intended to be re-implemented or extended by clients.
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public SourceElementParser getParser() {
+		return this.parser;
+	}
+	
 	/**
 	 * Returns the participant that created this document.
 	 *
@@ -125,6 +144,23 @@ public abstract class SearchDocument extends InternalSearchDocument {
 	 * {@link SearchParticipant#indexDocument(SearchDocument document, org.eclipse.core.runtime.IPath indexPath)}.
 	 */
 	public void removeAllIndexEntries() {
-		super.removeAllIndexEntries();
+		if (this.index != null)
+			this.index.remove(getContainerRelativePath());
+	}
+	
+	/**
+	 * @nooverride This method is not intended to be re-implemented or extended by clients.
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public void setIndex(Index indexToSet) {
+		this.index = indexToSet;
+	}
+	
+	/**
+	 * @nooverride This method is not intended to be re-implemented or extended by clients.
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public void setParser(SourceElementParser sourceElementParser) {
+		this.parser = sourceElementParser;
 	}
 }
