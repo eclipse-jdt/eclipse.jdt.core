@@ -152,7 +152,7 @@ public SuperTypeReferencePattern(
 
 	this.superQualification = this.isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
 	this.superSimpleName = (this.isCaseSensitive || this.isCamelCase) ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
-	((InternalSearchPattern)this).mustResolve = superQualification != null;
+	this.mustResolve = superQualification != null;
 	this.superRefKind = superRefKind;
 }
 public SuperTypeReferencePattern(
@@ -164,7 +164,7 @@ public SuperTypeReferencePattern(
 
 	this(superQualification, superSimpleName, superRefKind, matchRule);
 	this.typeSuffix = typeSuffix;
-	((InternalSearchPattern)this).mustResolve = superQualification != null || typeSuffix != TYPE_SUFFIX;
+	this.mustResolve = superQualification != null || typeSuffix != TYPE_SUFFIX;
 }
 SuperTypeReferencePattern(int matchRule) {
 	super(SUPER_REF_PATTERN, matchRule);
@@ -241,7 +241,7 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 
 	return matchesName(this.superSimpleName, pattern.superSimpleName);
 }
-EntryResult[] queryIn(Index index) throws IOException {
+public EntryResult[] queryIn(Index index) throws IOException {
 	char[] key = this.superSimpleName; // can be null
 	int matchRule = getMatchRule();
 

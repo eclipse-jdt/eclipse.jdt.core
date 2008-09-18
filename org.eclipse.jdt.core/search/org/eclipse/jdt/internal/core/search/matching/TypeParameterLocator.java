@@ -37,7 +37,7 @@ public class TypeParameterLocator extends PatternLocator {
 		if (this.pattern.findReferences) {
 			if (node instanceof SingleTypeReference) { // Type parameter cannot be qualified
 				if (matchesName(this.pattern.name, ((SingleTypeReference) node).token)) {
-					int level = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+					int level = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 					return nodeSet.addMatch(node, level);
 				}
 			}
@@ -52,7 +52,7 @@ public class TypeParameterLocator extends PatternLocator {
 	public int match(TypeParameter node, MatchingNodeSet nodeSet) {
 		if (this.pattern.findDeclarations) {
 			if (matchesName(this.pattern.name, node.name)) {
-				int level = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				int level = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 				return nodeSet.addMatch(node, level);
 			}
 		}

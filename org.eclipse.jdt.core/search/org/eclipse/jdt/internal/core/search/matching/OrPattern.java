@@ -29,8 +29,8 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 
 	public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 		super(Math.max(leftPattern.getMatchRule(), rightPattern.getMatchRule()));
-		((InternalSearchPattern)this).kind = OR_PATTERN;
-		((InternalSearchPattern)this).mustResolve = ((InternalSearchPattern) leftPattern).mustResolve || ((InternalSearchPattern) rightPattern).mustResolve;
+		this.kind = OR_PATTERN;
+		this.mustResolve = leftPattern.mustResolve || rightPattern.mustResolve;
 
 		SearchPattern[] leftPatterns = leftPattern instanceof OrPattern ? ((OrPattern) leftPattern).patterns : null;
 		SearchPattern[] rightPatterns = rightPattern instanceof OrPattern ? ((OrPattern) rightPattern).patterns : null;
@@ -53,12 +53,12 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 			this.matchCompatibility |= ((JavaSearchPattern) this.patterns[i]).matchCompatibility;
 		}
 	}
-	void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
+	public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
 		// per construction, OR pattern can only be used with a PathCollector (which already gather results using a set)
 		try {
 			index.startQuery();
 			for (int i = 0, length = this.patterns.length; i < length; i++)
-				((InternalSearchPattern)this.patterns[i]).findIndexMatches(index, requestor, participant, scope, progressMonitor);
+				this.patterns[i].findIndexMatches(index, requestor, participant, scope, progressMonitor);
 		} finally {
 			index.stopQuery();
 		}
@@ -72,9 +72,9 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 		return (this.matchCompatibility & R_ERASURE_MATCH) != 0;
 	}
 
-	boolean isPolymorphicSearch() {
+	public boolean isPolymorphicSearch() {
 		for (int i = 0, length = this.patterns.length; i < length; i++)
-			if (((InternalSearchPattern) this.patterns[i]).isPolymorphicSearch()) return true;
+			if (this.patterns[i].isPolymorphicSearch()) return true;
 		return false;
 	}
 

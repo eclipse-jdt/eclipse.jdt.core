@@ -112,7 +112,7 @@ public ConstructorPattern(
 	} else {
 		this.parameterCount = -1;
 	}
-	((InternalSearchPattern)this).mustResolve = mustResolve();
+	this.mustResolve = mustResolve();
 }
 /*
  * Instanciate a method pattern with signatures for generics search
@@ -174,7 +174,7 @@ public ConstructorPattern(
 
 	// Store type signatures and arguments for method
 	this.constructorArguments = extractMethodArguments(method);
-	if (hasConstructorArguments())  ((InternalSearchPattern)this).mustResolve = true;
+	if (hasConstructorArguments())  this.mustResolve = true;
 }
 /*
  * Instanciate a method pattern with signatures for generics search
@@ -223,7 +223,7 @@ public ConstructorPattern(
 			this.constructorArguments = getTypeArguments()[0];
 		}
 	}
-	if (hasConstructorArguments())  ((InternalSearchPattern)this).mustResolve = true;
+	if (hasConstructorArguments())  this.mustResolve = true;
 }
 public void decodeIndexKey(char[] key) {
 	int last = key.length - 1;
@@ -274,7 +274,7 @@ protected boolean mustResolve() {
 			if (this.parameterQualifications[i] != null) return true;
 	return this.findReferences; // need to check resolved default constructors and explicit constructor calls
 }
-EntryResult[] queryIn(Index index) throws IOException {
+public EntryResult[] queryIn(Index index) throws IOException {
 	char[] key = this.declaringSimpleName; // can be null
 	int matchRule = getMatchRule();
 

@@ -52,7 +52,7 @@ public class TypeReferencePattern extends IntersectingPattern {
 		else
 			this.segmentsSize = this.segments.length;
 
-		((InternalSearchPattern)this).mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
+		this.mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
 	}
 	/*
 	 * Instantiate a type reference pattern with additional information for generics search

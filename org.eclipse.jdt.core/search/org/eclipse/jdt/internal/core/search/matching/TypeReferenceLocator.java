@@ -66,7 +66,7 @@ public int match(Reference node, MatchingNodeSet nodeSet) { // interested in Nam
 	if (!(node instanceof NameReference)) return IMPOSSIBLE_MATCH;
 
 	if (this.pattern.simpleName == null)
-		return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 
 	if (node instanceof SingleNameReference) {
 		if (matchesName(this.pattern.simpleName, ((SingleNameReference) node).token))
@@ -83,11 +83,11 @@ public int match(Reference node, MatchingNodeSet nodeSet) { // interested in Nam
 //public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public int match(TypeReference node, MatchingNodeSet nodeSet) {
 	if (this.pattern.simpleName == null)
-		return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 
 	if (node instanceof SingleTypeReference) {
 		if (matchesName(this.pattern.simpleName, ((SingleTypeReference) node).token))
-			return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	} else {
 		char[][] tokens = ((QualifiedTypeReference) node).tokens;
 		for (int i = 0, max = tokens.length; i < max; i++)
@@ -485,7 +485,7 @@ void matchReportReference(Expression expr, int lastIndex, TypeBinding refBinding
 	if (refBinding.isLocalType()) {
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=82673
 		LocalTypeBinding local = (LocalTypeBinding) refBinding.erasure();
-		IJavaElement focus = ((InternalSearchPattern)this.pattern).focus;
+		IJavaElement focus = this.pattern.focus;
 		if (focus != null && local.enclosingMethod != null && focus.getParent().getElementType() == IJavaElement.METHOD) {
 			IMethod method = (IMethod) focus.getParent();
 			if (!CharOperation.equals(local.enclosingMethod.selector, method.getElementName().toCharArray())) {

@@ -23,6 +23,6 @@ public DeclarationOfReferencedTypesPattern(IJavaElement enclosingElement) {
 
 	this.enclosingElement = enclosingElement;
 	this.knownTypes = new SimpleSet();
-	((InternalSearchPattern)this).mustResolve = true;
+	this.mustResolve = true;
 }
 }

@@ -38,7 +38,7 @@ public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in Expli
 
 	if (!matchParametersCount(node, ((ExplicitConstructorCall) node).arguments)) return IMPOSSIBLE_MATCH;
 
-	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
 	int referencesLevel = this.pattern.findReferences ? matchLevelForReferences(node) : IMPOSSIBLE_MATCH;
@@ -58,7 +58,7 @@ public int match(Expression node, MatchingNodeSet nodeSet) { // interested in Al
 
 	if (!matchParametersCount(node, allocation.arguments)) return IMPOSSIBLE_MATCH;
 
-	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 public int match(FieldDeclaration field, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
@@ -73,7 +73,7 @@ public int match(FieldDeclaration field, MatchingNodeSet nodeSet) {
 
 	if (!matchParametersCount(field, allocation.arguments)) return IMPOSSIBLE_MATCH;
 
-	return nodeSet.addMatch(field, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(field, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 /**
@@ -83,7 +83,7 @@ public int match(FieldDeclaration field, MatchingNodeSet nodeSet) {
 public int match(MessageSend msgSend, MatchingNodeSet nodeSet)  {
 	if ((msgSend.bits & ASTNode.InsideJavadoc) == 0) return IMPOSSIBLE_MATCH;
 	if (this.pattern.declaringSimpleName == null || CharOperation.equals(msgSend.selector, this.pattern.declaringSimpleName)) {
-		return nodeSet.addMatch(msgSend, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		return nodeSet.addMatch(msgSend, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	}
 	return IMPOSSIBLE_MATCH;
 }
@@ -92,7 +92,7 @@ public int match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 
 	// need to look for a generated default constructor
-	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public int match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 
@@ -146,7 +146,7 @@ protected int matchLevelForReferences(ConstructorDeclaration constructor) {
 		int argsLength = args == null ? 0 : args.length;
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
-	return ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+	return this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 }
 protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
 	// constructor name is stored in selector field
@@ -165,7 +165,7 @@ protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
 		if (constructor.typeParameters == null || constructor.typeParameters.length != this.pattern.constructorArguments.length) return IMPOSSIBLE_MATCH;
 	}
 
-	return ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+	return this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 }
 boolean matchParametersCount(ASTNode node, Expression[] args) {
 	if (this.pattern.parameterSimpleNames != null && (!this.pattern.varargs || ((node.bits & ASTNode.InsideJavadoc) != 0))) {

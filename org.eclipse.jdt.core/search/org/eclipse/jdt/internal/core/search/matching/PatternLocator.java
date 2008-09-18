@@ -64,7 +64,7 @@ public static final int RAW_MASK = SearchPattern.R_EQUIVALENT_MATCH | SearchPatt
 public static final int RULE_MASK = RAW_MASK; // no other values for the while...
 
 public static PatternLocator patternLocator(SearchPattern pattern) {
-	switch (((InternalSearchPattern)pattern).kind) {
+	switch (pattern.kind) {
 		case IIndexConstants.PKG_REF_PATTERN :
 			return new PackageReferenceLocator((PackageReferencePattern) pattern);
 		case IIndexConstants.PKG_DECL_PATTERN :
@@ -120,7 +120,7 @@ public PatternLocator(SearchPattern pattern) {
 	this.isErasureMatch = (matchRule & SearchPattern.R_ERASURE_MATCH) != 0;
 	this.isEquivalentMatch = (matchRule & SearchPattern.R_EQUIVALENT_MATCH) != 0;
 	this.matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
-	this.mustResolve = ((InternalSearchPattern)pattern).mustResolve;
+	this.mustResolve = pattern.mustResolve;
 }
 /*
  * Clear caches

@@ -312,9 +312,9 @@ public int resolveLevel(Binding binding) {
 		}
 	}
 	if (compoundName != null && matchesName(this.pattern.pkgName, CharOperation.concatWith(compoundName, '.'))) {
-		if (((InternalSearchPattern) this.pattern).focus instanceof IPackageFragment && binding instanceof ReferenceBinding) {
+		if (this.pattern.focus instanceof IPackageFragment && binding instanceof ReferenceBinding) {
 			// check that type is located inside this instance of a package fragment
-			if (!isDeclaringPackageFragment((IPackageFragment)((InternalSearchPattern) this.pattern).focus, (ReferenceBinding)binding))
+			if (!isDeclaringPackageFragment((IPackageFragment) this.pattern.focus, (ReferenceBinding)binding))
 				return IMPOSSIBLE_MATCH;
 		}
 		return ACCURATE_MATCH;

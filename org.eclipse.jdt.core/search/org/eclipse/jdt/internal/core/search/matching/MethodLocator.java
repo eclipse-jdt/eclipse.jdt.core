@@ -102,7 +102,7 @@ public int match(ASTNode node, MatchingNodeSet nodeSet) {
 				System.arraycopy(importRef.tokens, 0, compoundName, 0, length);
 				char[] declaringType = CharOperation.concat(this.pattern.declaringQualification, this.pattern.declaringSimpleName, '.');
 				if (matchesName(declaringType, CharOperation.concatWith(compoundName, '.'))) {
-					declarationsLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+					declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 				}
 			}
 		}
@@ -119,7 +119,7 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	if (!matchesName(this.pattern.selector, node.selector)) return IMPOSSIBLE_MATCH;
 
 	// Verify parameters types
-	boolean resolve = ((InternalSearchPattern)this.pattern).mustResolve;
+	boolean resolve = this.pattern.mustResolve;
 	if (this.pattern.parameterSimpleNames != null) {
 		int length = this.pattern.parameterSimpleNames.length;
 		ASTNode[] args = node.arguments;
@@ -129,7 +129,7 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 			if (args != null && !matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) {
 				// Do not return as impossible when source level is at least 1.5
 				if (this.mayBeGeneric) {
-					if (!((InternalSearchPattern)this.pattern).mustResolve) {
+					if (!this.pattern.mustResolve) {
 						// Set resolution flag on node set in case of types was inferred in parameterized types from generic ones...
 					 	// (see  bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=79990, 96761, 96763)
 						nodeSet.mustResolve = true;
@@ -156,7 +156,7 @@ public int match(MemberValuePair node, MatchingNodeSet nodeSet) {
 
 	if (!matchesName(this.pattern.selector, node.name)) return IMPOSSIBLE_MATCH;
 
-	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
@@ -169,7 +169,7 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
 
-	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
 public int match(Annotation node, MatchingNodeSet nodeSet) {
@@ -183,7 +183,7 @@ public int match(Annotation node, MatchingNodeSet nodeSet) {
 		pair = node.memberValuePairs()[i];
 		if (matchesName(this.pattern.selector, pair.name)) {
 			ASTNode possibleNode = (node instanceof SingleMemberAnnotation) ? (ASTNode) node : pair;
-			return nodeSet.addMatch(possibleNode, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return nodeSet.addMatch(possibleNode, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 		}
 	}
 	return IMPOSSIBLE_MATCH;
@@ -337,7 +337,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 		methodReferenceMatch.localElement(localElement);
 		this.match = methodReferenceMatch;
 		if (this.pattern.findReferences && reference instanceof MessageSend) {
-			IJavaElement focus = ((InternalSearchPattern) this.pattern).focus;
+			IJavaElement focus = this.pattern.focus;
 			// verify closest match if pattern was bound
 			// (see bug 70827)
 			if (focus != null && focus.getElementType() == IJavaElement.METHOD) {

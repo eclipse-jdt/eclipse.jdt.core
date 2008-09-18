@@ -20,7 +20,7 @@ public PackageDeclarationPattern(char[] pkgName, int matchRule) {
 	super(PKG_DECL_PATTERN, matchRule);
 	this.pkgName = pkgName;
 }
-EntryResult[] queryIn(Index index) {
+public EntryResult[] queryIn(Index index) {
 	// package declarations are not indexed
 	return null;
 }

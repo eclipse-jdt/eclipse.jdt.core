@@ -166,7 +166,7 @@ public static class WrappedCoreException extends RuntimeException {
 	}
 }
 
-public static SearchDocument[] addWorkingCopies(InternalSearchPattern pattern, SearchDocument[] indexMatches, org.eclipse.jdt.core.ICompilationUnit[] copies, SearchParticipant participant) {
+public static SearchDocument[] addWorkingCopies(SearchPattern pattern, SearchDocument[] indexMatches, org.eclipse.jdt.core.ICompilationUnit[] copies, SearchParticipant participant) {
 	if (copies == null) return indexMatches;
 	// working copies take precedence over corresponding compilation units
 	HashMap workingCopyDocuments = workingCopiesThatCanSeeFocus(copies, pattern.focus, pattern.isPolymorphicSearch(), participant);
@@ -200,7 +200,7 @@ public static SearchDocument[] addWorkingCopies(InternalSearchPattern pattern, S
 	return matches;
 }
 
-public static void setFocus(InternalSearchPattern pattern, IJavaElement focus) {
+public static void setFocus(SearchPattern pattern, IJavaElement focus) {
 	pattern.focus = focus;
 }
 
@@ -265,7 +265,7 @@ public static ClassFileReader classFileReader(IType type) {
 /**
  * Query a given index for matching entries. Assumes the sender has opened the index and will close when finished.
  */
-public static void findIndexMatches(InternalSearchPattern pattern, Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor monitor) throws IOException {
+public static void findIndexMatches(SearchPattern pattern, Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor monitor) throws IOException {
 	pattern.findIndexMatches(index, requestor, participant, scope, monitor);
 }
 
@@ -276,7 +276,7 @@ public static IJavaElement getProjectOrJar(IJavaElement element) {
 	return element;
 }
 
-public static IJavaElement projectOrJarFocus(InternalSearchPattern pattern) {
+public static IJavaElement projectOrJarFocus(SearchPattern pattern) {
 	return pattern == null || pattern.focus == null ? null : getProjectOrJar(pattern.focus);
 }
 
@@ -967,7 +967,7 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 	initialize(javaProject, length);
 
 	// create and resolve binding (equivalent to beginCompilation() in Compiler)
-	boolean mustResolvePattern = ((InternalSearchPattern)this.pattern).mustResolve;
+	boolean mustResolvePattern = this.pattern.mustResolve;
 	boolean mustResolve = mustResolvePattern;
 	this.patternLocator.mayBeGeneric = this.options.sourceLevel >= ClassFileConstants.JDK1_5;
 	boolean bindingsWereCreated = mustResolve;
@@ -1206,7 +1206,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 				}
 				previousJavaProject = javaProject;
 			}
-			matchSet.add(new PossibleMatch(this, resource, openable, searchDocument, ((InternalSearchPattern) this.pattern).mustResolve));
+			matchSet.add(new PossibleMatch(this, resource, openable, searchDocument,this.pattern.mustResolve));
 		}
 
 		// last project
@@ -1250,7 +1250,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 			locatePackageDeclarations(patterns[i], participant, projects);
 		}
 	} else if (searchPattern instanceof PackageDeclarationPattern) {
-		IJavaElement focus = ((InternalSearchPattern) searchPattern).focus;
+		IJavaElement focus = searchPattern.focus;
 		if (focus != null) {
 			if (encloses(focus)) {
 				SearchMatch match = new PackageDeclarationMatch(focus.getAncestor(IJavaElement.PACKAGE_FRAGMENT), SearchMatch.A_ACCURATE, -1, -1, participant, focus.getResource());
@@ -1593,7 +1593,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 		// Move getMethodBodies to #parseAndBuildings(...) method to allow possible match resolution management
 		//getMethodBodies(unit);
 
-		boolean mustResolve = (((InternalSearchPattern)this.pattern).mustResolve || possibleMatch.nodeSet.mustResolve);
+		boolean mustResolve = (this.pattern.mustResolve || possibleMatch.nodeSet.mustResolve);
 		if (bindingsWereCreated && mustResolve) {
 			if (unit.types != null) {
 				if (BasicSearchEngine.VERBOSE)
@@ -2139,7 +2139,7 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 					enclosingElement = createHandle(method, parent);
 				}
 				if (encloses(enclosingElement)) {
-					if (((InternalSearchPattern)this.pattern).mustResolve) {
+					if (this.pattern.mustResolve) {
 						// Visit only if the pattern must resolve
 						MemberDeclarationVisitor declarationVisitor = new MemberDeclarationVisitor(enclosingElement, nodes, nodeSet, this);
 						method.traverse(declarationVisitor, (ClassScope) null);

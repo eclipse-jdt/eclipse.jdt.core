@@ -81,7 +81,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 
 	protected JavaSearchPattern(int patternKind, int matchRule) {
 		super(matchRule);
-		((InternalSearchPattern)this).kind = patternKind;
+		this.kind = patternKind;
 		// Use getMatchRule() instead of matchRule as super constructor may modify its value
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=81377
 		int rule = getMatchRule();

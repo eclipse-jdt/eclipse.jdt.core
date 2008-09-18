@@ -152,7 +152,7 @@ public TypeDeclarationPattern(
 	this.simpleName = (this.isCaseSensitive || this.isCamelCase) ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.typeSuffix = typeSuffix;
 
-	((InternalSearchPattern)this).mustResolve = (this.pkg != null && this.enclosingTypeNames != null) || typeSuffix != TYPE_SUFFIX;
+	this.mustResolve = (this.pkg != null && this.enclosingTypeNames != null) || typeSuffix != TYPE_SUFFIX;
 }
 TypeDeclarationPattern(int matchRule) {
 	super(TYPE_DECL_PATTERN, matchRule);
@@ -255,7 +255,7 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	}
 	return true;
 }
-EntryResult[] queryIn(Index index) throws IOException {
+public EntryResult[] queryIn(Index index) throws IOException {
 	char[] key = this.simpleName; // can be null
 	int matchRule = getMatchRule();
 

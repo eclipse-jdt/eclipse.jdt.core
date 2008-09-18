@@ -119,7 +119,7 @@ public MethodPattern(
 		this.parameterCount = -1;
 	}
 	this.declaringType = declaringType;
-	((InternalSearchPattern)this).mustResolve = mustResolve();
+	this.mustResolve = mustResolve();
 }
 /*
  * Instanciate a method pattern with signatures for generics search
@@ -195,7 +195,7 @@ public MethodPattern(
 
 	// Store type signatures and arguments for method
 	this.methodArguments = extractMethodArguments(method);
-	if (hasMethodArguments())  ((InternalSearchPattern)this).mustResolve = true;
+	if (hasMethodArguments())  this.mustResolve = true;
 }
 /*
  * Instanciate a method pattern with signatures for generics search
@@ -253,7 +253,7 @@ public MethodPattern(
 
 	// Store type signatures and arguments for method
 	this.methodArguments = arguments;
-	if (hasMethodArguments())  ((InternalSearchPattern)this).mustResolve = true;
+	if (hasMethodArguments())  this.mustResolve = true;
 }
 public void decodeIndexKey(char[] key) {
 	int last = key.length - 1;
@@ -289,7 +289,7 @@ boolean hasMethodArguments() {
 boolean hasMethodParameters() {
 	return this.methodParameters;
 }
-boolean isPolymorphicSearch() {
+public boolean isPolymorphicSearch() {
 	return this.findReferences;
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
@@ -317,7 +317,7 @@ protected boolean mustResolve() {
 			if (this.parameterQualifications[i] != null) return true;
 	return false;
 }
-EntryResult[] queryIn(Index index) throws IOException {
+public EntryResult[] queryIn(Index index) throws IOException {
 	char[] key = this.selector; // can be null
 	int matchRule = getMatchRule();
 

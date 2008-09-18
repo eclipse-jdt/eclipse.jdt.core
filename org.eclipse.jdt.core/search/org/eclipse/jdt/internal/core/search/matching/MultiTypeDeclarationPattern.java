@@ -59,7 +59,7 @@ public MultiTypeDeclarationPattern(
 	}
 	this.typeSuffix = typeSuffix;
 
-	((InternalSearchPattern)this).mustResolve = typeSuffix != TYPE_SUFFIX; // only used to report type declarations, not their positions
+	this.mustResolve = typeSuffix != TYPE_SUFFIX; // only used to report type declarations, not their positions
 }
 MultiTypeDeclarationPattern(int matchRule) {
 	super(TYPE_DECL_PATTERN, matchRule);
@@ -104,7 +104,7 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 			break;
 	return count < max;
 }
-EntryResult[] queryIn(Index index) throws IOException {
+public EntryResult[] queryIn(Index index) throws IOException {
 	if (this.simpleNames == null) {
 		// if no simple names then return all possible ones from index
 		return index.query(getIndexCategories(), null, -1); // match rule is irrelevant when the key is null

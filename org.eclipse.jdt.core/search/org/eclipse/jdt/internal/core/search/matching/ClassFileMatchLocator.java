@@ -174,7 +174,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 
 	// Report as many accurate matches as possible
 	int accuracy = SearchMatch.A_ACCURATE;
-	boolean mustResolve = ((InternalSearchPattern)pattern).mustResolve;
+	boolean mustResolve = pattern.mustResolve;
 	if (mustResolve) {
 		BinaryTypeBinding binding = locator.cacheBinaryType(binaryType, info);
 		if (binding != null) {
@@ -309,7 +309,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
  */
 private void matchAnnotations(SearchPattern pattern, MatchLocator locator, ClassFile classFile, IBinaryType binaryType) throws CoreException {
 	// Only process TypeReference patterns
-	switch (((InternalSearchPattern)pattern).kind) {
+	switch (pattern.kind) {
 		case TYPE_REF_PATTERN:
 			break;
 		case OR_PATTERN:
@@ -373,7 +373,7 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
  * Default is to return false.
  */
 boolean matchBinary(SearchPattern pattern, Object binaryInfo, IBinaryType enclosingBinaryType) {
-	switch (((InternalSearchPattern)pattern).kind) {
+	switch (pattern.kind) {
 		case CONSTRUCTOR_PATTERN :
 			return matchConstructor((ConstructorPattern) pattern, binaryInfo, enclosingBinaryType);
 		case FIELD_PATTERN :

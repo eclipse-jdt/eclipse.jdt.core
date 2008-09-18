@@ -10,13 +10,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
+import java.io.IOException;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.index.EntryResult;
+import org.eclipse.jdt.internal.core.index.Index;
+import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
+import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.*;
 
@@ -43,7 +52,7 @@ import org.eclipse.jdt.internal.core.search.matching.*;
  * @see #createPattern(String, int, int, int)
  * @since 3.0
  */
-public abstract class SearchPattern extends InternalSearchPattern {
+public abstract class SearchPattern {
 
 	// Rules for pattern matching: (exact, prefix, pattern) [ | case sensitive]
 	/**
@@ -197,6 +206,22 @@ public abstract class SearchPattern extends InternalSearchPattern {
 
 	private int matchRule;
 
+	/**
+	 * The focus element (used for reference patterns)
+	 * @noreference This field is not intended to be referenced by clients. 
+	 */
+	public IJavaElement focus;
+
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 */
+	public int kind;
+	
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 */
+	public boolean mustResolve = true;
+	
 /**
  * Creates a search pattern with the rule to apply for matching index keys.
  * It can be exact match, prefix match, pattern match or regexp match.
@@ -244,7 +269,44 @@ public SearchPattern(int matchRule) {
 		this.matchRule &= ~R_PREFIX_MATCH;
 	}
 }
+/**
+ * @noreference This method is not intended to be referenced by clients.
+ * @nooverride This method is not intended to be re-implemented or extended by clients.
+ */
+public void acceptMatch(String relativePath, String containerPath, char separator, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
 
+	if (scope instanceof JavaSearchScope) {
+		JavaSearchScope javaSearchScope = (JavaSearchScope) scope;
+		// Get document path access restriction from java search scope
+		// Note that requestor has to verify if needed whether the document violates the access restriction or not
+		AccessRuleSet access = javaSearchScope.getAccessRuleSet(relativePath, containerPath);
+		if (access != JavaSearchScope.NOT_ENCLOSED) { // scope encloses the document path
+			StringBuffer documentPath = new StringBuffer(containerPath.length() + 1 + relativePath.length());
+			documentPath.append(containerPath);
+			documentPath.append(separator);
+			documentPath.append(relativePath);
+			if (!requestor.acceptIndexMatch(documentPath.toString(), pattern, participant, access))
+				throw new OperationCanceledException();
+		}
+	} else {
+		StringBuffer buffer = new StringBuffer(containerPath.length() + 1 + relativePath.length());
+		buffer.append(containerPath);
+		buffer.append(separator);
+		buffer.append(relativePath);
+		String documentPath = buffer.toString();
+		if (scope.encloses(documentPath))
+			if (!requestor.acceptIndexMatch(documentPath, pattern, participant, null))
+				throw new OperationCanceledException();
+
+	}
+}
+/**
+ * @noreference This method is not intended to be referenced by clients. 
+ * @nooverride This method is not intended to be re-implemented or extended by clients.
+ */
+public SearchPattern currentPattern() {
+	return this;
+}
 /**
  * Answers true if the pattern matches the given name using CamelCase rules, or
  * false otherwise. char[] CamelCase matching does NOT accept explicit wild-cards
@@ -1991,6 +2053,39 @@ public void decodeIndexKey(char[] key) {
 	// called from findIndexMatches(), override as necessary
 }
 /**
+ * Query a given index for matching entries. Assumes the sender has opened the index and will close when finished.
+ * 
+ * @noreference This method is not intended to be referenced by clients. 
+ * @nooverride This method is not intended to be re-implemented or extended by clients.
+ */
+public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor monitor) throws IOException {
+	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
+	try {
+		index.startQuery();
+		SearchPattern pattern = currentPattern();
+		EntryResult[] entries = pattern.queryIn(index);
+		if (entries == null) return;
+
+		SearchPattern decodedResult = pattern.getBlankPattern();
+		String containerPath = index.containerPath;
+		char separator = index.separator;
+		for (int i = 0, l = entries.length; i < l; i++) {
+			if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
+
+			EntryResult entry = entries[i];
+			decodedResult.decodeIndexKey(entry.getWord());
+			if (pattern.matchesDecodedKey(decodedResult)) {
+				// TODO (kent) some clients may not need the document names
+				String[] names = entry.getDocumentNames(index);
+				for (int j = 0, n = names.length; j < n; j++)
+					acceptMatch(names[j], containerPath, separator, decodedResult, requestor, participant, scope);
+			}
+		}
+	} finally {
+		index.stopQuery();
+	}
+}
+/**
  * Returns a blank pattern that can be used as a record to decode an index key.
  * <p>
  * Implementors of this method should return a new search pattern that is going to be used
@@ -2042,6 +2137,13 @@ public char[][] getIndexCategories() {
  */
 public final int getMatchRule() {
 	return this.matchRule;
+}
+/**
+ * @noreference This method is not intended to be referenced by clients. 
+ * @nooverride This method is not intended to be re-implemented or extended by clients.
+ */
+public boolean isPolymorphicSearch() {
+	return false;
 }
 /**
  * Returns whether this pattern matches the given pattern (representing a decoded index key).
@@ -2251,6 +2353,14 @@ private static boolean validateCamelCasePattern(String stringPattern) {
 		validCamelCase = lowerCamelCase ? uppercase > 0 : uppercase > 1 ;
 	}
 	return validCamelCase;
+}
+
+/**
+ * @noreference This method is not intended to be referenced by clients. 
+ * @nooverride This method is not intended to be re-implemented or extended by clients.
+ */
+public EntryResult[] queryIn(Index index) throws IOException {
+	return index.query(getIndexCategories(), getIndexKey(), getMatchRule());
 }
 
 /**
