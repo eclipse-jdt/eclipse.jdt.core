@@ -55,6 +55,7 @@ public class ForeachStatement extends Statement {
 	public LocalVariableBinding collectionVariable;	// to store the collection expression value
 	public LocalVariableBinding maxVariable;
 	// secret variable names
+	private static final char[] SecretIteratorVariableName = " iterator".toCharArray(); //$NON-NLS-1$
 	private static final char[] SecretIndexVariableName = " index".toCharArray(); //$NON-NLS-1$
 	private static final char[] SecretCollectionVariableName = " collection".toCharArray(); //$NON-NLS-1$
 	private static final char[] SecretMaxVariableName = " max".toCharArray(); //$NON-NLS-1$
@@ -497,7 +498,7 @@ public class ForeachStatement extends Statement {
 				case RAW_ITERABLE :
 				case GENERIC_ITERABLE :
 					// allocate #index secret variable (of type Iterator)
-					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, this.scope.getJavaUtilIterator(), ClassFileConstants.AccDefault, false);
+					this.indexVariable = new LocalVariableBinding(SecretIteratorVariableName, this.scope.getJavaUtilIterator(), ClassFileConstants.AccDefault, false);
 					this.scope.addLocalVariable(this.indexVariable);
 					this.indexVariable.setConstant(Constant.NotAConstant); // not inlinable
 					break;
