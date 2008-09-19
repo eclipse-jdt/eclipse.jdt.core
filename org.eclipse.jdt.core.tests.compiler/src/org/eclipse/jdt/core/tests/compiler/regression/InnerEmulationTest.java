@@ -6519,6 +6519,44 @@ public void test156() throws Exception {
 		"    1  invokevirtual package2.C.outerMethod() : void";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128563 - variation
+public void _test157() throws Exception {
+	this.runConformTest(new String[] {
+		"package1/A.java",//=======================
+		"package package1;\n" + 
+		"abstract class A {\n" + 
+		"    protected int outerField; {\n" + 
+		"    }\n" + 
+		"}\n",
+		"package1/B.java",//=======================
+		"package package1;\n" + 
+		"public class B extends A {\n" + 
+		"}\n", 
+		"package2/C.java",//=======================
+		"package package2;\n" + 
+		"import package1.B;\n" + 
+		"public class C extends B {\n" + 
+		"    private final MyInner myInner = new MyInner();\n" + 
+		"    private class MyInner {\n" + 
+		"        public void innerMethod() {\n" + 
+		"            int j = C.this.outerField;\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        final C c = new C();\n" + 
+		"        c.myInner.innerMethod();\n" + 
+		"    }\n" + 
+		"}\n",
+	},
+	"");
+	String expectedOutput =
+		"  // Method descriptor #33 (Lpackage2/C;)V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  static synthetic void access$0(package2.C arg0);\n" + 
+		"    0  aload_0 [arg0]\n" + 
+		"    1  getfield package2.C.outerField : int";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
