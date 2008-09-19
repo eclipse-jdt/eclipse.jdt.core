@@ -741,8 +741,7 @@ public void testAnnotations21() throws CoreException {
 /*
  * Ensure that an annotation with syntax error is correct.
  */
-// TODO: enable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778 is fixed
-public void _testAnnotations22() throws CoreException {
+public void testAnnotations22() throws CoreException {
 	createWorkingCopy(
 		"package p;\n" +
 		"@MyAnnot(name=)\n" +
