@@ -46335,4 +46335,163 @@ public void test1380() {
 			"Bound mismatch: The generic method f() of type X is not applicable for the arguments (). The inferred type Enum<Enum<E>> is not a valid substitute for the bounded parameter <E extends Enum<E>>\n" + 
 			"----------\n");
 }
+public void test1381()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		X<BB> xbb = new X<BB>();\n" + 
+			"		xbb.get().bar();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA {\n" + 
+			"	void bar() {}\n" + 
+			"}\n" + 
+			"class BB extends AA {}\n"
+		},
+		"");
+	// check #bar() invocation declaring class is BB
+	String expectedOutput =
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  void foo();\n" + 
+		"     0  new X [1]\n" + 
+		"     3  dup\n" + 
+		"     4  invokespecial X() [21]\n" + 
+		"     7  astore_1 [xbb]\n" + 
+		"     8  aload_1 [xbb]\n" + 
+		"     9  invokevirtual X.get() : java.lang.Object [22]\n" + 
+		"    12  checkcast BB [24]\n" + 
+		"    15  invokevirtual BB.bar() : void [26]\n" + 
+		"    18  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 8, line: 6]\n" + 
+		"        [pc: 18, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 19] local: this index: 0 type: X\n" + 
+		"        [pc: 8, pc: 19] local: xbb index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+public void test1382()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		X<BB> xbb = new X<BB>();\n" + 
+			"		int j = xbb.get().bar;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA {\n" + 
+			"	int bar;\n" + 
+			"}\n" + 
+			"class BB extends AA {}\n"
+		},
+		"");
+	// check #bar field read declaring class is BB
+	String expectedOutput =
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  void foo();\n" + 
+		"     0  new X [1]\n" + 
+		"     3  dup\n" + 
+		"     4  invokespecial X() [21]\n" + 
+		"     7  astore_1 [xbb]\n" + 
+		"     8  aload_1 [xbb]\n" + 
+		"     9  invokevirtual X.get() : java.lang.Object [22]\n" + 
+		"    12  checkcast BB [24]\n" + 
+		"    15  getfield BB.bar : int [26]\n" + 
+		"    18  istore_2 [j]\n" + 
+		"    19  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 8, line: 6]\n" + 
+		"        [pc: 19, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 20] local: this index: 0 type: X\n" + 
+		"        [pc: 8, pc: 20] local: xbb index: 1 type: X\n" + 
+		"        [pc: 19, pc: 20] local: j index: 2 type: int\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+public void test1383()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		X<BB> xbb = new X<BB>();\n" + 
+			"		xbb.get().bar = 12;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA {\n" + 
+			"	int bar;\n" + 
+			"}\n" + 
+			"class BB extends AA {}\n"
+		},
+		"");
+	// check #bar field store declaring class is BB
+	String expectedOutput =
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  void foo();\n" + 
+		"     0  new X [1]\n" + 
+		"     3  dup\n" + 
+		"     4  invokespecial X() [21]\n" + 
+		"     7  astore_1 [xbb]\n" + 
+		"     8  aload_1 [xbb]\n" + 
+		"     9  invokevirtual X.get() : java.lang.Object [22]\n" + 
+		"    12  checkcast BB [24]\n" + 
+		"    15  bipush 12\n" + 
+		"    17  putfield BB.bar : int [26]\n" + 
+		"    20  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 8, line: 6]\n" + 
+		"        [pc: 20, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
+		"        [pc: 8, pc: 21] local: xbb index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
 }
