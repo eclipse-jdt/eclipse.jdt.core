@@ -9556,7 +9556,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=203342
 	 */
-	public void _test0284() throws JavaModelException {
+	public void test0284() throws JavaModelException {
 		String contents =
 			"public class X {\n" +
 			"	public static final double VAR = 0x0.0000000000001P-1022;\n" +
