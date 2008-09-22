@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 695, 696 };
+//		TESTS_NUMBERS =  new int[] { 655 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8212,7 +8212,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=157570
 	 */
-	public void _test0655() {
+	public void test0655() {
 		String src = "public static void m1()\n" +
 				"    {\n" +
 				"        int a;\n" +
@@ -8236,7 +8236,10 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		List statements = block.statements();
 		for (Iterator iterator = statements.iterator(); iterator.hasNext(); ) {
 			Statement statement = (Statement) iterator.next();
-			assertTrue(isMalformed(statement));
+			if (statement.getNodeType() == ASTNode.EXPRESSION_STATEMENT) {
+				// only the expression statements are recovered. The others are considered as valid blocks.
+				assertTrue(isRecovered(statement));
+			}
 		}
 	}
 	/**
