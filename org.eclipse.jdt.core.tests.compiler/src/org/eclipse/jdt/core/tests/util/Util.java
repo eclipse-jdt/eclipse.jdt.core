@@ -239,6 +239,7 @@ public static String[] concatWithClassLibs(String classpath, boolean inFront) {
     return defaultClassPaths;
 }
 public static String convertToIndependantLineDelimiter(String source) {
+	if (source == null) return "";
     if (source.indexOf('\n') == -1 && source.indexOf('\r') == -1) return source;
     StringBuffer buffer = new StringBuffer();
     for (int i = 0, length = source.length(); i < length; i++) {
