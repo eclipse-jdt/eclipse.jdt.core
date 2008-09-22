@@ -42,37 +42,36 @@ IPath getOutputFolder() {
  * @test Ensure that no new line is inserted before the formatted region
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228652"
  */
-// TODO (frederic) See https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
-public void _testBug228652() {
-	String input =
-			"package a;\r\n" +
-			"\r\n" +
-			"public class Test {\r\n" +
-			"\r\n" +
-			"	private int field;\r\n" +
-			"	\r\n" +
-			"	/**\r\n" +
-			"	 * fds \r\n" +
-			"	 */\r\n" +
-			"	public void foo() {\r\n" +
-			"	}\r\n" +
-			"}";
+public void testBug228652() {
+	String source =
+		"package a;\r\n" +
+		"\r\n" +
+		"public class Test {\r\n" +
+		"\r\n" +
+		"	private int field;\r\n" +
+		"	\r\n" +
+		"	[#/**\r\n" +
+		"	 * fds \r\n" +
+		"	 */#]\r\n" +
+		"	public void foo() {\r\n" +
+		"	}\r\n" +
+		"}";
+	formatSource(source,
+		"package a;\r\n" +
+		"\r\n" +
+		"public class Test {\r\n" +
+		"\r\n" +
+		"	private int field;\r\n" +
+		"\r\n" +
+		"	/**\r\n" +
+		"	 * fds\r\n" +
+		"	 */\r\n" +
+		"	public void foo() {\r\n" +
+		"	}\r\n" +
+		"}"
+	);
 
-	String expected =
-			"package a;\r\n" +
-			"\r\n" +
-			"public class Test {\r\n" +
-			"\r\n" +
-			"	private int field;\r\n" +
-			"	\r\n" +
-			"	/**\r\n" +
-			"	 * fds\r\n" +
-			"	 */\r\n" +
-			"	public void foo() {\r\n" +
-			"	}\r\n" +
-			"}";
-
-	formatSource(input, expected, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, false, 62, 19, null, false);
+//	formatSource(input, expected, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, false, 62, 19, null, false);
 }
 
 /**
