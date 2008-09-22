@@ -2337,14 +2337,12 @@ public class JavaProject
 		op.runOperation(monitor);
 		return op.getResult();
 	}
-	public String[] projectPrerequisites(IClasspathEntry[] entries)
+	public String[] projectPrerequisites(IClasspathEntry[] resolvedClasspath)
 		throws JavaModelException {
 
 		ArrayList prerequisites = new ArrayList();
-		// need resolution
-		entries = resolveClasspath(entries);
-		for (int i = 0, length = entries.length; i < length; i++) {
-			IClasspathEntry entry = entries[i];
+		for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
+			IClasspathEntry entry = resolvedClasspath[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
 				prerequisites.add(entry.getPath().lastSegment());
 			}
@@ -2497,26 +2495,61 @@ public class JavaProject
 	 * Resolve the given raw classpath.
 	 */
 	public IClasspathEntry[] resolveClasspath(IClasspathEntry[] rawClasspath) throws JavaModelException {
+		return resolveClasspath(rawClasspath, false/*don't use previous session*/).resolvedClasspath;
+	}
+	
+	class ResolvedClasspath {
+		IClasspathEntry[] resolvedClasspath;
+		IJavaModelStatus unresolvedEntryStatus = JavaModelStatus.VERIFIED_OK;
+		HashMap rawReverseMap = new HashMap();
+		Map rootPathToResolvedEntries = new HashMap();
+	}
+	
+	private ResolvedClasspath resolveClasspath(IClasspathEntry[] rawClasspath, boolean usePreviousSession) throws JavaModelException {
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
+		ResolvedClasspath result = new ResolvedClasspath();
+
 		ArrayList resolvedEntries = new ArrayList();
-		for (int i = 0, length = rawClasspath.length; i < length; i++) {
+		int length = rawClasspath.length;
+		for (int i = 0; i < length; i++) {
+
 			IClasspathEntry rawEntry = rawClasspath[i];
+			IPath resolvedPath;
+
 			switch (rawEntry.getEntryKind()){
-				case IClasspathEntry.CPE_VARIABLE:
+
+				case IClasspathEntry.CPE_VARIABLE :
 					IClasspathEntry resolvedEntry = null;
 					try {
-						resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
+						resolvedEntry = manager.getResolvedClasspathEntry(rawEntry, usePreviousSession);
 					} catch (ClasspathEntry.AssertionFailedException e) {
-						// Catch the assertion failure
+						// Catch the assertion failure and set status instead
 						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
+						result.unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
 						break;
 					}
-					if (resolvedEntry != null)
+					if (resolvedEntry == null) {
+						result.unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, this, rawEntry.getPath());
+					} else {
+						if (result.rawReverseMap.get(resolvedPath = resolvedEntry.getPath()) == null) {
+							result.rawReverseMap.put(resolvedPath , rawEntry);
+							result.rootPathToResolvedEntries.put(resolvedPath, resolvedEntry);
+						}
 						resolvedEntries.add(resolvedEntry);
+						if (resolvedEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
+							externalFoldersManager.addFolder(resolvedPath); // no-op if not an external folder or if already registered
+						}
+					}
 					break;
-				case IClasspathEntry.CPE_CONTAINER:
-					IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), this);
-					if (container == null)
+
+				case IClasspathEntry.CPE_CONTAINER :
+					IClasspathContainer container = usePreviousSession ? manager.getPreviousSessionContainer(rawEntry.getPath(), this) : JavaCore.getClasspathContainer(rawEntry.getPath(), this);
+					if (container == null){
+						result.unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND, this, rawEntry.getPath());
 						break;
+					}
+
 					IClasspathEntry[] containerEntries = container.getClasspathEntries();
 					if (containerEntries == null) {
 						if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
@@ -2536,15 +2569,31 @@ public class JavaProject
 						}
 						// if container is exported or restricted, then its nested entries must in turn be exported  (21749) and/or propagate restrictions
 						cEntry = cEntry.combineWith((ClasspathEntry) rawEntry);
+						if (result.rawReverseMap.get(resolvedPath = cEntry.getPath()) == null) {
+							result.rawReverseMap.put(resolvedPath , rawEntry);
+							result.rootPathToResolvedEntries.put(resolvedPath, cEntry);
+						}
 						resolvedEntries.add(cEntry);
+						if (cEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
+							externalFoldersManager.addFolder(resolvedPath); // no-op if not an external folder or if already registered
+						}
 					}
 					break;
-				default:
+
+				default :
+					if (result.rawReverseMap.get(resolvedPath = rawEntry.getPath()) == null) {
+						result.rawReverseMap.put(resolvedPath , rawEntry);
+						result.rootPathToResolvedEntries.put(resolvedPath, rawEntry);
+					}
 					resolvedEntries.add(rawEntry);
+					if (rawEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
+						externalFoldersManager.addFolder(resolvedPath); // no-op if not an external folder or if already registered
+					}
+
 			}
 		}
-		IClasspathEntry[] result = new IClasspathEntry[resolvedEntries.size()];
-		resolvedEntries.toArray(result);
+		result.resolvedClasspath = new IClasspathEntry[resolvedEntries.size()];
+		resolvedEntries.toArray(result.resolvedClasspath);
 		return result;
 	}
 
@@ -2561,8 +2610,6 @@ public class JavaProject
 				manager.setClasspathBeingResolved(this, true);
 			}
 
-			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
-
 			// get raw info inside a synchronized block to ensure that it is consistent
 			IClasspathEntry[] rawClasspath;
 			int timeStamp;
@@ -2572,101 +2619,14 @@ public class JavaProject
 					rawClasspath = perProjectInfo.readAndCacheClasspath(this);
 				timeStamp = perProjectInfo.rawTimeStamp;
 			}
-
-			IJavaModelStatus unresolvedEntryStatus = JavaModelStatus.VERIFIED_OK;
-			HashMap rawReverseMap = new HashMap();
-			Map rootPathToResolvedEntries = new HashMap();
-
-			ArrayList resolvedEntries = new ArrayList();
-			int length = rawClasspath.length;
-			for (int i = 0; i < length; i++) {
-
-				IClasspathEntry rawEntry = rawClasspath[i];
-				IPath resolvedPath;
-
-				switch (rawEntry.getEntryKind()){
-
-					case IClasspathEntry.CPE_VARIABLE :
-						IClasspathEntry resolvedEntry = null;
-						try {
-							resolvedEntry = manager.getResolvedClasspathEntry(rawEntry, usePreviousSession);
-						} catch (ClasspathEntry.AssertionFailedException e) {
-							// Catch the assertion failure and set status instead
-							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
-							unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
-							break;
-						}
-						if (resolvedEntry == null) {
-							unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, this, rawEntry.getPath());
-						} else {
-							if (rawReverseMap.get(resolvedPath = resolvedEntry.getPath()) == null) {
-								rawReverseMap.put(resolvedPath , rawEntry);
-								rootPathToResolvedEntries.put(resolvedPath, resolvedEntry);
-							}
-							resolvedEntries.add(resolvedEntry);
-							if (resolvedEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
-								externalFoldersManager.addFolder(resolvedPath); // no-op if not an external folder or if already registered
-							}
-						}
-						break;
-
-					case IClasspathEntry.CPE_CONTAINER :
-						IClasspathContainer container = usePreviousSession ? manager.getPreviousSessionContainer(rawEntry.getPath(), this) : JavaCore.getClasspathContainer(rawEntry.getPath(), this);
-						if (container == null){
-							unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND, this, rawEntry.getPath());
-							break;
-						}
-
-						IClasspathEntry[] containerEntries = container.getClasspathEntries();
-						if (containerEntries == null) {
-							if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-								JavaModelManager.getJavaModelManager().verbose_missbehaving_container_null_entries(this, rawEntry.getPath());
-							}
-							break;
-						}
-
-						// container was bound
-						for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
-							ClasspathEntry cEntry = (ClasspathEntry) containerEntries[j];
-							if (cEntry == null) {
-								if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-									JavaModelManager.getJavaModelManager().verbose_missbehaving_container(this, rawEntry.getPath(), containerEntries);
-								}
-								break;
-							}
-							// if container is exported or restricted, then its nested entries must in turn be exported  (21749) and/or propagate restrictions
-							cEntry = cEntry.combineWith((ClasspathEntry) rawEntry);
-							if (rawReverseMap.get(resolvedPath = cEntry.getPath()) == null) {
-								rawReverseMap.put(resolvedPath , rawEntry);
-								rootPathToResolvedEntries.put(resolvedPath, cEntry);
-							}
-							resolvedEntries.add(cEntry);
-							if (cEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
-								externalFoldersManager.addFolder(resolvedPath); // no-op if not an external folder or if already registered
-							}
-						}
-						break;
-
-					default :
-						if (rawReverseMap.get(resolvedPath = rawEntry.getPath()) == null) {
-							rawReverseMap.put(resolvedPath , rawEntry);
-							rootPathToResolvedEntries.put(resolvedPath, rawEntry);
-						}
-						resolvedEntries.add(rawEntry);
-						if (rawEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
-							externalFoldersManager.addFolder(resolvedPath); // no-op if not an external folder or if already registered
-						}
-
-				}
-			}
+			
+			ResolvedClasspath result = resolveClasspath(rawClasspath, usePreviousSession);
 
 			if (CP_RESOLUTION_BP_LISTENERS != null)
 				breakpoint(2, this);
 
 			// store resolved info along with the raw info to ensure consistency
-			IClasspathEntry[] resolvedClasspath = new IClasspathEntry[resolvedEntries.size()];
-			resolvedEntries.toArray(resolvedClasspath);
-			perProjectInfo.setResolvedClasspath(resolvedClasspath, rawReverseMap, rootPathToResolvedEntries, usePreviousSession ? PerProjectInfo.NEED_RESOLUTION : unresolvedEntryStatus, timeStamp);
+			perProjectInfo.setResolvedClasspath(result.resolvedClasspath, result.rawReverseMap, result.rootPathToResolvedEntries, usePreviousSession ? PerProjectInfo.NEED_RESOLUTION : result.unresolvedEntryStatus, timeStamp);
 		} finally {
 			if (!isClasspathBeingResolved) {
 				manager.setClasspathBeingResolved(this, false);
