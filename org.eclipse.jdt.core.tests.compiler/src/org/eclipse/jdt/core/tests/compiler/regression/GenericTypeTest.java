@@ -46335,7 +46335,71 @@ public void test1380() {
 			"Bound mismatch: The generic method f() of type X is not applicable for the arguments (). The inferred type Enum<Enum<E>> is not a valid substitute for the bounded parameter <E extends Enum<E>>\n" + 
 			"----------\n");
 }
-public void test1381()  throws Exception {
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953
+public void _test1381()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends AA & p.IB> {\n" + 
+			"	T t;\n" + 
+			"	void foo() {\n" + 
+			"		this.t.baz();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X<CC> xcc = new X<CC>();\n" + 
+			"		xcc.t = new CC();\n" + 
+			"		xcc.foo();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA {\n" + 
+			"	void bar() {}\n" + 
+			"}\n" + 
+			"class CC extends AA implements p.IB {\n" + 
+			"	public void baz() {\n" + 
+			"		System.out.println(\"done\");\n" + 
+			"	}\n" + 
+			"}\n",
+			"p/IB.java", // =====================
+			"package p;\n" +
+			"interface IA {\n" + 
+			"	void baz();\n" + 
+			"}\n" + 
+			"public interface IB extends IA {\n" + 
+			"}\n",
+		},
+		"done");
+	// check #baz() invocation declaring class is IA
+	String expectedOutput =
+		"  // Method descriptor #21 (LX;)V\n" + 
+		"  // Signature: (LX<TT;>;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo(X xt);\n" + 
+		"     0  aload_1 [xt]\n" + 
+		"     1  invokevirtual X.get() : AA [23]\n" + 
+		"     4  checkcast p.IA [25]\n" + 
+		"     7  invokeinterface p.IA.baz() : void [27] [nargs: 1]\n" + 
+		"    12  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 12, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 13] local: xt index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
+public void _test1382()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46387,7 +46451,8 @@ public void test1381()  throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
-public void test1382()  throws Exception {
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
+public void _test1383()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46441,7 +46506,8 @@ public void test1382()  throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
-public void test1383()  throws Exception {
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
+public void _test1384()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46481,6 +46547,582 @@ public void test1383()  throws Exception {
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
 		"        [pc: 8, pc: 21] local: xbb index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
+public void _test1385()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends AA & IB> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	\n" + 
+			"	void foo(X<T> xt) {\n" + 
+			"		xt.get().baz();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA {\n" + 
+			"	void bar() {}\n" + 
+			"}\n" + 
+			"interface IA {\n" + 
+			"	void baz();\n" + 
+			"}\n" + 
+			"interface IB extends IA {\n" + 
+			"}\n"
+		},
+		"");
+	// check #baz() invocation declaring class is not IA
+	String expectedOutput =
+		"  // Method descriptor #21 (LX;)V\n" + 
+		"  // Signature: (LX<TT;>;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo(X xt);\n" + 
+		"     0  aload_1 [xt]\n" + 
+		"     1  invokevirtual X.get() : AA [23]\n" + 
+		"     4  checkcast IB [25]\n" + 
+		"     7  invokeinterface IB.baz() : void [27] [nargs: 1]\n" + 
+		"    12  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 12, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 13] local: xt index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
+public void _test1386()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends AA & p.IB> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	\n" + 
+			"	void foo(X<T> xt) {\n" + 
+			"		xt.get().baz();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA {\n" + 
+			"	void bar() {}\n" + 
+			"}\n",
+			"p/IB.java", // =====================
+			"package p;\n" +
+			"interface IA {\n" + 
+			"	void baz();\n" + 
+			"}\n" + 
+			"public interface IB extends IA {\n" + 
+			"}\n",
+		},
+		"111");
+	// check #baz() invocation declaring class is not IA
+	String expectedOutput =
+		"  // Method descriptor #21 (LX;)V\n" + 
+		"  // Signature: (LX<TT;>;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo(X xt);\n" + 
+		"     0  aload_1 [xt]\n" + 
+		"     1  invokevirtual X.get() : AA [23]\n" + 
+		"     4  checkcast p.IB [25]\n" + 
+		"     7  invokeinterface p.IB.baz() : void [27] [nargs: 1]\n" + 
+		"    12  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 12, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 13] local: xt index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
+public void _test1387()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends AA & p.IB> {\n" + 
+			"	T t;\n" + 
+			"	void foo() {\n" + 
+			"		System.out.println(this.t.baz);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X<CC> xcc = new X<CC>();\n" + 
+			"		xcc.t = new CC();\n" + 
+			"		xcc.foo();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA {\n" + 
+			"	void bar() {}\n" + 
+			"}\n" + 
+			"class CC extends AA implements p.IB {\n" + 
+			"}\n",
+			"p/IB.java", // =====================
+			"package p;\n" +
+			"interface IA {\n" + 
+			"	Object baz = \"done\";\n" +
+			"}\n" + 
+			"public interface IB extends IA {\n" + 
+			"}\n",
+		},
+		"done");
+	// check #baz declaring class is not IA
+	String expectedOutput =
+		"  // Method descriptor #21 (LX;)V\n" + 
+		"  // Signature: (LX<TT;>;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo(X xt);\n" + 
+		"     0  aload_1 [xt]\n" + 
+		"     1  invokevirtual X.get() : AA [23]\n" + 
+		"     4  checkcast p.IB [25]\n" + 
+		"     7  invokeinterface p.IB.baz() : void [27] [nargs: 1]\n" + 
+		"    12  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 12, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 13] local: xt index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
+public void _test1388()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends AA & p.IB> {\n" + 
+			"	T t;\n" + 
+			"	void foo() {\n" + 
+			"		System.out.println(t.baz);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X<CC> xcc = new X<CC>();\n" + 
+			"		xcc.t = new CC();\n" + 
+			"		xcc.foo();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA {\n" + 
+			"	void bar() {}\n" + 
+			"}\n" + 
+			"class CC extends AA implements p.IB {\n" + 
+			"}\n",
+			"p/IB.java", // =====================
+			"package p;\n" +
+			"interface IA {\n" + 
+			"	Object baz = \"done\";\n" +
+			"}\n" + 
+			"public interface IB extends IA {\n" + 
+			"}\n",
+		},
+		"done");
+	// check #baz declaring class is not IA
+	String expectedOutput =
+		"  // Method descriptor #21 (LX;)V\n" + 
+		"  // Signature: (LX<TT;>;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo(X xt);\n" + 
+		"     0  aload_1 [xt]\n" + 
+		"     1  invokevirtual X.get() : AA [23]\n" + 
+		"     4  checkcast p.IB [25]\n" + 
+		"     7  invokeinterface p.IB.baz() : void [27] [nargs: 1]\n" + 
+		"    12  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 12, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 13] local: xt index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
+public void _test1389()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends AA implements p.IB {\n" + 
+			"	void foo() {\n" + 
+			"		System.out.println(baz);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X().foo();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA {\n" + 
+			"	void bar() {}\n" + 
+			"}\n",
+			"p/IB.java", // =====================
+			"package p;\n" +
+			"interface IA {\n" + 
+			"	Object baz = \"done\";\n" +
+			"}\n" + 
+			"public interface IB extends IA {\n" + 
+			"}\n",
+		},
+		"done");
+	// check #baz declaring class is not IA
+	String expectedOutput =
+		"  // Method descriptor #8 ()V\n" + 
+		"  // Stack: 2, Locals: 1\n" + 
+		"  void foo();\n" + 
+		"     0  getstatic java.lang.System.out : java.io.PrintStream [17]\n" + 
+		"     3  getstatic X.baz : java.lang.Object [23]\n" + 
+		"     6  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [27]\n" + 
+		"     9  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 9, line: 4]\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+public void test1390()  throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //=================================
+			"public class X<T extends SubX1<SubX2<T>>> {\n" + 
+			"	T sx1() { return null; }\n" + 
+			"	void foo(X<T> x0) {\n" + 
+			"		x0.sx1().sx2().t().getClass();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface X1<T extends SubX2<T>> {\n" + 
+			"	T sx2();\n" + 
+			"}\n" + 
+			"abstract class SubX1<T extends SubX2<T>> implements X1<T> {\n" + 
+			"}\n" + 
+			"interface X2<T> {\n" + 
+			"	T t();\n" + 
+			"}\n" + 
+			"abstract class SubX2<T> implements X2<T> {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends SubX1<SubX2<T>>> {\n" + 
+		"	                               ^^^^^\n" + 
+		"Bound mismatch: The type SubX2<T> is not a valid substitute for the bounded parameter <T extends SubX2<T>> of the type SubX1<T>\n" + 
+		"----------\n");
+}
+public void test1391()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends SubX2<T>> {\n" + 
+			"	T sx1() { return null; }\n" + 
+			"	void foo(X<T> x0) {\n" + 
+			"		x0.sx1().sx2().t().getClass();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface X1<T extends SubX2<T>> {\n" + 
+			"	T sx2();\n" + 
+			"}\n" + 
+			"abstract class SubX1<T extends SubX2<T>> implements X1<T> {\n" + 
+			"}\n" + 
+			"interface X2<T> {\n" + 
+			"	T t();\n" + 
+			"}\n" + 
+			"abstract class SubX2<T extends SubX2<T>> implements X1<T>, X2<T> {\n" + 
+			"}\n",
+		},
+		"");
+	String expectedOutput =
+		"  // Method descriptor #21 (LX;)V\n" + 
+		"  // Signature: (LX<TT;>;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo(X x0);\n" + 
+		"     0  aload_1 [x0]\n" + 
+		"     1  invokevirtual X.sx1() : SubX2 [23]\n" + 
+		"     4  invokevirtual SubX2.sx2() : SubX2 [25]\n" + 
+		"     7  invokevirtual SubX2.t() : java.lang.Object [30]\n" + 
+		"    10  checkcast SubX2 [26]\n" + 
+		"    13  invokevirtual java.lang.Object.getClass() : java.lang.Class [34]\n" + 
+		"    16  pop\n" + 
+		"    17  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 17, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 18] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 18] local: x0 index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+public void test1392()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends SubX2<T>> {\n" + 
+			"	T sx1;\n" + 
+			"	void foo(X<T> x0) {\n" + 
+			"		x0.sx1.sx2.t.getClass();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class X1<T extends SubX2<T>> {\n" + 
+			"	T sx2;\n" + 
+			"}\n" + 
+			"abstract class SubX1<T extends SubX2<T>> extends X1<T> {\n" + 
+			"}\n" + 
+			"class X2<T extends SubX2<T>> extends X1<T>{\n" + 
+			"	T t;\n" + 
+			"}\n" + 
+			"abstract class SubX2<T extends SubX2<T>> extends X2<T> {\n" + 
+			"}\n",
+		},
+		"");
+	String expectedOutput =
+		"  // Method descriptor #21 (LX;)V\n" + 
+		"  // Signature: (LX<TT;>;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo(X x0);\n" + 
+		"     0  aload_1 [x0]\n" + 
+		"     1  getfield X.sx1 : SubX2 [23]\n" + 
+		"     4  getfield SubX2.sx2 : SubX2 [25]\n" + 
+		"     7  getfield SubX2.t : SubX2 [30]\n" + 
+		"    10  invokevirtual java.lang.Object.getClass() : java.lang.Class [33]\n" + 
+		"    13  pop\n" + 
+		"    14  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 14, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 15] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 15] local: x0 index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+public void test1393()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends SubX2<T>> {\n" + 
+			"	T sx1;\n" + 
+			"	void foo(X<T> x0) {\n" + 
+			"		x0.sx1.sx2.t.getClass();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface X1<T extends X2<T>> {\n" + 
+			"}\n" + 
+			"abstract class SubX1<T extends X2<T>> implements X1<T> {\n" + 
+			"	T sx2;\n" + 
+			"}\n" + 
+			"interface X2<T extends X2<T>> extends X1<T>{\n" + 
+			"}\n" + 
+			"abstract class SubX2<T extends X2<T>> extends SubX1<T> implements X2<T> {\n" + 
+			"	T t;\n" + 
+			"}\n",
+		},
+		"");
+	String expectedOutput =
+		"  // Method descriptor #21 (LX;)V\n" + 
+		"  // Signature: (LX<TT;>;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo(X x0);\n" + 
+		"     0  aload_1 [x0]\n" + 
+		"     1  getfield X.sx1 : SubX2 [23]\n" + 
+		"     4  getfield SubX2.sx2 : X2 [25]\n" + 
+		"     7  checkcast SubX2 [26]\n" + 
+		"    10  getfield SubX2.t : X2 [31]\n" + 
+		"    13  checkcast SubX2 [26]\n" + 
+		"    16  invokevirtual java.lang.Object.getClass() : java.lang.Class [34]\n" + 
+		"    19  pop\n" + 
+		"    20  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 20, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 21] local: x0 index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+public void test1394()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends SubX2<T>> {\n" + 
+			"	T sx1(){return null;}\n" + 
+			"	void foo(X<T> x0) {\n" + 
+			"		x0.sx1().sx2().t().getClass();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface X1<T extends X2<T>> {\n" + 
+			"}\n" + 
+			"abstract class SubX1<T extends X2<T>> implements X1<T> {\n" + 
+			"	T sx2(){return null;}\n" + 
+			"}\n" + 
+			"interface X2<T extends X2<T>> extends X1<T>{\n" + 
+			"}\n" + 
+			"abstract class SubX2<T extends X2<T>> extends SubX1<T> implements X2<T> {\n" + 
+			"	T t(){return null;}\n" + 
+			"}\n",
+		},
+		"");
+	String expectedOutput =
+		"  // Method descriptor #21 (LX;)V\n" + 
+		"  // Signature: (LX<TT;>;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo(X x0);\n" + 
+		"     0  aload_1 [x0]\n" + 
+		"     1  invokevirtual X.sx1() : SubX2 [23]\n" + 
+		"     4  invokevirtual SubX2.sx2() : X2 [25]\n" + 
+		"     7  checkcast SubX2 [26]\n" + 
+		"    10  invokevirtual SubX2.t() : X2 [31]\n" + 
+		"    13  checkcast SubX2 [26]\n" + 
+		"    16  invokevirtual java.lang.Object.getClass() : java.lang.Class [34]\n" + 
+		"    19  pop\n" + 
+		"    20  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 20, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 21] local: x0 index: 1 type: X\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+public void test1395()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends SubX2<T>> {\n" + 
+			"	T sx1(){return null;}\n" + 
+			"	void foo() {\n" + 
+			"		this.sx1().sx2().t().getClass();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface X1<T extends X2<T>> {\n" + 
+			"}\n" + 
+			"abstract class SubX1<T extends X2<T>> implements X1<T> {\n" + 
+			"	T sx2(){return null;}\n" + 
+			"}\n" + 
+			"interface X2<T extends X2<T>> extends X1<T>{\n" + 
+			"}\n" + 
+			"abstract class SubX2<T extends X2<T>> extends SubX1<T> implements X2<T> {\n" + 
+			"	T t(){return null;}\n" + 
+			"}\n",
+		},
+		"");
+	String expectedOutput =
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  void foo();\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokevirtual X.sx1() : SubX2 [21]\n" + 
+		"     4  invokevirtual SubX2.sx2() : X2 [23]\n" + 
+		"     7  checkcast SubX2 [24]\n" + 
+		"    10  invokevirtual SubX2.t() : X2 [29]\n" + 
+		"    13  checkcast SubX2 [24]\n" + 
+		"    16  invokevirtual java.lang.Object.getClass() : java.lang.Class [32]\n" + 
+		"    19  pop\n" + 
+		"    20  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 20, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 21] local: this index: 0 type: X<T>\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
