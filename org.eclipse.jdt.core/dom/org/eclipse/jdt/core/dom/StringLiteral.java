@@ -249,7 +249,7 @@ public class StringLiteral extends Expression {
 	 * <pre>
 	 * StringLiteral s;
 	 * s.setLiteralValue("hello\nworld");
-	 * assert s.getEscapedValue("\"hello\\nworld\"");
+	 * assert s.getEscapedValue().equals("\"hello\\nworld\"");
 	 * assert s.getLiteralValue().equals("hello\nworld");
 	 * </pre>
 	 * </p>

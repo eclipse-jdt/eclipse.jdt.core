@@ -305,7 +305,7 @@ public class CharacterLiteral extends Expression {
 	 * CharacterLiteral s;
 	 * s.setCharValue('x');
 	 * assert s.charValue() == 'x';
-	 * assert s.getEscapedValue("\'x\'");
+	 * assert s.getEscapedValue().equals("\'x\'");
 	 * </pre>
 	 * </p>
 	 *
