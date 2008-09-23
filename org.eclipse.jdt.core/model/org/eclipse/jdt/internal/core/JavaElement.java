@@ -18,6 +18,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
+import java.net.NoRouteToHostException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -787,6 +788,8 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
  			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 		} catch (FileNotFoundException e) {
 			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
+		} catch(NoRouteToHostException e) {
+			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845
 		} catch(IOException e) {
 			StringWriter stringWriter = new StringWriter();
 			PrintWriter writer = new PrintWriter(stringWriter);
