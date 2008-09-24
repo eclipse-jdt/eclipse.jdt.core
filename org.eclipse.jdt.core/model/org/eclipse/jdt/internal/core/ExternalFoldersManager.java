@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -160,36 +161,39 @@ public class ExternalFoldersManager {
 		if (!project.isAccessible()) {
 			try {
 				if (!project.exists()) {
-					IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
-					IPath stateLocation = JavaCore.getPlugin().getStateLocation();
-					desc.setLocation(stateLocation.append(EXTERNAL_PROJECT_NAME));
-					project.create(DEBUG ? null : desc, DEBUG ? IResource.NONE : IResource.HIDDEN, monitor);
+					createExternalFoldersProject(project, monitor);
 				}
 				try {
 					project.open(monitor);
 				} catch (CoreException e1) {
-					// .project or folder on disk have been deleted, recreate them
-					IPath stateLocation = DEBUG ? ResourcesPlugin.getWorkspace().getRoot().getLocation() : JavaCore.getPlugin().getStateLocation();
-					IPath projectPath = stateLocation.append(EXTERNAL_PROJECT_NAME);
-					projectPath.toFile().mkdirs();
-				    FileOutputStream output = new FileOutputStream(projectPath.append(".project").toOSString()); //$NON-NLS-1$
-				    try {
-				        output.write((
-				        		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //$NON-NLS-1$
-				        		"<projectDescription>\n" + //$NON-NLS-1$
-				        		"	<name>" + EXTERNAL_PROJECT_NAME + "</name>\n" + //$NON-NLS-1$ //$NON-NLS-2$
-				        		"	<comment></comment>\n" + //$NON-NLS-1$
-				        		"	<projects>\n" + //$NON-NLS-1$
-				        		"	</projects>\n" + //$NON-NLS-1$
-				        		"	<buildSpec>\n" + //$NON-NLS-1$
-				        		"	</buildSpec>\n" + //$NON-NLS-1$
-				        		"	<natures>\n" + //$NON-NLS-1$
-				        		"	</natures>\n" + //$NON-NLS-1$
-				        		"</projectDescription>").getBytes()); //$NON-NLS-1$
-				    } finally {
-				        output.close();
-				    }
-					project.open(null);
+					if (e1.getStatus().getCode() == IResourceStatus.FAILED_READ_METADATA) {
+						// workspace was moved (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=241400)
+						project.delete(true, monitor);
+						createExternalFoldersProject(project, monitor);
+					} else {
+						// .project or folder on disk have been deleted, recreate them
+						IPath stateLocation = DEBUG ? ResourcesPlugin.getWorkspace().getRoot().getLocation() : JavaCore.getPlugin().getStateLocation();
+						IPath projectPath = stateLocation.append(EXTERNAL_PROJECT_NAME);
+						projectPath.toFile().mkdirs();
+					    FileOutputStream output = new FileOutputStream(projectPath.append(".project").toOSString()); //$NON-NLS-1$
+					    try {
+					        output.write((
+					        		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //$NON-NLS-1$
+					        		"<projectDescription>\n" + //$NON-NLS-1$
+					        		"	<name>" + EXTERNAL_PROJECT_NAME + "</name>\n" + //$NON-NLS-1$ //$NON-NLS-2$
+					        		"	<comment></comment>\n" + //$NON-NLS-1$
+					        		"	<projects>\n" + //$NON-NLS-1$
+					        		"	</projects>\n" + //$NON-NLS-1$
+					        		"	<buildSpec>\n" + //$NON-NLS-1$
+					        		"	</buildSpec>\n" + //$NON-NLS-1$
+					        		"	<natures>\n" + //$NON-NLS-1$
+					        		"	</natures>\n" + //$NON-NLS-1$
+					        		"</projectDescription>").getBytes()); //$NON-NLS-1$
+					    } finally {
+					        output.close();
+					    }
+					}
+					project.open(monitor);
 				}
 			} catch (CoreException e) {
 				Util.log(e, "Problem creating hidden project for external folders"); //$NON-NLS-1$
@@ -200,6 +204,14 @@ public class ExternalFoldersManager {
 			}
 		}
 		return project;
+	}
+
+
+	private void createExternalFoldersProject(IProject project, IProgressMonitor monitor) throws CoreException {
+		IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
+		IPath stateLocation = JavaCore.getPlugin().getStateLocation();
+		desc.setLocation(stateLocation.append(EXTERNAL_PROJECT_NAME));
+		project.create(DEBUG ? null : desc, DEBUG ? IResource.NONE : IResource.HIDDEN, monitor);
 	}
 
 	public synchronized IFolder getFolder(IPath externalFolderPath) {
