@@ -156,25 +156,25 @@ public class ExternalFoldersManager {
 	public IProject getExternalFoldersProject() {
 		return ResourcesPlugin.getWorkspace().getRoot().getProject(EXTERNAL_PROJECT_NAME);
 	}
-	private IProject createExternalFoldersProject(IProgressMonitor monitor) {
+	private IProject createExternalFoldersProject(IProgressMonitor monitor) throws CoreException {
 		IProject project = getExternalFoldersProject();
 		if (!project.isAccessible()) {
+			if (!project.exists()) {
+				createExternalFoldersProject(project, monitor);
+			}
 			try {
-				if (!project.exists()) {
+				project.open(monitor);
+			} catch (CoreException e1) {
+				if (e1.getStatus().getCode() == IResourceStatus.FAILED_READ_METADATA) {
+					// workspace was moved (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=241400)
+					project.delete(true, monitor);
 					createExternalFoldersProject(project, monitor);
-				}
-				try {
-					project.open(monitor);
-				} catch (CoreException e1) {
-					if (e1.getStatus().getCode() == IResourceStatus.FAILED_READ_METADATA) {
-						// workspace was moved (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=241400)
-						project.delete(true, monitor);
-						createExternalFoldersProject(project, monitor);
-					} else {
-						// .project or folder on disk have been deleted, recreate them
-						IPath stateLocation = DEBUG ? ResourcesPlugin.getWorkspace().getRoot().getLocation() : JavaCore.getPlugin().getStateLocation();
-						IPath projectPath = stateLocation.append(EXTERNAL_PROJECT_NAME);
-						projectPath.toFile().mkdirs();
+				} else {
+					// .project or folder on disk have been deleted, recreate them
+					IPath stateLocation = DEBUG ? ResourcesPlugin.getWorkspace().getRoot().getLocation() : JavaCore.getPlugin().getStateLocation();
+					IPath projectPath = stateLocation.append(EXTERNAL_PROJECT_NAME);
+					projectPath.toFile().mkdirs();
+					try {
 					    FileOutputStream output = new FileOutputStream(projectPath.append(".project").toOSString()); //$NON-NLS-1$
 					    try {
 					        output.write((
@@ -192,15 +192,13 @@ public class ExternalFoldersManager {
 					    } finally {
 					        output.close();
 					    }
+					} catch (IOException e) {
+						// fallback to re-creating the project
+						project.delete(true, monitor);
+						createExternalFoldersProject(project, monitor);
 					}
-					project.open(monitor);
 				}
-			} catch (CoreException e) {
-				Util.log(e, "Problem creating hidden project for external folders"); //$NON-NLS-1$
-				return project;
-			} catch (IOException e) {
-				Util.log(e, "Problem creating hidden project for external folders"); //$NON-NLS-1$
-				return project;
+				project.open(monitor);
 			}
 		}
 		return project;
