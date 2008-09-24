@@ -4312,7 +4312,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				ReferenceBinding declaringClass = binding.declaringClass;
 				if (declaringClass.isNestedType()) {
 					NestedTypeBinding methodDeclaringClass = (NestedTypeBinding) declaringClass;
-					argSize = methodDeclaringClass.enclosingInstancesSlotSize;
+					argSize = methodDeclaringClass.getEnclosingInstancesSlotSize();
 					SyntheticArgumentBinding[] syntheticArguments;
 					if ((syntheticArguments = methodDeclaringClass.syntheticEnclosingInstances()) != null) {
 						for (int i = 0, max = syntheticArguments.length; i < max; i++) {
@@ -6971,8 +6971,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				// take into account the synthetic parameters
 				if (methodBinding.declaringClass.isNestedType()) {
 					ReferenceBinding enclosingInstanceTypes[];
-					if ((enclosingInstanceTypes = methodBinding.declaringClass
-							.syntheticEnclosingInstanceTypes()) != null) {
+					if ((enclosingInstanceTypes = methodBinding.declaringClass.syntheticEnclosingInstanceTypes()) != null) {
 						for (int i = 0, max = enclosingInstanceTypes.length; i < max; i++) {
 							// an enclosingInstanceType can only be a reference
 							// binding. It cannot be
@@ -6984,8 +6983,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 							localVariableBinding.recordInitializationEndPC(codeLength);
 
 							frame.putLocal(resolvedPosition,
-									new VerificationTypeInfo(
-											enclosingInstanceTypes[i]));
+									new VerificationTypeInfo(enclosingInstanceTypes[i]));
 							resolvedPosition++;
 						}
 					}

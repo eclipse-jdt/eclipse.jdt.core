@@ -435,6 +435,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.type.getAnnotationTagBits();
 	}
 
+	public int getEnclosingInstancesSlotSize() {
+		return genericType().getEnclosingInstancesSlotSize();
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getExactConstructor(TypeBinding[])
 	 */
@@ -473,8 +477,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		return match;
 	}
-
-	/**
+	
+	 /**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getExactMethod(char[], TypeBinding[],CompilationUnitScope)
 	 */
 	public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes, CompilationUnitScope refScope) {
@@ -538,15 +542,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return null;
 	}
 
-	/**
+	 /**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getField(char[], boolean)
 	 */
 	public FieldBinding getField(char[] fieldName, boolean needResolve) {
 		fields(); // ensure fields have been initialized... must create all at once unlike methods
 		return ReferenceBinding.binarySearch(fieldName, this.fields);
 	}
-
-	/**
+	 
+ 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMemberType(char[])
 	 */
 	public ReferenceBinding getMemberType(char[] typeName) {
@@ -609,6 +613,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    if (parameterizedMethods == null)
 		        this.methods = parameterizedMethods = Binding.NO_METHODS;
 		}
+	}
+
+	public int getOuterLocalVariablesSlotSize() {
+		return genericType().getOuterLocalVariablesSlotSize();
 	}
 
 	public boolean hasMemberTypes() {
@@ -983,14 +991,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#syntheticEnclosingInstanceTypes()
 	 */
 	public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
-		return this.type.syntheticEnclosingInstanceTypes();
+		return genericType().syntheticEnclosingInstanceTypes();
 	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#syntheticOuterLocalVariables()
 	 */
 	public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
-		return this.type.syntheticOuterLocalVariables();
+		return genericType().syntheticOuterLocalVariables();
 	}
 
 	/**

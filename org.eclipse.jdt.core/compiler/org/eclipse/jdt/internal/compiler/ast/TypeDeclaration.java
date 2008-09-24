@@ -560,7 +560,16 @@ public void generateCode(BlockScope blockScope, CodeStream codeStream) {
 	}
 	if ((this.bits & ASTNode.HasBeenGenerated) != 0) return;
 	int pc = codeStream.position;
-	if (this.binding != null) ((NestedTypeBinding) this.binding).computeSyntheticArgumentSlotSizes();
+	if (this.binding != null) {
+		SyntheticArgumentBinding[] enclosingInstances = ((NestedTypeBinding) this.binding).syntheticEnclosingInstances();
+		for (int i = 0, slotSize = 0, count = enclosingInstances == null ? 0 : enclosingInstances.length; i < count; i++){
+			SyntheticArgumentBinding enclosingInstance = enclosingInstances[i];
+			enclosingInstance.resolvedPosition = ++slotSize; // shift by 1 to leave room for aload0==this
+			if (slotSize > 0xFF) { // no more than 255 words of arguments
+				blockScope.problemReporter().noMoreAvailableSpaceForArgument(enclosingInstance, blockScope.referenceType());
+			}
+		}
+	}
 	generateCode(codeStream.classFile);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
@@ -570,7 +579,16 @@ public void generateCode(BlockScope blockScope, CodeStream codeStream) {
  */
 public void generateCode(ClassScope classScope, ClassFile enclosingClassFile) {
 	if ((this.bits & ASTNode.HasBeenGenerated) != 0) return;
-	if (this.binding != null) ((NestedTypeBinding) this.binding).computeSyntheticArgumentSlotSizes();
+	if (this.binding != null) {
+		SyntheticArgumentBinding[] enclosingInstances = ((NestedTypeBinding) this.binding).syntheticEnclosingInstances();
+		for (int i = 0, slotSize = 0, count = enclosingInstances == null ? 0 : enclosingInstances.length; i < count; i++){
+			SyntheticArgumentBinding enclosingInstance = enclosingInstances[i];
+			enclosingInstance.resolvedPosition = ++slotSize; // shift by 1 to leave room for aload0==this
+			if (slotSize > 0xFF) { // no more than 255 words of arguments
+				classScope.problemReporter().noMoreAvailableSpaceForArgument(enclosingInstance, classScope.referenceType());
+			}
+		}
+	}
 	generateCode(enclosingClassFile);
 }
 

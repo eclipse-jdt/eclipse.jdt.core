@@ -731,6 +731,14 @@ public long getAnnotationTagBits() {
 	return this.tagBits;
 }
 
+/**
+ * @return the enclosingInstancesSlotSize
+ */
+public int getEnclosingInstancesSlotSize() {
+	if (isStatic()) return 0;
+	return enclosingType() == null ? 0 : 1;
+}
+
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	return null;
 }
@@ -738,7 +746,6 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes, CompilationUnitScope refScope) {
 	return null;
 }
-
 public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	return null;
 }
@@ -748,6 +755,7 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 public char[] getFileName() {
 	return this.fileName;
 }
+
 public ReferenceBinding getMemberType(char[] typeName) {
 	ReferenceBinding[] memberTypes = memberTypes();
 	for (int i = memberTypes.length; --i >= 0;)
@@ -758,6 +766,13 @@ public ReferenceBinding getMemberType(char[] typeName) {
 
 public MethodBinding[] getMethods(char[] selector) {
 	return Binding.NO_METHODS;
+}
+
+/**
+ * @return the outerLocalVariablesSlotSize
+ */
+public int getOuterLocalVariablesSlotSize() {
+	return 0;
 }
 
 public PackageBinding getPackage() {
@@ -1311,13 +1326,11 @@ public ReferenceBinding[] superInterfaces() {
 
 public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 	if (isStatic()) return null;
-
 	ReferenceBinding enclosingType = enclosingType();
 	if (enclosingType == null)
 		return null;
 	return new ReferenceBinding[] {enclosingType};
 }
-
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	return null;		// is null if no enclosing instances are required
 }

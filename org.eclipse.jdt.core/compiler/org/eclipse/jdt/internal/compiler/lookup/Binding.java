@@ -46,6 +46,7 @@ public abstract class Binding {
 
 	public static final FieldBinding[] UNINITIALIZED_FIELDS = new FieldBinding[0];
 	public static final MethodBinding[] UNINITIALIZED_METHODS = new MethodBinding[0];
+	public static final ReferenceBinding[] UNINITIALIZED_REFERENCE_TYPES = new ReferenceBinding[0];
 
 	/*
 	* Answer the receiver's binding type from Binding.BindingID.

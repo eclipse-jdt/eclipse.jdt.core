@@ -261,13 +261,12 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		int argSlotSize = 1 + enumOffset; // this==aload0
 
 		if (declaringClass.isNestedType()){
-			NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
-			this.scope.extraSyntheticArguments = nestedType.syntheticOuterLocalVariables();
+			this.scope.extraSyntheticArguments = declaringClass.syntheticOuterLocalVariables();
 			this.scope.computeLocalVariablePositions(// consider synthetic arguments if any
-				nestedType.enclosingInstancesSlotSize + 1 + enumOffset,
+					declaringClass.getEnclosingInstancesSlotSize() + 1 + enumOffset,
 				codeStream);
-			argSlotSize += nestedType.enclosingInstancesSlotSize;
-			argSlotSize += nestedType.outerLocalVariablesSlotSize;
+			argSlotSize += declaringClass.getEnclosingInstancesSlotSize();
+			argSlotSize += declaringClass.getOuterLocalVariablesSlotSize();
 		} else {
 			this.scope.computeLocalVariablePositions(1 + enumOffset,  codeStream);
 		}

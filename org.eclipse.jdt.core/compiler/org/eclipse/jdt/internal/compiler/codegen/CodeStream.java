@@ -3661,41 +3661,27 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
 		return;
 	}
 	this.maxLocals = methodBinding.isStatic() ? 0 : 1;
-
+	ReferenceBinding declaringClass = methodBinding.declaringClass;
 	// take into account enum constructor synthetic name+ordinal
-	if (methodBinding.isConstructor() && methodBinding.declaringClass.isEnum()) {
+	if (methodBinding.isConstructor() && declaringClass.isEnum()) {
 		this.maxLocals += 2; // String and int (enum constant name+ordinal)
 	}
 
 	// take into account the synthetic parameters
-	if (methodBinding.isConstructor() && methodBinding.declaringClass.isNestedType()) {
-		ReferenceBinding enclosingInstanceTypes[];
-		if ((enclosingInstanceTypes = methodBinding.declaringClass.syntheticEnclosingInstanceTypes()) != null) {
-			for (int i = 0, max = enclosingInstanceTypes.length; i < max; i++) {
-				this.maxLocals++; // an enclosingInstanceType can only be a reference binding. It cannot be
-				// LongBinding or DoubleBinding
-			}
-		}
-		SyntheticArgumentBinding syntheticArguments[];
-		if ((syntheticArguments = methodBinding.declaringClass.syntheticOuterLocalVariables()) != null) {
-			for (int i = 0, max = syntheticArguments.length; i < max; i++) {
-				TypeBinding argType;
-				if (((argType = syntheticArguments[i].type) == TypeBinding.LONG) || (argType == TypeBinding.DOUBLE)) {
-					this.maxLocals += 2;
-				} else {
-					this.maxLocals++;
-				}
-			}
-		}
+	if (methodBinding.isConstructor() && declaringClass.isNestedType()) {
+		this.maxLocals += declaringClass.getEnclosingInstancesSlotSize();
+		this.maxLocals += declaringClass.getOuterLocalVariablesSlotSize();
 	}
-	TypeBinding[] arguments;
-	if ((arguments = methodBinding.parameters) != null) {
-		for (int i = 0, max = arguments.length; i < max; i++) {
-			TypeBinding argType;
-			if (((argType = arguments[i]) == TypeBinding.LONG) || (argType == TypeBinding.DOUBLE)) {
-				this.maxLocals += 2;
-			} else {
-				this.maxLocals++;
+	TypeBinding[] parameterTypes;
+	if ((parameterTypes = methodBinding.parameters) != null) {
+		for (int i = 0, max = parameterTypes.length; i < max; i++) {
+			switch (parameterTypes[i].id) {
+				case TypeIds.T_long :
+				case TypeIds.T_double :
+					this.maxLocals += 2;
+					break;
+				default: 
+					this.maxLocals++;
 			}
 		}
 	}
@@ -3761,20 +3747,7 @@ public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declari
     			if (declaringClass.isNestedType()) {
         			ReferenceBinding nestedType = (ReferenceBinding) declaringClass;
     				// enclosing instances
-    				TypeBinding[] syntheticArgumentTypes = nestedType.syntheticEnclosingInstanceTypes();
-    				if (syntheticArgumentTypes != null) {
-    					for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
-    						switch (syntheticArgumentTypes[i].id)  {
-    							case TypeIds.T_double :
-    							case TypeIds.T_long :
-	    							receiverAndArgsSize += 2;
-									break;
-    							default: 
-	    							receiverAndArgsSize++;
-    								break;
-    						}
-    					}
-    				}
+        			receiverAndArgsSize += nestedType.getEnclosingInstancesSlotSize();
     				// outer local variables
     				SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticOuterLocalVariables();
     				if (syntheticArguments != null) {
