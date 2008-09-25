@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.eval;
 
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -58,7 +59,7 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 		int pc = codeStream.position;
 		if (valueRequired) {
 			codeStream.aload_0();
-			codeStream.getfield(this.delegateThis);
+			codeStream.fieldAccess(Opcodes.OPC_getfield, this.delegateThis, null /* default declaringClass */); // delegate field access
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}

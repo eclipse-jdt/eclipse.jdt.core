@@ -373,11 +373,11 @@ public class Javadoc extends ASTNode {
 					if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
 					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, scopeModifiers);
 				}
-				else if (fieldRef.receiverType != null) {
-					if (scope.enclosingSourceType().isCompatibleWith(fieldRef.receiverType)) {
+				else if (fieldRef.actualReceiverType != null) {
+					if (scope.enclosingSourceType().isCompatibleWith(fieldRef.actualReceiverType)) {
 						fieldRef.bits |= ASTNode.SuperAccess;
 					}
-					fieldRef.methodBinding = scope.findMethod((ReferenceBinding)fieldRef.receiverType, fieldRef.token, new TypeBinding[0], fieldRef);
+					fieldRef.methodBinding = scope.findMethod((ReferenceBinding)fieldRef.actualReceiverType, fieldRef.token, new TypeBinding[0], fieldRef);
 				}
 			}
 
@@ -390,8 +390,8 @@ public class Javadoc extends ASTNode {
 			}
 
 			// Verify type references
-			if (!hasProblems && fieldRef.binding != null && fieldRef.binding.isValidBinding() && fieldRef.receiverType instanceof ReferenceBinding) {
-				ReferenceBinding resolvedType = (ReferenceBinding) fieldRef.receiverType;
+			if (!hasProblems && fieldRef.binding != null && fieldRef.binding.isValidBinding() && fieldRef.actualReceiverType instanceof ReferenceBinding) {
+				ReferenceBinding resolvedType = (ReferenceBinding) fieldRef.actualReceiverType;
 				verifyTypeReference(fieldRef, fieldRef.receiver, scope, source15, resolvedType, fieldRef.binding.modifiers);
 			}
 

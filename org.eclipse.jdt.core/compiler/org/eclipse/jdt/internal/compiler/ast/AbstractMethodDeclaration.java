@@ -253,11 +253,14 @@ public abstract class AbstractMethodDeclaration
 		TypeBinding[] parameters = this.binding.parameters;
 		int size = 1; // an abstact method or a native method cannot be static
 		for (int i = 0, max = parameters.length; i < max; i++) {
-			TypeBinding parameter = parameters[i];
-			if (parameter == TypeBinding.LONG || parameter == TypeBinding.DOUBLE) {
-				size += 2;
-			} else {
-				size++;
+			switch(parameters[i].id) {
+				case TypeIds.T_long :
+				case TypeIds.T_double :
+					size += 2;
+					break;
+				default :
+					size++;
+					break;
 			}
 			if (size > 0xFF) {
 				this.scope.problemReporter().noMoreAvailableSpaceForArgument(this.scope.locals[i], this.scope.locals[i].declaration);

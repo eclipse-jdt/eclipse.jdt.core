@@ -228,7 +228,7 @@ public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodS
 		if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
 			codeStream.aload_0();
 			codeStream.load(syntheticArg);
-			codeStream.putfield(syntheticArg.matchingField);
+			codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
 		}
 	}
 	syntheticArgs = nestedType.syntheticOuterLocalVariables();
@@ -237,7 +237,7 @@ public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodS
 		if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
 			codeStream.aload_0();
 			codeStream.load(syntheticArg);
-			codeStream.putfield(syntheticArg.matchingField);
+			codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
 		}
 	}
 }
@@ -277,11 +277,14 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				LocalVariableBinding argBinding;
 				codeStream.addVisibleLocalVariable(argBinding = this.arguments[i].binding);
 				argBinding.recordInitializationStartPC(0);
-				TypeBinding argType;
-				if ((argType = argBinding.type) == TypeBinding.LONG || (argType == TypeBinding.DOUBLE)) {
-					argSlotSize += 2;
-				} else {
-					argSlotSize++;
+				switch(argBinding.type.id) {
+					case TypeIds.T_long :
+					case TypeIds.T_double :
+						argSlotSize += 2;
+						break;
+					default :
+						argSlotSize++;
+						break;
 				}
 			}
 		}

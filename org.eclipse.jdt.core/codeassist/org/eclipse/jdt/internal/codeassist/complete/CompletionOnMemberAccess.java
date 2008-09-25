@@ -53,9 +53,9 @@ public class CompletionOnMemberAccess extends FieldReference {
 
 	public TypeBinding resolveType(BlockScope scope) {
 
-		this.receiverType = this.receiver.resolveType(scope);
+		this.actualReceiverType = this.receiver.resolveType(scope);
 
-		if ((this.receiverType == null || !this.receiverType.isValidBinding()) && this.receiver instanceof MessageSend) {
+		if ((this.actualReceiverType == null || !this.actualReceiverType.isValidBinding()) && this.receiver instanceof MessageSend) {
 			MessageSend messageSend = (MessageSend) this.receiver;
 			if(messageSend.receiver instanceof ThisReference) {
 				Expression[] arguments = messageSend.arguments;
@@ -73,10 +73,10 @@ public class CompletionOnMemberAccess extends FieldReference {
 			}
 		}
 
-		if (this.receiverType == null || this.receiverType.isBaseType() || !this.receiverType.isValidBinding())
+		if (this.actualReceiverType == null || this.actualReceiverType.isBaseType() || !this.actualReceiverType.isValidBinding())
 			throw new CompletionNodeFound();
 		else
-			throw new CompletionNodeFound(this, this.receiverType, scope);
+			throw new CompletionNodeFound(this, this.actualReceiverType, scope);
 		// array types are passed along to find the length field
 	}
 }

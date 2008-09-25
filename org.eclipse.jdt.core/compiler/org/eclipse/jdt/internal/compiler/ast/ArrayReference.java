@@ -140,11 +140,14 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 	codeStream.dup2();
 	codeStream.arrayAt(this.resolvedType.id);
 	if (valueRequired) {
-		if ((this.resolvedType == TypeBinding.LONG)
-			|| (this.resolvedType == TypeBinding.DOUBLE)) {
-			codeStream.dup2_x2();
-		} else {
-			codeStream.dup_x2();
+		switch(this.resolvedType.id) {
+			case TypeIds.T_long :
+			case TypeIds.T_double :
+				codeStream.dup2_x2();
+				break;
+			default :
+				codeStream.dup_x2();
+				break;
 		}
 	}
 	codeStream.generateImplicitConversion(this.implicitConversion);

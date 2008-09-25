@@ -149,7 +149,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 
 	// actual message invocation
 	if (this.syntheticAccessor == null){
-		TypeBinding constantPoolDeclaringClass = getConstantPoolDeclaringClass(currentScope);
+		TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis(), this.receiverGenericCast != null);
 		if (isStatic){
 			codeStream.invoke(Opcodes.OPC_invokestatic, codegenBinding, constantPoolDeclaringClass);
 		} else if( (this.receiver.isSuper()) || codegenBinding.isPrivate()){
@@ -191,35 +191,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
  */
 public TypeBinding[] genericTypeArguments() {
 	return this.genericTypeArguments;
-}
-
-protected TypeBinding getConstantPoolDeclaringClass(BlockScope currentScope) {
-	// constantpool declaringClass
-	MethodBinding codegenBinding = this.binding.original();
-	TypeBinding constantPoolDeclaringClass = codegenBinding.declaringClass;
-	// Post 1.4.0 target, array clone() invocations are qualified with array type
-	// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
-	if (codegenBinding == currentScope.environment().arrayClone) {
-		CompilerOptions options = currentScope.compilerOptions();
-		if (options.sourceLevel > ClassFileConstants.JDK1_4 ) {
-			constantPoolDeclaringClass = this.actualReceiverType.erasure();
-		}
-	} else {
-		// if the binding declaring class is not visible, need special action
-		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-		// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
-		// and not from Object or implicit static method call.
-		if (constantPoolDeclaringClass != this.actualReceiverType && this.receiverGenericCast == null && !this.actualReceiverType.isArrayType()) {
-			CompilerOptions options = currentScope.compilerOptions();
-			if ((options.targetJDK >= ClassFileConstants.JDK1_2
-						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(this.receiver.isImplicitThis() && codegenBinding.isStatic()))
-						&& this.binding.declaringClass.id != TypeIds.T_JavaLangObject) // no change for Object methods
-					|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
-				constantPoolDeclaringClass = this.actualReceiverType.erasure();
-			}
-		}				
-	}
-	return constantPoolDeclaringClass;
 }
 
 public boolean isSuperAccess() {

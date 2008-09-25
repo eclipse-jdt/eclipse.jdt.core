@@ -731,7 +731,7 @@ public void test017() throws Exception {
 /**
  * changing the value of a public field
  */
-public void test018() throws Exception {
+public void testONLY_018() throws Exception {
 	try {
 		String sourceA018 =
 			"public class A018 {\n" +
@@ -967,8 +967,6 @@ public void test023() throws Exception {
 				+ "\tpublic String c = null;\n"
 				+ "}";
 		compileAndDeploy(sourceC23, "C23");
-
-
 		String sourceB23 =
 			"public class B23 {\n"
 				+ "\tpublic C23 c = new C23();\n"

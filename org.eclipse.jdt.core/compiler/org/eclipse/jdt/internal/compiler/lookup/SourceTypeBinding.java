@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -26,8 +25,8 @@ import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class SourceTypeBinding extends ReferenceBinding {
 	public ReferenceBinding superclass;
@@ -39,15 +38,13 @@ public class SourceTypeBinding extends ReferenceBinding {
 
 	public ClassScope scope;
 
-	// Synthetics are separated into 5 categories: methods, super methods, fields, class literals, changed declaring type bindings and bridge methods
+	// Synthetics are separated into 4 categories: methods, super methods, fields, class literals and bridge methods
 	// if a new category is added, also increment MAX_SYNTHETICS
 	private final static int METHOD_EMUL = 0;
 	private final static int FIELD_EMUL = 1;
 	private final static int CLASS_LITERAL_EMUL = 2;
-	/** @deprecated */
-	private final static int RECEIVER_TYPE_EMUL = 3;
 
-	private final static int MAX_SYNTHETICS = 4;
+	private final static int MAX_SYNTHETICS = 3;
 
 	HashMap[] synthetics;
 	char[] genericReferenceTypeSignature;
@@ -1064,25 +1061,6 @@ public boolean isGenericType() {
 }
 public ReferenceBinding[] memberTypes() {
 	return this.memberTypes;
-}
-///** @deprecated */
-public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBinding newDeclaringClass) {
-	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
-	if (this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] == null)
-		this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] = new HashMap(5);
-
-	Hashtable fieldMap = (Hashtable) this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL].get(targetField);
-	if (fieldMap == null) {
-		fieldMap = new Hashtable(5);
-		this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL].put(targetField, fieldMap);
-	}
-	FieldBinding updatedField = (FieldBinding) fieldMap.get(newDeclaringClass);
-	if (updatedField == null){
-		updatedField = new FieldBinding(targetField, newDeclaringClass);
-		fieldMap.put(newDeclaringClass, updatedField);
-	}
-	return updatedField;
 }
 
 public boolean hasMemberTypes() {

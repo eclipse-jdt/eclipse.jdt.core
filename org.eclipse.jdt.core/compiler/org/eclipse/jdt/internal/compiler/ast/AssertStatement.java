@@ -101,7 +101,7 @@ public class AssertStatement extends Statement {
 
 		if (this.assertionSyntheticFieldBinding != null) {
 			BranchLabel assertionActivationLabel = new BranchLabel(codeStream);
-			codeStream.getstatic(this.assertionSyntheticFieldBinding);
+			codeStream.fieldAccess(Opcodes.OPC_getstatic, this.assertionSyntheticFieldBinding, null /* default declaringClass */);
 			codeStream.ifne(assertionActivationLabel);
 
 			BranchLabel falseLabel;

@@ -41,19 +41,19 @@ public class JavadocFieldReference extends FieldReference {
 
 		this.constant = Constant.NotAConstant;
 		if (this.receiver == null) {
-			this.receiverType = scope.enclosingReceiverType();
+			this.actualReceiverType = scope.enclosingReceiverType();
 		} else if (scope.kind == Scope.CLASS_SCOPE) {
-			this.receiverType = this.receiver.resolveType((ClassScope) scope);
+			this.actualReceiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
-			this.receiverType = this.receiver.resolveType((BlockScope)scope);
+			this.actualReceiverType = this.receiver.resolveType((BlockScope)scope);
 		}
-		if (this.receiverType == null) {
+		if (this.actualReceiverType == null) {
 			return null;
 		}
 
 		Binding fieldBinding = (this.receiver != null && this.receiver.isThis())
 			? scope.classScope().getBinding(this.token, this.bits & RestrictiveFlagMASK, this, true /*resolve*/)
-			: scope.getField(this.receiverType, this.token, this);
+			: scope.getField(this.actualReceiverType, this.token, this);
 		if (!fieldBinding.isValidBinding()) {
 			// implicit lookup may discover issues due to static/constructor contexts. javadoc must be resilient
 			switch (fieldBinding.problemId()) {
@@ -72,8 +72,8 @@ public class JavadocFieldReference extends FieldReference {
 				// problem already got signaled on receiver, do not report secondary problem
 				return null;
 			}
-			if (this.receiverType instanceof ReferenceBinding) {
-				ReferenceBinding refBinding = (ReferenceBinding) this.receiverType;
+			if (this.actualReceiverType instanceof ReferenceBinding) {
+				ReferenceBinding refBinding = (ReferenceBinding) this.actualReceiverType;
 				MethodBinding possibleMethod = this.receiver.isThis()
 					? scope.getImplicitMethod(this.token, Binding.NO_TYPES, this)
 					: scope.getMethod(refBinding, this.token, Binding.NO_TYPES, this);
@@ -82,7 +82,7 @@ public class JavadocFieldReference extends FieldReference {
 				} else {
 					ProblemMethodBinding problemMethodBinding = (ProblemMethodBinding) possibleMethod;
 					if (problemMethodBinding.closestMatch == null) {
-						scope.problemReporter().javadocInvalidField(this, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
+						scope.problemReporter().javadocInvalidField(this, fieldBinding, this.actualReceiverType, scope.getDeclarationModifiers());
 					} else {
 						this.methodBinding = problemMethodBinding.closestMatch;
 					}

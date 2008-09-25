@@ -93,11 +93,11 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 
 		// Resolve only receiver
 		if (this.receiver == null) {
-			this.receiverType = scope.enclosingSourceType();
+			this.actualReceiverType = scope.enclosingSourceType();
 		} else if (scope.kind == Scope.CLASS_SCOPE) {
-			this.receiverType = this.receiver.resolveType((ClassScope) scope);
+			this.actualReceiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
-			this.receiverType = this.receiver.resolveType((BlockScope)scope);
+			this.actualReceiverType = this.receiver.resolveType((BlockScope)scope);
 		}
 		return null;
 	}

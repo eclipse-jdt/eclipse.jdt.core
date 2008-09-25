@@ -104,9 +104,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		this.initialization.generateCode(currentScope, codeStream, true);
 		// store into field
 		if (isStatic) {
-			codeStream.putstatic(this.binding);
+			codeStream.fieldAccess(Opcodes.OPC_putstatic, this.binding, null /* default declaringClass */);
 		} else {
-			codeStream.putfield(this.binding);
+			codeStream.fieldAccess(Opcodes.OPC_putfield, this.binding, null /* default declaringClass */);
 		}
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);

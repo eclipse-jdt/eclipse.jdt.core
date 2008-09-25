@@ -675,6 +675,199 @@ public void testRunMethodInAnonymous() {
 		"10".toCharArray());
 }
 /**
+ * Tests that the run() method defined in an anonymous class doesn't interfer with the
+ * code snippet support (see PR #1G1C0HR).
+ */
+public void testRunMethodInAnonymous2() {
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+		"class X {",
+		"	public int i = 0;",
+		"   public boolean finished = false;",
+		"}",
+		"final X x = new X();",
+		"(new Thread() {",
+		"	public void run() {",
+		"		for (int i=0;i<10;i++) {",
+		"			try {",
+		"				Thread.currentThread().sleep(10);",
+		"			} catch (InterruptedException e) {",
+		"			}",
+		"			++x.i;",
+		"		}",
+		"       x.finished = true;",
+		"	}",
+		"}).start();",
+		"while (!x.finished) Thread.currentThread().sleep(100);",
+		"x.i"}),
+		"10".toCharArray());
+}
+/**
+ * Tests that the run() method defined in an anonymous class doesn't interfer with the
+ * code snippet support (see PR #1G1C0HR).
+ */
+public void testRunMethodInAnonymous3() {
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+		"class X {",
+		"	public int i = 0;",
+		"   public boolean finished = false;",
+		"}",
+		"final X x = new X();",
+		"(new Thread() {",
+		"	public void run() {",
+		"		for (int i=0;i<10;i++) {",
+		"			try {",
+		"				Thread.currentThread().sleep(10);",
+		"			} catch (InterruptedException e) {",
+		"			}",
+		"			x.i += 1;",
+		"		}",
+		"       x.finished = true;",
+		"	}",
+		"}).start();",
+		"while (!x.finished) Thread.currentThread().sleep(100);",
+		"x.i"}),
+		"10".toCharArray());
+}
+/**
+ * Tests that the run() method defined in an anonymous class doesn't interfer with the
+ * code snippet support (see PR #1G1C0HR).
+ */
+public void testRunMethodInAnonymous4() {
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+		"class X {",
+		"	public int i = 0;",
+		"   public boolean finished = false;",
+		"}",
+		"final X x = new X();",
+		"(new Thread() {",
+		"	public void run() {",
+		"		for (int i=0;i<10;i++) {",
+		"			try {",
+		"				Thread.currentThread().sleep(10);",
+		"			} catch (InterruptedException e) {",
+		"			}",
+		"			x.i = x.i + 1;",
+		"		}",
+		"       x.finished = true;",
+		"	}",
+		"}).start();",
+		"while (!x.finished) Thread.currentThread().sleep(100);",
+		"x.i"}),
+		"10".toCharArray());
+}
+/**
+ * Tests that the run() method defined in an anonymous class doesn't interfer with the
+ * code snippet support (see PR #1G1C0HR).
+ */
+public void testRunMethodInAnonymous5() {
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+		"class X {",
+		"	public int i = 0;",
+		"   public boolean finished = false;",
+		"	public X self() { return this; }",
+		"}",
+		"final X x = new X();",
+		"(new Thread() {",
+		"	public void run() {",
+		"		for (int i=0;i<10;i++) {",
+		"			try {",
+		"				Thread.currentThread().sleep(10);",
+		"			} catch (InterruptedException e) {",
+		"			}",
+		"			x.self().i++;",
+		"		}",
+		"       x.finished = true;",
+		"	}",
+		"}).start();",
+		"while (!x.finished) Thread.currentThread().sleep(100);",
+		"x.i"}),
+		"10".toCharArray());
+}
+/**
+ * Tests that the run() method defined in an anonymous class doesn't interfer with the
+ * code snippet support (see PR #1G1C0HR).
+ */
+public void testRunMethodInAnonymous6() {
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+		"class X {",
+		"	public int i = 0;",
+		"   public boolean finished = false;",
+		"	public X self() { return this; }",
+		"}",
+		"final X x = new X();",
+		"(new Thread() {",
+		"	public void run() {",
+		"		for (int i=0;i<10;i++) {",
+		"			try {",
+		"				Thread.currentThread().sleep(10);",
+		"			} catch (InterruptedException e) {",
+		"			}",
+		"			++ (x.self().i);",
+		"		}",
+		"       x.finished = true;",
+		"	}",
+		"}).start();",
+		"while (!x.finished) Thread.currentThread().sleep(100);",
+		"x.i"}),
+		"10".toCharArray());
+}
+/**
+ * Tests that the run() method defined in an anonymous class doesn't interfer with the
+ * code snippet support (see PR #1G1C0HR).
+ */
+public void testRunMethodInAnonymous7() {
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+		"class X {",
+		"	public int i = 0;",
+		"   public boolean finished = false;",
+		"	public X self() { return this; }",
+		"}",
+		"final X x = new X();",
+		"(new Thread() {",
+		"	public void run() {",
+		"		for (int i=0;i<10;i++) {",
+		"			try {",
+		"				Thread.currentThread().sleep(10);",
+		"			} catch (InterruptedException e) {",
+		"			}",
+		"			x.self().i += 1;",
+		"		}",
+		"       x.finished = true;",
+		"	}",
+		"}).start();",
+		"while (!x.finished) Thread.currentThread().sleep(100);",
+		"x.i"}),
+		"10".toCharArray());
+}
+/**
+ * Tests that the run() method defined in an anonymous class doesn't interfer with the
+ * code snippet support (see PR #1G1C0HR).
+ */
+public void testRunMethodInAnonymous8() {
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+		"class X {",
+		"	public int i = 0;",
+		"   public boolean finished = false;",
+		"	public X self() { return this; }",
+		"}",
+		"final X x = new X();",
+		"(new Thread() {",
+		"	public void run() {",
+		"		for (int i=0;i<10;i++) {",
+		"			try {",
+		"				Thread.currentThread().sleep(10);",
+		"			} catch (InterruptedException e) {",
+		"			}",
+		"			x.self().i = x.self().i + 1;",
+		"		}",
+		"       x.finished = true;",
+		"	}",
+		"}).start();",
+		"while (!x.finished) Thread.currentThread().sleep(100);",
+		"x.i"}),
+		"10".toCharArray());
+}
+/**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89632
  */
 public void testFor89632() {

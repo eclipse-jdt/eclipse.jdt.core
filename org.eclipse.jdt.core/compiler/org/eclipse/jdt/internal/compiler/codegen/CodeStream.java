@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -1214,6 +1215,65 @@ public void fdiv() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fdiv;
 }
 
+public void fieldAccess(byte opcode, FieldBinding fieldBinding, TypeBinding declaringClass) {
+	if (declaringClass == null) declaringClass = fieldBinding.declaringClass;
+	if (declaringClass.leafComponentType().isNestedType()) {
+		this.classFile.recordInnerClasses(declaringClass);
+	}
+	TypeBinding returnType = fieldBinding.type;
+	int returnTypeSize;
+	switch (returnType.id) {
+		case TypeIds.T_long :
+		case TypeIds.T_double :
+			returnTypeSize = 2;
+			break;
+		default :
+			returnTypeSize = 1;
+			break;
+	}
+	this.fieldAccess(opcode, returnTypeSize, declaringClass.constantPoolName(), fieldBinding.name, returnType.signature());
+}
+
+private void fieldAccess(byte opcode, int returnTypeSize, char[] declaringClass, char[] fieldName, char[] signature) {
+	this.countLabels = 0;
+	switch(opcode) {
+		case Opcodes.OPC_getfield :
+			if (returnTypeSize == 2) {
+				this.stackDepth++;
+			}
+			break;
+		case Opcodes.OPC_getstatic :
+			if (returnTypeSize == 2) {
+				this.stackDepth += 2;
+			} else {
+				this.stackDepth++;
+			}
+			break;
+		case Opcodes.OPC_putfield :
+			if (returnTypeSize == 2) {
+				this.stackDepth -= 3;
+			} else {
+				this.stackDepth -= 2;
+			}
+			break;
+		case Opcodes.OPC_putstatic :
+			if (returnTypeSize == 2) {
+				this.stackDepth -= 2;
+			} else {
+				this.stackDepth--;
+			}
+	}
+	if (this.stackDepth > this.stackMax) {
+		this.stackMax = this.stackDepth;
+	}
+	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
+		resizeByteArray();
+	}
+	this.position++;
+	this.bCodeStream[this.classFileOffset++] = opcode;
+	writeUnsignedShort(this.constantPool.literalIndexForField(declaringClass, fieldName, signature));
+}
+
 public void fload(int iArg) {
 	this.countLabels = 0;
 	this.stackDepth++;
@@ -1641,7 +1701,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	} else {
 		BranchLabel endLabel = new BranchLabel(this);
 		if (syntheticFieldBinding != null) { // non interface case
-			getstatic(syntheticFieldBinding);
+			fieldAccess(Opcodes.OPC_getstatic, syntheticFieldBinding, null /* default declaringClass */);
 			dup();
 			ifnonnull(endLabel);
 			pop();
@@ -1684,7 +1744,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 
 		if (syntheticFieldBinding != null) { // non interface case
 			dup();
-			putstatic(syntheticFieldBinding);
+			fieldAccess(Opcodes.OPC_putstatic, syntheticFieldBinding, null /* default declaringClass */);
 		}
 		goto_(endLabel);
 
@@ -1875,57 +1935,6 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 	dup();
 	iconst_1();
 	invokeAccessibleObjectSetAccessible();
-}
-
-private void generateFieldAccess(byte opcode, int returnTypeSize, char[] declaringClass, char[] name, char[] signature) {
-	this.countLabels = 0;
-	switch(opcode) {
-		case Opcodes.OPC_getfield :
-			if (returnTypeSize == 2) {
-				this.stackDepth++;
-			}
-			break;
-		case Opcodes.OPC_getstatic :
-			if (returnTypeSize == 2) {
-				this.stackDepth += 2;
-			} else {
-				this.stackDepth++;
-			}
-			break;
-		case Opcodes.OPC_putfield :
-			if (returnTypeSize == 2) {
-				this.stackDepth -= 3;
-			} else {
-				this.stackDepth -= 2;
-			}
-			break;
-		case Opcodes.OPC_putstatic :
-			if (returnTypeSize == 2) {
-				this.stackDepth -= 2;
-			} else {
-				this.stackDepth--;
-			}
-	}
-	if (this.stackDepth > this.stackMax) {
-		this.stackMax = this.stackDepth;
-	}
-	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = opcode;
-	writeUnsignedShort(this.constantPool.literalIndexForField(declaringClass, name, signature));
-}
-
-private void generateFieldAccess(byte opcode, int returnTypeSize, ReferenceBinding binding, char[] name, TypeBinding type) {
-	if (binding.isNestedType()) {
-		this.classFile.recordInnerClasses(binding);
-	}
-	TypeBinding leafComponentType = type.leafComponentType();
-	if (leafComponentType.isNestedType()) {
-		this.classFile.recordInnerClasses(leafComponentType);
-	}
-	this.generateFieldAccess(opcode, returnTypeSize, binding.constantPoolName(), name, type.signature());
 }
 
 /**
@@ -2251,14 +2260,14 @@ public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite
 	} else if (mappingSequence[0] instanceof FieldBinding) {
 		FieldBinding fieldBinding = (FieldBinding) mappingSequence[0];
 		aload_0();
-		getfield(fieldBinding);
+		fieldAccess(Opcodes.OPC_getfield, fieldBinding, null /* default declaringClass */);
 	} else {
 		load((LocalVariableBinding) mappingSequence[0]);
 	}
 	for (int i = 1, length = mappingSequence.length; i < length; i++) {
 		if (mappingSequence[i] instanceof FieldBinding) {
 			FieldBinding fieldBinding = (FieldBinding) mappingSequence[i];
-			getfield(fieldBinding);
+			fieldAccess(Opcodes.OPC_getfield, fieldBinding, null /* default declaringClass */);
 		} else {
 			invoke(Opcodes.OPC_invokestatic, (MethodBinding) mappingSequence[i], null /* default declaringClass */);
 		}
@@ -2348,18 +2357,29 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 		for (int i = 0; i < (syntheticArguments == null ? 0 : syntheticArguments.length); i++) {
 			TypeBinding type;
 			load((type = syntheticArguments[i].type), resolvedPosition);
-			if ((type == TypeBinding.DOUBLE) || (type == TypeBinding.LONG))
-				resolvedPosition += 2;
-			else
-				resolvedPosition++;
+			switch(type.id) {
+				case TypeIds.T_long :
+				case TypeIds.T_double :
+					resolvedPosition += 2;
+					break;
+				default :
+					resolvedPosition++;
+					break;
+			}
 		}
 	}
 	for (int i = 0; i < length; i++) {
-		load(parameters[i], resolvedPosition);
-		if ((parameters[i] == TypeBinding.DOUBLE) || (parameters[i] == TypeBinding.LONG))
-			resolvedPosition += 2;
-		else
-			resolvedPosition++;
+		TypeBinding parameter;
+		load(parameter = parameters[i], resolvedPosition);
+		switch(parameter.id) {
+			case TypeIds.T_long :
+			case TypeIds.T_double :
+				resolvedPosition += 2;
+				break;
+			default :
+				resolvedPosition++;
+				break;
+		}
 	}
 
 	if (declaringClass.isNestedType()) {
@@ -2367,11 +2387,16 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 		SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticOuterLocalVariables();
 		for (int i = 0; i < (syntheticArguments == null ? 0 : syntheticArguments.length); i++) {
 			TypeBinding type;
-			load((type = syntheticArguments[i].type), resolvedPosition);
-			if ((type == TypeBinding.DOUBLE) || (type == TypeBinding.LONG))
-				resolvedPosition += 2;
-			else
-				resolvedPosition++;
+			load(type = syntheticArguments[i].type, resolvedPosition);
+			switch(type.id) {
+				case TypeIds.T_long :
+				case TypeIds.T_double :
+					resolvedPosition += 2;
+					break;
+				default :
+					resolvedPosition++;
+					break;
+			}			
 		}
 	}
 	invoke(Opcodes.OPC_invokespecial, constructorBinding, null /* default declaringClass */);
@@ -2400,11 +2425,9 @@ public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBin
 //}
 public void generateSyntheticBodyForEnumValues(SyntheticMethodBinding methodBinding) {
 	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
-	FieldBinding enumValuesSyntheticfield = scope.referenceContext.enumValuesSyntheticfield;
 	initializeMaxLocals(methodBinding);
 	TypeBinding enumArray = methodBinding.returnType;
-
-	getstatic(enumValuesSyntheticfield);
+	fieldAccess(Opcodes.OPC_getstatic, scope.referenceContext.enumValuesSyntheticfield, null /* default declaringClass */);
 	dup();
 	astore_0();
 	iconst_0();
@@ -2425,11 +2448,11 @@ public void generateSyntheticBodyForEnumValues(SyntheticMethodBinding methodBind
 public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessBinding) {
 	initializeMaxLocals(accessBinding);
 	FieldBinding fieldBinding = accessBinding.targetReadField;
-	if (fieldBinding.isStatic())
-		getstatic(fieldBinding);
-	else {
+	if (fieldBinding.isStatic()) {
+		fieldAccess(Opcodes.OPC_getstatic, fieldBinding, null /* default declaringClass */);
+	} else {
 		aload_0();
-		getfield(fieldBinding);
+		fieldAccess(Opcodes.OPC_getfield, fieldBinding, null /* default declaringClass */);
 	}
 	switch (fieldBinding.type.id) {
 //		case T_void :
@@ -2461,11 +2484,11 @@ public void generateSyntheticBodyForFieldWriteAccess(SyntheticMethodBinding acce
 	FieldBinding fieldBinding = accessBinding.targetWriteField;
 	if (fieldBinding.isStatic()) {
 		load(fieldBinding.type, 0);
-		putstatic(fieldBinding);
+		fieldAccess(Opcodes.OPC_putstatic, fieldBinding, null /* default declaringClass */);
 	} else {
 		aload_0();
 		load(fieldBinding.type, 1);
-		putfield(fieldBinding);
+		fieldAccess(Opcodes.OPC_putfield, fieldBinding, null /* default declaringClass */);
 	}
 	return_();
 }
@@ -2495,10 +2518,15 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 	    } else {
 			load(parameter, resolvedPosition);
 		}
-		if ((parameter == TypeBinding.DOUBLE) || (parameter == TypeBinding.LONG))
-			resolvedPosition += 2;
-		else
-			resolvedPosition++;
+		switch(parameter.id) {
+			case TypeIds.T_long :
+			case TypeIds.T_double :
+				resolvedPosition += 2;
+				break;
+			default :
+				resolvedPosition++;
+				break;
+		}
 	}
 	if (targetMethod.isStatic())
 		invoke(Opcodes.OPC_invokestatic, targetMethod, null /* default declaringClass */);
@@ -2551,7 +2579,7 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 	initializeMaxLocals(methodBinding);
 	final BranchLabel nullLabel = new BranchLabel(this);
 	FieldBinding syntheticFieldBinding = methodBinding.targetReadField;
-	getstatic(syntheticFieldBinding);
+	fieldAccess(Opcodes.OPC_getstatic, syntheticFieldBinding, null /* default declaringClass */);
 	dup();
 	ifnull(nullLabel);
 	areturn();
@@ -2575,7 +2603,7 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 				final ExceptionLabel anyExceptionHandler = new ExceptionLabel(this, TypeBinding.LONG /* represents NoSuchFieldError*/);
 				anyExceptionHandler.placeStart();
 				aload_0();
-				getstatic(fieldBinding);
+				fieldAccess(Opcodes.OPC_getstatic, fieldBinding, null /* default declaringClass */);
 				invokeEnumOrdinal(enumBinding.constantPoolName());
 				this.generateInlinedValue(fieldBinding.id + 1); // zero should not be returned see bug 141810
 				iastore();
@@ -2591,7 +2619,7 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 	}
 	aload_0();
 	dup();
-	putstatic(syntheticFieldBinding);
+	fieldAccess(Opcodes.OPC_putstatic, syntheticFieldBinding, null /* default declaringClass */);
 	areturn();
 	removeVariable(localVariableBinding);
 }
@@ -2868,34 +2896,73 @@ final public byte[] getContents() {
 	return contents;
 }
 
-public void getfield(FieldBinding fieldBinding) {
-	int returnTypeSize = 1;
-	if ((fieldBinding.type.id == TypeIds.T_double) || (fieldBinding.type.id == TypeIds.T_long)) {
-		returnTypeSize = 2;
-	}
-	generateFieldAccess(
-			Opcodes.OPC_getfield,
-			returnTypeSize,
-			fieldBinding.declaringClass,
-			fieldBinding.name,
-			fieldBinding.type);
+/**
+ * Returns the type that should be substituted to original binding declaring class as the proper receiver type
+ * @param currentScope
+ * @param codegenBinding
+ * @param actualReceiverType
+ * @param isImplicitThisReceiver
+ * @return the receiver type to use in constant pool
+ */
+public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, FieldBinding codegenBinding, TypeBinding actualReceiverType, boolean isImplicitThisReceiver) {
+	ReferenceBinding constantPoolDeclaringClass = codegenBinding.declaringClass;
+	// if the binding declaring class is not visible, need special action
+	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+	// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
+	// and not from Object or implicit static field access.
+	if (constantPoolDeclaringClass != actualReceiverType.erasure()
+			&& !actualReceiverType.isArrayType()
+			&& constantPoolDeclaringClass != null // array.length
+			&& codegenBinding.constant() == Constant.NotAConstant) {
+		CompilerOptions options = currentScope.compilerOptions();
+		if ((options.targetJDK >= ClassFileConstants.JDK1_2
+					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(isImplicitThisReceiver && codegenBinding.isStatic()))
+					&& constantPoolDeclaringClass.id != TypeIds.T_JavaLangObject) // no change for Object fields
+				|| !constantPoolDeclaringClass.canBeSeenBy(currentScope)) {
+
+			return actualReceiverType.erasure();
+		}
+	}	
+	return constantPoolDeclaringClass;
 }
 
+/**
+ * Returns the type that should be substituted to original binding declaring class as the proper receiver type
+ * @param currentScope
+ * @param codegenBinding
+ * @param actualReceiverType
+ * @param isImplicitThisReceiver
+ * @param hasGenericCast
+ * @return the receiver type to use in constant pool
+ */
+public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, MethodBinding codegenBinding, TypeBinding actualReceiverType, boolean isImplicitThisReceiver, boolean hasGenericCast) {
+	TypeBinding constantPoolDeclaringClass = codegenBinding.declaringClass;
+	// Post 1.4.0 target, array clone() invocations are qualified with array type
+	// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
+	if (codegenBinding == currentScope.environment().arrayClone) {
+		CompilerOptions options = currentScope.compilerOptions();
+		if (options.sourceLevel > ClassFileConstants.JDK1_4 ) {
+			constantPoolDeclaringClass = actualReceiverType.erasure();
+		}
+	} else {
+		// if the binding declaring class is not visible, need special action
+		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+		// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
+		// and not from Object or implicit static method call.
+		if (constantPoolDeclaringClass != actualReceiverType.erasure() && !hasGenericCast && !actualReceiverType.isArrayType()) {
+			CompilerOptions options = currentScope.compilerOptions();
+			if ((options.targetJDK >= ClassFileConstants.JDK1_2
+						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(isImplicitThisReceiver && codegenBinding.isStatic()))
+						&& codegenBinding.declaringClass.id != TypeIds.T_JavaLangObject) // no change for Object methods
+					|| !codegenBinding.declaringClass.canBeSeenBy(currentScope)) {
+				constantPoolDeclaringClass = actualReceiverType.erasure();
+			}
+		}				
+	}
+	return constantPoolDeclaringClass;
+}
 protected int getPosition() {
 	return this.position;
-}
-
-public void getstatic(FieldBinding fieldBinding) {
-	int returnTypeSize = 1;
-	if ((fieldBinding.type.id == TypeIds.T_double) || (fieldBinding.type.id == TypeIds.T_long)) {
-		returnTypeSize = 2;
-	}
-	generateFieldAccess(
-			Opcodes.OPC_getstatic,
-			returnTypeSize,
-			fieldBinding.declaringClass,
-			fieldBinding.name,
-			fieldBinding.type);
 }
 
 public void getTYPE(int baseTypeID) {
@@ -2903,81 +2970,81 @@ public void getTYPE(int baseTypeID) {
 	switch (baseTypeID) {
 		case TypeIds.T_byte :
 			// getstatic: java.lang.Byte.TYPE
-			generateFieldAccess(
+			fieldAccess(
 					Opcodes.OPC_getstatic,
-					1,
+					1, // return type size
 					ConstantPool.JavaLangByteConstantPoolName,
 					ConstantPool.TYPE,
 					ConstantPool.JavaLangClassSignature);
 			break;
 		case TypeIds.T_short :
 			// getstatic: java.lang.Short.TYPE
-			generateFieldAccess(
+			fieldAccess(
 					Opcodes.OPC_getstatic,
-					1,
+					1, // return type size
 					ConstantPool.JavaLangShortConstantPoolName,
 					ConstantPool.TYPE,
 					ConstantPool.JavaLangClassSignature);
 			break;
 		case TypeIds.T_char :
 			// getstatic: java.lang.Character.TYPE
-			generateFieldAccess(
+			fieldAccess(
 					Opcodes.OPC_getstatic,
-					1,
+					1, // return type size
 					ConstantPool.JavaLangCharacterConstantPoolName,
 					ConstantPool.TYPE,
 					ConstantPool.JavaLangClassSignature);
 			break;
 		case TypeIds.T_int :
 			// getstatic: java.lang.Integer.TYPE
-			generateFieldAccess(
+			fieldAccess(
 					Opcodes.OPC_getstatic,
-					1,
+					1, // return type size
 					ConstantPool.JavaLangIntegerConstantPoolName,
 					ConstantPool.TYPE,
 					ConstantPool.JavaLangClassSignature);
 			break;
 		case TypeIds.T_long :
 			// getstatic: java.lang.Long.TYPE
-			generateFieldAccess(
+			fieldAccess(
 					Opcodes.OPC_getstatic,
-					1,
+					1, // return type size
 					ConstantPool.JavaLangLongConstantPoolName,
 					ConstantPool.TYPE,
 					ConstantPool.JavaLangClassSignature);
 			break;
 		case TypeIds.T_float :
 			// getstatic: java.lang.Float.TYPE
-			generateFieldAccess(
+			fieldAccess(
 					Opcodes.OPC_getstatic,
-					1,
+					1, // return type size
 					ConstantPool.JavaLangFloatConstantPoolName,
 					ConstantPool.TYPE,
 					ConstantPool.JavaLangClassSignature);
 			break;
 		case TypeIds.T_double :
 			// getstatic: java.lang.Double.TYPE
-			generateFieldAccess(
+			fieldAccess(
 					Opcodes.OPC_getstatic,
-					1,
+					1, // return type size
 					ConstantPool.JavaLangDoubleConstantPoolName,
 					ConstantPool.TYPE,
 					ConstantPool.JavaLangClassSignature);
 			break;
 		case TypeIds.T_boolean :
 			// getstatic: java.lang.Boolean.TYPE
-			generateFieldAccess(
+			fieldAccess(
 					Opcodes.OPC_getstatic,
-					1,
+					1, // return type size
 					ConstantPool.JavaLangBooleanConstantPoolName,
 					ConstantPool.TYPE,
 					ConstantPool.JavaLangClassSignature);
 			break;
 		case TypeIds.T_void :
 			// getstatic: java.lang.Void.TYPE
-			generateFieldAccess(
+			fieldAccess(
 					Opcodes.OPC_getstatic,
-					1,
+					1, // return type size
 					ConstantPool.JavaLangVoidConstantPoolName,
 					ConstantPool.TYPE,
 					ConstantPool.JavaLangClassSignature);
@@ -3726,6 +3793,35 @@ public void instance_of(TypeBinding typeBinding) {
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 }
 
+protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature) {
+	this.countLabels = 0;
+	if (opcode == Opcodes.OPC_invokeinterface) {
+		// invokeinterface
+		if (this.classFileOffset + 4 >= this.bCodeStream.length) {
+			resizeByteArray();
+		}
+		this.position +=3;
+		this.bCodeStream[this.classFileOffset++] = opcode;
+		writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, true));
+		this.bCodeStream[this.classFileOffset++] = (byte) receiverAndArgsSize;
+		this.bCodeStream[this.classFileOffset++] = 0;
+	} else {
+		// invokespecial
+		// invokestatic
+		// invokevirtual
+		if (this.classFileOffset + 2 >= this.bCodeStream.length) {
+			resizeByteArray();
+		}
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = opcode;
+		writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, false));
+	}
+	this.stackDepth += returnTypeSize - receiverAndArgsSize;
+	if (this.stackDepth > this.stackMax) {
+		this.stackMax = this.stackDepth;
+	}
+}
+
 public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declaringClass) {
 	if (declaringClass == null) declaringClass = methodBinding.declaringClass;
     if (declaringClass.isNestedType()) {
@@ -3806,35 +3902,6 @@ public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declari
 			declaringClass.constantPoolName(), 
 			methodBinding.selector, 
 			methodBinding.signature(this.classFile));
-}
-
-protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature) {
-	this.countLabels = 0;
-	if (opcode == Opcodes.OPC_invokeinterface) {
-		// invokeinterface
-		if (this.classFileOffset + 4 >= this.bCodeStream.length) {
-			resizeByteArray();
-		}
-		this.position +=3;
-		this.bCodeStream[this.classFileOffset++] = opcode;
-		writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, true));
-		this.bCodeStream[this.classFileOffset++] = (byte) receiverAndArgsSize;
-		this.bCodeStream[this.classFileOffset++] = 0;
-	} else {
-		// invokespecial
-		// invokestatic
-		// invokevirtual
-		if (this.classFileOffset + 2 >= this.bCodeStream.length) {
-			resizeByteArray();
-		}
-		this.position++;
-		this.bCodeStream[this.classFileOffset++] = opcode;
-		writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, false));
-	}
-	this.stackDepth += returnTypeSize - receiverAndArgsSize;
-	if (this.stackDepth > this.stackMax) {
-		this.stackMax = this.stackDepth;
-	}
 }
 
 protected void invokeAccessibleObjectSetAccessible() {
@@ -5115,7 +5182,7 @@ public final void load(LocalVariableBinding localBinding) {
 	load(localBinding.type, localBinding.resolvedPosition);
 }
 
-public final void load(TypeBinding typeBinding, int resolvedPosition) {
+protected final void load(TypeBinding typeBinding, int resolvedPosition) {
 	this.countLabels = 0;
 	// Using dedicated int bytecode
 	switch(typeBinding.id) {
@@ -5656,32 +5723,6 @@ public void pushExceptionOnStack(TypeBinding binding) {
 public void pushOnStack(TypeBinding binding) {
 	if (++this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
-}
-
-public void putfield(FieldBinding fieldBinding) {
-	int returnTypeSize = 1;
-	if ((fieldBinding.type.id == TypeIds.T_double) || (fieldBinding.type.id == TypeIds.T_long)) {
-		returnTypeSize = 2;
-	}
-	generateFieldAccess(
-			Opcodes.OPC_putfield,
-			returnTypeSize,
-			fieldBinding.declaringClass,
-			fieldBinding.name,
-			fieldBinding.type);
-}
-
-public void putstatic(FieldBinding fieldBinding) {
-	int returnTypeSize = 1;
-	if ((fieldBinding.type.id == TypeIds.T_double) || (fieldBinding.type.id == TypeIds.T_long)) {
-		returnTypeSize = 2;
-	}
-	generateFieldAccess(
-			Opcodes.OPC_putstatic,
-			returnTypeSize,
-			fieldBinding.declaringClass,
-			fieldBinding.name,
-			fieldBinding.type);
 }
 
 public void record(LocalVariableBinding local) {

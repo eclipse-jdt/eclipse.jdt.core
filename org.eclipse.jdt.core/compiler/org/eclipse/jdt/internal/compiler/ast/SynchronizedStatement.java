@@ -94,12 +94,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	// generate the synchronization expression
 	this.expression.generateCode(this.scope, codeStream, true);
 	if (this.block.isEmptyBlock()) {
-		if ((this.synchroVariable.type == TypeBinding.LONG)
-			|| (this.synchroVariable.type == TypeBinding.DOUBLE)) {
-			codeStream.dup2();
-		} else {
-			codeStream.dup();
-		}
+		switch(this.synchroVariable.type.id) {
+			case TypeIds.T_long :
+			case TypeIds.T_double :
+				codeStream.dup2();
+				break;
+			default :
+				codeStream.dup();
+				break;
+		}		
 		// only take the lock
 		codeStream.monitorenter();
 		codeStream.monitorexit();

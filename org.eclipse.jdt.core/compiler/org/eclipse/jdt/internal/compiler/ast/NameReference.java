@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class NameReference extends Reference implements InvocationSite {
 
-	public Binding binding, codegenBinding; //may be aTypeBinding-aFieldBinding-aLocalVariableBinding
+	public Binding binding; //may be aTypeBinding-aFieldBinding-aLocalVariableBinding
 
 	public TypeBinding actualReceiverType;	// modified receiver type - actual one according to namelookup
 

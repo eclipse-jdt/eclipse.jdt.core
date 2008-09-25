@@ -4194,12 +4194,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 *
 	 * @param codeAttributeOffset <CODE>int</CODE>
 	 */
-	public void completeCodeAttributeForProblemMethod(
-		AbstractMethodDeclaration method,
-		MethodBinding binding,
-		int codeAttributeOffset,
-		int[] startLineIndexes,
-		int problemLine) {
+	public void completeCodeAttributeForProblemMethod(AbstractMethodDeclaration method, MethodBinding binding, int codeAttributeOffset, int[] startLineIndexes, int problemLine) {
 		// reinitialize the localContents with the byte modified by the code stream
 		this.contents = this.codeStream.bCodeStream;
 		int localContentsOffset = this.codeStream.classFileOffset;
@@ -4391,11 +4386,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 						descriptorIndex = this.constantPool.literalIndex(argumentBinding.signature());
 						this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 						this.contents[localContentsOffset++] = (byte) descriptorIndex;
-						if ((argumentBinding == TypeBinding.LONG)
-							|| (argumentBinding == TypeBinding.DOUBLE))
-							argSize += 2;
-						else
-							argSize++;
+						switch(argumentBinding.id) {
+							case TypeIds.T_long :
+							case TypeIds.T_double :
+								argSize += 2;
+								break;
+							default :
+								argSize++;
+								break;
+						}
 						this.contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
 						this.contents[localContentsOffset++] = (byte) resolvedPosition;
 					}

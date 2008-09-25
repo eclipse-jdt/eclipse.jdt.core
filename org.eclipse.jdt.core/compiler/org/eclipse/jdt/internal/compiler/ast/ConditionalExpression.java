@@ -152,7 +152,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				codeStream.updateLastRecordedEndPC(currentScope, position);
 				// Tune codestream stack size
 				if (valueRequired) {
-					codeStream.decrStackSize(this.resolvedType == TypeBinding.LONG || this.resolvedType == TypeBinding.DOUBLE ? 2 : 1);
+					switch(this.resolvedType.id) {
+						case TypeIds.T_long :
+						case TypeIds.T_double :
+							codeStream.decrStackSize(2);
+							break;
+						default :
+							codeStream.decrStackSize(1);
+							break;
+					}
 				}
 			}
 		}

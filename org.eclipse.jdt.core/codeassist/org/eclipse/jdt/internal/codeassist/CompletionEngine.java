@@ -1927,8 +1927,8 @@ public final class CompletionEngine
 				long completionPosition = fieldRef.nameSourcePosition;
 				this.javadocTagPosition = fieldRef.tagSourceStart;
 
-				if (fieldRef.receiverType != null && fieldRef.receiverType.isValidBinding()) {
-					ReferenceBinding receiverType = (ReferenceBinding) fieldRef.receiverType;
+				if (fieldRef.actualReceiverType != null && fieldRef.actualReceiverType.isValidBinding()) {
+					ReferenceBinding receiverType = (ReferenceBinding) fieldRef.actualReceiverType;
 					int rangeStart = (int) (completionPosition >>> 32);
 					if (fieldRef.receiver.isThis()) {
 						if (fieldRef.completeInText()) {
@@ -1984,8 +1984,8 @@ public final class CompletionEngine
 							null,
 							-1,
 							-1);
-						if (fieldRef.receiverType instanceof ReferenceBinding) {
-							ReferenceBinding refBinding = (ReferenceBinding)fieldRef.receiverType;
+						if (fieldRef.actualReceiverType instanceof ReferenceBinding) {
+							ReferenceBinding refBinding = (ReferenceBinding)fieldRef.actualReceiverType;
 							if (this.completionToken == null
 									|| CharOperation.prefixEquals(this.completionToken, refBinding.sourceName)
 									|| (this.options.camelCaseMatch && CharOperation.camelCaseMatch(this.completionToken, refBinding.sourceName))) {

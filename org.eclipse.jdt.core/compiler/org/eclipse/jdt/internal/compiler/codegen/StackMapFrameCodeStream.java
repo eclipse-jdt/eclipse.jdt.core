@@ -273,7 +273,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		// use in CLDC mode
 		BranchLabel endLabel = new BranchLabel(this);
 		if (syntheticFieldBinding != null) { // non interface case
-			getstatic(syntheticFieldBinding);
+			fieldAccess(Opcodes.OPC_getstatic, syntheticFieldBinding, null /* default declaringClass */);
 			dup();
 			ifnonnull(endLabel);
 			pop();
@@ -316,7 +316,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 
 		if (syntheticFieldBinding != null) { // non interface case
 			dup();
-			putstatic(syntheticFieldBinding);
+			fieldAccess(Opcodes.OPC_putstatic, syntheticFieldBinding, null /* default declaringClass */);
 		}
 		int fromPC = this.position;
 		goto_(endLabel);

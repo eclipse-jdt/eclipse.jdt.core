@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
@@ -173,7 +174,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			falseLabel.place();
 			codeStream.iconst_0();
 			jumpLabel.place();
-			codeStream.putstatic(this.assertionSyntheticFieldBinding);
+			codeStream.fieldAccess(Opcodes.OPC_putstatic, this.assertionSyntheticFieldBinding, null /* default declaringClass */);
 		}
 		// generate static fields/initializers/enum constants
 		final FieldDeclaration[] fieldDeclarations = declaringType.fields;
@@ -206,13 +207,13 @@ public class Clinit extends AbstractMethodDeclaration {
 						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 							codeStream.dup();
 							codeStream.generateInlinedValue(fieldDecl.binding.id);
-							codeStream.getstatic(fieldDecl.binding);
+							codeStream.fieldAccess(Opcodes.OPC_getstatic, fieldDecl.binding, null /* default declaringClass */);
 							codeStream.aastore();
 						}
 					}
 				}
 			}
-			codeStream.putstatic(declaringType.enumValuesSyntheticfield);
+			codeStream.fieldAccess(Opcodes.OPC_putstatic, declaringType.enumValuesSyntheticfield, null /* default declaringClass */);
 			if (remainingFieldCount != 0) {
 				// if fields that are not enum constants need to be generated (static initializer/static field)
 				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {

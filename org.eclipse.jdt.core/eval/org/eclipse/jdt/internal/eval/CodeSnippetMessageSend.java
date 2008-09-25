@@ -74,7 +74,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		// generate arguments
 		generateArguments(this.binding, this.arguments, currentScope, codeStream);
 		// actual message invocation
-		TypeBinding constantPoolDeclaringClass = getConstantPoolDeclaringClass(currentScope);
+		TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis(), this.receiverGenericCast != null);
 		if (isStatic) {
 			codeStream.invoke(Opcodes.OPC_invokestatic, codegenBinding, constantPoolDeclaringClass);
 		} else if( (this.receiver.isSuper()) || codegenBinding.isPrivate()){
