@@ -140,6 +140,20 @@ public class DebugEvaluationTest extends EvaluationTest {
 			.append("\"");
 		BatchCompiler.compile(buffer.toString(), new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 	}
+	private void evaluate(JDIStackFrame stackFrame, DebugRequestor requestor, char[] snippet) throws InstallException {
+		this.context.evaluate(
+			snippet,
+			stackFrame.localVariableTypeNames(),
+			stackFrame.localVariableNames(),
+			stackFrame.localVariableModifiers(),
+			stackFrame.declaringTypeName(),
+			stackFrame.isStatic(),
+			stackFrame.isConstructorCall(),
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
+			getProblemFactory());
+	}
 	/**
 	 * Generate local variable attribute for these tests.
 	 */
@@ -170,7 +184,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 	/**
 	 * Sanity test of IEvaluationContext.evaluate(char[], char[][], char[][], int[], char[], boolean, boolean, IRunner, INameEnvironment, ConfigurableOption[], IRequestor , IProblemFactory)
 	 */
-	public void test001() {
+	public void test001() throws Exception {
 		String userCode =
 			"";
 		JDIStackFrame stackFrame = new JDIStackFrame(
@@ -180,22 +194,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return 1;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -206,7 +205,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 /**
  * Return 'this'.
  */
-public void test002() {
+public void test002() throws Exception {
 	try {
 		String sourceA002 =
 			"public class A002 {\n" +
@@ -229,22 +228,18 @@ public void test002() {
 			-1);
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return this;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				null, // local var type names
-				null, // local var names
-				null, // local modifiers
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		this.context.evaluate(
+			snippet,
+			null, // local var type names
+			null, // local var names
+			null, // local modifiers
+			stackFrame.declaringTypeName(),
+			stackFrame.isStatic(),
+			stackFrame.isConstructorCall(),
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
+			getProblemFactory());
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -258,7 +253,7 @@ public void test002() {
 /**
  * Return 'this'.
  */
-public void test003() {
+public void test003() throws Exception {
 	try {
 		String sourceA003 =
 			"public class A003 {\n" +
@@ -281,22 +276,18 @@ public void test003() {
 			-1);
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return this;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				null, // declaring type -- NO DELEGATE THIS
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		this.context.evaluate(
+			snippet,
+			stackFrame.localVariableTypeNames(),
+			stackFrame.localVariableNames(),
+			stackFrame.localVariableModifiers(),
+			null, // declaring type -- NO DELEGATE THIS
+			stackFrame.isStatic(),
+			stackFrame.isConstructorCall(),
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
+			getProblemFactory());
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should have a problem", result.hasProblems()); // 'this' cannot be referenced since there is no declaring type
@@ -308,7 +299,7 @@ public void test003() {
 /**
  * Return 'thread'.
  */
-public void test004() {
+public void test004() throws Exception {
 	String userCode =
 		"java.lang.Thread thread = new Thread() {\n" +
 		"  public String toString() {\n" +
@@ -322,22 +313,7 @@ public void test004() {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "return thread;".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -348,7 +324,7 @@ public void test004() {
 /**
  * Return 'x'.
  */
-public void test005() {
+public void test005() throws Exception {
 	try {
 		String sourceA005 =
 			"public class A005 {\n" +
@@ -371,22 +347,7 @@ public void test005() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return x;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -400,7 +361,7 @@ public void test005() {
 /**
  * Return 'x' + new Object(){ int foo(){ return 17; }}.foo();
  */
-public void test006() {
+public void test006() throws Exception {
 	try {
 		String sourceA006 =
 			"public class A006 {\n" +
@@ -423,22 +384,7 @@ public void test006() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return x + new Object(){ int foo(){ return 17; }}.foo();".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -452,7 +398,7 @@ public void test006() {
 /**
  * Return a static field.
  */
-public void test007() {
+public void test007() throws Exception {
 	try {
 		String sourceA007 =
 			"public class A007 {\n" +
@@ -475,22 +421,7 @@ public void test007() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return X;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -504,7 +435,7 @@ public void test007() {
 /**
  * Return x + new Object(){ int foo(int x){ return x; }}.foo(14);
  */
-public void test008() {
+public void test008() throws Exception {
 	try {
 		String sourceA008 =
 			"public class A008 {\n" +
@@ -527,22 +458,7 @@ public void test008() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return x + new Object(){ int foo(int x){ return x; }}.foo(14);".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -556,7 +472,7 @@ public void test008() {
 /**
  * Free return of local variable 's'.
  */
-public void test009() {
+public void test009() throws Exception {
 	String userCode =
 		"String s = \"test009\";\n";
 	JDIStackFrame stackFrame = new JDIStackFrame(
@@ -566,22 +482,7 @@ public void test009() {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "s".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -592,7 +493,7 @@ public void test009() {
 /**
  * Return 'this'.
  */
-public void test010() {
+public void test010() throws Exception {
 	try {
 		String sourceA010 =
 			"public class A010 {\n" +
@@ -619,22 +520,7 @@ public void test010() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return this;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -648,7 +534,7 @@ public void test010() {
 /**
  * Return local variable 'v'.
  */
-public void test011() {
+public void test011() throws Exception {
 	String userCode =
 		"String s = \"s\";\n" +
 		"java.util.Vector v = new java.util.Vector();\n" +
@@ -660,22 +546,7 @@ public void test011() {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "return v;".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -686,7 +557,7 @@ public void test011() {
 /**
  * Set local variable 'date'.
  */
-public void test012() {
+public void test012() throws Exception {
 	String userCode =
 		"java.util.GregorianCalendar cal = new java.util.GregorianCalendar();\n" +
 		"java.util.Date date = cal.getGregorianChange();\n" +
@@ -698,40 +569,10 @@ public void test012() {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "date = new java.util.Date();".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	requestor = new DebugRequestor();
 	snippet = "return date.after(cal.getGregorianChange());".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -742,10 +583,8 @@ public void test012() {
 /**
  * Set local variable 'i'.
  */
-/* Disabling since this test is sometimes failing for unknown reasons
- * (suspecting a problem in the JDI or JDWP implementation)
- */
-public void _test013() {
+// disabled since result has problem: Pb(2) int cannot be resolved to a type
+public void _test013() throws Exception {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM,
@@ -754,40 +593,10 @@ public void _test013() {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "i = -1;".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	requestor = new DebugRequestor();
 	snippet = "return i != 0;".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -798,10 +607,8 @@ public void _test013() {
 /**
  * Set local variable 'i'.
  */
-/* Disabling since this test is sometimes failing for unknown reasons
- * (suspecting a problem in the JDI or JDWP implementation)
- */
-public void _test014() {
+// disabled since result has problem: Pb(2) int cannot be resolved to a type
+public void _test014() throws Exception {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM,
@@ -810,40 +617,10 @@ public void _test014() {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "i++;".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	requestor = new DebugRequestor();
 	snippet = "return i!= 0;".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -854,10 +631,8 @@ public void _test014() {
 /**
  * Check java.lang.System.out != null
  */
-/* Disabling since this test is sometimes failing for unknown reasons
- * (suspecting a problem in the JDI or JDWP implementation)
- */
-public void _test015() {
+// disabled since result has problem: Pb(2) int cannot be resolved to a type
+public void _test015() throws Exception {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM,
@@ -866,41 +641,11 @@ public void _test015() {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "java.lang.System.setOut(new java.io.PrintStream(new java.io.OutputStream()));".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 
 	requestor = new DebugRequestor();
 	snippet = "return java.lang.System.out != null;".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -911,7 +656,7 @@ public void _test015() {
 /**
  * Check java.lang.System.out == null
  */
-public void test016() {
+public void test016() throws Exception {
 	String userCode = "";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM,
@@ -920,40 +665,10 @@ public void test016() {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "java.lang.System.setOut(null);".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	requestor = new DebugRequestor();
 	snippet = "return java.lang.System.out == null;".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -964,7 +679,7 @@ public void test016() {
 /**
  * Check the third prime number is 5
  */
-public void test017() {
+public void test017() throws Exception {
 	String userCode = "";
 
 	JDIStackFrame stackFrame = new JDIStackFrame(this.jdiVM, this, userCode);
@@ -1003,22 +718,7 @@ public void test017() {
 			+ " }\n"
 			+ "}\n"
 			+ "return primes[i-1];").toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue(
 		"Should get one result but got " + (requestor.resultIndex + 1),
 		requestor.resultIndex == 0);
@@ -1031,7 +731,7 @@ public void test017() {
 /**
  * changing the value of a public field
  */
-public void test018() {
+public void test018() throws Exception {
 	try {
 		String sourceA018 =
 			"public class A018 {\n" +
@@ -1054,40 +754,10 @@ public void test018() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "x = 5;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		requestor = new DebugRequestor();
 		snippet = "return x;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -1101,7 +771,8 @@ public void test018() {
 /**
  * Access to super reference
  */
-public void _test019() {
+// disabled since result has problem: Pb(422) super cannot be used in the code snippet code
+public void _test019() throws Exception {
   try {
 		String sourceA019 =
 			"public class A019 {\n" +
@@ -1124,22 +795,7 @@ public void _test019() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return super.clone().equals(this);".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", !result.hasProblems());
@@ -1153,7 +809,7 @@ public void _test019() {
 /**
  * Implicit message expression
  */
-public void test020() {
+public void test020() throws Exception {
 	try {
 		String sourceA =
 			"public class A {\n"
@@ -1181,22 +837,7 @@ public void test020() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return foo();".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1212,7 +853,7 @@ public void test020() {
 /**
  * Implicit message expression
  */
-public void test021() {
+public void test021() throws Exception {
 	try {
 		String sourceA21 =
 			"public class A21 {\n"
@@ -1240,40 +881,10 @@ public void test021() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "o = bar2();".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		requestor = new DebugRequestor();
 		snippet = "return o;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1289,7 +900,7 @@ public void test021() {
 /**
  * Qualified Name Reference: b.s
  */
-public void test022() {
+public void test022() throws Exception {
 	try {
 		String sourceB22 =
 			"public class B22 {\n"
@@ -1323,22 +934,7 @@ public void test022() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "b.s = \"toto\"".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1347,22 +943,7 @@ public void test022() {
 
 		requestor = new DebugRequestor();
 		snippet = "return b.s;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1379,7 +960,7 @@ public void test022() {
 /**
  * Qualified Name Reference: b.c.c
  */
-public void test023() {
+public void test023() throws Exception {
 	try {
 		String sourceC23 =
 			"public class C23 {\n"
@@ -1420,22 +1001,7 @@ public void test023() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "b.c.c = \"toto\"".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1444,22 +1010,7 @@ public void test023() {
 
 		requestor = new DebugRequestor();
 		snippet = "return b.c.c;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1477,7 +1028,7 @@ public void test023() {
 /**
  * Array Reference
  */
-public void test024() {
+public void test024() throws Exception {
 	try {
 		String sourceC24 =
 			"public class C24 {\n"
@@ -1518,22 +1069,7 @@ public void test024() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "b.c.tab[3] = 8".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1542,22 +1078,7 @@ public void test024() {
 
 		requestor = new DebugRequestor();
 		snippet = "return b.c.tab[3];".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1575,7 +1096,7 @@ public void test024() {
 /**
  * Array Reference
  */
-public void test025() {
+public void test025() throws Exception {
 	try {
 		String sourceA25 =
 			"public class A25 {\n"
@@ -1603,22 +1124,7 @@ public void test025() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "tabString[1] = \"toto\"".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1627,22 +1133,7 @@ public void test025() {
 
 		requestor = new DebugRequestor();
 		snippet = "return tabString[1];".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1658,7 +1149,7 @@ public void test025() {
 /**
  * Array Reference
  */
-public void test026() {
+public void test026() throws Exception {
 	try {
 		String sourceA26 =
 			"public class A26 {\n"
@@ -1685,22 +1176,7 @@ public void test026() {
 			("int[] tab = new int[1];\n"
 			+ "tab[0] = foo();\n"
 			+ "tab[0]").toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1716,7 +1192,7 @@ public void test026() {
 /**
  * Array Reference
  */
-public void test027() {
+public void test027() throws Exception {
 	try {
 		String sourceA27 =
 			"public class A27 {\n"
@@ -1752,22 +1228,7 @@ public void test027() {
 			+ "case 1 : return -1;\n"
 			+ "case 2 : return tab[bar2(foo())];\n"
 			+ "default: return -5;}").toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1783,7 +1244,7 @@ public void test027() {
 /**
  * Array Reference
  */
-public void test028() {
+public void test028() throws Exception {
 	try {
 		String sourceA28 =
 			"public class A28 {\n"
@@ -1821,22 +1282,7 @@ public void test028() {
 			+ "case 1 : return tab[bar2(foo())];\n"
 			+ "}\n"
 			+ "return tab[i++];").toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1852,7 +1298,7 @@ public void test028() {
 /**
  * Array Reference
  */
-public void test029() {
+public void test029() throws Exception {
 	try {
 		String sourceA29 =
 			"public class A29 {\n"
@@ -1890,22 +1336,7 @@ public void test029() {
 			+ "case 1 : return tab[bar2(foo())];\n"
 			+ "}\n"
 			+ "return tab[++i];").toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1921,7 +1352,7 @@ public void test029() {
 /**
  * Array Reference: ArrayIndexOutOfBoundException
  */
-public void test030() {
+public void test030() throws Exception {
 	try {
 		String sourceA30 =
 			"public class A30 {\n"
@@ -1963,22 +1394,7 @@ public void test030() {
 			+ "} catch(ArrayIndexOutOfBoundsException e) {\n"
 			+ "return -2;\n"
 			+ "}").toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("One targetException : ArrayIndexOutOfBoundsException " + e.getMessage(), true);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -1994,7 +1410,7 @@ public void test030() {
 /**
  * Read access to an instance private member of the enclosing class
  */
-public void test031() {
+public void test031() throws Exception {
 	try {
 		String sourceA31 =
 			"public class A31 {\n"
@@ -2016,22 +1432,7 @@ public void test031() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return i;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2047,7 +1448,7 @@ public void test031() {
 /**
  * Read access to a instance private member of the class different from the enclosing class
  */
-public void test032() {
+public void test032() throws Exception {
 	try {
 		String sourceA32 =
 			"public class A32 {\n"
@@ -2077,22 +1478,7 @@ public void test032() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return new B32().j;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2118,7 +1504,7 @@ public void test032() {
 /**
  * Read access to an instance private member of the enclosing class
  */
-public void test033() {
+public void test033() throws Exception {
 	try {
 		String sourceA33 =
 			"public class A33 {\n"
@@ -2148,25 +1534,21 @@ public void test033() {
 			"System.out.println(field.getInt(o));\n" +
 			"} catch(Exception e) {}\n" +
 			"return l;").toCharArray();
-		try {
-			final Map compilerOptions = getCompilerOptions();
-			compilerOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
+		final Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				compilerOptions,
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		this.context.evaluate(
+			snippet,
+			stackFrame.localVariableTypeNames(),
+			stackFrame.localVariableNames(),
+			stackFrame.localVariableModifiers(),
+			stackFrame.declaringTypeName(),
+			stackFrame.isStatic(),
+			stackFrame.isConstructorCall(),
+			getEnv(),
+			compilerOptions,
+			requestor,
+			getProblemFactory());
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2182,7 +1564,7 @@ public void test033() {
 /**
  * Write access to an instance private member of the enclosing class
  */
-public void test034() {
+public void test034() throws Exception {
 	try {
 		String sourceA34 =
 			"public class A34 {\n"
@@ -2200,22 +1582,7 @@ public void test034() {
 		char[] snippet =
 			("l = 100L;\n" +
 			"return l;").toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2231,7 +1598,7 @@ public void test034() {
 /**
  * Read access to a static private member of the enclosing class
  */
-public void test035() {
+public void test035() throws Exception {
 	try {
 		String sourceA35 =
 			"public class A35 {\n"
@@ -2253,22 +1620,7 @@ public void test035() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return i;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2284,7 +1636,7 @@ public void test035() {
 /**
  * Coumpound assignement to an instance private member of the enclosing class
  */
-public void test036() {
+public void test036() throws Exception {
 	try {
 		String sourceA36 =
 			"public class A36 {\n"
@@ -2302,22 +1654,7 @@ public void test036() {
 		char[] snippet =
 			("l+=4;\n" +
 			"return l;").toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2333,7 +1670,7 @@ public void test036() {
 /**
  * Coumpound assignement to an instance private member of the enclosing class
  */
-public void test037() {
+public void test037() throws Exception {
 	try {
 		String sourceA37 =
 			"public class A37 {\n"
@@ -2351,22 +1688,7 @@ public void test037() {
 		char[] snippet =
 			("l++;\n" +
 			"return l;").toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2382,7 +1704,7 @@ public void test037() {
 /**
  * Coumpound assignement to an instance private member of the enclosing class
  */
-public void test038() {
+public void test038() throws Exception {
 	try {
 		String sourceA38 =
 			"public class A38 {\n"
@@ -2398,22 +1720,7 @@ public void test038() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return l++;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2429,7 +1736,7 @@ public void test038() {
 /**
  * Coumpound assignement to an static private member of the enclosing class
  */
-public void test039() {
+public void test039() throws Exception {
 	try {
 		String sourceA39 =
 			"public class A39 {\n"
@@ -2445,22 +1752,7 @@ public void test039() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return A39.i;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2476,7 +1768,7 @@ public void test039() {
 /**
  * Coumpound assignement to an static private member of the enclosing class
  */
-public void test040() {
+public void test040() throws Exception {
 	try {
 		String sourceA40 =
 			"public class A40 {\n"
@@ -2492,22 +1784,7 @@ public void test040() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return A40.tab.length;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2523,7 +1800,7 @@ public void test040() {
 /**
  * Coumpound assignement to an static private final member of the enclosing class
  */
-public void test041() {
+public void test041() throws Exception {
 	try {
 		String sourceA41 =
 			"public class A41 {\n"
@@ -2539,22 +1816,7 @@ public void test041() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return A41.tab.length;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2570,7 +1832,7 @@ public void test041() {
 /**
  * Coumpound assignement to an static private final member of the enclosing class
  */
-public void test042() {
+public void test042() throws Exception {
 	try {
 		String sourceA42 =
 			"public class A42 {\n"
@@ -2586,22 +1848,7 @@ public void test042() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return ++A42.Counter;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2617,7 +1864,7 @@ public void test042() {
 /**
  * Coumpound assignement to an static private final member of the enclosing class
  */
-public void test043() {
+public void test043() throws Exception {
 	try {
 		String sourceA43 =
 			"public class A43 {\n"
@@ -2633,22 +1880,7 @@ public void test043() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "A43.Counter++; return A43.Counter;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2664,7 +1896,7 @@ public void test043() {
 /**
  * Coumpound assignement to an static private final member of the enclosing class
  */
-public void test044() {
+public void test044() throws Exception {
 	try {
 		String sourceA44 =
 			"public class A44 {\n"
@@ -2680,22 +1912,7 @@ public void test044() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "int j = A44.Counter++; return A44.Counter + j;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2711,7 +1928,7 @@ public void test044() {
 /**
  * Coumpound assignement to an static private final member of the enclosing class
  */
-public void test045() {
+public void test045() throws Exception {
 	try {
 		String sourceA45 =
 			"public class A45 {\n"
@@ -2727,22 +1944,7 @@ public void test045() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "int j = ++A45.Counter; return A45.Counter + j;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2758,7 +1960,7 @@ public void test045() {
 /**
  * Coumpound assignement to an static protected final member of the enclosing class
  */
-public void test046() {
+public void test046() throws Exception {
 	try {
 		String sourceA46 =
 			"public class A46 {\n"
@@ -2774,22 +1976,7 @@ public void test046() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "int j = ++A46.Counter; return A46.Counter + j;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2805,7 +1992,7 @@ public void test046() {
 /**
  * Return the value of a private static field throught a private static field
  */
-public void test047() {
+public void test047() throws Exception {
 	try {
 		String sourceA47 =
 			"public class A47 {\n"
@@ -2822,22 +2009,7 @@ public void test047() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return A47.instance.Counter;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2854,7 +2026,7 @@ public void test047() {
  * Return the value of a private static field throught a private static field
  * Using private field emulation on a field reference.
  */
-public void test048() {
+public void test048() throws Exception {
 	try {
 		String sourceA48 =
 			"public class A48 {\n"
@@ -2871,22 +2043,7 @@ public void test048() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return new A48().instance.Counter;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2903,7 +2060,7 @@ public void test048() {
  * Compound assignment of a private field.
  * Using private field emulation on a field reference.
  */
-public void test049() {
+public void test049() throws Exception {
 	try {
 		String sourceA49 =
 			"public class A49 {\n"
@@ -2920,22 +2077,7 @@ public void test049() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return ++(new A49().Counter);".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -2952,7 +2094,7 @@ public void test049() {
  * Compound assignment of a private field.
  * Using private field emulation on a field reference.
  */
-public void test050() {
+public void test050() throws Exception {
 	try {
 		String sourceA50 =
 			"public class A50 {\n"
@@ -2969,22 +2111,7 @@ public void test050() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "A50 a = new A50(); a.Counter = 5; return a.Counter;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3001,7 +2128,7 @@ public void test050() {
  * Assignment of a private field.
  * Using private field emulation on a field reference.
  */
-public void test051() {
+public void test051() throws Exception {
 	try {
 		String sourceA51 =
 			"public class A51 {\n"
@@ -3018,22 +2145,7 @@ public void test051() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "Counter = 5; return Counter;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3050,7 +2162,7 @@ public void test051() {
  * Assignment of a private field.
  * Using private field emulation on a field reference.
  */
-public void test052() {
+public void test052() throws Exception {
 	try {
 		String sourceA52 =
 			"public class A52 {\n"
@@ -3067,22 +2179,7 @@ public void test052() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "this.Counter = 5; return this.Counter;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3099,7 +2196,7 @@ public void test052() {
  * Post assignement of a private field.
  * Using private field emulation on a field reference.
  */
-public void test053() {
+public void test053() throws Exception {
 	try {
 		String sourceA53 =
 			"public class A53 {\n"
@@ -3116,22 +2213,7 @@ public void test053() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "this.Counter++; return this.Counter;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3148,7 +2230,7 @@ public void test053() {
  * Post assignement of a private field.
  * Using private field emulation on a field reference.
  */
-public void test054() {
+public void test054() throws Exception {
 	try {
 		String sourceA54 =
 			"public class A54 {\n"
@@ -3165,22 +2247,7 @@ public void test054() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "this.Counter++; return this.Counter;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3196,7 +2263,7 @@ public void test054() {
 /**
  * Read access to a private method.
  */
-public void test055() {
+public void test055() throws Exception {
 	try {
 		String sourceA55 =
 			"public class A55 {\n"
@@ -3214,22 +2281,7 @@ public void test055() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return foo();".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3245,7 +2297,7 @@ public void test055() {
 /**
  * Read access to a private method.
  */
-public void test056() {
+public void test056() throws Exception {
 	try {
 		String sourceA56 =
 			"public class A56 {\n"
@@ -3263,22 +2315,7 @@ public void test056() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return foo().intValue();".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3294,7 +2331,7 @@ public void test056() {
 /**
  * Read access to a private method.
  */
-public void test057() {
+public void test057() throws Exception {
 	try {
 		String sourceA57 =
 			"public class A57 {\n"
@@ -3312,22 +2349,7 @@ public void test057() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return foo(3).intValue();".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3343,7 +2365,7 @@ public void test057() {
 /**
  * Read access to a private method.
  */
-public void test058() {
+public void test058() throws Exception {
 	try {
 		String sourceA58 =
 			"public class A58 {\n"
@@ -3361,22 +2383,7 @@ public void test058() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "int[] tab = new int[] {1,2,3};return foo(0, tab).intValue();".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3392,7 +2399,7 @@ public void test058() {
 /**
  * Read access to a private method.
  */
-public void test059() {
+public void test059() throws Exception {
 	try {
 		String sourceA59 =
 			"public class A59 {\n"
@@ -3410,22 +2417,7 @@ public void test059() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "Object[][] tab = new Object[0][0];return foo(3, tab).intValue();".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3441,7 +2433,7 @@ public void test059() {
 /**
  * Read access to a private method.
  */
-public void test060() {
+public void test060() throws Exception {
 	try {
 		String sourceA60 =
 			"public class A60 {\n"
@@ -3462,22 +2454,7 @@ public void test060() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return new A60(3).i;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3493,7 +2470,7 @@ public void test060() {
 /**
  * Read access to a private method.
  */
-public void test061() {
+public void test061() throws Exception {
 	try {
 		String sourceA61 =
 			"public class A61 {\n"
@@ -3514,22 +2491,7 @@ public void test061() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return new A61(new int[] {1,2,3}).i;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3545,7 +2507,7 @@ public void test061() {
 /**
  * Static context with a declaring type.
  */
-public void test062() {
+public void test062() throws Exception {
 	try {
 		String sourceA62 =
 			"public class A62 {\n" +
@@ -3560,22 +2522,7 @@ public void test062() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "1 + 1".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		evaluate(stackFrame, requestor, snippet);
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3591,7 +2538,7 @@ public void test062() {
 /**
  * Return non-static field in static environment.
  */
-public void testNegative001() {
+public void testNegative001() throws InstallException {
 	try {
 		String sourceANegative001 =
 			"public class ANegative001 {\n" +
@@ -3614,22 +2561,18 @@ public void testNegative001() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return this.x;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				true, // force is static
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		this.context.evaluate(
+			snippet,
+			stackFrame.localVariableTypeNames(),
+			stackFrame.localVariableNames(),
+			stackFrame.localVariableModifiers(),
+			stackFrame.declaringTypeName(),
+			true, // force is static
+			stackFrame.isConstructorCall(),
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
+			getProblemFactory());
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		CategorizedProblem[] problems = result.getProblems();
@@ -3651,7 +2594,7 @@ public void testNegative001() {
 /**
  * Return non-static field in static environment.
  */
-public void testNegative002() {
+public void testNegative002() throws Exception {
 	try {
 		String sourceANegative002 =
 			"public class ANegative002 {\n" +
@@ -3674,22 +2617,18 @@ public void testNegative002() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return x;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				true, // force is static
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		this.context.evaluate(
+			snippet,
+			stackFrame.localVariableTypeNames(),
+			stackFrame.localVariableNames(),
+			stackFrame.localVariableModifiers(),
+			stackFrame.declaringTypeName(),
+			true, // force is static
+			stackFrame.isConstructorCall(),
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
+			getProblemFactory());
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		CategorizedProblem[] problems = result.getProblems();
@@ -3711,7 +2650,7 @@ public void testNegative002() {
 /**
  * Return inexisting field in static environment.
  */
-public void testNegative003() {
+public void testNegative003() throws InstallException {
 	try {
 		String sourceANegative003 =
 			"public class ANegative003 {\n" +
@@ -3734,22 +2673,18 @@ public void testNegative003() {
 
 		DebugRequestor requestor = new DebugRequestor();
 		char[] snippet = "return zork;".toCharArray();
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				true, // force is static
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				getCompilerOptions(),
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		this.context.evaluate(
+			snippet,
+			stackFrame.localVariableTypeNames(),
+			stackFrame.localVariableNames(),
+			stackFrame.localVariableModifiers(),
+			stackFrame.declaringTypeName(),
+			true, // force is static
+			stackFrame.isConstructorCall(),
+			getEnv(),
+			getCompilerOptions(),
+			requestor,
+			getProblemFactory());
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		CategorizedProblem[] problems = result.getProblems();
@@ -3771,7 +2706,7 @@ public void testNegative003() {
 /**
  * Check java.lang.System.out = null returns an error
  */
-public void testNegative004() {
+public void testNegative004() throws InstallException {
 	String userCode = "";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM,
@@ -3780,22 +2715,7 @@ public void testNegative004() {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "java.lang.System.out = null;".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Got one result", requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	CategorizedProblem[] problems = result.getProblems();
@@ -3814,7 +2734,7 @@ public void testNegative004() {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=102778
  */
-public void test063() {
+public void test063() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	try {
 		String sourceA63 =
@@ -3840,22 +2760,18 @@ public void test063() {
 		compilerOpts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 		compilerOpts.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_2);
 
-		try {
-			this.context.evaluate(
-				snippet,
-				stackFrame.localVariableTypeNames(),
-				stackFrame.localVariableNames(),
-				stackFrame.localVariableModifiers(),
-				stackFrame.declaringTypeName(),
-				stackFrame.isStatic(),
-				stackFrame.isConstructorCall(),
-				getEnv(),
-				compilerOpts,
-				requestor,
-				getProblemFactory());
-		} catch (InstallException e) {
-			assertTrue("No targetException " + e.getMessage(), false);
-		}
+		this.context.evaluate(
+			snippet,
+			stackFrame.localVariableTypeNames(),
+			stackFrame.localVariableNames(),
+			stackFrame.localVariableModifiers(),
+			stackFrame.declaringTypeName(),
+			stackFrame.isStatic(),
+			stackFrame.isConstructorCall(),
+			getEnv(),
+			compilerOpts,
+			requestor,
+			getProblemFactory());
 		assertTrue(
 			"Should get one result but got " + (requestor.resultIndex + 1),
 			requestor.resultIndex == 0);
@@ -3871,7 +2787,7 @@ public void test063() {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=178861
  */
-public void testNegative005() {
+public void testNegative005() throws InstallException {
 	String userCode = "";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM,
@@ -3880,22 +2796,7 @@ public void testNegative005() {
 
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "run()".toCharArray();
-	try {
-		this.context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(),
-			getCompilerOptions(),
-			requestor,
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
-	}
+	evaluate(stackFrame, requestor, snippet);
 	assertTrue("Got one result", requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	CategorizedProblem[] problems = result.getProblems();
