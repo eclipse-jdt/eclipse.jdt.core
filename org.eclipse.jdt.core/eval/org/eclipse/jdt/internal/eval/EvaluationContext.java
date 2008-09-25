@@ -195,10 +195,10 @@ public void deleteVariable(GlobalVariable variable) {
 	vars[elementCount - 1] = null;
 	this.varsChanged = true;
 }
-private void deployCodeSnippetClassIfNeeded(IRequestor requestor) {
+private void deployCodeSnippetClassIfNeeded(IRequestor requestor) throws InstallException {
 	if (this.codeSnippetBinary == null) {
 		// Deploy CodeSnippet class (only once)
-		requestor.acceptClassFiles(
+		if (!requestor.acceptClassFiles(
 			new ClassFile[] {
 				new ClassFile() {
 					public byte[] getBytes() {
@@ -209,7 +209,8 @@ private void deployCodeSnippetClassIfNeeded(IRequestor requestor) {
 					}
 				}
 			},
-			null);
+			null))
+				throw new InstallException();
 	}
 }
 /**
@@ -285,7 +286,8 @@ public void evaluate(
 						simpleClassName :
 						CharOperation.concat(pkgName, simpleClassName, '.');
 				CODE_SNIPPET_COUNTER++;
-				requestor.acceptClassFiles(classes, qualifiedClassName);
+				if (!requestor.acceptClassFiles(classes, qualifiedClassName))
+					throw new InstallException();
 			}
 		}
 	} finally {
