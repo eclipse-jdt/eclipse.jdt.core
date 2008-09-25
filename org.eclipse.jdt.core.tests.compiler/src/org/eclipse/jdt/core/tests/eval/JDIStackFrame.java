@@ -262,6 +262,7 @@ public boolean run(String codeSnippetClassName) {
 		ObjectReference codeSnippetRunner;
 		try {
 			// Get the code snippet class
+			long start = System.currentTimeMillis();
 			List classes = this.jdiVM.classesByName(codeSnippetClassName);
 			while (classes.size() == 0) {
 				try {
@@ -279,6 +280,9 @@ public boolean run(String codeSnippetClassName) {
 							classes.add(type);
 							break;
 						}
+					}
+					if (classes.size() == 0 && (System.currentTimeMillis()-start) > 10000) {
+						return false;
 					}
 				}
 			}
