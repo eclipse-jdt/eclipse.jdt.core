@@ -51,6 +51,7 @@ public class JDIStackFrame implements EvaluationConstants, RuntimeConstants {
 	String breakpointClassName;
 	String breakpointMethodName;
 	int breakpointLine;
+	long timeout;
 public JDIStackFrame(VirtualMachine jdiVM, DebugEvaluationTest test, String userCode) {
 	this(jdiVM, test, userCode, "_JDIStackFrame_", "foo", Integer.MAX_VALUE);
 }
@@ -61,12 +62,25 @@ public JDIStackFrame(
 	String breakpointClassName,
 	String breakpointMethodName,
 	int breakpointLine) {
-
+	
+	this(jdiVM, test, userCode, breakpointClassName, breakpointMethodName, breakpointLine, 10000/*timeout*/);
+	
+}
+public JDIStackFrame(
+	VirtualMachine jdiVM,
+	DebugEvaluationTest test,
+	String userCode,
+	String breakpointClassName,
+	String breakpointMethodName,
+	int breakpointLine,
+	long timeout) {
+	
 	this.jdiVM = jdiVM;
 	this.userCode = userCode;
 	this.breakpointClassName = breakpointClassName;
 	this.breakpointMethodName = breakpointMethodName;
 	this.breakpointLine = breakpointLine;
+	this.timeout = timeout;
 
 	test.jdiStackFrame = null;
 	this.jdiThread = getDebuggedThread(test);
@@ -281,7 +295,7 @@ public boolean run(String codeSnippetClassName) {
 							break;
 						}
 					}
-					if (classes.size() == 0 && (System.currentTimeMillis()-start) > 10000) {
+					if (classes.size() == 0 && (System.currentTimeMillis()-start) > this.timeout) {
 						return false;
 					}
 				}
