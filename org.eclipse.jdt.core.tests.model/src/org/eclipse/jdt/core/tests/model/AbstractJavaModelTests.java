@@ -102,7 +102,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Delta listener
 	 */
-	protected class DeltaListener implements IElementChangedListener {
+	protected class DeltaListener implements IElementChangedListener, IResourceChangeListener {
 		/**
 		 * Deltas received from the java model. See 
 		 * <code>#startDeltas</code> and
@@ -111,6 +111,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		public IJavaElementDelta[] deltas;
 		
 		public ByteArrayOutputStream stackTraces;
+		
+		public boolean gotResourceDelta;
 	
 		public void elementChanged(ElementChangedEvent ev) {
 			IJavaElementDelta[] copy= new IJavaElementDelta[this.deltas.length + 1];
@@ -132,6 +134,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			if ((delta.getFlags() & IJavaElementDelta.F_AST_AFFECTED) != 0 && workingCopy.equals(delta.getElement()))
 				return delta.getCompilationUnitAST();
 			return null;
+		}
+		public void resourceChanged(IResourceChangeEvent event) {
+			this.gotResourceDelta = true;
 		}
 		protected void sortDeltas(IJavaElementDelta[] elementDeltas) {
         	org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
@@ -189,6 +194,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				}
 			}
 			return buffer.toString();
+		}
+		public void waitForResourceDelta() {
+			long start = System.currentTimeMillis();
+			while (!this.gotResourceDelta) {
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+				}
+				if ((System.currentTimeMillis() - start) > 10000/*wait 10 s max*/) {
+					throw new RuntimeException("Didn't get resource delta after 10 seconds");
+				}
+			}
 		}
 	}
 	protected DeltaListener deltaListener = new DeltaListener();
@@ -812,6 +829,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 	}
 	protected void assertDeltas(String message, String expected) {
+		assertDeltas(message, expected, expected.length() > 0/*wait for resource delta iff a delta is expected*/);
+	}
+	protected void assertDeltas(String message, String expected, boolean waitForResourceDelta) {
+		if (waitForResourceDelta)
+			this.deltaListener.waitForResourceDelta();
 		String actual = this.deltaListener.toString();
 		if (!expected.equals(actual)) {
 			System.out.println(displayString(actual, 2));
@@ -921,12 +943,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	public void assertDeletion(IJavaElement elementToDelete) throws JavaModelException {
 		assertDeletion(new IJavaElement[] {elementToDelete});
 	}
+	protected void assertWorkingCopyDeltas(String message, String expected) {
+		assertDeltas(message, expected, false/*don't wait for resource delta*/);
+	}
 	/**
 	 * Empties the current deltas.
 	 */
 	public void clearDeltas() {
 		this.deltaListener.deltas = new IJavaElementDelta[0];
 		this.deltaListener.stackTraces = new ByteArrayOutputStream();
+		this.deltaListener.gotResourceDelta = false;
 	}
 	protected IJavaElement[] codeSelect(ISourceReference sourceReference, String selectAt, String selection) throws JavaModelException {
 		String str = sourceReference.getSource();
@@ -2638,11 +2664,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	public void startDeltas() {
 		clearDeltas();
 		JavaCore.addElementChangedListener(this.deltaListener);
+		getWorkspace().addResourceChangeListener(this.deltaListener, IResourceChangeEvent.POST_CHANGE);
 	}
 	/**
 	 * Stops listening to element deltas, and clears the current deltas.
 	 */
 	public void stopDeltas() {
+		getWorkspace().removeResourceChangeListener(this.deltaListener);
 		JavaCore.removeElementChangedListener(this.deltaListener);
 		clearDeltas();
 	}

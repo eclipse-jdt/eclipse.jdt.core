@@ -201,7 +201,7 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 		try {
 			startDeltas();
 			createImport("java.util.ZipFile", Flags.AccDefault);
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"<import container>[+]: {}"
 			);
@@ -223,7 +223,7 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 		try {
 			startDeltas();
 			createImport("java.util.*", Flags.AccDefault);
-			assertDeltas(
+			assertWorkingCopyDeltas(
 				"Unexpected delta",
 				"<import container>[*]: {CHILDREN | FINE GRAINED}\n" + 
 				"	import java.util.*[+]: {}"

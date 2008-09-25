@@ -231,7 +231,7 @@ public void testStatementsRecovery01() throws CoreException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error", 
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
@@ -261,7 +261,7 @@ public void testStatementsRecovery02() throws CoreException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(AST.JLS3, false, false, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error", 
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
 	);
@@ -291,7 +291,7 @@ public void testStatementsRecovery03() throws CoreException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, true, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error", 
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
@@ -326,7 +326,7 @@ public void testStatementsRecovery04() throws CoreException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(AST.JLS3, false, true, null, null);
-	assertDeltas(
+	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error", 
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
 	);

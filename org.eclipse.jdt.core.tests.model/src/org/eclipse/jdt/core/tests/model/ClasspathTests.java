@@ -3657,7 +3657,8 @@ public void testNoResourceChange04() throws CoreException {
 			"Unexpected delta",
 			"P[*]: {CHILDREN | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	src2[*]: {ADDED TO CLASSPATH}"
+			"	src2[*]: {ADDED TO CLASSPATH}",
+			false/*don't wait for resource delta*/
 		);
 	} finally {
 		stopDeltas();
