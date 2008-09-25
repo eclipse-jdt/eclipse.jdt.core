@@ -31,7 +31,7 @@ public interface IAnnotatable {
 
 	/**
 	 * Returns the annotations for this element.
-	 * Returns an empty array if this method has no annotations.
+	 * Returns an empty array if this element has no annotations.
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *      exception occurs while accessing its corresponding resource.
