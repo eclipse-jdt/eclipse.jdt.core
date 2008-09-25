@@ -26,8 +26,7 @@ class Example extends AnotherClass {
 		        && true
 		        && false
 		        && true;
-		return
-		        product
+		return product
 		        / sum;
 	}
 }

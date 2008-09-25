@@ -813,11 +813,11 @@ public void testLineComments07() throws JavaModelException {
 		"\r\n" + 
 		"	void foo(String tagName) {\r\n" + 
 		"		inTitle = tagName.equalsIgnoreCase(\"<title\"); // keep track if in\r\n" + 
-		"													// <TITLE>\r\n" + 
+		"														// <TITLE>\r\n" + 
 		"		inMetaTag = tagName.equalsIgnoreCase(\"<META\"); // keep track if in\r\n" + 
 		"														// <META>\r\n" + 
 		"		inStyle = tagName.equalsIgnoreCase(\"<STYLE\"); // keep track if in\r\n" + 
-		"													// <STYLE>\r\n" + 
+		"														// <STYLE>\r\n" + 
 		"		inImg = tagName.equalsIgnoreCase(\"<img\"); // keep track if in <IMG>\r\n" + 
 		"	}\r\n" + 
 		"}\r\n",
