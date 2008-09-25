@@ -952,6 +952,114 @@ public void testMoveCU09() throws Exception {
 	};
 	getWorkspace().run(runnable, getFolder("/P/src"), IResource.NONE, null);
 }
+/*
+ * Ensures that the first block comment is not lost if moving a cu to the default package
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247757 )
+ */
+public void testMoveCU10() throws CoreException {
+	createFolder("/P/src/p1");
+	createFile(
+		"/P/src/p1/X.java",
+		"/* some comment */\n" +
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+	IPackageFragment pkgDest = getPackage("/P/src");
+	cuSource.move(pkgDest, null/*no sibling*/, null/*no rename*/, false/*don't replace*/, null/*no progress*/);
+	
+	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
+	assertSourceEquals(
+		"Unexpected source",
+		"/* some comment */\n" +
+		"\n" +
+		"public class X {\n" +
+		"}",
+		cuDest.getSource());
+}
+/*
+ * Ensures that the first block comments are not lost if moving a cu to the default package
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247757 )
+ */
+public void testMoveCU11() throws CoreException {
+	createFolder("/P/src/p1");
+	createFile(
+		"/P/src/p1/X.java",
+		"/* some comment */\n" +
+		"/* other comment */\n" +
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+	IPackageFragment pkgDest = getPackage("/P/src");
+	cuSource.move(pkgDest, null/*no sibling*/, null/*no rename*/, false/*don't replace*/, null/*no progress*/);
+	
+	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
+	assertSourceEquals(
+		"Unexpected source",
+		"/* some comment */\n" +
+		"/* other comment */\n" +
+		"\n" +
+		"public class X {\n" +
+		"}",
+		cuDest.getSource());
+}
+/*
+ * Ensures that the Javadoc comment is not lost if moving a cu to the default package
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247757 )
+ */
+public void testMoveCU12() throws CoreException {
+	createFolder("/P/src/p1");
+	createFile(
+		"/P/src/p1/X.java",
+		"/** some Javadoc */\n" +
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+	IPackageFragment pkgDest = getPackage("/P/src");
+	cuSource.move(pkgDest, null/*no sibling*/, null/*no rename*/, false/*don't replace*/, null/*no progress*/);
+	
+	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
+	assertSourceEquals(
+		"Unexpected source",
+		"/** some Javadoc */\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"}",
+		cuDest.getSource());
+}
+/*
+ * Ensures that the Javadoc comment is not lost if moving a cu to the default package
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247757 )
+ */
+public void testMoveCU13() throws CoreException {
+	createFolder("/P/src/p1");
+	createFile(
+		"/P/src/p1/X.java",
+		"/** some Javadoc */\n" +
+		"// some line comment\n" +
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+	IPackageFragment pkgDest = getPackage("/P/src");
+	cuSource.move(pkgDest, null/*no sibling*/, null/*no rename*/, false/*don't replace*/, null/*no progress*/);
+	
+	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
+	assertSourceEquals(
+		"Unexpected source",
+		"/** some Javadoc */\n" + 
+		"// some line comment\n" +
+		"\n" + 
+		"public class X {\n" + 
+		"}",
+		cuDest.getSource());
+}
 /**
  * Ensures that a package fragment can be moved to a different package fragment root.
  */

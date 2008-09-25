@@ -609,10 +609,19 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				case RewriteEvent.REMOVED: {
 					ASTNode node= (ASTNode) event.getOriginalValue();
 					TextEditGroup editGroup= getEditGroup(event);
-
-					int nodeEnd= getExtendedEnd(node);
+					
 					// if there is a prefix, remove the prefix as well
-					int len= nodeEnd - offset;
+					int nodeEnd;
+					int len;
+					if (offset == 0) {
+						SourceRange range= getExtendedRange(node);
+						offset= range.getStartPosition();
+						len= range.getLength();
+						nodeEnd= offset+len;
+					} else {
+						nodeEnd= getExtendedEnd(node);
+						len= nodeEnd-offset;
+					}
 					doTextRemoveAndVisit(offset, len, node, editGroup);
 					return nodeEnd;
 				}

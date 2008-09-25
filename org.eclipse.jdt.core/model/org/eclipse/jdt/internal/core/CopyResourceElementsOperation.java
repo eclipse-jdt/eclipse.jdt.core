@@ -20,9 +20,11 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -524,7 +526,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 						CompilationUnit astCU = (CompilationUnit) this.parser.createAST(this.progressMonitor);
 						AST ast = astCU.getAST();
 						ASTRewrite rewrite = ASTRewrite.create(ast);
-						updatePackageStatement(astCU, newFragName, rewrite);
+						updatePackageStatement(astCU, newFragName, rewrite, cu);
 						TextEdit edits = rewrite.rewriteAST();
 						applyTextEdit(cu, edits);
 						cu.save(null, false);
@@ -618,17 +620,35 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			AST ast = astCU.getAST();
 			ASTRewrite rewrite = ASTRewrite.create(ast);
 			updateTypeName(cu, astCU, cu.getElementName(), newName, rewrite);
-			updatePackageStatement(astCU, destPackageName, rewrite);
+			updatePackageStatement(astCU, destPackageName, rewrite, cu);
 			return rewrite.rewriteAST();
 		}
 	}
-	private void updatePackageStatement(CompilationUnit astCU, String[] pkgName, ASTRewrite rewriter) throws JavaModelException {
+	private void updatePackageStatement(CompilationUnit astCU, String[] pkgName, ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
 		boolean defaultPackage = pkgName.length == 0;
 		AST ast = astCU.getAST();
 		if (defaultPackage) {
 			// remove existing package statement
-			if (astCU.getPackage() != null)
-				rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, null, null);
+			PackageDeclaration pkg = astCU.getPackage();
+			if (pkg != null) {
+				int pkgStart;
+				Javadoc javadoc = pkg.getJavadoc();
+				if (javadoc != null) {
+					pkgStart = javadoc.getStartPosition() + javadoc.getLength() + 1;
+				} else {
+					pkgStart = pkg.getStartPosition();
+				}
+				int extendedStart = astCU.getExtendedStartPosition(pkg);
+				if (pkgStart != extendedStart) {
+					// keep the comments associated with package declaration
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=247757
+					String commentSource = cu.getSource().substring(extendedStart, pkgStart);
+					ASTNode comment = rewriter.createStringPlaceholder(commentSource, ASTNode.PACKAGE_DECLARATION);
+					rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, comment, null);
+				} else {
+					rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, null, null);
+				}
+			}
 		} else {
 			org.eclipse.jdt.core.dom.PackageDeclaration pkg = astCU.getPackage();
 			if (pkg != null) {
