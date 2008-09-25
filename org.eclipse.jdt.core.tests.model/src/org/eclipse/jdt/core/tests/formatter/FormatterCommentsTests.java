@@ -560,7 +560,7 @@ public void testPreferencesExample05() throws JavaModelException {
 public void testPreferencesExample06() throws JavaModelException {
 	formatUnit("example", "X06.java");
 }
-// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=196124
+// NOT_FIXED_YET: https://bugs.eclipse.org/bugs/show_bug.cgi?id=196124
 public void _testPreferencesExample07() throws JavaModelException {
 	formatUnit("example", "X07.java");
 }
@@ -572,8 +572,7 @@ public void testPreferencesExample08() throws JavaModelException {
 public void testPreferencesExample09() throws JavaModelException {
 	formatUnit("example", "X09.java");
 }
-// TODO (frederic) Pass this test
-public void _testPreferencesExample10() throws JavaModelException {
+public void testPreferencesExample10() throws JavaModelException {
 	formatUnit("example", "X10.java");
 }
 public void testPreferencesExample11() throws JavaModelException {
@@ -740,13 +739,37 @@ public void testTagLink04() throws JavaModelException {
 public void testLineComments01() throws JavaModelException {
 	formatUnit("comments.line", "X01.java");
 }
-// TODO (frederic) Pass this test
-public void _testLineComments02() throws JavaModelException {
-	formatUnit("comments.line", "X02.java");
+public void testLineComments02() throws JavaModelException {
+	String source =
+		"public class X02 {\r\n" + 
+		"	int field; // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r\n" + 
+		"}\r\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"	int field; // This is a long comment that should be split in multiple line\n" + 
+		"				// comments in case the line comment formatting is enabled\n" + 
+		"}\n",
+		false /* do not repeat */
+	);
 }
-// TODO (frederic) Pass this test
-public void _testLineComments02b() throws JavaModelException {
-	formatUnit("comments.line", "X02b.java");
+public void testLineComments02b() throws JavaModelException {
+	String source =
+		"public interface X02b {\r\n" + 
+		"\r\n" + 
+		"	int foo(); // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r\n" + 
+		"\r\n" + 
+		"	int bar();\r\n" + 
+		"}\r\n";
+	formatSource(source,
+		"public interface X02b {\n" + 
+		"\n" + 
+		"	int foo(); // This is a long comment that should be split in multiple line\n" + 
+		"				// comments in case the line comment formatting is enabled\n" + 
+		"\n" + 
+		"	int bar();\n" + 
+		"}\n",
+		false /* do not repeat */
+	);
 }
 public void testLineComments03() throws JavaModelException {
 	formatUnit("comments.line", "X03.java");
@@ -760,9 +783,46 @@ public void testLineComments05() throws JavaModelException {
 public void testLineComments06() throws JavaModelException {
 	formatUnit("comments.line", "X06.java");
 }
-// TODO Pass this test
-public void _testLineComments07() throws JavaModelException {
-	formatUnit("comments.line", "X07.java");
+public void testLineComments07() throws JavaModelException {
+	String source =
+		"package test.comments.line;\r\n" + 
+		"\r\n" + 
+		"public class X07 {\r\n" + 
+		"\r\n" + 
+		"boolean inTitle;\r\n" + 
+		"boolean inMetaTag;\r\n" + 
+		"boolean inStyle;\r\n" + 
+		"boolean inImg;\r\n" + 
+		"\r\n" + 
+		"void foo(String tagName) {\r\n" + 
+		"    inTitle = tagName.equalsIgnoreCase(\"<title\"); // keep track if in <TITLE>\r\n" + 
+		"    inMetaTag = tagName.equalsIgnoreCase(\"<META\"); // keep track if in <META>\r\n" + 
+		"    inStyle = tagName.equalsIgnoreCase(\"<STYLE\"); // keep track if in <STYLE>\r\n" + 
+		"    inImg = tagName.equalsIgnoreCase(\"<img\");     // keep track if in <IMG>\r\n" + 
+		"}\r\n" + 
+		"}\r\n";
+	formatSource(source,
+		"package test.comments.line;\r\n" + 
+		"\r\n" + 
+		"public class X07 {\r\n" + 
+		"\r\n" + 
+		"	boolean inTitle;\r\n" + 
+		"	boolean inMetaTag;\r\n" + 
+		"	boolean inStyle;\r\n" + 
+		"	boolean inImg;\r\n" + 
+		"\r\n" + 
+		"	void foo(String tagName) {\r\n" + 
+		"		inTitle = tagName.equalsIgnoreCase(\"<title\"); // keep track if in\r\n" + 
+		"													// <TITLE>\r\n" + 
+		"		inMetaTag = tagName.equalsIgnoreCase(\"<META\"); // keep track if in\r\n" + 
+		"														// <META>\r\n" + 
+		"		inStyle = tagName.equalsIgnoreCase(\"<STYLE\"); // keep track if in\r\n" + 
+		"													// <STYLE>\r\n" + 
+		"		inImg = tagName.equalsIgnoreCase(\"<img\"); // keep track if in <IMG>\r\n" + 
+		"	}\r\n" + 
+		"}\r\n",
+		false /* do not repeat */
+	);
 }
 public void testLineComments08() throws JavaModelException {
 	formatUnit("comments.line", "X08.java");
@@ -773,10 +833,22 @@ public void testLineComments09() throws JavaModelException {
 public void testLineComments10() throws JavaModelException {
 	formatUnit("comments.line", "X10.java");
 }
-// TODO Pass this test
-public void _testLineComments11() throws JavaModelException {
+public void testLineComments11() throws JavaModelException {
 	this.formatterPrefs.comment_line_length = 40;
-	formatUnit("comments.line", "X11.java");
+	String source = 
+		"package test.comments.line;\r\n" + 
+		"\r\n" + 
+		"public class X11 { // This comment will go____over the max line length\r\n" + 
+		"}\r\n";
+	formatSource(source,
+		"package test.comments.line;\r\n" + 
+		"\r\n" + 
+		"public class X11 { // This comment will\r\n" + 
+		"					// go____over the\r\n" + 
+		"					// max line length\r\n" + 
+		"}\r\n",
+		false /* do not repeat */
+	);
 }
 
 /*
@@ -840,9 +912,35 @@ public void testBlockComments11() throws JavaModelException {
 public void testBlockComments12() throws JavaModelException {
 	formatUnit("comments.block", "X12.java");
 }
-// TODO (frederic) This one fail since 3.3 => the new comment formatter is not involved
-public void _testBlockComments13() throws JavaModelException {
-	formatUnit("comments.block", "X13.java");
+public void testBlockComments13() throws JavaModelException {
+	String source =
+		"package test.comments.block;\r\n" + 
+		"\r\n" + 
+		"public class X13 {\r\n" + 
+		"\r\n" + 
+		"protected void handleWarningToken(String token, boolean isEnabling) {\r\n" + 
+		"	if (token.equals(\"pkgDefaultMethod___\") || token.equals(\"packageDefaultMethod___\")/*backward compatible*/ ) { //$NON-NLS-1$ //$NON-NLS-2$\r\n" + 
+		"	}\r\n" + 
+		"}\r\n" + 
+		"}\r\n";
+	// Difference with old formatter:
+	// 1) split comment block starts one tab before to avoid possible words over the max line length
+	//		note that in this peculiar this was not necessary as even the first word is over the max line length!
+	formatSource(source,
+		"package test.comments.block;\r\n" + 
+		"\r\n" + 
+		"public class X13 {\r\n" + 
+		"\r\n" + 
+		"	protected void handleWarningToken(String token, boolean isEnabling) {\r\n" + 
+		"		if (token.equals(\"pkgDefaultMethod___\") || token.equals(\"packageDefaultMethod___\")/*\r\n" + 
+		"																						 * backward\r\n" + 
+		"																						 * compatible\r\n" + 
+		"																						 */) { //$NON-NLS-1$ //$NON-NLS-2$\r\n" + 
+		"		}\r\n" + 
+		"	}\r\n" + 
+		"}\r\n",
+		false /* do not repeat */
+	);
 }
 public void testBlockComments14() throws JavaModelException {
 	formatUnit("comments.block", "X14.java");
@@ -1034,6 +1132,7 @@ public void testWkspEclipse28() throws JavaModelException {
 public void testWkspEclipse28b() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X28b.java");
 }
+// NOT_FIXED_YET: https://bugs.eclipse.org/bugs/show_bug.cgi?id=248543
 public void _testWkspEclipse28c() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X28c.java");
 }
@@ -1078,8 +1177,7 @@ public void testWkspEclipse34() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X34.java");
 }
 // Ganymede
-// TODO pass this test
-public void _testWkspGanymede01() throws JavaModelException {
+public void testWkspGanymede01() throws JavaModelException {
 	formatUnit("wksp.ganymede", "X02.java");
 }
 public void testWkspGanymede02() throws JavaModelException {

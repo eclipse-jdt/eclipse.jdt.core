@@ -3,8 +3,7 @@
  */
 class Example extends AnotherClass {
 	int foo() {
-		int sum =
-		        100
+		int sum = 100
 		        + 200
 		        + 300
 		        + 400
@@ -12,8 +11,7 @@ class Example extends AnotherClass {
 		        + 600
 		        + 700
 		        + 800;
-		int product =
-		        1
+		int product = 1
 		        * 2
 		        * 3
 		        * 4
@@ -23,8 +21,7 @@ class Example extends AnotherClass {
 		        * 8
 		        * 9
 		        * 10;
-		boolean val =
-		        true
+		boolean val = true
 		        && false
 		        && true
 		        && false

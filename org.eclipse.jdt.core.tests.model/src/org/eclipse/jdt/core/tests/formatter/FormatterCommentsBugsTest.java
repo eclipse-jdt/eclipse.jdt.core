@@ -38,6 +38,39 @@ IPath getOutputFolder() {
 }
 
 /**
+ * @bug 204091: [formatter] format region in comment introduces comment start/end tokens
+ * @test Ensure that a region inside a javadoc comment is well formatted
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091"
+ */
+// NOT_FIXED_YET
+public void _testBug204091() {
+	String source =
+		"public class Test {\r\n" +
+		"	/**\r\n" + 
+		"	 * Don't format this:\r\n" + 
+		"	 *    it has been formatted by the user!\r\n" + 
+		"	 * \r\n" + 
+		"	 * [#@param    param   format   this comment    #]\r\n" + 
+		"	 */\r\n" + 
+		"	public void foo() {\r\n" +
+		"	}\r\n" +
+		"}";
+	formatSource(source,
+		"public class Test {\r\n" +
+		"	/**\r\n" + 
+		"	 * Don't format this:\r\n" + 
+		"	 *    it has been formatted by the user!\r\n" + 
+		"	 * \r\n" + 
+		"	 * @param param\n" + 
+		"	 *            format this comment\n" + 
+		"	 */\r\n" + 
+		"	public void foo() {\r\n" +
+		"	}\r\n" +
+		"}"
+	);
+}
+
+/**
  * @bug 228652: [formatter] New line inserted while formatting a region of a compilation unit.
  * @test Ensure that no new line is inserted before the formatted region
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228652"
@@ -70,8 +103,6 @@ public void testBug228652() {
 		"	}\r\n" +
 		"}"
 	);
-
-//	formatSource(input, expected, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, false, 62, 19, null, false);
 }
 
 /**

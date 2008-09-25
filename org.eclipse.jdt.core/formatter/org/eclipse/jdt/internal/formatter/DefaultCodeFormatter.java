@@ -213,7 +213,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			case K_JAVA_DOC :
 			case K_MULTI_LINE_COMMENT :
 			case K_SINGLE_LINE_COMMENT :
-				//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+				//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
 				throw new IllegalArgumentException();
 		}
 		return null;

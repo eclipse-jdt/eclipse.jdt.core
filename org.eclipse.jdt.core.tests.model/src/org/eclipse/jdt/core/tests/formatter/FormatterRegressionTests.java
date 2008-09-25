@@ -8658,7 +8658,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test600", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	// Binary expression
-	public void _test601() {
+	public void test601() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
 				DefaultCodeFormatterConstants.createAlignmentValue(true, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
@@ -8713,11 +8713,44 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test607", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111270
-	public void _test608() {
+	public void test608() {
+		/* old test
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test608", "A.java", CodeFormatter.K_JAVA_DOC, false);//$NON-NLS-1$ //$NON-NLS-2$
+		*/
+		String source = 
+			"/**\r\n" + 
+			" * Mensagens SMTP tem o seguinte formato:\r\n" + 
+			" * <pre>\r\n" + 
+			" * resposta de uma linha só:\r\n" + 
+			" *  nnn [SP] lalalal [CR] [LF]\r\n" + 
+			" * resposta de várias linhas:\r\n" + 
+			" *  nnn [-] lalalalal [CR] [LF]\r\n" + 
+			" *  nnn [-] lalalalal [CR] [LF]\r\n" + 
+			" *  ...\r\n" + 
+			" *  nnn [SP] lalalalal [CR] [LF]\r\n" + 
+			" * </pre>\r\n" + 
+			" * */";
+		formatSource(source,
+			"/**\n" + 
+			" * Mensagens SMTP tem o seguinte formato:\n" + 
+			" * \n" + 
+			" * <pre>\n" + 
+			" * resposta de uma linha só:\n" + 
+			" *  nnn [SP] lalalal [CR] [LF]\n" + 
+			" * resposta de várias linhas:\n" + 
+			" *  nnn [-] lalalalal [CR] [LF]\n" + 
+			" *  nnn [-] lalalalal [CR] [LF]\n" + 
+			" *  ...\n" + 
+			" *  nnn [SP] lalalalal [CR] [LF]\n" + 
+			" * </pre>\n" + 
+			" * */",
+			CodeFormatter.K_JAVA_DOC,
+			0 /*no indentation*/,
+			true /*repeat formatting twice*/
+		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=116858
 	public void test609() {
@@ -9657,7 +9690,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
-	// TODO: re-enable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091 is fixed
+	// NOT_FIXED_YET: https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
 	public void _test675() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
@@ -9671,7 +9704,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
-	// TODO: re-enable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091 is fixed
+	// NOT_FIXED_YET: https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
 	public void _test676() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
@@ -9684,7 +9717,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
-	// TODO: re-enable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091 is fixed
+	// NOT_FIXED_YET: https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
 	public void _test677() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
