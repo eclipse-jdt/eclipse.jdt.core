@@ -731,7 +731,7 @@ public void test017() throws Exception {
 /**
  * changing the value of a public field
  */
-public void testONLY_018() throws Exception {
+public void test018() throws Exception {
 	try {
 		String sourceA018 =
 			"public class A018 {\n" +
