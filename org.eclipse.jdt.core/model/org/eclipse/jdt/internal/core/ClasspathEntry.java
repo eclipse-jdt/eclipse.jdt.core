@@ -196,6 +196,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * A constant indicating an output location.
 	 */
 	public static final int K_OUTPUT = 10;
+	
+	public static final String DOT_DOT = ".."; //$NON-NLS-1$
 
 	/**
 	 * The export flag
@@ -625,7 +627,9 @@ public class ClasspathEntry implements IClasspathEntry {
 		IPath path = new Path(pathAttr);
 		int kind = kindFromString(kindAttr);
 		if (kind != IClasspathEntry.CPE_VARIABLE && kind != IClasspathEntry.CPE_CONTAINER && !path.isAbsolute()) {
-			path = projectPath.append(path);
+			if (!(path.segmentCount() > 0 && path.segment(0).equals(ClasspathEntry.DOT_DOT))) {
+				path = projectPath.append(path);
+			}
 		}
 		// source attachment info (optional)
 		IPath sourceAttachmentPath =
@@ -705,18 +709,18 @@ public class ClasspathEntry implements IClasspathEntry {
 
 			case IClasspathEntry.CPE_PROJECT :
 				entry = new ClasspathEntry(
-				IPackageFragmentRoot.K_SOURCE,
-				IClasspathEntry.CPE_PROJECT,
-				path,
-				ClasspathEntry.INCLUDE_ALL, // inclusion patterns
-				ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
-				null, // source attachment
-				null, // source attachment root
-				null, // specific output folder
-				isExported,
-				accessRules,
-				combineAccessRestrictions,
-				extraAttributes);
+												IPackageFragmentRoot.K_SOURCE,
+												IClasspathEntry.CPE_PROJECT,
+												path,
+												ClasspathEntry.INCLUDE_ALL, // inclusion patterns
+												ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
+												null, // source attachment
+												null, // source attachment root
+												null, // specific output folder
+												isExported,
+												accessRules,
+												combineAccessRestrictions,
+												extraAttributes);
 				break;
 			case IClasspathEntry.CPE_LIBRARY :
 				entry = JavaCore.newLibraryEntry(
@@ -731,7 +735,12 @@ public class ClasspathEntry implements IClasspathEntry {
 				// must be an entry in this project or specify another project
 				String projSegment = path.segment(0);
 				if (projSegment != null && projSegment.equals(project.getElementName())) { // this project
-					entry = JavaCore.newSourceEntry(path, inclusionPatterns, exclusionPatterns, outputLocation, extraAttributes);
+					entry = JavaCore.newSourceEntry(
+												path, 
+												inclusionPatterns, 
+												exclusionPatterns, 
+												outputLocation, 
+												extraAttributes);
 				} else {
 					if (path.segmentCount() == 1) {
 						// another project
@@ -743,41 +752,46 @@ public class ClasspathEntry implements IClasspathEntry {
 												isExported);
 					} else {
 						// an invalid source folder
-						entry = JavaCore.newSourceEntry(path, inclusionPatterns, exclusionPatterns, outputLocation, extraAttributes);
+						entry = JavaCore.newSourceEntry(
+												path, 
+												inclusionPatterns, 
+												exclusionPatterns, 
+												outputLocation, 
+												extraAttributes);
 					}
 				}
 				break;
 			case IClasspathEntry.CPE_VARIABLE :
 				entry = JavaCore.newVariableEntry(
-						path,
-						sourceAttachmentPath,
-						sourceAttachmentRootPath,
-						accessRules,
-						extraAttributes,
-						isExported);
+												path,
+												sourceAttachmentPath,
+												sourceAttachmentRootPath,
+												accessRules,
+												extraAttributes,
+												isExported);
 				break;
 			case IClasspathEntry.CPE_CONTAINER :
 				entry = JavaCore.newContainerEntry(
-						path,
-						accessRules,
-						extraAttributes,
-						isExported);
+												path,
+												accessRules,
+												extraAttributes,
+												isExported);
 				break;
 			case ClasspathEntry.K_OUTPUT :
 				if (!path.isAbsolute()) return null;
 				entry = new ClasspathEntry(
-						ClasspathEntry.K_OUTPUT,
-						IClasspathEntry.CPE_LIBRARY,
-						path,
-						INCLUDE_ALL,
-						EXCLUDE_NONE,
-						null, // source attachment
-						null, // source attachment root
-						null, // custom output location
-						false,
-						null, // no access rules
-						false, // no accessible files to combine
-						NO_EXTRA_ATTRIBUTES);
+												ClasspathEntry.K_OUTPUT,
+												IClasspathEntry.CPE_LIBRARY,
+												path,
+												INCLUDE_ALL,
+												EXCLUDE_NONE,
+												null, // source attachment
+												null, // source attachment root
+												null, // custom output location
+												false,
+												null, // no access rules
+												false, // no accessible files to combine
+												NO_EXTRA_ATTRIBUTES);
 				break;
 			default :
 				throw new AssertionFailedException(Messages.bind(Messages.classpath_unknownKind, kindAttr));
@@ -791,6 +805,17 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 
 		return entry;
+	}
+	
+	/*
+	 * Returns whether the given path as a ".." segment
+	 */
+	public static boolean hasDotDot(IPath path) {
+		for (int i = 0, length = path.segmentCount(); i < length; i++) {
+			if (DOT_DOT.equals(path.segment(i)))
+				return true;
+		}
+		return false;
 	}
 
 	public static NodeList getChildAttributes(String childName, NodeList children, boolean[] foundChildren) {
@@ -820,6 +845,44 @@ public class ClasspathEntry implements IClasspathEntry {
 				throw e;
 			return null;
 		}
+	}
+
+	/*
+	 * Resolves the ".." in the given path. Returns the given path if it contains no ".." segment.
+	 */
+	public static IPath resolveDotDot(IPath path) {
+		IPath newPath = null;
+		IWorkspaceRoot root = null;
+		IPath workspaceLocation = null;
+		for (int i = 0, length = path.segmentCount(); i < length; i++) {
+			String segment = path.segment(i);
+			if (DOT_DOT.equals(segment)) {
+				if (newPath == null) {
+					if (i == 0) {
+						workspaceLocation = (root = ResourcesPlugin.getWorkspace().getRoot()).getLocation();
+						newPath = workspaceLocation;
+					} else {
+						newPath = path.removeFirstSegments(i);
+					}
+				} else {
+					if (newPath.segmentCount() > 0) {
+						newPath = newPath.removeLastSegments(1);
+					} else {
+						workspaceLocation = (root = ResourcesPlugin.getWorkspace().getRoot()).getLocation();
+						newPath = workspaceLocation;
+					}
+				}
+			} else if (newPath != null) {
+				if (newPath.equals(workspaceLocation) && root.getProject(segment).isAccessible()) {
+					newPath = new Path(segment).makeAbsolute();
+				} else {
+					newPath = newPath.append(segment);
+				}
+			}
+		}
+		if (newPath == null)
+			return path;
+		return newPath;
 	}
 
 	/**
@@ -1195,7 +1258,26 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		return buffer.toString();
 	}
-
+	
+	public ClasspathEntry resolvedDotDot() {
+		IPath resolvedPath = resolveDotDot(this.path);
+		if (resolvedPath == this.path)
+			return this;
+		return new ClasspathEntry(
+							getContentKind(),
+							getEntryKind(),
+							resolvedPath,
+							this.inclusionPatterns,
+							this.exclusionPatterns,
+							getSourceAttachmentPath(),
+							getSourceAttachmentRootPath(),
+							getOutputLocation(),
+							this.isExported,
+							getAccessRules(),
+							this.combineAccessRules,
+							this.extraAttributes);
+	}
+	
 	/**
 	 * Answers an ID which is used to distinguish entries during package
 	 * fragment root computations
@@ -1636,6 +1718,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 			// library entry check
 			case IClasspathEntry.CPE_LIBRARY :
+				path = ClasspathEntry.resolveDotDot(path);
 				if (path.isAbsolute() && !path.isEmpty()) {
 					IPath sourceAttachment = entry.getSourceAttachmentPath();
 					Object target = JavaModel.getTarget(path, true);

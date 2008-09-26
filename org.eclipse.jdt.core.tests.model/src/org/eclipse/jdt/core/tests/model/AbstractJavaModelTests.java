@@ -46,6 +46,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected static String EXTERNAL_JAR_DIR_PATH;
 
+	/**
+	 * The java.io.File path to the workspace directory.
+	 */
+	protected static String WORKSPACE_DIR_PATH;
+
 	// used java project
 	protected IJavaProject currentProject;
 
@@ -1813,6 +1818,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		return EXTERNAL_JAR_DIR_PATH;
 	}
+	/*
+	 * Returns the OS path to the workspace directory.
+	 * This path ends with a File.separatorChar.
+	 */
+	protected String getWorkspacePath() {
+		if (WORKSPACE_DIR_PATH == null)
+			try {
+				String path = getWorkspaceRoot().getLocation().toFile().getCanonicalPath();
+				if (path.charAt(path.length()-1) != File.separatorChar)
+					path += File.separatorChar;
+				WORKSPACE_DIR_PATH = path;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		return WORKSPACE_DIR_PATH;
+	}
 	protected IFile getFile(String path) {
 		return getWorkspaceRoot().getFile(new Path(path));
 	}
@@ -2013,9 +2034,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	protected String displayString(String toPrint, int indent) {
-    	char[] toDisplay =
+    	char[] toDisplay = toPrint.toCharArray();
+    	toDisplay =
     		CharOperation.replace(
-    			toPrint.toCharArray(),
+    			toDisplay,
+    			getWorkspacePath().toCharArray(),
+    			"getWorkspacePath()".toCharArray());
+    	toDisplay =
+    		CharOperation.replace(
+    			toDisplay,
     			getExternalJCLPathString().toCharArray(),
     			"getExternalJCLPathString()".toCharArray());
 		toDisplay =
@@ -2042,6 +2069,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
     	toDisplay = org.eclipse.jdt.core.tests.util.Util.displayString(new String(toDisplay), indent).toCharArray();
 
+    	toDisplay =
+    		CharOperation.replace(
+    			toDisplay,
+    			"getWorkspacePath()".toCharArray(),
+    			("\"+ getWorkspacePath() + \"").toCharArray());
     	toDisplay =
     		CharOperation.replace(
     			toDisplay,

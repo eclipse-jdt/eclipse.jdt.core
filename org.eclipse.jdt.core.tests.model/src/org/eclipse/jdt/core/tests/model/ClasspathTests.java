@@ -2307,6 +2307,261 @@ public void testDefaultClasspathAndOutputLocation() throws CoreException {
 	}
 }
 
+/*
+ * Ensures that one can point at an external library using a ".." entry in a cp container
+ */
+public void testDotDotContainerEntry1() throws Exception {
+	String externalJarPath = getWorkspaceRoot().getLocation().removeLastSegments(1).append("external.jar").toOSString();
+	try {
+		IJavaProject p = createJavaProject("P");
+		Util.writeToFile("", externalJarPath);
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "../../external.jar"}));
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"))});
+		assertElementDescendants(
+			"Unexpected project content",
+			"P\n" + 
+			"  "+ getExternalPath() + "external.jar",
+			p
+		);
+	} finally {
+		deleteResource(new File(externalJarPath));
+		deleteProject("P");
+		ContainerInitializer.setInitializer(null);
+	}
+}
+
+/*
+ * Ensures that a marker is created if one can point at a non-existing external library using a ".." entry in a cp container
+ */
+public void testDotDotContainerEntry2() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "../../nonExisting.jar"}));
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"))});
+		assertMarkers(
+			"Unexpected markers", 
+			"Project \'P\' is missing required library: \'"+ getExternalPath() + "nonExisting.jar\'",
+			p);
+	} finally {
+		deleteProject("P");
+		ContainerInitializer.setInitializer(null);
+	}
+}
+
+/*
+ * Ensures that one can point at an external library using a ".." path
+ */
+public void testDotDotLibraryEntry1() throws Exception {
+	String externalJarPath = getWorkspaceRoot().getLocation().append("external.jar").toOSString();
+	try {
+		IJavaProject p = createJavaProject("P");
+		Util.writeToFile("", externalJarPath);
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../external.jar"), null, null)});
+		assertElementDescendants(
+			"Unexpected project content",
+			"P\n" + 
+			"  "+ getWorkspacePath() + "external.jar",
+			p
+		);
+	} finally {
+		deleteResource(new File(externalJarPath));
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that one can point at an external library using a ".." path
+ */
+public void testDotDotLibraryEntry2() throws Exception {
+	String externalJarPath = getWorkspaceRoot().getLocation().removeLastSegments(1).append("external.jar").toOSString();
+	try {
+		IJavaProject p = createJavaProject("P");
+		Util.writeToFile("", externalJarPath);
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../../external.jar"), null, null)});
+		assertElementDescendants(
+			"Unexpected project content",
+			"P\n" + 
+			"  "+ getExternalPath() + "external.jar",
+			p
+		);
+	} finally {
+		deleteResource(new File(externalJarPath));
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that one can point at an external library using a ".." path
+ */
+public void testDotDotLibraryEntry3() throws Exception {
+	String externalJarPath = getWorkspaceRoot().getLocation().removeLastSegments(1).append("external.jar").toOSString();
+	try {
+		IJavaProject p = createJavaProject("P");
+		Util.writeToFile("", externalJarPath);
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("src/../../../external.jar"), null, null)});
+		assertElementDescendants(
+			"Unexpected project content",
+			"P\n" + 
+			"  "+ getExternalPath() + "external.jar",
+			p
+		);
+	} finally {
+		deleteResource(new File(externalJarPath));
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that one can point at an internal library using a ".." path
+ */
+public void testDotDotLibraryEntry4() throws Exception {
+	try {
+		createProject("P1");
+		createFile("/P1/internal.jar", "");
+		IJavaProject p = createJavaProject("P2");
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../P1/internal.jar"), null, null)});
+		assertElementDescendants(
+			"Unexpected project content",
+			"P2\n" + 
+			"  /P1/internal.jar",
+			p
+		);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+/*
+ * Ensures that no markers are created if one can point at an existing external library using a ".." path
+ */
+public void testDotDotLibraryEntry5() throws Exception {
+	String externalJarPath = getWorkspaceRoot().getLocation().append("external.jar").toOSString();
+	try {
+		IJavaProject p = createJavaProject("P");
+		Util.writeToFile("", externalJarPath);
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../external.jar"), null, null)});
+		assertMarkers(
+			"Unexpected markers", 
+			"", 
+			p);
+	} finally {
+		deleteResource(new File(externalJarPath));
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that a marker is created if one can point at a non-existing external library using a ".." path
+ */
+public void testDotDotLibraryEntry6() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../external.jar"), null, null)});
+		assertMarkers(
+			"Unexpected markers", 
+			"Project \'P\' is missing required library: \'"+ getWorkspacePath() + "external.jar\'",
+			p);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that one can point at an external library using a ".." path by editing the .classpath file
+ */
+public void testDotDotLibraryEntry7() throws Exception {
+	String externalJarPath = getWorkspaceRoot().getLocation().append("external.jar").toOSString();
+	try {
+		IJavaProject p = createJavaProject("P");
+		Util.writeToFile("", externalJarPath);
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"\"/>\n" + 
+			"	<classpathentry kind=\"lib\" path=\"../external.jar\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>");
+		assertElementDescendants(
+			"Unexpected project content",
+			"P\n" + 
+			"  <project root>\n" + 
+			"    <default> (...)\n" + 
+			"  "+ getWorkspacePath() + "external.jar",
+			p
+		);
+	} finally {
+		deleteResource(new File(externalJarPath));
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that the raw classpath is correct if pointing at an external library using a ".." path by editing the .classpath file
+ */
+public void testDotDotLibraryEntry8() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"\"/>\n" + 
+			"	<classpathentry kind=\"lib\" path=\"../external.jar\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>");
+		assertClasspathEquals(
+			p.getRawClasspath(), 
+			"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" + 
+			"../external.jar[CPE_LIBRARY][K_BINARY][isExported:false]"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that one can point at an external library using a ".." variable entry
+ */
+public void testDotDotVariableEntry1() throws Exception {
+	String externalJarPath = getWorkspaceRoot().getLocation().removeLastSegments(1).append("external.jar").toOSString();
+	try {
+		JavaCore.setClasspathVariable("TWO_UP", new Path("../.."), null);
+		IJavaProject p = createJavaProject("P");
+		Util.writeToFile("", externalJarPath);
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newVariableEntry(new Path("TWO_UP/external.jar"), null, null)});
+		assertElementDescendants(
+			"Unexpected project content",
+			"P\n" + 
+			"  "+ getExternalPath() + "external.jar",
+			p
+		);
+	} finally {
+		deleteResource(new File(externalJarPath));
+		deleteProject("P");
+		JavaCore.removeClasspathVariable("TWO_UP", null);
+	}
+}
+
+/*
+ * Ensures that a marker is created if one can point at a non-existing external library using a ".." variable entry
+ */
+public void testDotDotVariableEntry2() throws Exception {
+	try {
+		JavaCore.setClasspathVariable("TWO_UP", new Path("../.."), null);
+		IJavaProject p = createJavaProject("P");
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newVariableEntry(new Path("TWO_UP/nonExisting.jar"), null, null)});
+		assertMarkers(
+			"Unexpected markers", 
+			"Project \'P\' is missing required library: \'"+ getExternalPath() + "nonExisting.jar\'",
+			p);
+	} finally {
+		deleteProject("P");
+		JavaCore.removeClasspathVariable("TWO_UP", null);
+	}
+}
+
 /**
  * Setting the classpath to empty should result in no entries,
  * and a delta with removed roots.

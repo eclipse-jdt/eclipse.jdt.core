@@ -3825,7 +3825,7 @@ public final class JavaCore extends Plugin {
 	 * {@link #newLibraryEntry(IPath, IPath, IPath, IAccessRule[], IClasspathAttribute[], boolean)
 	 * newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, new IAccessRule[0], new IClasspathAttribute[0], false)}.
 	 *
-	 * @param path the absolute path of the binary archive
+	 * @param path the path to the library
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder,
 	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
 	 *    Since 3.4, this path can also denote a path external to the workspace.
@@ -3856,7 +3856,7 @@ public final class JavaCore extends Plugin {
 	 * {@link #newLibraryEntry(IPath, IPath, IPath, IAccessRule[], IClasspathAttribute[], boolean)
 	 * newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, new IAccessRule[0], new IClasspathAttribute[0], isExported)}.
 	 *
-	 * @param path the absolute path of the binary archive
+	 * @param path the path to the library
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder,
 	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
 	 *   and will be automatically converted to <code>null</code>. Since 3.4, this path can also denote a path external
@@ -3893,12 +3893,14 @@ public final class JavaCore extends Plugin {
 	 * to the workspace root), or externally to the workspace (absolute path in the file system).
 	 * The target root folder can also be defined internally to the workspace (absolute path relative
 	 * to the workspace root), or - since 3.4 - externally to the workspace (absolute path in the file system).
+	 * Since 3.5, the path to the library can also be relative to the project using ".." as the first segment. 
 	 * <p>
 	 * e.g. Here are some examples of binary path usage<ul>
 	 *	<li><code> "c:\jdk1.2.2\jre\lib\rt.jar" </code> - reference to an external JAR on Windows</li>
 	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR on Windows or Linux</li>
 	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder on Windows or Linux</li>
 	 *	<li><code> "/home/usr/classes" </code> - reference to an external binary folder on Linux</li>
+	 *	<li><code> "../../lib/someLib.jar" </code> - reference to an external JAR that is a sibbling of the workspace on either platform</li>
 	 * </ul>
 	 * Note that on non-Windows platform, a path <code>"/some/lib.jar"</code> is ambiguous.
 	 * It can be a path to an external JAR (its file system path being <code>"/some/lib.jar"</code>)
@@ -3928,7 +3930,7 @@ public final class JavaCore extends Plugin {
 	 * with the non accessible files patterns of the project.
 	 * </p>
 	 *
-	 * @param path the absolute path of the binary archive
+	 * @param path the path to the library
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder,
 	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
 	 *   and will be automatically converted to <code>null</code>. Since 3.4, this path can also denote a path external
@@ -3951,7 +3953,8 @@ public final class JavaCore extends Plugin {
 			boolean isExported) {
 
 		if (path == null) throw new ClasspathEntry.AssertionFailedException("Library path cannot be null"); //$NON-NLS-1$
-		if (!path.isAbsolute()) throw new ClasspathEntry.AssertionFailedException("Path for IClasspathEntry must be absolute: " + path); //$NON-NLS-1$
+		boolean hasDotDot = ClasspathEntry.hasDotDot(path);
+		if (!hasDotDot && !path.isAbsolute()) throw new ClasspathEntry.AssertionFailedException("Path for IClasspathEntry must be absolute: " + path); //$NON-NLS-1$
 		if (sourceAttachmentPath != null) {
 			if (sourceAttachmentPath.isEmpty()) {
 				sourceAttachmentPath = null; // treat empty path as none
@@ -3964,7 +3967,7 @@ public final class JavaCore extends Plugin {
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_BINARY,
 			IClasspathEntry.CPE_LIBRARY,
-			JavaProject.canonicalizedPath(path),
+			hasDotDot ? path : JavaProject.canonicalizedPath(path),
 			ClasspathEntry.INCLUDE_ALL, // inclusion patterns
 			ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
 			sourceAttachmentPath,
@@ -4668,6 +4671,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Sets the value of the given classpath variable.
 	 * The path must not be null.
+	 * Since 3.5, the path to a library can also be relative to the project using ".." as the first segment. 
 	 * <p>
 	 * This functionality cannot be used while the resource tree is locked.
 	 * <p>
@@ -4695,6 +4699,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Sets the values of all the given classpath variables at once.
 	 * Null paths can be used to request corresponding variable removal.
+	 * Since 3.5, the path to a library can also be relative to the project using ".." as the first segment.
 	 * <p>
 	 * A combined Java element delta will be notified to describe the corresponding
 	 * classpath changes resulting from the variables update. This operation is batched,
