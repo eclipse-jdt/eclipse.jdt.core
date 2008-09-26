@@ -41,10 +41,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.tagBits |= TagBits.HasTypeVariable;
 	}
 
-	public int kind() {
-		return Binding.TYPE_PARAMETER;
-	}
-
 	/**
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */
@@ -157,6 +153,16 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return unchecked ? TypeConstants.UNCHECKED : TypeConstants.OK;
 	}
 
+	public int boundsCount() {
+		if (this.firstBound == null) {
+			return 0;
+		} else if (this.firstBound == this.superclass) {
+			return this.superInterfaces.length + 1;
+		} else {
+			return this.superInterfaces.length;
+		}
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#canBeInstantiated()
 	 */
@@ -205,12 +211,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 		inferenceContext.recordSubstitute(this, actualType, variableConstraint);
 	}
 
-	public char[] constantPoolName() { /* java/lang/Object */
-	    if (this.firstBound != null) {
-			return this.firstBound.constantPoolName();
-	    }
-	    return this.superclass.constantPoolName(); // java/lang/Object
-	}
 	/*
 	 * declaringUniqueKey : genericTypeSignature
 	 * p.X<T> { ... } --> Lp/X;:TT;
@@ -242,6 +242,12 @@ public class TypeVariableBinding extends ReferenceBinding {
 		char[] uniqueKey = new char[length];
 		buffer.getChars(0, length, uniqueKey, 0);
 		return uniqueKey;
+	}
+	public char[] constantPoolName() { /* java/lang/Object */
+	    if (this.firstBound != null) {
+			return this.firstBound.constantPoolName();
+	    }
+	    return this.superclass.constantPoolName(); // java/lang/Object
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
@@ -282,16 +288,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public char[] genericTypeSignature() {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
-	}
-
-	public int boundsCount() {
-		if (this.firstBound == null) {
-			return 0;
-		} else if (this.firstBound == this.superclass) {
-			return this.superInterfaces.length + 1;
-		} else {
-			return this.superInterfaces.length;
-		}
 	}
 
 	/**
@@ -360,13 +356,30 @@ public class TypeVariableBinding extends ReferenceBinding {
 //		return this;
 //	}
 
+	public int kind() {
+		return Binding.TYPE_PARAMETER;
+	}
+
+	public TypeBinding[] otherUpperBounds() {
+		if (this.firstBound == null)
+			return Binding.NO_TYPES;
+		if (this.firstBound == this.superclass)
+			return this.superInterfaces;
+		int otherLength = this.superInterfaces.length - 1;
+		if (otherLength > 0) {
+			TypeBinding[] otherBounds;
+			System.arraycopy(this.superInterfaces, 1, otherBounds = new TypeBinding[otherLength], 0, otherLength);
+			return otherBounds;
+		}
+		return Binding.NO_TYPES;
+	}
+
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#readableName()
      */
     public char[] readableName() {
         return this.sourceName;
     }
-
 	ReferenceBinding resolve(LookupEnvironment environment) {
 		if ((this.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 			return this;
@@ -393,7 +406,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 		return this;
 	}
-
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#shortReadableName()
      */
@@ -403,9 +415,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public ReferenceBinding superclass() {
 		return this.superclass;
 	}
+	
 	public ReferenceBinding[] superInterfaces() {
 		return this.superInterfaces;
 	}
+	
 	/**
 	 * @see java.lang.Object#toString()
 	 */
@@ -429,6 +443,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		buffer.append('>');
 		return buffer.toString();
 	}
+
 	/**
 	 * Upper bound doesn't perform erasure
 	 */
@@ -437,19 +452,5 @@ public class TypeVariableBinding extends ReferenceBinding {
 			return this.firstBound;
 		}
 		return this.superclass; // java/lang/Object
-	}
-
-	public TypeBinding[] otherUpperBounds() {
-		if (this.firstBound == null)
-			return Binding.NO_TYPES;
-		if (this.firstBound == this.superclass)
-			return this.superInterfaces;
-		int otherLength = this.superInterfaces.length - 1;
-		if (otherLength > 0) {
-			TypeBinding[] otherBounds;
-			System.arraycopy(this.superInterfaces, 1, otherBounds = new TypeBinding[otherLength], 0, otherLength);
-			return otherBounds;
-		}
-		return Binding.NO_TYPES;
 	}
 }
