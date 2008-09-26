@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -540,6 +540,16 @@ public void testGetTypeVariable() {
 	} catch (IllegalArgumentException iae) {
 		// do nothing
 	}
+}
+
+/*
+ * Ensures that an invalid character doesn't cause an infinite loop
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247118 )
+ */
+public void testInvalidCharacter() {
+	assertEquals(
+		"Lorg.eclipse.Identified.ClassName;",
+		Signature.createTypeSignature("org.eclipse." + (char) 5760 + "Identified.ClassName", true));
 }
 
 /**

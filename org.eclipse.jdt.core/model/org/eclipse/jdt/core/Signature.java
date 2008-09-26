@@ -637,7 +637,7 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
 private static int consumeWhitespace(char[] typeName, int pos, int length) {
     while (pos < length) {
         char currentChar = typeName[pos];
-        if (currentChar != ' ' && !CharOperation.isWhitespace(currentChar)) {
+        if (currentChar != ' ' && !ScannerHelper.isWhitespace(currentChar)) {
             break;
         }
         pos++;
