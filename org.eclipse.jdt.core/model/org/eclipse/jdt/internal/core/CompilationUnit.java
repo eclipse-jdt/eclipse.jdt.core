@@ -1099,25 +1099,31 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	// create buffer
 	BufferManager bufManager = getBufferManager();
 	boolean isWorkingCopy = isWorkingCopy();
-	IBuffer buffer = 
-		isWorkingCopy 
-			? this.owner.createBuffer(this) 
+	IBuffer buffer =
+		isWorkingCopy
+			? this.owner.createBuffer(this)
 			: BufferManager.createBuffer(this);
 	if (buffer == null) return null;
 	
+	ICompilationUnit original = null;
+	boolean mustSetToOriginalContent = false;
+	if (isWorkingCopy) {
+		// ensure that isOpen() is called outside the bufManager synchronized block
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=237772
+		mustSetToOriginalContent = !isPrimary() && (original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY)).isOpen() ;
+	}
+
 	// synchronize to ensure that 2 threads are not putting 2 different buffers at the same time
 	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146331
 	synchronized(bufManager) {
 		IBuffer existingBuffer = bufManager.getBuffer(this);
 		if (existingBuffer != null)
 			return existingBuffer;
-		
+
 		// set the buffer source
 		if (buffer.getCharacters() == null) {
 			if (isWorkingCopy) {
-				ICompilationUnit original;
-				if (!isPrimary() 
-						&& (original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY)).isOpen()) {
+				if (mustSetToOriginalContent) {
 					buffer.setContents(original.getSource());
 				} else {
 					IFile file = (IFile)getResource();
@@ -1134,15 +1140,15 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 				buffer.setContents(Util.getResourceContentsAsCharArray(file));
 			}
 		}
-	
+
 		// add buffer to buffer cache
 		// note this may cause existing buffers to be removed from the buffer cache, but only primary compilation unit's buffer
 		// can be closed, thus no call to a client's IBuffer#close() can be done in this synchronized block.
 		bufManager.addBuffer(buffer);
-				
+
 		// listen to buffer changes
 		buffer.addBufferChangedListener(this);
-	}	
+	}
 	return buffer;
 }
 protected void openAncestors(HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
