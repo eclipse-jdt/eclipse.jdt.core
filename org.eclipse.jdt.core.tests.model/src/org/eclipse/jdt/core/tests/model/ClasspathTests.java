@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILogListener;
@@ -3008,6 +3009,37 @@ public void testReadEmptyCustomOutput() throws CoreException {
 		assertEquals("Unexpected classpath length", 1, classpath.length);
 		assertEquals("Unexpected custom output location", new Path("/P"), classpath[0].getOutputLocation());
 	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that a JavaModelException is thrown if attempting to set a raw classpath
+ * when .classpath file is read-only
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=245576 )
+ */
+public void testReadOnly() throws CoreException {
+	if (!org.eclipse.jdt.internal.core.util.Util.isReadOnlySupported())
+		return;
+	IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+	IClasspathEntry[] originalCP= project.getRawClasspath();
+
+	try {
+		IClasspathEntry newEntry= JavaCore.newSourceEntry(project.getProject().getFullPath().append("extra"));
+		IClasspathEntry[] newCP= new IClasspathEntry[originalCP.length + 1];
+		System.arraycopy(originalCP, 0 , newCP, 0, originalCP.length);
+		newCP[originalCP.length]= newEntry;
+		
+		org.eclipse.jdt.internal.core.util.Util.setReadOnly(getFile("/P/.classpath"), true);
+		JavaModelException expected = null;
+		try {
+			project.setRawClasspath(newCP, null);
+		} catch (JavaModelException e) {
+			expected = e;
+		}
+		assertExceptionEquals("Unexpected exception", "File /P/.classpath is read-only.", expected);
+	} finally {
+		// cleanup
 		this.deleteProject("P");
 	}
 }
