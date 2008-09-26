@@ -52,14 +52,14 @@ public class QualifiedNameReference extends NameReference {
 	public TypeBinding genericCast;
 	public TypeBinding[] otherGenericCasts;
 
-public QualifiedNameReference(	char[][] tokens, long[] positions, int sourceStart, int sourceEnd) {
+public QualifiedNameReference(char[][] tokens, long[] positions, int sourceStart, int sourceEnd) {
 	this.tokens = tokens;
 	this.sourcePositions = positions;
 	this.sourceStart = sourceStart;
 	this.sourceEnd = sourceEnd;
 }
 
-public FlowInfo analyseAssignment(BlockScope currentScope, 	FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
+public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
 	// determine the rank until which we now we do not need any actual value for the field access
 	int otherBindingsCount = this.otherBindings == null ? 0 : this.otherBindings.length;
 	boolean needValue = otherBindingsCount == 0 || !this.otherBindings[0].isStatic();
