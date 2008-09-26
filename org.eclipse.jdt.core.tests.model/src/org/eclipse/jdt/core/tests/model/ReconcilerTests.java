@@ -3070,6 +3070,38 @@ public void testReconcileParticipant11() throws CoreException {
 }
 
 /*
+ * Ensures that a misbehaving reconcile participant doesn't interfere with a reconcile operation
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=248680 )
+ */
+public void testReconcileParticipant12() throws CoreException {
+	try {
+		TestCompilationParticipant.failToInstantiate = true;
+		simulateExitRestart();
+		this.workingCopy = getCompilationUnit("Reconciler/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"import p2.*;\n" +
+			"public class X {\n" +
+			"  public void bar() {\n" +
+			"    System.out.println()\n" +
+			"  }\n" +
+			"}"
+		);
+		startDeltas();
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertWorkingCopyDeltas(
+			"Unexpected participant delta",
+			"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"	bar()[+]: {}\n" + 
+			"	foo()[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		TestCompilationParticipant.failToInstantiate = false;
+	}
+}
+
+	/*
  * Ensures that errors are fixed if renaming the .classpath file causes the missing type to be visible.
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=207890)
  */

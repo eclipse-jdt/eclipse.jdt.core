@@ -268,8 +268,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						}
 					});
 				}
-				CompilationParticipant participant = (CompilationParticipant) participants[i];
-				if (participant != null && participant.isActive(project))
+				CompilationParticipant participant;
+				if ((participants[i] instanceof CompilationParticipant) && (participant = (CompilationParticipant) participants[i]).isActive(project))
 					result[index++] = participant;
 			}
 			if (index == 0)

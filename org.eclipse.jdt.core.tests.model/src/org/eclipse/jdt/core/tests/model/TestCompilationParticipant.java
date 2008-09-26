@@ -17,7 +17,13 @@ import org.eclipse.jdt.core.compiler.ReconcileContext;
 public class TestCompilationParticipant extends CompilationParticipant {
 
 	public static CompilationParticipant PARTICIPANT;
+	public static boolean failToInstantiate = false;
 
+	public TestCompilationParticipant() {
+		if (failToInstantiate)
+			throw new RuntimeException();
+	}
+	
 	public boolean isActive(IJavaProject project) {
 		return PARTICIPANT != null && PARTICIPANT.isActive(project);
 	}
