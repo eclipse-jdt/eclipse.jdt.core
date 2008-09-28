@@ -194,4 +194,35 @@ public class FilerTests extends TestBase
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 
+	/**
+	 * Call FilerTesterProc.testGetCharContentLarge(), which checks FileObject.getCharContent() 
+	 * for a large (multiple buffers long) file
+	 */
+	public void testGetCharContentLarge() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+		
+		env.addClass(projPath.append("src"), "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testGetCharContentLarge\", arg0 = \"g\", arg1 = \"Test.java\")" +
+				"public class Trigger {\n" +
+				"}"
+			); 
+		
+		AptConfig.setEnabled(jproj, true);
+		
+		// FilerTesterProc looks for the existence and contents of this class:
+		env.addClass(projPath.append(".apt_generated"), "g", "Test",
+				FilerTesterProc.largeJavaClass());
+
+		fullBuild();
+		expectingNoProblems();
+		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
+		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+	}
+
 }

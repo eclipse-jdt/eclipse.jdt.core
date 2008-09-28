@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.apt.pluggable.tests;singleton:=true
-Bundle-Version: 3.3.100.qualifier
+Bundle-Version: 3.3.101.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.eclipse.jdt.apt.pluggable.tests.Apt6TestsPlugin
 Bundle-Localization: plugin

@@ -25,6 +25,7 @@ import javax.tools.FileObject;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Implementation of a FileObject returned by Filer.getResource().
@@ -46,14 +47,20 @@ public class IdeInputFileObject implements FileObject {
 		throw new IllegalStateException("An annotation processor is not permitted to delete resources");
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.tools.FileObject#getCharContent(boolean)
 	 */
 	@Override
-	public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-		//TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+	public CharSequence getCharContent(boolean ignoreEncodingErrors)
+			throws IOException {
+		try {
+			char[] chars = Util.getResourceContentsAsCharArray(this._file);
+			return new String(chars);
+		} catch (CoreException e) {
+			throw new IOException(e);
+		}
 	}
+
 
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#getLastModified()
