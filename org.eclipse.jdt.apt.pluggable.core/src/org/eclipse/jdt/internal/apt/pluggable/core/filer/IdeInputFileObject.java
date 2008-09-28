@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 
@@ -26,6 +25,7 @@ import javax.tools.FileObject;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Implementation of a FileObject returned by Filer.getResource().
@@ -47,27 +47,18 @@ public class IdeInputFileObject implements FileObject {
 		throw new IllegalStateException("An annotation processor is not permitted to delete resources");
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.tools.FileObject#getCharContent(boolean)
 	 */
 	@Override
-	public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-		// Use buffer size at least as big as the default size of the
-		// BufferedReader returned by openReader(), to reduce redundant
-		// copying.  See BufferedReader.read1() for details.
-		char[] buffer = new char[8192];
-		StringWriter w = new StringWriter();
-		Reader r = openReader(ignoreEncodingErrors);
+	public CharSequence getCharContent(boolean ignoreEncodingErrors)
+			throws IOException {
 		try {
-			int read = -1;
-			while ((read = r.read(buffer)) != -1) {
-				w.write(buffer, 0, read);
-			}
+			char[] chars = Util.getResourceContentsAsCharArray(this._file);
+			return new String(chars);
+		} catch (CoreException e) {
+			throw new IOException(e);
 		}
-		finally {
-			r.close();
-		}
-		return w.getBuffer();
 	}
 
 	/* (non-Javadoc)
