@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc.
+ * Copyright (c) 2007, 2008 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -188,6 +188,32 @@ public class FilerTests extends TestBase
 		InputStream textSource = new ByteArrayInputStream(FilerTesterProc.resource02FileContents.getBytes());
 		textFile.create(textSource, false, null);
 
+		fullBuild();
+		expectingNoProblems();
+		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
+		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+	}
+
+	/**
+	 * Call FilerTesterProc.testCreateNonSourceFile(), which creates a non-source output file
+	 */
+	public void testCreateNonSourceFile() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+		
+		env.addClass(projPath.append("src"), "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testCreateNonSourceFile\", arg0 = \"t\", arg1 = \"Test.txt\")" +
+				"public class Trigger {\n" +
+				"}"
+			); 
+		
+		AptConfig.setEnabled(jproj, true);
+		
 		fullBuild();
 		expectingNoProblems();
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());

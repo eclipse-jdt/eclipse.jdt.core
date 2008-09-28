@@ -57,8 +57,7 @@ public class IdeOutputNonSourceFileObject extends IdeOutputFileObject
 	@Override
 	public String getName()
 	{
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+		return _file.getLocation().toOSString();
 	}
 
 	/* (non-Javadoc)

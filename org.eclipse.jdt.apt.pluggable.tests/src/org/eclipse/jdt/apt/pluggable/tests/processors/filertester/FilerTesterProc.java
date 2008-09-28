@@ -13,6 +13,7 @@
 package org.eclipse.jdt.apt.pluggable.tests.processors.filertester;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -156,6 +157,29 @@ public class FilerTesterProc extends AbstractProcessor {
 	public void testGetResource02(Element e, String arg0, String arg1) throws Exception {
 		FileObject resource = _filer.getResource(StandardLocation.CLASS_OUTPUT, arg0, arg1);
 		checkResourceContents01(resource, resource02Name, resource02FileContents);
+	}
+	
+	/**
+	 * Attempt to get an existing resource from the SOURCE_OUTPUT.
+	 */
+	public void testCreateNonSourceFile(Element e, String pkg, String relName) throws Exception {
+		FileObject fo = _filer.createResource(StandardLocation.SOURCE_OUTPUT,
+				pkg, relName, e);
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(fo.openWriter());
+			pw.println("Hello world");
+		} finally {
+			if (pw != null)
+				pw.close();
+		}
+		String name = fo.getName().toString();
+		// JSR269 spec does not make strict requirements about what getName() returns,
+		// but we can at least expect it to include the relative name.
+		if (!name.contains(relName)) {
+			ProcessorTestStatus.fail("File object getName() returned " + name + 
+					", expected it to contain " + relName);
+		}
 	}
 	
 	/**
