@@ -129,7 +129,7 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 	 * Convenience method, equivalent to put(key, value, [no flags])
 	 */
 	@Override
-	public boolean put(IFile parent, IFile generated) {
+	public synchronized boolean put(IFile parent, IFile generated) {
 		return put(parent, generated, Collections.<Flags>emptySet());
 	}
 	
