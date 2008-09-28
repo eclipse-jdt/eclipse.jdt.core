@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -178,6 +179,11 @@ public class FilerTesterProc extends AbstractProcessor {
 		// but we can at least expect it to include the relative name.
 		if (!name.contains(relName)) {
 			ProcessorTestStatus.fail("File object getName() returned " + name + 
+					", expected it to contain " + relName);
+		}
+		URI uri = fo.toUri();
+		if (!uri.toString().contains(relName)) {
+			ProcessorTestStatus.fail("File object toUri() returned " + uri.toString() + 
 					", expected it to contain " + relName);
 		}
 	}

@@ -82,10 +82,8 @@ public class IdeOutputNonSourceFileObject extends IdeOutputFileObject
 	 * @see javax.tools.FileObject#toUri()
 	 */
 	@Override
-	public URI toUri()
-	{
-		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+	public URI toUri() {
+		return _file.getLocationURI();
 	}
 
 }
