@@ -196,7 +196,11 @@ public static void compile(String[] pathsAndContents, Map options, String[] clas
                 problemFactory);
         batchCompiler.options.produceReferenceInfo = true;
         batchCompiler.compile(compilationUnits(pathsAndContents)); // compile all files together
-        System.err.print(requestor.problemLog); // problem log empty if no problems
+        // cleanup
+        nameEnvironment.cleanup();
+        if (requestor.hasErrors) {
+            System.err.print(requestor.problemLog); // problem log empty if no problems
+        }
 }
 public static String[] concatWithClassLibs(String[] classpaths, boolean inFront) {
     String[] classLibs = getJavaClassLibs();

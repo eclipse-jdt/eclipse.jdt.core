@@ -2431,8 +2431,8 @@ public void testBug237469a() throws Exception {
 	} finally {
 		this.deleteProject("PS1");
 		this.deleteProject("PS2");
-		this.deleteFile(externalJar1);
-		this.deleteFile(externalJar2);
+		this.deleteExternalFile(externalJar1);
+		this.deleteExternalFile(externalJar2);
 	}
 }
 public void testBug237469b() throws Exception {
@@ -2544,8 +2544,8 @@ public void testBug237469b() throws Exception {
 	} finally {
 		this.deleteProject("PS1");
 		this.deleteProject("PS2");
-		this.deleteFile(externalJar1);
-		this.deleteFile(externalJar2);
+		this.deleteExternalFile(externalJar1);
+		this.deleteExternalFile(externalJar2);
 	}
 }
 }

@@ -120,5 +120,8 @@ public class EvaluationSetup extends CompilerTestSetup {
 				}
 			}
 		}
+		if (this.env != null) {
+			this.env.cleanup();
+		}
 	}
 }

@@ -2094,9 +2094,10 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		CompilerOptions compilerOptions = new CompilerOptions(options);
 		compilerOptions.performMethodsFullRecovery = performStatementsRecovery;
 		compilerOptions.performStatementsRecovery = performStatementsRecovery;
+		INameEnvironment nameEnvironment = getNameEnvironment(new String[]{}, classLibraries);
 		Compiler batchCompiler = 
 			new Compiler(
-				getNameEnvironment(new String[]{}, classLibraries), 
+				nameEnvironment, 
 				getErrorHandlingPolicy(), 
 				compilerOptions,
 				requestor, 
@@ -2112,6 +2113,7 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 			exception = e;
 			throw e;
 		} finally {
+			nameEnvironment.cleanup();
 			if (expectedCompilerLog != null) {
 				checkCompilerLog(testFiles, requestor, 
 						Util.convertToIndependantLineDelimiter(expectedCompilerLog), exception);

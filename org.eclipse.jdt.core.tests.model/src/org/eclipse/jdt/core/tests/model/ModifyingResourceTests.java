@@ -129,6 +129,9 @@ protected void deleteExternalResource(String relativePath) {
 protected void deleteFile(String filePath) throws CoreException {
 	deleteResource(this.getFile(filePath));
 }
+protected void deleteExternalFile(String filePath) throws CoreException {
+	deleteResource(new File(filePath));
+}
 protected void deleteFolder(String folderPath) throws CoreException {
 	deleteFolder(new Path(folderPath));
 }
