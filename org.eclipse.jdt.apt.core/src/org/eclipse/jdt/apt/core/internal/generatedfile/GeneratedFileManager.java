@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1196,12 +1196,12 @@ public class GeneratedFileManager
 	}
 	
 	/**
-	 * Given a typename a.b.c, this will return the IFile for the type name, where the
+	 * Given a typename a.b.C, this will return the IFile for the type name, where the
 	 * IFile is in the GENERATED_SOURCE_FOLDER_NAME.
 	 * <p>
 	 * This does not affect or refer to the dependency maps.
 	 */
-	private IFile getIFileForTypeName(String typeName)
+	public IFile getIFileForTypeName(String typeName)
 	{
 		// split the type name into its parts
 		String[] parts = _PACKAGE_DELIMITER.split(typeName);
@@ -1218,8 +1218,8 @@ public class GeneratedFileManager
 
 	/**
 	 * given file f, return the typename corresponding to the file.  This assumes
-	 * that derived files use java naming rules (i.e., type "a.b.c" will be file 
-	 * "a/b/c.java".
+	 * that derived files use java naming rules (i.e., type "a.b.C" will be file 
+	 * "a/b/C.java".
 	 */
 	private String getTypeNameForDerivedFile( IFile f )
 	{

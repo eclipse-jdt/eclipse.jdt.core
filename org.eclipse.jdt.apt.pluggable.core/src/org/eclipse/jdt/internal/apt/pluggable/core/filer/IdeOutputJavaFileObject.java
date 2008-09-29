@@ -97,11 +97,13 @@ public class IdeOutputJavaFileObject extends IdeOutputFileObject implements Java
 
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#toUri()
+	 * The file does not exist until its writer is closed, so the URI we are
+	 * constructing here does not point to a real resource.
 	 */
 	@Override
 	public URI toUri() {
-		// The file does not exist until its writer is closed.
-		throw new UnsupportedOperationException("Not yet implemented");
+		IFile file = _env.getAptProject().getGeneratedFileManager().getIFileForTypeName(_name.toString());
+		return file.getLocationURI();
 	}
 
 }

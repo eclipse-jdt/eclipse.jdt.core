@@ -219,6 +219,39 @@ public class FilerTests extends TestBase
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
+	
+	/**
+	 * Call FilerTesterProc.testURI, which tests the FileObject.toUri() method on
+	 * various different sorts of files
+	 */
+	public void testURI() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+		
+		env.addClass(projPath.append("src"), "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testURI\", arg0 = \"t\", arg1 = \"Test.txt\")" +
+				"public class Trigger {\n" +
+				"}"
+			); 
+		
+		IFolder textFileFolder = proj.getFolder("src/t");
+		textFileFolder.create(false, true, null);
+		IFile textFile = proj.getFile(textFileFolder.getProjectRelativePath().append("Test.txt"));
+		InputStream textSource = new ByteArrayInputStream(FilerTesterProc.helloStr.getBytes());
+		textFile.create(textSource, false, null);
+
+		AptConfig.setEnabled(jproj, true);
+		
+		fullBuild();
+		expectingNoProblems();
+		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
+		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+	}
 
 	/**
 	 * Call FilerTesterProc.testGetCharContentLarge(), which checks FileObject.getCharContent() 

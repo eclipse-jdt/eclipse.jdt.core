@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2008 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,11 +13,13 @@
 package org.eclipse.jdt.apt.pluggable.tests.processors.filertester;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -63,6 +65,9 @@ public class FilerTesterProc extends AbstractProcessor {
 		"This is some test text\n";
 	public static final String resource02Name =
 		"bin/t/Test.txt";
+
+	public static final String helloStr = "Hello world";
+	public static final String javaStr = "package g;\nclass G {}\n";
 
 	/**
 	 * @return a string representing a large Java class.
@@ -181,10 +186,51 @@ public class FilerTesterProc extends AbstractProcessor {
 			ProcessorTestStatus.fail("File object getName() returned " + name + 
 					", expected it to contain " + relName);
 		}
+	}
+	
+	/**
+	 * Test the toUri() method on various file objects.
+	 */
+	public void testURI(Element e, String pkg, String relName) throws Exception {
+		
+		// Generated non-source file
+		FileObject foGenNonSrc = _filer.createResource(StandardLocation.SOURCE_OUTPUT,
+				pkg, relName, e);
+		checkGenUri(foGenNonSrc, relName, helloStr, "generated non-source file");
+		
+		// Generated source file
+		FileObject foGenSrc = _filer.createSourceFile("g.G", e);
+		checkGenUri(foGenSrc, "G", javaStr, "generated source file");
+	}
+	
+	private void checkGenUri(FileObject fo, String name, String content, String category) throws Exception {
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(fo.openWriter());
+			pw.print(content);
+		} finally {
+			if (pw != null)
+				pw.close();
+		}
 		URI uri = fo.toUri();
-		if (!uri.toString().contains(relName)) {
-			ProcessorTestStatus.fail("File object toUri() returned " + uri.toString() + 
-					", expected it to contain " + relName);
+		if (!uri.toString().contains(name)) {
+			ProcessorTestStatus.fail("toUri() on " + category + " returned " + uri.toString() + 
+					", expected it to contain " + name);
+		}
+		char buf[] = new char[256];
+		Reader r = null;
+		int len = 0;
+		try {
+			r = new InputStreamReader(uri.toURL().openStream());
+			len = r.read(buf);
+		} finally {
+			if (r != null)
+				r.close();
+		}
+		buf = Arrays.copyOf(buf, len);
+		if (!Arrays.equals(buf, content.toCharArray())) {
+			ProcessorTestStatus.fail("toUri() on " + category + " returned " + uri.toString() +
+					", but reading that URI produced \"" + new String(buf) + "\" instead of expected \"" + content + "\"");
 		}
 	}
 	
