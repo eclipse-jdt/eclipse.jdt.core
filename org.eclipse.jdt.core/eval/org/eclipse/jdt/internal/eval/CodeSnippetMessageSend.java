@@ -67,14 +67,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			}
 		} else {
 			this.receiver.generateCode(currentScope, codeStream, !isStatic);
-			if (this.receiverGenericCast != null)
-				codeStream.checkcast(this.receiverGenericCast);
+			if ((this.bits & NeedReceiverGenericCast) != 0) {
+				codeStream.checkcast(this.actualReceiverType);
+			}			
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		}
 		// generate arguments
 		generateArguments(this.binding, this.arguments, currentScope, codeStream);
 		// actual message invocation
-		TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis(), this.receiverGenericCast != null);
+		TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
 		if (isStatic) {
 			codeStream.invoke(Opcodes.OPC_invokestatic, codegenBinding, constantPoolDeclaringClass);
 		} else if( (this.receiver.isSuper()) || codegenBinding.isPrivate()){
@@ -96,8 +97,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			currentScope.problemReporter().needImplementation(this);
 		} else {
 			this.receiver.generateCode(currentScope, codeStream, !isStatic);
-			if (this.receiverGenericCast != null)
-				codeStream.checkcast(this.receiverGenericCast);
+			if ((this.bits & NeedReceiverGenericCast) != 0) {
+				codeStream.checkcast(this.actualReceiverType);
+			}			
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		}
 		if (isStatic) {
@@ -299,14 +301,14 @@ public TypeBinding resolveType(BlockScope scope) {
 				&& (((NameReference) this.receiver).bits & Binding.TYPE) != 0) {
 			scope.problemReporter().mustUseAStaticMethod(this, this.binding);
 		} else {
-			// compute generic cast if necessary
-			TypeBinding receiverErasure = this.actualReceiverType.erasure();
-			if (receiverErasure instanceof ReferenceBinding) {
-				if (receiverErasure.findSuperTypeOriginatingFrom(this.binding.declaringClass) == null) {
-					this.actualReceiverType = this.binding.declaringClass; // handle indirect inheritance thru variable secondary bound
-				}
-			}
+			// handle indirect inheritance thru variable secondary bound
+			// receiver may receive generic cast, as part of implicit conversion
+			TypeBinding oldReceiverType = this.actualReceiverType;
+			this.actualReceiverType = this.actualReceiverType.getErasureCompatibleType(this.binding.declaringClass);
 			this.receiver.computeConversion(scope, this.actualReceiverType, this.actualReceiverType);
+			if (this.actualReceiverType != oldReceiverType && this.receiver.postConversionType(scope) != this.actualReceiverType) { // record need for explicit cast at codegen since receiver could not handle it
+				this.bits |= NeedReceiverGenericCast;
+			}			
 		}
 	}
 	checkInvocationArguments(scope, this.receiver, this.actualReceiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this);

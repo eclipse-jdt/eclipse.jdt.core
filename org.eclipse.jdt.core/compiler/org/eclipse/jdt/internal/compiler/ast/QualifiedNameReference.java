@@ -737,16 +737,12 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			// set generic cast of for previous field (if any)
 			if (previousField != null) {
 				TypeBinding fieldReceiverType = type;
-				TypeBinding receiverErasure = type.erasure();
-				if (receiverErasure instanceof ReferenceBinding) {
-					if (receiverErasure.findSuperTypeOriginatingFrom(field.declaringClass) == null) {
-						fieldReceiverType = field.declaringClass; // handle indirect inheritance thru variable secondary bound
-					}
-				}
+				TypeBinding oldReceiverType = fieldReceiverType;
+				fieldReceiverType = fieldReceiverType.getErasureCompatibleType(field.declaringClass);// handle indirect inheritance thru variable secondary bound
 				FieldBinding originalBinding = previousField.original();
-			    if (originalBinding.type.leafComponentType().isTypeVariable()) {
+				if (fieldReceiverType != oldReceiverType || originalBinding.type.leafComponentType().isTypeVariable()) { // record need for explicit cast at codegen
 			    	setGenericCast(index-1,originalBinding.type.genericCast(fieldReceiverType)); // type cannot be base-type even in boxing case
-			    }
+				}				
 		    }
 			// only last field is actually a write access if any
 			if (isFieldUseDeprecated(field, scope, (this.bits & ASTNode.IsStrictlyAssigned) !=0 && index+1 == length)) {

@@ -50,7 +50,6 @@ public class MessageSend extends Expression implements InvocationSite {
 	public long nameSourcePosition ; //(start<<32)+end
 
 	public TypeBinding actualReceiverType;
-	public TypeBinding receiverGenericCast; // extra reference type cast to perform on generic receiver
 	public TypeBinding valueCast; // extra reference type cast to perform on method returned value
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
@@ -123,9 +122,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
  * @param valueRequired boolean
  */
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-
 	int pc = codeStream.position;
-
 	// generate receiver/enclosing instance access
 	MethodBinding codegenBinding = this.binding.original();
 	boolean isStatic = codegenBinding.isStatic();
@@ -139,8 +136,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.generateOuterAccess(path, this, targetType, currentScope);
 	} else {
 		this.receiver.generateCode(currentScope, codeStream, true);
-		if (this.receiverGenericCast != null)
-			codeStream.checkcast(this.receiverGenericCast);
+		if ((this.bits & NeedReceiverGenericCast) != 0) {
+			codeStream.checkcast(this.actualReceiverType);
+		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 
 	}
@@ -149,7 +147,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 
 	// actual message invocation
 	if (this.syntheticAccessor == null){
-		TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis(), this.receiverGenericCast != null);
+		TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
 		if (isStatic){
 			codeStream.invoke(Opcodes.OPC_invokestatic, codegenBinding, constantPoolDeclaringClass);
 		} else if( (this.receiver.isSuper()) || codegenBinding.isPrivate()){
@@ -454,13 +452,13 @@ public TypeBinding resolveType(BlockScope scope) {
 				scope.problemReporter().rawTypeReference(this.receiver, this.actualReceiverType);
 			}
 		} else {
+			// handle indirect inheritance thru variable secondary bound
+			// receiver may receive generic cast, as part of implicit conversion
+			TypeBinding oldReceiverType = this.actualReceiverType;
+			this.actualReceiverType = this.actualReceiverType.getErasureCompatibleType(this.binding.declaringClass);
 			this.receiver.computeConversion(scope, this.actualReceiverType, this.actualReceiverType);
-			// compute generic cast if necessary
-			TypeBinding receiverErasure = this.actualReceiverType.erasure();
-			if (receiverErasure instanceof ReferenceBinding) {
-				if (receiverErasure.findSuperTypeOriginatingFrom(this.binding.declaringClass) == null) {
-					this.receiverGenericCast = this.binding.declaringClass; // handle indirect inheritance thru variable secondary bound
-				}
+			if (this.actualReceiverType != oldReceiverType && this.receiver.postConversionType(scope) != this.actualReceiverType) { // record need for explicit cast at codegen since receiver could not handle it
+				this.bits |= NeedReceiverGenericCast;
 			}
 		}
 	} else {

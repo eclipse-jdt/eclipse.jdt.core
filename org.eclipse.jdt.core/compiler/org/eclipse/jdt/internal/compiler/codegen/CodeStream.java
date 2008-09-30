@@ -2932,10 +2932,9 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Fiel
  * @param codegenBinding
  * @param actualReceiverType
  * @param isImplicitThisReceiver
- * @param hasGenericCast
  * @return the receiver type to use in constant pool
  */
-public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, MethodBinding codegenBinding, TypeBinding actualReceiverType, boolean isImplicitThisReceiver, boolean hasGenericCast) {
+public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, MethodBinding codegenBinding, TypeBinding actualReceiverType, boolean isImplicitThisReceiver) {
 	TypeBinding constantPoolDeclaringClass = codegenBinding.declaringClass;
 	// Post 1.4.0 target, array clone() invocations are qualified with array type
 	// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
@@ -2949,7 +2948,7 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Meth
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 		// and not from Object or implicit static method call.
-		if (constantPoolDeclaringClass != actualReceiverType.erasure() && !hasGenericCast && !actualReceiverType.isArrayType()) {
+		if (constantPoolDeclaringClass != actualReceiverType.erasure() && !actualReceiverType.isArrayType()) {
 			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
 						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(isImplicitThisReceiver && codegenBinding.isStatic()))

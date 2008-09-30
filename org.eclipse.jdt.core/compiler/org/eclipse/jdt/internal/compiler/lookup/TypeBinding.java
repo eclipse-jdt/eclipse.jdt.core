@@ -358,6 +358,51 @@ public char[] genericTypeSignature() {
 	return signature();
 }
 
+/**
+ * Return the supertype which would erase as a subtype of a given declaring class.
+ * If the receiver is already erasure compatible, then it will returned. If not, then will return the alternate lowest
+ * upper bound compatible with declaring class.
+ * NOTE: the declaringClass is already know to be compatible with the receiver
+ * @param declaringClass to look for
+ * @return the lowest erasure compatible type (considering alternate bounds)
+ */
+public TypeBinding getErasureCompatibleType(TypeBinding declaringClass) {
+	switch(kind()) {
+		case Binding.TYPE_PARAMETER :
+			TypeVariableBinding variable = (TypeVariableBinding) this;
+			if (variable.erasure().findSuperTypeOriginatingFrom(declaringClass) != null) {
+				return this; // no need for alternate receiver type
+			}
+			if (variable.superclass != null && variable.superclass.findSuperTypeOriginatingFrom(declaringClass) != null) {
+				return variable.superclass.getErasureCompatibleType(declaringClass);
+			}
+			for (int i = 0, otherLength = variable.superInterfaces.length; i < otherLength; i++) {
+				ReferenceBinding superInterface = variable.superInterfaces[i];
+				if (superInterface.findSuperTypeOriginatingFrom(declaringClass) != null) {
+					return superInterface.getErasureCompatibleType(declaringClass);
+				}
+			}
+			return this; // only occur if passed null declaringClass for arraylength
+		case Binding.INTERSECTION_TYPE :
+			WildcardBinding intersection = (WildcardBinding) this;
+			if (intersection.erasure().findSuperTypeOriginatingFrom(declaringClass) != null) {
+				return this; // no need for alternate receiver type
+			}
+			if (intersection.superclass != null && intersection.superclass.findSuperTypeOriginatingFrom(declaringClass) != null) {
+				return intersection.superclass.getErasureCompatibleType(declaringClass);
+			}
+			for (int i = 0, otherLength = intersection.superInterfaces.length; i < otherLength; i++) {
+				ReferenceBinding superInterface = intersection.superInterfaces[i];
+				if (superInterface.findSuperTypeOriginatingFrom(declaringClass) != null) {
+					return superInterface.getErasureCompatibleType(declaringClass);
+				}
+			}
+			return this; // only occur if passed null declaringClass for arraylength
+		default :
+			return this;
+	}
+}
+
 public abstract PackageBinding getPackage();
 
 void initializeForStaticImports() {

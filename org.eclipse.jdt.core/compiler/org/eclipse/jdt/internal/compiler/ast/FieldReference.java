@@ -210,6 +210,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			|| ((this.implicitConversion & TypeIds.UNBOXING) != 0)
 			|| (this.genericCast != null)) {
 		this.receiver.generateCode(currentScope, codeStream, !isStatic);
+		if ((this.bits & NeedReceiverGenericCast) != 0) {
+			codeStream.checkcast(this.actualReceiverType);
+		}		
 		pc = codeStream.position;
 		if (codegenBinding.declaringClass == null) { // array length
 			codeStream.arraylength();
@@ -545,13 +548,14 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().invalidField(this, this.actualReceiverType);
 		return null;
 	}
-	TypeBinding receiverErasure = this.actualReceiverType.erasure();
-	if (receiverErasure instanceof ReferenceBinding) {
-		if (receiverErasure.findSuperTypeOriginatingFrom(fieldBinding.declaringClass) == null) {
-			this.actualReceiverType = fieldBinding.declaringClass; // handle indirect inheritance thru variable secondary bound
-		}
-	}
+	// handle indirect inheritance thru variable secondary bound
+	// receiver may receive generic cast, as part of implicit conversion
+	TypeBinding oldReceiverType = this.actualReceiverType;
+	this.actualReceiverType = this.actualReceiverType.getErasureCompatibleType(fieldBinding.declaringClass);
 	this.receiver.computeConversion(scope, this.actualReceiverType, this.actualReceiverType);
+	if (this.actualReceiverType != oldReceiverType && this.receiver.postConversionType(scope) != this.actualReceiverType) { // record need for explicit cast at codegen since receiver could not handle it
+		this.bits |= NeedReceiverGenericCast;
+	}
 	if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & ASTNode.IsStrictlyAssigned) !=0)) {
 		scope.problemReporter().deprecatedField(fieldBinding, this);
 	}

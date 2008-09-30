@@ -6519,8 +6519,8 @@ public void test156() throws Exception {
 		"    1  invokevirtual package2.C.outerMethod() : void";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128563 - variation
-public void _test157() throws Exception {
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107
+public void _testONLY_157() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
 		"package package1;\n" + 
@@ -6557,8 +6557,8 @@ public void _test157() throws Exception {
 		"    1  getfield package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128563 - variation
-public void _test158() throws Exception {
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void _testONLY_158() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
 		"package package1;\n" + 
@@ -6597,8 +6597,8 @@ public void _test158() throws Exception {
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128563 - variation
-public void _test159() throws Exception {
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void _testONLY_159() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
 		"package package1;\n" + 
@@ -6635,8 +6635,8 @@ public void _test159() throws Exception {
 		"    1  getfield package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128563 - variation
-public void _test160() throws Exception {
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void _testONLY_160() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
 		"package package1;\n" + 

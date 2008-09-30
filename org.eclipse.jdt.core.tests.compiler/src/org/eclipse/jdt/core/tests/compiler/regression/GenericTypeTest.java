@@ -46336,7 +46336,7 @@ public void test1380() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953
-public void _test1381()  throws Exception {
+public void test1381()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46361,30 +46361,28 @@ public void _test1381()  throws Exception {
 			"}\n",
 			"p/IB.java", // =====================
 			"package p;\n" +
-			"interface IA {\n" + 
+			"interface IA {\n" + // non visible
 			"	void baz();\n" + 
 			"}\n" + 
 			"public interface IB extends IA {\n" + 
 			"}\n",
 		},
 		"done");
-	// check #baz() invocation declaring class is IA
+	// check #baz() invocation declaring class is IB
 	String expectedOutput =
-		"  // Method descriptor #21 (LX;)V\n" + 
-		"  // Signature: (LX<TT;>;)V\n" + 
-		"  // Stack: 1, Locals: 2\n" + 
-		"  void foo(X xt);\n" + 
-		"     0  aload_1 [xt]\n" + 
-		"     1  invokevirtual X.get() : AA [23]\n" + 
-		"     4  checkcast p.IA [25]\n" + 
-		"     7  invokeinterface p.IA.baz() : void [27] [nargs: 1]\n" + 
+		"  // Method descriptor #10 ()V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  void foo();\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  getfield X.t : AA [21]\n" + 
+		"     4  checkcast p.IB [23]\n" + 
+		"     7  invokeinterface p.IB.baz() : void [25] [nargs: 1]\n" + 
 		"    12  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 5]\n" + 
-		"        [pc: 12, line: 6]\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 12, line: 5]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 13] local: xt index: 1 type: X\n";
+		"        [pc: 0, pc: 13] local: this index: 0 type: X\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -46399,7 +46397,7 @@ public void _test1381()  throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
-public void _test1382()  throws Exception {
+public void test1382()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46452,7 +46450,7 @@ public void _test1382()  throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
-public void _test1383()  throws Exception {
+public void test1383()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46507,7 +46505,7 @@ public void _test1383()  throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
-public void _test1384()  throws Exception {
+public void test1384()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46561,7 +46559,7 @@ public void _test1384()  throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
-public void _test1385()  throws Exception {
+public void test1385()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46613,7 +46611,7 @@ public void _test1385()  throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
-public void _test1386()  throws Exception {
+public void test1386()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46635,7 +46633,7 @@ public void _test1386()  throws Exception {
 			"public interface IB extends IA {\n" + 
 			"}\n",
 		},
-		"111");
+		"");
 	// check #baz() invocation declaring class is not IA
 	String expectedOutput =
 		"  // Method descriptor #21 (LX;)V\n" + 
@@ -46667,7 +46665,7 @@ public void _test1386()  throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
-public void _test1387()  throws Exception {
+public void test1387()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46698,21 +46696,22 @@ public void _test1387()  throws Exception {
 		"done");
 	// check #baz declaring class is not IA
 	String expectedOutput =
-		"  // Method descriptor #21 (LX;)V\n" + 
-		"  // Signature: (LX<TT;>;)V\n" + 
-		"  // Stack: 1, Locals: 2\n" + 
-		"  void foo(X xt);\n" + 
-		"     0  aload_1 [xt]\n" + 
-		"     1  invokevirtual X.get() : AA [23]\n" + 
-		"     4  checkcast p.IB [25]\n" + 
-		"     7  invokeinterface p.IB.baz() : void [27] [nargs: 1]\n" + 
-		"    12  return\n" + 
+		"  // Method descriptor #10 ()V\n" + 
+		"  // Stack: 2, Locals: 1\n" + 
+		"  void foo();\n" + 
+		"     0  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+		"     3  aload_0 [this]\n" + 
+		"     4  getfield X.t : AA [27]\n" + 
+		"     7  checkcast p.IB [29]\n" + 
+		"    10  pop\n" + 
+		"    11  getstatic p.IB.baz : java.lang.Object [31]\n" + 
+		"    14  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [35]\n" + 
+		"    17  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 5]\n" + 
-		"        [pc: 12, line: 6]\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 17, line: 5]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 13] local: xt index: 1 type: X\n";
+		"        [pc: 0, pc: 18] local: this index: 0 type: X\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -46727,7 +46726,7 @@ public void _test1387()  throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
-public void _test1388()  throws Exception {
+public void test1388()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46758,21 +46757,22 @@ public void _test1388()  throws Exception {
 		"done");
 	// check #baz declaring class is not IA
 	String expectedOutput =
-		"  // Method descriptor #21 (LX;)V\n" + 
-		"  // Signature: (LX<TT;>;)V\n" + 
-		"  // Stack: 1, Locals: 2\n" + 
-		"  void foo(X xt);\n" + 
-		"     0  aload_1 [xt]\n" + 
-		"     1  invokevirtual X.get() : AA [23]\n" + 
-		"     4  checkcast p.IB [25]\n" + 
-		"     7  invokeinterface p.IB.baz() : void [27] [nargs: 1]\n" + 
-		"    12  return\n" + 
+		"  // Method descriptor #10 ()V\n" + 
+		"  // Stack: 2, Locals: 1\n" + 
+		"  void foo();\n" + 
+		"     0  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+		"     3  aload_0 [this]\n" + 
+		"     4  getfield X.t : AA [27]\n" + 
+		"     7  checkcast p.IB [29]\n" + 
+		"    10  pop\n" + 
+		"    11  getstatic p.IB.baz : java.lang.Object [31]\n" + 
+		"    14  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [35]\n" + 
+		"    17  return\n" + 
 		"      Line numbers:\n" + 
-		"        [pc: 0, line: 5]\n" + 
-		"        [pc: 12, line: 6]\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 17, line: 5]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 13] local: xt index: 1 type: X\n";
+		"        [pc: 0, pc: 18] local: this index: 0 type: X\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -46787,7 +46787,7 @@ public void _test1388()  throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953 - variation
-public void _test1389()  throws Exception {
+public void test1389()  throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -47123,6 +47123,60 @@ public void test1395()  throws Exception {
 		"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
 		"      Local variable type table:\n" + 
 		"        [pc: 0, pc: 21] local: this index: 0 type: X<T>\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+public void test1396()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends SubX2<T>> {\n" + 
+			"	T sx1;\n" + 
+			"	void foo(T t) {\n" + 
+			"		t.sx2.t.getClass();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface X1<T extends X2<T>> {\n" + 
+			"}\n" + 
+			"abstract class SubX1<T extends X2<T>> implements X1<T> {\n" + 
+			"	T sx2;\n" + 
+			"}\n" + 
+			"interface X2<T extends X2<T>> extends X1<T>{\n" + 
+			"}\n" + 
+			"abstract class SubX2<T extends X2<T>> extends SubX1<T> implements X2<T> {\n" + 
+			"	T t;\n" + 
+			"}\n",
+		},
+		"");
+	String expectedOutput =
+		"  // Method descriptor #21 (LSubX2;)V\n" + 
+		"  // Signature: (TT;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  void foo(SubX2 t);\n" + 
+		"     0  aload_1 [t]\n" + 
+		"     1  getfield SubX2.sx2 : X2 [23]\n" + 
+		"     4  checkcast SubX2 [24]\n" + 
+		"     7  getfield SubX2.t : X2 [29]\n" + 
+		"    10  checkcast SubX2 [24]\n" + 
+		"    13  invokevirtual java.lang.Object.getClass() : java.lang.Class [32]\n" + 
+		"    16  pop\n" + 
+		"    17  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 17, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 18] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 18] local: t index: 1 type: SubX2\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);

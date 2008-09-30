@@ -41,20 +41,20 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit16 = 0x8000;			// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000;			// compound assigned (reference lhs)
 	public final static int Bit18 = 0x20000;			// non null (expression) | onDemand (import reference)
-	public final static int Bit19 = 0x40000;			// didResolve (parameterized qualified type ref/parameterized single type ref)  | empty (javadoc return statement)
+	public final static int Bit19 = 0x40000;			// didResolve (parameterized qualified type ref/parameterized single type ref)  | empty (javadoc return statement) | needReceiverGenericCast (msg/fieldref)
 	public final static int Bit20 = 0x80000;
 	public final static int Bit21 = 0x100000;
-	public final static int Bit22 = 0x200000;		// parenthesis count (expression) | used (import reference)
-	public final static int Bit23 = 0x400000;		// parenthesis count (expression)
-	public final static int Bit24 = 0x800000;		// parenthesis count (expression)
+	public final static int Bit22 = 0x200000;			// parenthesis count (expression) | used (import reference)
+	public final static int Bit23 = 0x400000;			// parenthesis count (expression)
+	public final static int Bit24 = 0x800000;			// parenthesis count (expression)
 	public final static int Bit25 = 0x1000000;		// parenthesis count (expression)
 	public final static int Bit26 = 0x2000000;		// parenthesis count (expression)
 	public final static int Bit27 = 0x4000000;		// parenthesis count (expression)
 	public final static int Bit28 = 0x8000000;		// parenthesis count (expression)
-	public final static int Bit29 = 0x10000000;	// parenthesis count (expression)
-	public final static int Bit30 = 0x20000000;	// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref) | needScope (for statement) | isAnySubRoutineEscaping (return statement) | blockExit (synchronized statement)
-	public final static int Bit31 = 0x40000000;	// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment) | isSynchronized (return statement) | thenExit (if statement)
-	public final static int Bit32 = 0x80000000;	// reachable (statement)
+	public final static int Bit29 = 0x10000000;		// parenthesis count (expression)
+	public final static int Bit30 = 0x20000000;		// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref) | needScope (for statement) | isAnySubRoutineEscaping (return statement) | blockExit (synchronized statement)
+	public final static int Bit31 = 0x40000000;		// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment) | isSynchronized (return statement) | thenExit (if statement)
+	public final static int Bit32 = 0x80000000;		// reachable (statement)
 
 	public final static long Bit32L = 0x80000000L;
 	public final static long Bit33L = 0x100000000L;
@@ -112,6 +112,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for name refs or local decls
 	public static final int FirstAssignmentToLocal = Bit4;
 
+	// for msg or field references
+	public static final int NeedReceiverGenericCast = Bit19;
+	
 	// for this reference
 	public static final int IsImplicitThis = Bit3;
 
