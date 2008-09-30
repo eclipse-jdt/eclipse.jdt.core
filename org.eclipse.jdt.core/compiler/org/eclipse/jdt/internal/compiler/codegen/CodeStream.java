@@ -2445,14 +2445,14 @@ public void generateSyntheticBodyForEnumValues(SyntheticMethodBinding methodBind
 	areturn();
 }
 
-public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessBinding) {
-	initializeMaxLocals(accessBinding);
-	FieldBinding fieldBinding = accessBinding.targetReadField;
+public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessMethod) {
+	initializeMaxLocals(accessMethod);
+	FieldBinding fieldBinding = accessMethod.targetReadField;
 	if (fieldBinding.isStatic()) {
-		fieldAccess(Opcodes.OPC_getstatic, fieldBinding, null /* default declaringClass */);
+		fieldAccess(Opcodes.OPC_getstatic, fieldBinding, accessMethod.declaringClass); // target method declaring class may not be accessible (247953);
 	} else {
 		aload_0();
-		fieldAccess(Opcodes.OPC_getfield, fieldBinding, null /* default declaringClass */);
+		fieldAccess(Opcodes.OPC_getfield, fieldBinding, accessMethod.declaringClass); // target method declaring class may not be accessible (247953);
 	}
 	switch (fieldBinding.type.id) {
 //		case T_void :
@@ -2479,16 +2479,16 @@ public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding acces
 	}
 }
 
-public void generateSyntheticBodyForFieldWriteAccess(SyntheticMethodBinding accessBinding) {
-	initializeMaxLocals(accessBinding);
-	FieldBinding fieldBinding = accessBinding.targetWriteField;
+public void generateSyntheticBodyForFieldWriteAccess(SyntheticMethodBinding accessMethod) {
+	initializeMaxLocals(accessMethod);
+	FieldBinding fieldBinding = accessMethod.targetWriteField;
 	if (fieldBinding.isStatic()) {
 		load(fieldBinding.type, 0);
-		fieldAccess(Opcodes.OPC_putstatic, fieldBinding, null /* default declaringClass */);
+		fieldAccess(Opcodes.OPC_putstatic, fieldBinding, accessMethod.declaringClass); // target method declaring class may not be accessible (247953);
 	} else {
 		aload_0();
 		load(fieldBinding.type, 1);
-		fieldAccess(Opcodes.OPC_putfield, fieldBinding, null /* default declaringClass */);
+		fieldAccess(Opcodes.OPC_putfield, fieldBinding, accessMethod.declaringClass); // target method declaring class may not be accessible (247953);
 	}
 	return_();
 }
@@ -2529,7 +2529,7 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 		}
 	}
 	if (targetMethod.isStatic())
-		invoke(Opcodes.OPC_invokestatic, targetMethod, null /* default declaringClass */);
+		invoke(Opcodes.OPC_invokestatic, targetMethod, accessMethod.declaringClass); // target method declaring class may not be accessible (128563)
 	else {
 		if (targetMethod.isConstructor()
 			|| targetMethod.isPrivate()

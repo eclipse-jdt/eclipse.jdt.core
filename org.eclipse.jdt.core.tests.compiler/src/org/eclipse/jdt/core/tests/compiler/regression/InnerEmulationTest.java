@@ -6520,7 +6520,7 @@ public void test156() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107
-public void _testONLY_157() throws Exception {
+public void test157() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
 		"package package1;\n" + 
@@ -6550,15 +6550,15 @@ public void _testONLY_157() throws Exception {
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 (Lpackage2/C;)V\n" + 
+		"  // Method descriptor #33 (Lpackage2/C;)I\n" + 
 		"  // Stack: 1, Locals: 1\n" + 
-		"  static synthetic void access$0(package2.C arg0);\n" + 
+		"  static synthetic int access$0(package2.C arg0);\n" + 
 		"    0  aload_0 [arg0]\n" + 
 		"    1  getfield package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
-public void _testONLY_158() throws Exception {
+public void test158() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
 		"package package1;\n" + 
@@ -6598,7 +6598,7 @@ public void _testONLY_158() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
-public void _testONLY_159() throws Exception {
+public void test159() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
 		"package package1;\n" + 
@@ -6628,15 +6628,15 @@ public void _testONLY_159() throws Exception {
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 (Lpackage2/C;)V\n" + 
+		"  // Method descriptor #33 (Lpackage2/C;)I\n" + 
 		"  // Stack: 1, Locals: 1\n" + 
-		"  static synthetic void access$0(package2.C arg0);\n" + 
+		"  static synthetic int access$0(package2.C arg0);\n" + 
 		"    0  aload_0 [arg0]\n" + 
 		"    1  getfield package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
-public void _testONLY_160() throws Exception {
+public void test160() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
 		"package package1;\n" + 
@@ -6674,6 +6674,195 @@ public void _testONLY_160() throws Exception {
 		"    2  putfield package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void test161() throws Exception {
+	this.runConformTest(new String[] {
+		"package1/A.java",//=======================
+		"package package1;\n" + 
+		"abstract class A {\n" + 
+		"    static protected int outerField; {\n" + 
+		"    }\n" + 
+		"}\n",
+		"package1/B.java",//=======================
+		"package package1;\n" + 
+		"public class B extends A {\n" + 
+		"}\n", 
+		"package2/C.java",//=======================
+		"package package2;\n" + 
+		"import package1.B;\n" + 
+		"public class C extends B {\n" + 
+		"    private final MyInner myInner = new MyInner();\n" + 
+		"    private class MyInner {\n" + 
+		"        public void innerMethod() {\n" + 
+		"            int j = C.this.outerField;\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        final C c = new C();\n" + 
+		"        c.myInner.innerMethod();\n" + 
+		"    }\n" + 
+		"}\n",
+	},
+	"");
+	String expectedOutput =
+		"  // Method descriptor #33 ()I\n" + 
+		"  // Stack: 1, Locals: 0\n" + 
+		"  static synthetic int access$0();\n" + 
+		"    0  getstatic package2.C.outerField : int";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void test162() throws Exception {
+	this.runConformTest(new String[] {
+		"package1/A.java",//=======================
+		"package package1;\n" + 
+		"abstract class A {\n" + 
+		"    static protected int outerField; {\n" + 
+		"    }\n" + 
+		"}\n",
+		"package1/B.java",//=======================
+		"package package1;\n" + 
+		"public class B extends A {\n" + 
+		"}\n", 
+		"package2/C.java",//=======================
+		"package package2;\n" + 
+		"import package1.B;\n" + 
+		"public class C extends B {\n" + 
+		"    private final MyInner myInner = new MyInner();\n" + 
+		"    private class MyInner {\n" + 
+		"        public void innerMethod() {\n" + 
+		"            C.this.outerField = 12;\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        final C c = new C();\n" + 
+		"        c.myInner.innerMethod();\n" + 
+		"    }\n" + 
+		"}\n",
+	},
+	"");
+	String expectedOutput =
+		"  // Method descriptor #33 (I)V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  static synthetic void access$0(int arg0);\n" + 
+		"    0  iload_0 [arg0]\n" + 
+		"    1  putstatic package2.C.outerField : int";
+
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void test163() throws Exception {
+	this.runConformTest(new String[] {
+		"package1/A.java",//=======================
+		"package package1;\n" + 
+		"abstract class A {\n" + 
+		"    static protected int outerField; {\n" + 
+		"    }\n" + 
+		"}\n",
+		"package1/B.java",//=======================
+		"package package1;\n" + 
+		"public class B extends A {\n" + 
+		"}\n", 
+		"package2/C.java",//=======================
+		"package package2;\n" + 
+		"import package1.B;\n" + 
+		"public class C extends B {\n" + 
+		"    private final MyInner myInner = new MyInner();\n" + 
+		"    private class MyInner {\n" + 
+		"        public void innerMethod() {\n" + 
+		"            int j = outerField;\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        final C c = new C();\n" + 
+		"        c.myInner.innerMethod();\n" + 
+		"    }\n" + 
+		"}\n",
+	},
+	"");
+	String expectedOutput =
+		"  // Method descriptor #33 ()I\n" + 
+		"  // Stack: 1, Locals: 0\n" + 
+		"  static synthetic int access$0();\n" + 
+		"    0  getstatic package2.C.outerField : int";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void test164() throws Exception {
+	this.runConformTest(new String[] {
+		"package1/A.java",//=======================
+		"package package1;\n" + 
+		"abstract class A {\n" + 
+		"    static protected int outerField; {\n" + 
+		"    }\n" + 
+		"}\n",
+		"package1/B.java",//=======================
+		"package package1;\n" + 
+		"public class B extends A {\n" + 
+		"}\n", 
+		"package2/C.java",//=======================
+		"package package2;\n" + 
+		"import package1.B;\n" + 
+		"public class C extends B {\n" + 
+		"    private final MyInner myInner = new MyInner();\n" + 
+		"    private class MyInner {\n" + 
+		"        public void innerMethod() {\n" + 
+		"            outerField = 12;\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        final C c = new C();\n" + 
+		"        c.myInner.innerMethod();\n" + 
+		"    }\n" + 
+		"}\n",
+	},
+	"");
+	String expectedOutput =
+		"  // Method descriptor #33 (I)V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  static synthetic void access$0(int arg0);\n" + 
+		"    0  iload_0 [arg0]\n" + 
+		"    1  putstatic package2.C.outerField : int";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128563 - variation
+public void test165() throws Exception {
+	this.runConformTest(new String[] {
+		"package1/A.java",//=======================
+		"package package1;\n" + 
+		"abstract class A {\n" + 
+		"    static protected final void outerMethod() {\n" + 
+		"    }\n" + 
+		"}\n",
+		"package1/B.java",//=======================
+		"package package1;\n" + 
+		"public class B extends A {\n" + 
+		"}\n", 
+		"package2/C.java",//=======================
+		"package package2;\n" + 
+		"import package1.B;\n" + 
+		"public class C extends B {\n" + 
+		"    private final MyInner myInner = new MyInner();\n" + 
+		"    private class MyInner {\n" + 
+		"        public void innerMethod() {\n" + 
+		"            C.this.outerMethod();\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        final C c = new C();\n" + 
+		"        c.myInner.innerMethod();\n" + 
+		"    }\n" + 
+		"}\n",
+	},
+	"");
+	String expectedOutput =
+		"  // Method descriptor #8 ()V\n" + 
+		"  // Stack: 0, Locals: 0\n" + 
+		"  static synthetic void access$0();\n" + 
+		"    0  invokestatic package2.C.outerMethod() : void";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+}
+
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
