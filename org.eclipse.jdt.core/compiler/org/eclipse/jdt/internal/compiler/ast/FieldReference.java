@@ -419,15 +419,13 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			if (this.syntheticAccessors == null)
 				this.syntheticAccessors = new MethodBinding[2];
 			this.syntheticAccessors[isReadAccess ? FieldReference.READ : FieldReference.WRITE] =
-				((SourceTypeBinding) codegenBinding.declaringClass).addSyntheticMethod(codegenBinding, isReadAccess, isSuperAccess());
+				((SourceTypeBinding) codegenBinding.declaringClass).addSyntheticMethod(codegenBinding, isReadAccess, false /* not super ref in remote type*/);
 			currentScope.problemReporter().needToEmulateFieldAccess(codegenBinding, this, isReadAccess);
 			return;
 		}
 	} else if (this.receiver instanceof QualifiedSuperReference) { // qualified super
 		// qualified super need emulation always
-		SourceTypeBinding destinationType =
-			(SourceTypeBinding) (((QualifiedSuperReference) this.receiver)
-				.currentCompatibleType);
+		SourceTypeBinding destinationType = (SourceTypeBinding) (((QualifiedSuperReference) this.receiver).currentCompatibleType);
 		if (this.syntheticAccessors == null)
 			this.syntheticAccessors = new MethodBinding[2];
 		this.syntheticAccessors[isReadAccess ? FieldReference.READ : FieldReference.WRITE] = destinationType.addSyntheticMethod(codegenBinding, isReadAccess, isSuperAccess());

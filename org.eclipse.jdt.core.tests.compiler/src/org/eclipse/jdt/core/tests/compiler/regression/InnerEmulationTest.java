@@ -6965,6 +6965,46 @@ public void test169() throws Exception {
 	},
 	"X.this.method()=[X#method()]X.super.method()=[XInternal#method()]");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void test170() throws Exception {
+	this.runConformTest(new String[] {
+		"X.java",//=======================
+		"public class X {\n" + 
+		"    class Member {\n" + 
+		"        private String field = \"SUCCESS\";\n" + 
+		"    }\n" + 
+		"    class SubMember extends Member {\n" + 
+		"    	void foo() {\n" + 
+		"    		System.out.println(super.field);\n" + 
+		"    	}\n" + 
+		"    }	\n" + 
+		"    public static void main(String argv[]) {\n" + 
+		"		new X().new SubMember().foo();    	\n" + 
+		"    }\n" + 
+		"}\n",
+	},
+	"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void test171() throws Exception {
+	this.runConformTest(new String[] {
+		"X.java",//=======================
+		"public class X {\n" + 
+		"    class Member {\n" + 
+		"        private String method() { return \"SUCCESS\"; }\n" + 
+		"    }\n" + 
+		"    class SubMember extends Member {\n" + 
+		"    	void foo() {\n" + 
+		"    		System.out.println(super.method());\n" + 
+		"    	}\n" + 
+		"    }	\n" + 
+		"    public static void main(String argv[]) {\n" + 
+		"		new X().new SubMember().foo();    	\n" + 
+		"    }\n" + 
+		"}\n",
+	},
+	"SUCCESS");
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
