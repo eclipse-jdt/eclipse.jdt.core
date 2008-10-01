@@ -26,18 +26,20 @@ public class SyntheticMethodBinding extends MethodBinding {
 
 	public final static int FieldReadAccess = 1; 		// field read
 	public final static int FieldWriteAccess = 2; 		// field write
-	public final static int MethodAccess = 3; 		// normal method
-	public final static int ConstructorAccess = 4; 	// constructor
-	public final static int SuperMethodAccess = 5; // super method
-	public final static int BridgeMethod = 6; // bridge method
-	public final static int EnumValues = 7; // enum #values()
-	public final static int EnumValueOf = 8; // enum #valueOf(String)
-	public final static int SwitchTable = 9; // switch table method
+	public final static int SuperFieldReadAccess = 3; // super field read
+	public final static int SuperFieldWriteAccess = 4; // super field write
+	public final static int MethodAccess = 5; 		// normal method
+	public final static int ConstructorAccess = 6; 	// constructor
+	public final static int SuperMethodAccess = 7; // super method
+	public final static int BridgeMethod = 8; // bridge method
+	public final static int EnumValues = 9; // enum #values()
+	public final static int EnumValueOf = 10; // enum #valueOf(String)
+	public final static int SwitchTable = 11; // switch table method
 
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
 
-	public SyntheticMethodBinding(FieldBinding targetField, boolean isReadAccess, ReferenceBinding declaringClass) {
+	public SyntheticMethodBinding(FieldBinding targetField, boolean isReadAccess, boolean isSuperAccess, ReferenceBinding declaringClass) {
 
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
@@ -55,7 +57,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 				this.parameters[0] = declaringSourceType;
 			}
 			this.targetReadField = targetField;
-			this.purpose = SyntheticMethodBinding.FieldReadAccess;
+			this.purpose = isSuperAccess ? SyntheticMethodBinding.SuperFieldReadAccess : SyntheticMethodBinding.FieldReadAccess;
 		} else {
 			this.returnType = TypeBinding.VOID;
 			if (targetField.isStatic()) {
@@ -67,7 +69,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 				this.parameters[1] = targetField.type;
 			}
 			this.targetWriteField = targetField;
-			this.purpose = SyntheticMethodBinding.FieldWriteAccess;
+			this.purpose = isSuperAccess ? SyntheticMethodBinding.SuperFieldWriteAccess : SyntheticMethodBinding.FieldWriteAccess;
 		}
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		this.declaringClass = declaringSourceType;
@@ -206,12 +208,12 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.sourceStart = declaringSourceType.scope.referenceContext.sourceStart; // use the target declaring class name position instead
 	}
 
-	public SyntheticMethodBinding(MethodBinding targetMethod, boolean isSuperAccess, ReferenceBinding receiverType) {
+	public SyntheticMethodBinding(MethodBinding targetMethod, boolean isSuperAccess, ReferenceBinding declaringClass) {
 
 		if (targetMethod.isConstructor()) {
 			initializeConstructorAccessor(targetMethod);
 		} else {
-			initializeMethodAccessor(targetMethod, isSuperAccess, receiverType);
+			initializeMethodAccessor(targetMethod, isSuperAccess, declaringClass);
 		}
 	}
 

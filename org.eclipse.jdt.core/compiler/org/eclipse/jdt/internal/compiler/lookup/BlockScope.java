@@ -789,7 +789,7 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 				System.arraycopy(path, 0, (path = new Object[count + 1]), 0, count);
 			}
 			// private access emulation is necessary since synthetic field is private
-			path[count++] = ((SourceTypeBinding) syntheticField.declaringClass).addSyntheticMethod(syntheticField, true);
+			path[count++] = ((SourceTypeBinding) syntheticField.declaringClass).addSyntheticMethod(syntheticField, true/*read*/, false /*not super access*/);
 			currentType = currentEnclosingType;
 		}
 		if (currentType == targetEnclosingType

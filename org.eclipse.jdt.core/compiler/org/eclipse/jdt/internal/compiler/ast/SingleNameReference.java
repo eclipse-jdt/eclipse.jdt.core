@@ -745,7 +745,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 				this.syntheticAccessors = new MethodBinding[2];
 			this.syntheticAccessors[isReadAccess ? SingleNameReference.READ : SingleNameReference.WRITE] =
 			    ((SourceTypeBinding)currentScope.enclosingSourceType().
-					enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT)).addSyntheticMethod(codegenField, isReadAccess);
+					enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT)).addSyntheticMethod(codegenField, isReadAccess, false /*not super access*/);
 			currentScope.problemReporter().needToEmulateFieldAccess(codegenField, this, isReadAccess);
 			return;
 		}

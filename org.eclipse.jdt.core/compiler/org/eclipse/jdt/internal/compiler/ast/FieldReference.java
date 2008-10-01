@@ -410,35 +410,31 @@ public boolean isTypeAccess() {
  */
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo, boolean isReadAccess) {
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0)	return;
-
+	
 	// if field from parameterized type got found, use the original field at codegen time
 	FieldBinding codegenBinding = this.binding.original();
-
 	if (this.binding.isPrivate()) {
 		if ((currentScope.enclosingSourceType() != codegenBinding.declaringClass)
 				&& this.binding.constant() == Constant.NotAConstant) {
 			if (this.syntheticAccessors == null)
 				this.syntheticAccessors = new MethodBinding[2];
 			this.syntheticAccessors[isReadAccess ? FieldReference.READ : FieldReference.WRITE] =
-				((SourceTypeBinding) codegenBinding.declaringClass).addSyntheticMethod(codegenBinding, isReadAccess);
+				((SourceTypeBinding) codegenBinding.declaringClass).addSyntheticMethod(codegenBinding, isReadAccess, isSuperAccess());
 			currentScope.problemReporter().needToEmulateFieldAccess(codegenBinding, this, isReadAccess);
 			return;
 		}
-
 	} else if (this.receiver instanceof QualifiedSuperReference) { // qualified super
-
 		// qualified super need emulation always
 		SourceTypeBinding destinationType =
 			(SourceTypeBinding) (((QualifiedSuperReference) this.receiver)
 				.currentCompatibleType);
 		if (this.syntheticAccessors == null)
 			this.syntheticAccessors = new MethodBinding[2];
-		this.syntheticAccessors[isReadAccess ? FieldReference.READ : FieldReference.WRITE] = destinationType.addSyntheticMethod(codegenBinding, isReadAccess);
+		this.syntheticAccessors[isReadAccess ? FieldReference.READ : FieldReference.WRITE] = destinationType.addSyntheticMethod(codegenBinding, isReadAccess, isSuperAccess());
 		currentScope.problemReporter().needToEmulateFieldAccess(codegenBinding, this, isReadAccess);
 		return;
 
 	} else if (this.binding.isProtected()) {
-
 		SourceTypeBinding enclosingSourceType;
 		if (((this.bits & ASTNode.DepthMASK) != 0)
 			&& this.binding.declaringClass.getPackage()
@@ -449,7 +445,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 					(this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT);
 			if (this.syntheticAccessors == null)
 				this.syntheticAccessors = new MethodBinding[2];
-			this.syntheticAccessors[isReadAccess ? FieldReference.READ : FieldReference.WRITE] = currentCompatibleType.addSyntheticMethod(codegenBinding, isReadAccess);
+			this.syntheticAccessors[isReadAccess ? FieldReference.READ : FieldReference.WRITE] = currentCompatibleType.addSyntheticMethod(codegenBinding, isReadAccess, isSuperAccess());
 			currentScope.problemReporter().needToEmulateFieldAccess(codegenBinding, this, isReadAccess);
 			return;
 		}

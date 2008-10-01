@@ -815,7 +815,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FieldBindi
 	    FieldBinding codegenField = getCodegenBinding(index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index);
 	    ReferenceBinding declaringClass = codegenField.declaringClass;
 		if (declaringClass != currentScope.enclosingSourceType()) {
-		    setSyntheticAccessor(fieldBinding, index, ((SourceTypeBinding) declaringClass).addSyntheticMethod(codegenField, index >= 0 /*read-access?*/));
+		    setSyntheticAccessor(fieldBinding, index, ((SourceTypeBinding) declaringClass).addSyntheticMethod(codegenField, index >= 0 /*read-access?*/, false /*not super access*/));
 			currentScope.problemReporter().needToEmulateFieldAccess(codegenField, this, index >= 0 /*read-access?*/);
 			return;
 		}
@@ -828,7 +828,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FieldBindi
 		if (depth > 0 && (fieldBinding.declaringClass.getPackage() != currentScope.enclosingSourceType().getPackage())) {
 		    FieldBinding codegenField = getCodegenBinding(index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index);
 		    setSyntheticAccessor(fieldBinding, index,
-		            ((SourceTypeBinding) currentScope.enclosingSourceType().enclosingTypeAt(depth)).addSyntheticMethod(codegenField, index >= 0 /*read-access?*/));
+		            ((SourceTypeBinding) currentScope.enclosingSourceType().enclosingTypeAt(depth)).addSyntheticMethod(codegenField, index >= 0 /*read-access?*/, false /*not super access*/));
 			currentScope.problemReporter().needToEmulateFieldAccess(codegenField, this, index >= 0 /*read-access?*/);
 			return;
 		}

@@ -6862,7 +6862,109 @@ public void test165() throws Exception {
 		"    0  invokestatic package2.C.outerMethod() : void";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void test166() throws Exception {
+	this.runConformTest(new String[] {
+		"X.java",//=======================
+		"class XSuper {\n" + 
+		"	protected String field = \"[XSuper#field]\";//$NON-NLS-1$\n" + 
+		"}\n" + 
+		"public class X extends XSuper {\n" + 
+		"	protected String field = \"[X#field]\";//$NON-NLS-1$\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		new X().foo();\n" + 
+		"	}\n" + 
+		"	void foo() {\n" + 
+		"		new Object() {\n" + 
+		"			void bar() {\n" + 
+		"				System.out.print(\"X.this.field=\" + X.this.field);\n" + 
+		"				System.out.print(\"X.super.field=\" + X.super.field);\n" + 
+		"			}\n" + 
+		"		}.bar();\n" + 
+		"	}\n" + 
+		"}\n",
+	},
+	"X.this.field=[X#field]X.super.field=[XSuper#field]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void test167() throws Exception {
+	this.runConformTest(new String[] {
+		"X.java",//=======================
+		"class XSuper {\n" + 
+		"	protected String method() { return \"[XSuper#method()]\"; }//$NON-NLS-1$\n" + 
+		"}\n" + 
+		"public class X extends XSuper {\n" + 
+		"	protected String method() { return \"[X#method()]\"; }//$NON-NLS-1$\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		new X().foo();\n" + 
+		"	}\n" + 
+		"	void foo() {\n" + 
+		"		new Object() {\n" + 
+		"			void bar() {\n" + 
+		"				System.out.print(\"X.this.method()=\" + X.this.method());\n" + 
+		"				System.out.print(\"X.super.method()=\" + X.super.method());\n" + 
+		"			}\n" + 
+		"		}.bar();\n" + 
+		"	}\n" + 
+		"}\n",
+	},
+	"X.this.method()=[X#method()]X.super.method()=[XSuper#method()]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void test168() throws Exception {
+	this.runConformTest(new String[] {
+		"X.java",//=======================
+		"class XSuper {\n" + 
+		"	protected String field;\n" + 
+		"}\n" + 
+		"public class X extends XSuper {\n" + 
+		"	protected String field;\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		new X().foo();\n" + 
+		"	}\n" + 
+		"	void foo() {\n" + 
+		"		new Object() {\n" + 
+		"			void bar() {\n" + 
+		"				X.this.field = \"[X#field]\";\n" +
+		"				X.super.field = \"[XSuper#field]\";\n" +
+		"				System.out.print(\"X.this.field=\" + X.this.field);\n" + 
+		"				System.out.print(\"X.super.field=\" + X.super.field);\n" + 
+		"			}\n" + 
+		"		}.bar();\n" + 
+		"	}\n" + 
+		"}\n",
+	},
+	"X.this.field=[X#field]X.super.field=[XSuper#field]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+public void test169() throws Exception {
+	this.runConformTest(new String[] {
+		"X.java",//=======================
+		"import p.XSuper;\n" + 
+		"public class X extends XSuper {\n" + 
+		"	protected String method() { return \"[X#method()]\"; }//$NON-NLS-1$\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		new X().foo();\n" + 
+		"	}\n" + 
+		"	void foo() {\n" + 
+		"		new Object () {\n" + 
+		"			void bar() {\n" + 
+		"				System.out.print(\"X.this.method()=\" + X.this.method());\n" + 
+		"				System.out.print(\"X.super.method()=\" + X.super.method());\n" + 
+		"			}\n" + 
+		"		}.bar();\n" + 
+		"	}\n" + 
+		"}\n",
+		"p/XSuper.java",//=======================
+		"package p;\n" + 
+		"class XInternal {\n" + 
+		"	protected String method() { return \"[XInternal#method()]\"; }//$NON-NLS-1$\n" + 
+		"}\n" + 
+		"public class XSuper extends XInternal {\n" + 
+		"}\n",
+	},
+	"X.this.method()=[X#method()]X.super.method()=[XInternal#method()]");
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }

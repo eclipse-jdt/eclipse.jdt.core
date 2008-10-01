@@ -1046,11 +1046,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 				SyntheticMethodBinding syntheticMethod = syntheticMethods[i];
 				switch (syntheticMethod.purpose) {
 					case SyntheticMethodBinding.FieldReadAccess :
+					case SyntheticMethodBinding.SuperFieldReadAccess :
 						// generate a method info to emulate an reading access to
 						// a non-accessible field
 						addSyntheticFieldReadAccessMethod(syntheticMethod);
 						break;
 					case SyntheticMethodBinding.FieldWriteAccess :
+					case SyntheticMethodBinding.SuperFieldWriteAccess :
 						// generate a method info to emulate an writing access to
 						// a non-accessible field
 						addSyntheticFieldWriteAccessMethod(syntheticMethod);

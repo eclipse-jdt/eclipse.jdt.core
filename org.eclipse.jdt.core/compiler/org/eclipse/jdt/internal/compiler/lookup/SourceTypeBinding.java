@@ -354,7 +354,7 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 /* Add a new synthetic access method for read/write access to <targetField>.
 	Answer the new method or the existing method if one already existed.
 */
-public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess) {
+public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess, boolean isSuperAccess) {
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
@@ -363,12 +363,12 @@ public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boole
 	SyntheticMethodBinding accessMethod = null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(targetField);
 	if (accessors == null) {
-		accessMethod = new SyntheticMethodBinding(targetField, isReadAccess, this);
+		accessMethod = new SyntheticMethodBinding(targetField, isReadAccess, isSuperAccess, this);
 		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(targetField, accessors = new SyntheticMethodBinding[2]);
 		accessors[isReadAccess ? 0 : 1] = accessMethod;
 	} else {
 		if ((accessMethod = accessors[isReadAccess ? 0 : 1]) == null) {
-			accessMethod = new SyntheticMethodBinding(targetField, isReadAccess, this);
+			accessMethod = new SyntheticMethodBinding(targetField, isReadAccess, isSuperAccess, this);
 			accessors[isReadAccess ? 0 : 1] = accessMethod;
 		}
 	}
