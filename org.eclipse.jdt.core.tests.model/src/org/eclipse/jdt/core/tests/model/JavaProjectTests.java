@@ -1503,7 +1503,7 @@ public void testPackageFragmentRootNonJavaResources9() throws Exception {
 /**
  * Test raw entry inference performance for package fragment root
  */
-public void testPackageFragmentRootRawEntry() throws CoreException, IOException {
+public void testPackageFragmentRootRawEntry1() throws CoreException, IOException {
 	File libDir = null;
 	try {
 		String libPath = getExternalPath() + "lib";
@@ -1540,7 +1540,7 @@ public void testPackageFragmentRootRawEntry() throws CoreException, IOException 
  * Test raw entry inference performance for package fragment root in case
  * original classpath had duplicate entries pointing to it: first raw entry should be found
  */
-public void testPackageFragmentRootRawEntryWhenDuplicate() throws CoreException, IOException {
+public void testPackageFragmentRootRawEntry2() throws CoreException, IOException {
 	File libDir = null;
 	try {
 		String externalPath = getExternalPath();
@@ -1574,7 +1574,7 @@ public void testPackageFragmentRootRawEntryWhenDuplicate() throws CoreException,
  * @test That a JME is thrown when a classpath entry is no longer on the classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=162104"
  */
-public void testPackageFragmentRootNullRawEntry() throws CoreException, IOException {
+public void testPackageFragmentRootRawEntry3() throws CoreException, IOException {
 	File libDir = null;
 	try {
 		String libPath = getExternalPath() + "lib";
@@ -1613,6 +1613,24 @@ public void testPackageFragmentRootNullRawEntry() throws CoreException, IOExcept
 		}
 		this.deleteProject("P");
 		JavaCore.removeClasspathVariable("MyVar", null);
+	}
+}
+/**
+ * Ensures that the ".." raw classpath entry for a root is not resolved
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=249321 )
+ */
+public void testPackageFragmentRootRawEntry4() throws CoreException, IOException {
+	String externalJarPath = getWorkspaceRoot().getLocation().removeLastSegments(1).append("external.jar").toOSString();
+	try {
+		IJavaProject p = createJavaProject("P");
+		org.eclipse.jdt.core.tests.util.Util.writeToFile("", externalJarPath);
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../../external.jar"), null, null)});
+		IPackageFragmentRoot root = p.getPackageFragmentRoots()[0];
+		IPath path = root.getRawClasspathEntry().getPath();
+		assertEquals("Unexpected path for raw classpath entry", "../../external.jar", path.toString());
+	} finally {
+		deleteResource(new File(externalJarPath));
+		deleteProject("P");
 	}
 }
 /*

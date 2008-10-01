@@ -2493,12 +2493,12 @@ public class JavaProject
 		for (int i = 0; i < length; i++) {
 
 			IClasspathEntry rawEntry = rawClasspath[i];
+			IClasspathEntry resolvedEntry = rawEntry;
 			IPath resolvedPath;
 
 			switch (rawEntry.getEntryKind()){
 
 				case IClasspathEntry.CPE_VARIABLE :
-					IClasspathEntry resolvedEntry = null;
 					try {
 						resolvedEntry = manager.getResolvedClasspathEntry(rawEntry, usePreviousSession);
 					} catch (ClasspathEntry.AssertionFailedException e) {
@@ -2563,15 +2563,15 @@ public class JavaProject
 					break;
 
 				case IClasspathEntry.CPE_LIBRARY:
-					rawEntry = ((ClasspathEntry) rawEntry).resolvedDotDot();
+					resolvedEntry = ((ClasspathEntry) rawEntry).resolvedDotDot();
 					// $FALL-THROUGH$ use the default code below
 				default :
-					if (result.rawReverseMap.get(resolvedPath = rawEntry.getPath()) == null) {
+					if (result.rawReverseMap.get(resolvedPath = resolvedEntry.getPath()) == null) {
 						result.rawReverseMap.put(resolvedPath , rawEntry);
-						result.rootPathToResolvedEntries.put(resolvedPath, rawEntry);
+						result.rootPathToResolvedEntries.put(resolvedPath, resolvedEntry);
 					}
-					resolvedEntries.add(rawEntry);
-					if (rawEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
+					resolvedEntries.add(resolvedEntry);
+					if (resolvedEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
 						externalFoldersManager.addFolder(resolvedPath); // no-op if not an external folder or if already registered
 					}
 
