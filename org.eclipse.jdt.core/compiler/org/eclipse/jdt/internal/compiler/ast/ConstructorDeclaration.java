@@ -473,7 +473,7 @@ public void resolveStatements() {
 	super.resolveStatements();
 }
 
-public void traverse(ASTVisitor visitor,	ClassScope classScope) {
+public void traverse(ASTVisitor visitor, ClassScope classScope) {
 	if (visitor.visit(this, classScope)) {
 		if (this.javadoc != null) {
 			this.javadoc.traverse(visitor, this.scope);

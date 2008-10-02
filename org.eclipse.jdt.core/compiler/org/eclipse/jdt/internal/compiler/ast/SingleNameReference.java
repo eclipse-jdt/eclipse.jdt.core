@@ -650,7 +650,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 					}
 				}
 			}
-			codeStream.generateImplicitConversion(this.implicitConversion);		
+			codeStream.generateImplicitConversion(this.implicitConversion);
 			codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 			codeStream.sendOperator(postIncrement.operator, this.implicitConversion & TypeIds.COMPILE_TYPE_MASK);
 			codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
