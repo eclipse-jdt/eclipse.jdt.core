@@ -1679,7 +1679,7 @@ public void test012b(){
         "      staticReceiver     + non-static reference to static member\n" +
         "      super                overriding a method without making a super invocation\n" +
         "      suppress           + enable @SuppressWarnings\n" +
-        "      syncOverride         missing synchronized in synchr. method override\n" +
+        "      syncOverride       + missing synchronized in synchr. method override\n" +
         "      syntheticAccess      synthetic access for innerclass\n" +
         "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" +
         "      typeHiding         + type parameter hiding another type\n" +
