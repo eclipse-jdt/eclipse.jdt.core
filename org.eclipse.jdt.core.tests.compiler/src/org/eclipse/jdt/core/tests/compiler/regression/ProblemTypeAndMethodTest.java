@@ -4152,4 +4152,29 @@ public void test089() {
 			options,
 			null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247666
+public void testONLY_090() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"<U,V extends Runnable> void foo(Zork z) {}	\n" + 
+				"	void bar() {\n" + 
+				"		foo(null);\n" + 
+				"	} \n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<U,V extends Runnable> void foo(Zork z) {}	\n" + 
+			"	                                ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	foo(null);\n" + 
+			"	^^^\n" + 
+			"The method foo(Zork) from the type X refers to the missing type Zork\n" + 
+			"----------\n");
+}
 }
