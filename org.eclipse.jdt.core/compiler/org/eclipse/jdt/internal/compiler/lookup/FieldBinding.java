@@ -181,24 +181,29 @@ public char[] computeUniqueKey(boolean isLeaf) {
 public Constant constant() {
 	Constant fieldConstant = this.constant;
 	if (fieldConstant == null) {
-		if (this.isFinal()) {
+		if (isFinal()) {
 			//The field has not been yet type checked.
 			//It also means that the field is not coming from a class that
 			//has already been compiled. It can only be from a class within
 			//compilation units to process. Thus the field is NOT from a BinaryTypeBinbing
-			FieldBinding originalField = this.original();
+			FieldBinding originalField = original();
 			if (originalField.declaringClass instanceof SourceTypeBinding) {
 				SourceTypeBinding sourceType = (SourceTypeBinding) originalField.declaringClass;
 				if (sourceType.scope != null) {
 					TypeDeclaration typeDecl = sourceType.scope.referenceContext;
 					FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
-					fieldDecl.resolve(originalField.isStatic() //side effect on binding 
-							? typeDecl.staticInitializerScope
-							: typeDecl.initializerScope);
+					MethodScope initScope = originalField.isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope;
+					boolean old = initScope.insideTypeAnnotation;
+					try {
+						initScope.insideTypeAnnotation = false;
+						fieldDecl.resolve(initScope); //side effect on binding
+					} finally {
+						initScope.insideTypeAnnotation = old;
+					}					
 					fieldConstant = originalField.constant == null ? Constant.NotAConstant : originalField.constant;
 				} else {
 					fieldConstant = Constant.NotAConstant; // shouldn't occur per construction (paranoid null check)
-				} 
+				}
 			} else {
 				fieldConstant = Constant.NotAConstant; // shouldn't occur per construction (paranoid null check)
 			}

@@ -8475,4 +8475,20 @@ public void test258() {
 		},
 		expectedOutput);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=245435
+public void test260() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"@X.StringAnnotation(X.CONSTANT_EXPRESSION)\n" + 
+			"public class X {\n" + 
+			"  public @interface StringAnnotation {\n" + 
+			"    String value();\n" + 
+			"  }\n" + 
+			"  public final static String CONSTANT = \"Constant\";\n" + 
+			"  public final static String CONSTANT_EXPRESSION = CONSTANT + \"Expression\";\n" + 
+			"}\n"
+		},
+		"");
+}
 }
