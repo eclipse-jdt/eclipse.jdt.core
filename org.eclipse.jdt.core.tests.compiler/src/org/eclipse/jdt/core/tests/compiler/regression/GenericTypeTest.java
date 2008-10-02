@@ -15304,16 +15304,20 @@ public void test0500(){
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
 			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
-			"     3  getstatic XB.CONST : XB [48]\n" + 
-			"     6  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
-			"     9  return\n" + 
+			"     3  aload_0 [this]\n" + 
+			"     4  getfield X.e : XA [29]\n" + 
+			"     7  checkcast XB [48]\n" + 
+			"    10  pop\n" + 
+			"    11  getstatic XB.CONST : XB [50]\n" + 
+			"    14  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+			"    17  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 14]\n" + 
-			"        [pc: 9, line: 15]\n" + 
+			"        [pc: 17, line: 15]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 18] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 10] local: this index: 0 type: X<E>\n";
+			"        [pc: 0, pc: 18] local: this index: 0 type: X<E>\n";
 		
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -15410,17 +15414,18 @@ public void test0500(){
 			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
 			"     3  aload_0 [this]\n" + 
 			"     4  invokevirtual X.e() : XA [29]\n" + 
-			"     7  pop\n" + 
-			"     8  getstatic XB.CONST : XB [48]\n" + 
-			"    11  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
-			"    14  return\n" + 
+			"     7  checkcast XB [48]\n" + 
+			"    10  pop\n" + 
+			"    11  getstatic XB.CONST : XB [50]\n" + 
+			"    14  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+			"    17  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 14]\n" + 
-			"        [pc: 14, line: 15]\n" + 
+			"        [pc: 17, line: 15]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 18] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: X<E>\n";
+			"        [pc: 0, pc: 18] local: this index: 0 type: X<E>\n";
 		
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -26864,40 +26869,39 @@ public void test0848() throws Exception {
 				"}\n", // =================
 			},
 			"");
-	// 	ensure proper declaring class for #run() invocation
+	// 	ensure presence of: "checkcast java.util.LinkedList" before putfield X.numz
 	String expectedOutput =
-		"  // Method descriptor #14 ()V\n" + 
-		"  // Stack: 6, Locals: 1\n" + 
-		"  public X();\n" + 
-		"     0  aload_0 [this]\n" + 
-		"     1  invokespecial java.lang.Object() [16]\n" + 
-		"     4  aload_0 [this]\n" + 
-		"     5  iconst_2\n" + 
-		"     6  anewarray java.lang.Number [18]\n" + 
-		"     9  dup\n" + 
-		"    10  iconst_0\n" + 
-		"    11  iconst_1\n" + 
-		"    12  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [20]\n" + 
-		"    15  aastore\n" + 
-		"    16  dup\n" + 
-		"    17  iconst_1\n" + 
-		"    18  ldc2_w <Double 2.2> [26]\n" + 
-		"    21  invokestatic java.lang.Double.valueOf(double) : java.lang.Double [28]\n" + 
-		"    24  aastore\n" + 
-		"    25  invokestatic java.util.Arrays.asList(java.lang.Object[]) : java.util.List [33]\n" + 
-		"    28  checkcast java.util.Collection [38]\n" + 
-		"    31  putfield X.asList : java.util.Collection [40]\n" + 
-		"    34  aload_0 [this]\n" + 
-		"    35  aload_0 [this]\n" + 
-		"    36  getfield X.asList : java.util.Collection [40]\n" + 
-		"    39  checkcast java.util.List [42]\n" + 
-		"    42  putfield X.nums : java.util.List [44]\n" + 
-		"    45  aload_0 [this]\n" + 
-		"    46  aload_0 [this]\n" + 
-		"    47  getfield X.asList : java.util.Collection [40]\n" + 
-		"    50  checkcast java.util.LinkedList [46]\n" + // <--- checkcast must appear
-		"    53  putfield X.numz : java.util.List [48]\n" + 
-		"    56  return\n";
+	"  // Method descriptor #14 ()V\n" + 
+	"  // Stack: 6, Locals: 1\n" + 
+	"  public X();\n" + 
+	"     0  aload_0 [this]\n" + 
+	"     1  invokespecial java.lang.Object() [16]\n" + 
+	"     4  aload_0 [this]\n" + 
+	"     5  iconst_2\n" + 
+	"     6  anewarray java.lang.Number [18]\n" + 
+	"     9  dup\n" + 
+	"    10  iconst_0\n" + 
+	"    11  iconst_1\n" + 
+	"    12  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [20]\n" + 
+	"    15  aastore\n" + 
+	"    16  dup\n" + 
+	"    17  iconst_1\n" + 
+	"    18  ldc2_w <Double 2.2> [26]\n" + 
+	"    21  invokestatic java.lang.Double.valueOf(double) : java.lang.Double [28]\n" + 
+	"    24  aastore\n" + 
+	"    25  invokestatic java.util.Arrays.asList(java.lang.Object[]) : java.util.List [33]\n" + 
+	"    28  putfield X.asList : java.util.Collection [38]\n" + 
+	"    31  aload_0 [this]\n" + 
+	"    32  aload_0 [this]\n" + 
+	"    33  getfield X.asList : java.util.Collection [38]\n" + 
+	"    36  checkcast java.util.List [40]\n" + 
+	"    39  putfield X.nums : java.util.List [42]\n" + 
+	"    42  aload_0 [this]\n" + 
+	"    43  aload_0 [this]\n" + 
+	"    44  getfield X.asList : java.util.Collection [38]\n" + 
+	"    47  checkcast java.util.LinkedList [44]\n" + 
+	"    50  putfield X.numz : java.util.List [46]\n" + 
+	"    53  return\n";
 	
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -45888,6 +45892,217 @@ public void test1367() {
 			"	         ^^^^^^^\n" + 
 			"HashMap cannot be resolved to a type\n" + 
 			"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448
+public void test1370() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E> implements NonPublicInterface {\n" + 
+				"    public NonPublicInterfaceImplementor<E> selfCall() {\n" + 
+				"        return this;\n" + 
+				"    }\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(new NonPublicInterfaceImplementor().selfCall());\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1371() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E extends NonPublicInterface> implements NonPublicInterface {\n" + 
+				"    public E selfCall() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(new NonPublicInterfaceImplementor().selfCall());\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1372() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E extends NonPublicInterfaceImplementor> implements NonPublicInterface {\n" + 
+				"    public E selfCall() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(new NonPublicInterfaceImplementor().selfCall());\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1373() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E> implements NonPublicInterface {\n" + 
+				"    public NonPublicInterfaceImplementor<E> next;\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(new NonPublicInterfaceImplementor().next);\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1374() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E> implements NonPublicInterface {\n" + 
+				"    public NonPublicInterfaceImplementor<E> next;\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        NonPublicInterfaceImplementor impl = new NonPublicInterfaceImplementor();\n" +		
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(impl.next);\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1375() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E> implements NonPublicInterface {\n" + 
+				"    public NonPublicInterfaceImplementor<E> next;\n" + 
+				"}\n", 
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        NonPublicInterfaceImplementor impl = new NonPublicInterfaceImplementor();\n" +		
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(impl.next.next);\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242448 - variation
+public void test1376() {
+	this.runConformTest(
+			new String[] {
+				"restricted/NonPublicInterface.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"interface NonPublicInterface {}\n",
+				"restricted/NonPublicInterfaceImplementor.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class NonPublicInterfaceImplementor<E> implements NonPublicInterface {}\n",
+				"restricted/UnuseableOutsideRestrictedWithECJ.java", //-----------------------------------------------------------------------
+				"package restricted;\n" + 
+				"public class UnuseableOutsideRestrictedWithECJ {\n" + 
+				"    public void ecjDoesNotLikeGenericizedParameter(NonPublicInterface notVisible) { }\n" + 
+				"}\n",
+				"usesrestricted/CannotCompileInEcj.java", //-----------------------------------------------------------------------
+				"package usesrestricted;\n" + 
+				"import restricted.UnuseableOutsideRestrictedWithECJ;\n" + 
+				"import restricted.NonPublicInterfaceImplementor;\n" + 
+				"public class CannotCompileInEcj<E> {\n" + 
+				"    public NonPublicInterfaceImplementor<E> next;\n" + 
+				"    public void foo() {\n" + 
+				"        new UnuseableOutsideRestrictedWithECJ().ecjDoesNotLikeGenericizedParameter(next);\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=241502

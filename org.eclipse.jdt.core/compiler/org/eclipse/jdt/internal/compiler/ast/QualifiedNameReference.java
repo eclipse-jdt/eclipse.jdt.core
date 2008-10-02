@@ -318,11 +318,8 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	if (field != null) {
 		FieldBinding originalBinding = field.original();
 		TypeBinding originalType = originalBinding.type;
-	    // extra cast needed if method return type has type variable
-		if (originalBinding != field 
-				&& originalType != field.type
-		    	&& runtimeTimeType.id != TypeIds.T_JavaLangObject
-		    	&& (originalType.tagBits & TagBits.HasTypeVariable) != 0) {
+	    // extra cast needed if field type is type variable
+		if (originalType.leafComponentType().isTypeVariable()) {
 	    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
 	    		? compileTimeType  // unboxing: checkcast before conversion
 	    		: runtimeTimeType;
@@ -768,7 +765,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 					}
 				}				
 				FieldBinding originalBinding = previousField.original();
-			    if ((originalBinding.type.tagBits &  TagBits.HasTypeVariable) != 0 && fieldReceiverType.id != TypeIds.T_JavaLangObject) {
+			    if (originalBinding.type.leafComponentType().isTypeVariable()) {
 			    	setGenericCast(index-1,originalBinding.type.genericCast(fieldReceiverType)); // type cannot be base-type even in boxing case
 			    }
 		    }
@@ -1082,6 +1079,7 @@ public void setFieldIndex(int index) {
 
 // set the matching codegenBinding and generic cast
 protected void setGenericCast(int index, TypeBinding someGenericCast) {
+	if (someGenericCast == null) return;
 	if (index == 0){
 		this.genericCast = someGenericCast;
 	} else {

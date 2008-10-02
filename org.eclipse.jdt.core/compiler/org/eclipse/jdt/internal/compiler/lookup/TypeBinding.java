@@ -339,13 +339,14 @@ public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
 /**
  * Returns the type to use for generic cast, or null if none required
  */
-public TypeBinding genericCast(TypeBinding otherType) {
-	if (this == otherType)
+public TypeBinding genericCast(TypeBinding targetType) {
+	if (this == targetType) 
 		return null;
-	TypeBinding otherErasure = otherType.erasure();
-	if (otherErasure == this.erasure())
+	TypeBinding targetErasure = targetType.erasure();
+	// type var get replaced by upper bound
+	if (erasure().findSuperTypeOriginatingFrom(targetErasure) != null) 
 		return null;
-	return otherErasure;
+	return targetErasure;
 }
 
 /**
