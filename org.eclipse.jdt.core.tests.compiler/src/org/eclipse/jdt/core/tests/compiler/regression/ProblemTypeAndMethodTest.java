@@ -4153,7 +4153,7 @@ public void test089() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247666
-public void testONLY_090() {
+public void test090() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	this.runNegativeTest(
 			new String[] {
