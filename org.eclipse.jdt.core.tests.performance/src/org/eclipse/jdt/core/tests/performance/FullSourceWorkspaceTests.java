@@ -643,13 +643,23 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 
 		// Init JRE_LIB variable
-		String jdkLib = Util.getJavaClassLibs()[0];
-		JavaCore.setClasspathVariable("JRE_LIB", new Path(jdkLib), null);
+		String[] jdkLibs = Util.getJavaClassLibs();
+		int length = jdkLibs.length;
+		String jdkLib = null;
+		for (int i=0; i<length; i++) {
+			if (jdkLibs[i].endsWith("rt.jar")) {
+				jdkLib = jdkLibs[i];
+				break;
+			}
+		}
+		if (jdkLib == null) {
+			throw new RuntimeException("Cannot set JRE_LIB classpath variable as the rt.jar lib was not found!!!");
+		}
 
 		// Set classpaths (workaround bug 73253 Project references not set on project open)
 		System.out.print("Set projects classpaths...");
 		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
-		int length = ALL_PROJECTS.length;
+		length = ALL_PROJECTS.length;
 		for (int i = 0; i < length; i++) {
 			String projectName = ALL_PROJECTS[i].getElementName();
 			if (BIG_PROJECT_NAME.equals(projectName)) continue; // will be set later
