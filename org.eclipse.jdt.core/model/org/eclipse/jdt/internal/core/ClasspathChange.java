@@ -33,10 +33,10 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathChange {
-	public static int NO_DELTA = 0x00;
-	public static int HAS_DELTA = 0x01;
-	public static int HAS_PROJECT_CHANGE = 0x02;
-	public static int HAS_LIBRARY_CHANGE = 0x04;
+	public static final int NO_DELTA = 0x00;
+	public static final int HAS_DELTA = 0x01;
+	public static final int HAS_PROJECT_CHANGE = 0x02;
+	public static final int HAS_LIBRARY_CHANGE = 0x04;
 
 	JavaProject project;
 	IClasspathEntry[] oldRawClasspath;

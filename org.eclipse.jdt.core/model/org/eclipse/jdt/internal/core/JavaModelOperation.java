@@ -81,7 +81,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * empty result if no elements are created, or if this
 	 * operation is not actually executed.
 	 */
-	protected static IJavaElement[] NO_ELEMENTS= new IJavaElement[] {};
+	protected static final IJavaElement[] NO_ELEMENTS= new IJavaElement[] {};
 
 
 	/**
@@ -106,7 +106,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/*
 	 * A per thread stack of java model operations (PerThreadObject of ArrayList).
 	 */
-	protected static ThreadLocal operationStacks = new ThreadLocal();
+	protected static final ThreadLocal OPERATION_STACKS = new ThreadLocal();
 	protected JavaModelOperation() {
 		// default constructor used in subclasses
 	}
@@ -432,10 +432,10 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Returns an empty stack if no operations are currently running in this thread.
 	 */
 	protected static ArrayList getCurrentOperationStack() {
-		ArrayList stack = (ArrayList)operationStacks.get();
+		ArrayList stack = (ArrayList)OPERATION_STACKS.get();
 		if (stack == null) {
 			stack = new ArrayList();
-			operationStacks.set(stack);
+			OPERATION_STACKS.set(stack);
 		}
 		return stack;
 	}
@@ -602,7 +602,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		int size = stack.size();
 		if (size > 0) {
 			if (size == 1) { // top level operation
-				operationStacks.set(null); // release reference (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=33927)
+				OPERATION_STACKS.set(null); // release reference (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=33927)
 			}
 			return (JavaModelOperation)stack.remove(size-1);
 		} else {
