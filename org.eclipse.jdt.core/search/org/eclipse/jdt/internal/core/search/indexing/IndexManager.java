@@ -54,10 +54,10 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	// key = indexLocation path, value = index state integer
 	private SimpleLookupTable indexStates = null;
 	private File savedIndexNamesFile = new File(getSavedIndexesDirectory(), "savedIndexNames.txt"); //$NON-NLS-1$
-	public static Integer SAVED_STATE = new Integer(0);
-	public static Integer UPDATING_STATE = new Integer(1);
-	public static Integer UNKNOWN_STATE = new Integer(2);
-	public static Integer REBUILDING_STATE = new Integer(3);
+	public static final Integer SAVED_STATE = new Integer(0);
+	public static final Integer UPDATING_STATE = new Integer(1);
+	public static final Integer UNKNOWN_STATE = new Integer(2);
+	public static final Integer REBUILDING_STATE = new Integer(3);
 
 	// Debug
 	public static boolean DEBUG = false;
