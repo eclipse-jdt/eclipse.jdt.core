@@ -58,6 +58,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.team.core.RepositoryProvider;
 
 public class ClasspathTests extends ModifyingResourceTests {
 
@@ -2988,6 +2989,29 @@ public void testNullClasspath() throws CoreException {
 		assertTrue("classpath should have one root entry", cp.length == 1 && cp[0].getPath().equals(project.getUnderlyingResource().getFullPath()));
 	} finally {
 		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that one can set a raw classpath if a pessimistic repository provider is used
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=243692 )
+ */
+public void testPessimisticProvider() throws CoreException {
+	try {
+		IJavaProject javaProject = createJavaProject("P", new String[] {"src"}, "bin");
+		IProject project = javaProject.getProject();
+		try {
+			RepositoryProvider.map(project, TestPessimisticProvider.NATURE_ID);
+			IClasspathEntry[] rawClasspath = new IClasspathEntry[] {JavaCore.newSourceEntry(new Path("/P/src2"))};
+			setClasspath(javaProject, rawClasspath);
+			assertClasspathEquals(
+				javaProject.getRawClasspath(), 
+				"/P/src2[CPE_SOURCE][K_SOURCE][isExported:false]"
+			);
+		} finally {
+			RepositoryProvider.unmap(project);
+		}
+	} finally {
+		deleteProject("P");
 	}
 }
 /**
