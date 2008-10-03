@@ -734,9 +734,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public void addFieldInfos() {
 		SourceTypeBinding currentBinding = this.referenceBinding;
 		FieldBinding[] syntheticFields = currentBinding.syntheticFields();
-		int fieldCount =
-			currentBinding.fieldCount()
-				+ (syntheticFields == null ? 0 : syntheticFields.length);
+		int fieldCount = 	currentBinding.fieldCount() + (syntheticFields == null ? 0 : syntheticFields.length);
 
 		// write the number of fields
 		if (fieldCount > 0xFFFF) {

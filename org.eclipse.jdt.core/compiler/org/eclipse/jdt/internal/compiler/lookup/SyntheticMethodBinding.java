@@ -275,8 +275,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccSynthetic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 		SourceTypeBinding sourceType = (SourceTypeBinding) accessedConstructor.declaringClass;
-		SyntheticMethodBinding[] knownSyntheticMethods =
-			sourceType.syntheticMethods();
+		SyntheticMethodBinding[] knownSyntheticMethods = sourceType.syntheticMethods();
 		this.index = knownSyntheticMethods == null ? 0 : knownSyntheticMethods.length;
 
 		this.selector = accessedConstructor.selector;
@@ -314,7 +313,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 						if (knownSyntheticMethods[i] == null)
 							continue;
 						if (CharOperation.equals(this.selector, knownSyntheticMethods[i].selector)
-							&& areParametersEqual(knownSyntheticMethods[i])) {
+								&& areParametersEqual(knownSyntheticMethods[i])) {
 							needRename = true;
 							break check;
 						}
