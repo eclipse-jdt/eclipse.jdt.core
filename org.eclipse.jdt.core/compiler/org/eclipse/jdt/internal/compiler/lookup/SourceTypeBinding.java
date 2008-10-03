@@ -1453,45 +1453,26 @@ public ReferenceBinding[] superInterfaces() {
 }
 // TODO (philippe) could be a performance issue since some senders are building the list just to count them
 public SyntheticMethodBinding[] syntheticMethods() {
-
-	if (this.synthetics == null || this.synthetics[SourceTypeBinding.METHOD_EMUL] == null || this.synthetics[SourceTypeBinding.METHOD_EMUL].size() == 0) return null;
-
+	if (this.synthetics == null 
+			|| this.synthetics[SourceTypeBinding.METHOD_EMUL] == null 
+			|| this.synthetics[SourceTypeBinding.METHOD_EMUL].size() == 0) {
+		return null;
+	}
 	// difficult to compute size up front because of the embedded arrays so assume there is only 1
 	int index = 0;
 	SyntheticMethodBinding[] bindings = new SyntheticMethodBinding[1];
-	Iterator fieldsOrMethods = this.synthetics[SourceTypeBinding.METHOD_EMUL].keySet().iterator();
-	while (fieldsOrMethods.hasNext()) {
-
-		Object fieldOrMethod = fieldsOrMethods.next();
-
-		if (fieldOrMethod instanceof MethodBinding) {
-
-			SyntheticMethodBinding[] methodAccessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(fieldOrMethod);
-			int numberOfAccessors = 0;
-			if (methodAccessors[0] != null) numberOfAccessors++;
-			if (methodAccessors[1] != null) numberOfAccessors++;
-			if (index + numberOfAccessors > bindings.length)
-				System.arraycopy(bindings, 0, (bindings = new SyntheticMethodBinding[index + numberOfAccessors]), 0, index);
-			if (methodAccessors[0] != null)
-				bindings[index++] = methodAccessors[0]; // super access
-			if (methodAccessors[1] != null)
-				bindings[index++] = methodAccessors[1]; // normal access or bridge
-
-		} else {
-
-			SyntheticMethodBinding[] fieldAccessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(fieldOrMethod);
-			int numberOfAccessors = 0;
-			if (fieldAccessors[0] != null) numberOfAccessors++;
-			if (fieldAccessors[1] != null) numberOfAccessors++;
-			if (index + numberOfAccessors > bindings.length)
-				System.arraycopy(bindings, 0, (bindings = new SyntheticMethodBinding[index + numberOfAccessors]), 0, index);
-			if (fieldAccessors[0] != null)
-				bindings[index++] = fieldAccessors[0]; // read access
-			if (fieldAccessors[1] != null)
-				bindings[index++] = fieldAccessors[1]; // write access
+	Iterator methodArrayIterator = this.synthetics[SourceTypeBinding.METHOD_EMUL].values().iterator();
+	while (methodArrayIterator.hasNext()) {
+		SyntheticMethodBinding[] methodAccessors = (SyntheticMethodBinding[]) methodArrayIterator.next();
+		for (int i = 0, max = methodAccessors.length; i < max; i++) {
+			if (methodAccessors[i] != null) {
+				if (index+1 > bindings.length) {
+					System.arraycopy(bindings, 0, (bindings = new SyntheticMethodBinding[index + 1]), 0, index);
+				}
+				bindings[index++] = methodAccessors[i]; 
+			}
 		}
 	}
-
 	// sort them in according to their own indexes
 	int length;
 	SyntheticMethodBinding[] sortedBindings = new SyntheticMethodBinding[length = bindings.length];
@@ -1505,9 +1486,7 @@ public SyntheticMethodBinding[] syntheticMethods() {
  * Answer the collection of synthetic fields to append into the classfile
  */
 public FieldBinding[] syntheticFields() {
-
 	if (this.synthetics == null) return null;
-
 	int fieldSize = this.synthetics[SourceTypeBinding.FIELD_EMUL] == null ? 0 : this.synthetics[SourceTypeBinding.FIELD_EMUL].size();
 	int literalSize = this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL] == null ? 0 :this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL].size();
 	int totalSize = fieldSize + literalSize;
