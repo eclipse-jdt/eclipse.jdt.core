@@ -107,11 +107,6 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	 */
 	protected Parser parser;
 
-	/**
-	 * Empty collections used for efficient initialization
-	 */
-	protected static byte[] NO_BYTES= new byte[]{};
-
 	protected HashtableOfObject fieldRefCache;
 	protected HashtableOfObject messageRefCache;
 	protected HashtableOfObject typeRefCache;
