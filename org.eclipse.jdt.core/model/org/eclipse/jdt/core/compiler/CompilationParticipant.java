@@ -38,8 +38,8 @@ import org.eclipse.jdt.core.IJavaProject;
  */
 public abstract class CompilationParticipant {
 
-public static int READY_FOR_BUILD = 1;
-public static int NEEDS_FULL_BUILD = 2;
+	public final static int READY_FOR_BUILD = 1;
+	public final static int NEEDS_FULL_BUILD = 2;
 
 /**
  * Notifies this participant that a build is about to start and provides it the opportunity to
