@@ -4702,7 +4702,7 @@ public void test142c() {
     		"1. ERROR in X.java (at line 3)\n" +
     		"	@interface Bar {\n" +
     		"	           ^^^\n" +
-    		"The member annotation Bar can only be defined inside a top-level class or interface\n" +
+    		"The member annotation Bar can only be defined inside a static context\n" +
     		"----------\n");
     }
 

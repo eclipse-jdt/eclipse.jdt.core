@@ -196,19 +196,27 @@ public void test003() {
 			"	\n" +
 			"	public BLEU, \n" +
 			"	transient BLANC, \n" +
-			"	ROUGE\n" +
+			"	ROUGE, \n" +
+			"	abstract RED {\n" +
+			"		void test() {}\n" +
+			"	}\n" +
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	public BLEU, \n" +
-		"	       ^^^^\n" +
-		"Illegal modifier for the enum constant BLEU; no modifier is allowed\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	transient BLANC, \n" +
-		"	          ^^^^^\n" +
-		"Illegal modifier for the enum constant BLANC; no modifier is allowed\n" +
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public BLEU, \n" + 
+		"	       ^^^^\n" + 
+		"Illegal modifier for the enum constant BLEU; no modifier is allowed\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	transient BLANC, \n" + 
+		"	          ^^^^^\n" + 
+		"Illegal modifier for the enum constant BLANC; no modifier is allowed\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	abstract RED {\n" + 
+		"	         ^^^\n" + 
+		"Illegal modifier for the enum constant RED; no modifier is allowed\n" + 
 		"----------\n");
 }
 // check using an enum constant

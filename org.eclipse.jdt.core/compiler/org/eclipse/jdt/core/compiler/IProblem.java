@@ -1247,7 +1247,8 @@ void setSourceStart(int sourceStart);
 	int IllegalModifierForEnum = TypeRelated + 750;
 	/** @since 3.1 */
 	int IllegalModifierForEnumConstant = FieldRelated + 751;
-	/** @since 3.1 */
+	/** @deprecated - problem could not be reported, enums cannot be local takes precedence 
+	 *   @since 3.1 */
 	int IllegalModifierForLocalEnum = TypeRelated + 752;
 	/** @since 3.1 */
 	int IllegalModifierForMemberEnum = TypeRelated + 753;

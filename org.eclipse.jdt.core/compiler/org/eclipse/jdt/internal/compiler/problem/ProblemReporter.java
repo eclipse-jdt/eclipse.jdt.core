@@ -2185,15 +2185,6 @@ public void illegalModifierForLocalClass(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void illegalModifierForLocalEnum(SourceTypeBinding type) {
-	String[] arguments = new String[] {new String(type.sourceName())};
-	this.handle(
-		IProblem.IllegalModifierForLocalEnum,
-		arguments,
-		arguments,
-		type.sourceStart(),
-		type.sourceEnd());
-}
 public void illegalModifierForMemberClass(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
