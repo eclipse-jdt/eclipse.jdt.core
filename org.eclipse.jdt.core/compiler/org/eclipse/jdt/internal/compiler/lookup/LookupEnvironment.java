@@ -63,7 +63,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private MethodVerifier verifier;
 
 	public MethodBinding arrayClone;
-	
+
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
 	final static int CHECK_AND_SET_IMPORTS = 2;
@@ -1285,9 +1285,13 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 
 	while (wrapper.signature[wrapper.start] == '.') {
 		wrapper.start++; // skip '.'
+		int memberStart = wrapper.start;
 		char[] memberName = wrapper.nextWord();
 		BinaryTypeBinding.resolveType(parameterizedType, this, false);
 		ReferenceBinding memberType = parameterizedType.genericType().getMemberType(memberName);
+		// need to protect against the member type being null when the signature is invalid
+		if (memberType == null)
+			this.problemReporter.corruptedSignature(parameterizedType, wrapper.signature, memberStart); // aborts
 		if (wrapper.signature[wrapper.start] == '<') {
 			wrapper.start++; // skip '<'
 			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, memberType, missingTypeNames);
