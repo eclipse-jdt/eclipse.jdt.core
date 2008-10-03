@@ -106,13 +106,13 @@ public void addStackItem(TypeBinding binding) {
 	}
 }
 public StackMapFrame duplicate() {
-	StackMapFrame result = new StackMapFrame(this.locals.length);
+	int length = this.locals.length;
+	StackMapFrame result = new StackMapFrame(length);
 	result.numberOfLocals = -1;
 	result.numberOfDifferentLocals = -1;
 	result.pc = this.pc;
 	result.numberOfStackItems = this.numberOfStackItems;
 
-	int length = this.locals == null ? 0 : this.locals.length;
 	if (length != 0) {
 		result.locals = new VerificationTypeInfo[length];
 		for (int i = 0; i < length; i++) {
