@@ -1476,7 +1476,7 @@ public final class JavaCore extends Plugin {
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.5
 	 * @category CompilerOptionID

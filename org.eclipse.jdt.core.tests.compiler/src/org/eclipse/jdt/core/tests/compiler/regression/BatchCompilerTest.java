@@ -1679,7 +1679,7 @@ public void test012b(){
         "      staticReceiver     + non-static reference to static member\n" +
         "      super                overriding a method without making a super invocation\n" +
         "      suppress           + enable @SuppressWarnings\n" +
-        "      syncOverride       + missing synchronized in synchr. method override\n" +
+        "      syncOverride         missing synchronized in synchr. method override\n" +
         "      syntheticAccess      synthetic access for innerclass\n" +
         "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" +
         "      typeHiding         + type parameter hiding another type\n" +
@@ -1808,7 +1808,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility\" value=\"public\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSerialVersion\" value=\"warning\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" +

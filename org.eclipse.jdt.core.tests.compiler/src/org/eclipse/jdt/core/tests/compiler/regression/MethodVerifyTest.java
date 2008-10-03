@@ -8794,6 +8794,8 @@ public void _test169() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066
 public void test170() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -8801,16 +8803,20 @@ public void test170() {
 			"class Y extends X { @Override void foo() { } }"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
+		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y extends X { @Override void foo() { } }\n" +
 		"	                                   ^^^^^\n" +
 		"The method Y.foo() is overriding a synchronized method without being synchronized\n" +
-		"----------\n"
-	);
+		"----------\n",
+	null,
+	false,
+	options);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
 public void test171() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -8820,15 +8826,20 @@ public void test171() {
 			"}"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
+		"1. ERROR in X.java (at line 2)\n" +
 		"	FOO { @Override void foo() { super.foo(); } };\n" +
 		"	                     ^^^^^\n" +
 		"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
-		"----------\n");
+		"----------\n",
+		null,
+		false,
+		options);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
 public void test172() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -8838,15 +8849,20 @@ public void test172() {
 					"}"
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 2)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
 			"	void bar() { new X() { @Override void foo() {} }; }\n"+
 			"	                                      ^^^^^\n" +
 			"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
-			"----------\n");
+			"----------\n",
+			null,
+			false,
+			options);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
 public void test173() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -8855,11 +8871,14 @@ public void test173() {
 					"class Z extends Y { @Override void foo() {} }\n"
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 3)\n" +
 			"	class Z extends Y { @Override void foo() {} }\n" +
 			"	                                   ^^^^^\n" +
 			"The method Z.foo() is overriding a synchronized method without being synchronized\n" +
-	"----------\n");
+	"----------\n",
+	null,
+	false,
+	options);
 }
 
 }
