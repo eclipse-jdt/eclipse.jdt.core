@@ -373,6 +373,9 @@ boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
 						if (methods[m].declaringClass.id == TypeIds.T_JavaLangObject)
 							continue nextMethod; // do not complain since the super interface already got blamed
 				} else {
+					if (method.isAbstract() && method.declaringClass.isClass())
+						if (areReturnTypesCompatible(methods[j], method))
+							continue nextMethod; // return type of the superclass' inherited method is a supertype of the return type of the interface's method 
 					if (method.declaringClass.isClass() || !this.type.implementsInterface(method.declaringClass, false))
 						if (methods[j].declaringClass.isClass() || !this.type.implementsInterface(methods[j].declaringClass, false))
 							continue nextMethod; // do not complain since the superclass already got blamed

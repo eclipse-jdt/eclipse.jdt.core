@@ -8763,4 +8763,24 @@ public void test168() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249140
+public void test174() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X extends Y implements I { }\n" +
+			"abstract class Y { public abstract Object m(); }\n" +
+			"abstract class A implements I, J { }\n" +
+			"abstract class B implements J, I { }\n" +
+			"interface I { String m(); }\n" +
+			"interface J { Object m(); }\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	class X extends Y implements I { }\n" + 
+		"	      ^\n" + 
+		"The type X must implement the inherited abstract method Y.m()\n" + 
+		"----------\n"
+	);
+}
 }
