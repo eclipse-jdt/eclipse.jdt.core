@@ -502,9 +502,9 @@ public Object getDefaultValue() {
  */
 public MethodBinding getHighestOverridenMethod() {
 	MethodBinding bestMethod = this;
-	// walk superclasses
     ReferenceBinding currentType = this.declaringClass;
     if (this.isConstructor()) {
+    	// walk superclasses - only
     	do {
     		MethodBinding superMethod = currentType.getExactConstructor(this.parameters);
     		if (superMethod != null) {
@@ -513,6 +513,7 @@ public MethodBinding getHighestOverridenMethod() {
     	} while ((currentType = currentType.superclass()) != null);
     	return bestMethod;
     }
+	// walk superclasses
 	ReferenceBinding[] interfacesToVisit = null;
 	int nextPosition = 0;
 	do {
