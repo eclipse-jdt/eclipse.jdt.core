@@ -8841,22 +8841,22 @@ public void test172() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
 	this.runNegativeTest(
-			new String[] {
-					"X.java",
-					"public class X {\n" + 
-					"  void bar() { new X() { @Override void foo() {} }; }\n"+
-					"  synchronized void foo() { }\n"+
-					"}"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	void bar() { new X() { @Override void foo() {} }; }\n"+
-			"	                                      ^^^^^\n" +
-			"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
-			"----------\n",
-			null,
-			false,
-			options);
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void bar() { new X() { @Override void foo() {} }; }\n"+
+			"  synchronized void foo() { }\n"+
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	void bar() { new X() { @Override void foo() {} }; }\n"+
+		"	                                      ^^^^^\n" +
+		"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
+		"----------\n",
+		null,
+		false,
+		options);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
@@ -8864,21 +8864,41 @@ public void test173() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
 	this.runNegativeTest(
-			new String[] {
-					"X.java",
-					"public class X { synchronized void foo() {} }\n" +
-					"class Y extends X {}\n" +
-					"class Z extends Y { @Override void foo() {} }\n"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	class Z extends Y { @Override void foo() {} }\n" +
-			"	                                   ^^^^^\n" +
-			"The method Z.foo() is overriding a synchronized method without being synchronized\n" +
-	"----------\n",
-	null,
-	false,
-	options);
+		new String[] {
+			"X.java",
+			"public class X { synchronized void foo() {} }\n" +
+			"class Y extends X {}\n" +
+			"class Z extends Y { @Override void foo() {} }\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	class Z extends Y { @Override void foo() {} }\n" +
+		"	                                   ^^^^^\n" +
+		"The method Z.foo() is overriding a synchronized method without being synchronized\n" +
+		"----------\n",
+		null,
+		false,
+		options);
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249140
+public void test174() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X extends Y implements I { }\n" +
+			"abstract class Y { public abstract Object m(); }\n" +
+			"abstract class A implements I, J { }\n" +
+			"abstract class B implements J, I { }\n" +
+			"interface I { String m(); }\n" +
+			"interface J { Object m(); }\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	class X extends Y implements I { }\n" + 
+		"	      ^\n" + 
+		"The type X must implement the inherited abstract method Y.m()\n" + 
+		"----------\n"
+	);
+}
 }
