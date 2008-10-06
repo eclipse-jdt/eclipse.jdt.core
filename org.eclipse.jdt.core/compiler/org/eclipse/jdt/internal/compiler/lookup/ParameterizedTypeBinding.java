@@ -727,13 +727,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isParameterizedType()
-	 */
-	public boolean isParameterizedType() {
-	    return true;
-	}
-
-	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Substitution#isRawSubstitution()
 	 */
 	public boolean isRawSubstitution() {

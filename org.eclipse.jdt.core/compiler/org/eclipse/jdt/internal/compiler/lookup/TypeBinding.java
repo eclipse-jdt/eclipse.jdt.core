@@ -521,10 +521,23 @@ public final boolean isNumericType() {
 }
 
 /**
- * Returns true if the type is parameterized, e.g. List<String>
+ * Returns true if the type is parameterized, e.g. List<String>.
+ * Note that some instances of ParameterizedTypeBinding have no arguments, like for non-generic members 
+ * of a parameterized type. Use {@link #isParameterizedTypeWithActualArguments()} instead to find out.
  */
-public boolean isParameterizedType() {
-	return false;
+public final boolean isParameterizedType() {
+	return kind() == Binding.PARAMETERIZED_TYPE;
+}
+
+/**
+ * Returns true if the type is parameterized, e.g. List<String>
+ * Note that some instances of ParameterizedTypeBinding do answer false to {@link #isParameterizedType()}
+ * in case they have no arguments, like for non-generic members of a parameterized type.
+ * i.e. {@link #isParameterizedType()} is not equivalent to testing <code>type.kind() == Binding.PARAMETERIZED_TYPE</code>
+ */
+public final boolean isParameterizedTypeWithActualArguments() {
+	return (kind() == Binding.PARAMETERIZED_TYPE) 
+					&& ((ParameterizedTypeBinding) this).arguments != null;
 }
 
 /**
@@ -822,15 +835,14 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 	}
 }
 
-public boolean isRawType() {
-	return false;
+public final boolean isRawType() {
+	return kind() == Binding.RAW_TYPE;
 }
 /**
  * JLS(3) 4.7.
  * Note: Foo<?>.Bar is also reifiable
  */
 public boolean isReifiable() {
-
 	TypeBinding leafType = leafComponentType();
 	if (!(leafType instanceof ReferenceBinding))
 		return true;

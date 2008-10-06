@@ -788,21 +788,19 @@ class TypeBinding implements ITypeBinding {
 		if (this.typeArguments != null) {
 			return this.typeArguments;
 		}
-		if (this.binding.isParameterizedType()) {
+		if (this.binding.isParameterizedTypeWithActualArguments()) {
 			ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) this.binding;
 			final org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] arguments = parameterizedTypeBinding.arguments;
-			if (arguments != null) {
-				int argumentsLength = arguments.length;
-				ITypeBinding[] newTypeArguments = new ITypeBinding[argumentsLength];
-				for (int i = 0; i < argumentsLength; i++) {
-					ITypeBinding typeBinding = this.resolver.getTypeBinding(arguments[i]);
-					if (typeBinding == null) {
-						return this.typeArguments = NO_TYPE_BINDINGS;
-					}
-					newTypeArguments[i] = typeBinding;
+			int argumentsLength = arguments.length;
+			ITypeBinding[] newTypeArguments = new ITypeBinding[argumentsLength];
+			for (int i = 0; i < argumentsLength; i++) {
+				ITypeBinding typeBinding = this.resolver.getTypeBinding(arguments[i]);
+				if (typeBinding == null) {
+					return this.typeArguments = NO_TYPE_BINDINGS;
 				}
-				return this.typeArguments = newTypeArguments;
+				newTypeArguments[i] = typeBinding;
 			}
+			return this.typeArguments = newTypeArguments;
 		}
 		return this.typeArguments = NO_TYPE_BINDINGS;
 	}
@@ -1139,7 +1137,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isParameterizedType()
 	 */
 	public boolean isParameterizedType() {
-		return this.binding.isParameterizedType() && ((ParameterizedTypeBinding) this.binding).arguments != null;
+		return this.binding.isParameterizedTypeWithActualArguments();
 	}
 
 	/*

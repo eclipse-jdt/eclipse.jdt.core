@@ -137,17 +137,6 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
         return true;
 	}
 
-	/**
-	 * Raw type is not treated as a standard parameterized type
-	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isParameterizedType()
-	 */
-	public boolean isParameterizedType() {
-	    return false;
-	}
-	public boolean isRawType() {
-	    return true;
-	}
-
 	protected void initializeArguments() {
 		TypeVariableBinding[] typeVariables = genericType().typeVariables();
 		int length = typeVariables.length;

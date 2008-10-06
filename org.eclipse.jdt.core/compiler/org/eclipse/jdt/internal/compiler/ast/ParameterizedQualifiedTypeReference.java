@@ -47,12 +47,11 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		if (index > 0 &&  type.enclosingType() != null) {
 			checkBounds(type.enclosingType(), scope, index - 1);
 		}
-		if (type.isParameterizedType()) {
+		if (type.isParameterizedTypeWithActualArguments()) {
 			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
 			ReferenceBinding currentType = parameterizedType.genericType();
 			TypeVariableBinding[] typeVariables = currentType.typeVariables();
-			TypeBinding[] argTypes = parameterizedType.arguments;
-			if (argTypes != null && typeVariables != null) { // argTypes may be null in error cases
+			if (typeVariables != null) { // argTypes may be null in error cases
 				parameterizedType.boundCheck(scope, this.typeArguments[index]);
 			}
 		}
@@ -189,7 +188,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 			} else {
 				if (typeIsConsistent && currentType.isStatic()
-						&& ((qualifyingType.isParameterizedType() && ((ParameterizedTypeBinding)qualifyingType).arguments != null) || qualifyingType.isGenericType())) {
+						&& (qualifyingType.isParameterizedTypeWithActualArguments() || qualifyingType.isGenericType())) {
 					scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifyingType));
 					typeIsConsistent = false;
 				}
