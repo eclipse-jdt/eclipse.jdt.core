@@ -473,6 +473,7 @@ public long getAnnotationTagBits() {
 	}
 	return originalMethod.tagBits;
 }
+
 /**
  * @return the default value for this annotation method or <code>null</code> if there is no default value
  */
@@ -538,12 +539,73 @@ public AnnotationBinding[][] getParameterAnnotations() {
 	}
 	return allParameterAnnotations;
 }
+
+/**
+ * Return the highest method in supertype hierarchy for which the signature is different from
+ * receiver and its return type is least specific.
+ */
+public MethodBinding getLeastSpecificOverridenMethod() {
+	MethodBinding bestMethod = this;
+	// walk superclasses
+	ReferenceBinding[] interfacesToVisit = null;
+	int nextPosition = 0;
+    ReferenceBinding currentType = this.declaringClass;
+	do {
+		MethodBinding superMethod = currentType.getExactMethod(this.selector, this.parameters, null);
+		if (superMethod != null) {
+			bestMethod = superMethod;
+		}
+		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
+			if (interfacesToVisit == null) {
+				interfacesToVisit = itsInterfaces;
+				nextPosition = interfacesToVisit.length;
+			} else {
+				int itsLength = itsInterfaces.length;
+				if (nextPosition + itsLength >= interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+				nextInterface : for (int a = 0; a < itsLength; a++) {
+					ReferenceBinding next = itsInterfaces[a];
+					for (int b = 0; b < nextPosition; b++)
+						if (next == interfacesToVisit[b]) continue nextInterface;
+					interfacesToVisit[nextPosition++] = next;
+				}
+			}
+		}
+	} while ((currentType = currentType.superclass()) != null);
+	if (bestMethod.declaringClass.id == TypeIds.T_JavaLangObject) {
+		return bestMethod;
+	}
+	// walk superinterfaces
+	for (int i = 0; i < nextPosition; i++) {
+		currentType = interfacesToVisit[i];
+		MethodBinding superMethod = currentType.getExactMethod(this.selector, this.parameters, null);
+		if (superMethod != null) {
+			bestMethod = superMethod;
+		}		
+		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
+			int itsLength = itsInterfaces.length;
+			if (nextPosition + itsLength >= interfacesToVisit.length)
+				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+			nextInterface : for (int a = 0; a < itsLength; a++) {
+				ReferenceBinding next = itsInterfaces[a];
+				for (int b = 0; b < nextPosition; b++)
+					if (next == interfacesToVisit[b]) continue nextInterface;
+				interfacesToVisit[nextPosition++] = next;
+			}
+		}
+	}	
+	return bestMethod;
+}
+
 public TypeVariableBinding getTypeVariable(char[] variableName) {
 	for (int i = this.typeVariables.length; --i >= 0;)
 		if (CharOperation.equals(this.typeVariables[i].sourceName, variableName))
 			return this.typeVariables[i];
 	return null;
 }
+
 /**
  * Returns true if method got substituted parameter types
  * (see ParameterizedMethodBinding)
@@ -551,6 +613,7 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 public boolean hasSubstitutedParameters() {
 	return false;
 }
+
 /* Answer true if the return type got substituted.
  */
 public boolean hasSubstitutedReturnType() {
