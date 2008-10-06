@@ -498,7 +498,7 @@ public Object getDefaultValue() {
 }
 
 /**
- * Return the highest method in supertype hierarchy with same selector and arguments
+ * Return the highest method/constructor in supertype hierarchy with same selector and arguments
  */
 public MethodBinding getHighestOverridenMethod() {
 	MethodBinding bestMethod = this;
@@ -506,8 +506,11 @@ public MethodBinding getHighestOverridenMethod() {
 	ReferenceBinding[] interfacesToVisit = null;
 	int nextPosition = 0;
     ReferenceBinding currentType = this.declaringClass;
+    boolean isConstructor = this.isConstructor();
 	do {
-		MethodBinding superMethod = currentType.getExactMethod(this.selector, this.parameters, null);
+		MethodBinding superMethod = isConstructor 
+			? currentType.getExactConstructor(this.parameters)
+			: currentType.getExactMethod(this.selector, this.parameters, null);
 		if (superMethod != null) {
 			bestMethod = superMethod;
 		}
@@ -535,7 +538,9 @@ public MethodBinding getHighestOverridenMethod() {
 	// walk superinterfaces
 	for (int i = 0; i < nextPosition; i++) {
 		currentType = interfacesToVisit[i];
-		MethodBinding superMethod = currentType.getExactMethod(this.selector, this.parameters, null);
+		MethodBinding superMethod = isConstructor 
+			? currentType.getExactConstructor(this.parameters)
+			: currentType.getExactMethod(this.selector, this.parameters, null);
 		if (superMethod != null) {
 			bestMethod = superMethod;
 		}		
