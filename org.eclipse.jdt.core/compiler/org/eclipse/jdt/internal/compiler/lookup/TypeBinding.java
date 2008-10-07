@@ -483,6 +483,17 @@ public boolean isParameterizedType() {
 }
 
 /**
+ * Returns true if the type is parameterized, e.g. List<String>
+ * Note that some instances of ParameterizedTypeBinding do answer false to {@link #isParameterizedType()}
+ * in case they have no arguments, like for non-generic members of a parameterized type.
+ * i.e. {@link #isParameterizedType()} is not equivalent to testing <code>type.kind() == Binding.PARAMETERIZED_TYPE</code>
+ */
+public final boolean isParameterizedTypeWithActualArguments() {
+	return (kind() == Binding.PARAMETERIZED_TYPE) 
+					&& ((ParameterizedTypeBinding) this).arguments != null;
+}
+
+/**
  * Returns true if the type is parameterized using its own type variables as arguments
  */
 public boolean isParameterizedWithOwnVariables() {

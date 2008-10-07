@@ -8763,6 +8763,62 @@ public void test168() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=243820
+public void test169() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> {\n" +
+			"	interface I<S> {}\n" +
+			"	interface J { A foo(A a, I<String> i); }\n" +
+			"	static class A {}\n" +
+			"	static class B implements J {\n" +
+			"		public R foo(A a, I i) { return null; }\n" +
+			"	}\n" +
+			"}\n" +
+			"class R<T> extends X.A {}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	public R foo(A a, I i) { return null; }\n" + 
+		"	       ^\n" + 
+		"R is a raw type. References to generic type R<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	public R foo(A a, I i) { return null; }\n" + 
+		"	                  ^\n" + 
+		"X.I is a raw type. References to generic type X<T>.I<S> should be parameterized\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=243820
+public void test169a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> {\n" +
+			"	abstract class B implements J {\n" +
+			"		public R foo(X<String>.B b, I i) { return null; }\n" +
+			"	}\n" +
+			"}\n" +
+			"interface I<S> {}\n" +
+			"interface J { A foo(A a, I<String> i); }\n" +
+			"class A {}\n" +
+			"class R<T> extends A {}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	public R foo(X<String>.B b, I i) { return null; }\n" + 
+		"	       ^\n" + 
+		"R is a raw type. References to generic type R<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	public R foo(X<String>.B b, I i) { return null; }\n" + 
+		"	                            ^\n" + 
+		"I is a raw type. References to generic type I<S> should be parameterized\n" + 
+		"----------\n"
+	);
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249140
 public void test174() {
 	this.runNegativeTest(
