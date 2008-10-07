@@ -500,7 +500,7 @@ public Object getDefaultValue() {
 /**
  * Return the highest method/constructor in supertype hierarchy with same selector and arguments
  */
-public MethodBinding getHighestOverridenMethod() {
+public MethodBinding getHighestOverridenMethod(LookupEnvironment environment) {
 	MethodBinding bestMethod = this;
     ReferenceBinding currentType = this.declaringClass;
     if (this.isConstructor()) {
@@ -513,13 +513,17 @@ public MethodBinding getHighestOverridenMethod() {
     	} while ((currentType = currentType.superclass()) != null);
     	return bestMethod;
     }
+    MethodVerifier verifier = environment.methodVerifier();
 	// walk superclasses
 	ReferenceBinding[] interfacesToVisit = null;
 	int nextPosition = 0;
 	do {
-		MethodBinding superMethod = currentType.getExactMethod(this.selector, this.parameters, null);
-		if (superMethod != null) {
-			bestMethod = superMethod;
+		MethodBinding[] superMethods = currentType.getMethods(this.selector);
+		for (int i = 0, length = superMethods.length; i < length; i++) {
+			if (verifier.doesMethodOverride(this, superMethods[i])) {
+				bestMethod = superMethods[i];
+				break;
+			}
 		}
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
@@ -545,10 +549,18 @@ public MethodBinding getHighestOverridenMethod() {
 	// walk superinterfaces
 	for (int i = 0; i < nextPosition; i++) {
 		currentType = interfacesToVisit[i];
-		MethodBinding superMethod = currentType.getExactMethod(this.selector, this.parameters, null);
-		if (superMethod != null) {
-			bestMethod = superMethod;
-		}		
+		MethodBinding[] superMethods = currentType.getMethods(this.selector);
+		for (int j = 0, length = superMethods.length; j < length; j++) {
+			MethodBinding superMethod = superMethods[j];
+			if (verifier.doesMethodOverride(this, superMethod)) {
+				TypeBinding bestReturnType = bestMethod.returnType;
+				if (bestReturnType == superMethod.returnType
+						|| bestMethod.returnType.findSuperTypeOriginatingFrom(superMethod.returnType) != null) {
+					bestMethod = superMethod;
+				}
+				break;
+			}
+		}
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			int itsLength = itsInterfaces.length;
