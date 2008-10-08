@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  */
 public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer {
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
 	 */
 	public void initializeDefaultPreferences() {
