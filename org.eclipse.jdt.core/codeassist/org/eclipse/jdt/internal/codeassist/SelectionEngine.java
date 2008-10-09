@@ -738,8 +738,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				new BasicSearchEngine(workingCopies).searchAllTypeNames(
 					null,
 					SearchPattern.R_EXACT_MATCH,
-					CharOperation.toLowerCase(prefix),
-					SearchPattern.R_EXACT_MATCH,
+					prefix,
+					SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE,
 					IJavaSearchConstants.TYPE,
 					scope,
 					requestorWrapper,
