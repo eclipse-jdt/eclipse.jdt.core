@@ -226,7 +226,7 @@ public class ClasspathChange {
 
 			if (newResolvedClasspath == null) {
 				// another thread reset the resolved classpath, use a temporary PerProjectInfo
-				PerProjectInfo temporaryInfo = new PerProjectInfo(this.project.getProject());
+				PerProjectInfo temporaryInfo = this.project.newTemporaryInfo();
 				this.project.resolveClasspath(temporaryInfo, false/*don't use previous session values*/);
 				newRawClasspath = temporaryInfo.rawClasspath;
 				newResolvedClasspath = temporaryInfo.getResolvedClasspath();

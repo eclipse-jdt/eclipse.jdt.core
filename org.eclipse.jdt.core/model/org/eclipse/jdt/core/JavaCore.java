@@ -3234,7 +3234,7 @@ public final class JavaCore extends Plugin {
 	 *   if the given variable entry could not be resolved to a valid classpath entry
 	 */
 	public static IClasspathEntry getResolvedClasspathEntry(IClasspathEntry entry) {
-		return JavaModelManager.getJavaModelManager().getResolvedClasspathEntry(entry, false/*don't use previous session value*/);
+		return JavaModelManager.getJavaModelManager().resolveVariableEntry(entry, false/*don't use previous session value*/);
 	}
 
 
@@ -3928,6 +3928,10 @@ public final class JavaCore extends Plugin {
 	 * If exported, dependent projects will concatenate the accessible files patterns of this entry with the
 	 * accessible files patterns of the projects, and they will concatenate the non accessible files patterns of this entry
 	 * with the non accessible files patterns of the project.
+	 * </p>
+	 * <p>
+	 * Since 3.5, if the libray is a ZIP archive, the "Class-Path" clause (if any) in the "META-INF/MANIFEST.MF" is read
+	 * and referenced ZIP archives are added to the {@link IJavaProject#getResolvedClasspath(boolean) resolved classpath}.
 	 * </p>
 	 *
 	 * @param path the path to the library

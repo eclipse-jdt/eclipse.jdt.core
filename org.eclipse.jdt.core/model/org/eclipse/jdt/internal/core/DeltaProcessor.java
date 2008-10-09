@@ -313,7 +313,7 @@ public class DeltaProcessor {
 	 * In all cases, add the project's dependents to the list of projects to update
 	 * so that the classpath related markers can be updated.
 	 */
-	private void checkProjectsBeingAddedOrRemoved(IResourceDelta delta) {
+	private void checkProjectsAndClasspathChanges(IResourceDelta delta) {
 		IResource resource = delta.getResource();
 		IResourceDelta[] children = null;
 
@@ -438,12 +438,19 @@ public class DeltaProcessor {
 				}
 
 				break;
+			case IResource.FOLDER:
+				if (delta.getKind() == IResourceDelta.CHANGED) { // look for .jar file change to update classpath
+					children = delta.getAffectedChildren();
+				}
+				break;
 			case IResource.FILE :
 				IFile file = (IFile) resource;
-				/* classpath file change */
+				int kind = delta.getKind();
+				RootInfo rootInfo;
 				if (file.getName().equals(JavaProject.CLASSPATH_FILENAME)) {
+					/* classpath file change */
 					this.manager.forceBatchInitializations(false/*not initAfterLoad*/);
-					switch (delta.getKind()) {
+					switch (kind) {
 						case IResourceDelta.CHANGED :
 							int flags = delta.getFlags();
 							if ((flags & IResourceDelta.CONTENT) == 0  // only consider content change
@@ -463,13 +470,17 @@ public class DeltaProcessor {
 							break;
 					}
 					this.state.rootsAreStale = true;
+				} else if ((rootInfo = rootInfo(file.getFullPath(), kind)) != null && rootInfo.entryKind == IClasspathEntry.CPE_LIBRARY) {
+					javaProject = (JavaProject)JavaCore.create(file.getProject());
+					javaProject.resetResolvedClasspath();
+					this.state.rootsAreStale = true;
 				}
 				break;
 
 		}
 		if (children != null) {
 			for (int i = 0; i < children.length; i++) {
-				checkProjectsBeingAddedOrRemoved(children[i]);
+				checkProjectsAndClasspathChanges(children[i]);
 			}
 		}
 	}
@@ -815,14 +826,14 @@ public class DeltaProcessor {
 						javaProject = (JavaProject) JavaCore.create(project);
 						try {
 							classpath = javaProject.getResolvedClasspath();
+							for (int k = 0, cpLength = classpath.length; k < cpLength; k++){
+								if (classpath[k].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
+									archivePathsToRefresh.add(classpath[k].getPath());
+								}
+							}
 						} catch (JavaModelException e2) {
 							// project doesn't exist -> ignore
 							continue;
-						}
-						for (int k = 0, cpLength = classpath.length; k < cpLength; k++){
-							if (classpath[k].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
-								archivePathsToRefresh.add(classpath[k].getPath());
-							}
 						}
 					}
 					break;
@@ -852,7 +863,6 @@ public class DeltaProcessor {
 			}
 			for (int j = 0; j < entries.length; j++){
 				if (entries[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-
 					IPath entryPath = entries[j].getPath();
 
 					if (!archivePathsToRefresh.contains(entryPath)) continue; // not supposed to be refreshed
@@ -919,6 +929,7 @@ public class DeltaProcessor {
 								System.out.println("- External JAR ADDED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							elementAdded(root, null, null);
+							javaProject.resetResolvedClasspath(); // in case it contains a chained jar
 							this.state.addClasspathValidation(javaProject); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=185733
 							hasDelta = true;
 						} else if (status == EXTERNAL_JAR_CHANGED) {
@@ -927,6 +938,7 @@ public class DeltaProcessor {
 								System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							contentChanged(root);
+							javaProject.resetResolvedClasspath(); // in case it contains a chained jar
 							hasDelta = true;
 						} else if (status == EXTERNAL_JAR_REMOVED) {
 							PackageFragmentRoot root = (PackageFragmentRoot) javaProject.getPackageFragmentRoot(entryPath.toString());
@@ -934,6 +946,7 @@ public class DeltaProcessor {
 								System.out.println("- External JAR REMOVED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							elementRemoved(root, null, null);
+							javaProject.resetResolvedClasspath(); // in case it contains a chained jar
 							this.state.addClasspathValidation(javaProject); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=185733
 							hasDelta = true;
 						}
@@ -1894,7 +1907,12 @@ public class DeltaProcessor {
 					try {
 						try {
 							stopDeltas();
-							checkProjectsBeingAddedOrRemoved(delta);
+							checkProjectsAndClasspathChanges(delta);
+
+							// generate external archive change deltas
+							if (elementsToRefresh != null) {
+								createExternalArchiveDelta(elementsToRefresh, null);
+							}
 
 							// generate classpath change deltas
 							if (this.classpathChanges.size() > 0) {
@@ -1920,23 +1938,14 @@ public class DeltaProcessor {
 										this.state.addExternalFolderChange(change.project, change.oldResolvedClasspath);
 									}
 								}
+								// process late coming external elements to refresh (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=212769 )
+								elementsToRefresh = this.state.removeExternalElementsToRefresh();
+								if (elementsToRefresh != null) {
+									hasDelta |= createExternalArchiveDelta(elementsToRefresh, null);
+								}
 								this.classpathChanges.clear();
 								if (!hasDelta)
 									this.currentDelta = null;
-							}
-
-							// add late coming elements to refresh (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=212769 )
-							if (elementsToRefresh == null) {
-								elementsToRefresh = this.state.removeExternalElementsToRefresh();
-							} else {
-								HashSet newElementsToRefresh = this.state.removeExternalElementsToRefresh();
-								if (newElementsToRefresh != null)
-									elementsToRefresh.addAll(newElementsToRefresh);
-							}
-
-							// generate external archive change deltas
-							if (elementsToRefresh != null) {
-								createExternalArchiveDelta(elementsToRefresh, null);
 							}
 
 							// generate Java deltas from resource changes

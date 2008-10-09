@@ -349,10 +349,12 @@ public static void createJar(String[] pathsAndContents, String[] extraPathsAndCo
 	if (pathsAndContents != null) {
 		compile(pathsAndContents, options, classpath, classesPath);
 	}
-	for (int i = 0, l = extraPathsAndContents == null ? 0 : extraPathsAndContents.length; i < l; /* inc in loop */) {
-		File  outputFile = new File(classesPath, extraPathsAndContents[i++]);
-		outputFile.getParentFile().mkdirs();
-		Util.writeToFile(extraPathsAndContents[i++], outputFile.getAbsolutePath());
+	if (extraPathsAndContents != null) {
+		for (int i = 0, l = extraPathsAndContents == null ? 0 : extraPathsAndContents.length; i < l; /* inc in loop */) {
+			File  outputFile = new File(classesPath, extraPathsAndContents[i++]);
+			outputFile.getParentFile().mkdirs();
+			Util.writeToFile(extraPathsAndContents[i++], outputFile.getAbsolutePath());
+		}
 	}
     zip(classesDir, jarPath);
 }

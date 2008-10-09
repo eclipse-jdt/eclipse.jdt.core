@@ -309,10 +309,11 @@ public void testAccessRestriction2() throws CoreException, IOException {
 				"public class X {\n" +
 				"}",
 			},
+			null/*no non-Java resources*/,
 			new String[] {
 				"**/*"
 			},
-			null,
+			null, 
 			"1.4"
 		);
 		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "bin");

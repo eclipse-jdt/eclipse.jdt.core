@@ -1098,10 +1098,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		private ClasspathChange setClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus) {
-			// remember old info
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			DeltaProcessor deltaProcessor = manager.deltaState.getDeltaProcessor();
-			ClasspathChange classpathChange = deltaProcessor.addClasspathChange(this.project, this.rawClasspath, this.outputLocation, this.resolvedClasspath);
+			ClasspathChange classpathChange = addClasspathChange();
 
 			this.rawClasspath = newRawClasspath;
 			this.outputLocation = newOutputLocation;
@@ -1112,6 +1109,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.unresolvedEntryStatus = newUnresolvedEntryStatus;
 			this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
 
+			return classpathChange;
+		}
+
+		protected ClasspathChange addClasspathChange() {
+			// remember old info
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			DeltaProcessor deltaProcessor = manager.deltaState.getDeltaProcessor();
+			ClasspathChange classpathChange = deltaProcessor.addClasspathChange(this.project, this.rawClasspath, this.outputLocation, this.resolvedClasspath);
 			return classpathChange;
 		}
 
@@ -2178,7 +2183,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return containerIDs;
 	}
 
-	public IClasspathEntry getResolvedClasspathEntry(IClasspathEntry entry, boolean usePreviousSession) {
+	public IClasspathEntry resolveVariableEntry(IClasspathEntry entry, boolean usePreviousSession) {
 
 		if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE)
 			return entry;

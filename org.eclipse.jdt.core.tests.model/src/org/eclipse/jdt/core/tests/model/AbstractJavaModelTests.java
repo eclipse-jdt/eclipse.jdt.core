@@ -391,30 +391,46 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		);
 
 	}
+	protected void addExternalLibrary(IJavaProject javaProject, String jarPath, String[] pathAndContents, String[] nonJavaResources, String compliance) throws Exception {
+		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, compliance);
+		addLibraryEntry(javaProject, new Path(jarPath), true/*exported*/);
+	}
 	protected void addLibrary(String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
-		addLibrary(this.currentProject, jarName, sourceZipName, pathAndContents, null, null, compliance);
+		addLibrary(this.currentProject, jarName, sourceZipName, pathAndContents, null/*no non-Java resources*/, null, null, compliance);
 	}
 	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
-		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, null, null, compliance);
+		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, null/*no non-Java resources*/, null, null, compliance);
 	}
-	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String[] librariesInclusionPatterns, String[] librariesExclusionPatterns, String compliance) throws CoreException, IOException {
-		IProject project = javaProject.getProject();
-		String projectLocation = project.getLocation().toOSString();
-		String jarPath = projectLocation + File.separator + jarName;
-		String sourceZipPath = projectLocation + File.separator + sourceZipName;
-		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, jarPath, compliance);
-		org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathAndContents, sourceZipPath);
-		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String[] nonJavaResources, String compliance) throws CoreException, IOException {
+		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, null, null, compliance);
+	}
+	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String[] nonJavaResources, String[] librariesInclusionPatterns, String[] librariesExclusionPatterns, String compliance) throws CoreException, IOException {
+		IProject project = createLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, compliance);
 		String projectPath = '/' + project.getName() + '/';
 		addLibraryEntry(
 			javaProject,
 			new Path(projectPath + jarName),
-			new Path(projectPath + sourceZipName),
+			sourceZipName == null ? null : new Path(projectPath + sourceZipName),
 			null,
 			toIPathArray(librariesInclusionPatterns),
 			toIPathArray(librariesExclusionPatterns),
 			true
 		);
+	}
+
+	protected IProject createLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String[] nonJavaResources, String compliance) throws IOException, CoreException {
+		IProject project = javaProject.getProject();
+		String projectLocation = project.getLocation().toOSString();
+		String jarPath = projectLocation + File.separator + jarName;
+		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, compliance);
+		touch(new File(jarPath));
+		if (pathAndContents != null && pathAndContents.length != 0) {
+			String sourceZipPath = projectLocation + File.separator + sourceZipName;
+			org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathAndContents, sourceZipPath);
+			touch(new File(sourceZipPath));
+		}
+		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+		return project;
 	}
 	protected void addLibraryEntry(String path, boolean exported) throws JavaModelException {
 		addLibraryEntry(this.currentProject, new Path(path), null, null, null, null, exported);
@@ -878,7 +894,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			actual = buffer.toString();
 		}
 		if (!actual.equals(expected)) {
-		 	System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+		 	System.out.print(displayString(actual, 2));
 		}
 		assertEquals(expected, actual);
 	}

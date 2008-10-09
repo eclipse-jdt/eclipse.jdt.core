@@ -2970,6 +2970,375 @@ public void testExtraAttributes4() throws CoreException {
 	}
 }
 /*
+ * Ensures that the extra libraries in the Class-Path: clause of a jar are taken into account.
+ */
+public void testExtraLibraries01() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addLibrary(p, "lib1.jar", null, new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createFile("/P/lib2.jar", "");
+		assertClasspathEquals(
+			p.getResolvedClasspath(true), 
+			"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" + 
+			""+ getExternalJCLPathString() + "[CPE_LIBRARY][K_BINARY][isExported:false]\n" + 
+			"/P/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
+			"/P/lib1.jar[CPE_LIBRARY][K_BINARY][isExported:true]"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the extra libraries in the Class-Path: clause of a jar are taken into account.
+ */
+public void testExtraLibraries02() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addLibrary(p, "lib1.jar", null, new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar lib3.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createFile("/P/lib2.jar", "");
+		createFile("/P/lib3.jar", "");
+		assertClasspathEquals(
+			p.getResolvedClasspath(true), 
+			"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" + 
+			""+ getExternalJCLPathString() + "[CPE_LIBRARY][K_BINARY][isExported:false]\n" + 
+			"/P/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
+			"/P/lib3.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
+			"/P/lib1.jar[CPE_LIBRARY][K_BINARY][isExported:true]"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the extra libraries in the Class-Path: clause of a jar are taken into account.
+ */
+public void testExtraLibraries03() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		createFile("/P/lib3.jar", "");
+		createLibrary(p, "lib2.jar", null, new String[0],
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib3.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		addLibrary(p, "lib1.jar", null, new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		assertClasspathEquals(
+			p.getResolvedClasspath(true), 
+			"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" + 
+			""+ getExternalJCLPathString() + "[CPE_LIBRARY][K_BINARY][isExported:false]\n" + 
+			"/P/lib3.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
+			"/P/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
+			"/P/lib1.jar[CPE_LIBRARY][K_BINARY][isExported:true]"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the extra libraries in the Class-Path: clause of a jar are taken into account.
+ */
+public void testExtraLibraries04() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addLibrary(p, "lib1.jar", null, new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createLibrary(p, "lib2.jar", null, new String[0],
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib3.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createFile("/P/lib3.jar", "");
+		assertClasspathEquals(
+			p.getResolvedClasspath(true), 
+			"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" + 
+			""+ getExternalJCLPathString() + "[CPE_LIBRARY][K_BINARY][isExported:false]\n" + 
+			"/P/lib3.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
+			"/P/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
+			"/P/lib1.jar[CPE_LIBRARY][K_BINARY][isExported:true]"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that no markers are created for correct extra libraries in the Class-Path: clause of a jar
+ */
+public void testExtraLibraries05() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addLibrary(p, "lib1.jar", null, new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createFile("/P/lib2.jar", "");
+		assertMarkers(
+			"Unexpected markers",
+			"",
+			p);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a marker is created for incorrect extra libraries in the Class-Path: clause of a jar
+ */
+public void testExtraLibraries06() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addLibrary(p, "lib1.jar", null, new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		assertMarkers(
+			"Unexpected markers",
+			"Project \'P\' is missing required library: \'lib2.jar\'",
+			p);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the extra libraries in the Class-Path: clause of an external jar are taken into account.
+ */
+public void testExtraLibraries07() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addExternalLibrary(p, getExternalResourcePath("lib1.jar"), new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createExternalFile("lib2.jar", "");
+		assertClasspathEquals(
+			p.getResolvedClasspath(true), 
+			"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" + 
+			""+ getExternalJCLPathString() + "[CPE_LIBRARY][K_BINARY][isExported:false]\n" + 
+			""+ getExternalPath() + "lib2.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
+			""+ getExternalPath() + "lib1.jar[CPE_LIBRARY][K_BINARY][isExported:true]"
+		);
+	} finally {
+		deleteProject("P");
+		deleteExternalResource("lib1.jar");
+		deleteExternalResource("lib2.jar");
+	}
+}
+/*
+ * Ensures that no markers are created for correct extra libraries in the Class-Path: clause of an external jar
+ */
+public void testExtraLibraries08() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addExternalLibrary(p, getExternalResourcePath("lib1.jar"), new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createExternalFile("lib2.jar", "");
+		refreshExternalArchives(p);
+		assertMarkers(
+			"Unexpected markers",
+			"",
+			p);
+	} finally {
+		deleteProject("P");
+		deleteExternalResource("lib1.jar");
+		deleteExternalResource("lib2.jar");
+	}
+}
+/*
+ * Ensures that a marker is created for incorrect extra libraries in the Class-Path: clause of an external jar
+ */
+public void testExtraLibraries09() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addExternalLibrary(p, getExternalResourcePath("lib1.jar"), new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		assertMarkers(
+			"Unexpected markers",
+			"Project \'P\' is missing required library: \'"+ getExternalPath() + "lib2.jar\'",
+			p);
+	} finally {
+		deleteProject("P");
+		deleteExternalResource("lib1.jar");
+		deleteExternalResource("lib2.jar");
+	}
+}
+/*
+ * Ensures that a marker is created for incorrect extra libraries in the Class-Path: clause of an external jar
+ */
+public void testExtraLibraries10() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addExternalLibrary(p, getExternalResourcePath("lib1.jar"), new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createExternalFile("lib2.jar", "");
+		refreshExternalArchives(p);
+		waitForAutoBuild(); // wait until classpath is validated -> no markers
+		
+		deleteExternalResource("lib2.jar");
+		refreshExternalArchives(p);
+		assertMarkers(
+			"Unexpected markers",
+			"Project \'P\' is missing required library: \'"+ getExternalPath() + "lib2.jar\'",
+			p);
+	} finally {
+		deleteProject("P");
+		deleteExternalResource("lib1.jar");
+		deleteExternalResource("lib2.jar");
+	}
+}
+/*
+ * Ensures that the correct delta is reported when editing the Class-Path: clause of a jar
+ */
+public void testExtraLibraries11() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addLibrary(p, "lib1.jar", null, new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createFile("/P/lib2.jar", "");
+		startDeltas();
+		createLibrary(p, "lib1.jar", null, new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib3.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	lib1.jar[*]: {CONTENT | ARCHIVE CONTENT CHANGED}\n" + 
+			"	lib2.jar[*]: {REMOVED FROM CLASSPATH}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the correct delta is reported when editing the Class-Path: clause of an external jar
+ */
+public void testExtraLibraries12() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addExternalLibrary(p, getExternalResourcePath("lib1.jar"), new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createExternalFile("lib2.jar", "");
+		refreshExternalArchives(p);
+		
+		startDeltas();
+		org.eclipse.jdt.core.tests.util.Util.createJar(new String[0],
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib3.jar\n",
+			},
+			getExternalResourcePath("lib1.jar"),
+			JavaCore.VERSION_1_4);
+		refreshExternalArchives(p);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	"+ getExternalPath() + "lib1.jar[*]: {CONTENT | ARCHIVE CONTENT CHANGED}\n" + 
+			"	"+ getExternalPath() + "lib2.jar[*]: {REMOVED FROM CLASSPATH}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+		deleteExternalResource("lib1.jar");
+		deleteExternalResource("lib2.jar");
+	}
+}
+/*
+ * Ensures that the correct delta is reported when removing an external jar with a Class-Path: clause
+ */
+public void testExtraLibraries13() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addExternalLibrary(p, getExternalResourcePath("lib1.jar"), new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		createExternalFile("lib2.jar", "");
+		refreshExternalArchives(p);
+		
+		startDeltas();
+		deleteExternalResource("lib1.jar");
+		refreshExternalArchives(p);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	"+ getExternalPath() + "lib1.jar[-]: {}\n" + 
+			"	"+ getExternalPath() + "lib2.jar[*]: {REMOVED FROM CLASSPATH}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+		deleteExternalResource("lib1.jar");
+		deleteExternalResource("lib2.jar");
+	}
+}
+/*
  * Ensures that a marker is removed if adding an internal jar that is on the classpath in another project
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=213723 )
  */
