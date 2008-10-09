@@ -566,7 +566,8 @@ public void select(
 	int selectionSourceEnd,
 	SearchableEnvironment environment,
 	ISelectionRequestor requestor,
-	Map options) {
+	Map options,
+	WorkingCopyOwner owner) {
 
 	final char[] className = "CodeSnippetSelection".toCharArray(); //$NON-NLS-1$
 	final CodeSnippetToCuMapper mapper = new CodeSnippetToCuMapper(
@@ -595,7 +596,7 @@ public void select(
 			return null;
 		}
 	};
-	SelectionEngine engine = new SelectionEngine(environment, mapper.getSelectionRequestor(requestor), options);
+	SelectionEngine engine = new SelectionEngine(environment, mapper.getSelectionRequestor(requestor), options, owner);
 	engine.select(sourceUnit, mapper.startPosOffset + selectionSourceStart, mapper.startPosOffset + selectionSourceEnd);
 }
 /**

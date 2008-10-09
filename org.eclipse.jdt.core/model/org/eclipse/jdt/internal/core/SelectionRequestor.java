@@ -211,6 +211,28 @@ public void acceptType(char[] packageName, char[] typeName, int modifiers, boole
 	}
 }
 /**
+ * Resolve the type.
+ */
+public void acceptType(IType type) {
+	String key = type.getKey();
+	if(type.isBinary()) {
+		ResolvedBinaryType resolvedType = new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), key);
+		resolvedType.occurrenceCount = type.getOccurrenceCount();
+		type = resolvedType;
+	} else {
+		ResolvedSourceType resolvedType = new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), key);
+		resolvedType.occurrenceCount = type.getOccurrenceCount();
+		type = resolvedType;
+	}
+
+	addElement(type);
+	if(SelectionEngine.DEBUG){
+		System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+		System.out.print(type.toString());
+		System.out.println(")"); //$NON-NLS-1$
+	}
+}
+/**
  * @see ISelectionRequestor#acceptError
  */
 public void acceptError(CategorizedProblem error) {

@@ -157,7 +157,7 @@ protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompi
 	}
 
 	// fix for 1FVXGDK
-	SelectionEngine engine = new SelectionEngine(environment, requestor, project.getOptions(true));
+	SelectionEngine engine = new SelectionEngine(environment, requestor, project.getOptions(true), owner);
 	engine.select(cu, offset, offset + length - 1);
 
 	if(performanceStats != null) {

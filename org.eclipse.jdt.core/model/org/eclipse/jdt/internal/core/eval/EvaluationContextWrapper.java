@@ -132,7 +132,8 @@ public IJavaElement[] codeSelect(String codeSnippet, int offset, int length, Wor
 		offset + length - 1,
 		environment,
 		requestor,
-		this.project.getOptions(true)
+		this.project.getOptions(true),
+		owner
 	);
 	return requestor.getElements();
 }

@@ -287,7 +287,7 @@ public abstract class NamedMember extends Member {
 		}
 		TypeResolveRequestor requestor = new TypeResolveRequestor();
 		SelectionEngine engine =
-			new SelectionEngine(environment, requestor, project.getOptions(true));
+			new SelectionEngine(environment, requestor, project.getOptions(true), owner);
 
 		engine.selectType(typeName.toCharArray(), (IType) this);
 		if (NameLookup.VERBOSE) {
