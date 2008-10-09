@@ -423,11 +423,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		String projectLocation = project.getLocation().toOSString();
 		String jarPath = projectLocation + File.separator + jarName;
 		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, compliance);
-		touch(new File(jarPath));
 		if (pathAndContents != null && pathAndContents.length != 0) {
 			String sourceZipPath = projectLocation + File.separator + sourceZipName;
 			org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathAndContents, sourceZipPath);
-			touch(new File(sourceZipPath));
 		}
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		return project;
@@ -1119,8 +1117,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return folder;
 	}
 	protected void createJar(String[] javaPathsAndContents, String jarPath) throws IOException {
-		if (new File(jarPath).exists())
-			waitAtLeast(1000); // ensure the timestamps is different
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, jarPath, "1.4");
 	}
 
@@ -2774,17 +2770,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void touch(File f) {
 		int time = 1000;
 		f.setLastModified(f.lastModified() + time);
-		waitAtLeast(time);
-	}
-
-	protected synchronized void waitAtLeast(int time) {
-		long start = System.currentTimeMillis();
-		do {
-			try {
-				wait(time);
-			} catch (InterruptedException e) {
-			}
-		} while ((System.currentTimeMillis() - start) < time);
+		org.eclipse.jdt.core.tests.util.Util.waitAtLeast(time);
 	}
 
 	protected String toString(String[] strings) {

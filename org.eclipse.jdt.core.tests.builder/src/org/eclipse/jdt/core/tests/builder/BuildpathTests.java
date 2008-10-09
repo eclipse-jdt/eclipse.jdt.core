@@ -365,11 +365,6 @@ public void testChangeZIPArchive1() throws Exception {
 		fullBuild(projectPath);
 		expectingNoProblems();
 
-		long lastModified = new java.io.File(externalLib).lastModified();
-		try {
-			Thread.sleep(1000);
-		} catch(InterruptedException e) {
-		}
 		org.eclipse.jdt.core.tests.util.Util.createJar(
 			new String[] {
 				"p/X.java",
@@ -379,7 +374,6 @@ public void testChangeZIPArchive1() throws Exception {
 			},
 			externalLib,
 			"1.4");
-		new java.io.File(externalLib).setLastModified(lastModified + 1000); // to be sure its different
 
 		IJavaProject p = env.getJavaProject(projectPath);
 		p.getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
@@ -430,11 +424,6 @@ public void testChangeZIPArchive2() throws Exception {
 	fullBuild(projectPath);
 	expectingNoProblems();
 
-	long lastModified = new java.io.File(internalLib).lastModified();
-	try {
-		Thread.sleep(1000);
-	} catch(InterruptedException e) {
-	}
 	org.eclipse.jdt.core.tests.util.Util.createJar(
 		new String[] {
 			"p/X.java",
@@ -444,7 +433,6 @@ public void testChangeZIPArchive2() throws Exception {
 		},
 		internalLib,
 		"1.4");
-	new java.io.File(internalLib).setLastModified(lastModified + 1000); // to be sure its different
 
 	env.getProject(projectPath).refreshLocal(IResource.DEPTH_INFINITE, null);
 
@@ -483,7 +471,6 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 		new HashMap(),
 		externalJar
 	);
-	long lastModified = new java.io.File(externalJar).lastModified();
 	env.addExternalJar(projectPath, externalJar);
 
 	// build -> expecting problems
@@ -493,10 +480,6 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 		"Problem : The method bar() is undefined for the type Y [ resource : </Project/p/X.java> range : <57,60> category : <50> severity : <2>]"
 	);
 
-	try {
-		Thread.sleep(1000);
-	} catch(InterruptedException e) {
-	}
 	// fix jar
 	Util.createJar(
 		new String[] {
@@ -511,7 +494,6 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 		externalJar
 	);
 
-	new java.io.File(externalJar).setLastModified(lastModified + 1000); // to be sure its different
 	// refresh project and rebuild -> expecting no problems
 	IJavaProject project = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject("Project")); //$NON-NLS-1$
 	project.getJavaModel().refreshExternalArchives(new IJavaElement[] {project}, null);

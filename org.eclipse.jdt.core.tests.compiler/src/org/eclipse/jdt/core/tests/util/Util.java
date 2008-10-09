@@ -335,13 +335,6 @@ public static void createClassFolder(String[] pathsAndContents, String folderPat
 public static void createJar(String[] pathsAndContents, Map options, String jarPath) throws IOException {
 	createJar(pathsAndContents, null, options, null, jarPath);
 }
-public static void createJar(String[] pathsAndContents, String[] extraPathsAndContents, Map options, String jarPath) throws IOException {
-	createJar(pathsAndContents, extraPathsAndContents, options, null, jarPath);
-}
-public static void createJar(String[] pathsAndContents, String[] extraPathsAndContents, Map options, String jarPath, String[] classpath) throws IOException {
-	createJar(pathsAndContents, extraPathsAndContents, options, classpath, jarPath);
-}
-
 public static void createJar(String[] pathsAndContents, String[] extraPathsAndContents, Map options, String[] classpath, String jarPath) throws IOException {
     String classesPath = getOutputDirectory() + File.separator + "classes";
     File classesDir = new File(classesPath);
@@ -1081,6 +1074,16 @@ public static void unzip(String zipPath, String destDirPath) throws IOException 
         }
     }
 }
+public static void waitAtLeast(int time) {
+	long start = System.currentTimeMillis();
+	do {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+		}
+	} while ((System.currentTimeMillis() - start) < time);
+}
+
 /**
  * Wait until the file is _really_ deleted on file system.
  *
@@ -1263,8 +1266,13 @@ public static void zip(File rootDir, String zipPath) throws IOException {
     ZipOutputStream zip = null;
     try {
         File zipFile = new File(zipPath);
-        if (zipFile.exists() && !delete(zipFile))
-        	throw new IOException("Could not delete " + zipPath);
+        if (zipFile.exists()) {
+        	if (!delete(zipFile))
+	        	throw new IOException("Could not delete " + zipPath);
+        	 // ensure the new zip file has a different timestamp than the previous one
+        	int timeToWait = 1000; // some platform (like Linux) have a 1s granularity)
+           	waitAtLeast(timeToWait);
+        }
         zip = new ZipOutputStream(new FileOutputStream(zipFile));
         zip(rootDir, zip, rootDir.getPath().length()+1); // 1 for last slash
     } finally {

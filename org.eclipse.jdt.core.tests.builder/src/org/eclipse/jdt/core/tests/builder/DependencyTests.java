@@ -310,7 +310,6 @@ public class DependencyTests extends BuilderTests {
 			new java.util.HashMap(),
 			externalJar
 		);
-		long lastModified = new java.io.File(externalJar).lastModified();
 		env.addExternalJar(projectPath, externalJar);
 
 		// build -> expecting problems
@@ -320,10 +319,6 @@ public class DependencyTests extends BuilderTests {
 			"Problem : The method bar() is undefined for the type Y [ resource : </Project/p/X.java> range : <57,60> category : <50> severity : <2>]"
 		);
 
-		try {
-			Thread.sleep(1000);
-		} catch(InterruptedException e) {
-		}
 		// fix jar
 		Util.createJar(
 			new String[] {
@@ -337,7 +332,6 @@ public class DependencyTests extends BuilderTests {
 			new java.util.HashMap(),
 			externalJar
 		);
-		new java.io.File(externalJar).setLastModified(lastModified + 1000); // to be sure its different
 		// add new class to trigger an incremental build
 		env.getProject(projectPath).touch(null);
 
