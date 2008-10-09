@@ -63,7 +63,7 @@ boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 						// one parameter type is raw, hence all parameters types must be raw or non generic
 						// otherwise we have a mismatch check backwards
 						for (int j = 0; j < i; j++)
-							if (oneArgs[j].leafComponentType().isParameterizedType())
+							if (oneArgs[j].leafComponentType().isParameterizedTypeWithActualArguments())
 								return false;
 						// switch to all raw mode
 						break foundRAW;
@@ -79,7 +79,7 @@ boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 					if (oneArgs[i].dimensions() == twoArgs[i].dimensions() && oneArgs[i].leafComponentType().isEquivalentTo(twoArgs[i].leafComponentType()))
 						continue;
 				return false;
-			} else if (oneArgs[i].leafComponentType().isParameterizedType()) {
+			} else if (oneArgs[i].leafComponentType().isParameterizedTypeWithActualArguments()) {
 				return false; // no remaining parameter can be a Parameterized type (if one has been converted then all RAW types must be converted)
 			}
 		}
@@ -125,7 +125,7 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 		// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod
 		MethodBinding originalInherited = abstractMethod.original();
 		if (originalInherited.returnType != concreteMethod.returnType) {
-			if (abstractMethod.returnType.leafComponentType().isParameterizedType()) {
+			if (abstractMethod.returnType.leafComponentType().isParameterizedTypeWithActualArguments()) {
 				if (concreteMethod.returnType.leafComponentType().isRawType())
 					problemReporter().unsafeReturnTypeOverride(concreteMethod, originalInherited, this.type);
 			} else if (abstractMethod.hasSubstitutedReturnType() && originalInherited.returnType.leafComponentType().isTypeVariable()) {
@@ -153,7 +153,8 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	if (originalInherited.returnType != currentMethod.returnType) {
 //		if (currentMethod.returnType.needsUncheckedConversion(inheritedMethod.returnType)) {
 //			problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);
-		if (inheritedMethod.returnType.leafComponentType().isParameterizedType() && currentMethod.returnType.leafComponentType().isRawType()) {
+		if (inheritedMethod.returnType.leafComponentType().isParameterizedTypeWithActualArguments() 
+				&& currentMethod.returnType.leafComponentType().isRawType()) {
 			problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);
 		} else if (inheritedMethod.hasSubstitutedReturnType() && originalInherited.returnType.leafComponentType().isTypeVariable()) {
 			if (((TypeVariableBinding) originalInherited.returnType.leafComponentType()).declaringElement == originalInherited) { // see 81618 - type variable from inherited method
