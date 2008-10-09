@@ -156,7 +156,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					Field field = fields[i];
 					if (field.getType().equals(Integer.TYPE)) {
 						Integer value = (Integer) field.get(null);
-						Logger.FIELD_TABLE.put(value.intValue() & IProblem.IgnoreCategoriesMask, field.getName());
+						int key2 = value.intValue() & IProblem.IgnoreCategoriesMask;
+						if (key2 == 0) {
+							key2 = Integer.MAX_VALUE;
+						}
+						Logger.FIELD_TABLE.put(key2, field.getName());
 					}
 				}
 			} catch (SecurityException e) {
@@ -376,7 +380,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 
 		private String getFieldName(int id) {
-			return (String) Logger.FIELD_TABLE.get(id & IProblem.IgnoreCategoriesMask);
+			int key2 = id & IProblem.IgnoreCategoriesMask;
+			if (key2 == 0) {
+				key2 = Integer.MAX_VALUE;
+			}
+			return (String) Logger.FIELD_TABLE.get(key2);
 		}
 
 		// find out an option name controlling a given problemID
