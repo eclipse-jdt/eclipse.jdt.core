@@ -39,9 +39,9 @@ public interface IType extends IMember, IAnnotatable {
 	/**
 	 * Do code completion inside a code snippet in the context of the current type.
 	 *
-	 * If the type can access to his source code and the insertion position is valid,
-	 * then completion is performed against source. Otherwise the completion is performed
-	 * against type structure and given locals variables.
+	 * If the type has access to its source code and the insertion position is valid,
+	 * then completion is performed against the source. Otherwise the completion is performed
+	 * against the type structure and the given locals variables.
 	 *
 	 * @param snippet the code snippet
 	 * @param insertion the position with in source where the snippet
@@ -82,9 +82,9 @@ public interface IType extends IMember, IAnnotatable {
 	 * Note that if a working copy is empty, it will be as if the original compilation
 	 * unit had been deleted.
 	 * </p><p>
-	 * If the type can access to his source code and the insertion position is valid,
-	 * then completion is performed against source. Otherwise the completion is performed
-	 * against type structure and given locals variables.
+	 * If the type has access to its source code and the insertion position is valid,
+	 * then completion is performed against the source. Otherwise the completion is performed
+	 * against the type structure and the given locals variables.
 	 * </p>
 	 *
 	 * @param snippet the code snippet
@@ -122,9 +122,9 @@ public interface IType extends IMember, IAnnotatable {
 	/**
 	 * Do code completion inside a code snippet in the context of the current type.
 	 *
-	 * If the type can access to his source code and the insertion position is valid,
-	 * then completion is performed against source. Otherwise the completion is performed
-	 * against type structure and given locals variables.
+	 * If the type has access to its source code and the insertion position is valid,
+	 * then completion is performed against the source. Otherwise the completion is performed
+	 * against the type structure and the given locals variables.
 	 *
 	 * @param snippet the code snippet
 	 * @param insertion the position with in source where the snippet
@@ -158,9 +158,9 @@ public interface IType extends IMember, IAnnotatable {
 	/**
 	 * Do code completion inside a code snippet in the context of the current type.
 	 *
-	 * If the type can access to his source code and the insertion position is valid,
-	 * then completion is performed against source. Otherwise the completion is performed
-	 * against type structure and given locals variables.
+	 * If the type has access to its source code and the insertion position is valid,
+	 * then completion is performed against the source. Otherwise the completion is performed
+	 * against the type structure and the given locals variables.
 	 *
 	 * @param snippet the code snippet
 	 * @param insertion the position with in source where the snippet
@@ -202,9 +202,9 @@ public interface IType extends IMember, IAnnotatable {
 	 * Note that if a working copy is empty, it will be as if the original compilation
 	 * unit had been deleted.
 	 * </p><p>
-	 * If the type can access to his source code and the insertion position is valid,
-	 * then completion is performed against source. Otherwise the completion is performed
-	 * against type structure and given locals variables.
+	 * If the type has access to its source code and the insertion position is valid,
+	 * then completion is performed against the source. Otherwise the completion is performed
+	 * against the type structure and the given locals variables.
 	 * </p>
 	 *
 	 * @param snippet the code snippet
@@ -247,9 +247,9 @@ public interface IType extends IMember, IAnnotatable {
 	 * Note that if a working copy is empty, it will be as if the original compilation
 	 * unit had been deleted.
 	 * </p><p>
-	 * If the type can access to his source code and the insertion position is valid,
-	 * then completion is performed against source. Otherwise the completion is performed
-	 * against type structure and given locals variables.
+	 * If the type has access to its source code and the insertion position is valid,
+	 * then completion is performed against the source. Otherwise the completion is performed
+	 * against the type structure and the given locals variables.
 	 * </p>
 	 *
 	 * @param snippet the code snippet
