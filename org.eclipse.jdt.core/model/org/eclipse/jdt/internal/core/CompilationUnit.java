@@ -336,18 +336,30 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
 	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY);
 }
-
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.core.runtime.IProgressMonitor)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY, monitor);
+}
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
  */
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner) throws JavaModelException {
+	codeComplete(offset, requestor, workingCopyOwner, null);
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner, org.eclipse.core.runtime.IProgressMonitor)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) throws JavaModelException {
 	codeComplete(
 			this,
 			isWorkingCopy() ? (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getOriginalElement() : this,
 			offset,
 			requestor,
 			workingCopyOwner,
-			this);
+			this,
+			monitor);
 }
 
 /**

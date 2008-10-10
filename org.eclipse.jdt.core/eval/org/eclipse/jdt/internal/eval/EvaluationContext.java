@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.eval;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -104,8 +105,19 @@ public GlobalVariable[] allVariables() {
  *
  *  @param owner
  *  	the owner of working copies that take precedence over their original compilation units
+ *  
+ *  @param monitor
+ *  	the progress monitor used to report progress
  */
-public void complete(char[] codeSnippet, int completionPosition, SearchableEnvironment environment, CompletionRequestor requestor, Map options, final IJavaProject project, WorkingCopyOwner owner) {
+public void complete(
+		char[] codeSnippet,
+		int completionPosition,
+		SearchableEnvironment environment,
+		CompletionRequestor requestor,
+		Map options,
+		final IJavaProject project,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor) {
 	try {
 		IRequestor variableRequestor = new IRequestor() {
 			public boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassName) {
@@ -148,7 +160,7 @@ public void complete(char[] codeSnippet, int completionPosition, SearchableEnvir
 		}
 	};
 
-	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options, project, owner);
+	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options, project, owner, monitor);
 
 	if (this.installedVars != null) {
 		IBinaryType binaryType = getRootCodeSnippetBinary();

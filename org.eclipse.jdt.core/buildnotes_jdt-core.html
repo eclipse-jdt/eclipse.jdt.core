@@ -51,10 +51,221 @@ Eclipse SDK 3.5M3 - %date% - 3.5 MILESTONE 3
 <li>The "Class-Path:" clause of a jar manifest is now honored in the Java model. Jars referenced by "Class-Path:" are now automatically
       added to the build path. See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=198572">bug 198572</a> for details.</li>
 <li>Code Select search types outside the current project scope if no types are found in this scope</li>
+<li>Code Assist operation can be called with a progress monitor:
+<pre>
+public interface ICodeAssist {
+	/**
+	 * Performs code completion at the given offset position in this compilation unit,
+	 * reporting results to the given completion requestor. The &lt;code&gt;offset&lt;/code&gt;
+	 * is the 0-based index of the character, after which code assist is desired.
+	 * An &lt;code&gt;offset&lt;/code&gt; of -1 indicates to code assist at the beginning of this
+	 * compilation unit.
+	 * It considers types in the working copies with the given owner first. In other words,
+	 * the owner's working copies will take precedence over their original compilation units
+	 * in the workspace.
+	 * &lt;p&gt;
+	 * Note that if a working copy is empty, it will be as if the original compilation
+	 * unit had been deleted.
+	 * &lt;/p&gt;
+	 *
+	 * @param offset the given offset position
+	 * @param requestor the given completion requestor
+	 * @param owner the owner of working copies that take precedence over their original compilation units
+	 * @exception JavaModelException if code assist could not be performed. Reasons include:&lt;ul&gt;
+	 *  &lt;li&gt;This Java element does not exist (ELEMENT_DOES_NOT_EXIST)&lt;/li&gt;
+	 *  &lt;li&gt; The position specified is &lt; -1 or is greater than this compilation unit's
+	 *      source length (INDEX_OUT_OF_BOUNDS)
+	 * &lt;/ul&gt;
+	 *
+	 * @exception IllegalArgumentException if &lt;code&gt;requestor&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;
+	 * @since 3.0
+	 * @deprecated Use {@link #codeComplete(int, CompletionRequestor, WorkingCopyOwner)} instead.
+	 */
+	void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner)
+		throws JavaModelException;
+
+	/**
+	 * Performs code completion at the given offset position in this compilation unit,
+	 * reporting results to the given completion requestor. The &lt;code&gt;offset&lt;/code&gt;
+	 * is the 0-based index of the character, after which code assist is desired.
+	 * An &lt;code&gt;offset&lt;/code&gt; of -1 indicates to code assist at the beginning of this
+	 * compilation unit.
+	 * &lt;p&gt;
+	 *
+	 * @param offset the given offset position
+	 * @param requestor the given completion requestor
+	 * @exception JavaModelException if code assist could not be performed. Reasons include:&lt;ul&gt;
+	 *  &lt;li&gt;This Java element does not exist (ELEMENT_DOES_NOT_EXIST)&lt;/li&gt;
+	 *  &lt;li&gt; The position specified is &lt; -1 or is greater than this compilation unit's
+	 *      source length (INDEX_OUT_OF_BOUNDS)
+	 * &lt;/ul&gt;
+	 *
+	 * @exception IllegalArgumentException if &lt;code&gt;requestor&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;
+	 * @since 3.0
+ 	 */
+	void codeComplete(int offset, CompletionRequestor requestor)
+		throws JavaModelException;
+}
+
+public interface IType {
+	/**
+	 * Do code completion inside a code snippet in the context of the current type.
+	 *
+	 * If the type can access to his source code and the insertion position is valid,
+	 * then completion is performed against source. Otherwise the completion is performed
+	 * against type structure and given locals variables.
+	 *
+	 * @param snippet the code snippet
+	 * @param insertion the position with in source where the snippet
+	 * is inserted. This position must not be in comments.
+	 * A possible value is -1, if the position is not known.
+	 * @param position the position within snippet where the user
+	 * is performing code assist.
+	 * @param localVariableTypeNames an array (possibly empty) of fully qualified
+	 * type names of local variables visible at the current scope
+	 * @param localVariableNames an array (possibly empty) of local variable names
+	 * that are visible at the current scope
+	 * @param localVariableModifiers an array (possible empty) of modifiers for
+	 * local variables
+	 * @param isStatic whether the current scope is in a static context
+	 * @param requestor the completion requestor
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
+	 * @since 3.5
+	 */
+	void codeComplete(
+		char[] snippet,
+		int insertion,
+		int position,
+		char[][] localVariableTypeNames,
+		char[][] localVariableNames,
+		int[] localVariableModifiers,
+		boolean isStatic,
+		CompletionRequestor requestor,
+		IProgressMonitor monitor)
+		throws JavaModelException;
+
+	/**
+	 * Do code completion inside a code snippet in the context of the current type.
+	 * It considers types in the working copies with the given owner first. In other words,
+	 * the owner's working copies will take precedence over their original compilation units
+	 * in the workspace.
+	 * &lt;p&gt;
+	 * Note that if a working copy is empty, it will be as if the original compilation
+	 * unit had been deleted.
+	 * &lt;/p&gt;&lt;p&gt;
+	 * If the type can access to his source code and the insertion position is valid,
+	 * then completion is performed against source. Otherwise the completion is performed
+	 * against type structure and given locals variables.
+	 * &lt;/p&gt;
+	 *
+	 * @param snippet the code snippet
+	 * @param insertion the position with in source where the snippet
+	 * is inserted. This position must not be in comments.
+	 * A possible value is -1, if the position is not known.
+	 * @param position the position with in snippet where the user
+	 * is performing code assist.
+	 * @param localVariableTypeNames an array (possibly empty) of fully qualified
+	 * type names of local variables visible at the current scope
+	 * @param localVariableNames an array (possibly empty) of local variable names
+	 * that are visible at the current scope
+	 * @param localVariableModifiers an array (possible empty) of modifiers for
+	 * local variables
+	 * @param isStatic whether the current scope is in a static context
+	 * @param requestor the completion requestor
+	 * @param owner the owner of working copies that take precedence over their original compilation units
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
+	 * @since 3.5
+	 */
+	void codeComplete(
+		char[] snippet,
+		int insertion,
+		int position,
+		char[][] localVariableTypeNames,
+		char[][] localVariableNames,
+		int[] localVariableModifiers,
+		boolean isStatic,
+		CompletionRequestor requestor,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
+		throws JavaModelException;
+}
+
+public interface IEvaluationContext {
+	/**
+	 * Performs a code completion at the given position in the given code snippet,
+	 * reporting results to the given completion requestor.
+	 * &lt;p&gt;
+	 * Note that code completion does not involve evaluation.
+	 * &lt;p&gt;
+	 *
+	 * @param codeSnippet the code snippet to complete in
+	 * @param position the character position in the code snippet to complete at,
+	 *   or -1 indicating the beginning of the snippet
+	 * @param requestor the code completion requestor capable of accepting all
+	 *    possible types of completions
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if code completion could not be performed. Reasons include:
+	 *  &lt;ul&gt;
+	 *	  &lt;li&gt;The position specified is less than -1 or is greater than the snippet's
+	 *	    length (INDEX_OUT_OF_BOUNDS)&lt;/li&gt;
+	 *  &lt;/ul&gt;
+	 * @since 3.5
+	 */
+	public void codeComplete(
+		String codeSnippet,
+		int position,
+		CompletionRequestor requestor,
+		IProgressMonitor monitor)
+		throws JavaModelException;
+
+	/**
+	 * Performs a code completion at the given position in the given code snippet,
+	 * reporting results to the given completion requestor.
+	 * It considers types in the working copies with the given owner first. In other words,
+	 * the owner's working copies will take precedence over their original compilation units
+	 * in the workspace.
+	 * &lt;p&gt;
+	 * Note that if a working copy is empty, it will be as if the original compilation
+	 * unit had been deleted.
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * Note that code completion does not involve evaluation.
+	 * &lt;p&gt;
+	 *
+	 * @param codeSnippet the code snippet to complete in
+	 * @param position the character position in the code snippet to complete at,
+	 *   or -1 indicating the beginning of the snippet
+	 * @param requestor the code completion requestor capable of accepting all
+	 *    possible types of completions
+	 * @param owner the owner of working copies that take precedence over their original compilation units
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if code completion could not be performed. Reasons include:
+	 *  &lt;ul&gt;
+	 *	  &lt;li&gt;The position specified is less than -1 or is greater than the snippet's
+	 *	    length (INDEX_OUT_OF_BOUNDS)&lt;/li&gt;
+	 *  &lt;/ul&gt;
+	 * @since 3.5
+	 */
+	public void codeComplete(
+		String codeSnippet,
+		int position,
+		CompletionRequestor requestor,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
+		throws JavaModelException;
+}
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=243820">243820</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=247941">247941</a>
+[assist] Add progress monitor to code completion
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=243820">243820</a>
 [1.5][compiler] Method has same erasure as an interface method but is not considered to implement it
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=232880">232880</a>
 [select] Navigate to classes in workspace even if not on classpath

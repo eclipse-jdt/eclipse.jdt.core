@@ -74,14 +74,36 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 /**
  * @see IType
  */
+public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,CompletionRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+	codeComplete(snippet, insertion, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic, requestor, DefaultWorkingCopyOwner.PRIMARY, monitor);
+}
+/**
+ * @see IType
+ */
 public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,CompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
+	codeComplete(snippet, insertion, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic, requestor, owner, null);
+}
+/**
+ * @see IType
+ */
+public void codeComplete(
+		char[] snippet,
+		int insertion,
+		int position,
+		char[][] localVariableTypeNames,
+		char[][] localVariableNames,
+		int[] localVariableModifiers,
+		boolean isStatic,
+		CompletionRequestor requestor,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor) throws JavaModelException {
 	if (requestor == null) {
 		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
 	}
 
 	JavaProject project = (JavaProject) getJavaProject();
 	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
-	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project, owner);
+	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project, owner, monitor);
 
 	String source = getCompilationUnit().getSource();
 	if (source != null && insertion > -1 && insertion < source.length()) {

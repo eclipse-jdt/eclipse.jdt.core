@@ -154,6 +154,44 @@ public interface IType extends IMember, IAnnotatable {
 		boolean isStatic,
 		CompletionRequestor requestor)
 		throws JavaModelException;
+	
+	/**
+	 * Do code completion inside a code snippet in the context of the current type.
+	 *
+	 * If the type can access to his source code and the insertion position is valid,
+	 * then completion is performed against source. Otherwise the completion is performed
+	 * against type structure and given locals variables.
+	 *
+	 * @param snippet the code snippet
+	 * @param insertion the position with in source where the snippet
+	 * is inserted. This position must not be in comments.
+	 * A possible value is -1, if the position is not known.
+	 * @param position the position within snippet where the user
+	 * is performing code assist.
+	 * @param localVariableTypeNames an array (possibly empty) of fully qualified
+	 * type names of local variables visible at the current scope
+	 * @param localVariableNames an array (possibly empty) of local variable names
+	 * that are visible at the current scope
+	 * @param localVariableModifiers an array (possible empty) of modifiers for
+	 * local variables
+	 * @param isStatic whether the current scope is in a static context
+	 * @param requestor the completion requestor
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
+	 * @since 3.5
+	 */
+	void codeComplete(
+		char[] snippet,
+		int insertion,
+		int position,
+		char[][] localVariableTypeNames,
+		char[][] localVariableNames,
+		int[] localVariableModifiers,
+		boolean isStatic,
+		CompletionRequestor requestor,
+		IProgressMonitor monitor)
+		throws JavaModelException;
 
 	/**
 	 * Do code completion inside a code snippet in the context of the current type.
@@ -198,6 +236,53 @@ public interface IType extends IMember, IAnnotatable {
 		boolean isStatic,
 		CompletionRequestor requestor,
 		WorkingCopyOwner owner)
+		throws JavaModelException;
+	
+	/**
+	 * Do code completion inside a code snippet in the context of the current type.
+	 * It considers types in the working copies with the given owner first. In other words,
+	 * the owner's working copies will take precedence over their original compilation units
+	 * in the workspace.
+	 * <p>
+	 * Note that if a working copy is empty, it will be as if the original compilation
+	 * unit had been deleted.
+	 * </p><p>
+	 * If the type can access to his source code and the insertion position is valid,
+	 * then completion is performed against source. Otherwise the completion is performed
+	 * against type structure and given locals variables.
+	 * </p>
+	 *
+	 * @param snippet the code snippet
+	 * @param insertion the position with in source where the snippet
+	 * is inserted. This position must not be in comments.
+	 * A possible value is -1, if the position is not known.
+	 * @param position the position with in snippet where the user
+	 * is performing code assist.
+	 * @param localVariableTypeNames an array (possibly empty) of fully qualified
+	 * type names of local variables visible at the current scope
+	 * @param localVariableNames an array (possibly empty) of local variable names
+	 * that are visible at the current scope
+	 * @param localVariableModifiers an array (possible empty) of modifiers for
+	 * local variables
+	 * @param isStatic whether the current scope is in a static context
+	 * @param requestor the completion requestor
+	 * @param owner the owner of working copies that take precedence over their original compilation units
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
+	 * @since 3.5
+	 */
+	void codeComplete(
+		char[] snippet,
+		int insertion,
+		int position,
+		char[][] localVariableTypeNames,
+		char[][] localVariableNames,
+		int[] localVariableModifiers,
+		boolean isStatic,
+		CompletionRequestor requestor,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
 		throws JavaModelException;
 
 

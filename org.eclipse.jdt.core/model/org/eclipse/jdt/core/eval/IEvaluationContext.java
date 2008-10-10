@@ -177,6 +177,34 @@ public interface IEvaluationContext {
 		int position,
 		CompletionRequestor requestor)
 		throws JavaModelException;
+	
+	/**
+	 * Performs a code completion at the given position in the given code snippet,
+	 * reporting results to the given completion requestor.
+	 * <p>
+	 * Note that code completion does not involve evaluation.
+	 * <p>
+	 *
+	 * @param codeSnippet the code snippet to complete in
+	 * @param position the character position in the code snippet to complete at,
+	 *   or -1 indicating the beginning of the snippet
+	 * @param requestor the code completion requestor capable of accepting all
+	 *    possible types of completions
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if code completion could not be performed. Reasons include:
+	 *  <ul>
+	 *	  <li>The position specified is less than -1 or is greater than the snippet's
+	 *	    length (INDEX_OUT_OF_BOUNDS)</li>
+	 *  </ul>
+	 * @since 3.5
+	 */
+	public void codeComplete(
+		String codeSnippet,
+		int position,
+		CompletionRequestor requestor,
+		IProgressMonitor monitor)
+		throws JavaModelException;
+	
 	/**
 	 * Performs a code completion at the given position in the given code snippet,
 	 * reporting results to the given completion requestor.
@@ -210,6 +238,43 @@ public interface IEvaluationContext {
 		CompletionRequestor requestor,
 		WorkingCopyOwner owner)
 		throws JavaModelException;
+	
+	/**
+	 * Performs a code completion at the given position in the given code snippet,
+	 * reporting results to the given completion requestor.
+	 * It considers types in the working copies with the given owner first. In other words,
+	 * the owner's working copies will take precedence over their original compilation units
+	 * in the workspace.
+	 * <p>
+	 * Note that if a working copy is empty, it will be as if the original compilation
+	 * unit had been deleted.
+	 * </p>
+	 * <p>
+	 * Note that code completion does not involve evaluation.
+	 * <p>
+	 *
+	 * @param codeSnippet the code snippet to complete in
+	 * @param position the character position in the code snippet to complete at,
+	 *   or -1 indicating the beginning of the snippet
+	 * @param requestor the code completion requestor capable of accepting all
+	 *    possible types of completions
+	 * @param owner the owner of working copies that take precedence over their original compilation units
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if code completion could not be performed. Reasons include:
+	 *  <ul>
+	 *	  <li>The position specified is less than -1 or is greater than the snippet's
+	 *	    length (INDEX_OUT_OF_BOUNDS)</li>
+	 *  </ul>
+	 * @since 3.5
+	 */
+	public void codeComplete(
+		String codeSnippet,
+		int position,
+		CompletionRequestor requestor,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
+		throws JavaModelException;
+	
 	/**
 	 * Resolves and returns a collection of Java elements corresponding to the source
 	 * code at the given positions in the given code snippet.

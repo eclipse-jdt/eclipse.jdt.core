@@ -122,11 +122,22 @@ public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopy
 public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
 	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY);
 }
-
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.core.runtime.IProgressMonitor)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY, monitor);
+}
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
  */
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
+	codeComplete(offset, requestor, owner, null);
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner, org.eclipse.core.runtime.IProgressMonitor)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
 	String source = getSource();
 	if (source != null) {
 		BinaryType type = (BinaryType) getType();
@@ -136,7 +147,7 @@ public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyO
 				null,
 				type.sourceFileName((IBinaryType) type.getElementInfo()),
 				getJavaProject()); // use project to retrieve corresponding .java IFile
-		codeComplete(cu, cu, offset, requestor, owner, null/*extended context isn't computed*/);
+		codeComplete(cu, cu, offset, requestor, owner, null/*extended context isn't computed*/, monitor);
 	}
 }
 

@@ -1554,9 +1554,9 @@ private boolean checkLabelStatement() {
 		System.arraycopy(labels, 0, labels = new char[labelCount][], 0, labelCount);
 
 		long position = this.identifierPositionStack[this.identifierPtr];
-		CompletionOnBrankStatementLabel statementLabel =
-			new CompletionOnBrankStatementLabel(
-					kind == K_INSIDE_BREAK_STATEMENT ? CompletionOnBrankStatementLabel.BREAK : CompletionOnBrankStatementLabel.CONTINUE,
+		CompletionOnBranchStatementLabel statementLabel =
+			new CompletionOnBranchStatementLabel(
+					kind == K_INSIDE_BREAK_STATEMENT ? CompletionOnBranchStatementLabel.BREAK : CompletionOnBranchStatementLabel.CONTINUE,
 					this.identifierStack[this.identifierPtr--],
 					(int) (position >>> 32),
 					(int)position,

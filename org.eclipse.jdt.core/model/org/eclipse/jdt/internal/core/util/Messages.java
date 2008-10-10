@@ -218,6 +218,7 @@ public final class Messages extends NLS {
 	public static String importRewrite_processDescription;
 	public static String correction_nullRequestor;
 	public static String correction_nullUnit;
+	public static String engine_completing;
 	public static String engine_searching;
 	public static String engine_searching_indexing;
 	public static String engine_searching_matching;

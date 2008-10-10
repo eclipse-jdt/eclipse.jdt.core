@@ -16,6 +16,9 @@ import java.util.Hashtable;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
@@ -55,6 +58,63 @@ private String getVarClassSignature(IEvaluationContext context) {
 	char[] varClassName = ((EvaluationContextWrapper)context).getVarClassName();
 	return Signature.createTypeSignature(varClassName, true);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247941
+public void testAbortCompletion1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/AbortCompletion.java",
+		"public class AbortCompletion {\n"+
+		"	void foo() {\n"+
+		"		Objec\n"+
+		"	}\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	IProgressMonitor monitor = new NullProgressMonitor();
+	try {
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+		assertResults(
+				"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} catch (OperationCanceledException e) {
+		assertTrue("Should not be cancelled", false);
+	}
+	
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247941
+public void testAbortCompletion2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/AbortCompletion.java",
+		"public class AbortCompletion {\n"+
+		"	void foo() {\n"+
+		"		Objec\n"+
+		"	}\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	
+	try {
+		IProgressMonitor monitor = new NullProgressMonitor();
+		monitor.setCanceled(true); /*force completion to abort*/
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+		assertTrue("Should not be cancelled", false);
+	} catch (OperationCanceledException e) {
+		assertResults(
+				"",
+				requestor.getResults());
+	}
+}
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=164311
 public void testBug164311() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
