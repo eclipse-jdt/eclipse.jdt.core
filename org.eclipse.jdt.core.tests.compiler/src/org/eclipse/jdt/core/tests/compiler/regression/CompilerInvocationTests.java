@@ -852,6 +852,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ExternalProblemNotFixable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ExternalProblemFixable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("MissingSynchronizedModifierInInheritedMethod", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		StringBuffer failures = new StringBuffer();
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
 		boolean watchInternalCategory = false, printHeader = true;
@@ -2002,6 +2003,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ExternalProblemFixable", SKIP);
 		expectedProblemAttributes.put("ComparingIdentical", new ProblemAttributes(JavaCore.COMPILER_PB_COMPARING_IDENTICAL));
 		expectedProblemAttributes.put("MissingSynchronizedModifierInInheritedMethod", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_SYNCHRONIZED_ON_INHERITED_METHOD));
+		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_HASHCODE_METHOD));
 		Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

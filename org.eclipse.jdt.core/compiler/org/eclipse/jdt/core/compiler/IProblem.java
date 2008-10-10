@@ -627,6 +627,8 @@ void setSourceStart(int sourceStart);
 	int ObjectMustBeClass = Internal + 330;
 	/** @since 3.4 */
 	int RedundantSuperinterface = TypeRelated + 331;
+	/** @since 3.5 */
+	int ShouldImplementHashcode = TypeRelated + 332;
 
 	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330

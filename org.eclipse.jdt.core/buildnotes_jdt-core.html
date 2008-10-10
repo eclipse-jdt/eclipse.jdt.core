@@ -48,6 +48,20 @@ Eclipse SDK 3.5M3 - %date% - 3.5 MILESTONE 3
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_917">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>
+Added a new compiler warning to report a missing hashCode() method when overriding the equals() method from Object. 
+This diagnosis is controlled by option: 
+<code>JavaCore.COMPILER_PB_MISSING_HASHCODE_METHOD</code> and produces a problem marker which ID is
+<code>IProblem.MissingHashCodeMethod</code> problem ID.
+<pre>
+  Compiler option ID: Reporting Missing HashCode Method.
+  When enabled, the compiler will issue an error or a warning if a type
+  overrides Object.equals(Object) but does not override hashCode().
+  Option id: "org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod"
+  Possible values: { "error", "warning", "ignore" }
+  Default: "ignore"
+</pre>
+</li>
 <li>The "Class-Path:" clause of a jar manifest is now honored in the Java model. Jars referenced by "Class-Path:" are now automatically
       added to the build path. See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=198572">bug 198572</a> for details.</li>
 <li>Code Select search types outside the current project scope if no types are found in this scope</li>
@@ -263,7 +277,9 @@ public interface IEvaluationContext {
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=249930">249930</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=38751">38751</a>
+Optionally show compiler warning when equals() is overriden but hashCode() is not
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=249930">249930</a>
 Deadlock with JavaModelManager$PerProjectInfo
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=250398">250398</a>
 [assist] Faults in javadoc of IType#codeComplete

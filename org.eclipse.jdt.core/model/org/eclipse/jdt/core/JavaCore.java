@@ -986,6 +986,19 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_MISSING_DEPRECATED_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingDeprecatedAnnotation"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Reporting Missing HashCode Method.
+	 * <p>When enabled, the compiler will issue an error or a warning if a type
+	 * overrides Object.equals(Object) but does not override hashCode().
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
+	 * </dl>
+	 * @since 3.5
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_MISSING_HASHCODE_METHOD = PLUGIN_ID + ".compiler.problem.missingHashCodeMethod"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Reporting Incomplete Enum Switch.
 	 * <p>When enabled, the compiler will issue an error or a warning whenever
 	 *    an enum constant has no corresponding case label in an enum switch

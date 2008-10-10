@@ -8929,4 +8929,47 @@ public void test174() {
 		"----------\n"
 	);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=38751
+public void test175() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportMissingHashCodeMethod, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"class A {\n" +
+			"	@Override public boolean equals(Object o) { return true; }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in A.java (at line 1)\n" + 
+		"	class A {\n" + 
+		"	      ^\n" + 
+		"The type A should also implement hashCode() since it overrides Object.equals()\n" + 
+		"----------\n",
+	null,
+	false,
+	options);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=38751
+public void test176() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportMissingHashCodeMethod, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"class A {\n" +
+			"	@Override public boolean equals(Object o) { return true; }\n" +
+			"	@Override public int hashCode() { return 1; }\n" +
+			"}\n" +
+			"class B extends A {\n" +
+			"	@Override public boolean equals(Object o) { return false; }\n" +
+			"}"
+		},
+		"",
+	null,
+	false,
+	options);
+}
 }

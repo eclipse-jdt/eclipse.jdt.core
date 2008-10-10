@@ -323,6 +323,9 @@ public static int getIrritant(int problemID) {
 			
 		case IProblem.MissingSynchronizedModifierInInheritedMethod:
 			return CompilerOptions.MissingSynchronizedModifierInInheritedMethod;
+
+		case IProblem.ShouldImplementHashcode:
+			return CompilerOptions.ShouldImplementHashcode;
 	}
 	return 0;
 }
@@ -370,7 +373,8 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.FallthroughCase :
 			case CompilerOptions.OverridingMethodWithoutSuperInvocation :
 			case CompilerOptions.ComparingIdentical :
-			case CompilerOptions.MissingSynchronizedModifierInInheritedMethod :				
+			case CompilerOptions.MissingSynchronizedModifierInInheritedMethod :
+			case CompilerOptions.ShouldImplementHashcode :
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -6054,6 +6058,14 @@ public void scannerError(Parser parser, String errorTokenName) {
 		startPos,
 		endPos,
 		parser.compilationUnit.compilationResult);
+}
+public void shouldImplementHashcode(SourceTypeBinding type) {	
+	this.handle(
+		IProblem.ShouldImplementHashcode,
+		new String[] {new String(type.readableName())},
+		new String[] {new String(type.shortReadableName())},
+		type.sourceStart(),
+		type.sourceEnd());
 }
 public void shouldReturn(TypeBinding returnType, ASTNode location) {
 	this.handle(

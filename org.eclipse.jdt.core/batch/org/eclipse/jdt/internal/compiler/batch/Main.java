@@ -3205,6 +3205,11 @@ protected void handleWarningToken(String token, boolean isEnabling) throws Inval
 					CompilerOptions.OPTION_ReportTypeParameterHiding,
 					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 				return;
+			} else if (token.equals("hashCode")) { //$NON-NLS-1$
+				this.options.put(
+					CompilerOptions.OPTION_ReportMissingHashCodeMethod,
+					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				return;
 			}
 			break;
 		case 'i' :

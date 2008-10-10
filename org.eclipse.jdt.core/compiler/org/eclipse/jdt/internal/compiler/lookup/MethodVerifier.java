@@ -247,6 +247,18 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	// no op before 1.5
 }
 
+void checkForMissingHashCodeMethod() {
+	MethodBinding[] choices = this.type.getMethods(TypeConstants.EQUALS);
+	boolean overridesEquals = false;
+	for (int i = choices.length; !overridesEquals && --i >= 0;)
+		overridesEquals = choices[i].parameters.length == 1 && choices[i].parameters[0].id == TypeIds.T_JavaLangObject;
+	if (overridesEquals) {
+		MethodBinding hashCodeMethod = this.type.getExactMethod(TypeConstants.HASHCODE, Binding.NO_PARAMETERS, null);
+		if (hashCodeMethod != null && hashCodeMethod.declaringClass.id == TypeIds.T_JavaLangObject)
+			this.problemReporter().shouldImplementHashcode(this.type);
+	}
+}
+
 void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
 	if (superInterfaces == Binding.NO_SUPERINTERFACES) return;
 
@@ -861,6 +873,8 @@ void verify(SourceTypeBinding someType) {
 	computeMethods();
 	computeInheritedMethods();
 	checkMethods();
+	if (this.type.isClass())
+		checkForMissingHashCodeMethod();
 }
 
 public String toString() {

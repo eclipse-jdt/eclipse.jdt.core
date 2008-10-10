@@ -1654,6 +1654,7 @@ public void test012b(){
         "      finalBound           type parameter with final bound\n" +
         "      finally            + finally block not completing normally\n" +
         "      forbidden          + use of types matching a forbidden access rule\n" +
+        "      hashCode              missing hashCode() method when overriding equals()\n" + 
         "      hiding               macro for fieldHiding, localHiding, typeHiding and\n" +
         "                           maskedCatchBlock\n" +
         "      incomplete-switch    same as enumSwitch\n" +
@@ -1799,6 +1800,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.localVariableHiding\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocComments\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility\" value=\"public\"/>\n" +

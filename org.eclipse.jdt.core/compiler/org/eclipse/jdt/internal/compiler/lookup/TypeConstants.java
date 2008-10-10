@@ -21,7 +21,9 @@ public interface TypeConstants {
 	char[] REFLECT = "reflect".toCharArray(); //$NON-NLS-1$
 	char[] LENGTH = "length".toCharArray(); //$NON-NLS-1$
 	char[] CLONE = "clone".toCharArray(); //$NON-NLS-1$
+	char[] EQUALS = "equals".toCharArray(); //$NON-NLS-1$
 	char[] GETCLASS = "getClass".toCharArray(); //$NON-NLS-1$
+	char[] HASHCODE = "hashCode".toCharArray(); //$NON-NLS-1$
 	char[] OBJECT = "Object".toCharArray(); //$NON-NLS-1$
 	char[] MAIN = "main".toCharArray(); //$NON-NLS-1$
 	char[] SERIALVERSIONUID = "serialVersionUID".toCharArray(); //$NON-NLS-1$
