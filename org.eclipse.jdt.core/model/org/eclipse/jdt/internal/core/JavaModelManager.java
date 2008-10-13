@@ -1057,10 +1057,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return this.resolvedClasspath;
 		}
 		
-		public void forgetExternalTimestamps() {
+		public void forgetExternalTimestampsAndIndexes() {
 			IClasspathEntry[] classpath = this.resolvedClasspath;
 			if (classpath == null) return;
-			Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaState.getExternalLibTimeStamps();
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			IndexManager indexManager = manager.indexManager;
+			Map externalTimeStamps = manager.deltaState.getExternalLibTimeStamps();
 			HashMap rootInfos = JavaModelManager.getDeltaState().otherRoots;
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry = classpath[i];
@@ -1068,6 +1070,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					IPath path = entry.getPath();
 					if (rootInfos.get(path) == null) {
 						externalTimeStamps.remove(path);
+						indexManager.removeIndex(path); // force reindexing on next reference (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=250083 )
 					}
 				}
 			}
@@ -3421,7 +3424,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(project);
 			if (info != null) {
 				this.perProjectInfos.remove(project);
-				info.forgetExternalTimestamps();
+				info.forgetExternalTimestampsAndIndexes();
 			}
 		}
 	}
