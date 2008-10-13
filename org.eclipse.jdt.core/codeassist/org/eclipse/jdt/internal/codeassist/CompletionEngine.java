@@ -619,6 +619,8 @@ public final class CompletionEngine
 	}
 
 	private void acceptTypes(Scope scope) {
+		this.checkCancel();
+		
 		if(this.acceptedTypes == null) return;
 
 		int length = this.acceptedTypes.size();
@@ -6263,7 +6265,8 @@ public final class CompletionEngine
 					findMembers,
 					this.options.camelCaseMatch,
 					IJavaSearchConstants.TYPE,
-					this);
+					this,
+					this.monitor);
 			acceptTypes(null);
 		}
 	}
@@ -9199,7 +9202,8 @@ public final class CompletionEngine
 						proposeAllMemberTypes,
 						this.options.camelCaseMatch,
 						searchFor,
-						this);
+						this,
+						this.monitor);
 				acceptTypes(scope);
 			}
 			if(!isEmptyPrefix && !this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
@@ -9337,7 +9341,8 @@ public final class CompletionEngine
 					false,
 					this.options.camelCaseMatch,
 					searchFor,
-					this);
+					this,
+					this.monitor);
 			acceptTypes(scope);
 		}
 		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {

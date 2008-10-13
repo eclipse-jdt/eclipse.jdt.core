@@ -293,7 +293,28 @@ public class SearchableEnvironment
 	 * types are found relative to their enclosing type.
 	 */
 	public void findTypes(char[] prefix, final boolean findMembers, boolean camelCaseMatch, int searchFor, final ISearchRequestor storage) {
-
+		findTypes(prefix, findMembers, camelCaseMatch, searchFor, storage, null);
+	}
+	/**
+	 * Must be used only by CompletionEngine.
+	 * The progress monitor is used to be able to cancel completion operations
+	 * 
+	 * Find the top-level types that are defined
+	 * in the current environment and whose name starts with the
+	 * given prefix. The prefix is a qualified name separated by periods
+	 * or a simple name (ex. java.util.V or V).
+	 *
+	 * The types found are passed to one of the following methods (if additional
+	 * information is known about the types):
+	 *    ISearchRequestor.acceptType(char[][] packageName, char[] typeName)
+	 *    ISearchRequestor.acceptClass(char[][] packageName, char[] typeName, int modifiers)
+	 *    ISearchRequestor.acceptInterface(char[][] packageName, char[] typeName, int modifiers)
+	 *
+	 * This method can not be used to find member types... member
+	 * types are found relative to their enclosing type.
+	 */
+	public void findTypes(char[] prefix, final boolean findMembers, boolean camelCaseMatch, int searchFor, final ISearchRequestor storage, IProgressMonitor monitor) {
+		
 		/*
 			if (true){
 				findTypes(new String(prefix), storage, NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
@@ -371,24 +392,53 @@ public class SearchableEnvironment
 					storage.acceptType(packageName, simpleTypeName, enclosingTypeNames, modifiers, access);
 				}
 			};
-			try {
-				int matchRule = SearchPattern.R_PREFIX_MATCH;
-				if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
-				new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
-					qualification,
-					SearchPattern.R_EXACT_MATCH,
-					simpleName,
-					matchRule, // not case sensitive
-					searchFor,
-					getSearchScope(),
-					typeRequestor,
-					CANCEL_IF_NOT_READY_TO_SEARCH,
-					progressMonitor);
-			} catch (OperationCanceledException e) {
-				findTypes(
-					new String(prefix),
-					storage,
-					convertSearchFilterToModelFilter(searchFor));
+			
+			int matchRule = SearchPattern.R_PREFIX_MATCH;
+			if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
+			if (monitor != null) {
+				found : while (true) { //the loop will finish if the search request ends or is cancelled
+					try {
+						new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
+							qualification,
+							SearchPattern.R_EXACT_MATCH,
+							simpleName,
+							matchRule, // not case sensitive
+							searchFor,
+							getSearchScope(),
+							typeRequestor,
+							CANCEL_IF_NOT_READY_TO_SEARCH,
+							progressMonitor);
+						break found;
+					} catch (OperationCanceledException e) {
+						if (monitor.isCanceled()) {
+							throw e;
+						} else {
+							try {
+								Thread.sleep(50); // indexes are not ready. sleep 50ms and retry the search request
+							} catch (InterruptedException e1) {
+								// Do nothing
+							}
+						}
+					}
+				}
+			} else {
+				try {
+					new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
+						qualification,
+						SearchPattern.R_EXACT_MATCH,
+						simpleName,
+						matchRule, // not case sensitive
+						searchFor,
+						getSearchScope(),
+						typeRequestor,
+						CANCEL_IF_NOT_READY_TO_SEARCH,
+						progressMonitor);
+				} catch (OperationCanceledException e) {
+					findTypes(
+						new String(prefix),
+						storage,
+						convertSearchFilterToModelFilter(searchFor));
+				}
 			}
 		} catch (JavaModelException e) {
 			findTypes(
