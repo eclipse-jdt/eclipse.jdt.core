@@ -54,4 +54,12 @@ public class MemberValuePair implements IMemberValuePair {
 		return this.valueKind;
 	}
 
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.memberName == null) ? 0 : this.memberName.hashCode());
+		result = prime * result + ((this.value == null) ? 0 : this.value.hashCode());
+		result = prime * result + this.valueKind;
+		return result;
+	}
 }
