@@ -48,6 +48,11 @@ Eclipse SDK 3.5M3 - %date% - 3.5 MILESTONE 3
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_917">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>Duplicate classpath entries are no longer reported if they are duplicate because of the classpath resolution
+      (e.g. if two classpath containers add the same entry to the resolved classpath).
+       Duplicate classpath entries at the raw classpath level are still reported.
+       See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=175226">bug 175226</a> for details.
+</li>
 <li>
 Added a new compiler warning to report a missing hashCode() method when overriding the equals() method from Object. 
 This diagnosis is controlled by option: 
@@ -277,7 +282,9 @@ public interface IEvaluationContext {
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=38751">38751</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=175226">175226</a>
+[buildpath] Build path contains duplicate entry
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=38751">38751</a>
 Optionally show compiler warning when equals() is overriden but hashCode() is not
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=249930">249930</a>
 Deadlock with JavaModelManager$PerProjectInfo

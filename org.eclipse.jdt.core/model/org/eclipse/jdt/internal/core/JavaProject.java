@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -2510,7 +2511,7 @@ public class JavaProject
 		ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 		ResolvedClasspath result = new ResolvedClasspath();
 
-		ArrayList resolvedEntries = new ArrayList();
+		LinkedHashSet resolvedEntries = new LinkedHashSet();
 		int length = rawClasspath.length;
 		for (int i = 0; i < length; i++) {
 
@@ -2605,7 +2606,7 @@ public class JavaProject
 		return result;
 	}
 
-	private void addToResult(IClasspathEntry rawEntry, IClasspathEntry resolvedEntry, ResolvedClasspath result, ArrayList resolvedEntries, ExternalFoldersManager externalFoldersManager) {
+	private void addToResult(IClasspathEntry rawEntry, IClasspathEntry resolvedEntry, ResolvedClasspath result, LinkedHashSet resolvedEntries, ExternalFoldersManager externalFoldersManager) {
 		IPath resolvedPath;
 		if (result.rawReverseMap.get(resolvedPath = resolvedEntry.getPath()) == null) {
 			result.rawReverseMap.put(resolvedPath, rawEntry);

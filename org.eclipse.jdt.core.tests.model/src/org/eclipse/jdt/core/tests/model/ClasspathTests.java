@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.model.ClasspathInitializerTests.DefaultVariableInitializer;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -4497,7 +4498,7 @@ public void testNoResourceChange06() throws CoreException {
  * Ensures that a duplicate entry created by editing the .classpath is detected.
  * (regression test for bug 24498 Duplicate entries on classpath cause CP marker to no longer refresh)
  */
-public void testDuplicateEntries() throws CoreException {
+public void testDuplicateEntries1() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
 		editFile(
@@ -4515,6 +4516,64 @@ public void testDuplicateEntries() throws CoreException {
 			project);
 	} finally {
 		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that duplicate entries due to resolution are not reported
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=175226 )
+ */
+public void testDuplicateEntries2() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {"TEST_LIB", "/P/lib.jar"}));
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
+		createFile("/P/lib.jar", "");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"var\" path=\"TEST_LIB\"/>\n" +
+			"    <classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
+		);
+		assertMarkers(
+			"Unexpected markers",
+			"",
+			project);
+	} finally {
+		ContainerInitializer.setInitializer(null);
+		VariablesInitializer.setInitializer(null);
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that the resolved classpath doesn't contain duplicate entries due to resolution
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=175226 )
+ */
+public void testDuplicateEntries3() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {"TEST_LIB", "/P/lib.jar"}));
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
+		createFile("/P/lib.jar", "");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"var\" path=\"TEST_LIB\"/>\n" +
+			"    <classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
+		);
+		assertClasspathEquals(
+			project.getResolvedClasspath(true),
+			"/P/lib.jar[CPE_LIBRARY][K_BINARY][isExported:false]"
+		);
+	} finally {
+		ContainerInitializer.setInitializer(null);
+		VariablesInitializer.setInitializer(null);
+		deleteProject("P");
 	}
 }
 private void denseCycleDetection(final int numberOfParticipants) throws CoreException {
