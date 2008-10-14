@@ -664,7 +664,7 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 					continue nextReusableTarget;
 				}
 				// current target has been used in the past, simply branch to its label
-				if ((this.reusableJSRStateIndexes[i] != stateIndex) && finallyMode == FINALLY_INLINE && isStackMapFrameCodeStream) {
+				if ((this.reusableJSRStateIndexes[i] != stateIndex) && finallyMode == FINALLY_INLINE) {
 					reuseTargetLocation = false;
 					break nextReusableTarget;
 				} else {

@@ -75,6 +75,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 						prepareSaveValueLocation(tryStatement);
 					}
 					saveValueNeeded = true;
+					this.initStateIndex =
+						currentScope.methodScope().recordInitializationStates(flowInfo);
 				}
 			}
 		} else if (traversedContext instanceof InitializationFlowContext) {
