@@ -2531,7 +2531,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						true);
 
 				if (insert_new_line_after_opening_brace) {
-				    arrayInitializerAlignment.fragmentIndentations[0] = arrayInitializerAlignment.breakIndentationLevel;
+					arrayInitializerAlignment.fragmentIndentations[0] = arrayInitializerAlignment.breakIndentationLevel;
 				}
 
 				this.scribe.enterAlignment(arrayInitializerAlignment);
@@ -2609,7 +2609,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 					this.scribe.printTrailingComment();
 				}
-				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, false);
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, this.preferences.insert_space_between_empty_braces_in_array_initializer);
 				if (array_initializer_brace_position.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 					this.scribe.unIndent();
 				}

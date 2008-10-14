@@ -57,7 +57,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	DefaultCodeFormatterOptions formatterPrefs;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 715 };
+//		TESTS_NUMBERS = new int[] { 719 };
 //		TESTS_RANGE = new int[] { 715, -1 };
 	}
 	public static Test suite() {
@@ -10558,5 +10558,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.insert_space_before_comma_in_array_initializer = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test718", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=250753
+	public void test719() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.keep_empty_array_initializer_on_one_line = false;
+		preferences.insert_space_between_empty_braces_in_array_initializer = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test719", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
