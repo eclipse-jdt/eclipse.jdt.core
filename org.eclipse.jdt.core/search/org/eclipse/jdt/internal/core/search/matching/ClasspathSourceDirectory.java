@@ -95,6 +95,10 @@ public IPath getProjectRelativePath() {
 	return this.sourceFolder.getProjectRelativePath();
 }
 
+public int hashCode() {
+	return this.sourceFolder == null ? super.hashCode() : this.sourceFolder.hashCode();
+}
+
 public boolean isPackage(String qualifiedPackageName) {
 	return directoryTable(qualifiedPackageName) != null;
 }

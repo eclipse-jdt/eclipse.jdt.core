@@ -161,6 +161,10 @@ public IPath getProjectRelativePath() {
 	return	this.resource.getProjectRelativePath();
 }
 
+public int hashCode() {
+	return this.zipFilename == null ? super.hashCode() : this.zipFilename.hashCode();
+}
+
 public boolean isPackage(String qualifiedPackageName) {
 	if (this.knownPackageNames != null)
 		return this.knownPackageNames.includes(qualifiedPackageName);

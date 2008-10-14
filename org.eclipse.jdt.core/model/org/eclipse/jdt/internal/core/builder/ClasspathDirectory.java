@@ -118,6 +118,10 @@ public IPath getProjectRelativePath() {
 	return this.binaryFolder.getProjectRelativePath();
 }
 
+public int hashCode() {
+	return this.binaryFolder == null ? super.hashCode() : this.binaryFolder.hashCode();
+}
+
 protected boolean isExcluded(IResource resource) {
 	return false;
 }
