@@ -83,7 +83,8 @@ public boolean build(SimpleLookupTable deltas) {
 			// but we need to rebuild every source file since problems were not recorded
 			// AND to avoid the infinite build scenario if this project is involved in a cycle, see bug 160550
 			// we need to avoid unnecessary deltas caused by doing a full build in this case
-			System.out.println("COMPILING all source files since the buildpath has errors "); //$NON-NLS-1$
+			if (JavaBuilder.DEBUG)
+				System.out.println("COMPILING all source files since the buildpath has errors "); //$NON-NLS-1$
 			this.javaBuilder.currentProject.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 			addAllSourceFiles(this.sourceFiles);
 			this.notifier.updateProgressDelta(0.25f);
