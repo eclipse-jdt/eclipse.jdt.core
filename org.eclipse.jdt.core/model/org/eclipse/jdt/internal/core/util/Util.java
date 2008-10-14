@@ -1365,10 +1365,18 @@ public class Util {
 			if (isInnerBinaryTypeConstructor)
 				parameterSignatures[0] = new String(enclosingType.genericTypeSignature()).replace('/', '.');
 			for (int i = 0;  i < length; i++) {
-				parameterSignatures[declaringIndex + i] = new String(parameters[i].genericTypeSignature()).replace('/', '.');
+				char[] signature = parameters[i].genericTypeSignature();
+				if (isBinary) {
+					signature = CharOperation.replaceOnCopy(signature, '/', '.');
+				} else {
+					signature = toUnresolvedTypeSignature(signature);
+				}
+				parameterSignatures[declaringIndex + i] = new String(signature);
 			}
 			IMethod result = declaringType.getMethod(selector, parameterSignatures);
 			if (isBinary)
+				return (JavaElement) result;
+			if (result.exists()) // if perfect match (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=249567 )
 				return (JavaElement) result;
 			IMethod[] methods = null;
 			try {
@@ -2346,6 +2354,44 @@ public class Util {
 			result[i] = new String(a[i]);
 		}
 		return result;
+	}
+	private static char[] toUnresolvedTypeSignature(char[] signature) {
+		int length = signature.length;
+		if (length <= 1)
+			return signature;
+		StringBuffer buffer = new StringBuffer(length);
+		toUnresolvedTypeSignature(signature, 0, length, buffer);
+		int bufferLength = buffer.length();
+		char[] result = new char[bufferLength];
+		buffer.getChars(0, bufferLength, result, 0);
+		return result;
+	}
+
+	private static int toUnresolvedTypeSignature(char[] signature, int start, int length, StringBuffer buffer) {
+		if (signature[start] == Signature.C_RESOLVED)
+			buffer.append(Signature.C_UNRESOLVED);
+		else
+			buffer.append(signature[start]);
+		for (int i = start+1; i < length; i++) {
+			char c = signature[i];
+			switch (c) {
+			case '/':
+			case Signature.C_DOLLAR:
+				buffer.append(Signature.C_DOT);
+				break;
+			case Signature.C_GENERIC_START:
+				buffer.append(Signature.C_GENERIC_START);
+				i = toUnresolvedTypeSignature(signature, i+1, length, buffer);
+				break;
+			case Signature.C_GENERIC_END:
+				buffer.append(Signature.C_GENERIC_END);
+				return i;
+			default:
+				buffer.append(c);
+				break;
+			}
+		}
+		return length;
 	}
 	private static void appendArrayTypeSignature(char[] string, int start, StringBuffer buffer, boolean compact) {
 		int length = string.length;

@@ -1728,6 +1728,110 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			element
 		);
 	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=249567 )
+	 */
+	public void testMethod12() throws Exception {
+		try {
+			createFolder("/P/src/p1");
+			createFile(
+				"/P/src/p1/X249567.java",
+				"package p1;\n" +
+				"public class X249567 {}"
+			);
+			createFolder("/P/src/p2");
+			createFile(
+				"/P/src/p2/X249567.java",
+				"package p2;\n" +
+				"public class X249567 {}"
+			);
+			ASTNode node = buildAST(
+				"public class X {\n" +
+				"  void foo(p1.X249567 x) {\n" +
+				"  }\n" +
+				"  /*start*/void foo(p2.X249567 x) {\n" +
+				"  }/*end*/\n" +
+				"}"
+			);
+			IBinding binding = ((MethodDeclaration) node).resolveBinding();
+			IJavaElement element = binding.getJavaElement();
+			assertElementEquals(
+				"Unexpected Java element",
+				"foo(p2.X249567) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+				element
+			);
+		} finally {
+			deleteFolder("/P/src/p1");
+			deleteFolder("/P/src/p2");
+		}
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=249567 )
+	 */
+	public void testMethod13() throws Exception {
+		try {
+			createFolder("/P/src/p1");
+			createFile(
+				"/P/src/p1/X249567.java",
+				"package p1;\n" +
+				"public class X249567 {\n" +
+				"  public class Member {}\n" +
+				"}"
+			);
+			ASTNode node = buildAST(
+				"public class X {\n" +
+				"  /*start*/void foo(p1.X249567.Member x) {\n" +
+				"  }/*end*/\n" +
+				"}"
+			);
+			IBinding binding = ((MethodDeclaration) node).resolveBinding();
+			IJavaElement element = binding.getJavaElement();
+			assertElementEquals(
+				"Unexpected Java element",
+				"foo(p1.X249567.Member) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+				element
+			);
+		} finally {
+			deleteFolder("/P/src/p1");
+		}
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=249567 )
+	 */
+	public void testMethod14() throws Exception {
+		try {
+			createFolder("/P/src/p1");
+			createFile(
+				"/P/src/p1/X249567.java",
+				"package p1;\n" +
+				"public class X249567 {\n" +
+				"  public class Member<T> {}\n" +
+				"}"
+			);
+			ASTNode node = buildAST(
+				"public class X {\n" +
+				"  /*start*/void foo(p1.X249567.Member<java.lang.String> x) {\n" +
+				"  }/*end*/\n" +
+				"}"
+			);
+			IBinding binding = ((MethodDeclaration) node).resolveBinding();
+			IJavaElement element = binding.getJavaElement();
+			assertElementEquals(
+				"Unexpected Java element",
+				"foo(p1.X249567.Member<java.lang.String>) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+				element
+			);
+		} finally {
+			deleteFolder("/P/src/p1");
+		}
+	}
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a package is correct.
 	 */
