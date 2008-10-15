@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -136,16 +136,37 @@ public abstract class ASTVisitor {
 	}
 
 	/**
-	 * Visits the given AST node prior to the type-specific visit.
+	 * Visits the given AST node prior to the type-specific visit
 	 * (before <code>visit</code>).
 	 * <p>
 	 * The default implementation does nothing. Subclasses may reimplement.
 	 * </p>
 	 *
 	 * @param node the node to visit
+	 *
+	 * @see #preVisit2(ASTNode)
 	 */
 	public void preVisit(ASTNode node) {
 		// default implementation: do nothing
+	}
+
+	/**
+	 * Visits the given AST node prior to the type-specific visit (before <code>visit</code>).
+	 * This API is still under discussion, see https://bugs.eclipse.org/53024 .
+	 * <p>
+	 * The default implementation calls {@link #preVisit(ASTNode)} and then
+	 * returns true. Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @return <code>true</code> if <code>visit(node)</code> should be called,
+	 * and <code>false</code> otherwise.
+	 * @see #preVisit(ASTNode)
+	 * @since 3.5
+	 */
+	public boolean preVisit2(ASTNode node) {
+		preVisit(node);
+		return true;
 	}
 
 	/**

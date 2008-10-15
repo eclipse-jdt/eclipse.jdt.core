@@ -47,9 +47,17 @@ Eclipse SDK 3.5M3 - %date% - 3.5 MILESTONE 3
 <br>Project org.eclipse.jdt.core v_918
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_918">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>New API for the ASTVisitor class: <code>org.eclipse.jdt.core.dom.ASTVisitor.preVisit2(ASTNode)</code>.<br>
+New API type: <code>org.eclipse.jdt.core.dom.NodeFinder</code>.<br>
+All details are available in bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53024">53024</a>.<br>
+These new APIs are still under discussion and are released for JDT/UI adoption.</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=250753">250753</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53024">53024</a>
+[DOM] Move NodeFinder to a non-internal package
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=250753">250753</a>
 [formatter] Insert space between empty braces in array initializers ignored without &quot;Keep empty array initializer on one line&quot;
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=248319">248319</a>
 [compiler][1.5] Valid Java source produces class file that doesn't verify (VerifyError, javac compiles correctly)

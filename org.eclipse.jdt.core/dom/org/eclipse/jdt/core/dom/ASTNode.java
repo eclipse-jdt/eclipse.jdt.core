@@ -103,7 +103,8 @@ import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
  * </p>
  * <p>
  * ASTs also support the visitor pattern; see the class <code>ASTVisitor</code>
- * for details.
+ * for details. The <code>NodeFinder</code> class can be used to find a specific
+ * node inside a tree.
  * </p>
  * <p>
  * Compilation units created by <code>ASTParser</code> from a
@@ -117,6 +118,7 @@ import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
  *
  * @see ASTParser
  * @see ASTVisitor
+ * @see NodeFinder
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.
  */
@@ -2473,9 +2475,10 @@ public abstract class ASTNode {
 			throw new IllegalArgumentException();
 		}
 		// begin with the generic pre-visit
-		visitor.preVisit(this);
-		// dynamic dispatch to internal method for type-specific visit/endVisit
-		accept0(visitor);
+		if (visitor.preVisit2(this)) {
+			// dynamic dispatch to internal method for type-specific visit/endVisit
+			accept0(visitor);
+		}
 		// end with the generic post-visit
 		visitor.postVisit(this);
 	}
