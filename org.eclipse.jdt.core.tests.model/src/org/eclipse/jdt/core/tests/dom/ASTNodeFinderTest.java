@@ -33,7 +33,7 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 305 };
+//		TESTS_NUMBERS = new int[] { 9 };
 	}
 
 	public static Test suite() {
