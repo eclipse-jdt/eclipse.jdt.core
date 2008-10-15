@@ -119,7 +119,10 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 	if (contents == null) return null;
 	int indexAnchor = contents.indexOf(
 			JavadocConstants.ANCHOR_PREFIX_START + getElementName() + JavadocConstants.ANCHOR_PREFIX_END);
-	if (indexAnchor == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	if (indexAnchor == -1) {
+		// this might be the case for a private field that has no javadoc entry
+		return null;
+	}
 	int indexOfEndLink = contents.indexOf(JavadocConstants.ANCHOR_SUFFIX, indexAnchor);
 	if (indexOfEndLink == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	int indexOfNextField = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START, indexOfEndLink);
