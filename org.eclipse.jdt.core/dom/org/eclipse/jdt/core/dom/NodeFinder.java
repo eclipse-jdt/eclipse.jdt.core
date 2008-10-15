@@ -84,9 +84,9 @@ public final class NodeFinder {
 	 * The result node is determined as follows:
 	 * <ul>
 	 *   <li>first the visitor tries to find a node with the exact <code>start</code> and <code>length</code></li>
-	 *   <li>if no such node exists than the node that encloses the range defined by
+	 *   <li>if no such node exists then the node that encloses the range defined by
 	 *       <code>start</code> and <code>length</code> is returned.</li>
-	 *   <li>if the length is zero than also nodes are considered where the node's
+	 *   <li>if the length is zero then also nodes are considered where the node's
 	 *       start or end position matches <code>start</code>.</li>
 	 *   <li>otherwise <code>null</code> is returned.</li>
 	 * </ul>
@@ -125,9 +125,9 @@ public final class NodeFinder {
 	 *       <code>length</code> where either <code>start</code> and <code>length</code> exactly
 	 *       matches the node or where the text covered before and after the node only consists
 	 *       of white spaces or comments.</li>
-	 *   <li>if no such node exists than the node that encloses the range defined by
+	 *   <li>if no such node exists then the node that encloses the range defined by
 	 *       <code>start</code> and <code>length</code> is returned.</li>
-	 *   <li>if the length is zero than also nodes are considered where the node's
+	 *   <li>if the length is zero then also nodes are considered where the node's
 	 *       start or end position matches <code>start</code>.</li>
 	 *   <li>otherwise <code>null</code> is returned.</li>
 	 * </ul>
