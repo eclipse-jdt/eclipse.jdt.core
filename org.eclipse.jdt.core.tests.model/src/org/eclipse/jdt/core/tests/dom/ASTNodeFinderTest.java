@@ -23,6 +23,8 @@ import org.eclipse.jdt.internal.core.SourceRange;
 
 public class ASTNodeFinderTest extends ConverterTestSetup {
 
+	ICompilationUnit workingCopy;
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST.JLS3);
@@ -32,6 +34,14 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 		super(name);
 	}
 
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		if (this.workingCopy != null) {
+			this.workingCopy.discardWorkingCopy();
+			this.workingCopy = null;
+		}
+	}
+	
 	static {
 //		TESTS_NUMBERS = new int[] { 9 };
 	}
@@ -41,9 +51,19 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 	}
 
 	public void test0001() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, false);
-		char[] source = sourceUnit.getSource().toCharArray();
+		this.workingCopy = getWorkingCopy("/NodeFinder/src/test0001/Test.java", false);
+		String contents =
+			"package test0001;\n" + 
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Hello\" + \" world\");\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode result = buildAST(
+				contents,
+				this.workingCopy);
+		char[] source = contents.toCharArray();
 		char[] className = "Test".toCharArray();
 		int index = CharOperation.indexOf(className, source, true);
 		int index2 = CharOperation.indexOf('{', source, index + 1, source.length);
@@ -52,10 +72,19 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 		assertTrue("Different node", nodeFinder.getCoveringNode() == node);
 	}
 	public void test0002() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, false);
-		
-		char[] source = sourceUnit.getSource().toCharArray();
+		this.workingCopy = getWorkingCopy("/NodeFinder/src/test0001/Test.java", false);
+		String contents =
+			"package test0001;\n" + 
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Hello\" + \" world\");\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode result = buildAST(
+				contents,
+				this.workingCopy);
+		char[] source = contents.toCharArray();
 		char[] className = "Test".toCharArray();
 		int index = CharOperation.indexOf(className, source, true);
 		ASTNode node = NodeFinder.perform(result, index, className.length);
@@ -63,9 +92,19 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 		assertTrue("Different node", nodeFinder.getCoveredNode() == node);
 	}
 	public void test0003() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, false);
-		char[] source = sourceUnit.getSource().toCharArray();
+		this.workingCopy = getWorkingCopy("/NodeFinder/src/test0001/Test.java", false);
+		String contents =
+			"package test0001;\n" + 
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Hello\" + \" world\");\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode result = buildAST(
+				contents,
+				this.workingCopy);
+		char[] source = contents.toCharArray();
 		char[] className = "Test".toCharArray();
 		int index = CharOperation.indexOf(className, source, true);
 		int index2 = CharOperation.indexOf('{', source, index + 1, source.length);
@@ -75,10 +114,19 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 		assertTrue("Different node", nodeFinder.getCoveringNode() == node);
 	}
 	public void test0004() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, false);
-		
-		char[] source = sourceUnit.getSource().toCharArray();
+		this.workingCopy = getWorkingCopy("/NodeFinder/src/test0001/Test.java", false);
+		String contents =
+			"package test0001;\n" + 
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Hello\" + \" world\");\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode result = buildAST(
+				contents,
+				this.workingCopy);
+		char[] source = contents.toCharArray();
 		char[] className = "Test".toCharArray();
 		int index = CharOperation.indexOf(className, source, true);
 		SourceRange range = new SourceRange(index, className.length);
@@ -87,31 +135,60 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 		assertTrue("Different node", nodeFinder.getCoveredNode() == node);
 	}
 	public void test0005() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, false);
-		char[] source = sourceUnit.getSource().toCharArray();
+		this.workingCopy = getWorkingCopy("/NodeFinder/src/test0001/Test.java", false);
+		String contents =
+			"package test0001;\n" + 
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Hello\" + \" world\");\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode result = buildAST(
+				contents,
+				this.workingCopy);
+		char[] source = contents.toCharArray();
 		char[] className = "Test".toCharArray();
 		int index = CharOperation.indexOf(className, source, true);
 		int index2 = CharOperation.indexOf('{', source, index + 1, source.length);
-		ASTNode node = NodeFinder.perform(result, index, index2 - index + 1, sourceUnit);
+		ASTNode node = NodeFinder.perform(result, index, index2 - index + 1, this.workingCopy);
 		NodeFinder nodeFinder = new NodeFinder(result, index, index2 - index + 1);
 		assertTrue("Different node", nodeFinder.getCoveringNode() == node);
 	}
 	public void test0006() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, false);
-		
-		char[] source = sourceUnit.getSource().toCharArray();
+		this.workingCopy = getWorkingCopy("/NodeFinder/src/test0001/Test.java", false);
+		String contents =
+			"package test0001;\n" + 
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Hello\" + \" world\");\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode result = buildAST(
+				contents,
+				this.workingCopy);
+		char[] source = contents.toCharArray();
 		char[] className = "Test".toCharArray();
 		int index = CharOperation.indexOf(className, source, true);
-		ASTNode node = NodeFinder.perform(result, index, className.length, sourceUnit);
+		ASTNode node = NodeFinder.perform(result, index, className.length, this.workingCopy);
 		NodeFinder nodeFinder = new NodeFinder(result, index, className.length);
 		assertTrue("Different node", nodeFinder.getCoveredNode() == node);
 	}
 	public void test0007() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, false);
-		char[] source = sourceUnit.getSource().toCharArray();
+		this.workingCopy = getWorkingCopy("/NodeFinder/src/test0001/Test.java", false);
+		String contents =
+			"package test0001;\n" + 
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Hello\" + \" world\");\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode result = buildAST(
+				contents,
+				this.workingCopy);
+		char[] source = contents.toCharArray();
 		char[] className = "Test".toCharArray();
 		int index = CharOperation.indexOf(className, source, true);
 		ASTNode node = NodeFinder.perform(result, index - 1, 1);
@@ -120,9 +197,19 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 		assertNotNull("Got a covering node", node);
 	}
 	public void test0008() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, false);
-		char[] source = sourceUnit.getSource().toCharArray();
+		this.workingCopy = getWorkingCopy("/NodeFinder/src/test0001/Test.java", false);
+		String contents =
+			"package test0001;\n" + 
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Hello\" + \" world\");\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode result = buildAST(
+				contents,
+				this.workingCopy);
+		char[] source = contents.toCharArray();
 		char[] className = "Test".toCharArray();
 		int index = CharOperation.indexOf(className, source, true);
 		SourceRange range = new SourceRange(index - 1, 1);
@@ -132,12 +219,22 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 		assertNotNull("Got a covering node", node);
 	}
 	public void test0009() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, false);
-		char[] source = sourceUnit.getSource().toCharArray();
+		this.workingCopy = getWorkingCopy("/NodeFinder/src/test0001/Test.java", false);
+		String contents =
+			"package test0001;\n" + 
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Hello\" + \" world\");\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode result = buildAST(
+				contents,
+				this.workingCopy);
+		char[] source = contents.toCharArray();
 		char[] className = "Test".toCharArray();
 		int index = CharOperation.indexOf(className, source, true);
-		ASTNode node = NodeFinder.perform(result, index - 1, 1, sourceUnit);
+		ASTNode node = NodeFinder.perform(result, index - 1, 1, this.workingCopy);
 		NodeFinder nodeFinder = new NodeFinder(result, index - 1, 1);
 		assertNull("No covered node", nodeFinder.getCoveredNode());
 		assertNull("No covering node", node);

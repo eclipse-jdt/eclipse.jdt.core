@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+    <classpathentry kind="var" path="CONVERTER_JCL_LIB" sourcepath="CONVERTER_JCL_SRC" rootpath="CONVERTER_JCL_SRCROOT"/>    
+    <classpathentry kind="output" path="bin"/>
+    <classpathentry kind="lib" sourcepath="src" path="bins"/>
+</classpath>

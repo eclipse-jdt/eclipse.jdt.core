@@ -23,18 +23,19 @@ public RunAllTests(String name) {
 }
 public static Class[] getAllTestClasses() {
 	return new Class[] {
-		org.eclipse.jdt.core.tests.dom.RunConverterTests.class,
-		org.eclipse.jdt.core.tests.dom.ASTTest.class,
-		org.eclipse.jdt.core.tests.dom.ASTVisitorTest.class,
-		org.eclipse.jdt.core.tests.dom.ASTMatcherTest.class,
-		org.eclipse.jdt.core.tests.dom.ASTStructuralPropertyTest.class,
-		org.eclipse.jdt.core.tests.dom.ASTParserTest.class,
-		org.eclipse.jdt.core.tests.dom.ASTModelBridgeTests.class,
-		org.eclipse.jdt.core.tests.dom.BatchASTCreationTests.class,
-		org.eclipse.jdt.core.tests.dom.CompatibilityRulesTests.class,
+		RunConverterTests.class,
+		ASTTest.class,
+		ASTVisitorTest.class,
+		ASTMatcherTest.class,
+		ASTStructuralPropertyTest.class,
+		ASTParserTest.class,
+		ASTModelBridgeTests.class,
+		BatchASTCreationTests.class,
+		CompatibilityRulesTests.class,
 		org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest.class,
 		org.eclipse.jdt.core.tests.rewrite.modifying.ASTRewritingModifyingTest.class,
-		org.eclipse.jdt.core.tests.dom.ASTPositionsTest.class,
+		ASTPositionsTest.class,
+		ASTNodeFinderTest.class,
 		// disable since the APIDocumentationTests can only run in a dev workspace
 		// org.eclipse.jdt.core.tests.dom.APIDocumentationTests.class,
 	};
