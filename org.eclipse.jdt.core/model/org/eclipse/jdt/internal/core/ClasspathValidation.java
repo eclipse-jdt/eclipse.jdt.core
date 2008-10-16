@@ -66,7 +66,7 @@ public class ClasspathValidation {
 
 		if (rawClasspath != JavaProject.INVALID_CLASSPATH && outputLocation != null) {
 		 	for (int i = 0; i < rawClasspath.length; i++) {
-				status = ClasspathEntry.validateClasspathEntry(this.project, rawClasspath[i], false/*src attach*/, true /*recurse in container*/);
+				status = ClasspathEntry.validateClasspathEntry(this.project, rawClasspath[i], false/*src attach*/, false /*not referred by a container*/);
 				if (!status.isOK()) {
 					if (status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH && ((ClasspathEntry) rawClasspath[i]).isOptional())
 						continue; // ignore this entry

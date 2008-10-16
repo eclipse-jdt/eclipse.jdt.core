@@ -605,12 +605,12 @@ public final class JavaConventions {
 	 *
 	 * @param project the given java project
 	 * @param entry the given classpath entry
-	 * @param checkSourceAttachment a flag to determine if source attachement should be checked
+	 * @param checkSourceAttachment a flag to determine if source attachment should be checked
 	 * @return a java model status describing the problem related to this classpath entry if any, a status object with code <code>IStatus.OK</code> if the entry is fine
 	 * @since 2.0
 	 */
 	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment){
-		IJavaModelStatus status = ClasspathEntry.validateClasspathEntry(project, entry, checkSourceAttachment, true/*recurse in container*/);
+		IJavaModelStatus status = ClasspathEntry.validateClasspathEntry(project, entry, checkSourceAttachment, false/*not referred by container*/);
 		if (status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH && ((ClasspathEntry) entry).isOptional())
 			return JavaModelStatus.VERIFIED_OK;
 		return status;

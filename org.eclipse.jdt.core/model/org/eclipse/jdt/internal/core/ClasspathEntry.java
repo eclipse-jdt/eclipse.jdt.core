@@ -1727,10 +1727,10 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * @param project the given java project
 	 * @param entry the given classpath entry
 	 * @param checkSourceAttachment a flag to determine if source attachment should be checked
-	 * @param recurseInContainers flag indicating whether validation should be applied to container entries recursively
+	 * @param referredByContainer flag indicating whether the given entry is referred by a classpath container
 	 * @return a java model status describing the problem related to this classpath entry if any, a status object with code <code>IStatus.OK</code> if the entry is fine
 	 */
-	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment, boolean recurseInContainers){
+	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment, boolean referredByContainer){
 
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		IPath path = entry.getPath();
@@ -1782,11 +1782,9 @@ public class ClasspathEntry implements IClasspathEntry {
 										if (description == null) description = path.makeRelative().toString();
 										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY, project, path);
 								}
-								if (recurseInContainers) {
-									IJavaModelStatus containerEntryStatus = validateClasspathEntry(project, containerEntry, checkSourceAttachment, recurseInContainers);
-									if (!containerEntryStatus.isOK()){
-										return containerEntryStatus;
-									}
+								IJavaModelStatus containerEntryStatus = validateClasspathEntry(project, containerEntry, checkSourceAttachment, true/*referred by container*/);
+								if (!containerEntryStatus.isOK()){
+									return containerEntryStatus;
 								}
 							}
 						}
@@ -1813,7 +1811,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					}
 
 					// get validation status
-					IJavaModelStatus status = validateClasspathEntry(project, entry, checkSourceAttachment, recurseInContainers);
+					IJavaModelStatus status = validateClasspathEntry(project, entry, checkSourceAttachment, false/*not referred by container*/);
 					if (!status.isOK()) return status;
 
 					// return deprecation status if any
@@ -1836,8 +1834,11 @@ public class ClasspathEntry implements IClasspathEntry {
 				for (int i = 0, length = chainedJars.length; i < length; i++) {
 					IPath chainedJar = chainedJars[i];
 					IJavaModelStatus status = validateLibraryEntry(chainedJar, project, null/*don't check source attachment*/, null/*force computing of entryPathMsg*/);
-					if (!status.isOK())
+					if (!status.isOK()) {
+						if (referredByContainer && status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH)
+							continue; // ignore this entry (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=250946 )
 						return status;
+					}
 				}
 				
 				IJavaModelStatus status = validateLibraryEntry(path, project, checkSourceAttachment ? entry.getSourceAttachmentPath() : null, entryPathMsg);

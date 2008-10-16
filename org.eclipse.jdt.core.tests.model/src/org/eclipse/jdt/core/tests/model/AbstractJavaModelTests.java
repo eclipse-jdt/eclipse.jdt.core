@@ -1756,8 +1756,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return new File(getExternalPath(), relativePath);
 	}
 
-	protected String getExternalResourcePath(String name) {
-		return getExternalPath() + name;
+	protected String getExternalResourcePath(String relativePath) {
+		return getExternalPath() + relativePath;
 	}
 
 	/**
