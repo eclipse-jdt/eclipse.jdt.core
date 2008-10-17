@@ -391,20 +391,10 @@ public void test010a() {
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 4)\r\n" +
-		"	static <L1 extends Listener & ErrorListener> Object createParser(L1 l) { return null; }\r\n" +
-		"	                                                    ^^^^^^^^^^^^^^^^^^\n" +
-		"Method createParser(L1) has the same erasure createParser(X.Listener) as another method in type X\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\r\n" +
+		"1. ERROR in X.java (at line 5)\r\n" +
 		"	static <L2 extends ErrorListener & Listener> Object createParser(L2 l) { return null; }\r\n" +
 		"	                                                    ^^^^^^^^^^^^^^^^^^\n" +
 		"Method createParser(L2) has the same erasure createParser(X.ErrorListener) as another method in type X\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 8)\r\n" +
-		"	createParser(new A());\r\n" +
-		"	^^^^^^^^^^^^\n" +
-		"The method createParser(A) is undefined for the type X\n" +
 		"----------\n"
 	);
 }
@@ -1355,12 +1345,7 @@ public void test027() {
 			"}",
 		},
 		"----------\n" +
-		"1. ERROR in J.java (at line 2)\n" +
-		"	<T extends Number> T foo(final Number p);\n" +
-		"	                     ^^^^^^^^^^^^^^^^^^^\n" +
-		"Duplicate method foo(Number) in type J\n" +
-		"----------\n" +
-		"2. ERROR in J.java (at line 3)\n" +
+		"1. ERROR in J.java (at line 3)\n" +
 		"	Float foo(final Number p);\n" +
 		"	      ^^^^^^^^^^^^^^^^^^^\n" +
 		"Duplicate method foo(Number) in type J\n" +

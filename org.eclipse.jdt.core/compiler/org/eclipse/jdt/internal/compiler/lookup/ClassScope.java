@@ -91,7 +91,6 @@ public class ClassScope extends Scope {
 		// iterate the field declarations to create the bindings, lose all duplicates
 		FieldBinding[] fieldBindings = new FieldBinding[count];
 		HashtableOfObject knownFieldNames = new HashtableOfObject(count);
-		boolean duplicate = false;
 		count = 0;
 		for (int i = 0; i < size; i++) {
 			FieldDeclaration field = fields[i];
@@ -105,19 +104,6 @@ public class ClassScope extends Scope {
 				checkAndSetModifiersForField(fieldBinding, field);
 
 				if (knownFieldNames.containsKey(field.name)) {
-					duplicate = true;
-					FieldBinding previousBinding = (FieldBinding) knownFieldNames.get(field.name);
-					if (previousBinding != null) {
-						for (int f = 0; f < i; f++) {
-							FieldDeclaration previousField = fields[f];
-							if (previousField.binding == previousBinding) {
-								problemReporter().duplicateFieldInType(sourceType, previousField);
-								previousField.binding = null;
-								break;
-							}
-						}
-					}
-					knownFieldNames.put(field.name, null); // ensure that the duplicate field is found & removed
 					problemReporter().duplicateFieldInType(sourceType, field);
 					field.binding = null;
 				} else {
@@ -128,20 +114,6 @@ public class ClassScope extends Scope {
 			}
 		}
 		// remove duplicate fields
-		if (duplicate) {
-			FieldBinding[] newFieldBindings = new FieldBinding[fieldBindings.length];
-			// we know we'll be removing at least 1 duplicate name
-			size = count;
-			count = 0;
-			for (int i = 0; i < size; i++) {
-				FieldBinding fieldBinding = fieldBindings[i];
-				if (knownFieldNames.get(fieldBinding.name) != null) {
-					fieldBinding.id = count;
-					newFieldBindings[count++] = fieldBinding;
-				}
-			}
-			fieldBindings = newFieldBindings;
-		}
 		if (count != fieldBindings.length)
 			System.arraycopy(fieldBindings, 0, fieldBindings = new FieldBinding[count], 0, count);
 		sourceType.tagBits &= ~(TagBits.AreFieldsSorted|TagBits.AreFieldsComplete); // in case some static imports reached already into this type

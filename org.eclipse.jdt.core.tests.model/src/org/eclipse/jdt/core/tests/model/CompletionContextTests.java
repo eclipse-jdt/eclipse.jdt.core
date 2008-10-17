@@ -4859,6 +4859,7 @@ public void test0164() throws JavaModelException {
 		"completion token location={STATEMENT_START}\n" +
 		"visibleElements={\n" +
 		"	source [in addDataDependencies(int)#2 [in Foo [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	addDataDependencies(int) {key=Ltest/X~Foo;.addDataDependencies(I)I} [in Foo [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"}",
 		result.context);
