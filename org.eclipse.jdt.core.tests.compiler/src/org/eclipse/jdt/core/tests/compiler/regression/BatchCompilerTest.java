@@ -21,6 +21,7 @@ import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.Test;
 
@@ -11025,5 +11026,21 @@ public void test290_warn_options() {
 		"",
 		"",
 		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=251079 
+public void test291_jar_ref_in_jar() throws Exception {
+	assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+		new StringReader(
+			"Manifest-Version: 1.0\r\n" +
+			"Created-By: Eclipse JDT Test Harness\r\n" +
+			"Class-Path: \r\n" +
+			"\r\n"
+		)));
+	List calledFileNames = ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames();
+	String actual = calledFileNames == null ? "<null>" : Util.toString((String[]) calledFileNames.toArray(new String[calledFileNames.size()]), false/*don't add extra new lines*/);
+	assertStringEquals(
+		"<null>", 
+		actual, 
+		true/*show line serators*/);
 }
 }

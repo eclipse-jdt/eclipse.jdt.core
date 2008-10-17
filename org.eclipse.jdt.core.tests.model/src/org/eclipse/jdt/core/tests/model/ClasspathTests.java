@@ -3366,6 +3366,32 @@ public void testExtraLibraries14() throws Exception {
 	}
 }
 /*
+ * Ensures that the extra libraries in the Class-Path: clause of a jar with a \r\n separator don't cause an exception
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=251079 )
+ */
+public void testExtraLibraries15() throws Exception {
+	try {
+		Util.createJar(
+			new String[0],
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\r\n" +
+				"Class-Path: \r\n" +
+				"\r\n",
+			},
+			getExternalResourcePath("lib1.jar"),
+			JavaCore.VERSION_1_4);
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", getExternalResourcePath("lib1.jar")}));
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
+		assertClasspathEquals(
+			p.getResolvedClasspath(true), 
+			""+ getExternalPath() + "lib1.jar[CPE_LIBRARY][K_BINARY][isExported:false]"
+		);
+	} finally {
+		deleteProject("P");
+		deleteExternalResource("lib1.jar");
+	}
+}/*
  * Ensures that a marker is removed if adding an internal jar that is on the classpath in another project
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=213723 )
  */

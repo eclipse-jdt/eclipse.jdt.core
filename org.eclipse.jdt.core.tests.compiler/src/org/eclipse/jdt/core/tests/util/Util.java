@@ -1022,6 +1022,16 @@ public static String toNativePath(String path) {
             nativePath.substring(0, nativePath.length() - 1) :
             nativePath;
 }
+public static String toString(String[] strings, boolean addExtraNewLine) {
+	if (strings == null) return "null";
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0, length = strings.length; i < length; i++){
+		buffer.append(strings[i]);
+		if (addExtraNewLine || i < length - 1)
+			buffer.append("\n");
+	}
+	return buffer.toString();
+}
 /**
  * Unzip the contents of the given zip in the given directory (create it if it doesn't exist)
  */

@@ -36,6 +36,8 @@ public class ManifestAnalyzer {
 		this.calledFilesNames = null;
 		for (;;) {
 			currentChar = reader.read();
+			if (currentChar == '\r')  // skip \r, will consider \n later (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=251079 )
+				currentChar = reader.read();
 			switch (state) {
 				case START:
 					if (currentChar == -1) {
@@ -102,7 +104,7 @@ public class ManifestAnalyzer {
 				case READING_JAR:
 					if (currentChar == -1) {
 						return false;
-					} else if (currentChar == '\n' || currentChar == '\r') {
+					} else if (currentChar == '\n') {
 						// appends token below
 						state = CONTINUING;
 					} else if (currentChar == ' ') {

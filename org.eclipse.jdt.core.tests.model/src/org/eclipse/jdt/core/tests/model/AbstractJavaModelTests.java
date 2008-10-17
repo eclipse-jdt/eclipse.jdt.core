@@ -995,15 +995,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertStringsEqual(message, expected, strings);
 	}
 	protected void assertStringsEqual(String message, String expected, String[] strings) {
-		String actual = toString(strings, true/*add extra new lines*/);
+		String actual = org.eclipse.jdt.core.tests.util.Util.toString(strings, true/*add extra new lines*/);
 		if (!expected.equals(actual)) {
 			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
 	protected void assertStringsEqual(String message, String[] expectedStrings, String[] actualStrings) {
-		String expected = toString(expectedStrings, false/*don't add extra new lines*/);
-		String actual = toString(actualStrings, false/*don't add extra new lines*/);
+		String expected = org.eclipse.jdt.core.tests.util.Util.toString(expectedStrings, false/*don't add extra new lines*/);
+		String actual = org.eclipse.jdt.core.tests.util.Util.toString(actualStrings, false/*don't add extra new lines*/);
 		if (!expected.equals(actual)) {
 			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
@@ -2774,17 +2774,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	protected String toString(String[] strings) {
-		return toString(strings, false/*don't add extra new line*/);
-	}
-	protected String toString(String[] strings, boolean addExtraNewLine) {
-		if (strings == null) return "null";
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0, length = strings.length; i < length; i++){
-			buffer.append(strings[i]);
-			if (addExtraNewLine || i < length - 1)
-				buffer.append("\n");
-		}
-		return buffer.toString();
+		return org.eclipse.jdt.core.tests.util.Util.toString(strings, false/*don't add extra new line*/);
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
