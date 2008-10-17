@@ -484,7 +484,8 @@ void checkMethods() {
 						&& isSubstituteParameterSubsignature(inheritedMethod, otherInheritedMethod)) {
 							if (index == -1)
 								matchingInherited[++index] = inheritedMethod;
-							matchingInherited[++index] = otherInheritedMethod;
+							if (foundMatch[j] == null)
+								matchingInherited[++index] = otherInheritedMethod;
 							skip[j] = true;
 					} else if (matchMethod == null && foundMatch[j] == null) {
 						checkInheritedMethods(inheritedMethod, otherInheritedMethod);
