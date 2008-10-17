@@ -67,4 +67,8 @@ public static Test suite() {
 	}
 	return ts;
 }
+protected void tearDown() throws Exception {
+	ConverterTestSetup.PROJECT_SETUP = false;
+	super.tearDown();
+}
 }
