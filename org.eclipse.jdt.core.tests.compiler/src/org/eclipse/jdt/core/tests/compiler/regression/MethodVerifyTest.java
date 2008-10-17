@@ -8972,4 +8972,64 @@ public void test176() {
 	false,
 	options);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251091
+public void test177() {
+	if (new CompilerOptions(getCompilerOptions()).sourceLevel >= ClassFileConstants.JDK1_6) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"interface I { I foo(Collection<?> c); }\n" +
+				"class A extends LinkedHashMap {\n" +
+				"	public A foo(Collection c) { return this; }\n" +
+				"}\n" +
+				"class X extends A implements I {\n" +
+				"	@Override public X foo(Collection<?> c) { return this; }\n" +
+				"}"
+			},
+			""
+		);
+	} else {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"interface I { I foo(Collection<?> c); }\n" +
+				"class A extends LinkedHashMap {\n" +
+				"	public A foo(Collection c) { return this; }\n" +
+				"}\n" +
+				"class X extends A implements I {\n" +
+				"	@Override public X foo(Collection<?> c) { return this; }\n" +
+				"}"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	class A extends LinkedHashMap {\n" +
+			"	      ^\n" +
+			"The serializable class A does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	class A extends LinkedHashMap {\n" +
+			"	                ^^^^^^^^^^^^^\n" +
+			"LinkedHashMap is a raw type. References to generic type LinkedHashMap<K,V> should be parameterized\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 4)\n" +
+			"	public A foo(Collection c) { return this; }\n" +
+			"	             ^^^^^^^^^^\n" +
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 6)\n" +
+			"	class X extends A implements I {\n" +
+			"	      ^\n" +
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 7)\n" +
+			"	@Override public X foo(Collection<?> c) { return this; }\n" +
+			"	                   ^^^^^^^^^^^^^^^^^^^^\n" +
+			"The method foo(Collection<?>) of type X must override a superclass method\n" +
+			"----------\n"
+		);
+	}
+}
 }
