@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.core.index.Index;
 
 /**
  * A search document encapsulates a content to be either indexed or searched in.
- * A search particpant creates a search document.
+ * A search participant creates a search document.
  * <p>
  * This class is intended to be subclassed by clients.
  * </p>
