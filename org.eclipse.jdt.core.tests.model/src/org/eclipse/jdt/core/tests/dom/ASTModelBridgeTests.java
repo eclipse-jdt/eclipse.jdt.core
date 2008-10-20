@@ -310,6 +310,48 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that the IJavaElement of an IBinding representing an annotation on an annotation type is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=249844 )
+	 */
+	public void testAnnotation6() throws JavaModelException {
+		ASTNode node = buildAST(
+			"/*start*/@MyAnnot/*end*/\n" + 
+			"public @interface X {\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
+			"}"
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"@MyAnnot [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+	}
+	
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing an annotation on an enum type is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=249844 )
+	 */
+	public void testAnnotation7() throws JavaModelException {
+		ASTNode node = buildAST(
+			"/*start*/@MyAnnot/*end*/\n" + 
+			"public enum X {\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
+			"}"
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"@MyAnnot [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+	}
+
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing an anonymous type is correct.
 	 */
 	public void testAnonymousType() throws JavaModelException {

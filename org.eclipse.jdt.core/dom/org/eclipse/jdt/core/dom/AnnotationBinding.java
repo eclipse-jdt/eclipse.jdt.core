@@ -112,8 +112,10 @@ class AnnotationBinding implements IAnnotationBinding {
 				parentElement =  ((ICompilationUnit) cu).getPackageDeclaration(pkgName);
 			}
 			break;
+		case ASTNode.ENUM_DECLARATION:
 		case ASTNode.TYPE_DECLARATION:
-			parentElement = ((TypeDeclaration) parent).resolveBinding().getJavaElement();
+		case ASTNode.ANNOTATION_TYPE_DECLARATION:
+			parentElement = ((AbstractTypeDeclaration) parent).resolveBinding().getJavaElement();
 			break;
 		case ASTNode.FIELD_DECLARATION:
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) ((FieldDeclaration) parent).fragments().get(0);
