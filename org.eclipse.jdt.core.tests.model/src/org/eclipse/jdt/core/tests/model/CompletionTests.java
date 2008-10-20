@@ -115,6 +115,32 @@ public void testAbortCompletion2() throws JavaModelException {
 	}
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=246276
+public void testArrayInitializer1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/ArrayInitializer.java",
+		"public class ArrayInitializer {\n"+
+		"	int bar() {return 0;}\n"+
+		"	void foo(int[] i) {\n"+
+		"		i = new int[] {\n"+
+		"			bar()\n"+
+		"		};\n"+
+		"	}\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bar(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"bar[METHOD_REF]{, LArrayInitializer;, ()I, bar, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=164311
 public void testBug164311() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];

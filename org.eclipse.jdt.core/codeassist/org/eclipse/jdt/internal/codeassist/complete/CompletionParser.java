@@ -3370,9 +3370,22 @@ protected void consumeToken(int token) {
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_ARRAY_CREATION) {
 					pushOnElementStack(K_BETWEEN_LEFT_AND_RIGHT_BRACKET);
 				} else {
-					if(previous == TokenNameIdentifier) {
-						this.invocationType = NO_RECEIVER;
-						this.qualifier = -1;
+					switch (previous) {
+						case TokenNameIdentifier:
+						case TokenNameboolean:
+						case TokenNamebyte:
+						case TokenNamechar:
+						case TokenNamedouble:
+						case TokenNamefloat:
+						case TokenNameint:
+						case TokenNamelong:
+						case TokenNameshort:
+						case TokenNameGREATER:
+						case TokenNameRIGHT_SHIFT:
+						case TokenNameUNSIGNED_RIGHT_SHIFT:
+							this.invocationType = NO_RECEIVER;
+							this.qualifier = -1;
+							break;
 					}
 				}
 				break;
