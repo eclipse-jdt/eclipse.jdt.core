@@ -1233,7 +1233,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 2, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0);
 		assertEquals("Wrong type", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;

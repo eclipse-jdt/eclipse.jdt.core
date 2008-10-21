@@ -91,6 +91,7 @@ public class ClassScope extends Scope {
 		// iterate the field declarations to create the bindings, lose all duplicates
 		FieldBinding[] fieldBindings = new FieldBinding[count];
 		HashtableOfObject knownFieldNames = new HashtableOfObject(count);
+		boolean duplicate = false;
 		count = 0;
 		for (int i = 0; i < size; i++) {
 			FieldDeclaration field = fields[i];
@@ -104,6 +105,18 @@ public class ClassScope extends Scope {
 				checkAndSetModifiersForField(fieldBinding, field);
 
 				if (knownFieldNames.containsKey(field.name)) {
+					duplicate = true;
+					FieldBinding previousBinding = (FieldBinding) knownFieldNames.get(field.name);
+					if (previousBinding != null) {
+						for (int f = 0; f < i; f++) {
+							FieldDeclaration previousField = fields[f];
+							if (previousField.binding == previousBinding) {
+								problemReporter().duplicateFieldInType(sourceType, previousField);
+								break;
+							}
+						}
+					}
+					knownFieldNames.put(field.name, null); // ensure that the duplicate field is found & removed
 					problemReporter().duplicateFieldInType(sourceType, field);
 					field.binding = null;
 				} else {

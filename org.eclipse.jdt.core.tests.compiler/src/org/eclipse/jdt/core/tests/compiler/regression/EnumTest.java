@@ -176,7 +176,12 @@ public void test002() {
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	BLEU, \n" +
+		"	^^^^\n" +
+		"Duplicate field X.BLEU\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
 		"	BLEU;\n" +
 		"	^^^^\n" +
 		"Duplicate field X.BLEU\n" +
@@ -323,27 +328,32 @@ public void test008() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	void values() {} \n" +
-		"	     ^^^^^^^^\n" +
-		"The enum X already defines the method values() implicitly\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
+		"1. ERROR in X.java (at line 7)\n" +
 		"	void dup() {} \n" +
 		"	     ^^^^^\n" +
 		"Duplicate method dup() in type X\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 10)\n" +
+		"2. ERROR in X.java (at line 8)\n" +
 		"	void values() {} \n" +
 		"	     ^^^^^^^^\n" +
 		"The enum X already defines the method values() implicitly\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 11)\n" +
+		"3. ERROR in X.java (at line 9)\n" +
+		"	void dup() {} \n" +
+		"	     ^^^^^\n" +
+		"Duplicate method dup() in type X\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 10)\n" +
+		"	void values() {} \n" +
+		"	     ^^^^^^^^\n" +
+		"The enum X already defines the method values() implicitly\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 11)\n" +
 		"	Missing dup() {} \n" +
 		"	^^^^^^^\n" +
 		"Missing cannot be resolved to a type\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 11)\n" +
+		"6. ERROR in X.java (at line 11)\n" +
 		"	Missing dup() {} \n" +
 		"	        ^^^^^\n" +
 		"Duplicate method dup() in type X\n" +
@@ -1962,12 +1972,16 @@ public void test067() {
 		"	          ^^^^^\n" +
 		"The enum constant THREE must define the abstract method getSquare()\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 4)\n" +
+		"4. ERROR in X.java (at line 3)\n" +
 		"	abstract int getSquare();\n" +
 		"	             ^^^^^^^^^^^\n" +
 		"Duplicate method getSquare() in type X\n" +
-		"----------\n"
-	);
+		"----------\n" +
+		"5. ERROR in X.java (at line 4)\n" +
+		"	abstract int getSquare();\n" +
+		"	             ^^^^^^^^^^^\n" +
+		"Duplicate method getSquare() in type X\n" +
+		"----------\n");
 }
 
 /**

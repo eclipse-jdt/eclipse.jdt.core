@@ -3382,9 +3382,14 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" +
 			"	@Override T id(T x) { return x; }\n" +
 			"	            ^^^^^^^\n" +
+			"Method id(T) has the same erasure id(A) as another method in type Y<T>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	@Override T id(T x) { return x; }\n" +
+			"	            ^^^^^^^\n" +
 			"Name clash: The method id(T) of type Y<T> has the same erasure as id(A) of type X<T> but does not override it\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
+			"3. ERROR in X.java (at line 7)\n" +
 			"	@Override A id(A x) { return x; }\n" +
 			"	            ^^^^^^^\n" +
 			"Method id(A) has the same erasure id(A) as another method in type Y<T>\n" +
@@ -3495,17 +3500,32 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class Z {}"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	Y foo(Object o) {  return null; } // duplicate\n" +
+			"	  ^^^^^^^^^^^^^\n" +
+			"Duplicate method foo(Object) in type X.C1\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
 			"	Z foo(Object o) {  return null; } // duplicate\n" +
 			"	  ^^^^^^^^^^^^^\n" +
 			"Duplicate method foo(Object) in type X.C1\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 12)\n" +
+			"3. ERROR in X.java (at line 11)\n" +
+			"	A<Y> foo(Object o) {  return null; } // duplicate\n" +
+			"	     ^^^^^^^^^^^^^\n" +
+			"Duplicate method foo(Object) in type X.C3\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 12)\n" +
 			"	A<Z> foo(Object o) {  return null; } // duplicate\n" +
 			"	     ^^^^^^^^^^^^^\n" +
 			"Duplicate method foo(Object) in type X.C3\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 16)\n" +
+			"5. ERROR in X.java (at line 15)\n" +
+			"	Y foo(Object o) {  return null; } // duplicate\n" +
+			"	  ^^^^^^^^^^^^^\n" +
+			"Duplicate method foo(Object) in type X.C4\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 16)\n" +
 			"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" +
 			"	                ^^^^^^^^^^^^^\n" +
 			"Duplicate method foo(Object) in type X.C4\n" +
@@ -3535,7 +3555,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class Z {}"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	A<Y> foo(A<Y> o) {  return null; } // duplicate\n" +
+			"	     ^^^^^^^^^^^\n" +
+			"Method foo(A<Y>) has the same erasure foo(A<T>) as another method in type X.C5\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
 			"	A<Z> foo(A<Z> o) {  return null; } // duplicate\n" +
 			"	     ^^^^^^^^^^^\n" +
 			"Method foo(A<Z>) has the same erasure foo(A<T>) as another method in type X.C5\n" +
@@ -3594,7 +3619,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B {}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	<N extends B> N a(A<String> s) { return null; }\n" +
+			"	                ^^^^^^^^^^^^^^\n" +
+			"Method a(A<String>) has the same erasure a(A<T>) as another method in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	<N> B a(A<Number> n) { return null; }\n" +
 			"	      ^^^^^^^^^^^^^^\n" +
 			"Method a(A<Number>) has the same erasure a(A<T>) as another method in type X\n" +
@@ -3615,7 +3645,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B {}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	<N extends B> N b(A<String> s) { return null; }\n" +
+			"	                ^^^^^^^^^^^^^^\n" +
+			"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	<N extends B> B b(A<Number> n) { return null; }\n" +
 			"	                ^^^^^^^^^^^^^^\n" +
 			"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" +
@@ -3636,7 +3671,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B {}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	B c(A<String> s) { return null; }\n" +
+			"	  ^^^^^^^^^^^^^^\n" +
+			"Method c(A<String>) has the same erasure c(A<T>) as another method in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	B c(A<Number> n) { return null; }\n" +
 			"	  ^^^^^^^^^^^^^^\n" +
 			"Method c(A<Number>) has the same erasure c(A<T>) as another method in type X\n" +
@@ -3677,12 +3717,22 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B {}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	<N extends B> N a(A<Number> s) { return null; }\n" +
+			"	                ^^^^^^^^^^^^^^\n" +
+			"Duplicate method a(A<Number>) in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	<N> B a(A<Number> n) { return null; }\n" +
 			"	      ^^^^^^^^^^^^^^\n" +
 			"Duplicate method a(A<Number>) in type X\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	<N extends B> N b(A<Number> s) { return null; }\n" +
+			"	                ^^^^^^^^^^^^^^\n" +
+			"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\n" +
 			"	<N> B b(A<String> n) { return null; }\n" +
 			"	      ^^^^^^^^^^^^^^\n" +
 			"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" +
@@ -3706,12 +3756,22 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B {}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	<N extends B> void a(A<Number> s) {}\n" +
+			"	                   ^^^^^^^^^^^^^^\n" +
+			"Duplicate method a(A<Number>) in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	<N extends B> B a(A<Number> n) { return null; }\n" +
 			"	                ^^^^^^^^^^^^^^\n" +
 			"Duplicate method a(A<Number>) in type X\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	<N extends B> Object b(A<Number> s) { return null; }\n" +
+			"	                     ^^^^^^^^^^^^^^\n" +
+			"Duplicate method b(A<Number>) in type X\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\n" +
 			"	<N extends B> B b(A<Number> n) { return null; }\n" +
 			"	                ^^^^^^^^^^^^^^\n" +
 			"Duplicate method b(A<Number>) in type X\n" +
@@ -3735,12 +3795,22 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B {}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\r\n" +
+			"1. ERROR in X.java (at line 2)\r\n" +
+			"	void a(A<Number> s) {}\r\n" +
+			"	     ^^^^^^^^^^^^^^\n" +
+			"Duplicate method a(A<Number>) in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\r\n" +
 			"	B a(A<Number> n) { return null; }\r\n" +
 			"	  ^^^^^^^^^^^^^^\n" +
 			"Duplicate method a(A<Number>) in type X\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 5)\r\n" +
+			"3. ERROR in X.java (at line 4)\r\n" +
+			"	Object b(A<Number> s) {}\r\n" +
+			"	       ^^^^^^^^^^^^^^\n" +
+			"Duplicate method b(A<Number>) in type X\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\r\n" +
 			"	B b(A<Number> n) { return null; }\r\n" +
 			"	  ^^^^^^^^^^^^^^\n" +
 			"Duplicate method b(A<Number>) in type X\n" +
@@ -3783,7 +3853,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class A<T> {}\n",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void foo(A<String> a) {}\n" +
+			"	     ^^^^^^^^^^^^^^^^\n" +
+			"Method foo(A<String>) has the same erasure foo(A<T>) as another method in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	void foo(A<Integer> a) {}\n" +
 			"	     ^^^^^^^^^^^^^^^^^\n" +
 			"Method foo(A<Integer>) has the same erasure foo(A<T>) as another method in type X\n" +
@@ -3928,7 +4003,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void a(Object x) {}\n" +
+			"	     ^^^^^^^^^^^\n" +
+			"Method a(Object) has the same erasure a(Object) as another method in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	<T> T a(T x) {  return null; }\n" +
 			"	      ^^^^^^\n" +
 			"Method a(T) has the same erasure a(Object) as another method in type X\n" +
@@ -3954,7 +4034,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	String a(X x) {  return null; }\n" +
+			"	       ^^^^^^\n" +
+			"Method a(X) has the same erasure a(X) as another method in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
 			"	<T extends X> T a(T x) {  return null; }\n" +
 			"	                ^^^^^^\n" +
 			"Method a(T) has the same erasure a(X) as another method in type X\n" +
@@ -3986,7 +4071,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\r\n" +
+			"1. ERROR in X.java (at line 2)\r\n" +
+			"	<T1 extends X<T1>> void dupT() {}\r\n" +
+			"	                        ^^^^^^\n" +
+			"Duplicate method dupT() in type X<T>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\r\n" +
 			"	<T2 extends X<T2>> Object dupT() {return null;}\r\n" +
 			"	                          ^^^^^^\n" +
 			"Duplicate method dupT() in type X<T>\n" +
@@ -4936,7 +5026,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"interface J {}\n"
 			},
 			"----------\n" +
-			"1. ERROR in A.java (at line 3)\r\n" +
+			"1. ERROR in A.java (at line 2)\r\n" +
+			"	<T, S extends J & I<T>> void foo() { }\r\n" +
+			"	                             ^^^^^\n" +
+			"Duplicate method foo() in type A\n" +
+			"----------\n" +
+			"2. ERROR in A.java (at line 3)\r\n" +
 			"	<T, S extends I<T> & J> void foo() { }\r\n" +
 			"	                             ^^^^^\n" +
 			"Duplicate method foo() in type A\n" +
@@ -4957,7 +5052,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"interface K extends J {}"
 			},
 			"----------\n" +
-			"1. ERROR in A.java (at line 3)\r\n" +
+			"1. ERROR in A.java (at line 2)\r\n" +
+			"	<T, S extends J & I<T>> void foo() { }\r\n" +
+			"	                             ^^^^^\n" +
+			"Duplicate method foo() in type A\n" +
+			"----------\n" +
+			"2. ERROR in A.java (at line 3)\r\n" +
 			"	<T, S extends I<T> & K> void foo() { }\r\n" +
 			"	                             ^^^^^\n" +
 			"Duplicate method foo() in type A\n" +
@@ -5878,59 +5978,64 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"5. ERROR in DataSet.java (at line 6)\n" +
 			"	public <S> S[] toArray(S[] s) {\n" +
 			"	               ^^^^^^^^^^^^^^\n" +
-			"Name clash: The method toArray(S[]) of type DataSet<T> has the same erasure as toArray(Object[]) of type List but does not override it\n" +
+			"Method toArray(S[]) has the same erasure toArray(Object[]) as another method in type DataSet<T>\n" +
 			"----------\n" +
 			"6. ERROR in DataSet.java (at line 6)\n" +
 			"	public <S> S[] toArray(S[] s) {\n" +
 			"	               ^^^^^^^^^^^^^^\n" +
+			"Name clash: The method toArray(S[]) of type DataSet<T> has the same erasure as toArray(Object[]) of type List but does not override it\n" +
+			"----------\n" +
+			"7. ERROR in DataSet.java (at line 6)\n" +
+			"	public <S> S[] toArray(S[] s) {\n" +
+			"	               ^^^^^^^^^^^^^^\n" +
 			"Name clash: The method toArray(S[]) of type DataSet<T> has the same erasure as toArray(Object[]) of type Collection but does not override it\n" +
 			"----------\n" +
-			"7. ERROR in DataSet.java (at line 9)\n" +
+			"8. ERROR in DataSet.java (at line 9)\n" +
 			"	public Object[] toArray(Object[] o) {\n" +
 			"	                ^^^^^^^^^^^^^^^^^^^\n" +
 			"Method toArray(Object[]) has the same erasure toArray(Object[]) as another method in type DataSet<T>\n" +
 			"----------\n" +
-			"8. WARNING in DataSet.java (at line 14)\n" +
+			"9. WARNING in DataSet.java (at line 14)\n" +
 			"	public boolean addAll(Collection c) {	return false; }\n" +
 			"	                      ^^^^^^^^^^\n" +
 			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
 			"----------\n" +
-			"9. WARNING in DataSet.java (at line 15)\n" +
+			"10. WARNING in DataSet.java (at line 15)\n" +
 			"	public boolean addAll(int index, Collection c) {	return false; }\n" +
 			"	                                 ^^^^^^^^^^\n" +
 			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
 			"----------\n" +
-			"10. WARNING in DataSet.java (at line 18)\n" +
+			"11. WARNING in DataSet.java (at line 18)\n" +
 			"	public boolean containsAll(Collection c) { return false; }\n" +
 			"	                           ^^^^^^^^^^\n" +
 			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
 			"----------\n" +
-			"11. WARNING in DataSet.java (at line 22)\n" +
+			"12. WARNING in DataSet.java (at line 22)\n" +
 			"	public Iterator iterator() {	return null; }\n" +
 			"	       ^^^^^^^^\n" +
 			"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" +
 			"----------\n" +
-			"12. WARNING in DataSet.java (at line 24)\n" +
+			"13. WARNING in DataSet.java (at line 24)\n" +
 			"	public ListIterator listIterator() {	return null; }\n" +
 			"	       ^^^^^^^^^^^^\n" +
 			"ListIterator is a raw type. References to generic type ListIterator<E> should be parameterized\n" +
 			"----------\n" +
-			"13. WARNING in DataSet.java (at line 25)\n" +
+			"14. WARNING in DataSet.java (at line 25)\n" +
 			"	public ListIterator listIterator(int index) {	return null; }\n" +
 			"	       ^^^^^^^^^^^^\n" +
 			"ListIterator is a raw type. References to generic type ListIterator<E> should be parameterized\n" +
 			"----------\n" +
-			"14. WARNING in DataSet.java (at line 28)\n" +
+			"15. WARNING in DataSet.java (at line 28)\n" +
 			"	public boolean removeAll(Collection c) {	return false; }\n" +
 			"	                         ^^^^^^^^^^\n" +
 			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
 			"----------\n" +
-			"15. WARNING in DataSet.java (at line 29)\n" +
+			"16. WARNING in DataSet.java (at line 29)\n" +
 			"	public boolean retainAll(Collection c) {	return false; }\n" +
 			"	                         ^^^^^^^^^^\n" +
 			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
 			"----------\n" +
-			"16. WARNING in DataSet.java (at line 32)\n" +
+			"17. WARNING in DataSet.java (at line 32)\n" +
 			"	public List subList(int fromIndex, int toIndex) {	return null; }\n" +
 			"	       ^^^^\n" +
 			"List is a raw type. References to generic type List<E> should be parameterized\n" +
@@ -6124,7 +6229,12 @@ public void test101() {
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 14)\n" +
+		"1. ERROR in X.java (at line 11)\n" +
+		"	Integer getX(List<Integer> l) {\n" +
+		"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Duplicate method getX(List<Integer>) in type Y\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 14)\n" +
 		"	String getX(List<Integer> l) {\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Duplicate method getX(List<Integer>) in type Y\n" +
@@ -8076,22 +8186,26 @@ public void test150() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<java.util.Date> date){\n" +
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Method method3(X.D1<String>, X.D1<String>, X.D1<Date>) has the same erasure method3(X.D1<T>, X.D1<T>, X.D1<T>) as another method in type X\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" +
 		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<String> date){\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Method method3(X.D1<String>, X.D1<String>, X.D1<String>) has the same erasure method3(X.D1<T>, X.D1<T>, X.D1<T>) as another method in type X\n" +
 		"----------\n" +
-		"2. WARNING in X.java (at line 11)\n" +
+		"3. WARNING in X.java (at line 11)\n" +
 		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<java.util.Date> date, D1 ... notUsed){\n" +
 		"	                                                                                    ^^\n" +
 		"X.D1 is a raw type. References to generic type X.D1<T> should be parameterized\n" +
 		"----------\n" +
-		"3. WARNING in X.java (at line 15)\n" +
+		"4. WARNING in X.java (at line 15)\n" +
 		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<String> date, D2 ... notUsed){\n" +
 		"	                                                                            ^^\n" +
 		"X.D2 is a raw type. References to generic type X.D2<T> should be parameterized\n" +
-		"----------\n"
-	);
+		"----------\n");
 }
 public void test151() {
 	this.runConformTest(

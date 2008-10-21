@@ -867,7 +867,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n" ,
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void foo(E e){}\n" +
+			"	     ^^^^^^^^\n" +
+			"Method foo(E) has the same erasure foo(Object) as another method in type X<E,T>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	void foo(T t){}\n" +
 			"	     ^^^^^^^^\n" +
 			"Method foo(T) has the same erasure foo(Object) as another method in type X<E,T>\n" +
@@ -884,7 +889,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n" ,
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void foo(E e){}\n" +
+			"	     ^^^^^^^^\n" +
+			"Method foo(E) has the same erasure foo(Exception) as another method in type X<E,T>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	void foo(T t){}\n" +
 			"	     ^^^^^^^^\n" +
 			"Method foo(T) has the same erasure foo(Exception) as another method in type X<E,T>\n" +
@@ -901,7 +911,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n" ,
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void foo(E e, Thread t){}\n" +
+			"	     ^^^^^^^^^^^^^^^^^^\n" +
+			"Method foo(E, Thread) has the same erasure foo(Exception, Thread) as another method in type X<E,T>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	void foo(Exception e, T t){}\n" +
 			"	     ^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Method foo(Exception, T) has the same erasure foo(Exception, Thread) as another method in type X<E,T>\n" +
@@ -974,17 +989,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void foo(L<E> l1){}\n" +
+			"	     ^^^^^^^^^^^^\n" +
+			"Method foo(L<E>) has the same erasure foo(L<E>) as another method in type X<E,T>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
 			"	void foo(L<T> l2){}\n" +
 			"	     ^^^^^^^^^^^^\n" +
 			"Method foo(L<T>) has the same erasure foo(L<E>) as another method in type X<E,T>\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
+			"3. ERROR in X.java (at line 4)\n" +
 			"	void foo(L l){}\n" +
 			"	     ^^^^^^^^\n" +
 			"Method foo(L) has the same erasure foo(L<E>) as another method in type X<E,T>\n" +
 			"----------\n" +
-			"3. WARNING in X.java (at line 4)\n" +
+			"4. WARNING in X.java (at line 4)\n" +
 			"	void foo(L l){}\n" +
 			"	         ^\n" +
 			"L is a raw type. References to generic type L<E> should be parameterized\n" +
@@ -7293,12 +7313,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in SubTypes.java (at line 6)\n" +
+			"1. ERROR in SubTypes.java (at line 5)\n" +
+			"	@Override public X foo() { return new X(); }\n" +
+			"	                   ^^^^^\n" +
+			"Duplicate method foo() in type B\n" +
+			"----------\n" +
+			"2. ERROR in SubTypes.java (at line 6)\n" +
 			"	@Override public B foo() { return this; }\n" +
 			"	                   ^^^^^\n" +
 			"Duplicate method foo() in type B\n" +
 			"----------\n" +
-			"2. ERROR in SubTypes.java (at line 9)\n" +
+			"3. ERROR in SubTypes.java (at line 9)\n" +
 			"	@Override public X foo() { return new X(); }\n" +
 			"	                 ^\n" +
 			"The return type is incompatible with A.foo()\n" +
@@ -39759,27 +39784,32 @@ public void test1181() {
 		"	                                                         ^\n" +
 		"Cannot specify any additional bound T when first bound is a type parameter\n" +
 		"----------\n" +
-		"2. WARNING in X.java (at line 3)\n" +
+		"2. ERROR in X.java (at line 2)\n" +
+		"	public static <S, T extends Comparable<S>, R extends S & T> R max(T arg1, S arg2) {\n" +
+		"	                                                              ^^^^^^^^^^^^^^^^^^^\n" +
+		"Method max(T, S) has the same erasure max(Comparable<T>, Object) as another method in type X\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 3)\n" +
 		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from Object to R\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 6)\n" +
+		"4. ERROR in X.java (at line 6)\n" +
 		"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max(T arg1, S arg2) {\n" +
 		"	                                                         ^^^^^^^^^^\n" +
 		"Cannot specify any additional bound Comparable<S> when first bound is a type parameter\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 6)\n" +
+		"5. ERROR in X.java (at line 6)\n" +
 		"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max(T arg1, S arg2) {\n" +
 		"	                                                                          ^^^^^^^^^^^^^^^^^^^\n" +
 		"Method max(T, S) has the same erasure max(Comparable<T>, Object) as another method in type X\n" +
 		"----------\n" +
-		"5. WARNING in X.java (at line 7)\n" +
+		"6. WARNING in X.java (at line 7)\n" +
 		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from Object to R\n" +
 		"----------\n" +
-		"6. WARNING in X.java (at line 11)\n" +
+		"7. WARNING in X.java (at line 11)\n" +
 		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from Object to R\n" +
@@ -39873,17 +39903,27 @@ public void test1185() {
 			"}"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	<T> void foo(Class<X> c) {};\n" +
+		"	         ^^^^^^^^^^^^^^^\n" +
+		"Method foo(Class<X>) has the same erasure foo(Class<T>) as another method in type X<U,V>\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 2)\n" +
 		"	<T> void foo(Class<X> c) {};\n" +
 		"	                   ^\n" +
 		"X is a raw type. References to generic type X<U,V> should be parameterized\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
+		"3. ERROR in X.java (at line 3)\n" +
 		"	<A, B> void foo(Class<X<A, B>> c) {}\n" +
 		"	            ^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Method foo(Class<X<A,B>>) has the same erasure foo(Class<T>) as another method in type X<U,V>\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 5)\n" +
+		"4. ERROR in X.java (at line 4)\n" +
+		"	void foo2(Class<X<U, V>> c) {};\n" +
+		"	     ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Duplicate method foo2(Class<X<U,V>>) in type X<U,V>\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 5)\n" +
 		"	<A, B> void foo2(Class<X<U, V>> c) {}\n" +
 		"	            ^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Duplicate method foo2(Class<X<U,V>>) in type X<U,V>\n" +
