@@ -5697,4 +5697,22 @@ public void test163() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251523
+public void test164() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public enum X {\n" +
+			"	;\n" +
+			"	private X valueOf(String arg0) { return null; }\n" +
+			"}\n", // =================
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	private X valueOf(String arg0) { return null; }\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^\n" +
+		"The enum X already defines the method valueOf(String) implicitly\n" +
+		"----------\n"
+	);
+}
 }
