@@ -1812,6 +1812,19 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String CODEASSIST_STATIC_FIELD_PREFIXES = PLUGIN_ID + ".codeComplete.staticFieldPrefixes"; //$NON-NLS-1$
 	/**
+	 * Code assist option ID: Define the Prefixes for Static Final Field Name.
+	 * <p>When the prefixes is non empty, completion for static final field name will begin with
+	 *    one of the proposed prefixes.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.codeComplete.staticFinalFieldPrefixes"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "&lt;prefix&gt;[,&lt;prefix&gt;]*" }</code> where <code>&lt;prefix&gt;</code> is a String without any wild-card</dd>
+	 * <dt>Default:</dt><dd><code>""</code></dd>
+	 * </dl>
+	 * @since 3.5
+	 * @category CodeAssistOptionID
+	 */
+	public static final String CODEASSIST_STATIC_FINAL_FIELD_PREFIXES = PLUGIN_ID + ".codeComplete.staticFinalFieldPrefixes"; //$NON-NLS-1$
+	/**
 	 * Code assist option ID: Define the Prefixes for Local Variable Name.
 	 * <p>When the prefixes is non empty, completion for local variable name will begin with
 	 *    one of the proposed prefixes.
@@ -1863,6 +1876,19 @@ public final class JavaCore extends Plugin {
 	 * @category CodeAssistOptionID
 	 */
 	public static final String CODEASSIST_STATIC_FIELD_SUFFIXES = PLUGIN_ID + ".codeComplete.staticFieldSuffixes"; //$NON-NLS-1$
+	/**
+	 * Code assist option ID: Define the Suffixes for Static Final Field Name.
+	 * <p>When the suffixes is non empty, completion for static final field name will end with
+	 *    one of the proposed suffixes.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.codeComplete.staticFinalFieldSuffixes"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "&lt;suffix&gt;[,&lt;suffix&gt;]*" }</code>< where <code>&lt;suffix&gt;</code> is a String without any wild-card</dd>
+	 * <dt>Default:</dt><dd><code>""</code></dd>
+	 * </dl>
+	 * @since 3.5
+	 * @category CodeAssistOptionID
+	 */
+	public static final String CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES = PLUGIN_ID + ".codeComplete.staticFinalFieldSuffixes"; //$NON-NLS-1$
 	/**
 	 * Code assist option ID: Define the Suffixes for Local Variable Name.
 	 * <p>When the suffixes is non empty, completion for local variable name will end with

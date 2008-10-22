@@ -3582,6 +3582,54 @@ final static public char[] toLowerCase(char[] chars) {
 }
 
 /**
+ * Answers the result of a char[] conversion to uppercase. Answers null if the given chars array is null.
+ * <br>
+ * NOTE: If no conversion was necessary, then answers back the argument one.
+ * <br>
+ * <br>
+ * For example:
+ * <ol>
+ * <li><pre>
+ *    chars = { 'A' , 'B' }
+ *    result => { 'A' , 'B' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    array = { 'a', 'B' }
+ *    result => { 'A' , 'B' }
+ * </pre>
+ * </li>
+ * </ol>
+ *
+ * @param chars the chars to convert
+ * @return the result of a char[] conversion to uppercase
+ * 
+ * @since 3.5
+ */
+final static public char[] toUpperCase(char[] chars) {
+	if (chars == null)
+		return null;
+	int length = chars.length;
+	char[] upperChars = null;
+	for (int i = 0; i < length; i++) {
+		char c = chars[i];
+		char lc = ScannerHelper.toUpperCase(c);
+		if ((c != lc) || (upperChars != null)) {
+			if (upperChars == null) {
+				System.arraycopy(
+					chars,
+					0,
+					upperChars = new char[length],
+					0,
+					i);
+			}
+			upperChars[i] = lc;
+		}
+	}
+	return upperChars == null ? chars : upperChars;
+}
+
+/**
  * Answers a new array removing leading and trailing spaces (' '). Answers the given array if there is no
  * space characters to remove.
  * <br>

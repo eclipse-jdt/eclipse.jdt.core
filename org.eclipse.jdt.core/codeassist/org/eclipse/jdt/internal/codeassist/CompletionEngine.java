@@ -342,10 +342,6 @@ public final class CompletionEngine
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
 	
-	private final static int FIELD = 0;
-	private final static int LOCAL = 1;
-	private final static int ARGUMENT = 2;
-	
 	int expectedTypesPtr = -1;
 	TypeBinding[] expectedTypes = new TypeBinding[1];
 	int expectedTypesFilter;
@@ -1559,7 +1555,15 @@ public final class CompletionEngine
 
 			this.completionToken = field.realName;
 
-			findVariableNames(field.realName, field.type, excludeNames, null, FIELD, field.modifiers);
+			
+			int kind =
+				 (field.modifiers & ClassFileConstants.AccStatic) == 0 ? 
+						InternalNamingConventions.VK_INSTANCE_FIELD :
+							(field.modifiers & ClassFileConstants.AccFinal) == 0 ? 
+									InternalNamingConventions.VK_STATIC_FIELD :
+										InternalNamingConventions.VK_CONSTANT_FIELD;
+			
+			findVariableNames(field.realName, field.type, excludeNames, null, kind);
 		}
 	}
 	
@@ -1826,11 +1830,11 @@ public final class CompletionEngine
 			int kind;
 			if (variable instanceof CompletionOnLocalName){
 				this.completionToken = ((CompletionOnLocalName) variable).realName;
-				kind = LOCAL;
+				kind = InternalNamingConventions.VK_LOCAL;
 			} else {
 				CompletionOnArgumentName arg = (CompletionOnArgumentName) variable;
 				this.completionToken = arg.realName;
-				kind = arg.isCatchArgument ? LOCAL : ARGUMENT;
+				kind = arg.isCatchArgument ? InternalNamingConventions.VK_LOCAL : InternalNamingConventions.VK_PARAMETER;
 			}
 
 			char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, variable);
@@ -1848,7 +1852,7 @@ public final class CompletionEngine
 
 			System.arraycopy(discouragedNames, 0, discouragedNames = new char[localCount][], 0, localCount);
 
-			findVariableNames(this.completionToken, variable.type, discouragedNames, forbiddenNames, kind, variable.modifiers);
+			findVariableNames(this.completionToken, variable.type, discouragedNames, forbiddenNames, kind);
 		}
 	}
 	
@@ -2166,7 +2170,15 @@ public final class CompletionEngine
 
 			this.completionToken = method.selector;
 
-			findVariableNames(this.completionToken, method.returnType, excludeNames, null, FIELD, method.modifiers);
+			
+			int kind =
+				 (method.modifiers & ClassFileConstants.AccStatic) == 0 ? 
+						InternalNamingConventions.VK_INSTANCE_FIELD :
+							(method.modifiers & ClassFileConstants.AccFinal) == 0 ? 
+									InternalNamingConventions.VK_STATIC_FIELD :
+										InternalNamingConventions.VK_CONSTANT_FIELD;
+						
+			findVariableNames(this.completionToken, method.returnType, excludeNames, null, kind);
 		}
 	}
 	
@@ -9674,8 +9686,7 @@ public final class CompletionEngine
 			final char[][] forbiddenNames,
 			boolean forCollection,
 			int dim,
-			int kind,
-			int modifiers){
+			int kind){
 
 		if(sourceName == null || sourceName.length == 0)
 			return;
@@ -9755,39 +9766,16 @@ public final class CompletionEngine
 			}
 		};
 
-		switch (kind) {
-			case FIELD :
-				InternalNamingConventions.suggestFieldNames(
-					this.javaProject,
-					qualifiedPackageName,
-					qualifiedSourceName,
-					dim,
-					modifiers,
-					token,
-					discouragedNames,
-					namingRequestor);
-				break;
-			case LOCAL :
-				InternalNamingConventions.suggestLocalVariableNames(
-					this.javaProject,
-					qualifiedPackageName,
-					qualifiedSourceName,
-					dim,
-					token,
-					discouragedNames,
-					namingRequestor);
-				break;
-			case ARGUMENT :
-				InternalNamingConventions.suggestArgumentNames(
-					this.javaProject,
-					qualifiedPackageName,
-					qualifiedSourceName,
-					dim,
-					token,
-					discouragedNames,
-					namingRequestor);
-				break;
-		}
+		InternalNamingConventions.suggestVariableNames(
+				kind,
+				InternalNamingConventions.BK_SIMPLE_TYPE_NAME,
+				qualifiedSourceName,
+				this.javaProject,
+				dim,
+				token,
+				discouragedNames,
+				true,
+				namingRequestor);
 	}
 
 	// Helper method for private void findVariableNames(char[] name, TypeReference type )
@@ -9800,8 +9788,7 @@ public final class CompletionEngine
 			char[][] discouragedNames,
 			final char[][] forbiddenNames,
 			int dim,
-			int kind,
-			int modifiers){
+			int kind){
 		findVariableName(
 				token,
 				qualifiedPackageName,
@@ -9812,8 +9799,7 @@ public final class CompletionEngine
 				forbiddenNames,
 				false,
 				dim,
-				kind,
-				modifiers);
+				kind);
 	}
 	private void findVariableNameForCollection(
 			char[] token,
@@ -9823,8 +9809,7 @@ public final class CompletionEngine
 			final TypeBinding typeBinding,
 			char[][] discouragedNames,
 			final char[][] forbiddenNames,
-			int kind,
-			int modifiers){
+			int kind){
 
 		findVariableName(
 				token,
@@ -9836,10 +9821,9 @@ public final class CompletionEngine
 				forbiddenNames,
 				false,
 				1,
-				kind,
-				modifiers);
+				kind);
 	}
-	private void findVariableNames(char[] name, TypeReference type , char[][] discouragedNames, char[][] forbiddenNames, int kind, int modifiers){
+	private void findVariableNames(char[] name, TypeReference type , char[][] discouragedNames, char[][] forbiddenNames, int kind){
 		if(type != null &&
 			type.resolvedType != null) {
 			TypeBinding tb = type.resolvedType;
@@ -9855,8 +9839,7 @@ public final class CompletionEngine
 					discouragedNames,
 					forbiddenNames,
 					type.dimensions(),
-					kind,
-					modifiers);
+					kind);
 				
 				if (tb.isParameterizedType() &&
 						tb.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilCollection, false) != null) {
@@ -9872,8 +9855,7 @@ public final class CompletionEngine
 							tb,
 							discouragedNames,
 							forbiddenNames,
-							kind,
-							modifiers);
+							kind);
 					}
 				}
 			}

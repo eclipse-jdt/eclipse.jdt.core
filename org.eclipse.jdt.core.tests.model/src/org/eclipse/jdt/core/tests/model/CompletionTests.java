@@ -5160,8 +5160,123 @@ public void testCompletionFieldName2() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"nameRequestor[VARIABLE_DECLARATION]{nameRequestor, null, Ltest.TypeNameRequestor;, nameRequestor, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}\n" +
-			"nameTypeNameRequestor[VARIABLE_DECLARATION]{nameTypeNameRequestor, null, Ltest.TypeNameRequestor;, nameTypeNameRequestor, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}",
+			"nameTypeNameRequestor[VARIABLE_DECLARATION]{nameTypeNameRequestor, null, Ltest.TypeNameRequestor;, nameTypeNameRequestor, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}\n" +
+			"nameRequestor[VARIABLE_DECLARATION]{nameRequestor, null, Ltest.TypeNameRequestor;, nameRequestor, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
+public void testCompletionFieldName3() throws JavaModelException { 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TypeNameRequestor.java",
+		"package test;"+
+		"public class TypeNameRequestor {\n" +
+		"  public static final TypeNameRequestor \n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "final TypeNameRequestor ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"NAME_REQUESTOR[VARIABLE_DECLARATION]{NAME_REQUESTOR, null, Ltest.TypeNameRequestor;, NAME_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}\n" +
+			"REQUESTOR[VARIABLE_DECLARATION]{REQUESTOR, null, Ltest.TypeNameRequestor;, REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}\n" +
+			"TYPE_NAME_REQUESTOR[VARIABLE_DECLARATION]{TYPE_NAME_REQUESTOR, null, Ltest.TypeNameRequestor;, TYPE_NAME_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
+public void testCompletionFieldName4() throws JavaModelException { 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TypeNameRequestor.java",
+		"package test;"+
+		"public class TypeNameRequestor {\n" +
+		"  public static final TypeNameRequestor nam\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "final TypeNameRequestor nam";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"NAM_REQUESTOR[VARIABLE_DECLARATION]{NAM_REQUESTOR, null, Ltest.TypeNameRequestor;, NAM_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"NAM_TYPE_NAME_REQUESTOR[VARIABLE_DECLARATION]{NAM_TYPE_NAME_REQUESTOR, null, Ltest.TypeNameRequestor;, NAM_TYPE_NAME_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"NAME_REQUESTOR[VARIABLE_DECLARATION]{NAME_REQUESTOR, null, Ltest.TypeNameRequestor;, NAME_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_NAME_LESS_NEW_CHARACTERS+ R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
+public void testCompletionFieldName5() throws JavaModelException { 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TypeNameRequestor.java",
+		"package test;"+
+		"public class TypeNameRequestor {\n" +
+		"  public static final TypeNameRequestor ZZ\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "final TypeNameRequestor ZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZ_NAME_REQUESTOR[VARIABLE_DECLARATION]{ZZ_NAME_REQUESTOR, null, Ltest.TypeNameRequestor;, ZZ_NAME_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZ_REQUESTOR[VARIABLE_DECLARATION]{ZZ_REQUESTOR, null, Ltest.TypeNameRequestor;, ZZ_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZ_TYPE_NAME_REQUESTOR[VARIABLE_DECLARATION]{ZZ_TYPE_NAME_REQUESTOR, null, Ltest.TypeNameRequestor;, ZZ_TYPE_NAME_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
+public void testCompletionFieldName6() throws JavaModelException { 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TypeNameRequestor.java",
+		"package test;"+
+		"public class TypeNameRequestor {\n" +
+		"  public static final TypeNameRequestor ZZN\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "final TypeNameRequestor ZZN";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZN_NAME_REQUESTOR[VARIABLE_DECLARATION]{ZZN_NAME_REQUESTOR, null, Ltest.TypeNameRequestor;, ZZN_NAME_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZN_REQUESTOR[VARIABLE_DECLARATION]{ZZN_REQUESTOR, null, Ltest.TypeNameRequestor;, ZZN_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZN_TYPE_NAME_REQUESTOR[VARIABLE_DECLARATION]{ZZN_TYPE_NAME_REQUESTOR, null, Ltest.TypeNameRequestor;, ZZN_TYPE_NAME_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
+public void testCompletionFieldName7() throws JavaModelException { 
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TypeNameRequestor.java",
+		"package test;"+
+		"public class TypeNameRequestor {\n" +
+		"  public static final TypeNameRequestor ZZ_N\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "final TypeNameRequestor ZZ_N";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZ_N_REQUESTOR[VARIABLE_DECLARATION]{ZZ_N_REQUESTOR, null, Ltest.TypeNameRequestor;, ZZ_N_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZ_N_TYPE_NAME_REQUESTOR[VARIABLE_DECLARATION]{ZZ_N_TYPE_NAME_REQUESTOR, null, Ltest.TypeNameRequestor;, ZZ_N_TYPE_NAME_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZ_NAME_REQUESTOR[VARIABLE_DECLARATION]{ZZ_NAME_REQUESTOR, null, Ltest.TypeNameRequestor;, ZZ_NAME_REQUESTOR, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
@@ -13906,7 +14021,9 @@ public void testCompletionVariableName1() throws JavaModelException {
 
 	assertEquals(
 		"element:class1    completion:class1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
-		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+		"element:fooMyClass    completion:fooMyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
+		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
+		"element:testFooMyClass    completion:testFooMyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void testCompletionVariableName10() throws JavaModelException {
@@ -14296,10 +14413,10 @@ public void testCompletionVariableName2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:bar_MyClass    completion:bar_MyClass    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
+		"element:barMyClass    completion:barMyClass    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
 		"element:class1    completion:class1    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
 		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
-		"element:test_Bar_MyClass    completion:test_Bar_MyClass    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+		"element:testBarMyClass    completion:testBarMyClass    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228

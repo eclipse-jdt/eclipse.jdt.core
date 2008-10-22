@@ -28,6 +28,8 @@ public class AssistOptions {
 		"org.eclipse.jdt.core.codeComplete.fieldPrefixes"; 	//$NON-NLS-1$
 	public static final String OPTION_StaticFieldPrefixes =
 		"org.eclipse.jdt.core.codeComplete.staticFieldPrefixes"; 	//$NON-NLS-1$
+	public static final String OPTION_StaticFinalFieldPrefixes =
+		"org.eclipse.jdt.core.codeComplete.staticFinalFieldPrefixes"; 	//$NON-NLS-1$
 	public static final String OPTION_LocalPrefixes =
 		"org.eclipse.jdt.core.codeComplete.localPrefixes"; 	//$NON-NLS-1$
 	public static final String OPTION_ArgumentPrefixes =
@@ -36,6 +38,8 @@ public class AssistOptions {
 		"org.eclipse.jdt.core.codeComplete.fieldSuffixes"; 	//$NON-NLS-1$
 	public static final String OPTION_StaticFieldSuffixes =
 		"org.eclipse.jdt.core.codeComplete.staticFieldSuffixes"; 	//$NON-NLS-1$
+	public static final String OPTION_StaticFinalFieldSuffixes =
+		"org.eclipse.jdt.core.codeComplete.staticFinalFieldSuffixes"; 	//$NON-NLS-1$
 	public static final String OPTION_LocalSuffixes =
 		"org.eclipse.jdt.core.codeComplete.localSuffixes"; 	//$NON-NLS-1$
 	public static final String OPTION_ArgumentSuffixes =
@@ -61,10 +65,12 @@ public class AssistOptions {
 	public boolean suggestStaticImport = true;
 	public char[][] fieldPrefixes = null;
 	public char[][] staticFieldPrefixes = null;
+	public char[][] staticFinalFieldPrefixes = null;
 	public char[][] localPrefixes = null;
 	public char[][] argumentPrefixes = null;
 	public char[][] fieldSuffixes = null;
 	public char[][] staticFieldSuffixes = null;
+	public char[][] staticFinalFieldSuffixes = null;
 	public char[][] localSuffixes = null;
 	public char[][] argumentSuffixes = null;
 
@@ -121,6 +127,16 @@ public class AssistOptions {
 				}
 			}
 		}
+		if ((optionValue = optionsMap.get(OPTION_StaticFinalFieldPrefixes)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					this.staticFinalFieldPrefixes = splitAndTrimOn(',', stringValue.toCharArray());
+				} else {
+					this.staticFinalFieldPrefixes = null;
+				}
+			}
+		}
 		if ((optionValue = optionsMap.get(OPTION_LocalPrefixes)) != null) {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
@@ -158,6 +174,16 @@ public class AssistOptions {
 					this.staticFieldSuffixes = splitAndTrimOn(',', stringValue.toCharArray());
 				} else {
 					this.staticFieldSuffixes = null;
+				}
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_StaticFinalFieldSuffixes)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					this.staticFinalFieldSuffixes = splitAndTrimOn(',', stringValue.toCharArray());
+				} else {
+					this.staticFinalFieldSuffixes = null;
 				}
 			}
 		}
