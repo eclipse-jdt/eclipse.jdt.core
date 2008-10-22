@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
     <resource path="model/org/eclipse/jdt/core/ITypeRoot.java" type="org.eclipse.jdt.core.ITypeRoot">
-        <filter id="404901960">
+        <filter id="403853384">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.ITypeRoot"/>
             </message_arguments>
