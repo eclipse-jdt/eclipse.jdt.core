@@ -1016,4 +1016,96 @@ public void testBug232880j() throws Exception {
 		this.deleteProject("PS2");
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249027
+public void testBug249027a() throws Exception {
+	try {
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{},
+			 "bin");
+
+		this.createFolder("/P1/src/p1");
+		this.createFile(
+				"/P1/src/p1/C1.java",
+				"package p1;\n"+
+				"public class C1 {\n" +
+				"}");
+		
+		this.createFolder("/P1/src/p1/C1");
+		this.createFile(
+				"/P1/src/p1/C1/C2.java",
+				"package p1.C1;\n"+
+				"public class C2 {\n" +
+				"  C1 f;\n" +
+				"}");
+
+		waitUntilIndexesReady();
+
+		// do code select
+		ICompilationUnit cu= getCompilationUnit("P1", "src", "p1.C1", "C2.java");
+
+		String str = cu.getSource();
+
+		String selection = "C1";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+		IJavaElement[] elements = cu.codeSelect(start, length);
+
+		assertElementsEqual(
+			"Unexpected elements",
+			"C1 [in C1.java [in p1 [in src [in P1]]]]",
+			elements
+		);
+	} finally {
+		this.deleteProject("P1");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249027
+public void testBug249027b() throws Exception {
+	try {
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{},
+			 "bin");
+
+		this.createFolder("/P1/src/p1");
+		this.createFile(
+				"/P1/src/p1/C1.java",
+				"package p1;\n"+
+				"public class C1 {\n" +
+				"}");
+		
+		this.createFolder("/P1/src/p2");
+		this.createFile(
+				"/P1/src/p2/C2.java",
+				"package p3;\n"+
+				"public class C2 {\n" +
+				"  C1 f;\n" +
+				"}");
+
+		waitUntilIndexesReady();
+
+		// do code select
+		ICompilationUnit cu= getCompilationUnit("P1", "src", "p2", "C2.java");
+
+		String str = cu.getSource();
+
+		String selection = "C1";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+		IJavaElement[] elements = cu.codeSelect(start, length);
+
+		assertElementsEqual(
+			"Unexpected elements",
+			"C1 [in C1.java [in p1 [in src [in P1]]]]",
+			elements
+		);
+	} finally {
+		this.deleteProject("P1");
+	}
+}
 }
