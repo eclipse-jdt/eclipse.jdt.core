@@ -7556,7 +7556,7 @@ public void testBug153765() throws CoreException {
 		this.resultCollector.showSelection();
 		search(packageFragment, REFERENCES);
 		assertSearchResults(
-			"src/b153765/test/SomeClass.java void b153765.test.SomeClass.foo() [        @ï¿½|b153765|ï¿½.Unimportant public void foo() {}] EXACT_MATCH"
+			"src/b153765/test/SomeClass.java void b153765.test.SomeClass.foo() [        @§|b153765|§.Unimportant public void foo() {}] EXACT_MATCH"
 		);
 	}
 	finally {
@@ -9306,7 +9306,7 @@ public void testBug209996a() throws CoreException {
 	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/test/Test.java @Annot(clazz=Test.class) [        @Annot(clazz=ï¿½|Test|ï¿½.class) int x;]",
+		"src/test/Test.java @Annot(clazz=Test.class) [        @Annot(clazz=§|Test|§.class) int x;]",
 		collector
 	);
 }
@@ -9322,7 +9322,7 @@ public void testBug209996b() throws CoreException {
 	collector.showSelection();
 	search("Deprecated", TYPE, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/test/Test.java @Deprecated() [        @ï¿½|Deprecated|ï¿½ foo() {}]",
+		"src/test/Test.java @Deprecated() [        @§|Deprecated|§ foo() {}]",
 		collector
 	);
 }
@@ -9348,11 +9348,11 @@ public void testBug209996_c5() throws CoreException {
 	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/comment5/Ref.java void comment5.Ref.doA(Ref).ref [    void doA(ï¿½|Ref|ï¿½ ref) {}]\n" +
-		"src/comment5/Ref.java void comment5.Ref.doB(List<Ref>).ref [    void doB(List<ï¿½|Ref|ï¿½> ref) {}]\n" +
-		"src/comment5/Ref.java @Tag(value=Ref.class) [    void doC(@Tag(ï¿½|Ref|ï¿½.class) Ref ref) {}]\n" +
-		"src/comment5/Ref.java void comment5.Ref.doC(Ref).ref [    void doC(@Tag(Ref.class) ï¿½|Ref|ï¿½ ref) {}]\n" +
-		"src/comment5/Ref.java @Tag(value=Ref.class) [    void dontD(@Tag(ï¿½|Ref|ï¿½.class) Object ref) {}]",
+		"src/comment5/Ref.java void comment5.Ref.doA(Ref).ref [    void doA(§|Ref|§ ref) {}]\n" +
+		"src/comment5/Ref.java void comment5.Ref.doB(List<Ref>).ref [    void doB(List<§|Ref|§> ref) {}]\n" +
+		"src/comment5/Ref.java @Tag(value=Ref.class) [    void doC(@Tag(§|Ref|§.class) Ref ref) {}]\n" +
+		"src/comment5/Ref.java void comment5.Ref.doC(Ref).ref [    void doC(@Tag(Ref.class) §|Ref|§ ref) {}]\n" +
+		"src/comment5/Ref.java @Tag(value=Ref.class) [    void dontD(@Tag(§|Ref|§.class) Object ref) {}]",
 		collector
 	);
 }
@@ -9371,7 +9371,7 @@ public void testBug209996_c10() throws CoreException {
 	collector.showSelection();
 	search(field, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/comment10/Ref.java @Num(number=Num.CONST) [@Num(number= Num.ï¿½|CONST|ï¿½)]",
+		"src/comment10/Ref.java @Num(number=Num.CONST) [@Num(number= Num.§|CONST|§)]",
 		collector
 	);
 }
@@ -9393,9 +9393,9 @@ public void testBug209996_c22_3() throws CoreException {
 	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/comment22/Test.java @Tag() [    @ï¿½|Tag|ï¿½ Test test1, test2, test3;]\n" +
-		"src/comment22/Test.java @Tag() [        @ï¿½|Tag|ï¿½ Test local= null;]\n" +
-		"src/comment22/Test.java @Tag() [        @ï¿½|Tag|ï¿½ Test local1, local2, local3;]",
+		"src/comment22/Test.java @Tag() [    @§|Tag|§ Test test1, test2, test3;]\n" +
+		"src/comment22/Test.java @Tag() [        @§|Tag|§ Test local= null;]\n" +
+		"src/comment22/Test.java @Tag() [        @§|Tag|§ Test local1, local2, local3;]",
 		collector
 	);
 }
@@ -9415,7 +9415,7 @@ public void testBug209996_c22_4() throws CoreException {
 	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/test/Test.java @Annot(clazz=test.Test.class) [    @Annot(clazz = ï¿½|test.Test|ï¿½.class) int x, y;]",
+		"src/test/Test.java @Annot(clazz=test.Test.class) [    @Annot(clazz = §|test.Test|§.class) int x, y;]",
 		collector
 	);
 }
@@ -9470,21 +9470,21 @@ public void testBug210567() throws CoreException {
 	this.resultCollector.showSelection();
 	search("*", TYPE, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/generics/Generic.java [import ï¿½|java.io.Serializable|ï¿½;] EXACT_MATCH\n" +
-		"src/generics/Generic.java [import ï¿½|type.def.Types|ï¿½;] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic [public class Generic<T extends ï¿½|Types|ï¿½, U extends Types & Comparable<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends ï¿½|Types|ï¿½ & Comparable<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & ï¿½|Comparable|ï¿½<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<ï¿½|Types|ï¿½> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<Types> & ï¿½|Serializable|ï¿½, V extends A<? super Types>> {] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<Types> & Serializable, V extends ï¿½|A|ï¿½<? super Types>> {] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<Types> & Serializable, V extends A<? super ï¿½|Types|ï¿½>> {] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic.field [	ï¿½|Generic|ï¿½<? extends Types, ?, ?> field;] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic.field [	Generic<? extends ï¿½|Types|ï¿½, ?, ?> field;] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic.comp [	ï¿½|Comparable|ï¿½<String> comp;] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic.comp [	Comparable<ï¿½|String|ï¿½> comp;] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic.clazz [	ï¿½|Class|ï¿½<? extends Exception> clazz;] EXACT_MATCH\n" +
-		"src/generics/Generic.java generics.Generic.clazz [	Class<? extends ï¿½|Exception|ï¿½> clazz;] EXACT_MATCH"
+		"src/generics/Generic.java [import §|java.io.Serializable|§;] EXACT_MATCH\n" +
+		"src/generics/Generic.java [import §|type.def.Types|§;] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends §|Types|§, U extends Types & Comparable<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends §|Types|§ & Comparable<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & §|Comparable|§<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<§|Types|§> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<Types> & §|Serializable|§, V extends A<? super Types>> {] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<Types> & Serializable, V extends §|A|§<? super Types>> {] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<Types> & Serializable, V extends A<? super §|Types|§>> {] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic.field [	§|Generic|§<? extends Types, ?, ?> field;] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic.field [	Generic<? extends §|Types|§, ?, ?> field;] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic.comp [	§|Comparable|§<String> comp;] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic.comp [	Comparable<§|String|§> comp;] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic.clazz [	§|Class|§<? extends Exception> clazz;] EXACT_MATCH\n" +
+		"src/generics/Generic.java generics.Generic.clazz [	Class<? extends §|Exception|§> clazz;] EXACT_MATCH"
 	);
 }
 
@@ -9509,8 +9509,8 @@ public void testBug210691() throws CoreException {
 	this.resultCollector.showSelection();
 	search("*", TYPE, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/test/Ref.java [import ï¿½|pack.Test|ï¿½;] EXACT_MATCH\n" +
-		"src/test/Ref.java test.Ref.test [	ï¿½|Test|ï¿½ test;] EXACT_MATCH"
+		"src/test/Ref.java [import §|pack.Test|§;] EXACT_MATCH\n" +
+		"src/test/Ref.java test.Ref.test [	§|Test|§ test;] EXACT_MATCH"
 	);
 }
 
@@ -9733,7 +9733,7 @@ public void testBug216875() throws CoreException {
 	ILocalVariable variable = selectLocalVariable(this.workingCopies[0], "test");
 	search(variable, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/Test.java void Test.m() [        ï¿½|test|ï¿½.fField = 42; // match for t is writeAccess, should be readAccess] EXACT_MATCH"
+		"src/Test.java void Test.m() [        §|test|§.fField = 42; // match for t is writeAccess, should be readAccess] EXACT_MATCH"
 	);
 }
 public void testBug216875b() throws CoreException {
@@ -9753,7 +9753,7 @@ public void testBug216875b() throws CoreException {
 	IField field = this.workingCopies[0].getType("Test").getField("fWrapped");
 	search(field, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/Test.java void Test.wrapper() [        ï¿½|fWrapped|ï¿½.fField = 12; // match for fWrapped is writeAccess] EXACT_MATCH"
+		"src/Test.java void Test.wrapper() [        §|fWrapped|§.fField = 12; // match for fWrapped is writeAccess] EXACT_MATCH"
 	);
 }
 public void testBug216875c() throws CoreException {
@@ -9779,9 +9779,9 @@ public void testBug216875c() throws CoreException {
 	ILocalVariable variable = selectLocalVariable(this.workingCopies[1], "t1");
 	search(variable, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/test/X.java void test.X.foo(Test, Test) [		ï¿½|t1|ï¿½.field = t1.field;] EXACT_MATCH\n" +
-		"src/test/X.java void test.X.foo(Test, Test) [		t1.field = ï¿½|t1|ï¿½.field;] EXACT_MATCH\n" +
-		"src/test/X.java void test.X.foo(Test, Test) [		t2.field = ï¿½|t1|ï¿½.field;] EXACT_MATCH"
+		"src/test/X.java void test.X.foo(Test, Test) [		§|t1|§.field = t1.field;] EXACT_MATCH\n" +
+		"src/test/X.java void test.X.foo(Test, Test) [		t1.field = §|t1|§.field;] EXACT_MATCH\n" +
+		"src/test/X.java void test.X.foo(Test, Test) [		t2.field = §|t1|§.field;] EXACT_MATCH"
 	);
 }
 public void testBug216875d() throws CoreException {
@@ -9808,9 +9808,9 @@ public void testBug216875d() throws CoreException {
 	IField field = this.workingCopies[1].getType("X").getField("t1");
 	search(field, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/test/X.java void test.X.foo() [		ï¿½|t1|ï¿½.field = t1.field;] EXACT_MATCH\n" +
-		"src/test/X.java void test.X.foo() [		t1.field = ï¿½|t1|ï¿½.field;] EXACT_MATCH\n" +
-		"src/test/X.java void test.X.foo() [		t2.field = ï¿½|t1|ï¿½.field;] EXACT_MATCH"
+		"src/test/X.java void test.X.foo() [		§|t1|§.field = t1.field;] EXACT_MATCH\n" +
+		"src/test/X.java void test.X.foo() [		t1.field = §|t1|§.field;] EXACT_MATCH\n" +
+		"src/test/X.java void test.X.foo() [		t2.field = §|t1|§.field;] EXACT_MATCH"
 	);
 }
 public void testBug216875e() throws CoreException {
@@ -9836,7 +9836,7 @@ public void testBug216875e() throws CoreException {
 	ILocalVariable variable = selectLocalVariable(this.workingCopies[1], "t1");
 	search(variable, WRITE_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/test/X.java void test.X.foo(Test, Test) [		ï¿½|t1|ï¿½ = t2;] EXACT_MATCH"
+		"src/test/X.java void test.X.foo(Test, Test) [		§|t1|§ = t2;] EXACT_MATCH"
 	);
 }
 public void testBug216875f() throws CoreException {
@@ -9863,7 +9863,7 @@ public void testBug216875f() throws CoreException {
 	IField field = this.workingCopies[1].getType("X").getField("t1");
 	search(field, WRITE_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/test/X.java void test.X.foo() [		ï¿½|t1|ï¿½ = t2;] EXACT_MATCH"
+		"src/test/X.java void test.X.foo() [		§|t1|§ = t2;] EXACT_MATCH"
 	);
 }
 public void testBug216875g() throws CoreException {
@@ -9891,10 +9891,10 @@ public void testBug216875g() throws CoreException {
 	ILocalVariable variable = selectLocalVariable(this.workingCopies[1], "t1");
 	search(variable, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/test/X.java void test.X.foo(Test, Test) [		ï¿½|t1|ï¿½ = t2;] WRITE ACCESS\n" +
-		"src/test/X.java void test.X.foo(Test, Test) [		ï¿½|t1|ï¿½.field = t1.field;] READ ACCESS\n" +
-		"src/test/X.java void test.X.foo(Test, Test) [		t1.field = ï¿½|t1|ï¿½.field;] READ ACCESS\n" +
-		"src/test/X.java void test.X.foo(Test, Test) [		t2.field = ï¿½|t1|ï¿½.field;] READ ACCESS"
+		"src/test/X.java void test.X.foo(Test, Test) [		§|t1|§ = t2;] WRITE ACCESS\n" +
+		"src/test/X.java void test.X.foo(Test, Test) [		§|t1|§.field = t1.field;] READ ACCESS\n" +
+		"src/test/X.java void test.X.foo(Test, Test) [		t1.field = §|t1|§.field;] READ ACCESS\n" +
+		"src/test/X.java void test.X.foo(Test, Test) [		t2.field = §|t1|§.field;] READ ACCESS"
 	);
 }
 public void testBug216875h() throws CoreException {
@@ -9923,10 +9923,10 @@ public void testBug216875h() throws CoreException {
 	IField field = this.workingCopies[1].getType("X").getField("t1");
 	search(field, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/test/X.java void test.X.foo() [		ï¿½|t1|ï¿½ = t2;] WRITE ACCESS\n" +
-		"src/test/X.java void test.X.foo() [		ï¿½|t1|ï¿½.field = t1.field;] READ ACCESS\n" +
-		"src/test/X.java void test.X.foo() [		t1.field = ï¿½|t1|ï¿½.field;] READ ACCESS\n" +
-		"src/test/X.java void test.X.foo() [		t2.field = ï¿½|t1|ï¿½.field;] READ ACCESS"
+		"src/test/X.java void test.X.foo() [		§|t1|§ = t2;] WRITE ACCESS\n" +
+		"src/test/X.java void test.X.foo() [		§|t1|§.field = t1.field;] READ ACCESS\n" +
+		"src/test/X.java void test.X.foo() [		t1.field = §|t1|§.field;] READ ACCESS\n" +
+		"src/test/X.java void test.X.foo() [		t2.field = §|t1|§.field;] READ ACCESS"
 	);
 }
 
@@ -9951,7 +9951,7 @@ public void testBug218397() throws CoreException {
 	IType type = selectType(this.workingCopies[0], "Row");
 	search(type, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/Bug.java Bug.{}:Inner#1.field [			ï¿½|Row|ï¿½ field;//LINE 3] EXACT_MATCH"
+		"src/Bug.java Bug.{}:Inner#1.field [			§|Row|§ field;//LINE 3] EXACT_MATCH"
 	);
 }
 
@@ -9987,12 +9987,12 @@ public void testBug221081() throws CoreException {
 		this.resultCollector,
 		null);
 	assertSearchResults(
-		"src/Test.java Test [public class ï¿½|Test|ï¿½ {] EXACT_MATCH\n" +
-		"src/Test.java Test.test [	Test ï¿½|test|ï¿½;] EXACT_MATCH\n" +
-		"src/Test.java Test.test [	ï¿½|Test|ï¿½ test;] EXACT_MATCH\n" +
-		"src/Test.java void Test.test(Test) [	void ï¿½|test|ï¿½(Test test) {] EXACT_MATCH\n" +
-		"src/Test.java void Test.test(Test) [	void test(ï¿½|Test|ï¿½ test) {] EXACT_MATCH\n" +
-		"src/Test.java void Test.test(Test) [		if (test == this.ï¿½|test|ï¿½) {] EXACT_MATCH"
+		"src/Test.java Test [public class §|Test|§ {] EXACT_MATCH\n" +
+		"src/Test.java Test.test [	Test §|test|§;] EXACT_MATCH\n" +
+		"src/Test.java Test.test [	§|Test|§ test;] EXACT_MATCH\n" +
+		"src/Test.java void Test.test(Test) [	void §|test|§(Test test) {] EXACT_MATCH\n" +
+		"src/Test.java void Test.test(Test) [	void test(§|Test|§ test) {] EXACT_MATCH\n" +
+		"src/Test.java void Test.test(Test) [		if (test == this.§|test|§) {] EXACT_MATCH"
 	);
 }
 
@@ -10017,7 +10017,7 @@ public void testBug221110() throws CoreException {
 	IType type = this.workingCopies[0].getType("X");
 	search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/Y.java Y [public class Y<T extends ï¿½|X|ï¿½<?>> {] ERASURE_MATCH"
+		"src/Y.java Y [public class Y<T extends §|X|§<?>> {] ERASURE_MATCH"
 	);
 }
 public void testBug221110b() throws CoreException {
@@ -10039,7 +10039,7 @@ public void testBug221110b() throws CoreException {
 	IType type = this.workingCopies[0].getType("I");
 	search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/Z.java Z [public class Z<T extends X<?> & ï¿½|I|ï¿½<?>> {] ERASURE_MATCH"
+		"src/Z.java Z [public class Z<T extends X<?> & §|I|§<?>> {] ERASURE_MATCH"
 	);
 }
 
