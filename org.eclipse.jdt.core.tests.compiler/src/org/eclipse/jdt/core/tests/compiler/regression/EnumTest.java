@@ -5828,7 +5828,12 @@ public void test166() throws Exception {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	private int valueOf(String arg0) { return 0; }//11\n" + 
 		"	            ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The enum X already defines the method valueOf(String) implicitly\n" + 
+		"The enum X already defines the method valueOf(String) implicitly\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	int i = valueOf(\"\");\n" +
+		"	        ^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from X to int\n" + 
 		"----------\n",
 		null,
 		true, // flush output
@@ -5838,19 +5843,34 @@ public void test166() throws Exception {
 		false);
 	// check for presence of #valueOf(...) in problem type
 	String expectedOutput =
-		"  // Method descriptor #20 (Ljava/lang/String;)I\n" + 
-		"  // Stack: 3, Locals: 2\n" + 
-		"  private int valueOf(java.lang.String arg0);\n" + 
+		"public final enum X {\n" + 
+		"  \n" + 
+		"  // Method descriptor #6 (Ljava/lang/String;I)V\n" + 
+		"  // Stack: 3, Locals: 3\n" + 
+		"  private X(java.lang.String arg0, int arg1);\n" + 
 		"     0  new java.lang.Error [8]\n" + 
 		"     3  dup\n" + 
-		"     4  ldc <String \"Unresolved compilation problem: \\n\\tThe enum X already defines the method valueOf(String) implicitly\\n\"> [10]\n" + 
+		"     4  ldc <String \"Unresolved compilation problems: \\n\\tThe enum X already defines the method valueOf(String) implicitly\\n\\tType mismatch: cannot convert from X to int\\n\"> [10]\n" + 
 		"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" + 
 		"     9  athrow\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 10] local: arg0 index: 1 type: java.lang.String\n";
+		"  \n" + 
+		"  // Method descriptor #20 ()V\n" + 
+		"  // Stack: 3, Locals: 1\n" + 
+		"  void foo();\n" + 
+		"     0  new java.lang.Error [8]\n" + 
+		"     3  dup\n" + 
+		"     4  ldc <String \"Unresolved compilation problem: \\n\\tType mismatch: cannot convert from X to int\\n\"> [21]\n" + 
+		"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" + 
+		"     9  athrow\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+		"}";
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
@@ -5858,26 +5878,37 @@ public void test166() throws Exception {
 public void test167() throws Exception {
 	this.runNegativeTest(
 		new String[] {
-				"X.java", // =================
-				"public enum X {\n" + 
-				"    ;\n" + 
-				"    static int valueOf(String arg0) { return 0; }//9\n" + 
-				"    void foo() {\n" + 
-				"    	int i = X.valueOf(\"\");\n" +
-				"    }\n" + 
-				"}\n",
-				"Other.java",// =================
-				"public class Other {\n" + 
-				"    void foo() {\n" + 
-				"    	int i = X.valueOf(\"\");\n" + 
-				"    }\n" + 
-				"}\n", // =================
+			"X.java", // =================
+			"public enum X {\n" + 
+			"    ;\n" + 
+			"    static int valueOf(String arg0) { return 0; }//9\n" + 
+			"    void foo() {\n" + 
+			"    	int i = X.valueOf(\"\");\n" +
+			"    }\n" + 
+			"}\n",
+			"Other.java",// =================
+			"public class Other {\n" + 
+			"    void foo() {\n" + 
+			"    	int i = X.valueOf(\"\");\n" + 
+			"    }\n" + 
+			"}\n", // =================
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	static int valueOf(String arg0) { return 0; }//9\n" + 
-		"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The enum X already defines the method valueOf(String) implicitly\n" + 
+		"1. ERROR in X.java (at line 3)\n" +
+		"	static int valueOf(String arg0) { return 0; }//9\n" +
+		"	           ^^^^^^^^^^^^^^^^^^^^\n" +
+		"The enum X already defines the method valueOf(String) implicitly\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	int i = X.valueOf(\"\");\n" +
+		"	        ^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from X to int\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in Other.java (at line 3)\n" +
+		"	int i = X.valueOf(\"\");\n" +
+		"	        ^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from X to int\n" +
 		"----------\n",
 		null,
 		true, // flush output
@@ -5887,19 +5918,25 @@ public void test167() throws Exception {
 		false);
 	// check consistency of problem when incremental compiling against X problemType
 	this.runNegativeTest(
-			new String[] {
-					"Other.java",// =================
-					"public class Other {\n" + 
-					"    void foo() {\n" + 
-					"    	int i = X.valueOf(\"\");\n" + 
-					"    }\n" + 
-					"}\n", // =================
-			},
-			"",
-			null,
-			false, // flush output
-			null,
-			true, // generate output
-			false,
-			false);}
+		new String[] {
+				"Other.java",// =================
+				"public class Other {\n" + 
+				"    void foo() {\n" + 
+				"    	int i = X.valueOf(\"\");\n" + 
+				"    }\n" + 
+				"}\n", // =================
+		},
+		"----------\n" +
+		"1. ERROR in Other.java (at line 3)\n" +
+		"	int i = X.valueOf(\"\");\n" +
+		"	          ^^^^^^^\n" +
+		"The method valueOf(Class<T>, String) in the type Enum<X> is not applicable for the arguments (String)\n" +
+		"----------\n",
+		null,
+		false, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	}
 }

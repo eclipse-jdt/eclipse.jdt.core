@@ -1168,10 +1168,18 @@ public MethodBinding[] methods() {
 				if (methodDecl == null) {
 					methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost & may still be null if method is special
 					if (methodDecl != null && methodDecl.binding != null) { // ensure its a valid user defined method
-						if (isEnumSpecialMethod)
+						if (isEnumSpecialMethod) {
 							this.scope.problemReporter().duplicateEnumSpecialMethod(this, methodDecl);
-						else
+							// remove user defined methods & keep the synthetic
+							methodDecl.binding = null;
+							// do not alter original method array until resolution is over, due to reentrance (143259)
+							if (resolvedMethods == this.methods)
+								System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
+							resolvedMethods[i] = null;
+							failed++;
+						} else {
 							this.scope.problemReporter().duplicateMethodInType(this, methodDecl, method.areParametersEqual(method2));
+						}
 					}
 				}
 				AbstractMethodDeclaration method2Decl = method2.sourceMethod();
