@@ -832,11 +832,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			return this;
 
 		this.tagBits &= ~TagBits.HasUnresolvedTypeVariables; // can be recursive so only want to call once
-		ReferenceBinding resolvedType = BinaryTypeBinding.resolveType(this.type, this.environment, false); // still part of parameterized type ref
+		ReferenceBinding resolvedType = (ReferenceBinding) BinaryTypeBinding.resolveType(this.type, this.environment, false /* no raw conversion */); // still part of parameterized type ref
 		if (this.arguments != null) {
 			int argLength = this.arguments.length;
 			for (int i = 0; i < argLength; i++)
-				this.arguments[i] = BinaryTypeBinding.resolveType(this.arguments[i], this.environment, null, 0);
+				this.arguments[i] = BinaryTypeBinding.resolveType(this.arguments[i], this.environment, true /* raw conversion */);
 			// arity check
 			TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 			if (refTypeVariables == Binding.NO_TYPE_VARIABLES) { // check generic

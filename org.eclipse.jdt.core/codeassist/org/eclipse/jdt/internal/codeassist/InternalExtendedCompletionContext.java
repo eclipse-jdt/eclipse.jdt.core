@@ -321,9 +321,7 @@ public class InternalExtendedCompletionContext {
 
 			SignatureWrapper wrapper = new SignatureWrapper(replacePackagesDot(typeSignature.toCharArray()));
 			assignableTypeBinding = lookupEnvironment.getTypeFromTypeSignature(wrapper, typeVariables, this.assistScope.enclosingClassScope().referenceContext.binding, null);
-			if (assignableTypeBinding instanceof ReferenceBinding) {
-				assignableTypeBinding = BinaryTypeBinding.resolveType((ReferenceBinding)assignableTypeBinding, lookupEnvironment, true);
-			}
+			assignableTypeBinding = BinaryTypeBinding.resolveType(assignableTypeBinding, lookupEnvironment, true);
 		} catch (AbortCompilation e) {
 			assignableTypeBinding = null;
 		} finally {

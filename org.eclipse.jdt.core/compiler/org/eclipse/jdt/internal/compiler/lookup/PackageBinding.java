@@ -113,6 +113,7 @@ PackageBinding getPackage(char[] name) {
 PackageBinding getPackage0(char[] name) {
 	return knownPackages.get(name);
 }
+
 /* Answer the type named name; ask the oracle for the type if its not in the cache.
 * Answer a NotVisible problem type if the type is not visible from the invocationPackage.
 * Answer null if it could not be resolved.
@@ -120,25 +121,25 @@ PackageBinding getPackage0(char[] name) {
 * NOTE: This should only be used by source types/scopes which know there is NOT a
 * package with the same name.
 */
-
 ReferenceBinding getType(char[] name) {
-	ReferenceBinding typeBinding = getType0(name);
-	if (typeBinding == null) {
-		if ((typeBinding = environment.askForType(this, name)) == null) {
+	ReferenceBinding referenceBinding = getType0(name);
+	if (referenceBinding == null) {
+		if ((referenceBinding = this.environment.askForType(this, name)) == null) {
 			// not found so remember a problem type binding in the cache for future lookups
 			addNotFoundType(name);
 			return null;
 		}
 	}
 
-	if (typeBinding == LookupEnvironment.TheNotFoundType)
+	if (referenceBinding == LookupEnvironment.TheNotFoundType)
 		return null;
 
-	typeBinding = BinaryTypeBinding.resolveType(typeBinding, environment, false); // no raw conversion for now
-	if (typeBinding.isNestedType())
-		return new ProblemReferenceBinding(new char[][]{ name }, typeBinding, ProblemReasons.InternalNameProvided);
-	return typeBinding;
+	referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this.environment, false /* no raw conversion for now */);
+	if (referenceBinding.isNestedType())
+		return new ProblemReferenceBinding(new char[][]{ name }, referenceBinding, ProblemReasons.InternalNameProvided);
+	return referenceBinding;
 }
+
 /* Answer the type named name if it exists in the cache.
 * Answer theNotFoundType if it could not be resolved the first time
 * it was looked up, otherwise answer null.
@@ -146,7 +147,6 @@ ReferenceBinding getType(char[] name) {
 * NOTE: Senders must convert theNotFoundType into a real problem
 * reference type if its to returned.
 */
-
 ReferenceBinding getType0(char[] name) {
 	if (knownTypes == null)
 		return null;
@@ -163,13 +163,14 @@ ReferenceBinding getType0(char[] name) {
 */
 
 public Binding getTypeOrPackage(char[] name) {
-	ReferenceBinding typeBinding = getType0(name);
-	if (typeBinding != null && typeBinding != LookupEnvironment.TheNotFoundType) {
-		if ((typeBinding.tagBits & TagBits.HasMissingType) == 0) {
-			typeBinding = BinaryTypeBinding.resolveType(typeBinding, environment, false); // no raw conversion for now
-			if (typeBinding.isNestedType())
-				return new ProblemReferenceBinding(new char[][]{name}, typeBinding, ProblemReasons.InternalNameProvided);
-			return typeBinding;
+	ReferenceBinding referenceBinding = getType0(name);
+	if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
+		if ((referenceBinding.tagBits & TagBits.HasMissingType) == 0) {
+			referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this.environment, false /* no raw conversion for now */);
+			if (referenceBinding.isNestedType()) {
+				return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
+			}
+			return referenceBinding;
 		}
 	}
 
@@ -177,11 +178,12 @@ public Binding getTypeOrPackage(char[] name) {
 	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage) {
 		return packageBinding;
 	}
-	if (typeBinding == null) { // have not looked for it before
-		if ((typeBinding = environment.askForType(this, name)) != null) {
-			if (typeBinding.isNestedType())
-				return new ProblemReferenceBinding(new char[][]{name}, typeBinding, ProblemReasons.InternalNameProvided);
-			return typeBinding;
+	if (referenceBinding == null) { // have not looked for it before
+		if ((referenceBinding = this.environment.askForType(this, name)) != null) {
+			if (referenceBinding.isNestedType()) {
+				return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
+			}
+			return referenceBinding;
 		}
 
 		// Since name could not be found, add a problem binding
@@ -190,10 +192,11 @@ public Binding getTypeOrPackage(char[] name) {
 	}
 
 	if (packageBinding == null) { // have not looked for it before
-		if ((packageBinding = findPackage(name)) != null)
+		if ((packageBinding = findPackage(name)) != null) {
 			return packageBinding;
-		if (typeBinding != null && typeBinding != LookupEnvironment.TheNotFoundType) {
-			return typeBinding; // found cached missing type - check if package conflict
+		}
+		if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
+			return referenceBinding; // found cached missing type - check if package conflict
 		}
 		addNotFoundPackage(name);
 	}
