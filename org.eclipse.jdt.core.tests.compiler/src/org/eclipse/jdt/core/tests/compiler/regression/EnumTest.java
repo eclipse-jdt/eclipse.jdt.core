@@ -5715,4 +5715,191 @@ public void test164() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251523 - variation
+public void test165() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"class Other {\n" + 
+			"	int dupField;//1\n" + 
+			"	int dupField;//2\n" + 
+			"	int dupField;//3\n" + 
+			"	int dupField;//4\n" + 
+			"	void dupMethod(int i) {}//5\n" + 
+			"	void dupMethod(int i) {}//6\n" + 
+			"	void dupMethod(int i) {}//7\n" + 
+			"	void dupMethod(int i) {}//8\n" + 
+			"	void foo() {\n" + 
+			"		int i = dupMethod(dupField);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public enum X {\n" + 
+			"        ;\n" + 
+			"        private X valueOf(String arg0) { return null; }//9\n" + 
+			"        private X valueOf(String arg0) { return null; }//10\n" + 
+			"        private X valueOf(String arg0) { return null; }//11\n" + 
+			"        void foo() {\n" + 
+			"        	int i = valueOf(\"\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	int dupField;//1\n" + 
+		"	    ^^^^^^^^\n" + 
+		"Duplicate field Other.dupField\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	int dupField;//2\n" + 
+		"	    ^^^^^^^^\n" + 
+		"Duplicate field Other.dupField\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	int dupField;//3\n" + 
+		"	    ^^^^^^^^\n" + 
+		"Duplicate field Other.dupField\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	int dupField;//4\n" + 
+		"	    ^^^^^^^^\n" + 
+		"Duplicate field Other.dupField\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
+		"	void dupMethod(int i) {}//5\n" + 
+		"	     ^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method dupMethod(int) in type Other\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 7)\n" + 
+		"	void dupMethod(int i) {}//6\n" + 
+		"	     ^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method dupMethod(int) in type Other\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 8)\n" + 
+		"	void dupMethod(int i) {}//7\n" + 
+		"	     ^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method dupMethod(int) in type Other\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 9)\n" + 
+		"	void dupMethod(int i) {}//8\n" + 
+		"	     ^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method dupMethod(int) in type Other\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 11)\n" + 
+		"	int i = dupMethod(dupField);\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from void to int\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 17)\n" + 
+		"	private X valueOf(String arg0) { return null; }//9\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The enum X already defines the method valueOf(String) implicitly\n" + 
+		"----------\n" + 
+		"11. ERROR in X.java (at line 18)\n" + 
+		"	private X valueOf(String arg0) { return null; }//10\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The enum X already defines the method valueOf(String) implicitly\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 19)\n" + 
+		"	private X valueOf(String arg0) { return null; }//11\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The enum X already defines the method valueOf(String) implicitly\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 21)\n" + 
+		"	int i = valueOf(\"\");\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X to int\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251814
+public void test166() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public enum X {\n" + 
+			"        ;\n" + 
+			"        private int valueOf(String arg0) { return 0; }//11\n" + 
+			"        void foo() {\n" + 
+			"        	int i = valueOf(\"\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	private int valueOf(String arg0) { return 0; }//11\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The enum X already defines the method valueOf(String) implicitly\n" + 
+		"----------\n",
+		null,
+		true, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	// check for presence of #valueOf(...) in problem type
+	String expectedOutput =
+		"  // Method descriptor #20 (Ljava/lang/String;)I\n" + 
+		"  // Stack: 3, Locals: 2\n" + 
+		"  private int valueOf(java.lang.String arg0);\n" + 
+		"     0  new java.lang.Error [8]\n" + 
+		"     3  dup\n" + 
+		"     4  ldc <String \"Unresolved compilation problem: \\n\\tThe enum X already defines the method valueOf(String) implicitly\\n\"> [10]\n" + 
+		"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" + 
+		"     9  athrow\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 10] local: arg0 index: 1 type: java.lang.String\n";
+
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251814 - variation
+public void test167() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java", // =================
+				"public enum X {\n" + 
+				"    ;\n" + 
+				"    static int valueOf(String arg0) { return 0; }//9\n" + 
+				"    void foo() {\n" + 
+				"    	int i = X.valueOf(\"\");\n" +
+				"    }\n" + 
+				"}\n",
+				"Other.java",// =================
+				"public class Other {\n" + 
+				"    void foo() {\n" + 
+				"    	int i = X.valueOf(\"\");\n" + 
+				"    }\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	static int valueOf(String arg0) { return 0; }//9\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The enum X already defines the method valueOf(String) implicitly\n" + 
+		"----------\n",
+		null,
+		true, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	// check consistency of problem when incremental compiling against X problemType
+	this.runNegativeTest(
+			new String[] {
+					"Other.java",// =================
+					"public class Other {\n" + 
+					"    void foo() {\n" + 
+					"    	int i = X.valueOf(\"\");\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"",
+			null,
+			false, // flush output
+			null,
+			true, // generate output
+			false,
+			false);}
 }
