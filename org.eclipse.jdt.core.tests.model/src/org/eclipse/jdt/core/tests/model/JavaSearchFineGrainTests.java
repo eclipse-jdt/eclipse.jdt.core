@@ -63,10 +63,9 @@ public ICompilationUnit getWorkingCopy(String path, String source) throws JavaMo
 protected void setUp () throws Exception {
 	super.setUp();
 	this.resultCollector = new JavaSearchResultCollector();
-	this.resultCollector.showInsideDoc = false;
-	this.resultCollector.showAccuracy = true;
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showOffset = true;
+	this.resultCollector.showAccuracy(true);
+	this.resultCollector.showSelection();
+	this.resultCollector.showOffset();
 }
 
 static {
@@ -112,8 +111,8 @@ private IField setUpFieldRef() throws JavaModelException {
 		"----------\n",
 		problemRequestor.problems.toString()
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showOffset = true;
+	this.resultCollector.showSelection();
+	this.resultCollector.showOffset();
 	return this.workingCopies[0].getType("Fields").getField("field");
 }
 public void testFieldRef() throws CoreException {
@@ -193,8 +192,8 @@ private IMethod setUpMethodRef() throws JavaModelException {
 		"----------\n",
 		problemRequestor.problems.toString()
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showOffset = true;
+	this.resultCollector.showSelection();
+	this.resultCollector.showOffset();
 	return this.workingCopies[0].getType("Methods").getMethod("method", new String[0]);
 }
 public void testMethodRef() throws CoreException {
@@ -574,8 +573,8 @@ private void setUpTypeRefAll() throws JavaModelException {
 		"----------\n",
 		problemRequestor.problems.toString()
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showOffset = true;
+	this.resultCollector.showSelection();
+	this.resultCollector.showOffset();
 }
 public void testTypeRefAll_Allocation() throws CoreException {
 	setUpTypeRefAll();
@@ -749,8 +748,8 @@ private IType setUpTypeRefGeneric01() throws JavaModelException {
 		"----------\n",
 		problemRequestor.problems.toString()
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showOffset = true;
+	this.resultCollector.showSelection();
+	this.resultCollector.showOffset();
 	return this.workingCopies[0].getType("Types");
 }
 public void testTypeRefGeneric01() throws CoreException {
@@ -970,8 +969,8 @@ private IType setUpTypeRefGeneric02() throws JavaModelException {
 		"----------\n",
 		problemRequestor.problems.toString()
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showOffset = true;
+	this.resultCollector.showSelection();
+	this.resultCollector.showOffset();
 	return this.workingCopies[0].getType("Types");
 }
 public void testTypeRefGenericAll02() throws CoreException {
@@ -1154,8 +1153,8 @@ private void setUpTypeRefGenericMethod() throws JavaModelException {
 		"----------\n",
 		problemRequestor.problems.toString()
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showOffset = true;
+	this.resultCollector.showSelection();
+	this.resultCollector.showOffset();
 }
 public void testTypeRefGenericMethod_AllGenericFlags() throws CoreException {
 	setUpTypeRefGenericMethod();
@@ -1279,8 +1278,8 @@ private void setUpTypeRefQualifiedAll() throws JavaModelException {
 		"----------\n",
 		problemRequestor.problems.toString()
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showOffset = true;
+	this.resultCollector.showSelection();
+	this.resultCollector.showOffset();
 }
 public void testTypeRefQualifiedAll_Allocation() throws CoreException {
 	setUpTypeRefQualifiedAll();

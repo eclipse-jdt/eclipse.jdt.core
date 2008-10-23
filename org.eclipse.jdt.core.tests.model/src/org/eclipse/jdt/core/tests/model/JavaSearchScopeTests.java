@@ -873,7 +873,7 @@ public void testBug101022() throws CoreException {
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFolder("/P1/test"));
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search("foo", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"test/Test.java [in P1] void Test.foo() [foo]",
@@ -910,7 +910,7 @@ public void testBug101426() throws CoreException {
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search("ITest", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"test/Test.java [in P1] Test.test [ITest]\n" +
@@ -947,7 +947,7 @@ public void testBug101777() throws CoreException {
 		assertNotNull("We should have a default fragment for project P1!", defaultFragment);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {defaultFragment});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search("main(String[]) void", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"Test.java [in P1] void Test.main(String[]) [main]",
@@ -982,7 +982,7 @@ public void testBug119203() throws CoreException {
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search("Test", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/X.java [in P1] X.test [Test]",

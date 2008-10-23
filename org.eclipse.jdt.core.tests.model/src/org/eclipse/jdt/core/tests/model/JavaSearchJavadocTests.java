@@ -43,8 +43,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		super.setUp();
 		this.originalOptions = JAVA_PROJECT.getOptions(true);
 		JAVA_PROJECT.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
-		this.resultCollector.showAccuracy = true;
-		this.resultCollector.showInsideDoc = true;
+		this.resultCollector.showAccuracy(true);
+		this.resultCollector.showInsideDoc();
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
@@ -857,8 +857,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 */
 	public void testBug54962() throws CoreException {
 		setJavadocOptions();
-		this.resultCollector.showInsideDoc = true;
-		this.resultCollector.showSelection = true;
+		this.resultCollector.showInsideDoc();
+		this.resultCollector.showSelection();
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j6", "Bug54962.java").getPackageDeclaration("j6");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
@@ -871,8 +871,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	//	TODO (frederic) should no longer get POTENTIAL after 196200 got fixed
 	public void testBug54962qualified() throws CoreException {
 		setJavadocOptions();
-		this.resultCollector.showInsideDoc = true;
-		this.resultCollector.showSelection = true;
+		this.resultCollector.showInsideDoc();
+		this.resultCollector.showSelection();
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j7.qua.li.fied", "Bug54962a.java").getPackageDeclaration("j7.qua.li.fied");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
@@ -889,7 +889,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 */
 	public void testBug71267() throws CoreException {
 		setJavadocOptions();
-		this.resultCollector.showInsideDoc = true;
+		this.resultCollector.showInsideDoc();
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "p71267", "Test.java").getPackageDeclaration("p71267");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
@@ -900,7 +900,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testBug71267qualified() throws CoreException {
 		setJavadocOptions();
-		this.resultCollector.showInsideDoc = true;
+		this.resultCollector.showInsideDoc();
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "p71267.q71267", "Test.java").getPackageDeclaration("p71267.q71267");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
@@ -918,7 +918,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83285"
 	 */
 	public void testBug83285() throws CoreException {
-		this.resultCollector.showRule = true;
+		this.resultCollector.showRule();
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/b83285/A.java",
 			"package b83285;\n" +
@@ -941,7 +941,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		);
 	}
 	public void testBug83285a() throws CoreException {
-		this.resultCollector.showRule = true;
+		this.resultCollector.showRule();
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/b83285/A.java",
 			"package b83285;\n" +
@@ -974,7 +974,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		);
 	}
 	public void testBug83285b() throws CoreException {
-		this.resultCollector.showRule = true;
+		this.resultCollector.showRule();
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearch/src/b83285/A.java",
 			"package b83285;\n" +

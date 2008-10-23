@@ -30,7 +30,7 @@ public static Test suite() {
 
 protected void setUp () throws Exception {
 	super.setUp();
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 }
 
 /**

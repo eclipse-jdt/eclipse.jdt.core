@@ -24,9 +24,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
+import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.PackageFragment;
-//import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
-//import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.SourceRefElement;
 import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 
@@ -47,22 +46,28 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 //	boolean discard;
 
 	/**
+	 * Flags for the default search result collector
+	 */
+	static protected final int SHOW_ACCURACY		= 0x0001;
+	static protected final int SHOW_SELECTION		= 0x0002;
+	static protected final int SHOW_RULE					= 0x0004;
+	static protected final int SHOW_INSIDE_DOC	= 0x0008;
+	static protected final int SHOW_POTENTIAL		= 0x0010;
+	static protected final int SHOW_PROJECT			= 0x0020;
+	static protected final int SHOW_SYNTHETIC		= 0x0040;
+	static protected final int SHOW_OFFSET			= 0x0080;
+	static protected final int SHOW_ACCESS			= 0x0100;
+	static protected final int SHOW_MATCH_KIND	= 0x0200;
+	static protected final int SHOW_JAR_FILE			= 0x0400;
+
+	/**
 	 * Collects results as a string.
 	 */
 	public static class JavaSearchResultCollector extends SearchRequestor {
+		int flags = SHOW_POTENTIAL; // default
 		protected SearchMatch match;
 		public StringBuffer results = new StringBuffer(), line;
-		public boolean showAccuracy;
-		public boolean showSelection;
-		public boolean showRule;
-		public boolean showInsideDoc;
-		public boolean showPotential = true;
-		public boolean showProject;
-		public boolean showSynthetic;
-		public boolean showOffset = false;
-		public boolean showAccess = false;
 		public int showFlavors = 0;
-		public boolean showMatchKind = false;
 		public int count = 0;
 		List lines = new ArrayList();
 		boolean sorted;
@@ -76,7 +81,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			this.count++;
 			this.match = searchMatch;
 			writeLine();
-			if (this.line != null && (this.match.getAccuracy() == SearchMatch.A_ACCURATE || this.showPotential)) {
+			if (this.line != null && (this.match.getAccuracy() == SearchMatch.A_ACCURATE || (this.flags & SHOW_POTENTIAL) != 0)) {
 				this.lines.add(this.line);
 			}
 		}
@@ -88,13 +93,13 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				IResource resource = this.match.getResource();
 				IJavaElement element = getElement(this.match);
 				this.line = new StringBuffer();
-				if (this.showMatchKind) {
+				if ((this.flags & SHOW_MATCH_KIND) != 0) {
 					String matchClassName = this.match.getClass().getName();
 					this.line.append(matchClassName.substring(matchClassName.lastIndexOf('.')+1));
 					this.line.append(": ");
 				}
 				this.line.append(getPathString(resource, element));
-				if (this.showProject) {
+				if ((this.flags & SHOW_PROJECT) != 0) {
 					IProject project = element.getJavaProject().getProject();
 					this.line.append(" [in ");
 					this.line.append(project.getName());
@@ -174,7 +179,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 					if (start == -1 || (contents != null && contents.length > 0)) { // retrieving attached source not implemented here
 						this.line.append(" [");
 						if (start > -1) {
-							if (this.showSelection) {
+							if ((this.flags & SHOW_SELECTION) != 0) {
 								int lineStart1 = CharOperation.lastIndexOf('\n', contents, 0, start);
 								int lineStart2 = CharOperation.lastIndexOf('\r', contents, 0, start);
 								int lineStart = Math.max(lineStart1, lineStart2) + 1;
@@ -182,7 +187,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 								this.line.append("§|");
 							}
 							this.line.append(CharOperation.subarray(contents, start, end));
-							if (this.showSelection) {
+							if ((this.flags & SHOW_SELECTION) != 0) {
 								this.line.append("|§");
 								int lineEnd1 = CharOperation.indexOf('\n', contents, end);
 								int lineEnd2 = CharOperation.indexOf('\r', contents, end);
@@ -190,7 +195,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 								if (lineEnd == -1) lineEnd = contents.length;
 								this.line.append(CharOperation.subarray(contents, end, lineEnd));
 							}
-							if (this.showOffset) {
+							if ((this.flags & SHOW_OFFSET) != 0) {
 								this.line.append('@');
 								this.line.append(start);
 							}
@@ -200,10 +205,10 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 						this.line.append("]");
 					}
 				}
-				if (this.showAccuracy) {
+				if ((this.flags & SHOW_ACCURACY) != 0) {
 					this.line.append(" ");
 					if (this.match.getAccuracy() == SearchMatch.A_ACCURATE) {
-						if (this.showRule) {
+						if ((this.flags & SHOW_RULE) != 0) {
 							if (this.match.isExact()) {
 								this.line.append("EXACT_");
 							} else if (this.match.isEquivalent()) {
@@ -224,7 +229,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 						this.line.append("POTENTIAL_MATCH");
 					}
 				}
-				if (this.showInsideDoc) {
+				if ((this.flags & SHOW_INSIDE_DOC) != 0) {
 					this.line.append(" ");
 					if (this.match.isInsideDocComment()) {
 						this.line.append("INSIDE_JAVADOC");
@@ -232,7 +237,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 						this.line.append("OUTSIDE_JAVADOC");
 					}
 				}
-				if (this.showSynthetic) {
+				if ((this.flags & SHOW_SYNTHETIC) != 0) {
 					if (this.match instanceof MethodReferenceMatch) {
 						MethodReferenceMatch methRef = (MethodReferenceMatch) this.match;
 						if (methRef.isSynthetic()) {
@@ -248,7 +253,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 						}
 					}
 				}
-				if (this.showAccess) {
+				if ((this.flags & SHOW_ACCESS) != 0) {
 					if (this.match instanceof FieldReferenceMatch) {
 						FieldReferenceMatch fieldRef = (FieldReferenceMatch) this.match;
 						if (fieldRef.isReadAccess()) {
@@ -276,6 +281,47 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 		}
 		private boolean showSuperInvocation() {
 			return (this.showFlavors & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0;
+		}
+		public void showAccess() {
+			this.flags |= SHOW_ACCESS;
+		}
+		public void showAccuracy(boolean on) {
+			if (on) {
+				this.flags |= SHOW_ACCURACY;
+			} else {
+				this.flags &= ~SHOW_ACCURACY;
+			}
+		}
+		public void showInsideDoc() {
+			this.flags |= SHOW_INSIDE_DOC;
+		}
+		public void showJarFile() {
+			this.flags |= SHOW_JAR_FILE;
+		}
+		public void showMatchKind() {
+			this.flags |= SHOW_MATCH_KIND;
+		}
+		public void showOffset() {
+			this.flags |= SHOW_OFFSET;
+		}
+		public void showPotential(boolean on) {
+			if (on) {
+				this.flags |= SHOW_POTENTIAL;
+			} else {
+				this.flags &= ~SHOW_POTENTIAL;
+			}
+		}
+		public void showProject() {
+			this.flags |= SHOW_PROJECT;
+		}
+		public void showRule() {
+			this.flags |= SHOW_RULE;
+		}
+		public void showSelection() {
+			this.flags |= SHOW_SELECTION;
+		}
+		public void showSynthetic() {
+			this.flags |= SHOW_SYNTHETIC;
 		}
 		protected void append(IAnnotation annotation) throws JavaModelException {
 			this.line.append("@");
@@ -405,6 +451,22 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			String pathString;
 			if (resource != null) {
 				IPath path = resource.getProjectRelativePath();
+				if ((this.flags & SHOW_JAR_FILE) != 0 && element instanceof Member) {
+					IPackageFragmentRoot pkgFragmentRoot = null;
+					try {
+		                pkgFragmentRoot = element.getJavaProject().findPackageFragmentRoot(resource.getFullPath());
+	                } catch (JavaModelException e) {
+		                // ignore
+	                }
+					if (pkgFragmentRoot != null && pkgFragmentRoot.isArchive()) {
+						if (pkgFragmentRoot.isExternal()) {
+							pathString = pkgFragmentRoot.getPath().toOSString();
+						} else {
+							pathString = path.toString();
+						}
+						return pathString + "|" + ((Member)element).getTypeRoot().getElementName();
+					}
+				}
 				if (path.segmentCount() == 0) {
 					IJavaElement root = element;
 					while (root != null && !(root instanceof IPackageFragmentRoot)) {

@@ -47,8 +47,8 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 
 	protected void setUp () throws Exception {
 		super.setUp();
-		this.resultCollector.showAccuracy = true;
-		this.resultCollector.showRule = true;
+		this.resultCollector.showAccuracy(true);
+		this.resultCollector.showRule();
 	}
 
 	/*

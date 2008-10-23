@@ -56,10 +56,6 @@ public JavaSearchBugsTests(String name) {
 public static Test suite() {
 	return buildModelTestSuite(JavaSearchBugsTests.class);
 }
-static {
-//	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-}
 
 class TestCollector extends JavaSearchResultCollector {
 	public List matches = new ArrayList();
@@ -130,8 +126,7 @@ public void tearDownSuite() throws Exception {
 protected void setUp () throws Exception {
 	super.setUp();
 	this.resultCollector = new TestCollector();
-	this.resultCollector.showInsideDoc = false;
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 }
 
 /**
@@ -775,7 +770,7 @@ public void testBug79378() throws CoreException {
 	);
 }
 public void testBug79378b() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79378/A.java",
 		"package b79378;\n" +
@@ -1491,7 +1486,7 @@ private void setUpBug82208() throws CoreException {
 	);
 }
 public void testBug82208_TYPE() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug82208();
 	search("B82208*", TYPE, ALL_OCCURRENCES);
 	assertSearchResults(
@@ -1502,7 +1497,7 @@ public void testBug82208_TYPE() throws CoreException {
 	);
 }
 public void testBug82208_CLASS() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug82208();
 	search("B82208*", CLASS, ALL_OCCURRENCES);
 	assertSearchResults(
@@ -1510,7 +1505,7 @@ public void testBug82208_CLASS() throws CoreException {
 	);
 }
 public void testBug82208_INTERFACE() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug82208();
 	search("B82208*", INTERFACE, ALL_OCCURRENCES);
 	assertSearchResults(
@@ -1518,7 +1513,7 @@ public void testBug82208_INTERFACE() throws CoreException {
 	);
 }
 public void testBug82208_ENUM() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug82208();
 	search("B82208*", ENUM, ALL_OCCURRENCES);
 	assertSearchResults(
@@ -1526,7 +1521,7 @@ public void testBug82208_ENUM() throws CoreException {
 	);
 }
 public void testBug82208_ANNOTATION_TYPE() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug82208();
 	search("B82208*", ANNOTATION_TYPE, ALL_OCCURRENCES);
 	assertSearchResults(
@@ -1534,7 +1529,7 @@ public void testBug82208_ANNOTATION_TYPE() throws CoreException {
 	);
 }
 public void testBug82208_CLASS_AND_INTERFACE() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug82208();
 	search("B82208*", CLASS_AND_INTERFACE, ALL_OCCURRENCES);
 	assertSearchResults(
@@ -1543,7 +1538,7 @@ public void testBug82208_CLASS_AND_INTERFACE() throws CoreException {
 	);
 }
 public void testBug82208_CLASS_AND_ENUMERATION() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug82208();
 	search("B82208*", CLASS_AND_ENUM, ALL_OCCURRENCES);
 	assertSearchResults(
@@ -1557,7 +1552,7 @@ public void testBug82208_CLASS_AND_ENUMERATION() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83012"
  */
 public void testBug82673() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b82673/Test.java",
 		"package b82673;\n" +
@@ -1590,7 +1585,7 @@ public void testBug82673() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83012"
  */
 public void testBug83012() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83012/Test.java",
 		"package b83012;\n" +
@@ -1622,7 +1617,7 @@ public void testBug83012() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83230"
  */
 private void setUpBug83230_Explicit() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
 		"package b83230;\n" +
@@ -1661,7 +1656,7 @@ private void setUpBug83230_Explicit() throws CoreException {
 	);
 }
 public void testBug83230_Explicit() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83230_Explicit();
 	IMethod method = selectMethod(this.workingCopies[0], "authorName");
 	search(method, REFERENCES);
@@ -1676,7 +1671,7 @@ public void testBug83230_Explicit() throws CoreException {
 	);
 }
 public void testBug83230_Explicit01() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83230_Explicit();
 	IMethod method = selectMethod(this.workingCopies[0], "authorName");
 	search(method, DECLARATIONS);
@@ -1685,7 +1680,7 @@ public void testBug83230_Explicit01() throws CoreException {
 	);
 }
 public void testBug83230_Explicit02() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83230_Explicit();
 	IType type = selectType(this.workingCopies[0], "Address");
 	search(type, REFERENCES);
@@ -1695,7 +1690,7 @@ public void testBug83230_Explicit02() throws CoreException {
 	);
 }
 public void testBug83230_Explicit03() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83230_Explicit();
 	IMethod method = selectMethod(this.workingCopies[0], "foo");
 	search(method, REFERENCES);
@@ -1704,7 +1699,7 @@ public void testBug83230_Explicit03() throws CoreException {
 	);
 }
 public void testBug83230_Explicit04() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83230_Explicit();
 	IField field = selectField(this.workingCopies[0], "city");
 	search(field, REFERENCES);
@@ -1713,7 +1708,7 @@ public void testBug83230_Explicit04() throws CoreException {
 	);
 }
 public void testBug83230_Explicit05() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83230_Explicit();
 	IField field = selectField(this.workingCopies[0], "ageMin");
 	search(field, REFERENCES);
@@ -1722,7 +1717,7 @@ public void testBug83230_Explicit05() throws CoreException {
 	);
 }
 public void testBug83230_Implicit01() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
 		"package b83230;\n" +
@@ -1747,7 +1742,7 @@ public void testBug83230_Implicit01() throws CoreException {
 	);
 }
 public void testBug83230_Implicit02() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
 		"package b83230;\n" +
@@ -1778,7 +1773,7 @@ public void testBug83230_Implicit02() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83304"
  */
 public void testBug83304() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Test.java",
 		"package b83304;\n" +
@@ -1800,7 +1795,7 @@ public void testBug83304() throws CoreException {
 	);
 }
 private void setUpBug83304_TypeParameterizedElementPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Types.java",
 		"package b83304;\n" +
@@ -1816,7 +1811,7 @@ private void setUpBug83304_TypeParameterizedElementPattern() throws CoreExceptio
 	);
 }
 public void testBug83304_TypeParameterizedElementPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83304_TypeParameterizedElementPattern();
 	IType type = selectType(this.workingCopies[0], "Generic", 4);
 	search(type, REFERENCES, ERASURE_RULE);
@@ -1832,7 +1827,7 @@ public void testBug83304_TypeParameterizedElementPattern() throws CoreException 
 	);
 }
 public void testBug83304_TypeGenericElementPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83304_TypeParameterizedElementPattern();
 	IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g1.t.s.def", "Generic.class").getType();
 	search(type, REFERENCES, ERASURE_RULE);
@@ -1848,7 +1843,7 @@ public void testBug83304_TypeGenericElementPattern() throws CoreException {
 	);
 }
 public void testBug83304_TypeStringPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83304_TypeParameterizedElementPattern();
 	search("Generic<? super Exception>", TYPE, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
@@ -1863,7 +1858,7 @@ public void testBug83304_TypeStringPattern() throws CoreException {
 	);
 }
 private void setUpBug83304_MethodParameterizedElementPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Methods.java",
 		"package b83304;\n" +
@@ -1880,7 +1875,7 @@ private void setUpBug83304_MethodParameterizedElementPattern() throws CoreExcept
 	);
 }
 public void testBug83304_MethodParameterizedElementPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83304_MethodParameterizedElementPattern();
 	IMethod method = selectMethod(this.workingCopies[0], "generic", 2);
 	search(method, REFERENCES, ERASURE_RULE);
@@ -1891,7 +1886,7 @@ public void testBug83304_MethodParameterizedElementPattern() throws CoreExceptio
 	);
 }
 public void testBug83304_MethodGenericElementPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83304_MethodParameterizedElementPattern();
 	IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g5.m.def", "Single.class").getType();
 	IMethod method = type.getMethod("generic", new String[] { "TU;" });
@@ -1903,7 +1898,7 @@ public void testBug83304_MethodGenericElementPattern() throws CoreException {
 	);
 }
 public void testBug83304_MethodStringPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83304_MethodParameterizedElementPattern();
 	search("<Exception>generic", METHOD, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
@@ -1913,7 +1908,7 @@ public void testBug83304_MethodStringPattern() throws CoreException {
 	);
 }
 private void setUpBug83304_ConstructorGenericElementPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Constructors.java",
 		"package b83304;\n" +
@@ -1929,7 +1924,7 @@ private void setUpBug83304_ConstructorGenericElementPattern() throws CoreExcepti
 	);
 }
 public void testBug83304_ConstructorGenericElementPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83304_ConstructorGenericElementPattern();
 	IMethod method = selectMethod(this.workingCopies[0], "Single", 3);
 	search(method, REFERENCES, ERASURE_RULE);
@@ -1940,7 +1935,7 @@ public void testBug83304_ConstructorGenericElementPattern() throws CoreException
 	);
 }
 public void testBug83304_ConstructorParameterizedElementPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83304_ConstructorGenericElementPattern();
 	IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g5.c.def", "Single.class").getType();
 	IMethod method = type.getMethod("Single", new String[] { "TT;", "TU;" });
@@ -1952,7 +1947,7 @@ public void testBug83304_ConstructorParameterizedElementPattern() throws CoreExc
 	);
 }
 public void testBug83304_ConstructorStringPattern() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug83304_ConstructorGenericElementPattern();
 	search("<Exception>Single", CONSTRUCTOR, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
@@ -1997,7 +1992,7 @@ private void setUpBug83804_Type() throws CoreException {
 	);
 }
 public void testBug83804_Type() throws CoreException {
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	setUpBug83804_Type();
 	IType type = this.workingCopies[1].getType("Test");
 	search(type, REFERENCES);
@@ -2010,7 +2005,7 @@ public void testBug83804_Type() throws CoreException {
 	);
 }
 public void testBug83804_Method() throws CoreException {
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	setUpBug83804_Type();
 	IMethod[] methods = this.workingCopies[1].getType("Test").getMethods();
 	assertEquals("Invalid number of methods", 1, methods.length);
@@ -2020,7 +2015,7 @@ public void testBug83804_Method() throws CoreException {
 	);
 }
 public void testBug83804_Field() throws CoreException {
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	setUpBug83804_Type();
 	IField[] fields = this.workingCopies[1].getType("Test").getFields();
 	assertEquals("Invalid number of fields", 1, fields.length);
@@ -2035,7 +2030,7 @@ public void testBug83804_Field() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83388"
  */
 public void testBug83388() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83388/R.java",
 		"package b83388;\n" +
@@ -2063,7 +2058,7 @@ public void testBug83388() throws CoreException {
 	);
 }
 public void testBug83388b() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83388/R.java",
 		"package b83388;\n" +
@@ -2096,8 +2091,8 @@ public void testBug83388b() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83693"
  */
 public void testBug83693() throws CoreException {
-	this.resultCollector.showRule = true;
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showRule();
+	this.resultCollector.showInsideDoc();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83693/A.java",
 		"package b83693;\n" +
@@ -2153,7 +2148,7 @@ public void testBug83716() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84100"
  */
 private void setUpBug84100() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84100/X.java",
 		"package b84100;\n" +
@@ -2181,7 +2176,7 @@ private void setUpBug84100() throws CoreException {
 	);
 }
 public void testBug84100() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84100();
 	IMethod method = selectMethod(this.workingCopies[0], "foo", 1);
 	search(method, REFERENCES);
@@ -2190,7 +2185,7 @@ public void testBug84100() throws CoreException {
 	);
 }
 public void testBug84100b() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84100();
 	IMethod method = selectMethod(this.workingCopies[0], "foo", 2);
 	search(method, REFERENCES);
@@ -2199,7 +2194,7 @@ public void testBug84100b() throws CoreException {
 	);
 }
 public void testBug84100c() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84100();
 	IMethod method = selectMethod(this.workingCopies[0], "foo", 3);
 	search(method, REFERENCES);
@@ -2209,7 +2204,7 @@ public void testBug84100c() throws CoreException {
 	);
 }
 public void testBug84100d() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84100();
 	IMethod method = selectMethod(this.workingCopies[0], "foo", 4);
 	search(method, REFERENCES);
@@ -2218,7 +2213,7 @@ public void testBug84100d() throws CoreException {
 	);
 }
 public void testBug84100e() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84100();
 	IMethod method = selectMethod(this.workingCopies[0], "foo", 5);
 	search(method, REFERENCES);
@@ -2232,7 +2227,7 @@ public void testBug84100e() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84121"
  */
 public void testBug84121() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84121/Test.java",
 		"package b84121;\n" +
@@ -2257,7 +2252,7 @@ public void testBug84121() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84724"
  */
 private void setUpBug84724() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84724/X.java",
 		"package b84724;\n" +
@@ -2283,7 +2278,7 @@ private void setUpBug84724() throws CoreException {
 	);
 }
 public void testBug84724() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84724();
 	IMethod method = selectMethod(this.workingCopies[0], "X", 2);
 	search(method, REFERENCES);
@@ -2292,7 +2287,7 @@ public void testBug84724() throws CoreException {
 	);
 }
 public void testBug84724b() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84724();
 	IMethod method = selectMethod(this.workingCopies[0], "X", 3);
 	search(method, REFERENCES);
@@ -2303,7 +2298,7 @@ public void testBug84724b() throws CoreException {
 	);
 }
 public void testBug84724c() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84724();
 	IMethod method = selectMethod(this.workingCopies[0], "X", 4);
 	search(method, REFERENCES);
@@ -2312,7 +2307,7 @@ public void testBug84724c() throws CoreException {
 	);
 }
 public void testBug84724d() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84724();
 	IMethod method = selectMethod(this.workingCopies[0], "X", 5);
 	search(method, REFERENCES);
@@ -2326,7 +2321,7 @@ public void testBug84724d() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84727"
  */
 private void setUpBug84727() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84727/A.java",
 		"package b84727;\n" +
@@ -2353,7 +2348,7 @@ private void setUpBug84727() throws CoreException {
 	);
 }
 public void testBug84727() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84727();
 	IMethod[] methods = this.workingCopies[0].getType("A").getMethods();
 	assertEquals("Invalid number of methods", 2, methods.length);
@@ -2363,7 +2358,7 @@ public void testBug84727() throws CoreException {
 	);
 }
 public void testBug84727b() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug84727();
 	IMethod[] methods = this.workingCopies[0].getType("A").getMethods();
 	assertEquals("Invalid number of methods", 2, methods.length);
@@ -2378,7 +2373,7 @@ public void testBug84727b() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=85810"
  */
 public void testBug85810() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b85810/Test.java",
 		"package b85810;\n" +
@@ -2400,7 +2395,7 @@ public void testBug85810() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86596"
  */
 public void testBug86596() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86596/aa/link/A.java",
 		"package b86596.aa.link;\n" +
@@ -2431,7 +2426,7 @@ public void testBug86596() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86642"
  */
 public void testBug86642() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86642/A.java",
 		"package b86642;\n" +
@@ -2475,7 +2470,7 @@ public void testBug86293() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86380"
  */
 private void setUpBug86380() throws CoreException {
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86380/package-info.java",
 		"/**\n" +
@@ -2493,7 +2488,7 @@ private void setUpBug86380() throws CoreException {
 	);
 }
 public void testBug86380_Type() throws CoreException {
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	setUpBug86380();
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
 	IType type = unit.getType("Annot");
@@ -2506,7 +2501,7 @@ public void testBug86380_Type() throws CoreException {
 	);
 }
 public void testBug86380_Method() throws CoreException {
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	setUpBug86380();
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
 	IMethod[] methods = unit.getType("Annot").getMethods();
@@ -2518,7 +2513,7 @@ public void testBug86380_Method() throws CoreException {
 	);
 }
 public void testBug86380_Field() throws CoreException {
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	setUpBug86380();
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
 	IField[] fields = unit.getType("Annot").getFields();
@@ -2535,7 +2530,7 @@ public void testBug86380_Field() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174"
  */
 public void testBug88174() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88174/Test.java",
 		"package b88174;\n" +
@@ -3008,7 +3003,7 @@ public void testBug92264d() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=92944"
  */
 private void setUpBug92944() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b92944/Test.java",
 		"package b92944;\n" +
@@ -3019,7 +3014,7 @@ private void setUpBug92944() throws CoreException {
 	);
 }
 public void testBug92944_TYPE() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
@@ -3042,7 +3037,7 @@ public void testBug92944_TYPE() throws CoreException {
 		requestor);
 }
 public void testBug92944_CLASS() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
@@ -3063,7 +3058,7 @@ public void testBug92944_CLASS() throws CoreException {
 		requestor);
 }
 public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
@@ -3085,7 +3080,7 @@ public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 		requestor);
 }
 public void testBug92944_CLASS_AND_ENUM() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
@@ -3107,7 +3102,7 @@ public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 		requestor);
 }
 public void testBug92944_INTERFACE() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
@@ -3127,7 +3122,7 @@ public void testBug92944_INTERFACE() throws CoreException {
 		requestor);
 }
 public void testBug92944_ENUM() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
@@ -3147,7 +3142,7 @@ public void testBug92944_ENUM() throws CoreException {
 		requestor);
 }
 public void testBug92944_ANNOTATION_TYPE() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug92944();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
@@ -3177,7 +3172,7 @@ public void testBug92944_ANNOTATION_TYPE() throws CoreException {
  */
 public void testBug93392() throws CoreException {
 	TestCollector collector = new TestCollector();
-	collector.showAccuracy = true;
+	collector.showAccuracy(true);
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b93392/Test.java",
 		"package b93392;\n" +
@@ -3503,7 +3498,7 @@ public void testBug95794() throws CoreException {
 
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
-	occurencesCollector.showAccuracy = true;
+	occurencesCollector.showAccuracy(true);
 	search(type, ALL_OCCURRENCES, getJavaSearchScope(), occurencesCollector);
 	assertSearchResults(
 		"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" +
@@ -3519,13 +3514,13 @@ public void testBug95794() throws CoreException {
 	assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
 }
 public void testBug95794b() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
 	IType type = unit.getType("Test").getType("Color");
 
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
-	occurencesCollector.showAccuracy = true;
+	occurencesCollector.showAccuracy(true);
 	search(type, ALL_OCCURRENCES, getJavaSearchScope(), occurencesCollector);
 	assertSearchResults(
 		"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" +
@@ -3541,13 +3536,13 @@ public void testBug95794b() throws CoreException {
 	assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
 }
 public void testBug95794c() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
 	IField field = unit.getType("Test").getType("Color").getField("WHITE");
 
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
-	occurencesCollector.showAccuracy = true;
+	occurencesCollector.showAccuracy(true);
 	search(field, ALL_OCCURRENCES, getJavaSearchScope(), occurencesCollector);
 	assertSearchResults(
 		"src/b95794/Test.java [WHITE] EXACT_MATCH\n" +
@@ -3656,7 +3651,7 @@ public void testBug96763c() throws CoreException {
  */
 public void testBug97087() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97087/Bug.java",
 		"package b97087;\n" +
 		"public class Bug<Type> {\n" +
@@ -3796,7 +3791,7 @@ public void testBug97606() throws CoreException {
 		this.workingCopies[1].commitWorkingCopy(true, null);
 		this.workingCopies[2].commitWorkingCopy(true, null);
 		this.workingCopies[3].commitWorkingCopy(true, null);
-		this.resultCollector.showRule = true;
+		this.resultCollector.showRule();
 		IType type = this.workingCopies[0].getType("L");
 		search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH);
 		assertSearchResults(
@@ -3849,7 +3844,7 @@ public void testBug97606b() throws CoreException {
 		this.workingCopies[1].commitWorkingCopy(true, null);
 		this.workingCopies[2].commitWorkingCopy(true, null);
 		this.workingCopies[3].commitWorkingCopy(true, null);
-		this.resultCollector.showRule = true;
+		this.resultCollector.showRule();
 		IType type = this.workingCopies[0].getType("L");
 		search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH);
 		assertSearchResults(
@@ -4042,7 +4037,7 @@ public void testBug99903_javadoc() throws CoreException {
 		"public @interface Annot {\n" +
 		"}\n"
 	);
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	IType type = this.workingCopies[1].getType("Test");
 	search(type, REFERENCES);
 	assertSearchResults(
@@ -5950,13 +5945,13 @@ public void testBug110336h() throws CoreException {
 public void testBug110422a() throws CoreException {
 	search("TestP", TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
-		"lib/b110422.jar b110422.TestPrefix [No source] EXACT_MATCH"
+		"lib/b110422.jar b110422.TestPrefix EXACT_MATCH"
 	);
 }
 public void testBug110422b() throws CoreException {
 	search("TESTP", TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
 	assertSearchResults(
-		"lib/b110422.jar b110422.TestPrefix [No source] EXACT_MATCH"
+		"lib/b110422.jar b110422.TestPrefix EXACT_MATCH"
 	);
 }
 
@@ -6036,7 +6031,7 @@ public void testBug116459() throws CoreException {
 		"}"
 	);
 	IType type = this.workingCopies[0].getType("X");
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	search(type, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
 		"src/p1/X.java p1.X.gen [X] EXACT_MATCH\n" +
@@ -6485,7 +6480,7 @@ public void testBug124489() throws CoreException {
 		"}"
 	);
 	IType type = this.workingCopies[0].getType("Foo");
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	new SearchEngine(this.workingCopies).search(
 		SearchPattern.createPattern(type, REFERENCES),
 		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -7449,7 +7444,7 @@ public void testBug148215_Fields() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=148380"
  */
 public void testBug148380_SearchAllTypes_wc() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b148380/I.java",
 		"package b148380;\n" +
@@ -7556,7 +7551,7 @@ public void testBug153765() throws CoreException {
 		);
 		waitUntilIndexesReady();
 		IPackageFragment packageFragment = getPackage("/JavaSearchBugs/src/b153765");
-		this.resultCollector.showSelection = true;
+		this.resultCollector.showSelection();
 		search(packageFragment, REFERENCES);
 		assertSearchResults(
 			"src/b153765/test/SomeClass.java void b153765.test.SomeClass.foo() [        @§|b153765|§.Unimportant public void foo() {}] EXACT_MATCH"
@@ -7610,7 +7605,7 @@ public void testBug156340() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156177"
  */
 public void testBug156177() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b156177/Test.java",
 		"package b156177;\n" +
@@ -7643,7 +7638,7 @@ public void testBug156177() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156491"
  */
 public void testBug156491() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
 		"package pack;\n" +
@@ -7684,7 +7679,8 @@ public void testBug156491() throws CoreException {
 	assertSearchResults(
 		"src/pack/Test.java void pack.Test.validMatches(X) [toString()] EXACT_MATCH\n" +
 		"src/pack/Test.java void pack.Test.superInvocationMatches(Object) [toString()] EXACT_MATCH SUPER INVOCATION\n" +
-		"src/pack/Test.java void pack.Test.subtypeMatches(Sub) [toString()] EXACT_MATCH"
+		"src/pack/Test.java void pack.Test.subtypeMatches(Sub) [toString()] EXACT_MATCH\n" + 
+		"lib/b125178.jar java.lang.String pack.age.Test.foo(int) EXACT_MATCH SUPER INVOCATION"
 	);
 }
 private void setUpBug156491() throws CoreException {
@@ -7714,7 +7710,7 @@ private void setUpBug156491() throws CoreException {
 	);
 }
 public void testBug156491a() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug156491();
 	IMethod method = this.workingCopies[0].getType("L2").getMethod("test", new String[0]);
 	this.resultCollector.showFlavors = PatternLocator.SUPER_INVOCATION_FLAVOR;
@@ -7726,7 +7722,7 @@ public void testBug156491a() throws CoreException {
 	);
 }
 public void testBug156491b() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug156491();
 	IMethod method = this.workingCopies[0].getType("L1").getMethod("test", new String[0]);
 	this.resultCollector.showFlavors = PatternLocator.SUPER_INVOCATION_FLAVOR;
@@ -7744,7 +7740,7 @@ public void testBug156491b() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160301"
  */
 public void testBug160301() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
 		"public class Test {\n" +
@@ -7774,7 +7770,7 @@ public void testBug160301() throws CoreException {
 	);
 }
 public void testBug160301b() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
 		"package test;\n" +
@@ -7810,7 +7806,7 @@ public void testBug160301b() throws CoreException {
 	);
 }
 public void testBug160301_Interface() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
 		"public class Test {\n" +
@@ -7864,7 +7860,7 @@ public void testBug160301_Interface() throws CoreException {
 	);
 }
 public void testBug160301_Abstract() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
 		"public class Test {\n" +
@@ -7911,7 +7907,7 @@ public void testBug160301_Abstract() throws CoreException {
 	);
 }
 public void testBug160301_Abstract2() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
 		"public class Test {\n" +
@@ -7946,7 +7942,7 @@ public void testBug160301_Abstract2() throws CoreException {
 	);
 }
 public void testBug160301_Abstract3() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
 		"public class Test {\n" +
@@ -8301,7 +8297,7 @@ private void setUpBug164121() throws CoreException {
 	);
 }
 public void testBug164121a() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug164121();
 	ILocalVariable param = getLocalVariable(this.workingCopies[0], "param", "param");
 	search(param, DECLARATIONS);
@@ -8310,7 +8306,7 @@ public void testBug164121a() throws CoreException {
 	);
 }
 public void testBug164121b() throws CoreException {
-	this.resultCollector.showRule = true;
+	this.resultCollector.showRule();
 	setUpBug164121();
 	ILocalVariable param = getLocalVariable(this.workingCopies[0], "param", "param");
 	search(param, ALL_OCCURRENCES);
@@ -8336,7 +8332,7 @@ public void testBug164791() throws CoreException {
 			assertTrue("Search match element "+element.getElementName()+" should exist!!!", element.exists());
 		}
 	};
-	collector.showAccuracy = true;
+	collector.showAccuracy(true);
 	search(type, REFERENCES, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"lib/b164791.jar test.<anonymous> EXACT_MATCH\n" +
@@ -8459,7 +8455,7 @@ public void testBug178596() throws CoreException {
         }
 
 	};
-	testCollector.showAccuracy = true;
+	testCollector.showAccuracy(true);
 	IMethod method = this.workingCopies[0].getType("ClassA").getMethod("setValue", new String[] { "I" });
 	search(method, REFERENCES, getJavaSearchScope(), testCollector);
 	assertSearchResults(
@@ -8675,7 +8671,7 @@ public void testBug195489a() throws CoreException {
 		"}\n" +
 		"class Ref {}"
 	);
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	new SearchEngine(this.workingCopies).searchDeclarationsOfReferencedTypes(this.workingCopies[0], this.resultCollector, null);
 	assertSearchResults(
 		"src/b195489/Test.java b195489.Ref [Ref] EXACT_MATCH OUTSIDE_JAVADOC"
@@ -8696,7 +8692,7 @@ public void testBug195489b() throws CoreException {
 		"}\n" +
 		"class Ref {}"
 	);
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	new SearchEngine(this.workingCopies).searchDeclarationsOfReferencedTypes(this.workingCopies[0], this.resultCollector, null);
 	assertSearchResults(
 		"src/b195489/Test.java b195489.Ref [Ref] EXACT_MATCH OUTSIDE_JAVADOC"
@@ -8713,7 +8709,7 @@ public void testBug195489c() throws CoreException {
 		"}\n" +
 		"class Ref {}"
 	);
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	new SearchEngine(this.workingCopies).searchDeclarationsOfReferencedTypes(this.workingCopies[0], this.resultCollector, null);
 	assertSearchResults(
 		"src/b195489/Test.java b195489.Ref [Ref] EXACT_MATCH OUTSIDE_JAVADOC"
@@ -8731,7 +8727,7 @@ public void testBug195489d() throws CoreException {
 		"}\n" +
 		"class Ref {}"
 	);
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	String docCommentSupport = JAVA_PROJECT.getOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, true);
 	JAVA_PROJECT.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
 	try {
@@ -9305,7 +9301,7 @@ public void testBug209996a() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	ReferenceCollector collector = new ReferenceCollector();
-	collector.showSelection = true;
+	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/test/Test.java @Annot(clazz=Test.class) [        @Annot(clazz=§|Test|§.class) int x;]",
@@ -9321,7 +9317,7 @@ public void testBug209996b() throws CoreException {
 		"}\n"
 	);
 	ReferenceCollector collector = new ReferenceCollector();
-	collector.showSelection = true;
+	collector.showSelection();
 	search("Deprecated", TYPE, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/test/Test.java @Deprecated() [        @§|Deprecated|§ foo() {}]",
@@ -9347,7 +9343,7 @@ public void testBug209996_c5() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Ref");
 	ReferenceCollector collector = new ReferenceCollector();
-	collector.showSelection = true;
+	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/comment5/Ref.java void comment5.Ref.doA(Ref).ref [    void doA(§|Ref|§ ref) {}]\n" +
@@ -9370,7 +9366,7 @@ public void testBug209996_c10() throws CoreException {
 	);
 	IField field = this.workingCopies[0].getType("Num").getField("CONST");
 	ReferenceCollector collector = new ReferenceCollector();
-	collector.showSelection = true;
+	collector.showSelection();
 	search(field, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/comment10/Ref.java @Num(number=Num.CONST) [@Num(number= Num.§|CONST|§)]",
@@ -9392,7 +9388,7 @@ public void testBug209996_c22_3() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Tag");
 	TypeReferenceCollector collector = new TypeReferenceCollector();
-	collector.showSelection = true;
+	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/comment22/Test.java @Tag() [    @§|Tag|§ Test test1, test2, test3;]\n" +
@@ -9414,7 +9410,7 @@ public void testBug209996_c22_4() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferenceCollector collector = new TypeReferenceCollector();
-	collector.showSelection = true;
+	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/test/Test.java @Annot(clazz=test.Test.class) [    @Annot(clazz = §|test.Test|§.class) int x, y;]",
@@ -9469,7 +9465,7 @@ public void testBug210567() throws CoreException {
 		"public class Types {\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	search("*", TYPE, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
 		"src/generics/Generic.java [import §|java.io.Serializable|§;] EXACT_MATCH\n" +
@@ -9508,7 +9504,7 @@ public void testBug210691() throws CoreException {
 		"	Test test;\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	search("*", TYPE, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
 		"src/test/Ref.java [import §|pack.Test|§;] EXACT_MATCH\n" +
@@ -9525,7 +9521,7 @@ public void testBug211366() throws CoreException {
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b211366.jar", false);
 	try {
 		IType type = getClassFile("JavaSearchBugs", "lib/b211366.jar", "test", "Bug.class").getType();
-		this.resultCollector.showMatchKind = true;
+		this.resultCollector.showMatchKind();
 		search(type, REFERENCES);
 		assertSearchResults(
 			"TypeReferenceMatch: lib/b211366.jar pack.Test [No source] EXACT_MATCH\n" +
@@ -9545,7 +9541,7 @@ public void testBug211366_OrPattern() throws CoreException {
 		SearchPattern rightPattern = SearchPattern.createPattern(type, REFERENCES);
 		SearchPattern leftPattern = SearchPattern.createPattern(type, DECLARATIONS);
 		SearchPattern pattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
-		this.resultCollector.showMatchKind = true;
+		this.resultCollector.showMatchKind();
 		new SearchEngine(this.workingCopies).search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -9579,7 +9575,7 @@ public void testBug211366_ComplexOrPattern() throws CoreException {
 				SearchPattern.createPattern("Bug", TYPE, REFERENCES, SearchPattern.R_EXACT_MATCH)));
 		IPackageFragmentRoot root = JAVA_PROJECT.getPackageFragmentRoot("/JavaSearchBugs/lib/b211366.jar");
 		this.resultCollector.sorted = true;
-		this.resultCollector.showMatchKind = true;
+		this.resultCollector.showMatchKind();
 		new SearchEngine(this.workingCopies).search(
 			SearchPattern.createOrPattern(leftPattern, rightPattern),
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -9731,7 +9727,7 @@ public void testBug216875() throws CoreException {
 		"\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	ILocalVariable variable = selectLocalVariable(this.workingCopies[0], "test");
 	search(variable, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -9751,7 +9747,7 @@ public void testBug216875b() throws CoreException {
 		"	int fField;" +
 		"}"
 	);
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	IField field = this.workingCopies[0].getType("Test").getField("fWrapped");
 	search(field, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -9777,7 +9773,7 @@ public void testBug216875c() throws CoreException {
 		"	}\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	ILocalVariable variable = selectLocalVariable(this.workingCopies[1], "t1");
 	search(variable, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -9806,7 +9802,7 @@ public void testBug216875d() throws CoreException {
 		"	}\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	IField field = this.workingCopies[1].getType("X").getField("t1");
 	search(field, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -9834,7 +9830,7 @@ public void testBug216875e() throws CoreException {
 		"	}\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	ILocalVariable variable = selectLocalVariable(this.workingCopies[1], "t1");
 	search(variable, WRITE_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -9861,7 +9857,7 @@ public void testBug216875f() throws CoreException {
 		"	}\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	IField field = this.workingCopies[1].getType("X").getField("t1");
 	search(field, WRITE_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -9887,9 +9883,9 @@ public void testBug216875g() throws CoreException {
 		"	}\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showAccess = true;
-	this.resultCollector.showAccuracy = false;
+	this.resultCollector.showSelection();
+	this.resultCollector.showAccess();
+	this.resultCollector.showAccuracy(false);
 	ILocalVariable variable = selectLocalVariable(this.workingCopies[1], "t1");
 	search(variable, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -9919,9 +9915,9 @@ public void testBug216875h() throws CoreException {
 		"	}\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showAccess = true;
-	this.resultCollector.showAccuracy = false;
+	this.resultCollector.showSelection();
+	this.resultCollector.showAccess();
+	this.resultCollector.showAccuracy(false);
 	IField field = this.workingCopies[1].getType("X").getField("t1");
 	search(field, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -9949,7 +9945,7 @@ public void testBug218397() throws CoreException {
 		"	}\n" +
 		"}"
 	);
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	IType type = selectType(this.workingCopies[0], "Row");
 	search(type, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -9975,8 +9971,8 @@ public void testBug221081() throws CoreException {
 		"	}\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showRule = true;
+	this.resultCollector.showSelection();
+	this.resultCollector.showRule();
 	SearchPattern typePattern = SearchPattern.createPattern("test", TYPE, ALL_OCCURRENCES, SearchPattern.R_EXACT_MATCH);
 	SearchPattern methPattern = SearchPattern.createPattern("test", METHOD, ALL_OCCURRENCES, SearchPattern.R_EXACT_MATCH);
 	SearchPattern fieldPattern = SearchPattern.createPattern("test", FIELD, ALL_OCCURRENCES, SearchPattern.R_EXACT_MATCH);
@@ -10014,8 +10010,8 @@ public void testBug221110() throws CoreException {
 		"public class Y<T extends X<?>> {\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showRule = true;
+	this.resultCollector.showSelection();
+	this.resultCollector.showRule();
 	IType type = this.workingCopies[0].getType("X");
 	search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -10036,8 +10032,8 @@ public void testBug221110b() throws CoreException {
 		"public class Z<T extends X<?> & I<?>> {\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
-	this.resultCollector.showRule = true;
+	this.resultCollector.showSelection();
+	this.resultCollector.showRule();
 	IType type = this.workingCopies[0].getType("I");
 	search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
@@ -10107,7 +10103,7 @@ public void testBug228464() throws CoreException {
 		"\n" +
 		"}\n"
 	);
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	IType type = this.workingCopies[0].getType("Test");
 	search(type, REFERENCES, getJavaSearchWorkingCopiesScope());
 

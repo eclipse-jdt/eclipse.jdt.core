@@ -96,7 +96,7 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		IField field = wc1.getType("X").getField("BAR");
 		SearchPattern pattern = SearchPattern.createPattern(field, ALL_OCCURRENCES);
 		new SearchEngine(new ICompilationUnit[] {wc1, wc2}).search(
@@ -154,7 +154,7 @@ public void testHierarchyScope1() throws CoreException {
 		IMethod method = type.getMethod("foo", new String[] {});
 		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search(
 			method,
 			REFERENCES,
@@ -209,7 +209,7 @@ public void testHierarchyScope2() throws CoreException {
 		IMethod method = type.getMethod("foo", new String[] {});
 		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search(
 			method,
 			REFERENCES,
@@ -257,7 +257,7 @@ public void testHierarchyScope3() throws CoreException {
 		IMethod method = type.getMethod("foo", new String[] {});
 		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search(
 			method,
 			REFERENCES,
@@ -334,8 +334,8 @@ public void testHierarchyScope4() throws CoreException {
 		IMethod method = type.getMethod("foo", new String[] {});
 		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showAccuracy = true;
-		resultCollector.showProject = true;
+		resultCollector.showAccuracy(true);
+		resultCollector.showProject();
 		search(
 			method,
 			REFERENCES,
@@ -379,7 +379,7 @@ public void testMethodOccurences() throws CoreException {
 
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		IMethod method = getCompilationUnit("/P1/p/I.java").getType("I").getMethod("method", new String[] {"QObject;"});
 		search(
 			method,
@@ -418,7 +418,7 @@ public void testPackageDeclaration() throws CoreException {
 
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		IPackageFragment pkg = getPackage("/P1/p");
 		search(
 			pkg,
@@ -639,7 +639,7 @@ public void testTypeDeclarationInJar() throws CoreException {
 
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search(
 			"Object",
 			TYPE,
@@ -653,7 +653,7 @@ public void testTypeDeclarationInJar() throws CoreException {
 
 		scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p2});
 		resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search(
 			"Object",
 			TYPE,
@@ -712,7 +712,7 @@ public void testBug151189_Workspace() throws CoreException {
 		// search method declaration in workspace scope
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); //JavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search(
 			method,
 			DECLARATIONS,
@@ -725,7 +725,7 @@ public void testBug151189_Workspace() throws CoreException {
 
 		// search method declaration in workspace scope with JDT-UI flags
 		resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search(
 			method,
 			UI_DECLARATIONS,
@@ -780,7 +780,7 @@ public void testBug151189_Project() throws CoreException {
 		// search method declaration in project scope
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
+		resultCollector.showProject();
 		search(
 			method,
 			UI_DECLARATIONS,
@@ -857,8 +857,8 @@ public void testBug163072() throws CoreException {
 		// search method declaration in workspace scope
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); //JavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
-		resultCollector.showAccuracy = true;
+		resultCollector.showProject();
+		resultCollector.showAccuracy(true);
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"Unexpected references of method Test.getType()",
@@ -937,8 +937,8 @@ public void testBug176831() throws CoreException {
 		// Create scope and search
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p1, p2 }, IJavaSearchScope.SOURCES | IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.REFERENCED_PROJECTS);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
-		resultCollector.showAccuracy = true;
+		resultCollector.showProject();
+		resultCollector.showAccuracy(true);
 		new SearchEngine().search(
 			SearchPattern.createPattern("toString", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_EXACT_MATCH),
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -965,8 +965,8 @@ public void testBug176831b() throws CoreException {
 		// Create scope and search
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p1, p2, p3 }, IJavaSearchScope.SOURCES | IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.REFERENCED_PROJECTS);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
-		resultCollector.showAccuracy = true;
+		resultCollector.showProject();
+		resultCollector.showAccuracy(true);
 		new SearchEngine().search(
 			SearchPattern.createPattern("toString", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_EXACT_MATCH),
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -1258,8 +1258,8 @@ public void testBug210689() throws CoreException {
 		SearchPattern leftPattern = SearchPattern.createPattern(typeA1, REFERENCES);
 		SearchPattern pattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
-		resultCollector.showAccuracy = true;
+		resultCollector.showProject();
+		resultCollector.showAccuracy(true);
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -1322,8 +1322,8 @@ public void testBug229128() throws CoreException {
 		// search annotation type reference in P2 scope
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p2}, false/*don't include referenced projects*/);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		resultCollector.showProject = true;
-		resultCollector.showAccuracy = true;
+		resultCollector.showProject();
+		resultCollector.showAccuracy(true);
 		search(type, ANNOTATION_TYPE_REFERENCE, scope, resultCollector);
 		assertSearchResults(
 			"Unexpected references of annotation type MyAnnot",

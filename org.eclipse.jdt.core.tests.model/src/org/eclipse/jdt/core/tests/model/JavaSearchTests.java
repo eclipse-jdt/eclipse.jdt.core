@@ -251,7 +251,7 @@ public void testConstructorReference09() throws CoreException {
  * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
  */
 public void testConstructorReference10() throws CoreException { // was testConstructorReferenceImplicitConstructorCall2
-	this.resultCollector.showSynthetic = true;
+	this.resultCollector.showSynthetic();
 	search(
 		"c11.A()",
 		CONSTRUCTOR,
@@ -814,7 +814,7 @@ public void testFieldReference02() throws CoreException {
 public void testFieldReference03() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "q8", "EclipseTest.java").getType("EclipseTest");
 	IField field = type.getField("test");
-	this.resultCollector.showPotential = false;
+	this.resultCollector.showPotential(false);
 	search(field, REFERENCES, getJavaSearchScope());
 	assertSearchResults(
 		"src/q8/EclipseTest.java void q8.EclipseTest.main(String[]) [test]"
@@ -1124,7 +1124,7 @@ public void testFieldReference19() throws CoreException { // was testAccurateFie
 public void testFieldReference20() throws CoreException { // was testFieldReferenceInOutDocComment
 	IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
 	IField field = type.getField("x");
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	search(field, REFERENCES, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
 		"src/s4/X.java int s4.X.foo() [x] OUTSIDE_JAVADOC\n" +
@@ -1734,7 +1734,7 @@ public void testMethodReference14() throws CoreException { // was testMethodRefe
 public void testMethodReference15() throws CoreException { // was testMethodReferenceInOutDocComment
 	IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
 	IMethod method = type.getMethod("foo", new String[] {});
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	search(method, REFERENCES, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
 		"src/s4/X.java void s4.X.bar() [foo()] INSIDE_JAVADOC\n" +
@@ -1759,7 +1759,7 @@ public void testMethodReference16() throws CoreException {
 public void testMethodReference17() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch/src/b111416/X.java").getType("X");
 	IMethod method = type.getMethod("open", new String[] {"QString;"});
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(method, REFERENCES, ERASURE_RULE, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
 		"src/b111416/X.java void b111416.X.foo() [open(\"\")] EXACT_MATCH",
@@ -1777,7 +1777,7 @@ public void testOrPattern() throws CoreException {
 		.getType("A1").getMethod("m", new String[] {});
 	SearchPattern rightPattern = createPattern(rightMethod, ALL_OCCURRENCES);
 	SearchPattern orPattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(
 		orPattern,
 		getJavaSearchScope(),
@@ -1868,7 +1868,7 @@ public void testPackageDeclaration4() throws CoreException {
  */
 public void testPackageDeclarationBug73551() throws CoreException {
 	JavaSearchResultCollector result = new JavaSearchResultCollector();
-	result.showAccuracy = true;
+	result.showAccuracy(true);
 	IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "p71267", "Test.java").getPackageDeclaration("p71267");
 	search(packDecl, DECLARATIONS, getJavaSearchScope(),  result);
 	assertSearchResults(
@@ -1886,7 +1886,7 @@ public void testPackageDeclarationBug117020() throws CoreException {
 	try {
 		test = srcRoot.createPackageFragment("b117020", true, null);
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
-		result.showAccuracy = true;
+		result.showAccuracy(true);
 		search(test, DECLARATIONS, getJavaSearchScope(),  result);
 		assertSearchResults(
 			"src/b117020 b117020 EXACT_MATCH",
@@ -2145,7 +2145,7 @@ public void testSearchFieldInBinaryWithResolution() throws CoreException {
 		JAVA_PROJECT.setRawClasspath(newClasspath, null);
 
 		// potential match for a field declaration
-		this.resultCollector.showAccuracy = true;
+		this.resultCollector.showAccuracy(true);
 		search("MissingFieldType.*", FIELD, DECLARATIONS,  getJavaSearchScope());
 		assertSearchResults(
 			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] EXACT_MATCH\n" +
@@ -2177,7 +2177,7 @@ public void testSearchFieldInBinaryNoResolution() throws CoreException {
 	            }
             }
 		};
-		collector.showAccuracy = true;
+		collector.showAccuracy(true);
 		search("*", FIELD, DECLARATIONS,  getJavaSearchScope(), collector);
 		assertSearchResults(
 			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] EXACT_MATCH\n" +
@@ -2206,7 +2206,7 @@ public void testSearchMethodInBinaryWithResolution() throws CoreException {
 		JAVA_PROJECT.setRawClasspath(newClasspath, null);
 
 		// potential match for a method declaration
-		this.resultCollector.showAccuracy = true;
+		this.resultCollector.showAccuracy(true);
 		search("MissingArgumentType.foo*", METHOD, DECLARATIONS, getJavaSearchScope());
 		assertSearchResults(
 			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] EXACT_MATCH\n" +
@@ -2238,7 +2238,7 @@ public void testSearchMethodInBinaryNoResolution() throws CoreException {
 	            }
             }
 		};
-		collector.showAccuracy = true;
+		collector.showAccuracy(true);
 		search("*", METHOD, DECLARATIONS,  getJavaSearchScope(), collector);
 		assertSearchResults(
 			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] EXACT_MATCH\n" +
@@ -2268,7 +2268,7 @@ public void testSearchTypesInBinaryWithResolution() throws CoreException {
 		JAVA_PROJECT.setRawClasspath(newClasspath, null);
 
 		// exact match for a type declaration
-		this.resultCollector.showAccuracy = true;
+		this.resultCollector.showAccuracy(true);
 		search("AbortCompilation.*Missing*", TYPE, DECLARATIONS,  getJavaSearchScope());
 		assertSearchResults(
 			"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" +
@@ -2291,7 +2291,7 @@ public void testSearchTypeInBinaryNoResolution() throws CoreException {
 		JAVA_PROJECT.setRawClasspath(newClasspath, null);
 
 		// exact match for a type declaration
-		this.resultCollector.showAccuracy = true;
+		this.resultCollector.showAccuracy(true);
 		search("Missing*", TYPE, DECLARATIONS,  getJavaSearchScope());
 		assertSearchResults(
 			"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" +
@@ -2737,7 +2737,7 @@ public void testTypeReference02() throws CoreException {
 public void testTypeReference03() throws CoreException {
 	SearchPattern pattern = createPattern("x31985", TYPE, REFERENCES, false);
 
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(
 		pattern,
 		getJavaSearchScope(),
@@ -2857,7 +2857,7 @@ public void testTypeReference09() throws CoreException { // was testTypeReferenc
 public void testTypeReference10() throws CoreException { // was testMemberTypeReference
 	// references to second level member type
 
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(
 		"BMember",
 		TYPE,
@@ -2874,7 +2874,7 @@ public void testTypeReference10() throws CoreException { // was testMemberTypeRe
 
 	// references to first level member type
 	this.resultCollector = new JavaSearchResultCollector();
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(
 		"AzzMember",
 		TYPE,
@@ -2889,7 +2889,7 @@ public void testTypeReference10() throws CoreException { // was testMemberTypeRe
 
 	// no reference to a field with same name as member type
 	this.resultCollector = new JavaSearchResultCollector();
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(
 		"BMember",
 		FIELD,
@@ -2927,7 +2927,7 @@ public void testTypeReference12() throws CoreException { // was testObjectMember
 		.getType("A")
 		.getType("Object");
 
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(
 		type,
 		REFERENCES,
@@ -3136,7 +3136,7 @@ public void testTypeReference23() throws CoreException { // testNegativeTypeRefe
 public void testTypeReference24() throws CoreException { // was testTypeReferenceInThrows
 	IType type = getCompilationUnit("JavaSearch", "src", "a7", "X.java").getType("MyException");
 
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(
 		type,
 		REFERENCES,
@@ -3173,8 +3173,8 @@ public void testTypeReference25() throws CoreException { // was testInnacurateTy
  */
 public void testTypeReference26() throws CoreException { // was testInnacurateTypeReference2
 
-	this.resultCollector.showAccuracy = true;
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showAccuracy(true);
+	this.resultCollector.showSelection();
 	search(
 		"p.Zork",
 		TYPE,
@@ -3196,7 +3196,7 @@ public void testTypeReference26() throws CoreException { // was testInnacurateTy
 public void testTypeReference27() throws CoreException { // was testInnacurateTypeReference3
 	IType type = getCompilationUnit("JavaSearch", "src", "r3", "A21485.java").getType("A21485");
 
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(
 		type,
 		REFERENCES,
@@ -3298,7 +3298,7 @@ public void testTypeReference32() throws CoreException { // was testTypeReferenc
 public void testTypeReference33() throws CoreException { // was testTypeReferenceWithRecovery
 	IType type = getCompilationUnit("JavaSearch", "src", "e1", "A29366.java").getType("A29366");
 
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(
 		type,
 		REFERENCES,
@@ -3315,7 +3315,7 @@ public void testTypeReference33() throws CoreException { // was testTypeReferenc
 public void testTypeReference34() throws CoreException { // was testTypeReferenceWithProblem
 	IType type = getCompilationUnit("JavaSearch", "src", "e6", "A.java").getType("A");
 
-	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showAccuracy(true);
 	search(
 		"B36479",
 		TYPE,
@@ -3343,7 +3343,7 @@ public void testTypeReference35() throws CoreException { // was testTypeReferenc
 
 		IType type = getCompilationUnit("JavaSearch", "src", "e7", "A.java").getType("A");
 
-		this.resultCollector.showAccuracy = true;
+		this.resultCollector.showAccuracy(true);
 		search(
 			type,
 			REFERENCES,
@@ -3363,7 +3363,7 @@ public void testTypeReference36() throws CoreException { // was testLocalTypeRef
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "f2");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	search(
 		"Y",
 		TYPE,
@@ -3384,7 +3384,7 @@ public void testTypeReference37() throws CoreException { // was testLocalTypeRef
 
 	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 
-	this.resultCollector.showSelection = true;
+	this.resultCollector.showSelection();
 	search(
 		localType,
 		REFERENCES,
@@ -3399,7 +3399,7 @@ public void testTypeReference37() throws CoreException { // was testLocalTypeRef
  */
 public void testTypeReference38() throws CoreException { // was testTypeReferenceInOutDocComment
 	IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
-	this.resultCollector.showInsideDoc = true;
+	this.resultCollector.showInsideDoc();
 	search(type, REFERENCES, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" +
@@ -4243,7 +4243,6 @@ public void testBug160323() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
 	// Should have same types with these 2 searches
-	assertEquals("We should get some types!", requestor.size(), collector.size());
 	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 }
 }
