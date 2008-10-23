@@ -16,6 +16,9 @@ import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class Annotation extends SourceRefElement implements IAnnotation {
 
@@ -51,8 +54,19 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	}
 
 	public IMemberValuePair[] getMemberValuePairs() throws JavaModelException {
-		AnnotationInfo info = (AnnotationInfo) getElementInfo();
-		return info.members;
+		Object info = getElementInfo();
+		if (info instanceof AnnotationInfo)
+			return ((AnnotationInfo) info).members;
+		IBinaryElementValuePair[] binaryAnnotations = ((IBinaryAnnotation) info).getElementValuePairs();
+		int length = binaryAnnotations.length;
+		IMemberValuePair[] result = new IMemberValuePair[length];
+		for (int i = 0; i < length; i++) {
+			IBinaryElementValuePair binaryAnnotation = binaryAnnotations[i];
+			MemberValuePair memberValuePair = new MemberValuePair(new String(binaryAnnotation.getName()));
+			memberValuePair.value = Util.getAnnotationMemberValue(this, memberValuePair, binaryAnnotation.getValue());
+			result[i] = memberValuePair;
+		}
+		return result;
 	}
 
 	public ISourceRange getNameRange() throws JavaModelException {
@@ -65,8 +79,12 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 				return mapper.getNameRange(this);
 			}
 		}
-		AnnotationInfo info = (AnnotationInfo) getElementInfo();
-		return new SourceRange(info.nameStart, info.nameEnd - info.nameStart + 1);
+		Object info = getElementInfo();
+		if (info instanceof AnnotationInfo) {
+			AnnotationInfo annotationInfo = (AnnotationInfo) info;
+			return new SourceRange(annotationInfo.nameStart, annotationInfo.nameEnd - annotationInfo.nameStart + 1);
+		}
+		return null;
 	}
 
 	/*

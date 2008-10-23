@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
 
@@ -140,6 +139,18 @@ public void setUpSuite() throws Exception {
 		"enum MyEnum {\n" +
 		"  FIRST, SECOND;\n" +
 		"}",
+		"annotated/Y.java",
+		"package annotated;\n" +
+		"import java.lang.annotation.*;\n" +
+		"import static java.lang.annotation.ElementType.*;\n" + 
+		"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+		"@Deprecated\n" +
+		"@Documented\n" + 
+		"@Inherited\n" +
+		"@Retention(SOURCE)\n" + 
+		"@Target({PACKAGE, TYPE, ANNOTATION_TYPE, METHOD, CONSTRUCTOR, FIELD, LOCAL_VARIABLE, PARAMETER})\n" +
+		"public @interface Y {\n" +
+		"}",
 		"varargs/X.java",
 		"package varargs;\n" +
 		"public class X {\n" +
@@ -161,22 +172,6 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}",
 	};
-	if ((AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_5) == 0) {
-		int length = pathAndContents.length;
-		System.arraycopy(pathAndContents, 0, pathAndContents = new String[length+4], 0, length);
-		pathAndContents[length] = "java/lang/annotation/Annotation.java";
-		pathAndContents[length+1] =
-			"package java.lang.annotation;\n" +
-			"public interface Annotation {\n" +
-			"}";
-		pathAndContents[length+2] = "java/lang/Enum.java";
-		pathAndContents[length+3] =
-			"package java.lang;\n" +
-			"public abstract class Enum<E extends Enum<E>> {\n" +
-			"  protected Enum(String arg1, int arg2) {\n" +
-			"  }\n" +
-			"}";
-	}
 	addLibrary(javaProject, "lib.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 	this.jarRoot = javaProject.getPackageFragmentRoot(getFile("/P/lib.jar"));
 }
@@ -376,6 +371,29 @@ public void testAnnotations16() throws JavaModelException {
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_array={(int)1, (int)2, (int)3})\n",
 		method.getAnnotations());
+}
+
+/*
+ * Ensures that the standard annotations of a binary type are correct
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=248309 )
+ */
+public void testAnnotations17() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("Y.class").getType();
+	assertAnnotationsEqual(
+		"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.PACKAGE})\n" + 
+		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)\n" + 
+		"@java.lang.Deprecated\n" + 
+		"@java.lang.annotation.Documented\n" + 
+		"@java.lang.annotation.Inherited\n",
+		type.getAnnotations());
+}
+
+/*
+ * Ensures that the annotation of a binary type exists
+ */
+public void testAnnotations18() throws JavaModelException {
+	IAnnotation annotation = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType().getAnnotation("annotated.MyOtherAnnot");
+	assertTrue("Annotation should exist", annotation.exists());
 }
 
 /*

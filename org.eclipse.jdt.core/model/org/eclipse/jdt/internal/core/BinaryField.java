@@ -40,7 +40,7 @@ public boolean equals(Object o) {
 public IAnnotation[] getAnnotations() throws JavaModelException {
 	IBinaryField info = (IBinaryField) getElementInfo();
 	IBinaryAnnotation[] binaryAnnotations = info.getAnnotations();
-	return getAnnotations(binaryAnnotations);
+	return getAnnotations(binaryAnnotations, info.getTagBits());
 }
 /*
  * @see IField

@@ -5354,11 +5354,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"}",
 			}, "1.5");
 			IClassFile classFile = getClassFile("P1", "/P1/lib.jar", "p", "X$Member.class");
-			String source = classFile.getSource();
-			MarkerInfo markerInfo = new MarkerInfo(source);
-			markerInfo.astStarts = new int[] {source.indexOf("/*start*/") + "/*start*/".length()};
-			markerInfo.astEnds = new int[] {source.indexOf("/*end*/")};
-			ASTNode node = buildAST(markerInfo, classFile);
+			ASTNode node = buildAST(classFile);
 			ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
 			assertBindingKeyEquals("Lp/X<TT;>.Member;", binding.getKey());
 		} finally {

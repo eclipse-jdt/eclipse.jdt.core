@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -132,6 +133,9 @@ class AnnotationBinding implements IAnnotationBinding {
 			return null;
 		}
 		if (! (parentElement instanceof IAnnotatable)) return null;
+		if ((parentElement instanceof IMember) && ((IMember) parentElement).isBinary()) {
+			return ((IAnnotatable) parentElement).getAnnotation(getAnnotationType().getQualifiedName());
+		}
 		return ((IAnnotatable) parentElement).getAnnotation(getName());
 	}
 

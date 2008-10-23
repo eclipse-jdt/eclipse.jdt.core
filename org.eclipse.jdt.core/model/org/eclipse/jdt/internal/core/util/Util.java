@@ -45,6 +45,9 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.ClassSignature;
+import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -55,6 +58,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.Annotation;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -3061,6 +3065,50 @@ public class Util {
 		}
 		return typeArguments;
 	}
+	public static IAnnotation getAnnotation(JavaElement parent, IBinaryAnnotation binaryAnnotation) {
+		char[] typeName = org.eclipse.jdt.core.Signature.toCharArray(CharOperation.replaceOnCopy(binaryAnnotation.getTypeName(), '/', '.'));
+		return new Annotation(parent, new String(typeName));
+	}
+	
+	public static Object getAnnotationMemberValue(JavaElement parent, MemberValuePair memberValuePair, Object binaryValue) {
+		if (binaryValue instanceof Constant) {
+			return getAnnotationMemberValue(memberValuePair, (Constant) binaryValue);
+		} else if (binaryValue instanceof IBinaryAnnotation) {
+			memberValuePair.valueKind = IMemberValuePair.K_ANNOTATION;
+			return getAnnotation(parent, (IBinaryAnnotation) binaryValue);
+		} else if (binaryValue instanceof ClassSignature) {
+			memberValuePair.valueKind = IMemberValuePair.K_CLASS;
+			char[] className = Signature.toCharArray(CharOperation.replaceOnCopy(((ClassSignature) binaryValue).getTypeName(), '/', '.'));
+			return new String(className);
+		} else if (binaryValue instanceof EnumConstantSignature) {
+			memberValuePair.valueKind = IMemberValuePair.K_QUALIFIED_NAME;
+			EnumConstantSignature enumConstant = (EnumConstantSignature) binaryValue;
+			char[] enumName = Signature.toCharArray(CharOperation.replaceOnCopy(enumConstant.getTypeName(), '/', '.'));
+			char[] qualifiedName = CharOperation.concat(enumName, enumConstant.getEnumConstantName(), '.');
+			return new String(qualifiedName);
+		} else if (binaryValue instanceof Object[]) {
+			memberValuePair.valueKind = -1; // modified below by the first call to getMemberValue(...)
+			Object[] binaryValues = (Object[]) binaryValue;
+			int length = binaryValues.length;
+			Object[] values = new Object[length];
+			for (int i = 0; i < length; i++) {
+				int previousValueKind = memberValuePair.valueKind;
+				Object value = getAnnotationMemberValue(parent, memberValuePair, binaryValues[i]);
+				if (previousValueKind != -1 && memberValuePair.valueKind != previousValueKind) {
+					// values are heterogeneous, value kind is thus unknown
+					memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+				}
+				values[i] = value;
+			}
+			if (memberValuePair.valueKind == -1)
+				memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+			return values;
+		} else {
+			memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+			return null;
+		}
+	}
+
 	/*
 	 * Creates a member value from the given constant, and sets the valueKind on the given memberValuePair
 	 */

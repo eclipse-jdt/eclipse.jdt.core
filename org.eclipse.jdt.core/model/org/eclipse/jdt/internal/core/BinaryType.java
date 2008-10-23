@@ -182,7 +182,7 @@ public IMethod[] findMethods(IMethod method) {
 public IAnnotation[] getAnnotations() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
 	IBinaryAnnotation[] binaryAnnotations = info.getAnnotations();
-	return getAnnotations(binaryAnnotations);
+	return getAnnotations(binaryAnnotations, info.getTagBits());
 }
 /*
  * @see IParent#getChildren()

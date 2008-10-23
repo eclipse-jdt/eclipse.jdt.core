@@ -57,7 +57,7 @@ public boolean equals(Object o) {
 public IAnnotation[] getAnnotations() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	IBinaryAnnotation[] binaryAnnotations = info.getAnnotations();
-	return getAnnotations(binaryAnnotations);
+	return getAnnotations(binaryAnnotations, info.getTagBits());
 }
 public IMemberValuePair getDefaultValue() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
@@ -65,7 +65,7 @@ public IMemberValuePair getDefaultValue() throws JavaModelException {
 	if (defaultValue == null)
 		return null;
 	MemberValuePair memberValuePair = new MemberValuePair(getElementName());
-	memberValuePair.value = getMemberValue(memberValuePair, defaultValue);
+	memberValuePair.value = Util.getAnnotationMemberValue(this, memberValuePair, defaultValue);
 	return memberValuePair;
 }
 /*

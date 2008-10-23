@@ -271,7 +271,7 @@ public void testClassFileGetElementAt01() throws JavaModelException {
 	IClassFile classFile = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	String source = classFile.getSource();
 	IJavaElement element = classFile.getElementAt(source.indexOf("class A"));
-	assertElementEquals(
+	assertElementExists(
 		"Unexpected element",
 		"A [in A.class [in x.y [in attach.jar [in AttachSourceTests]]]]",
 		element);
@@ -283,7 +283,7 @@ public void testClassFileGetElementAt02() throws JavaModelException {
 	IClassFile classFile = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	String source = classFile.getSource();
 	IJavaElement element = classFile.getElementAt(source.indexOf("public A"));
-	assertElementEquals(
+	assertElementExists(
 		"Unexpected element",
 		"A() [in A [in A.class [in x.y [in attach.jar [in AttachSourceTests]]]]]",
 		element);
@@ -295,7 +295,7 @@ public void testClassFileGetElementAt03() throws JavaModelException {
 	IClassFile classFile = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
 	String source = classFile.getSource();
 	IJavaElement element = classFile.getElementAt(source.indexOf("void foo"));
-	assertElementEquals(
+	assertElementExists(
 		"Unexpected element",
 		"foo() [in A [in A.class [in x.y [in attach.jar [in AttachSourceTests]]]]]",
 		element);
@@ -308,7 +308,7 @@ public void testClassFileGetElementAt04() throws JavaModelException {
 	IClassFile classFile = this.innerClasses.getClassFile("X$V.class");
 	String source = classFile.getSource();
 	IJavaElement element = classFile.getElementAt(source.indexOf("V(String s)"));
-	assertElementEquals(
+	assertElementExists(
 		"Unexpected element",
 		"V(inner.X, java.lang.String) [in V [in X$V.class [in inner [in innerClasses.jar [in AttachSourceTests]]]]]",
 		element);

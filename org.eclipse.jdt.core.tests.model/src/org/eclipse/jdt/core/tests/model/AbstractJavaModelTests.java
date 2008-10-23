@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
@@ -392,7 +393,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	}
 	protected void addExternalLibrary(IJavaProject javaProject, String jarPath, String[] pathAndContents, String[] nonJavaResources, String compliance) throws Exception {
-		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, compliance);
+		String[] claspath = get15LibraryIfNeeded(compliance);
+		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, claspath, compliance);
 		addLibraryEntry(javaProject, new Path(jarPath), true/*exported*/);
 	}
 	protected void addLibrary(String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
@@ -422,7 +424,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IProject project = javaProject.getProject();
 		String projectLocation = project.getLocation().toOSString();
 		String jarPath = projectLocation + File.separator + jarName;
-		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, compliance);
+		String[] claspath = get15LibraryIfNeeded(compliance);
+		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, claspath, compliance);
 		if (pathAndContents != null && pathAndContents.length != 0) {
 			String sourceZipPath = projectLocation + File.separator + sourceZipName;
 			org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathAndContents, sourceZipPath);
@@ -596,6 +599,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
+	}
+	protected void assertElementExists(String message, String expected, IJavaElement element) {
+		assertElementEquals(message, expected, element);
+		if (element != null && !element.exists()) {
+			fail(((JavaElement) element).toStringWithAncestors(false/*don't show key*/) + " doesn't exist");
+		}
 	}
 	protected void assertElementsEqual(String message, String expected, IJavaElement[] elements) {
 		assertElementsEqual(message, expected, elements, false/*don't show key*/);
@@ -1697,6 +1706,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 			assertTrue("Did not find sibling", found);
 		}
+	}
+	protected String[] get15LibraryIfNeeded(String compliance) throws JavaModelException, IOException {
+		if (compliance.charAt(compliance.length()-1) >= '5' && (AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_5) == 0) {
+			// ensure that the JCL 15 lib is setup (i.e. that the jclMin15.jar is copied)
+			setUpJCLClasspathVariables("1.5");
+			return new String[] {getExternalJCLPathString("1.5")};
+		}
+		return null;
 	}
 	/**
 	 * Returns the specified compilation unit in the given project, root, and

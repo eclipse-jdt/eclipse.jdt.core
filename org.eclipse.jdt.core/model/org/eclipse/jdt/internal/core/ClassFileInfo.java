@@ -14,18 +14,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 /**
@@ -45,6 +42,142 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 	protected ITypeParameter[] typeParameters;
 
 /**
+ * Creates the handles and infos for the annotations of the given binary member.
+ * Adds new handles to the given vector.
+ */
+private void generateAnnotationsInfos(BinaryMember member, IBinaryAnnotation[] binaryAnnotations, long tagBits, HashMap newElements) {
+	if (binaryAnnotations != null) {
+		for (int i = 0, length = binaryAnnotations.length; i < length; i++) {
+			IBinaryAnnotation annotationInfo = binaryAnnotations[i];
+			generateAnnotationInfo(member, newElements, annotationInfo);
+		}
+	}
+	generateStandardAnnotationsInfos(member, tagBits, newElements);
+}
+private void generateAnnotationInfo(JavaElement parent, HashMap newElements, IBinaryAnnotation annotationInfo) {
+	char[] typeName = org.eclipse.jdt.core.Signature.toCharArray(CharOperation.replaceOnCopy(annotationInfo.getTypeName(), '/', '.'));
+	Annotation annotation = new Annotation(parent, new String(typeName));
+	newElements.put(annotation, annotationInfo);
+	IBinaryElementValuePair[] pairs = annotationInfo.getElementValuePairs();
+	for (int i = 0, length = pairs.length; i < length; i++) {
+		Object value = pairs[i].getValue();
+		if (value instanceof IBinaryAnnotation) {
+			generateAnnotationInfo(annotation, newElements, (IBinaryAnnotation) value);
+		}
+	}
+}
+private void generateStandardAnnotationsInfos(BinaryMember member, long tagBits, HashMap newElements) {
+	if ((tagBits & TagBits.AllStandardAnnotationsMask) == 0)
+		return;
+	if ((tagBits & TagBits.AnnotationTargetMASK) != 0) {
+		generateStandardAnnotation(member, TypeConstants.JAVA_LANG_ANNOTATION_TARGET, getTargetElementTypes(tagBits), newElements);
+	}
+	if ((tagBits & TagBits.AnnotationRetentionMASK) != 0) {
+		generateStandardAnnotation(member, TypeConstants.JAVA_LANG_ANNOTATION_RETENTION, getRetentionPolicy(tagBits), newElements);
+	}
+	if ((tagBits & TagBits.AnnotationDeprecated) != 0) {
+		generateStandardAnnotation(member, TypeConstants.JAVA_LANG_DEPRECATED, Annotation.NO_MEMBER_VALUE_PAIRS, newElements);
+	}
+	if ((tagBits & TagBits.AnnotationDocumented) != 0) {
+		generateStandardAnnotation(member, TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED, Annotation.NO_MEMBER_VALUE_PAIRS, newElements);
+	}
+	if ((tagBits & TagBits.AnnotationInherited) != 0) {
+		generateStandardAnnotation(member, TypeConstants.JAVA_LANG_ANNOTATION_INHERITED, Annotation.NO_MEMBER_VALUE_PAIRS, newElements);
+	}
+	// note that JAVA_LANG_SUPPRESSWARNINGS and JAVA_LANG_OVERRIDE cannot appear in binaries
+}
+
+private void generateStandardAnnotation(BinaryMember member, char[][] typeName, IMemberValuePair[] members, HashMap newElements) {
+	IAnnotation annotation = new Annotation(member, new String(CharOperation.concatWith(typeName, '.')));
+	AnnotationInfo annotationInfo = new AnnotationInfo();
+	annotationInfo.members = members;
+	newElements.put(annotation, annotationInfo);
+}
+
+private IMemberValuePair[] getTargetElementTypes(long tagBits) {
+	ArrayList values = new ArrayList();
+	String elementType = new String(CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE, '.')) + '.';
+	if ((tagBits & TagBits.AnnotationForType) != 0) {
+		values.add(elementType + new String(TypeConstants.TYPE));
+	}
+	if ((tagBits & TagBits.AnnotationForField) != 0) {
+		values.add(elementType + new String(TypeConstants.UPPER_FIELD));
+	}
+	if ((tagBits & TagBits.AnnotationForMethod) != 0) {
+		values.add(elementType + new String(TypeConstants.UPPER_METHOD));
+	}
+	if ((tagBits & TagBits.AnnotationForParameter) != 0) {
+		values.add(elementType + new String(TypeConstants.UPPER_PARAMETER));
+	}
+	if ((tagBits & TagBits.AnnotationForConstructor) != 0) {
+		values.add(elementType + new String(TypeConstants.UPPER_CONSTRUCTOR));
+	}
+	if ((tagBits & TagBits.AnnotationForLocalVariable) != 0) {
+		values.add(elementType + new String(TypeConstants.UPPER_LOCAL_VARIABLE));
+	}
+	if ((tagBits & TagBits.AnnotationForAnnotationType) != 0) {
+		values.add(elementType + new String(TypeConstants.UPPER_ANNOTATION_TYPE));
+	}
+	if ((tagBits & TagBits.AnnotationForPackage) != 0) {
+		values.add(elementType + new String(TypeConstants.UPPER_PACKAGE));
+	}
+	final Object value;
+	if (values.size() == 0) {
+		if ((tagBits & TagBits.AnnotationTarget) != 0)
+			value = new String[0];
+		else
+			return Annotation.NO_MEMBER_VALUE_PAIRS;
+	} else if (values.size() == 1) {
+		value = values.get(0);
+	} else {
+		value = values.toArray(new String[values.size()]);
+	}
+	return new IMemberValuePair[] {
+		new IMemberValuePair() {
+			public int getValueKind() {
+				return IMemberValuePair.K_QUALIFIED_NAME;
+			}
+			public Object getValue() {
+				return value;
+			}
+			public String getMemberName() {
+				return new String(TypeConstants.VALUE);
+			}
+		}
+	};
+}
+
+private IMemberValuePair[] getRetentionPolicy(long tagBits) {
+	if ((tagBits & TagBits.AnnotationRetentionMASK) == 0)
+		return Annotation.NO_MEMBER_VALUE_PAIRS;
+	String retention = null;
+	if ((tagBits & TagBits.AnnotationClassRetention) != 0) {
+		retention = new String(CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY, '.')) + '.' + new String(TypeConstants.UPPER_CLASS);
+	}
+	if ((tagBits & TagBits.AnnotationRuntimeRetention) != 0) {
+		retention = new String(CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY, '.')) + '.' + new String(TypeConstants.UPPER_RUNTIME);
+	}
+	if ((tagBits & TagBits.AnnotationSourceRetention) != 0) {
+		retention = new String(CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY, '.')) + '.' + new String(TypeConstants.UPPER_SOURCE);
+	}
+	final String value = retention;
+	return 
+		new IMemberValuePair[] {
+			new IMemberValuePair() {
+				public int getValueKind() {
+					return IMemberValuePair.K_QUALIFIED_NAME;
+				}
+				public Object getValue() {
+					return value;
+				}
+				public String getMemberName() {
+					return new String(TypeConstants.VALUE);
+				}
+			}
+		};
+}
+
+/**
  * Creates the handles and infos for the fields of the given binary type.
  * Adds new handles to the given vector.
  */
@@ -57,9 +190,10 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newEle
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0, fieldCount = fields.length; i < fieldCount; i++) {
 		IBinaryField fieldInfo = fields[i];
-		IField field = new BinaryField((JavaElement)type, manager.intern(new String(fieldInfo.getName())));
+		BinaryField field = new BinaryField((JavaElement)type, manager.intern(new String(fieldInfo.getName())));
 		newElements.put(field, fieldInfo);
 		childrenHandles.add(field);
+		generateAnnotationsInfos(field, fieldInfo.getAnnotations(), fieldInfo.getTagBits(), newElements);
 	}
 }
 /**
@@ -131,6 +265,11 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 		newElements.put(method, methodInfo);
 
 		generateTypeParameterInfos(method, signature, newElements, typeParameterHandles);
+		generateAnnotationsInfos(method, methodInfo.getAnnotations(), methodInfo.getTagBits(), newElements);
+		Object defaultValue = methodInfo.getDefaultValue();
+		if (defaultValue instanceof IBinaryAnnotation) {
+			generateAnnotationInfo(method, newElements, (IBinaryAnnotation) defaultValue);
+		}
 	}
 }
 /**
@@ -180,6 +319,7 @@ protected void readBinaryChildren(ClassFile classFile, HashMap newElements, IBin
 	BinaryType type = (BinaryType) classFile.getType();
 	ArrayList typeParameterHandles = new ArrayList();
 	if (typeInfo != null) { //may not be a valid class file
+		generateAnnotationsInfos(type, typeInfo.getAnnotations(), typeInfo.getTagBits(), newElements);
 		generateTypeParameterInfos(type, typeInfo.getGenericSignature(), newElements, typeParameterHandles);
 		generateFieldInfos(type, typeInfo, newElements, childrenHandles);
 		generateMethodInfos(type, typeInfo, newElements, childrenHandles, typeParameterHandles);

@@ -149,7 +149,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"  void foo() {\n" +
 				"    new Member() {};\n" +
 				"  }\n" +
-				"}"
+				"}",
+				"p/Q.java",
+				"package p;\n" +
+				"/*start*/@MyAnnot/*end*/\n" +
+				"public class Q {\n" +
+				"}\n" +
+				"@interface MyAnnot {\n" +
+				"}",
 			},
 			"1.5");
 		setUpWorkingCopy();
@@ -197,12 +204,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"@MyAnnot [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -219,12 +225,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"@MyAnnot [in field [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -240,12 +245,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"@MyAnnot [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -271,12 +275,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			);
 			IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 			IJavaElement element = binding.getJavaElement();
-			assertElementEquals(
+			assertElementExists(
 				"Unexpected Java element",
 				"@MyAnnot [in package pkg [in [Working copy] package-info.java [in pkg [in src [in P]]]]]",
 				element
 			);
-			assertTrue("Element should exist", element.exists());
 		} finally {
 			if (myAnnot != null)
 				myAnnot.discardWorkingCopy();
@@ -301,12 +304,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"@MyAnnot [in var1 [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -323,7 +325,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"@MyAnnot [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
@@ -344,9 +346,24 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"@MyAnnot [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+	}
+	
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing an annotation of a binary member type is correct.
+	 */
+	public void testAnnotation8() throws Exception {
+		IClassFile classFile = getClassFile("P", "/P/lib.jar", "p", "Q.class");
+		ASTNode node = buildAST(classFile);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementExists(
+			"Unexpected Java element",
+			"@p.MyAnnot [in Q [in Q.class [in p [in lib.jar [in P]]]]]",
 			element
 		);
 	}
@@ -364,14 +381,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((AnonymousClassDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"<anonymous #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	public void testAnonymousType2() throws JavaModelException {
@@ -389,14 +404,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((AnonymousClassDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"<anonymous #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -409,14 +422,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((ArrayType) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -431,9 +442,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((ArrayType) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"<null>",
 			element
@@ -452,14 +462,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		markerInfo.astEnds = new int[] {source.indexOf('}', markerInfo.astStarts[0]) + 1};
 		ASTNode node = buildAST(markerInfo, classFile);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"Enum(java.lang.String, int) [in Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -468,20 +476,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testBinaryMemberTypeConstructor() throws JavaModelException {
 		IClassFile classFile = getClassFile("P", "/P/lib.jar", "p", "W$Member.class");
-		String source = classFile.getSource();
-		MarkerInfo markerInfo = new MarkerInfo(source);
-		markerInfo.astStarts = new int[] {source.indexOf("/*start*/") + "/*start*/".length()};
-		markerInfo.astEnds = new int[] {source.indexOf("/*end*/")};
-		ASTNode node = buildAST(markerInfo, classFile);
+		ASTNode node = buildAST(classFile);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"Member(p.W, java.lang.String) [in Member [in W$Member.class [in p [in lib.jar [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -495,14 +497,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		markerInfo.astEnds = new int[] {source.lastIndexOf('}') + 1};
 		ASTNode node = buildAST(markerInfo, classFile);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -536,14 +536,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		markerInfo.astEnds = new int[] {source.lastIndexOf('}') + 1};
 		ASTNode node = buildAST(markerInfo, classFile);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"ABC [in ABC.class [in p [in lib.jar [in P]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -570,12 +568,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			ASTNode node = buildAST(getCompilationUnit("/P1/X.java"));
 			IBinding binding = ((Type) node).resolveBinding();
 			IJavaElement element = binding.getJavaElement();
-			assertElementEquals(
+			assertElementExists(
 				"Unexpected Java element",
 				"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 				element
 			);
-			assertTrue("Element should exist", element.exists());
 		} finally {
 			deleteProject("P1");
 			setUpJavaProject();
@@ -588,20 +585,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testBinaryMemberTypeFromAnonymousClassFile1() throws JavaModelException {
 		IClassFile classFile = getClassFile("P", "/P/lib.jar", "p", "Z$1.class");
-		String source = classFile.getSource();
-		MarkerInfo markerInfo = new MarkerInfo(source);
-		markerInfo.astStarts = new int[] {source.indexOf("/*start*/") + "/*start*/".length()};
-		markerInfo.astEnds = new int[] {source.indexOf("/*end*/")};
-		ASTNode node = buildAST(markerInfo, classFile);
+		ASTNode node = buildAST(classFile);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"Member [in Z$Member.class [in p [in lib.jar [in P]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -610,20 +601,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testBinaryMemberTypeFromAnonymousClassFile2() throws JavaModelException {
 		IClassFile classFile = getClassFile("P", "/P/lib.jar", "", "Z$1.class");
-		String source = classFile.getSource();
-		MarkerInfo markerInfo = new MarkerInfo(source);
-		markerInfo.astStarts = new int[] {source.indexOf("/*start*/") + "/*start*/".length()};
-		markerInfo.astEnds = new int[] {source.indexOf("/*end*/")};
-		ASTNode node = buildAST(markerInfo, classFile);
+		ASTNode node = buildAST(classFile);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"Member [in Z$Member.class [in <default> [in lib.jar [in P]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -970,9 +955,6 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}",
 			getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;"})
 		);
-		assertNotNull("No bindings", bindings);
-		assertEquals("Wrong size", 1, bindings.length);
-		assertTrue("Not a method binding", bindings[0] instanceof IMethodBinding);
 		assertBindingsEqual(
 			"LA;.foo(Ljava/lang/String;)Ljava/lang/String;",
 			bindings);
@@ -1040,14 +1022,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"field [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1064,14 +1044,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"field [in <anonymous #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1279,14 +1257,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((TypeDeclarationStatement) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"Y [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1324,12 +1300,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 
 			// Ensure the Java element is correct
 			IJavaElement element = bindings[0].getJavaElement();
-			assertElementEquals(
+			assertElementExists(
 				"Unexpected Java element",
 				"Local [in foo() [in Z [in Z.java [in <default> [in src [in P]]]]]]",
 				element
 			);
-			assertTrue("Element should exist", element.exists());
 		} finally {
 			deleteFile(filePath);
 		}
@@ -1348,7 +1323,6 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		IJavaElement expected = getLocalVariable(this.workingCopy, "local", "local");
 		assertEquals(
@@ -1371,7 +1345,6 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		IJavaElement expected = getLocalVariable(this.workingCopy, "second", "second");
 		assertEquals(
@@ -1393,7 +1366,6 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		IJavaElement expected = getLocalVariable(this.workingCopy, "arg", "arg");
 		assertEquals(
@@ -1447,7 +1419,6 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		IJavaElement expected = getLocalVariable(this.workingCopy, "local", "local");
 		assertEquals(
@@ -1468,7 +1439,6 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -1489,14 +1459,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"foo(int, Object, java.lang.String, Class[], X<K,V>) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1510,14 +1478,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1543,14 +1509,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"}"
 			);
 			IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
-			assertNotNull("No binding", binding);
 			IJavaElement element = binding.getJavaElement();
-			assertElementEquals(
+			assertElementExists(
 				"Unexpected Java element",
 				"foo(int, String[], java.lang.Class) [in Y [in [Working copy] Y.java [in <default> [in src [in P]]]]]",
 				element
 			);
-			assertTrue("Element should exist", element.exists());
 		} finally {
 			if (otherWorkingCopy != null)
 				otherWorkingCopy.discardWorkingCopy();
@@ -1576,14 +1540,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"bar(A<? extends T>) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1603,14 +1565,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"m(T) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1626,14 +1586,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((SimpleName) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"value() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1649,14 +1607,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"bar(int[]) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1672,14 +1628,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"bar2(Object[][][]) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1694,14 +1648,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"bar3(Object[]) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1728,14 +1680,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 
 			ASTNode node = buildAST(null/*use existing contents*/, cu, false/*don't report errors*/, true/*statement recovery*/, false);
 			IBinding binding = ((MethodDeclaration) node).resolveBinding();
-			assertNotNull("No binding", binding);
 			IJavaElement element = binding.getJavaElement();
-			assertElementEquals(
+			assertElementExists(
 				"Unexpected Java element",
 				"yes() [in <anonymous #1> [in test() [in X [in Test.java [in <default> [in src [in P]]]]]]]",
 				element
 			);
-			assertTrue("Element should exist", element.exists());
 		} finally {
 			deleteFile("/P/src/Test.java");
 		}
@@ -1764,7 +1714,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"bar() [in <anonymous #1> [in <initializer #1> [in <anonymous #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]]]]",
 			element
@@ -1799,7 +1749,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			);
 			IBinding binding = ((MethodDeclaration) node).resolveBinding();
 			IJavaElement element = binding.getJavaElement();
-			assertElementEquals(
+			assertElementExists(
 				"Unexpected Java element",
 				"foo(p2.X249567) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 				element
@@ -1832,7 +1782,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			);
 			IBinding binding = ((MethodDeclaration) node).resolveBinding();
 			IJavaElement element = binding.getJavaElement();
-			assertElementEquals(
+			assertElementExists(
 				"Unexpected Java element",
 				"foo(p1.X249567.Member) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 				element
@@ -1864,7 +1814,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			);
 			IBinding binding = ((MethodDeclaration) node).resolveBinding();
 			IJavaElement element = binding.getJavaElement();
-			assertElementEquals(
+			assertElementExists(
 				"Unexpected Java element",
 				"foo(p1.X249567.Member<java.lang.String>) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 				element
@@ -1884,14 +1834,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((QualifiedName) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"java.lang [in "+ getExternalJCLPathString("1.5") + "]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1904,15 +1852,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}/*end*/"
 		);
 		ITypeBinding typeBinding = ((TypeDeclaration) node).resolveBinding();
-		assertNotNull("No binding", typeBinding);
 		IPackageBinding binding = typeBinding.getPackage();
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"<default> [in src [in P]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1926,14 +1872,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((Type) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1949,14 +1893,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((SuperConstructorInvocation) node).resolveConstructorBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"Y(T) [in Y [in Y.class [in p [in lib.jar [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -1970,14 +1912,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((Type) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -2051,14 +1991,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}/*end*/"
 		);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"X [in [Working copy] X.java [in <default> [in src [in P]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -2077,14 +2015,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"}"
 			);
 			IBinding binding = ((Type) node).resolveBinding();
-			assertNotNull("No binding", binding);
 			IJavaElement element = binding.getJavaElement();
-			assertElementEquals(
+			assertElementExists(
 				"Unexpected Java element",
 				"Y [in Y.java [in <default> [in src [in P]]]]",
 				element
 			);
-			assertTrue("Element should exist", element.exists());
 		} finally {
 			deleteFile("/P/src/Y.java");
 		}
@@ -2101,14 +2037,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((Type) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -2121,14 +2055,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((TypeParameter) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"<T> [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
 			element
 		);
-		assertTrue("Element should exist", element.exists());
 	}
 
 	/*
@@ -2142,9 +2074,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((WildcardType) node).resolveBinding();
-		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
-		assertElementEquals(
+		assertElementExists(
 			"Unexpected Java element",
 			"<null>",
 			element

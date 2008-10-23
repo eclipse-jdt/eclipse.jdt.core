@@ -168,8 +168,8 @@ public static void compile(String[] pathsAndContents, Map options, String[] clas
         if (classpath != null) {
         	int length = classpath.length;
         	int classLibsLength = classLibs.length;
-        	System.arraycopy(classpath, 0, classpath = new String[classLibsLength + length], classLibsLength, length);
-        	System.arraycopy(classLibs, 0, classpath, 0, classLibsLength);
+        	System.arraycopy(classpath, 0, classpath = new String[length + classLibsLength], 0, length);
+        	System.arraycopy(classLibs, 0, classpath, length, classLibsLength);
         } else {
         	classpath = classLibs;
         }
@@ -355,7 +355,10 @@ public static void createJar(String[] javaPathsAndContents, String jarPath, Stri
 	createJar(javaPathsAndContents, null, jarPath, compliance);
 }
 public static void createJar(String[] javaPathsAndContents, String[] extraPathsAndContents, String jarPath, String compliance) throws IOException {
-	createJar(javaPathsAndContents, extraPathsAndContents, getCompileOptions(compliance), null, jarPath);
+	createJar(javaPathsAndContents, extraPathsAndContents, jarPath, null/*no classpath*/, compliance);
+}
+public static void createJar(String[] javaPathsAndContents, String[] extraPathsAndContents, String jarPath, String[] classpath, String compliance) throws IOException {
+	createJar(javaPathsAndContents, extraPathsAndContents, getCompileOptions(compliance), classpath, jarPath);
 }
 public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
     String sourcesPath = getOutputDirectory() + File.separator + "sources";

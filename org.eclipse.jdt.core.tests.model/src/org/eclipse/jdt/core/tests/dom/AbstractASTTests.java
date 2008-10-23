@@ -709,6 +709,15 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		return result;
 	}
 
+	protected ASTNode buildAST(IClassFile classFile) throws JavaModelException {
+		String source = classFile.getSource();
+		MarkerInfo markerInfo = new MarkerInfo(source);
+		markerInfo.astStarts = new int[] {source.indexOf("/*start*/") + "/*start*/".length()};
+		markerInfo.astEnds = new int[] {source.indexOf("/*end*/")};
+		ASTNode node = buildAST(markerInfo, classFile);
+		return node;
+	}
+
 
 //	protected void tearDown() throws Exception {
 //		discardWorkingCopies(this.workingCopies);
