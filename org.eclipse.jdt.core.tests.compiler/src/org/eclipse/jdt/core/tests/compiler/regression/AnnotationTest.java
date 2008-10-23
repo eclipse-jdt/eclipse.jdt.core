@@ -8525,4 +8525,96 @@ public void test260() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273
+public void test261() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",//=====================
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Other().foo();\n" + 
+			"	}\n" + 
+			"}\n",
+			"Annot.java",//=====================
+			"public @interface Annot {\n" + 
+			"	Class value();\n" + 
+			"}\n",
+			"Other.java",//=====================
+			"public class Other {\n" + 
+			"	@Annot(value = Other[].class)\n" + 
+			"	void foo() {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		options,
+		null);
+	this.runConformTest(
+			new String[] {
+				"X.java",//=====================
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Other().foo();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			false,
+			null,
+			options,
+			null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273 - variation
+public void test262() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",//=====================
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Other().foo();\n" + 
+			"	}\n" + 
+			"}\n",
+			"Annot.java",//=====================
+			"public @interface Annot {\n" + 
+			"	String[] values();\n" + 
+			"}\n",
+			"Other.java",//=====================
+			"public class Other {\n" + 
+			"	@Annot(values = {\"foo\",\"bar\"})\n" + 
+			"	void foo() {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		options,
+		null);
+	this.runConformTest(
+			new String[] {
+				"X.java",//=====================
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Other().foo();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			false,
+			null,
+			options,
+			null);	
+}
 }
