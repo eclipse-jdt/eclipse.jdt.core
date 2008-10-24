@@ -1110,4 +1110,23 @@ public void testBug185576b() throws JavaModelException {
 		"BasicTestBugs.X[TYPE_REF]{X, bugs.b185576, Lbugs.b185576.BasicTestBugs$X;, null, null, "+emptyPositions+R_DRICUNR+"}"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249785
+public void testBug249785a() throws JavaModelException {
+	String source =
+		"package bugs.b171016;\n" +
+		"public class BasicTestBugs {\n" +
+		"	/**\n" +
+		"	 * @deprecated\n" +
+		"	 */\n" +
+		"	public int field\n" +
+		"	/**\n" +
+		"	 * @see #fie\n" +
+		"	 */\n" +
+		"	public void foo() {}\n" +
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b171016/BasicTestBugs.java", source, true, "fie", -1);
+	assertSortedResults(
+		"field[FIELD_REF]{field, Lbugs.b171016.BasicTestBugs;, I, field, null, "+this.positions+R_DRICNRNS+"}"
+	);
+}
 }

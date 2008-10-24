@@ -133,6 +133,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.deprecated = false;
 			this.lastLinePtr = getLineNumber(this.javadocEnd);
 			this.textStart = -1;
+			this.abort = false;
 			char previousChar = 0;
 			int invalidTagLineEnd = -1;
 			int invalidInlineTagLineEnd = -1;
