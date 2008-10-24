@@ -416,11 +416,11 @@ public class WildcardBinding extends ReferenceBinding {
 			return this;
 
 		this.tagBits &= ~TagBits.HasUnresolvedTypeVariables;
-		BinaryTypeBinding.resolveType(this.genericType, this.environment, null, 0);
+		BinaryTypeBinding.resolveType(this.genericType, this.environment, false /* no raw conversion */);
 	    switch(this.boundKind) {
 	        case Wildcard.EXTENDS :
 	        case Wildcard.SUPER :
-				BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
+	        	this.bound = BinaryTypeBinding.resolveType(this.bound, this.environment, true /* raw conversion */);
 				break;
 			case Wildcard.UNBOUND :
 	    }

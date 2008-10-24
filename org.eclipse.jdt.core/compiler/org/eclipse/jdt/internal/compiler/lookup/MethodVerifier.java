@@ -722,7 +722,7 @@ ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 		return Binding.NO_EXCEPTIONS; // safety check
 
 	for (int i = exceptions.length; --i >= 0;)
-		exceptions[i] = BinaryTypeBinding.resolveType(exceptions[i], this.environment, true);
+		exceptions[i] = (ReferenceBinding) BinaryTypeBinding.resolveType(exceptions[i], this.environment, true /* raw conversion */);
 	return exceptions;
 }
 void verify(SourceTypeBinding someType) {

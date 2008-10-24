@@ -7663,5 +7663,147 @@ public void test258() {
 		},
 		expectedOutput);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273
+public void test259() {
+	this.runConformTest(
+		new String[] {
+			"Jpf.java",
+			"public class Jpf {\n" + 
+			"	@interface Action {\n" + 
+			"		Forward[] forwards();\n" + 
+			"	}\n" + 
+			"	@interface Forward {\n" + 
+			"		String name();\n" + 
+			"		String path();\n" + 
+			"		ActionOutput[] actionOutputs();\n" + 
+			"	}\n" + 
+			"	@interface ActionOutput {\n" + 
+			"		String name();\n" + 
+			"		Class type();\n" + 
+			"	}\n" + 
+			"	@Jpf.Action( \n" + 
+			"			forwards = { \n" + 
+			"					@Jpf.Forward(\n" + 
+			"							name = \"success\", \n" + 
+			"							path = \"results.jsp\", \n" + 
+			"							actionOutputs = { \n" + 
+			"									@Jpf.ActionOutput(\n" + 
+			"											name = \"mybeanmethodResult\", \n" + 
+			"											type = java.lang.String[].class) }) })\n" + 
+			"	public Forward mybeanmethod() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=245435
+public void _test260() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"@X.StringAnnotation(X.CONSTANT_EXPRESSION)\n" + 
+			"public class X {\n" + 
+			"  public @interface StringAnnotation {\n" + 
+			"    String value();\n" + 
+			"  }\n" + 
+			"  public final static String CONSTANT = \"Constant\";\n" + 
+			"  public final static String CONSTANT_EXPRESSION = CONSTANT + \"Expression\";\n" + 
+			"}\n"
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273
+public void test261() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",//=====================
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Other().foo();\n" + 
+			"	}\n" + 
+			"}\n",
+			"Annot.java",//=====================
+			"public @interface Annot {\n" + 
+			"	Class value();\n" + 
+			"}\n",
+			"Other.java",//=====================
+			"public class Other {\n" + 
+			"	@Annot(value = Other[].class)\n" + 
+			"	void foo() {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		options,
+		null);
+	this.runConformTest(
+			new String[] {
+				"X.java",//=====================
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Other().foo();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			false,
+			null,
+			options,
+			null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273 - variation
+public void test262() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",//=====================
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Other().foo();\n" + 
+			"	}\n" + 
+			"}\n",
+			"Annot.java",//=====================
+			"public @interface Annot {\n" + 
+			"	String[] values();\n" + 
+			"}\n",
+			"Other.java",//=====================
+			"public class Other {\n" + 
+			"	@Annot(values = {\"foo\",\"bar\"})\n" + 
+			"	void foo() {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		options,
+		null);
+	this.runConformTest(
+			new String[] {
+				"X.java",//=====================
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Other().foo();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			false,
+			null,
+			options,
+			null);	
+}
 
 }

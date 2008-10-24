@@ -957,7 +957,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 
 	if (referenceBinding == null || referenceBinding == TheNotFoundType)
 		return null;
-	referenceBinding = BinaryTypeBinding.resolveType(referenceBinding, this, false); // no raw conversion for now
+	referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this, false /* no raw conversion for now */);
 
 	// compoundName refers to a nested type incorrectly (for example, package1.A$B)
 	if (referenceBinding.isNestedType())
