@@ -2404,5 +2404,90 @@ public class StaticImportTest extends AbstractComparableTest {
 			},
 			"");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211
+	public void test070() {
+		this.runConformTest(
+			new String[] {
+				"node/Test.java",//------------------------------
+				"package node;\n" + 
+				"public class Test {\n" + 
+				"        public static void node() {}\n" + 
+				"}\n",
+				"node2/Test2.java",//------------------------------
+				"package node2;\n" + 
+				"import static node.Test.node;\n" + 
+				"public class Test2 {\n" + 
+				"}\n",
+			},
+			"");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
+	public void test071() {
+		this.runNegativeTest(
+			new String[] {
+				"node/Test/node.java",//------------------------------
+				"package node.Test;\n" + 
+				"public class node {\n" + 
+				"}\n",					
+				"node/Test.java",//------------------------------
+				"package node;\n" + 
+				"public class Test {\n" + 
+				"        public static void node() {}\n" + 
+				"}\n",
+				"node2/Test2.java",//------------------------------
+				"package node2;\n" + 
+				"import node.Test;\n" +
+				"import static Test.node;\n" + 
+				"public class Test2 {\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in node\\Test.java (at line 2)\n" + 
+			"	public class Test {\n" + 
+			"	             ^^^^\n" + 
+			"The type Test collides with a package\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in node2\\Test2.java (at line 3)\n" + 
+			"	import static Test.node;\n" + 
+			"	              ^^^^\n" + 
+			"The import Test cannot be resolved\n" + 
+			"----------\n");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93913 - variation
+	public void test072() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" +
+				"import static p2.C.B;\n" +
+				"public class A extends B {\n" +
+				"	void test() {" +
+				"		int i = B;\n" +
+				"		B b = null;\n" +
+				"		int v1 = b.fooB;\n" +
+				"		int v2 = b.fooC;\n" +
+				"		int v3 = fooC;\n" +
+				"	}\n" +
+				"}\n",
+				"p1/B.java",
+				"package p1;\n" +
+				"public class B {\n" +
+				"	public int fooB;\n" +
+				"}\n",
+				"p2/C.java",
+				"package p2;\n" +
+				"public class C {\n" +
+				"	public static class B { public int fooC; }\n" +
+				"	public static int B;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in p1\\A.java (at line 7)\n" + 
+			"	int v2 = b.fooC;\n" + 
+			"	         ^^^^^^\n" + 
+			"b.fooC cannot be resolved or is not a field\n" + 
+			"----------\n");
+	}	
 }
 

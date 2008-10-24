@@ -2985,6 +2985,100 @@ public void test090() {
 		"----------\n"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
+public void test091() {
+	this.runNegativeTest(
+		new String[] {
+			"foo/Test.java",//------------------------------
+			"package foo;\n" + 
+			"public class Test {\n" + 
+			"        public class M1 {\n" +
+			"              public class M2 {}\n" +
+			"        }\n" +
+			"}\n",
+			"bar/Test2.java",//------------------------------
+			"package bar;\n" + 
+			"import foo.Test;\n" + 
+			"import Test.M1.M2;\n" + 
+			"public class Test2 {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in bar\\Test2.java (at line 3)\n" + 
+		"	import Test.M1.M2;\n" + 
+		"	       ^^^^\n" + 
+		"The import Test cannot be resolved\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
+public void test092() {
+	this.runNegativeTest(
+		new String[] {
+			"foo/Test.java",//------------------------------
+			"package foo;\n" + 
+			"public class Test {\n" + 
+			"        public class M1 {\n" +
+			"              public class M2 {}\n" +
+			"        }\n" +
+			"}\n",
+			"bar/Test2.java",//------------------------------
+			"package bar;\n" + 
+			"import foo.*;\n" + 
+			"import Test.M1.M2;\n" + 
+			"public class Test2 {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in bar\\Test2.java (at line 3)\n" + 
+		"	import Test.M1.M2;\n" + 
+		"	       ^^^^\n" + 
+		"The import Test cannot be resolved\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
+public void test093() {
+	this.runNegativeTest(
+		new String[] {
+			"foo/Test.java",//------------------------------
+			"package foo;\n" + 
+			"public class Test {\n" + 
+			"        public class M1 {\n" +
+			"              public class foo {}\n" +
+			"        }\n" +
+			"}\n",
+			"bar/Test2.java",//------------------------------
+			"package bar;\n" + 
+			"import foo.Test;\n" + 
+			"import Test.M1.foo;\n" + 
+			"public class Test2 {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in bar\\Test2.java (at line 3)\n" + 
+		"	import Test.M1.foo;\n" + 
+		"	       ^^^^\n" + 
+		"The import Test cannot be resolved\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
+public void test094() {
+	this.runConformTest(
+		new String[] {
+			"foo/Test.java",//------------------------------
+			"package foo;\n" + 
+			"public class Test {\n" + 
+			"        public class M1 {\n" +
+			"              public class foo {}\n" +
+			"        }\n" +
+			"}\n",
+			"bar/Test2.java",//------------------------------
+			"package bar;\n" + 
+			"import foo.Test.M1.foo;\n" + 
+			"public class Test2 {\n" + 
+			"}\n",
+		},
+		"");
+}	
 public static Class testClass() {	return LookupTest.class;
 }
 }

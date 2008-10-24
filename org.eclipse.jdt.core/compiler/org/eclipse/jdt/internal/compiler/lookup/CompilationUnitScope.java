@@ -36,7 +36,7 @@ public class CompilationUnitScope extends Scope {
 
 	HashtableOfType constantPoolNameUsage;
 	private int captureID = 1;
-
+	
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	super(COMPILATION_UNIT_SCOPE, null);
 	this.environment = environment;
@@ -356,7 +356,7 @@ void faultInImports() {
 			}
 			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding, importReference);
 		} else {
-			Binding importBinding = findSingleImport(compoundName, importReference.isStatic());
+			Binding importBinding = findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, importReference.isStatic());
 			if (!importBinding.isValidBinding()) {
 				if (importBinding.problemId() == ProblemReasons.Ambiguous) {
 					// keep it unless a duplicate can be found below
@@ -442,7 +442,7 @@ public Binding findImport(char[][] compoundName, boolean findStaticImports, bool
 	if(onDemand) {
 		return findImport(compoundName, compoundName.length);
 	} else {
-		return findSingleImport(compoundName, findStaticImports);
+		return findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, findStaticImports);
 	}
 }
 private Binding findImport(char[][] compoundName, int length) {
@@ -493,7 +493,7 @@ private Binding findImport(char[][] compoundName, int length) {
 		return new ProblemReferenceBinding(compoundName, type, ProblemReasons.NotVisible);
 	return type;
 }
-private Binding findSingleImport(char[][] compoundName, boolean findStaticImports) {
+private Binding findSingleImport(char[][] compoundName, int mask, boolean findStaticImports) {
 	if (compoundName.length == 1) {
 		// findType records the reference
 		// the name cannot be a package
@@ -506,10 +506,10 @@ private Binding findSingleImport(char[][] compoundName, boolean findStaticImport
 	}
 
 	if (findStaticImports)
-		return findSingleStaticImport(compoundName);
+		return findSingleStaticImport(compoundName, mask);
 	return findImport(compoundName, compoundName.length);
 }
-private Binding findSingleStaticImport(char[][] compoundName) {
+private Binding findSingleStaticImport(char[][] compoundName, int mask) {
 	Binding binding = findImport(compoundName, compoundName.length - 1);
 	if (!binding.isValidBinding()) return binding;
 
@@ -523,7 +523,7 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 
 	// look to see if its a static field first
 	ReferenceBinding type = (ReferenceBinding) binding;
-	FieldBinding field = findField(type, name, null, true);
+	FieldBinding field = (mask & Binding.FIELD) != 0 ? findField(type, name, null, true) : null;
 	if (field != null) {
 		if (field.problemId() == ProblemReasons.Ambiguous && ((ProblemFieldBinding) field).closestMatch.isStatic())
 			return field; // keep the ambiguous field instead of a possible method match
@@ -532,7 +532,7 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 	}
 
 	// look to see if there is a static method with the same selector
-	MethodBinding method = findStaticMethod(type, name);
+	MethodBinding method = (mask & Binding.METHOD) != 0 ? findStaticMethod(type, name) : null;
 	if (method != null) return method;
 
 	type = findMemberType(name, type);
@@ -589,7 +589,7 @@ ImportBinding[] getDefaultImports() {
 public final Binding getImport(char[][] compoundName, boolean onDemand, boolean isStaticImport) {
 	if (onDemand)
 		return findImport(compoundName, compoundName.length);
-	return findSingleImport(compoundName, isStaticImport);
+	return findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, isStaticImport);
 }
 
 public int nextCaptureID() {
@@ -708,9 +708,9 @@ void recordTypeReferences(TypeBinding[] types) {
 			this.referencedTypes.add(actualType);
 	}
 }
-Binding resolveSingleImport(ImportBinding importBinding) {
+Binding resolveSingleImport(ImportBinding importBinding, int mask) {
 	if (importBinding.resolvedImport == null) {
-		importBinding.resolvedImport = findSingleImport(importBinding.compoundName, importBinding.isStatic());
+		importBinding.resolvedImport = findSingleImport(importBinding.compoundName, mask, importBinding.isStatic());
 		if (!importBinding.resolvedImport.isValidBinding() || importBinding.resolvedImport instanceof PackageBinding) {
 			if (importBinding.resolvedImport.problemId() == ProblemReasons.Ambiguous)
 				return importBinding.resolvedImport;
