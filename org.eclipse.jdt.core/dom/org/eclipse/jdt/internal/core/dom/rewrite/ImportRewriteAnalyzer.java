@@ -104,6 +104,10 @@ public final class ImportRewriteAnalyzer {
 		}
 		return 1;
 	}
+	
+	private boolean insertSpaceBeforeSemicolon() {
+		return JavaCore.INSERT.equals(this.compilationUnit.getJavaProject().getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON, true));
+	}
 
 	private void addPreferenceOrderHolders(PackageEntry[] preferenceOrder) {
 		if (this.packageEntries.isEmpty()) {
@@ -709,6 +713,7 @@ public final class ImportRewriteAnalyzer {
 			buf.append("static "); //$NON-NLS-1$
 		}
 		buf.append(importName);
+		if (insertSpaceBeforeSemicolon()) buf.append(' ');
 		buf.append(';');
 		buf.append(lineDelim);
 

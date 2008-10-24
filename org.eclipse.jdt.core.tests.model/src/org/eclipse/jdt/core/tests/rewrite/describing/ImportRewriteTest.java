@@ -268,6 +268,37 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("}\n");
 		assertEqualString(cu.getSource(), buf.toString());
 	}
+	
+	public void testAddImports4() throws Exception {
+		getJavaProject("P").setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON, JavaCore.INSERT);
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.util.Set; // comment\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java", "java.util", "com", "pack" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
+		imports.addImport("java.util.Vector");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.util.Set; // comment\n");
+		buf.append("import java.util.Vector ;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
 
 	public void testAddImportsWithGroupsOfUnmatched1() throws Exception {
 
