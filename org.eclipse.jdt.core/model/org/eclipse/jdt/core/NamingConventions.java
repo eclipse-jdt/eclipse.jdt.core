@@ -273,7 +273,7 @@ public final class NamingConventions {
 	
 	/**
 	 * The base name associated to this base name kind is a simple type name.
-	 * When this base name is used to all the words of the name are considered.
+	 * When this base name is used all the words of the name are considered.
 	 * 
 	 * @see #suggestVariableNames(int, int, String, IJavaProject, int, String[], boolean)
 	 * 
@@ -539,7 +539,7 @@ public final class NamingConventions {
 	}
 	
 	/**
-	 * Returns a base name which could be used to generate this variable name with {@link #suggestVariableNames(int, int, String, IJavaProject, int, String[], boolean)}.
+	 * Returns a base name which could be used to generate the given variable name with {@link #suggestVariableNames(int, int, String, IJavaProject, int, String[], boolean)}.
 	 * <p>
 	 * e.g.<br>
 	 * If the variable is a {@link #VK_LOCAL} and the variable name is <code>variableName</code> then the base name will be <code>VariableName</code>.<br>
@@ -1042,7 +1042,7 @@ public final class NamingConventions {
 	 * <p>
 	 * The base name is used to compute the variable name.
 	 * Some different kinds of base name are possible and each kind is associated to a different heuristic to compute variable names.<br>
-	 * The heuristic depends also of the kind of the variable. Each kind of variable is identified by a constant starting with <code>VK_</code>.<br>
+	 * The heuristic depends also on the kind of the variable. Each kind of variable is identified by a constant starting with <code>VK_</code>.<br>
 	 * When a prefix and a suffix can be added then all combinations of prefix and suffix are suggested.
 	 * If the name is <code>name</code>, the prefix is <code>pre</code> and the suffix is <code>suf</code> then the suggested names will be
 	 * <code>prenamesuf</code>, <code>prename</code>, <code>namesuf</code> and <code>name</code>.<br>
