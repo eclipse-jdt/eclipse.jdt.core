@@ -1576,7 +1576,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							ImportBinding importBinding = imports[i];
 							if (importBinding.isStatic() && !importBinding.onDemand) {
 								if (CharOperation.equals(importBinding.compoundName[importBinding.compoundName.length - 1], name)) {
-									if (unitScope.resolveSingleImport(importBinding) != null && importBinding.resolvedImport instanceof FieldBinding) {
+									if (unitScope.resolveSingleImport(importBinding, Binding.TYPE | Binding.FIELD | Binding.METHOD) != null && importBinding.resolvedImport instanceof FieldBinding) {
 										foundField = (FieldBinding) importBinding.resolvedImport;
 										ImportReference importReference = importBinding.reference;
 										if (importReference != null && needResolve) {
@@ -2437,12 +2437,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					ImportBinding importBinding = imports[i];
 					if (!importBinding.onDemand) {
 						if (CharOperation.equals(importBinding.compoundName[importBinding.compoundName.length - 1], name)) {
-							Binding resolvedImport = unitScope.resolveSingleImport(importBinding);
+							Binding resolvedImport = unitScope.resolveSingleImport(importBinding, Binding.TYPE);
 							if (resolvedImport == null) continue nextImport;
-							if (resolvedImport instanceof MethodBinding) {
-								resolvedImport = getType(importBinding.compoundName, importBinding.compoundName.length);
-								if (!resolvedImport.isValidBinding()) continue nextImport;
-							}
 							if (resolvedImport instanceof TypeBinding) {
 								ImportReference importReference = importBinding.reference;
 								if (importReference != null)
