@@ -614,7 +614,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * Because of this, hanging on resolved classpath is not recommended.
 	 * </p>
 	 * <p>
-	 * Since 3.5, if the resolution creates duplicate entries 
+	 * Note that if the resolution creates duplicate entries 
 	 * (i.e. {@link IClasspathEntry entries} which are {@link Object#equals(Object)}), 
 	 * only the first one is added to the resolved classpath.
 	 * </p>
