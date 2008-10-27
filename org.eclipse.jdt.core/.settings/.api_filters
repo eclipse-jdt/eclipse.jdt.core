@@ -1,211 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-<resource path="model/org/eclipse/jdt/core/compiler/CompilationParticipant.java" type="org.eclipse.jdt.core.compiler.CompilationParticipant">
-<filter id="388100214">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.compiler.CompilationParticipant"/>
-<message_argument value="NEEDS_FULL_BUILD"/>
-</message_arguments>
-</filter>
-<filter id="388100214">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.compiler.CompilationParticipant"/>
-<message_argument value="READY_FOR_BUILD"/>
-</message_arguments>
-</filter>
-</resource>
-<resource path="search/org/eclipse/jdt/core/search/SearchDocument.java" type="org.eclipse.jdt.core.search.SearchDocument">
-<filter id="421654647">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.search.SearchDocument"/>
-<message_argument value="getPath()"/>
-</message_arguments>
-</filter>
-</resource>
-<resource path="search/org/eclipse/jdt/core/search/TypeReferenceMatch.java" type="org.eclipse.jdt.core.search.TypeReferenceMatch">
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.search.TypeReferenceMatch"/>
-<message_argument value="localElement(IJavaElement)"/>
-</message_arguments>
-</filter>
-</resource>
-<resource path="model/org/eclipse/jdt/core/CompletionContext.java" type="org.eclipse.jdt.core.CompletionContext">
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setTokenRange(int, int)"/>
-</message_arguments>
-</filter>
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setTokenRange(int, int, int)"/>
-</message_arguments>
-</filter>
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setToken(char[])"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="offset"/>
-</message_arguments>
-</filter>
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setTokenKind(int)"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="token"/>
-</message_arguments>
-</filter>
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setExpectedTypesSignatures(char[][])"/>
-</message_arguments>
-</filter>
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setTokenLocation(int)"/>
-</message_arguments>
-</filter>
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setExtended()"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="isExtended"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="expectedTypesKeys"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="extendedContext"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="tokenKind"/>
-</message_arguments>
-</filter>
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setOffset(int)"/>
-</message_arguments>
-</filter>
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setExpectedTypesKeys(char[][])"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="tokenStart"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="tokenEnd"/>
-</message_arguments>
-</filter>
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setJavadoc(int)"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="tokenLocation"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="expectedTypesSignatures"/>
-</message_arguments>
-</filter>
-<filter id="338755678">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="javadoc"/>
-</message_arguments>
-</filter>
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionContext"/>
-<message_argument value="setExtendedData(ITypeRoot, CompilationUnitDeclaration, LookupEnvironment, Scope, ASTNode, WorkingCopyOwner, CompletionParser)"/>
-</message_arguments>
-</filter>
-</resource>
-<resource path="search/org/eclipse/jdt/core/search/FieldReferenceMatch.java" type="org.eclipse.jdt.core.search.FieldReferenceMatch">
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.search.FieldReferenceMatch"/>
-<message_argument value="localElement(IJavaElement)"/>
-</message_arguments>
-</filter>
-</resource>
-<resource path="model/org/eclipse/jdt/core/ITypeRoot.java" type="org.eclipse.jdt.core.ITypeRoot">
-<filter id="403853384">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.ITypeRoot"/>
-</message_arguments>
-</filter>
-<filter id="404901960">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.ITypeRoot"/>
-</message_arguments>
-</filter>
-</resource>
-<resource path="search/org/eclipse/jdt/core/search/MethodReferenceMatch.java" type="org.eclipse.jdt.core.search.MethodReferenceMatch">
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.search.MethodReferenceMatch"/>
-<message_argument value="localElement(IJavaElement)"/>
-</message_arguments>
-</filter>
-</resource>
-<resource path="model/org/eclipse/jdt/core/CompletionProposal.java" type="org.eclipse.jdt.core.CompletionProposal">
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.CompletionProposal"/>
-<message_argument value="setOriginalSignature(char[])"/>
-</message_arguments>
-</filter>
-</resource>
-<resource path="search/org/eclipse/jdt/core/search/PackageReferenceMatch.java" type="org.eclipse.jdt.core.search.PackageReferenceMatch">
-<filter id="338792546">
-<message_arguments>
-<message_argument value="org.eclipse.jdt.core.search.PackageReferenceMatch"/>
-<message_argument value="localElement(IJavaElement)"/>
-</message_arguments>
-</filter>
-</resource>
+    <resource path="model/org/eclipse/jdt/core/ITypeRoot.java" type="org.eclipse.jdt.core.ITypeRoot">
+        <filter id="403853384">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.ITypeRoot"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/core/compiler/CompilationParticipant.java" type="org.eclipse.jdt.core.compiler.CompilationParticipant">
+        <filter id="388100214">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.CompilationParticipant"/>
+                <message_argument value="READY_FOR_BUILD"/>
+            </message_arguments>
+        </filter>
+        <filter id="388100214">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.CompilationParticipant"/>
+                <message_argument value="NEEDS_FULL_BUILD"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>
