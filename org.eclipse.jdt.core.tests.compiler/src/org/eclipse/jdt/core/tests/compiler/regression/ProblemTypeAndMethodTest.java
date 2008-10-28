@@ -4177,4 +4177,605 @@ public void test090() {
 			"The method foo(Zork) from the type X refers to the missing type Zork\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=252288
+public void test091()  throws Exception {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+		new String[] {
+			"TypeUtils.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.Iterator;\n" + 
+			"\n" + 
+			"public final class TypeUtils {\n" + 
+			"\n" + 
+			"	// personal\n" + 
+			"\n" + 
+			"	private TypeUtils() {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	// class\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if a target type is exactly any one in a group of types.\n" + 
+			"	 * @param target Target type. Never null.\n" + 
+			"	 * @param types Group of types. If empty, returns false. Never null.\n" + 
+			"	 * @return True if the target is a valid type.\n" + 
+			"	 */\n" + 
+			"	public static boolean isIdenticalToAny(Class<?> target, Collection<Class<?>> types) {\n" + 
+			"		if (target == null) throw new IllegalArgumentException(\n" + 
+			"		\"Target is null.\");\n" + 
+			"\n" + 
+			"		if (types.contains(target)) return true;\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if a target type is the same or a subtype of (assignable to)\n" + 
+			"	 * a reference type. Convenience method for completeness. Forwards to\n" + 
+			"	 * Class.isAssignableFrom().\n" + 
+			"	 * @param target Target type. Never null.\n" + 
+			"	 * @param type Reference type. Never null.\n" + 
+			"	 * @return True if condition is met.\n" + 
+			"	 */\n" + 
+			"	public static boolean isAssignableTo(Class<?> target, Class<?> type) {\n" + 
+			"		return type.isAssignableFrom(target);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if a target type is the same or a subtype of (assignable to)\n" + 
+			"	 * any one reference type.\n" + 
+			"	 * @param target Target type. Never null.\n" + 
+			"	 * @param types Reference types (Class). Never null. If empty returns false.\n" + 
+			"	 * @return True if condition is met.\n" + 
+			"	 */\n" + 
+			"	public static boolean isAssignableToAny(Class<?> target,\n" + 
+			"	Collection<Class<?>> types) {\n" + 
+			"		if (types.isEmpty()) return false;\n" + 
+			"\n" + 
+			"		for(Class<?> type : types) {\n" + 
+			"			if (type.isAssignableFrom(target)) return true;\n" + 
+			"		}\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if any one target type is the same or a subtype of\n" + 
+			"	 * (assignable to) a reference type.\n" + 
+			"	 * @param targets Target types (Class). Never null. If empty returns false.\n" + 
+			"	 * @param type Reference type. Never null.\n" + 
+			"	 * @return True if condition is met.\n" + 
+			"	 */\n" + 
+			"	public static boolean areAnyAssignableTo(Collection<Class<?>> targets,\n" + 
+			"	Class<?> type) {\n" + 
+			"		if (targets.isEmpty()) return false;\n" + 
+			"\n" + 
+			"		for(Class<?> target : targets) {\n" + 
+			"			if (type.isAssignableFrom(target)) return true;\n" + 
+			"		}\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if any one target type is the same or a subtype of\n" + 
+			"	 * (assignable to) any one reference type.\n" + 
+			"	 * @param targets Target types (Class). Never null. If empty returns false.\n" + 
+			"	 * @param types Reference types (Class). Never null. If empty returns false.\n" + 
+			"	 * @return True if condition is met.\n" + 
+			"	 */\n" + 
+			"	public static boolean areAnyAssignableToAny(Collection<Class<?>> targets,\n" + 
+			"	Collection<Class<?>> types) {\n" + 
+			"		if (targets.isEmpty()) return false;\n" + 
+			"		if (types.isEmpty()) return false;\n" + 
+			"\n" + 
+			"		for(Class<?> target : targets) {\n" + 
+			"			if (isAssignableToAny(target, types)) return true;\n" + 
+			"		}\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if a target object\'s type is the same or a subtype of\n" + 
+			"	 * (assignable to) a reference type. Convenience method for completeness.\n" + 
+			"	 * Forwards to Class.isInstance().\n" + 
+			"	 * @param target Target object. Never null.\n" + 
+			"	 * @param type Reference type. Never null.\n" + 
+			"	 * @return True if condition is met.\n" + 
+			"	 */\n" + 
+			"	public static boolean isInstanceOf(Object target, Class<?> type) {\n" + 
+			"		return type.isInstance(target);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if a target object\'s type is the same or a subtype of\n" + 
+			"	 * (assignable to) any one type.\n" + 
+			"	 * @param target Target object. Never null.\n" + 
+			"	 * @param types Reference types. Never null. If empty returns false.\n" + 
+			"	 * @return True if condition is met.\n" + 
+			"	 */\n" + 
+			"	public static boolean isInstanceOfAny(Object target,\n" + 
+			"	Collection<Class<?>> types) {\n" + 
+			"		if (types.isEmpty()) return false;\n" + 
+			"\n" + 
+			"		for (Class<?> type : types) {\n" + 
+			"			if (type.isInstance(target)) return true;\n" + 
+			"		}\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if any one target object\'s type is the same or a subtype of\n" + 
+			"	 * (assignable to) a reference type.\n" + 
+			"	 * @param targets Target objects. Never null. If empty returns false.\n" + 
+			"	 * @param type Reference type. Never null.\n" + 
+			"	 * @return True if condition is met.\n" + 
+			"	 */\n" + 
+			"	public static boolean areAnyInstanceOf(Collection<Object> targets,\n" + 
+			"	Class<?> type) {\n" + 
+			"		if (targets.isEmpty()) return false;\n" + 
+			"\n" + 
+			"		for(Object target : targets) {\n" + 
+			"			if (type.isInstance(target)) return true;\n" + 
+			"		}\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if all target object types are the same or a subtype of\n" + 
+			"	 * (assignable to) a reference type.\n" + 
+			"	 * @param targets Target objects. Never null. If empty returns\n" + 
+			"	 * false.\n" + 
+			"	 * @param type Reference type. Never null.\n" + 
+			"	 * @return True if condition is met.\n" + 
+			"	 */\n" + 
+			"	public static boolean areAllInstanceOf(Collection<Object> targets,\n" + 
+			"	Class<?> type) {\n" + 
+			"		if (targets.isEmpty()) return false;\n" + 
+			"\n" + 
+			"		for(Object target : targets) {\n" + 
+			"			if (!type.isInstance(target)) return false;\n" + 
+			"		}\n" + 
+			"		return true;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if no target object types are the same or a subtype of\n" + 
+			"	 * (assignable to) a reference type.\n" + 
+			"	 * @param targets Target objects. Never null. If empty returns\n" + 
+			"	 * false.\n" + 
+			"	 * @param type Reference type. Never null.\n" + 
+			"	 * @return True if condition is met.\n" + 
+			"	 */\n" + 
+			"	public static boolean areNoneInstanceOf(Collection<Object> targets,\n" + 
+			"	Class<?> type) {\n" + 
+			"		if (targets.isEmpty()) return false;\n" + 
+			"\n" + 
+			"		for(Object target : targets) {\n" + 
+			"			if (type.isInstance(target)) return false;\n" + 
+			"		}\n" + 
+			"		return true;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns true if any one target object\'s type is the same or a subtype of\n" + 
+			"	 * (assignable to) any one reference type.\n" + 
+			"	 * @param targets Target objects. Never null. If empty returns\n" + 
+			"	 * false.\n" + 
+			"	 * @param types Reference types. Never null. If empty returns false.\n" + 
+			"	 * @return True if condition is met.\n" + 
+			"	 */\n" + 
+			"	public static boolean areAnyInstanceOfAny(Collection<Object> targets,\n" + 
+			"	Collection<Class<?>> types) {\n" + 
+			"		if (targets.isEmpty()) return false;\n" + 
+			"		if (types.isEmpty()) return false;\n" + 
+			"\n" + 
+			"		for(Object target : targets) {\n" + 
+			"			if (isInstanceOfAny(target, types)) return true;\n" + 
+			"		}\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns only those target objects whose type is identical to the included\n" + 
+			"	 * reference type.\n" + 
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @param type Included reference type. Never null.\n" + 
+			"	 * @param retVal Return value object. The collection of valid target\n" + 
+			"	 * objects. Can be {@code targets}. Never null.\n" + 
+			"	 * @return Reference to retVal. Never null.\n" + 
+			"	 */\n" + 
+			"	public static Collection<Object> includeIdenticalTo(Collection<Object> targets,\n" + 
+			"	Class<?> type, Collection<Object> retVal) {\n" + 
+			"		// save targets in retVal\n" + 
+			"		if (targets != retVal) {\n" + 
+			"			retVal.clear();\n" + 
+			"			retVal.addAll(targets);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		// remove unwanted targets, by target\n" + 
+			"		Iterator<?> objectI = retVal.iterator();\n" + 
+			"		while (objectI.hasNext()) {\n" + 
+			"			Object object = objectI.next();\n" + 
+			"			if (!type.equals(object.getClass())) objectI.remove();\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return retVal;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns only those target objects whose type is exactly one of the\n" + 
+			"	 * included reference types.\n" + 
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @param types Group of included reference types. If empty, returns empty.\n" + 
+			"	 * If null, all types are included (all targets are returned).\n" + 
+			"	 * @param retVal Return value object. The collection of valid target\n" + 
+			"	 * objects. Can be {@code targets}. Never null.\n" + 
+			"	 * @return Reference to retVal. Never null.\n" + 
+			"	 */\n" + 
+			"	public static Collection<Object> includeIdenticalToAny(\n" + 
+			"	Collection<Object> targets,\n" + 
+			"	Collection<Class<?>> types, Collection<Object> retVal) {\n" + 
+			"		// save targets in retVal\n" + 
+			"		if (targets != retVal) {\n" + 
+			"			retVal.clear();\n" + 
+			"			retVal.addAll(targets);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		if (types == null) return retVal;\n" + 
+			"\n" + 
+			"		// remove unwanted targets, by target\n" + 
+			"		Iterator<Object> objectI = retVal.iterator();\n" + 
+			"		while (objectI.hasNext()) {\n" + 
+			"			Object object = objectI.next();\n" + 
+			"			if (!isIdenticalToAny(object.getClass(), types)) objectI.remove();\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return retVal;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns only those target objects whose type is NOT identical to the\n" + 
+			"	 * excluded reference type.\n" + 
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @param type The excluded reference type. Never null.\n" + 
+			"	 * @param retVal Return value object. The collection of valid target\n" + 
+			"	 * objects. Can be {@code targets}. Never null.\n" + 
+			"	 * @return Reference to retVal. Never null.\n" + 
+			"	 */\n" + 
+			"	public static Collection<Object> excludeIdenticalTo(\n" + 
+			"	Collection<Object> targets, Class<?> type,\n" + 
+			"	Collection<Object> retVal) {\n" + 
+			"		// save targets in retVal\n" + 
+			"		if (targets != retVal) {\n" + 
+			"			retVal.clear();\n" + 
+			"			retVal.addAll(targets);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		// remove unwanted targets, by target\n" + 
+			"		Iterator<Object> objectI = retVal.iterator();\n" + 
+			"		while (objectI.hasNext()) {\n" + 
+			"			Object object = objectI.next();\n" + 
+			"			if (type.equals(object.getClass())) objectI.remove();\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return retVal;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns only those target objects whose type is NOT exactly one of the\n" + 
+			"	 * excluded reference types.\n" + 
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @param types Group of excluded reference types. If empty, returns empty.\n" + 
+			"	 * If null, no types are excluded (all targets are returned).\n" + 
+			"	 * @param retVal Return value object. The collection of valid target\n" + 
+			"	 * objects. Can be targets. Never null.\n" + 
+			"	 * @return Reference to retVal. Never null.\n" + 
+			"	 */\n" + 
+			"	public static Collection<Object> excludeIdenticalToAny(\n" + 
+			"	Collection<Object> targets, Collection<Class<?>> types,\n" + 
+			"	Collection<Object> retVal) {\n" + 
+			"		// save targets in retVal\n" + 
+			"		if (targets != retVal) {\n" + 
+			"			retVal.clear();\n" + 
+			"			retVal.addAll(targets);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		if (types == null) return retVal;\n" + 
+			"\n" + 
+			"		// remove unwanted targets, by target\n" + 
+			"		Iterator<Object> objectI = retVal.iterator();\n" + 
+			"		while (objectI.hasNext()) {\n" + 
+			"			Object object = objectI.next();\n" + 
+			"			if (isIdenticalToAny(object.getClass(), types)) objectI.remove();\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return retVal;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns only those target objects whose type is assignable to (an\n" + 
+			"	 * instance of) the included reference type.\n" + 
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @param type Included reference type. Never null.\n" + 
+			"	 * @param retVal Return value object. The collection of valid target objects\n" + 
+			"	 * (Object). Can be targets. Never null.\n" + 
+			"	 * @return Reference to retVal. Never null.\n" + 
+			"	 */\n" + 
+			"	public static Collection<Object> includeAssignableTo(\n" + 
+			"	Collection<Object> targets, Class<?> type, Collection<Object> retVal) {\n" + 
+			"		// save targets in retVal\n" + 
+			"		if (targets != retVal) {\n" + 
+			"			retVal.clear();\n" + 
+			"			retVal.addAll(targets);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		// remove unwanted targets, by target\n" + 
+			"		Iterator<Object> objectI = retVal.iterator();\n" + 
+			"		while (objectI.hasNext()) {\n" + 
+			"			Object object = objectI.next();\n" + 
+			"			if (!type.isInstance(object)) objectI.remove();\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return retVal;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns only those target objects whose type is assignable to (an\n" + 
+			"	 * instance of) any one of the included reference types.\n" + 
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @param types Group of included reference types. If empty, returns empty.\n" + 
+			"	 * If null, all types are included (all targets are returned).\n" + 
+			"	 * @param retVal Return value object. The collection of valid target\n" + 
+			"	 * objects. Can be targets. Never null.\n" + 
+			"	 * @return Reference to retVal. Never null.\n" + 
+			"	 */\n" + 
+			"	public static Collection<Object> includeAssignableToAny(\n" + 
+			"	Collection<Object> targets, Collection<Class<?>> types,\n" + 
+			"	Collection<Object> retVal) {\n" + 
+			"		// save targets in retVal\n" + 
+			"		if (targets != retVal) {\n" + 
+			"			retVal.clear();\n" + 
+			"			retVal.addAll(targets);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		if (types == null) return retVal;\n" + 
+			"\n" + 
+			"		// remove unwanted targets, by target\n" + 
+			"		Iterator<Object> objectI = retVal.iterator();\n" + 
+			"		while (objectI.hasNext()) {\n" + 
+			"			Object object = objectI.next();\n" + 
+			"			if (!isInstanceOfAny(object, types)) objectI.remove();\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return retVal;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns only those target objects whose type is NOT assignable to (an\n" + 
+			"	 * instance of) the excluded reference type.\n" + 
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @param type The excluded reference type. Never null.\n" + 
+			"	 * @param retVal Return value object. The collection of valid target\n" + 
+			"	 * objects. Never null.\n" + 
+			"	 * @return Reference to retVal. Never null.\n" + 
+			"	 */\n" + 
+			"	public static Collection<Object> excludeAssignableTo(\n" + 
+			"	Collection<Object> targets, Class<?> type, Collection<Object> retVal) {\n" + 
+			"		// save targets in retVal\n" + 
+			"		if (targets != retVal) {\n" + 
+			"			retVal.clear();\n" + 
+			"			retVal.addAll(targets);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		// remove unwanted targets, by target\n" + 
+			"		Iterator<Object> objectI = retVal.iterator();\n" + 
+			"		while (objectI.hasNext()) {\n" + 
+			"			Object object = objectI.next();\n" + 
+			"			if (type.isInstance(object)) objectI.remove();\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return retVal;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns only those target objects whose type is NOT assignable to (an\n" + 
+			"	 * instance of) any one of the excluded reference types.\n" + 
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @param types Group of excluded reference types. If empty, returns empty.\n" + 
+			"	 * If null, no types are excluded (all targets are returned).\n" + 
+			"	 * @param retVal Return value object. The collection of valid target\n" + 
+			"	 * objects. Never null.\n" + 
+			"	 * @return Reference to retVal. Never null.\n" + 
+			"	 */\n" + 
+			"	public static Collection<Object> excludeAssignableToAny(\n" + 
+			"	Collection<Object> targets, Collection<Class<?>> types,\n" + 
+			"	Collection<Object> retVal) {\n" + 
+			"		// save targets in retVal\n" + 
+			"		if (targets != retVal) {\n" + 
+			"			retVal.clear();\n" + 
+			"			retVal.addAll(targets);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		if (types == null) return retVal;\n" + 
+			"\n" + 
+			"		// remove unwanted targets, by target\n" + 
+			"		Iterator<Object> objectI = retVal.iterator();\n" + 
+			"		while (objectI.hasNext()) {\n" + 
+			"			Object object = objectI.next();\n" + 
+			"			if (isInstanceOfAny(object, types)) objectI.remove();\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return retVal;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns the first target object whose type is assignable to (an instance\n" + 
+			"	 * of) the reference type.\n" + 
+			"	 * @param targets Group of target objects. If empty, returns null.\n" + 
+			"	 * Never null.\n" + 
+			"	 * @param type Reference type. Never null.\n" + 
+			"	 * @return The result (Object, assignable instance of type). Null if none.\n" + 
+			"	 */\n" + 
+			"	public static <T extends Class<?>> T getFirstAssignableTo(\n" + 
+			"	Collection<Object> targets, T type) {\n" + 
+			"		for(Object target : targets) {\n" + 
+			"			if (type.isInstance(target)) return target;\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Returns the first target object whose type is exactly the specified type.\n" + 
+			"	 * @param targets Group of target objects (Object). If empty, returns null.\n" + 
+			"	 * Never null.\n" + 
+			"	 * @param type The type. Never null. objects (Object). Can be targets. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @return The result (Object, exact instance of type). Null if none.\n" + 
+			"	 */\n" + 
+			"	public static Object getFirstIdenticalTo(Collection targets, Class type) {\n" + 
+			"		Iterator targetI = targets.iterator();\n" + 
+			"		while (targetI.hasNext()) {\n" + 
+			"			Object target = targetI.next();\n" + 
+			"			if (type.equals(target.getClass())) return target;\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Gets a target object T from a source object S in a group of objects, and\n" + 
+			"	 * returns the target objects in result group R. A group object is ignored\n" + 
+			"	 * if it is not a source type or, if it is a source type, its target object\n" + 
+			"	 * is not a target type.\n" + 
+			"	 * @param group Temp input group of shared exposed objects. If null, returns\n" + 
+			"	 * empty.\n" + 
+			"	 * @param sourceType Desired source object type. Never null.\n" + 
+			"	 * @param getter Gets a target object from a source object. Never null.\n" + 
+			"	 * @param targetType Desired target object type. Never null.\n" + 
+			"	 * @param retVal Temp output group of shared exposed target objects. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @return Reference to retVal. Never null.\n" + 
+			"	 */\n" + 
+			"	public static <S,T,TT extends T,R extends Collection<? super TT>> R getAll(\n" + 
+			"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" + 
+			"	Class<TT> targetType, R retVal) {\n" + 
+			"		if (sourceType == null) throw new IllegalArgumentException(\n" + 
+			"		\"Source type is null.\");\n" + 
+			"		if (getter == null) throw new IllegalArgumentException(\n" + 
+			"		\"Getter is null.\");\n" + 
+			"		if (targetType == null) throw new IllegalArgumentException(\n" + 
+			"		\"Target type is null.\");\n" + 
+			"		if (retVal == null) throw new IllegalArgumentException(\n" + 
+			"		\"Return value is null.\");\n" + 
+			"		retVal.clear();\n" + 
+			"\n" + 
+			"		if (group == null) return retVal;\n" + 
+			"\n" + 
+			"		for (Object obj : group) {\n" + 
+			"			if (!sourceType.isInstance(obj)) continue; // ignore\n" + 
+			"			S source = (S) obj;\n" + 
+			"			T target = getter.getFrom(source);\n" + 
+			"			if (!targetType.isInstance(target)) continue; // ignore\n" + 
+			"			retVal.add((TT) target);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return retVal;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Similar to getAll(Collection, Class, Getter, Class, Collection), but all\n" + 
+			"	 * target objects are returned, regardless of type, including nulls.\n" + 
+			"	 * @param group Temp input group of shared exposed objects. If null, returns\n" + 
+			"	 * empty.\n" + 
+			"	 * @param sourceType Desired source object type. Never null.\n" + 
+			"	 * @param getter Gets a target object from a source object. Never null.\n" + 
+			"	 * @param retVal Temp output group of shared exposed target objects. Never\n" + 
+			"	 * null.\n" + 
+			"	 * @return Reference to retVal. Never null.\n" + 
+			"	 */\n" + 
+			"	public static <S,T,R extends Collection<? super T>> R getAll(\n" + 
+			"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" + 
+			"	R retVal) {\n" + 
+			"		if (sourceType == null) throw new IllegalArgumentException(\n" + 
+			"		\"Source type is null.\");\n" + 
+			"		if (getter == null) throw new IllegalArgumentException(\n" + 
+			"		\"Getter is null.\");\n" + 
+			"		if (retVal == null) throw new IllegalArgumentException(\n" + 
+			"		\"Return value is null.\");\n" + 
+			"		retVal.clear();\n" + 
+			"\n" + 
+			"		if (group == null) return retVal;\n" + 
+			"\n" + 
+			"		for (Object obj : group) {\n" + 
+			"			if (!sourceType.isInstance(obj)) continue; // ignore\n" + 
+			"			S source = (S) obj;\n" + 
+			"			T target = getter.getFrom(source);\n" + 
+			"			retVal.add(target);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return retVal;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in TypeUtils.java (at line 441)\n" + 
+		"	public static <T extends Class<?>> T getFirstAssignableTo(\n" + 
+		"	                         ^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type Class<?>. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in TypeUtils.java (at line 444)\n" + 
+		"	if (type.isInstance(target)) return target;\n" + 
+		"	                                    ^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to T\n" + 
+		"----------\n" + 
+		"3. WARNING in TypeUtils.java (at line 458)\n" + 
+		"	public static Object getFirstIdenticalTo(Collection targets, Class type) {\n" + 
+		"	                                         ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in TypeUtils.java (at line 458)\n" + 
+		"	public static Object getFirstIdenticalTo(Collection targets, Class type) {\n" + 
+		"	                                                             ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in TypeUtils.java (at line 459)\n" + 
+		"	Iterator targetI = targets.iterator();\n" + 
+		"	^^^^^^^^\n" + 
+		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
+		"----------\n" + 
+		"6. ERROR in TypeUtils.java (at line 483)\n" + 
+		"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" + 
+		"	                                                    ^^^^^^\n" + 
+		"Getter cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"7. WARNING in TypeUtils.java (at line 499)\n" + 
+		"	S source = (S) obj;\n" + 
+		"	           ^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to S\n" + 
+		"----------\n" + 
+		"8. WARNING in TypeUtils.java (at line 502)\n" + 
+		"	retVal.add((TT) target);\n" + 
+		"	           ^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from T to TT\n" + 
+		"----------\n" + 
+		"9. ERROR in TypeUtils.java (at line 520)\n" + 
+		"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" + 
+		"	                                                    ^^^^^^\n" + 
+		"Getter cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"10. WARNING in TypeUtils.java (at line 534)\n" + 
+		"	S source = (S) obj;\n" + 
+		"	           ^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to S\n" + 
+		"----------\n");
+}
+
 }
