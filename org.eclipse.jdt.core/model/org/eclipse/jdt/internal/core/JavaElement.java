@@ -18,9 +18,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
-import java.net.NoRouteToHostException;
+import java.net.ProtocolException;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -788,7 +790,11 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
  			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 		} catch (FileNotFoundException e) {
 			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
-		} catch(NoRouteToHostException e) {
+		} catch(SocketException e) {
+			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845
+		} catch(UnknownHostException e) {
+			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845
+		} catch(ProtocolException e) {
 			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845
 		} catch(IOException e) {
 			StringWriter stringWriter = new StringWriter();
