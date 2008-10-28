@@ -1829,17 +1829,9 @@ public class ClasspathEntry implements IClasspathEntry {
 			case IClasspathEntry.CPE_LIBRARY :
 				path = ClasspathEntry.resolveDotDot(path);
 				
-				// resolve Class-Path: in manifest
-				IPath[] chainedJars = ClasspathEntry.resolvedChainedLibraries(path);
-				for (int i = 0, length = chainedJars.length; i < length; i++) {
-					IPath chainedJar = chainedJars[i];
-					IJavaModelStatus status = validateLibraryEntry(chainedJar, project, null/*don't check source attachment*/, null/*force computing of entryPathMsg*/);
-					if (!status.isOK()) {
-						if (referredByContainer && status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH)
-							continue; // ignore this entry (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=250946 )
-						return status;
-					}
-				}
+				// do not validate entries from Class-Path: in manifest
+				// (these entries are considered optional since the user cannot act on them)
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=252392
 				
 				IJavaModelStatus status = validateLibraryEntry(path, project, checkSourceAttachment ? entry.getSourceAttachmentPath() : null, entryPathMsg);
 				if (!status.isOK())

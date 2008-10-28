@@ -3111,7 +3111,8 @@ public void testExtraLibraries05() throws Exception {
 	}
 }
 /*
- * Ensures that a marker is created for incorrect extra libraries in the Class-Path: clause of a jar
+ * Ensures that a marker is not created for incorrect extra libraries in the Class-Path: clause of a jar
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=252392 )
  */
 public void testExtraLibraries06() throws Exception {
 	try {
@@ -3125,7 +3126,7 @@ public void testExtraLibraries06() throws Exception {
 			JavaCore.VERSION_1_4);
 		assertMarkers(
 			"Unexpected markers",
-			"Project \'P\' is missing required library: \'lib2.jar\'",
+			"",
 			p);
 	} finally {
 		deleteProject("P");
@@ -3184,7 +3185,8 @@ public void testExtraLibraries08() throws Exception {
 	}
 }
 /*
- * Ensures that a marker is created for incorrect extra libraries in the Class-Path: clause of an external jar
+ * Ensures that a marker is not created for incorrect extra libraries in the Class-Path: clause of an external jar
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=252392 )
  */
 public void testExtraLibraries09() throws Exception {
 	try {
@@ -3198,7 +3200,7 @@ public void testExtraLibraries09() throws Exception {
 			JavaCore.VERSION_1_4);
 		assertMarkers(
 			"Unexpected markers",
-			"Project \'P\' is missing required library: \'"+ getExternalPath() + "lib2.jar\'",
+			"",
 			p);
 	} finally {
 		deleteProject("P");
@@ -3207,7 +3209,8 @@ public void testExtraLibraries09() throws Exception {
 	}
 }
 /*
- * Ensures that a marker is created for incorrect extra libraries in the Class-Path: clause of an external jar
+ * Ensures that a marker is not created for incorrect extra libraries in the Class-Path: clause of an external jar
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=252392 )
  */
 public void testExtraLibraries10() throws Exception {
 	try {
@@ -3227,7 +3230,7 @@ public void testExtraLibraries10() throws Exception {
 		refreshExternalArchives(p);
 		assertMarkers(
 			"Unexpected markers",
-			"Project \'P\' is missing required library: \'"+ getExternalPath() + "lib2.jar\'",
+			"",
 			p);
 	} finally {
 		deleteProject("P");
