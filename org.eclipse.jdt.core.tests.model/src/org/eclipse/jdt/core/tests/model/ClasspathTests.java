@@ -3394,7 +3394,33 @@ public void testExtraLibraries15() throws Exception {
 		deleteProject("P");
 		deleteExternalResource("lib1.jar");
 	}
-}/*
+}
+/*
+ * Ensures that an invalid Class-Path: clause of a jar doesn't generate messages in the .log
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=252264 )
+ */
+public void testExtraLibraries16() throws Exception {
+	try {
+		startLogListening();
+		Util.createJar(
+			new String[0],
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\r\n" +
+				"Class-Path: \n",
+			},
+			getExternalResourcePath("lib1.jar"),
+			JavaCore.VERSION_1_4);
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("lib1.jar")}, "");
+		p.getResolvedClasspath(true);
+		assertLogEquals("");
+	} finally {
+		stopLogListening();
+		deleteProject("P");
+		deleteExternalResource("lib1.jar");
+	}
+}
+/*
  * Ensures that a marker is removed if adding an internal jar that is on the classpath in another project
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=213723 )
  */

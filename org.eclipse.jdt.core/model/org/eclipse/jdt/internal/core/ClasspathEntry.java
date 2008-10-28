@@ -888,10 +888,14 @@ public class ClasspathEntry implements IClasspathEntry {
 					boolean success = analyzer.analyzeManifestContents(reader);
 					List calledFileNames = analyzer.getCalledFileNames();
 					if (!success || analyzer.getClasspathSectionsCount() == 1 && calledFileNames == null) {
-						Util.log(IStatus.WARNING, "Invalid Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+						if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+							Util.verbose("Invalid Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+						}
 						return;
 					} else if (analyzer.getClasspathSectionsCount() > 1) {
-						Util.log(IStatus.WARNING, "Multiple Class-Path headers in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+						if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+							Util.verbose("Multiple Class-Path headers in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+						}
 						return;
 					}
 					if (calledFileNames != null) {
@@ -900,7 +904,9 @@ public class ClasspathEntry implements IClasspathEntry {
 						while (calledFilesIterator.hasNext()) {
 							String calledFileName = (String) calledFilesIterator.next();
 							if (!directoryPath.isValidPath(calledFileName)) {
-								Util.log(IStatus.WARNING, "Invalid Class-Path entry " + calledFileName + " in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+								if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+									Util.verbose("Invalid Class-Path entry " + calledFileName + " in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+								}
 							} else {
 								IPath calledJar = directoryPath.append(new Path(calledFileName));
 								resolvedChainedLibraries(calledJar, visited, result);
@@ -911,8 +917,16 @@ public class ClasspathEntry implements IClasspathEntry {
 				}
 			} catch (CoreException e) {
 				// not a zip file
+				if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+					Util.verbose("Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+					e.printStackTrace();
+				}
 			} catch (IOException e) {
-				Util.log(e, "Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+				// not a zip file
+				if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+					Util.verbose("Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+					e.printStackTrace();
+				}
 			} finally {
 				manager.closeZipFile(zip);
 				if (reader != null) {
