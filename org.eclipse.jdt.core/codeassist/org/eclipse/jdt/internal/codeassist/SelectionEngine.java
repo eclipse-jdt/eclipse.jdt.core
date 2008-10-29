@@ -730,7 +730,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			
 			IJavaSearchScope scope = BasicSearchEngine.createWorkspaceScope();
 			
-			SelectionTypeNameMatchRequestorWrapper requestorWrapper = new SelectionTypeNameMatchRequestorWrapper(typeNameMatchRequestor, scope, this.unitScope.referenceContext.imports);
+			SelectionTypeNameMatchRequestorWrapper requestorWrapper =
+				new SelectionTypeNameMatchRequestorWrapper(
+						typeNameMatchRequestor, 
+						scope,
+						this.unitScope == null ? null : this.unitScope.referenceContext.imports);
 			
 			org.eclipse.jdt.core.ICompilationUnit[] workingCopies = this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/);
 			

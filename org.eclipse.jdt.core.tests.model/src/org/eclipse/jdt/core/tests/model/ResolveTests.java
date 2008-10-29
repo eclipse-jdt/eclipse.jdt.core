@@ -414,6 +414,25 @@ public void testConstructorDeclaration() throws JavaModelException {
 	);
 }
 /**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=252481
+ */
+public void testEmptyCU1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/Test.java",
+		"//this CU must contain only an unknown type name" +
+		"Unknown\n" +
+		"\n"
+	);
+	
+	IJavaElement[] elements = codeSelect(this.workingCopies[0], "Unknown", "Unknown");
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+/**
  * Resolve empty selection
  */
 public void testEmptySelection() throws JavaModelException {
