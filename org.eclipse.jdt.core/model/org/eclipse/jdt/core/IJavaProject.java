@@ -613,6 +613,11 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * variables are changed, the resolved classpath can become out of date.
 	 * Because of this, hanging on resolved classpath is not recommended.
 	 * </p>
+	 * <p>
+	 * Note that if the resolution creates duplicate entries 
+	 * (i.e. {@link IClasspathEntry entries} which are {@link Object#equals(Object)}), 
+	 * only the first one is added to the resolved classpath.
+	 * </p>
 	 * 
 	 * @param ignoreUnresolvedEntry indicates how to handle unresolvable
 	 * variables and containers; <code>true</code> indicates that missing

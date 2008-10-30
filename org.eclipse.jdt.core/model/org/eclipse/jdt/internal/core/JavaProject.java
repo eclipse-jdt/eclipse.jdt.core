@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -2449,7 +2450,7 @@ public class JavaProject
 	 * Resolve the given raw classpath.
 	 */
 	public IClasspathEntry[] resolveClasspath(IClasspathEntry[] rawClasspath) throws JavaModelException {
-		ArrayList resolvedEntries = new ArrayList();
+		LinkedHashSet resolvedEntries = new LinkedHashSet();
 		for (int i = 0, length = rawClasspath.length; i < length; i++) {
 			IClasspathEntry rawEntry = rawClasspath[i];
 			switch (rawEntry.getEntryKind()){
@@ -2525,7 +2526,7 @@ public class JavaProject
 			HashMap rawReverseMap = new HashMap();
 			Map rootPathToResolvedEntries = new HashMap();
 			
-			ArrayList resolvedEntries = new ArrayList();
+			LinkedHashSet resolvedEntries = new LinkedHashSet();
 			int length = rawClasspath.length;
 			for (int i = 0; i < length; i++) {
 	

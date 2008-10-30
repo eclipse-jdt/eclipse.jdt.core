@@ -1284,6 +1284,17 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (rawClasspath == null)
 			return JavaModelStatus.VERIFIED_OK;
 
+		// check duplicate entries on raw classpath only (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=175226 )
+		int rawLength = rawClasspath.length;
+		HashSet pathes = new HashSet(rawLength);
+		for (int i = 0 ; i < rawLength; i++) {
+			IPath entryPath = rawClasspath[i].getPath();
+			if (!pathes.add(entryPath)){
+				String entryPathMsg = projectName.equals(entryPath.segment(0)) ? entryPath.removeFirstSegments(1).toString() : entryPath.makeRelative().toString();
+				return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Messages.bind(Messages.classpath_duplicateEntryPath, new String[] {entryPathMsg, projectName}));
+			}
+		}
+
 		// retrieve resolved classpath
 		IClasspathEntry[] classpath;
 		try {
@@ -1388,8 +1399,6 @@ public class ClasspathEntry implements IClasspathEntry {
 			for (int i = 0; i < outputCount; i++) allowNestingInOutputLocations[i] = true;
 		}
 
-		HashSet pathes = new HashSet(length);
-
 		// check all entries
 		for (int i = 0 ; i < length; i++) {
 			IClasspathEntry entry = classpath[i];
@@ -1397,14 +1406,6 @@ public class ClasspathEntry implements IClasspathEntry {
 			IPath entryPath = entry.getPath();
 			int kind = entry.getEntryKind();
 
-			// Build some common strings for status message
-			boolean isProjectRelative = projectName.equals(entryPath.segment(0));
-			String entryPathMsg = isProjectRelative ? entryPath.removeFirstSegments(1).toString() : entryPath.makeRelative().toString();
-
-			// complain if duplicate path
-			if (!pathes.add(entryPath)){
-				return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Messages.bind(Messages.classpath_duplicateEntryPath, new String[] {entryPathMsg, projectName}));
-			}
 			// no further check if entry coincidates with project or output location
 			if (entryPath.equals(projectPath)){
 				// complain if self-referring project entry
