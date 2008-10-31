@@ -14,8 +14,10 @@ import java.util.HashMap;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
@@ -1048,6 +1050,50 @@ public void testBug179199() throws CoreException {
 	}
 	finally {
 		deleteProject("P1");
+	}
+}
+/**
+ * @bug 250211: [search] Organize Imports Hangs
+ * @test Ensure that JavaSearchScope creation does not take too much time.<br>
+ * Note that this test does not make any assertion, it just creates several projects
+ * with a huge dependency tree and create a scope on all of them.<br>
+ * If the bug was back again, then this test would never finish!
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211"
+ */
+public void testBug250211() throws CoreException {
+	final int max = 50;
+	final IJavaProject[] projects = new IJavaProject[max];
+	try {
+		JavaCore.run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				for (int i = 0; i < max; i++){
+					String projectName = "P"+i;
+					String[] dependents = new String[max-1];
+					boolean[] exportedProjects = new boolean[max-1];
+					for (int j = 0; j < max; j++){
+						int idx = -1;
+						if (j < i) {
+							idx = j;
+						} else if (j > i) {
+							idx = j-1;
+						}
+						if (idx != -1) {
+							dependents[idx] = "/P"+j;
+							exportedProjects[idx] = true; // export all projects
+						}
+					}
+					projects[i] = createJavaProject(projectName, new String[]{"src"}, new String[]{"JCL_LIB"}, dependents, exportedProjects, "bin");
+				}		
+			}
+		}, 
+		null);
+		SearchEngine.createJavaSearchScope(projects);
+	}
+	finally {
+		for (int i = 0; i < max; i++){
+			assertNotNull("Unexpected null project!", projects[i]);
+			deleteProject(projects[i]);
+		}
 	}
 }
 }

@@ -90,10 +90,10 @@ private void addEnclosingProjectOrJar(IPath path) {
 
 /**
  * Add java project all fragment roots to current java search scope.
- * @see #add(JavaProject, IPath, int, HashSet, IClasspathEntry)
+ * @see #add(JavaProject, IPath, int, HashSet, HashSet, IClasspathEntry)
  */
 public void add(JavaProject project, int includeMask, HashSet projectsToBeAdded) throws JavaModelException {
-	add(project, null, includeMask, projectsToBeAdded, null);
+	add(project, null, includeMask, projectsToBeAdded, new HashSet(2), null);
 }
 /**
  * Add a path to current java search scope or all project fragment roots if null.
@@ -103,12 +103,13 @@ public void add(JavaProject project, int includeMask, HashSet projectsToBeAdded)
  * @param pathToAdd Path to add in case of single element or null if user want to add all project package fragment roots
  * @param includeMask Mask to apply on classpath entries
  * @param projectsToBeAdded Set to avoid infinite recursion
+ * @param visitedProjects Set to avoid adding twice the same project
  * @param referringEntry Project raw entry in referring project classpath
  * @throws JavaModelException May happen while getting java model info 
  */
-void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet projectsToBeAdded, IClasspathEntry referringEntry) throws JavaModelException {
+void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet projectsToBeAdded, HashSet visitedProjects, IClasspathEntry referringEntry) throws JavaModelException {
 	IProject project = javaProject.getProject();
-	if (!project.isAccessible() || projectsToBeAdded.contains(project)) return;
+	if (!project.isAccessible() || !visitedProjects.add(project)) return;
 
 	IPath projectPath = project.getFullPath();
 	String projectPathString = projectPath.toString();
@@ -184,9 +185,10 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet proj
 				if ((includeMask & REFERENCED_PROJECTS) != 0) {
 					IPath path = entry.getPath();
 					if (pathToAdd == null || pathToAdd.equals(path)) {
-						projectsToBeAdded.add(project); // avoid infinite recursion
-						add((JavaProject) model.getJavaProject(path.lastSegment()), null, includeMask, projectsToBeAdded, cpEntry);
-						projectsToBeAdded.remove(project);
+						JavaProject referencedProject = (JavaProject) model.getJavaProject(path.lastSegment());
+						if (!projectsToBeAdded.contains(referencedProject)) { // do not recurse if depending project was used to create the scope
+							add(referencedProject, null, includeMask, projectsToBeAdded, visitedProjects, cpEntry);
+						}
 					}
 				}
 				break;
@@ -216,7 +218,7 @@ public void add(IJavaElement element) throws JavaModelException {
 			// a workspace sope should be used
 			break; 
 		case IJavaElement.JAVA_PROJECT:
-			add((JavaProject)element, null, includeMask, new HashSet(2), null);
+			add((JavaProject)element, null, includeMask, new HashSet(2), new HashSet(2), null);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			root = (PackageFragmentRoot)element;
