@@ -1288,7 +1288,7 @@ public void test025() {
 		new String[] {
 			"X.java",
 			"public class X {\n" +
-			"  J m = new Y();" +
+			"  J m = new Y();\n" +
 			"  void foo() {\n" +
 			"    m.foo(1.0f);\n" +
 			"  }\n" +
@@ -1304,7 +1304,7 @@ public void test025() {
 			"Y.java",
 			"public class Y implements J {\n" +
 			"  public Float foo(final Number p){\n" +
-			"    return null;" +
+			"    return null;\n" +
 			"  }\n" +
 			"}",
 		},
@@ -2376,6 +2376,236 @@ public void test067() {
 			"}"
 		},
 		"1"
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279
+public void test068() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface A { X<? extends A> foo(); }\n" +
+			"interface B extends A { X<? extends B> foo(); }\n" +
+			"interface C extends B, A {}\n" +
+			"interface D extends A, B {}\n" +
+			"public class X<T> {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		C c = null;\n" +
+			"		X<? extends B> c_b = c.foo();\n" +
+			"		D d = null;\n" +
+			"		 X<? extends B> d_b = d.foo();\n" +
+			"	}\n" +
+			"}"
+		},
+		""
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
+public void test069() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface A { X<? extends B> foo(); }\n" +
+			"interface B extends A { X<? extends A> foo(); }\n" +
+			"interface C extends B, A {}\n" +
+			"interface D extends A, B {}\n" +
+			"public class X<T> {\n" +
+			"	void test(C c, D d) {\n" +
+			"		X<? extends B> c_b = c.foo();\n" +
+			"		 X<? extends B> d_b = d.foo();\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	interface B extends A { X<? extends A> foo(); }\n" +
+		"	                        ^^^^^^^^^^^^^^\n" +
+		"The return type is incompatible with A.foo()\n" +
+		"----------\n"
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
+public void test070() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface A { X<? extends A> foo(); }\n" +
+			"interface B { X<? extends B> foo(); }\n" +
+			"interface C extends B, A {}\n" +
+			"interface D extends A, B {}\n" +
+			"public class X<T> {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		C c = null;\n" +
+			"		X<? extends B> c_b = c.foo();\n" +
+			"		D d = null;\n" +
+			"		 X<? extends B> d_b = d.foo();\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	interface C extends B, A {}\n" +
+		"	          ^\n" +
+		"The return type is incompatible with A.foo(), B.foo()\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	interface D extends A, B {}\n" +
+		"	          ^\n" +
+		"The return type is incompatible with B.foo(), A.foo()\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 8)\n" +
+		"	X<? extends B> c_b = c.foo();\n" +
+		"	                       ^^^\n" +
+		"The method foo() is ambiguous for the type C\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 10)\n" +
+		"	X<? extends B> d_b = d.foo();\n" +
+		"	                       ^^^\n" +
+		"The method foo() is ambiguous for the type D\n" +
+		"----------\n"
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
+public void test071() {
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"interface I {\n" +
+			"	Integer a();\n" +
+			"	Float b();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	Integer a();\n" +
+			"	Double c();\n" +
+			"}\n" +
+			"abstract class X {\n" +
+			"	public abstract Float b();\n" +
+			"	public Double c() { return null; }\n" +
+			"}\n" +
+			"abstract class Y extends X implements I, J {\n" +
+			"	void test() {\n" +
+			"		Integer i = a();\n" +
+			"		Float f = b();\n" +
+			"		Double d = c();\n" +
+			"	}\n" +
+			"}"
+		},
+		""
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
+public void test072() {
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"interface I {\n" +
+			"	Number a();\n" +
+			"	Number b();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	Integer a();\n" +
+			"	Number c();\n" +
+			"}\n" +
+			"abstract class X {\n" +
+			"	public abstract Float b();\n" +
+			"	public Double c() { return null; }\n" +
+			"}\n" +
+			"abstract class Y extends X implements I, J {\n" +
+			"	void test() {\n" +
+			"		Integer i = a();\n" +
+			"		Float f = b();\n" +
+			"		Double d = c();\n" +
+			"	}\n" +
+			"}\n" +
+			"abstract class Y2 extends X implements J, I {\n" +
+			"	void test() {\n" +
+			"		Integer i = a();\n" +
+			"		Float f = b();\n" +
+			"		Double d = c();\n" +
+			"	}\n" +
+			"}"
+		},
+		"" // javac reports 4 ambiguous errors, 2 each of a() & b() even tho the return types are sustitutable
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
+public void test073() {
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"interface I {\n" +
+			"	int a();\n" +
+			"	int b();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	byte a();\n" +
+			"	int c();\n" +
+			"}\n" +
+			"abstract class X {\n" +
+			"	public abstract byte b();\n" +
+			"	public byte c() { return 1; }\n" +
+			"}\n" +
+			"abstract class Y extends X implements I, J {\n" +
+			"	void test() {\n" +
+			"		byte a = a();\n" +
+			"		byte b = b();\n" +
+			"		byte c = c();\n" +
+			"	}\n" +
+			"}\n" +
+			"abstract class Y2 extends X implements J, I {\n" +
+			"	void test() {\n" +
+			"		byte a = a();\n" +
+			"		byte b = b();\n" +
+			"		byte c = c();\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in Y.java (at line 13)\n" +
+		"	abstract class Y extends X implements I, J {\n" +
+		"	               ^\n" +
+		"The return type is incompatible with J.c(), X.c()\n" +
+		"----------\n" +
+		"2. ERROR in Y.java (at line 13)\n" +
+		"	abstract class Y extends X implements I, J {\n" +
+		"	               ^\n" +
+		"The return type is incompatible with I.b(), X.b()\n" +
+		"----------\n" +
+		"3. ERROR in Y.java (at line 13)\n" +
+		"	abstract class Y extends X implements I, J {\n" +
+		"	               ^\n" +
+		"The return type is incompatible with J.a(), I.a()\n" +
+		"----------\n" +
+		"4. ERROR in Y.java (at line 15)\n" +
+		"	byte a = a();\n" +
+		"	         ^\n" +
+		"The method a() is ambiguous for the type Y\n" +
+		"----------\n" +
+		"5. ERROR in Y.java (at line 20)\n" +
+		"	abstract class Y2 extends X implements J, I {\n" +
+		"	               ^^\n" +
+		"The return type is incompatible with J.c(), X.c()\n" +
+		"----------\n" +
+		"6. ERROR in Y.java (at line 20)\n" +
+		"	abstract class Y2 extends X implements J, I {\n" +
+		"	               ^^\n" +
+		"The return type is incompatible with I.b(), X.b()\n" +
+		"----------\n" +
+		"7. ERROR in Y.java (at line 20)\n" +
+		"	abstract class Y2 extends X implements J, I {\n" +
+		"	               ^^\n" +
+		"The return type is incompatible with I.a(), J.a()\n" +
+		"----------\n" +
+		"8. ERROR in Y.java (at line 22)\n" +
+		"	byte a = a();\n" +
+		"	         ^\n" +
+		"The method a() is ambiguous for the type Y2\n" +
+		"----------\n"
 	);
 }
 }

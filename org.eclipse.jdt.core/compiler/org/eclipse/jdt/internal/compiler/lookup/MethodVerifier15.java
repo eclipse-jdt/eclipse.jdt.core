@@ -362,52 +362,35 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
 	// assumes length > 1
 	// its possible in 1.5 that A is compatible with B & C, but B is not compatible with C
-	int[] areIncompatible = null;
+	// so find 1 method that is compatible with every other method
 	// abstract classes must check every method against each other
 	// but if first method is concrete, then only check it against the rest
-	for (int i = 0, l = methods[0].isAbstract() ? length - 2 : 0; i <= l;) {
-		MethodBinding method = methods[i++];
-		nextMethod : for (int j = i; j < length; j++) {
+	match : for (int i = 0, l = methods[0].isAbstract() ? length - 1 : 0; i <= l; i++) {
+		MethodBinding method = methods[i];
+		next : for (int j = 0; j < length; j++) {
+			if (i == j) continue;
 			if (!areReturnTypesCompatible(method, methods[j])) {
 				if (this.type.isInterface()) {
 					for (int m = length; --m >= 0;)
 						if (methods[m].declaringClass.id == TypeIds.T_JavaLangObject)
-							continue nextMethod; // do not complain since the super interface already got blamed
+							return true; // do not complain since the super interface already got blamed
 				} else {
-					if (method.isAbstract() && method.declaringClass.isClass())
-						if (areReturnTypesCompatible(methods[j], method))
-							continue nextMethod; // return type of the superclass' inherited method is a supertype of the return type of the interface's method 
 					if (method.declaringClass.isClass() || !this.type.implementsInterface(method.declaringClass, false))
 						if (methods[j].declaringClass.isClass() || !this.type.implementsInterface(methods[j].declaringClass, false))
-							continue nextMethod; // do not complain since the superclass already got blamed
+							continue next; // do not complain since the superclass already got blamed
 				}
 				// check to see if this is just a warning, if so report it & skip to next method
 				if (isUnsafeReturnTypeOverride(method, methods[j])) {
 					problemReporter(method).unsafeReturnTypeOverride(method, methods[j], this.type);
-					continue nextMethod;
+					continue next;
 				}
-				if (areIncompatible == null)
-					areIncompatible = new int[length];
-				areIncompatible[i - 1] = -1;
-				areIncompatible[j] = -1;
+				continue match;
 			}
 		}
-	}
-	if (areIncompatible == null)
 		return true;
-
-	int count = 0;
-	for (int i = 0; i < length; i++)
-		if (areIncompatible[i] == -1) count++;
-	if (count == length) {
-		problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
-		return false;
 	}
-	MethodBinding[] methodsToReport = new MethodBinding[count];
-	for (int i = 0, index = 0; i < length; i++)
-		if (areIncompatible[i] == -1)
-			methodsToReport[index++] = methods[i];
-	problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methodsToReport, count);
+
+	problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
 	return false;
 }
 void checkMethods() {

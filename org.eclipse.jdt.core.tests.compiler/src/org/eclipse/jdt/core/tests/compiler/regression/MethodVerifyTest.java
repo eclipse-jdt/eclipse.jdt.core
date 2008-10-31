@@ -5098,17 +5098,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"abstract class Y implements L, M, N {}\n" +
 				"abstract class Z implements L, M, N { public K getI() { return null; } }\n"
 			},
-			"----------\n" +
-			"1. ERROR in I.java (at line 8)\n" +
-			"	interface P extends L, M, N {}\n" +
-			"	          ^\n" +
-			"The return type is incompatible with N.getI(), M.getI()\n" +
-			"----------\n" +
-			"2. ERROR in I.java (at line 10)\n" +
-			"	abstract class Y implements L, M, N {}\n" +
-			"	               ^\n" +
-			"The return type is incompatible with N.getI(), M.getI()\n" +
-			"----------\n"
+			""
+// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=241821
+// Now if 1 of 3 methods is acceptable to the other 2 then no error is reported
 /* See addtional comments in https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
 			"----------\n" +
 			"1. ERROR in I.java (at line 3)\r\n" +
@@ -9041,5 +9033,20 @@ public void test177() {
 			"----------\n"
 		);
 	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=241821
+public void test178() {
+	this.runConformTest(
+			new String[] {
+				"I.java",
+				"import java.util.*;\n" +
+				"interface I<E> extends I1<E>, I2<E>, I3<E> {}\n" +
+				"interface I1<E> { List<E> m(); }\n" +
+				"interface I2<E> { Queue<E> m(); }\n" +
+				"interface I3<E> { LinkedList<E> m(); }"
+			},
+			""
+		);
 }
 }
