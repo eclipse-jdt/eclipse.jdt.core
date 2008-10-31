@@ -141,7 +141,7 @@ public class BasicSearchEngine {
 			IJavaElement element = elements[i];
 			if (element != null) {
 				try {
-					if (projectsToBeAdded.remove(element)) {
+					if (projectsToBeAdded.contains(element)) {
 						scope.add((JavaProject)element, includeMask, projectsToBeAdded);
 					} else {
 						scope.add(element);
