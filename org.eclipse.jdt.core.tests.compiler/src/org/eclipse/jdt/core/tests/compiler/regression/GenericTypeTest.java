@@ -47190,4 +47190,17 @@ public void test1396()  throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=172672
+public void _test1397()  throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A { }\n" + 
+			"class B<T> { }\n" + 
+			"class C<U> extends B<B<? super C<C<U>>>> {\n" + 
+			"	B<? super C<A>> foo(C<A> c) { return c; }\n" + 
+			"}\n",
+		},
+		"");
+}
 }
