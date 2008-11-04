@@ -541,9 +541,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedProblems =
-			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" +
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" + 
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" + 
 			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized";
-		assertProblemsSize(compilationUnit, 2, expectedProblems);
+		assertProblemsSize(compilationUnit, 3, expectedProblems);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
 		assertEquals("Wrong first character", '<', source[node.getStartPosition()]);
 	}
@@ -768,9 +769,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedProblems =
-			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" +
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" + 
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" + 
 			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized";
-		assertProblemsSize(compilationUnit, 2, expectedProblems);
+		assertProblemsSize(compilationUnit, 3, expectedProblems);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;

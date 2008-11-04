@@ -5304,21 +5304,26 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	if (t instanceof X<T>) {\n" +
-			"	    ^^^^^^^^^^^^^^\n" +
-			"Cannot perform instanceof check against parameterized type X<T>. Use instead its raw form X since generic type information will be erased at runtime\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	} else if (t instanceof X<String>) {\n" +
-			"	           ^^^^^^^^^^^^^^\n" +
-			"Cannot perform instanceof check against parameterized type X<String>. Use instead its raw form X since generic type information will be erased at runtime\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
-			"	} else 	if (t instanceof T) {\n" +
-			"	       	    ^^^^^^^^^^^^^^\n" +
-			"Cannot perform instanceof check against type parameter T. Use instead its erasure Object since generic type information will be erased at runtime\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	if (t instanceof X<T>) {\n" + 
+			"	    ^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type X<T>. Use instead its raw form X since generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	} else if (t instanceof X<String>) {\n" + 
+			"	           ^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type X<String>. Use instead its raw form X since generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	} else 	if (t instanceof T) {\n" + 
+			"	       	    ^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against type parameter T. Use instead its erasure Object since generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 12)\n" + 
+			"	} else if (t instanceof X) {\n" + 
+			"	                        ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n",
 			null,
 			true,
@@ -26270,7 +26275,7 @@ public void test0829() {
 		},
 		"");
 }
-// ensure no raw type ref complaint inside instanceof / cast
+
 public void test0830() {
 	this.runNegativeTest(
 		new String[] {
@@ -26288,41 +26293,46 @@ public void test0830() {
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	X x = (X) o;\n" +
-		"	^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	X x = (X) o;\n" +
-		"	       ^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 6)\n" +
-		"	X<String> xs = (X<String>)o;\n" +
-		"	               ^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Object to X<String>\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 7)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 10)\n" +
-		"	List l = (List) al;\n" +
-		"	^^^^\n" +
-		"List is a raw type. References to generic type List<E> should be parameterized\n" +
-		"----------\n" +
-		"6. WARNING in X.java (at line 10)\n" +
-		"	List l = (List) al;\n" +
-		"	         ^^^^^^^^^\n" +
-		"Unnecessary cast from ArrayList<String> to List\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 10)\n" +
-		"	List l = (List) al;\n" +
-		"	          ^^^^\n" +
-		"List is a raw type. References to generic type List<E> should be parameterized\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	boolean b = o instanceof X;\n" + 
+		"	                         ^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	X x = (X) o;\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	X x = (X) o;\n" + 
+		"	       ^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 6)\n" + 
+		"	X<String> xs = (X<String>)o;\n" + 
+		"	               ^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to X<String>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 7)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 10)\n" + 
+		"	List l = (List) al;\n" + 
+		"	^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 10)\n" + 
+		"	List l = (List) al;\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"Unnecessary cast from ArrayList<String> to List\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 10)\n" + 
+		"	List l = (List) al;\n" + 
+		"	          ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n");
 }
 //unnecessary cast may be combined with unchecked cast warning
@@ -47202,5 +47212,149 @@ public void _test1397()  throws Exception {
 			"}\n",
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=252120
+public void test1398()  throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A<T> {\n" + 
+			"  void f() {\n" + 
+			"    boolean b=null instanceof A; \n" + 
+			"	 Zork z;\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in A.java (at line 3)\n" + 
+		"	boolean b=null instanceof A; \n" + 
+		"	                          ^\n" + 
+		"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in A.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=252120 - variation
+public void test1399()  throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A<T> {\n" + 
+			"  void f() {\n" + 
+			"    boolean b=null instanceof A<?>; \n" + 
+			"	 Zork z;\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=252120 - variation
+public void test1400()  throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A<T> {\n" + 
+			"  void f() {\n" + 
+			"    Object o = (A)this; \n" + 
+			"	 Zork z;\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in A.java (at line 3)\n" + 
+		"	Object o = (A)this; \n" + 
+		"	           ^^^^^^^\n" + 
+		"Unnecessary cast from A<T> to A\n" + 
+		"----------\n" + 
+		"2. WARNING in A.java (at line 3)\n" + 
+		"	Object o = (A)this; \n" + 
+		"	            ^\n" + 
+		"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in A.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=252120 - variation
+public void test1401()  throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A<T> {\n" + 
+			"  void f() {\n" + 
+			"    Object o = (A<?>)this; \n" + 
+			"	 Zork z;\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in A.java (at line 3)\n" + 
+		"	Object o = (A<?>)this; \n" + 
+		"	           ^^^^^^^^^^\n" + 
+		"Unnecessary cast from A<T> to A<?>\n" + 
+		"----------\n" + 
+		"2. ERROR in A.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=252120 - variation
+public void test1402()  throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A<T> {\n" + 
+			"  void f() {\n" + 
+			"    Class<?> c = A.class; \n" + 
+			"	 Zork z;\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=252120 - variation
+public void test1403()  throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A<T> {\n" + 
+			"  void f() {\n" + 
+			"    Class<?> c = A<?>.class; \n" + 
+			"	 Zork z;\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 3)\n" + 
+		"	Class<?> c = A<?>.class; \n" + 
+		"	           ^\n" + 
+		"Syntax error on token \"=\", ( expected after this token\n" + 
+		"----------\n" + 
+		"2. ERROR in A.java (at line 3)\n" + 
+		"	Class<?> c = A<?>.class; \n" + 
+		"	              ^^^\n" + 
+		"Syntax error on token(s), misplaced construct(s)\n" + 
+		"----------\n" + 
+		"3. ERROR in A.java (at line 3)\n" + 
+		"	Class<?> c = A<?>.class; \n" + 
+		"	                  ^^^^^\n" + 
+		"Syntax error, insert \")\" to complete Expression\n" + 
+		"----------\n");
 }
 }
