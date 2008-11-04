@@ -3235,7 +3235,7 @@ public class Util {
 			return null;
 		}
 	}
-	private static char[] toAnchor(char[] methodSignature, char[] methodName, boolean isVargArgs) {
+	public static char[] toAnchor(char[] methodSignature, char[] methodName, boolean isVargArgs) {
 		int firstParen = CharOperation.indexOf(Signature.C_PARAM_START, methodSignature);
 		if (firstParen == -1) {
 			throw new IllegalArgumentException();
