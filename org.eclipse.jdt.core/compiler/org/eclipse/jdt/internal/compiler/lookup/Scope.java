@@ -3518,10 +3518,12 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							original2 = original.computeSubstitutedMethod(original2, environment());
 						if (original2 == null || !original.areParameterErasuresEqual(original2))
 							continue nextSpecific; // current does not override next
-						if (!original.returnType.isCompatibleWith(original2.returnType) &&
-								!original.returnType.erasure().isCompatibleWith(original2.returnType.erasure())) {
-							// 15.12.2
-							continue nextSpecific; // choose original2 instead
+						if (original.returnType != original2.returnType) {
+							if (!current.returnType.isCompatibleWith(next.returnType)) 
+								continue nextSpecific;
+							if (original.returnType.erasure().findSuperTypeOriginatingFrom(original2.returnType.erasure()) == null)
+								continue nextSpecific;
+							// continue with original 15.12.2
 						}
 						if (shouldIntersectExceptions && original2.declaringClass.isInterface()) {
 							if (current.thrownExceptions != next.thrownExceptions) {
