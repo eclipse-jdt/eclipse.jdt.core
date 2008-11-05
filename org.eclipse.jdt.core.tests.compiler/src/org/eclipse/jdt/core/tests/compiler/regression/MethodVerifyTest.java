@@ -9052,6 +9052,44 @@ public void test178() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=163093
 public void test179() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"interface Adaptable {\n" + 
+					"	public Object getAdapter(Class clazz);	\n" + 
+					"}\n" + 
+					"\n" + 
+					"public class X implements Adaptable {\n" + 
+					"	@Override\n" + 
+					"	public Object getAdapter(Class<?> clazz) {\n" + 
+					"		return null;\n" + 
+					"	}\n" + 
+					"}\n"
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 2)\n" + 
+				"	public Object getAdapter(Class clazz);	\n" + 
+				"	                         ^^^^^\n" + 
+				"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	public class X implements Adaptable {\n" + 
+				"	             ^\n" + 
+				"The type X must implement the inherited abstract method Adaptable.getAdapter(Class)\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	public Object getAdapter(Class<?> clazz) {\n" + 
+				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Name clash: The method getAdapter(Class<?>) of type X has the same erasure as getAdapter(Class) of type Adaptable but does not override it\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
+				"	public Object getAdapter(Class<?> clazz) {\n" + 
+				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The method getAdapter(Class<?>) of type X must override a superclass method\n" + 
+				"----------\n");
+		return;
+	}
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
