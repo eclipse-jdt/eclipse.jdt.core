@@ -505,6 +505,21 @@ public final class RewriteEventStore {
 		}
 		return accessOriginalValue(parent, property);
 	}
+	
+	public List getChangedPropertieEvents(ASTNode parent) {
+		List changedPropertiesEvent = new ArrayList();
+		
+		List entriesList = (List) this.eventLookup.get(parent);
+		if (entriesList != null) {
+			for (int i= 0; i < entriesList.size(); i++) {
+				EventHolder holder= (EventHolder) entriesList.get(i);
+				if (holder.event.getChangeKind() != RewriteEvent.UNCHANGED) {
+					changedPropertiesEvent.add(holder.event);
+				}
+			}
+		}
+		return changedPropertiesEvent;
+	}
 
 	public int getChangeKind(ASTNode node) {
 		RewriteEvent event= findEvent(node, ORIGINAL);

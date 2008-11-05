@@ -77,6 +77,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	private final NodeInfoStore nodeInfos;
 	private final TargetSourceRangeComputer extendedSourceRangeComputer;
 	private final LineCommentEndOffsets lineCommentEndOffsets;
+	
+	private int beforeRequiredSpaceIndex = -1;
 
 	/**
 	 * Constructor for ASTRewriteAnalyzer.
@@ -1303,6 +1305,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			addEdit(edit);
 			this.currentEdit= edit;
 		}
+		
+		ensureSpaceBeforeReplace(node);
 	}
 
 	final void doCopySourcePreVisit(CopySourceInfo[] infos, Stack nodeEndStack) {
@@ -1568,15 +1572,16 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(ReturnStatement)
 	 */
 	public boolean visit(ReturnStatement node) {
-		if (!hasChildrenChanges(node)) {
-			return doVisitUnchangedChildren(node);
-		}
-
 		try {
-			int offset= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNamereturn, node.getStartPosition());
-			ensureSpaceBeforeReplace(node, ReturnStatement.EXPRESSION_PROPERTY, offset, 0);
-
-			rewriteNode(node, ReturnStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE);
+			this.beforeRequiredSpaceIndex = getScanner().getTokenEndOffset(ITerminalSymbols.TokenNamereturn, node.getStartPosition());
+			
+			if (!hasChildrenChanges(node)) {
+				return doVisitUnchangedChildren(node);
+			}
+			
+			ensureSpaceBeforeReplace(node);
+			
+			rewriteNode(node, ReturnStatement.EXPRESSION_PROPERTY, this.beforeRequiredSpaceIndex, ASTRewriteFormatter.SPACE);
 		} catch (CoreException e) {
 			handleException(e);
 		}
@@ -1754,13 +1759,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(AssertStatement)
 	 */
 	public boolean visit(AssertStatement node) {
-		if (!hasChildrenChanges(node)) {
-			return doVisitUnchangedChildren(node);
+		try {
+			this.beforeRequiredSpaceIndex = getScanner().getNextEndOffset(node.getStartPosition(), true);
+			
+			if (!hasChildrenChanges(node)) {
+				return doVisitUnchangedChildren(node);
+			}
+			
+			ensureSpaceBeforeReplace(node);
+			
+			int offset= rewriteRequiredNode(node, AssertStatement.EXPRESSION_PROPERTY);
+			rewriteNode(node, AssertStatement.MESSAGE_PROPERTY, offset, ASTRewriteFormatter.ASSERT_COMMENT);
+		} catch (CoreException e) {
+			handleException(e);
 		}
-
-		ensureSpaceBeforeReplace(node, AssertStatement.EXPRESSION_PROPERTY, node.getStartPosition(), 1);
-		int offset= rewriteRequiredNode(node, AssertStatement.EXPRESSION_PROPERTY);
-		rewriteNode(node, AssertStatement.MESSAGE_PROPERTY, offset, ASTRewriteFormatter.ASSERT_COMMENT);
 		return false;
 	}
 
@@ -2276,25 +2288,27 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 		}
 	}
-
-	public void ensureSpaceBeforeReplace(ASTNode node, ChildPropertyDescriptor desc, int offset, int numTokenBefore) {
-		// bug 103970
-		if (getChangeKind(node, desc) == RewriteEvent.REPLACED) {
-			try {
-				while (numTokenBefore > 0) {
-					offset= getScanner().getNextEndOffset(offset, true);
-					numTokenBefore--;
+	
+	public void ensureSpaceBeforeReplace(ASTNode node) {
+		if (this.beforeRequiredSpaceIndex  == -1) return;
+		
+		List events = this.eventStore.getChangedPropertieEvents(node);
+		
+		for (Iterator iterator = events.iterator(); iterator.hasNext();) {
+			RewriteEvent event = (RewriteEvent) iterator.next();
+			if (event.getChangeKind() == RewriteEvent.REPLACED && event.getOriginalValue() instanceof ASTNode) {
+				if (this.beforeRequiredSpaceIndex  == getExtendedOffset((ASTNode) event.getOriginalValue())) {
+					doTextInsert(this.beforeRequiredSpaceIndex , String.valueOf(' '), getEditGroup(event));
+					this.beforeRequiredSpaceIndex  = -1;
+					return;
 				}
-    			if (offset == getExtendedOffset((ASTNode) getOriginalValue(node, desc))) {
-					doTextInsert(offset, String.valueOf(' '), getEditGroup(node, desc));
-				}
-			} catch (CoreException e) {
-				handleException(e);
 			}
 		}
+		
+		if (this.beforeRequiredSpaceIndex  < getExtendedOffset(node)) {
+			this.beforeRequiredSpaceIndex  = -1;
+		}
 	}
-
-
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(Javadoc)
@@ -2714,13 +2728,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(ThrowStatement)
 	 */
 	public boolean visit(ThrowStatement node) {
-		if (!hasChildrenChanges(node)) {
-			return doVisitUnchangedChildren(node);
-		}
-
 		try {
-			int offset= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNamethrow, node.getStartPosition());
-			ensureSpaceBeforeReplace(node, ThrowStatement.EXPRESSION_PROPERTY, offset, 0);
+			this.beforeRequiredSpaceIndex = getScanner().getTokenEndOffset(ITerminalSymbols.TokenNamethrow, node.getStartPosition());
+			
+			if (!hasChildrenChanges(node)) {
+				return doVisitUnchangedChildren(node);
+			}
+			
+			ensureSpaceBeforeReplace(node);
 
 			rewriteRequiredNode(node, ThrowStatement.EXPRESSION_PROPERTY);
 		} catch (CoreException e) {

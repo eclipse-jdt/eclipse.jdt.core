@@ -2693,6 +2693,87 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
+	
+	public void testReturnStatement2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        return\"A\";\n");
+		buf.append("        return\"A\"+\"B\";\n");
+		buf.append("        return(1) * 2 + 3;\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		assertTrue("Number of statements not 3", statements.size() == 3);
+		{ // replace expression "A" in return"A"
+			ReturnStatement statement= (ReturnStatement) statements.get(0);
+
+			Expression expression= statement.getExpression();
+			assertTrue("Has no label", expression != null);
+
+			SimpleName newExpression= ast.newSimpleName("x");
+
+			rewrite.replace(expression, newExpression, null);
+		}
+		
+		{ // replace expression "A" in return"A"+"B"
+			ReturnStatement statement= (ReturnStatement) statements.get(1);
+
+			Expression expression= statement.getExpression();
+			assertTrue("Has no expression", expression != null);
+			assertTrue("Is not an InfixExpression", expression instanceof InfixExpression);
+			Expression leftOperand = ((InfixExpression)expression).getLeftOperand();
+			assertTrue("Has no leftOperand", leftOperand != null);
+			
+			SimpleName newExpression= ast.newSimpleName("x");
+
+			rewrite.replace(leftOperand, newExpression, null);
+		}
+		
+		{ // replace expression (1) in return(1) * 2 + 3
+			ReturnStatement statement= (ReturnStatement) statements.get(2);
+
+			Expression expression= statement.getExpression();
+			assertTrue("Has no expression", expression != null);
+			assertTrue("Is not an InfixExpression", expression instanceof InfixExpression);
+			Expression leftOperand = ((InfixExpression)expression).getLeftOperand();
+			assertTrue("Has no leftOperand", leftOperand != null);
+			assertTrue("Is not an InfixExpression", leftOperand instanceof InfixExpression);
+			Expression leftOperand2 = ((InfixExpression)leftOperand).getLeftOperand();
+			assertTrue("Has no leftOperand2", leftOperand2 != null);
+			
+			SimpleName newExpression= ast.newSimpleName("x");
+
+			rewrite.replace(leftOperand2, newExpression, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        return x;\n");
+		buf.append("        return x+\"B\";\n");
+		buf.append("        return x * 2 + 3;\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+
+	}
 
 	public void testAssertStatement() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
