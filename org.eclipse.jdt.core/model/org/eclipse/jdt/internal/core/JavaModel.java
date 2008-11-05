@@ -31,10 +31,10 @@ import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
- * Implementation of <code>IJavaModel<code>. The Java Model maintains a cache of
- * active <code>IJavaProject</code>s in a workspace. A Java Model is specific to a
- * workspace. To retrieve a workspace's model, use the
- * <code>#getJavaModel(IWorkspace)</code> method.
+ * Implementation of {@link IJavaModel}. The Java Model maintains a cache of active
+ * {@link IJavaProject}s in a workspace. A Java Model is specific to a workspace.
+ * To retrieve a workspace's model, use the
+ * {@link IJavaElement#getJavaModel() #getJavaModel()} method.
  *
  * @see IJavaModel
  */
