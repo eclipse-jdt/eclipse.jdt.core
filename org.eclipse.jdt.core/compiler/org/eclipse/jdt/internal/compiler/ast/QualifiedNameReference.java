@@ -268,23 +268,23 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	if (field != null) {
 		FieldBinding originalBinding = field.original();
 		TypeBinding originalType = originalBinding.type;
-	    // extra cast needed if field type is type variable
+		// extra cast needed if field type is type variable
 		if (originalType.leafComponentType().isTypeVariable()) {
-	    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType())
-	    		? compileTimeType  // unboxing: checkcast before conversion
-	    		: runtimeTimeType;
-	    	TypeBinding typeCast = originalType.genericCast(targetType);
-	    	setGenericCast(length, typeCast);
-	        if (typeCast instanceof ReferenceBinding) {
+			TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType())
+			? compileTimeType  // unboxing: checkcast before conversion
+					: runtimeTimeType;
+			TypeBinding typeCast = originalType.genericCast(targetType);
+			setGenericCast(length, typeCast);
+			if (typeCast instanceof ReferenceBinding) {
 				ReferenceBinding referenceCast = (ReferenceBinding) typeCast;
 				if (!referenceCast.canBeSeenBy(scope)) {
-		        	scope.problemReporter().invalidType(this,
-		        			new ProblemReferenceBinding(
-								CharOperation.splitOn('.', referenceCast.shortReadableName()),
-								referenceCast,
-								ProblemReasons.NotVisible));
+					scope.problemReporter().invalidType(this,
+							new ProblemReferenceBinding(
+									CharOperation.splitOn('.', referenceCast.shortReadableName()),
+									referenceCast,
+									ProblemReasons.NotVisible));
 				}
-	        }
+			}
 		}
 	}
 	super.computeConversion(scope, runtimeTimeType, compileTimeType);
