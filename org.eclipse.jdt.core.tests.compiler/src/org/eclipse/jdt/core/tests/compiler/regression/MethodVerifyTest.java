@@ -9038,92 +9038,55 @@ public void test177() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=241821
 public void test178() {
 	this.runConformTest(
-			new String[] {
-				"I.java",
-				"import java.util.*;\n" +
-				"interface I<E> extends I1<E>, I2<E>, I3<E> {}\n" +
-				"interface I1<E> { List<E> m(); }\n" +
-				"interface I2<E> { Queue<E> m(); }\n" +
-				"interface I3<E> { LinkedList<E> m(); }"
-			},
-			""
-		);
+		new String[] {
+			"I.java",
+			"import java.util.*;\n" +
+			"interface I<E> extends I1<E>, I2<E>, I3<E> {}\n" +
+			"interface I1<E> { List<E> m(); }\n" +
+			"interface I2<E> { Queue<E> m(); }\n" +
+			"interface I3<E> { LinkedList<E> m(); }"
+		},
+		""
+	);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=163093
 public void test179() {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"interface Adaptable {\n" + 
-					"	public Object getAdapter(Class clazz);	\n" + 
-					"}\n" + 
-					"\n" + 
-					"public class X implements Adaptable {\n" + 
-					"	@Override\n" + 
-					"	public Object getAdapter(Class<?> clazz) {\n" + 
-					"		return null;\n" + 
-					"	}\n" + 
-					"}\n"
-				},
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	public Object getAdapter(Class clazz);	\n" + 
-				"	                         ^^^^^\n" + 
-				"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
-				"	public class X implements Adaptable {\n" + 
-				"	             ^\n" + 
-				"The type X must implement the inherited abstract method Adaptable.getAdapter(Class)\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
-				"	public Object getAdapter(Class<?> clazz) {\n" + 
-				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method getAdapter(Class<?>) of type X has the same erasure as getAdapter(Class) of type Adaptable but does not override it\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 7)\n" + 
-				"	public Object getAdapter(Class<?> clazz) {\n" + 
-				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"The method getAdapter(Class<?>) of type X must override a superclass method\n" + 
-				"----------\n");
-		return;
-	}
 	this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"interface Adaptable {\n" + 
-				"	public Object getAdapter(Class clazz);	\n" + 
-				"}\n" + 
-				"\n" + 
-				"public class X implements Adaptable {\n" + 
-				"	@Override\n" + 
-				"	public Object getAdapter(Class<?> clazz) {\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 2)\n" + 
+		new String[] {
+			"X.java",
+			"interface Adaptable {\n" + 
 			"	public Object getAdapter(Class clazz);	\n" + 
-			"	                         ^^^^^\n" + 
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	public class X implements Adaptable {\n" + 
-			"	             ^\n" + 
-			"The type X must implement the inherited abstract method Adaptable.getAdapter(Class)\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 7)\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X implements Adaptable {\n" + 
+			"	@Override\n" + 
 			"	public Object getAdapter(Class<?> clazz) {\n" + 
-			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method getAdapter(Class<?>) of type X has the same erasure as getAdapter(Class) of type Adaptable but does not override it\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 7)\n" + 
-			"	public Object getAdapter(Class<?> clazz) {\n" + 
-			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method getAdapter(Class<?>) of type X must override or implement a supertype method\n" + 
-			"----------\n");
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public Object getAdapter(Class clazz);	\n" + 
+		"	                         ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	public class X implements Adaptable {\n" + 
+		"	             ^\n" + 
+		"The type X must implement the inherited abstract method Adaptable.getAdapter(Class)\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	public Object getAdapter(Class<?> clazz) {\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method getAdapter(Class<?>) of type X has the same erasure as getAdapter(Class) of type Adaptable but does not override it\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
+		"	public Object getAdapter(Class<?> clazz) {\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		mustOverrideMessage("getAdapter(Class<?>)", "X") + 
+		"----------\n"
+	);
 }
 }
