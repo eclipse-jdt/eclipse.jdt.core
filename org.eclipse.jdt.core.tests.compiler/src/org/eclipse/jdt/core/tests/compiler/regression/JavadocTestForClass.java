@@ -14,6 +14,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestForClass extends JavadocTest {
@@ -997,4 +998,125 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "	}\n"
 					+ "}\n" });
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253750
+	public void test054() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+			runNegativeTest(
+					new String[] {
+						"X.java",
+						"import java.util.Map;\n" + 
+						"import java.util.Map.Entry;\n" + 
+						"\n" + 
+						"/**\n" + 
+						" * <ul>\n" + 
+						" * <li> {@link Entry} </li>\n" + 
+						" * </ul>\n" + 
+						" */\n" + 
+						"public interface X extends Map {\n" + 
+						"	int i;\n" +
+						"}\n",
+						},
+						"----------\n" + 
+						"1. ERROR in X.java (at line 6)\n" + 
+						"	* <li> {@link Entry} </li>\n" + 
+						"	              ^^^^^\n" + 
+						"Javadoc: Invalid member type qualification\n" + 
+						"----------\n");
+			return;
+		}
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Map;\n" + 
+				"import java.util.Map.Entry;\n" + 
+				"\n" + 
+				"/**\n" + 
+				" * <ul>\n" + 
+				" * <li> {@link Entry} </li>\n" + 
+				" * </ul>\n" + 
+				" */\n" + 
+				"public interface X extends Map {\n" + 
+				"	int i;\n" +
+				"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	int i;\n" + 
+				"	    ^\n" + 
+				"The blank final field i may not have been initialized\n" + 
+				"----------\n");
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253750 - variation
+	public void test055() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Map;\n" + 
+				"\n" + 
+				"/**\n" + 
+				" * <ul>\n" + 
+				" * <li> {@link Entry} </li>\n" + 
+				" * </ul>\n" + 
+				" */\n" + 
+				"public interface X extends Map {\n" + 
+				"	Entry e = null;\n" + 
+				"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	* <li> {@link Entry} </li>\n" + 
+				"	              ^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n");
+	}	
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253750
+	public void test056() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+			runNegativeTest(
+					new String[] {
+						"X.java",
+						"import java.util.Map;\n" + 
+						"import java.util.Map.Entry;\n" + 
+						"\n" + 
+						"/**\n" + 
+						" * <ul>\n" + 
+						" * <li> {@link Entry} </li>\n" + 
+						" * </ul>\n" + 
+						" */\n" + 
+						"public interface X extends Map {\n" + 
+						"	Entry e;\n" + 
+						"}\n",
+						},
+						"----------\n" + 
+						"1. ERROR in X.java (at line 6)\n" + 
+						"	* <li> {@link Entry} </li>\n" + 
+						"	              ^^^^^\n" + 
+						"Javadoc: Invalid member type qualification\n" + 
+						"----------\n");
+			return;
+		}
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Map;\n" + 
+				"import java.util.Map.Entry;\n" + 
+				"\n" + 
+				"/**\n" + 
+				" * <ul>\n" + 
+				" * <li> {@link Entry} </li>\n" + 
+				" * </ul>\n" + 
+				" */\n" + 
+				"public interface X extends Map {\n" + 
+				"	Entry e;\n" + 
+				"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	Entry e;\n" + 
+				"	      ^\n" + 
+				"The blank final field e may not have been initialized\n" + 
+				"----------\n");
+	}		
 }

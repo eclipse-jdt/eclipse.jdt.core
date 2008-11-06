@@ -776,13 +776,16 @@ public class Javadoc extends ASTNode {
 								mainLoop: for (int i=0; i<length; i++) {
 									char[][] compoundName = imports[i].compoundName;
 									int compoundNameLength = compoundName.length;
-									if ((imports[i].onDemand && compoundNameLength == computedCompoundName.length-1) ||
-										(compoundNameLength == computedCompoundName.length))
-									{
+									if ((imports[i].onDemand && compoundNameLength == computedCompoundName.length-1) 
+											|| (compoundNameLength == computedCompoundName.length)) {
 										for (int j = compoundNameLength; --j >= 0;) {
 											if (CharOperation.equals(imports[i].compoundName[j], computedCompoundName[j])) {
 												if (j == 0) {
 													hasValidImport = true;
+													ImportReference importReference = imports[i].reference;
+													if (importReference != null) {
+														importReference.bits |= ASTNode.Used;
+													}
 													break mainLoop;
 												}
 											} else {
