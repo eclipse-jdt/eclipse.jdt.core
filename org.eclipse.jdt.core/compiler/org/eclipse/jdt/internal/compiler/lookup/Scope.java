@@ -422,7 +422,9 @@ public abstract class Scope {
 			if (method instanceof ParameterizedGenericMethodBinding) {
 				if (!((ParameterizedGenericMethodBinding) method).wasInferred) {
 					// attempt to invoke generic method of raw type with type hints <String>foo()
-					return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeArgumentsForRawGenericMethod);
+					if (compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
+						return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeArgumentsForRawGenericMethod);
+					}
 				}
 			} else {
 				if (compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {

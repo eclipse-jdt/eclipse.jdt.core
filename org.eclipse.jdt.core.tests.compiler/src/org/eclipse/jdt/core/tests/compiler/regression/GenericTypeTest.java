@@ -7369,37 +7369,104 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// generic method of raw type
 	public void test0245() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+			this.runNegativeTest(
+					new String[] {
+						"X.java",
+						"public class X <T> { \n" + 
+						"        <G> T foo(G g) {\n" + 
+						"            return null;\n" + 
+						"        }\n" + 
+						"        T bar(T t) {\n" + 
+						"        	return zork;\n" + 
+						"        }\n" + 
+						"\n" + 
+						"        public static void main(String[] args) {\n" + 
+						"                X rx = new X();\n" + 
+						"                rx.<String>foo(\"hello\"); // Eclipse error here\n" + 
+						"                rx.<String>bar(\"hello\"); // Eclipse error here\n" + 
+						"        }\n" + 
+						"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 6)\n" + 
+					"	return zork;\n" + 
+					"	       ^^^^\n" + 
+					"zork cannot be resolved\n" + 
+					"----------\n" + 
+					"2. WARNING in X.java (at line 10)\n" + 
+					"	X rx = new X();\n" + 
+					"	^\n" + 
+					"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+					"----------\n" + 
+					"3. WARNING in X.java (at line 10)\n" + 
+					"	X rx = new X();\n" + 
+					"	           ^\n" + 
+					"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 11)\n" + 
+					"	rx.<String>foo(\"hello\"); // Eclipse error here\n" + 
+					"	           ^^^\n" + 
+					"The method foo(Object) of raw type X is no longer generic; it cannot be parameterized with arguments <String>\n" + 
+					"----------\n" + 
+					"5. ERROR in X.java (at line 12)\n" + 
+					"	rx.<String>bar(\"hello\"); // Eclipse error here\n" + 
+					"	           ^^^\n" + 
+					"The method bar(Object) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+					"----------\n",
+					JavacTestOptions.EclipseHasABug.EclipseBug236242);
+			return;
+		}
 		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X <T> { \n" +
-				"	<G> T foo(G g) {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"	\n" +
-				"	public static void main(String[] args) {\n" +
-				"		X rx = new X();\n" +
-				"		rx.<String>foo(\"hello\");\n" +
-				"	}\n" +
-				"}\n"
-			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 7)\n" +
-			"	X rx = new X();\n" +
-			"	^\n" +
-			"X is a raw type. References to generic type X<T> should be parameterized\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 7)\n" +
-			"	X rx = new X();\n" +
-			"	           ^\n" +
-			"X is a raw type. References to generic type X<T> should be parameterized\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	rx.<String>foo(\"hello\");\n" +
-			"	           ^^^\n" +
-			"The method foo(Object) of raw type X is no longer generic; it cannot be parameterized with arguments <String>\n" +
-			"----------\n",
-			JavacTestOptions.EclipseHasABug.EclipseBug236242);
+				new String[] {
+					"X.java",
+					"public class X <T> { \n" + 
+					"        <G> T foo(G g) {\n" + 
+					"            return null;\n" + 
+					"        }\n" + 
+					"        T bar(T t) {\n" + 
+					"        	return zork;\n" + 
+					"        }\n" + 
+					"\n" + 
+					"        public static void main(String[] args) {\n" + 
+					"                X rx = new X();\n" + 
+					"                rx.<String>foo(\"hello\"); // Eclipse error here\n" + 
+					"                rx.<String>bar(\"hello\"); // Eclipse error here\n" + 
+					"        }\n" + 
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	return zork;\n" + 
+				"	       ^^^^\n" + 
+				"zork cannot be resolved\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 10)\n" + 
+				"	X rx = new X();\n" + 
+				"	^\n" + 
+				"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 10)\n" + 
+				"	X rx = new X();\n" + 
+				"	           ^\n" + 
+				"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 11)\n" + 
+				"	rx.<String>foo(\"hello\"); // Eclipse error here\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: The method foo(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+				"----------\n" + 
+				"5. WARNING in X.java (at line 12)\n" + 
+				"	rx.<String>bar(\"hello\"); // Eclipse error here\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: The method bar(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+				"----------\n" + 
+				"6. WARNING in X.java (at line 12)\n" + 
+				"	rx.<String>bar(\"hello\"); // Eclipse error here\n" + 
+				"	    ^^^^^^\n" + 
+				"Unused type arguments for the non generic method bar(Object) of type X; it should not be parameterized with arguments <String>\n" + 
+				"----------\n",
+				JavacTestOptions.EclipseHasABug.EclipseBug236242);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69320 parameterized type compatibility
 	public void test0246() {
@@ -10156,52 +10223,101 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// checking scenario where generic type and method share the same type parameter name
 	public void test0344() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+			this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.io.IOException;\n" +
+					"\n" +
+					"public abstract class X<T extends Runnable> {\n" +
+					"	\n" +
+					"	public abstract <T extends Exception> T bar(T t);\n" +
+					"\n" +
+					"	static void foo(X x) {\n" +
+					"		x.<Exception>bar(null);\n" +
+					"		\n" +
+					"		class R implements Runnable {\n" +
+					"			public void run() {\n" +
+					"			}\n" +
+					"		}\n" +
+					"		X<R> xr = new X<R>(){  \n" +
+					"			public <T> T bar(T t) { \n" +
+					"				return t; \n" +
+					"			}\n" +
+					"		};\n" +
+					"		IOException e = xr.bar(new IOException());\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	public abstract <T extends Exception> T bar(T t);\n" + 
+				"	                 ^\n" + 
+				"The type parameter T is hiding the type T\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 7)\n" + 
+				"	static void foo(X x) {\n" + 
+				"	                ^\n" + 
+				"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	x.<Exception>bar(null);\n" + 
+				"	             ^^^\n" + 
+				"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 14)\n" + 
+				"	X<R> xr = new X<R>(){  \n" + 
+				"	              ^^^^^^\n" + 
+				"The type new X<R>(){} must implement the inherited abstract method X<R>.bar(T)\n" + 
+				"----------\n");
+			return;
+		}
 		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"import java.io.IOException;\n" +
-				"\n" +
-				"public abstract class X<T extends Runnable> {\n" +
-				"	\n" +
-				"	public abstract <T extends Exception> T bar(T t);\n" +
-				"\n" +
-				"	static void foo(X x) {\n" +
-				"		x.<Exception>bar(null);\n" +
-				"		\n" +
-				"		class R implements Runnable {\n" +
-				"			public void run() {\n" +
-				"			}\n" +
-				"		}\n" +
-				"		X<R> xr = new X<R>(){  \n" +
-				"			public <T> T bar(T t) { \n" +
-				"				return t; \n" +
-				"			}\n" +
-				"		};\n" +
-				"		IOException e = xr.bar(new IOException());\n" +
-				"	}\n" +
-				"}\n"
-			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 5)\n" +
-			"	public abstract <T extends Exception> T bar(T t);\n" +
-			"	                 ^\n" +
-			"The type parameter T is hiding the type T\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 7)\n" +
-			"	static void foo(X x) {\n" +
-			"	                ^\n" +
-			"X is a raw type. References to generic type X<T> should be parameterized\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	x.<Exception>bar(null);\n" +
-			"	             ^^^\n" +
-			"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 14)\n" +
-			"	X<R> xr = new X<R>(){  \n" +
-			"	              ^^^^^^\n" +
-			"The type new X<R>(){} must implement the inherited abstract method X<R>.bar(T)\n" +
-			"----------\n");
+				new String[] {
+					"X.java",
+					"import java.io.IOException;\n" +
+					"\n" +
+					"public abstract class X<T extends Runnable> {\n" +
+					"	\n" +
+					"	public abstract <T extends Exception> T bar(T t);\n" +
+					"\n" +
+					"	static void foo(X x) {\n" +
+					"		x.<Exception>bar(null);\n" +
+					"		\n" +
+					"		class R implements Runnable {\n" +
+					"			public void run() {\n" +
+					"			}\n" +
+					"		}\n" +
+					"		X<R> xr = new X<R>(){  \n" +
+					"			public <T> T bar(T t) { \n" +
+					"				return t; \n" +
+					"			}\n" +
+					"		};\n" +
+					"		IOException e = xr.bar(new IOException());\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	public abstract <T extends Exception> T bar(T t);\n" + 
+				"	                 ^\n" + 
+				"The type parameter T is hiding the type T\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 7)\n" + 
+				"	static void foo(X x) {\n" + 
+				"	                ^\n" + 
+				"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 8)\n" + 
+				"	x.<Exception>bar(null);\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: The method bar(Exception) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 14)\n" + 
+				"	X<R> xr = new X<R>(){  \n" + 
+				"	              ^^^^^^\n" + 
+				"The type new X<R>(){} must implement the inherited abstract method X<R>.bar(T)\n" + 
+				"----------\n");		
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74594
 	public void test0345() {
@@ -10306,46 +10422,94 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// checking scenario where generic type and method share the same type parameter name
 	public void test0348() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"import java.io.IOException;\n" +
-				"public abstract class X<T extends Runnable> {\n" +
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+			this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.io.IOException;\n" +
+					"public abstract class X<T extends Runnable> {\n" +
+					"	public abstract <T extends Exception> T bar(T t);\n" +
+					"	static void foo(X x) {\n" +
+					"		x.<Exception>bar(null);\n" +
+					"		class R implements Runnable {\n" +
+					"			public void run() {}\n" +
+					"		}\n" +
+					"		X<R> xr = new X<R>(){  \n" +
+					"			public <T extends Exception> T bar(T t) { return t; }\n" +
+					"		};\n" +
+					"		IOException e = xr.bar(new IOException());\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
 				"	public abstract <T extends Exception> T bar(T t);\n" +
+				"	                 ^\n" +
+				"The type parameter T is hiding the type T\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 4)\n" +
 				"	static void foo(X x) {\n" +
-				"		x.<Exception>bar(null);\n" +
-				"		class R implements Runnable {\n" +
-				"			public void run() {}\n" +
-				"		}\n" +
-				"		X<R> xr = new X<R>(){  \n" +
-				"			public <T extends Exception> T bar(T t) { return t; }\n" +
-				"		};\n" +
-				"		IOException e = xr.bar(new IOException());\n" +
-				"	}\n" +
-				"}\n"
-			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	public abstract <T extends Exception> T bar(T t);\n" +
-			"	                 ^\n" +
-			"The type parameter T is hiding the type T\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	static void foo(X x) {\n" +
-			"	                ^\n" +
-			"X is a raw type. References to generic type X<T> should be parameterized\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	x.<Exception>bar(null);\n" +
-			"	             ^^^\n" +
-			"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 10)\n" +
-			"	public <T extends Exception> T bar(T t) { return t; }\n" +
-			"	                               ^^^^^^^^\n" +
-			"The method bar(T) of type new X<R>(){} should be tagged with @Override since it actually overrides a superclass method\n" +
-			"----------\n",
-			JavacTestOptions.EclipseHasABug.EclipseBug236242);
+				"	                ^\n" +
+				"X is a raw type. References to generic type X<T> should be parameterized\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	x.<Exception>bar(null);\n" +
+				"	             ^^^\n" +
+				"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 10)\n" +
+				"	public <T extends Exception> T bar(T t) { return t; }\n" +
+				"	                               ^^^^^^^^\n" +
+				"The method bar(T) of type new X<R>(){} should be tagged with @Override since it actually overrides a superclass method\n" +
+				"----------\n",
+				JavacTestOptions.EclipseHasABug.EclipseBug236242);
+			return;
+		}
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.io.IOException;\n" +
+					"public abstract class X<T extends Runnable> {\n" +
+					"	public abstract <T extends Exception> T bar(T t);\n" +
+					"	static void foo(X x) {\n" +
+					"		x.<Exception>bar(null);\n" +
+					"		class R implements Runnable {\n" +
+					"			public void run() { zork = 0; }\n" +
+					"		}\n" +
+					"		X<R> xr = new X<R>(){  \n" +
+					"			public <T extends Exception> T bar(T t) { return t; }\n" +
+					"		};\n" +
+					"		IOException e = xr.bar(new IOException());\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 3)\n" + 
+				"	public abstract <T extends Exception> T bar(T t);\n" + 
+				"	                 ^\n" + 
+				"The type parameter T is hiding the type T\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 4)\n" + 
+				"	static void foo(X x) {\n" + 
+				"	                ^\n" + 
+				"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 5)\n" + 
+				"	x.<Exception>bar(null);\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: The method bar(Exception) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
+				"	public void run() { zork = 0; }\n" + 
+				"	                    ^^^^\n" + 
+				"zork cannot be resolved\n" + 
+				"----------\n" + 
+				"5. WARNING in X.java (at line 10)\n" + 
+				"	public <T extends Exception> T bar(T t) { return t; }\n" + 
+				"	                               ^^^^^^^^\n" + 
+				"The method bar(T) of type new X<R>(){} should be tagged with @Override since it actually overrides a superclass method\n" + 
+				"----------\n",
+				JavacTestOptions.EclipseHasABug.EclipseBug236242);		
 	}
 	// test wildcard compatibilities
 	public void test0349() {
