@@ -47357,4 +47357,38 @@ public void test1403()  throws Exception {
 		"Syntax error, insert \")\" to complete Expression\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242159
+public void _test1404()  throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<A> {\n" + 
+			"	A get() { return null; }\n" + 
+			"	<B extends Comparable<B>> X<B> bar() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	void foo() {\n" + 
+			"		bar(); // 0 rejected\n" + 
+			"		X raw = bar(); // 1 accepted\n" + 
+			"		X<?> wild = bar(); // 2 rejected\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	bar(); // 0 rejected\n" + 
+		"	^^^\n" + 
+		"Bound mismatch: The generic method bar() of type X<A> is not applicable for the arguments (). The inferred type Comparable<Comparable<B>> is not a valid substitute for the bounded parameter <B extends Comparable<B>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	X raw = bar(); // 1 accepted\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<A> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	X<?> wild = bar(); // 2 rejected\n" + 
+		"	            ^^^\n" + 
+		"Bound mismatch: The generic method bar() of type X<A> is not applicable for the arguments (). The inferred type Comparable<Comparable<B>> is not a valid substitute for the bounded parameter <B extends Comparable<B>>\n" + 
+		"----------\n");
+}
 }
