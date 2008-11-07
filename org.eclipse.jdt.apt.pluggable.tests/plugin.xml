@@ -14,6 +14,9 @@
          <java6processor
                class="org.eclipse.jdt.apt.pluggable.tests.processors.filertester.FilerTesterProc">
          </java6processor>
+         <java6processor
+               class="org.eclipse.jdt.apt.pluggable.tests.processors.modeltester.ModelTesterProc">
+         </java6processor>
       </java6processors>
    </extension>
 </plugin>
