@@ -1267,7 +1267,7 @@ public MethodBinding[] methods() {
 	}		
 	return this.methods;
 }
-private FieldBinding resolveTypeFor(FieldBinding field) {
+public FieldBinding resolveTypeFor(FieldBinding field) {
 	if ((field.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return field;
 
