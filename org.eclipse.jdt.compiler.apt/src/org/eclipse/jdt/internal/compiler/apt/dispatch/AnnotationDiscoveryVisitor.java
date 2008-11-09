@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 IBM Corporation and others.
+ * Copyright (c) 2006-2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,10 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 
 /**
  * This class is used to visit the JDT compiler internal AST to discover annotations, 
@@ -68,10 +71,12 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 		Annotation[] annotations = constructorDeclaration.annotations;
 		if (annotations != null) {
+			MethodBinding constructorBinding = constructorDeclaration.binding;
+			((SourceTypeBinding) constructorBinding.declaringClass).resolveTypesFor(constructorBinding);					
 			this.resolveAnnotations(
 					constructorDeclaration.scope,
 					annotations,
-					constructorDeclaration.binding);
+					constructorBinding);
 		}
 		Argument[] arguments = constructorDeclaration.arguments;
 		if (arguments != null) {
@@ -87,7 +92,9 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
 		Annotation[] annotations = fieldDeclaration.annotations;
 		if (annotations != null) {
-			this.resolveAnnotations(scope, annotations, fieldDeclaration.binding);
+			FieldBinding fieldBinding = fieldDeclaration.binding;
+			((SourceTypeBinding) fieldBinding.declaringClass).resolveTypeFor(fieldBinding);			
+			this.resolveAnnotations(scope, annotations, fieldBinding);
 		}
 		return false;
 	}
@@ -96,6 +103,8 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
 		Annotation[] annotations = methodDeclaration.annotations;
 		if (annotations != null) {
+			MethodBinding methodBinding = methodDeclaration.binding;
+			((SourceTypeBinding) methodBinding.declaringClass).resolveTypesFor(methodBinding);					
 			this.resolveAnnotations(
 					methodDeclaration.scope,
 					annotations,

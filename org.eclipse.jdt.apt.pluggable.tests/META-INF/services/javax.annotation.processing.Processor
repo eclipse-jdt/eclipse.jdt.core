@@ -1,3 +1,4 @@
 org.eclipse.jdt.apt.pluggable.tests.processors.genclass6.GenClass6Proc
 org.eclipse.jdt.apt.pluggable.tests.processors.message6.Message6Proc
 org.eclipse.jdt.apt.pluggable.tests.processors.filertester.FilerTesterProc
+org.eclipse.jdt.apt.pluggable.tests.processors.modeltester.ModelTesterProc
