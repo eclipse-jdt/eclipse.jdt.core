@@ -47555,4 +47555,74 @@ public void _test1404()  throws Exception {
 		"Bound mismatch: The generic method bar() of type X<A> is not applicable for the arguments (). The inferred type Comparable<Comparable<B>> is not a valid substitute for the bounded parameter <B extends Comparable<B>>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=240807
+public void test1405()  throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"    X(List rawList, List<?> unboundList) {\n" + 
+			"            Throwable t0 = (Throwable) Collections.emptyList();\n" + 
+			"            Throwable t1 = (Throwable) rawList;\n" + 
+			"            Throwable t2 = (Throwable) unboundList;\n" + 
+			"           	Map m0 = (Map) Collections.emptyList();\n" + 
+			"            Map m1 = (Map) rawList;\n" + 
+			"            Map m2 = (Map) unboundList;\n" + 
+			"            Zork z;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	X(List rawList, List<?> unboundList) {\n" + 
+		"	  ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	Throwable t0 = (Throwable) Collections.emptyList();\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from List<Object> to Throwable\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	Throwable t2 = (Throwable) unboundList;\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from List<capture#1-of ?> to Throwable\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	Map m0 = (Map) Collections.emptyList();\n" + 
+		"	^^^\n" + 
+		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 7)\n" + 
+		"	Map m0 = (Map) Collections.emptyList();\n" + 
+		"	          ^^^\n" + 
+		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 8)\n" + 
+		"	Map m1 = (Map) rawList;\n" + 
+		"	^^^\n" + 
+		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 8)\n" + 
+		"	Map m1 = (Map) rawList;\n" + 
+		"	          ^^^\n" + 
+		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 9)\n" + 
+		"	Map m2 = (Map) unboundList;\n" + 
+		"	^^^\n" + 
+		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"9. WARNING in X.java (at line 9)\n" + 
+		"	Map m2 = (Map) unboundList;\n" + 
+		"	          ^^^\n" + 
+		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 10)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
