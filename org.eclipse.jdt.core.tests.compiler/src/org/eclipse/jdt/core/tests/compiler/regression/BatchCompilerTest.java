@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
+import org.eclipse.jdt.internal.compiler.batch.ClasspathJar.ManifestAnalyzer;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -10516,15 +10517,16 @@ public void test267_jar_ref_in_jar(){
 // entries)
 public void test268_jar_ref_in_jar(){
 	try {
-		assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+		ManifestAnalyzer analyzer = new ManifestAnalyzer();
+		assertTrue(analyzer.analyzeManifestContents(
 			new StringReader(
 				"Manifest-Version: 1.0\n" +
 				"Created-By: Eclipse JDT Test Harness\n" +
 				"Class-Path: lib1.jar\n" +
 				"\n" +
 				"Class-Path: lib3.jar\n")));
-		assertEquals(2, ClasspathJar.MANIFEST_ANALYZER.getClasspathSectionsCount());
-		assertEquals(2, ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames().size());
+		assertEquals(2, analyzer.getClasspathSectionsCount());
+		assertEquals(2, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
@@ -10536,15 +10538,16 @@ public void test268_jar_ref_in_jar(){
 // a dummy header passes)
 public void test269_jar_ref_in_jar(){
 	try {
-		assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+		ManifestAnalyzer analyzer = new ManifestAnalyzer();
+		assertTrue(analyzer.analyzeManifestContents(
 			new StringReader(
 				"Manifest-Version: 1.0\n" +
 				"Created-By: Eclipse JDT Test Harness\n" +
 				"Class-Path: lib1.jar\n" +
 				"Dummy:\n" +
 				"Class-Path: lib3.jar\n")));
-		assertEquals(2, ClasspathJar.MANIFEST_ANALYZER.getClasspathSectionsCount());
-		assertEquals(2, ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames().size());
+		assertEquals(2, analyzer.getClasspathSectionsCount());
+		assertEquals(2, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
@@ -10555,13 +10558,14 @@ public void test269_jar_ref_in_jar(){
 // will trigger downstream errors if the jars are really needed
 public void test270_jar_ref_in_jar(){
 	try {
-		assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+		ManifestAnalyzer analyzer = new ManifestAnalyzer();
+		assertTrue(analyzer.analyzeManifestContents(
 			new StringReader(
 				"Manifest-Version: 1.0\n" +
 				"Created-By: Eclipse JDT Test Harness\n" +
 				"Class-Path: lib1.jar\tlib2.jar\n")));
-		assertEquals(1, ClasspathJar.MANIFEST_ANALYZER.getClasspathSectionsCount());
-		assertEquals(1, ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames().size());
+		assertEquals(1, analyzer.getClasspathSectionsCount());
+		assertEquals(1, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
@@ -10595,15 +10599,16 @@ public void test271_jar_ref_in_jar(){
 // white-box test: variants on continuations
 public void test272_jar_ref_in_jar(){
 	try {
-		assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+		ManifestAnalyzer analyzer = new ManifestAnalyzer();
+		assertTrue(analyzer.analyzeManifestContents(
 			new StringReader(
 				"Manifest-Version: 1.0\n" +
 				"Created-By: Eclipse JDT Test Harness\n" +
 				"Class-Path: \n" +
 				"            lib1.jar       \n" +
 				"\n")));
-		assertEquals(1, ClasspathJar.MANIFEST_ANALYZER.getClasspathSectionsCount());
-		assertEquals(1, ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames().size());
+		assertEquals(1, analyzer.getClasspathSectionsCount());
+		assertEquals(1, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
@@ -10613,7 +10618,8 @@ public void test272_jar_ref_in_jar(){
 // white-box test: variants on continuations
 public void test273_jar_ref_in_jar(){
 	try {
-		assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+		ManifestAnalyzer analyzer = new ManifestAnalyzer();
+		assertTrue(analyzer.analyzeManifestContents(
 			new StringReader(
 				"Manifest-Version: 1.0\n" +
 				"Created-By: Eclipse JDT Test Harness\n" +
@@ -10623,8 +10629,8 @@ public void test273_jar_ref_in_jar(){
 				" \n" +
 				"            lib1.jar       \n" +
 				"\n")));
-		assertEquals(1, ClasspathJar.MANIFEST_ANALYZER.getClasspathSectionsCount());
-		assertEquals(2, ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames().size());
+		assertEquals(1, analyzer.getClasspathSectionsCount());
+		assertEquals(2, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
@@ -10634,7 +10640,7 @@ public void test273_jar_ref_in_jar(){
 // white-box test: variants on continuations
 public void test274_jar_ref_in_jar(){
 	try {
-		assertFalse(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+		assertFalse(new ManifestAnalyzer().analyzeManifestContents(
 			new StringReader(
 				"Manifest-Version: 1.0\n" +
 				"Created-By: Eclipse JDT Test Harness\n" +
@@ -10649,7 +10655,7 @@ public void test274_jar_ref_in_jar(){
 // white-box test: variants on continuations
 public void test275_jar_ref_in_jar(){
 	try {
-		assertFalse(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+		assertFalse(new ManifestAnalyzer().analyzeManifestContents(
 			new StringReader(
 				"Manifest-Version: 1.0\n" +
 				"Created-By: Eclipse JDT Test Harness\n" +
@@ -10665,7 +10671,7 @@ public void test275_jar_ref_in_jar(){
 // white-box test: variants on continuations
 public void test276_jar_ref_in_jar(){
 	try {
-		assertFalse(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+		assertFalse(new ManifestAnalyzer().analyzeManifestContents(
 			new StringReader(
 				"Manifest-Version: 1.0\n" +
 				"Created-By: Eclipse JDT Test Harness\n" +

@@ -158,7 +158,6 @@ public static class ManifestAnalyzer {
 		return this.calledFilesNames;
 	}
 }
-public static final ManifestAnalyzer MANIFEST_ANALYZER = new ManifestAnalyzer();
 
 public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
 	// expected to be called once only - if multiple calls desired, consider
@@ -170,13 +169,14 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 		ZipEntry manifest =	this.zipFile.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
 		if (manifest != null) { // non-null implies regular file
 			reader = new BufferedReader(new InputStreamReader(this.zipFile.getInputStream(manifest)));
-			boolean success = MANIFEST_ANALYZER.analyzeManifestContents(reader);
-			List calledFileNames = MANIFEST_ANALYZER.getCalledFileNames();
+			ManifestAnalyzer analyzer = new ManifestAnalyzer();
+			boolean success = analyzer.analyzeManifestContents(reader);
+			List calledFileNames = analyzer.getCalledFileNames();
 			if (problemReporter != null) {
 				if (!success || 
-						MANIFEST_ANALYZER.getClasspathSectionsCount() == 1 &&  calledFileNames == null) {
+						analyzer.getClasspathSectionsCount() == 1 &&  calledFileNames == null) {
 					problemReporter.invalidClasspathSection(this.getPath());
-				} else if (MANIFEST_ANALYZER.getClasspathSectionsCount() > 1) {
+				} else if (analyzer.getClasspathSectionsCount() > 1) {
 					problemReporter.multipleClasspathSections(this.getPath());				
 				}
 			}
