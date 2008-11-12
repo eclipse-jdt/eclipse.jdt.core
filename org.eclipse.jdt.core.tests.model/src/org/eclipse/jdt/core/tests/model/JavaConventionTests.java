@@ -248,6 +248,8 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		assertEquals("package name not recognized as valid2", IStatus.OK, validate("java.Lang", PACKAGE_NAME));
 		assertEquals("package name not recognized as invalid5", IStatus.ERROR, validate("Test.sample&plugin", PACKAGE_NAME));
 		assertEquals("package name not recognized as unconventional2", IStatus.WARNING, validate("Test.sample", PACKAGE_NAME));
+		assertEquals("package name not recognized as valid2", IStatus.OK, validate("com.  sap", PACKAGE_NAME));
+		assertEquals("package name not recognized as invalid6", IStatus.ERROR, validate("co m.sap", PACKAGE_NAME));
 	}
 	/**
 	 * @see JavaConventions
