@@ -153,8 +153,8 @@ public int nullStatus(FlowInfo flowInfo) {
 			return null;
 		}
 		if (this.operator == PLUS){
-			if(lhsID == T_JavaLangObject) {
-				// <Object> += <String> is illegal (39248)
+			if(lhsID == T_JavaLangObject && (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_7)) {
+				// <Object> += <String> is illegal (39248) for compliance < 1.7
 				scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 				return null;
 			} else {
