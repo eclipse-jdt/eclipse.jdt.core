@@ -165,7 +165,7 @@ ReferenceBinding getType0(char[] name) {
 public Binding getTypeOrPackage(char[] name) {
 	ReferenceBinding typeBinding = getType0(name);
 	if (typeBinding != null && typeBinding != LookupEnvironment.TheNotFoundType) {
-		if ((typeBinding.tagBits & TagBits.HasMissingType) == 0) {
+		if (!(typeBinding instanceof MissingTypeBinding)) {
 			typeBinding = BinaryTypeBinding.resolveType(typeBinding, environment, false); // no raw conversion for now
 			if (typeBinding.isNestedType())
 				return new ProblemReferenceBinding(new char[][]{name}, typeBinding, ProblemReasons.InternalNameProvided);
