@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
@@ -1422,8 +1423,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 * Listener on properties changes.
 	 */
-	Preferences.IPropertyChangeListener propertyListener = new Preferences.IPropertyChangeListener() {
-		public void propertyChange(Preferences.PropertyChangeEvent event) {
+	IEclipsePreferences.IPreferenceChangeListener propertyListener = new IEclipsePreferences.IPreferenceChangeListener() {
+		public void preferenceChange(PreferenceChangeEvent event) {
 			JavaModelManager.this.optionsCache = null;
 		}
 	};
@@ -4458,12 +4459,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			initializePreferences();
 
 			// Listen to preference changes
-			this.propertyListener = new Preferences.IPropertyChangeListener() {
-				public void propertyChange(Preferences.PropertyChangeEvent event) {
+			this.propertyListener = new IEclipsePreferences.IPreferenceChangeListener() {
+				public void preferenceChange(PreferenceChangeEvent event) {
 					JavaModelManager.this.optionsCache = null;
 				}
 			};
-			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(this.propertyListener);
+			new InstanceScope().getNode(JavaCore.PLUGIN_ID).addPreferenceChangeListener(this.propertyListener);
 
 			// Listen to content-type changes
 			 Platform.getContentTypeManager().addContentTypeChangeListener(this);
@@ -4535,11 +4536,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public void shutdown () {
-		JavaCore javaCore = JavaCore.getJavaCore();
-		javaCore.savePluginPreferences();
+		IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+		try {
+			preferences.flush();
+		} catch (BackingStoreException e) {
+			Util.log(e, "Could not save JavaCore preferences"); //$NON-NLS-1$
+		}
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.removeResourceChangeListener(this.deltaState);
-		workspace.removeSaveParticipant(javaCore);
+		workspace.removeSaveParticipant(JavaCore.getJavaCore());
 
 		// Stop listening to content-type changes
 		Platform.getContentTypeManager().removeContentTypeChangeListener(this);
@@ -4550,7 +4555,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		// Stop listening to preferences changes
-		JavaCore.getPlugin().getPluginPreferences().removePropertyChangeListener(this.propertyListener);
+		preferences.removePreferenceChangeListener(this.propertyListener);
 		((IEclipsePreferences) this.preferencesLookup[PREF_DEFAULT].parent()).removeNodeChangeListener(this.defaultNodeListener);
 		this.preferencesLookup[PREF_DEFAULT] = null;
 		((IEclipsePreferences) this.preferencesLookup[PREF_INSTANCE].parent()).removeNodeChangeListener(this.instanceNodeListener);

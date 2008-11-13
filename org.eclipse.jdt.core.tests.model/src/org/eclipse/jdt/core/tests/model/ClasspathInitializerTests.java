@@ -16,6 +16,7 @@ import java.util.Map;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
@@ -1501,7 +1502,7 @@ public void testVariableInitializerBug200449b() throws CoreException {
 /**
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=61872"
  */
-public void testUserLibraryInitializer1() throws CoreException {
+public void testUserLibraryInitializer1() throws Exception {
 	try {
 		// Create new user library "SWT"
 		ClasspathContainerInitializer initializer= JavaCore.getClasspathContainerInitializer(JavaCore.USER_LIBRARY_CONTAINER_ID);
@@ -1516,14 +1517,14 @@ public void testUserLibraryInitializer1() throws CoreException {
 		IFile srcFile = createFile("/p61872/swtsrc.zip", "");
 
 		// Modify user library
-		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
+		IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
 		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"SWT";
 		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
 		String jarFullPath = getWorkspaceRoot().getLocation().append(jarFile.getFullPath()).toString();
 		propertyValue.append(" path=\""+jarFullPath);
 		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
-		preferences.setValue(propertyName, propertyValue.toString());
-		JavaCore.getPlugin().savePluginPreferences();
+		preferences.put(propertyName, propertyValue.toString());
+		preferences.flush();
 
 		// Modify project classpath
 		editFile(
@@ -1547,8 +1548,8 @@ public void testUserLibraryInitializer1() throws CoreException {
 		propertyValue.append(" sourceattachment=\""+srcFullPath);
 		propertyValue.append("\" path=\""+jarFullPath);
 		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
-		preferences.setValue(propertyName, propertyValue.toString());
-		JavaCore.getPlugin().savePluginPreferences();
+		preferences.put(propertyName, propertyValue.toString());
+		preferences.flush();
 
 		// Verify
 		entries = getJavaProject("p61872").getResolvedClasspath(true);

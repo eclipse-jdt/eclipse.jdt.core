@@ -15,7 +15,8 @@ import java.util.*;
 
 import junit.framework.Test;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.jdom.*;
@@ -8554,20 +8555,20 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=16132
 	 */
 	public void test0344() throws JavaModelException {
-		Preferences preferences = null;
+		IEclipsePreferences preferences = null;
 		String pb_assert = null;
 		String compiler_source = null;
 		String compiler_compliance = null;
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0344", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			preferences = JavaCore.getPlugin().getPluginPreferences();
-			pb_assert = preferences.getString(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER);
-			compiler_source = preferences.getString(JavaCore.COMPILER_SOURCE);
-			compiler_compliance = preferences.getString(JavaCore.COMPILER_COMPLIANCE);
+			preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+			pb_assert = preferences.get(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, "");
+			compiler_source = preferences.get(JavaCore.COMPILER_SOURCE, "");
+			compiler_compliance = preferences.get(JavaCore.COMPILER_COMPLIANCE, "");
 
-			preferences.setValue(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-			preferences.setValue(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-			preferences.setValue(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+			preferences.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+			preferences.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			preferences.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 
 			ASTNode result = runConversion(sourceUnit, true);
 			assertNotNull("No compilation unit", result); //$NON-NLS-1$
@@ -8576,9 +8577,9 @@ public class ASTConverterTest extends ConverterTestSetup {
 			assertEquals("errors found", 0, compilationUnit.getMessages().length); //$NON-NLS-1$
 		} finally {
 			if (preferences != null) {
-				preferences.setValue(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, pb_assert);
-				preferences.setValue(JavaCore.COMPILER_SOURCE, compiler_source);
-				preferences.setValue(JavaCore.COMPILER_COMPLIANCE, compiler_compliance);
+				preferences.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, pb_assert);
+				preferences.put(JavaCore.COMPILER_SOURCE, compiler_source);
+				preferences.put(JavaCore.COMPILER_COMPLIANCE, compiler_compliance);
 			}
 		}
 	}

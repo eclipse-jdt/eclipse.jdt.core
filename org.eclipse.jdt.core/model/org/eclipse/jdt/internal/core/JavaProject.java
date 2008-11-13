@@ -40,7 +40,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -1783,30 +1783,6 @@ public class JavaProject
 	}
 
 	/**
-	 * Returns the project custom preference pool.
-	 * Project preferences may include custom encoding.
-	 * @return Preferences
-	 * @deprecated WARNING:  this method do nothing from now and will be removed soon!
-	 * 	If you use it, switch as soon as possible to new preferences API by using
-	 * 	{@link #getEclipsePreferences()} to avoid future compilation error...
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=59258">bug 59258</a>
-	 * TODO (frederic) remove for 3.1...
-	 */
-	public Preferences getPreferences(){
-		/*
-		if (!JavaProject.hasJavaNature(this.project)) return null;
-		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, true);
-		Preferences preferences =  perProjectInfo.preferences;
-		if (preferences != null) return preferences;
-		preferences = loadPreferences();
-		if (preferences == null) preferences = new Preferences();
-		perProjectInfo.preferences = preferences;
-		return preferences;
-		*/
-		return new Preferences();
-	}
-
-	/**
 	 * @see IJavaProject#getProject()
 	 */
 	public IProject getProject() {
@@ -2183,9 +2159,9 @@ public class JavaProject
 	/**
 	 * load preferences from a shareable format (VCM-wise)
 	 */
-	 private Preferences loadPreferences() {
+	 private IEclipsePreferences loadPreferences() {
 
-	 	Preferences preferences = new Preferences();
+	 	IEclipsePreferences preferences = null;
 	 	IPath projectMetaLocation = getPluginWorkingLocation();
 		if (projectMetaLocation != null) {
 			File prefFile = projectMetaLocation.append(PREF_FILENAME).toFile();
@@ -2193,7 +2169,8 @@ public class JavaProject
 				InputStream in = null;
 				try {
 					in = new BufferedInputStream(new FileInputStream(prefFile));
-					preferences.load(in);
+					preferences = Platform.getPreferencesService().readPreferences(in);
+				} catch (CoreException e) { // problems loading preference store - quietly ignore
 				} catch (IOException e) { // problems loading preference store - quietly ignore
 				} finally {
 					if (in != null) {
@@ -2983,17 +2960,17 @@ public class JavaProject
 	 */
 	 private void updatePreferences(IEclipsePreferences preferences) {
 
-	 	Preferences oldPreferences = loadPreferences();
+	 	IEclipsePreferences oldPreferences = loadPreferences();
 	 	if (oldPreferences != null) {
-	 		String[] propertyNames = oldPreferences.propertyNames();
-			for (int i = 0; i < propertyNames.length; i++){
-				String propertyName = propertyNames[i];
-			    String propertyValue = oldPreferences.getString(propertyName);
-			    if (!"".equals(propertyValue)) { //$NON-NLS-1$
-				    preferences.put(propertyName, propertyValue);
-			    }
-			}
 			try {
+		 		String[] propertyNames = oldPreferences.childrenNames();
+				for (int i = 0; i < propertyNames.length; i++){
+					String propertyName = propertyNames[i];
+				    String propertyValue = oldPreferences.get(propertyName, ""); //$NON-NLS-1$
+				    if (!"".equals(propertyValue)) { //$NON-NLS-1$
+					    preferences.put(propertyName, propertyValue);
+				    }
+				}
 				// save immediately new preferences
 				preferences.flush();
 			} catch (BackingStoreException e) {

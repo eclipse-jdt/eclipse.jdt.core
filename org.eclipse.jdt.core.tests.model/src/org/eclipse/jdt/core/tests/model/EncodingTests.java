@@ -24,8 +24,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.content.IContentDescription;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IOpenable;
@@ -128,16 +129,15 @@ public class EncodingTests extends ModifyingResourceTests {
 	/**
 	 * Check that the compilation unit is saved with the proper encoding.
 	 */
-	public void testCreateCompilationUnitAndImportContainer() throws JavaModelException, CoreException {
+	public void testCreateCompilationUnitAndImportContainer() throws Exception {
 		String savedEncoding = null;
+		String resourcesPluginId = ResourcesPlugin.getPlugin().getBundle().getSymbolicName();
+		IEclipsePreferences preferences = new InstanceScope().getNode(resourcesPluginId);
 		try {
-			Preferences preferences = ResourcesPlugin.getPlugin().getPluginPreferences();
-
-			savedEncoding = preferences.getString(ResourcesPlugin.PREF_ENCODING);
+			savedEncoding = preferences.get(ResourcesPlugin.PREF_ENCODING, "");
 			String encoding = "UTF-8";
-			preferences.setValue(ResourcesPlugin.PREF_ENCODING, encoding);
-
-			ResourcesPlugin.getPlugin().savePluginPreferences();
+			preferences.put(ResourcesPlugin.PREF_ENCODING, encoding);
+			preferences.flush();
 
 			IJavaProject newProject = createJavaProject("P", new String[] { "" }, "");
 			IPackageFragment pkg = getPackageFragment("P", "", "");
@@ -165,9 +165,8 @@ public class EncodingTests extends ModifyingResourceTests {
 			}
 		} finally {
 			deleteProject("P");
-			Preferences preferences = ResourcesPlugin.getPlugin().getPluginPreferences();
-			preferences.setValue(ResourcesPlugin.PREF_ENCODING, savedEncoding);
-			ResourcesPlugin.getPlugin().savePluginPreferences();
+			preferences.put(ResourcesPlugin.PREF_ENCODING, savedEncoding);
+			preferences.flush();
 		}
 	}
 
