@@ -165,13 +165,14 @@ ReferenceBinding getType0(char[] name) {
 public Binding getTypeOrPackage(char[] name) {
 	ReferenceBinding referenceBinding = getType0(name);
 	if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
-		if (!(referenceBinding instanceof MissingTypeBinding)) {
-			referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this.environment, false /* no raw conversion for now */);
-			if (referenceBinding.isNestedType()) {
-				return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
-			}
+		referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this.environment, false /* no raw conversion for now */);
+		if (referenceBinding.isNestedType()) {
+			return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
+		}
+		if ((referenceBinding.tagBits & TagBits.HasMissingType) == 0) {
 			return referenceBinding;
 		}
+		// referenceBinding is a MissingType, will return it if no package is found
 	}
 
 	PackageBinding packageBinding = getPackage0(name);
