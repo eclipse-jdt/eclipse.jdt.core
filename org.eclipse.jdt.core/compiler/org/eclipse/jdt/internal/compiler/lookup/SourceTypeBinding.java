@@ -1165,38 +1165,48 @@ public MethodBinding[] methods() {
 				}
 				boolean isEnumSpecialMethod = isEnum() && (CharOperation.equals(selector,TypeConstants.VALUEOF) || CharOperation.equals(selector,TypeConstants.VALUES));
 				// report duplicate
+				boolean removeMethod2 = true;
 				if (methodDecl == null) {
 					methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost & may still be null if method is special
 					if (methodDecl != null && methodDecl.binding != null) { // ensure its a valid user defined method
+						boolean removeMethod = method.returnType == null && method2.returnType != null;
 						if (isEnumSpecialMethod) {
 							this.scope.problemReporter().duplicateEnumSpecialMethod(this, methodDecl);
 							// remove user defined methods & keep the synthetic
+							removeMethod = true;
+						} else {
+							this.scope.problemReporter().duplicateMethodInType(this, methodDecl, method.areParametersEqual(method2));
+						}
+						if (removeMethod) {
+							removeMethod2 = false;
 							methodDecl.binding = null;
 							// do not alter original method array until resolution is over, due to reentrance (143259)
 							if (resolvedMethods == this.methods)
 								System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
 							resolvedMethods[i] = null;
 							failed++;
-						} else {
-							this.scope.problemReporter().duplicateMethodInType(this, methodDecl, method.areParametersEqual(method2));
 						}
 					}
 				}
 				AbstractMethodDeclaration method2Decl = method2.sourceMethod();
 				if (method2Decl != null && method2Decl.binding != null) { // ensure its a valid user defined method
-					if (isEnumSpecialMethod)
+					if (isEnumSpecialMethod) {
 						this.scope.problemReporter().duplicateEnumSpecialMethod(this, method2Decl);
-					else
+						removeMethod2 = true;
+					} else {
 						this.scope.problemReporter().duplicateMethodInType(this, method2Decl, method.areParametersEqual(method2));
-					method2Decl.binding = null;
-					// do not alter original method array until resolution is over, due to reentrance (143259)
-					if (resolvedMethods == this.methods)
-						System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
-					resolvedMethods[j] = null;
-					failed++;
+					}
+					if (removeMethod2) {
+						method2Decl.binding = null;
+						// do not alter original method array until resolution is over, due to reentrance (143259)
+						if (resolvedMethods == this.methods)
+							System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
+						resolvedMethods[j] = null;
+						failed++;
+					}
 				}
 			}
-			if (method.returnType == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
+			if (method.returnType == null && resolvedMethods[i] != null) { // forget method with invalid return type... was kept to detect possible collisions
 				methodDecl = method.sourceMethod();
 				if (methodDecl != null)
 					methodDecl.binding = null;

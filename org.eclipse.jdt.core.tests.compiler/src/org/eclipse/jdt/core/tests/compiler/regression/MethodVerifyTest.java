@@ -9089,4 +9089,43 @@ public void test179() {
 		"----------\n"
 	);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=255035
+public void test180() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class S {\n" +
+			"	String foo() { return null; }\n" +
+			"}\n" +
+			"class X extends S {\n" +
+			"	foo() { return null; }\n" +
+			"	@Override String foo() { return null; }\n" + // should keep this definition
+			"	Number foo() { return null; }\n" +
+			"	void test() { foo(); }\n" + // no secondary error
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	foo() { return null; }\n" + 
+		"	^^^^^\n" + 
+		"Return type for the method is missing\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	foo() { return null; }\n" + 
+		"	^^^^^\n" + 
+		"Duplicate method foo() in type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	@Override String foo() { return null; }\n" + 
+		"	                 ^^^^^\n" + 
+		"Duplicate method foo() in type X\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
+		"	Number foo() { return null; }\n" + 
+		"	       ^^^^^\n" + 
+		"Duplicate method foo() in type X\n" + 
+		"----------\n"
+	);
+}
 }
