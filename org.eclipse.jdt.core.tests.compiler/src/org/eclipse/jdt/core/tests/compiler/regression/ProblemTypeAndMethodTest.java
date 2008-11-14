@@ -4777,4 +4777,61 @@ public void test091()  throws Exception {
 		"Type safety: Unchecked cast from Object to S\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297
+public void test092() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/p2/X.java", // =================
+			"package p1.p2;\n" + 
+			"public class X {\n" + 
+			"	public p2.p3.Z z() {return null;}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\p2\\X.java (at line 3)\n" + 
+		"	public p2.p3.Z z() {return null;}\n" + 
+		"	       ^^\n" + 
+		"p2 cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		false,
+		null,
+		true,
+		false,
+		false
+	);
+	this.runConformTest(
+		new String[] {
+			"a/b/A.java", // =================
+			"package a.b;\n" + 
+			"public class A {\n" + 
+			"	p1.p2.X x;\n" + 
+			"	void test() { x.z(); }\n" + 
+			"	void foo(p2.p3.Z z) {}\n" + 
+			"}\n",
+			"p2/p3/Z.java", // =================
+			"package p2.p3;\n" + 
+			"public class Z {}\n"
+		},
+		"",
+		null,
+		false,
+		null
+	);
+	this.runConformTest(
+		new String[] {
+			"a/b/A.java", // =================
+			"package a.b;\n" + 
+			"public class A {\n" + 
+			"	p1.p2.X x;\n" + 
+			"	void test() { x.z(); }\n" + 
+			"	void foo(p2.p3.Z z) {}\n" + 
+			"}\n"
+		},
+		"",
+		null,
+		false,
+		null
+	);
+}
 }
