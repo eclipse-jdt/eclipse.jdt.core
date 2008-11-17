@@ -34,7 +34,7 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 			IClasspathEntry[] entries = new IClasspathEntry[length];
 			for (int j = 0; j < length; j++) {
 			    IPath path = new Path(new String(this.libPaths[j]));
-			    if (path.segmentCount() == 1) {
+			    if (path.segmentCount() == 1 && path.getDevice() == null) {
 			        entries[j] = JavaCore.newProjectEntry(path);
 			    } else {
 					entries[j] = JavaCore.newLibraryEntry(path, null, null);
