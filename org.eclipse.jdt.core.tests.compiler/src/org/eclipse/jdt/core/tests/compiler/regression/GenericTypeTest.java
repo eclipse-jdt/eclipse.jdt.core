@@ -47625,4 +47625,22 @@ public void test1405()  throws Exception {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+public void test1406() {
+	this.runConformTest(
+			new String[] {
+				"GenericTest.java", //-----------------------------------------------------------------------
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class GenericTest {\n" + 
+				"    public static void test() {\n" + 
+				"        Set testList = GenericTest.method1(new Class[] { ArrayList.class });\n" + 
+				"    }\n" + 
+				" \n" + 
+				"    public static <I> I method1(Class<List>[] params) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
 }
