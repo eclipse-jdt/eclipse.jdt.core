@@ -1423,11 +1423,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 * Listener on properties changes.
 	 */
-	IEclipsePreferences.IPreferenceChangeListener propertyListener = new IEclipsePreferences.IPreferenceChangeListener() {
-		public void preferenceChange(PreferenceChangeEvent event) {
-			JavaModelManager.this.optionsCache = null;
-		}
-	};
+	IEclipsePreferences.IPreferenceChangeListener propertyListener;
+	IEclipsePreferences.IPreferenceChangeListener resourcesPropertyListener;
 
 	/**
 	 * Constructs a new JavaModelManager
@@ -4465,6 +4462,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 			};
 			new InstanceScope().getNode(JavaCore.PLUGIN_ID).addPreferenceChangeListener(this.propertyListener);
+			
+			// listen for encoding changes (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=255501 )
+			this.resourcesPropertyListener = new IEclipsePreferences.IPreferenceChangeListener() {
+				public void preferenceChange(PreferenceChangeEvent event) {
+					if (ResourcesPlugin.PREF_ENCODING.equals(event.getKey())) {
+						JavaModelManager.this.optionsCache = null;
+					}
+				}
+			};
+			String resourcesPluginId = ResourcesPlugin.getPlugin().getBundle().getSymbolicName();
+			new InstanceScope().getNode(resourcesPluginId).addPreferenceChangeListener(this.resourcesPropertyListener);
 
 			// Listen to content-type changes
 			 Platform.getContentTypeManager().addContentTypeChangeListener(this);
@@ -4561,6 +4569,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		((IEclipsePreferences) this.preferencesLookup[PREF_INSTANCE].parent()).removeNodeChangeListener(this.instanceNodeListener);
 		this.preferencesLookup[PREF_INSTANCE].removePreferenceChangeListener(this.instancePreferencesListener);
 		this.preferencesLookup[PREF_INSTANCE] = null;
+		String resourcesPluginId = ResourcesPlugin.getPlugin().getBundle().getSymbolicName();
+		new InstanceScope().getNode(resourcesPluginId).removePreferenceChangeListener(this.resourcesPropertyListener);
 
 		// wait for the initialization job to finish
 		try {

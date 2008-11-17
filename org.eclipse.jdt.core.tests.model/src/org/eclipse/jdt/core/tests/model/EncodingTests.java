@@ -715,7 +715,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			deleteFile("Encoding/Test34.txt");
 		}
 	}
-
+	
 	/**
 	 * Bug 66898: refactor-rename: encoding is not preserved
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=66898"
@@ -907,6 +907,27 @@ public class EncodingTests extends ModifyingResourceTests {
 			//renamedFile.move(this.utf8File.getFullPath(), false, null);
 			//assertEquals("Moved file should keep encoding", encoding, this.utf8File.getCharset());
 			deleteFolder("/Encoding/src/tmp");
+		}
+	}
+
+	/**
+	 * Bug 255501: EncodingTests failing when run by itself
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=255501"
+	 */
+	public void testBug255501() throws Exception {
+		String savedEncoding = null;
+		String resourcesPluginId = ResourcesPlugin.getPlugin().getBundle().getSymbolicName();
+		IEclipsePreferences preferences = new InstanceScope().getNode(resourcesPluginId);
+		try {
+			savedEncoding = preferences.get(ResourcesPlugin.PREF_ENCODING, "");
+			JavaCore.getOptions(); // force options to be cached
+			preferences.put(ResourcesPlugin.PREF_ENCODING, "UTF-16");
+			preferences.flush();
+			String encoding = (String) JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
+			assertEquals("Unexpected encoding", "UTF-16", encoding);
+		} finally {
+			preferences.put(ResourcesPlugin.PREF_ENCODING, savedEncoding);
+			preferences.flush();
 		}
 	}
 
