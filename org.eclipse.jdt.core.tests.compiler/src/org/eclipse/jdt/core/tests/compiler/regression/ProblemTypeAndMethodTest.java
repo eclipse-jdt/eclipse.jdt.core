@@ -4834,4 +4834,86 @@ public void test092() {
 		null
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297 - variation
+public void test093() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		List<? extends Zork> zlist = null;\n" + 
+				"		bar(zlist.get(0));\n" + 
+				"	}\n" + 
+				"	<T> T bar(T t) { return t; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	List<? extends Zork> zlist = null;\n" + 
+			"	               ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297 - variation
+public void test094() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo(boolean b, Runnable r) {\n" + 
+				"		bar(r);\n" + 
+				"	}\n" + 
+				"	<T> T bar(Zork z) { return z; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	bar(r);\n" + 
+			"	^^^\n" + 
+			"The method bar(Zork) from the type X refers to the missing type Zork\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	<T> T bar(Zork z) { return z; }\n" + 
+			"	          ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297 - variation
+public void test095() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo(boolean b, Runnable r) {\n" + 
+				"		bar(r);\n" + 
+				"	}\n" + 
+				"	<T> bar(Zork z) { return z; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	bar(r);\n" + 
+			"	^^^\n" + 
+			"The method bar(Runnable) is undefined for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	<T> bar(Zork z) { return z; }\n" + 
+			"	    ^^^^^^^^^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	<T> bar(Zork z) { return z; }\n" + 
+			"	        ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }
