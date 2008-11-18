@@ -36438,41 +36438,41 @@ public void test1085() {
 			"		E e2 = e2.e;\n" +
 			"}", // =================
 		},
-		"----------\n" +
-		"1. ERROR in Y.java (at line 2)\n" +
-		"	Z z1 = z1;\n" +
-		"	       ^^\n" +
-		"Cannot reference a field before it is defined\n" +
-		"----------\n" +
-		"2. ERROR in Y.java (at line 3)\n" +
-		"	Z[] z2 = z2;\n" +
-		"	         ^^\n" +
-		"Cannot reference a field before it is defined\n" +
-		"----------\n" +
-		"3. ERROR in Y.java (at line 6)\n" +
-		"	E e0 = es[0];\n" +
-		"	       ^^\n" +
-		"Cannot reference a field before it is defined\n" +
-		"----------\n" +
-		"4. ERROR in Y.java (at line 7)\n" +
-		"	E e = e;\n" +
-		"	      ^\n" +
-		"Cannot reference a field before it is defined\n" +
-		"----------\n" +
-		"5. ERROR in Y.java (at line 8)\n" +
-		"	E[] es = es;\n" +
-		"	         ^^\n" +
-		"Cannot reference a field before it is defined\n" +
-		"----------\n" +
-		"6. ERROR in Y.java (at line 9)\n" +
-		"	E e2 = e2.e;\n" +
-		"	       ^^^^\n" +
-		"Cannot reference a field before it is defined\n" +
-		"----------\n" +
-		"7. ERROR in Y.java (at line 9)\n" +
-		"	E e2 = e2.e;\n" +
-		"	       ^^^^\n" +
-		"e2.e cannot be resolved or is not a field\n" +
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 2)\n" + 
+		"	Z z1 = z1;\n" + 
+		"	       ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"2. ERROR in Y.java (at line 3)\n" + 
+		"	Z[] z2 = z2;\n" + 
+		"	         ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"3. ERROR in Y.java (at line 6)\n" + 
+		"	E e0 = es[0];\n" + 
+		"	       ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"4. ERROR in Y.java (at line 7)\n" + 
+		"	E e = e;\n" + 
+		"	      ^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"5. ERROR in Y.java (at line 8)\n" + 
+		"	E[] es = es;\n" + 
+		"	         ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"6. ERROR in Y.java (at line 9)\n" + 
+		"	E e2 = e2.e;\n" + 
+		"	       ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"7. ERROR in Y.java (at line 9)\n" + 
+		"	E e2 = e2.e;\n" + 
+		"	       ^^^^\n" + 
+		"e2.e cannot be resolved or is not a field\n" + 
 		"----------\n");
 }
 
@@ -47642,5 +47642,50 @@ public void test1406() {
 				"}\n",//-----------------------------------------------------------------------
 			},
 			"");
+}
+public void test1407() {
+	this.runNegativeTest(
+			new String[] {
+				"Foo.java", //-----------------------------------------------------------------------
+				"public class Foo {\n" + 
+				"	public static <I> I m1(Class<Foo> c) { return null; }\n" + 
+				"	public static <I> I m2(Class<I> c) { return null; }	\n" + 
+				"	void bar() {\n" + 
+				"		Foo l1 = m1((Class)Foo.class); //ok - unchecked conversion from Class to Class<Foo> - I inferred to be Foo\n" + 
+				"		Foo l2 = m2((Class)Foo.class); //unchecked call, erased return type and error because Object != Foo		\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in Foo.java (at line 5)\n" + 
+			"	Foo l1 = m1((Class)Foo.class); //ok - unchecked conversion from Class to Class<Foo> - I inferred to be Foo\n" + 
+			"	            ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Foo>\n" + 
+			"----------\n" + 
+			"2. WARNING in Foo.java (at line 5)\n" + 
+			"	Foo l1 = m1((Class)Foo.class); //ok - unchecked conversion from Class to Class<Foo> - I inferred to be Foo\n" + 
+			"	             ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Foo.java (at line 6)\n" + 
+			"	Foo l2 = m2((Class)Foo.class); //unchecked call, erased return type and error because Object != Foo		\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation m2(Class) of the generic method m2(Class<I>) of type Foo\n" + 
+			"----------\n" + 
+			"4. ERROR in Foo.java (at line 6)\n" + 
+			"	Foo l2 = m2((Class)Foo.class); //unchecked call, erased return type and error because Object != Foo		\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to Foo\n" + 
+			"----------\n" + 
+			"5. WARNING in Foo.java (at line 6)\n" + 
+			"	Foo l2 = m2((Class)Foo.class); //unchecked call, erased return type and error because Object != Foo		\n" + 
+			"	            ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<I>\n" + 
+			"----------\n" + 
+			"6. WARNING in Foo.java (at line 6)\n" + 
+			"	Foo l2 = m2((Class)Foo.class); //unchecked call, erased return type and error because Object != Foo		\n" + 
+			"	             ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n");
 }
 }

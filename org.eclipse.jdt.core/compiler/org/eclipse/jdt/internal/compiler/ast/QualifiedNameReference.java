@@ -209,25 +209,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return flowInfo;
 }
 
-/**
- * Check and/or redirect the field access to the delegate receiver if any
- */
-public TypeBinding checkFieldAccess(BlockScope scope) {
-	FieldBinding fieldBinding = (FieldBinding) this.binding;
-	MethodScope methodScope = scope.methodScope();
-	// check for forward references
-	if (this.indexOfFirstFieldBinding == 1
-			&& methodScope.enclosingSourceType() == fieldBinding.original().declaringClass
-			&& methodScope.lastVisibleFieldID >= 0
-			&& fieldBinding.id >= methodScope.lastVisibleFieldID
-			&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
-		scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
-	}
-	this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
-	this.bits |= Binding.FIELD;
-	return getOtherFieldBindings(scope);
-}
-
 public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, boolean checkString) {
 	// cannot override localVariableBinding because this would project o.m onto o when
 	// analysing assignments
@@ -682,27 +663,7 @@ protected TypeBinding getGenericCast(int index) {
 public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	// At this point restrictiveFlag may ONLY have two potential value : FIELD LOCAL (i.e cast <<(VariableBinding) binding>> is valid)
 	int length = this.tokens.length;
-	FieldBinding field;
-	if ((this.bits & Binding.FIELD) != 0) {
-		field = (FieldBinding) this.binding;
-		if (!field.isStatic()) {
-			//must check for the static status....
-			if (this.indexOfFirstFieldBinding > 1  //accessing to a field using a type as "receiver" is allowed only with static field
-					 || scope.methodScope().isStatic) { 	// the field is the first token of the qualified reference....
-				scope.problemReporter().staticFieldAccessToNonStaticVariable(this, field);
-				return null;
-			 }
-		} else if (this.indexOfFirstFieldBinding > 1
-					&& field.declaringClass != this.actualReceiverType
-					&& field.declaringClass.canBeSeenBy(scope)) {
-			scope.problemReporter().indirectAccessToStaticField(this, field);
-		}
-		// only last field is actually a write access if any
-		if (isFieldUseDeprecated(field, scope, (this.bits & ASTNode.IsStrictlyAssigned) != 0 && this.indexOfFirstFieldBinding == length))
-			scope.problemReporter().deprecatedField(field, this);
-	} else {
-		field = null;
-	}
+	FieldBinding field = ((this.bits & Binding.FIELD) != 0) ? (FieldBinding) this.binding : null;
 	TypeBinding type = ((VariableBinding) this.binding).type;
 	int index = this.indexOfFirstFieldBinding;
 	if (index == length) { //	restrictiveFlag == FIELD
@@ -754,11 +715,18 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 
 			if (field.isStatic()) {
-				// check if accessing enum static field in initializer
-				ReferenceBinding declaringClass = field.declaringClass;
+				ReferenceBinding declaringClass = field.original().declaringClass;
 				if (declaringClass.isEnum()) {
 					MethodScope methodScope = scope.methodScope();
 					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
+					if ((this.bits & ASTNode.IsStrictlyAssigned) == 0
+							&& sourceType == declaringClass
+							&& methodScope.lastVisibleFieldID >= 0
+							&& field.id >= methodScope.lastVisibleFieldID
+							&& (!field.isStatic() || methodScope.isStatic)) {
+						scope.problemReporter().forwardReference(this, index, field);
+					}					
+					// check if accessing enum static field in initializer
 					if ((sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
 							&& field.constant() == Constant.NotAConstant
 							&& !methodScope.isStatic
@@ -931,18 +899,18 @@ public TypeBinding resolveType(BlockScope scope) {
 			case Binding.VARIABLE : //============only variable===========
 			case Binding.TYPE | Binding.VARIABLE :
 				if (this.binding instanceof LocalVariableBinding) {
-					LocalVariableBinding local = (LocalVariableBinding) this.binding;
-					if (!local.isFinal() && ((this.bits & ASTNode.DepthMASK) != 0))
-						scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding) this.binding, this);
 					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 					this.bits |= Binding.LOCAL;
+					LocalVariableBinding local = (LocalVariableBinding) this.binding;
+					if (!local.isFinal() && ((this.bits & ASTNode.DepthMASK) != 0)) {
+						scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding) this.binding, this);
+					}
 					if (local.type != null && (local.type.tagBits & TagBits.HasMissingType) != 0) {
 						// only complain if field reference (for local, its type got flagged already)
 						return null;
 					}
 					this.resolvedType = getOtherFieldBindings(scope);
-					if (this.resolvedType != null
-							&& (this.resolvedType.tagBits & TagBits.HasMissingType) != 0) {
+					if (this.resolvedType != null && (this.resolvedType.tagBits & TagBits.HasMissingType) != 0) {
 						FieldBinding lastField = this.otherBindings[this.otherBindings.length - 1];
 						scope.problemReporter().invalidField(this, new ProblemFieldBinding(lastField.declaringClass, lastField.name, ProblemReasons.NotFound), this.tokens.length, this.resolvedType.leafComponentType());
 						return null;
@@ -950,21 +918,27 @@ public TypeBinding resolveType(BlockScope scope) {
 					return this.resolvedType;
 				}
 				if (this.binding instanceof FieldBinding) {
+					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
+					this.bits |= Binding.FIELD;
 					FieldBinding fieldBinding = (FieldBinding) this.binding;
 					MethodScope methodScope = scope.methodScope();
+					ReferenceBinding declaringClass = fieldBinding.original().declaringClass;
+					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
 					// check for forward references
-					if (this.indexOfFirstFieldBinding == 1
-							&& methodScope.enclosingSourceType() == fieldBinding.original().declaringClass
+					if ((this.indexOfFirstFieldBinding == 1 || declaringClass.isEnum())
+							&& sourceType == declaringClass
 							&& methodScope.lastVisibleFieldID >= 0
 							&& fieldBinding.id >= methodScope.lastVisibleFieldID
 							&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
-						scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
+						scope.problemReporter().forwardReference(this, this.indexOfFirstFieldBinding-1, fieldBinding);
+					}
+					if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & ASTNode.IsStrictlyAssigned) != 0 && this.indexOfFirstFieldBinding == this.tokens.length)) {
+						scope.problemReporter().deprecatedField(fieldBinding, this);	
 					}
 					if (fieldBinding.isStatic()) {
-						ReferenceBinding declaringClass = fieldBinding.declaringClass;
+						// only last field is actually a write access if any
 						// check if accessing enum static field in initializer
 						if (declaringClass.isEnum()) {
-							SourceTypeBinding sourceType = methodScope.enclosingSourceType();
 							if ((sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
 									&& fieldBinding.constant() == Constant.NotAConstant
 									&& !methodScope.isStatic
@@ -972,18 +946,23 @@ public TypeBinding resolveType(BlockScope scope) {
 								scope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
 							}
 						}
-					} else if (this.indexOfFirstFieldBinding == 1 && scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
-						scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
+						if (this.indexOfFirstFieldBinding > 1
+								&& fieldBinding.declaringClass != this.actualReceiverType
+								&& fieldBinding.declaringClass.canBeSeenBy(scope)) {
+							scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
+						}						
+					} else {
+						if (this.indexOfFirstFieldBinding == 1 && scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
+							scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
+						}
+						//must check for the static status....
+						if (this.indexOfFirstFieldBinding > 1  //accessing to a field using a type as "receiver" is allowed only with static field
+								 || scope.methodScope().isStatic) { 	// the field is the first token of the qualified reference....
+							scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
+							return null;
+						 }
 					}
-					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
-					this.bits |= Binding.FIELD;
-
-//						// check for deprecated receiver type
-//						// deprecation check for receiver type if not first token
-//						if (indexOfFirstFieldBinding > 1) {
-//							if (isTypeUseDeprecated(this.actualReceiverType, scope))
-//								scope.problemReporter().deprecatedType(this.actualReceiverType, this);
-//						}
+					
 					this.resolvedType = getOtherFieldBindings(scope);
 					if (this.resolvedType != null
 							&& (this.resolvedType.tagBits & TagBits.HasMissingType) != 0) {

@@ -5939,4 +5939,156 @@ public void test167() throws Exception {
 		false,
 		false);
 	}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=255452
+public void test168() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"enum BadEnum {\n" + 
+			"    CRAZY(CRAZY), // <-- illegal forward reference reported by all compilers\n" + 
+			"    IMPOSSIBLE(BadEnum.IMPOSSIBLE); // <-- illegal forward reference (javac 1.6 only)\n" + 
+			"    private BadEnum(BadEnum self) {\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    X x1 = new X(x1);//1 - WRONG\n" + 
+			"    static X X2 = new X(X.X2);//2 - OK\n" + 
+			"    X x3 = new X(this.x3);//3 - OK\n" + 
+			"    X(X x) {}\n" + 
+			"    X(int i) {}\n" + 
+			"    static int VALUE() { return 13; }\n" + 
+			"    int value() { return 14; }\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"    X x1 = new X(x1);//6 - WRONG\n" + 
+			"    static X X2 = new X(Y.X2);//7 - OK\n" + 
+			"    X x3 = new X(this.x3);//8 - OK\n" + 
+			"    Y(Y y) { super(y); }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	CRAZY(CRAZY), // <-- illegal forward reference reported by all compilers\n" + 
+		"	      ^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	IMPOSSIBLE(BadEnum.IMPOSSIBLE); // <-- illegal forward reference (javac 1.6 only)\n" + 
+		"	                   ^^^^^^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	X x1 = new X(x1);//1 - WRONG\n" + 
+		"	             ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 17)\n" + 
+		"	X x1 = new X(x1);//6 - WRONG\n" + 
+		"	  ^^\n" + 
+		"The field Y.x1 is hiding a field from type X\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 17)\n" + 
+		"	X x1 = new X(x1);//6 - WRONG\n" + 
+		"	             ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 18)\n" + 
+		"	static X X2 = new X(Y.X2);//7 - OK\n" + 
+		"	         ^^\n" + 
+		"The field Y.X2 is hiding a field from type X\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 19)\n" + 
+		"	X x3 = new X(this.x3);//8 - OK\n" + 
+		"	  ^^\n" + 
+		"The field Y.x3 is hiding a field from type X\n" + 
+		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=255452 - variation
+public void test169() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"enum BadEnum {\n" + 
+			"    NOWAY(BadEnum.NOWAY.CONST),\n" + 
+			"    INVALID(INVALID.CONST),\n" + 
+			"    WRONG(WRONG.VALUE()),\n" + 
+			"    ILLEGAL(ILLEGAL.value());\n" + 
+			"    final static int CONST = 12;\n" + 
+			"    private BadEnum(int i) {\n" + 
+			"    }\n" + 
+			"    static int VALUE() { return 13; }\n" + 
+			"    int value() { return 14; }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    final static int CONST = 12;\n" + 
+			"    X x4 = new X(x4.CONST);//4 - WRONG\n" + 
+			"    X x5 = new X(x5.value());//5 - WRONG\n" + 
+			"    X(int i) {}\n" + 
+			"    static int VALUE() { return 13; }\n" + 
+			"    int value() { return 14; }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	NOWAY(BadEnum.NOWAY.CONST),\n" + 
+		"	              ^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	NOWAY(BadEnum.NOWAY.CONST),\n" + 
+		"	                    ^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 2)\n" + 
+		"	NOWAY(BadEnum.NOWAY.CONST),\n" + 
+		"	                    ^^^^^\n" + 
+		"The static field BadEnum.CONST should be accessed in a static way\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 3)\n" + 
+		"	INVALID(INVALID.CONST),\n" + 
+		"	        ^^^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 3)\n" + 
+		"	INVALID(INVALID.CONST),\n" + 
+		"	                ^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 3)\n" + 
+		"	INVALID(INVALID.CONST),\n" + 
+		"	                ^^^^^\n" + 
+		"The static field BadEnum.CONST should be accessed in a static way\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 4)\n" + 
+		"	WRONG(WRONG.VALUE()),\n" + 
+		"	      ^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 4)\n" + 
+		"	WRONG(WRONG.VALUE()),\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"The static method VALUE() from the type BadEnum should be accessed in a static way\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 5)\n" + 
+		"	ILLEGAL(ILLEGAL.value());\n" + 
+		"	        ^^^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 14)\n" + 
+		"	X x4 = new X(x4.CONST);//4 - WRONG\n" + 
+		"	             ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"11. WARNING in X.java (at line 14)\n" + 
+		"	X x4 = new X(x4.CONST);//4 - WRONG\n" + 
+		"	                ^^^^^\n" + 
+		"The static field X.CONST should be accessed in a static way\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 15)\n" + 
+		"	X x5 = new X(x5.value());//5 - WRONG\n" + 
+		"	             ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n");
+}
+}
+

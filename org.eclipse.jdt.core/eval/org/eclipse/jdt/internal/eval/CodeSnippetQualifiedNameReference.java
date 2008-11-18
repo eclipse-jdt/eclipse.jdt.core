@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
@@ -25,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -47,6 +49,27 @@ public CodeSnippetQualifiedNameReference(char[][] sources, long[] positions, int
 	super(sources, positions, sourceStart, sourceEnd);
 	this.evaluationContext = evaluationContext;
 }
+
+/**
+ * Check and/or redirect the field access to the delegate receiver if any
+ */
+public TypeBinding checkFieldAccess(BlockScope scope) {
+	FieldBinding fieldBinding = (FieldBinding) this.binding;
+	MethodScope methodScope = scope.methodScope();
+	TypeBinding declaringClass = fieldBinding.original().declaringClass;
+	// check for forward references
+	if ((this.indexOfFirstFieldBinding == 1 || declaringClass.isEnum())
+			&& methodScope.enclosingSourceType() == declaringClass
+			&& methodScope.lastVisibleFieldID >= 0
+			&& fieldBinding.id >= methodScope.lastVisibleFieldID
+			&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
+		scope.problemReporter().forwardReference(this, this.indexOfFirstFieldBinding-1, fieldBinding);
+	}
+	this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
+	this.bits |= Binding.FIELD;
+	return getOtherFieldBindings(scope);
+}
+
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
 	if ((this.bits & Binding.VARIABLE) == 0) { // nothing to do if type ref
