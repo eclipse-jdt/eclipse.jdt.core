@@ -282,12 +282,16 @@ public class InternalNamingConventions {
 	}
 
 	private static char[][] computeBaseTypeNames(char[] typeName, boolean isConstantField, char[][] excludedNames){
-		char[] name = computeBaseTypeNames(typeName[0], excludedNames);
-		if(name != null) {
-			return new char[][]{name};
+		if (isConstantField) {
+			return computeNonBaseTypeNames(typeName, isConstantField);
 		} else {
-			// compute variable name like from non base type
-			return  computeNonBaseTypeNames(typeName, isConstantField);
+			char[] name = computeBaseTypeNames(typeName[0], excludedNames);
+			if(name != null) {
+				return new char[][]{name};
+			} else {
+				// compute variable name like from non base type
+				return computeNonBaseTypeNames(typeName, isConstantField);
+			}
 		}
 	}
 	private static char[] computeBaseTypeNames(char firstName, char[][] excludedNames){
@@ -344,7 +348,11 @@ public class InternalNamingConventions {
 		}
 		
 		if (length == 1) {
-			return new char[][]{CharOperation.toLowerCase(sourceName)};
+			if (isConstantField) {
+				return generateConstantName(new char[][]{CharOperation.toLowerCase(sourceName)}, 0);
+			} else {
+				return generateNonConstantName(new char[][]{CharOperation.toLowerCase(sourceName)}, 0);
+			}
 		}
 		
 		char[][] nameParts = new char[length][];
@@ -533,7 +541,7 @@ public class InternalNamingConventions {
 				prefixes = assistOptions.staticFieldPrefixes;
 				suffixes = assistOptions.staticFieldSuffixes;
 				break;
-			case VK_CONSTANT_FIELD:
+			case VK_STATIC_FINAL_FIELD:
 				prefixes = assistOptions.staticFinalFieldPrefixes;
 				suffixes = assistOptions.staticFinalFieldSuffixes;
 				break;
@@ -548,11 +556,11 @@ public class InternalNamingConventions {
 		}
 		
 		
-		return getBaseName(name, prefixes, suffixes, variableKind == VK_CONSTANT_FIELD);
+		return getBaseName(name, prefixes, suffixes, variableKind == VK_STATIC_FINAL_FIELD);
 	}
 
 	private static char[] getBaseName(char[] name, char[][] prefixes, char[][] suffixes, boolean isConstant) {
-		char[] nameWithoutPrefixAndSiffix = removeVariablePrefixAndSuffix(name, prefixes, suffixes, false);
+		char[] nameWithoutPrefixAndSiffix = removeVariablePrefixAndSuffix(name, prefixes, suffixes, true);
 		
 		char[] baseName;
 		if (isConstant) {
@@ -564,7 +572,7 @@ public class InternalNamingConventions {
 			for (int i = 0; i < length; i++) {
 				char c = nameWithoutPrefixAndSiffix[i];
 				if (c != '_') {
-					if (previousIsUnderscore || i == 0) {
+					if (previousIsUnderscore) {
 						baseName[++baseNamePtr] = ScannerHelper.toUpperCase(c);
 						previousIsUnderscore = false;
 					} else {
@@ -604,7 +612,7 @@ public class InternalNamingConventions {
 				prefixes = assistOptions.staticFieldPrefixes;
 				suffixes = assistOptions.staticFieldSuffixes;
 				break;
-			case VK_CONSTANT_FIELD:
+			case VK_STATIC_FINAL_FIELD:
 				prefixes = assistOptions.staticFinalFieldPrefixes;
 				suffixes = assistOptions.staticFinalFieldSuffixes;
 				break;
@@ -749,7 +757,7 @@ public class InternalNamingConventions {
 	
 	public static final int VK_STATIC_FIELD = 1;
 	public static final int VK_INSTANCE_FIELD = 2;
-	public static final int VK_CONSTANT_FIELD = 3;
+	public static final int VK_STATIC_FINAL_FIELD = 3;
 	public static final int VK_PARAMETER = 4;
 	public static final int VK_LOCAL = 5;
 	
@@ -792,7 +800,7 @@ public class InternalNamingConventions {
 				prefixes = assistOptions.staticFieldPrefixes;
 				suffixes = assistOptions.staticFieldSuffixes;
 				break;
-			case VK_CONSTANT_FIELD:
+			case VK_STATIC_FINAL_FIELD:
 				isConstantField = true;
 				prefixes = assistOptions.staticFinalFieldPrefixes;
 				suffixes = assistOptions.staticFinalFieldSuffixes;

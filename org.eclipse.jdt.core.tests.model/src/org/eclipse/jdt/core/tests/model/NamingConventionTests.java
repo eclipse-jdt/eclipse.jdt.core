@@ -63,7 +63,7 @@ public void testGetBaseName001() {
 			this.project);
 	
 	assertEquals(
-			"OneName", //$NON-NLS-1$
+			"oneName", //$NON-NLS-1$
 			baseName);
 }
 /*
@@ -71,12 +71,12 @@ public void testGetBaseName001() {
  */
 public void testGetBaseName002() {
 	String baseName = NamingConventions.getBaseName(
-			NamingConventions.VK_CONSTANT_FIELD,
+			NamingConventions.VK_STATIC_FINAL_FIELD,
 			"ONE_NAME", //$NON-NLS-1$
 			this.project);
 	
 	assertEquals(
-			"OneName", //$NON-NLS-1$
+			"oneName", //$NON-NLS-1$
 			baseName);
 }
 /*
@@ -94,7 +94,7 @@ public void testGetBaseName003() {
 			this.project);
 	
 	assertEquals(
-			"OneName", //$NON-NLS-1$
+			"oneName", //$NON-NLS-1$
 			baseName);
 }
 /*
@@ -107,12 +107,12 @@ public void testGetBaseName004() {
 	JavaCore.setOptions(options);
 	
 	String baseName = NamingConventions.getBaseName(
-			NamingConventions.VK_CONSTANT_FIELD,
+			NamingConventions.VK_STATIC_FINAL_FIELD,
 			"preONE_NAMEsuf", //$NON-NLS-1$
 			this.project);
 	
 	assertEquals(
-			"OneName", //$NON-NLS-1$
+			"oneName", //$NON-NLS-1$
 			baseName);
 }
 public void testSuggestFieldName001() {
@@ -485,7 +485,7 @@ public void testSuggestFieldName020() {
  */
 public void testSuggestFieldName021() {
 	String[] suggestions = NamingConventions.suggestVariableNames(
-			NamingConventions.VK_CONSTANT_FIELD,
+			NamingConventions.VK_STATIC_FINAL_FIELD,
 			NamingConventions.BK_TYPE_NAME,
 			"MyType", //$NON-NLS-1$
 			this.project,
@@ -508,7 +508,7 @@ public void testSuggestFieldName022() {
 	JavaCore.setOptions(options);
 	
 	String[] suggestions = NamingConventions.suggestVariableNames(
-			NamingConventions.VK_CONSTANT_FIELD,
+			NamingConventions.VK_STATIC_FINAL_FIELD,
 			NamingConventions.BK_TYPE_NAME,
 			"MyType", //$NON-NLS-1$
 			this.project,
@@ -574,7 +574,7 @@ public void testSuggestFieldName024() {
  */
 public void testSuggestFieldName025() {
 	String[] suggestions = NamingConventions.suggestVariableNames(
-			NamingConventions.VK_CONSTANT_FIELD,
+			NamingConventions.VK_STATIC_FINAL_FIELD,
 			NamingConventions.BK_TYPE_NAME,
 			"My_Type", //$NON-NLS-1$
 			this.project,
@@ -592,7 +592,7 @@ public void testSuggestFieldName025() {
  */
 public void testSuggestFieldName026() {
 	String[] suggestions = NamingConventions.suggestVariableNames(
-			NamingConventions.VK_CONSTANT_FIELD,
+			NamingConventions.VK_STATIC_FINAL_FIELD,
 			NamingConventions.BK_TYPE_NAME,
 			"_MyType", //$NON-NLS-1$
 			this.project,
@@ -610,7 +610,7 @@ public void testSuggestFieldName026() {
  */
 public void testSuggestFieldName027() {
 	String[] suggestions = NamingConventions.suggestVariableNames(
-			NamingConventions.VK_CONSTANT_FIELD,
+			NamingConventions.VK_STATIC_FINAL_FIELD,
 			NamingConventions.BK_TYPE_NAME,
 			"MyType_", //$NON-NLS-1$
 			this.project,
@@ -628,7 +628,7 @@ public void testSuggestFieldName027() {
  */
 public void testSuggestFieldName028() {
 	String[] suggestions = NamingConventions.suggestVariableNames(
-			NamingConventions.VK_CONSTANT_FIELD,
+			NamingConventions.VK_STATIC_FINAL_FIELD,
 			NamingConventions.BK_TYPE_NAME,
 			"MyTyp_e", //$NON-NLS-1$
 			this.project,
@@ -824,6 +824,40 @@ public void testSuggestFieldName038() {
 	assumeEquals(
 		"aType\n" + //$NON-NLS-1$
 		"type", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=255345
+ */
+public void testSuggestFieldName039() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_STATIC_FINAL_FIELD,
+			NamingConventions.BK_TYPE_NAME,
+			"A", //$NON-NLS-1$
+			this.project,
+			0,
+			new String[]{},
+			true);
+	
+	assumeEquals(
+		"A", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=255345
+ */
+public void testSuggestFieldName040() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_STATIC_FINAL_FIELD,
+			NamingConventions.BK_TYPE_NAME,
+			"int", //$NON-NLS-1$
+			this.project,
+			0,
+			new String[]{},
+			true);
+	
+	assumeEquals(
+		"INT", //$NON-NLS-1$
 		toString(suggestions));
 }
 /** @deprecated */

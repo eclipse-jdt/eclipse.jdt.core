@@ -1561,7 +1561,7 @@ public final class CompletionEngine
 						InternalNamingConventions.VK_INSTANCE_FIELD :
 							(field.modifiers & ClassFileConstants.AccFinal) == 0 ? 
 									InternalNamingConventions.VK_STATIC_FIELD :
-										InternalNamingConventions.VK_CONSTANT_FIELD;
+										InternalNamingConventions.VK_STATIC_FINAL_FIELD;
 			
 			findVariableNames(field.realName, field.type, excludeNames, null, kind);
 		}
@@ -2176,7 +2176,7 @@ public final class CompletionEngine
 						InternalNamingConventions.VK_INSTANCE_FIELD :
 							(method.modifiers & ClassFileConstants.AccFinal) == 0 ? 
 									InternalNamingConventions.VK_STATIC_FIELD :
-										InternalNamingConventions.VK_CONSTANT_FIELD;
+										InternalNamingConventions.VK_STATIC_FINAL_FIELD;
 						
 			findVariableNames(this.completionToken, method.returnType, excludeNames, null, kind);
 		}

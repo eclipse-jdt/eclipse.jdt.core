@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.core.INamingRequestor;
@@ -25,18 +26,24 @@ import org.eclipse.jdt.internal.core.InternalNamingConventions;
  * The possible options are :
  * <ul>
  * <li> {@link JavaCore#CODEASSIST_FIELD_PREFIXES} : Define the Prefixes for Field Name.</li>
- * <li> {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES} : Define the Prefixes for Static Field Name.</li>
- * <li> {@link JavaCore#CODEASSIST_LOCAL_PREFIXES} : Define the Prefixes for Local Variable Name.</li>
- * <li> {@link JavaCore#CODEASSIST_ARGUMENT_PREFIXES} : Define the Prefixes for Argument Name.</li>
  * <li> {@link JavaCore#CODEASSIST_FIELD_SUFFIXES} : Define the Suffixes for Field Name.</li>
+ * 
+ * <li> {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES} : Define the Prefixes for Static Field Name.</li>
  * <li> {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES} : Define the Suffixes for Static Field Name.</li>
+ * 
+ * <li> {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_PREFIXES} : Define the Prefixes for Static Final Field Name.</li>
+ * <li> {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES} : Define the Suffixes for Static Final Field Name.</li>
+ * 
+ * <li> {@link JavaCore#CODEASSIST_LOCAL_PREFIXES} : Define the Prefixes for Local Variable Name.</li>
  * <li> {@link JavaCore#CODEASSIST_LOCAL_SUFFIXES} : Define the Suffixes for Local Variable Name.</li>
+ * 
+ * <li> {@link JavaCore#CODEASSIST_ARGUMENT_PREFIXES} : Define the Prefixes for Argument Name.</li>
  * <li> {@link JavaCore#CODEASSIST_ARGUMENT_SUFFIXES} : Define the Suffixes for Argument Name.</li>
  * </ul>
  * </p>
  * <p>
- * For a complete description of the configurable options, see <code>getDefaultOptions</code>.
- * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+ * For a complete description of the configurable options, see {@link JavaCore#getDefaultOptions()}.
+ * To programmatically change these options, see {@link JavaCore#setOptions(java.util.Hashtable)}.
  * </p>
  * <p>
  * This class provides static methods and constants only.
@@ -243,11 +250,18 @@ public final class NamingConventions {
 	 */
 	public static final int VK_INSTANCE_FIELD = InternalNamingConventions.VK_INSTANCE_FIELD;
 	/**
-	 * Variable kind which represents a constant field (static final).
+	 * Variable kind which represents a static final field.
 	 * 
 	 * @since 3.5
 	 */
-	public static final int VK_CONSTANT_FIELD = InternalNamingConventions.VK_CONSTANT_FIELD;
+	public static final int VK_STATIC_FINAL_FIELD = InternalNamingConventions.VK_STATIC_FINAL_FIELD;
+	/**
+	 * Variable kind which represents a constant field (static final).
+	 * 
+	 * @since 3.5
+	 * @deprecated use VK_STATIC_FINAL_FIELD instead. This constant will be removed before 3.5M5.
+	 */
+	public static final int VK_CONSTANT_FIELD = InternalNamingConventions.VK_STATIC_FINAL_FIELD;
 	/**
 	 * Variable kind which represents an argument.
 	 * 
@@ -542,12 +556,28 @@ public final class NamingConventions {
 	 * Returns a base name which could be used to generate the given variable name with {@link #suggestVariableNames(int, int, String, IJavaProject, int, String[], boolean)}.
 	 * <p>
 	 * e.g.<br>
-	 * If the variable is a {@link #VK_LOCAL} and the variable name is <code>variableName</code> then the base name will be <code>VariableName</code>.<br>
-	 * If the variable is a {@link #VK_CONSTANT_FIELD} and the variable name is <code>VARIABLE_NAME</code> then the base name will be <code>VariableName</code>.<br>
+	 * If the variable is a {@link #VK_LOCAL} and the variable name is <code>variableName</code> then the base name will be <code>variableName</code>.<br>
+	 * If the variable is a {@link #VK_STATIC_FINAL_FIELD} and the variable name is <code>VARIABLE_NAME</code> then the base name will be <code>variableName</code>.<br>
+	 * </p>
+	 * <p>
+	 * Prefixes and suffixes defined in JavaCore options will be also removed from the variable name.<br>
+	 * Each variable kind is affected by the following JavaCore options:
+	 * <ul>
+	 * <li>{@link #VK_PARAMETER}: {@link JavaCore#CODEASSIST_ARGUMENT_PREFIXES} and {@link JavaCore#CODEASSIST_ARGUMENT_SUFFIXES}</li>
+	 * <li>{@link #VK_LOCAL}: {@link JavaCore#CODEASSIST_LOCAL_PREFIXES} and {@link JavaCore#CODEASSIST_LOCAL_SUFFIXES}</li>
+	 * <li>{@link #VK_INSTANCE_FIELD}: {@link JavaCore#CODEASSIST_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_FIELD_SUFFIXES}</li>
+	 * <li>{@link #VK_STATIC_FIELD}: {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES}</li>
+	 * <li>{@link #VK_STATIC_FINAL_FIELD}: {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES}</li>
+	 * </ul>
+	 * </p>
+	 * <p>
+	 * e.g.<br>
+	 * If the variable is a {@link #VK_LOCAL}, the variable name is <code>preVariableNamesuf</code>, a possible prefix is <code>pre</code> and a possible suffix is <code>suf</code>
+	 * then the base name will be <code>variableName</code>.<br>
 	 * </p>
 	 * 
 	 * @param variableKind specifies what type the variable is: {@link #VK_LOCAL}, {@link #VK_PARAMETER}, {@link #VK_STATIC_FIELD},
-	 * {@link #VK_INSTANCE_FIELD} or {@link #VK_CONSTANT_FIELD}.
+	 * {@link #VK_INSTANCE_FIELD} or {@link #VK_STATIC_FINAL_FIELD}.
 	 * @param variableName a variable name
 	 * @param javaProject project which contains the variable or <code>null</code> to take into account only workspace settings.
 	 * 
@@ -1041,31 +1071,31 @@ public final class NamingConventions {
 	 *
 	 * <p>
 	 * The base name is used to compute the variable name.
-	 * Some different kinds of base name are possible and each kind is associated to a different heuristic to compute variable names.<br>
+	 * Some different kinds of base names are possible and each kind is associated to a different heuristic to compute variable names.<br>
 	 * The heuristic depends also on the kind of the variable. Each kind of variable is identified by a constant starting with <code>VK_</code>.<br>
 	 * When a prefix and a suffix can be added then all combinations of prefix and suffix are suggested.
 	 * If the name is <code>name</code>, the prefix is <code>pre</code> and the suffix is <code>suf</code> then the suggested names will be
 	 * <code>prenamesuf</code>, <code>prename</code>, <code>namesuf</code> and <code>name</code>.<br>
 	 * <br>
-	 * The different kinds of base name are:
+	 * The different kinds of base names are:
 	 * <ul>
 	 * <li>{@link #BK_NAME}: the base name is a Java name and the whole base name is considered to compute the variable names. A prefix and a suffix can be added.<br>
-	 * There is an heuristic by variable kind.
+	 * There is a heuristic by variable kind.
 	 * <ul>
 	 * <li>{@link #VK_PARAMETER}, {@link #VK_LOCAL}, {@link #VK_INSTANCE_FIELD} and {@link #VK_STATIC_FIELD}:<br>
 	 * In this case the first character will be converted to lower case and the other characters won't be changed.<br>
 	 * If the base name is <code>SimpleName</code> then the suggested name will be <code>simpleName</code>.<br></li>
-	 * <li>{@link #VK_CONSTANT_FIELD} :<br>
+	 * <li>{@link #VK_STATIC_FINAL_FIELD} :<br>
 	 * In this case all letters of the name will be converted to upper case and words will be separated by an underscore (<code>"_"</code>).<br>
 	 * If the base name is <code>SimpleName</code> then the suggested name will be <code>SIMPLE_NAME</code>.</li>
 	 * </ul></li>
 	 * <li>{@link #BK_TYPE_NAME}: the base name is a Java simple type name (e.g. <code>HashMap</code>) and all the words of the base name are considered to compute the variable names. A prefix and a suffix can be added to these names.<br>
-	 * There is an heuristic by variable kind.
+	 * There is a heuristic by variable kind.
 	 * <ul>
 	 * <li>{@link #VK_PARAMETER}, {@link #VK_LOCAL}, {@link #VK_INSTANCE_FIELD} and {@link #VK_STATIC_FIELD}:<br>
 	 * In this case a variable name will contain some words of the base name and the first character will be converted to lower case.<br>
 	 * If the type is <code>TypeName</code> then the suggested names will be <code>typeName</code> and <code>name</code>.</li>
-	 * <li>{@link #VK_CONSTANT_FIELD} :<br>
+	 * <li>{@link #VK_STATIC_FINAL_FIELD} :<br>
 	 * In this case a variable name will contain some words of the base name, all letters of the name will be converted to upper case and segments will be separated by a underscore (<code>"_"</code>).<br>
 	 * If the base name is <code>TypeName</code> then the suggested name will be <code>TYPE_NAME</code> and <code>NAME</code>.</li>
 	 * </ul></li>
@@ -1079,33 +1109,33 @@ public final class NamingConventions {
 	 * <li>{@link #VK_LOCAL}: {@link JavaCore#CODEASSIST_LOCAL_PREFIXES} and {@link JavaCore#CODEASSIST_LOCAL_SUFFIXES}</li>
 	 * <li>{@link #VK_INSTANCE_FIELD}: {@link JavaCore#CODEASSIST_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_FIELD_SUFFIXES}</li>
 	 * <li>{@link #VK_STATIC_FIELD}: {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES}</li>
-	 * <li>{@link #VK_CONSTANT_FIELD}: {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES}</li>
+	 * <li>{@link #VK_STATIC_FINAL_FIELD}: {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES}</li>
 	 * </ul>
 	 * </p>
 	 * <p>
-	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
-	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+	 * For a complete description of these configurable options, see {@link JavaCore#getDefaultOptions()}.
+	 * To programmatically change these options, see {@link JavaCore#setOptions(java.util.Hashtable)} and {@link IJavaProject#setOptions(java.util.Map)}
 	 * </p>
 	 * <p>
 	 * Proposed names are sorted by relevance (best proposal first).<br>
 	 * The names are proposed in the following order:
 	 * <ol>
-	 * <li>Names with prefix and suffix. Longest name are proposed first</li>
-	 * <li>Names with prefix. Longest name are proposed first</li>
-	 * <li>Names with suffix. Longest name are proposed first</li>
-	 * <li>Names without prefix and suffix. Longest name are proposed first</li>
+	 * <li>Names with prefix and suffix. Longer names are proposed first</li>
+	 * <li>Names with prefix. Longer names are proposed first</li>
+	 * <li>Names with suffix. Longer names are proposed first</li>
+	 * <li>Names without prefix and suffix. Longer names are proposed first</li>
 	 * </ol>
 	 * </p>
 	 *
 	 * @param variableKind specifies what type the variable is: {@link #VK_LOCAL}, {@link #VK_PARAMETER}, {@link #VK_STATIC_FIELD},
-	 * {@link #VK_INSTANCE_FIELD} or {@link #VK_CONSTANT_FIELD}.
+	 * {@link #VK_INSTANCE_FIELD} or {@link #VK_STATIC_FINAL_FIELD}.
 	 * @param baseNameKind specifies what type the base name is: {@link #BK_NAME} or {@link #BK_TYPE_NAME}
 	 * @param baseName name used to compute the suggested names.
 	 * @param javaProject project which contains the variable or <code>null</code> to take into account only workspace settings.
 	 * @param dim variable dimension (0 if the field is not an array).
 	 * @param excluded a list of names which cannot be suggested (already used names).
-	 *         Can be <code>null</code> if there is no excluded names.
-	 * @param evaluateDefault if set, the result is guaranteed to contain at least one result. If not, the result can be an empty array. 
+	 *         Can be <code>null</code> if there are no excluded names.
+	 * @param evaluateDefault if <code>true</code>, the result is guaranteed to contain at least one result. If <code>false</code>, the result can be an empty array.
 	 * @return String[] an array of names.
 	 * @see JavaCore#setOptions(java.util.Hashtable)
 	 * @see JavaCore#getDefaultOptions()
