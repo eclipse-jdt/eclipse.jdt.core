@@ -25,7 +25,6 @@ import java.util.List;
 
 import junit.framework.Test;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
@@ -2416,15 +2415,15 @@ public void test019(){
 				true);
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
-	public void test025(){
-		String path = org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.LIB_DIR;
+	public void test025() throws Exception {
+		String path = LIB_DIR;
 		String libPath = null;
 		if (path.endsWith(File.separator)) {
 			libPath = path + "lib.jar";
 		} else {
 			libPath = path + File.separator + "lib.jar";
 		}
-		boolean jarCreated = false;
+		String setting= System.getProperty("jdt.compiler.useSingleThread");
 		try {
 			Util.createJar(new String[] {
 					"my/pkg/Zork.java",
@@ -2434,13 +2433,6 @@ public void test019(){
 				},
 				libPath,
 				JavaCore.VERSION_1_4);
-			jarCreated = true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("Should not happen", false);
-		}
-		String setting= System.getProperty("jdt.compiler.useSingleThread");
-		try {
 			System.setProperty("jdt.compiler.useSingleThread", "true");
 			this.runConformTest(
 				new String[] {
@@ -2476,8 +2468,6 @@ public void test019(){
 		        true);
 		} finally {
 			System.setProperty("jdt.compiler.useSingleThread", setting == null ? "false" : setting);
-		}
-		if (jarCreated) {
 			Util.delete(libPath);
 		}
 	}
