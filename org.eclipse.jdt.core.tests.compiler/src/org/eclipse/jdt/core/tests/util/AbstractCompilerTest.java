@@ -230,7 +230,20 @@ public class AbstractCompilerTest extends TestCase {
 	public static Test buildUniqueComplianceTestSuite(Class evaluationTestClass, long uniqueCompliance) {
 		long highestLevel = highestComplianceLevels();
 		if (highestLevel < uniqueCompliance) {
-			System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+highestLevel+"!");
+			String complianceString;
+			if (highestLevel == ClassFileConstants.JDK1_7)
+				complianceString = "1.7";
+			else if (highestLevel == ClassFileConstants.JDK1_6)
+				complianceString = "1.6";
+			else if (highestLevel == ClassFileConstants.JDK1_5)
+				complianceString = "1.5";
+			else if (highestLevel == ClassFileConstants.JDK1_4)
+				complianceString = "1.4";
+			else if (highestLevel == ClassFileConstants.JDK1_3)
+				complianceString = "1.3";
+			else
+				complianceString = "unknown";
+			System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+complianceString+"!");
 			return new TestSuite();
 		}
 		TestSuite complianceSuite = new RegressionTestSetup(uniqueCompliance);
