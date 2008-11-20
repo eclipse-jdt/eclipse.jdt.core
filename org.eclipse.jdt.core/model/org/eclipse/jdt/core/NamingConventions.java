@@ -12,7 +12,6 @@ package org.eclipse.jdt.core;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 
-import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.core.INamingRequestor;
 import org.eclipse.jdt.internal.core.InternalNamingConventions;
@@ -316,46 +315,6 @@ public final class NamingConventions {
 		return c;
 	}
 
-	private static char[] removePrefixAndSuffix(char[] name, char[][] prefixes, char[][] suffixes) {
-		// remove longer prefix
-		char[] withoutPrefixName = name;
-		if (prefixes != null) {
-			int bestLength = 0;
-			for (int i= 0; i < prefixes.length; i++) {
-				char[] prefix = prefixes[i];
-				if (CharOperation.prefixEquals(prefix, name)) {
-					int currLen = prefix.length;
-					boolean lastCharIsLetter = ScannerHelper.isLetter(prefix[currLen - 1]);
-					if(!lastCharIsLetter || (lastCharIsLetter && name.length > currLen && ScannerHelper.isUpperCase(name[currLen]))) {
-						if (bestLength < currLen && name.length != currLen) {
-							withoutPrefixName = CharOperation.subarray(name, currLen, name.length);
-							bestLength = currLen;
-						}
-					}
-				}
-			}
-		}
-
-		// remove longer suffix
-		char[] withoutSuffixName = withoutPrefixName;
-		if(suffixes != null) {
-			int bestLength = 0;
-			for (int i = 0; i < suffixes.length; i++) {
-				char[] suffix = suffixes[i];
-				if(CharOperation.endsWith(withoutPrefixName, suffix)) {
-					int currLen = suffix.length;
-					if(bestLength < currLen && withoutPrefixName.length != currLen) {
-						withoutSuffixName = CharOperation.subarray(withoutPrefixName, 0, withoutPrefixName.length - currLen);
-						bestLength = currLen;
-					}
-				}
-			}
-		}
-
-		withoutSuffixName[0] = ScannerHelper.toLowerCase(withoutSuffixName[0]);
-		return withoutSuffixName;
-	}
-
 	/**
 	 * Remove prefix and suffix from an argument name.
 	 * <p>
@@ -382,11 +341,7 @@ public final class NamingConventions {
 	 * @deprecated Use {@link #getBaseName(int, String, IJavaProject)} instead with {@link #VK_PARAMETER} as variable kind.
 	 */
 	public static char[] removePrefixAndSuffixForArgumentName(IJavaProject javaProject, char[] argumentName) {
-		AssistOptions assistOptions = new AssistOptions(javaProject.getOptions(true));
-		return	removePrefixAndSuffix(
-			argumentName,
-			assistOptions.argumentPrefixes,
-			assistOptions.argumentSuffixes);
+		return InternalNamingConventions.removeVariablePrefixAndSuffix(VK_PARAMETER, javaProject, argumentName);
 	}
 
 	/**
@@ -448,12 +403,10 @@ public final class NamingConventions {
 	 * with {@link #VK_INSTANCE_FIELD} or {@link #VK_STATIC_FIELD} as variable kind.
 	 */
 	public static char[] removePrefixAndSuffixForFieldName(IJavaProject javaProject, char[] fieldName, int modifiers) {
-		boolean isStatic = Flags.isStatic(modifiers);
-		AssistOptions assistOptions = new AssistOptions(javaProject.getOptions(true));
-		return	removePrefixAndSuffix(
-			fieldName,
-			isStatic ? assistOptions.staticFieldPrefixes : assistOptions.fieldPrefixes,
-			isStatic ? assistOptions.staticFieldSuffixes : assistOptions.fieldSuffixes);
+		return InternalNamingConventions.removeVariablePrefixAndSuffix(
+				Flags.isStatic(modifiers) ? VK_STATIC_FIELD : VK_INSTANCE_FIELD,
+				javaProject,
+				fieldName);
 	}
 
 	/**
@@ -516,11 +469,7 @@ public final class NamingConventions {
 	 * @deprecated Use {@link #getBaseName(int, String, IJavaProject)} instead with {@link #VK_LOCAL} as variable kind.
 	 */
 	public static char[] removePrefixAndSuffixForLocalVariableName(IJavaProject javaProject, char[] localName) {
-		AssistOptions assistOptions = new AssistOptions(javaProject.getOptions(true));
-		return	removePrefixAndSuffix(
-			localName,
-			assistOptions.localPrefixes,
-			assistOptions.localSuffixes);
+		return InternalNamingConventions.removeVariablePrefixAndSuffix(VK_LOCAL, javaProject, localName);
 	}
 
 	/**
@@ -590,9 +539,19 @@ public final class NamingConventions {
 			IJavaProject javaProject) {
 		return String.valueOf(InternalNamingConventions.getBaseName(variableKind, javaProject, variableName.toCharArray()));
 	}
+	
+	private static int getFieldVariableKind(int modifiers) {
+		if (Flags.isStatic(modifiers)) {
+			if (Flags.isFinal(modifiers)) {
+				return VK_STATIC_FINAL_FIELD;
+			}
+			return VK_STATIC_FIELD;
+		}
+		return VK_INSTANCE_FIELD;
+	}
 
 	private static char[] suggestAccessorName(IJavaProject project, char[] fieldName, int modifiers) {
-		char[] name = removePrefixAndSuffixForFieldName(project, fieldName, modifiers);
+		char[] name = InternalNamingConventions.getBaseName(getFieldVariableKind(modifiers), project, fieldName);
 		if (name.length > 0 && ScannerHelper.isLowerCase(name[0])) {
 			name[0] = ScannerHelper.toUpperCase(name[0]);
 		}
@@ -630,17 +589,24 @@ public final class NamingConventions {
 	 * @deprecated Use {@link #suggestVariableNames(int, int, String, IJavaProject, int, String[], boolean)} instead with {@link #VK_PARAMETER} as variable kind.
 	 */
 	public static char[][] suggestArgumentNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames) {
-		NamingRequestor requestor = new NamingRequestor();
-		InternalNamingConventions.suggestArgumentNames(
-			javaProject,
-			packageName,
-			qualifiedTypeName,
-			dim,
-			null,
-			excludedNames,
-			requestor);
-
-		return requestor.getResults();
+		if(qualifiedTypeName == null || qualifiedTypeName.length == 0)
+			return CharOperation.NO_CHAR_CHAR;
+		
+		char[] typeName = CharOperation.lastSegment(qualifiedTypeName, '.');
+		
+ 		NamingRequestor requestor = new NamingRequestor();
+		InternalNamingConventions.suggestVariableNames(
+				VK_PARAMETER,
+				BK_TYPE_NAME,
+				typeName,
+				javaProject,
+				dim,
+				null,
+				excludedNames,
+				true,
+				requestor);
+ 
+ 		return requestor.getResults();
 	}
 
 	/**
@@ -719,18 +685,24 @@ public final class NamingConventions {
 	 * with {@link #VK_INSTANCE_FIELD} or  {@link #VK_STATIC_FIELD} as variable kind.
 	 */
 	public static char[][] suggestFieldNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, int modifiers, char[][] excludedNames) {
-		NamingRequestor requestor = new NamingRequestor();
-		InternalNamingConventions.suggestFieldNames(
-			javaProject,
-			packageName,
-			qualifiedTypeName,
-			dim,
-			modifiers,
-			null,
-			excludedNames,
-			requestor);
-
-		return requestor.getResults();
+		if(qualifiedTypeName == null || qualifiedTypeName.length == 0)
+			return CharOperation.NO_CHAR_CHAR;
+		
+		char[] typeName = CharOperation.lastSegment(qualifiedTypeName, '.');
+		
+ 		NamingRequestor requestor = new NamingRequestor();
+		InternalNamingConventions.suggestVariableNames(
+				Flags.isStatic(modifiers) ? VK_STATIC_FIELD : VK_INSTANCE_FIELD,
+				BK_TYPE_NAME,
+				typeName,
+				javaProject,
+				dim,
+				null,
+				excludedNames,
+				true,
+				requestor);
+ 
+ 		return requestor.getResults();
 	}
 
 	/**
@@ -812,7 +784,7 @@ public final class NamingConventions {
 	 */
 	public static char[] suggestGetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {
 		if (isBoolean) {
-			char[] name = removePrefixAndSuffixForFieldName(project, fieldName, modifiers);
+			char[] name = InternalNamingConventions.getBaseName(getFieldVariableKind(modifiers), project, fieldName);
 			int prefixLen =  GETTER_BOOL_NAME.length;
 			if (CharOperation.prefixEquals(GETTER_BOOL_NAME, name)
 				&& name.length > prefixLen && ScannerHelper.isUpperCase(name[prefixLen])) {
@@ -901,17 +873,25 @@ public final class NamingConventions {
 	 * @deprecated Use {@link #suggestVariableNames(int, int, String, IJavaProject, int, String[], boolean)} instead with {@link #VK_LOCAL} as variable kind.
 	 */
 	public static char[][] suggestLocalVariableNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames) {
+		if(qualifiedTypeName == null || qualifiedTypeName.length == 0)
+			return CharOperation.NO_CHAR_CHAR;
+		
+		char[] typeName = CharOperation.lastSegment(qualifiedTypeName, '.');
+		
 		NamingRequestor requestor = new NamingRequestor();
-		InternalNamingConventions.suggestLocalVariableNames(
-			javaProject,
-			packageName,
-			qualifiedTypeName,
-			dim,
-			null,
-			excludedNames,
-			requestor);
-
+		InternalNamingConventions.suggestVariableNames(
+				VK_LOCAL,
+				BK_TYPE_NAME,
+				typeName,
+				javaProject,
+				dim,
+				null,
+				excludedNames,
+				true,
+				requestor);
+ 
 		return requestor.getResults();
+
 	}
 	/**
 	 * Suggest names for a local variable. The name is computed from variable's type
@@ -1004,7 +984,7 @@ public final class NamingConventions {
 	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {
 
 		if (isBoolean) {
-			char[] name = removePrefixAndSuffixForFieldName(project, fieldName, modifiers);
+			char[] name = InternalNamingConventions.getBaseName(getFieldVariableKind(modifiers), project, fieldName);
 			int prefixLen =  GETTER_BOOL_NAME.length;
 			if (CharOperation.prefixEquals(GETTER_BOOL_NAME, name)
 				&& name.length > prefixLen && ScannerHelper.isUpperCase(name[prefixLen])) {

@@ -1052,6 +1052,23 @@ public void testSuggestGetterName008() {
 		"get…field", //$NON-NLS-1$
 		new String(suggestion));
 }
+public void testSuggestGetterName009() {
+	Hashtable options = JavaCore.getOptions();
+	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"PRE_"); //$NON-NLS-1$
+	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"_SUF"); //$NON-NLS-1$
+	JavaCore.setOptions(options);
+
+	char[] suggestion = NamingConventions.suggestGetterName(
+		this.project,
+		"PRE_FIELD_NAME_SUF".toCharArray(), //$NON-NLS-1$
+		Flags.AccStatic | Flags.AccFinal,
+		false,
+		CharOperation.NO_CHAR_CHAR);
+
+	assumeEquals(
+		"getFieldName", //$NON-NLS-1$
+		new String(suggestion));
+}
 public void testSuggestSetterName001() {
 	char[] suggestion = NamingConventions.suggestSetterName(
 		this.project,
@@ -1074,6 +1091,23 @@ public void testSuggestSetterName002() {
 
 	assumeEquals(
 		"setIsSomething", //$NON-NLS-1$
+		new String(suggestion));
+}
+public void testSuggestSetterName003() {
+	Hashtable options = JavaCore.getOptions();
+	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"PRE_"); //$NON-NLS-1$
+	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"_SUF"); //$NON-NLS-1$
+	JavaCore.setOptions(options);
+
+	char[] suggestion = NamingConventions.suggestSetterName(
+		this.project,
+		"PRE_FIELD_NAME_SUF".toCharArray(), //$NON-NLS-1$
+		Flags.AccStatic | Flags.AccFinal,
+		false,
+		CharOperation.NO_CHAR_CHAR);
+
+	assumeEquals(
+		"setFieldName", //$NON-NLS-1$
 		new String(suggestion));
 }
 /*
