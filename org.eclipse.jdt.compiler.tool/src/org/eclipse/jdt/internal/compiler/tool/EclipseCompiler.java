@@ -35,7 +35,6 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -167,8 +166,8 @@ public class EclipseCompiler implements JavaCompiler {
 		allOptions.toArray(optionsToProcess);
 		try {
 			eclipseCompiler2.configure(optionsToProcess);
-		} catch (InvalidInputException e) {
-			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			throw e;
 		}
 
 		if (eclipseCompiler2.fileManager instanceof StandardJavaFileManager) {

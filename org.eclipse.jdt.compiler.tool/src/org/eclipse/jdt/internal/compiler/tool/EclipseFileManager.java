@@ -38,7 +38,6 @@ import javax.tools.StandardLocation;
 import javax.tools.JavaFileObject.Kind;
 
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.batch.Main.ResourceBundleFactory;
@@ -276,7 +275,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		ArrayList<File> files = new ArrayList<File>();
 		try {
 			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
-		} catch (InvalidInputException e) {
+		} catch (IllegalArgumentException e) {
 			return null;
 		}
 		for (FileSystem.Classpath classpath : paths) {
@@ -346,7 +345,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		ArrayList<File> files = new ArrayList<File>();
 		try {
 			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
-		} catch (InvalidInputException e) {
+		} catch (IllegalArgumentException e) {
 			return null;
 		}
 		for (FileSystem.Classpath classpath : paths) {
@@ -360,7 +359,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		ArrayList<File> files = new ArrayList<File>();
 		try {
 			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
-		} catch (InvalidInputException e) {
+		} catch (IllegalArgumentException e) {
 			return null;
 		}
 		for (FileSystem.Classpath classpath : paths) {
@@ -854,8 +853,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	@SuppressWarnings("unchecked")
 	public void processPathEntries(final int defaultSize, final ArrayList paths,
 			final String currentPath, String customEncoding, boolean isSourceOnly,
-			boolean rejectDestinationPathOnJars)
-		throws InvalidInputException {
+			boolean rejectDestinationPathOnJars) {
+
 		String currentClasspathName = null;
 		String currentDestinationPath = null;
 		ArrayList currentRuleSpecs = new ArrayList(defaultSize);
@@ -915,7 +914,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					state = rulesNeedAnotherRule;
 					break;
 				case destinationPathReadyToClose:
-					throw new InvalidInputException(
+					throw new IllegalArgumentException(
 							this.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$
 									currentPath));
 				case bracketClosed:
@@ -970,7 +969,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				case rulesStart:
 					if (token.startsWith("-d ")) { //$NON-NLS-1$
 						if (currentDestinationPath != null) {
-							throw new InvalidInputException(
+							throw new IllegalArgumentException(
 									this.bind("configure.duplicateDestinationPathEntry", //$NON-NLS-1$
 											currentPath));
 						}
@@ -980,7 +979,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					} // else we proceed with a rule
 				case rulesNeedAnotherRule:
 					if (currentDestinationPath != null) {
-						throw new InvalidInputException(
+						throw new IllegalArgumentException(
 								this.bind("configure.accessRuleAfterDestinationPath", //$NON-NLS-1$
 									currentPath));
 					}
@@ -1032,7 +1031,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	protected void addNewEntry(ArrayList paths, String currentClasspathName,
 			ArrayList currentRuleSpecs, String customEncoding,
 			String destPath, boolean isSourceOnly,
-			boolean rejectDestinationPathOnJars) throws InvalidInputException {
+			boolean rejectDestinationPathOnJars) {
 
 		int rulesSpecsSize = currentRuleSpecs.size();
 		AccessRuleSet accessRuleSet = null;
@@ -1085,7 +1084,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		if (rejectDestinationPathOnJars && destPath != null &&
 				(currentClasspathName.endsWith(".jar") || //$NON-NLS-1$
 					currentClasspathName.endsWith(".zip"))) { //$NON-NLS-1$
-			throw new InvalidInputException(
+			throw new IllegalArgumentException(
 					this.bind("configure.unexpectedDestinationPathEntryFile", //$NON-NLS-1$
 								currentClasspathName));
 			}

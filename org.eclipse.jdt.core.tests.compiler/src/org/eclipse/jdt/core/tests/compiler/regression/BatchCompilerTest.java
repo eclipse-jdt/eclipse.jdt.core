@@ -29,7 +29,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
@@ -756,7 +755,7 @@ private void runClasspathTest(String classpathInput, String[] expectedClasspathE
 	try {
 		(new Main(new PrintWriter(System.out), new PrintWriter(System.err), true/*systemExit*/, null/*options*/, null/*progress*/)).
 			processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, classpathInput, null /* customEncoding */, true /* isSourceOnly */, false /* rejectDestinationPathOnJars*/);
-	} catch (InvalidInputException e) {
+	} catch (IllegalArgumentException e) {
 		// e.printStackTrace();
 		if (expectedError == null) {
 			fail("unexpected invalid input exception: " + e.getMessage());
@@ -2418,7 +2417,7 @@ public void test019(){
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
 	public void test025(){
-		String path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
+		String path = org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.LIB_DIR;
 		String libPath = null;
 		if (path.endsWith(File.separator)) {
 			libPath = path + "lib.jar";
@@ -2437,7 +2436,8 @@ public void test019(){
 				JavaCore.VERSION_1_4);
 			jarCreated = true;
 		} catch (IOException e) {
-			// ignore
+			e.printStackTrace();
+			assertTrue("Should not happen", false);
 		}
 		String setting= System.getProperty("jdt.compiler.useSingleThread");
 		try {

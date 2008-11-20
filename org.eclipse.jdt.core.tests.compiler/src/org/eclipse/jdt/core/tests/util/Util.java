@@ -1284,7 +1284,9 @@ public static void zip(File rootDir, String zipPath) throws IOException {
 	        	throw new IOException("Could not delete " + zipPath);
         	 // ensure the new zip file has a different timestamp than the previous one
         	int timeToWait = 1000; // some platform (like Linux) have a 1s granularity)
-           	waitAtLeast(timeToWait);
+            waitAtLeast(timeToWait);
+        } else {
+        	zipFile.getParentFile().mkdirs();
         }
         zip = new ZipOutputStream(new FileOutputStream(zipFile));
         zip(rootDir, zip, rootDir.getPath().length()+1); // 1 for last slash

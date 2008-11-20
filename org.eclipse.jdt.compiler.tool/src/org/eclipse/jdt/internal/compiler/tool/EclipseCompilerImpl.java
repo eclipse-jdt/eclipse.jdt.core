@@ -31,7 +31,6 @@ import javax.tools.StandardLocation;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
@@ -69,15 +68,13 @@ public class EclipseCompilerImpl extends Main {
 				// request compilation
 				performCompilation();
 			}
-		} catch (InvalidInputException e) {
+		} catch(IllegalArgumentException e) {
 			this.logger.logException(e);
 			if (this.systemExitWhenFinished) {
 				cleanup();
 				System.exit(-1);
 			}
 			return false;
-		} catch(IllegalArgumentException e) {
-			throw e;
 		} catch (RuntimeException e) { // internal compiler failure
 			this.logger.logException(e);
 			return false;
@@ -319,7 +316,7 @@ public class EclipseCompilerImpl extends Main {
 			ArrayList classpaths,
 			ArrayList extdirsClasspaths,
 			ArrayList endorsedDirClasspaths,
-			String customEncoding) throws InvalidInputException {
+			String customEncoding) {
 
 		ArrayList<FileSystem.Classpath> fileSystemClasspaths = new ArrayList<FileSystem.Classpath>();
 		EclipseFileManager javaFileManager = null;
