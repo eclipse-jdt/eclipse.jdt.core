@@ -11562,7 +11562,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 9)\n" +
 			"	class C extends B implements IDoubles {\n" +
 			"	      ^\n" +
-			"The return type is incompatible with IDoubles.getList(), B.getList()\n" +
+			"The return types are incompatible for the inherited methods IDoubles.getList(), B.getList()\n" +
 			"----------\n");
 			/*
 			X.java:3: A is not abstract and does not override abstract method getList() in IDoubles
@@ -41978,7 +41978,7 @@ public void test1239() {
 		"4. ERROR in X.java (at line 13)\n" +
 		"	public interface CombinedSubInterface extends SubInterface, OtherSubInterface {}\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^\n" +
-		"The return type is incompatible with X.OtherSubInterface.and(X.SuperInterface), X.SubInterface.and(X.SuperInterface)\n" +
+		"The return types are incompatible for the inherited methods X.SuperInterface.and(X.SuperInterface), X.OtherSubInterface.and(X.SuperInterface), X.SubInterface.and(X.SuperInterface)\n" +
 		"----------\n" +
 		"5. WARNING in X.java (at line 15)\n" +
 		"	public interface OtherSubInterface extends SuperInterface {\n" +

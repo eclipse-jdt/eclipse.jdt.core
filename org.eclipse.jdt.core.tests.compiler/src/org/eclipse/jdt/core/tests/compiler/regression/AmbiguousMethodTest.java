@@ -1743,7 +1743,7 @@ public void test047() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public class X<T extends I & J> {\n" +
 		"	               ^\n" +
-		"The return type is incompatible with J.method(), I.method()\n" +
+		"The return types are incompatible for the inherited methods J.method(), I.method()\n" +
 		"----------\n",
 		// javac options
 	  	JavacTestOptions.JavacHasABug.JavacBug5061359 /* javac test options */);
@@ -1775,7 +1775,7 @@ public void test048() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public class X<T extends I & J> {\n" +
 		"	               ^\n" +
-		"The return type is incompatible with J.method(), I.method()\n" +
+		"The return types are incompatible for the inherited methods J.method(), I.method()\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	t.method();\n" +
@@ -2448,12 +2448,12 @@ public void test070() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	interface C extends B, A {}\n" +
 		"	          ^\n" +
-		"The return type is incompatible with A.foo(), B.foo()\n" +
+		"The return types are incompatible for the inherited methods A.foo(), B.foo()\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	interface D extends A, B {}\n" +
 		"	          ^\n" +
-		"The return type is incompatible with B.foo(), A.foo()\n" +
+		"The return types are incompatible for the inherited methods B.foo(), A.foo()\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 8)\n" +
 		"	X<? extends B> c_b = c.foo();\n" +
@@ -2569,17 +2569,17 @@ public void test073() {
 		"1. ERROR in Y.java (at line 13)\n" +
 		"	abstract class Y extends X implements I, J {\n" +
 		"	               ^\n" +
-		"The return type is incompatible with J.c(), X.c()\n" +
+		"The return types are incompatible for the inherited methods J.c(), X.c()\n" +
 		"----------\n" +
 		"2. ERROR in Y.java (at line 13)\n" +
 		"	abstract class Y extends X implements I, J {\n" +
 		"	               ^\n" +
-		"The return type is incompatible with I.b(), X.b()\n" +
+		"The return types are incompatible for the inherited methods I.b(), X.b()\n" +
 		"----------\n" +
 		"3. ERROR in Y.java (at line 13)\n" +
 		"	abstract class Y extends X implements I, J {\n" +
 		"	               ^\n" +
-		"The return type is incompatible with J.a(), I.a()\n" +
+		"The return types are incompatible for the inherited methods J.a(), I.a()\n" +
 		"----------\n" +
 		"4. ERROR in Y.java (at line 15)\n" +
 		"	byte a = a();\n" +
@@ -2589,17 +2589,17 @@ public void test073() {
 		"5. ERROR in Y.java (at line 20)\n" +
 		"	abstract class Y2 extends X implements J, I {\n" +
 		"	               ^^\n" +
-		"The return type is incompatible with J.c(), X.c()\n" +
+		"The return types are incompatible for the inherited methods J.c(), X.c()\n" +
 		"----------\n" +
 		"6. ERROR in Y.java (at line 20)\n" +
 		"	abstract class Y2 extends X implements J, I {\n" +
 		"	               ^^\n" +
-		"The return type is incompatible with I.b(), X.b()\n" +
+		"The return types are incompatible for the inherited methods I.b(), X.b()\n" +
 		"----------\n" +
 		"7. ERROR in Y.java (at line 20)\n" +
 		"	abstract class Y2 extends X implements J, I {\n" +
 		"	               ^^\n" +
-		"The return type is incompatible with I.a(), J.a()\n" +
+		"The return types are incompatible for the inherited methods I.a(), J.a()\n" +
 		"----------\n" +
 		"8. ERROR in Y.java (at line 22)\n" +
 		"	byte a = a();\n" +

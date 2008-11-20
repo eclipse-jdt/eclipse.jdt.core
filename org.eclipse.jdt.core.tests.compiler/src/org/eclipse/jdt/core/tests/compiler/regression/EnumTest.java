@@ -727,17 +727,17 @@ public void test022() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	case MX.BLEU : break;\n" +
 		"	        ^^^^\n" +
-		"The enum constant X.MX.BLEU reference cannot be qualified in a case label\n" +
+		"The qualified case label X.MX.BLEU must be replaced with the unqualified enum constant BLEU\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 8)\n" +
 		"	case MX.BLANC : break;\n" +
 		"	        ^^^^^\n" +
-		"The enum constant X.MX.BLANC reference cannot be qualified in a case label\n" +
+		"The qualified case label X.MX.BLANC must be replaced with the unqualified enum constant BLANC\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 9)\n" +
 		"	case MX.ROUGE : break;\n" +
 		"	        ^^^^^\n" +
-		"The enum constant X.MX.ROUGE reference cannot be qualified in a case label\n" +
+		"The qualified case label X.MX.ROUGE must be replaced with the unqualified enum constant ROUGE\n" +
 		"----------\n");
 }
 
@@ -1515,7 +1515,7 @@ public void test052() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	A\n" +
 		"	^\n" +
-		"The enum constant A must define the abstract method foo()\n" +
+		"The enum constant A must implement the abstract method foo()\n" +
 		"----------\n"
 	);
 }
@@ -1556,7 +1556,7 @@ public void test054() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	A() {}\n" +
 		"	^\n" +
-		"The enum constant A must define the abstract method foo()\n" +
+		"The enum constant A must implement the abstract method foo()\n" +
 		"----------\n"
 	);
 }
@@ -1793,17 +1793,17 @@ public void test061() {
 		"1. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant X.A has no corresponding case label\n" +
+		"The enum constant A needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant X.B has no corresponding case label\n" +
+		"The enum constant B needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant X.C has no corresponding case label\n" +
+		"The enum constant C needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 9)\n" +
 		"	case D:\n" +
@@ -1836,17 +1836,17 @@ public void test062() {
 		"1. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant X.A has no corresponding case label\n" +
+		"The enum constant A needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant X.B has no corresponding case label\n" +
+		"The enum constant B needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant X.C has no corresponding case label\n" +
+		"The enum constant C needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 9)\n" +
 		"	case X.D:\n" +
@@ -1960,17 +1960,17 @@ public void test067() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	ONE, TWO, THREE;\n" +
 		"	^^^\n" +
-		"The enum constant ONE must define the abstract method getSquare()\n" +
+		"The enum constant ONE must implement the abstract method getSquare()\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 2)\n" +
 		"	ONE, TWO, THREE;\n" +
 		"	     ^^^\n" +
-		"The enum constant TWO must define the abstract method getSquare()\n" +
+		"The enum constant TWO must implement the abstract method getSquare()\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 2)\n" +
 		"	ONE, TWO, THREE;\n" +
 		"	          ^^^^^\n" +
-		"The enum constant THREE must define the abstract method getSquare()\n" +
+		"The enum constant THREE must implement the abstract method getSquare()\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 3)\n" +
 		"	abstract int getSquare();\n" +
@@ -2181,7 +2181,7 @@ public void test073() {
 		"1. ERROR in X3a.java (at line 2)\n" +
 		"	A;\n" +
 		"	^\n" +
-		"The enum constant A must define the abstract method test()\n" +
+		"The enum constant A must implement the abstract method test()\n" +
 		"----------\n"
 		// X3a is not abstract and does not override abstract method test() in X3a
 	);
@@ -2209,7 +2209,7 @@ public void test073() {
 		"1. ERROR in X3c.java (at line 2)\n" +
 		"	A() { void random() {} };\n" +
 		"	^\n" +
-		"The enum constant A must define the abstract method test()\n" +
+		"The enum constant A must implement the abstract method test()\n" +
 		"----------\n"
 		// <anonymous X3c$1> is not abstract and does not override abstract method test() in X3c
 	);
@@ -2245,7 +2245,7 @@ public void test074() {
 		"1. ERROR in X4a.java (at line 2)\n" +
 		"	A;\n" +
 		"	^\n" +
-		"The enum constant A must define the abstract method test()\n" +
+		"The enum constant A must implement the abstract method test()\n" +
 		"----------\n"
 		// X4a is not abstract and does not override abstract method test() in X4a
 	);
@@ -2271,7 +2271,7 @@ public void test074() {
 		"1. ERROR in X4c.java (at line 2)\n" +
 		"	A() { void random() {} };\n" +
 		"	^\n" +
-		"The enum constant A must define the abstract method test()\n" +
+		"The enum constant A must implement the abstract method test()\n" +
 		"----------\n"
 		// <anonymous X4c$1> is not abstract and does not override abstract method test() in X4c
 	);
@@ -2336,7 +2336,7 @@ public void test075() {
 		"1. ERROR in X5c.java (at line 2)\n" +
 		"	A() { void random() {} };\n" +
 		"	^\n" +
-		"The enum constant A must define the abstract method test()\n" +
+		"The enum constant A must implement the abstract method test()\n" +
 		"----------\n"
 		// <anonymous X5c$1> is not abstract and does not override abstract method test() in I
 	);
@@ -3104,17 +3104,17 @@ public void test098() {
 		"1. WARNING in E.java (at line 5)\n" +
 		"	switch (color) {\n" +
 		"	        ^^^^^\n" +
-		"The enum constant Colors.BLACK has no corresponding case label\n" +
+		"The enum constant BLACK needs a corresponding case label in this enum switch on Colors\n" +
 		"----------\n" +
 		"2. WARNING in E.java (at line 5)\n" +
 		"	switch (color) {\n" +
 		"	        ^^^^^\n" +
-		"The enum constant Colors.RED has no corresponding case label\n" +
+		"The enum constant RED needs a corresponding case label in this enum switch on Colors\n" +
 		"----------\n" +
 		"3. WARNING in E.java (at line 5)\n" +
 		"	switch (color) {\n" +
 		"	        ^^^^^\n" +
-		"The enum constant Colors.WHITE has no corresponding case label\n" +
+		"The enum constant WHITE needs a corresponding case label in this enum switch on Colors\n" +
 		"----------\n" +
 		"4. ERROR in E.java (at line 16)\n" +
 		"	Zork z;\n" +
@@ -4849,10 +4849,10 @@ public void test137() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156591
 public void test138() {
- this.runNegativeTest(
-     new String[] {
-    	    "X.java",
- 			"public enum X {\n" +
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public enum X {\n" +
 			"	PLUS {\n" +
 			"		double eval(double x, double y) {\n" +
 			"			return x + y;\n" +
@@ -4866,18 +4866,19 @@ public void test138() {
 			"	abstract double eval(double x, double y);\n" +
 			"}\n" +
 			"\n", // =================
-     },
-	"----------\n" +
-	"1. WARNING in X.java (at line 3)\n" +
-	"	double eval(double x, double y) {\n" +
-	"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-	"The method eval(double, double) of type new X(){} should be tagged with @Override since it actually overrides a superclass method\n" +
-	"----------\n" +
-	"2. ERROR in X.java (at line 9)\n" +
-	"	abstract double eval(double x, double y);\n" +
-	"	                ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-	"The abstract method eval in type new X(){} can only be defined by an abstract class\n" +
-	"----------\n");
+		 },
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	double eval(double x, double y) {\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The method eval(double, double) of type new X(){} should be tagged with @Override since it actually overrides a superclass method\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	MINUS {\n" + 
+		"	^^^^^\n" + 
+		"The enum constant MINUS cannot define abstract methods\n" + 
+		"----------\n"
+	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156591 - variation
 public void test139() {
@@ -4904,15 +4905,15 @@ public void test139() {
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"The method eval(double, double) of type new X(){} should be tagged with @Override since it actually overrides a superclass method\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	MINUS {\n" +
-		"	^^^^^\n" +
-		"The enum constant MINUS must define the abstract method eval(double, double)\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 8)\n" +
-		"	abstract double eval2(double x, double y);\n" +
-		"	                ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The abstract method eval2 in type new X(){} can only be defined by an abstract class\n" +
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	MINUS {\n" + 
+		"	^^^^^\n" + 
+		"The enum constant MINUS cannot define abstract methods\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	MINUS {\n" + 
+		"	^^^^^\n" + 
+		"The enum constant MINUS must implement the abstract method eval(double, double)\n" + 
 		"----------\n"
 	);
 }
@@ -4990,10 +4991,10 @@ public void test143() {
 				"}",
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	public abstract String a();\n" +
-		"	                       ^^^\n" +
-		"The abstract method a in type new X(){} can only be defined by an abstract class\n" +
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	A {\n" + 
+		"	^\n" + 
+		"The enum constant A cannot define abstract methods\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=186822

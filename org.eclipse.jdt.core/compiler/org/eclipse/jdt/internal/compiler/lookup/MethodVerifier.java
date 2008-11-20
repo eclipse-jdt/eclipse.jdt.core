@@ -82,25 +82,10 @@ boolean areReturnTypesCompatible0(MethodBinding one, MethodBinding two) {
 	// short is compatible with int, but as far as covariance is concerned, its not
 	if (one.returnType.isBaseType()) return false;
 
-	if (!one.declaringClass.isInterface()) {
-		if (one.declaringClass.id == TypeIds.T_JavaLangObject)
-			return two.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
-		return one.returnType.isCompatibleWith(two.returnType);
-	}
+	if (!one.declaringClass.isInterface() && one.declaringClass.id == TypeIds.T_JavaLangObject)
+		return two.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
 
-	// check for methods from Object, every interface inherits from Object
-	if (two.declaringClass.id == TypeIds.T_JavaLangObject)
-		return one.returnType.isCompatibleWith(two.returnType);
-
-	// both are interfaces, see if they're related
-	if (one.declaringClass.implementsInterface(two.declaringClass, true))
-		return one.returnType.isCompatibleWith(two.returnType);
-	if (two.declaringClass.implementsInterface(one.declaringClass, true))
-		return two.returnType.isCompatibleWith(one.returnType);
-
-	// unrelated interfaces... one must be a subtype of the other
-	return one.returnType.isCompatibleWith(two.returnType)
-		|| two.returnType.isCompatibleWith(one.returnType);
+	return one.returnType.isCompatibleWith(two.returnType);
 }
 boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	if (one == two) return true;
@@ -322,75 +307,78 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 }
 
 void checkInheritedMethods(MethodBinding[] methods, int length) {
-	if (length > 1) {
-		int[] overriddenInheritedMethods = findOverriddenInheritedMethods(methods, length);
-		if (overriddenInheritedMethods != null) {
-			// detected some overridden methods that can be ignored when checking return types
-			// but cannot ignore an overridden inherited method completely when it comes to checking for bridge methods
-			int index = 0;
-			MethodBinding[] closestMethods = new MethodBinding[length];
-			for (int i = 0; i < length; i++)
-				if (overriddenInheritedMethods[i] == 0)
-					closestMethods[index++] = methods[i];
-			if (index > 1 && !checkInheritedReturnTypes(closestMethods, index))
-				return;
-		} else if (!checkInheritedReturnTypes(methods, length)) {
-			return;
-		}
-	}
+	/*
+	1. find concrete method
+	2. if it doesn't exist then find first inherited abstract method whose return type is compatible with all others
+	   if no such method exists then report incompatible return type error
+	   otherwise report abstract method must be implemented
+	3. if concrete method exists, check to see if its return type is compatible with all others
+	   if it is then check concrete method against abstract methods
+	   if its not, then find most specific abstract method & report abstract method must be implemented since concrete method is insufficient
+	   if no most specific return type abstract method exists, then report incompatible return type with all inherited methods 
+	*/
 
-	MethodBinding concreteMethod = null;
-	if (!this.type.isInterface()) {  // ignore concrete methods for interfaces
-		for (int i = length; --i >= 0;) {  // Remember that only one of the methods can be non-abstract
-			if (!methods[i].isAbstract()) {
-				concreteMethod = methods[i];
-				break;
-			}
-		}
-	}
+	MethodBinding concreteMethod = this.type.isInterface() || methods[0].isAbstract() ? null : methods[0];
 	if (concreteMethod == null) {
-		if (!this.type.isAbstract()) {
-			for (int i = length; --i >= 0;) {
-				if (mustImplementAbstractMethod(methods[i].declaringClass)) {
-					TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
-					if (typeDeclaration != null) {
-						MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(methods[0]);
-						missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
-					} else {
-						problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
-					}
-					return;
+		MethodBinding bestAbstractMethod = length == 1 ? methods[0] : findBestInheritedAbstractMethod(methods, length);
+		if (bestAbstractMethod == null) {
+			problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
+		} else if (mustImplementAbstractMethod(bestAbstractMethod.declaringClass)) {
+			TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
+			MethodBinding superclassAbstractMethod = methods[0];
+			if (superclassAbstractMethod == bestAbstractMethod || superclassAbstractMethod.declaringClass.isInterface()) {
+				if (typeDeclaration != null) {
+					MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(bestAbstractMethod);
+					missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, bestAbstractMethod);
+				} else {
+					problemReporter().abstractMethodMustBeImplemented(this.type, bestAbstractMethod);
+				}
+			} else {
+				if (typeDeclaration != null) {
+					MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(bestAbstractMethod);
+					missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, bestAbstractMethod, superclassAbstractMethod);
+				} else {
+					problemReporter().abstractMethodMustBeImplemented(this.type, bestAbstractMethod, superclassAbstractMethod);
 				}
 			}
 		}
 		return;
 	}
+	if (length < 2) return; // nothing else to check
 
-	if (length > 1) {
-		MethodBinding[] abstractMethods = new MethodBinding[length - 1];
-		int index = 0;
-		for (int i = length; --i >= 0;)
-			if (methods[i] != concreteMethod)
-				abstractMethods[index++] = methods[i];
-		checkConcreteInheritedMethod(concreteMethod, abstractMethods);
+	int index = length;
+	while (--index > 0 && checkInheritedReturnTypes(concreteMethod, methods[index])) {/*empty*/}
+	if (index > 0) {
+		// concreteMethod is not the best match
+		MethodBinding bestAbstractMethod = findBestInheritedAbstractMethod(methods, length);
+		if (bestAbstractMethod == null)
+			problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
+		else // can only happen in >= 1.5 since return types must be equal prior to 1.5
+			problemReporter().abstractMethodMustBeImplemented(this.type, bestAbstractMethod, concreteMethod);
+		return;
 	}
+
+	MethodBinding[] abstractMethods = new MethodBinding[length - 1];
+	index = 0;
+	for (int i = 0; i < length; i++)
+		if (methods[i].isAbstract())
+			abstractMethods[index++] = methods[i];
+	if (index < abstractMethods.length)
+		System.arraycopy(abstractMethods, 0, abstractMethods = new MethodBinding[index], 0, index);
+	checkConcreteInheritedMethod(concreteMethod, abstractMethods);
 }
 
-boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
-	MethodBinding first = methods[0];
-	int index = length;
-	while (--index > 0 && areReturnTypesCompatible(first, methods[index])){/*empty*/}
-	if (index == 0)
-		return true;
+boolean checkInheritedReturnTypes(MethodBinding method, MethodBinding otherMethod) {
+	if (areReturnTypesCompatible(method, otherMethod)) return true;
 
-	// All inherited methods do NOT have the same vmSignature
-	if (this.type.isInterface())
-		for (int i = length; --i >= 0;)
-			if (methods[i].declaringClass.id == TypeIds.T_JavaLangObject)
-				return false; // do not complain since the super interface already got blamed
-	problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
+	if (!this.type.isInterface())
+		if (method.declaringClass.isClass() || !this.type.implementsInterface(method.declaringClass, false))
+			if (otherMethod.declaringClass.isClass() || !this.type.implementsInterface(otherMethod.declaringClass, false))
+				return true; // do not complain since the superclass already got blamed
+
 	return false;
 }
+
 /*
 For each inherited method identifier (message pattern - vm signature minus the return type)
 	if current method exists
@@ -722,6 +710,23 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 	return null; // noop in 1.4
 }
 
+MethodBinding findBestInheritedAbstractMethod(MethodBinding[] methods, int length) {
+	findMethod : for (int i = 0; i < length; i++) {
+		MethodBinding method = methods[i];
+		if (!method.isAbstract()) continue findMethod;
+		for (int j = 0; j < length; j++) {
+			if (i == j) continue;
+			if (!checkInheritedReturnTypes(method, methods[j])) {
+				if (this.type.isInterface() && methods[j].declaringClass.id == TypeIds.T_JavaLangObject)
+					return method; // do not complain since the super interface already got blamed
+				continue findMethod;
+			}
+		}
+		return method;
+	}
+	return null;
+}
+
 int[] findOverriddenInheritedMethods(MethodBinding[] methods, int length) {
 	// NOTE assumes length > 1
 	// inherited methods are added as we walk up the superclass hierarchy, then each superinterface
@@ -809,16 +814,15 @@ boolean isSameClassOrSubclassOf(ReferenceBinding testClass, ReferenceBinding sup
 boolean mustImplementAbstractMethod(ReferenceBinding declaringClass) {
 	// if the type's superclass is an abstract class, then all abstract methods must be implemented
 	// otherwise, skip it if the type's superclass must implement any of the inherited methods
+	if (!mustImplementAbstractMethods()) return false;
 	ReferenceBinding superclass = this.type.superclass();
 	if (declaringClass.isClass()) {
 		while (superclass.isAbstract() && superclass != declaringClass)
 			superclass = superclass.superclass(); // find the first concrete superclass or the abstract declaringClass
 	} else {
-		if (this.type.implementsInterface(declaringClass, false)) {
-			if (this.type.isAbstract()) return false; // leave it for the subclasses
+		if (this.type.implementsInterface(declaringClass, false))
 			if (!superclass.implementsInterface(declaringClass, true)) // only if a superclass does not also implement the interface
 				return true;
-		}
 		while (superclass.isAbstract() && !superclass.implementsInterface(declaringClass, false))
 			superclass = superclass.superclass(); // find the first concrete superclass or the superclass which implements the interface
 	}

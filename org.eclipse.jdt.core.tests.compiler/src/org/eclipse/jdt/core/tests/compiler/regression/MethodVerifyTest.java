@@ -771,7 +771,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 1)\r\n" +
 			"	abstract class X6 extends A implements I {}\r\n" +
 			"	               ^^\n" +
-			"The return type is incompatible with I.foo(), A.foo()\n" +
+			"The type X6 must implement the inherited abstract method I.foo() to override A.foo()\n" +
 			"----------\n"
 		);
 	}
@@ -2024,7 +2024,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 3)\r\n" +
 			"	public class X<T extends I&J> {}\r\n" +
 			"	               ^\n" +
-			"The return type is incompatible with J.foo(), I.foo()\n" +
+			"The return types are incompatible for the inherited methods J.foo(), I.foo()\n" +
 			"----------\n"
 			// types J and I are incompatible; both define foo(), but with unrelated return types
 		);
@@ -2042,7 +2042,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\r\n" +
 			"	class A { public Object foo() { return null; } }public class X<T extends A&I> {}\r\n" +
 			"	                                                               ^\n" +
-			"The return type is incompatible with I.foo(), A.foo()\n" +
+			"The return types are incompatible for the inherited methods I.foo(), A.foo()\n" +
 			"----------\n"
 			// foo() in A cannot implement foo() in I; attempting to use incompatible return type
 		);
@@ -4914,12 +4914,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"3. ERROR in A.java (at line 6)\n" +
 			"	abstract class A implements J {}\n" +
 			"	               ^\n" +
-			"The return type is incompatible with I.finalize(), Object.finalize()\n" +
+			"The return types are incompatible for the inherited methods I.finalize(), Object.finalize()\n" +
 			"----------\n" +
 			"4. ERROR in A.java (at line 6)\n" +
 			"	abstract class A implements J {}\n" +
 			"	               ^\n" +
-			"The return type is incompatible with I.hashCode(), Object.hashCode()\n" +
+			"The return types are incompatible for the inherited methods I.hashCode(), Object.hashCode()\n" +
 			"----------\n"
 		);
 	}
@@ -7858,7 +7858,7 @@ public void test140() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public abstract class X implements J, K {}\n" +
 		"	                      ^\n" +
-		"The return type is incompatible with K.foo(Number), J.foo(Number)\n" +
+		"The return types are incompatible for the inherited methods I.foo(Number), K.foo(Number), J.foo(Number)\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 6)\n" +
 		"	XX foo(Number n);\n" +
@@ -7956,11 +7956,6 @@ public void test144() {
 		"1. WARNING in PurebredCatShopImpl.java (at line 10)\n" +
 		"	public List<Pet> getPets() { return null; }\n" +
 		"	       ^^^^\n" +
-		"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" +
-		"----------\n" +
-		"2. WARNING in PurebredCatShopImpl.java (at line 12)\n" +
-		"	class PurebredCatShopImpl extends CatShopImpl implements PurebredCatShop {}\n" +
-		"	      ^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" +
 		"----------\n"
 	);
@@ -8431,7 +8426,7 @@ public void test155() {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	public abstract class X implements I, J {\n" +
 		"	                      ^\n" +
-		"The return type is incompatible with J.foo(), I.foo()\n" +
+		"The return types are incompatible for the inherited methods J.foo(), I.foo()\n" +
 		"----------\n"
 	);
 }
@@ -8456,7 +8451,7 @@ public void test156() {
 		"1. ERROR in X.java (at line 10)\n" +
 		"	public abstract class X implements I, J {\n" +
 		"	                      ^\n" +
-		"The return type is incompatible with J.foo(), I.foo()\n" +
+		"The return types are incompatible for the inherited methods J.foo(), I.foo()\n" +
 		"----------\n"
 	);
 }
@@ -8483,7 +8478,7 @@ public void test157() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	interface C extends A, B {}\n" +
 		"	          ^\n" +
-		"The return type is incompatible with B.foo(), A.foo()\n" +
+		"The return types are incompatible for the inherited methods B.foo(), A.foo()\n" +
 		"----------\n"
 	);
 }
@@ -8515,7 +8510,7 @@ public void test158() {
 		"1. ERROR in X.java (at line 17)\n" +
 		"	public abstract class X extends Root implements AFoo, BFoo {\n" +
 		"	                      ^\n" +
-		"The return type is incompatible with BFoo.bar(), AFoo.bar()\n" +
+		"The return types are incompatible for the inherited methods BFoo.bar(), AFoo.bar()\n" +
 		"----------\n"
 	);
 }
@@ -8546,7 +8541,7 @@ public void test159() {
 		"1. ERROR in X.java (at line 15)\n" +
 		"	public abstract class X extends Root implements AFoo, BFoo {}\n" +
 		"	                      ^\n" +
-		"The return type is incompatible with BFoo.bar(), AFoo.bar()\n" +
+		"The return types are incompatible for the inherited methods BFoo.bar(), AFoo.bar()\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 17)\n" +
 		"	class Z extends X {}\n" +
@@ -8658,7 +8653,7 @@ public void test164() {
 		"1. ERROR in Concrete.java (at line 12)\r\n" +
 		"	class Concrete extends HalfConcrete implements I<Object, String> {}\r\n" +
 		"	      ^^^^^^^^\n" +
-		"The return type is incompatible with I<Object,String>.foo(String), HalfGenericSuper.foo(String)\n" +
+		"The type Concrete must implement the inherited abstract method I<Object,String>.foo(String) to override HalfGenericSuper.foo(String)\n" +
 		"----------\n"
 	);
 }
@@ -8927,7 +8922,7 @@ public void test174() {
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	class X extends Y implements I { }\n" + 
 		"	      ^\n" + 
-		"The type X must implement the inherited abstract method Y.m()\n" + 
+		"The type X must implement the inherited abstract method I.m() to override Y.m()\n" + 
 		"----------\n"
 	);
 }
@@ -9126,6 +9121,182 @@ public void test180() {
 		"	       ^^^^^\n" + 
 		"Duplicate method foo() in type X\n" + 
 		"----------\n"
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249134
+public void test181() {
+	this.runNegativeTest(
+		new String[] {
+			"I.java",
+			"interface I {\n" +
+			"	String m();\n" +
+			"	Object n();\n" +
+			"	String o();\n" +
+			"	Object p();\n" +
+			"}\n" +
+			"abstract class A {\n" +
+			"	public abstract Object m();\n" +
+			"	public abstract String n();\n" +
+			"	abstract Object o();\n" +
+			"	abstract String p();\n" +
+			"}\n" +
+			"class A2 {\n" +
+			"	public abstract Object m();\n" +
+			"	public abstract String n();\n" +
+			"	abstract Object o();\n" +
+			"	abstract String p();\n" +
+			"}\n",
+			"B.java",
+			"class B extends A implements I {}",
+			"B2.java",
+			"class B2 extends A2 implements I {}"
+		},
+		"----------\n" + 
+		"1. ERROR in I.java (at line 13)\n" + 
+		"	class A2 {\n" + 
+		"	      ^^\n" + 
+		"The type A2 must be an abstract class to define abstract methods: m(), n(), o(), p()\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in B.java (at line 1)\n" + 
+		"	class B extends A implements I {}\n" + 
+		"	      ^\n" + 
+		"The type B must implement the inherited abstract method A.p()\n" + 
+		"----------\n" + 
+		"2. ERROR in B.java (at line 1)\n" + 
+		"	class B extends A implements I {}\n" + 
+		"	      ^\n" + 
+		"The type B must implement the inherited abstract method I.o() to override A.o()\n" + 
+		"----------\n" + 
+		"3. ERROR in B.java (at line 1)\n" + 
+		"	class B extends A implements I {}\n" + 
+		"	      ^\n" + 
+		"The type B must implement the inherited abstract method A.n()\n" + 
+		"----------\n" + 
+		"4. ERROR in B.java (at line 1)\n" + 
+		"	class B extends A implements I {}\n" + 
+		"	      ^\n" + 
+		"The type B must implement the inherited abstract method I.m() to override A.m()\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in B2.java (at line 1)\n" + 
+		"	class B2 extends A2 implements I {}\n" + 
+		"	      ^^\n" + 
+		"The type B2 must implement the inherited abstract method I.o() to override A2.o()\n" + 
+		"----------\n" + 
+		"2. ERROR in B2.java (at line 1)\n" + 
+		"	class B2 extends A2 implements I {}\n" + 
+		"	      ^^\n" + 
+		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" + 
+		"----------\n",
+		null,
+		true,
+		null,
+		true,
+		false,
+		false
+	);
+	this.runNegativeTest(
+		new String[] {
+			"B.java",
+			"class B extends A implements I {}",
+			"B2.java",
+			"class B2 extends A2 implements I {}"
+		},
+		"----------\n" + 
+		"1. ERROR in B.java (at line 1)\n" + 
+		"	class B extends A implements I {}\n" + 
+		"	      ^\n" + 
+		"The type B must implement the inherited abstract method A.p()\n" + 
+		"----------\n" + 
+		"2. ERROR in B.java (at line 1)\n" + 
+		"	class B extends A implements I {}\n" + 
+		"	      ^\n" + 
+		"The type B must implement the inherited abstract method I.o() to override A.o()\n" + 
+		"----------\n" + 
+		"3. ERROR in B.java (at line 1)\n" + 
+		"	class B extends A implements I {}\n" + 
+		"	      ^\n" + 
+		"The type B must implement the inherited abstract method A.n()\n" + 
+		"----------\n" + 
+		"4. ERROR in B.java (at line 1)\n" + 
+		"	class B extends A implements I {}\n" + 
+		"	      ^\n" + 
+		"The type B must implement the inherited abstract method I.m() to override A.m()\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in B2.java (at line 1)\n" + 
+		"	class B2 extends A2 implements I {}\n" + 
+		"	      ^^\n" + 
+		"The type B2 must implement the inherited abstract method I.o() to override A2.o()\n" + 
+		"----------\n" + 
+		"2. ERROR in B2.java (at line 1)\n" + 
+		"	class B2 extends A2 implements I {}\n" + 
+		"	      ^^\n" + 
+		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" + 
+		"----------\n",
+		null,
+		false
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=249134
+public void test182() {
+	this.runNegativeTest(
+		new String[] {
+			"I.java",
+			"interface I {\n" +
+			"	String m();\n" +
+			"	Object n();\n" +
+			"}\n" +
+			"class A {\n" +
+			"	public Object m() { return null; }\n" +
+			"	public String n() { return null; }\n" +
+			"}\n" +
+			"abstract class A2 {\n" +
+			"	public Object m() { return null; }\n" +
+			"	public String n() { return null; }\n" +
+			"}\n",
+			"B.java",
+			"class B extends A implements I {}",
+			"B2.java",
+			"class B2 extends A2 implements I {}"
+		},
+		"----------\n" + 
+		"1. ERROR in B.java (at line 1)\n" + 
+		"	class B extends A implements I {}\n" + 
+		"	      ^\n" + 
+		"The type B must implement the inherited abstract method I.m() to override A.m()\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in B2.java (at line 1)\n" + 
+		"	class B2 extends A2 implements I {}\n" + 
+		"	      ^^\n" + 
+		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" + 
+		"----------\n"
+	);
+	this.runNegativeTest(
+		new String[] {
+			"B.java",
+			"class B extends A implements I {}",
+			"B2.java",
+			"class B2 extends A2 implements I {}"
+		},
+		"----------\n" + 
+		"1. ERROR in B.java (at line 1)\n" + 
+		"	class B extends A implements I {}\n" + 
+		"	      ^\n" + 
+		"The type B must implement the inherited abstract method I.m() to override A.m()\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in B2.java (at line 1)\n" + 
+		"	class B2 extends A2 implements I {}\n" + 
+		"	      ^^\n" + 
+		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" + 
+		"----------\n",
+		null,
+		false
 	);
 }
 }

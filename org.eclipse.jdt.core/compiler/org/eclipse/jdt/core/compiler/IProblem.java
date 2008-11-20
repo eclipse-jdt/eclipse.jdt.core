@@ -779,6 +779,8 @@ void setSourceStart(int sourceStart);
 	int OverridingMethodWithoutSuperInvocation = MethodRelated + 416;
 	/** @since 3.5 */
 	int MissingSynchronizedModifierInInheritedMethod= MethodRelated + 417;
+	int AbstractMethodMustBeImplementedOverConcreteMethod = MethodRelated + 418;
+	int InheritedIncompatibleReturnType = MethodRelated + 419;
 
 	// code snippet support
 	int CodeSnippetMissingClass = Internal + 420;
@@ -1275,6 +1277,8 @@ void setSourceStart(int sourceStart);
 	int EnumStaticFieldInInInitializerContext = FieldRelated + 762;
 	/** @since 3.4 */
 	int EnumConstantMustImplementAbstractMethod = MethodRelated + 763;
+	/** @since 3.5 */
+	int EnumConstantCannotDefineAbstractMethod = MethodRelated + 764;
 
 	/**
 	 * Var args

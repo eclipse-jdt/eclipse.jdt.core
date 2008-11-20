@@ -480,15 +480,34 @@ public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBindi
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void abstractMethodInAbstractClass(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
-
-	String[] arguments = new String[] {new String(type.sourceName()), new String(methodDecl.selector)};
-	this.handle(
-		IProblem.AbstractMethodInAbstractClass,
-		arguments,
-		arguments,
-		methodDecl.sourceStart,
-		methodDecl.sourceEnd);
+public void abstractMethodInAbstractClass(SourceTypeBinding type, MethodBinding[] abstractMethods) {
+	if (type.isEnum() && type.isLocalType()) {
+		FieldBinding field = type.scope.enclosingMethodScope().initializedField;
+		FieldDeclaration decl = field.sourceField();
+		String[] arguments = new String[] {new String(decl.name)};
+		this.handle(
+			IProblem.EnumConstantCannotDefineAbstractMethod,
+			arguments,
+			arguments,
+			decl.sourceStart(),
+			decl.sourceEnd());
+	} else {
+		StringBuffer selectorsString = new StringBuffer();
+		for (int i = 0, l = abstractMethods.length; i < l;) {
+			MethodBinding abstractMethod = abstractMethods[i++];
+			selectorsString.append(abstractMethod.selector);
+			selectorsString.append("()"); //$NON-NLS-1$
+			if (i < l)
+				selectorsString.append(", "); //$NON-NLS-1$
+		}
+		String[] arguments = new String[] {new String(type.sourceName()), selectorsString.toString()};
+		this.handle(
+			IProblem.AbstractMethodInAbstractClass,
+			arguments,
+			arguments,
+			type.sourceStart(),
+			type.sourceEnd());
+	}
 }
 public void abstractMethodMustBeImplemented(SourceTypeBinding type, MethodBinding abstractMethod) {
 	if (type.isEnum() && type.isLocalType()) {
@@ -530,6 +549,32 @@ public void abstractMethodMustBeImplemented(SourceTypeBinding type, MethodBindin
 			type.sourceStart(),
 			type.sourceEnd());
 	}
+}
+public void abstractMethodMustBeImplemented(SourceTypeBinding type, MethodBinding abstractMethod, MethodBinding concreteMethod) {
+	this.handle(
+		// Must implement the inherited abstract method %1
+		// 8.4.3 - Every non-abstract subclass of an abstract type, A, must provide a concrete implementation of all of A's methods.
+		IProblem.AbstractMethodMustBeImplementedOverConcreteMethod,
+		new String[] {
+		        new String(abstractMethod.selector),
+		        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, false),
+		        new String(abstractMethod.declaringClass.readableName()),
+		        new String(type.readableName()),
+		        new String(concreteMethod.selector),
+		        typesAsString(concreteMethod.isVarargs(), concreteMethod.parameters, false),
+		        new String(concreteMethod.declaringClass.readableName()),
+		},
+		new String[] {
+		        new String(abstractMethod.selector),
+		        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, true),
+		        new String(abstractMethod.declaringClass.shortReadableName()),
+		        new String(type.shortReadableName()),
+		        new String(concreteMethod.selector),
+		        typesAsString(concreteMethod.isVarargs(), concreteMethod.parameters, true),
+		        new String(concreteMethod.declaringClass.shortReadableName()),
+		},
+		type.sourceStart(),
+		type.sourceEnd());
 }
 public void abstractMethodNeedingNoBody(AbstractMethodDeclaration method) {
 	this.handle(
@@ -2619,7 +2664,7 @@ public void inheritedMethodsHaveIncompatibleReturnTypes(ASTNode location, Method
 	this.handle(
 		// Return type is incompatible with %1
 		// 9.4.2 - The return type from the method is incompatible with the declaration.
-		IProblem.IncompatibleReturnType,
+		IProblem.InheritedIncompatibleReturnType,
 		new String[] {methodSignatures.toString()},
 		new String[] {shortSignatures.toString()},
 		location.sourceStart,
@@ -2646,7 +2691,7 @@ public void inheritedMethodsHaveIncompatibleReturnTypes(SourceTypeBinding type, 
 	this.handle(
 		// Return type is incompatible with %1
 		// 9.4.2 - The return type from the method is incompatible with the declaration.
-		IProblem.IncompatibleReturnType,
+		IProblem.InheritedIncompatibleReturnType,
 		new String[] {methodSignatures.toString()},
 		new String[] {shortSignatures.toString()},
 		type.sourceStart(),

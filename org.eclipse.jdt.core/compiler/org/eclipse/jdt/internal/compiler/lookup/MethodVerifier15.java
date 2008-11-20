@@ -359,38 +359,21 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 
 	super.checkInheritedMethods(methods, length);
 }
-boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
-	// assumes length > 1
-	// its possible in 1.5 that A is compatible with B & C, but B is not compatible with C
-	// so find 1 method that is compatible with every other method
-	// abstract classes must check every method against each other
-	// but if first method is concrete, then only check it against the rest
-	match : for (int i = 0, l = methods[0].isAbstract() ? length - 1 : 0; i <= l; i++) {
-		MethodBinding method = methods[i];
-		next : for (int j = 0; j < length; j++) {
-			if (i == j) continue;
-			if (!areReturnTypesCompatible(method, methods[j])) {
-				if (this.type.isInterface()) {
-					for (int m = length; --m >= 0;)
-						if (methods[m].declaringClass.id == TypeIds.T_JavaLangObject)
-							return true; // do not complain since the super interface already got blamed
-				} else {
-					if (method.declaringClass.isClass() || !this.type.implementsInterface(method.declaringClass, false))
-						if (methods[j].declaringClass.isClass() || !this.type.implementsInterface(methods[j].declaringClass, false))
-							continue next; // do not complain since the superclass already got blamed
-				}
-				// check to see if this is just a warning, if so report it & skip to next method
-				if (isUnsafeReturnTypeOverride(method, methods[j])) {
-					problemReporter(method).unsafeReturnTypeOverride(method, methods[j], this.type);
-					continue next;
-				}
-				continue match;
-			}
-		}
+boolean checkInheritedReturnTypes(MethodBinding method, MethodBinding otherMethod) {
+	if (areReturnTypesCompatible(method, otherMethod)) return true;
+
+	if (!this.type.isInterface())
+		if (method.declaringClass.isClass() || !this.type.implementsInterface(method.declaringClass, false))
+			if (otherMethod.declaringClass.isClass() || !this.type.implementsInterface(otherMethod.declaringClass, false))
+				return true; // do not complain since the superclass already got blamed
+
+	// check to see if this is just a warning, if so report it & skip to next method
+	if (isUnsafeReturnTypeOverride(method, otherMethod)) {
+		if (!method.declaringClass.implementsInterface(otherMethod.declaringClass, false))
+			problemReporter(method).unsafeReturnTypeOverride(method, otherMethod, this.type);
 		return true;
 	}
 
-	problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
 	return false;
 }
 void checkMethods() {

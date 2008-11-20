@@ -191,6 +191,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					if (method == null) continue;
 					if (method.isConstructor()) {
 						classFile.addProblemConstructor(methodDecl, method, problemsCopy);
+					} else if (method.isAbstract()) {
+						classFile.addAbstractMethod(methodDecl, method);
 					} else {
 						classFile.addProblemMethod(methodDecl, method, problemsCopy);
 					}
