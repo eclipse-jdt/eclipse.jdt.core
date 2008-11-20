@@ -15,10 +15,12 @@ import java.io.File;
 import junit.framework.*;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class PackageTests extends BuilderTests {
@@ -81,6 +83,32 @@ public class PackageTests extends BuilderTests {
 
 		incrementalBuild();
 		expectingNoProblems();
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=251690
+	 */
+	public void testNoPackageProblem() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		IPath aPath = env.addClass(src, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n"+ //$NON-NLS-1$
+			"public class A {}" //$NON-NLS-1$
+		);
+
+		IPath bPath = env.addClass(src, "p.A", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class B {}" //$NON-NLS-1$
+		);
+
+		fullBuild();
+		expectingOnlySpecificProblemFor(aPath,
+			new Problem("", "The type A collides with a package", aPath, 24, 25, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(bPath,
+			new Problem("", "The declared package \"\" does not match the expected package \"p.A\"", bPath, 0, 0, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=117092

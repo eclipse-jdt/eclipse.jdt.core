@@ -84,7 +84,8 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		}
 	} else {
 		if ((this.fPackage = this.environment.createPackage(this.currentPackageName)) == null) {
-			problemReporter().packageCollidesWithType(this.referenceContext);
+			if (this.referenceContext.currentPackage != null)
+				problemReporter().packageCollidesWithType(this.referenceContext); // only report when the unit has a package statement
 			return;
 		} else if (this.referenceContext.isPackageInfo()) {
 			// resolve package annotations now if this is "package-info.java".
