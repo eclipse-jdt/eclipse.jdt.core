@@ -779,7 +779,9 @@ void setSourceStart(int sourceStart);
 	int OverridingMethodWithoutSuperInvocation = MethodRelated + 416;
 	/** @since 3.5 */
 	int MissingSynchronizedModifierInInheritedMethod= MethodRelated + 417;
+	/** @since 3.5 */
 	int AbstractMethodMustBeImplementedOverConcreteMethod = MethodRelated + 418;
+	/** @since 3.5 */
 	int InheritedIncompatibleReturnType = MethodRelated + 419;
 
 	// code snippet support
