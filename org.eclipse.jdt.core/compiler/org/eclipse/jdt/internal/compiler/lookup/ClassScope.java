@@ -294,27 +294,19 @@ public class ClassScope extends Scope {
 				}
 			}
 		} else {
-			MethodBinding[] abstractMethods = null;
+			boolean hasAbstractMethods = false;
 			for (int i = 0; i < size; i++) {
 				if (i != clinitIndex) {
 					MethodScope scope = new MethodScope(this, methods[i], false);
 					MethodBinding methodBinding = scope.createMethod(methods[i]);
 					if (methodBinding != null) { // is null if binding could not be created
 						methodBindings[count++] = methodBinding;
-						if (methodBinding.isAbstract()) {
-							if (abstractMethods == null) {
-								abstractMethods = new MethodBinding[] {methodBinding};
-							} else {
-								int length = abstractMethods.length;
-								System.arraycopy(abstractMethods, 0, abstractMethods = new MethodBinding[length + 1], 0, length);
-								abstractMethods[length] = methodBinding;
-							}
-						}
+						hasAbstractMethods = hasAbstractMethods || methodBinding.isAbstract();
 					}
 				}
 			}
-			if (abstractMethods != null)
-				problemReporter().abstractMethodInAbstractClass(sourceType, abstractMethods);
+			if (hasAbstractMethods)
+				problemReporter().abstractMethodInConcreteClass(sourceType);
 		}
 		if (count != methodBindings.length)
 			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);

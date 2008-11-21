@@ -480,7 +480,28 @@ public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBindi
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void abstractMethodInAbstractClass(SourceTypeBinding type, MethodBinding[] abstractMethods) {
+public void abstractMethodInAbstractClass(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
+	if (type.isEnum() && type.isLocalType()) {
+		FieldBinding field = type.scope.enclosingMethodScope().initializedField;
+		FieldDeclaration decl = field.sourceField();
+		String[] arguments = new String[] {new String(decl.name), new String(methodDecl.selector)};
+		this.handle(
+			IProblem.AbstractMethodInEnum,
+			arguments,
+			arguments,
+			methodDecl.sourceStart,
+			methodDecl.sourceEnd);
+	} else {
+		String[] arguments = new String[] {new String(type.sourceName()), new String(methodDecl.selector)};
+		this.handle(
+			IProblem.AbstractMethodInAbstractClass,
+			arguments,
+			arguments,
+			methodDecl.sourceStart,
+			methodDecl.sourceEnd);
+	}
+}
+public void abstractMethodInConcreteClass(SourceTypeBinding type) {
 	if (type.isEnum() && type.isLocalType()) {
 		FieldBinding field = type.scope.enclosingMethodScope().initializedField;
 		FieldDeclaration decl = field.sourceField();
@@ -492,17 +513,9 @@ public void abstractMethodInAbstractClass(SourceTypeBinding type, MethodBinding[
 			decl.sourceStart(),
 			decl.sourceEnd());
 	} else {
-		StringBuffer selectorsString = new StringBuffer();
-		for (int i = 0, l = abstractMethods.length; i < l;) {
-			MethodBinding abstractMethod = abstractMethods[i++];
-			selectorsString.append(abstractMethod.selector);
-			selectorsString.append("()"); //$NON-NLS-1$
-			if (i < l)
-				selectorsString.append(", "); //$NON-NLS-1$
-		}
-		String[] arguments = new String[] {new String(type.sourceName()), selectorsString.toString()};
+		String[] arguments = new String[] {new String(type.sourceName())};
 		this.handle(
-			IProblem.AbstractMethodInAbstractClass,
+			IProblem.AbstractMethodsInConcreteClass,
 			arguments,
 			arguments,
 			type.sourceStart(),

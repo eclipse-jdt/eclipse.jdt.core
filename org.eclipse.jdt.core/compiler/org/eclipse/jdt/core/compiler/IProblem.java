@@ -630,6 +630,8 @@ void setSourceStart(int sourceStart);
 	int RedundantSuperinterface = TypeRelated + 331;
 	/** @since 3.5 */
 	int ShouldImplementHashcode = TypeRelated + 332;
+	/** @since 3.5 */
+	int AbstractMethodsInConcreteClass = TypeRelated + 333;
 
 	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330
@@ -1281,6 +1283,8 @@ void setSourceStart(int sourceStart);
 	int EnumConstantMustImplementAbstractMethod = MethodRelated + 763;
 	/** @since 3.5 */
 	int EnumConstantCannotDefineAbstractMethod = MethodRelated + 764;
+	/** @since 3.5 */
+	int AbstractMethodInEnum = MethodRelated + 765;
 
 	/**
 	 * Var args

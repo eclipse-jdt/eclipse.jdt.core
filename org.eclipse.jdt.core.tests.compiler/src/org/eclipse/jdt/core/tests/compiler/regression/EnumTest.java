@@ -4862,7 +4862,6 @@ public void test138() {
 			"		@Override\n" +
 			"		abstract double eval(double x, double y);\n" +
 			"	};\n" +
-			"\n" +
 			"	abstract double eval(double x, double y);\n" +
 			"}\n" +
 			"\n", // =================
@@ -4877,6 +4876,11 @@ public void test138() {
 		"	MINUS {\n" + 
 		"	^^^^^\n" + 
 		"The enum constant MINUS cannot define abstract methods\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	abstract double eval(double x, double y);\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method eval cannot be abstract in the enum constant MINUS\n" + 
 		"----------\n"
 	);
 }
@@ -4914,6 +4918,11 @@ public void test139() {
 		"	MINUS {\n" + 
 		"	^^^^^\n" + 
 		"The enum constant MINUS must implement the abstract method eval(double, double)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	abstract double eval2(double x, double y);\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method eval2 cannot be abstract in the enum constant MINUS\n" + 
 		"----------\n"
 	);
 }
@@ -4995,6 +5004,11 @@ public void test143() {
 		"	A {\n" + 
 		"	^\n" + 
 		"The enum constant A cannot define abstract methods\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	public abstract String a();\n" + 
+		"	                       ^^^\n" + 
+		"The method a cannot be abstract in the enum constant A\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=186822

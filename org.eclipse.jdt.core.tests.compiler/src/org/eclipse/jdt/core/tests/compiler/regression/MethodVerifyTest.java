@@ -9156,7 +9156,27 @@ public void test181() {
 		"1. ERROR in I.java (at line 13)\n" + 
 		"	class A2 {\n" + 
 		"	      ^^\n" + 
-		"The type A2 must be an abstract class to define abstract methods: m(), n(), o(), p()\n" + 
+		"The type A2 must be an abstract class to define abstract methods\n" + 
+		"----------\n" + 
+		"2. ERROR in I.java (at line 14)\n" + 
+		"	public abstract Object m();\n" + 
+		"	                       ^^^\n" + 
+		"The abstract method m in type A2 can only be defined by an abstract class\n" + 
+		"----------\n" + 
+		"3. ERROR in I.java (at line 15)\n" + 
+		"	public abstract String n();\n" + 
+		"	                       ^^^\n" + 
+		"The abstract method n in type A2 can only be defined by an abstract class\n" + 
+		"----------\n" + 
+		"4. ERROR in I.java (at line 16)\n" + 
+		"	abstract Object o();\n" + 
+		"	                ^^^\n" + 
+		"The abstract method o in type A2 can only be defined by an abstract class\n" + 
+		"----------\n" + 
+		"5. ERROR in I.java (at line 17)\n" + 
+		"	abstract String p();\n" + 
+		"	                ^^^\n" + 
+		"The abstract method p in type A2 can only be defined by an abstract class\n" + 
 		"----------\n" + 
 		"----------\n" + 
 		"1. ERROR in B.java (at line 1)\n" + 

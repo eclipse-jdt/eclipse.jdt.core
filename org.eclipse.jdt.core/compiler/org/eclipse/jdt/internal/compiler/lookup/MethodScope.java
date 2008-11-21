@@ -198,9 +198,8 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 		int incompatibleWithAbstract = ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccSynchronized | ClassFileConstants.AccNative | ClassFileConstants.AccStrictfp;
 		if ((modifiers & incompatibleWithAbstract) != 0)
 			problemReporter().illegalAbstractModifierCombinationForMethod(declaringClass, (AbstractMethodDeclaration) this.referenceContext);
-// We now report the error against the declaringClass to avoid problems with incremental builds & source vs. .class bindings
-//		if (!methodBinding.declaringClass.isAbstract())
-//			problemReporter().abstractMethodInAbstractClass((SourceTypeBinding) declaringClass, (AbstractMethodDeclaration) this.referenceContext);
+		if (!methodBinding.declaringClass.isAbstract())
+			problemReporter().abstractMethodInAbstractClass((SourceTypeBinding) declaringClass, (AbstractMethodDeclaration) this.referenceContext);
 	}
 
 	/* DISABLED for backward compatibility with javac (if enabled should also mark private methods as final)
