@@ -36,13 +36,11 @@ public class WhileStatement extends Statement {
 		this.sourceEnd = e;
 	}
 
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
 		this.breakLabel = new BranchLabel();
 		this.continueLabel = new BranchLabel();
+		int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 
 		Constant cst = this.condition.constant;
 		boolean isConditionTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
@@ -52,10 +50,10 @@ public class WhileStatement extends Statement {
 		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 
-		this.preCondInitStateIndex =
-			currentScope.methodScope().recordInitializationStates(flowInfo);
+		this.preCondInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 		LoopingFlowContext condLoopContext;
 		FlowInfo condInfo =	flowInfo.nullInfoLessUnconditionalCopy();
+		
 		// we need to collect the contribution to nulls of the coming paths through the
 		// loop, be they falling through normally or branched to break, continue labels
 		// or catch blocks
@@ -111,7 +109,7 @@ public class WhileStatement extends Statement {
 				currentScope.methodScope().recordInitializationStates(
 					condInfo.initsWhenTrue());
 
-			if (!this.action.complainIfUnreachable(actionInfo, currentScope, false)) {
+			if (this.action.complainIfUnreachable(actionInfo, currentScope, initialComplaintLevel) < Statement.COMPLAINED_UNREACHABLE) {
 				actionInfo = this.action.analyseCode(currentScope, loopingContext, actionInfo);
 			}
 

@@ -25316,11 +25316,21 @@ public void test0803() {
 			"  }\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 13)\n" +
-		"	return true ? superList : superList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from ArrayList<capture#3-of ? extends Object> to ArrayList<? super A>\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	return true ? list : list;\n" + 
+		"	                     ^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	return true ? superList : superList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from ArrayList<capture#3-of ? extends Object> to ArrayList<? super A>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 17)\n" + 
+		"	return true ? extendsList : extendsList;\n" + 
+		"	                            ^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106865
@@ -44275,81 +44285,91 @@ public void test1314() {
 					"	}	\n" +
 					"}\n", // =================
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 11)\n" +
-			"	if (false) return new Y(b);//1\n" +
-			"	                  ^^^^^^^^\n" +
-			"Type safety: The constructor Y(Object) belongs to the raw type Y. References to generic type Y<K> should be parameterized\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 11)\n" +
-			"	if (false) return new Y(b);//1\n" +
-			"	                      ^\n" +
-			"Y is a raw type. References to generic type Y<K> should be parameterized\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 12)\n" +
-			"	if (false) return new Y((K) b);//2\n" +
-			"	                  ^^^^^^^^^^^^\n" +
-			"Type safety: The constructor Y(Object) belongs to the raw type Y. References to generic type Y<K> should be parameterized\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 12)\n" +
-			"	if (false) return new Y((K) b);//2\n" +
-			"	                      ^\n" +
-			"Y is a raw type. References to generic type Y<K> should be parameterized\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 12)\n" +
-			"	if (false) return new Y((K) b);//2\n" +
-			"	                        ^^^^^\n" +
-			"Type safety: Unchecked cast from B to K\n" +
-			"----------\n" +
-			"6. WARNING in X.java (at line 12)\n" +
-			"	if (false) return new Y((K) b);//2\n" +
-			"	                        ^^^^^\n" +
-			"Unnecessary cast from B to K\n" +
-			"----------\n" +
-			"7. WARNING in X.java (at line 13)\n" +
-			"	return new Y((K) (Object) b);//3\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety: The constructor Y(Object) belongs to the raw type Y. References to generic type Y<K> should be parameterized\n" +
-			"----------\n" +
-			"8. WARNING in X.java (at line 13)\n" +
-			"	return new Y((K) (Object) b);//3\n" +
-			"	           ^\n" +
-			"Y is a raw type. References to generic type Y<K> should be parameterized\n" +
-			"----------\n" +
-			"9. WARNING in X.java (at line 13)\n" +
-			"	return new Y((K) (Object) b);//3\n" +
-			"	             ^^^^^^^^^^^^^^\n" +
-			"Type safety: Unchecked cast from Object to K\n" +
-			"----------\n" +
-			"10. WARNING in X.java (at line 13)\n" +
-			"	return new Y((K) (Object) b);//3\n" +
-			"	             ^^^^^^^^^^^^^^\n" +
-			"Unnecessary cast from Object to K\n" +
-			"----------\n" +
-			"11. WARNING in X.java (at line 13)\n" +
-			"	return new Y((K) (Object) b);//3\n" +
-			"	                 ^^^^^^^^^^\n" +
-			"Unnecessary cast from B to Object\n" +
-			"----------\n" +
-			"12. ERROR in X.java (at line 16)\n" +
-			"	if (false) return new Y<K>(b);//4\n" +
-			"	                  ^^^^^^^^^^^\n" +
-			"The constructor Y<K>(B) is undefined\n" +
-			"----------\n" +
-			"13. WARNING in X.java (at line 17)\n" +
-			"	if (false) return new Y<K>((K) b);//5\n" +
-			"	                           ^^^^^\n" +
-			"Type safety: Unchecked cast from B to K\n" +
-			"----------\n" +
-			"14. WARNING in X.java (at line 18)\n" +
-			"	return new Y<K>((K) (Object) b);//6\n" +
-			"	                ^^^^^^^^^^^^^^\n" +
-			"Type safety: Unchecked cast from Object to K\n" +
-			"----------\n" +
-			"15. WARNING in X.java (at line 18)\n" +
-			"	return new Y<K>((K) (Object) b);//6\n" +
-			"	                    ^^^^^^^^^^\n" +
-			"Unnecessary cast from B to Object\n" +
+			"----------\n" + 
+			"1. WARNING in X.java (at line 11)\n" + 
+			"	if (false) return new Y(b);//1\n" + 
+			"	           ^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 11)\n" + 
+			"	if (false) return new Y(b);//1\n" + 
+			"	                  ^^^^^^^^\n" + 
+			"Type safety: The constructor Y(Object) belongs to the raw type Y. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 11)\n" + 
+			"	if (false) return new Y(b);//1\n" + 
+			"	                      ^\n" + 
+			"Y is a raw type. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 12)\n" + 
+			"	if (false) return new Y((K) b);//2\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 12)\n" + 
+			"	if (false) return new Y((K) b);//2\n" + 
+			"	                  ^^^^^^^^^^^^\n" + 
+			"Type safety: The constructor Y(Object) belongs to the raw type Y. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 12)\n" + 
+			"	if (false) return new Y((K) b);//2\n" + 
+			"	                      ^\n" + 
+			"Y is a raw type. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 12)\n" + 
+			"	if (false) return new Y((K) b);//2\n" + 
+			"	                        ^^^^^\n" + 
+			"Type safety: Unchecked cast from B to K\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 12)\n" + 
+			"	if (false) return new Y((K) b);//2\n" + 
+			"	                        ^^^^^\n" + 
+			"Unnecessary cast from B to K\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 13)\n" + 
+			"	return new Y((K) (Object) b);//3\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The constructor Y(Object) belongs to the raw type Y. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"10. WARNING in X.java (at line 13)\n" + 
+			"	return new Y((K) (Object) b);//3\n" + 
+			"	           ^\n" + 
+			"Y is a raw type. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"11. WARNING in X.java (at line 13)\n" + 
+			"	return new Y((K) (Object) b);//3\n" + 
+			"	             ^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from Object to K\n" + 
+			"----------\n" + 
+			"12. WARNING in X.java (at line 13)\n" + 
+			"	return new Y((K) (Object) b);//3\n" + 
+			"	             ^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from Object to K\n" + 
+			"----------\n" + 
+			"13. WARNING in X.java (at line 13)\n" + 
+			"	return new Y((K) (Object) b);//3\n" + 
+			"	                 ^^^^^^^^^^\n" + 
+			"Unnecessary cast from B to Object\n" + 
+			"----------\n" + 
+			"14. ERROR in X.java (at line 16)\n" + 
+			"	if (false) return new Y<K>(b);//4\n" + 
+			"	                  ^^^^^^^^^^^\n" + 
+			"The constructor Y<K>(B) is undefined\n" + 
+			"----------\n" + 
+			"15. WARNING in X.java (at line 17)\n" + 
+			"	if (false) return new Y<K>((K) b);//5\n" + 
+			"	                           ^^^^^\n" + 
+			"Type safety: Unchecked cast from B to K\n" + 
+			"----------\n" + 
+			"16. WARNING in X.java (at line 18)\n" + 
+			"	return new Y<K>((K) (Object) b);//6\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from Object to K\n" + 
+			"----------\n" + 
+			"17. WARNING in X.java (at line 18)\n" + 
+			"	return new Y<K>((K) (Object) b);//6\n" + 
+			"	                    ^^^^^^^^^^\n" + 
+			"Unnecessary cast from B to Object\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228291

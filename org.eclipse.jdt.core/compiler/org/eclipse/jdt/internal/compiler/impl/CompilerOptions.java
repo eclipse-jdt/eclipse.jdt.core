@@ -123,6 +123,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportComparingIdentical =  "org.eclipse.jdt.core.compiler.problem.comparingIdentical"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingSynchronizedOnInheritedMethod =  "org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingHashCodeMethod =  "org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod"; //$NON-NLS-1$
+	public static final String OPTION_ReportDeadCode =  "org.eclipse.jdt.core.compiler.problem.deadCode"; //$NON-NLS-1$
 
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -225,7 +226,8 @@ public class CompilerOptions {
 	public static final int MissingSynchronizedModifierInInheritedMethod= IrritantSet.GROUP1 | ASTNode.Bit29;
 
 	// group 2
-	public static final int ShouldImplementHashcode= IrritantSet.GROUP2 | ASTNode.Bit1;
+	public static final int ShouldImplementHashcode = IrritantSet.GROUP2 | ASTNode.Bit1;
+	public static final int DeadCode = IrritantSet.GROUP2 | ASTNode.Bit2;
 	
 	// Map: String optionKey --> Long irritant>
 	private static Map OptionToIrritants;
@@ -478,6 +480,8 @@ public class CompilerOptions {
 				return OPTION_ReportMissingSynchronizedOnInheritedMethod;
 			case ShouldImplementHashcode :
 				return OPTION_ReportMissingHashCodeMethod;
+			case DeadCode :
+				return OPTION_ReportDeadCode;
 		}
 		return null;
 	}
@@ -580,6 +584,7 @@ public class CompilerOptions {
 			OPTION_ReportAnnotationSuperInterface,
 			OPTION_ReportAssertIdentifier,
 			OPTION_ReportAutoboxing,
+			OPTION_ReportDeadCode,
 			OPTION_ReportDeprecation,
 			OPTION_ReportDiscouragedReference,
 			OPTION_ReportEmptyStatement,
@@ -893,6 +898,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportComparingIdentical, getSeverityString(ComparingIdentical));
 		optionsMap.put(OPTION_ReportMissingSynchronizedOnInheritedMethod, getSeverityString(MissingSynchronizedModifierInInheritedMethod));
 		optionsMap.put(OPTION_ReportMissingHashCodeMethod, getSeverityString(ShouldImplementHashcode));
+		optionsMap.put(OPTION_ReportDeadCode, getSeverityString(DeadCode));
 		return optionsMap;
 	}
 
@@ -1264,6 +1270,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportComparingIdentical)) != null) updateSeverity(ComparingIdentical, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingSynchronizedOnInheritedMethod)) != null) updateSeverity(MissingSynchronizedModifierInInheritedMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingHashCodeMethod)) != null) updateSeverity(ShouldImplementHashcode, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportDeadCode)) != null) updateSeverity(DeadCode, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -1461,6 +1468,7 @@ public class CompilerOptions {
 		buf.append("\n\t- comparing identical expr: ").append(getSeverityString(ComparingIdentical)); //$NON-NLS-1$
 		buf.append("\n\t- missing synchronized on inherited method: ").append(getSeverityString(MissingSynchronizedModifierInInheritedMethod)); //$NON-NLS-1$
 		buf.append("\n\t- should implement hashCode() method: ").append(getSeverityString(ShouldImplementHashcode)); //$NON-NLS-1$
+		buf.append("\n\t- dead code: ").append(getSeverityString(DeadCode)); //$NON-NLS-1$
 		return buf.toString();
 	}
 	

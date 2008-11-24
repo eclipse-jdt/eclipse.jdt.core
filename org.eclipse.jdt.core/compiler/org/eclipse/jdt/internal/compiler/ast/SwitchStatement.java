@@ -44,11 +44,7 @@ public class SwitchStatement extends Statement {
 	int preSwitchInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
 
-	public FlowInfo analyseCode(
-			BlockScope currentScope,
-			FlowContext flowContext,
-			FlowInfo flowInfo) {
-
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	    try {
 			flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
 			SwitchFlowContext switchContext =
@@ -58,11 +54,11 @@ public class SwitchStatement extends Statement {
 			// to the entry point)
 			FlowInfo caseInits = FlowInfo.DEAD_END;
 			// in case of statements before the first case
-			this.preSwitchInitStateIndex =
-				currentScope.methodScope().recordInitializationStates(flowInfo);
+			this.preSwitchInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 			int caseIndex = 0;
 			if (this.statements != null) {
-				boolean didAlreadyComplain = false;
+				int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
+				int complaintLevel = initialComplaintLevel;
 				int fallThroughState = CASE;
 				for (int i = 0, max = this.statements.length; i < max; i++) {
 					Statement statement = this.statements[i];
@@ -74,7 +70,7 @@ public class SwitchStatement extends Statement {
 							this.scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);
 						}
 						caseInits = caseInits.mergedWith(flowInfo.unconditionalInits());
-						didAlreadyComplain = false; // reset complaint
+						complaintLevel = initialComplaintLevel; // reset complaint
 						fallThroughState = CASE;
 					} else if (statement == this.defaultCase) { // statement is the default case
 						this.scope.enclosingCase = this.defaultCase; // record entering in a switch case block
@@ -83,18 +79,16 @@ public class SwitchStatement extends Statement {
 							this.scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);
 						}
 						caseInits = caseInits.mergedWith(flowInfo.unconditionalInits());
-						didAlreadyComplain = false; // reset complaint
+						complaintLevel = initialComplaintLevel; // reset complaint
 						fallThroughState = CASE;
 					} else {
 						fallThroughState = FALLTHROUGH; // reset below if needed
 					}
-					if (!statement.complainIfUnreachable(caseInits, this.scope, didAlreadyComplain)) {
+					if ((complaintLevel = statement.complainIfUnreachable(caseInits, this.scope, complaintLevel)) < Statement.COMPLAINED_UNREACHABLE) {
 						caseInits = statement.analyseCode(this.scope, switchContext, caseInits);
 						if (caseInits == FlowInfo.DEAD_END) {
 							fallThroughState = ESCAPING;
 						}
-					} else {
-						didAlreadyComplain = true;
 					}
 				}
 			}
@@ -107,10 +101,8 @@ public class SwitchStatement extends Statement {
 			// if no default case, then record it may jump over the block directly to the end
 			if (this.defaultCase == null) {
 				// only retain the potential initializations
-				flowInfo.addPotentialInitializationsFrom(
-					caseInits.mergedWith(switchContext.initsOnBreak));
-				this.mergedInitStateIndex =
-					currentScope.methodScope().recordInitializationStates(flowInfo);
+				flowInfo.addPotentialInitializationsFrom(caseInits.mergedWith(switchContext.initsOnBreak));
+				this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 				return flowInfo;
 			}
 

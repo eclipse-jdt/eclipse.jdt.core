@@ -54,7 +54,10 @@ public class AND_AND_Expression extends BinaryExpression {
 
 		int previousMode = rightInfo.reachMode();
 		if (isLeftOptimizedFalse) {
-			rightInfo.setReachMode(FlowInfo.UNREACHABLE);
+			if ((rightInfo.reachMode() & FlowInfo.UNREACHABLE) == 0) {
+				currentScope.problemReporter().fakeReachable(this.right);
+				rightInfo.setReachMode(FlowInfo.UNREACHABLE);
+			}
 		}
 		rightInfo = this.right.analyseCode(currentScope, flowContext, rightInfo);
 		FlowInfo mergedInfo = FlowInfo.conditional(

@@ -3751,7 +3751,14 @@ public void test098() {
 			"	}	\n"+
 			"}	\n",
 		},
-		"",
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	} else {	\n" + 
+		"		System.out.println(\"unreachable inner class = \" + new Object() {}.getClass());	\n" + 
+		"		}	\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n",
 		"first inner class = class X$1\n" +
 		"Always true\n" +
 		"last inner class = class X$2",

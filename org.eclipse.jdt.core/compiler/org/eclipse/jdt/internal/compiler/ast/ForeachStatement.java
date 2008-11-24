@@ -72,17 +72,15 @@ public class ForeachStatement extends Statement {
 		this.kind = -1;
 	}
 
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		// initialize break and continue labels
 		this.breakLabel = new BranchLabel();
 		this.continueLabel = new BranchLabel();
+		int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 
 		// process the element variable and collection
 		this.collection.checkNPE(currentScope, flowContext, flowInfo);
-		flowInfo = this.elementVariable.analyseCode(this.scope, flowContext, flowInfo);
+		flowInfo = this.elementVariable.analyseCode(this.scope, flowContext, flowInfo);		
 		FlowInfo condInfo = this.collection.analyseCode(this.scope, flowContext, flowInfo.copy());
 
 		// element variable will be assigned when iterating
@@ -101,10 +99,8 @@ public class ForeachStatement extends Statement {
 		if (!(this.action == null || (this.action.isEmptyBlock()
 		        	&& currentScope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3))) {
 
-			if (!this.action.complainIfUnreachable(actionInfo, this.scope, false)) {
-				actionInfo = this.action.
-					analyseCode(this.scope, loopingContext, actionInfo).
-					unconditionalCopy();
+			if (this.action.complainIfUnreachable(actionInfo, this.scope, initialComplaintLevel) < Statement.COMPLAINED_UNREACHABLE) {
+				actionInfo = this.action.analyseCode(this.scope, loopingContext, actionInfo).unconditionalCopy();
 			}
 
 			// code generation can be optimized when no need to continue in the loop

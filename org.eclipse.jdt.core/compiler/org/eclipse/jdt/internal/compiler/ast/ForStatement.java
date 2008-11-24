@@ -58,13 +58,10 @@ public class ForStatement extends Statement {
 		}
 	}
 
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
-
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		this.breakLabel = new BranchLabel();
 		this.continueLabel = new BranchLabel();
+		int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 
 		// process the initializations
 		if (this.initializations != null) {
@@ -82,7 +79,7 @@ public class ForStatement extends Statement {
 		cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst == null ||  (cst != Constant.NotAConstant && cst.booleanValue() == true);
 		boolean isConditionOptimizedFalse = cst != null && (cst != Constant.NotAConstant && cst.booleanValue() == false);
-
+		
 		// process the condition
 		LoopingFlowContext condLoopContext = null;
 		FlowInfo condInfo = flowInfo.nullInfoLessUnconditionalCopy();
@@ -137,9 +134,8 @@ public class ForStatement extends Statement {
 						actionInfo.setReachMode(FlowInfo.UNREACHABLE);
 					}
 				}
-			if (!this.action.complainIfUnreachable(actionInfo, this.scope, false)) {
-				actionInfo = this.action.analyseCode(this.scope, loopingContext, actionInfo).
-					unconditionalInits();
+			if (this.action.complainIfUnreachable(actionInfo, this.scope, initialComplaintLevel) < Statement.COMPLAINED_UNREACHABLE) {
+				actionInfo = this.action.analyseCode(this.scope, loopingContext, actionInfo).unconditionalInits();
 			}
 
 			// code generation can be optimized when no need to continue in the loop
@@ -179,9 +175,13 @@ public class ForStatement extends Statement {
 			}
 			exitBranch.addPotentialInitializationsFrom(actionInfo).
 				addInitializationsFrom(condInfo.initsWhenFalse());
-		}
-		else {
+		} else {
 			exitBranch.addInitializationsFrom(condInfo.initsWhenFalse());
+			if (this.increments != null) {
+				if (initialComplaintLevel == Statement.NOT_COMPLAINED) {
+					currentScope.problemReporter().fakeReachable(this.increments[0]);
+				}
+			}
 		}
 		// nulls checks
 		if (condLoopContext != null) {

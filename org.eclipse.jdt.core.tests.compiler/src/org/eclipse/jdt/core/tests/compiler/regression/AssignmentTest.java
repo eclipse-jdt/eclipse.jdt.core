@@ -977,10 +977,17 @@ public void test041() {
 		options /* custom options */,
 		// compiler results
 		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 4)\n" +
-		"	b = false;\n" +
-		"	^\n" +
-		"The parameter b should not be assigned\n" +
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	if (false) {\n" + 
+		"      b = false;\n" + 
+		"    }\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	b = false;\n" + 
+		"	^\n" + 
+		"The parameter b should not be assigned\n" + 
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -1010,10 +1017,15 @@ public void test042() {
 		options /* custom options */,
 		// compiler results
 		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 6)\n" +
-		"	b = false;\n" +
-		"	^\n" +
-		"The parameter b should not be assigned\n" +
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	b = false;\n" + 
+		"	^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	b = false;\n" + 
+		"	^\n" + 
+		"The parameter b should not be assigned\n" + 
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -1036,10 +1048,17 @@ public void test043() {
 			"}\n",
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	b = false;\n" +
-		"	^\n" +
-		"The final local variable b cannot be assigned. It must be blank and not using a compound assignment\n" +
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	if (false) {\n" + 
+		"      b = false;\n" + 
+		"    }\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	b = false;\n" + 
+		"	^\n" + 
+		"The final local variable b cannot be assigned. It must be blank and not using a compound assignment\n" + 
 		"----------\n",
 		null, true, options);
 }
@@ -1356,10 +1375,19 @@ public void test055_definite_unassignment_try_catch() {
 	 	},
 		// compiler results
 	 	"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 11)\n" +
-		"	i = 1;\n" +
-		"	^\n" +
-		"The final local variable i may already have been assigned\n" +
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	if (false) {\n" + 
+		"            i = 0;\n" + 
+		"            System.out.println(i);\n" + 
+		"            throw new MyException();\n" + 
+		"      }\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	i = 1;\n" + 
+		"	^\n" + 
+		"The final local variable i may already have been assigned\n" + 
 		"----------\n",
 		// javac options
 		JavacTestOptions.EclipseJustification.EclipseBug235543 /* javac test options */);

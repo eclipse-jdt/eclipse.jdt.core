@@ -52,7 +52,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		// process the if-true part
 		FlowInfo trueFlowInfo = flowInfo.initsWhenTrue().copy();
 		if (isConditionOptimizedFalse) {
-			trueFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
+			if ((trueFlowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0) {
+				currentScope.problemReporter().fakeReachable(this.valueIfTrue);
+				trueFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
+			}
 		}
 		this.trueInitStateIndex = currentScope.methodScope().recordInitializationStates(trueFlowInfo);
 		trueFlowInfo = this.valueIfTrue.analyseCode(currentScope, flowContext, trueFlowInfo);
@@ -60,7 +63,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		// process the if-false part
 		FlowInfo falseFlowInfo = flowInfo.initsWhenFalse().copy();
 		if (isConditionOptimizedTrue) {
-			falseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
+			if ((falseFlowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0) {
+				currentScope.problemReporter().fakeReachable(this.valueIfFalse);
+				falseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
+			}
 		}
 		this.falseInitStateIndex = currentScope.methodScope().recordInitializationStates(falseFlowInfo);
 		falseFlowInfo = this.valueIfFalse.analyseCode(currentScope, flowContext, falseFlowInfo);
@@ -85,11 +91,18 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			UnconditionalFlowInfo falseInfoWhenTrue = falseFlowInfo.initsWhenTrue().unconditionalCopy();
 			UnconditionalFlowInfo trueInfoWhenFalse = trueFlowInfo.initsWhenFalse().unconditionalInits();
 			UnconditionalFlowInfo falseInfoWhenFalse = falseFlowInfo.initsWhenFalse().unconditionalInits();
-			if (isValueIfTrueOptimizedFalse) trueInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE);
-			if (isValueIfFalseOptimizedFalse) falseInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE);
-			if (isValueIfTrueOptimizedTrue) trueInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE);
-			if (isValueIfFalseOptimizedTrue) falseInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE);
-
+			if (isValueIfTrueOptimizedFalse) {
+				trueInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE);				
+			}
+			if (isValueIfFalseOptimizedFalse) {
+				falseInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE);	
+			}
+			if (isValueIfTrueOptimizedTrue) {
+				trueInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE);	
+			}
+			if (isValueIfFalseOptimizedTrue) {
+				falseInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE);	
+			}
 			mergedInfo =
 				FlowInfo.conditional(
 					trueInfoWhenTrue.mergedWith(falseInfoWhenTrue),

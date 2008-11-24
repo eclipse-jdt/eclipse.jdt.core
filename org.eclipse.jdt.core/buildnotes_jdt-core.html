@@ -47,9 +47,27 @@ Eclipse SDK 3.5M4 - %date% - 3.5 MILESTONE 4
 <br>Project org.eclipse.jdt.core v_926
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_926">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>
+Added a new compiler warning to signal presence of dead code,  e.g. <code>if (false) deadCode(); </code>.
+This diagnosis is controlled by option: 
+<code>JavaCore.COMPILER_PB_DEAD_CODE</code> and produces a problem marker which ID is <code>IProblem.DeadCode</code> problem ID.
+<pre>
+* Compiler option ID: Reporting Dead Code.
+* When enabled, the compiler will issue an error or a warning if some non fatal dead code is detected. For instance, if (false) foo();
+* is not reported as truly unreachable code by the Java Language Specification. If this diagnostic is enabled, then the invocation of foo() is
+* going to be signaled as being dead code.
+* Option id:"org.eclipse.jdt.core.compiler.problem.deadCode"
+* Possible values:{ "error", "warning", "ignore" }
+* Default:"ignore"
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=254825">254825</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48399">48399</a>
+[compiler] Enhance unreachable code detection
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=254825">254825</a>
 [javadoc] compile error when referencing outer param from inner class javadoc
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=252555">252555</a>
 [javadoc] NPE on duplicate package-info

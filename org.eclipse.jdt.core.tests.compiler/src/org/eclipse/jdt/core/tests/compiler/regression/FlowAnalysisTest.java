@@ -48,11 +48,18 @@ public void test001() {
 		"	}	\n" +
 		"}\n",
 	},
-	"----------\n" +
-	"1. ERROR in X.java (at line 2)\n" +
-	"	public String foo(int i) {\n" +
-	"	              ^^^^^^^^^^\n" +
-	"This method must return a result of type String\n" +
+	"----------\n" + 
+	"1. ERROR in X.java (at line 2)\n" + 
+	"	public String foo(int i) {\n" + 
+	"	              ^^^^^^^^^^\n" + 
+	"This method must return a result of type String\n" + 
+	"----------\n" + 
+	"2. WARNING in X.java (at line 6)\n" + 
+	"	if (i > 0) {\n" + 
+	"			return null;\n" + 
+	"		}\n" + 
+	"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"Dead code\n" + 
 	"----------\n");
 }
 
@@ -712,11 +719,16 @@ public void test023() {
 			"	}\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	x.foo();\n" +
-		"	^\n" +
-		"The local variable x may not have been initialized\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	x = new X();\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	x.foo();\n" + 
+		"	^\n" + 
+		"The local variable x may not have been initialized\n" + 
 		"----------\n",
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
@@ -1169,11 +1181,19 @@ public void test037() {
 			"  }\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	System.out.println(s);\n" +
-		"	                   ^\n" +
-		"The local variable s may not have been initialized\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	if (false) {\n" + 
+		"      String s;\n" + 
+		"      System.out.println(s);\n" + 
+		"    }\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	System.out.println(s);\n" + 
+		"	                   ^\n" + 
+		"The local variable s may not have been initialized\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
@@ -1210,11 +1230,21 @@ public void test039() {
 			"  }\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	System.out.println(s);\n" +
-		"	                   ^\n" +
-		"The local variable s may not have been initialized\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	if (false) {\n" + 
+		"      String s;\n" + 
+		"      if (System.out != null) {\n" + 
+		"        System.out.println(s);\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	System.out.println(s);\n" + 
+		"	                   ^\n" + 
+		"The local variable s may not have been initialized\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
@@ -1232,11 +1262,18 @@ public void test040() {
 			"  }\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	s = \"\";\n" +
-		"	^\n" +
-		"The final local variable s cannot be assigned. It must be blank and not using a compound assignment\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (false) {\n" + 
+		"      s = \"\";\n" + 
+		"    }\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	s = \"\";\n" + 
+		"	^\n" + 
+		"The final local variable s cannot be assigned. It must be blank and not using a compound assignment\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
@@ -1273,11 +1310,18 @@ public void test042() {
 			"  }\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	s = \"\";\n" +
-		"	^\n" +
-		"The final local variable s may already have been assigned\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (false) {\n" + 
+		"      s = \"\";\n" + 
+		"    }\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	s = \"\";\n" + 
+		"	^\n" + 
+		"The final local variable s may already have been assigned\n" + 
 		"----------\n");
 }
 // switch and definite assignment
@@ -1375,7 +1419,12 @@ public void test046() {
 			"  }\n" +
 			"}\n",
 		},
-		"",
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	for (final int i; 0 < (i = 1); i = i + 1) {\n" + 
+		"	                               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n",
 		"1",
 		"",
 		JavacTestOptions.JavacHasABug.JavacBug4660984);
@@ -1421,11 +1470,20 @@ public void test048() {
 			"}\n"
 			},
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	label: while (bar()) {\n" +
-		"	^^^^^\n" +
-		"The label label is never explicitly referenced\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (b) {\n" + 
+		"      label: while (bar()) {\n" + 
+		"      }\n" + 
+		"      return null;\n" + 
+		"    }\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	label: while (bar()) {\n" + 
+		"	^^^^^\n" + 
+		"The label label is never explicitly referenced\n" + 
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		"" /* expectedErrorString */,
@@ -1460,7 +1518,16 @@ public void test049() {
 			"}\n"
 			},
 		false /* expectingCompilerErrors */,
-		"" /* expectedCompilerLog */,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (b) {\n" + 
+		"      while (bar()) {\n" + 
+		"      }\n" + 
+		"      return null;\n" + 
+		"    }\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		"" /* expectedErrorString */,
 		false /* forceExecution */,
@@ -1505,6 +1572,300 @@ public void test051_definite_assigment_and_if_true() {
 			"}\n"
 		}
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399
+public void test052() {
+	runNegativeTest(
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(boolean b) {\n" + 
+			"		if (b && false) {\n" + 
+			"			int i = 0; // deadcode\n" + 
+			"			return;  // 1\n" + 
+			"		}\n" + 
+			"		return;\n" +
+			"		return;\n" +
+			"	}\n" +
+			"}	\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	if (b && false) {\n" + 
+		"			int i = 0; // deadcode\n" + 
+		"			return;  // 1\n" + 
+		"		}\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+public void test053() {
+	runNegativeTest(
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(boolean b) {\n" + 
+			"		if (false && b) {\n" + 
+			"			int j = 0; // deadcode\n" + 
+			"			return; // 2\n" + 
+			"		}\n" + 
+			"		return;\n" +
+			"		return;\n" +
+			"	}\n" +
+			"}	\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	if (false && b) {\n" + 
+		"	             ^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	if (false && b) {\n" + 
+		"			int j = 0; // deadcode\n" + 
+		"			return; // 2\n" + 
+		"		}\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+public void test054() {
+	runNegativeTest(
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(boolean b) {\n" + 
+			"		while (true) {\n" + 
+			"			if (true) break;\n" + 
+			"			int k = 0; // deadcode\n" + 
+			"		}\n" + 
+			"		return;\n" +
+			"		return;\n" +
+			"	}\n" +
+			"}	\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	int k = 0; // deadcode\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+public void test055() {
+	runNegativeTest(
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(boolean b) {\n" + 
+			"		if (true || b) {\n" + 
+			"			int l = 0; // deadcode\n" + 
+			"			return; // 2a\n" + 
+			"		}		\n" + 
+			"		return;\n" +
+			"		return;\n" +
+			"	}\n" +
+			"}	\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	if (true || b) {\n" + 
+		"	            ^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+public void test056() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_4) {
+		runNegativeTest(
+			new String[] { /* test files */
+				"X.java",
+				"public class X {\n" + 
+				"	void bar() {\n" + 
+				"		return;\n" + 
+				"		{\n" + 
+				"			return; // 3\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	void baz() {\n" + 
+				"		return;\n" + 
+				"		{\n" + 
+				"		}\n" + 
+				"	}	\n" + 
+				"	void baz2() {\n" + 
+				"		return;\n" + 
+				"		; // 4\n" + 
+				"	}	\n" + 
+				"}	\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	{\n" + 
+			"			return; // 3\n" + 
+			"		}\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unreachable code\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	{\n" + 
+			"		}\n" + 
+			"	^^^^^\n" + 
+			"Unreachable code\n" + 
+			"----------\n");
+		return;
+	}
+	runNegativeTest(
+			new String[] { /* test files */
+				"X.java",
+				"public class X {\n" + 
+				"	void bar() {\n" + 
+				"		return;\n" + 
+				"		{\n" + 
+				"			return; // 3\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	void baz() {\n" + 
+				"		return;\n" + 
+				"		{\n" + 
+				"		}\n" + 
+				"	}	\n" + 
+				"	void baz2() {\n" + 
+				"		return;\n" + 
+				"		; // 4\n" + 
+				"	}	\n" + 
+				"}	\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	{\n" + 
+			"			return; // 3\n" + 
+			"		}\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unreachable code\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	{\n" + 
+			"		}\n" + 
+			"	^^^^^\n" + 
+			"Unreachable code\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 15)\n" + 
+			"	; // 4\n" + 
+			"	^\n" + 
+			"Unreachable code\n" + 
+			"----------\n");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110544
+public void test057() {
+	runNegativeTest(
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(int x, int[] array) {\n" + 
+			"		for (int i = 0; \n" + 
+			"		     i < array.length; \n" + 
+			"		     i++) {//dead code\n" + 
+			"			if (x == array[i])\n" + 
+			"				return;\n" + 
+			"			else\n" + 
+			"				break;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	i++) {//dead code\n" + 
+		"	^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	break;\n" + 
+		"	^^^^^^\n" + 
+		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+public void test058() {
+	runNegativeTest(
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		if (false) {\n" + 
+			"			class Local {\n" + 
+			"				int i = 12;\n" +
+			"				{   i++; }\n" +
+			"				void method() {\n" + 
+			"					if (false)\n" + 
+			"						System.out.println();\n" + 
+			"					return;\n" + 
+			"					return;\n" + 
+			"				}\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	if (false) {\n" + 
+		"			class Local {\n" + 
+		"				int i = 12;\n" + 
+		"				{   i++; }\n" + 
+		"				void method() {\n" + 
+		"					if (false)\n" + 
+		"						System.out.println();\n" + 
+		"					return;\n" + 
+		"					return;\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	class Local {\n" + 
+		"	      ^^^^^\n" + 
+		"The type Local is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 7)\n" + 
+		"	void method() {\n" + 
+		"	     ^^^^^^^^\n" + 
+		"The method method() from the type Local is never used locally\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;

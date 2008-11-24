@@ -125,13 +125,11 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 		// propagate to statements
 		if (this.statements != null) {
-			boolean didAlreadyComplain = false;
+			int complaintLevel = (nonStaticFieldInfoReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 			for (int i = 0, count = this.statements.length; i < count; i++) {
 				Statement stat = this.statements[i];
-				if (!stat.complainIfUnreachable(flowInfo, this.scope, didAlreadyComplain)) {
+				if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel)) < Statement.COMPLAINED_UNREACHABLE) {
 					flowInfo = stat.analyseCode(this.scope, constructorContext, flowInfo);
-				} else {
-					didAlreadyComplain = true;
 				}
 			}
 		}

@@ -107,26 +107,36 @@ public void test011() {
 			"	}	\n" +
 			"} \n"
 		},
-		"----------\n" +
-		"1. ERROR in p1\\X.java (at line 4)\n" +
-		"	while (false);	\n" +
-		"	             ^\n" +
-		"Unreachable code\n" +
-		"----------\n" +
-		"2. ERROR in p1\\X.java (at line 5)\n" +
-		"	while (false) System.out.println(\"unreachable\");	\n" +
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n" +
-		"3. ERROR in p1\\X.java (at line 8)\n" +
-		"	for (;false;);	\n" +
-		"	             ^\n" +
-		"Unreachable code\n" +
-		"----------\n" +
-		"4. ERROR in p1\\X.java (at line 9)\n" +
-		"	for (;false;) System.out.println(\"unreachable\");	\n" +
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unreachable code\n" +
+		"----------\n" + 
+		"1. ERROR in p1\\X.java (at line 4)\n" + 
+		"	while (false);	\n" + 
+		"	             ^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\X.java (at line 5)\n" + 
+		"	while (false) System.out.println(\"unreachable\");	\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"3. ERROR in p1\\X.java (at line 8)\n" + 
+		"	for (;false;);	\n" + 
+		"	             ^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"4. ERROR in p1\\X.java (at line 9)\n" + 
+		"	for (;false;) System.out.println(\"unreachable\");	\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"5. WARNING in p1\\X.java (at line 10)\n" + 
+		"	if (false);	\n" + 
+		"	          ^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"6. WARNING in p1\\X.java (at line 11)\n" + 
+		"	if (false)System.out.println(\"unreachable\");		\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n"
 	);
 }
@@ -777,11 +787,16 @@ public void test027() {
 			"	}	\n"+
 			"}	\n"
 		},
-		"----------\n" +
-		"1. ERROR in p1\\X.java (at line 4)\n" +
-		"	for (;false;p());	\n" +
-		"	                ^\n" +
-		"Unreachable code\n" +
+		"----------\n" + 
+		"1. WARNING in p1\\X.java (at line 4)\n" + 
+		"	for (;false;p());	\n" + 
+		"	            ^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\X.java (at line 4)\n" + 
+		"	for (;false;p());	\n" + 
+		"	                ^\n" + 
+		"Unreachable code\n" + 
 		"----------\n");
 }
 /*
@@ -1223,27 +1238,38 @@ public void test039() {
 			"	}	\n"+
 			"}	\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	for (;false;);	\n" +
-		"	             ^\n" +
-		"Unreachable code\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	for (;false;){}	\n" +
-		"	             ^^\n" +
-		"Unreachable code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 7)\n" +
-		"	while (false);	\n" +
-		"	             ^\n" +
-		"Unreachable code\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 8)\n" +
-		"	while (false){}	\n" +
-		"	             ^^\n" +
-		"Unreachable code\n" +
-		"----------\n");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	for (;false;);	\n" + 
+		"	             ^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	for (;false;){}	\n" + 
+		"	             ^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	while (false);	\n" + 
+		"	             ^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	while (false){}	\n" + 
+		"	             ^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 9)\n" + 
+		"	if (false) {} else {}	\n" + 
+		"	           ^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 10)\n" + 
+		"	if (false) ; else ;			\n" + 
+		"	           ^\n" + 
+		"Dead code\n" + 
+		"----------\n"
+);
 }
 // jls6.5.5.1 - simple type names favor member type over toplevel one.
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=30705

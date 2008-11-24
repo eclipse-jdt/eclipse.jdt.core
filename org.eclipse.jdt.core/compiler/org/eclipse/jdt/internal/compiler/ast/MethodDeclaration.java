@@ -39,11 +39,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		super(compilationResult);
 	}
 
-	public void analyseCode(
-		ClassScope classScope,
-		InitializationFlowContext initializationContext,
-		FlowInfo flowInfo) {
-
+	public void analyseCode(ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo flowInfo) {
 		// starting of the code analysis for methods
 		if (this.ignoreFurtherInvestigation)
 			return;
@@ -83,13 +79,11 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			}
 			// propagate to statements
 			if (this.statements != null) {
-				boolean didAlreadyComplain = false;
+				int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 				for (int i = 0, count = this.statements.length; i < count; i++) {
 					Statement stat = this.statements[i];
-					if (!stat.complainIfUnreachable(flowInfo, this.scope, didAlreadyComplain)) {
+					if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel)) < Statement.COMPLAINED_UNREACHABLE) {
 						flowInfo = stat.analyseCode(this.scope, methodContext, flowInfo);
-					} else {
-						didAlreadyComplain = true;
 					}
 				}
 			}

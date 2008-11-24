@@ -67,7 +67,9 @@ public class AssertStatement extends Statement {
 			// only gets evaluated when escaping - results are not taken into account
 			FlowInfo exceptionInfo = this.exceptionArgument.analyseCode(currentScope, flowContext, assertInfo.copy());
 
-			if (!isOptimizedTrueAssertion){
+			if (isOptimizedTrueAssertion){
+				currentScope.problemReporter().fakeReachable(this.exceptionArgument);
+			} else {
 				flowContext.checkExceptionHandlers(
 					currentScope.getJavaLangAssertionError(),
 					this,

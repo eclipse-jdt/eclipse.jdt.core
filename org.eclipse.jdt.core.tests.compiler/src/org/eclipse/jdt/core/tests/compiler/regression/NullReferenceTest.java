@@ -638,12 +638,17 @@ public void test0030_conditional_expression() {
 			"    o.toString();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Object o = true ? null : null;\n" + 
+			"	                         ^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Null pointer access: The variable o can only be null at this location\n" + 
+			"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -658,12 +663,17 @@ public void test0031_conditional_expression() {
 			"    o.toString();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Object o = true ? null : new Object();\n" + 
+			"	                         ^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Null pointer access: The variable o can only be null at this location\n" + 
+			"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -692,12 +702,17 @@ public void test0033_conditional_expression() {
 			"    o.toString();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Object o = (1 == 1) ? null : new Object();\n" + 
+			"	                             ^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Null pointer access: The variable o can only be null at this location\n" + 
+			"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1604,12 +1619,26 @@ public void test0300_if_else() {
 			"    o.toString();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 13)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	if (false) {\n" + 
+			"      o = new Object();\n" + 
+			"    }\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	else {\n" + 
+			"      o = new Object();\n" + 
+			"    }\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 13)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Null pointer access: The variable o can only be null at this location\n" + 
+			"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7869,7 +7898,12 @@ public void test0954_assert_fake_reachable() {
 				"    if (o == null) { };\n" + 		// quiet
 				"  }\n" +
 				"}\n"},
-		"");
+				"----------\n" + 
+				"1. WARNING in X.java (at line 3)\n" + 
+				"	assert(false && o != null);\n" + 
+				"	                ^^^^^^^^^\n" + 
+				"Dead code\n" + 
+				"----------\n");
 	}
 }
 

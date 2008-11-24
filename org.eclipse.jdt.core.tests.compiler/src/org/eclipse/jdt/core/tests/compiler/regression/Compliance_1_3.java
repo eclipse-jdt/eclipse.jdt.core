@@ -107,18 +107,22 @@ public void test011() {
 			"	}	\n" +
 			"} \n"
 		},
-		"----------\n" +
-		"1. ERROR in p1\\X.java (at line 5)\n" +
-		"	while (false) System.out.println(\"unreachable\");	\n" +
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n" +
-		"2. ERROR in p1\\X.java (at line 9)\n" +
-		"	for (;false;) System.out.println(\"unreachable\");	\n" +
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n"
-	);
+		"----------\n" + 
+		"1. ERROR in p1\\X.java (at line 5)\n" + 
+		"	while (false) System.out.println(\"unreachable\");	\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\X.java (at line 9)\n" + 
+		"	for (;false;) System.out.println(\"unreachable\");	\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"3. WARNING in p1\\X.java (at line 11)\n" + 
+		"	if (false)System.out.println(\"unreachable\");		\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n");
 }
 // binary compatibility
 public void test012() {

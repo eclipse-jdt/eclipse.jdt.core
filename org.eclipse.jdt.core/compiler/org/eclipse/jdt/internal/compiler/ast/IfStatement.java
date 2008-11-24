@@ -53,14 +53,10 @@ public class IfStatement extends Statement {
 		this.sourceEnd = sourceEnd;
 	}
 
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
-
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		// process the condition
-		FlowInfo conditionFlowInfo =
-			this.condition.analyseCode(currentScope, flowContext, flowInfo);
+		FlowInfo conditionFlowInfo = this.condition.analyseCode(currentScope, flowContext, flowInfo);
+		int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 
 		Constant cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
@@ -77,11 +73,9 @@ public class IfStatement extends Statement {
 		}
 		if (this.thenStatement != null) {
 			// Save info for code gen
-			this.thenInitStateIndex =
-				currentScope.methodScope().recordInitializationStates(thenFlowInfo);
-			if (!this.thenStatement.complainIfUnreachable(thenFlowInfo, currentScope, false)) {
-				thenFlowInfo =
-					this.thenStatement.analyseCode(currentScope, flowContext, thenFlowInfo);
+			this.thenInitStateIndex = currentScope.methodScope().recordInitializationStates(thenFlowInfo);
+			if (this.thenStatement.complainIfUnreachable(thenFlowInfo, currentScope, initialComplaintLevel) < Statement.COMPLAINED_UNREACHABLE) {
+				thenFlowInfo = this.thenStatement.analyseCode(currentScope, flowContext, thenFlowInfo);
 			}
 		}
 		// code gen: optimizing the jump around the ELSE part
@@ -98,11 +92,9 @@ public class IfStatement extends Statement {
 		        currentScope.problemReporter().unnecessaryElse(this.elseStatement);
 		    }
 			// Save info for code gen
-			this.elseInitStateIndex =
-				currentScope.methodScope().recordInitializationStates(elseFlowInfo);
-			if (!this.elseStatement.complainIfUnreachable(elseFlowInfo, currentScope, false)) {
-				elseFlowInfo =
-					this.elseStatement.analyseCode(currentScope, flowContext, elseFlowInfo);
+			this.elseInitStateIndex = currentScope.methodScope().recordInitializationStates(elseFlowInfo);
+			if (this.elseStatement.complainIfUnreachable(elseFlowInfo, currentScope, initialComplaintLevel) < Statement.COMPLAINED_UNREACHABLE) {
+				elseFlowInfo = this.elseStatement.analyseCode(currentScope, flowContext, elseFlowInfo);
 			}
 		}
 

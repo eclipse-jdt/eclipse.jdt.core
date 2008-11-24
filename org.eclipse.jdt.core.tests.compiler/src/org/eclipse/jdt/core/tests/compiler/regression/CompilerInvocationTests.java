@@ -547,6 +547,8 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("RedundantSuperinterface", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("AbstractMethodsInConcreteClass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("AbstractMethodInEnum", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("SuperclassNotFound", DEPRECATED);
 		expectedProblemAttributes.put("SuperclassNotVisible", DEPRECATED);
 		expectedProblemAttributes.put("SuperclassAmbiguous", DEPRECATED);
@@ -841,7 +843,6 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("EnumStaticFieldInInInitializerContext", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("EnumConstantMustImplementAbstractMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("EnumConstantCannotDefineAbstractMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
-		expectedProblemAttributes.put("AbstractMethodInEnum", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalExtendedDimensionsForVarArgs", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("MethodVarargsArgumentNeedCast", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ConstructorVarargsArgumentNeedCast", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -1043,6 +1044,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("AmbiguousConstructorInImplicitConstructorCall", SKIP);
 		expectedProblemAttributes.put("UnhandledExceptionInDefaultConstructor", SKIP);
 		expectedProblemAttributes.put("UnhandledExceptionInImplicitConstructorCall", SKIP);
+		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(JavaCore.COMPILER_PB_DEAD_CODE));
 		expectedProblemAttributes.put("ArrayReferenceRequired", SKIP);
 		expectedProblemAttributes.put("NoImplicitStringConversionForCharArrayExpression", new ProblemAttributes(JavaCore.COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION));
 		expectedProblemAttributes.put("StringConstantIsExceedingUtf8Limit", SKIP);
@@ -1174,6 +1176,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("RedundantSuperinterface", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_SUPERINTERFACE));
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_HASHCODE_METHOD));
 		expectedProblemAttributes.put("AbstractMethodsInConcreteClass", SKIP);
+		expectedProblemAttributes.put("AbstractMethodInEnum", SKIP);
 		expectedProblemAttributes.put("SuperclassNotFound", SKIP);
 		expectedProblemAttributes.put("SuperclassNotVisible", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_SUPERINTERFACE));
 		expectedProblemAttributes.put("SuperclassAmbiguous", SKIP);
@@ -1468,7 +1471,6 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("EnumStaticFieldInInInitializerContext", SKIP);
 		expectedProblemAttributes.put("EnumConstantMustImplementAbstractMethod", SKIP);
 		expectedProblemAttributes.put("EnumConstantCannotDefineAbstractMethod", SKIP);
-		expectedProblemAttributes.put("AbstractMethodInEnum", SKIP);
 		expectedProblemAttributes.put("IllegalExtendedDimensionsForVarArgs", SKIP);
 		expectedProblemAttributes.put("MethodVarargsArgumentNeedCast", new ProblemAttributes(JavaCore.COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST));
 		expectedProblemAttributes.put("ConstructorVarargsArgumentNeedCast", new ProblemAttributes(JavaCore.COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST));

@@ -42,10 +42,13 @@ public class ProblemReporter extends ProblemHandler {
 	  CONSTRUCTOR_ACCESS = 0x8,
 	  METHOD_ACCESS = 0xC;
 
+public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
+	super(policy, options, problemFactory);
+}
+
 private static int getElaborationId (int leadProblemId, byte elaborationVariant) {
 	return leadProblemId << 8 | elaborationVariant; // leadProblemId comes into the higher order bytes
 }
-
 public static int getIrritant(int problemID) {
 	switch(problemID){
 
@@ -326,6 +329,9 @@ public static int getIrritant(int problemID) {
 
 		case IProblem.ShouldImplementHashcode:
 			return CompilerOptions.ShouldImplementHashcode;
+			
+		case IProblem.DeadCode:
+			return CompilerOptions.DeadCode;
 	}
 	return 0;
 }
@@ -375,6 +381,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.ComparingIdentical :
 			case CompilerOptions.MissingSynchronizedModifierInInheritedMethod :
 			case CompilerOptions.ShouldImplementHashcode :
+			case CompilerOptions.DeadCode :
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -394,7 +401,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnhandledWarningToken :
 			case CompilerOptions.UnusedWarningToken :
 			case CompilerOptions.UnusedLabel :
-			case CompilerOptions.RedundantSuperinterface :				
+			case CompilerOptions.RedundantSuperinterface :	
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;					
 
 			case CompilerOptions.UsingDeprecatedAPI :
@@ -441,9 +448,6 @@ public static int getProblemCategory(int severity, int problemID) {
 				return CategorizedProblem.CAT_MEMBER;
 	}
 	return CategorizedProblem.CAT_INTERNAL;
-}
-public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
-	super(policy, options, problemFactory);
 }
 public void abortDueToInternalError(String errorMessage) {
 	this.abortDueToInternalError(errorMessage, null);
@@ -1306,6 +1310,7 @@ public void deprecatedField(FieldBinding field, ASTNode location) {
 		nodeSourceStart(field, location),
 		nodeSourceEnd(field, location));
 }
+
 public void deprecatedMethod(MethodBinding method, ASTNode location) {
 	boolean isConstructor = method.isConstructor();
 	int severity = computeSeverity(isConstructor ? IProblem.UsingDeprecatedConstructor : IProblem.UsingDeprecatedMethod);
@@ -1390,7 +1395,6 @@ public void duplicateDefaultCase(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-
 public void duplicateEnumSpecialMethod(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
     MethodBinding method = methodDecl.binding;
 	this.handle(
@@ -1406,6 +1410,7 @@ public void duplicateEnumSpecialMethod(SourceTypeBinding type, AbstractMethodDec
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+
 public void duplicateFieldInType(SourceTypeBinding type, FieldDeclaration fieldDecl) {
 	this.handle(
 		IProblem.DuplicateField,
@@ -1414,7 +1419,6 @@ public void duplicateFieldInType(SourceTypeBinding type, FieldDeclaration fieldD
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-
 public void duplicateImport(ImportReference importRef) {
 	String[] arguments = new String[] {CharOperation.toString(importRef.tokens)};
 	this.handle(
@@ -1424,6 +1428,7 @@ public void duplicateImport(ImportReference importRef) {
 		importRef.sourceStart,
 		importRef.sourceEnd);
 }
+
 public void duplicateInheritedMethods(SourceTypeBinding type, MethodBinding inheritedMethod1, MethodBinding inheritedMethod2) {
 	this.handle(
 		IProblem.DuplicateParameterizedMethods,
@@ -1458,7 +1463,6 @@ public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTN
 		nodeSourceStart(local, location),
 		nodeSourceEnd(local, location));
 }
-
 public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, boolean equalParameters) {
     MethodBinding method = methodDecl.binding;
     if (equalParameters) {
@@ -1496,6 +1500,7 @@ public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclarat
 			methodDecl.sourceEnd);
     }
 }
+
 public void duplicateModifierForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 /* to highlight modifiers use:
 	this.handle(
@@ -1695,6 +1700,21 @@ public void expressionShouldBeAVariable(Expression expression) {
 		NoArgument,
 		expression.sourceStart,
 		expression.sourceEnd);
+}
+public void fakeReachable(ASTNode location) {
+	int sourceStart = location.sourceStart;
+	int sourceEnd = location.sourceEnd;
+	if (location instanceof LocalDeclaration) {
+		LocalDeclaration declaration = (LocalDeclaration) location;
+		sourceStart = declaration.declarationSourceStart;
+		sourceEnd = declaration.declarationSourceEnd;
+	}	
+	this.handle(
+		IProblem.DeadCode,
+		NoArgument,
+		NoArgument,
+		sourceStart,
+		sourceEnd);
 }
 public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 	FieldBinding field = fieldDecl.binding;

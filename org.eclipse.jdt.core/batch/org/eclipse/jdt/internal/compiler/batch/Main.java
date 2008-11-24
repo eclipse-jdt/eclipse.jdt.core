@@ -3139,6 +3139,11 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 					CompilerOptions.OPTION_ReportDiscouragedReference,
 					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 				return;
+			} else if (token.equals("deadCode")) { //$NON-NLS-1$
+				this.options.put(
+					CompilerOptions.OPTION_ReportDeadCode,
+					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				return;
 			}
 			break;
 		case 'e' :
