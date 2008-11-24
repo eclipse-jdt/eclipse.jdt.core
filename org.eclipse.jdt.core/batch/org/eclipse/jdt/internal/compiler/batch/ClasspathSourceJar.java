@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
 
@@ -35,13 +36,22 @@ public class ClasspathSourceJar extends ClasspathJar {
 		ZipEntry sourceEntry = this.zipFile.getEntry(qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java);
 		if (sourceEntry != null) {
 			try {
+				InputStream stream = null;
+				char[] contents = null; 
+				try {
+					stream = this.zipFile.getInputStream(sourceEntry);
+					contents = Util.getInputStreamAsCharArray(stream, -1, this.encoding);
+				} finally {
+					if (stream != null)
+						stream.close();
+				}
 				return new NameEnvironmentAnswer(
-						new CompilationUnit(
-								Util.getInputStreamAsCharArray(this.zipFile.getInputStream(sourceEntry),
-										-1, this.encoding),
-						qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java,
-						this.encoding, this.destinationPath),
-						fetchAccessRestriction(qualifiedBinaryFileName));
+					new CompilationUnit(
+						contents,
+						qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6) + SUFFIX_STRING_java,
+						this.encoding,
+						this.destinationPath),
+					fetchAccessRestriction(qualifiedBinaryFileName));
 			} catch (IOException e) {
 				// treat as if source file is missing
 			}
