@@ -426,6 +426,7 @@ void setSourceStart(int sourceStart);
 	int UnhandledExceptionInImplicitConstructorCall = TypeRelated + 147;
 
 	// expressions
+	/** @since 3.5 */
 	int DeadCode = Internal + 149;
 	int ArrayReferenceRequired = Internal + 150;
 	int NoImplicitStringConversionForCharArrayExpression = Internal + 151;
