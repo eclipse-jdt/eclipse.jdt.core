@@ -172,6 +172,16 @@ public String[] queryDocumentNames(String substring) throws IOException {
 public void remove(String containerRelativePath) {
 	this.memoryIndex.remove(containerRelativePath);
 }
+/**
+ * Reset memory and disk indexes.
+ * 
+ * @throws IOException
+ */
+public void reset(boolean reuseExistingFile) throws IOException {
+	this.memoryIndex = new MemoryIndex();
+	this.diskIndex = new DiskIndex(this.diskIndex.indexFile.getCanonicalPath());
+	this.diskIndex.initialize(reuseExistingFile);
+}
 public void save() throws IOException {
 	// must own the write lock of the monitor
 	if (!hasChanged()) return;

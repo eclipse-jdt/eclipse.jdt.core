@@ -179,8 +179,7 @@ class AddJarFileToIndex extends IndexRequest {
 				// Index the jar for the first time or reindex the jar in case the previous index file has been corrupted
 				// index already existed: recreate it so that we forget about previous entries
 				SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
-				index = this.manager.recreateIndex(this.containerPath);
-				if (index == null) {
+				if (!this.manager.resetIndex(this.containerPath)) {
 					// failed to recreate index, see 73330
 					this.manager.removeIndex(this.containerPath);
 					return false;
