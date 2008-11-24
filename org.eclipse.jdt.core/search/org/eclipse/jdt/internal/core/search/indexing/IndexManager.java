@@ -640,7 +640,7 @@ public synchronized boolean resetIndex(IPath containerPath) {
 			// the index does not exist, try to recreate it
 			return recreateIndex(containerPath) != null;
 		}
-		index.reset(false/*do not reuse index file*/);
+		index.reset();
 		return true;
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
