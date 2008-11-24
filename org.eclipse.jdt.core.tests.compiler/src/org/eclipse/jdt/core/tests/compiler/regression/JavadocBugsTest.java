@@ -8163,4 +8163,48 @@ public void testBug246715() {
 		}
 	);
 }
+
+/**
+ * @bug 254825: [javadoc] compile error when referencing outer param from inner class javadoc
+ * @test Ensure that local variable reference does not imply missing compiler implementation error
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=254825"
+ */
+public void testBug254825() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  public Object foo(Object o) { \n" + 
+			"    return new Object() {\n" + 
+			"      /** @see #o */\n" + 
+			"      public void x() {}\n" + 
+			"    };\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	/** @see #o */\n" + 
+		"	          ^\n" + 
+		"Javadoc: o cannot be resolved or is not a field\n" + 
+		"----------\n"
+	);
+}
+public void testBug254825b() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  /** @see #o */\n" + 
+			"  public Object foo(Object o) {}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	/** @see #o */\n" + 
+		"	          ^\n" + 
+		"Javadoc: o cannot be resolved or is not a field\n" + 
+		"----------\n"
+	);
+}
 }

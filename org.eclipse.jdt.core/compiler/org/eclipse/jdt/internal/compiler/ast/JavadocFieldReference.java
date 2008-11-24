@@ -82,6 +82,11 @@ public class JavadocFieldReference extends FieldReference {
 				} else {
 					ProblemMethodBinding problemMethodBinding = (ProblemMethodBinding) possibleMethod;
 					if (problemMethodBinding.closestMatch == null) {
+						if (fieldBinding.isValidBinding()) {
+							// When the binding is not on a field (e.g. local variable), we need to create a problem field binding to report the correct problem
+							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=254825
+							fieldBinding = new ProblemFieldBinding(refBinding, fieldBinding.readableName(), ProblemReasons.NotFound);
+						}
 						scope.problemReporter().javadocInvalidField(this, fieldBinding, this.actualReceiverType, scope.getDeclarationModifiers());
 					} else {
 						this.methodBinding = problemMethodBinding.closestMatch;
