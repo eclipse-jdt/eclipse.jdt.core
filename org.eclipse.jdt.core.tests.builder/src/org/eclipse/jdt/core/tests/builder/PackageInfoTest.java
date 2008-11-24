@@ -148,6 +148,44 @@ public void test003() throws JavaModelException {
 //    expectingOnlyProblemsFor(packageInfoPath);
 	expectingOnlySpecificProblemFor(packageInfoPath, new Problem("testcase/package-info.java", "The declared package \"\" does not match the expected package \"testcase\"", packageInfoPath, 0, 0, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 }
+
+// test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=252555 : NPE on duplicate package-info
+public void test004() throws JavaModelException {
+    IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
+    env.addExternalJars(projectPath, Util.getJavaClassLibs());
+    fullBuild(projectPath);
+
+    // remove old package fragment root so that names don't collide
+    env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+    IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+    env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+    
+    IPath otherRoot = env.addPackageFragmentRoot(projectPath, "test"); //$NON-NLS-1$
+    env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+    env.addPackage(root, "my.foo");
+    env.addPackage(otherRoot, "my.foo");
+    
+    env.addFile(root, "my/foo/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+    		"/**\n" +
+            "* A demo package for foo.\n" +
+            "*/\n" +
+            "package my.foo;\n"
+        );
+    
+    IPath otherPackageInfoPath = env.addFile(otherRoot, "my/foo/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+            "/**\n" +
+            "* A demo package for foo.\n" +
+            "*/\n" +
+            "package my.foo;\n"
+            );
+
+    incrementalBuild(projectPath);
+	expectingOnlySpecificProblemFor(otherPackageInfoPath, new Problem("my/foo/package-info.java", "The type package-info is already defined", otherPackageInfoPath, 0, 0, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+}
+
+
 protected void assertSourceEquals(String message, String expected, String actual) {
     if (actual == null) {
         assertEquals(message, expected, null);
