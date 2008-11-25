@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2008 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -238,10 +238,10 @@ public class TypesImpl implements Types {
         for (int i = 0; i < typeArgsLength; i++) {
             TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) typeArgs[i];
             Binding binding = typeMirrorImpl._binding;
-            if (!(binding instanceof ReferenceBinding)) {
-                throw new IllegalArgumentException("Invalid type for a type arguments : " + typeMirrorImpl); //$NON-NLS-1$
+            if (!(binding instanceof TypeBinding)) {
+                throw new IllegalArgumentException("Invalid type argument: " + typeMirrorImpl); //$NON-NLS-1$
             }
-            typeArguments[i] = (ReferenceBinding) binding;
+            typeArguments[i] = (TypeBinding) binding;
         }
         return _env.getFactory().newDeclaredType(
                 this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, null));

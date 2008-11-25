@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2008 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.compiler.apt.tests.processors.typeutils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
@@ -63,6 +65,14 @@ public class TypeUtilsProc extends BaseProcessor
 			return false;
 		}
 		
+		if (!examineGetDeclaredTypeParameterized()) {
+			return false;
+		}
+
+		if (!examineGetDeclaredTypeNested()) {
+			return false;
+		}
+
 		reportSuccess();
 		return false;
 	}
@@ -169,7 +179,7 @@ public class TypeUtilsProc extends BaseProcessor
 	
 	/**
 	 * Test the implementation of {@link javax.lang.model.util.Types#getDeclaredType()}
-	 * @return
+	 * @return true if tests passed
 	 */
 	private boolean examineGetDeclaredType() {
 		TypeElement elementD = _elementUtils.getTypeElement("targets.model.pb.D");
@@ -184,8 +194,64 @@ public class TypeUtilsProc extends BaseProcessor
 			reportError("Type of AB and superclass of D are not same type");
 			return false;
 		}
-		// TODO: check getDeclaredType for generic types and for contained types
 		return true;
 	}
+	
+	/**
+	 * Test getDeclaredType() for parameterized types
+	 * @return true if tests passed
+	 */
+	private boolean examineGetDeclaredTypeParameterized() {
+		TypeElement stringDecl = _elementUtils.getTypeElement(String.class.getName());
+		TypeElement mapDecl = _elementUtils.getTypeElement("java.util.Map");
+		DeclaredType stringType = _typeUtils.getDeclaredType(stringDecl);
+		ArrayType stringArrayType = _typeUtils.getArrayType(stringType);
+
+		DeclaredType decl = _typeUtils.getDeclaredType(mapDecl, stringType, stringArrayType);
+		List<? extends TypeMirror> args = decl.getTypeArguments();
+		if (args.size() != 2) {
+			reportError("Map<String, String[]> should have two arguments but decl.getTypeArguments() returned " + args.size());
+			return false;
+		}
+		if (!_typeUtils.isSameType(stringType, args.get(0))) {
+			reportError("First arg of Map<String, String[]> was expected to be String, but was: " + args.get(0));
+			return false;
+		}
+		if (!_typeUtils.isSameType(stringArrayType, args.get(1))) {
+			reportError("Second arg of Map<String, String[]> was expected to be String[], but was: " + args.get(1));
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Test getDeclaredType() for nested parameterized types (Outer&lt;Foo&gt;.Inner&lt;Bar&gt;).
+	 * @return true if tests passed
+	 */
+	private boolean examineGetDeclaredTypeNested() {
+		TypeElement stringDecl = _elementUtils.getTypeElement(String.class.getName());
+		TypeElement numberDecl = _elementUtils.getTypeElement(Number.class.getName());
+		TypeElement mapDecl = _elementUtils.getTypeElement("java.util.HashMap");
+		TypeElement iterDecl = _elementUtils.getTypeElement("java.util.HashMap.HashIterator");
+		DeclaredType stringType = _typeUtils.getDeclaredType(stringDecl);
+		DeclaredType numberType = _typeUtils.getDeclaredType(numberDecl);
+
+		// HashMap<String, Number>
+		DeclaredType outerType = _typeUtils.getDeclaredType(mapDecl, stringType, numberType);
 		
+		// HashMap<String, Number>.HashIterator<Number>
+		DeclaredType decl = _typeUtils.getDeclaredType(outerType, iterDecl, new DeclaredType[] { numberType });
+		
+		List<? extends TypeMirror> args = decl.getTypeArguments();
+		if (args.size() != 1) {
+			reportError("Map<String, Number>.EntryIterator<Number> should have one argument but decl.getTypeArguments() returned " + args.size());
+			return false;
+		}
+		if (!_typeUtils.isSameType(numberType, args.get(0))) {
+			reportError("First arg of Map<String, Number>.EntryIterator<Number> was expected to be Number, but was: " + args.get(0));
+			return false;
+		}
+		return true;
+	}
+
 }
