@@ -3451,4 +3451,41 @@ public void test106() {
 		"Unhandled exception type IOException\n" +
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798
+public void test107() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		C c = new D();\n" +
+			"		c.xyz();\n" +
+			"	}\n" +
+			"}\n" +
+			"class AException extends Exception { }\n" +
+			"class BException extends Exception { }\n" +
+			"interface A { void xyz() throws AException; }\n" +
+			"interface B { void xyz() throws BException; }\n" +
+			"interface C extends A, B { }\n" +
+			"class D implements C {\n" +
+			"	public void xyz() { System.out.println(1); }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	c.xyz();\n" + 
+		"	^^^^^^^\n" + 
+		"Unhandled exception type AException\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	class AException extends Exception { }\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class AException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	class BException extends Exception { }\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class BException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
 }
