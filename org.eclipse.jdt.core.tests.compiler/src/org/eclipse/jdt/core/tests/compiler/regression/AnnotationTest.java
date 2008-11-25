@@ -8663,4 +8663,20 @@ public void test263() {
 			options,
 			null);	
 }
-}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=256035
+public void test264() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"@interface Anno {\n" + 
+			"	String value();\n" + 
+			"}\n" + 
+			"\n" + 
+			"@Anno(X.B)\n" + 
+			"public class X {\n" + 
+			"	public static final String A = \"a\";\n" + 
+			"	public static final String B = A + \"b\";\n" + 
+			"}\n"
+		},
+		"");
+}}
