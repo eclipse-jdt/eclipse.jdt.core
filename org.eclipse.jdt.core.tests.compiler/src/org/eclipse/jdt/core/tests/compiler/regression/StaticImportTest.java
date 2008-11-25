@@ -2489,5 +2489,49 @@ public class StaticImportTest extends AbstractComparableTest {
 			"b.fooC cannot be resolved or is not a field\n" + 
 			"----------\n");
 	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=256375
+	public void test073() {
+		this.runNegativeTest(
+			new String[] {
+				"test/Outer.java",
+				"package test;\n" + 
+				"import static test.Outer.Inner.VALUE;\n" + 
+				"public class Outer {\n" + 
+				"    int i = VALUE;\n" + 
+				"    int i2 = Inner.VALUE;\n" + 
+				"    static class Inner {\n" + 
+				"        private static final int VALUE = 0;\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in test\\Outer.java (at line 2)\n" + 
+			"	import static test.Outer.Inner.VALUE;\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The field Outer.Inner.test.Outer.Inner.VALUE is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\Outer.java (at line 4)\n" + 
+			"	int i = VALUE;\n" + 
+			"	        ^^^^^\n" + 
+			"VALUE cannot be resolved\n" + 
+			"----------\n");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=256375 - variation
+	public void test074() {
+		this.runConformTest(
+			new String[] {
+				"test/Outer.java",
+				"package test;\n" + 
+				"import static test.Outer.Inner.*;\n" + 
+				"public class Outer {\n" + 
+				"    int i = VALUE;\n" + 
+				"    int i2 = Inner.VALUE;\n" + 
+				"    static class Inner {\n" + 
+				"        private static final int VALUE = 0;\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"");
+	}		
 }
 
