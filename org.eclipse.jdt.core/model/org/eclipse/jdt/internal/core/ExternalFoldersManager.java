@@ -162,46 +162,55 @@ public class ExternalFoldersManager {
 			if (!project.exists()) {
 				createExternalFoldersProject(project, monitor);
 			}
-			try {
-				project.open(monitor);
-			} catch (CoreException e1) {
-				if (e1.getStatus().getCode() == IResourceStatus.FAILED_READ_METADATA) {
-					// workspace was moved (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=241400)
-					project.delete(true, monitor);
-					createExternalFoldersProject(project, monitor);
-				} else {
-					// .project or folder on disk have been deleted, recreate them
-					IPath stateLocation = DEBUG ? ResourcesPlugin.getWorkspace().getRoot().getLocation() : JavaCore.getPlugin().getStateLocation();
-					IPath projectPath = stateLocation.append(EXTERNAL_PROJECT_NAME);
-					projectPath.toFile().mkdirs();
-					try {
-					    FileOutputStream output = new FileOutputStream(projectPath.append(".project").toOSString()); //$NON-NLS-1$
-					    try {
-					        output.write((
-					        		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //$NON-NLS-1$
-					        		"<projectDescription>\n" + //$NON-NLS-1$
-					        		"	<name>" + EXTERNAL_PROJECT_NAME + "</name>\n" + //$NON-NLS-1$ //$NON-NLS-2$
-					        		"	<comment></comment>\n" + //$NON-NLS-1$
-					        		"	<projects>\n" + //$NON-NLS-1$
-					        		"	</projects>\n" + //$NON-NLS-1$
-					        		"	<buildSpec>\n" + //$NON-NLS-1$
-					        		"	</buildSpec>\n" + //$NON-NLS-1$
-					        		"	<natures>\n" + //$NON-NLS-1$
-					        		"	</natures>\n" + //$NON-NLS-1$
-					        		"</projectDescription>").getBytes()); //$NON-NLS-1$
-					    } finally {
-					        output.close();
-					    }
-					} catch (IOException e) {
-						// fallback to re-creating the project
-						project.delete(true, monitor);
-						createExternalFoldersProject(project, monitor);
-					}
-				}
-				project.open(monitor);
-			}
+			openExternalFoldersProject(project, monitor);
 		}
 		return project;
+	}
+
+	/*
+	 * Attempt to open the given project (assuming it exists).
+	 * If failing to open, make all attempts to recreate the missing pieces.
+	 */
+	private void openExternalFoldersProject(IProject project, IProgressMonitor monitor) throws CoreException {
+		try {
+			project.open(monitor);
+		} catch (CoreException e1) {
+			if (e1.getStatus().getCode() == IResourceStatus.FAILED_READ_METADATA) {
+				// workspace was moved 
+				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=241400 and https://bugs.eclipse.org/bugs/show_bug.cgi?id=252571 )
+				project.delete(false/*don't delete content*/, true/*force*/, monitor);
+				createExternalFoldersProject(project, monitor);
+			} else {
+				// .project or folder on disk have been deleted, recreate them
+				IPath stateLocation = DEBUG ? ResourcesPlugin.getWorkspace().getRoot().getLocation() : JavaCore.getPlugin().getStateLocation();
+				IPath projectPath = stateLocation.append(EXTERNAL_PROJECT_NAME);
+				projectPath.toFile().mkdirs();
+				try {
+				    FileOutputStream output = new FileOutputStream(projectPath.append(".project").toOSString()); //$NON-NLS-1$
+				    try {
+				        output.write((
+				        		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //$NON-NLS-1$
+				        		"<projectDescription>\n" + //$NON-NLS-1$
+				        		"	<name>" + EXTERNAL_PROJECT_NAME + "</name>\n" + //$NON-NLS-1$ //$NON-NLS-2$
+				        		"	<comment></comment>\n" + //$NON-NLS-1$
+				        		"	<projects>\n" + //$NON-NLS-1$
+				        		"	</projects>\n" + //$NON-NLS-1$
+				        		"	<buildSpec>\n" + //$NON-NLS-1$
+				        		"	</buildSpec>\n" + //$NON-NLS-1$
+				        		"	<natures>\n" + //$NON-NLS-1$
+				        		"	</natures>\n" + //$NON-NLS-1$
+				        		"</projectDescription>").getBytes()); //$NON-NLS-1$
+				    } finally {
+				        output.close();
+				    }
+				} catch (IOException e) {
+					// fallback to re-creating the project
+					project.delete(false/*don't delete content*/, true/*force*/, monitor);
+					createExternalFoldersProject(project, monitor);
+				}
+			}
+			project.open(monitor);
+		}
 	}
 
 
@@ -220,19 +229,26 @@ public class ExternalFoldersManager {
 		if (this.folders == null) {
 			this.folders = new HashMap();
 			IProject project = getExternalFoldersProject();
-			if (project.isAccessible()) {
-				try {
-					IResource[] members = project.members();
-					for (int i = 0, length = members.length; i < length; i++) {
-						IResource member = members[i];
-						if (member.getType() == IResource.FOLDER && member.isLinked() && member.getName().startsWith(LINKED_FOLDER_NAME)) {
-							IPath externalFolderPath = member.getLocation();
-							this.folders.put(externalFolderPath, member);
-						}
+			try {
+				if (!project.isAccessible()) {
+					if (project.exists()) {
+						// workspace was moved (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=252571 )
+						openExternalFoldersProject(project, null/*no progress*/);
+					} else {
+						// if project doesn't exist, do not open and recreate it as it means that there are no external folders
+						return this.folders;
 					}
-				} catch (CoreException e) {
-					Util.log(e, "Exception while initializing external folders"); //$NON-NLS-1$
 				}
+				IResource[] members = project.members();
+				for (int i = 0, length = members.length; i < length; i++) {
+					IResource member = members[i];
+					if (member.getType() == IResource.FOLDER && member.isLinked() && member.getName().startsWith(LINKED_FOLDER_NAME)) {
+						IPath externalFolderPath = member.getLocation();
+						this.folders.put(externalFolderPath, member);
+					}
+				}
+			} catch (CoreException e) {
+				Util.log(e, "Exception while initializing external folders"); //$NON-NLS-1$
 			}
 		}
 		return this.folders;
