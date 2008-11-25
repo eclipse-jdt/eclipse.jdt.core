@@ -870,7 +870,9 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
  * @deprecated
  */
 public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
-	return newTypeHierarchy((IWorkingCopy[])null, monitor);
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=228845, consider any
+	// changes that may exist on primary working copies.
+	return newTypeHierarchy(DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
 /*
  * @see IType#newTypeHierarchy(ICompilationUnit[], IProgressMonitor)

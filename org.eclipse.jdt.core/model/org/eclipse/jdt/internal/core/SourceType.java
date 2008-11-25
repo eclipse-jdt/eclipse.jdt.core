@@ -767,9 +767,9 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
  * @see IType
  */
 public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, null, SearchEngine.createWorkspaceScope(), true);
-	op.runOperation(monitor);
-	return op.getResult();
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=228845, The new type hierarchy should consider changes in primary
+	// working copy. 
+	return newTypeHierarchy(DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
 /*
  * @see IType#newTypeHierarchy(ICompilationUnit[], IProgressMonitor)
