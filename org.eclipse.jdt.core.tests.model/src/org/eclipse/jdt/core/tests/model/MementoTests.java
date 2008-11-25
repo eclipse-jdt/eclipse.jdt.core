@@ -13,8 +13,8 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -65,7 +65,9 @@ protected void assertMemento(String expected, IJavaElement element) {
 		restored);
 }
 protected String getEscapedExternalJCLPath() {
-	String path = getExternalJCLPath().toString();
+	return getEscapedPath(getExternalJCLPath().toString());
+}
+protected String getEscapedPath(String path) {
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0; i < path.length(); i++) {
 		char character = path.charAt(i);
@@ -77,6 +79,12 @@ protected String getEscapedExternalJCLPath() {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
+	Util.createClassFolder(new String[] {
+		"X.java",
+		"public class X {}"
+		}, 
+		getExternalResourcePath("myLib"), 
+		"1.4");
 	this.createJavaProject(
 			"P",
 			new String[] {"src"},
@@ -86,11 +94,13 @@ public void setUpSuite() throws Exception {
 				"/P/lib/myLib.jar",
 				"/OtherProj/lib",
 				"/OtherProj/lib/myLib.jar",
+				getExternalResourcePath("myLib")
 			},
 			"bin");
 }
 public void tearDownSuite() throws Exception {
 	this.deleteProject("P");
+	deleteExternalResource("myLib");
 	super.tearDownSuite();
 }
 /*
@@ -336,6 +346,15 @@ public void testExternalJarClassFileMemento() throws JavaModelException {
 	IClassFile classFile = getClassFile("P", device + separator + "lib.jar", "p", "X.class");
 	assertMemento(
 		"=P/" + device + "\\/lib.jar<p(X.class",
+		classFile);
+}
+/*
+ * Ensures that a class file in an external library folder can be persisted and restored using its memento.
+ */
+public void testExternalLibraryFolderClassFileMemento() throws JavaModelException {
+	IClassFile classFile = getClassFile("P", getExternalResourcePath("myLib"), "", "X.class");
+	assertMemento(
+		"=P/" + getEscapedPath(new Path(getExternalResourcePath("myLib")).toString()) + "<(X.class",
 		classFile);
 }
 /**

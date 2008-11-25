@@ -454,7 +454,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
  */
 protected void getHandleMemento(StringBuffer buff) {
 	IPath path;
-	IResource underlyingResource = resource();
+	IResource underlyingResource = getResource();
 	if (underlyingResource != null) {
 		// internal jar or regular root
 		if (resource().getProject().equals(getJavaProject().getProject())) {
