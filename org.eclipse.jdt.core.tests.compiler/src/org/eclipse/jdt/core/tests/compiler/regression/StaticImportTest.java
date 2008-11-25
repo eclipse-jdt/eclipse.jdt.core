@@ -2490,7 +2490,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=256375
-	public void test073() {
+	public void testONLY_073() {
 		this.runNegativeTest(
 			new String[] {
 				"test/Outer.java",

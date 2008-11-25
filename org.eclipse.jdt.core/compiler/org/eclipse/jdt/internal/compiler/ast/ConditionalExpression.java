@@ -52,7 +52,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		// process the if-true part
 		FlowInfo trueFlowInfo = flowInfo.initsWhenTrue().copy();
 		if (isConditionOptimizedFalse) {
-			if ((trueFlowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0) {
+			if ((mode & FlowInfo.UNREACHABLE) == 0) {
 				currentScope.problemReporter().fakeReachable(this.valueIfTrue);
 				trueFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
 			}
@@ -63,7 +63,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		// process the if-false part
 		FlowInfo falseFlowInfo = flowInfo.initsWhenFalse().copy();
 		if (isConditionOptimizedTrue) {
-			if ((falseFlowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0) {
+			if ((mode & FlowInfo.UNREACHABLE) == 0) {
 				currentScope.problemReporter().fakeReachable(this.valueIfFalse);
 				falseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
 			}

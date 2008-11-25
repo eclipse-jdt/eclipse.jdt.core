@@ -1867,6 +1867,46 @@ public void test058() {
 		"Unreachable code\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+public void test059() {
+	runNegativeTest(
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(boolean b) {\n" + 
+			"		int i = false && b ? 0 : 1;\n" + 
+			"		if (false) {\n" + 
+			"			int j = false && b ? 0 : 1;\n" + 
+			"		}\n" + 
+			"		return;\n" + 
+			"		return;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	int i = false && b ? 0 : 1;\n" + 
+		"	                 ^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	int i = false && b ? 0 : 1;\n" + 
+		"	                     ^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	if (false) {\n" + 
+		"			int j = false && b ? 0 : 1;\n" + 
+		"		}\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
