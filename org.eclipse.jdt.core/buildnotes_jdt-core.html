@@ -47,9 +47,27 @@ Eclipse SDK 3.5M4 - %date% - 3.5 MILESTONE 4
 <br>Project org.eclipse.jdt.core v_927
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_927">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>
+Improved dead code detection by having it (optionally) tolerate trivial IF statement,
+such as <code>if (DEBUG) ...</code>. This extra option is defined by
+<code>JavaCore.COMPILER_PB_DEAD_CODE_IN_TRIVIAL_IF_STATEMENT</code>.
+<pre>
+* Compiler option ID: Reporting Dead Code Inside Trivial If Statement.
+* When enabled, the compiler will signal presence of dead code inside trivial IF statement, e.g. if (DEBUG)...
+* The severity of the problem is controlled with option {@link #COMPILER_PB_DEAD_CODE}.
+* 
+* Option id:"org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement"
+* Possible values:{ "enabled", "disabled" }
+* Default:"disabled"
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=256679">256679</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=256463">256463</a>
+[compiler] Support common debug pattern in unreachable code detection
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=256679">256679</a>
 [perfs] SearchAllTypeNames performance tests are slower on eplnx2
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=228845">228845</a>
 [hierarchy] Type hierarchy should include subtypes in primary working copies
