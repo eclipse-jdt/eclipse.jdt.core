@@ -44,17 +44,17 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 
 	/**
 	 * Additional test class(es).
-	 * 
+	 *
 	 * Classes put in this list will be run only if "add" VM parameter is added
 	 * while running JUnit test suite.
-	 * 
+	 *
 	 * @see #ADD
 	 */
 	public static Class[] getAdditionalTestClasses() {
 		return new Class[] {
 		};
 	}
-	
+
 	/**
 	 * Build test suite.
 	 * All classes suite method are called and bundle to main test suite.
@@ -114,7 +114,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 			buffer.append(TestCase.TESTS_RANGE[1]);
 			buffer.append(";\n");
 		}
-		
+
 		// Verify VM memory arguments: should be -Xmx256M -Xms256M
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMaximumFractionDigits(1);
@@ -144,7 +144,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 			buffer.append(floatFormat.format(((MAX_MEM/1024.0)/1024.0)));
 			buffer.append("M should have been specified.\n");
 		}
-		
+
 		// Display warning message if any
 		if (buffer != null) {
 			System.err.println(buffer.toString());
@@ -197,7 +197,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 			suitesAcronym = RUN_ID;
 		}
 		FullSourceWorkspaceTests.RUN_ID = suitesAcronym; //.toLowerCase();
-		
+
 		// Get tests of suites
 		for (int i = 0; i < length; i++) {
 			Class testClass = testSuites[i];

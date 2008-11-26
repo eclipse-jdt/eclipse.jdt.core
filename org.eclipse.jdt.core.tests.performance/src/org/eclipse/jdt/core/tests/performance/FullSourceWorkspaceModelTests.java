@@ -65,10 +65,10 @@ static {
 //	TESTS_NAMES = new String[] {
 //		"testPerfNameLookupFindKnownSecondaryType",
 //		"testPerfNameLookupFindUnknownType",
-//		"testPerfReconcile", 
+//		"testPerfReconcile",
 //		"testPerfSearchAllTypeNamesAndReconcile",
 //	};
-	
+
 //	TESTS_PREFIX = "testPerfReconcile";
 }
 public static Test suite() {
@@ -109,7 +109,7 @@ private void setUpBigProject() throws CoreException, IOException {
 			BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
 		} else {
 			System.out.println("Create project "+BIG_PROJECT_NAME+" in "+workspaceRoot.getLocation()+":");
-	
+
 			// setup projects with several source folders and several packages per source folder
 			System.out.println("	- create "+FOLDERS_COUNT+" folders x "+PACKAGES_COUNT+" packages...");
 			final String[] sourceFolders = new String[FOLDERS_COUNT];
@@ -172,7 +172,7 @@ private void setUpBigProject() throws CoreException, IOException {
 	} finally {
 		// do not delete project
 	}
-	
+
 }
 private void setUpBigJars() throws Exception {
 	String bigProjectLocation = BIG_PROJECT.getResource().getLocation().toOSString();
@@ -182,7 +182,7 @@ private void setUpBigJars() throws Exception {
 		String[] pathAndContents = new String[size * 2];
 		for (int i = 0; i < size; i++) {
 			pathAndContents[i*2] = "/p" + i + "/X" + i + ".java";
-			pathAndContents[i*2 + 1] = 
+			pathAndContents[i*2 + 1] =
 				"package p" + i + ";\n" +
 				"public class X" + i + "{\n" +
 				"}";
@@ -195,7 +195,7 @@ private void setUpBigJars() throws Exception {
 		String[] pathAndContents = new String[size * 2];
 		for (int i = 0; i < size; i++) {
 			pathAndContents[i*2] = "/q" + i + "/Y" + i + ".java";
-			pathAndContents[i*2 + 1] = 
+			pathAndContents[i*2 + 1] =
 				"package q" + i + ";\n" +
 				"public class Y" + i + "{\n" +
 				"}";
@@ -242,9 +242,9 @@ protected void search(String patternString, int searchFor, int limitTo) throws C
 		? SearchPattern.R_PATTERN_MATCH
 		: SearchPattern.R_EXACT_MATCH;
 	SearchPattern pattern = SearchPattern.createPattern(
-		patternString, 
+		patternString,
 		searchFor,
-		limitTo, 
+		limitTo,
 		matchMode | SearchPattern.R_CASE_SENSITIVE);
 	this.resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -260,7 +260,7 @@ protected void searchAllTypeNames(IJavaSearchScope scope) throws CoreException {
 	class TypeNameCounter extends TypeNameRequestor {
 		int count = 0;
 		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
-			count++;
+			this.count++;
 		}
 	}
 	TypeNameCounter requestor = new TypeNameCounter();
@@ -343,7 +343,7 @@ private NameLookup getNameLookup(JavaProject project) throws JavaModelException 
 
 /**
  * Performance tests for model: Find known type in name lookup.
- * 
+ *
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
@@ -372,7 +372,7 @@ public void testNameLookupFindKnownType() throws CoreException {
 		}
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -380,7 +380,7 @@ public void testNameLookupFindKnownType() throws CoreException {
 
 /**
  * Performance tests for model: Find known secondary type in name lookup.
- * 
+ *
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
@@ -411,7 +411,7 @@ public void testNameLookupFindKnownSecondaryType() throws CoreException {
 		}
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -419,7 +419,7 @@ public void testNameLookupFindKnownSecondaryType() throws CoreException {
 
 /**
  * Performance tests for model: Find Unknown type in name lookup.
- * 
+ *
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
@@ -448,7 +448,7 @@ public void testNameLookupFindUnknownType() throws CoreException {
 		}
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -456,7 +456,7 @@ public void testNameLookupFindUnknownType() throws CoreException {
 
 /**
  * Performance tests for model: Find known type.
- * 
+ *
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
@@ -484,7 +484,7 @@ public void testProjectFindKnownType() throws CoreException {
 		}
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -492,7 +492,7 @@ public void testProjectFindKnownType() throws CoreException {
 
 /**
  * Performance tests for model: Find known member type.
- * 
+ *
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
@@ -523,7 +523,7 @@ public void testProjectFindKnownMemberType() throws CoreException {
 		}
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -531,7 +531,7 @@ public void testProjectFindKnownMemberType() throws CoreException {
 
 /**
  * Performance tests for model: Find known secondary type.
- * 
+ *
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
@@ -558,7 +558,7 @@ public void testProjectFindKnownSecondaryType() throws CoreException {
 		}
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -566,7 +566,7 @@ public void testProjectFindKnownSecondaryType() throws CoreException {
 
 /**
  * Performance tests for model: Find Unknown type.
- * 
+ *
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
@@ -594,7 +594,7 @@ public void testProjectFindUnknownType() throws CoreException {
 		}
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -603,20 +603,20 @@ public void testProjectFindUnknownType() throws CoreException {
 /*
  * Performance tests for model: Find Unknown type after resetting the classpath
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=217059 )
- * 
+ *
  */
 public void testProjectFindUnknownTypeAfterSetClasspath() throws CoreException {
 	tagAsSummary("Find unknown type in project after resetting classpath", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
 	AbstractJavaModelTests.waitUntilIndexesReady();
-	
+
 	// First findType populates the package fragment roots in the Java model cache
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.')+".Unknown";
 	IType type = BIG_PROJECT.findType(fullQualifiedName);
 	assertNull("We should not find an unknown type in project "+BIG_PROJECT_NAME, type);
-	
+
 	// Reset classpath
 	BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
 
@@ -635,7 +635,7 @@ public void testProjectFindUnknownTypeAfterSetClasspath() throws CoreException {
 		}
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -683,7 +683,7 @@ public void testPerfReconcile() throws CoreException {
 	finally {
 		workingCopy.discardWorkingCopy();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -696,25 +696,25 @@ public void testPerfReconcile() throws CoreException {
  */
 public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException {
 	tagAsSummary("Reconcile editor change on big file with syntax error", false); // do NOT put in fingerprint
-	
+
 	// build big file contents
 	String method =
 		"() {\n" +
 		"  bar(\n" +
-		"    \"public class X <E extends Exception> {\\n\" + \r\n" + 
-		"	 \"    void foo(E e) throws E {\\n\" + \r\n" + 
-		"	 \"        throw e;\\n\" + \r\n" + 
-		"	 \"    }\\n\" + \r\n" + 
-		"	 \"    void bar(E e) {\\n\" + \r\n" + 
-		"	 \"        try {\\n\" + \r\n" + 
-		"	 \"            foo(e);\\n\" + \r\n" + 
-		"	 \"        } catch(Exception ex) {\\n\" + \r\n" + 
-		"	 \"	        System.out.println(\\\"SUCCESS\\\");\\n\" + \r\n" + 
-		"	 \"        }\\n\" + \r\n" + 
-		"	 \"    }\\n\" + \r\n" + 
-		"	 \"    public static void main(String[] args) {\\n\" + \r\n" + 
-		"	 \"        new X<Exception>().bar(new Exception());\\n\" + \r\n" + 
-		"	 \"    }\\n\" + \r\n" + 
+		"    \"public class X <E extends Exception> {\\n\" + \r\n" +
+		"	 \"    void foo(E e) throws E {\\n\" + \r\n" +
+		"	 \"        throw e;\\n\" + \r\n" +
+		"	 \"    }\\n\" + \r\n" +
+		"	 \"    void bar(E e) {\\n\" + \r\n" +
+		"	 \"        try {\\n\" + \r\n" +
+		"	 \"            foo(e);\\n\" + \r\n" +
+		"	 \"        } catch(Exception ex) {\\n\" + \r\n" +
+		"	 \"	        System.out.println(\\\"SUCCESS\\\");\\n\" + \r\n" +
+		"	 \"        }\\n\" + \r\n" +
+		"	 \"    }\\n\" + \r\n" +
+		"	 \"    public static void main(String[] args) {\\n\" + \r\n" +
+		"	 \"        new X<Exception>().bar(new Exception());\\n\" + \r\n" +
+		"	 \"    }\\n\" + \r\n" +
 		"	 \"}\\n\"" +
 		"  );\n" +
 		"}\n";
@@ -727,20 +727,20 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
 		bigContents.append(method);
 	}
 	// don't add closing } for class def so as to have a syntax error
-	
+
 	ICompilationUnit workingCopy = null;
 	try {
 		// Setup
 		workingCopy = (ICompilationUnit) JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getFile(new Path("/BigProject/src/org/eclipse/jdt/core/tests/BigCu.java")));
 		workingCopy.becomeWorkingCopy(null);
-		
+
 		// Warm up
 		int warmup = WARMUP_COUNT / 10;
 		for (int i=0; i<warmup; i++) {
 			workingCopy.getBuffer().setContents(bigContents.append("a").toString());
 			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
 		}
-	
+
 		// Measures
 		resetCounters();
 		for (int i=0; i<MEASURES_COUNT; i++) {
@@ -750,11 +750,11 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
 			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
-		assertPerformance();		
-		
+		assertPerformance();
+
 	} finally {
 		if (workingCopy != null)
 			workingCopy.discardWorkingCopy();
@@ -767,7 +767,7 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
  */
 public void testReconcileDuplicates() throws JavaModelException {
 	tagAsSummary("Reconcile editor change on file with lots of duplicates", false); // do NOT put in fingerprint
-	
+
 	// build big file contents
 	StringBuffer contents = new StringBuffer();
 	contents.append("public class CUWithDuplicates {\n");
@@ -777,20 +777,20 @@ public void testReconcileDuplicates() throws JavaModelException {
 		contents.append(fooIndex++);
 	}
 	contents.append("} //"); // ensure it ends with a line comment that is edited below
-	
+
 	ICompilationUnit workingCopy = null;
 	try {
 		// Setup
 		workingCopy = (ICompilationUnit) JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getFile(new Path("/BigProject/src/CUWithDuplicates.java")));
 		workingCopy.becomeWorkingCopy(null);
-		
+
 		// Warm up
 		int warmup = WARMUP_COUNT / 10;
 		for (int i=0; i<warmup; i++) {
 			workingCopy.getBuffer().setContents(contents.append('a').toString());
 			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
 		}
-	
+
 		// Measures
 		resetCounters();
 		for (int i=0; i<MEASURES_COUNT; i++) {
@@ -800,11 +800,11 @@ public void testReconcileDuplicates() throws JavaModelException {
 			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
-		assertPerformance();		
-		
+		assertPerformance();
+
 	} finally {
 		if (workingCopy != null)
 			workingCopy.discardWorkingCopy();
@@ -817,7 +817,7 @@ public void testReconcileDuplicates() throws JavaModelException {
  */
 public void testPerfBatchCreatePackageAndReconcile() throws CoreException {
 	tagAsSummary("Reconcile editor change after creating a package fragment in a batch operation", false); // do NOT put in fingerprint
-	
+
 	IJavaProject project = null;
 	try {
 		project = createJavaProject("P234718");
@@ -831,14 +831,14 @@ public void testPerfBatchCreatePackageAndReconcile() throws CoreException {
 			}, null);
 		final IPackageFragmentRoot root = project.getPackageFragmentRoot(project.getProject());
 		ICompilationUnit workingCopy  = root.getPackageFragment("").createCompilationUnit(
-			"X.java", 
+			"X.java",
 			"public class  {\n" +
 			"}"
 			, false, null);
 		workingCopy.becomeWorkingCopy(null);
 		AbstractJavaModelTests.waitUntilIndexesReady();
 		AbstractJavaModelTests.waitForAutoBuild();
-	
+
 		// Warm up
 		try {
 			final ICompilationUnit copy = workingCopy;
@@ -857,7 +857,7 @@ public void testPerfBatchCreatePackageAndReconcile() throws CoreException {
 			} finally {
 				root.getPackageFragment("p2").delete(false/*don't force*/, null);
 			}
-	
+
 			// Measures
 			resetCounters();
 			runnable = new IWorkspaceRunnable(){
@@ -884,11 +884,11 @@ public void testPerfBatchCreatePackageAndReconcile() throws CoreException {
 		finally {
 			workingCopy.discardWorkingCopy();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
-		
+
 	} finally {
 		if (project != null)
 			project.getProject().delete(true, null);
@@ -942,7 +942,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 	finally {
 		workingCopy.discardWorkingCopy();
 	}
-	
+
 	// Commit
 	commitMeasurements();
 	assertPerformance();
@@ -954,7 +954,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
  * (see bug 190094 Java Outline Causes Eclipse Lock-up.)
  */
 public void testPopulateTwoBigJars() throws CoreException {
-	
+
 	IJavaProject project = null;
 	try {
 		project = createJavaProject("HugeJarProject");
@@ -969,7 +969,7 @@ public void testPopulateTwoBigJars() throws CoreException {
 		AbstractJavaModelTests.waitForAutoBuild();
 		IPackageFragmentRoot root1 = project.getPackageFragmentRoot(bigJar1);
 		IPackageFragmentRoot root2 = project.getPackageFragmentRoot(bigJar2);
-		
+
 		// warm up
 		int max = 20;
 		int warmup = WARMUP_COUNT / 10;
@@ -980,7 +980,7 @@ public void testPopulateTwoBigJars() throws CoreException {
 				root2.getPackageFragment("q" + j).open(null);
 			}
 		}
-			
+
 		// measure performance
 		for (int i = 0; i < MEASURES_COUNT; i++) {
 			project.close();
@@ -992,7 +992,7 @@ public void testPopulateTwoBigJars() throws CoreException {
 			}
 			stopMeasuring();
 		}
-	
+
 		commitMeasurements();
 		assertPerformance();
 	} finally {
@@ -1015,15 +1015,15 @@ public void testSeekPackageFragments() throws CoreException {
 		public void acceptMemberType(IType type) {}
 		public void acceptMethod(IMethod method) {}
 		public void acceptPackageFragment(IPackageFragment packageFragment) {
-			if (pkgs != null)
-				pkgs.add(packageFragment);
+			if (this.pkgs != null)
+				this.pkgs.add(packageFragment);
 		}
 		public void acceptType(IType type) {}
 		public boolean isCanceled() {
 			return false;
 		}
 	}
-	
+
 	// first pass: ensure all class are loaded, and ensure that the test works as expected
 	PackageRequestor requestor = new PackageRequestor();
 	for (int i=0; i<WARMUP_COUNT; i++) {
@@ -1039,7 +1039,7 @@ public void testSeekPackageFragments() throws CoreException {
 			);
 		}
 	}
-	
+
 	// measure performance
 	requestor.pkgs = null;
 	resetCounters();
@@ -1097,7 +1097,7 @@ public void testCreateJavaElement() throws CoreException {
 	// setup (force the project cache to be created)
 	IFile file = (IFile) WORKING_COPY.getResource();
 	getNameLookup(BIG_PROJECT);
-	
+
 	// warm up
 	int warmup = WARMUP_COUNT / 10;
 	int iterations = 5000;
@@ -1106,7 +1106,7 @@ public void testCreateJavaElement() throws CoreException {
 			JavaCore.create(file);
 		}
 	}
-		
+
 	// measure performance
 	for (int i = 0; i < MEASURES_COUNT; i++) {
 		runGc();
@@ -1135,7 +1135,7 @@ public void testInitJDTPlugin() throws JavaModelException, CoreException {
 	// Measures
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		// shutdwon
-		simulateExit();			
+		simulateExit();
 		runGc();
 		startMeasuring();
 		// restart
@@ -1154,16 +1154,16 @@ public void testInitJDTPlugin() throws JavaModelException, CoreException {
  * (see bug 161175 JarPackageFragmentRoot slow to initialize)
  */
 public void testFindType() throws CoreException {
-	
+
 	IJavaModel model = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot());
 	IJavaProject[] existingProjects = model.getJavaProjects();
-	
+
 	try {
 		// close existing projects
 		for (int i = 0, length = existingProjects.length; i < length; i++) {
 			existingProjects[i].getProject().close(null);
 		}
-	
+
 		// get 20 projects
 		int max = 20;
 		IJavaProject[] projects = new IJavaProject[max];
@@ -1172,7 +1172,7 @@ public void testFindType() throws CoreException {
 		}
 		AbstractJavaModelTests.waitUntilIndexesReady();
 		AbstractJavaModelTests.waitForAutoBuild();
-		
+
 		try {
 			// warm up
 			int warmup = WARMUP_COUNT / 10;
@@ -1182,7 +1182,7 @@ public void testFindType() throws CoreException {
 					projects[j].findType("java.lang.Object");
 				}
 			}
-				
+
 			// measure performance
 			for (int i = 0; i < MEASURES_COUNT; i++) {
 				model.close();
@@ -1193,7 +1193,7 @@ public void testFindType() throws CoreException {
 				}
 				stopMeasuring();
 			}
-		
+
 			commitMeasurements();
 			assertPerformance();
 		} finally {
@@ -1214,7 +1214,7 @@ public void testFindType() throws CoreException {
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=190840 )
  */
 public void testGetSourceBigJarNoAttachment() throws CoreException {
-	
+
 	IJavaProject project = null;
 	try {
 		project = createJavaProject("HugeJarProject");
@@ -1227,7 +1227,7 @@ public void testGetSourceBigJarNoAttachment() throws CoreException {
 		AbstractJavaModelTests.waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(bigJar1);
 		IClassFile classFile = root.getPackageFragment("p0").getClassFile("X0.class");
-		
+
 		// warm up
 		int max = 20;
 		int warmup = WARMUP_COUNT / 10;
@@ -1237,7 +1237,7 @@ public void testGetSourceBigJarNoAttachment() throws CoreException {
 				classFile.getSource();
 			}
 		}
-			
+
 		// measure performance
 		for (int i = 0; i < MEASURES_COUNT; i++) {
 			runGc();
@@ -1248,7 +1248,7 @@ public void testGetSourceBigJarNoAttachment() throws CoreException {
 			}
 			stopMeasuring();
 		}
-	
+
 		commitMeasurements();
 		assertPerformance();
 	} finally {

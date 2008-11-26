@@ -75,7 +75,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
         if (LOG_DIR != null) {
             logPerfResult(LOG_STREAMS, TESTS_COUNT);
         }
-		
+
 		// Print statistics
         if (TESTS_COUNT == 0) {
 			System.out.println("-------------------------------------");
@@ -540,7 +540,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Create AST nodes tree for a given compilation unit at a JLS given level
-	 * 
+	 *
 	 * @deprecated
 	 */
 	private void createAST(ICompilationUnit unit, int astLevel) throws JavaModelException {
@@ -571,7 +571,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 			CompilationUnit compilationUnit = (CompilationUnit) result;
 			CommentMapperASTVisitor visitor = new CommentMapperASTVisitor(compilationUnit);
 			compilationUnit.accept(visitor);
-			nodesCount += visitor.nodes * iterations;
+			this.nodesCount += visitor.nodes * iterations;
 		}
 
 		// Commit
@@ -667,7 +667,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
-				
+
 		Map options= javaProject.getOptions(true);
 		// turn all errors and warnings into ignore. The customizable set of compiler
 		// options only contains additional Eclipse options. The standard JDK compiler
@@ -685,7 +685,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		}
 		options.put(JavaCore.COMPILER_TASK_TAGS, "");
 		parser.setCompilerOptions(options);
-		
+
 		List units = getProjectCompilationUnits(javaProject);
 		ICompilationUnit[] compilationUnits = new ICompilationUnit[units.size()];
 		units.toArray(compilationUnits);
@@ -723,10 +723,10 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		commitMeasurements();
 		assertPerformance();
 	}
-	
+
 	/**
 	 * Create AST nodes tree for all compilation units in JUnit project.
-	 * 
+	 *
 	 * @throws JavaModelException
 	 */
 	public void testDomAstCreationProjectJLS3() throws JavaModelException {

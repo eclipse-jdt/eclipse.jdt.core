@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 /**
  */
 public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests {
-	
+
 	// Counters
 	private static final int WARMUP_COUNT = 10;
 	private static final int ITERATION_COUNT = 40;
@@ -81,11 +81,11 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 			}
 			System.out.println("-------------------------------------\n");
 		}
-		
+
 		// Call super at the end as it close print streams
 		super.tearDown();
 	}
-	
+
 	class TestCompletionRequestor extends CompletionRequestor {
 		public void accept(CompletionProposal proposal) {
 			PROPOSAL_COUNTS[TESTS_LENGTH-TESTS_COUNT]++;
@@ -118,24 +118,24 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 			int[] ignoredKinds,
 			int warmupCount,
 			int iterationCount) throws JavaModelException {
-		
+
 		AbstractJavaModelTests.waitUntilIndexesReady();
-		
+
 		TestCompletionRequestor requestor = new TestCompletionRequestor();
 		if(ignoredKinds != null) {
 			for (int i = 0; i < ignoredKinds.length; i++) {
 				requestor.setIgnored(ignoredKinds[i], true);
 			}
 		}
-		
+
 		ICompilationUnit unit =
 			getCompilationUnit(projectName, packageName, unitName);
-		
+
 		String str = unit.getSource();
 		int completionIndex = str.indexOf(completeAt) + completeBehind.length();
-		
+
 		if (DEBUG) System.out.print("Perform code assist inside " + unitName + "...");
-		
+
 		// Warm up
 		if(warmupCount > 0) {
 			unit.codeComplete(completionIndex, requestor);
@@ -157,12 +157,12 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 			stopMeasuring();
 		}
 		if (DEBUG) System.out.println("done!");
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
 	}
-	
+
 	public void testPerfCompleteMethodDeclaration() throws JavaModelException {
 		complete(
 				"org.eclipse.jdt.core",

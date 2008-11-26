@@ -21,9 +21,9 @@ import junit.framework.TestSuite;
 public class OneTest extends TestCase {
 
 		public static Test suite() {
-			return new TestSuite(OneTest.class);	
+			return new TestSuite(OneTest.class);
 		}
-		
+
 		public void test1() {
 			assertTrue(true);
 		}

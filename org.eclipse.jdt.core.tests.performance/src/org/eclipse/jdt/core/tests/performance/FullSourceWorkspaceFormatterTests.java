@@ -119,10 +119,10 @@ public void testFormatDefault() throws JavaModelException {
 			new DefaultCodeFormatter().format(CodeFormatter.K_COMPILATION_UNIT, source, 0, source.length(), 0, null);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
-	assertPerformance();		
+	assertPerformance();
 }
 
 /**
@@ -151,10 +151,10 @@ public void testFormatDefaultBigFile() {
 		new DefaultCodeFormatter().format(CodeFormatter.K_COMPILATION_UNIT, source, 0, source.length(), 0, null);
 		stopMeasuring();
 	}
-	
+
 	// Commit
 	commitMeasurements();
-	assertPerformance();		
+	assertPerformance();
 }
 
 protected void resetCounters() {

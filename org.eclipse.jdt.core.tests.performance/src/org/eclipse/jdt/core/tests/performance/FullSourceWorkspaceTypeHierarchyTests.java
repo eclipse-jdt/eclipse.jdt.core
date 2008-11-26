@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.search.*;
 /**
  */
 public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
-	
+
     // Tests counter
     private static int TESTS_COUNT = 0;
 	private final static int WARMUP_COUNT = 5;
@@ -72,7 +72,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 		if (LOG_DIR != null) {
 			logPerfResult(LOG_STREAMS, TESTS_COUNT);
 		}
-		
+
 		// Call super at the end as it close print streams
 		super.tearDown();
 	}
@@ -86,7 +86,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 			this.count++;
 		}
 	}
-	
+
 	protected JavaSearchResultCollector resultCollector;
 
 	public void testPerfAllTypes() throws CoreException {
@@ -112,12 +112,12 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 			unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses();
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
 	}
-	
+
 	/*
 	 * A direct subclass of org.eclipse.jface.text.templates.TemplateVariableResolver is called Collection.
 	 * Collection is also an interface that is the root of a deep hierarchy in java.util.
@@ -145,7 +145,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 			type.newTypeHierarchy(null);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
