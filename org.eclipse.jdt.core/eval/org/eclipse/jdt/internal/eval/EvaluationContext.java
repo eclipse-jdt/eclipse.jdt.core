@@ -39,11 +39,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class EvaluationContext implements EvaluationConstants, SuffixConstants {
 	/**
-	 * Whether timing information should be output to the stdout
-	 */
-	static final boolean TIMING = false;
-
-	/**
 	 * Global counters so that several evaluation context can deploy on the same runtime.
 	 */
 	static int VAR_CLASS_COUNTER = 0;
@@ -281,14 +276,7 @@ public void evaluate(
 					options,
 					requestor,
 					problemFactory);
-			ClassFile[] classes = null;
-			if (TIMING) {
-				long start = System.currentTimeMillis();
-				classes = evaluator.getClasses();
-				System.out.println("Time to compile [" + new String(codeSnippet) + "] was " + (System.currentTimeMillis() - start) + "ms"); //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
-			} else {
-				classes = evaluator.getClasses();
-			}
+			ClassFile[] classes = evaluator.getClasses();
 			// Send code snippet on target
 			if (classes != null && classes.length > 0) {
 				char[] simpleClassName = evaluator.getClassName();

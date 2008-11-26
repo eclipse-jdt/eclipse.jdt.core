@@ -36,7 +36,6 @@ import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ExternalFoldersManager {
-	private static final boolean DEBUG = false;
 	private static final String EXTERNAL_PROJECT_NAME = ".org.eclipse.jdt.core.external.folders"; //$NON-NLS-1$
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
 	private HashMap folders;
@@ -182,7 +181,7 @@ public class ExternalFoldersManager {
 				createExternalFoldersProject(project, monitor);
 			} else {
 				// .project or folder on disk have been deleted, recreate them
-				IPath stateLocation = DEBUG ? ResourcesPlugin.getWorkspace().getRoot().getLocation() : JavaCore.getPlugin().getStateLocation();
+				IPath stateLocation = JavaCore.getPlugin().getStateLocation();
 				IPath projectPath = stateLocation.append(EXTERNAL_PROJECT_NAME);
 				projectPath.toFile().mkdirs();
 				try {
@@ -218,7 +217,7 @@ public class ExternalFoldersManager {
 		IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
 		IPath stateLocation = JavaCore.getPlugin().getStateLocation();
 		desc.setLocation(stateLocation.append(EXTERNAL_PROJECT_NAME));
-		project.create(DEBUG ? null : desc, DEBUG ? IResource.NONE : IResource.HIDDEN, monitor);
+		project.create(desc, IResource.HIDDEN, monitor);
 	}
 
 	public synchronized IFolder getFolder(IPath externalFolderPath) {
