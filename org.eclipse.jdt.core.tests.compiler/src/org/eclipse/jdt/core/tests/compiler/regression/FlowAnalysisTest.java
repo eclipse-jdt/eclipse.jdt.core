@@ -1471,16 +1471,7 @@ public void test048() {
 			},
 		false /* expectingCompilerErrors */,
 		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	if (b) {\n" + 
-		"      label: while (bar()) {\n" + 
-		"      }\n" + 
-		"      return null;\n" + 
-		"    }\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 5)\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
 		"	label: while (bar()) {\n" + 
 		"	^^^^^\n" + 
 		"The label label is never explicitly referenced\n" + 
@@ -1518,16 +1509,7 @@ public void test049() {
 			"}\n"
 			},
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	if (b) {\n" + 
-		"      while (bar()) {\n" + 
-		"      }\n" + 
-		"      return null;\n" + 
-		"    }\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
-		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		"" /* expectedErrorString */,
 		false /* forceExecution */,
@@ -1902,6 +1884,75 @@ public void test059() {
 		"Dead code\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 8)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+public void test060() {
+	runNegativeTest(
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"	static final boolean DEBUG = false;\n" + 
+			"	static final int DEBUG_LEVEL = 0;\n" + 
+			"	boolean check() { return true; }\n" + 
+			"	void foo(boolean b) {\n" + 
+			"		if (DEBUG)\n" + 
+			"			System.out.println(\"fake reachable1\"); //$NON-NLS-1$\n" + 
+			"		if (DEBUG && b)\n" + 
+			"			System.out.println(\"fake reachable2\"); //$NON-NLS-1$\n" + 
+			"		if (DEBUG && check())\n" + 
+			"			System.out.println(\"fake reachable3\"); //$NON-NLS-1$\n" + 
+			"		if (b && DEBUG)\n" + 
+			"			System.out.println(\"fake reachable4\"); //$NON-NLS-1$\n" + 
+			"		if (check() && DEBUG)\n" + 
+			"			System.out.println(\"fake reachable5\"); //$NON-NLS-1$\n" + 
+			"		if (DEBUG_LEVEL > 1) \n" + 
+			"			System.out.println(\"fake reachable6\"); //$NON-NLS-1$\n" + 
+			"		return;\n" + 
+			"		return;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	if (DEBUG && b)\n" + 
+		"	             ^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	System.out.println(\"fake reachable2\"); //$NON-NLS-1$\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 10)\n" + 
+		"	if (DEBUG && check())\n" + 
+		"	             ^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 11)\n" + 
+		"	System.out.println(\"fake reachable3\"); //$NON-NLS-1$\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 13)\n" + 
+		"	System.out.println(\"fake reachable4\"); //$NON-NLS-1$\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 15)\n" + 
+		"	System.out.println(\"fake reachable5\"); //$NON-NLS-1$\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 17)\n" + 
+		"	System.out.println(\"fake reachable6\"); //$NON-NLS-1$\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 19)\n" + 
 		"	return;\n" + 
 		"	^^^^^^^\n" + 
 		"Unreachable code\n" + 

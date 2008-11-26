@@ -1013,6 +1013,19 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_DEAD_CODE = PLUGIN_ID + ".compiler.problem.deadCode"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Reporting Dead Code Inside Trivial If Statement.
+	 * <p>When enabled, the compiler will signal presence of dead code inside trivial IF statement, e.g. <code>if (DEBUG)...</code>..
+	 * <p>The severity of the problem is controlled with option {@link #COMPILER_PB_DEAD_CODE}.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>	
+	 * </dl>
+	 * @since 3.5
+	 * @category CompilerOptionID
+	 */	
+	public static final String COMPILER_PB_DEAD_CODE_IN_TRIVIAL_IF_STATEMENT = PLUGIN_ID + ".compiler.problem.deadCodeInTrivialIfStatement"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Reporting Incomplete Enum Switch.
 	 * <p>When enabled, the compiler will issue an error or a warning whenever
 	 *    an enum constant has no corresponding case label in an enum switch

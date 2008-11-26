@@ -3084,6 +3084,14 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 					CompilerOptions.OPTION_ReportAssertIdentifier,
 					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 				return;
+			} else if (token.equals("allDeadCode")) { //$NON-NLS-1$
+				this.options.put(
+						CompilerOptions.OPTION_ReportDeadCode,
+						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					this.options.put(
+						CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement,
+						isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+					return;
 			}
 			break;
 		case 'b' :
@@ -3143,6 +3151,9 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 				this.options.put(
 					CompilerOptions.OPTION_ReportDeadCode,
 					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				this.options.put(
+					CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement,
+					CompilerOptions.DISABLED);
 				return;
 			}
 			break;

@@ -124,6 +124,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportMissingSynchronizedOnInheritedMethod =  "org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingHashCodeMethod =  "org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeadCode =  "org.eclipse.jdt.core.compiler.problem.deadCode"; //$NON-NLS-1$
+	public static final String OPTION_ReportDeadCodeInTrivialIfStatement =  "org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement"; //$NON-NLS-1$
 
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -292,6 +293,8 @@ public class CompilerOptions {
 	public boolean reportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable;
 	/** Specify whether should report constructor/setter method parameter hiding */
 	public boolean reportSpecialParameterHidingField;
+	/** Specify whether trivial deadcode pattern is to be reported (e.g. if (DEBUG) ...) */
+	public boolean reportDeadCodeInTrivialIfStatement;
 	/** Master flag controlling whether doc comment should be processed */
 	public boolean docCommentSupport;
 	/** Specify if invalid javadoc shall be reported */
@@ -352,6 +355,32 @@ public class CompilerOptions {
 		"unqualified-field-access", //$NON-NLS-1$
 		"unused", //$NON-NLS-1$
 	};
+
+	/**
+	 * Initializing the compiler options with defaults
+	 */
+	public CompilerOptions(){
+		this(null); // use default options
+	}
+
+	/**
+	 * Initializing the compiler options with external settings
+	 * @param settings
+	 */
+	public CompilerOptions(Map settings){
+		resetDefaults();
+		if (settings != null) {
+			set(settings);
+		}
+	}
+
+	/**
+	 * @deprecated used to preserve 3.1 and 3.2M4 compatibility of some Compiler constructors
+	 */
+	public CompilerOptions(Map settings, boolean parseLiteralExpressionsAsConstants){
+		this(settings);
+		this.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
+	}
 
 	/**
 	 * Return the most specific option key controlling this irritant. Note that in some case, some irritant is controlled by
@@ -773,32 +802,6 @@ public class CompilerOptions {
 		return null;
 	}
 
-	/**
-	 * Initializing the compiler options with defaults
-	 */
-	public CompilerOptions(){
-		this(null); // use default options
-	}
-
-	/**
-	 * Initializing the compiler options with external settings
-	 * @param settings
-	 */
-	public CompilerOptions(Map settings){
-		resetDefaults();
-		if (settings != null) {
-			set(settings);
-		}
-	}
-
-	/**
-	 * @deprecated used to preserve 3.1 and 3.2M4 compatibility of some Compiler constructors
-	 */
-	public CompilerOptions(Map settings, boolean parseLiteralExpressionsAsConstants){
-		this(settings);
-		this.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
-	}
-
 	
 	public Map getMap() {
 		Map optionsMap = new HashMap(30);
@@ -899,6 +902,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportMissingSynchronizedOnInheritedMethod, getSeverityString(MissingSynchronizedModifierInInheritedMethod));
 		optionsMap.put(OPTION_ReportMissingHashCodeMethod, getSeverityString(ShouldImplementHashcode));
 		optionsMap.put(OPTION_ReportDeadCode, getSeverityString(DeadCode));
+		optionsMap.put(OPTION_ReportDeadCodeInTrivialIfStatement, this.reportDeadCodeInTrivialIfStatement ? ENABLED : DISABLED);
 		return optionsMap;
 	}
 
@@ -1031,6 +1035,10 @@ public class CompilerOptions {
 
 		// enable annotation processing by default only in batch mode
 		this.processAnnotations = false;
+		
+		// dead code detection
+		this.reportDeadCodeInTrivialIfStatement = false;
+
 	}
 
 	public void set(Map optionsMap) {
@@ -1155,6 +1163,13 @@ public class CompilerOptions {
 				this.reportSpecialParameterHidingField = false;
 			}
 		}
+		if ((optionValue = optionsMap.get(OPTION_ReportDeadCodeInTrivialIfStatement )) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportDeadCodeInTrivialIfStatement = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportDeadCodeInTrivialIfStatement = false;
+			}
+		}		
 		if ((optionValue = optionsMap.get(OPTION_MaxProblemPerUnit)) != null) {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
@@ -1469,6 +1484,7 @@ public class CompilerOptions {
 		buf.append("\n\t- missing synchronized on inherited method: ").append(getSeverityString(MissingSynchronizedModifierInInheritedMethod)); //$NON-NLS-1$
 		buf.append("\n\t- should implement hashCode() method: ").append(getSeverityString(ShouldImplementHashcode)); //$NON-NLS-1$
 		buf.append("\n\t- dead code: ").append(getSeverityString(DeadCode)); //$NON-NLS-1$
+		buf.append("\n\t- dead code in trivial if statement: ").append(this.reportDeadCodeInTrivialIfStatement ? ENABLED : DISABLED); //$NON-NLS-1$
 		return buf.toString();
 	}
 	

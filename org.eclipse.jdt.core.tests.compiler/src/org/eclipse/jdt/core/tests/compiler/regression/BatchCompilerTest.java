@@ -1636,6 +1636,7 @@ public void test012b(){
         "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" +
         "    -warn:+<warnings separated by ,>   enable additional warnings\n" +
         "    -warn:-<warnings separated by ,>   disable specific warnings\n" +
+        "      allDeadCode          dead code including trivial if(DEBUG) check\n" +
         "      allDeprecation       deprecation including inside deprecated code\n" +
         "      allJavadoc           invalid or missing javadoc\n" +
         "      assertIdentifier   + ''assert'' used as identifier\n" +
@@ -1644,6 +1645,7 @@ public void test012b(){
         "      compareIdentical   + comparing identical expressions\n" +
         "      conditionAssign      possible accidental boolean assignment\n" +
         "      constructorName    + method with constructor name\n" +
+        "      deadCode             dead code excluding trivial if (DEBUG) check\n" +
         "      dep-ann              missing @Deprecated annotation\n" +
         "      deprecation        + deprecation outside deprecated code\n" +
         "      discouraged        + use of types matching a discouraged access rule\n" +
@@ -1777,6 +1779,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.comparingIdentical\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deadCode\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" +

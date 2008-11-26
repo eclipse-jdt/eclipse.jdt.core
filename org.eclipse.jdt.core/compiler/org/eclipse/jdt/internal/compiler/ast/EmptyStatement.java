@@ -30,7 +30,6 @@ public class EmptyStatement extends Statement {
 
 	// Report an error if necessary
 	public int complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, int complaintLevel) {
-
 		// before 1.4, empty statements are tolerated anywhere
 		if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_4) {
 			return complaintLevel;
