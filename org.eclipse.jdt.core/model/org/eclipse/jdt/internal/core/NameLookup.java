@@ -350,8 +350,11 @@ public class NameLookup implements SuffixConstants {
 		if (index != -1) {
 			cuName= cuName.substring(0, index);
 		}
-		Object value = this.packageFragments.get(pkgName);
-		if (value != null) {
+		int pkgIndex = this.packageFragments.getIndex(pkgName);
+		if (pkgIndex != -1) {
+			Object value = this.packageFragments.valueTable[pkgIndex];
+			// reuse existing String[]
+			pkgName = (String[]) this.packageFragments.keyTable[pkgIndex];
 			if (value instanceof PackageFragmentRoot) {
 				return findCompilationUnit(pkgName, cuName, (PackageFragmentRoot) value);
 			} else {
@@ -556,16 +559,19 @@ public class NameLookup implements SuffixConstants {
 			return result;
 		} else {
 			String[] splittedName = Util.splitOn('.', name, 0, name.length());
-			Object value = this.packageFragments.get(splittedName);
-			if (value == null)
+			int pkgIndex = this.packageFragments.getIndex(splittedName);
+			if (pkgIndex == -1)
 				return null;
+			Object value = this.packageFragments.valueTable[pkgIndex];
+			// reuse existing String[]
+			String[] pkgName = (String[]) this.packageFragments.keyTable[pkgIndex];
 			if (value instanceof PackageFragmentRoot) {
-				return new IPackageFragment[] {((PackageFragmentRoot) value).getPackageFragment(splittedName)};
+				return new IPackageFragment[] {((PackageFragmentRoot) value).getPackageFragment(pkgName)};
 			} else {
 				IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
 				IPackageFragment[] result = new IPackageFragment[roots.length];
 				for (int i= 0; i < roots.length; i++) {
-					result[i] = ((PackageFragmentRoot) roots[i]).getPackageFragment(splittedName);
+					result[i] = ((PackageFragmentRoot) roots[i]).getPackageFragment(pkgName);
 				}
 				return result;
 			}
@@ -900,17 +906,22 @@ public class NameLookup implements SuffixConstants {
 			}
 		} else {
 			String[] splittedName = Util.splitOn('.', name, 0, name.length());
-			Object value = this.packageFragments.get(splittedName);
-			if (value instanceof PackageFragmentRoot) {
-				requestor.acceptPackageFragment(((PackageFragmentRoot) value).getPackageFragment(splittedName));
-			} else {
-				IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-				if (roots != null) {
-					for (int i = 0, length = roots.length; i < length; i++) {
-						if (requestor.isCanceled())
-							return;
-						PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
-						requestor.acceptPackageFragment(root.getPackageFragment(splittedName));
+			int pkgIndex = this.packageFragments.getIndex(splittedName);
+			if (pkgIndex != -1) {
+				Object value = this.packageFragments.valueTable[pkgIndex];
+				// reuse existing String[]
+				String[] pkgName = (String[]) this.packageFragments.keyTable[pkgIndex];
+				if (value instanceof PackageFragmentRoot) {
+					requestor.acceptPackageFragment(((PackageFragmentRoot) value).getPackageFragment(pkgName));
+				} else {
+					IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
+					if (roots != null) {
+						for (int i = 0, length = roots.length; i < length; i++) {
+							if (requestor.isCanceled())
+								return;
+							PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
+							requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
+						}
 					}
 				}
 			}
