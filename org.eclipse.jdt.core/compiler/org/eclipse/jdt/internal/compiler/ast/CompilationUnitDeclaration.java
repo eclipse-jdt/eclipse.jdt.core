@@ -508,15 +508,17 @@ public class CompilationUnitDeclaration
 				syntheticTypeDeclaration.javadoc = new Javadoc(syntheticTypeDeclaration.declarationSourceStart, syntheticTypeDeclaration.declarationSourceStart);
 			}
 			syntheticTypeDeclaration.resolve(this.scope);
-			// resolve annotations if any
-			if (this.currentPackage!= null && this.currentPackage.annotations != null) {
+			// resolve annotations if any, skip this step if we don't have a valid scope due to an earlier error. (bug 252555)
+			if (this.currentPackage!= null && this.currentPackage.annotations != null && syntheticTypeDeclaration.staticInitializerScope != null) {
 				resolveAnnotations(syntheticTypeDeclaration.staticInitializerScope, this.currentPackage.annotations, this.scope.fPackage);
 			}
 			/*
-			 * resolve javadoc package if any
-			 * we do it now and the javadoc in the fake type won't be resolved
-			 */
-			if (this.javadoc != null) {
+			 * resolve javadoc package if any, skip this step if we don't have a valid scope due to an earlier error (bug 252555)
+			 * we do it now as the javadoc in the fake type won't be resolved. The peculiar usage of MethodScope to resolve the
+			 * package level javadoc is because the CU level resolve method	is a NOP to mimic Javadoc's behavior and can't be used
+			 * as such.
+ 			 */
+			if (this.javadoc != null && syntheticTypeDeclaration.staticInitializerScope != null) {
 				this.javadoc.resolve(syntheticTypeDeclaration.staticInitializerScope);
 			}
 			startingTypeIndex = 1;
@@ -659,10 +661,12 @@ public class CompilationUnitDeclaration
 					final TypeDeclaration syntheticTypeDeclaration = types[0];
 					// resolve javadoc package if any
 					final MethodScope methodScope = syntheticTypeDeclaration.staticInitializerScope;
-					if (this.javadoc != null) {
+					// Don't traverse in null scope and invite trouble a la bug 252555.
+					if (this.javadoc != null && methodScope != null) {
 						this.javadoc.traverse(visitor, methodScope);
 					}
-					if (this.currentPackage != null) {
+					// Don't traverse in null scope and invite trouble a la bug 252555.
+					if (this.currentPackage != null && methodScope != null) {
 						final Annotation[] annotations = this.currentPackage.annotations;
 						if (annotations != null) {
 							int annotationsLength = annotations.length;

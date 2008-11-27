@@ -235,7 +235,9 @@ public class Javadoc extends ASTNode {
 	 * Resolve compilation unit javadoc
 	 */
 	public void resolve(CompilationUnitScope unitScope) {
-		// do nothing
+		// Do nothing - This is to mimic the SDK's javadoc tool behavior, which neither
+		// sanity checks nor generates documentation using comments at the CU scope 
+		// (unless the unit happens to be package-info.java - in which case we don't come here.)
 	}
 
 	/*
