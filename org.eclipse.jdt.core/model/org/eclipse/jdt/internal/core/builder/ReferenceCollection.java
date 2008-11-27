@@ -237,6 +237,13 @@ public static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
 	return keepers;
 }
 
+/**
+ * @deprecated
+ */
+public static char[][] internSimpleNames(StringSet simpleStrings) {
+	return internSimpleNames(simpleStrings, true);
+}
+
 public static char[][] internSimpleNames(StringSet simpleStrings, boolean removeWellKnown) {
 	if (simpleStrings == null) return EmptySimpleNames;
 	int length = simpleStrings.elementSize;
