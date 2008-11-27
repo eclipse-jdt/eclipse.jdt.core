@@ -18,6 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
@@ -427,6 +429,42 @@ public class Util implements SuffixConstants {
 		return contents;
 	}
 
+	/**
+	 * Returns a one line summary for an exception (extracted from its stacktrace: name + first frame)
+	 * @param exception
+	 * @return one line summary for an exception
+	 */
+	public static String getExceptionSummary(Throwable exception) {
+		StringWriter stringWriter = new StringWriter();
+		exception.printStackTrace(new PrintWriter(stringWriter));
+		StringBuffer buffer = stringWriter.getBuffer();		
+		StringBuffer exceptionBuffer = new StringBuffer(50);
+		exceptionBuffer.append(exception.toString());
+		// only keep leading frame portion of the trace (i.e. line no. 2 from the stacktrace)
+		lookupLine2: for (int i = 0, lineSep = 0, max = buffer.length(), line2Start = 0; i < max; i++) {
+			switch (buffer.charAt(i)) {
+				case '\n':
+				case '\r' :
+					if (line2Start > 0) {
+						exceptionBuffer.append(' ').append(buffer.substring(line2Start, i));
+						break lookupLine2;
+					}						
+					lineSep++;
+					break;
+				case ' ' :
+				case '\t' :
+					break;
+				default :
+					if (lineSep > 0) {
+						line2Start = i;
+						lineSep = 0;
+					}
+					break;
+			}
+		}
+		return exceptionBuffer.toString();
+	}
+	
 	public static int getLineNumber(int position, int[] lineEnds, int g, int d) {
 		if (lineEnds == null)
 			return 1;

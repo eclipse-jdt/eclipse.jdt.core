@@ -557,15 +557,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		boolean needToPrint = true;
 		if (result != null) {
 			/* create and record a compilation problem */
-			StringWriter stringWriter = new StringWriter();
-			PrintWriter writer = new PrintWriter(stringWriter);
-			internalException.printStackTrace(writer);
-			StringBuffer buffer = stringWriter.getBuffer();
-
+			// only keep leading portion of the trace
 			String[] pbArguments = new String[] {
-				Messages.compilation_internalError
-					+ "\n"  //$NON-NLS-1$
-					+ buffer.toString()};
+				Messages.bind(Messages.compilation_internalError, Util.getExceptionSummary(internalException)),
+			};
 
 			result
 				.record(
