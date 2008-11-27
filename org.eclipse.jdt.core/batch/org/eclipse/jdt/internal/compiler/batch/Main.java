@@ -526,7 +526,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			e.printStackTrace(printWriter);
 			printWriter.flush();
 			printWriter.close();
-			final String stackTrace = writer.getBuffer().toString();
+			final String stackTrace = writer.toString();
 			if ((this.tagBits & Logger.XML) != 0) {
 				LineNumberReader reader = new LineNumberReader(new StringReader(stackTrace));
 				String line;
