@@ -427,11 +427,10 @@ protected SourceFile findSourceFile(IFile file, boolean mustExist) {
 
 protected void finishedWith(String sourceLocator, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) {
 	if (duplicateTypeNames == null) {
-		this.newState.record(sourceLocator, result.qualifiedReferences, result.simpleNameReferences, mainTypeName, definedTypeNames);
+		this.newState.record(sourceLocator, result.qualifiedReferences, result.simpleNameReferences, result.rootReferences, mainTypeName, definedTypeNames);
 		return;
 	}
 
-	char[][][] qualifiedRefs = result.qualifiedReferences;
 	char[][] simpleRefs = result.simpleNameReferences;
 	// for each duplicate type p1.p2.A, add the type name A (package was already added)
 	next : for (int i = 0, l = duplicateTypeNames.size(); i < l; i++) {
@@ -444,7 +443,7 @@ protected void finishedWith(String sourceLocator, CompilationResult result, char
 		System.arraycopy(simpleRefs, 0, simpleRefs = new char[sLength + 1][], 0, sLength);
 		simpleRefs[sLength] = typeName;
 	}
-	this.newState.record(sourceLocator, qualifiedRefs, simpleRefs, mainTypeName, definedTypeNames);
+	this.newState.record(sourceLocator, result.qualifiedReferences, simpleRefs, result.rootReferences, mainTypeName, definedTypeNames);
 }
 
 protected IContainer createFolder(IPath packagePath, IContainer outputFolder) throws CoreException {

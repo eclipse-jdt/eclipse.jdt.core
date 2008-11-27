@@ -31,6 +31,7 @@ public class CompilationUnitScope extends Scope {
 
 	private CompoundNameVector qualifiedReferences;
 	private SimpleNameVector simpleNameReferences;
+	private SimpleNameVector rootReferences;
 	private ObjectVector referencedTypes;
 	private ObjectVector referencedSuperTypes;
 
@@ -47,11 +48,13 @@ public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment e
 	if (compilerOptions().produceReferenceInfo) {
 		this.qualifiedReferences = new CompoundNameVector();
 		this.simpleNameReferences = new SimpleNameVector();
+		this.rootReferences = new SimpleNameVector();
 		this.referencedTypes = new ObjectVector();
 		this.referencedSuperTypes = new ObjectVector();
 	} else {
 		this.qualifiedReferences = null; // used to test if dependencies should be recorded
 		this.simpleNameReferences = null;
+		this.rootReferences = null;
 		this.referencedTypes = null;
 		this.referencedSuperTypes = null;
 	}
@@ -650,6 +653,7 @@ void recordQualifiedReference(char[][] qualifiedName) {
 
 	int length = qualifiedName.length;
 	if (length > 1) {
+		recordRootReference(qualifiedName[0]);
 		while (!this.qualifiedReferences.contains(qualifiedName)) {
 			this.qualifiedReferences.add(qualifiedName);
 			if (length == 2) {
@@ -662,17 +666,26 @@ void recordQualifiedReference(char[][] qualifiedName) {
 			System.arraycopy(qualifiedName, 0, qualifiedName = new char[length][], 0, length);
 		}
 	} else if (length == 1) {
+		recordRootReference(qualifiedName[0]);
 		recordSimpleReference(qualifiedName[0]);
 	}
 }
 void recordReference(char[][] qualifiedEnclosingName, char[] simpleName) {
 	recordQualifiedReference(qualifiedEnclosingName);
+	if (qualifiedEnclosingName.length == 0)
+		recordRootReference(simpleName);
 	recordSimpleReference(simpleName);
 }
 void recordReference(ReferenceBinding type, char[] simpleName) {
 	ReferenceBinding actualType = typeToRecord(type);
 	if (actualType != null)
 		recordReference(actualType.compoundName, simpleName);
+}
+void recordRootReference(char[] simpleName) {
+	if (this.rootReferences == null) return; // not recording dependencies
+
+	if (!this.rootReferences.contains(simpleName))
+		this.rootReferences.add(simpleName);
 }
 void recordSimpleReference(char[] simpleName) {
 	if (this.simpleNameReferences == null) return; // not recording dependencies
@@ -768,6 +781,12 @@ public void storeDependencyInfo() {
 	for (int i = 0; i < size; i++)
 		simpleRefs[i] = this.simpleNameReferences.elementAt(i);
 	this.referenceContext.compilationResult.simpleNameReferences = simpleRefs;
+
+	size = this.rootReferences.size;
+	char[][] rootRefs = new char[size][];
+	for (int i = 0; i < size; i++)
+		rootRefs[i] = this.rootReferences.elementAt(i);
+	this.referenceContext.compilationResult.rootReferences = rootRefs;
 }
 public String toString() {
 	return "--- CompilationUnit Scope : " + new String(this.referenceContext.getFileName()); //$NON-NLS-1$

@@ -36,6 +36,7 @@ protected ArrayList sourceFiles;
 protected ArrayList previousSourceFiles;
 protected StringSet qualifiedStrings;
 protected StringSet simpleStrings;
+protected StringSet rootStrings;
 protected SimpleLookupTable secondaryTypesToRemove;
 protected boolean hasStructuralChanges;
 protected int compileLoop;
@@ -180,19 +181,20 @@ protected void buildAfterBatchBuild() {
 protected void addAffectedSourceFiles() {
 	if (this.qualifiedStrings.elementSize == 0 && this.simpleStrings.elementSize == 0) return;
 
-	addAffectedSourceFiles(this.qualifiedStrings, this.simpleStrings, null);
+	addAffectedSourceFiles(this.qualifiedStrings, this.simpleStrings, this.rootStrings, null);
 }
 
-protected void addAffectedSourceFiles(StringSet qualifiedSet, StringSet simpleSet, StringSet affectedTypes) {
+protected void addAffectedSourceFiles(StringSet qualifiedSet, StringSet simpleSet, StringSet rootSet, StringSet affectedTypes) {
 	// the qualifiedStrings are of the form 'p1/p2' & the simpleStrings are just 'X'
 	char[][][] internedQualifiedNames = ReferenceCollection.internQualifiedNames(qualifiedSet);
 	// if a well known qualified name was found then we can skip over these
 	if (internedQualifiedNames.length < qualifiedSet.elementSize)
 		internedQualifiedNames = null;
-	char[][] internedSimpleNames = ReferenceCollection.internSimpleNames(simpleSet);
+	char[][] internedSimpleNames = ReferenceCollection.internSimpleNames(simpleSet, true);
 	// if a well known name was found then we can skip over these
 	if (internedSimpleNames.length < simpleSet.elementSize)
 		internedSimpleNames = null;
+	char[][] internedRootNames = ReferenceCollection.internSimpleNames(rootSet, false);
 
 	Object[] keyTable = this.newState.references.keyTable;
 	Object[] valueTable = this.newState.references.valueTable;
@@ -201,7 +203,7 @@ protected void addAffectedSourceFiles(StringSet qualifiedSet, StringSet simpleSe
 		if (typeLocator != null) {
 			if (affectedTypes != null && !affectedTypes.includes(typeLocator)) continue next;
 			ReferenceCollection refs = (ReferenceCollection) valueTable[i];
-			if (refs.includes(internedQualifiedNames, internedSimpleNames)) {
+			if (refs.includes(internedQualifiedNames, internedSimpleNames, internedRootNames)) {
 				IFile file = this.javaBuilder.currentProject.getFile(typeLocator);
 				SourceFile sourceFile = findSourceFile(file, true);
 				if (sourceFile == null) continue next;
@@ -218,23 +220,25 @@ protected void addAffectedSourceFiles(StringSet qualifiedSet, StringSet simpleSe
 }
 
 protected void addDependentsOf(IPath path, boolean isStructuralChange) {
-	addDependentsOf(path, isStructuralChange, this.qualifiedStrings, this.simpleStrings);
+	addDependentsOf(path, isStructuralChange, this.qualifiedStrings, this.simpleStrings, this.rootStrings);
 }
 
-protected void addDependentsOf(IPath path, boolean isStructuralChange, StringSet qualifiedNames, StringSet simpleNames) {
+protected void addDependentsOf(IPath path, boolean isStructuralChange, StringSet qualifiedNames, StringSet simpleNames, StringSet rootNames) {
 	if (isStructuralChange && !this.hasStructuralChanges) {
 		this.newState.tagAsStructurallyChanged();
 		this.hasStructuralChanges = true;
 	}
 	// the qualifiedStrings are of the form 'p1/p2' & the simpleStrings are just 'X'
 	path = path.setDevice(null);
+	rootNames.add(path.segment(0));
 	String packageName = path.removeLastSegments(1).toString();
-	qualifiedNames.add(packageName);
+	boolean wasNew = qualifiedNames.add(packageName);
 	String typeName = path.lastSegment();
 	int memberIndex = typeName.indexOf('$');
 	if (memberIndex > 0)
 		typeName = typeName.substring(0, memberIndex);
-	if (simpleNames.add(typeName) && JavaBuilder.DEBUG)
+	wasNew = simpleNames.add(typeName) | wasNew;
+	if (wasNew && JavaBuilder.DEBUG)
 		System.out.println("  will look for dependents of " //$NON-NLS-1$
 			+ typeName + " in " + packageName); //$NON-NLS-1$
 }
@@ -276,6 +280,7 @@ protected void cleanUp() {
 	this.previousSourceFiles = null;
 	this.qualifiedStrings = null;
 	this.simpleStrings = null;
+	this.rootStrings = null;
 	this.secondaryTypesToRemove = null;
 	this.hasStructuralChanges = false;
 	this.compileLoop = 0;
@@ -760,6 +765,7 @@ protected void resetCollections() {
 		this.previousSourceFiles = null;
 		this.qualifiedStrings = new StringSet(3);
 		this.simpleStrings = new StringSet(3);
+		this.rootStrings = new StringSet(3);
 		this.hasStructuralChanges = false;
 		this.compileLoop = 0;
 	} else {
@@ -768,6 +774,7 @@ protected void resetCollections() {
 		this.sourceFiles.clear();
 		this.qualifiedStrings.clear();
 		this.simpleStrings.clear();
+		this.rootStrings.clear();
 		this.workQueue.clear();
 	}
 }

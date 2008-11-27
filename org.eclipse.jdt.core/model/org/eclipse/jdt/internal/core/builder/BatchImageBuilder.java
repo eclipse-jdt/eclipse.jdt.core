@@ -279,14 +279,16 @@ protected void rebuildTypesAffectedBySecondaryTypes() {
 	int count = this.secondaryTypes.size();
 	StringSet qualifiedNames = new StringSet(count * 2);
 	StringSet simpleNames = new StringSet(count);
+	StringSet rootNames = new StringSet(3);
 	while (--count >=0) {
 		char[] secondaryTypeName = (char[]) this.secondaryTypes.get(count);
 		IPath path = new Path(null, new String(secondaryTypeName));
-		this.incrementalBuilder.addDependentsOf(path, false, qualifiedNames, simpleNames);
+		this.incrementalBuilder.addDependentsOf(path, false, qualifiedNames, simpleNames, rootNames);
 	}
 	this.incrementalBuilder.addAffectedSourceFiles(
 		qualifiedNames,
 		simpleNames,
+		rootNames,
 		this.typeLocatorsWithUndefinedTypes);
 }
 

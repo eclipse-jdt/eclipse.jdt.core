@@ -60,6 +60,7 @@ public class CompilationResult {
 	private int maxProblemPerUnit;
 	public char[][][] qualifiedReferences;
 	public char[][] simpleNameReferences;
+	public char[][] rootReferences;
 	public boolean hasAnnotations = false;
 	public int lineSeparatorPositions[];
 	public RecoveryScannerData recoveryScannerData;

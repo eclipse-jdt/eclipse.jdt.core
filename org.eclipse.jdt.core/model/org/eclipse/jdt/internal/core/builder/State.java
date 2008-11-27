@@ -44,7 +44,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-public static final byte VERSION = 0x0016; // changed access rules sets storage
+public static final byte VERSION = 0x0017; // added root name references
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -159,13 +159,13 @@ public boolean isKnownType(String qualifiedTypeName) {
 	return this.typeLocators.containsKey(qualifiedTypeName);
 }
 
-void record(String typeLocator, char[][][] qualifiedRefs, char[][] simpleRefs, char[] mainTypeName, ArrayList typeNames) {
+void record(String typeLocator, char[][][] qualifiedRefs, char[][] simpleRefs, char[][] rootRefs, char[] mainTypeName, ArrayList typeNames) {
 	if (typeNames.size() == 1 && CharOperation.equals(mainTypeName, (char[]) typeNames.get(0))) {
-		this.references.put(typeLocator, new ReferenceCollection(qualifiedRefs, simpleRefs));
+		this.references.put(typeLocator, new ReferenceCollection(qualifiedRefs, simpleRefs, rootRefs));
 	} else {
 		char[][] definedTypeNames = new char[typeNames.size()][]; // can be empty when no types are defined
 		typeNames.toArray(definedTypeNames);
-		this.references.put(typeLocator, new AdditionalTypeCollection(definedTypeNames, qualifiedRefs, simpleRefs));
+		this.references.put(typeLocator, new AdditionalTypeCollection(definedTypeNames, qualifiedRefs, simpleRefs, rootRefs));
 	}
 }
 
@@ -278,6 +278,7 @@ static State read(IProject project, DataInputStream in) throws IOException {
 	for (int i = 0; i < length; i++)
 		newState.recordLocatorForType(in.readUTF(), internedTypeLocators[in.readInt()]);
 
+	char[][] internedRootNames = ReferenceCollection.internSimpleNames(readNames(in), false);
 	char[][] internedSimpleNames = ReferenceCollection.internSimpleNames(readNames(in), false);
 	char[][][] internedQualifiedNames = new char[length = in.readInt()][][];
 	for (int i = 0; i < length; i++) {
@@ -302,7 +303,10 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				char[][] simpleNames = new char[in.readInt()][];
 				for (int j = 0, m = simpleNames.length; j < m; j++)
 					simpleNames[j] = internedSimpleNames[in.readInt()];
-				collection = new AdditionalTypeCollection(additionalTypeNames, qualifiedNames, simpleNames);
+				char[][] rootNames = new char[in.readInt()][];
+				for (int j = 0, m = rootNames.length; j < m; j++)
+					rootNames[j] = internedRootNames[in.readInt()];
+				collection = new AdditionalTypeCollection(additionalTypeNames, qualifiedNames, simpleNames, rootNames);
 				break;
 			case 2 :
 				char[][][] qNames = new char[in.readInt()][][];
@@ -311,7 +315,10 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				char[][] sNames = new char[in.readInt()][];
 				for (int j = 0, m = sNames.length; j < m; j++)
 					sNames[j] = internedSimpleNames[in.readInt()];
-				collection = new ReferenceCollection(qNames, sNames);
+				char[][] rNames = new char[in.readInt()][];
+				for (int j = 0, m = rNames.length; j < m; j++)
+					rNames[j] = internedRootNames[in.readInt()];
+				collection = new ReferenceCollection(qNames, sNames, rNames);
 		}
 		newState.references.put(typeLocator, collection);
 	}
@@ -509,15 +516,23 @@ void write(DataOutputStream out) throws IOException {
 	}
 
 /*
+ * char[][]	Interned root names
  * char[][][]	Interned qualified names
  * char[][]	Interned simple names
  */
+	SimpleLookupTable internedRootNames = new SimpleLookupTable(3);
 	SimpleLookupTable internedQualifiedNames = new SimpleLookupTable(31);
 	SimpleLookupTable internedSimpleNames = new SimpleLookupTable(31);
 	valueTable = this.references.valueTable;
 	for (int i = 0, l = valueTable.length; i < l; i++) {
 		if (valueTable[i] != null) {
 			ReferenceCollection collection = (ReferenceCollection) valueTable[i];
+			char[][] rNames = collection.rootReferences;
+			for (int j = 0, m = rNames.length; j < m; j++) {
+				char[] rName = rNames[j];
+				if (!internedRootNames.containsKey(rName)) // remember the names have been interned
+					internedRootNames.put(rName, new Integer(internedRootNames.elementSize));
+			}
 			char[][][] qNames = collection.qualifiedNameReferences;
 			for (int j = 0, m = qNames.length; j < m; j++) {
 				char[][] qName = qNames[j];
@@ -538,9 +553,20 @@ void write(DataOutputStream out) throws IOException {
 			}
 		}
 	}
-	char[][] internedArray = new char[internedSimpleNames.elementSize][];
+	char[][] internedArray = new char[internedRootNames.elementSize][];
+	Object[] rootNames = internedRootNames.keyTable;
+	Object[] positions = internedRootNames.valueTable;
+	for (int i = positions.length; --i >= 0; ) {
+		if (positions[i] != null) {
+			int index = ((Integer) positions[i]).intValue();
+			internedArray[index] = (char[]) rootNames[i];
+		}
+	}
+	writeNames(internedArray, out);
+	// now write the interned simple names
+	internedArray = new char[internedSimpleNames.elementSize][];
 	Object[] simpleNames = internedSimpleNames.keyTable;
-	Object[] positions = internedSimpleNames.valueTable;
+	positions = internedSimpleNames.valueTable;
 	for (int i = positions.length; --i >= 0; ) {
 		if (positions[i] != null) {
 			int index = ((Integer) positions[i]).intValue();
@@ -602,6 +628,13 @@ void write(DataOutputStream out) throws IOException {
 				out.writeInt(sLength);
 				for (int j = 0; j < sLength; j++) {
 					index = (Integer) internedSimpleNames.get(sNames[j]);
+					out.writeInt(index.intValue());
+				}
+				char[][] rNames = collection.rootReferences;
+				int rLength = rNames.length;
+				out.writeInt(rLength);
+				for (int j = 0; j < rLength; j++) {
+					index = (Integer) internedRootNames.get(rNames[j]);
 					out.writeInt(index.intValue());
 				}
 			}
