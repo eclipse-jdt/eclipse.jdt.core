@@ -265,13 +265,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 public TypeBinding checkFieldAccess(BlockScope scope) {
 	FieldBinding fieldBinding = (FieldBinding) this.binding;
 	MethodScope methodScope = scope.methodScope();
+	TypeBinding declaringClass = fieldBinding.original().declaringClass;
 	// check for forward references
-	if (this.indexOfFirstFieldBinding == 1
-			&& methodScope.enclosingSourceType() == fieldBinding.original().declaringClass
+	if ((this.indexOfFirstFieldBinding == 1 || declaringClass.isEnum())
+			&& methodScope.enclosingSourceType() == declaringClass
 			&& methodScope.lastVisibleFieldID >= 0
 			&& fieldBinding.id >= methodScope.lastVisibleFieldID
 			&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
-		scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
+		scope.problemReporter().forwardReference(this, 0, fieldBinding);
 	}
 	this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 	this.bits |= Binding.FIELD;
@@ -779,18 +780,25 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 
 			if (field.isStatic()) {
-				// check if accessing enum static field in initializer
-				ReferenceBinding declaringClass = field.declaringClass;
+				ReferenceBinding declaringClass = field.original().declaringClass;
 				if (declaringClass.isEnum()) {
 					MethodScope methodScope = scope.methodScope();
 					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
+					if ((this.bits & ASTNode.IsStrictlyAssigned) == 0
+							&& sourceType == declaringClass
+							&& methodScope.lastVisibleFieldID >= 0
+							&& field.id >= methodScope.lastVisibleFieldID
+							&& (!field.isStatic() || methodScope.isStatic)) {
+						scope.problemReporter().forwardReference(this, index, field);
+					}					
+					// check if accessing enum static field in initializer
 					if ((sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
 							&& field.constant() == Constant.NotAConstant
 							&& !methodScope.isStatic
 							&& methodScope.isInsideInitializerOrConstructor()) {
 						scope.problemReporter().enumStaticFieldUsedDuringInitialization(field, this);
 					}
-				}					
+				}
 				// static field accessed through receiver? legal but unoptimal (optional warning)
 				scope.problemReporter().nonStaticAccessToStaticField(this, field, index);
 				// indirect static reference ?
@@ -1004,16 +1012,16 @@ public TypeBinding resolveType(BlockScope scope) {
 				if (this.binding instanceof FieldBinding) {
 					FieldBinding fieldBinding = (FieldBinding) this.binding;
 					MethodScope methodScope = scope.methodScope();
+					TypeBinding declaringClass = fieldBinding.original().declaringClass;
 					// check for forward references
-					if (this.indexOfFirstFieldBinding == 1
-							&& methodScope.enclosingSourceType() == fieldBinding.original().declaringClass
+					if ((this.indexOfFirstFieldBinding == 1 || declaringClass.isEnum())
+							&& methodScope.enclosingSourceType() == declaringClass
 							&& methodScope.lastVisibleFieldID >= 0
 							&& fieldBinding.id >= methodScope.lastVisibleFieldID
 							&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
-						scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
+						scope.problemReporter().forwardReference(this, 0, fieldBinding);
 					}
 					if (fieldBinding.isStatic()) {
-						ReferenceBinding declaringClass = fieldBinding.declaringClass;
 						// check if accessing enum static field in initializer					
 						if (declaringClass.isEnum()) {
 							SourceTypeBinding sourceType = methodScope.enclosingSourceType();

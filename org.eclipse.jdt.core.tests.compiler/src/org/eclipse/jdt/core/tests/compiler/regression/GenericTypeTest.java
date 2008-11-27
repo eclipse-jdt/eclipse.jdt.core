@@ -36286,7 +36286,7 @@ public void test1085() {
 		"----------\n" + 
 		"6. ERROR in Y.java (at line 9)\n" + 
 		"	E e2 = e2.e;\n" + 
-		"	       ^^^^\n" + 
+		"	       ^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
 		"7. ERROR in Y.java (at line 9)\n" + 

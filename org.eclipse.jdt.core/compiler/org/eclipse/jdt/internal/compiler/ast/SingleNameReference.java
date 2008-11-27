@@ -208,7 +208,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 			&& methodScope.lastVisibleFieldID >= 0
 			&& fieldBinding.id >= methodScope.lastVisibleFieldID
 			&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
-		scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
+		scope.problemReporter().forwardReference(this, 0, fieldBinding);
 		this.bits |= ASTNode.IgnoreNoEffectAssignCheck;
 	}
 	return fieldBinding.type;

@@ -1769,13 +1769,13 @@ public void forbiddenReference(TypeBinding type, ASTNode location,
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void forwardReference(Reference reference, int indexInQualification, TypeBinding type) {
+public void forwardReference(Reference reference, int indexInQualification, FieldBinding field) {
 	this.handle(
 		IProblem.ReferenceToForwardField,
 		NoArgument,
 		NoArgument,
-		reference.sourceStart,
-		reference.sourceEnd);
+		nodeSourceStart(field, reference, indexInQualification),
+		nodeSourceEnd(field, reference, indexInQualification));
 }
 public void forwardTypeVariableReference(ASTNode location, TypeVariableBinding type) {
 	this.handle(
