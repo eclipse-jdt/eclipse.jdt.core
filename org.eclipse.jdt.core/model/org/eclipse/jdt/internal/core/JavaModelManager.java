@@ -4688,4 +4688,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public synchronized String cacheToString(String prefix) {
 		return this.cache.toStringFillingRation(prefix);
 	}
+	
+	public int debugGetOpenableCacheNewestTimestamps() {
+		return this.cache.openableCache.getNewestTimestamps();
+	}
+
+	public Object debugGetOpenableCacheOldestElement() {
+		return this.cache.openableCache.getOldestElement();
+	}
+
+	public int debugGetOpenableCacheOldestTimestamps() {
+		return this.cache.openableCache.getOldestTimestamps();
+	}
+
 }

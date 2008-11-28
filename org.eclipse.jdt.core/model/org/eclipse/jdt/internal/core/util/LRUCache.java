@@ -103,7 +103,7 @@ public class LRUCache implements Cloneable {
 	/**
 	 * Counter for handing out sequential timestamps
 	 */
-	protected int	timestampCounter;
+	protected int timestampCounter;
 
 	/**
 	 * Hash table for fast random access to cache entries
@@ -228,6 +228,25 @@ public class LRUCache implements Cloneable {
 	public int getCurrentSpace() {
 		return this.currentSpace;
 	}
+	/**
+	 * Returns the timestamps of the most recently used element in the cache.
+	 */
+	public int getNewestTimestamps() {
+		return this.entryQueue == null ? 0 : this.entryQueue.timestamp;
+	}
+	/**
+	 * Returns the timestamps of the least recently used element in the cache.
+	 */
+	public int getOldestTimestamps() {
+		return this.entryQueueTail == null ? 0 : this.entryQueueTail.timestamp;
+	}
+	/**
+	 * Returns the lest recently used element in the cache
+	 */
+	public Object getOldestElement() {
+		return this.entryQueueTail == null ? null : this.entryQueueTail.key;
+	}
+	
 	/**
 	 * Returns the maximum amount of space available in the cache.
 	 */
