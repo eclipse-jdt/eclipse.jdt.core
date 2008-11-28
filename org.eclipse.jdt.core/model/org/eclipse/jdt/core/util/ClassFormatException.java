@@ -52,4 +52,14 @@ public class ClassFormatException extends Exception {
 	public ClassFormatException(String message) {
 		super(message);
 	}
+
+	/**
+	 * Constructor for ClassFormatException.
+	 * @param message the message for the exception
+	 * @param  cause  the cause of the exception
+	 * @since 3.5
+	 */
+	public ClassFormatException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

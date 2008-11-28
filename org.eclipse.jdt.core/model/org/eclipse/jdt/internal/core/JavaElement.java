@@ -14,8 +14,6 @@ import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -797,12 +795,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		} catch(ProtocolException e) {
 			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845
 		} catch(IOException e) {
-			StringWriter stringWriter = new StringWriter();
-			PrintWriter writer = new PrintWriter(stringWriter);
-			e.printStackTrace(writer);
-			writer.flush();
-			writer.close();
-			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this, String.valueOf(stringWriter.getBuffer())));
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} finally {
 			if (stream != null) {
 				try {
