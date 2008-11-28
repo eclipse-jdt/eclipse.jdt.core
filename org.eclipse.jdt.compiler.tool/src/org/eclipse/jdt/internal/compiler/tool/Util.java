@@ -68,11 +68,11 @@ public final class Util {
 			//(the code still works but the display is not optimal !)
 
 			// expand to line limits
-			int length = unitSource.length, begin, end;
-			for (begin = startPosition >= length ? length - 1 : startPosition; begin > 0; begin--) {
+			int sourceLength = unitSource.length, begin, end;
+			for (begin = startPosition >= sourceLength ? sourceLength - 1 : startPosition; begin > 0; begin--) {
 				if ((c = unitSource[begin - 1]) == '\n' || c == '\r') break;
 			}
-			for (end = endPosition >= length ? length - 1 : endPosition ; end+1 < length; end++) {
+			for (end = endPosition >= sourceLength ? sourceLength - 1 : endPosition ; end+1 < sourceLength; end++) {
 				if ((c = unitSource[end + 1]) == '\r' || c == '\n') break;
 			}
 
@@ -88,7 +88,7 @@ public final class Util {
 			for (int i = begin; i <startPosition; i++) {
 				errorBuffer.append((unitSource[i] == TAB) ? TAB : SPACE);
 			}
-			for (int i = startPosition; i <= (endPosition >= length ? length - 1 : endPosition); i++) {
+			for (int i = startPosition; i <= (endPosition >= sourceLength ? sourceLength - 1 : endPosition); i++) {
 				errorBuffer.append(MARK);
 			}
 			return errorBuffer.toString();

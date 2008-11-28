@@ -50,7 +50,7 @@ public class EclipseCompiler implements JavaCompiler {
 		// we don't care about the order
 		EnumSet<SourceVersion> enumSet = EnumSet.range(SourceVersion.RELEASE_0, SourceVersion.RELEASE_6);
 		// we don't want anybody to modify this list
-		SupportedSourceVersions = Collections.unmodifiableSet(enumSet);
+		EclipseCompiler.SupportedSourceVersions = Collections.unmodifiableSet(enumSet);
 	}
 
 	WeakHashMap<Thread, EclipseCompilerImpl> threadCache;
@@ -65,7 +65,7 @@ public class EclipseCompiler implements JavaCompiler {
 	 * @see javax.tools.Tool#getSourceVersions()
 	 */
 	public Set<SourceVersion> getSourceVersions() {
-		return SupportedSourceVersions;
+		return EclipseCompiler.SupportedSourceVersions;
 	}
 	/*
 	 * (non-Javadoc)
@@ -73,10 +73,8 @@ public class EclipseCompiler implements JavaCompiler {
 	 * @see javax.tools.JavaCompiler#getStandardFileManager(javax.tools.DiagnosticListener,
 	 *      java.util.Locale, java.nio.charset.Charset)
 	 */
-	public StandardJavaFileManager getStandardFileManager(DiagnosticListener<? super JavaFileObject> diagnosticListener,
-			Locale locale,
-			Charset charset) {
-		this.diagnosticListener = diagnosticListener;
+	public StandardJavaFileManager getStandardFileManager(DiagnosticListener<? super JavaFileObject> someDiagnosticListener, Locale locale, Charset charset) {
+		this.diagnosticListener = someDiagnosticListener;
 		return new EclipseFileManager(locale, charset);
 	}
 	/*
@@ -87,13 +85,7 @@ public class EclipseCompiler implements JavaCompiler {
 	 *      java.lang.Iterable, java.lang.Iterable, java.lang.Iterable)
 	 */
 	@SuppressWarnings("unchecked")
-	public CompilationTask getTask(Writer out,
-			JavaFileManager fileManager,
-			DiagnosticListener<? super JavaFileObject> diagnosticListener,
-			Iterable<String> options,
-			Iterable<String> classes,
-			Iterable<? extends JavaFileObject> compilationUnits) {
-
+	public CompilationTask getTask(Writer out, JavaFileManager fileManager, DiagnosticListener<? super JavaFileObject> someDiagnosticListener, Iterable<String> options, Iterable<String> classes, Iterable<? extends JavaFileObject> compilationUnits) {
 		PrintWriter writerOut = null;
 		PrintWriter writerErr = null;
 		if (out == null) {
@@ -113,11 +105,11 @@ public class EclipseCompiler implements JavaCompiler {
 		}
 		final EclipseCompilerImpl eclipseCompiler2 = new EclipseCompilerImpl(writerOut, writerErr, false);
 		eclipseCompiler2.compilationUnits = compilationUnits;
-		eclipseCompiler2.diagnosticListener = diagnosticListener;
+		eclipseCompiler2.diagnosticListener = someDiagnosticListener;
 		if (fileManager != null) {
 			eclipseCompiler2.fileManager = fileManager;
 		} else {
-			eclipseCompiler2.fileManager = this.getStandardFileManager(diagnosticListener, null, null);
+			eclipseCompiler2.fileManager = this.getStandardFileManager(someDiagnosticListener, null, null);
 		}
 
 		eclipseCompiler2.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);

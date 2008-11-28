@@ -33,6 +33,7 @@ public class Archive {
 	protected Hashtable<String, ArrayList<String>> packagesCache;
 	
 	private Archive() {
+		// used to construct UNKNOWN_ARCHIVE
 	}
 
 	public Archive(File file) throws ZipException, IOException {

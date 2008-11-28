@@ -143,6 +143,7 @@ public class ArchiveFileObject implements JavaFileObject {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof ArchiveFileObject)) {
 			return false;

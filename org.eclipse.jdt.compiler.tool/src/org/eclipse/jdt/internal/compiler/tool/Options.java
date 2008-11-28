@@ -23,69 +23,69 @@ public final class Options {
 	private static final Set<String> FILE_MANAGER_OPTIONS;
 	static {
 		ZERO_ARGUMENT_OPTIONS = new HashSet<String>();
-		ZERO_ARGUMENT_OPTIONS.add("-progress");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-proceedOnError");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-time");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-v");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-version");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-showversion");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-deprecation");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-help");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-?");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-help:warn");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-?:warn");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-noExit");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-verbose");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-referenceInfo");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-inlineJSR");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-g");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-g:none");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-nowarn");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-warn:none");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-preserveAllLocals");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-enableJavadoc");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-Xemacs");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-X");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-O");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-1.3");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-1.4");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-1.5");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-5");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-5.0");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-1.6");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-6");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-6.0");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-proc:only");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-proc:none");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-XprintProcessorInfo");//$NON-NLS-1$
-		ZERO_ARGUMENT_OPTIONS.add("-XprintRounds");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-progress");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-proceedOnError");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-time");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-v");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-version");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-showversion");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-deprecation");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-help");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-?");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-help:warn");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-?:warn");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-noExit");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-verbose");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-referenceInfo");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-inlineJSR");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-g");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-g:none");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-nowarn");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-warn:none");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-preserveAllLocals");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-enableJavadoc");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-Xemacs");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-X");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-O");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-1.3");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-1.4");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-1.5");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-5");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-5.0");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-1.6");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-6");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-6.0");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-proc:only");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-proc:none");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-XprintProcessorInfo");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-XprintRounds");//$NON-NLS-1$
 
 		FILE_MANAGER_OPTIONS = new HashSet<String>();
-		FILE_MANAGER_OPTIONS.add("-bootclasspath");//$NON-NLS-1$
-		FILE_MANAGER_OPTIONS.add("-encoding");//$NON-NLS-1$
-		FILE_MANAGER_OPTIONS.add("-d");//$NON-NLS-1$
-		FILE_MANAGER_OPTIONS.add("-classpath");//$NON-NLS-1$
-		FILE_MANAGER_OPTIONS.add("-cp");//$NON-NLS-1$
-		FILE_MANAGER_OPTIONS.add("-sourcepath");//$NON-NLS-1$
-		FILE_MANAGER_OPTIONS.add("-extdirs");//$NON-NLS-1$
-		FILE_MANAGER_OPTIONS.add("-endorseddirs");//$NON-NLS-1$
-		FILE_MANAGER_OPTIONS.add("-s");//$NON-NLS-1$
-		FILE_MANAGER_OPTIONS.add("-processorpath");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("-bootclasspath");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("-encoding");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("-d");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("-classpath");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("-cp");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("-sourcepath");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("-extdirs");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("-endorseddirs");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("-s");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("-processorpath");//$NON-NLS-1$
 
 		ONE_ARGUMENT_OPTIONS = new HashSet<String>();
-		ONE_ARGUMENT_OPTIONS.addAll(FILE_MANAGER_OPTIONS);
-		ONE_ARGUMENT_OPTIONS.add("-log");//$NON-NLS-1$
-		ONE_ARGUMENT_OPTIONS.add("-repeat");//$NON-NLS-1$
-		ONE_ARGUMENT_OPTIONS.add("-maxProblems");//$NON-NLS-1$
-		ONE_ARGUMENT_OPTIONS.add("-source");//$NON-NLS-1$
-		ONE_ARGUMENT_OPTIONS.add("-target");//$NON-NLS-1$
-		ONE_ARGUMENT_OPTIONS.add("-processor");//$NON-NLS-1$
-		ONE_ARGUMENT_OPTIONS.add("-classNames");//$NON-NLS-1$
+		Options.ONE_ARGUMENT_OPTIONS.addAll(Options.FILE_MANAGER_OPTIONS);
+		Options.ONE_ARGUMENT_OPTIONS.add("-log");//$NON-NLS-1$
+		Options.ONE_ARGUMENT_OPTIONS.add("-repeat");//$NON-NLS-1$
+		Options.ONE_ARGUMENT_OPTIONS.add("-maxProblems");//$NON-NLS-1$
+		Options.ONE_ARGUMENT_OPTIONS.add("-source");//$NON-NLS-1$
+		Options.ONE_ARGUMENT_OPTIONS.add("-target");//$NON-NLS-1$
+		Options.ONE_ARGUMENT_OPTIONS.add("-processor");//$NON-NLS-1$
+		Options.ONE_ARGUMENT_OPTIONS.add("-classNames");//$NON-NLS-1$
 	
 	}
 	public static int processOptionsFileManager(String option) {
 		if (option == null) return -1;
-		if (FILE_MANAGER_OPTIONS.contains(option)) {
+		if (Options.FILE_MANAGER_OPTIONS.contains(option)) {
 			return 1;
 		}
 		return -1;
@@ -93,10 +93,10 @@ public final class Options {
 
 	public static int processOptions(String option) {
 		if (option == null) return -1;
-		if (ZERO_ARGUMENT_OPTIONS.contains(option)) {
+		if (Options.ZERO_ARGUMENT_OPTIONS.contains(option)) {
 			return 0;
 		}
-		if (ONE_ARGUMENT_OPTIONS.contains(option)) {
+		if (Options.ONE_ARGUMENT_OPTIONS.contains(option)) {
 			return 1;
 		}
 		if (option.startsWith("-g")) { //$NON-NLS-1$

@@ -128,7 +128,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 */
 	public void close() throws IOException {
 		this.locations = null;
-		for (Archive archive : archivesCache.values()) {
+		for (Archive archive : this.archivesCache.values()) {
 			archive.close();
 		}
 	}
@@ -218,7 +218,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 * @see javax.tools.JavaFileManager#flush()
 	 */
 	public void flush() throws IOException {
-		for (Archive archive : archivesCache.values()) {
+		for (Archive archive : this.archivesCache.values()) {
 			archive.flush();
 		}
 	}
@@ -375,7 +375,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	private String getExtension(String name) {
 		int index = name.lastIndexOf('.');
 		if (index == -1) {
-			return NO_EXTENSION;
+			return EclipseFileManager.NO_EXTENSION;
 		}
 		return name.substring(index);
 	}
@@ -606,11 +606,11 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					final Iterable<? extends File> bootclasspaths = getPathsFrom(remaining.next());
 					if (bootclasspaths != null) {
 						Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-						if ((this.flags & HAS_ENDORSED_DIRS) == 0
-								&& (this.flags & HAS_EXT_DIRS) == 0) {
+						if ((this.flags & EclipseFileManager.HAS_ENDORSED_DIRS) == 0
+								&& (this.flags & EclipseFileManager.HAS_EXT_DIRS) == 0) {
 							// override default bootclasspath
 							setLocation(StandardLocation.PLATFORM_CLASS_PATH, bootclasspaths);
-						} else if ((this.flags & HAS_ENDORSED_DIRS) != 0) {
+						} else if ((this.flags & EclipseFileManager.HAS_ENDORSED_DIRS) != 0) {
 							// endorseddirs have been processed first
 							setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
 									concatFiles(iterable, bootclasspaths));
@@ -620,7 +620,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 									prependFiles(iterable, bootclasspaths));
 						}
 					}
-					this.flags |= HAS_BOOTCLASSPATH;
+					this.flags |= EclipseFileManager.HAS_BOOTCLASSPATH;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
@@ -637,7 +637,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						} else {
 							setLocation(StandardLocation.CLASS_PATH, classpaths);
 						}
-						if ((this.flags & HAS_PROCESSORPATH) == 0) {
+						if ((this.flags & EclipseFileManager.HAS_PROCESSORPATH) == 0) {
 							setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, classpaths);
 						}
 					}
@@ -668,7 +668,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
 					setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
 							concatFiles(iterable, getExtdirsFrom(remaining.next())));
-					this.flags |= HAS_EXT_DIRS;
+					this.flags |= EclipseFileManager.HAS_EXT_DIRS;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
@@ -679,7 +679,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
 					setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
 							prependFiles(iterable, getEndorsedDirsFrom(remaining.next())));
-					this.flags |= HAS_ENDORSED_DIRS;
+					this.flags |= EclipseFileManager.HAS_ENDORSED_DIRS;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
@@ -713,7 +713,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					if (processorpaths != null) {
 						setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, processorpaths);
 					}
-					this.flags |= HAS_PROCESSORPATH;
+					this.flags |= EclipseFileManager.HAS_PROCESSORPATH;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
@@ -928,8 +928,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				switch (state) {
 				case start:
 					currentClasspathName = ""; //$NON-NLS-1$
+					//$FALL-THROUGH$
 				case readyToClose:
 					bracket = cursor - 1;
+					//$FALL-THROUGH$
 				case bracketClosed:
 					state = bracketOpened;
 					break;
@@ -977,6 +979,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						state = destinationPathReadyToClose;
 						break;
 					} // else we proceed with a rule
+					//$FALL-THROUGH$
 				case rulesNeedAnotherRule:
 					if (currentDestinationPath != null) {
 						throw new IllegalArgumentException(

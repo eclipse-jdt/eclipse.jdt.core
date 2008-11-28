@@ -99,8 +99,9 @@ public class EclipseCompilerImpl extends Main {
 		}
 	}
 
+	@Override
 	public CompilationUnit[] getCompilationUnits() {
-		if (this.compilationUnits == null) return NO_UNITS;
+		if (this.compilationUnits == null) return EclipseCompilerImpl.NO_UNITS;
 		ArrayList<CompilationUnit> units = new ArrayList<CompilationUnit>();
 		for (final JavaFileObject javaFileObject : this.compilationUnits) {
 			if (javaFileObject.getKind() != JavaFileObject.Kind.SOURCE) {
@@ -112,6 +113,7 @@ public class EclipseCompilerImpl extends Main {
 				name,
 				null) {
 
+				@Override
 				public char[] getContents() {
 					try {
 						return javaFileObject.getCharContent(true).toString().toCharArray();
@@ -131,6 +133,7 @@ public class EclipseCompilerImpl extends Main {
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
+	@Override
 	public IErrorHandlingPolicy getHandlingPolicy() {
 		// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)
 		return new IErrorHandlingPolicy() {
@@ -143,6 +146,7 @@ public class EclipseCompilerImpl extends Main {
 		};
 	}
 
+	@Override
 	public IProblemFactory getProblemFactory() {
 		return new DefaultProblemFactory() {
 			@Override
@@ -157,9 +161,9 @@ public class EclipseCompilerImpl extends Main {
 					final int lineNumber,
 					final int columnNumber) {
 
-				DiagnosticListener<? super JavaFileObject> diagnosticListener = EclipseCompilerImpl.this.diagnosticListener;
-				if (diagnosticListener != null) {
-					diagnosticListener.report(new Diagnostic<JavaFileObject>() {
+				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
+				if (diagListener != null) {
+					diagListener.report(new Diagnostic<JavaFileObject>() {
 						public String getCode() {
 							return Integer.toString(problemId);
 						}
@@ -216,8 +220,8 @@ public class EclipseCompilerImpl extends Main {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions, CompilationProgress progress) {
-		super.initialize(outWriter, errWriter, systemExit, customDefaultOptions, null);
+	protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions, CompilationProgress compilationProgress) {
+		super.initialize(outWriter, errWriter, systemExit, customDefaultOptions, compilationProgress);
 		this.javaFileObjectMap = new HashMap<CompilationUnit, JavaFileObject>();
 	}
 
@@ -233,6 +237,7 @@ public class EclipseCompilerImpl extends Main {
 
 	// Dump classfiles onto disk for all compilation units that where successful
 	// and do not carry a -d none spec, either directly or inherited from Main.
+	@Override
 	public void outputClassFiles(CompilationResult unitResult) {
 		if (!((unitResult == null) || (unitResult.hasErrors() && !this.proceedOnError))) {
 			ClassFile[] classFiles = unitResult.getClassFiles();
@@ -331,7 +336,7 @@ public class EclipseCompilerImpl extends Main {
 		if (javaFileManager != null) {
 			if ((javaFileManager.flags & EclipseFileManager.HAS_ENDORSED_DIRS) == 0
 					&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
-				fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleEndorseddirs(null));
+				fileSystemClasspaths.addAll(this.handleEndorseddirs(null));
 			}
 		}
 		Iterable<? extends File> location = null;
@@ -352,7 +357,7 @@ public class EclipseCompilerImpl extends Main {
 		if (javaFileManager != null) {
 			if ((javaFileManager.flags & EclipseFileManager.HAS_EXT_DIRS) == 0
 					&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
-				fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleExtdirs(null));
+				fileSystemClasspaths.addAll(this.handleExtdirs(null));
 			}
 		}
 		if (standardJavaFileManager != null) {
@@ -388,8 +393,8 @@ public class EclipseCompilerImpl extends Main {
 			}
 		}
 		if (this.checkedClasspaths == null) {
-			fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleBootclasspath(null, null));
-			fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleClasspath(null, null));
+			fileSystemClasspaths.addAll(this.handleBootclasspath(null, null));
+			fileSystemClasspaths.addAll(this.handleClasspath(null, null));
 		}
 		fileSystemClasspaths = FileSystem.ClasspathNormalizer.normalize(fileSystemClasspaths);
 		final int size = fileSystemClasspaths.size();
