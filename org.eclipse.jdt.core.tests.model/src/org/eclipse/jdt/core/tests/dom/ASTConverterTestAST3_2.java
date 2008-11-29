@@ -3392,7 +3392,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a if statement", node.getNodeType() == ASTNode.IF_STATEMENT);
@@ -6697,12 +6697,11 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"	boolean val = true && false && true && false && true;\n" +
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
-			ASTNode node = buildAST(
-				contents,
-				workingCopy);
+			workingCopy.getBuffer().setContents(contents.toCharArray());
+			ASTNode node = runConversion(AST.JLS3, workingCopy, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(unit, 0);
+			assertProblemsSize(unit, 1, "Dead code");
 			node = getASTNode(unit, 0, 0);
 			assertNotNull("No node", node);
 			assertEquals("Not a field declaration ", ASTNode.FIELD_DECLARATION, node.getNodeType());
@@ -6733,12 +6732,12 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"	boolean val = true || false || true || false || true;\n" +
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
-			ASTNode node = buildAST(
-				contents,
-				workingCopy);
+			workingCopy.getBuffer().setContents(contents.toCharArray());
+			ASTNode node = runConversion(AST.JLS3, workingCopy, true);			
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(unit, 0);
+			String expectedOutput = "Dead code";
+			assertProblemsSize(unit, 1, expectedOutput);
 			node = getASTNode(unit, 0, 0);
 			assertNotNull("No node", node);
 			assertEquals("Not a field declaration ", ASTNode.FIELD_DECLARATION, node.getNodeType());
@@ -9391,12 +9390,12 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"	}\n" +
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
-			ASTNode node = buildAST(
-				contents,
-				workingCopy);
+			workingCopy.getBuffer().setContents(contents.toCharArray());
+			ASTNode node = runConversion(AST.JLS3, workingCopy, true);			
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(unit, 0);
+			String expectedOutput = "Dead code";
+			assertProblemsSize(unit, 1, expectedOutput);
 			node = getASTNode(unit, 0, 0, 0);
 			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
 			ReturnStatement returnStatement = (ReturnStatement) node;

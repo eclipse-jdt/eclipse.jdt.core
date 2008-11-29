@@ -3139,12 +3139,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"	}\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-		ASTNode node = buildAST(
-			contents,
-			this.workingCopy);
+		this.workingCopy.getBuffer().setContents(contents.toCharArray());
+		ASTNode node = runConversion(AST.JLS3, this.workingCopy, true);		
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
-		assertProblemsSize(compilationUnit, 0);
+		String expectedOutput = "Dead code";
+		assertProblemsSize(compilationUnit, 1, expectedOutput);
+		
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Not an assert statement", ASTNode.ASSERT_STATEMENT, node.getNodeType());
 		AssertStatement assertStatement = (AssertStatement) node;

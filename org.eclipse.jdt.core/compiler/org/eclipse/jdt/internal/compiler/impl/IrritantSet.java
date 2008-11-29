@@ -117,9 +117,9 @@ public class IrritantSet {
 				| CompilerOptions.UnusedLabel
 				| CompilerOptions.UnusedTypeArguments
 				| CompilerOptions.UnusedWarningToken
-				| CompilerOptions.ComparingIdentical);
+				| CompilerOptions.ComparingIdentical)
 			// group-2 warnings enabled by default
-			// next irritant goes here (group-1 is complete)						
+			.set(CompilerOptions.DeadCode);
 			
 		ALL.setAll();
 		HIDING

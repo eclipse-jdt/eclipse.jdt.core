@@ -3313,7 +3313,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a if statement", node.getNodeType() == ASTNode.IF_STATEMENT);

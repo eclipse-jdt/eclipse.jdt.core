@@ -59,13 +59,26 @@ such as <code>if (DEBUG) ...</code>. This extra option is defined by
 * 
 * Option id:"org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement"
 * Possible values:{ "enabled", "disabled" }
-* Default:"disabled"
+* Default:"warning"
+</pre>
+</li>
+<li>Dead code detection warning also got enabled by default.
+<pre>
+* Compiler option ID: Reporting Dead Code.
+* When enabled, the compiler will issue an error or a warning if some non fatal dead code is detected. For instance, if (false) foo();
+* is not reported as truly unreachable code by the Java Language Specification. If this diagnostic is enabled, then the invocation of foo() is
+* going to be signaled as being dead code.
+* Option id:"org.eclipse.jdt.core.compiler.problem.deadCode"
+* Possible values:{ "error", "warning", "ignore" }
+* Default:"warning"
 </pre>
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=255970">255970</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=256882">256882</a>
+[compiler] Enable DeadCode detection by default
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=255970">255970</a>
 test tear down failed causing cascade of failures
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=207093">207093</a>
 Perf: adding a new top-level package is slow if many source files exist
