@@ -199,7 +199,7 @@ public int numberOfDifferentLocals(StackMapFrame prevFrame) {
 						indexInCurrentLocals++; // next entry  is null
 				}
 			}
-			for (;indexInPrevLocals < prevLocalsLength && prevLocalsCounter < prevNumberOfLocals; indexInPrevLocals++) {
+			if (indexInPrevLocals < prevLocalsLength && prevLocalsCounter < prevNumberOfLocals) {
 				VerificationTypeInfo prevLocal = prevLocals[indexInPrevLocals];
 				if (prevLocal != null) {
 					prevLocalsCounter++;
