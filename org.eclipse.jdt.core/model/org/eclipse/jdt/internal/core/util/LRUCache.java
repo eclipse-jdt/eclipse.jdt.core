@@ -89,6 +89,57 @@ public class LRUCache implements Cloneable {
 			return "LRUCacheEntry [" + this.key + "-->" + this.value + "]"; //$NON-NLS-3$ //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
+	
+	public class Stats {
+		private int[] counters = new int[20];
+		private long[] timestamps = new long[20];
+		private int counterIndex = -1;
+		
+		private void add(int counter) {
+			for (int i = 0; i <= this.counterIndex; i++) {
+				if (this.counters[i] == counter)
+					return;
+			}
+			int length = this.counters.length;
+			if (++this.counterIndex == length) {
+				int newLength = this.counters.length * 2;
+				System.arraycopy(this.counters, 0, this.counters = new int[newLength], 0, length);
+				System.arraycopy(this.timestamps, 0, this.timestamps = new long[newLength], 0, length);
+			}
+			this.counters[this.counterIndex] = counter;
+			this.timestamps[this.counterIndex] = System.currentTimeMillis();
+		}
+		private long getTimestamps(int counter) {
+			for (int i = 0; i <= this.counterIndex; i++) {
+				if (this.counters[i] >= counter)
+					return this.timestamps[i];
+			}
+			return -1;
+		}
+		private void removeCountersOlderThan(int counter) {
+			for (int i = 0; i <= this.counterIndex; i++) {
+				if (this.counters[i] > counter) {
+					if (i > 0) {
+						int length = this.counterIndex-i+1;
+						System.arraycopy(this.counters, i, this.counters, 0, length);
+						System.arraycopy(this.timestamps, i, this.timestamps, 0, length);
+						this.counterIndex = length;
+					}
+					return;
+				}
+			}
+		}
+		public Object getOldestElement() {
+			return LRUCache.this.getOldestElement();
+		}
+		public long getOldestTimestamps() {
+			return getTimestamps(getOldestTimestampCounter());
+		}
+		public void snaphsot() {
+			removeCountersOlderThan(getOldestTimestampCounter());
+			add(getNewestTimestampCounter());
+		}
+	}
 
 	/**
 	 * Amount of cache space used so far
@@ -231,13 +282,13 @@ public class LRUCache implements Cloneable {
 	/**
 	 * Returns the timestamps of the most recently used element in the cache.
 	 */
-	public int getNewestTimestamps() {
+	public int getNewestTimestampCounter() {
 		return this.entryQueue == null ? 0 : this.entryQueue.timestamp;
 	}
 	/**
 	 * Returns the timestamps of the least recently used element in the cache.
 	 */
-	public int getOldestTimestamps() {
+	public int getOldestTimestampCounter() {
 		return this.entryQueueTail == null ? 0 : this.entryQueueTail.timestamp;
 	}
 	/**
