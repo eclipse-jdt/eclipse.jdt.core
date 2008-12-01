@@ -23,6 +23,7 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -192,10 +193,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	public void initializeRoots(boolean initAfterLoad) {
 		
 		// recompute root infos only if necessary
-		HashMap newRoots = null;
-		HashMap newOtherRoots = null;
-		HashMap newSourceAttachments = null;
-		HashMap newProjectDependencies = null;
+		HashMap[] rootInfos = null;
 		if (this.rootsAreStale) {
 			Thread currentThread = Thread.currentThread();
 			boolean addedCurrentThread = false;			
@@ -208,78 +206,9 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				// all classpaths in the workspace are going to be resolved
 				// ensure that containers are initialized in one batch
 				JavaModelManager.getJavaModelManager().forceBatchInitializations(initAfterLoad);
+				
+				rootInfos = getRootInfos(false/*don't use previous session values*/);
 
-				newRoots = new HashMap();
-				newOtherRoots = new HashMap();
-				newSourceAttachments = new HashMap();
-				newProjectDependencies = new HashMap();
-		
-				IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-				IJavaProject[] projects;
-				try {
-					projects = model.getJavaProjects();
-				} catch (JavaModelException e) {
-					// nothing can be done
-					return;
-				}
-				for (int i = 0, length = projects.length; i < length; i++) {
-					JavaProject project = (JavaProject) projects[i];
-					IClasspathEntry[] classpath;
-					try {
-						classpath = project.getResolvedClasspath();
-					} catch (JavaModelException e) {
-						// continue with next project
-						continue;
-					}
-					for (int j= 0, classpathLength = classpath.length; j < classpathLength; j++) {
-						IClasspathEntry entry = classpath[j];
-						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-							IJavaProject key = model.getJavaProject(entry.getPath().segment(0)); // TODO (jerome) reuse handle
-							IJavaProject[] dependents = (IJavaProject[]) newProjectDependencies.get(key);
-							if (dependents == null) {
-								dependents = new IJavaProject[] {project};
-							} else {
-								int dependentsLength = dependents.length;
-								System.arraycopy(dependents, 0, dependents = new IJavaProject[dependentsLength+1], 0, dependentsLength);
-								dependents[dependentsLength] = project;
-							}
-							newProjectDependencies.put(key, dependents);
-							continue;
-						}
-						
-						// root path
-						IPath path = entry.getPath();
-						if (newRoots.get(path) == null) {
-							newRoots.put(path, new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars(), entry.getEntryKind()));
-						} else {
-							ArrayList rootList = (ArrayList)newOtherRoots.get(path);
-							if (rootList == null) {
-								rootList = new ArrayList();
-								newOtherRoots.put(path, rootList);
-							}
-							rootList.add(new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars(), entry.getEntryKind()));
-						}
-						
-						// source attachment path
-						if (entry.getEntryKind() != IClasspathEntry.CPE_LIBRARY) continue;
-						String propertyString = null;
-						try {
-							propertyString = Util.getSourceAttachmentProperty(path);
-						} catch (JavaModelException e) {
-							e.printStackTrace();
-						}
-						IPath sourceAttachmentPath;
-						if (propertyString != null) {
-							int index= propertyString.lastIndexOf(PackageFragmentRoot.ATTACHMENT_PROPERTY_DELIMITER);
-							sourceAttachmentPath = (index < 0) ?  new Path(propertyString) : new Path(propertyString.substring(0, index));
-						} else {
-							sourceAttachmentPath = entry.getSourceAttachmentPath();
-						}
-						if (sourceAttachmentPath != null) {
-							newSourceAttachments.put(sourceAttachmentPath, path);
-						}
-					}
-				}
 			} finally {
 				if (addedCurrentThread) {
 					this.initializingThreads.remove(currentThread);
@@ -289,14 +218,106 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		synchronized(this) {
 			this.oldRoots = this.roots;
 			this.oldOtherRoots = this.otherRoots;			
-			if (this.rootsAreStale && newRoots != null) { // double check again
-				this.roots = newRoots;
-				this.otherRoots = newOtherRoots;
-				this.sourceAttachments = newSourceAttachments;
-				this.projectDependencies = newProjectDependencies;
+			if (this.rootsAreStale && rootInfos != null) { // double check again
+				this.roots = rootInfos[0];
+				this.otherRoots = rootInfos[1];
+				this.sourceAttachments = rootInfos[2];
+				this.projectDependencies = rootInfos[3];
 				this.rootsAreStale = false;
 			}
 		}
+	}
+	
+	synchronized void initializeRootsWithPreviousSession() {
+		HashMap[] rootInfos = getRootInfos(true/*use previous session values*/);
+		if (rootInfos != null) {
+			this.roots = rootInfos[0];
+			this.otherRoots = rootInfos[1];
+			this.sourceAttachments = rootInfos[2];
+			this.projectDependencies = rootInfos[3];
+			this.rootsAreStale = false;
+		}
+	}
+	
+	private HashMap[] getRootInfos(boolean usePreviousSession) {
+		HashMap newRoots = new HashMap();
+		HashMap newOtherRoots = new HashMap();
+		HashMap newSourceAttachments = new HashMap();
+		HashMap newProjectDependencies = new HashMap();
+
+		IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+		IJavaProject[] projects;
+		try {
+			projects = model.getJavaProjects();
+		} catch (JavaModelException e) {
+			// nothing can be done
+			return null;
+		}
+		for (int i = 0, length = projects.length; i < length; i++) {
+			JavaProject project = (JavaProject) projects[i];
+			IClasspathEntry[] classpath;
+			try {
+				if (usePreviousSession) {
+					PerProjectInfo perProjectInfo = project.getPerProjectInfo();
+					project.resolveClasspath(perProjectInfo, true/*use previous session values*/);
+					classpath = perProjectInfo.resolvedClasspath;
+				} else {
+					classpath = project.getResolvedClasspath();
+				}
+			} catch (JavaModelException e) {
+				// continue with next project
+				continue;
+			}
+			for (int j= 0, classpathLength = classpath.length; j < classpathLength; j++) {
+				IClasspathEntry entry = classpath[j];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+					IJavaProject key = model.getJavaProject(entry.getPath().segment(0)); // TODO (jerome) reuse handle
+					IJavaProject[] dependents = (IJavaProject[]) newProjectDependencies.get(key);
+					if (dependents == null) {
+						dependents = new IJavaProject[] {project};
+					} else {
+						int dependentsLength = dependents.length;
+						System.arraycopy(dependents, 0, dependents = new IJavaProject[dependentsLength+1], 0, dependentsLength);
+						dependents[dependentsLength] = project;
+					}
+					newProjectDependencies.put(key, dependents);
+					continue;
+				}
+				
+				// root path
+				IPath path = entry.getPath();
+				if (newRoots.get(path) == null) {
+					newRoots.put(path, new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars(), entry.getEntryKind()));
+				} else {
+					ArrayList rootList = (ArrayList)newOtherRoots.get(path);
+					if (rootList == null) {
+						rootList = new ArrayList();
+						newOtherRoots.put(path, rootList);
+					}
+					rootList.add(new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars(), entry.getEntryKind()));
+				}
+				
+				// source attachment path
+				if (entry.getEntryKind() != IClasspathEntry.CPE_LIBRARY) continue;
+				String propertyString = null;
+				try {
+					propertyString = Util.getSourceAttachmentProperty(path);
+				} catch (JavaModelException e) {
+					e.printStackTrace();
+				}
+				IPath sourceAttachmentPath;
+				if (propertyString != null) {
+					int index= propertyString.lastIndexOf(PackageFragmentRoot.ATTACHMENT_PROPERTY_DELIMITER);
+					sourceAttachmentPath = (index < 0) ?  new Path(propertyString) : new Path(propertyString.substring(0, index));
+				} else {
+					sourceAttachmentPath = entry.getSourceAttachmentPath();
+				}
+				if (sourceAttachmentPath != null) {
+					newSourceAttachments.put(sourceAttachmentPath, path);
+				}
+			}
+		}
+		return new HashMap[] {newRoots, newOtherRoots, newSourceAttachments, newProjectDependencies};
 	}
 
 	public synchronized ClasspathValidation[] removeClasspathValidations() {

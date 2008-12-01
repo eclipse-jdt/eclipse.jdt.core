@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 
 import junit.framework.Test;
@@ -88,6 +89,7 @@ protected void tearDown() throws Exception {
 
 	super.tearDown();
 }
+
 public void testContainerInitializer01() throws CoreException {
 	try {
 		createProject("P1");
@@ -947,6 +949,50 @@ public void testContainerInitializer23() throws CoreException {
 		deleteExternalResource("externalLib.abc");
 		deleteProject("P1");
 		deleteProject("P2");
+	}
+}
+
+public void testContainerInitializer24() throws Exception {
+	BPThread.TIMEOUT = Integer.MAX_VALUE;
+	BPThread thread = new BPThread("getResolvedClasspath()");
+	ClasspathResolutionBreakpointListener listener = new ClasspathResolutionBreakpointListener(new BPThread[] {thread});
+	try {
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
+		final JavaProject project2 = (JavaProject) createJavaProject(
+				"P2", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		simulateExit();
+		deleteResource(JavaCore.getPlugin().getStateLocation().append("variablesAndContainers.dat").toFile());
+		simulateRestart();
+		
+		JavaProject.addCPResolutionBPListener(listener);
+		thread.start(new Runnable() {
+			public void run() {
+				try {
+					project2.getResolvedClasspath();
+				} catch (JavaModelException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		thread.runToBP(1);
+		thread.runToBP(2);
+		thread.runToBP(3);
+		
+		IClasspathEntry[] classpath = project2.getResolvedClasspath();
+		assertClasspathEquals(
+			classpath, 
+			"/P1/lib.jar[CPE_LIBRARY][K_BINARY][isExported:false]"
+		);
+
+	} finally {
+		JavaProject.removeCPResolutionBPListener(listener);
+		thread.resume();
+		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
 
