@@ -9336,8 +9336,10 @@ protected void parse() {
 			this.stateStackTop -= (rhs[act] - 1);
 			act = ntAction(this.stack[this.stateStackTop], lhs[act]);
 
-			if (DEBUG_AUTOMATON && act <= NUM_RULES) {
-				System.out.print("             - ");  //$NON-NLS-1$
+			if (DEBUG_AUTOMATON) {
+				if (act <= NUM_RULES) {
+					System.out.print("             - ");  //$NON-NLS-1$
+				}
 			}
 
 		} while (act <= NUM_RULES);
