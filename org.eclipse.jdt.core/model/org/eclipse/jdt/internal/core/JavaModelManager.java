@@ -1895,7 +1895,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public Hashtable getOptions() {
 
 		// return cached options if already computed
-		if (this.optionsCache != null) return new Hashtable(this.optionsCache);
+		Hashtable cachedOptions; // use a local variable to avoid race condition (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=256329 )
+		if ((cachedOptions = this.optionsCache) != null) return new Hashtable(cachedOptions);
 
 		if (!Platform.isRunning()) {
 			return this.optionsCache = getDefaultOptionsNoInitialization();
