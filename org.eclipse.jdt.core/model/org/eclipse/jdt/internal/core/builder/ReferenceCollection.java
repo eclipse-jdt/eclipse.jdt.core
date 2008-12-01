@@ -73,6 +73,13 @@ public boolean includes(char[][] qualifiedName) {
 	return false;
 }
 
+/**
+ * @deprecated
+ */
+public boolean includes(char[][][] qualifiedNames, char[][] simpleNames) {
+	return includes(qualifiedNames, simpleNames, null);
+}
+
 public boolean includes(char[][][] qualifiedNames, char[][] simpleNames, char[][] rootNames) {
 	// if either collection of names is null, it means it contained a well known name so we know it already has a match
 	if (rootNames != null) {
