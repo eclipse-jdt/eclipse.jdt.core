@@ -859,10 +859,10 @@ private static int coveragePointsNb = 39;
 // PREMATURE reactivate coverage tests
 // Coverage by state transition tables methods.
 public void test2998_coverage() {
-	if (UnconditionalFlowInfo.coverageTestFlag) {
+	if (UnconditionalFlowInfo.COVERAGE_TEST_FLAG) {
 		// sanity check: need to be sure that the tests execute properly when not
 		// trying to check coverage
-		UnconditionalFlowInfo.coverageTestId = 0;
+		UnconditionalFlowInfo.CoverageTestId = 0;
 		test0053_array();
 		test0070_type_reference();
 		test2050_markAsComparedEqualToNonNull();
@@ -883,7 +883,7 @@ public void test2998_coverage() {
 				// addPotentialInitsFrom
 			}
 			try {
-				UnconditionalFlowInfo.coverageTestId = i;
+				UnconditionalFlowInfo.CoverageTestId = i;
 				test0053_array();
 				test0070_type_reference();
 				test2050_markAsComparedEqualToNonNull();
@@ -904,17 +904,17 @@ public void test2998_coverage() {
 			failuresNb++;
 			System.out.println("Missing coverage point: " + i);
 		}
-		UnconditionalFlowInfo.coverageTestId = 0; // reset for other tests
+		UnconditionalFlowInfo.CoverageTestId = 0; // reset for other tests
 		assertEquals(failuresNb + " missing coverage point(s)", failuresNb, 0);
 	}
 }
 
 // Coverage by code samples.
 public void test2999_coverage() {
-	if (UnconditionalFlowInfo.coverageTestFlag) {
+	if (UnconditionalFlowInfo.COVERAGE_TEST_FLAG) {
 		// sanity check: need to be sure that the tests execute properly when not
 		// trying to check coverage
-		UnconditionalFlowInfo.coverageTestId = 0;
+		UnconditionalFlowInfo.CoverageTestId = 0;
 		test0001_simple_local();
 		test0053_array();
 		test0070_type_reference();
@@ -944,7 +944,7 @@ public void test2999_coverage() {
 				continue;
 			}
 			try {
-				UnconditionalFlowInfo.coverageTestId = i;
+				UnconditionalFlowInfo.CoverageTestId = i;
 				test0001_simple_local();
 				test0053_array();
 				test0070_type_reference();
@@ -970,7 +970,7 @@ public void test2999_coverage() {
 			failuresNb++;
 			System.out.println("Missing coverage point: " + i);
 		}
-		UnconditionalFlowInfo.coverageTestId = 0; // reset for other tests
+		UnconditionalFlowInfo.CoverageTestId = 0; // reset for other tests
 		assertEquals(failuresNb + " missing coverage point(s)", failuresNb, 0);
 	}
 }

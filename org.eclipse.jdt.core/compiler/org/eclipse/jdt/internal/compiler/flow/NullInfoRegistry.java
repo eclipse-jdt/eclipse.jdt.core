@@ -124,8 +124,10 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
     	if ((position = local.id + this.maxFieldCount) < BitCacheSize) { // use bits
     		// set protected non null
     		this.nullBit1 |= (1L << position);
-    		if (coverageTestFlag && coverageTestId == 290) {
-    		  	this.nullBit1 = 0;
+    		if (COVERAGE_TEST_FLAG) {
+    			if (CoverageTestId == 290) {
+	    		  	this.nullBit1 = 0;
+    			}
     		}
     	}
     	else {
@@ -149,8 +151,10 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 				}
 			}
     		this.extra[2][vectorIndex] |= (1L << (position % BitCacheSize));
-    		if (coverageTestFlag && coverageTestId == 300) {
-    		  	this.extra[5][vectorIndex] = ~0;
+    		if (COVERAGE_TEST_FLAG) {
+    			if (CoverageTestId == 300) {
+		   		  	this.extra[5][vectorIndex] = ~0;
+    			}
     		}
     	}
 	}
@@ -165,8 +169,10 @@ public void markAsDefinitelyNonNull(LocalVariableBinding local) {
     	if ((position = local.id + this.maxFieldCount) < BitCacheSize) { // use bits
     		// set assigned non null
     		this.nullBit3 |= (1L << position);
-    		if (coverageTestFlag && coverageTestId == 290) {
-    		  	this.nullBit1 = 0;
+    		if (COVERAGE_TEST_FLAG) {
+    			if (CoverageTestId == 290) {
+	    		  	this.nullBit1 = 0;
+    			}
     		}
     	}
     	else {
@@ -190,8 +196,10 @@ public void markAsDefinitelyNonNull(LocalVariableBinding local) {
 				}
 			}
     		this.extra[4][vectorIndex] |= (1L << (position % BitCacheSize));
-    		if (coverageTestFlag && coverageTestId == 300) {
-    		  	this.extra[5][vectorIndex] = ~0;
+    		if (COVERAGE_TEST_FLAG) {
+    			if (CoverageTestId == 300) {
+	    		  	this.extra[5][vectorIndex] = ~0;
+    			}
     		}
     	}
 	}
@@ -207,8 +215,10 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
     	if ((position = local.id + this.maxFieldCount) < BitCacheSize) { // use bits
     		// set assigned null
     		this.nullBit2 |= (1L << position);
-    		if (coverageTestFlag && coverageTestId == 290) {
-    		  	this.nullBit1 = 0;
+    		if (COVERAGE_TEST_FLAG) {
+    			if (CoverageTestId == 290) {
+	    		  	this.nullBit1 = 0;
+    			}
     		}
     	}
     	else {
@@ -232,8 +242,10 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
 				}
 			}
     		this.extra[3][vectorIndex] |= (1L << (position % BitCacheSize));
-    		if (coverageTestFlag && coverageTestId == 300) {
-    		  	this.extra[5][vectorIndex] = ~0;
+    		if (COVERAGE_TEST_FLAG) {
+    			if (CoverageTestId == 300) {
+	    		  	this.extra[5][vectorIndex] = ~0;
+    			}
     		}
     	}
 	}
@@ -248,8 +260,10 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
     	if ((position = local.id + this.maxFieldCount) < BitCacheSize) { // use bits
     		// set assigned unknown
     		this.nullBit4 |= (1L << position);
-    		if (coverageTestFlag && coverageTestId == 290) {
-    		  	this.nullBit1 = 0;
+    		if (COVERAGE_TEST_FLAG) {
+    			if (CoverageTestId == 290) {
+	    		  	this.nullBit1 = 0;
+    			}
     		}
     	}
     	else {
@@ -273,8 +287,10 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 				}
 			}
     		this.extra[5][vectorIndex] |= (1L << (position % BitCacheSize));
-    		if (coverageTestFlag && coverageTestId == 300) {
-    		  	this.extra[5][vectorIndex] = ~0;
+    		if (COVERAGE_TEST_FLAG) {
+    			if (CoverageTestId == 300) {
+	    		  	this.extra[5][vectorIndex] = ~0;
+    			}
     		}
     	}
 	}
