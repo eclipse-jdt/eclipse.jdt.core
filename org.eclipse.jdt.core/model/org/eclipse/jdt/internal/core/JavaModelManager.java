@@ -476,14 +476,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return container;
 	}
 
-	private synchronized Map containerClone(IJavaProject project) {
-		Map originalProjectContainers = (Map)this.containers.get(project);
-		if (originalProjectContainers == null) return null;
-		Map projectContainers = new HashMap(originalProjectContainers.size());
-		projectContainers.putAll(originalProjectContainers);
-		return projectContainers;
-	}
-
 	private boolean containerIsInitializationInProgress(IJavaProject project, IPath containerPath) {
 		Map initializations = (Map)this.containerInitializationInProgress.get();
 		if (initializations == null)
@@ -3546,74 +3538,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		try {
 			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			out.writeInt(VARIABLES_AND_CONTAINERS_FILE_VERSION);
-			if (VARIABLES_AND_CONTAINERS_FILE_VERSION != 1)
-				new VariablesAndContainersSaveHelper(out).save(context);
-			else {
-				// old code retained for performance comparisons
-
-    			// variables
-    			out.writeInt(this.variables.size());
-    			Iterator iterator = this.variables.entrySet().iterator();
-    			while (iterator.hasNext()) {
-    				Map.Entry entry = (Map.Entry) iterator.next();
-    				String variableName = (String) entry.getKey();
-    				out.writeUTF(variableName);
-    				IPath path = (IPath) entry.getValue();
-    				out.writeUTF(path == null ? CP_ENTRY_IGNORE : path.toPortableString());
-    			}
-
-    			// containers
-    			IJavaProject[] projects = getJavaModel().getJavaProjects();
-    			int length = projects.length;
-    			out.writeInt(length);
-    			for (int i = 0; i < length; i++) {
-    			    IJavaProject project = projects[i];
-    				// clone while iterating (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59638)
-    				Map projectContainers = containerClone(project);
-    				out.writeUTF(project.getElementName());
-    				if (projectContainers == null) {
-    					out.writeInt(0);
-    					continue;
-    				}
-    				HashMap containersToSave = new HashMap();
-    				for (iterator = projectContainers.entrySet().iterator(); iterator.hasNext();) {
-    					Map.Entry entry = (Map.Entry) iterator.next();
-    				    IPath containerPath = (IPath) entry.getKey();
-    				    IClasspathContainer container = (IClasspathContainer) entry.getValue();
-    					String containerString = null;
-    					try {
-    						if (container == null) {
-    							// container has not been initialized yet, use previous session value
-    							// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=73969)
-    							container = getPreviousSessionContainer(containerPath, project);
-    						}
-    						if (container != null) {
-    							IClasspathEntry[] entries = container.getClasspathEntries();
-    							containerString = ((JavaProject)project).encodeClasspath(
-    									entries,
-    									null,
-    									false,
-    									null/*not interested in unknown elements*/);
-    						}
-    					} catch(JavaModelException e){
-    						// could not encode entry: will not persist
-    						Util.log(e, "Could not persist container " + containerPath + " for project " + project.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
-    					}
-    					if (containerString != null)
-    						containersToSave.put(containerPath, containerString);
-    				}
-    				out.writeInt(containersToSave.size());
-    				iterator = containersToSave.entrySet().iterator();
-    				while (iterator.hasNext()) {
-    					Map.Entry entry = (Map.Entry) iterator.next();
-    					IPath containerPath = (IPath) entry.getKey();
-    					out.writeUTF(containerPath.toPortableString());
-    					String containerString = (String) entry.getValue();
-    					out.writeInt(containerString.length());
-    					out.writeBytes(containerString);
-    				}
-    			}
-			}
+			new VariablesAndContainersSaveHelper(out).save(context);
 		} catch (IOException e) {
 			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving variables and containers", e); //$NON-NLS-1$
 			throw new CoreException(status);
