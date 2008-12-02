@@ -47586,7 +47586,7 @@ public void test1405()  throws Exception {
 			"            Throwable t0 = (Throwable) Collections.emptyList();\n" + 
 			"            Throwable t1 = (Throwable) rawList;\n" + 
 			"            Throwable t2 = (Throwable) unboundList;\n" + 
-			"           	Map m0 = (Map) Collections.emptyList();\n" + 
+			"            Map m0 = (Map) Collections.emptyList();\n" + 
 			"            Map m1 = (Map) rawList;\n" + 
 			"            Map m2 = (Map) unboundList;\n" + 
 			"            Zork z;\n" + 
@@ -47599,47 +47599,37 @@ public void test1405()  throws Exception {
 		"	  ^^^^\n" + 
 		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 4)\n" + 
-		"	Throwable t0 = (Throwable) Collections.emptyList();\n" + 
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked cast from List<Object> to Throwable\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 6)\n" + 
-		"	Throwable t2 = (Throwable) unboundList;\n" + 
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked cast from List<capture#1-of ?> to Throwable\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 7)\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
 		"	Map m0 = (Map) Collections.emptyList();\n" + 
 		"	^^^\n" + 
 		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 7)\n" + 
+		"3. WARNING in X.java (at line 7)\n" + 
 		"	Map m0 = (Map) Collections.emptyList();\n" + 
 		"	          ^^^\n" + 
 		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
 		"----------\n" + 
-		"6. WARNING in X.java (at line 8)\n" + 
+		"4. WARNING in X.java (at line 8)\n" + 
 		"	Map m1 = (Map) rawList;\n" + 
 		"	^^^\n" + 
 		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
 		"----------\n" + 
-		"7. WARNING in X.java (at line 8)\n" + 
+		"5. WARNING in X.java (at line 8)\n" + 
 		"	Map m1 = (Map) rawList;\n" + 
 		"	          ^^^\n" + 
 		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
 		"----------\n" + 
-		"8. WARNING in X.java (at line 9)\n" + 
+		"6. WARNING in X.java (at line 9)\n" + 
 		"	Map m2 = (Map) unboundList;\n" + 
 		"	^^^\n" + 
 		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
 		"----------\n" + 
-		"9. WARNING in X.java (at line 9)\n" + 
+		"7. WARNING in X.java (at line 9)\n" + 
 		"	Map m2 = (Map) unboundList;\n" + 
 		"	          ^^^\n" + 
 		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
 		"----------\n" + 
-		"10. ERROR in X.java (at line 10)\n" + 
+		"8. ERROR in X.java (at line 10)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -47706,6 +47696,246 @@ public void test1407() {
 			"	Foo l2 = m2((Class)Foo.class); //unchecked call, erased return type and error because Object != Foo		\n" + 
 			"	             ^^^^^\n" + 
 			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n");
+}
+public void test1408() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	void foo(Collection<? extends X> i) {\n" + 
+				"		Zork z = (List<? extends X>) i;\n" + 
+				"	}\n" + 
+				"	void bar(List<? extends X> i) {\n" + 
+				"		Zork z = (ArrayList<? extends X>) i;\n" + 
+				"	}	\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	Zork z = (List<? extends X>) i;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	Zork z = (ArrayList<? extends X>) i;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+public void test1409() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	void foo(List<X> lx, List<?> lw) {\n" + 
+				"		LinkedList<Object> lo = (LinkedList<Object>) lx;\n" + 
+				"		LinkedList<String> ls = (LinkedList<String>) lw;\n" + 
+				"	}\n" + 
+				"	void bar(List<X> lx, List<Integer> li) {\n" + 
+				"		LinkedList<? extends Object> lo = (LinkedList<? extends Object>) lx;\n" + 
+				"		LinkedList<? extends Number> ln = (LinkedList<? extends Number>) li;		\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	LinkedList<Object> lo = (LinkedList<Object>) lx;\n" + 
+			"	                        ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from List<X> to LinkedList<Object>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	LinkedList<String> ls = (LinkedList<String>) lw;\n" + 
+			"	                        ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from List<capture#1-of ?> to LinkedList<String>\n" + 
+			"----------\n");
+}
+public void test1410() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"interface I<T> {}\n" + 
+				"class Y<T> implements I<T> {}\n" + 
+				"public class X {\n" + 
+				"	I<Short>[] x = null;\n" + 
+				"	Y<? extends Number>[] y1 = (Y<? extends Number>[]) x;\n" + 
+				"	Y<? extends Number> y2 = (Y<? extends Number>) x[0];\n" + 
+				"	Y<? extends X>[] y3 = (Y<? extends X>[]) x;\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	Y<? extends X>[] y3 = (Y<? extends X>[]) x;\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from I<Short>[] to Y<? extends X>[]\n" + 
+			"----------\n");
+}
+public void test1411() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X<T> {\n" + 
+				"	static class Child extends X<Object> {	}\n" + 
+				"	static <U> X<U> create() {\n" + 
+				"		Child child = new Child();\n" + 
+				"		child.set(new Object());\n" + 
+				"		return (X<U>) child;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<Number> c = create();\n" + 
+				"		Number n = c.get();\n" + 
+				"	}\n" + 
+				"	T t;\n" + 
+				"	void set(T t) {\n" + 
+				"		this.t = t;\n" + 
+				"	}\n" + 
+				"	T get() {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"	static X<Object> willWarn = new X<Object>();\n" + 
+				"	static <U> X<U> raisesTheWarning() {\n" + 
+				"		return (X<U>) willWarn;\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	return (X<U>) child;\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from X.Child to X<U>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 21)\n" + 
+			"	return (X<U>) willWarn;\n" + 
+			"	       ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from X<Object> to X<U>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 23)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+public void test1412() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.List;\n" + 
+				"class A<T> {\n" + 
+				"	List<String> foo() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class B<U> {\n" + 
+				"	A a1 = new A<U>();\n" + 
+				"	A<?> a2 = new A<U>();\n" + 
+				"}\n" + 
+				"class X {\n" + 
+				"	void bar() {\n" + 
+				"		B<X> bx = new B<X>();\n" + 
+				"		List<String> s1 = bx.a1.foo();\n" + 
+				"		List<String> s2 = bx.a2.foo();\n" + 
+				"		Zork z;\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	A a1 = new A<U>();\n" + 
+			"	^\n" + 
+			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	List<String> s1 = bx.a1.foo();\n" + 
+			"	                  ^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 16)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+public void test1413() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.*;\n" + 
+				"public class X  {\n" + 
+				"	HashMap <String, ArrayList> m = new HashMap<String, ArrayList>();\n" + 
+				"	ArrayList <X> ax = m.get(\"\");\n" + 
+				"	Zork z;\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	HashMap <String, ArrayList> m = new HashMap<String, ArrayList>();\n" + 
+			"	                 ^^^^^^^^^\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	HashMap <String, ArrayList> m = new HashMap<String, ArrayList>();\n" + 
+			"	                                                    ^^^^^^^^^\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	ArrayList <X> ax = m.get(\"\");\n" + 
+			"	                   ^^^^^^^^^\n" + 
+			"Type safety: The expression of type ArrayList needs unchecked conversion to conform to ArrayList<X>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+public void test1414() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"interface A<T> {}\n" + 
+				"class B<T> {}\n" + 
+				"public class X {\n" + 
+				"        A<?> a = null;\n" + 
+				"        B y = (B)a;\n" + 
+				"        Zork z;\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	B y = (B)a;\n" + 
+			"	^\n" + 
+			"B is a raw type. References to generic type B<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	B y = (B)a;\n" + 
+			"	       ^\n" + 
+			"B is a raw type. References to generic type B<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+public void test1415() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"    <T, U extends T, V extends T> T foo(boolean b, U u, V v) {\n" + 
+				"        return b ? (T) u: v;\n" + 
+				"    }\n" + 
+				"    Zork z;\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
 }

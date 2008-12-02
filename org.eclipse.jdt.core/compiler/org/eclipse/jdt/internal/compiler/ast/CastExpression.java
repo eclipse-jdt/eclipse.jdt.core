@@ -386,12 +386,13 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 		case Binding.TYPE_PARAMETER :
 			this.bits |= ASTNode.UnsafeCast;
 			return true;
-		case Binding.TYPE :
-			if (isNarrowing && match == null && expressionType.isParameterizedType()) {
-				this.bits |= ASTNode.UnsafeCast;
-				return true;
-			}
-			break;
+//		(disabled) https://bugs.eclipse.org/bugs/show_bug.cgi?id=240807			
+//		case Binding.TYPE :
+//			if (isNarrowing && match == null && expressionType.isParameterizedType()) {
+//				this.bits |= ASTNode.UnsafeCast;
+//				return true;
+//			}
+//			break;
 	}
 	if (!isNarrowing && match == this.resolvedType.leafComponentType()) { // do not tag as unnecessary when recursing through upper bounds
 		tagAsUnnecessaryCast(scope, castType);

@@ -5008,4 +5008,39 @@ public void test166() {
 		"The expression of type short is boxed into Character\n" + 
 		"----------\n");
 }
+public void testONLY_167() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"     String foo(Comparable<String> x) {\n" + 
+			"       System.out.println( \"one\" );" +
+			"		return null;\n" + 
+			"     }\n" + 
+			"     void foo(int x) {\n" + 
+			"       System.out.println( \"two\" );\n" + 
+			"     }\n" + 
+			"	void bar() {\n" + 
+			"       Integer i = 1;\n" + 
+			"       String s = foo(i); \n" + 
+			"     }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	Integer i = 1;\n" + 
+		"	            ^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	String s = foo(i); \n" + 
+		"	           ^^^^^^\n" + 
+		"Type mismatch: cannot convert from void to String\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 10)\n" + 
+		"	String s = foo(i); \n" + 
+		"	               ^\n" + 
+		"The expression of type Integer is unboxed into int\n" + 
+		"----------\n");
+}
 }
