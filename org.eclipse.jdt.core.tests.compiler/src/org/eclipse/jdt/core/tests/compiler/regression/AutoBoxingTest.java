@@ -5008,7 +5008,7 @@ public void test166() {
 		"The expression of type short is boxed into Character\n" + 
 		"----------\n");
 }
-public void testONLY_167() {
+public void test167() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
