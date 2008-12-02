@@ -516,15 +516,16 @@ public class BuilderTests extends TestCase {
 			PackageTests.class,
 			StaticFinalTests.class,
 			GetResourcesTests.class,
+			FriendDependencyTests.class,
 		};
 
 		if ((AbstractCompilerTest.getPossibleComplianceLevels()  & AbstractCompilerTest.F_1_5) != 0) {
 			int length = classes.length;
 			System.arraycopy(classes, 0, classes = new Class[length+3], 0, length);
 			classes[length++] = Java50Tests.class;
-            classes[length++] = PackageInfoTest.class;
-            classes[length++] = ParticipantBuildTests.class;
-        }
+			classes[length++] = PackageInfoTest.class;
+			classes[length++] = ParticipantBuildTests.class;
+		}
 		return classes;
 	}
 
