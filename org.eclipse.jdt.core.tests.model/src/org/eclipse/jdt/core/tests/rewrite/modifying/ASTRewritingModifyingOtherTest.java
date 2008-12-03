@@ -13,7 +13,6 @@ package org.eclipse.jdt.core.tests.rewrite.modifying;
 import java.util.List;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -32,12 +31,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 	}
 
 	public static Test suite() {
-		if (true) {
-			return allTests();
-		}
-		TestSuite suite= new Suite("one test");
-		suite.addTest(new ASTRewritingModifyingOtherTest("test0009"));
-		return suite;
+		return allTests();
 	}
 
 	public void test0000() throws Exception {

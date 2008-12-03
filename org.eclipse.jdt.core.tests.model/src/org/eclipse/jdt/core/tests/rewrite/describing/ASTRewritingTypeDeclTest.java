@@ -13,7 +13,6 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.util.List;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -34,17 +33,8 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		return new Suite(THIS);
 	}
 
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
-	}
-
 	public static Test suite() {
-		if (true) {
-			return allTests();
-		}
-		return setUpTest(new ASTRewritingTypeDeclTest("testEnumDeclaration"));
+		return allTests();
 	}
 
 	/** @deprecated using deprecated code */

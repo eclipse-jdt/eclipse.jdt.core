@@ -1807,8 +1807,8 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 			null /* do not check output string */,
 			null /* do not check error string */,
 			// javac options
-			false ?
-					JavacTestOptions.SKIP :
+			/* false ?
+					JavacTestOptions.SKIP :*/
 					JavacTestOptions.DEFAULT /* javac test options */);
 	}
 	protected void runNegativeTest(

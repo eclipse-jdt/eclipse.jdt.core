@@ -124,22 +124,20 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 //		if ("true".equals(param)) {
 //			unix = true;
 //		}
-		if (true) {
-			if (DOC_COMMENT_SUPPORT == null) {
-				buildSuite(suite, JavaCore.ENABLED);
-				buildSuite(suite, JavaCore.DISABLED);
-			} else {
-				String support = DOC_COMMENT_SUPPORT==null ? JavaCore.DISABLED : (DOC_COMMENT_SUPPORT.equals(JavaCore.DISABLED)?JavaCore.DISABLED:JavaCore.ENABLED);
-				buildSuite(suite, support);
-			}
-			return suite;
+		if (DOC_COMMENT_SUPPORT == null) {
+			buildSuite(suite, JavaCore.ENABLED);
+			buildSuite(suite, JavaCore.DISABLED);
+		} else {
+			String support = DOC_COMMENT_SUPPORT==null ? JavaCore.DISABLED : (DOC_COMMENT_SUPPORT.equals(JavaCore.DISABLED)?JavaCore.DISABLED:JavaCore.ENABLED);
+			buildSuite(suite, support);
 		}
-
-		// Run test cases subset
-		COPY_DIR = false;
-		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug165525"));
 		return suite;
+
+//		Run test cases subset
+//		COPY_DIR = false;
+//		System.err.println("WARNING: only subset of tests will be executed!!!");
+//		suite.addTest(new ASTConverterJavadocTest("testBug165525"));
+//		return suite;
 	}
 
 	public static void buildSuite(TestSuite suite, String support) {

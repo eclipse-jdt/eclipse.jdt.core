@@ -1055,9 +1055,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 
 	/** @deprecated using deprecated code */
-	public void testMethodParamsRenameReorder() throws Exception {
-		if (true)
-			return;
+	public void _testMethodParamsRenameReorder() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1070,8 +1068,6 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
-
-		AST ast= astRoot.getAST();
 
 		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
