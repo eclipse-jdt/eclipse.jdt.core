@@ -47938,4 +47938,31 @@ public void test1415() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+public void test1416() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"interface A {}\n" + 
+				"interface B<RELATED extends A> extends A {}\n" + 
+				"interface C<RELATED extends A, SOURCE  extends RELATED> extends B<RELATED> {}\n" + 
+				"interface D<RELATED extends A, SOURCE  extends B<?>> extends C<RELATED, SOURCE> {}\n" + 
+				"interface E<RELATED extends B<?>, SOURCE  extends RELATED> extends C<RELATED, SOURCE> {}\n" + 
+				"public class X {\n" + 
+				"	C<B<?>,C<?,?>> ok;\n" + 
+				"	C<C<?,?>,B<?>> wrong;\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	interface D<RELATED extends A, SOURCE  extends B<?>> extends C<RELATED, SOURCE> {}\n" + 
+			"	                                                                        ^^^^^^\n" + 
+			"Bound mismatch: The type SOURCE is not a valid substitute for the bounded parameter <SOURCE extends RELATED> of the type C<RELATED,SOURCE>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	C<C<?,?>,B<?>> wrong;\n" + 
+			"	         ^\n" + 
+			"Bound mismatch: The type B<?> is not a valid substitute for the bounded parameter <SOURCE extends RELATED> of the type C<RELATED,SOURCE>\n" + 
+			"----------\n");
+}
+
 }
