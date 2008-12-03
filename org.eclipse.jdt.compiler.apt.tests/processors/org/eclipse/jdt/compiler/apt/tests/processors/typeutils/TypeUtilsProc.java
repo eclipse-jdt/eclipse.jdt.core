@@ -235,20 +235,21 @@ public class TypeUtilsProc extends BaseProcessor
 		TypeElement iterDecl = _elementUtils.getTypeElement("java.util.HashMap.HashIterator");
 		DeclaredType stringType = _typeUtils.getDeclaredType(stringDecl);
 		DeclaredType numberType = _typeUtils.getDeclaredType(numberDecl);
+		ArrayType numberArrayType = _typeUtils.getArrayType(numberType);
 
-		// HashMap<String, Number>
-		DeclaredType outerType = _typeUtils.getDeclaredType(mapDecl, stringType, numberType);
+		// HashMap<String, Number[]>
+		DeclaredType outerType = _typeUtils.getDeclaredType(mapDecl, stringType, numberArrayType);
 		
-		// HashMap<String, Number>.HashIterator<Number>
-		DeclaredType decl = _typeUtils.getDeclaredType(outerType, iterDecl, new DeclaredType[] { numberType });
+		// HashMap<String, Number[]>.HashIterator<Number[]>
+		DeclaredType decl = _typeUtils.getDeclaredType(outerType, iterDecl, new TypeMirror[] { numberArrayType });
 		
 		List<? extends TypeMirror> args = decl.getTypeArguments();
 		if (args.size() != 1) {
-			reportError("Map<String, Number>.EntryIterator<Number> should have one argument but decl.getTypeArguments() returned " + args.size());
+			reportError("Map<String, Number[]>.EntryIterator<Number[]> should have one argument but decl.getTypeArguments() returned " + args.size());
 			return false;
 		}
-		if (!_typeUtils.isSameType(numberType, args.get(0))) {
-			reportError("First arg of Map<String, Number>.EntryIterator<Number> was expected to be Number, but was: " + args.get(0));
+		if (!_typeUtils.isSameType(numberArrayType, args.get(0))) {
+			reportError("First arg of Map<String, Number[]>.EntryIterator<Number[]> was expected to be Number[], but was: " + args.get(0));
 			return false;
 		}
 		return true;

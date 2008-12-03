@@ -274,10 +274,10 @@ public class TypesImpl implements Types {
         for (int i = 0; i < typeArgsLength; i++) {
             TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) typeArgs[i];
             Binding binding = typeMirrorImpl._binding;
-            if (!(binding instanceof ReferenceBinding)) {
+            if (!(binding instanceof TypeBinding)) {
                 throw new IllegalArgumentException("Invalid type for a type arguments : " + typeMirrorImpl); //$NON-NLS-1$
             }
-            typeArguments[i] = (ReferenceBinding) binding;
+            typeArguments[i] = (TypeBinding) binding;
         }
         return _env.getFactory().newDeclaredType(
                 this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, enclosingType));
