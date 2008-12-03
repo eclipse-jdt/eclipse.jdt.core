@@ -72,6 +72,10 @@ public class TypeUtilsProc extends BaseProcessor
 		if (!examineGetDeclaredTypeNested()) {
 			return false;
 		}
+		
+		if (!examineGetArrayTypeParameterized()) {
+			return false;
+		}
 
 		reportSuccess();
 		return false;
@@ -252,6 +256,30 @@ public class TypeUtilsProc extends BaseProcessor
 			reportError("First arg of Map<String, Number[]>.EntryIterator<Number[]> was expected to be Number[], but was: " + args.get(0));
 			return false;
 		}
+		return true;
+	}
+
+	/**
+	 * Test getArrayType() for a parameterized type
+	 * @return true if tests passed
+	 */
+	private boolean examineGetArrayTypeParameterized() {
+		TypeElement stringDecl = _elementUtils.getTypeElement(String.class.getName());
+		TypeElement listDecl = _elementUtils.getTypeElement(List.class.getName());
+		DeclaredType stringType = _typeUtils.getDeclaredType(stringDecl);
+		
+		// List<String>
+		DeclaredType decl = _typeUtils.getDeclaredType(listDecl, stringType);
+		
+		// List<String>[]
+		ArrayType listArray = _typeUtils.getArrayType(decl);
+		
+		TypeMirror leafType = listArray.getComponentType();
+		if (!_typeUtils.isSameType(leafType, decl)) {
+			reportError("Leaf type of List<String>[] should be List<String>, but was: " + leafType);
+			return false;
+		}
+		
 		return true;
 	}
 
