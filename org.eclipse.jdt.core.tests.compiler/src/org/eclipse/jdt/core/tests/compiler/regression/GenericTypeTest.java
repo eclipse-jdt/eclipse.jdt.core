@@ -47964,5 +47964,28 @@ public void test1416() {
 			"Bound mismatch: The type B<?> is not a valid substitute for the bounded parameter <SOURCE extends RELATED> of the type C<RELATED,SOURCE>\n" + 
 			"----------\n");
 }
-
+public void test1417() {
+	this.runConformTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"class XSuper {\n" + 
+				"    protected void bar() {}\n" + 
+				"}\n" + 
+				"interface I {\n" + 
+				"    void baz();\n" + 
+				"}\n" + 
+				"public class X extends XSuper implements I{\n" + 
+				"    public void baz() {}\n" + 
+				"    public static void main(String argv[]) {\n" + 
+				"        testMethod(new X());\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"    static <T extends XSuper & I, U extends T> void testMethod(U u) {\n" + 
+				"        u.baz();\n" + 
+				"        u.bar();\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"SUCCESS");
+}
 }
