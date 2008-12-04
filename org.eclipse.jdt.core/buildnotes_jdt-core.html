@@ -47,6 +47,57 @@ Eclipse SDK 3.5M4 - %date% - 3.5 MILESTONE 4
 <br>Project org.eclipse.jdt.core v_928
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_928">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>
+Added a new formatter preference to preserve existing breaks in already wrapped and comments lines.<br>
+<p>
+For example, the wrapped lines of method foo return statement in following test case:
+</p>
+<pre>
+class X {
+String foo() {
+return "select x "
+       + "from y "
+       + "where z=a";
+}
+}
+</pre>
+will be preserved by the formatter when the new preference is used, hence produces
+now the following output:
+<pre>
+class X {
+    String foo() {
+        return "select x "
+                + "from y "
+                + "where z=a";
+    }
+}
+</pre>
+Similarly, following comment:
+<pre>
+/**
+ * The foo method.
+ * foo is a substitute for bar.
+ */
+public class X {
+}
+</pre>
+is now unchanged by the formatter when this new preference is used...<br>
+<p>
+This diagnosis is controlled by the option:<br>
+<code>DefaultCodeFormatterConstants.FORMATTER_PRESERVE_EXISTING_LINE_BREAKS</code>:
+<pre>
+/**
+ * FORMATTER / Option to specify whether the formatter should preserve existing line breaks or not
+ *     - option id:         "org.eclipse.jdt.core.formatter.preserve_existing_line_breaks"
+ *     - possible values:   { TRUE, FALSE }
+ *     - default:           FALSE
+ * @since 3.5
+ */
+</pre>
+</p>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=257384">257384</a>
