@@ -2152,8 +2152,6 @@ public void testBug238210_X02() throws JavaModelException {
 		"}\n"
 	);
 }
-// Output will need to be changed while fixing
-// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=239130
 public void testBug238210_X03() throws JavaModelException {
 	String source = 
 		"package eclipse30;\n" + 
@@ -2178,8 +2176,10 @@ public void testBug238210_X03() throws JavaModelException {
 		"	/**\n" + 
 		"	 * @see org.eclipse.jdt.internal.debug.core.breakpoints.JavaBreakpoint#handleBreakpointEvent(com.sun.jdi.event.Event,\n" + 
 		"	 *      org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget,\n" + 
-		"	 *      org.eclipse.jdt.internal.debug.core.model.JDIThread) (From\n" + 
-		"	 *      referenced JavaDoc: Returns whethers the thread should be resumed\n" + 
+		"	 *      org.eclipse.jdt.internal.debug.core.model.JDIThread)\n" + 
+		"	 * \n" + 
+		"	 *      (From referenced JavaDoc: Returns whethers the thread should be\n" + 
+		"	 *      resumed\n" + 
 		"	 */\n" + 
 		"	void foo() {\n" + 
 		"	}\n" + 
@@ -2286,6 +2286,337 @@ public void testBug238920c() throws JavaModelException {
 		"	 */\n" + 
 		"	int foo() {\n" + 
 		"		return 0;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 239130: [formatter] problem formatting block comments
+ * @test Ensure that the comment formatter preserve line breaks when specified
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=239130"
+ */
+public void testBug239130_default() throws JavaModelException {
+	String source = 
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @see java.lang.String\n" + 
+		"	 * \n" + 
+		"	 * Formatter should keep empty line above\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @see java.lang.String\n" + 
+		"	 * \n" + 
+		"	 *      Formatter should keep empty line above\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug239130_clearBlankLines() throws JavaModelException {
+	this.formatterPrefs.comment_clear_blank_lines_in_javadoc_comment = true;
+	String source = 
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @see java.lang.String\n" + 
+		"	 * \n" + 
+		"	 * Formatter should keep empty line above\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @see java.lang.String Formatter should keep empty line above\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug239130_preserveLineBreaks() throws JavaModelException {
+	this.formatterPrefs.preserve_existing_line_breaks = true;
+	String source = 
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @see java.lang.String\n" + 
+		"	 * \n" + 
+		"	 * Formatter should keep empty line above\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @see java.lang.String\n" + 
+		"	 * \n" + 
+		"	 *      Formatter should keep empty line above\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug239130_clearBlankLines_preserveLineBreaks() throws JavaModelException {
+	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.comment_clear_blank_lines_in_javadoc_comment = true;
+	String source = 
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @see java.lang.String\n" + 
+		"	 * \n" + 
+		"	 * Formatter should keep empty line above\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @see java.lang.String\n" + 
+		"	 *      Formatter should keep empty line above\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=196124
+public void testBug239130_196124_default() throws JavaModelException {
+	String source = 
+		"public class X {\n" + 
+		"\n" + 
+		"        /**\n" + 
+		"         * The foo method.\n" + 
+		"         * foo is a substitute for bar.\n" + 
+		"         * \n" + 
+		"         * @param param1 The first parameter\n" + 
+		"         * @param param2\n" + 
+		"         *            The second parameter.\n" + 
+		"         *            If <b>null</b>the first parameter is used\n" + 
+		"         */\n" + 
+		"        public void foo(Object param1, Object param2) {\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * The foo method. foo is a substitute for bar.\n" + 
+		"	 * \n" + 
+		"	 * @param param1\n" + 
+		"	 *            The first parameter\n" + 
+		"	 * @param param2\n" + 
+		"	 *            The second parameter. If <b>null</b>the first parameter is\n" + 
+		"	 *            used\n" + 
+		"	 */\n" + 
+		"	public void foo(Object param1, Object param2) {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug239130_196124() throws JavaModelException {
+	this.formatterPrefs.preserve_existing_line_breaks = true;
+	String source = 
+		"public class X {\n" + 
+		"\n" + 
+		"        /**\n" + 
+		"         * The foo method.\n" + 
+		"         * foo is a substitute for bar.\n" + 
+		"         * \n" + 
+		"         * @param param1 The first parameter\n" + 
+		"         * @param param2\n" + 
+		"         *            The second parameter.\n" + 
+		"         *            If <b>null</b>the first parameter is used\n" + 
+		"         */\n" + 
+		"        public void foo(Object param1, Object param2) {\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * The foo method.\n" +
+		"	 * foo is a substitute for bar.\n" + 
+		"	 * \n" + 
+		"	 * @param param1\n" + 
+		"	 *            The first parameter\n" + 
+		"	 * @param param2\n" + 
+		"	 *            The second parameter.\n" + 
+		"	 *            If <b>null</b>the first parameter is used\n" + 
+		"	 */\n" + 
+		"	public void foo(Object param1, Object param2) {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=96696
+public void testBug239130_96696_block_default() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	 * Conceptually, all viewers perform two primary tasks:\n" + 
+		"	 * \n" + 
+		"	 * - They help adapt your domain objects into viewable entities\n" + 
+		"	 * \n" + 
+		"	 * - They provide notifications when the viewable entities are selected or\n" + 
+		"	 * changed through the UI\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, source);
+}
+public void testBug239130_96696_block_clearBlankLines() throws JavaModelException {
+	this.formatterPrefs.comment_clear_blank_lines_in_block_comment = true;
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	 * Conceptually, all viewers perform two primary tasks:\n" + 
+		"	 * \n" + 
+		"	 * - They help adapt your domain objects into viewable entities\n" + 
+		"	 * \n" + 
+		"	 * - They provide notifications when the viewable entities are selected or\n" + 
+		"	 * changed through the UI\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	 * Conceptually, all viewers perform two primary tasks: - They help adapt\n" + 
+		"	 * your domain objects into viewable entities - They provide notifications\n" + 
+		"	 * when the viewable entities are selected or changed through the UI\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug239130_96696_block_clearBlankLines_preserveLineBreaks() throws JavaModelException {
+	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.comment_clear_blank_lines_in_block_comment = true;
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	 * Conceptually, all viewers perform two primary tasks:\n" + 
+		"	 * \n" + 
+		"	 * - They help adapt your domain objects into viewable entities\n" + 
+		"	 * \n" + 
+		"	 * - They provide notifications when the viewable entities are selected or\n" + 
+		"	 * changed through the UI\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	 * Conceptually, all viewers perform two primary tasks:\n" + 
+		"	 * - They help adapt your domain objects into viewable entities\n" + 
+		"	 * - They provide notifications when the viewable entities are selected or\n" + 
+		"	 * changed through the UI\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug239130_96696_javadoc_default() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Conceptually, all viewers perform two primary tasks:\n" + 
+		"	 * \n" + 
+		"	 * - They help adapt your domain objects into viewable entities\n" + 
+		"	 * \n" + 
+		"	 * - They provide notifications when the viewable entities are selected or\n" + 
+		"	 * changed through the UI\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, source);
+}
+public void testBug239130_96696_javadoc_clearBlankLines() throws JavaModelException {
+	this.formatterPrefs.comment_clear_blank_lines_in_javadoc_comment = true;
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Conceptually, all viewers perform two primary tasks:\n" + 
+		"	 * \n" + 
+		"	 * - They help adapt your domain objects into viewable entities\n" + 
+		"	 * \n" + 
+		"	 * - They provide notifications when the viewable entities are selected or\n" + 
+		"	 * changed through the UI\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Conceptually, all viewers perform two primary tasks: - They help adapt\n" + 
+		"	 * your domain objects into viewable entities - They provide notifications\n" + 
+		"	 * when the viewable entities are selected or changed through the UI\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug239130_96696_javadoc_clearBlankLines_preserveLineBreaks() throws JavaModelException {
+	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.comment_clear_blank_lines_in_javadoc_comment = true;
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Conceptually, all viewers perform two primary tasks:\n" + 
+		"	 * \n" + 
+		"	 * - They help adapt your domain objects into viewable entities\n" + 
+		"	 * \n" + 
+		"	 * - They provide notifications when the viewable entities are selected or\n" + 
+		"	 * changed through the UI\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Conceptually, all viewers perform two primary tasks:\n" + 
+		"	 * - They help adapt your domain objects into viewable entities\n" + 
+		"	 * - They provide notifications when the viewable entities are selected or\n" + 
+		"	 * changed through the UI\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
 		"	}\n" + 
 		"}\n"
 	);

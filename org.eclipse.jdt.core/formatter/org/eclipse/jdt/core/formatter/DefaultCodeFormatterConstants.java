@@ -3115,6 +3115,16 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = JavaCore.PLUGIN_ID + ".formatter.number_of_empty_lines_to_preserve";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to specify whether the formatter should preserve existing line breaks or not
+	 *     - option id:         "org.eclipse.jdt.core.formatter.preserve_existing_line_breaks"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @since 3.5
+	 */
+	public static final String FORMATTER_PRESERVE_EXISTING_LINE_BREAKS = JavaCore.PLUGIN_ID + ".formatter.preserve_existing_line_breaks";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to specify whether or not empty statement should be on a new line
 	 *     - option id:         "org.eclipse.jdt.core.formatter.put_empty_statement_on_new_line"
 	 *     - possible values:   { TRUE, FALSE }

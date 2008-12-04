@@ -302,6 +302,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean never_indent_block_comments_on_first_column;
 	public boolean never_indent_line_comments_on_first_column;
 	public int number_of_empty_lines_to_preserve;
+	public boolean preserve_existing_line_breaks;
 	public boolean put_empty_statement_on_new_line;
 	public int tab_size;
 	public final char filling_space = ' ';
@@ -579,6 +580,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN, this.never_indent_block_comments_on_first_column ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, this.never_indent_line_comments_on_first_column ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, Integer.toString(this.number_of_empty_lines_to_preserve));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PRESERVE_EXISTING_LINE_BREAKS, this.preserve_existing_line_breaks ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, this.put_empty_statement_on_new_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
 		switch(this.tab_char) {
@@ -1846,6 +1848,10 @@ public class DefaultCodeFormatterOptions {
 				this.number_of_empty_lines_to_preserve = 0;
 			}
 		}
+		final Object preserveExistingLineBreaksOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_PRESERVE_EXISTING_LINE_BREAKS);
+		if (preserveExistingLineBreaksOption != null) {
+			this.preserve_existing_line_breaks = DefaultCodeFormatterConstants.TRUE.equals(preserveExistingLineBreaksOption);
+		}
 		final Object putEmptyStatementOnNewLineOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE);
 		if (putEmptyStatementOnNewLineOption != null) {
 			this.put_empty_statement_on_new_line = DefaultCodeFormatterConstants.TRUE.equals(putEmptyStatementOnNewLineOption);
@@ -2185,6 +2191,7 @@ public class DefaultCodeFormatterOptions {
 		this.never_indent_block_comments_on_first_column = false;
 		this.never_indent_line_comments_on_first_column = false;
 		this.number_of_empty_lines_to_preserve = 1;
+		this.preserve_existing_line_breaks = false;
 		this.put_empty_statement_on_new_line = false;
 		this.tab_size = 4;
 		this.page_width = 80;
@@ -2449,6 +2456,7 @@ public class DefaultCodeFormatterOptions {
 		this.never_indent_block_comments_on_first_column = false;
 		this.never_indent_line_comments_on_first_column = false;
 		this.number_of_empty_lines_to_preserve = 1;
+		this.preserve_existing_line_breaks = false;
 		this.put_empty_statement_on_new_line = true;
 		this.tab_size = 8;
 		this.page_width = 80;
