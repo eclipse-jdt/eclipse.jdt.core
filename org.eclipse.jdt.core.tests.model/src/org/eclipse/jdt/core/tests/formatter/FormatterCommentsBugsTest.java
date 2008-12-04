@@ -2535,4 +2535,262 @@ public void testBug241687() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 256799: [formatter] Formatter wrongly adds space to //$FALL-THROUGH$
+ * @test Ensure that the comment formatter preserve $FALL-THROUGH$ tag leading spaces
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=256799"
+ */
+public void testBug256799_Line01() throws JavaModelException {
+	String source = 
+		"public class X01 {\n" + 
+		"	int foo(int value) {\n" + 
+		"		int test = 0;\n" + 
+		"		switch (value) {\n" + 
+		"		case 1:\n" + 
+		"			test = value;\n" + 
+		"			//$FALL-THROUGH$\n" + 
+		"		case 2:\n" + 
+		"			test = value;\n" + 
+		"			// $FALL-THROUGH$\n" + 
+		"		case 3:\n" + 
+		"			test = value;\n" + 
+		"			//    	   $FALL-THROUGH$\n" + 
+		"		case 4:\n" + 
+		"			test = value;\n" + 
+		"			//		$FALL-THROUGH$                  \n" + 
+		"		default:\n" + 
+		"			test = -1;\n" + 
+		"			break;\n" + 
+		"		}\n" + 
+		"		return test;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	int foo(int value) {\n" + 
+		"		int test = 0;\n" + 
+		"		switch (value) {\n" + 
+		"		case 1:\n" + 
+		"			test = value;\n" + 
+		"			//$FALL-THROUGH$\n" + 
+		"		case 2:\n" + 
+		"			test = value;\n" + 
+		"			// $FALL-THROUGH$\n" + 
+		"		case 3:\n" + 
+		"			test = value;\n" + 
+		"			// $FALL-THROUGH$\n" + 
+		"		case 4:\n" + 
+		"			test = value;\n" + 
+		"			// $FALL-THROUGH$\n" + 
+		"		default:\n" + 
+		"			test = -1;\n" + 
+		"			break;\n" + 
+		"		}\n" + 
+		"		return test;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug256799_Line02() throws JavaModelException {
+	String source = 
+		"public class X01 {\n" + 
+		"	int foo(int value) {\n" + 
+		"		int test = 0;\n" + 
+		"		switch (value) {\n" + 
+		"		case 1:\n" + 
+		"			test = value;\n" + 
+		"			//$FALL-THROUGH$     with	text   	   after        \n" + 
+		"		case 2:\n" + 
+		"			test = value;\n" + 
+		"			// $FALL-THROUGH$		with	text   	   after        		\n" + 
+		"		case 3:\n" + 
+		"			test = value;\n" + 
+		"			//    	   $FALL-THROUGH$  		   with	text   	   after	        \n" + 
+		"		case 4:\n" + 
+		"			test = value;\n" + 
+		"			//		$FALL-THROUGH$		             		with	text   	   after			\n" + 
+		"		default:\n" + 
+		"			test = -1;\n" + 
+		"			break;\n" + 
+		"		}\n" + 
+		"		return test;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	int foo(int value) {\n" + 
+		"		int test = 0;\n" + 
+		"		switch (value) {\n" + 
+		"		case 1:\n" + 
+		"			test = value;\n" + 
+		"			//$FALL-THROUGH$ with text after\n" + 
+		"		case 2:\n" + 
+		"			test = value;\n" + 
+		"			// $FALL-THROUGH$ with text after\n" + 
+		"		case 3:\n" + 
+		"			test = value;\n" + 
+		"			// $FALL-THROUGH$ with text after\n" + 
+		"		case 4:\n" + 
+		"			test = value;\n" + 
+		"			// $FALL-THROUGH$ with text after\n" + 
+		"		default:\n" + 
+		"			test = -1;\n" + 
+		"			break;\n" + 
+		"		}\n" + 
+		"		return test;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug256799_Block01() throws JavaModelException {
+	String source = 
+		"public class X01 {\n" + 
+		"	int foo(int value) {\n" + 
+		"		int test = 0;\n" + 
+		"		switch (value) {\n" + 
+		"		case 1:\n" + 
+		"			test = value;\n" + 
+		"			/*$FALL-THROUGH$*/\n" + 
+		"		case 2:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$*/\n" + 
+		"		case 3:\n" + 
+		"			test = value;\n" + 
+		"			/*$FALL-THROUGH$ */\n" + 
+		"		case 4:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ */\n" + 
+		"		case 5:\n" + 
+		"			test = value;\n" + 
+		"			/*    	   $FALL-THROUGH$*/\n" + 
+		"		case 6:\n" + 
+		"			test = value;\n" + 
+		"			/*		$FALL-THROUGH$                  */\n" + 
+		"		case 7:\n" + 
+		"			test = value;\n" + 
+		"			/*$FALL-THROUGH$			*/\n" + 
+		"		case 8:\n" + 
+		"			test = value;\n" + 
+		"			/*		     		     $FALL-THROUGH$	    	    	*/\n" + 
+		"		default:\n" + 
+		"			test = -1;\n" + 
+		"			break;\n" + 
+		"		}\n" + 
+		"		return test;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	int foo(int value) {\n" + 
+		"		int test = 0;\n" + 
+		"		switch (value) {\n" + 
+		"		case 1:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ */\n" + 
+		"		case 2:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ */\n" + 
+		"		case 3:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ */\n" + 
+		"		case 4:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ */\n" + 
+		"		case 5:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ */\n" + 
+		"		case 6:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ */\n" + 
+		"		case 7:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ */\n" + 
+		"		case 8:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ */\n" + 
+		"		default:\n" + 
+		"			test = -1;\n" + 
+		"			break;\n" + 
+		"		}\n" + 
+		"		return test;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug256799_Block02() throws JavaModelException {
+	String source = 
+		"public class X01 {\n" + 
+		"	int foo(int value) {\n" + 
+		"		int test = 0;\n" + 
+		"		switch (value) {\n" + 
+		"		case 1:\n" + 
+		"			test = value;\n" + 
+		"			/*$FALL-THROUGH$with    text    after*/\n" + 
+		"		case 2:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$with  		  text	after*/\n" + 
+		"		case 3:\n" + 
+		"			test = value;\n" + 
+		"			/*$FALL-THROUGH$    with	   	text   	after	    */\n" + 
+		"		case 4:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$     with	   	text   	after	    */\n" + 
+		"		case 5:\n" + 
+		"			test = value;\n" + 
+		"			/*    	   $FALL-THROUGH$	with  		  text	after*/\n" + 
+		"		case 6:\n" + 
+		"			test = value;\n" + 
+		"			/*		$FALL-THROUGH$         	with  		  text	after        */\n" + 
+		"		case 7:\n" + 
+		"			test = value;\n" + 
+		"			/*$FALL-THROUGH$			with  		  text	after	*/\n" + 
+		"		case 8:\n" + 
+		"			test = value;\n" + 
+		"			/*		     		     $FALL-THROUGH$	    		with  		  text	after    	*/\n" + 
+		"		default:\n" + 
+		"			test = -1;\n" + 
+		"			break;\n" + 
+		"		}\n" + 
+		"		return test;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	int foo(int value) {\n" + 
+		"		int test = 0;\n" + 
+		"		switch (value) {\n" + 
+		"		case 1:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$with text after */\n" + 
+		"		case 2:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$with text after */\n" + 
+		"		case 3:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ with text after */\n" + 
+		"		case 4:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ with text after */\n" + 
+		"		case 5:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ with text after */\n" + 
+		"		case 6:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ with text after */\n" + 
+		"		case 7:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ with text after */\n" + 
+		"		case 8:\n" + 
+		"			test = value;\n" + 
+		"			/* $FALL-THROUGH$ with text after */\n" + 
+		"		default:\n" + 
+		"			test = -1;\n" + 
+		"			break;\n" + 
+		"		}\n" + 
+		"		return test;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }

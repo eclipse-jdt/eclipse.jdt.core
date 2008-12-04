@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -2145,6 +2146,36 @@ public class Scribe implements IJavaDocTagConstants {
 					continue;
 				case TerminalTokens.TokenNameEOF:
 					continue;
+				case TerminalTokens.TokenNameIdentifier:
+					if (previousToken == -1 || previousToken == SKIP_FIRST_WHITESPACE_TOKEN) {
+						char[] identifier = this.scanner.getCurrentTokenSource();
+						int startPosition = this.scanner.getCurrentTokenStartPosition();
+						int restartPosition = this.scanner.currentPosition;
+						if (CharOperation.equals(identifier, Parser.FALL_THROUGH_TAG, 0, 5/*length of string "$FALL"*/) && this.scanner.currentCharacter == '-') {
+							try {
+								this.scanner.getNextToken(); //  consume the '-'
+								token = this.scanner.getNextToken(); // consume the "THROUGH"
+								if (token == TerminalTokens.TokenNameIdentifier) {
+									identifier = this.scanner.getCurrentTokenSource();
+									if (CharOperation.endsWith(Parser.FALL_THROUGH_TAG, identifier)) {
+										// the comment starts with a fall through
+										if (previousToken == SKIP_FIRST_WHITESPACE_TOKEN) {
+											addReplaceEdit(spaceStartPosition, startPosition-1, " "); //$NON-NLS-1$
+										}
+										this.scanner.startPosition = startPosition;
+										previousToken = token;
+										break;
+									}
+								}
+							} catch (InvalidInputException iie) {
+								// skip
+							}
+						}
+						// this was not a valid fall-through tag, hence continue to process the comment normally
+						this.scanner.startPosition = startPosition;
+			    		this.scanner.currentPosition = restartPosition;
+					}
+					break;
 			}
 			int tokenStart = this.scanner.getCurrentTokenStartPosition();
     		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;

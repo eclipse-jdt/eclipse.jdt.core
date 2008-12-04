@@ -48,7 +48,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	
 	protected static final int THIS_CALL = ExplicitConstructorCall.This;
 	protected static final int SUPER_CALL = ExplicitConstructorCall.Super;
-	protected static final char[] FALL_THROUGH_TAG = "$FALL-THROUGH$".toCharArray(); //$NON-NLS-1$
+	public static final char[] FALL_THROUGH_TAG = "$FALL-THROUGH$".toCharArray(); //$NON-NLS-1$
 	
 	public static char asb[] = null;
 	public static char asr[] = null;
