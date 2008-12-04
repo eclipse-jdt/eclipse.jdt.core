@@ -4916,4 +4916,48 @@ public void test095() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=257384
+public void test096() {
+	this.runNegativeTest(
+		new String[] {
+			"p2/B.java", // =================
+			"package p2;\n" + 
+			"import p1.A;\n" + 
+			"public abstract class B {\n" + 
+			"	public static A foo() {}\n" + 
+			"}\n",
+			"p3/C.java", // =================
+			"package p3;\n" + 
+			"import p1.A;\n" + 
+			"public abstract class C extends p2.B {\n" + 
+			"	public static A foo() {}\n" + 
+			"}\n",
+			"p/D.java", // =================
+			"package p;\n" + 
+			"public class D extends p3.C {}"
+		},
+		"----------\n" + 
+		"1. ERROR in p2\\B.java (at line 2)\n" + 
+		"	import p1.A;\n" + 
+		"	       ^^\n" + 
+		"The import p1 cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in p2\\B.java (at line 4)\n" + 
+		"	public static A foo() {}\n" + 
+		"	              ^\n" + 
+		"A cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in p3\\C.java (at line 2)\n" + 
+		"	import p1.A;\n" + 
+		"	       ^^\n" + 
+		"The import p1 cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in p3\\C.java (at line 4)\n" + 
+		"	public static A foo() {}\n" + 
+		"	              ^\n" + 
+		"A cannot be resolved to a type\n" + 
+		"----------\n"
+	);
+}
 }

@@ -363,6 +363,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 	for (int i = 0; i < length; i++)
 		if (methods[i].isAbstract())
 			abstractMethods[index++] = methods[i];
+	if (index == 0) return; // can happen with methods that contain 'equal' Missing Types, see bug 257384
 	if (index < abstractMethods.length)
 		System.arraycopy(abstractMethods, 0, abstractMethods = new MethodBinding[index], 0, index);
 	checkConcreteInheritedMethod(concreteMethod, abstractMethods);
