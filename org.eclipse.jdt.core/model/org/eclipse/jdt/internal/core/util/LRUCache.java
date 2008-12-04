@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.util;
 
 import java.text.NumberFormat;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
