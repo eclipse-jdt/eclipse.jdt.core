@@ -23055,11 +23055,11 @@ public void test0728() {
 			"	public U getContent();\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	foobar(ctrl.getView().getContent()); \n" +
-		"	^^^^^^\n" +
-		"The method foobar(X<String>) in the type X<E> is not applicable for the arguments (?)\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	foobar(ctrl.getView().getContent()); \n" + 
+		"	^^^^^^\n" + 
+		"The method foobar(X<String>) in the type X<E> is not applicable for the arguments (capture#2-of ?)\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96586
@@ -24766,11 +24766,11 @@ public void test0785() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	getLonger(list, set);\n" +
-		"	^^^^^^^^^\n" +
-		"Bound mismatch: The generic method getLonger(T, T) of type X is not applicable for the arguments (HashSet<capture#1-of ?>, ArrayList<capture#2-of ?>). The inferred type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends Number>>\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	getLonger(list, set);\n" + 
+		"	^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method getLonger(T, T) of type X is not applicable for the arguments (HashSet<capture#3-of ?>, ArrayList<capture#4-of ?>). The inferred type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends Number>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528 - variation
@@ -24807,11 +24807,11 @@ public void test0787() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	getLonger(list, set);\n" +
-		"	^^^^^^^^^\n" +
-		"Bound mismatch: The generic method getLonger(T, T) of type X<U> is not applicable for the arguments (HashSet<capture#1-of ?>, ArrayList<capture#2-of ?>). The inferred type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends U>>\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	getLonger(list, set);\n" + 
+		"	^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method getLonger(T, T) of type X<U> is not applicable for the arguments (HashSet<capture#3-of ?>, ArrayList<capture#4-of ?>). The inferred type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends U>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994
@@ -47987,5 +47987,128 @@ public void test1417() {
 				"}\n",//-----------------------------------------------------------------------
 			},
 			"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=257434
+public void test1418() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"class Box<U extends Box<?, ?>, V extends U> {\n" + 
+				"	V value;\n" + 
+				"	Box<U, V> next;\n" + 
+				"	Box(V value) {\n" + 
+				"		this.value = value;\n" + 
+				"	}\n" + 
+				"	Box() {}\n" + 
+				"}\n" + 
+				"class A extends Box<A, A> {}\n" + 
+				"class B extends Box<B, B> {}\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Box<Box<A, A>, Box<A, A>> a = new Box<Box<A, A>, Box<A, A>>(new Box<A, A>(new A()));\n" + 
+				"		Box<?, ?> b = a;\n" + 
+				"		b.value.next = new Box<B, B>(new B());\n" + 
+				"		A c = a.value.next.value;\n" + 
+				"		String s = b.value;\n" + 
+				"		b.value.next.next = new Box<B, B>(new B());\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	b.value.next = new Box<B, B>(new B());\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Box<B,B> to Box<capture#3-of ?,capture#4-of ?>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 17)\n" + 
+			"	String s = b.value;\n" + 
+			"	           ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from capture#6-of ? to String\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 18)\n" + 
+			"	b.value.next.next = new Box<B, B>(new B());\n" + 
+			"	                    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Box<B,B> to Box<capture#9-of ?,capture#10-of ?>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=257434 - variation
+public void test1419() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"class Box<U extends Box<?, ?>, V extends U> {\n" + 
+				"	private V value;\n" + 
+				"	Box<U, V> next;\n" + 
+				"	Box(V value) {\n" + 
+				"		this.value = value;\n" + 
+				"	}\n" + 
+				"	Box() {}\n" + 
+				"	V getValue() { return this.value; }\n" + 
+				"}\n" + 
+				"class A extends Box<A, A> {}\n" + 
+				"class B extends Box<B, B> {}\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Box<Box<A, A>, Box<A, A>> a = new Box<Box<A, A>, Box<A, A>>(new Box<A, A>(new A()));\n" + 
+				"		Box<?, ?> b = a;\n" + 
+				"		b.getValue().next = new Box<B, B>(new B());\n" + 
+				"		A c = a.getValue().next.getValue();\n" + 
+				"		String s = b.getValue();\n" + 
+				"		b.getValue().next.next = new Box<B, B>(new B());\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 16)\n" + 
+			"	b.getValue().next = new Box<B, B>(new B());\n" + 
+			"	                    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Box<B,B> to Box<capture#3-of ?,capture#4-of ?>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	String s = b.getValue();\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from capture#6-of ? to String\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 19)\n" + 
+			"	b.getValue().next.next = new Box<B, B>(new B());\n" + 
+			"	                         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Box<B,B> to Box<capture#9-of ?,capture#10-of ?>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=257434 - variation
+public void test1420() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"class Box<U extends Box<?, ?>, V extends U> {\n" + 
+				"	V value;\n" + 
+				"	Box<U, V> next(V v) { return new Box<U,V>(v); }\n" + 
+				"	Box(V value) {\n" + 
+				"		this.value = value;\n" + 
+				"	}\n" + 
+				"	Box() {/**/}\n" + 
+				"}\n" + 
+				"class A extends Box<A, A> {/**/}\n" + 
+				"class B extends Box<B, B> {/**/}\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Box<Box<A, A>, Box<A, A>> a = new Box<Box<A, A>, Box<A, A>>(new Box<A, A>(new A()));\n" + 
+				"		Box<?, ?> b = a;\n" + 
+				"		b.value.next(new Box<B, B>(new B()));\n" + 
+				"		b.value.next(b.value);\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	b.value.next(new Box<B, B>(new B()));\n" + 
+			"	        ^^^^\n" + 
+			"The method next(capture#4-of ?) in the type Box<capture#3-of ?,capture#4-of ?> is not applicable for the arguments (Box<B,B>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 16)\n" + 
+			"	b.value.next(b.value);\n" + 
+			"	        ^^^^\n" + 
+			"The method next(capture#10-of ?) in the type Box<capture#9-of ?,capture#10-of ?> is not applicable for the arguments (capture#8-of ?)\n" + 
+			"----------\n");
 }
 }

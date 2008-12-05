@@ -138,9 +138,10 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	// receiverType can be an array binding in one case... see if you can change it
 	if (receiverType instanceof ArrayBinding)
 		return false;
+	TypeBinding originalDeclaringClass = this.declaringClass.original();
 	ReferenceBinding currentType = (ReferenceBinding) receiverType;
 	do {
-		if (this.declaringClass == currentType) return true;
+		if (originalDeclaringClass == currentType.original()) return true;
 		PackageBinding currentPackage = currentType.fPackage;
 		// package could be null for wildcards/intersection types, ignore and recurse in superclass
 		if (currentPackage != null && currentPackage != declaringPackage) return false;
