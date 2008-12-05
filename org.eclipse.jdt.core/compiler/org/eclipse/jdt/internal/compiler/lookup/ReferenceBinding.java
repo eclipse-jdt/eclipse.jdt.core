@@ -16,7 +16,6 @@ import java.util.Comparator;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 /*
@@ -30,7 +29,7 @@ Non-public fields have accessors which should be used everywhere you expect the 
 null is NOT a valid value for a non-public field... it just means the field is not initialized.
 */
 
-abstract public class ReferenceBinding extends TypeBinding implements IDependent {
+abstract public class ReferenceBinding extends TypeBinding {
 
 	public char[][] compoundName;
 	public char[] sourceName;
