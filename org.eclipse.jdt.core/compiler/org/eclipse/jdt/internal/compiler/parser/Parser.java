@@ -932,23 +932,16 @@ public RecoveredElement buildInitialRecoveryState(){
 
 		/* ignore current stack state, since restarting from the beginnning
 		   since could not trust simple brace count */
-		if (true){ // experimenting restart recovery from scratch
-			this.compilationUnit.currentPackage = null;
-			this.compilationUnit.imports = null;
-			this.compilationUnit.types = null;
-			this.currentToken = 0;
-			this.listLength = 0;
-			this.listTypeParameterLength = 0;
-			this.endPosition = 0;
-			this.endStatementPosition = 0;
-			return element;
-		}
-		if (this.compilationUnit.currentPackage != null){
-			this.lastCheckPoint = this.compilationUnit.currentPackage.declarationSourceEnd+1;
-		}
-		if (this.compilationUnit.imports != null){
-			this.lastCheckPoint = this.compilationUnit.imports[this.compilationUnit.imports.length -1].declarationSourceEnd+1;
-		}
+		// restart recovery from scratch
+		this.compilationUnit.currentPackage = null;
+		this.compilationUnit.imports = null;
+		this.compilationUnit.types = null;
+		this.currentToken = 0;
+		this.listLength = 0;
+		this.listTypeParameterLength = 0;
+		this.endPosition = 0;
+		this.endStatementPosition = 0;
+		return element;
 	} else {
 		if (this.referenceContext instanceof AbstractMethodDeclaration){
 			element = new RecoveredMethod((AbstractMethodDeclaration) this.referenceContext, null, 0, this);
