@@ -60,10 +60,10 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	if (isPublic()) return true;
 
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
-	if (invocationType == declaringClass && invocationType == receiverType) return true;
+	if (invocationType == this.declaringClass && invocationType == receiverType) return true;
 
 	if (invocationType == null) // static import call
-		return !isPrivate() && scope.getCurrentPackage() == declaringClass.fPackage;
+		return !isPrivate() && scope.getCurrentPackage() == this.declaringClass.fPackage;
 
 	if (isProtected()) {
 		// answer true if the invocationType is the declaringClass or they are in the same package
@@ -71,13 +71,13 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		//    AND the receiverType is the invocationType or its subclass
 		//    OR the method is a static method accessed directly through a type
 		//    OR previous assertions are true for one of the enclosing type
-		if (invocationType == declaringClass) return true;
-		if (invocationType.fPackage == declaringClass.fPackage) return true;
+		if (invocationType == this.declaringClass) return true;
+		if (invocationType.fPackage == this.declaringClass.fPackage) return true;
 
 		ReferenceBinding currentType = invocationType;
 		int depth = 0;
 		ReferenceBinding receiverErasure = (ReferenceBinding)receiverType.erasure();
-		ReferenceBinding declaringErasure = (ReferenceBinding) declaringClass.erasure();
+		ReferenceBinding declaringErasure = (ReferenceBinding) this.declaringClass.erasure();
 		do {
 			if (currentType.findSuperTypeOriginatingFrom(declaringErasure) != null) {
 				if (invocationSite.isSuperAccess())
@@ -104,15 +104,15 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		// answer true if the receiverType is the declaringClass
 		// AND the invocationType and the declaringClass have a common enclosingType
 		receiverCheck: {
-			if (receiverType != declaringClass) {
+			if (receiverType != this.declaringClass) {
 				// special tolerance for type variable direct bounds
-				if (receiverType.isTypeVariable() && ((TypeVariableBinding) receiverType).isErasureBoundTo(declaringClass.erasure()))
+				if (receiverType.isTypeVariable() && ((TypeVariableBinding) receiverType).isErasureBoundTo(this.declaringClass.erasure()))
 					break receiverCheck;
 				return false;
 			}
 		}
 
-		if (invocationType != declaringClass) {
+		if (invocationType != this.declaringClass) {
 			ReferenceBinding outerInvocationType = invocationType;
 			ReferenceBinding temp = outerInvocationType.enclosingType();
 			while (temp != null) {
@@ -120,7 +120,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 				temp = temp.enclosingType();
 			}
 
-			ReferenceBinding outerDeclaringClass = (ReferenceBinding) declaringClass.erasure();
+			ReferenceBinding outerDeclaringClass = (ReferenceBinding) this.declaringClass.erasure();
 			temp = outerDeclaringClass.enclosingType();
 			while (temp != null) {
 				outerDeclaringClass = temp;
@@ -132,15 +132,16 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	}
 
 	// isDefault()
-	PackageBinding declaringPackage = declaringClass.fPackage;
+	PackageBinding declaringPackage = this.declaringClass.fPackage;
 	if (invocationType.fPackage != declaringPackage) return false;
 
 	// receiverType can be an array binding in one case... see if you can change it
 	if (receiverType instanceof ArrayBinding)
 		return false;
+	TypeBinding originalDeclaringClass = this.declaringClass.original();
 	ReferenceBinding currentType = (ReferenceBinding) receiverType;
 	do {
-		if (declaringClass == currentType) return true;
+		if (originalDeclaringClass == currentType.original()) return true;
 		PackageBinding currentPackage = currentType.fPackage;
 		// package could be null for wildcards/intersection types, ignore and recurse in superclass
 		if (currentPackage != null && currentPackage != declaringPackage) return false;

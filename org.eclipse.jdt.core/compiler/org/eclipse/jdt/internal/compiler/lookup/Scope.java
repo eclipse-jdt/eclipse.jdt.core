@@ -699,7 +699,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		int startFoundSize = found.size;
 		ReferenceBinding currentType = classHierarchyStart;
 		while (currentType != null) {
-			findMethodInSuperInterfaces(currentType, selector, found);
+			findMethodInSuperInterfaces(currentType, selector, found, invocationSite);
 			currentType = currentType.superclass();
 		}
 		MethodBinding[] candidates = null;
@@ -884,6 +884,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 			unitScope.recordTypeReference(currentType);
 			currentType.initializeForStaticImports();
+			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceEnd());
 			if ((field = currentType.getField(fieldName, needResolve)) != null) {
 				keepLooking = false;
 				if (field.canBeSeenBy(receiverType, invocationSite, this)) {
@@ -904,6 +905,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			done : for (int i = 0; i < nextPosition; i++) {
 				ReferenceBinding anInterface = interfacesToVisit[i];
 				unitScope.recordTypeReference(anInterface);
+				// no need to capture rcv interface, since member field is going to be static anyway
 				if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 					if (visibleField == null) {
 						visibleField = field;
@@ -1068,7 +1070,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			MethodBinding[] receiverMethods = receiverType.getMethods(selector);
 			if (receiverMethods.length > 0)
 				found.addAll(receiverMethods);
-			findMethodInSuperInterfaces(receiverType, selector, found);
+			findMethodInSuperInterfaces(receiverType, selector, found, invocationSite);
 			currentType = getJavaLangObject();
 		}
 
@@ -1080,6 +1082,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		MethodVerifier verifier = environment().methodVerifier();
 		while (currentType != null) {
 			unitScope.recordTypeReference(currentType);
+			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceEnd());
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
 			if (currentLength > 0) {
@@ -1341,7 +1344,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		return methodBinding;
 	}
 
-	protected void findMethodInSuperInterfaces(ReferenceBinding currentType, char[] selector, ObjectVector found) {
+	protected void findMethodInSuperInterfaces(ReferenceBinding currentType, char[] selector, ObjectVector found, InvocationSite invocationSite) {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			ReferenceBinding[] interfacesToVisit = itsInterfaces;
@@ -1349,6 +1352,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			for (int i = 0; i < nextPosition; i++) {
 				currentType = interfacesToVisit[i];
 				compilationUnitScope().recordTypeReference(currentType);
+				currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceEnd());
 				MethodBinding[] currentMethods = currentType.getMethods(selector);
 				if (currentMethods.length > 0) {
 					int foundSize = found.size;

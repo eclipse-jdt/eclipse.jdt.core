@@ -260,9 +260,9 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 	if (invocationType.fPackage != this.fPackage) return false;
 
 	ReferenceBinding currentType = receiverType;
-	ReferenceBinding declaringClass = enclosingType() == null ? this : enclosingType();
+	TypeBinding originalDeclaringClass = (enclosingType() == null ? this : enclosingType()).original();
 	do {
-		if (declaringClass == currentType) return true;
+		if (originalDeclaringClass == currentType.original()) return true;
 		PackageBinding currentPackage = currentType.fPackage;
 		// package could be null for wildcards/intersection types, ignore and recurse in superclass
 		if (currentPackage != null && currentPackage != this.fPackage) return false;

@@ -123,8 +123,9 @@ public final boolean canBeSeenByForCodeSnippet(FieldBinding fieldBinding, TypeBi
 		return false;
 	ReferenceBinding type = (ReferenceBinding) receiverType;
 	PackageBinding declaringPackage = fieldBinding.declaringClass.fPackage;
+	TypeBinding originalDeclaringClass = fieldBinding.declaringClass .original();
 	do {
-		if (fieldBinding.declaringClass == type) return true;
+		if (originalDeclaringClass == type.original()) return true;
 		if (declaringPackage != type.fPackage) return false;
 	} while ((type = type.superclass()) != null);
 	return false;
@@ -193,8 +194,9 @@ public final boolean canBeSeenByForCodeSnippet(MethodBinding methodBinding, Type
 		return false;
 	ReferenceBinding type = (ReferenceBinding) receiverType;
 	PackageBinding declaringPackage = methodBinding.declaringClass.fPackage;
+	TypeBinding originalDeclaringClass = methodBinding.declaringClass .original();
 	do {
-		if (methodBinding.declaringClass == type) return true;
+		if (originalDeclaringClass == type.original()) return true;
 		if (declaringPackage != type.fPackage) return false;
 	} while ((type = type.superclass()) != null);
 	return false;
