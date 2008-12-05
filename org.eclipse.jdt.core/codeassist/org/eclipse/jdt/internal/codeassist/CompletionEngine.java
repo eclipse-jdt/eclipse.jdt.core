@@ -8918,22 +8918,13 @@ public final class CompletionEngine
 		if (token == null)
 			return;
 
-		// do not propose type if completion token is empty
-		boolean skip = false;
-		if (token.length == 0 && NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
-			if(!this.assistNodeIsConstructor && (this.assistNodeInJavadoc & CompletionOnJavadoc.EXCEPTION) == 0) {
-				return;
-			}
-			skip = true;
-		}
-
 		boolean proposeType =
 			!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
 			((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF));
 
 		boolean proposeAllMemberTypes = !this.assistNodeIsConstructor;
 
-		if (!skip && proposeType && scope.enclosingSourceType() != null) {
+		if (proposeType && scope.enclosingSourceType() != null) {
 			
 			checkCancel();
 			
@@ -8952,7 +8943,7 @@ public final class CompletionEngine
 
 		boolean isEmptyPrefix = token.length == 0;
 
-		if (!skip && proposeType && this.unitScope != null) {
+		if (proposeType && this.unitScope != null) {
 			
 			ReferenceBinding outerInvocationType = scope.enclosingSourceType();
 			if(outerInvocationType != null) {
@@ -9053,7 +9044,7 @@ public final class CompletionEngine
 			}
 		}
 
-		if(!skip && proposeType) {
+		if(proposeType) {
 			
 			checkCancel();
 			
@@ -9109,7 +9100,7 @@ public final class CompletionEngine
 						boolean inSameUnit = this.unitScope.isDefinedInSameUnit(refBinding);
 
 						// top level types of the current unit are already proposed.
-						if(skip || !inSameUnit || (inSameUnit && refBinding.isMemberType())) {
+						if(!inSameUnit || (inSameUnit && refBinding.isMemberType())) {
 							char[] packageName = refBinding.qualifiedPackageName();
 							char[] typeName = refBinding.sourceName();
 							char[] completionName = typeName;
