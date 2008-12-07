@@ -162,10 +162,13 @@ public class LRUCache implements Cloneable {
 			return -1;
 		}
 		public synchronized String printStats() {
+			int oldestCounter = getOldestTimestampCounter();
+			if (oldestCounter == 0) {
+				return "No elements in cache"; //$NON-NLS-1$
+			}
 			long currentTime = System.currentTimeMillis();
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("Oldest element ("); //$NON-NLS-1$
-			int oldestCounter = getOldestTimestampCounter();
 			buffer.append(getAge(oldestCounter, currentTime));
 			buffer.append(" old):\n"); //$NON-NLS-1$
 			Object element = getOldestElement();
