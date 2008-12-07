@@ -2048,6 +2048,7 @@ int test() {
 }
 }
 public abstract static class ThreeDimensionalTransformation extends Transformation {
+private static final boolean CHECKING_ROW_NAMES = false;
 ThreeDimensionalTransformation(String name) {
 	super(name);
 	this.dimension = 3;
@@ -2209,7 +2210,7 @@ void printTruthTables(File outputDirectory) {
 					truthValues[row][column] = '.';
 				}
 			}
-			if (false) { // checking row names
+			if (CHECKING_ROW_NAMES) { // checking row names
 				boolean gotProblem = false;
 				if (truthTableRowNames.length > State.statesNb) {
 					System.out.println("row names table contains too many rows");

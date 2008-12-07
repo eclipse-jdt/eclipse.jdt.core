@@ -514,10 +514,9 @@ public NullReferenceImplTests(String name) {
 }
 
   	// Tests tuning
-	static final boolean
-		skipHighOrderBits = false; // define to true when tuning encoding
-	static final int
-		combinationTestsloopsNb = 1; // define to 10000s to measure performances
+	// private static final boolean skipHighOrderBits = false; // define to true when tuning encoding
+	private static final int COMBINATION_TESTS_LOOP_NB = 1; // define to 10000s to measure performances
+	private static final boolean MEASURE_PERFORMANCES = COMBINATION_TESTS_LOOP_NB > 1;
 
 public static Test suite() {
 	// we do not want to run for 1.3, 1.4, 1.5 but once only
@@ -634,11 +633,11 @@ public void test2070_newNullInfoRegistry() {
 public void test2400_state_consistency() {
 	int failures = 0;
 	long start;
-	if (combinationTestsloopsNb > 1) {
+	if (MEASURE_PERFORMANCES) {
 		start = System.currentTimeMillis();
 	}
 	String header = "state consistency failures: ";
-	for (int l = 0; l < combinationTestsloopsNb ; l++) {
+	for (int l = 0; l < COMBINATION_TESTS_LOOP_NB ; l++) {
 		for (int i = 0; i < State.states.length; i++) {
 			if (State.states[i].symbolic) {
 				UnconditionalFlowInfoTestHarness
@@ -709,8 +708,8 @@ public void test2400_state_consistency() {
 			}
 		}
 	}
-	if (combinationTestsloopsNb > 1) {
-		System.out.println("mergedWith\t\t\t" + combinationTestsloopsNb + "\t" +
+	if (MEASURE_PERFORMANCES) {
+		System.out.println("mergedWith\t\t\t" + COMBINATION_TESTS_LOOP_NB + "\t" +
 				(System.currentTimeMillis() - start));
 	}
 	for (int i = 0; i < State.states.length; i++) {
