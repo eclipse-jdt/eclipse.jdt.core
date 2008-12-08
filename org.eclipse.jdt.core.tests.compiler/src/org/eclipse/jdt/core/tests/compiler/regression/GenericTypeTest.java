@@ -48111,4 +48111,110 @@ public void test1420() {
 			"The method next(capture#10-of ?) in the type Box<capture#9-of ?,capture#10-of ?> is not applicable for the arguments (capture#8-of ?)\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=257849
+public void test1421() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"	public interface ID {	};\n" + 
+				"	public abstract class DomainObject<T extends ID> {};\n" + 
+				"	public interface DAO<T extends DomainObject<ID>> {	};\n" + 
+				"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<ID>> {};\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<ID>> {};\n" + 
+			"	                                       ^^^^^^^^^^^^\n" + 
+			"The type parameter DomainObject is hiding the type X.DomainObject<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<ID>> {};\n" + 
+			"	                                                                    ^^^^^^^^^^^^\n" + 
+			"The type DomainObject is not generic; it cannot be parameterized with arguments <X.ID>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=257849 - variation
+public void test1422() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"	public interface ID {	};\n" + 
+				"	public abstract class DomainObject<T extends ID> {};\n" + 
+				"	public interface DAO<T extends DomainObject<ID>> {	};\n" + 
+				"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<ID>.Zork> {};\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<ID>.Zork> {};\n" + 
+			"	                                       ^^^^^^^^^^^^\n" + 
+			"The type parameter DomainObject is hiding the type X.DomainObject<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<ID>.Zork> {};\n" + 
+			"	                                                                    ^^^^^^^^^^^^\n" + 
+			"The type DomainObject is not generic; it cannot be parameterized with arguments <X.ID>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=257849
+public void test1423() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"	public interface ID {	};\n" + 
+				"	public abstract class DomainObject<T extends ID> {};\n" + 
+				"	public interface DAO<T extends DomainObject<ID>> {	};\n" + 
+				"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<? extends Zork>> {};\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<? extends Zork>> {};\n" + 
+			"	                                       ^^^^^^^^^^^^\n" + 
+			"The type parameter DomainObject is hiding the type X.DomainObject<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<? extends Zork>> {};\n" + 
+			"	                                                                    ^^^^^^^^^^^^\n" + 
+			"The type DomainObject is not generic; it cannot be parameterized with arguments <? extends Zork>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<? extends Zork>> {};\n" + 
+			"	                                                                                           ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=257849 - variation
+public void test1424() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"	public interface ID {	};\n" + 
+				"	public abstract class DomainObject<T extends ID> {};\n" + 
+				"	public interface DAO<T extends DomainObject<ID>> {	};\n" + 
+				"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<? extends Zork>.Zork> {};\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<? extends Zork>.Zork> {};\n" + 
+			"	                                       ^^^^^^^^^^^^\n" + 
+			"The type parameter DomainObject is hiding the type X.DomainObject<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<? extends Zork>.Zork> {};\n" + 
+			"	                                                                    ^^^^^^^^^^^^\n" + 
+			"The type DomainObject is not generic; it cannot be parameterized with arguments <? extends Zork>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	public abstract class HibernateDAOBase<DomainObject> implements DAO<DomainObject<? extends Zork>.Zork> {};\n" + 
+			"	                                                                                           ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }

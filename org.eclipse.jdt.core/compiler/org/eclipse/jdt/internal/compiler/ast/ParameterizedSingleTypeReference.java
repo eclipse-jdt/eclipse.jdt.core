@@ -86,7 +86,6 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
      * No need to check for reference to raw type per construction
      */
 	private TypeBinding internalResolveType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds) {
-
 		// handle the error here
 		this.constant = Constant.NotAConstant;
 		if ((this.bits & ASTNode.DidResolve) != 0) { // is a shared type reference which was already resolved
@@ -173,12 +172,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		boolean argHasError = false;
-		ReferenceBinding currentErasure = (ReferenceBinding)currentType.erasure();
+		ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();
 		for (int i = 0; i < argLength; i++) {
 		    TypeReference typeArgument = this.typeArguments[i];
 		    TypeBinding argType = isClassScope
-				? typeArgument.resolveTypeArgument((ClassScope) scope, currentErasure, i)
-				: typeArgument.resolveTypeArgument((BlockScope) scope, currentErasure, i);
+				? typeArgument.resolveTypeArgument((ClassScope) scope, currentOriginal, i)
+				: typeArgument.resolveTypeArgument((BlockScope) scope, currentOriginal, i);
 		     if (argType == null) {
 		         argHasError = true;
 		     } else {
@@ -190,14 +189,14 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 		if (isClassScope) {
 	    	((ClassScope) scope).superTypeReference = keep;
-			if (((ClassScope) scope).detectHierarchyCycle(currentErasure, this))
+			if (((ClassScope) scope).detectHierarchyCycle(currentOriginal, this))
 				return null;
 		}
 
-		TypeVariableBinding[] typeVariables = currentErasure.typeVariables();
+		TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 		if (typeVariables == Binding.NO_TYPE_VARIABLES) { // non generic invoked with arguments
 			boolean isCompliant15 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
-			if ((currentErasure.tagBits & TagBits.HasMissingType) == 0) {
+			if ((currentOriginal.tagBits & TagBits.HasMissingType) == 0) {
 				if (isCompliant15) { // below 1.5, already reported as syntax error
 					this.resolvedType = currentType;
 					scope.problemReporter().nonGenericTypeCannotBeParameterized(0, this, currentType, argTypes);
@@ -225,12 +224,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			ReferenceBinding actualEnclosing = currentType.enclosingType();
 			if (actualEnclosing != null && actualEnclosing.isRawType()){
 				scope.problemReporter().rawMemberTypeCannotBeParameterized(
-						this, scope.environment().createRawType(currentErasure, actualEnclosing), argTypes);
+						this, scope.environment().createRawType(currentOriginal, actualEnclosing), argTypes);
 				return null;
 			}
 		}
 
-    	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentErasure, argTypes, enclosingType);
+    	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentOriginal, argTypes, enclosingType);
 		// check argument type compatibility
 		if (checkBounds) { // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 			parameterizedType.boundCheck(scope, this.typeArguments);
