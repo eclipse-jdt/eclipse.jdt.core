@@ -86,7 +86,6 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
      * No need to check for reference to raw type per construction
      */
 	private TypeBinding internalResolveType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds) {
-
 		// handle the error here
 		this.constant = Constant.NotAConstant;
 		if ((this.bits & ASTNode.DidResolve) != 0) { // is a shared type reference which was already resolved
@@ -99,10 +98,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 						case ProblemReasons.NotVisible :
 						case ProblemReasons.InheritedNameHidesEnclosingName :
 							TypeBinding type = this.resolvedType.closestMatch();
-							return type;			
+							return type;
 						default :
 							return null;
-					}			
+					}
 				}
 			}
 		}
@@ -110,7 +109,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		ReferenceBinding currentType;
 		this.bits |= ASTNode.DidResolve;
 		if (enclosingType == null) {
-			this.resolvedType = scope.getType(token);
+			this.resolvedType = scope.getType(this.token);
 			if (this.resolvedType.isValidBinding()) {
 				currentType = (ReferenceBinding) this.resolvedType;
 			} else {
@@ -125,7 +124,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 							currentType = (ReferenceBinding) type;
 							break;
 						}
-						// fallthrough - unable to complete type binding, but still resolve type arguments
+						//$FALL-THROUGH$ - unable to complete type binding, but still resolve type arguments
 					default :
 						boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 					int argLength = this.typeArguments.length;
@@ -138,7 +137,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 						}
 					}
 					return null;
-				}			
+				}
 				// be resilient, still attempt resolving arguments
 			}
 			enclosingType = currentType.enclosingType(); // if member type
@@ -149,7 +148,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				currentType = scope.environment().createParameterizedType((ReferenceBinding) currentType.erasure(), null /* no arg */, enclosingType);
 			}
 		} else { // resolving member type (relatively to enclosingType)
-			this.resolvedType = currentType = scope.getMemberType(token, enclosingType);
+			this.resolvedType = currentType = scope.getMemberType(this.token, enclosingType);
 			if (!this.resolvedType.isValidBinding()) {
 				hasGenericError = true;
 				scope.problemReporter().invalidEnclosingType(this, currentType, enclosingType);
@@ -173,12 +172,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		boolean argHasError = false;
-		ReferenceBinding currentErasure = (ReferenceBinding)currentType.erasure();
+		ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();
 		for (int i = 0; i < argLength; i++) {
 		    TypeReference typeArgument = this.typeArguments[i];
 		    TypeBinding argType = isClassScope
-				? typeArgument.resolveTypeArgument((ClassScope) scope, currentErasure, i)
-				: typeArgument.resolveTypeArgument((BlockScope) scope, currentErasure, i);
+				? typeArgument.resolveTypeArgument((ClassScope) scope, currentOriginal, i)
+				: typeArgument.resolveTypeArgument((BlockScope) scope, currentOriginal, i);
 		     if (argType == null) {
 		         argHasError = true;
 		     } else {
@@ -190,14 +189,14 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 		if (isClassScope) {
 	    	((ClassScope) scope).superTypeReference = keep;
-			if (((ClassScope) scope).detectHierarchyCycle(currentErasure, this))
+			if (((ClassScope) scope).detectHierarchyCycle(currentOriginal, this))
 				return null;
 		}
 
-		TypeVariableBinding[] typeVariables = currentErasure.typeVariables();
+		TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 		if (typeVariables == Binding.NO_TYPE_VARIABLES) { // non generic invoked with arguments
 			boolean isCompliant15 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
-			if ((currentErasure.tagBits & TagBits.HasMissingType) == 0) {
+			if ((currentOriginal.tagBits & TagBits.HasMissingType) == 0) {
 				if (isCompliant15) { // below 1.5, already reported as syntax error
 					this.resolvedType = currentType;
 					scope.problemReporter().nonGenericTypeCannotBeParameterized(0, this, currentType, argTypes);
@@ -209,11 +208,11 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				// array type ?
 				TypeBinding type = currentType;
 				if (this.dimensions > 0) {
-					if (this.dimensions > 255) 
+					if (this.dimensions > 255)
 						scope.problemReporter().tooManyDimensions(this);
-					type = scope.createArrayType(type, dimensions);
-				}			
-				if (hasGenericError) 
+					type = scope.createArrayType(type, this.dimensions);
+				}
+				if (hasGenericError)
 					return type;
 				return this.resolvedType = type;
 			}
@@ -225,12 +224,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			ReferenceBinding actualEnclosing = currentType.enclosingType();
 			if (actualEnclosing != null && actualEnclosing.isRawType()){
 				scope.problemReporter().rawMemberTypeCannotBeParameterized(
-						this, scope.environment().createRawType(currentErasure, actualEnclosing), argTypes);
+						this, scope.environment().createRawType(currentOriginal, actualEnclosing), argTypes);
 				return null;
 			}
 		}
 
-    	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentErasure, argTypes, enclosingType);
+    	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentOriginal, argTypes, enclosingType);
 		// check argument type compatibility
 		if (checkBounds) { // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 			parameterizedType.boundCheck(scope, this.typeArguments);
@@ -241,14 +240,14 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		TypeBinding type = parameterizedType;
 		// array type ?
 		if (this.dimensions > 0) {
-			if (this.dimensions > 255) 
+			if (this.dimensions > 255)
 				scope.problemReporter().tooManyDimensions(this);
-			type = scope.createArrayType(type, dimensions);
+			type = scope.createArrayType(type, this.dimensions);
 		}
 		if (hasGenericError) {
 			return type;
 		}
-		return this.resolvedType = type;		
+		return this.resolvedType = type;
 	}	
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){
