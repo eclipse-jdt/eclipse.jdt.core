@@ -364,15 +364,6 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					}
 					return Messages.bind(Messages.classpath_disabledMultipleOutputLocations, new String[] {newPath.makeRelative().toString(), projectName});
 
-				case INCOMPATIBLE_JDK_LEVEL:
-						javaProject = (IJavaProject)this.elements[0];
-						return Messages.bind(Messages.classpath_incompatibleLibraryJDKLevel, new String[]{
-							javaProject.getElementName(),
-							javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true),
-							this.path.makeRelative().toString(),
-							this.string,
-						});
-
 				case CANNOT_RETRIEVE_ATTACHED_JAVADOC :
 					if (this.elements != null && this.elements.length == 1) {
 						if (this.string != null) {

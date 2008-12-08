@@ -1745,6 +1745,10 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * @return a java model status describing the problem related to this classpath entry if any, a status object with code <code>IStatus.OK</code> if the entry is fine
 	 */
 	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment, boolean referredByContainer){
+		return validateClasspathEntry(project, entry, null, checkSourceAttachment, referredByContainer);
+	}
+	
+	private static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, IClasspathContainer entryContainer, boolean checkSourceAttachment, boolean referredByContainer){
 
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		IPath path = entry.getPath();
@@ -1796,7 +1800,7 @@ public class ClasspathEntry implements IClasspathEntry {
 										if (description == null) description = path.makeRelative().toString();
 										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY, project, path);
 								}
-								IJavaModelStatus containerEntryStatus = validateClasspathEntry(project, containerEntry, checkSourceAttachment, true/*referred by container*/);
+								IJavaModelStatus containerEntryStatus = validateClasspathEntry(project, containerEntry, container, checkSourceAttachment, true/*referred by container*/);
 								if (!containerEntryStatus.isOK()){
 									return containerEntryStatus;
 								}
@@ -1825,7 +1829,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					}
 
 					// get validation status
-					IJavaModelStatus status = validateClasspathEntry(project, entry, checkSourceAttachment, false/*not referred by container*/);
+					IJavaModelStatus status = validateClasspathEntry(project, entry, null, checkSourceAttachment, false/*not referred by container*/);
 					if (!status.isOK()) return status;
 
 					// return deprecation status if any
@@ -1847,7 +1851,15 @@ public class ClasspathEntry implements IClasspathEntry {
 				// (these entries are considered optional since the user cannot act on them)
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=252392
 				
-				IJavaModelStatus status = validateLibraryEntry(path, project, checkSourceAttachment ? entry.getSourceAttachmentPath() : null, entryPathMsg);
+				String containerInfo = null;
+				if (entryContainer != null) {
+					if (entryContainer instanceof UserLibraryClasspathContainer) {
+						containerInfo = Messages.bind(Messages.classpath_userLibraryInfo, new String[] {entryContainer.getDescription()});
+					} else {
+						containerInfo = Messages.bind(Messages.classpath_containerInfo, new String[] {entryContainer.getDescription()});
+					}
+				}
+				IJavaModelStatus status = validateLibraryEntry(path, project, containerInfo, checkSourceAttachment ? entry.getSourceAttachmentPath() : null, entryPathMsg);
 				if (!status.isOK())
 					return status;
 				break;
@@ -1868,7 +1880,14 @@ public class ClasspathEntry implements IClasspathEntry {
 							long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 							long prereqProjectTargetJDK = CompilerOptions.versionToJdkLevel(prereqProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 							if (prereqProjectTargetJDK > projectTargetJDK) {
-								return new JavaModelStatus(IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL, project, path, CompilerOptions.versionFromJdkLevel(prereqProjectTargetJDK));
+								return new JavaModelStatus(IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL,
+										project, path, 
+										Messages.bind(Messages.classpath_incompatibleLibraryJDKLevel,
+												new String[] {
+													project.getElementName(),
+													CompilerOptions.versionFromJdkLevel(projectTargetJDK), 
+													path.makeRelative().toString(),
+													CompilerOptions.versionFromJdkLevel(prereqProjectTargetJDK)}));
 							}
 						}
 					} catch (CoreException e){
@@ -1916,14 +1935,36 @@ public class ClasspathEntry implements IClasspathEntry {
 		return JavaModelStatus.VERIFIED_OK;
 	}
 
-	private static IJavaModelStatus validateLibraryEntry(IPath path, IJavaProject project, IPath sourceAttachment, String entryPathMsg) {
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=232816, Now we have the facility to include a container
+	// name in diagnostics. If the parameter ``container'' is not null, it is used to point to the library
+	// more fully.
+	private static IJavaModelStatus validateLibraryEntry(IPath path, IJavaProject project, String container, IPath sourceAttachment, String entryPathMsg) {
 		if (path.isAbsolute() && !path.isEmpty()) {
 			Object target = JavaModel.getTarget(path, true);
 			if (target != null && !JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true))) {
 				long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 				long libraryJDK = Util.getJdkLevel(target);
 				if (libraryJDK != 0 && libraryJDK > projectTargetJDK) {
-					return new JavaModelStatus(IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL, project, path, CompilerOptions.versionFromJdkLevel(libraryJDK));
+					if (container != null) {
+						return new JavaModelStatus(IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL,
+								project, path,
+								Messages.bind(Messages.classpath_incompatibleLibraryJDKLevelInContainer,
+										new String [] {
+											project.getElementName(),
+											CompilerOptions.versionFromJdkLevel(projectTargetJDK),
+											path.makeRelative().toString(),
+											container,
+											CompilerOptions.versionFromJdkLevel(libraryJDK)}));
+					} else {
+						return new JavaModelStatus(IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL,
+								project, path, 
+								Messages.bind(Messages.classpath_incompatibleLibraryJDKLevel,
+										new String[] {
+											project.getElementName(),
+											CompilerOptions.versionFromJdkLevel(projectTargetJDK), 
+											path.makeRelative().toString(),
+											CompilerOptions.versionFromJdkLevel(libraryJDK)}));
+					}
 				}
 			}
 			if (target instanceof IResource){
@@ -1933,39 +1974,67 @@ public class ClasspathEntry implements IClasspathEntry {
 						if (sourceAttachment != null
 							&& !sourceAttachment.isEmpty()
 							&& JavaModel.getTarget(sourceAttachment, true) == null){
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), project.getElementName()}));
+							if (container != null) {
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachmentInContainedLibrary, new String [] {sourceAttachment.toString(), path.toString(), container}));
+							} else {
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), project.getElementName()}));
+							}
 						}
 						break;
 					case IResource.FOLDER :	// internal binary folder
 						if (sourceAttachment != null
 							&& !sourceAttachment.isEmpty()
 							&& JavaModel.getTarget(sourceAttachment, true) == null){
-							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), project.getElementName()}));
+							if (container != null) {
+								return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachmentInContainedLibrary, new String [] {sourceAttachment.toString(), path.toString(), container}));
+							} else {
+								return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), project.getElementName()}));
+							}
 						}
 				}
 			} else if (target instanceof File){
 				File file = JavaModel.getFile(target);
 			    if (file == null) {
-					return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolder, new String[] {path.toOSString(), project.getElementName()}));
+			    	if (container != null) {
+			    		return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolderInContainer, new String[] {path.toOSString(), container}));
+			    	} else {
+			    		return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolder, new String[] {path.toOSString(), project.getElementName()}));
+			    	}
 			    } else if (sourceAttachment != null
 						&& !sourceAttachment.isEmpty()
 						&& JavaModel.getTarget(sourceAttachment, true) == null){
-						return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toOSString(), project.getElementName()}));
-			    }
+			    		if (container != null) {
+			    			return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachmentInContainedLibrary, new String [] {sourceAttachment.toString(), path.toOSString(), container}));
+			    		} else {
+			    			return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toOSString(), project.getElementName()}));
+			    		}
+			    	}
 			} else {
 				boolean isExternal = path.getDevice() != null || !ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0)).exists();
 				if (isExternal) {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundLibrary, new String[] {path.toOSString(), project.getElementName()}));
+					if (container != null) {
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundLibraryInContainer, new String[] {path.toOSString(), container}));
+					} else {
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundLibrary, new String[] {path.toOSString(), project.getElementName()}));	
+					}
 				} else {
 					if (entryPathMsg == null) 
 						entryPathMsg = 	project.getElementName().equals(path.segment(0)) ? path.removeFirstSegments(1).makeRelative().toString() : path.toString();
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundLibrary, new String[] {entryPathMsg, project.getElementName()}));
+					if (container!= null) {	
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundLibraryInContainer, new String[] {entryPathMsg, container}));
+					} else {
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundLibrary, new String[] {entryPathMsg, project.getElementName()}));
+					}
 				}
 			}
 		} else {
 			if (entryPathMsg == null) 
 				entryPathMsg = 	project.getElementName().equals(path.segment(0)) ? path.removeFirstSegments(1).makeRelative().toString() : path.toString();
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalLibraryPath, new String[] {entryPathMsg, project.getElementName()}));
+				if (container != null) {
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalLibraryPathInContainer, new String[] {entryPathMsg, container}));
+				} else {
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalLibraryPath, new String[] {entryPathMsg, project.getElementName()}));
+				}
 		}
 		return JavaModelStatus.VERIFIED_OK;
 	}

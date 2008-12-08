@@ -149,8 +149,10 @@ public final class Messages extends NLS {
 	public static String classpath_illegalContainerPath;
 	public static String classpath_illegalEntryInClasspathFile;
 	public static String classpath_illegalLibraryPath;
+	public static String classpath_illegalLibraryPathInContainer;
 	public static String classpath_illegalLibraryArchive;
 	public static String classpath_illegalExternalFolder;
+	public static String classpath_illegalExternalFolderInContainer;
 	public static String classpath_illegalProjectPath;
 	public static String classpath_illegalSourceFolderPath;
 	public static String classpath_illegalVariablePath;
@@ -159,10 +161,14 @@ public final class Messages extends NLS {
 	public static String classpath_mustEndWithSlash;
 	public static String classpath_unboundContainerPath;
 	public static String classpath_unboundLibrary;
+	public static String classpath_userLibraryInfo;
+	public static String classpath_containerInfo;
+	public static String classpath_unboundLibraryInContainer;
 	public static String classpath_unboundProject;
 	public static String classpath_settingOutputLocationProgress;
 	public static String classpath_settingProgress;
 	public static String classpath_unboundSourceAttachment;
+	public static String classpath_unboundSourceAttachmentInContainedLibrary;
 	public static String classpath_unboundSourceFolder;
 	public static String classpath_unboundVariablePath;
 	public static String classpath_unknownKind;
@@ -170,6 +176,7 @@ public final class Messages extends NLS {
 	public static String classpath_disabledInclusionExclusionPatterns;
 	public static String classpath_disabledMultipleOutputLocations;
 	public static String classpath_incompatibleLibraryJDKLevel;
+	public static String classpath_incompatibleLibraryJDKLevelInContainer;
 	public static String classpath_duplicateEntryExtraAttribute;
 	public static String classpath_deprecated_variable;
 	public static String file_notFound;

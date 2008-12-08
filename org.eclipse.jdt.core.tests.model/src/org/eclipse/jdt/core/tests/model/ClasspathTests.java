@@ -40,6 +40,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentDescription;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -59,6 +62,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 import org.eclipse.team.core.RepositoryProvider;
 
 public class ClasspathTests extends ModifyingResourceTests {
@@ -158,6 +162,236 @@ protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreExceptio
 		}
 	}
 	return result;
+}
+
+/*  https://bugs.eclipse.org/bugs/show_bug.cgi?id=232816: Misleading problem text for missing jar in user
+ *  library. We now mention the container name in this and related diagnostics so the context and connection is clearer.
+ *  The bunch of tests with names of the form test232816*() test several paths in the function 
+ *  org.eclipse.jdt.internal.core.ClasspathEntry.validateLibraryEntry(IPath, IJavaProject, String, IPath, String)
+ *  with the sole objective of eliciting the various messages under the different conditions (internal/external,
+ *  file/folder, problem with library/sources etc). The tests probably make not much sense other than to trigger
+ *  errors.
+ */
+ 
+public void test232816() throws Exception {
+	
+	IJavaProject p = null;
+	try {
+		p = createJavaProject("P");
+		JavaCore.setClasspathContainer(
+			new Path("container/default"),
+			new IJavaProject[]{ p },
+			new IClasspathContainer[] {
+				new TestContainer(new Path("container/default"),
+				new IClasspathEntry[]{
+					JavaCore.newLibraryEntry(new Path(getExternalResourcePath("libjar.jar")), new Path("/P0/SBlah"), new Path("/P0"))})
+			},
+			null);
+
+		IClasspathEntry newClasspath = JavaCore.newContainerEntry(new Path("container/default"));
+				
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
+		assertStatus(
+			"should have complained about missing library",
+			"The container \'container/default\' references non existing library \'" + getExternalResourcePath("libjar.jar") + "'",
+			status);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+
+public void test232816a() throws Exception {
+	
+	IJavaProject p = null;
+	try {
+		p = createJavaProject("P");
+		addExternalLibrary(p, getExternalResourcePath("lib1.jar"), new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib2.jar\n",
+			},
+			JavaCore.VERSION_1_4);
+		refreshExternalArchives(p);
+
+		JavaCore.setClasspathContainer(
+			new Path("container/default"),
+			new IJavaProject[]{ p },
+			new IClasspathContainer[] {
+				new TestContainer(new Path("container/default"),
+					new IClasspathEntry[]{
+						JavaCore.newLibraryEntry(new Path(getExternalResourcePath("lib1.jar")), new Path("/P0/SBlah"), new Path("/P0"))})
+			},
+			null);
+
+		IClasspathEntry newClasspath = JavaCore.newContainerEntry(new Path("container/default"));
+				
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
+		assertStatus(
+			"should have complained about source attachment",
+			"Invalid source attachment: '/P0/SBlah' for required library \'" + getExternalResourcePath("lib1.jar") + "' in the container 'container/default'",
+			status);
+	} finally {
+		deleteProject("P");
+		deleteExternalResource("lib1.jar");
+	}
+}
+
+public void test232816b() throws Exception {
+	
+	try {
+		IJavaProject p = createJavaProject("Project");
+		// Create new user library "SomeUserLibrary"
+		ClasspathContainerInitializer initializer= JavaCore.getClasspathContainerInitializer(JavaCore.USER_LIBRARY_CONTAINER_ID);
+		String libraryName = "SomeUserLibrary";
+		IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID);
+		UserLibraryClasspathContainer containerSuggestion = new UserLibraryClasspathContainer(libraryName);
+		initializer.requestClasspathContainerUpdate(containerPath.append(libraryName), null, containerSuggestion);
+
+		// Modify user library
+		IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"SomeUserLibrary";
+		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
+		//String jarFullPath = getWorkspaceRoot().getLocation().append(jarFile.getFullPath()).toString();
+		propertyValue.append(" path=\"" + getExternalResourcePath("idontexistthereforeiamnot.jar"));
+		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
+		preferences.put(propertyName, propertyValue.toString());
+		preferences.flush();
+		
+		
+		IClasspathEntry[] entries = p.getRawClasspath();
+		int length = entries.length;
+		System.arraycopy(entries, 0, entries = new IClasspathEntry[length+1], 0, length);
+		entries[length] = JavaCore.newContainerEntry(containerSuggestion.getPath());
+		p.setRawClasspath(entries, null);
+
+		assertMarkers("Failed to find marker", "The user library 'SomeUserLibrary' references non existing library \'" + getExternalResourcePath("idontexistthereforeiamnot.jar") + "'", p);
+	} finally {
+		deleteProject("Project");
+	}
+}
+
+
+public void test232816c() throws CoreException {
+
+	IJavaProject p = null;
+	try {
+
+		p = this.createJavaProject("P0", new String[] {"src0", "src1"}, "bin0");
+      
+		JavaCore.setClasspathContainer(
+			new Path("container/default"),
+			new IJavaProject[]{ p },
+			new IClasspathContainer[] {
+				new TestContainer(new Path("container/default"),
+					new IClasspathEntry[]{
+						JavaCore.newLibraryEntry(new Path("/P0/JUNK"), new Path("/P0/SBlah"), new Path("/P0"))})
+			},
+			null);
+
+		IClasspathEntry newClasspath = JavaCore.newContainerEntry(new Path("container/default"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
+		assertStatus(
+			"should have complained about missing library",
+			"The container 'container/default' references non existing library 'JUNK'",
+			status);
+
+	} finally {
+		deleteProject ("P0");
+	}
+}
+
+
+public void test232816d() throws CoreException {
+
+	IJavaProject p = null;
+	try {
+
+		p = this.createJavaProject("P0", new String[] {"src0", "src1"}, "bin0");
+
+		JavaCore.setClasspathContainer(
+		new Path("container/default"),
+			new IJavaProject[]{ p },
+			new IClasspathContainer[] {
+				new TestContainer(new Path("container/default"),
+					new IClasspathEntry[]{
+						JavaCore.newLibraryEntry(new Path("/P0/src0"), new Path("/P0/SBlah"), new Path("/P0"))})
+			},
+			null);
+
+		IClasspathEntry newClasspath = JavaCore.newContainerEntry(new Path("container/default"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
+		assertStatus(
+			"should have complained about source attachment",
+			"Invalid source attachment: '/P0/SBlah' for required library '/P0/src0' in the container 'container/default'",
+			status);
+
+	} finally {
+		deleteProject ("P0");
+	}
+}
+
+public void test232816e() throws CoreException {
+
+	IJavaProject p = null;
+	try {
+		p = this.createJavaProject("P0", new String[] {"src0", "src1"}, "bin0");
+		createFile("/P0/src0/X.class", "");
+		JavaCore.setClasspathContainer(
+		new Path("container/default"),
+			new IJavaProject[]{ p },
+			new IClasspathContainer[] {
+				new TestContainer(new Path("container/default"),
+					new IClasspathEntry[]{
+						JavaCore.newLibraryEntry(new Path("/P0/src0/X.class"), new Path("/P0/SBlah"), new Path("/P0"))})
+			},
+			null);
+
+		IClasspathEntry newClasspath = JavaCore.newContainerEntry(new Path("container/default"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
+		assertStatus(
+			"should have complained about source attachment",
+			"Invalid source attachment: '/P0/SBlah' for required library '/P0/src0/X.class' in the container 'container/default'",
+			status);
+
+	} finally {
+		deleteProject ("P0");
+	}
+}
+
+public void test232816f() throws Exception {
+	
+	IJavaProject p = null;
+	try {
+		p = createJavaProject("P");
+		
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		p.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
+		
+		JavaCore.setClasspathContainer(
+			new Path("container/default"),
+			new IJavaProject[]{ p },
+			new IClasspathContainer[] {
+				new TestContainer(new Path("container/default"),
+					new IClasspathEntry[]{
+						JavaCore.newLibraryEntry(getExternalJCLPath("1.5"), new Path("/P0/SBlah"), new Path("/P0"))})
+			},
+			null);
+
+		IClasspathEntry newClasspath = JavaCore.newContainerEntry(new Path("container/default"));
+				
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
+		assertStatus(
+			"should have complained about jdk level mismatch",
+			"Incompatible .class files version in required binaries. Project 'P' is targeting a 1.4 runtime, but is compiled against \'" + getExternalJCLPath("1.5").makeRelative() + "' (from the container 'container/default') which requires a 1.5 runtime",
+			status);
+	} finally {
+		deleteProject("P");
+	}
 }
 
 /*
@@ -2341,7 +2575,7 @@ public void testDotDotContainerEntry2() throws Exception {
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"))});
 		assertMarkers(
 			"Unexpected markers", 
-			"Project \'P\' is missing required library: \'"+ getExternalPath() + "nonExisting.jar\'",
+			"The container 'Test container' references non existing library \'" + getExternalPath() + "nonExisting.jar\'",
 			p);
 	} finally {
 		deleteProject("P");
