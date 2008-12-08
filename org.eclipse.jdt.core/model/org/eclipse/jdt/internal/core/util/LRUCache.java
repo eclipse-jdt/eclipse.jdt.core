@@ -14,6 +14,8 @@ import java.text.NumberFormat;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.eclipse.jdt.internal.core.JavaElement;
+
 /**
  * The <code>LRUCache</code> is a hashtable that stores a finite number of elements.  
  * When an attempt is made to add values to a full cache, the least recently used values
@@ -90,6 +92,138 @@ public class LRUCache implements Cloneable {
 		}
 	}	
 
+	public class Stats {
+		private int[] counters = new int[20];
+		private long[] timestamps = new long[20];
+		private int counterIndex = -1;
+		
+		private void add(int counter) {
+			for (int i = 0; i <= this.counterIndex; i++) {
+				if (this.counters[i] == counter)
+					return;
+			}
+			int length = this.counters.length;
+			if (++this.counterIndex == length) {
+				int newLength = this.counters.length * 2;
+				System.arraycopy(this.counters, 0, this.counters = new int[newLength], 0, length);
+				System.arraycopy(this.timestamps, 0, this.timestamps = new long[newLength], 0, length);
+			}
+			this.counters[this.counterIndex] = counter;
+			this.timestamps[this.counterIndex] = System.currentTimeMillis();
+		}
+		private String getAge(int counter, long currentTime) {
+			long age = currentTime - getTimestamps(counter);
+			long ageInSeconds = age/1000;
+			int seconds = 0;
+			int minutes = 0;
+			int hours = 0;
+			int days = 0;
+			if (ageInSeconds > 60) {
+				long ageInMin = ageInSeconds / 60;
+				seconds = (int) (ageInSeconds - (60 * ageInMin));
+				if (ageInMin > 60) {
+					long ageInHours = ageInMin / 60;
+					minutes = (int) (ageInMin - (60 * ageInHours));
+					if (ageInHours > 24) {
+						long ageInDays = ageInHours / 24;
+						hours = (int) (ageInHours - (24 * ageInDays));
+						days = (int) ageInDays;
+					} else {
+						hours = (int) ageInHours;
+					}
+				} else {
+					minutes = (int) ageInMin;
+				}
+			} else {
+				seconds = (int) ageInSeconds;
+			}
+			StringBuffer buffer = new StringBuffer();
+			if (days > 0) {
+				buffer.append(days);
+				buffer.append(" days "); //$NON-NLS-1$
+			}
+			if (hours > 0) {
+				buffer.append(hours);
+				buffer.append(" hours "); //$NON-NLS-1$
+			}
+			if (minutes > 0) {
+				buffer.append(minutes);
+				buffer.append(" minutes "); //$NON-NLS-1$
+			}
+			buffer.append(seconds);
+			buffer.append(" seconds"); //$NON-NLS-1$
+			return buffer.toString();
+		}
+		private long getTimestamps(int counter) {
+			for (int i = 0; i <= this.counterIndex; i++) {
+				if (this.counters[i] >= counter)
+					return this.timestamps[i];
+			}
+			return -1;
+		}
+		public synchronized String printStats() {
+			int oldestCounter = getOldestTimestampCounter();
+			if (oldestCounter == 0) {
+				return "No elements in cache"; //$NON-NLS-1$
+			}
+			long currentTime = System.currentTimeMillis();
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("Oldest element ("); //$NON-NLS-1$
+			buffer.append(getAge(oldestCounter, currentTime));
+			buffer.append(" old):\n"); //$NON-NLS-1$
+			Object element = getOldestElement();
+			if (element instanceof JavaElement) {
+				buffer.append(((JavaElement) element).toStringWithAncestors());
+				buffer.append('\n');
+			}
+			buffer.append('\n');
+			
+			int lastCount = 0;
+			int increment = LRUCache.this.fCurrentSpace / 5;
+			int elementCounter = 0;
+			LRUCacheEntry entry = LRUCache.this.fEntryQueueTail;
+			while (entry != null) {
+				if (++elementCounter - lastCount >= increment) {
+					buffer.append(elementCounter);
+					buffer.append(" elements are at least "); //$NON-NLS-1$
+					buffer.append(getAge(entry._fTimestamp, currentTime));
+					buffer.append(" old\n"); //$NON-NLS-1$
+					lastCount = elementCounter;
+				}
+				entry = entry._fPrevious;
+			}
+			buffer.append(LRUCache.this.fCurrentSpace);
+			buffer.append(" elements are at least "); //$NON-NLS-1$
+			buffer.append(getAge(LRUCache.this.fEntryQueue._fTimestamp, currentTime));
+			buffer.append(" old"); //$NON-NLS-1$
+			
+			return buffer.toString();
+		}
+		private void removeCountersOlderThan(int counter) {
+			for (int i = 0; i <= this.counterIndex; i++) {
+				if (this.counters[i] >= counter) {
+					if (i > 0) {
+						int length = this.counterIndex-i+1;
+						System.arraycopy(this.counters, i, this.counters, 0, length);
+						System.arraycopy(this.timestamps, i, this.timestamps, 0, length);
+						this.counterIndex = length;
+					}
+					return;
+				}
+			}
+		}
+		public Object getOldestElement() {
+			return LRUCache.this.getOldestElement();
+		}
+		public long getOldestTimestamps() {
+			return getTimestamps(getOldestTimestampCounter());
+		}
+		public synchronized void snapshot() {
+			removeCountersOlderThan(getOldestTimestampCounter());
+			add(getNewestTimestampCounter());
+		}
+	}
+	
 	/**
 	 * Amount of cache space used so far
 	 */
@@ -227,6 +361,24 @@ public class LRUCache implements Cloneable {
 	 */
 	public int getCurrentSpace() {
 		return fCurrentSpace;
+	}
+	/**
+	 * Returns the timestamps of the most recently used element in the cache.
+	 */
+	public int getNewestTimestampCounter() {
+		return this.fEntryQueue == null ? 0 : this.fEntryQueue._fTimestamp;
+	}
+	/**
+	 * Returns the timestamps of the least recently used element in the cache.
+	 */
+	public int getOldestTimestampCounter() {
+		return this.fEntryQueueTail == null ? 0 : this.fEntryQueueTail._fTimestamp;
+	}
+	/**
+	 * Returns the lest recently used element in the cache
+	 */
+	public Object getOldestElement() {
+		return this.fEntryQueueTail == null ? null : this.fEntryQueueTail._fKey;
 	}
 	/**
 	 * Returns the maximum amount of space available in the cache.

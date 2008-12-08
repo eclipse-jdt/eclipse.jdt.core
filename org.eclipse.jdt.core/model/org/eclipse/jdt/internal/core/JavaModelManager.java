@@ -62,6 +62,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.core.util.WeakHashSet;
 import org.eclipse.jdt.internal.core.util.WeakHashSetOfCharArray;
+import org.eclipse.jdt.internal.core.util.LRUCache.Stats;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.osgi.service.prefs.BackingStoreException;
 import org.w3c.dom.Element;
@@ -4624,5 +4625,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public synchronized String cacheToString(String prefix) {
 		return this.cache.toStringFillingRation(prefix);
+	}
+	
+	public Stats debugNewOpenableCacheStats() {
+		return this.cache.openableCache.new Stats();
 	}
 }
