@@ -2346,7 +2346,7 @@ public void testBug239130_clearBlankLines() throws JavaModelException {
 	);
 }
 public void testBug239130_preserveLineBreaks() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_lines_in_comments = false;
 	String source = 
 		"public class X {\n" + 
 		"\n" + 
@@ -2372,7 +2372,7 @@ public void testBug239130_preserveLineBreaks() throws JavaModelException {
 	);
 }
 public void testBug239130_clearBlankLines_preserveLineBreaks() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_lines_in_comments = false;
 	this.formatterPrefs.comment_clear_blank_lines_in_javadoc_comment = true;
 	String source = 
 		"public class X {\n" + 
@@ -2432,7 +2432,7 @@ public void testBug239130_196124_default() throws JavaModelException {
 	);
 }
 public void testBug239130_196124() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_lines_in_comments = false;
 	String source = 
 		"public class X {\n" + 
 		"\n" + 
@@ -2485,6 +2485,7 @@ public void testBug239130_96696_block_default() throws JavaModelException {
 	formatSource(source, source);
 }
 public void testBug239130_96696_block_clearBlankLines() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
 	this.formatterPrefs.comment_clear_blank_lines_in_block_comment = true;
 	String source = 
 		"public class Test {\n" + 
@@ -2514,7 +2515,7 @@ public void testBug239130_96696_block_clearBlankLines() throws JavaModelExceptio
 	);
 }
 public void testBug239130_96696_block_clearBlankLines_preserveLineBreaks() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_lines_in_comments = false;
 	this.formatterPrefs.comment_clear_blank_lines_in_block_comment = true;
 	String source = 
 		"public class Test {\n" + 
@@ -2591,7 +2592,7 @@ public void testBug239130_96696_javadoc_clearBlankLines() throws JavaModelExcept
 	);
 }
 public void testBug239130_96696_javadoc_clearBlankLines_preserveLineBreaks() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_lines_in_comments = false;
 	this.formatterPrefs.comment_clear_blank_lines_in_javadoc_comment = true;
 	String source = 
 		"public class Test {\n" + 

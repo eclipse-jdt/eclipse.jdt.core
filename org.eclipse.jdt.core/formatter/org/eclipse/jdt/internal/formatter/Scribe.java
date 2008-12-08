@@ -936,7 +936,7 @@ public class Scribe implements IJavaDocTagConstants {
 		if (count == 0) {
 			// preserve line breaks in wrapping if specified
 			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=198074
-			if (this.currentAlignment != null && this.formatter.preferences.preserve_existing_line_breaks) {
+			if (this.currentAlignment != null && !this.formatter.preferences.join_wrapped_lines) {
 				int savedIndentation = this.indentationLevel;
 				StringBuffer buffer = new StringBuffer(getNewLine());
 				this.indentationLevel = this.currentAlignment.breakIndentationLevel;
@@ -1427,7 +1427,7 @@ public class Scribe implements IJavaDocTagConstants {
 		int hasTextOnFirstLine = 0;
 		boolean firstWord = true;
 		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_block_comment;
-		boolean preserveBreakLines = this.formatter.preferences.preserve_existing_line_breaks;
+		boolean joinLines = this.formatter.preferences.join_lines_in_comments;
 		int scannerLine = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, 0, this.maxLines);
 		int firstLine = scannerLine;
 		int lineNumber = scannerLine;
@@ -1534,7 +1534,7 @@ public class Scribe implements IJavaDocTagConstants {
 					// insert one blank line before root tags
 					linesGap = 2;
 				}
-				max = preserveBreakLines ? 0 : 1;
+				max = joinLines ? 1 : 0;
 			}
 			if (linesGap > max) {
 				if (clearBlankLines) {
@@ -1542,7 +1542,7 @@ public class Scribe implements IJavaDocTagConstants {
 					 if (token == TerminalTokens.TokenNameAT) {
 						 linesGap = 1;
 					 } else {
-						linesGap = max==0 || preserveBreakLines ? 1 : 0;
+						linesGap = (max==0 || !joinLines) ? 1 : 0;
 					 }
 				}
 				for (int i=0; i<linesGap; i++) {
@@ -1936,7 +1936,7 @@ public class Scribe implements IJavaDocTagConstants {
 						} else if (hasLineComment) {
 							preserveEmptyLines(count, this.scanner.getCurrentTokenStartPosition());
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-						} else if (count != 0 && (this.formatter.preferences.preserve_existing_line_breaks || this.formatter.preferences.number_of_empty_lines_to_preserve != 0)) {
+						} else if (count != 0 && (!this.formatter.preferences.join_wrapped_lines || this.formatter.preferences.number_of_empty_lines_to_preserve != 0)) {
 							addReplaceEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), getPreserveEmptyLines(count-1));
 						} else {
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
@@ -2444,7 +2444,7 @@ public class Scribe implements IJavaDocTagConstants {
 		// tag section: iterate through the blocks composing this tag but the last one
 		int previousLine = Util.getLineNumber(previousEnd, this.lineEnds, 0, this.maxLines);
 		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
-		boolean preserveBreakLines = this.formatter.preferences.preserve_existing_line_breaks;
+		boolean joinLines = this.formatter.preferences.join_lines_in_comments;
 		for (int i=0; i<=maxNodes; i++) {
 			FormatJavadocNode node = block.nodes[i];
 			int nodeStart = node.sourceStart;
@@ -2454,10 +2454,10 @@ public class Scribe implements IJavaDocTagConstants {
 			if (i == 0) {
 				newLines = this.formatter.preferences.comment_insert_new_line_for_parameter && block.isParamTag() ? 1 : 0;
 				if (nodeStart > (previousEnd+1)) {
-					if (!clearBlankLines || preserveBreakLines) {
+					if (!clearBlankLines || !joinLines) {
 						int startLine = Util.getLineNumber(nodeStart, this.lineEnds, previousLine-1, this.maxLines);
 						int gapLine = previousLine;
-						if (!preserveBreakLines) gapLine++; // if not preserving line break then gap must be at least of one line
+						if (joinLines) gapLine++; // if not preserving line break then gap must be at least of one line
 						if (startLine > gapLine) {
 							newLines = startLine - previousLine;
 						}
@@ -3324,7 +3324,7 @@ public class Scribe implements IJavaDocTagConstants {
 	private void printJavadocText(FormatJavadocText text, FormatJavadocBlock block, boolean textOnNewLine) {
 
 		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
-		boolean preserveBreakLines = this.formatter.preferences.preserve_existing_line_breaks;
+		boolean joinLines = this.formatter.preferences.join_lines_in_comments;
 		StringBuffer buffer = new StringBuffer();
 		int textStart = text.sourceStart;
 		int nextStart = textStart;
@@ -3347,11 +3347,11 @@ public class Scribe implements IJavaDocTagConstants {
 
 			// Replace with current buffer if there are several empty lines between text lines
 			nextStart = (int) text.separators[idx];
-			if (!clearBlankLines || preserveBreakLines) {
+			if (!clearBlankLines || !joinLines) {
 				int endLine = Util.getLineNumber(end, this.lineEnds, startLine-1, this.maxLines);
 				startLine = Util.getLineNumber(nextStart, this.lineEnds, endLine-1, this.maxLines);
 				int gapLine = endLine;
-				if (!preserveBreakLines) gapLine++; // if not preserving line break then gap must be at least of one line
+				if (joinLines) gapLine++; // if not preserving line break then gap must be at least of one line
 				if (startLine > gapLine) {
 					addReplaceEdit(textStart, end, buffer.toString());
 					textStart = nextStart;

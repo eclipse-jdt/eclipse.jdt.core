@@ -3115,14 +3115,57 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = JavaCore.PLUGIN_ID + ".formatter.number_of_empty_lines_to_preserve";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to specify whether the formatter should preserve existing line breaks or not
-	 *     - option id:         "org.eclipse.jdt.core.formatter.preserve_existing_line_breaks"
+	 * FORMATTER / Option to specify whether the formatter can join wrapped lines or not
+	 * 
+	 * 		For example, the wrapped lines of method foo return statement in following test case:
+	 * 			class X {
+	 * 			String foo() {
+	 * 			return "select x "
+	 * 			       + "from y "
+	 * 			       + "where z=a";
+	 * 			}
+	 * 			}
+	 *
+	 * 		will be preserved by the formatter when the new preference is used
+	 * 		even if the maximum line width would give it enough space to join the lines.
+	 * 		Hence produces the following output:
+	 * 			class X {
+	 * 			    String foo() {
+	 * 			        return "select x "
+	 * 			                + "from y "
+	 * 			                + "where z=a";
+	 * 			    }
+	 * 			}
+	 *
+	 *     - option id:         "org.eclipse.jdt.core.formatter.join_wrapped_lines"
 	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           FALSE
+	 *     - default:           TRUE
 	 * </pre>
 	 * @since 3.5
 	 */
-	public static final String FORMATTER_PRESERVE_EXISTING_LINE_BREAKS = JavaCore.PLUGIN_ID + ".formatter.preserve_existing_line_breaks";	//$NON-NLS-1$
+	public static final String FORMATTER_JOIN_WRAPPED_LINES = JavaCore.PLUGIN_ID + ".formatter.join_wrapped_lines";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to specify whether the formatter can join text lines in comments or not
+	 * 
+	 * 		For example, the following comment:
+	 * 			/**
+	 * 			 * The foo method.
+	 * 			 * foo is a substitute for bar.
+	 * 			 *&#0047;
+	 * 			public class X {
+	 * 			}
+	 * 
+	 * 		will be unchanged by the formatter when this new preference is used,
+	 * 		even if the maximum line width would give it enough space to join the lines.
+	 *
+	 *     - option id:         "org.eclipse.jdt.core.formatter.join_lines_in_comments"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @since 3.5
+	 */
+	public static final String FORMATTER_JOIN_LINES_IN_COMMENTS = JavaCore.PLUGIN_ID + ".formatter.join_lines_in_comments";	//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to specify whether or not empty statement should be on a new line

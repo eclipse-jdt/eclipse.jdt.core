@@ -10575,7 +10575,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=198074"
  */
 public void testBug198074() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_wrapped_lines = false;
 	String source = 
 		"public class Test {\n" + 
 		"\n" + 
@@ -10598,7 +10598,7 @@ public void testBug198074() throws JavaModelException {
 }
 // another test case put in bug's comment 1
 public void testBug198074_c1() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_wrapped_lines = false;
 	String source = 
 		"public class Test {\n" + 
 		"\n" + 
@@ -10628,7 +10628,7 @@ public void testBug198074_c1() throws JavaModelException {
 }
 // another test case put in bug's comment 3
 public void testBug198074_c3() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_wrapped_lines = false;
 	String source = 
 		"public class Test {\n" + 
 		"\n" + 
@@ -10656,9 +10656,29 @@ public void testBug198074_c3() throws JavaModelException {
 		"}\n"
 	);
 }
+public void testBug198074_comments() throws JavaModelException {
+	this.formatterPrefs.join_lines_in_comments = false;
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"String x = \"select x \"\n" + 
+		"         + \"from y \"\n" + 
+		"         + \"where z=a\";\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		String x = \"select x \" + \"from y \" + \"where z=a\";\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=201022
 public void testBug201022() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_wrapped_lines = false;
 	String source = 
 		"public class Test {\n" + 
 		"\n" + 
@@ -10685,7 +10705,7 @@ public void testBug201022() throws JavaModelException {
 }
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
 public void testBug208541() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_wrapped_lines = false;
 	String source = 
 		"public class MyTest {\n" + 
 		"\n" + 
@@ -10712,7 +10732,7 @@ public void testBug208541() throws JavaModelException {
 }
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=213700
 public void testBug213700() throws JavaModelException {
-	this.formatterPrefs.preserve_existing_line_breaks = true;
+	this.formatterPrefs.join_wrapped_lines = false;
 	String source = 
 		"public class Test {\n" + 
 		"\n" + 
