@@ -84,11 +84,8 @@ public boolean includes(char[][][] qualifiedNames, char[][] simpleNames, char[][
 	// if either collection of names is null, it means it contained a well known name so we know it already has a match
 	if (rootNames != null) {
 		boolean foundRoot = false;
-		for (int i = 0, l = rootNames.length; !foundRoot && i < l; i++) {
+		for (int i = 0, l = rootNames.length; !foundRoot && i < l; i++)
 			foundRoot = insideRoot(rootNames[i]);
-			if (JavaBuilder.DEBUG && foundRoot)
-				System.out.println("Found match in root " + new String(rootNames[i])); //$NON-NLS-1$
-		}
 		if (!foundRoot)
 			return false;
 	}
