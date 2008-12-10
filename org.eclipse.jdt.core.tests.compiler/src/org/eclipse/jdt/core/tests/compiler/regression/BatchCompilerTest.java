@@ -1631,7 +1631,7 @@ public void test012b(){
         "{2}\n" +
         " \n" +
         " Warning options:\n" +
-        "    -deprecation     + deprecation outside deprecated code\n" +
+        "    -deprecation         + deprecation outside deprecated code\n" +
         "    -nowarn -warn:none disable all warnings\n" +
         "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" +
         "    -warn:+<warnings separated by ,>   enable additional warnings\n" +

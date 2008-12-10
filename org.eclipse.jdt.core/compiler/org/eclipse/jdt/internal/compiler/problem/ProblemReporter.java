@@ -2071,19 +2071,37 @@ public void illegalGenericArray(TypeBinding leafComponentType, ASTNode location)
 		location.sourceEnd);
 }
 public void illegalInstanceOfGenericType(TypeBinding checkedType, ASTNode location) {
-	if (checkedType.isTypeVariable()) {
+	TypeBinding erasedType = checkedType.leafComponentType().erasure();
+	StringBuffer recommendedFormBuffer = new StringBuffer(10);
+	recommendedFormBuffer.append(erasedType.sourceName());
+	int count = erasedType.typeVariables().length;
+	if (count > 0) {
+		recommendedFormBuffer.append('<');
+		for (int i = 0; i < count; i++) {
+			if (i > 0) {
+				recommendedFormBuffer.append(',');
+			}
+			recommendedFormBuffer.append('?');
+		}
+		recommendedFormBuffer.append('>');
+	}
+	for (int i = 0, dim = checkedType.dimensions(); i < dim; i++) {
+		recommendedFormBuffer.append("[]"); //$NON-NLS-1$
+	}
+	String recommendedForm = recommendedFormBuffer.toString();
+	if (checkedType.leafComponentType().isTypeVariable()) {
 		this.handle(
-		IProblem.IllegalInstanceofTypeParameter,
-			new String[] { new String(checkedType.readableName()), new String(checkedType.erasure().readableName())},
-			new String[] { new String(checkedType.shortReadableName()), new String(checkedType.erasure().shortReadableName())},
-			location.sourceStart,
-			location.sourceEnd);
+			IProblem.IllegalInstanceofTypeParameter,
+			new String[] { new String(checkedType.readableName()), recommendedForm, },
+			new String[] { new String(checkedType.shortReadableName()), recommendedForm, },
+				location.sourceStart,
+				location.sourceEnd);
 		return;
 	}
 	this.handle(
 		IProblem.IllegalInstanceofParameterizedType,
-		new String[] { new String(checkedType.readableName()), new String(checkedType.erasure().sourceName())},
-		new String[] { new String(checkedType.shortReadableName()), new String(checkedType.erasure().sourceName())},
+		new String[] { new String(checkedType.readableName()), recommendedForm, },
+		new String[] { new String(checkedType.shortReadableName()), recommendedForm, },
 		location.sourceStart,
 		location.sourceEnd);
 }

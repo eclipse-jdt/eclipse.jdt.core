@@ -440,4 +440,72 @@ public class AssertionTest extends AbstractRegressionTest {
 			true, // flush previous output dir content
 			new String[] {"-da"});
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=255008
+	public void test017() {
+		runNegativeTest(
+			new String[] { /* test files */
+				"X.java",
+				"public class X {\n" + 
+				"	protected void transform1(boolean srcPts) {\n" + 
+				"		final float error1;\n" + 
+				"		assert !(srcPts && (error1 = maxError()) > 0) : error1;\n" + 
+				"	}\n" + 
+				"	float foo1(boolean srcPts) {\n" + 
+				"		final float error2;\n" + 
+				"		if (!(srcPts && (error2 = maxError()) > 0)) {\n" + 
+				"		} else {\n" + 
+				"			return error2;\n" + 
+				"		}\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	float bar1(boolean srcPts) {\n" + 
+				"		final float error3;\n" + 
+				"		if ((srcPts && (error3 = maxError()) > 0)) {\n" + 
+				"			return error3;\n" + 
+				"		}\n" + 
+				"		return 0;\n" + 
+				"	}	\n" + 
+				"	protected void transform2(boolean srcPts) {\n" + 
+				"		final float error4;\n" + 
+				"		assert (srcPts && (error4 = maxError()) > 0) : error4;\n" + 
+				"	}\n" + 
+				"	float foo2(boolean srcPts) {\n" + 
+				"		final float error5;\n" + 
+				"		if (srcPts && (error5 = maxError()) > 0) {\n" + 
+				"		} else {\n" + 
+				"			return error5;\n" + 
+				"		}\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	float bar2(boolean srcPts) {\n" + 
+				"		final float error6;\n" + 
+				"		if (!(srcPts && (error6 = maxError()) > 0)) {\n" + 
+				"			return error6;\n" + 
+				"		}\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	private float maxError() {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 23)\n" + 
+			"	assert (srcPts && (error4 = maxError()) > 0) : error4;\n" + 
+			"	                                               ^^^^^^\n" + 
+			"The local variable error4 may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 29)\n" + 
+			"	return error5;\n" + 
+			"	       ^^^^^^\n" + 
+			"The local variable error5 may not have been initialized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 36)\n" + 
+			"	return error6;\n" + 
+			"	       ^^^^^^\n" + 
+			"The local variable error6 may not have been initialized\n" + 
+			"----------\n");
+	}
+	
 }

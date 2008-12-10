@@ -5308,17 +5308,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	if (t instanceof X<T>) {\n" + 
 			"	    ^^^^^^^^^^^^^^\n" + 
-			"Cannot perform instanceof check against parameterized type X<T>. Use instead its raw form X since generic type information will be erased at runtime\n" + 
+			"Cannot perform instanceof check against parameterized type X<T>. Use the form X<?> instead since further generic type information will be erased at runtime\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	} else if (t instanceof X<String>) {\n" + 
 			"	           ^^^^^^^^^^^^^^\n" + 
-			"Cannot perform instanceof check against parameterized type X<String>. Use instead its raw form X since generic type information will be erased at runtime\n" + 
+			"Cannot perform instanceof check against parameterized type X<String>. Use the form X<?> instead since further generic type information will be erased at runtime\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 10)\n" + 
 			"	} else 	if (t instanceof T) {\n" + 
 			"	       	    ^^^^^^^^^^^^^^\n" + 
-			"Cannot perform instanceof check against type parameter T. Use instead its erasure Object since generic type information will be erased at runtime\n" + 
+			"Cannot perform instanceof check against type parameter T. Use instead its erasure Object instead since further generic type information will be erased at runtime\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 12)\n" + 
 			"	} else if (t instanceof X) {\n" + 
@@ -25733,36 +25733,36 @@ public void test0814() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o instanceof E[]) { //incorrect: cannot test non-reifiable type\n" +
-		"	    ^^^^^^^^^^^^^^^^\n" +
-		"Cannot perform instanceof check against parameterized type E[]. Use instead its raw form Object[] since generic type information will be erased at runtime\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	E[] es = (E[]) o;\n" +
-		"	         ^^^^^^^\n" +
-		"Type safety: Unchecked cast from Object to E[]\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 7)\n" +
-		"	if (o instanceof List<E>[]) { //incorrect too\n" +
-		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot perform instanceof check against parameterized type List<E>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 8)\n" +
-		"	List<E>[] es = (List<E>[]) o; \n" +
-		"	               ^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Object to List<E>[]\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 15)\n" +
-		"	if (al instanceof List<E>[]) { //incorrect too\n" +
-		"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot perform instanceof check against parameterized type List<E>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" +
-		"----------\n" +
-		"6. WARNING in X.java (at line 16)\n" +
-		"	List<E>[] es = (List<E>[]) al; \n" +
-		"	               ^^^^^^^^^^^^^^\n" +
-		"Unnecessary cast from ArrayList<E>[] to List<E>[]\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o instanceof E[]) { //incorrect: cannot test non-reifiable type\n" + 
+		"	    ^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against type parameter E[]. Use instead its erasure Object[] instead since further generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	E[] es = (E[]) o;\n" + 
+		"	         ^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to E[]\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	if (o instanceof List<E>[]) { //incorrect too\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type List<E>[]. Use the form List<?>[] instead since further generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 8)\n" + 
+		"	List<E>[] es = (List<E>[]) o; \n" + 
+		"	               ^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to List<E>[]\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 15)\n" + 
+		"	if (al instanceof List<E>[]) { //incorrect too\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type List<E>[]. Use the form List<?>[] instead since further generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 16)\n" + 
+		"	List<E>[] es = (List<E>[]) al; \n" + 
+		"	               ^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from ArrayList<E>[] to List<E>[]\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
@@ -25803,16 +25803,16 @@ public void test0816() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o instanceof List<E>[][]) { //incorrect too\n" +
-		"	    ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot perform instanceof check against parameterized type List<E>[][]. Use instead its raw form List[][] since generic type information will be erased at runtime\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	List<E>[][] es = (List<E>[][]) o; \n" +
-		"	                 ^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Object[] to List<E>[][]\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o instanceof List<E>[][]) { //incorrect too\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type List<E>[][]. Use the form List<?>[][] instead since further generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	List<E>[][] es = (List<E>[][]) o; \n" + 
+		"	                 ^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object[] to List<E>[][]\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
@@ -25843,51 +25843,51 @@ public void test0817() {
 				"    }\n" +
 				"}\n",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	private T t;\n" +
-			"	          ^\n" +
-			"The field X<T>.t is never read locally\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 9)\n" +
-			"	if (this.inner instanceof X<?>.Inner) {}\n" +
-			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The expression of type X<?>.Inner is already an instance of type X<?>.Inner\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 10)\n" +
-			"	if (this.inners instanceof X<?>.Inner[]) {}\n" +
-			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The expression of type X<?>.Inner[] is already an instance of type X<?>.Inner[]\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 14)\n" +
-			"	void foo(List l) {\n" +
-			"	         ^^^^\n" +
-			"List is a raw type. References to generic type List<E> should be parameterized\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 15)\n" +
-			"	if (l instanceof List<?>) {}\n" +
-			"	    ^^^^^^^^^^^^^^^^^\n" +
-			"The expression of type List is already an instance of type List<?>\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 16)\n" +
-			"	if (l instanceof List<? extends String>) {}\n" +
-			"	    ^^^^^^^^^^^^^^^^^\n" +
-			"Cannot perform instanceof check against parameterized type List<? extends String>. Use instead its raw form List since generic type information will be erased at runtime\n" +
-			"----------\n" +
-			"7. WARNING in X.java (at line 18)\n" +
-			"	void foo(List[] ls) {\n" +
-			"	         ^^^^\n" +
-			"List is a raw type. References to generic type List<E> should be parameterized\n" +
-			"----------\n" +
-			"8. WARNING in X.java (at line 19)\n" +
-			"	if (ls instanceof List<?>[]) {}\n" +
-			"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The expression of type List[] is already an instance of type List<?>\n" +
-			"----------\n" +
-			"9. ERROR in X.java (at line 20)\n" +
-			"	if (ls instanceof List<? extends String>[]) {}\n" +
-			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot perform instanceof check against parameterized type List<? extends String>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" +
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	private T t;\n" + 
+			"	          ^\n" + 
+			"The field X<T>.t is never read locally\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	if (this.inner instanceof X<?>.Inner) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type X<?>.Inner is already an instance of type X<?>.Inner\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	if (this.inners instanceof X<?>.Inner[]) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type X<?>.Inner[] is already an instance of type X<?>.Inner[]\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 14)\n" + 
+			"	void foo(List l) {\n" + 
+			"	         ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 15)\n" + 
+			"	if (l instanceof List<?>) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type List is already an instance of type List<?>\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 16)\n" + 
+			"	if (l instanceof List<? extends String>) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type List<? extends String>. Use the form List<?> instead since further generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 18)\n" + 
+			"	void foo(List[] ls) {\n" + 
+			"	         ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 19)\n" + 
+			"	if (ls instanceof List<?>[]) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type List[] is already an instance of type List<?>\n" + 
+			"----------\n" + 
+			"9. ERROR in X.java (at line 20)\n" + 
+			"	if (ls instanceof List<? extends String>[]) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type List<? extends String>[]. Use the form List<?>[] instead since further generic type information will be erased at runtime\n" + 
 			"----------\n");
 }
 public void test0818() {
@@ -30956,16 +30956,16 @@ public void test0955() {
 		"    }\n" +
 		"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o instanceof List<E>[]) { //incorrect: bug 104695\n" +
-		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot perform instanceof check against parameterized type List<E>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	List<E>[] es= (List<E>[]) o; //unchecked\n" +
-		"	              ^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Object to List<E>[]\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o instanceof List<E>[]) { //incorrect: bug 104695\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type List<E>[]. Use the form List<?>[] instead since further generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	List<E>[] es= (List<E>[]) o; //unchecked\n" + 
+		"	              ^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to List<E>[]\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130128
@@ -48260,6 +48260,49 @@ public void test1425() {
 			"	Class<? extends YYY<? extends B>> ybb3 = yb.getClass();\n" + 
 			"	                                         ^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Class<capture#6-of ? extends YYY> to Class<? extends YYY<? extends B>>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=258039
+public void test1426() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	boolean foo() {\n" + 
+				"		return null instanceof List<Object>;\n" + 
+				"	}\n" + 
+				"	<T extends List<Object>> boolean foo2() {\n" + 
+				"		return null instanceof T;\n" + 
+				"	}\n" + 
+				"	boolean foo3() {\n" + 
+				"		return null instanceof Map<Object,String>;\n" + 
+				"	}\n" + 
+				"	<T extends Map<Object,String>> boolean foo4() {\n" + 
+				"		return null instanceof T;\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	return null instanceof List<Object>;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type List<Object>. Use the form List<?> instead since further generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	return null instanceof T;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against type parameter T. Use instead its erasure List<?> instead since further generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	return null instanceof Map<Object,String>;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type Map<Object,String>. Use the form Map<?,?> instead since further generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 13)\n" + 
+			"	return null instanceof T;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against type parameter T. Use instead its erasure Map<?,?> instead since further generic type information will be erased at runtime\n" + 
 			"----------\n");
 }
 }
