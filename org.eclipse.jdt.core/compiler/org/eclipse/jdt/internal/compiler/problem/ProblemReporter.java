@@ -1040,11 +1040,11 @@ public void cannotThrowType(ASTNode exception, TypeBinding expectedType) {
 }
 public void cannotUseQualifiedEnumConstantInCaseLabel(Reference location, FieldBinding field) {
 	this.handle(
-			IProblem.IllegalQualifiedEnumConstantLabel,
-			new String[]{ String.valueOf(field.declaringClass.readableName()), String.valueOf(field.name) },
-			new String[]{ String.valueOf(field.declaringClass.shortReadableName()), String.valueOf(field.name) },
-			nodeSourceStart(field, location),
-			nodeSourceEnd(field, location));
+		IProblem.IllegalQualifiedEnumConstantLabel,
+		new String[]{ String.valueOf(field.declaringClass.readableName()), String.valueOf(field.name) },
+		new String[]{ String.valueOf(field.declaringClass.shortReadableName()), String.valueOf(field.name) },
+		location.sourceStart(),
+		location.sourceEnd());
 }
 public void cannotUseSuperInCodeSnippet(int start, int end) {
 	this.handle(

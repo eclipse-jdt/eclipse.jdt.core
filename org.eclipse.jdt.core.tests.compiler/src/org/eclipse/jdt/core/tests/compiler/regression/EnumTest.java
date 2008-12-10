@@ -723,21 +723,21 @@ public void test022() {
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	case MX.BLEU : break;\n" +
-		"	        ^^^^\n" +
-		"The qualified case label X.MX.BLEU must be replaced with the unqualified enum constant BLEU\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	case MX.BLANC : break;\n" +
-		"	        ^^^^^\n" +
-		"The qualified case label X.MX.BLANC must be replaced with the unqualified enum constant BLANC\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" +
-		"	case MX.ROUGE : break;\n" +
-		"	        ^^^^^\n" +
-		"The qualified case label X.MX.ROUGE must be replaced with the unqualified enum constant ROUGE\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	case MX.BLEU : break;\n" + 
+		"	     ^^^^^^^\n" + 
+		"The qualified case label X.MX.BLEU must be replaced with the unqualified enum constant BLEU\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	case MX.BLANC : break;\n" + 
+		"	     ^^^^^^^^\n" + 
+		"The qualified case label X.MX.BLANC must be replaced with the unqualified enum constant BLANC\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	case MX.ROUGE : break;\n" + 
+		"	     ^^^^^^^^\n" + 
+		"The qualified case label X.MX.ROUGE must be replaced with the unqualified enum constant ROUGE\n" + 
 		"----------\n");
 }
 
