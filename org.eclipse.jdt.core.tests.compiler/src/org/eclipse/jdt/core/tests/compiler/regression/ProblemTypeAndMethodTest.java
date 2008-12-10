@@ -4916,4 +4916,28 @@ public void test095() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=258248
+public void test097() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"\n" + 
+			"	public static interface InnerInterface<TheTypeMirror, TheDeclaredType extends TheTypeMirror, TheClassType extends TheDeclaredType, TheInterfaceType extends TheDeclaredType, ThePrimitiveType extends TheTypeMirror, TheArrayType extends TheTypeMirror, TheTypeVariable extends TheTypeMirror, TheWildcardType extends TheTypeMirror, TheFieldDeclaration, TheTypeParameterDeclaration, TheTypeDeclaration, TheClassDeclaration extends TheTypeDeclaration> {\n" + 
+			"	}\n" + 
+			"	protected <TheTypeMirror, TheDeclaredType extends TheTypeMirror, TheClassType extends TheDeclaredType, TheInterfaceType extends TheDeclaredType, ThePrimitiveType extends TheTypeMirror, TheArrayType extends TheTypeMirror, TheTypeVariable extends TheTypeMirror, TheWildcardType extends TheTypeMirror, TheFieldDeclaration, TheTypeParameterDeclaration, TheTypeDeclaration, TheClassDeclaration extends TheTypeDeclaration, Env extends InnerInterface<TheTypeMirror, TheDeclaredType, TheClassType, TheInterfaceType, ThePrimitiveType, TheArrayType, TheTypeVariable, TheWildcardType, TheFieldDeclaration, TheTypeParameterDeclaration, TheTypeDeclaration, TheClassDeclaration>, ParamType extends TheTypeMirror> void testMethod(\n" + 
+			"			TheFieldDeclaratation fieldDeclaratation, Env\n" + 
+			"			environment) {\n" + 
+			"\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	TheFieldDeclaratation fieldDeclaratation, Env\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"TheFieldDeclaratation cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
