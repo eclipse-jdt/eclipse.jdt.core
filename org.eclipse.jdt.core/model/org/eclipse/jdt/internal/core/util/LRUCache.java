@@ -14,8 +14,6 @@ import java.text.NumberFormat;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.eclipse.jdt.internal.core.JavaElement;
-
 /**
  * The <code>LRUCache</code> is a hashtable that stores a finite number of elements.  
  * When an attempt is made to add values to a full cache, the least recently used values
@@ -111,8 +109,11 @@ public class LRUCache implements Cloneable {
 			this.counters[this.counterIndex] = counter;
 			this.timestamps[this.counterIndex] = System.currentTimeMillis();
 		}
-		private String getAge(int counter, long currentTime) {
-			long age = currentTime - getTimestamps(counter);
+		private String getAverageAge(long totalTime, int numberOfElements, long currentTime) {
+			if (numberOfElements == 0)
+				return "N/A"; //$NON-NLS-1$
+			long time = totalTime / numberOfElements;
+			long age = currentTime - time;
 			long ageInSeconds = age/1000;
 			int seconds = 0;
 			int minutes = 0;
@@ -162,40 +163,53 @@ public class LRUCache implements Cloneable {
 			return -1;
 		}
 		public synchronized String printStats() {
-			int oldestCounter = getOldestTimestampCounter();
-			if (oldestCounter == 0) {
+			int numberOfElements = LRUCache.this.fCurrentSpace;
+			if (numberOfElements == 0) {
 				return "No elements in cache"; //$NON-NLS-1$
 			}
-			long currentTime = System.currentTimeMillis();
 			StringBuffer buffer = new StringBuffer();
-			buffer.append("Oldest element ("); //$NON-NLS-1$
-			buffer.append(getAge(oldestCounter, currentTime));
-			buffer.append(" old):\n"); //$NON-NLS-1$
-			Object element = getOldestElement();
-			if (element instanceof JavaElement) {
-				buffer.append(((JavaElement) element).toStringWithAncestors());
-				buffer.append('\n');
-			}
-			buffer.append('\n');
 			
-			int lastCount = 0;
-			int increment = LRUCache.this.fCurrentSpace / 5;
+			buffer.append("Number of elements in cache: "); //$NON-NLS-1$
+			buffer.append(numberOfElements);
+			
+			final int numberOfGroups = 5;
+			int numberOfElementsPerGroup = numberOfElements / numberOfGroups;
+			buffer.append("\n("); //$NON-NLS-1$
+			buffer.append(numberOfGroups);
+			buffer.append(" groups of "); //$NON-NLS-1$
+			buffer.append(numberOfElementsPerGroup);
+			buffer.append(" elements)"); //$NON-NLS-1$
+			buffer.append("\n\nAverage age:"); //$NON-NLS-1$
+			int groupNumber = 1;
 			int elementCounter = 0;
 			LRUCacheEntry entry = LRUCache.this.fEntryQueueTail;
+			long currentTime = System.currentTimeMillis();
+			long accumulatedTime = 0;
 			while (entry != null) {
-				if (++elementCounter - lastCount >= increment) {
-					buffer.append(elementCounter);
-					buffer.append(" elements are at least "); //$NON-NLS-1$
-					buffer.append(getAge(entry._fTimestamp, currentTime));
-					buffer.append(" old\n"); //$NON-NLS-1$
-					lastCount = elementCounter;
+				long timeStamps = getTimestamps(entry._fTimestamp);
+				if (timeStamps > 0) {
+					accumulatedTime += timeStamps;
+					elementCounter++;
+				}
+				if (elementCounter >= numberOfElementsPerGroup && (groupNumber < numberOfGroups)) {
+					buffer.append("\nGroup "); //$NON-NLS-1$
+					buffer.append(groupNumber);
+					if (groupNumber == 1) {
+						buffer.append(" (oldest)\t: "); //$NON-NLS-1$
+					} else {
+						buffer.append("\t\t: "); //$NON-NLS-1$
+					}
+					groupNumber++;
+					buffer.append(getAverageAge(accumulatedTime, elementCounter, currentTime));
+					elementCounter = 0;
+					accumulatedTime = 0;
 				}
 				entry = entry._fPrevious;
 			}
-			buffer.append(LRUCache.this.fCurrentSpace);
-			buffer.append(" elements are at least "); //$NON-NLS-1$
-			buffer.append(getAge(LRUCache.this.fEntryQueue._fTimestamp, currentTime));
-			buffer.append(" old"); //$NON-NLS-1$
+			buffer.append("\nGroup "); //$NON-NLS-1$
+			buffer.append(numberOfGroups);
+			buffer.append(" (youngest)\t: "); //$NON-NLS-1$
+			buffer.append(getAverageAge(accumulatedTime, elementCounter, currentTime));
 			
 			return buffer.toString();
 		}
