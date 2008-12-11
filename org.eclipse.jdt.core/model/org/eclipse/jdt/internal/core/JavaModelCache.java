@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.core.util.LRUCache;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * The cache of java elements to their respective info.
@@ -26,6 +27,7 @@ public class JavaModelCache {
 	public static final int DEFAULT_PKG_SIZE = 500; // average 1782 bytes per pkg -> maximum size : 178200*BASE_VALUE bytes
 	public static final int DEFAULT_OPENABLE_SIZE = 500; // average 6629 bytes per openable (includes children) -> maximum size : 662900*BASE_VALUE bytes
 	public static final int DEFAULT_CHILDREN_SIZE = 500*20; // average 20 children per openable
+	public static final String RATIO_PROPERTY = "org.eclipse.jdt.core.javamodelcache.ratio"; //$NON-NLS-1$
 	
 	public static final Object NON_EXISTING_JAR_TYPE_INFO = new Object();
 
@@ -72,18 +74,33 @@ public class JavaModelCache {
 public JavaModelCache() {
 	// set the size of the caches in function of the maximum amount of memory available
 	double ratio = getMemoryRatio();
+	// adjust the size of the openable cache in function of the RATIO_PROPERTY property
+	double openableRatio = getOpenableRatio();
 	this.projectCache = new HashMap(DEFAULT_PROJECT_SIZE); // NB: Don't use a LRUCache for projects as they are constantly reopened (e.g. during delta processing)
 	if (VERBOSE) {
 		this.rootCache = new VerboseElementCache((int) (DEFAULT_ROOT_SIZE * ratio), "Root cache"); //$NON-NLS-1$
 		this.pkgCache = new VerboseElementCache((int) (DEFAULT_PKG_SIZE * ratio), "Package cache"); //$NON-NLS-1$
-		this.openableCache = new VerboseElementCache((int) (DEFAULT_OPENABLE_SIZE * ratio), "Openable cache"); //$NON-NLS-1$
+		this.openableCache = new VerboseElementCache((int) (DEFAULT_OPENABLE_SIZE * ratio * openableRatio), "Openable cache"); //$NON-NLS-1$
 	} else {
 		this.rootCache = new ElementCache((int) (DEFAULT_ROOT_SIZE * ratio));
 		this.pkgCache = new ElementCache((int) (DEFAULT_PKG_SIZE * ratio));
-		this.openableCache = new ElementCache((int) (DEFAULT_OPENABLE_SIZE * ratio));
+		this.openableCache = new ElementCache((int) (DEFAULT_OPENABLE_SIZE * ratio * openableRatio));
 	}
-	this.childrenCache = new HashMap((int) (DEFAULT_CHILDREN_SIZE * ratio));
+	this.childrenCache = new HashMap((int) (DEFAULT_CHILDREN_SIZE * ratio * openableRatio));
 	resetJarTypeCache();
+}
+
+private double getOpenableRatio() {
+	String property = System.getProperty(RATIO_PROPERTY);
+	if (property != null) {
+		try {
+			return Double.parseDouble(property);
+		} catch (NumberFormatException e) {
+			// ignore
+			Util.log(e, "Could not parse value for " + RATIO_PROPERTY + ": " + property); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+	return 1.0;
 }
 
 /**
@@ -221,7 +238,7 @@ protected void removeInfo(JavaElement element) {
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
 			this.pkgCache.remove(element);
-			this.openableCache.resetSpaceLimit((int) (DEFAULT_OPENABLE_SIZE * getMemoryRatio()), element);
+			this.openableCache.resetSpaceLimit((int) (DEFAULT_OPENABLE_SIZE * getMemoryRatio() * getOpenableRatio()), element);
 			break;
 		case IJavaElement.COMPILATION_UNIT:
 		case IJavaElement.CLASS_FILE:
