@@ -48325,4 +48325,23 @@ public void test1427() {
 			"Type mismatch: cannot convert from Object to String\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=239203
+public void test1428() {
+	this.runConformTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"class A<I extends B> {}\n" + 
+				"class B {}\n" + 
+				"public class X {\n" + 
+				"	public <I extends B, C extends A<I>> A<I> foo(Class<C> clazz) {\n" + 
+				"		A<I> ret = bar(\"bla\");\n" + 
+				"		return ret;\n" + 
+				"	}\n" + 
+				"	public <I extends B, C extends A<I>> A<I> bar(String clazzName) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"");
+}
 }
