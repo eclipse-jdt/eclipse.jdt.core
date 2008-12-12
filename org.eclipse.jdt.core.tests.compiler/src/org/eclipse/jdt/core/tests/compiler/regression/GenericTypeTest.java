@@ -48305,4 +48305,24 @@ public void test1426() {
 			"Cannot perform instanceof check against type parameter T. Use instead its erasure Map<?,?> instead since further generic type information will be erased at runtime\n" + 
 			"----------\n");
 }
+public void test1427() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"    public <T> List<T> nil() { return null; }\n" + 
+				"    public <T> T getHead(List<T> x) { return null; }\n" + 
+				"    X() {\n" + 
+				"	   String s = getHead(nil());\n" + 
+				"    }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	String s = getHead(nil());\n" + 
+			"	           ^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to String\n" + 
+			"----------\n");
+}
 }
