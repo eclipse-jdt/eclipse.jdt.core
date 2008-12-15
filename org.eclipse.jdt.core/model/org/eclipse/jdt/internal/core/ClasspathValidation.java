@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaModelStatus;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 
@@ -68,8 +67,6 @@ public class ClasspathValidation {
 		 	for (int i = 0; i < rawClasspath.length; i++) {
 				status = ClasspathEntry.validateClasspathEntry(this.project, rawClasspath[i], false/*src attach*/, false /*not referred by a container*/);
 				if (!status.isOK()) {
-					if (status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH && ((ClasspathEntry) rawClasspath[i]).isOptional())
-						continue; // ignore this entry
 					this.project.createClasspathProblemMarker(status);
 				}
 			 }

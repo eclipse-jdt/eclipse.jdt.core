@@ -610,10 +610,7 @@ public final class JavaConventions {
 	 * @since 2.0
 	 */
 	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment){
-		IJavaModelStatus status = ClasspathEntry.validateClasspathEntry(project, entry, checkSourceAttachment, false/*not referred by container*/);
-		if (status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH && ((ClasspathEntry) entry).isOptional())
-			return JavaModelStatus.VERIFIED_OK;
-		return status;
+		return ClasspathEntry.validateClasspathEntry(project, entry, checkSourceAttachment, false/*not referred by container*/);
 	}
 
 	/**

@@ -164,6 +164,40 @@ protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreExceptio
 	return result;
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171136, ignore class path errors from optional
+// class path entries.
+
+public void test124117() throws CoreException {
+
+	IJavaProject p = null;
+	try {
+
+		p = this.createJavaProject("P0", new String[] {"src0", "src1"}, "bin0");
+		IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.OPTIONAL, "true");
+		JavaCore.setClasspathContainer(
+				new Path("container/default"),
+				new IJavaProject[]{ p },
+				new IClasspathContainer[] {
+					new TestContainer(new Path("container/default"),
+							new IClasspathEntry[]{
+						JavaCore.newLibraryEntry(new Path("/P0/JUNK"), new Path("/P0/SBlah"), new Path("/P0"), null, new IClasspathAttribute[] {attribute}, false)})
+				},
+				null);
+
+		IClasspathEntry newClasspath = JavaCore.newContainerEntry(new Path("container/default"));
+
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
+		
+		assertStatus(
+				"should NOT have complained about missing library as it is optional",
+				"OK",
+				status);
+	
+	} finally {
+		deleteProject ("P0");
+	}
+}
+
 /*  https://bugs.eclipse.org/bugs/show_bug.cgi?id=232816: Misleading problem text for missing jar in user
  *  library. We now mention the container name in this and related diagnostics so the context and connection is clearer.
  *  The bunch of tests with names of the form test232816*() test several paths in the function 

@@ -1745,7 +1745,11 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * @return a java model status describing the problem related to this classpath entry if any, a status object with code <code>IStatus.OK</code> if the entry is fine
 	 */
 	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment, boolean referredByContainer){
-		return validateClasspathEntry(project, entry, null, checkSourceAttachment, referredByContainer);
+		IJavaModelStatus status = validateClasspathEntry(project, entry, null, checkSourceAttachment, referredByContainer);
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171136, ignore class path errors from optional entries.
+		if (status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH && ((ClasspathEntry) entry).isOptional())
+			return JavaModelStatus.VERIFIED_OK;
+		return status;
 	}
 	
 	private static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, IClasspathContainer entryContainer, boolean checkSourceAttachment, boolean referredByContainer){
@@ -1860,6 +1864,9 @@ public class ClasspathEntry implements IClasspathEntry {
 					}
 				}
 				IJavaModelStatus status = validateLibraryEntry(path, project, containerInfo, checkSourceAttachment ? entry.getSourceAttachmentPath() : null, entryPathMsg);
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171136, ignore class path errors from optional entries
+				if (status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH && ((ClasspathEntry) entry).isOptional())
+					status = JavaModelStatus.VERIFIED_OK;
 				if (!status.isOK())
 					return status;
 				break;
