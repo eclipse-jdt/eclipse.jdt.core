@@ -48368,4 +48368,35 @@ public void test1429() {
 			"Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
 			"----------\n");
 }
+public void test1430() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"class Foo<T> {}\n" + 
+				"public class X {\n" + 
+				"	public void test() {\n" + 
+				"		Integer i = m(new Foo<Foo<Integer>>(), new Foo());\n" + 
+				"	}\n" + 
+				"	public <T> T m(Foo<T> x, T t) {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	Integer i = m(new Foo<Foo<Integer>>(), new Foo());\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Foo<Integer> to Integer\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	Integer i = m(new Foo<Foo<Integer>>(), new Foo());\n" + 
+			"	                                       ^^^^^^^^^\n" + 
+			"Type safety: The expression of type Foo needs unchecked conversion to conform to Foo<Integer>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	Integer i = m(new Foo<Foo<Integer>>(), new Foo());\n" + 
+			"	                                           ^^^\n" + 
+			"Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
+			"----------\n");
+}
 }
