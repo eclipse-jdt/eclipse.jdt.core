@@ -48344,4 +48344,28 @@ public void test1428() {
 			},
 			"");
 }
+public void test1429() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"class Foo<T> {}\n" + 
+				"public class X {\n" + 
+				"        public void test() {\n" + 
+				"                m(new Foo<Foo<Integer>>(), new Foo());\n" + 
+				"        }\n" + 
+				"        public <T> void m(Foo<T> x, T t) {}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	m(new Foo<Foo<Integer>>(), new Foo());\n" + 
+			"	                           ^^^^^^^^^\n" + 
+			"Type safety: The expression of type Foo needs unchecked conversion to conform to Foo<Integer>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	m(new Foo<Foo<Integer>>(), new Foo());\n" + 
+			"	                               ^^^\n" + 
+			"Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
+			"----------\n");
+}
 }
