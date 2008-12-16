@@ -6633,4 +6633,34 @@ public void testBug148215_Fields() throws CoreException {
 		removeLibraryEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
 	}
 }
+/**
+ * @bug 200064: [search] ResourceException while searching for method reference
+ * @test Ensure that indexing still works properly after close/restart
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=200064"
+ */
+public void testBug200064() throws CoreException {
+	waitUntilIndexesReady();
+	simulateExitRestart();
+	waitUntilIndexesReady();
+	final List names = new ArrayList();
+	TypeNameRequestor requestor = new TypeNameRequestor() {
+		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+			names.add(path);
+		}			
+	};
+	new SearchEngine().searchAllTypeNames(
+		null,
+		"Object".toCharArray(),
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	assertSearchResults(
+		getExternalJCLPathString("1.5") + "|java/lang/Object.class",
+		names.get(0)
+	);
+}
+
 }

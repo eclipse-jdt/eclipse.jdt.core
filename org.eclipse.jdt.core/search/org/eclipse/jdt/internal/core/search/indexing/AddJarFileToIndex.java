@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -32,6 +33,8 @@ import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 class AddJarFileToIndex extends IndexRequest {
+
+	private static final char JAR_SEPARATOR = IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR.charAt(0);
 	IFile resource;
 
 	public AddJarFileToIndex(IFile resource, IndexManager manager) {
@@ -84,6 +87,7 @@ class AddJarFileToIndex extends IndexRequest {
 					org.eclipse.jdt.internal.core.util.Util.verbose("-> index for " + this.containerPath + " just got deleted"); //$NON-NLS-1$//$NON-NLS-2$
 				return true; // index got deleted since acquired
 			}
+			index.separator = JAR_SEPARATOR;
 			ZipFile zip = null;
 			try {
 				// this path will be a relative path to the workspace in case the zipfile in the workspace otherwise it will be a path in the
@@ -181,6 +185,7 @@ class AddJarFileToIndex extends IndexRequest {
 					manager.removeIndex(this.containerPath);
 					return false;
 				}
+				index.separator = JAR_SEPARATOR;
 
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {

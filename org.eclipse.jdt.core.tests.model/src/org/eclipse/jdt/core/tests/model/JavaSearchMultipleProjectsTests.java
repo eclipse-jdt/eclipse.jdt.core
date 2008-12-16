@@ -11,7 +11,9 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import junit.framework.Test;
 
@@ -671,6 +673,84 @@ public void testTypeDeclarationInJar() throws CoreException {
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
+	}
+}
+
+/**
+ * @bug 199392: [search] Type Dialog Error 'Items filtering ... Reason: Class file name must end with .class'
+ * @test Ensure that types are found even in project which name ends either with ".jar" or ".zip"
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=199392"
+ */
+public void testBug199392_Jar() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("Test.jar");
+		createFolder("/Test.jar/test");
+		createFile(
+			"/Test.jar/test/MyClass.java",
+			"package test;\n" +
+			"public class MyClass {\n" +
+			"}\n"
+		);
+
+		// Search all type names with TypeNameMatchRequestor
+		final List names = new ArrayList();
+		TypeNameRequestor requestor = new TypeNameRequestor() {
+			public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+				names.add(path);
+			}			
+		};
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
+		new SearchEngine().searchAllTypeNames(
+			null,
+			new char[] { 'M', 'y' },
+			SearchPattern.R_PREFIX_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertEquals("Found types sounds not to be correct",
+			"/Test.jar/test/MyClass.java",
+			names.get(0)
+		);
+	} finally {
+		deleteProject("Test.jar");
+	}
+}
+public void testBug199392_Zip() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("Test.zip");
+		createFolder("/Test.zip/test");
+		createFile(
+			"/Test.zip/test/MyClass.java",
+			"package test;\n" +
+			"public class MyClass {\n" +
+			"}\n"
+		);
+
+		// Search all type names with TypeNameMatchRequestor
+		final List names = new ArrayList();
+		TypeNameRequestor requestor = new TypeNameRequestor() {
+			public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+				names.add(path);
+			}			
+		};
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
+		new SearchEngine().searchAllTypeNames(
+			null,
+			new char[] { 'M', 'y' },
+			SearchPattern.R_PREFIX_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertEquals("Found types sounds not to be correct",
+			"/Test.zip/test/MyClass.java",
+			names.get(0)
+		);
+	} finally {
+		deleteProject("Test.zip");
 	}
 }
 }
