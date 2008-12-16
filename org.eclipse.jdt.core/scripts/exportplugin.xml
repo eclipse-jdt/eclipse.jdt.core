@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- build script to create a plugin from ${plugin} -->
-<project name="${plugin}" default="export plug-in [_3.2.8]" basedir="..">
+<project name="${plugin}" default="export plug-in [_3.2.9]" basedir="..">
 
-<target name="export plug-in [_3.2.8]">
+<target name="export plug-in [_3.2.9]">
     <tstamp/>
 	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
 	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.8"/>
+		<param name="jdt_core_version" value="3.2.9"/>
 	</antcall>
 </target>
-<target name="export plug-in [_3.2.8.qualifier] (with sources)">
+<target name="export plug-in [_3.2.9.qualifier] (with sources)">
     <tstamp/>
 	<property name="qualifier" value="${DSTAMP}-${TSTAMP}" />
 	<antcall target="zz_internal_export_structure">
-		<param name="jdt_core_version" value="3.2.8.${qualifier}"/>
+		<param name="jdt_core_version" value="3.2.9.${qualifier}"/>
 	</antcall>
 </target>
-<target name="export plug-in [_3.2.8.qualifier]">
+<target name="export plug-in [_3.2.9.qualifier]">
     <tstamp/>
 	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
 	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.8.${qualifier}"/>
+		<param name="jdt_core_version" value="3.2.9.${qualifier}"/>
 	</antcall>
 </target>
 
