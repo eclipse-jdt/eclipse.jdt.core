@@ -140,11 +140,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			codeStream.checkcast(this.actualReceiverType);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
-
 	}
 	// generate arguments
 	generateArguments(this.binding, this.arguments, currentScope, codeStream);
-
+	pc = codeStream.position;
 	// actual message invocation
 	if (this.syntheticAccessor == null){
 		TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
