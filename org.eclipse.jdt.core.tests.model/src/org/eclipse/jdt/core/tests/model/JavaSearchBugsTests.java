@@ -8066,6 +8066,33 @@ public void testBug194185() throws CoreException {
 }
 
 /**
+ * @bug 200064: [search] ResourceException while searching for method reference
+ * @test Ensure that indexing still works properly after close/restart
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=200064"
+ */
+public void testBug200064() throws CoreException {
+	waitUntilIndexesReady();
+	simulateExitRestart();
+	waitUntilIndexesReady();
+	// Search all type names with TypeNameMatchRequestor
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	new SearchEngine().searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		"Object".toCharArray(),
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		getJavaSearchScopeBugs(),
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	assertSearchResults(
+		"Object (not open) [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+		collector
+	);
+}
+
+/**
  * @bug 204652 "Open Type": ClassCastException in conjunction with a class folder
  * @test Ensure that no ClassCastException is thrown for a library folder with a jar like name
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=204652"

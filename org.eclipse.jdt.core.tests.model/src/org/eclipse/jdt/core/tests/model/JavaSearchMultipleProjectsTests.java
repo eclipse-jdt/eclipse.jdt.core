@@ -19,8 +19,19 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -978,6 +989,84 @@ public void testBug211962() throws CoreException, IOException {
 		Util.delete(tmpPath.toString());
 		deleteProject(tmpPath.segment(0));
 		deleteProject("P2");
+	}
+}
+
+/**
+ * @bug 199392: [search] Type Dialog Error 'Items filtering ... Reason: Class file name must end with .class'
+ * @test Ensure that types are found even in project which name ends either with ".jar" or ".zip"
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=199392"
+ */
+public void testBug199392_Jar() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("Test.jar");
+		createFolder("/Test.jar/test");
+		createFile(
+			"/Test.jar/test/MyClass.java",
+			"package test;\n" +
+			"public class MyClass {\n" +
+			"}\n"
+		);
+
+		// Search all type names with TypeNameMatchRequestor
+		AbstractJavaSearchTests.TypeNameMatchCollector collector = new AbstractJavaSearchTests.TypeNameMatchCollector() {
+			public String toString(){
+				return toFullyQualifiedNamesString();
+			}
+		};
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			new char[] { 'M', 'y' },
+			SearchPattern.R_CAMELCASE_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertEquals("Found types sounds not to be correct",
+			"test.MyClass",
+			collector.toString()
+		);
+	} finally {
+		deleteProject("Test.jar");
+	}
+}
+public void testBug199392_Zip() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("Test.zip");
+		createFolder("/Test.zip/test");
+		createFile(
+			"/Test.zip/test/MyClass.java",
+			"package test;\n" +
+			"public class MyClass {\n" +
+			"}\n"
+		);
+
+		// Search all type names with TypeNameMatchRequestor
+		AbstractJavaSearchTests.TypeNameMatchCollector collector = new AbstractJavaSearchTests.TypeNameMatchCollector() {
+			public String toString(){
+				return toFullyQualifiedNamesString();
+			}
+		};
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			new char[] { 'M', 'y' },
+			SearchPattern.R_CAMELCASE_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertEquals("Found types sounds not to be correct",
+			"test.MyClass",
+			collector.toString()
+		);
+	} finally {
+		deleteProject("Test.zip");
 	}
 }
 }

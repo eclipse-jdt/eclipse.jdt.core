@@ -31,6 +31,10 @@ public class Index {
 public String containerPath;
 public ReadWriteMonitor monitor;
 
+// Separator to use after the container path
+static final char DEFAULT_SEPARATOR = '/';
+public char separator = DEFAULT_SEPARATOR;
+
 protected DiskIndex diskIndex;
 protected MemoryIndex memoryIndex;
 
@@ -91,6 +95,7 @@ public Index(String fileName, String containerPath, boolean reuseExistingFile) t
 	this.memoryIndex = new MemoryIndex();
 	this.diskIndex = new DiskIndex(fileName);
 	this.diskIndex.initialize(reuseExistingFile);
+	if (reuseExistingFile) this.separator = this.diskIndex.separator;
 }
 public void addIndexEntry(char[] category, char[] key, String containerRelativePath) {
 	this.memoryIndex.addIndexEntry(category, key, containerRelativePath);
@@ -173,6 +178,7 @@ public void save() throws IOException {
 	if (!hasChanged()) return;
 
 	int numberOfChanges = this.memoryIndex.docsToReferences.elementSize;
+	this.diskIndex.separator = this.separator;
 	this.diskIndex = this.diskIndex.mergeWith(this.memoryIndex);
 	this.memoryIndex = new MemoryIndex();
 	if (numberOfChanges > 1000)
