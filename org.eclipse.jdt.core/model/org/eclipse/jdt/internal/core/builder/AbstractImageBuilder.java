@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -390,7 +391,21 @@ protected void createProblemFor(IResource resource, IMember javaElement, String 
 		IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		int severity = problemSeverity.equals(JavaCore.WARNING) ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR;
 
-		ISourceRange range = javaElement == null ? null : javaElement.getNameRange();
+		ISourceRange range = null;
+		if (javaElement != null) {
+			try {
+				range = javaElement.getNameRange();
+			} catch (JavaModelException e) {
+				if (e.getJavaModelStatus().getCode() != IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST) {
+					throw e;
+				}
+				if (!CharOperation.equals(javaElement.getElementName().toCharArray(), TypeConstants.PACKAGE_INFO_NAME)) {
+					throw e;
+				}
+				// else silently swallow the exception as the synthetic interface type package-info has no
+				// source range really. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=258145
+			}
+		}
 		int start = range == null ? 0 : range.getOffset();
 		int end = range == null ? 1 : start + range.getLength();
 		marker.setAttributes(
