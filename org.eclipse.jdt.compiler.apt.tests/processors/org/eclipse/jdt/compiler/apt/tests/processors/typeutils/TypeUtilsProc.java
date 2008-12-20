@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2008 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,10 @@ public class TypeUtilsProc extends BaseProcessor
 		}
 
 		if (!examineGetDeclaredTypeNested()) {
+			return false;
+		}
+		
+		if (!examineGetArrayTypeParameterized()) {
 			return false;
 		}
 
@@ -235,22 +239,47 @@ public class TypeUtilsProc extends BaseProcessor
 		TypeElement iterDecl = _elementUtils.getTypeElement("java.util.HashMap.HashIterator");
 		DeclaredType stringType = _typeUtils.getDeclaredType(stringDecl);
 		DeclaredType numberType = _typeUtils.getDeclaredType(numberDecl);
+		ArrayType numberArrayType = _typeUtils.getArrayType(numberType);
 
-		// HashMap<String, Number>
-		DeclaredType outerType = _typeUtils.getDeclaredType(mapDecl, stringType, numberType);
+		// HashMap<String, Number[]>
+		DeclaredType outerType = _typeUtils.getDeclaredType(mapDecl, stringType, numberArrayType);
 		
-		// HashMap<String, Number>.HashIterator<Number>
-		DeclaredType decl = _typeUtils.getDeclaredType(outerType, iterDecl, new DeclaredType[] { numberType });
+		// HashMap<String, Number[]>.HashIterator<Number[]>
+		DeclaredType decl = _typeUtils.getDeclaredType(outerType, iterDecl, new TypeMirror[] { numberArrayType });
 		
 		List<? extends TypeMirror> args = decl.getTypeArguments();
 		if (args.size() != 1) {
-			reportError("Map<String, Number>.EntryIterator<Number> should have one argument but decl.getTypeArguments() returned " + args.size());
+			reportError("Map<String, Number[]>.EntryIterator<Number[]> should have one argument but decl.getTypeArguments() returned " + args.size());
 			return false;
 		}
-		if (!_typeUtils.isSameType(numberType, args.get(0))) {
-			reportError("First arg of Map<String, Number>.EntryIterator<Number> was expected to be Number, but was: " + args.get(0));
+		if (!_typeUtils.isSameType(numberArrayType, args.get(0))) {
+			reportError("First arg of Map<String, Number[]>.EntryIterator<Number[]> was expected to be Number[], but was: " + args.get(0));
 			return false;
 		}
+		return true;
+	}
+
+	/**
+	 * Test getArrayType() for a parameterized type
+	 * @return true if tests passed
+	 */
+	private boolean examineGetArrayTypeParameterized() {
+		TypeElement stringDecl = _elementUtils.getTypeElement(String.class.getName());
+		TypeElement listDecl = _elementUtils.getTypeElement(List.class.getName());
+		DeclaredType stringType = _typeUtils.getDeclaredType(stringDecl);
+		
+		// List<String>
+		DeclaredType decl = _typeUtils.getDeclaredType(listDecl, stringType);
+		
+		// List<String>[]
+		ArrayType listArray = _typeUtils.getArrayType(decl);
+		
+		TypeMirror leafType = listArray.getComponentType();
+		if (!_typeUtils.isSameType(leafType, decl)) {
+			reportError("Leaf type of List<String>[] should be List<String>, but was: " + leafType);
+			return false;
+		}
+		
 		return true;
 	}
 
