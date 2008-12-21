@@ -88,7 +88,7 @@ public final class ProcessorUtil
 		else if (v instanceof AnnotationMirror) {
 			return annoMirrorToString((AnnotationMirror)v);
 		}
-		else if (v instanceof Collection) {
+		else if (v instanceof Collection<?>) {
 			// Collection<AnnotationValue>, for an array value
 			StringBuilder sb = new StringBuilder();
 			sb.append('{');
