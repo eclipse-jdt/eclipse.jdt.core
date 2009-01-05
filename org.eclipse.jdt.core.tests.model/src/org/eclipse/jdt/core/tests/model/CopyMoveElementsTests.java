@@ -1957,7 +1957,7 @@ public void testMoveInitializer() throws CoreException {
 }
 /**
  * Ensures that a initializer can be copied to a different type that is in a different
- * projects=.
+ * project.
  */
 public void testMoveInitializerInDifferentProject() throws CoreException {
 	try {
