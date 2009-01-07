@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48398,5 +48398,45 @@ public void test1430() {
 			"	                                           ^^^\n" + 
 			"Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
 			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=258039
+public void test1431()  throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //=================================
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		class M<T extends Number> {}\n" + 
+			"		class N extends M<String> {}\n" + 
+			"		class O implements I<String>, I<Number> {}\n" + 
+			"	}\n" + 
+			"	class MM<T extends Number> {}\n" + 
+			"	class NN extends MM<String> {}\n" + 
+			"	class OO implements I<String>, I<Number> {}\n" + 
+			"}\n" +
+			"interface I<T> {}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	class N extends M<String> {}\n" + 
+		"	                  ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends Number> of the type M<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	class O implements I<String>, I<Number> {}\n" + 
+		"	      ^\n" + 
+		"The interface I cannot be implemented more than once with different arguments: I<Number> and I<String>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	class NN extends MM<String> {}\n" + 
+		"	                    ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends Number> of the type X.MM<T>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	class OO implements I<String>, I<Number> {}\n" + 
+		"	      ^^\n" + 
+		"The interface I cannot be implemented more than once with different arguments: I<Number> and I<String>\n" + 
+		"----------\n"
+	);
 }
 }
