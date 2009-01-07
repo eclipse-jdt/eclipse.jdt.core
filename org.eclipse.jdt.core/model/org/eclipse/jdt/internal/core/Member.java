@@ -378,16 +378,4 @@ public String readableName() {
 		return super.readableName();
 	}
 }
-/**
- * Updates the name range for this element.
- */
-protected void updateNameRange(int nameStart, int nameEnd) {
-	try {
-		MemberElementInfo info = (MemberElementInfo) getElementInfo();
-		info.setNameSourceStart(nameStart);
-		info.setNameSourceEnd(nameEnd);
-	} catch (JavaModelException npe) {
-		return;
-	}
-}
 }

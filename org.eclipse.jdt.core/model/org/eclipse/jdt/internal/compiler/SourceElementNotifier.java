@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ISourceElementRequestor.TypeParameterInfo;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
@@ -178,10 +179,10 @@ protected char[][] getTypeParameterBounds(TypeParameter typeParameter) {
 
 	return typeParameterBounds;
 }
-private ISourceElementRequestor.TypeParameterInfo[] getTypeParameterInfos(TypeParameter[] typeParameters) {
+private TypeParameterInfo[] getTypeParameterInfos(TypeParameter[] typeParameters) {
 	if (typeParameters == null) return null;
 	int typeParametersLength = typeParameters.length;
-	ISourceElementRequestor.TypeParameterInfo[] result = new ISourceElementRequestor.TypeParameterInfo[typeParametersLength];
+	TypeParameterInfo[] result = new TypeParameterInfo[typeParametersLength];
 	for (int i = 0; i < typeParametersLength; i++) {
 		TypeParameter typeParameter = typeParameters[i];
 		char[][] typeParameterBounds = getTypeParameterBounds(typeParameter);

@@ -29,6 +29,9 @@ public class SourceTypeElementInfo extends AnnotatableInfo implements ISourceTyp
 	protected static final SourceField[] NO_FIELDS = new SourceField[0];
 	protected static final SourceMethod[] NO_METHODS = new SourceMethod[0];
 	protected static final SourceType[] NO_TYPES = new SourceType[0];
+
+	protected IJavaElement[] children = JavaElement.NO_ELEMENTS;
+	
 	/**
 	 * The name of the superclass for this type. This name
 	 * is fully qualified for binary types and is NOT
@@ -72,6 +75,10 @@ protected void addCategories(IJavaElement element, char[][] elementCategories) {
  */
 public HashMap getCategories() {
 	return this.categories;
+}
+
+public IJavaElement[] getChildren() {
+	return this.children;
 }
 
 /**

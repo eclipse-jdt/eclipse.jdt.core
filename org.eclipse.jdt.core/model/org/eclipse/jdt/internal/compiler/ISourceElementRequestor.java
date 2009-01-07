@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
+import java.util.HashMap;
+
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
@@ -58,6 +60,7 @@ public interface ISourceElementRequestor {
 		public boolean anonymousMember;
 		public Annotation[] annotations;
 		public TypeDeclaration node;
+		public HashMap childrenCategories = new HashMap();
 	}
 
 	public static class TypeParameterInfo {

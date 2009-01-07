@@ -780,7 +780,7 @@ public IImportDeclaration[] getImports() throws JavaModelException {
 				return NO_IMPORTS;
 		}
 	}
-	IJavaElement[] elements = ((JavaElementInfo) info).children;
+	IJavaElement[] elements = ((ImportContainerInfo) info).children;
 	int length = elements.length;
 	IImportDeclaration[] imports = new IImportDeclaration[length];
 	System.arraycopy(elements, 0, imports, 0, length);

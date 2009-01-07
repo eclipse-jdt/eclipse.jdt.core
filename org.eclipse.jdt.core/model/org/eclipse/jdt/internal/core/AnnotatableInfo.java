@@ -19,4 +19,46 @@ public class AnnotatableInfo extends MemberElementInfo {
 	 */
 	protected IAnnotation[] annotations = Annotation.NO_ANNOTATIONS;
 
+	/**
+	 * The start position of this member's name in the its
+	 * openable's buffer.
+	 */
+	protected int nameStart= -1;
+
+	/**
+	 * The last position of this member's name in the its
+	 * openable's buffer.
+	 */
+	protected int nameEnd= -1;
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getNameSourceEnd()
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getNameSourceEnd()
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getNameSourceEnd()
+	 */
+	public int getNameSourceEnd() {
+		return this.nameEnd;
+	}
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getNameSourceStart()
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getNameSourceStart()
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getNameSourceStart()
+	 */
+	public int getNameSourceStart() {
+		return this.nameStart;
+	}
+	/**
+	 * Sets the last position of this member's name, relative
+	 * to its openable's source buffer.
+	 */
+	protected void setNameSourceEnd(int end) {
+		this.nameEnd= end;
+	}
+	/**
+	 * Sets the start position of this member's name, relative
+	 * to its openable's source buffer.
+	 */
+	protected void setNameSourceStart(int start) {
+		this.nameStart= start;
+	}
 }

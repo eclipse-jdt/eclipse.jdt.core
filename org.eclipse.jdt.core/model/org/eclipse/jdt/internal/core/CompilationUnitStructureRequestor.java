@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
@@ -41,7 +42,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * A requestor for the fuzzy parser, used to compute the children of an ICompilationUnit.
  */
 public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter implements ISourceElementRequestor {
-
+	
 	/**
 	 * The handle to the compilation unit being parsed
 	 */
@@ -55,7 +56,8 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	/**
 	 * The import container info - null until created
 	 */
-	protected JavaElementInfo importContainerInfo = null;
+	protected ImportContainerInfo importContainerInfo = null;
+	protected ImportContainer importContainer;
 
 	/**
 	 * Hashtable of children elements of the compilation unit.
@@ -79,7 +81,7 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected Stack infoStack;
 
 	/*
-	 * Map from JavaElementInfo to of ArrayList of IJavaElement representing the children
+	 * Map from info to of ArrayList of IJavaElement representing the children
 	 * of the given info.
 	 */
 	protected HashMap children;
@@ -129,16 +131,16 @@ public void acceptImport(int declarationStart, int declarationEnd, char[][] toke
 
 	ICompilationUnit parentCU= (ICompilationUnit)parentHandle;
 	//create the import container and its info
-	ImportContainer importContainer= createImportContainer(parentCU);
-	if (this.importContainerInfo == null) {
-		this.importContainerInfo = new JavaElementInfo();
-		JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
-		addToChildren(parentInfo, importContainer);
-		this.newElements.put(importContainer, this.importContainerInfo);
+	if (this.importContainer == null) {
+		this.importContainer = createImportContainer(parentCU);
+		this.importContainerInfo = new ImportContainerInfo();
+		Object parentInfo = this.infoStack.peek();
+		addToChildren(parentInfo, this.importContainer);
+		this.newElements.put(this.importContainer, this.importContainerInfo);
 	}
 
 	String elementName = JavaModelManager.getJavaModelManager().intern(new String(CharOperation.concatWith(tokens, '.')));
-	ImportDeclaration handle = createImportDeclaration(importContainer, elementName, onDemand);
+	ImportDeclaration handle = createImportDeclaration(this.importContainer, elementName, onDemand);
 	resolveDuplicates(handle);
 
 	ImportDeclarationElementInfo info = new ImportDeclarationElementInfo();
@@ -164,7 +166,7 @@ public void acceptLineSeparatorPositions(int[] positions) {
  */
 public void acceptPackage(ImportReference importReference) {
 
-		JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
+		Object parentInfo = this.infoStack.peek();
 		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 		PackageDeclaration handle = null;
 
@@ -187,8 +189,7 @@ public void acceptPackage(ImportReference importReference) {
 		if (importReference.annotations != null) {
 			for (int i = 0, length = importReference.annotations.length; i < length; i++) {
 				org.eclipse.jdt.internal.compiler.ast.Annotation annotation = importReference.annotations[i];
-				enterAnnotation(annotation, info, handle);
-				exitMember(annotation.declarationSourceEnd);
+				acceptAnnotation(annotation, info, handle);
 			}
 		}
 }
@@ -197,7 +198,7 @@ public void acceptProblem(CategorizedProblem problem) {
 		this.hasSyntaxErrors = true;
 	}
 }
-private void addToChildren(JavaElementInfo parentInfo, JavaElement handle) {
+private void addToChildren(Object parentInfo, JavaElement handle) {
 	ArrayList childrenList = (ArrayList) this.children.get(parentInfo);
 	if (childrenList == null)
 		this.children.put(parentInfo, childrenList = new ArrayList());
@@ -219,7 +220,7 @@ protected ImportDeclaration createImportDeclaration(ImportContainer parent, Stri
 protected Initializer createInitializer(JavaElement parent) {
 	return new Initializer(parent, 1);
 }
-protected SourceMethod createMethod(JavaElement parent, MethodInfo methodInfo) {
+protected SourceMethod createMethodHandle(JavaElement parent, MethodInfo methodInfo) {
 	String selector = JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
 	String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
 	return new SourceMethod(parent, selector, parameterTypeSigs);
@@ -227,7 +228,7 @@ protected SourceMethod createMethod(JavaElement parent, MethodInfo methodInfo) {
 protected PackageDeclaration createPackageDeclaration(JavaElement parent, String name) {
 	return new PackageDeclaration((CompilationUnit) parent, name);
 }
-protected SourceType createType(JavaElement parent, TypeInfo typeInfo) {
+protected SourceType createTypeHandle(JavaElement parent, TypeInfo typeInfo) {
 	String nameString= new String(typeInfo.name);
 	return new SourceType(parent, nameString);
 }
@@ -251,7 +252,7 @@ protected static String[] convertTypeNamesToSigs(char[][] typeNames) {
 	}
 	return typeSigs;
 }
-protected IAnnotation enterAnnotation(org.eclipse.jdt.internal.compiler.ast.Annotation annotation, AnnotatableInfo parentInfo, JavaElement parentHandle) {
+protected IAnnotation acceptAnnotation(org.eclipse.jdt.internal.compiler.ast.Annotation annotation, AnnotatableInfo parentInfo, JavaElement parentHandle) {
 	String nameString = new String(CharOperation.concatWith(annotation.type.getTypeName(), '.'));
 	Annotation handle = createAnnotation(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
@@ -260,7 +261,6 @@ protected IAnnotation enterAnnotation(org.eclipse.jdt.internal.compiler.ast.Anno
 
 	// populate the maps here as getValue(...) below may need them
 	this.newElements.put(handle, info);
-	this.infoStack.push(info);
 	this.handleStack.push(handle);
 
 	info.setSourceRangeStart(annotation.sourceStart());
@@ -281,6 +281,8 @@ protected IAnnotation enterAnnotation(org.eclipse.jdt.internal.compiler.ast.Anno
 		annotations[length] = handle;
 		parentInfo.annotations = annotations;
 	}
+	info.setSourceRangeEnd(annotation.declarationSourceEnd);
+	this.handleStack.pop();
 	return handle;
 }
 /**
@@ -304,7 +306,7 @@ public void enterConstructor(MethodInfo methodInfo) {
  */
 public void enterField(FieldInfo fieldInfo) {
 
-	SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
+	TypeInfo parentInfo = (TypeInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	SourceField handle = null;
 	if (parentHandle.getElementType() == IJavaElement.TYPE) {
@@ -315,65 +317,40 @@ public void enterField(FieldInfo fieldInfo) {
 	}
 	resolveDuplicates(handle);
 
-	SourceFieldElementInfo info = new SourceFieldElementInfo();
-	info.setNameSourceStart(fieldInfo.nameSourceStart);
-	info.setNameSourceEnd(fieldInfo.nameSourceEnd);
-	info.setSourceRangeStart(fieldInfo.declarationStart);
-	info.setFlags(fieldInfo.modifiers);
-	char[] typeName = JavaModelManager.getJavaModelManager().intern(fieldInfo.type);
-	info.setTypeName(typeName);
-
 	addToChildren(parentInfo, handle);
-	parentInfo.addCategories(handle, fieldInfo.categories);
-	this.newElements.put(handle, info);
+	parentInfo.childrenCategories.put(handle, fieldInfo.categories);
 
-	this.infoStack.push(info);
+	this.infoStack.push(fieldInfo);
 	this.handleStack.push(handle);
 
-	if (fieldInfo.annotations != null) {
-		int length = fieldInfo.annotations.length;
-		this.unitInfo.annotationNumber += length;
-		for (int i = 0; i < length; i++) {
-			org.eclipse.jdt.internal.compiler.ast.Annotation annotation = fieldInfo.annotations[i];
-			enterAnnotation(annotation, info, handle);
-			exitMember(annotation.declarationSourceEnd);
-		}
-	}
 }
 /**
  * @see ISourceElementRequestor
  */
-public void enterInitializer(
-	int declarationSourceStart,
-	int modifiers) {
-		JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
-		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-		Initializer handle = null;
+public void enterInitializer(int declarationSourceStart, int modifiers) {
+	Object parentInfo = this.infoStack.peek();
+	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
+	Initializer handle = null;
 
-		if (parentHandle.getElementType() == IJavaElement.TYPE) {
-			handle = createInitializer(parentHandle);
-		}
-		else {
-			Assert.isTrue(false); // Should not happen
-		}
-		resolveDuplicates(handle);
+	if (parentHandle.getElementType() == IJavaElement.TYPE) {
+		handle = createInitializer(parentHandle);
+	}
+	else {
+		Assert.isTrue(false); // Should not happen
+	}
+	resolveDuplicates(handle);
+	
+	addToChildren(parentInfo, handle);
 
-		InitializerElementInfo info = new InitializerElementInfo();
-		info.setSourceRangeStart(declarationSourceStart);
-		info.setFlags(modifiers);
-
-		addToChildren(parentInfo, handle);
-		this.newElements.put(handle, info);
-
-		this.infoStack.push(info);
-		this.handleStack.push(handle);
+	this.infoStack.push(new int[] {declarationSourceStart, modifiers});
+	this.handleStack.push(handle);
 }
 /**
  * @see ISourceElementRequestor
  */
 public void enterMethod(MethodInfo methodInfo) {
 
-	SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
+	TypeInfo parentInfo = (TypeInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	SourceMethod handle = null;
 
@@ -389,20 +366,29 @@ public void enterMethod(MethodInfo methodInfo) {
 	}
 
 	if (parentHandle.getElementType() == IJavaElement.TYPE) {
-		handle = createMethod(parentHandle, methodInfo);
+		handle = createMethodHandle(parentHandle, methodInfo);
 	}
 	else {
 		Assert.isTrue(false); // Should not happen
 	}
 	resolveDuplicates(handle);
 
+	this.infoStack.push(methodInfo);
+	this.handleStack.push(handle);
+	
+	addToChildren(parentInfo, handle);
+	parentInfo.childrenCategories.put(handle, methodInfo.categories);
+}
+private SourceMethodElementInfo createMethodInfo(MethodInfo methodInfo, SourceMethod handle) {
+	IJavaElement[] elements = getChildren(methodInfo);
 	SourceMethodElementInfo info;
-	if (methodInfo.isConstructor)
-		info = new SourceConstructorInfo();
-	else if (methodInfo.isAnnotation)
+	if (methodInfo.isConstructor) {
+		info = elements.length == 0 ? new SourceConstructorInfo() : new SourceConstructorWithChildrenInfo(elements);
+	} else if (methodInfo.isAnnotation) {
 		info = new SourceAnnotationMethodInfo();
-	else
-		info = new SourceMethodInfo();
+	} else {
+		info = elements.length == 0 ? new SourceMethodInfo() : new SourceMethodWithChildrenInfo(elements);
+	}
 	info.setSourceRangeStart(methodInfo.declarationStart);
 	int flags = methodInfo.modifiers;
 	info.setNameSourceStart(methodInfo.nameSourceStart);
@@ -419,17 +405,12 @@ public void enterMethod(MethodInfo methodInfo) {
 	info.setExceptionTypeNames(exceptionTypes);
 	for (int i = 0, length = exceptionTypes.length; i < length; i++)
 		exceptionTypes[i] = manager.intern(exceptionTypes[i]);
-	addToChildren(parentInfo, handle);
-	parentInfo.addCategories(handle, methodInfo.categories);
 	this.newElements.put(handle, info);
-	this.infoStack.push(info);
-	this.handleStack.push(handle);
 
 	if (methodInfo.typeParameters != null) {
 		for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
 			TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
-			enterTypeParameter(typeParameterInfo);
-			exitMember(typeParameterInfo.declarationEnd);
+			acceptTypeParameter(typeParameterInfo, info);
 		}
 	}
 	if (methodInfo.annotations != null) {
@@ -437,21 +418,29 @@ public void enterMethod(MethodInfo methodInfo) {
 		this.unitInfo.annotationNumber += length;
 		for (int i = 0; i < length; i++) {
 			org.eclipse.jdt.internal.compiler.ast.Annotation annotation = methodInfo.annotations[i];
-			enterAnnotation(annotation, info, handle);
-			exitMember(annotation.declarationSourceEnd);
+			acceptAnnotation(annotation, info, handle);
 		}
 	}
+	return info;
 }
 /**
  * @see ISourceElementRequestor
  */
 public void enterType(TypeInfo typeInfo) {
 
-	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
+	Object parentInfo = this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-	SourceType handle = createType(parentHandle, typeInfo); //NB: occurenceCount is computed in resolveDuplicates
+	SourceType handle = createTypeHandle(parentHandle, typeInfo); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 
+	this.infoStack.push(typeInfo);
+	this.handleStack.push(handle);
+
+	if (parentHandle.getElementType() == IJavaElement.TYPE)
+		((TypeInfo) parentInfo).childrenCategories.put(handle, typeInfo.categories);
+	addToChildren(parentInfo, handle);
+}
+private SourceTypeElementInfo createTypeInfo(TypeInfo typeInfo, SourceType handle) {
 	SourceTypeElementInfo info =
 		typeInfo.anonymousMember ?
 			new SourceTypeElementInfo() {
@@ -473,18 +462,12 @@ public void enterType(TypeInfo typeInfo) {
 		superinterfaces[i] = manager.intern(superinterfaces[i]);
 	info.setSuperInterfaceNames(superinterfaces);
 	info.addCategories(handle, typeInfo.categories);
-	if (parentHandle.getElementType() == IJavaElement.TYPE)
-		((SourceTypeElementInfo) parentInfo).addCategories(handle, typeInfo.categories);
-	addToChildren(parentInfo, handle);
 	this.newElements.put(handle, info);
-	this.infoStack.push(info);
-	this.handleStack.push(handle);
 
 	if (typeInfo.typeParameters != null) {
 		for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
 			TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
-			enterTypeParameter(typeParameterInfo);
-			exitMember(typeParameterInfo.declarationEnd);
+			acceptTypeParameter(typeParameterInfo, info);
 		}
 	}
 	if (typeInfo.annotations != null) {
@@ -492,13 +475,20 @@ public void enterType(TypeInfo typeInfo) {
 		this.unitInfo.annotationNumber += length;
 		for (int i = 0; i < length; i++) {
 			org.eclipse.jdt.internal.compiler.ast.Annotation annotation = typeInfo.annotations[i];
-			enterAnnotation(annotation, info, handle);
-			exitMember(annotation.declarationSourceEnd);
+			acceptAnnotation(annotation, info, handle);
 		}
 	}
+	if (typeInfo.childrenCategories != null) {
+		Iterator iterator = typeInfo.childrenCategories.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			info.addCategories((IJavaElement) entry.getKey(), (char[][]) entry.getValue());
+		}
+		
+	}
+	return info;
 }
-protected void enterTypeParameter(TypeParameterInfo typeParameterInfo) {
-	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
+protected void acceptTypeParameter(TypeParameterInfo typeParameterInfo, JavaElementInfo parentInfo) {
 	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
 	String nameString = new String(typeParameterInfo.name);
 	TypeParameter handle = createTypeParameter(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
@@ -525,8 +515,7 @@ protected void enterTypeParameter(TypeParameterInfo typeParameterInfo) {
 		elementInfo.typeParameters = typeParameters;
 	}
 	this.newElements.put(handle, info);
-	this.infoStack.push(info);
-	this.handleStack.push(handle);
+	info.setSourceRangeEnd(typeParameterInfo.declarationEnd);
 }
 /**
  * @see ISourceElementRequestor
@@ -534,12 +523,10 @@ protected void enterTypeParameter(TypeParameterInfo typeParameterInfo) {
 public void exitCompilationUnit(int declarationEnd) {
 	// set import container children
 	if (this.importContainerInfo != null) {
-		setChildren(this.importContainerInfo);
+		this.importContainerInfo.children = getChildren(this.importContainerInfo);
 	}
 
-	// set children
-	setChildren(this.unitInfo);
-
+	this.unitInfo.children = getChildren(this.unitInfo);
 	this.unitInfo.setSourceLength(declarationEnd + 1);
 
 	// determine if there were any parsing errors
@@ -549,23 +536,43 @@ public void exitCompilationUnit(int declarationEnd) {
  * @see ISourceElementRequestor
  */
 public void exitConstructor(int declarationEnd) {
-	exitMember(declarationEnd);
+	exitMethod(declarationEnd, null);
 }
 /**
  * @see ISourceElementRequestor
  */
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
-	SourceFieldElementInfo info = (SourceFieldElementInfo) this.infoStack.pop();
-	info.setSourceRangeEnd(declarationSourceEnd);
-	setChildren(info);
+	JavaElement handle = (JavaElement) this.handleStack.peek();
+	FieldInfo fieldInfo = (FieldInfo) this.infoStack.peek();
+	IJavaElement[] elements = getChildren(fieldInfo);
+	SourceFieldElementInfo info = elements.length == 0 ? new SourceFieldElementInfo() : new SourceFieldWithChildrenInfo(elements);
+	info.setNameSourceStart(fieldInfo.nameSourceStart);
+	info.setNameSourceEnd(fieldInfo.nameSourceEnd);
+	info.setSourceRangeStart(fieldInfo.declarationStart);
+	info.setFlags(fieldInfo.modifiers);
+	char[] typeName = JavaModelManager.getJavaModelManager().intern(fieldInfo.type);
+	info.setTypeName(typeName);
+	this.newElements.put(handle, info);
 
+	if (fieldInfo.annotations != null) {
+		int length = fieldInfo.annotations.length;
+		this.unitInfo.annotationNumber += length;
+		for (int i = 0; i < length; i++) {
+			org.eclipse.jdt.internal.compiler.ast.Annotation annotation = fieldInfo.annotations[i];
+			acceptAnnotation(annotation, info, handle);
+		}
+	}
+	info.setSourceRangeEnd(declarationSourceEnd);
+	this.handleStack.pop();
+	this.infoStack.pop();
+	
 	// remember initializer source if field is a constant
 	if (initializationStart != -1) {
 		int flags = info.flags;
 		Object typeInfo;
 		if (Flags.isStatic(flags) && Flags.isFinal(flags)
-				|| ((typeInfo = this.infoStack.peek()) instanceof SourceTypeElementInfo
-					 && (Flags.isInterface(((SourceTypeElementInfo)typeInfo).flags)))) {
+				|| ((typeInfo = this.infoStack.peek()) instanceof TypeInfo
+					 && (Flags.isInterface(((TypeInfo)typeInfo).modifiers)))) {
 			int length = declarationEnd - initializationStart;
 			if (length > 0) {
 				char[] initializer = new char[length];
@@ -574,31 +581,35 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
 			}
 		}
 	}
-	this.handleStack.pop();
 }
 /**
  * @see ISourceElementRequestor
  */
 public void exitInitializer(int declarationEnd) {
-	exitMember(declarationEnd);
-}
-/**
- * common processing for classes and interfaces
- */
-protected void exitMember(int declarationEnd) {
-	SourceRefElementInfo info = (SourceRefElementInfo) this.infoStack.pop();
+	JavaElement handle = (JavaElement) this.handleStack.peek();
+	int[] initializerInfo = (int[]) this.infoStack.peek();
+	IJavaElement[] elements = getChildren(initializerInfo);
+	
+	InitializerElementInfo info = elements.length == 0 ? new InitializerElementInfo() : new InitializerWithChildrenInfo(elements);
+	info.setSourceRangeStart(initializerInfo[0]);
+	info.setFlags(initializerInfo[1]);
 	info.setSourceRangeEnd(declarationEnd);
-	setChildren(info);
+
+	this.newElements.put(handle, info);
+	
 	this.handleStack.pop();
+	this.infoStack.pop();
 }
 /**
  * @see ISourceElementRequestor
  */
 public void exitMethod(int declarationEnd, Expression defaultValue) {
-	SourceMethodElementInfo info = (SourceMethodElementInfo) this.infoStack.pop();
+	SourceMethod handle = (SourceMethod) this.handleStack.peek();
+	MethodInfo methodInfo = (MethodInfo) this.infoStack.peek();
+	
+	SourceMethodElementInfo info = createMethodInfo(methodInfo, handle);
 	info.setSourceRangeEnd(declarationEnd);
-	setChildren(info);
-
+	
 	// remember default value of annotation method
 	if (info.isAnnotationMethod() && defaultValue != null) {
 		SourceAnnotationMethodInfo annotationMethodInfo = (SourceAnnotationMethodInfo) info;
@@ -609,14 +620,22 @@ public void exitMethod(int declarationEnd, Expression defaultValue) {
 		defaultMemberValuePair.value = getMemberValue(defaultMemberValuePair, defaultValue);
 		annotationMethodInfo.defaultValue = defaultMemberValuePair;
 	}
+	
 	this.handleStack.pop();
+	this.infoStack.pop();
 }
 /**
  * @see ISourceElementRequestor
  */
 public void exitType(int declarationEnd) {
-
-	exitMember(declarationEnd);
+	SourceType handle = (SourceType) this.handleStack.peek();
+	TypeInfo typeInfo = (TypeInfo) this.infoStack.peek();
+	SourceTypeElementInfo info = createTypeInfo(typeInfo, handle);
+	info.setSourceRangeEnd(declarationEnd);
+	info.children = getChildren(typeInfo);
+	
+	this.handleStack.pop();
+	this.infoStack.pop();
 }
 /**
  * Resolves duplicate handles by incrementing the occurrence count
@@ -645,6 +664,13 @@ protected IMemberValuePair[] getMemberValuePairs(MemberValuePair[] memberValuePa
 	}
 	return members;
 }
+private IJavaElement[] getChildren(Object info) {
+	ArrayList childrenList = (ArrayList) this.children.get(info);
+	if (childrenList != null) {
+		return (IJavaElement[]) childrenList.toArray(new IJavaElement[childrenList.size()]);
+	}
+	return JavaElement.NO_ELEMENTS;
+}
 /*
  * Creates the value from the given expression, and sets the valueKind on the given memberValuePair
  */
@@ -656,8 +682,7 @@ protected Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair me
 		return Util.getAnnotationMemberValue(memberValuePair, expression.constant);
 	} else if (expression instanceof org.eclipse.jdt.internal.compiler.ast.Annotation) {
 		org.eclipse.jdt.internal.compiler.ast.Annotation annotation = (org.eclipse.jdt.internal.compiler.ast.Annotation) expression;
-		Object handle = enterAnnotation(annotation, null, (JavaElement) this.handleStack.peek());
-		exitMember(annotation.declarationSourceEnd);
+		Object handle = acceptAnnotation(annotation, null, (JavaElement) this.handleStack.peek());
 		memberValuePair.valueKind = IMemberValuePair.K_ANNOTATION;
 		return handle;
 	} else if (expression instanceof ClassLiteralAccess) {
@@ -696,15 +721,6 @@ protected Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair me
 		return values;
 	} else {
 		return null;
-	}
-}
-private void setChildren(JavaElementInfo info) {
-	ArrayList childrenList = (ArrayList) this.children.get(info);
-	if (childrenList != null) {
-		int length = childrenList.size();
-		IJavaElement[] elements = new IJavaElement[length];
-		childrenList.toArray(elements);
-		info.children = elements;
 	}
 }
 }

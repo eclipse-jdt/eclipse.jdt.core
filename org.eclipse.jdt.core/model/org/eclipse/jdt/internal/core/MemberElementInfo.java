@@ -22,17 +22,22 @@ package org.eclipse.jdt.internal.core;
 	protected int flags;
 
 	/**
-	 * The start position of this member's name in the its
-	 * openable's buffer.
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getNameSourceEnd()
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getNameSourceEnd()
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getNameSourceEnd()
 	 */
-	protected int nameStart= -1;
-
+	public int getNameSourceEnd() {
+		return -1;
+	}
 	/**
-	 * The last position of this member's name in the its
-	 * openable's buffer.
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getNameSourceStart()
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getNameSourceStart()
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getNameSourceStart()
 	 */
-	protected int nameEnd= -1;
-
+	public int getNameSourceStart() {
+		return -1;
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getModifiers()
 	 * @see org.eclipse.jdt.internal.compiler.env.IGenericMethod#getModifiers()
@@ -41,37 +46,7 @@ package org.eclipse.jdt.internal.core;
 	public int getModifiers() {
 		return this.flags;
 	}
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getNameSourceEnd()
-	 * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getNameSourceEnd()
-	 * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getNameSourceEnd()
-	 */
-	public int getNameSourceEnd() {
-		return this.nameEnd;
-	}
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getNameSourceStart()
-	 * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getNameSourceStart()
-	 * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getNameSourceStart()
-	 */
-	public int getNameSourceStart() {
-		return this.nameStart;
-	}
 	protected void setFlags(int flags) {
 		this.flags = flags;
-	}
-	/**
-	 * Sets the last position of this member's name, relative
-	 * to its openable's source buffer.
-	 */
-	protected void setNameSourceEnd(int end) {
-		this.nameEnd= end;
-	}
-	/**
-	 * Sets the start position of this member's name, relative
-	 * to its openable's source buffer.
-	 */
-	protected void setNameSourceStart(int start) {
-		this.nameStart= start;
 	}
 }

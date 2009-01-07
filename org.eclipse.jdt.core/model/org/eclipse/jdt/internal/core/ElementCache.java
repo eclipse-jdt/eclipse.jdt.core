@@ -60,7 +60,7 @@ protected boolean close(LRUCacheEntry entry) {
  */
 protected void ensureSpaceLimit(Object info, IJavaElement parent) {
 	// ensure the children can be put without closing other elements
-	int childrenSize = ((JavaElementInfo) info).children.length;
+	int childrenSize = ((JavaElementInfo) info).getChildren().length;
 	int spaceNeeded = 1 + (int)((1 + this.loadFactor) * (childrenSize + this.overflow));
 	if (this.spaceLimit < spaceNeeded) {
 		// parent is being opened with more children than the space limit

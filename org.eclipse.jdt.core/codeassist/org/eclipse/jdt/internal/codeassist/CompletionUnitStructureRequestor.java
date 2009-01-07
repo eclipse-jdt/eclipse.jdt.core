@@ -106,7 +106,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 		return new AssistInitializer(parent, 1, this.bindingCache, this.newElements);
 	}
 
-	protected SourceMethod createMethod(JavaElement parent, MethodInfo methodInfo) {
+	protected SourceMethod createMethodHandle(JavaElement parent, MethodInfo methodInfo) {
 		String selector = JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
 		String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
 		AssistSourceMethod method = new AssistSourceMethod(parent, selector, parameterTypeSigs, this.bindingCache, this.newElements);
@@ -123,7 +123,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 		return new AssistPackageDeclaration((CompilationUnit) parent, name, this.newElements);
 	}
 
-	protected SourceType createType(JavaElement parent, TypeInfo typeInfo) {
+	protected SourceType createTypeHandle(JavaElement parent, TypeInfo typeInfo) {
 		String nameString= new String(typeInfo.name);
 		AssistSourceType type = new AssistSourceType(parent, nameString, this.bindingCache, this.newElements);
 		if (typeInfo.node.binding != null) {
@@ -139,17 +139,17 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 		return new AssistTypeParameter(parent, name, this.newElements);
 	}
 
-	protected IAnnotation enterAnnotation(
+	protected IAnnotation acceptAnnotation(
 			org.eclipse.jdt.internal.compiler.ast.Annotation annotation,
 			AnnotatableInfo parentInfo,
 			JavaElement parentHandle) {
 		if (annotation instanceof CompletionOnMarkerAnnotationName) {
 			if (hasEmptyName(annotation.type, this.assistNode)) {
-				super.enterAnnotation(annotation, null, parentHandle);
+				super.acceptAnnotation(annotation, null, parentHandle);
 				return null;
 			}
 		}
-		return super.enterAnnotation(annotation, parentInfo, parentHandle);
+		return super.acceptAnnotation(annotation, parentInfo, parentHandle);
 	}
 
 	protected Object getMemberValue(
