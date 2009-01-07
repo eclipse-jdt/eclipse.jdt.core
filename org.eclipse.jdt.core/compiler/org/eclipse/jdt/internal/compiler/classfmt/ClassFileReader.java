@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -806,6 +806,9 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 		// meta-annotations
 		if ((getTagBits() & OnlyStructuralTagBits) != (newClassFile.getTagBits() & OnlyStructuralTagBits))
 			return true;
+		// annotations
+		if (hasStructuralAnnotationChanges(getAnnotations(), newClassFile.getAnnotations()))
+			return true;
 
 		// generic signature
 		if (!CharOperation.equals(getGenericSignature(), newClassFile.getGenericSignature()))
@@ -923,6 +926,33 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 	}
 }
 
+private boolean hasStructuralAnnotationChanges(IBinaryAnnotation[] currentAnnotations, IBinaryAnnotation[] otherAnnotations) {
+	if (currentAnnotations == otherAnnotations)
+		return false;
+
+	int currentAnnotationsLength = currentAnnotations == null ? 0 : currentAnnotations.length;
+	int otherAnnotationsLength = otherAnnotations == null ? 0 : otherAnnotations.length;
+	if (currentAnnotationsLength != otherAnnotationsLength)
+		return true;
+	for (int i = 0; i < currentAnnotationsLength; i++) {
+		if (!CharOperation.equals(currentAnnotations[i].getTypeName(), otherAnnotations[i].getTypeName()))
+			return true;
+		IBinaryElementValuePair[] currentPairs = currentAnnotations[i].getElementValuePairs();
+		IBinaryElementValuePair[] otherPairs = otherAnnotations[i].getElementValuePairs();
+		int currentPairsLength = currentPairs == null ? 0 : currentPairs.length;
+		int otherPairsLength = otherPairs == null ? 0 : otherPairs.length;
+		if (currentPairsLength != otherPairsLength)
+			return true;
+		for (int j = 0; j < currentPairsLength; j++) {
+			if (!CharOperation.equals(currentPairs[j].getName(), otherPairs[j].getName()))
+				return true;
+			if (!currentPairs[j].getValue().equals(otherPairs[j].getValue()))
+				return true;
+		}
+	}
+	return false;
+}
+
 private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo otherFieldInfo) {
 	// generic signature
 	if (!CharOperation.equals(currentFieldInfo.getGenericSignature(), otherFieldInfo.getGenericSignature()))
@@ -930,6 +960,8 @@ private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo 
 	if (currentFieldInfo.getModifiers() != otherFieldInfo.getModifiers())
 		return true;
 	if ((currentFieldInfo.getTagBits() & TagBits.AnnotationDeprecated) != (otherFieldInfo.getTagBits() & TagBits.AnnotationDeprecated))
+		return true;
+	if (hasStructuralAnnotationChanges(currentFieldInfo.getAnnotations(), otherFieldInfo.getAnnotations()))
 		return true;
 	if (!CharOperation.equals(currentFieldInfo.getName(), otherFieldInfo.getName()))
 		return true;
@@ -975,6 +1007,8 @@ private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodI
 	if (currentMethodInfo.getModifiers() != otherMethodInfo.getModifiers())
 		return true;
 	if ((currentMethodInfo.getTagBits() & TagBits.AnnotationDeprecated) != (otherMethodInfo.getTagBits() & TagBits.AnnotationDeprecated))
+		return true;
+	if (hasStructuralAnnotationChanges(currentMethodInfo.getAnnotations(), otherMethodInfo.getAnnotations()))
 		return true;
 	if (!CharOperation.equals(currentMethodInfo.getSelector(), otherMethodInfo.getSelector()))
 		return true;

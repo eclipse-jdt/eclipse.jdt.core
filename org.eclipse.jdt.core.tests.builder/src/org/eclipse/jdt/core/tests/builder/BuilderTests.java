@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -521,10 +521,11 @@ public class BuilderTests extends TestCase {
 
 		if ((AbstractCompilerTest.getPossibleComplianceLevels()  & AbstractCompilerTest.F_1_5) != 0) {
 			int length = classes.length;
-			System.arraycopy(classes, 0, classes = new Class[length+3], 0, length);
+			System.arraycopy(classes, 0, classes = new Class[length+4], 0, length);
 			classes[length++] = Java50Tests.class;
 			classes[length++] = PackageInfoTest.class;
 			classes[length++] = ParticipantBuildTests.class;
+			classes[length++] = AnnotationDependencyTests.class;
 		}
 		return classes;
 	}
