@@ -103,7 +103,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public HashMap containers = new HashMap(5);
 	public HashMap previousSessionContainers = new HashMap(5);
 	private ThreadLocal containerInitializationInProgress = new ThreadLocal();
-	ThreadLocal containersBeingInitiliazed = new ThreadLocal();
+	ThreadLocal containersBeingInitialized = new ThreadLocal();
 	
 	public static final int NO_BATCH_INITIALIZATION = 0;
 	public static final int NEED_BATCH_INITIALIZATION = 1;
@@ -498,9 +498,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 	
 	public void containerBeingInitializedPut(IJavaProject project, IPath containerPath, IClasspathContainer container) {
-		Map perProjectContainers = (Map)this.containersBeingInitiliazed.get();
+		Map perProjectContainers = (Map)this.containersBeingInitialized.get();
 		if (perProjectContainers == null)
-			this.containersBeingInitiliazed.set(perProjectContainers = new HashMap());
+			this.containersBeingInitialized.set(perProjectContainers = new HashMap());
 		HashMap perPathContainers = (HashMap) perProjectContainers.get(project);
 		if (perPathContainers == null)
 			perProjectContainers.put(project, perPathContainers = new HashMap());
@@ -508,7 +508,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public IClasspathContainer containerBeingInitializedGet(IJavaProject project, IPath containerPath) {
-		Map perProjectContainers = (Map)this.containersBeingInitiliazed.get();
+		Map perProjectContainers = (Map)this.containersBeingInitialized.get();
 		if (perProjectContainers == null)
 			return null;
 		HashMap perPathContainers = (HashMap) perProjectContainers.get(project);
@@ -518,7 +518,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public IClasspathContainer containerBeingInitializedRemove(IJavaProject project, IPath containerPath) {
-		Map perProjectContainers = (Map)this.containersBeingInitiliazed.get();
+		Map perProjectContainers = (Map)this.containersBeingInitialized.get();
 		if (perProjectContainers == null)
 			return null;
 		HashMap perPathContainers = (HashMap) perProjectContainers.get(project);
@@ -528,7 +528,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (perPathContainers.size() == 0)
 			perPathContainers.remove(project);
 		if (perProjectContainers.size() == 0)
-			this.containersBeingInitiliazed.set(null);
+			this.containersBeingInitialized.set(null);
 		return container;
 	}
 
@@ -2501,7 +2501,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 							}
 							
 							// Set all containers
-							Map perProjectContainers = (Map) JavaModelManager.this.containersBeingInitiliazed.get();
+							Map perProjectContainers = (Map) JavaModelManager.this.containersBeingInitialized.get();
 							if (perProjectContainers != null) {
 								Iterator entriesIterator = perProjectContainers.entrySet().iterator();
 								while (entriesIterator.hasNext()) {
@@ -2517,7 +2517,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 										operation.runOperation(monitor);
 									}
 								}
-								JavaModelManager.this.containersBeingInitiliazed.set(null);
+								JavaModelManager.this.containersBeingInitialized.set(null);
 							}
 						} finally {
 							if (monitor != null)
