@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -103,7 +103,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public HashMap containers = new HashMap(5);
 	public HashMap previousSessionContainers = new HashMap(5);
 	private ThreadLocal containerInitializationInProgress = new ThreadLocal();
-
+	ThreadLocal containersBeingInitiliazed = new ThreadLocal();
+	
 	public static final int NO_BATCH_INITIALIZATION = 0;
 	public static final int NEED_BATCH_INITIALIZATION = 1;
 	public static final int BATCH_INITIALIZATION_IN_PROGRESS = 2;
@@ -494,6 +495,41 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (projectInitializations == null)
 			initializations.put(project, projectInitializations = new HashSet());
 		projectInitializations.add(containerPath);
+	}
+	
+	public void containerBeingInitializedPut(IJavaProject project, IPath containerPath, IClasspathContainer container) {
+		Map perProjectContainers = (Map)this.containersBeingInitiliazed.get();
+		if (perProjectContainers == null)
+			this.containersBeingInitiliazed.set(perProjectContainers = new HashMap());
+		HashMap perPathContainers = (HashMap) perProjectContainers.get(project);
+		if (perPathContainers == null)
+			perProjectContainers.put(project, perPathContainers = new HashMap());
+		perPathContainers.put(containerPath, container);
+	}
+
+	public IClasspathContainer containerBeingInitializedGet(IJavaProject project, IPath containerPath) {
+		Map perProjectContainers = (Map)this.containersBeingInitiliazed.get();
+		if (perProjectContainers == null)
+			return null;
+		HashMap perPathContainers = (HashMap) perProjectContainers.get(project);
+		if (perPathContainers == null)
+			return null;
+		return (IClasspathContainer) perPathContainers.get(containerPath);
+	}
+
+	public IClasspathContainer containerBeingInitializedRemove(IJavaProject project, IPath containerPath) {
+		Map perProjectContainers = (Map)this.containersBeingInitiliazed.get();
+		if (perProjectContainers == null)
+			return null;
+		HashMap perPathContainers = (HashMap) perProjectContainers.get(project);
+		if (perPathContainers == null)
+			return null;
+		IClasspathContainer container = (IClasspathContainer) perPathContainers.remove(containerPath);
+		if (perPathContainers.size() == 0)
+			perPathContainers.remove(project);
+		if (perProjectContainers.size() == 0)
+			this.containersBeingInitiliazed.set(null);
+		return container;
 	}
 
 	public synchronized void containerPut(IJavaProject project, IPath containerPath, IClasspathContainer container){
@@ -1719,6 +1755,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 			} else {
 				container = initializeContainer(project, containerPath);
+				containerBeingInitializedRemove(project, containerPath);
+				SetContainerOperation operation = new SetContainerOperation(containerPath, new IJavaProject[] {project}, new IClasspathContainer[] {container});
+				operation.runOperation(null);
 			}
 		}
 		return container;
@@ -2434,6 +2473,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				new IWorkspaceRunnable() {
 					public void run(IProgressMonitor monitor) throws CoreException {
 						try {
+							// Collect all containers
 							Set entrySet = allContainerPaths.entrySet();
 							int length = entrySet.size();
 							if (monitor != null)
@@ -2451,9 +2491,33 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 								for (int j = 0; j < length2; j++) {
 									IPath path = paths[j];
 									initializeContainer(javaProject, path);
+									IClasspathContainer container = containerBeingInitializedGet(javaProject, path);
+									if (container != null) {
+										containerPut(javaProject, path, container);
+									}
 								}
 								if (monitor != null)
 									monitor.worked(1);
+							}
+							
+							// Set all containers
+							Map perProjectContainers = (Map) JavaModelManager.this.containersBeingInitiliazed.get();
+							if (perProjectContainers != null) {
+								Iterator entriesIterator = perProjectContainers.entrySet().iterator();
+								while (entriesIterator.hasNext()) {
+									Map.Entry entry = (Map.Entry) entriesIterator.next();
+									IJavaProject project = (IJavaProject) entry.getKey();
+									HashMap perPathContainers = (HashMap) entry.getValue();
+									Iterator containersIterator = perPathContainers.entrySet().iterator();
+									while (containersIterator.hasNext()) {
+										Map.Entry containerEntry = (Map.Entry) containersIterator.next();
+										IPath containerPath = (IPath) containerEntry.getKey();
+										IClasspathContainer container = (IClasspathContainer) containerEntry.getValue();
+										SetContainerOperation operation = new SetContainerOperation(containerPath, new IJavaProject[] {project}, new IClasspathContainer[] {container});
+										operation.runOperation(monitor);
+									}
+								}
+								JavaModelManager.this.containersBeingInitiliazed.set(null);
 							}
 						} finally {
 							if (monitor != null)
@@ -2526,8 +2590,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					monitor.subTask(""); //$NON-NLS-1$
 
 				// retrieve value (if initialization was successful)
-				container = containerGet(project, containerPath);
-				if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
+				container = containerBeingInitializedGet(project, containerPath);
+				if (container == null && containerGet(project, containerPath) == CONTAINER_INITIALIZATION_IN_PROGRESS) {
 					// initializer failed to do its job: redirect to the failure container
 					container = initializer.getFailureContainer(containerPath, project);
 					if (container == null) {

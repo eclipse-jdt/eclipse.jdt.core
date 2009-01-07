@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4711,6 +4711,18 @@ public final class JavaCore extends Plugin {
 	public static void setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
 		if (affectedProjects.length != respectiveContainers.length)
 			throw new ClasspathEntry.AssertionFailedException("Projects and containers collections should have the same size"); //$NON-NLS-1$
+		if (affectedProjects.length == 1) {
+			IClasspathContainer container = respectiveContainers[0];
+			if (container != null) {
+				JavaModelManager manager = JavaModelManager.getJavaModelManager();
+				IJavaProject project = affectedProjects[0];
+				IClasspathContainer existingCointainer = manager.containerGet(project, containerPath);
+				if (existingCointainer == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
+					manager.containerBeingInitializedPut(project, containerPath, container);
+					return;
+				}
+			}
+		}
 		SetContainerOperation operation = new SetContainerOperation(containerPath, affectedProjects, respectiveContainers);
 		operation.runOperation(monitor);
 	}
