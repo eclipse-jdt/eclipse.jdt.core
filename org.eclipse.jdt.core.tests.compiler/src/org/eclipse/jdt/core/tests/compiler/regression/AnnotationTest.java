@@ -14,18 +14,29 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Map;
 
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
 public class AnnotationTest extends AbstractComparableTest {
 
@@ -8679,4 +8690,49 @@ public void test264() {
 			"}\n"
 		},
 		"");
-}}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=258906 
+public void test265() {
+	INameEnvironment nameEnvironment = new FileSystem(Util.getJavaClassLibs(), new String[] {}, null);
+	IErrorHandlingPolicy errorHandlingPolicy = new IErrorHandlingPolicy() {
+		public boolean proceedOnErrors() { return true; }
+		public boolean stopOnFirstError() { return false; }
+	};
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	CompilerOptions compilerOptions = new CompilerOptions(options);
+	compilerOptions.performMethodsFullRecovery = false;
+	compilerOptions.performStatementsRecovery = false;
+	Requestor requestor = new Requestor(false, null /*no custom requestor*/, false, /* show category */ false /* show warning token*/);
+	requestor.outputPath = "bin/";
+	IProblemFactory problemFactory = new DefaultProblemFactory(Locale.getDefault());
+
+	Compiler compiler = new Compiler(nameEnvironment, errorHandlingPolicy, compilerOptions, requestor, problemFactory);
+	compiler.options.produceReferenceInfo = true;
+
+	String code = "@javax.xml.bind.annotation.XmlSchema(namespace = \"test\")\npackage testpack;\n";
+	ICompilationUnit source = new CompilationUnit(code.toCharArray(), "testpack/package-info.java", null);
+
+	// don't call compile as would be normally expected since that wipes out the lookup environment
+	// before we could query it. Use internal API resolve instead which can run a subset of the
+	// compilation steps for us.
+
+	compiler.resolve (source,
+		true, // verifyMethods,
+		true, // boolean analyzeCode,
+		false // generateCode
+	);
+	char [][] compoundName = new char [][] { "testpack".toCharArray(), "package-info".toCharArray()};
+	ReferenceBinding type = compiler.lookupEnvironment.getType(compoundName);
+	AnnotationBinding[] annotations = null;
+	if (type != null && type.isValidBinding()) {
+		annotations = type.getAnnotations();
+	}
+	assertTrue ("Annotations missing on package-info interface", annotations != null && annotations.length == 1);
+	assertEquals("Wrong annotation on package-info interface ", "@XmlSchema{ namespace = (String)\"test\"}", annotations[0].toString());
+	nameEnvironment.cleanup();
+	if (requestor.hasErrors)
+		System.err.print(requestor.problemLog); // problem log empty if no problems
+	compiler = null;
+}
+}
