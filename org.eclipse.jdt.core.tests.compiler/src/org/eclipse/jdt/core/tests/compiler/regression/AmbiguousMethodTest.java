@@ -813,6 +813,8 @@ public void test010c() {
 				"	<T extends C, S extends F<T>> void a4(S x) {}\n" +
 				"	<T extends G> void a5(T x) {}\n" +
 				"	void a5(F<C> x) {}\n" +
+				"	<T extends G> void a6(T x) {}\n" +
+				"	<T extends C, S extends F<T>> void a6(S x) {}\n" +
 				"	void b(G<C> x) { System.out.print(true); }\n" +
 				"	void b(F x) { System.out.print(false); }\n" +
 				"	void b2(G<C> x) { System.out.print(true); }\n" +
@@ -872,6 +874,8 @@ public void test010c() {
 				"		new X().a4(hraw);\n" +
 				"		new X().a5(h);\n" +
 				"		new X().a5(hraw);\n" +
+				"		new X().a6(h);\n" +
+				"		new X().a6(hraw);\n" +
 				"	}\n" +
 				"}\n"
 			},
@@ -930,6 +934,16 @@ public void test010c() {
 			"	new X().a5(hraw);\n" +
 			"	        ^^\n" +
 			"The method a5(H) is ambiguous for the type X\n" +
+			"----------\n" + 
+			"12. ERROR in Y.java (at line 15)\n" + 
+			"	new X().a6(h);\n" + 
+			"	        ^^\n" + 
+			"The method a6(H<C>) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"13. ERROR in Y.java (at line 16)\n" + 
+			"	new X().a6(hraw);\n" + 
+			"	        ^^\n" + 
+			"The method a6(H) is ambiguous for the type X\n" + 
 			"----------\n",
 			null,
 			false
