@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,11 @@ public abstract class Scope {
 	public int kind;
 	public Scope parent;
 
+	protected Scope(int kind, Scope parent) {
+		this.kind = kind;
+		this.parent = parent;
+	}
+
 	/* Answer an int describing the relationship between the given types.
 	*
 	* 		NOT_RELATED
@@ -59,7 +64,131 @@ public abstract class Scope {
 		return Scope.NOT_RELATED;
 	}
 
-	public static TypeBinding getBaseType(char[] name) {
+	/**
+	 * Returns a type where either all variables or specific ones got discarded.
+	 * e.g. List<E> (discarding <E extends Enum<E>) will return:  List<? extends Enum<?>>
+	 */
+	public static TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, ReferenceBinding genericType, int rank, Set eliminatedVariables) {
+		if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
+			switch (originalType.kind()) {
+				case Binding.ARRAY_TYPE :
+					ArrayBinding originalArrayType = (ArrayBinding) originalType;
+					TypeBinding originalLeafComponentType = originalArrayType.leafComponentType;
+					TypeBinding substitute = convertEliminatingTypeVariables(originalLeafComponentType, genericType, rank, eliminatedVariables); // substitute could itself be array type
+					if (substitute != originalLeafComponentType) {
+						return originalArrayType.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalArrayType.dimensions());
+					}
+					break;
+				case Binding.PARAMETERIZED_TYPE :
+					ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) originalType;
+					ReferenceBinding originalEnclosing = paramType.enclosingType();
+					ReferenceBinding substitutedEnclosing = originalEnclosing;
+					if (originalEnclosing != null) {
+						substitutedEnclosing = (ReferenceBinding) convertEliminatingTypeVariables(originalEnclosing, genericType, rank, eliminatedVariables);
+					}
+					TypeBinding[] originalArguments = paramType.arguments;
+					TypeBinding[] substitutedArguments = originalArguments;
+					for (int i = 0, length = originalArguments == null ? 0 : originalArguments.length; i < length; i++) {
+						TypeBinding originalArgument = originalArguments[i];
+						TypeBinding substitutedArgument = convertEliminatingTypeVariables(originalArgument, paramType.genericType(), i, eliminatedVariables);
+						if (substitutedArgument != originalArgument) {
+							if (substitutedArguments == originalArguments) {
+								System.arraycopy(originalArguments, 0, substitutedArguments = new TypeBinding[length], 0, i);
+							}
+							substitutedArguments[i] = substitutedArgument;
+						} else 	if (substitutedArguments != originalArguments) {
+							substitutedArguments[i] = originalArgument;
+						}
+					}
+					if (originalEnclosing != substitutedEnclosing || originalArguments != substitutedArguments) {
+						return paramType.environment.createParameterizedType(paramType.genericType(), substitutedArguments, substitutedEnclosing);
+					}
+					break;
+				case Binding.TYPE_PARAMETER :
+					if (genericType == null) {
+						break;
+					}
+					TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
+					if (eliminatedVariables != null && eliminatedVariables.contains(originalType)) {
+						return originalVariable.environment.createWildcard(genericType, rank, null, null, Wildcard.UNBOUND);
+					}
+					TypeBinding originalUpperBound = originalVariable.upperBound();
+					if (eliminatedVariables == null) {
+						eliminatedVariables = new HashSet(2);
+					}
+					eliminatedVariables.add(originalVariable);
+					TypeBinding substitutedUpperBound = convertEliminatingTypeVariables(originalUpperBound, genericType, rank, eliminatedVariables);
+					eliminatedVariables.remove(originalVariable);
+					return originalVariable.environment.createWildcard(genericType, rank, substitutedUpperBound, null, Wildcard.EXTENDS);
+				case Binding.RAW_TYPE :
+					break;
+				case Binding.GENERIC_TYPE :
+					ReferenceBinding currentType = (ReferenceBinding) originalType;
+					originalEnclosing = currentType.enclosingType();
+					substitutedEnclosing = originalEnclosing;
+					if (originalEnclosing != null) {
+						substitutedEnclosing = (ReferenceBinding) convertEliminatingTypeVariables(originalEnclosing, genericType, rank, eliminatedVariables);
+					}
+					originalArguments = currentType.typeVariables();
+					substitutedArguments = originalArguments;
+					for (int i = 0, length = originalArguments == null ? 0 : originalArguments.length; i < length; i++) {
+						TypeBinding originalArgument = originalArguments[i];
+						TypeBinding substitutedArgument = convertEliminatingTypeVariables(originalArgument, currentType, i, eliminatedVariables);
+						if (substitutedArgument != originalArgument) {
+							if (substitutedArguments == originalArguments) {
+								System.arraycopy(originalArguments, 0, substitutedArguments = new TypeBinding[length], 0, i);
+							}
+							substitutedArguments[i] = substitutedArgument;
+						} else 	if (substitutedArguments != originalArguments) {
+							substitutedArguments[i] = originalArgument;
+						}
+					}
+					if (originalEnclosing != substitutedEnclosing || originalArguments != substitutedArguments) {
+						return ((TypeVariableBinding)originalArguments[0]).environment.createParameterizedType(genericType, substitutedArguments, substitutedEnclosing);
+					}
+					break;
+				case Binding.WILDCARD_TYPE :
+					WildcardBinding wildcard = (WildcardBinding) originalType;
+					TypeBinding originalBound = wildcard.bound;
+					TypeBinding substitutedBound = originalBound;
+					if (originalBound != null) {
+						substitutedBound = convertEliminatingTypeVariables(originalBound, genericType, rank, eliminatedVariables);
+						if (substitutedBound != originalBound) {
+							return wildcard.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, null, wildcard.boundKind);
+						}
+					}
+					break;
+				case Binding.INTERSECTION_TYPE :
+					WildcardBinding intersection = (WildcardBinding) originalType;
+					originalBound = intersection.bound;
+					substitutedBound = originalBound;
+					if (originalBound != null) {
+						substitutedBound = convertEliminatingTypeVariables(originalBound, genericType, rank, eliminatedVariables);
+					}
+					TypeBinding[] originalOtherBounds = intersection.otherBounds;
+					TypeBinding[] substitutedOtherBounds = originalOtherBounds;
+					for (int i = 0, length = originalOtherBounds == null ? 0 : originalOtherBounds.length; i < length; i++) {
+						TypeBinding originalOtherBound = originalOtherBounds[i];
+						TypeBinding substitutedOtherBound = convertEliminatingTypeVariables(originalOtherBound, genericType, rank, eliminatedVariables);
+						if (substitutedOtherBound != originalOtherBound) {
+							if (substitutedOtherBounds == originalOtherBounds) {
+								System.arraycopy(originalOtherBounds, 0, substitutedOtherBounds = new TypeBinding[length], 0, i);
+							}
+							substitutedOtherBounds[i] = substitutedOtherBound;
+						} else 	if (substitutedOtherBounds != originalOtherBounds) {
+							substitutedOtherBounds[i] = originalOtherBound;
+						}
+					}
+					if (substitutedBound != originalBound || substitutedOtherBounds != originalOtherBounds) {
+						return intersection.environment.createWildcard(intersection.genericType, intersection.rank, substitutedBound, substitutedOtherBounds, intersection.boundKind);
+					}
+					break;
+				}
+		}
+		return originalType;
+	}	
+
+   public static TypeBinding getBaseType(char[] name) {
 		// list should be optimized (with most often used first)
 		int length = name.length;
 		if (length > 2 && length < 8) {
@@ -121,7 +250,7 @@ public abstract class Scope {
 		return null;
 	}
 
-   // 5.1.10
+	// 5.1.10
 	public static ReferenceBinding[] greaterLowerBound(ReferenceBinding[] types) {
 		if (types == null) return null;
 		int length = types.length;
@@ -333,11 +462,6 @@ public abstract class Scope {
 	        }
 	    }
 	    return substitutedTypes;
-	}
-
-	protected Scope(int kind, Scope parent) {
-		this.kind = kind;
-		this.parent = parent;
 	}
 
 	/*
@@ -587,7 +711,7 @@ public abstract class Scope {
 		int count = 0;
 		for (int i = 0; i < length; i++) {
 			TypeParameter typeParameter = typeParameters[i];
-			TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, declaringElement, i);
+			TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, declaringElement, i, environment());
 			parameterBinding.fPackage = unitPackage;
 			typeParameter.binding = parameterBinding;
 
@@ -2665,22 +2789,25 @@ public abstract class Scope {
 						// <T extends X<Object>> void foo(T t) {}
 						// foo(T) will show up as foo(Y#RAW) and not foo(X#RAW)
 						// Y#RAW is not more specific than a rawified X<T>
-						if (oneParam == one.original().parameters[i]
-								&&  twoParam.leafComponentType().erasure() != two.original().parameters[i].leafComponentType().erasure()) {
-							return false;
-						}
+						TypeBinding originalOneParam = one.original().parameters[i].leafComponentType();
+						if ((originalOneParam.isTypeVariable() ? ((TypeVariableBinding) originalOneParam).upperBound()
+								: originalOneParam).isRawType())
+							if (twoParam.leafComponentType().erasure() != two.original().parameters[i]
+									.leafComponentType().erasure())
+								return false;
 					}
 				} else if (oneParam.isCompatibleWith(twoParam)) {
 					if (oneParam.leafComponentType().isRawType()) {
-						// A#RAW is not more specific than a rawified A<T>
-						if (oneParam.needsUncheckedConversion(two.declaringClass.isRawType() ? twoParam : two.original().parameters[i]))
-							return false;
+						if (oneParam.needsUncheckedConversion(twoParam))
+							if (oneParam.leafComponentType().erasure() != twoParam.leafComponentType().erasure())
+								return false;
 					}
 				} else {
 					if (i == oneParamsLength - 1 && one.isVarargs() && two.isVarargs()) {
 						TypeBinding eType = ((ArrayBinding) twoParam).elementsType();
 						if (oneParam == eType || oneParam.isCompatibleWith(eType))
-							return true; // special case to choose between 2 varargs methods when the last arg is Object[]
+							return true; // special case to choose between 2 varargs methods when the last arg is
+											// Object[]
 					}
 					return false;
 				}
@@ -2690,7 +2817,8 @@ public abstract class Scope {
 
 		if (one.isVarargs() && two.isVarargs()) {
 			if (oneParamsLength > twoParamsLength) {
-				// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or (Integer, int...)
+				// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or
+				// (Integer, int...)
 				if (((ArrayBinding) twoParams[twoParamsLength - 1]).elementsType().id != TypeIds.T_JavaLangObject)
 					return false;
 			}
@@ -2699,12 +2827,12 @@ public abstract class Scope {
 				if (oneParams[i] != twoParams[i] && !oneParams[i].isCompatibleWith(twoParams[i]))
 					return false;
 			if (parameterCompatibilityLevel(one, twoParams) == NOT_COMPATIBLE
-				&& parameterCompatibilityLevel(two, oneParams) == VARARGS_COMPATIBLE)
-					return true;
+					&& parameterCompatibilityLevel(two, oneParams) == VARARGS_COMPATIBLE)
+				return true;
 		}
 		return false;
 	}
-
+	
 	public boolean isBoxingCompatibleWith(TypeBinding expressionType, TypeBinding targetType) {
 		LookupEnvironment environment = environment();
 		if (environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_5 || expressionType.isBaseType() == targetType.isBaseType())

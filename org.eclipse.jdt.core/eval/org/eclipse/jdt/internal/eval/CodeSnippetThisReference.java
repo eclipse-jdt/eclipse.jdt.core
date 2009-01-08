@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,7 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 		this.evaluationContext = evaluationContext;
 		this.isImplicit = isImplicit;
 	}
+	
 	public boolean checkAccess(MethodScope methodScope) {
 		// this/super cannot be used in constructor call
 		if (this.evaluationContext.isConstructorCall) {
@@ -55,6 +56,7 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 		}
 		return true;
 	}
+	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		int pc = codeStream.position;
 		if (valueRequired) {
@@ -63,18 +65,22 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
 	 */
 	public TypeBinding[] genericTypeArguments() {
 		return null;
 	}
+	
 	public boolean isSuperAccess(){
 		return false;
 	}
+	
 	public boolean isTypeAccess(){
 		return false;
 	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output){
 
 		char[] declaringType = this.evaluationContext.declaringTypeName;
@@ -85,8 +91,8 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 			output.append(declaringType);
 		return output.append(")this"); //$NON-NLS-1$
 	}
+	
 	public TypeBinding resolveType(BlockScope scope) {
-
 		// implicit this
 		this.constant = Constant.NotAConstant;
 		TypeBinding snippetType = null;
@@ -105,13 +111,20 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 		}
 		return this.resolvedType = this.delegateThis.type;
 	}
+	
 	public void setActualReceiverType(ReferenceBinding receiverType) {
 		// ignored
 	}
+	
 	public void setDepth(int depth){
 		// ignored
 	}
+	
 	public void setFieldIndex(int index){
 		// ignored
 	}
+	
+	public void setUnchecked(boolean isUnchecked) {
+		// ignored
+	}	
 }

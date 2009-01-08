@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -345,7 +345,7 @@ public ConstructorDeclaration createDefaultConstructor(	boolean needExplicitCons
 }
 
 // anonymous type constructor creation: rank is important since bindings already got sorted
-public MethodBinding createDefaultConstructorWithBinding(MethodBinding inheritedConstructorBinding) {
+public MethodBinding createDefaultConstructorWithBinding(MethodBinding inheritedConstructorBinding, boolean isUnchecked) {
 	//Add to method'set, the default constuctor that just recall the
 	//super constructor with the same arguments
 	String baseName = "$anonymous"; //$NON-NLS-1$
@@ -393,11 +393,15 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 	}
 
 	//============BINDING UPDATE==========================
+	ReferenceBinding[] thrownExceptions = isUnchecked
+			? this.scope.environment().convertToRawTypes(inheritedConstructorBinding.original().thrownExceptions, true, true)
+			: inheritedConstructorBinding.thrownExceptions;
+
 	SourceTypeBinding sourceType = this.binding;
 	constructor.binding = new MethodBinding(
 			constructor.modifiers, //methodDeclaration
 			argumentsLength == 0 ? Binding.NO_PARAMETERS : argumentTypes, //arguments bindings
-			inheritedConstructorBinding.thrownExceptions, //exceptions
+			thrownExceptions, //exceptions
 			sourceType); //declaringClass
 	constructor.binding.tagBits |= (inheritedConstructorBinding.tagBits & TagBits.HasMissingType);
 	constructor.binding.modifiers |= ExtraCompilerModifiers.AccIsDefaultConstructor;

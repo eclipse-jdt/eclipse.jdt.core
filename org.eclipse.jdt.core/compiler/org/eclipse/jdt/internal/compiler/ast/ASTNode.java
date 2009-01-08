@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit14 = 0x2000;			// strictly assigned (reference lhs) | discard enclosing instance (explicit constr call) | hasBeenGenerated (type decl)
 	public final static int Bit15 = 0x4000;			// is unnecessary cast (expression) | is varargs (type ref) | isSubRoutineEscaping (try statement) | superAccess (javadoc allocation expression/javadoc message send/javadoc return statement)
 	public final static int Bit16 = 0x8000;			// in javadoc comment (name ref, type ref, msg)
-	public final static int Bit17 = 0x10000;			// compound assigned (reference lhs)
+	public final static int Bit17 = 0x10000;			// compound assigned (reference lhs) | unchecked (msg, alloc, explicit constr call)
 	public final static int Bit18 = 0x20000;			// non null (expression) | onDemand (import reference)
 	public final static int Bit19 = 0x40000;			// didResolve (parameterized qualified type ref/parameterized single type ref)  | empty (javadoc return statement) | needReceiverGenericCast (msg/fieldref)
 	public final static int Bit20 = 0x80000;
@@ -159,6 +159,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for explicit constructor call
 	public static final int DiscardEnclosingInstance = Bit14; // used for codegen
 
+	// for all method/constructor invocations (msg, alloc, expl. constr call)
+	public static final int Unchecked = Bit17;
+	
 	// for empty statement
 	public static final int IsUsefulEmptyStatement = Bit1;
 
@@ -241,14 +244,14 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		    	return INVOCATION_ARGUMENT_WILDCARD;
 			}
 		}
-		TypeBinding checkedParameterType = originalParameterType == null ? parameterType : originalParameterType;
+		TypeBinding checkedParameterType = parameterType; // originalParameterType == null ? parameterType : originalParameterType;
 		if (argumentType != checkedParameterType && argumentType.needsUncheckedConversion(checkedParameterType)) {
 			scope.problemReporter().unsafeTypeConversion(argument, argumentType, checkedParameterType);
 			return INVOCATION_ARGUMENT_UNCHECKED;
 		}
 		return INVOCATION_ARGUMENT_OK;
 	}
-	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
+	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite, boolean uncheckedBoundCheck) {
 		TypeBinding[] params = method.parameters;
 		int paramLength = params.length;
 		boolean isRawMemberInvocation = !method.isStatic()
@@ -260,7 +263,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if (!isRawMemberInvocation) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
 				ParameterizedGenericMethodBinding paramMethod = (ParameterizedGenericMethodBinding) method;
-				if (paramMethod.isUnchecked || (paramMethod.isRaw && method.hasSubstitutedParameters())) {
+				if (paramMethod.isRaw && method.hasSubstitutedParameters()) {
 					rawOriginalGenericMethod = method.original();
 				}
 			}
@@ -296,9 +299,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					for (int i = lastIndex; i < argLength; i++) {
 						invocationStatus |= checkInvocationArgument(scope, arguments[i], parameterType, argumentTypes[i], originalRawParam);
 					}
-				}
-
-			   if (paramLength == argumentTypes.length) { // 70056
+				} 
+				if (paramLength == argLength) { // 70056
 					int varargsIndex = paramLength - 1;
 					ArrayBinding varargsType = (ArrayBinding) params[varargsIndex];
 					TypeBinding lastArgType = argumentTypes[varargsIndex];
@@ -335,8 +337,13 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		    scope.problemReporter().wildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
 		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters()) {
 		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, method);
-		} else if (rawOriginalGenericMethod != null) {
-		    scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method);
+		} else if (rawOriginalGenericMethod != null 
+				|| uncheckedBoundCheck
+				|| ((invocationStatus & INVOCATION_ARGUMENT_UNCHECKED) != 0 
+						&& method instanceof ParameterizedGenericMethodBinding
+						/*&& method.returnType != scope.environment().convertToRawType(method.returnType.erasure(), true)*/)) {
+			invocationSite.setUnchecked(true);
+		    scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method, argumentTypes);
 		}
 	}
 	public ASTNode concreteStatement() {

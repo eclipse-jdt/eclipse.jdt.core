@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -724,7 +724,7 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			}
 			if (variable.firstBound == null) // unbound variable
 				return false;
-			TypeBinding eliminatedType = (paramType.environment.convertEliminatingTypeVariables(variable, paramType.genericType(), rank, null));
+			TypeBinding eliminatedType = Scope.convertEliminatingTypeVariables(variable, paramType.genericType(), rank, null);
 			switch (eliminatedType.kind()) {
 				case Binding.WILDCARD_TYPE :
 				case Binding.INTERSECTION_TYPE :
@@ -779,7 +779,7 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			}
 			if (otherVariable.firstBound == null) // unbound variable
 				return false;
-			TypeBinding otherEliminatedType = (paramType.environment.convertEliminatingTypeVariables(otherVariable, paramType.genericType(), rank, null));
+			TypeBinding otherEliminatedType = Scope.convertEliminatingTypeVariables(otherVariable, paramType.genericType(), rank, null);
 			switch (otherEliminatedType.kind()) {
 				case Binding.WILDCARD_TYPE :
 				case Binding.INTERSECTION_TYPE :

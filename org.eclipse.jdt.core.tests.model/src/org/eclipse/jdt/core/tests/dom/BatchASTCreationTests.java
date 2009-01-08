@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2007 IBM Corporation and others.
+ * Copyright (c) 2004, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1404,10 +1404,40 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"class W<T> extends Z<T> {\n" +
 				"}",
 			},
-			"Lp1/X;.foo<T:Lp1/Y<-TT;>;>(Lp1/Z<TT;>;)V%<>"
+			"Lp1/X;.foo<T:Lp1/Y<-TT;>;>(Lp1/Z<TT;>;)V%<Lp1/X~Y<Lp1/X~Y;-Lp1/X~Y<Lp1/X~Y;-Lp1/X;:2TT;>;>;>"
 		);
 	}
 
+	/*
+	 * Ensures that a raw method binding can be created using its key in batch creation.
+	 * (regression test for bug 87749 different IMethodBindings of generic method have equal getKey())
+	 */
+	public void test063a() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<U extends X<T>> {\n" +
+				"	public void foo(Z<U> z) {\n" +
+				"    }\n" +
+				"    /**\n" +
+				"     * @see #foo(Z)\n" +
+				"     */\n" +
+				"    static void bar(X x) {\n" +
+				"        /*start*/x.foo(new W())/*end*/;\n" +
+				"    }\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"}\n" +
+				"class Z<T> {\n" +
+				"}\n" +
+				"class W<T> extends Z<T> {\n" +
+				"}",
+			},
+			"Lp1/X<>;.foo(Lp1/Z;)V"
+		);
+	}
+	
 	/*
 	 * Ensures that a parameterized type binding with a capture binding in its arguments can be created using its key in batch creation.
 	 * (regression test for bug 94092 ASTParser#createASTs(..) restores wrong bindings from capture keys)

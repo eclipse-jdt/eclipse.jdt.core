@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -260,36 +260,35 @@ public class Javadoc extends ASTNode {
 			resolveReference(this.seeReferences[i], methScope);
 
 			// see whether we can have a super reference
-			if (methDecl != null && (methDecl.isConstructor() || overriding) && !superRef) {
-				if (this.seeReferences[i] instanceof JavadocMessageSend) {
-					JavadocMessageSend messageSend = (JavadocMessageSend) this.seeReferences[i];
-					// if binding is valid then look if we have a reference to an overriden method/constructor
-					if (messageSend.binding != null && messageSend.binding.isValidBinding() && messageSend.actualReceiverType instanceof ReferenceBinding) {
-						ReferenceBinding methodReceiverType = (ReferenceBinding) messageSend.actualReceiverType;
-						if ((methodReceiverType.isSuperclassOf(methDecl.binding.declaringClass) || (methodReceiverType.isInterface() && methDecl.binding.declaringClass.implementsInterface(methodReceiverType, true))) &&
-								CharOperation.equals(messageSend.selector, methDecl.selector) &&
-								(methDecl.binding.returnType.isCompatibleWith(messageSend.binding.returnType))) {
-							if (messageSend.arguments == null && methDecl.arguments == null) {
-								superRef = true;
-							}
-							else if (messageSend.arguments != null && methDecl.arguments != null) {
-								superRef = methDecl.binding.areParameterErasuresEqual(messageSend.binding);
+			if (methDecl != null && !superRef) {
+				if (!methDecl.isConstructor()) {
+					if (overriding && this.seeReferences[i] instanceof JavadocMessageSend) {
+						JavadocMessageSend messageSend = (JavadocMessageSend) this.seeReferences[i];
+						// if binding is valid then look if we have a reference to an overriden method/constructor
+						if (messageSend.binding != null && messageSend.binding.isValidBinding() && messageSend.actualReceiverType instanceof ReferenceBinding) {
+							ReferenceBinding methodReceiverType = (ReferenceBinding) messageSend.actualReceiverType;
+							TypeBinding superType = methDecl.binding.declaringClass.findSuperTypeOriginatingFrom(methodReceiverType);
+							if (superType != null && superType.original() != methDecl.binding.declaringClass && CharOperation.equals(messageSend.selector, methDecl.selector)) {
+								if (methScope.environment().methodVerifier().doesMethodOverride(methDecl.binding, messageSend.binding.original())) {
+									superRef = true;
+								}
 							}
 						}
 					}
-				}
-				else if (this.seeReferences[i] instanceof JavadocAllocationExpression) {
+				} else if (this.seeReferences[i] instanceof JavadocAllocationExpression) {
 					JavadocAllocationExpression allocationExpr = (JavadocAllocationExpression) this.seeReferences[i];
 					// if binding is valid then look if we have a reference to an overriden method/constructor
 					if (allocationExpr.binding != null && allocationExpr.binding.isValidBinding()) {
-						if (methDecl.binding.declaringClass.isCompatibleWith(allocationExpr.resolvedType)) {
-							if (allocationExpr.arguments == null && methDecl.arguments == null) {
-								superRef = true;
+						ReferenceBinding allocType = (ReferenceBinding) allocationExpr.resolvedType.original();
+						ReferenceBinding superType = (ReferenceBinding) methDecl.binding.declaringClass.findSuperTypeOriginatingFrom(allocType);
+						if (superType != null && superType.original() != methDecl.binding.declaringClass) {
+							MethodBinding superConstructor = methScope.getConstructor(superType, methDecl.binding.parameters, allocationExpr);
+							if (superConstructor.isValidBinding() && superConstructor.original() == allocationExpr.binding.original()) {
+								if (superConstructor.areParametersEqual(methDecl.binding)) {
+									superRef = true;
+								}
 							}
-							else if (allocationExpr.arguments != null && methDecl.arguments != null && allocationExpr.arguments.length == methDecl.arguments.length) {
-								superRef = methDecl.binding.areParametersCompatibleWith(allocationExpr.binding.parameters);
-							}
-						}
+						}						
 					}
 				}
 			}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.eval;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
@@ -311,7 +312,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			}			
 		}
 	}
-	checkInvocationArguments(scope, this.receiver, this.actualReceiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this);
+	checkInvocationArguments(scope, this.receiver, this.actualReceiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this, (this.bits & ASTNode.Unchecked) != 0);
 
 	//-------message send that are known to fail at compile time-----------
 	if (this.binding.isAbstract()) {
@@ -331,7 +332,13 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.resolvedType = this.actualReceiverType;
 	} else {
 		TypeBinding returnType = this.binding.returnType;
-		if (returnType != null) returnType = returnType.capture(scope, this.sourceEnd);
+		
+		if (returnType != null) {
+			if ((this.bits & ASTNode.Unchecked) != 0) {
+				returnType = scope.environment().convertToRawType(returnType.erasure(), true);
+			}
+			returnType = returnType.capture(scope, this.sourceEnd);			
+		}
 		this.resolvedType = returnType;
 	}
 	return this.resolvedType;

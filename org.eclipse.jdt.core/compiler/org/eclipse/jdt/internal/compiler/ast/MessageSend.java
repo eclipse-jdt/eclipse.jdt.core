@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,6 +69,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	ReferenceBinding[] thrownExceptions;
 	if ((thrownExceptions = this.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
+		if ((this.bits & ASTNode.Unchecked) != 0) {
+			thrownExceptions = currentScope.environment().convertToRawTypes(this.binding.original().thrownExceptions, true, true);
+		}
 		// must verify that exceptions potentially thrown by this expression are caught in the method
 		flowContext.checkExceptionHandlers(thrownExceptions, this, flowInfo.copy(), currentScope);
 		// TODO (maxime) the copy above is needed because of a side effect into
@@ -394,8 +397,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().errorNoMethodFor(this, this.actualReceiverType, argumentTypes);
 		return null;
 	}
-	this.binding =
-		this.receiver.isImplicitThis()
+	this.binding = this.receiver.isImplicitThis()
 			? scope.getImplicitMethod(this.selector, argumentTypes, this)
 			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
 	if (!this.binding.isValidBinding()) {
@@ -466,7 +468,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);
 		}
 	}
-	checkInvocationArguments(scope, this.receiver, this.actualReceiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this);
+	checkInvocationArguments(scope, this.receiver, this.actualReceiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this, (this.bits & ASTNode.Unchecked) != 0);
 
 	//-------message send that are known to fail at compile time-----------
 	if (this.binding.isAbstract()) {
@@ -482,8 +484,18 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.binding == scope.environment().arrayClone && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_5) {
 		this.resolvedType = this.actualReceiverType;
 	} else {
-		TypeBinding returnType = this.binding.returnType;
-		if (returnType != null) returnType = returnType.capture(scope, this.sourceEnd);
+		TypeBinding returnType;
+		if ((this.bits & ASTNode.Unchecked) != 0) {
+			returnType = this.binding.original().returnType;
+			if (returnType != null) {
+				returnType = scope.environment().convertToRawType(returnType.erasure(), true);
+			}
+		} else {
+			returnType = this.binding.returnType;
+			if (returnType != null) {
+				returnType = returnType.capture(scope, this.sourceEnd);
+			}
+		}
 		this.resolvedType = returnType;
 	}
 	if (this.receiver.isSuper() && compilerOptions.getSeverity(CompilerOptions.OverridingMethodWithoutSuperInvocation) != ProblemSeverities.Ignore) {
@@ -525,6 +537,14 @@ public void setExpectedType(TypeBinding expectedType) {
 }
 public void setFieldIndex(int depth) {
 	// ignore for here
+}
+
+public void setUnchecked(boolean isUnchecked) {
+	if (isUnchecked) {
+		this.bits |= ASTNode.Unchecked;
+	} else {
+		this.bits &= ~ASTNode.Unchecked;
+	}
 }
 
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {

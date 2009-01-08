@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -256,6 +256,7 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
 			public void setDepth(int depth) { /* ignore */}
 			public void setFieldIndex(int depth){ /* ignore */}
+			public void setUnchecked(boolean isUnchecked) {/* ignore */}
 			public int sourceStart() { return 0; }
 			public int sourceEnd() { return 0; }
 		};
@@ -287,7 +288,8 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 				}
 			}
 			for (int i = 0; i < argumentLength; i++) {
-				if (originalArgumentTypes[i] != alternateArgumentTypes[i]) {
+				if (originalArgumentTypes[i] != alternateArgumentTypes[i]
+                       /*&& !originalArgumentTypes[i].needsUncheckedConversion(alternateArgumentTypes[i])*/) {
 					scope.problemReporter().unnecessaryCast((CastExpression)arguments[i]);
 				}
 			}

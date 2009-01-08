@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -114,7 +114,7 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 			break;
 
 		case Binding.TYPE_PARAMETER :
-			((TypeVariableBinding) type).resolve(environment);
+			((TypeVariableBinding) type).resolve();
 			break;
 
 		case Binding.GENERIC_TYPE :
@@ -606,7 +606,7 @@ private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, bool
 						pendingVariable = false;
 						int colon = CharOperation.indexOf(':', typeSignature, i);
 						char[] variableName = CharOperation.subarray(typeSignature, i, colon);
-						variables.add(new TypeVariableBinding(variableName, this, rank++));
+						variables.add(new TypeVariableBinding(variableName, this, rank++, this.environment));
 					}
 			}
 		}
@@ -807,7 +807,7 @@ public boolean hasMemberTypes() {
 // NOTE: member types of binary types are resolved when needed
 public TypeVariableBinding getTypeVariable(char[] variableName) {
 	TypeVariableBinding variable = super.getTypeVariable(variableName);
-	variable.resolve(this.environment);
+	variable.resolve();
 	return variable;
 }
 private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBinding[] existingVariables, SignatureWrapper wrapper, char[][][] missingTypeNames) {
@@ -934,7 +934,7 @@ MethodBinding resolveTypesFor(MethodBinding method) {
 		}
 	}
 	for (int i = method.typeVariables.length; --i >= 0;) {
-		method.typeVariables[i].resolve(this.environment);
+		method.typeVariables[i].resolve();
 	}
 	method.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 	return method;
@@ -983,7 +983,7 @@ public TypeVariableBinding[] typeVariables() {
 		return this.typeVariables;
 
  	for (int i = this.typeVariables.length; --i >= 0;)
-		this.typeVariables[i].resolve(this.environment);
+		this.typeVariables[i].resolve();
 	this.tagBits &= ~TagBits.HasUnresolvedTypeVariables;
 	return this.typeVariables;
 }

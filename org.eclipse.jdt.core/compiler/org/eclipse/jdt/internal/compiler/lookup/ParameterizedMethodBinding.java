@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,6 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	 * Create method of parameterized type, substituting original parameters/exception/return type with type arguments.
 	 */
 	public ParameterizedMethodBinding(final ParameterizedTypeBinding parameterizedDeclaringClass, MethodBinding originalMethod) {
-
 		super(
 				originalMethod.modifiers,
 				originalMethod.selector,
@@ -49,7 +48,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 			final TypeVariableBinding[] substitutedVariables = new TypeVariableBinding[length];
 			for (int i = 0; i < length; i++) { // copy original type variable to relocate
 				TypeVariableBinding originalVariable = originalVariables[i];
-				substitutedVariables[i] = new TypeVariableBinding(originalVariable.sourceName, this, originalVariable.rank);
+				substitutedVariables[i] = new TypeVariableBinding(originalVariable.sourceName, this, originalVariable.rank, parameterizedDeclaringClass.environment);
 			}
 			this.typeVariables = substitutedVariables;
 
@@ -136,7 +135,6 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	 * This is a CODE ASSIST method ONLY.
 	 */
 	public ParameterizedMethodBinding(final ReferenceBinding declaringClass, MethodBinding originalMethod, char[][] alternateParamaterNames, final LookupEnvironment environment) {
-
 		super(
 				originalMethod.modifiers,
 				originalMethod.selector,
@@ -162,7 +160,8 @@ public class ParameterizedMethodBinding extends MethodBinding {
 								originalVariable.sourceName :
 								alternateParamaterNames[i],
 							this,
-							originalVariable.rank);
+							originalVariable.rank,
+							environment);
 			}
 			this.typeVariables = substitutedVariables;
 

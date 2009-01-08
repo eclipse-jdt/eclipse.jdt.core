@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2981,22 +2981,27 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	public static <T> void foo(List<T>... e) {}\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. WARNING in p\\X.java (at line 6)\n" +
-			"	public X() { foo(data.l); }\n" +
-			"	             ^^^^^^^^^^^\n" +
-			"Type safety: Unchecked invocation foo(List...) of the generic method foo(List<T>...) of type Z\n" +
-			"----------\n" +
-			"2. WARNING in p\\X.java (at line 6)\n" +
-			"	public X() { foo(data.l); }\n" +
-			"	                 ^^^^^^\n" +
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. WARNING in p\\Y.java (at line 4)\n" +
-			"	List l = null;\n" +
-			"	^^^^\n" +
-			"List is a raw type. References to generic type List<E> should be parameterized\n" +
+			"----------\n" + 
+			"1. WARNING in p\\X.java (at line 6)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of List<Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"2. WARNING in p\\X.java (at line 6)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>...) of type Z\n" + 
+			"----------\n" + 
+			"3. WARNING in p\\X.java (at line 6)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	                 ^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in p\\Y.java (at line 4)\n" + 
+			"	List l = null;\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n"
 			// unchecked conversion warnings
 		);
@@ -3021,22 +3026,27 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	public static <T> void foo(List<T>... e) {}\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. WARNING in p\\X.java (at line 5)\n" +
-			"	public X() { foo(data.l); }\n" +
-			"	             ^^^^^^^^^^^\n" +
-			"Type safety: Unchecked invocation foo(List...) of the generic method foo(List<T>...) of type Y\n" +
-			"----------\n" +
-			"2. WARNING in p\\X.java (at line 5)\n" +
-			"	public X() { foo(data.l); }\n" +
-			"	                 ^^^^^^\n" +
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. WARNING in p\\Y.java (at line 4)\n" +
-			"	List l = null;\n" +
-			"	^^^^\n" +
-			"List is a raw type. References to generic type List<E> should be parameterized\n" +
+			"----------\n" + 
+			"1. WARNING in p\\X.java (at line 5)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of List<Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"2. WARNING in p\\X.java (at line 5)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>...) of type Y\n" + 
+			"----------\n" + 
+			"3. WARNING in p\\X.java (at line 5)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	                 ^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in p\\Y.java (at line 4)\n" + 
+			"	List l = null;\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n"
 			// unchecked conversion warnings
 		);

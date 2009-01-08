@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
@@ -386,123 +384,6 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 	return packageBinding;
 }
 
-public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, ReferenceBinding genericType, int rank, Set eliminatedVariables) {
-	if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
-		switch (originalType.kind()) {
-			case Binding.ARRAY_TYPE :
-				ArrayBinding originalArrayType = (ArrayBinding) originalType;
-				TypeBinding originalLeafComponentType = originalArrayType.leafComponentType;
-				TypeBinding substitute = convertEliminatingTypeVariables(originalLeafComponentType, genericType, rank, eliminatedVariables); // substitute could itself be array type
-				if (substitute != originalLeafComponentType) {
-					return createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalArrayType.dimensions());
-				}
-				break;
-			case Binding.PARAMETERIZED_TYPE :
-				ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) originalType;
-				ReferenceBinding originalEnclosing = paramType.enclosingType();
-				ReferenceBinding substitutedEnclosing = originalEnclosing;
-				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) convertEliminatingTypeVariables(originalEnclosing, genericType, rank, eliminatedVariables);
-				}
-				TypeBinding[] originalArguments = paramType.arguments;
-				TypeBinding[] substitutedArguments = originalArguments;
-				for (int i = 0, length = originalArguments == null ? 0 : originalArguments.length; i < length; i++) {
-					TypeBinding originalArgument = originalArguments[i];
-					TypeBinding substitutedArgument = convertEliminatingTypeVariables(originalArgument, paramType.genericType(), i, eliminatedVariables);
-					if (substitutedArgument != originalArgument) {
-						if (substitutedArguments == originalArguments) {
-							System.arraycopy(originalArguments, 0, substitutedArguments = new TypeBinding[length], 0, i);
-						}
-						substitutedArguments[i] = substitutedArgument;
-					} else 	if (substitutedArguments != originalArguments) {
-						substitutedArguments[i] = originalArgument;
-					}
-				}
-				if (originalEnclosing != substitutedEnclosing || originalArguments != substitutedArguments) {
-					return createParameterizedType(paramType.genericType(), substitutedArguments, substitutedEnclosing);
-				}
-				break;
-			case Binding.TYPE_PARAMETER :
-				if (eliminatedVariables != null && eliminatedVariables.contains(originalType)) {
-					return createWildcard(genericType, rank, null, null, Wildcard.UNBOUND);
-				}
-				TypeVariableBinding variable = (TypeVariableBinding) originalType;
-				TypeBinding originalUpperBound = variable.upperBound();
-				if (eliminatedVariables == null) {
-					eliminatedVariables = new HashSet(2);
-				}
-				eliminatedVariables.add(variable);
-				TypeBinding substitutedUpperBound = convertEliminatingTypeVariables(originalUpperBound, genericType, rank, eliminatedVariables);
-				eliminatedVariables.remove(variable);
-				return createWildcard(genericType, rank, substitutedUpperBound, null, Wildcard.EXTENDS);
-			case Binding.RAW_TYPE :
-				break;
-			case Binding.GENERIC_TYPE :
-				ReferenceBinding currentType = (ReferenceBinding) originalType;
-				originalEnclosing = currentType.enclosingType();
-				substitutedEnclosing = originalEnclosing;
-				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) convertEliminatingTypeVariables(originalEnclosing, genericType, rank, eliminatedVariables);
-				}
-				originalArguments = currentType.typeVariables();
-				substitutedArguments = originalArguments;
-				for (int i = 0, length = originalArguments == null ? 0 : originalArguments.length; i < length; i++) {
-					TypeBinding originalArgument = originalArguments[i];
-					TypeBinding substitutedArgument = convertEliminatingTypeVariables(originalArgument, currentType, i, eliminatedVariables);
-					if (substitutedArgument != originalArgument) {
-						if (substitutedArguments == originalArguments) {
-							System.arraycopy(originalArguments, 0, substitutedArguments = new TypeBinding[length], 0, i);
-						}
-						substitutedArguments[i] = substitutedArgument;
-					} else 	if (substitutedArguments != originalArguments) {
-						substitutedArguments[i] = originalArgument;
-					}
-				}
-				if (originalEnclosing != substitutedEnclosing || originalArguments != substitutedArguments) {
-					return createParameterizedType(genericType, substitutedArguments, substitutedEnclosing);
-				}
-				break;
-			case Binding.WILDCARD_TYPE :
-				WildcardBinding wildcard = (WildcardBinding) originalType;
-				TypeBinding originalBound = wildcard.bound;
-				TypeBinding substitutedBound = originalBound;
-				if (originalBound != null) {
-					substitutedBound = convertEliminatingTypeVariables(originalBound, genericType, rank, eliminatedVariables);
-					if (substitutedBound != originalBound) {
-						return createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, null, wildcard.boundKind);
-					}
-				}
-				break;
-			case Binding.INTERSECTION_TYPE :
-				WildcardBinding intersection = (WildcardBinding) originalType;
-				originalBound = intersection.bound;
-				substitutedBound = originalBound;
-				if (originalBound != null) {
-					substitutedBound = convertEliminatingTypeVariables(originalBound, genericType, rank, eliminatedVariables);
-				}
-				TypeBinding[] originalOtherBounds = intersection.otherBounds;
-				TypeBinding[] substitutedOtherBounds = originalOtherBounds;
-				for (int i = 0, length = originalOtherBounds == null ? 0 : originalOtherBounds.length; i < length; i++) {
-					TypeBinding originalOtherBound = originalOtherBounds[i];
-					TypeBinding substitutedOtherBound = convertEliminatingTypeVariables(originalOtherBound, genericType, rank, eliminatedVariables);
-					if (substitutedOtherBound != originalOtherBound) {
-						if (substitutedOtherBounds == originalOtherBounds) {
-							System.arraycopy(originalOtherBounds, 0, substitutedOtherBounds = new TypeBinding[length], 0, i);
-						}
-						substitutedOtherBounds[i] = substitutedOtherBound;
-					} else 	if (substitutedOtherBounds != originalOtherBounds) {
-						substitutedOtherBounds[i] = originalOtherBound;
-					}
-				}
-				if (substitutedBound != originalBound || substitutedOtherBounds != originalOtherBounds) {
-					return createWildcard(intersection.genericType, intersection.rank, substitutedBound, substitutedOtherBounds, intersection.boundKind);
-				}
-				break;
-			}
-	}
-	return originalType;
-}
-
 /**
  * Convert a given source type into a parameterized form if generic.
  * generic X<E> --> param X<E>
@@ -598,6 +479,27 @@ public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingT
 	return type;
 }
 
+/**
+ * Convert an array of types in raw forms.
+ * Only allocate an array if anything is different.
+ */
+public ReferenceBinding[] convertToRawTypes(ReferenceBinding[] originalTypes, boolean forceErasure, boolean forceRawEnclosingType) {
+	if (originalTypes == null) return null;
+    ReferenceBinding[] convertedTypes = originalTypes;
+    for (int i = 0, length = originalTypes.length; i < length; i++) {
+        ReferenceBinding originalType = originalTypes[i];
+        ReferenceBinding convertedType = (ReferenceBinding) convertToRawType(forceErasure ? originalType.erasure() : originalType, forceRawEnclosingType);
+        if (convertedType != originalType) {        
+            if (convertedTypes == originalTypes) {
+                System.arraycopy(originalTypes, 0, convertedTypes = new ReferenceBinding[length], 0, i);
+            }
+            convertedTypes[i] = convertedType;
+        } else if (convertedTypes != originalTypes) {
+            convertedTypes[i] = originalType;
+        }
+    }
+    return convertedTypes;
+}
 
 // variation for unresolved types in binaries (consider generic type as raw)
 public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
@@ -657,7 +559,6 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 	}
 	return type;
 }
-
 /*
  *  Used to guarantee annotation identity.
  */
@@ -667,6 +568,7 @@ public AnnotationBinding createAnnotation(ReferenceBinding annotationType, Eleme
 	}
 	return new AnnotationBinding(annotationType, pairs);
 }
+
 /*
  *  Used to guarantee array type identity.
  */
@@ -708,10 +610,10 @@ public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimension
 	this.uniqueArrayBindings[dimIndex] = arrayBindings;
 	return arrayBindings[length] = new ArrayBinding(leafComponentType, dimensionCount, this);
 }
-
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 	return createBinaryTypeFrom(binaryType, packageBinding, true, accessRestriction);
 }
+
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding, boolean needFieldsAndMethods, AccessRestriction accessRestriction) {
 	BinaryTypeBinding binaryBinding = new BinaryTypeBinding(packageBinding, binaryType, this);
 
@@ -1342,7 +1244,6 @@ boolean isPackage(char[][] compoundName, char[] name) {
 		return this.nameEnvironment.isPackage(null, name);
 	return this.nameEnvironment.isPackage(compoundName, name);
 }
-
 // The method verifier is lazily initialized to guarantee the receiver, the compiler & the oracle are ready.
 public MethodVerifier methodVerifier() {
 	if (this.verifier == null)
@@ -1351,6 +1252,7 @@ public MethodVerifier methodVerifier() {
 			: new MethodVerifier15(this); // covariance only if sourceLevel is >= 1.5
 	return this.verifier;
 }
+
 public void releaseClassFiles(org.eclipse.jdt.internal.compiler.ClassFile[] classFiles) {
 	for (int i = 0, fileCount = classFiles.length; i < fileCount; i++)
 		this.classFilePool.release(classFiles[i]);

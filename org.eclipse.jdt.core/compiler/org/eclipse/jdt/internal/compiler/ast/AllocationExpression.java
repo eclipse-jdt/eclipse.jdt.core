@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	// record some dependency information for exception types
 	ReferenceBinding[] thrownExceptions;
 	if (((thrownExceptions = this.binding.thrownExceptions).length) != 0) {
+		if ((this.bits & ASTNode.Unchecked) != 0) {
+			thrownExceptions = currentScope.environment().convertToRawTypes(this.binding.original().thrownExceptions, true, true);
+		}		
 		// check exception handling
 		flowContext.checkExceptionHandlers(
 			thrownExceptions,
@@ -353,7 +356,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (isMethodUseDeprecated(this.binding, scope, true))
 		scope.problemReporter().deprecatedMethod(this.binding, this);
-	checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this);
+	checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this, (this.bits & ASTNode.Unchecked) != 0);
 	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 	}
@@ -370,6 +373,15 @@ public void setDepth(int i) {
 
 public void setFieldIndex(int i) {
 	// ignored
+}
+
+public void setUnchecked(boolean isUnchecked) {
+	if (isUnchecked) {
+		this.bits |= ASTNode.Unchecked;
+	} else {
+		this.bits &= ~ASTNode.Unchecked;
+	}
+	
 }
 
 public void traverse(ASTVisitor visitor, BlockScope scope) {

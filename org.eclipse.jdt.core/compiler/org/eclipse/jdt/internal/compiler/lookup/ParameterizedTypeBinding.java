@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	private ReferenceBinding enclosingType;
 
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments,  ReferenceBinding enclosingType, LookupEnvironment environment){
-
 		this.environment = environment;
 		this.enclosingType = enclosingType; // never unresolved, never lazy per construction
 //		if (enclosingType != null && enclosingType.isGenericType()) {
@@ -151,7 +150,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_SUPER (2))
 	 */
 	public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
-		if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
+		if ((this.tagBits & TagBits.HasTypeVariable) == 0) {
+			TypeBinding actualEquivalent = actualType.findSuperTypeOriginatingFrom(this.type);
+			if (actualEquivalent != null && actualEquivalent.isRawType()) {
+				inferenceContext.isUnchecked = true;
+			}
+			return;
+		}
 		if (actualType == TypeBinding.NULL) return;
 
 		if (!(actualType instanceof ReferenceBinding)) return;
@@ -186,7 +191,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         		formalArguments = ((ParameterizedTypeBinding)formalEquivalent).arguments;
         		break;
         	case Binding.RAW_TYPE :
-        		if (!inferenceContext.checkRawSubstitution()) {
+        		if (inferenceContext.depth > 0) {
 	           		inferenceContext.status = InferenceContext.FAILED; // marker for impossible inference
         		}
         		return;
@@ -202,8 +207,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         		actualArguments = ((ParameterizedTypeBinding)actualEquivalent).arguments;
         		break;
         	case Binding.RAW_TYPE :
-        		if (!inferenceContext.checkRawSubstitution()) {
+        		if (inferenceContext.depth > 0) {
 	           		inferenceContext.status = InferenceContext.FAILED; // marker for impossible inference
+        		} else {
+	        		inferenceContext.isUnchecked = true;
         		}
         		return;
         	default :

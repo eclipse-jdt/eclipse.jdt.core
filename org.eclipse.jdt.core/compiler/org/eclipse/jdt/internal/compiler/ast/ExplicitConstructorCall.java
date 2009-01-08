@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,6 +81,9 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 
 			ReferenceBinding[] thrownExceptions;
 			if ((thrownExceptions = this.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
+				if ((this.bits & ASTNode.Unchecked) != 0) {
+					thrownExceptions = currentScope.environment().convertToRawTypes(this.binding.original().thrownExceptions, true, true);
+				}				
 				// check exceptions
 				flowContext.checkExceptionHandlers(
 					thrownExceptions,
@@ -397,7 +400,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				if (isMethodUseDeprecated(this.binding, scope, this.accessMode != ExplicitConstructorCall.ImplicitSuper)) {
 					scope.problemReporter().deprecatedMethod(this.binding, this);
 				}
-				checkInvocationArguments(scope, null, receiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this);
+				checkInvocationArguments(scope, null, receiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this, (this.bits & ASTNode.Unchecked) != 0);
 				if (this.binding.isPrivate() || receiverType.isLocalType()) {
 					this.binding.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 				}
@@ -430,6 +433,15 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 		// ignore for here
 	}
 
+	public void setUnchecked(boolean isUnchecked) {
+		if (isUnchecked) {
+			this.bits |= ASTNode.Unchecked;
+		} else {
+			this.bits &= ~ASTNode.Unchecked;
+		}
+		
+	}
+	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.qualification != null) {

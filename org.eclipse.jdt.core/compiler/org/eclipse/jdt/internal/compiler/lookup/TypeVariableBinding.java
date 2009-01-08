@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,22 +32,24 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public ReferenceBinding superclass;
 	public ReferenceBinding[] superInterfaces;
 	public char[] genericTypeSignature;
-
-	public TypeVariableBinding(char[] sourceName, Binding declaringElement, int rank) {
+	LookupEnvironment environment;
+	
+	public TypeVariableBinding(char[] sourceName, Binding declaringElement, int rank, LookupEnvironment environment) {
 		this.sourceName = sourceName;
 		this.declaringElement = declaringElement;
 		this.rank = rank;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
 		this.tagBits |= TagBits.HasTypeVariable;
+		this.environment = environment;
 	}
 
 	/**
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */
 	public int boundCheck(Substitution substitution, TypeBinding argumentType) {
-
-		if (argumentType == TypeBinding.NULL || argumentType == this)
+		if (argumentType == TypeBinding.NULL || argumentType == this) {
 			return TypeConstants.OK;
+		}
 		boolean hasSubstitution = substitution != null;
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
 			return TypeConstants.MISMATCH;
@@ -63,27 +65,27 @@ public class TypeVariableBinding extends ReferenceBinding {
 					TypeBinding wildcardBound = wildcard.bound;
 					if (wildcardBound == this)
 						return TypeConstants.OK;
-					ReferenceBinding superclassBound = hasSubstitution ? (ReferenceBinding)Scope.substitute(substitution, this.superclass) : this.superclass;
 					boolean isArrayBound = wildcardBound.isArrayType();
 					if (!wildcardBound.isInterface()) {
-						if (superclassBound.id != TypeIds.T_JavaLangObject) {
+						TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superclass) : this.superclass;
+						if (substitutedSuperType.id != TypeIds.T_JavaLangObject) {
 							if (isArrayBound) {
-								if (!wildcardBound.isCompatibleWith(superclassBound))
+								if (!wildcardBound.isCompatibleWith(substitutedSuperType))
 									return TypeConstants.MISMATCH;
 							} else {
-								TypeBinding match = wildcardBound.findSuperTypeOriginatingFrom(superclassBound);
+								TypeBinding match = wildcardBound.findSuperTypeOriginatingFrom(substitutedSuperType);
 								if (match != null) {
-									if (superclassBound.isProvablyDistinct(match)) {
+									if (substitutedSuperType.isProvablyDistinct(match)) {
 										return TypeConstants.MISMATCH;
 									}
 								} else {
-									match =  superclassBound.findSuperTypeOriginatingFrom(wildcardBound);
+									match =  substitutedSuperType.findSuperTypeOriginatingFrom(wildcardBound);
 									if (match != null) {
 										if (match.isProvablyDistinct(wildcardBound)) {
 											return TypeConstants.MISMATCH;
 										}
 									} else {
-										if (!wildcardBound.isTypeVariable() && !superclassBound.isTypeVariable()) {
+										if (!wildcardBound.isTypeVariable() && !substitutedSuperType.isTypeVariable()) {
 											return TypeConstants.MISMATCH;
 										}
 									}
@@ -91,18 +93,16 @@ public class TypeVariableBinding extends ReferenceBinding {
 							}
 						}
 					}
-					ReferenceBinding[] superInterfaceBounds = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces) : this.superInterfaces;
-					int length = superInterfaceBounds.length;
 					boolean mustImplement = isArrayBound || ((ReferenceBinding)wildcardBound).isFinal();
-					for (int i = 0; i < length; i++) {
-						TypeBinding superInterfaceBound = superInterfaceBounds[i];
+					for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+						TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces[i]) : this.superInterfaces[i];
 						if (isArrayBound) {
-							if (!wildcardBound.isCompatibleWith(superInterfaceBound))
+							if (!wildcardBound.isCompatibleWith(substitutedSuperType))
 									return TypeConstants.MISMATCH;
 						} else {
-							TypeBinding match = wildcardBound.findSuperTypeOriginatingFrom(superInterfaceBound);
+							TypeBinding match = wildcardBound.findSuperTypeOriginatingFrom(substitutedSuperType);
 							if (match != null) {
-								if (superInterfaceBound.isProvablyDistinct(match)) {
+								if (substitutedSuperType.isProvablyDistinct(match)) {
 									return TypeConstants.MISMATCH;
 								}
 							} else if (mustImplement) {
@@ -380,19 +380,19 @@ public class TypeVariableBinding extends ReferenceBinding {
     public char[] readableName() {
         return this.sourceName;
     }
-	ReferenceBinding resolve(LookupEnvironment environment) {
+	ReferenceBinding resolve() {
 		if ((this.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 			return this;
 
 		TypeBinding oldSuperclass = this.superclass, oldFirstInterface = null;
 		if (this.superclass != null)
-			this.superclass = (ReferenceBinding) BinaryTypeBinding.resolveType(this.superclass, environment, true /* raw conversion */);
+			this.superclass = (ReferenceBinding) BinaryTypeBinding.resolveType(this.superclass, this.environment, true /* raw conversion */);
 		ReferenceBinding[] interfaces = this.superInterfaces;
 		int length;
 		if ((length = interfaces.length) != 0) {
 			oldFirstInterface = interfaces[0];
 			for (int i = length; --i >= 0;) {
-				interfaces[i] = (ReferenceBinding) BinaryTypeBinding.resolveType(interfaces[i], environment, true /* raw conversion */);
+				interfaces[i] = (ReferenceBinding) BinaryTypeBinding.resolveType(interfaces[i], this.environment, true /* raw conversion */);
 			}
 		}
 		// refresh the firstBound in case it changed

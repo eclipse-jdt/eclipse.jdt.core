@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,9 +21,9 @@ public class InferenceContext {
 	int status;
 	TypeBinding expectedType;
 	boolean hasExplicitExpectedType; // indicates whether the expectedType (if set) was explicit in code, or set by default
+    public boolean isUnchecked;
 	TypeBinding[] substitutes;
 	final static int FAILED = 1;
-	final static int RAW_SUBSTITUTION = 2;
 
 public InferenceContext(MethodBinding genericMethod) {
 	this.genericMethod = genericMethod;
@@ -31,16 +31,6 @@ public InferenceContext(MethodBinding genericMethod) {
 	int varLength = typeVariables.length;
 	this.collectedSubstitutes = new TypeBinding[varLength][3][];
 	this.substitutes = new TypeBinding[varLength];
-}
-
-public boolean checkRawSubstitution() {
-	// only at first level, during inference from arguments
-	if (this.depth > 0) return false;
-//	if (this.argumentIndex < 0 || this.depth != 0) {
-//		return false;
-//	}
-	this.status = RAW_SUBSTITUTION;
-	return true;
 }
 
 public TypeBinding[] getSubstitutes(TypeVariableBinding typeVariable, int constraint) {
@@ -98,9 +88,6 @@ public String toString() {
 			break;
 		case FAILED :
 			buffer.append("failed]");//$NON-NLS-1$
-			break;
-		case RAW_SUBSTITUTION :
-			buffer.append("raw-subst]");//$NON-NLS-1$
 			break;
 	}
 	if (this.expectedType == null) {
