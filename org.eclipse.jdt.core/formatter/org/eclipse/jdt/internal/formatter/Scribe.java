@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1223,6 +1223,7 @@ public class Scribe implements IJavaDocTagConstants {
 	private void printBlockComment(boolean isJavadoc) {
 		int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 		int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
+		boolean includesBlockComments = includesBlockComments();
 
 		this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
 		int currentCharacter;
@@ -1247,7 +1248,7 @@ public class Scribe implements IJavaDocTagConstants {
 		this.needSpace = false;
 		this.pendingSpace = false;
 
-		if (includesBlockComments()) {
+		if (includesBlockComments) {
 			if (printBlockComment(currentTokenStartPosition, currentTokenEndPosition)) {
 				return;
 			}
@@ -1424,6 +1425,7 @@ public class Scribe implements IJavaDocTagConstants {
 		boolean hasMultiLines = false;
 		boolean hasTokens = false;
 		boolean bufferHasTokens = false;
+		boolean lineHasTokens = false;
 		int hasTextOnFirstLine = 0;
 		boolean firstWord = true;
 		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_block_comment;
@@ -1445,6 +1447,7 @@ public class Scribe implements IJavaDocTagConstants {
 
 			// Look at specific tokens
     		boolean insertSpace = (previousToken == TerminalTokens.TokenNameWHITESPACE) && (!firstWord || !hasTokens);
+    		boolean isTokenStar = false;
 			switch (token) {
 				case TerminalTokens.TokenNameWHITESPACE:
 					if (tokensBuffer.length() > 0) {
@@ -1463,7 +1466,7 @@ public class Scribe implements IJavaDocTagConstants {
 					} else {
 						previousToken = token;
 					}
-					lineNumber = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+					lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 					if (lineNumber > scannerLine) {
 						hasMultiLines = true;
 						newLine = true;
@@ -1471,8 +1474,12 @@ public class Scribe implements IJavaDocTagConstants {
 					scannerLine = lineNumber;
 					continue;
 				case TerminalTokens.TokenNameMULTIPLY:
+					isTokenStar = true;
+					lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+					if (lineNumber == firstLine && previousToken == SKIP_FIRST_WHITESPACE_TOKEN) {
+						editStart = this.scanner.getCurrentTokenStartPosition();
+					}
 					previousToken = token;
-					lineNumber = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 					if (this.scanner.currentCharacter == '/') {
 						editEnd = this.scanner.startPosition - 1;
 						// Add remaining buffered tokens
@@ -1491,14 +1498,18 @@ public class Scribe implements IJavaDocTagConstants {
 				    	this.scanner.getNextChar(); // reach the end of scanner
 				    	continue;
 					}
-					scannerLine = lineNumber;
-					continue;
+					if (newLine) {
+						scannerLine = lineNumber;
+						newLine = false;
+						continue;
+					}
+					break;
 				case TerminalTokens.TokenNameMULTIPLY_EQUAL:
 					if (newLine) {
 						this.scanner.resetTo(this.scanner.startPosition, currentTokenEndPosition-1);
 						this.scanner.getNextChar(); // consume the multiply
 						previousToken = TerminalTokens.TokenNameMULTIPLY;
-						scannerLine = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+						scannerLine = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 						continue;
 					}
 					break;
@@ -1524,7 +1535,7 @@ public class Scribe implements IJavaDocTagConstants {
 			// Look at gap and insert corresponding lines if necessary
 			int linesGap;
 			int max;
-			lineNumber = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+			lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 			if (lastTextLine == -1) {
 				linesGap = lineNumber - firstLine;
 				max = 0;
@@ -1534,7 +1545,7 @@ public class Scribe implements IJavaDocTagConstants {
 					// insert one blank line before root tags
 					linesGap = 2;
 				}
-				max = joinLines ? 1 : 0;
+				max = joinLines && lineHasTokens ? 1 : 0;
 			}
 			if (linesGap > max) {
 				if (clearBlankLines) {
@@ -1566,12 +1577,14 @@ public class Scribe implements IJavaDocTagConstants {
 				}
 				insertSpace = insertSpace && linesGap == 0;
 			}
+    		if (newLine) lineHasTokens = false;
 
 			// Increment column
 			int tokenStart = this.scanner.getCurrentTokenStartPosition();
     		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
     		hasTokens = true;
-    		if (hasTextOnFirstLine == 0) {
+    		if (!isTokenStar) lineHasTokens = true;
+    		if (hasTextOnFirstLine == 0 && !isTokenStar) {
     			if (firstLine == lineNumber) {
 	    			hasTextOnFirstLine = 1;
 	    			this.column++; // include first space
@@ -1583,7 +1596,7 @@ public class Scribe implements IJavaDocTagConstants {
     		if (insertSpace) lastColumn++;
 
     		// Append next token inserting a new line if max line is reached
-			if (!firstWord && lastColumn > maxColumn) {
+			if (lineHasTokens && !firstWord && lastColumn > maxColumn) {
 		    	String tokensString = tokensBuffer.toString().trim();
 				// not enough space on the line
 				if (hasTextOnFirstLine == 1) {
@@ -2045,6 +2058,7 @@ public class Scribe implements IJavaDocTagConstants {
 	private void printLineComment() {
     	int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
     	int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
+    	boolean includesLineComments = includesLineComments();
     	boolean isNlsTag = false;
     	if (CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, currentTokenStartPosition, currentTokenEndPosition) != -1) {
     		this.nlsTagCounter = 0;
@@ -2068,7 +2082,7 @@ public class Scribe implements IJavaDocTagConstants {
     	this.pendingSpace = false;
     	int previousStart = currentTokenStartPosition;
 
-		if (!isNlsTag && includesLineComments()) {
+		if (!isNlsTag && includesLineComments) {
 			printLineComment(currentTokenStartPosition, currentTokenEndPosition-1);
 		} else {
 			// do nothing!?

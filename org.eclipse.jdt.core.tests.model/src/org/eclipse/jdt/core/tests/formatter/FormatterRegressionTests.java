@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -222,7 +222,12 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		String outputSource = expectedContents == null ? originalSource : expectedContents;
 		assertLineEquals(actualContents, originalSource, outputSource, false /* do not check null */);
 	}
-	
+
+	void formatSource(String source) {
+		// expect unchanged source after formatting
+		formatSource(source, source);
+	}
+
 	void formatSource(String source, String formattedOutput) {
 		formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, true /*repeat formatting twice*/);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3122,6 +3122,309 @@ public void testBug256799_Block02() throws JavaModelException {
 		"		}\n" + 
 		"		return test;\n" + 
 		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 254998: [formatter] wrong type comment format during code generation
+ * @test Ensure that the comment formatter works well on the given test case
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=254998"
+ */
+public void testBug254998() throws JavaModelException {
+	this.formatterPrefs.comment_format_javadoc_comment = false;
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.comment_format_line_comment = false;
+	this.formatterPrefs.comment_format_header = true;
+	String source = 
+		"/**\n" + 
+		" * Test for\n" + 
+		" * bug 254998\n" + 
+		" */\n" + 
+		"package javadoc;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * Test for\n" + 
+		" * bug 254998\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Test for bug 254998\n" + 
+		" */\n" + 
+		"package javadoc;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * Test for\n" + 
+		" * bug 254998\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug254998b() throws JavaModelException {
+	this.formatterPrefs.comment_format_javadoc_comment = false;
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.comment_format_line_comment = false;
+	this.formatterPrefs.comment_format_header = true;
+	String source = 
+		"/*\n" + 
+		" * Test for\n" + 
+		" * bug 254998\n" + 
+		" */\n" + 
+		"package block;\n" + 
+		"\n" + 
+		"/*\n" + 
+		" * Test for\n" + 
+		" * bug 254998\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"/*\n" + 
+		" * Test for\n" + 
+		" * bug 254998\n" + 
+		" */\n" + 
+		"}\n";
+	formatSource(source,
+		"/*\n" + 
+		" * Test for bug 254998\n" + 
+		" */\n" + 
+		"package block;\n" + 
+		"\n" + 
+		"/*\n" + 
+		" * Test for bug 254998\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"	/*\n" + 
+		"	 * Test for\n" + 
+		"	 * bug 254998\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug254998c() throws JavaModelException {
+	this.formatterPrefs.comment_format_javadoc_comment = false;
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.comment_format_line_comment = false;
+	this.formatterPrefs.comment_format_header = true;
+	String source = 
+		"//		Test		for		bug		254998\n" + 
+		"package line;\n" + 
+		"\n" + 
+		"//		Test		for		bug		254998\n" + 
+		"public class Test {\n" + 
+		"//		Test		for		bug		254998\n" + 
+		"}\n";
+	formatSource(source,
+		"// Test for bug 254998\n" + 
+		"package line;\n" + 
+		"\n" + 
+		"// Test for bug 254998\n" + 
+		"public class Test {\n" + 
+		"	//		Test		for		bug		254998\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 260274: [formatter] * character is removed while formatting block comments
+ * @test Ensure that the comment formatter keep '*' characters while formatting block comments
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260274"
+ */
+public void testBug260274() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/*\n" + 
+		" * The formatter should NOT remove * character\n" + 
+		" * in block comments!\n" + 
+		" */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * The formatter should NOT remove * character in block comments!\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260274b() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/*\n" + 
+		" * The formatter should keep \'*\' characters\n" + 
+		" * in block comments!\n" + 
+		" */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * The formatter should keep \'*\' characters in block comments!\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260274c() throws JavaModelException {
+	this.formatterPrefs.join_lines_in_comments = false;
+	String source = 
+		"class X {\n" + 
+		"/* *********************************************\n" + 
+		" * Test \n" + 
+		" */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/* *********************************************\n" + 
+		"	 * Test\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260274d() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/* *********************************************\n" + 
+		" * Test \n" + 
+		" */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/* *********************************************\n" + 
+		"	 * Test\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260274e() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/*\n" + 
+		" * **************************************************\n" + 
+		" * **********  Test  **********  Test  **************\n" + 
+		" * **************************************************\n" + 
+		" */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * **************************************************\n" + 
+		"	 * ********** Test ********** Test **************\n" + 
+		"	 * **************************************************\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260274f() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/* *****************************************************************************\n" + 
+		" * Action that allows changing the model providers sort order.\n" + 
+		" */\n" + 
+		"void foo() {\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/* *****************************************************************************\n" + 
+		"	 * Action that allows changing the model providers sort order.\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug260274g() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/*\n" + 
+		" * **********************************************************************************\n" + 
+		" * **********************************************************************************\n" + 
+		" * **********************************************************************************\n" + 
+		" * The code below was added to track the view with focus\n" + 
+		" * in order to support save actions from a view. Remove this\n" + 
+		" * experimental code if the decision is to not allow views to \n" + 
+		" * participate in save actions (see bug 10234) \n" + 
+		" */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * **********************************************************************************\n" + 
+		"	 * **********************************************************************************\n" + 
+		"	 * **********************************************************************************\n" + 
+		"	 * The code below was added to track the view with focus in order to support\n" + 
+		"	 * save actions from a view. Remove this experimental code if the decision\n" + 
+		"	 * is to not allow views to participate in save actions (see bug 10234)\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260274h() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"    /**\n" + 
+		"	 * @see #spacing(Point)\n" + 
+		"	 * * @see #spacing(int, int)\n" + 
+		"	 */\n" + 
+		"    public void foo() {\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/**\n" + 
+		"	 * @see #spacing(Point) * @see #spacing(int, int)\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 260276: [formatter] Inconsistent formatting of one-line block comment
+ * @test Ensure that the comment formatter has a consistent behavior while formatting one-line block comment
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260276"
+ */
+public void testBug260276() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/* a\n" + 
+		"comment */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * a comment\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260276b() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/* a\n" + 
+		" comment */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * a comment\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260276c() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/* a\n" + 
+		" * comment */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * a comment\n" + 
+		"	 */\n" + 
 		"}\n"
 	);
 }
