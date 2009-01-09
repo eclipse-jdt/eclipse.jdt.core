@@ -8207,4 +8207,129 @@ public void testBug254825b() {
 		"----------\n"
 	);
 }
+
+
+/**
+ * @bug 258798: [1.5][compiler] Return type should be erased after unchecked conversion during inference
+ * @test Fix for this bug had side effects while reporting missing tags in javadoc comments.<br>
+ * Following tests have been written to verify that noticed issues have been solved:
+ * <ol>
+ * <li>missing tags should be reported even when the method/constructor has
+ * 	a &#064;see reference on itself</li>
+ * <li>missing tag should be reported when superclass constructor has different
+ * 	arguments (even if they are compatible)</li>
+ * <li>missing tag should not be reported when method arguments are the same
+ * 	even when the type argument is not the same</li>
+ * </ol>
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=258798"
+ */
+public void testBug258798_1() {
+	this.reportMissingJavadocTags = CompilerOptions.WARNING;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"/**\n" + 
+			"* @see #X(int)\n" + 
+			"*/\n" + 
+			"X(int i) {\n" + 
+			"}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	X(int i) {\n" + 
+		"	      ^\n" + 
+		"Javadoc: Missing tag for parameter i\n" + 
+		"----------\n"
+	);
+}
+public void testBug258798_2a() {
+	this.reportMissingJavadocTags = CompilerOptions.WARNING;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"X(int i) {}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"/** @see X#X(int) */\n" + 
+			"Y(double d) { super(0); }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	Y(double d) { super(0); }\n" + 
+		"	         ^\n" + 
+		"Javadoc: Missing tag for parameter d\n" + 
+		"----------\n"
+	);
+}
+public void testBug258798_2b() {
+	this.reportMissingJavadocTags = CompilerOptions.WARNING;
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<T> {\n" + 
+				"X(ArrayList<T> alt) {}\n" + 
+				"}\n" + 
+				"class Y<U> extends X<U> {\n" + 
+				"/** @see X#X(ArrayList) */\n" + 
+				"Y(List<U> lu) { super(null); }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	Y(List<U> lu) { super(null); }\n" + 
+			"	          ^^\n" + 
+			"Javadoc: Missing tag for parameter lu\n" + 
+			"----------\n"
+		);
+	}
+}
+public void testBug258798_2c() {
+	this.reportMissingJavadocTags = CompilerOptions.WARNING;
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<T> {\n" + 
+				"X(Object o) {}\n" + 
+				"}\n" + 
+				"class Y<U> extends X<U> {\n" + 
+				"/** @see X#X(Object) */\n" + 
+				"Y(List<U> lu) { super(lu); }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	Y(List<U> lu) { super(lu); }\n" + 
+			"	          ^^\n" + 
+			"Javadoc: Missing tag for parameter lu\n" + 
+			"----------\n"
+		);
+	}
+}
+public void testBug258798_3() {
+	this.reportMissingJavadocTags = CompilerOptions.WARNING;
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<T> {\n" + 
+				"X(List<T> lt) {}\n" + 
+				"}\n" + 
+				"class Y<U> extends X<U> {\n" + 
+				"/** @see X#X(List) */\n" + 
+				"Y(List<U> lu) { super(null); }\n" + 
+				"}\n"
+			}
+		);
+	}
+}
+
 }
