@@ -586,41 +586,21 @@ private String extractJavadoc(IType declaringType, String contents) throws JavaM
 	String anchor = null;
 	if (genericSignature != null) {
 		genericSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
-		anchor = Util.toAnchor(genericSignature, methodName, Flags.isVarargs(getFlags()));
+		anchor = Util.toAnchor(0, genericSignature, methodName, Flags.isVarargs(getFlags()));
 		if (anchor == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
 	} else {
 		anchor = Signature.toString(getSignature().replace('/', '.'), methodName, null, true, false, Flags.isVarargs(getFlags()));
 	}
-	if (declaringTypeIsMember) {
-		int depth = 0;
-		final String packageFragmentName = declaringType.getPackageFragment().getElementName();
-		// might need to remove a part of the signature corresponding to the synthetic argument
-		final IJavaProject javaProject = declaringType.getJavaProject();
-		char[][] typeNames = CharOperation.splitOn('.', typeQualifiedName.toCharArray());
-		if (!Flags.isStatic(declaringType.getFlags())) depth++;
-		StringBuffer typeName = new StringBuffer();
-		for (int i = 0, max = typeNames.length; i < max; i++) {
-			if (typeName.length() == 0) {
-				typeName.append(typeNames[i]);
-			} else {
-				typeName.append('.').append(typeNames[i]);
-			}
-			IType resolvedType = javaProject.findType(packageFragmentName, String.valueOf(typeName));
-			if (resolvedType != null && resolvedType.isMember() && !Flags.isStatic(resolvedType.getFlags())) depth++;
+	if (declaringTypeIsMember && !Flags.isStatic(declaringType.getFlags())) {
+		int indexOfOpeningParen = anchor.indexOf('(');
+		if (indexOfOpeningParen == -1) return null;
+		int index = indexOfOpeningParen;
+		indexOfOpeningParen++;
+		int indexOfComma = anchor.indexOf(',', index);
+		if (indexOfComma != -1) {
+			index = indexOfComma + 2;
 		}
-		if (depth != 0) {
-			int indexOfOpeningParen = anchor.indexOf('(');
-			if (indexOfOpeningParen == -1) return null;
-			int index = indexOfOpeningParen;
-			indexOfOpeningParen++;
-			for (int i = 0; i < depth; i++) {
-				int indexOfComma = anchor.indexOf(',', index);
-				if (indexOfComma != -1) {
-					index = indexOfComma + 2;
-				}
-			}
-			anchor = anchor.substring(0, indexOfOpeningParen) + anchor.substring(index);
-		}
+		anchor = anchor.substring(0, indexOfOpeningParen) + anchor.substring(index);
 	}
 	int indexAnchor = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START + anchor + JavadocConstants.ANCHOR_PREFIX_END);
 	if (indexAnchor == -1) {

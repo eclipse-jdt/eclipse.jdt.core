@@ -3228,14 +3228,14 @@ public class Util {
 	/*
 	 * Can throw IllegalArgumentException or ArrayIndexOutOfBoundsException
 	 */
-	public static String toAnchor(char[] methodSignature, String methodName, boolean isVarArgs) {
+	public static String toAnchor(int startingIndex, char[] methodSignature, String methodName, boolean isVarArgs) {
 		try {
-			return new String(toAnchor(methodSignature, methodName.toCharArray(), isVarArgs));
+			return new String(toAnchor(startingIndex, methodSignature, methodName.toCharArray(), isVarArgs));
 		} catch(IllegalArgumentException e) {
 			return null;
 		}
 	}
-	public static char[] toAnchor(char[] methodSignature, char[] methodName, boolean isVargArgs) {
+	public static char[] toAnchor(int startingIndex, char[] methodSignature, char[] methodName, boolean isVargArgs) {
 		int firstParen = CharOperation.indexOf(Signature.C_PARAM_START, methodSignature);
 		if (firstParen == -1) {
 			throw new IllegalArgumentException();
@@ -3251,7 +3251,7 @@ public class Util {
 		// parameters
 		buffer.append('(');
 		char[][] pts = Signature.getParameterTypes(methodSignature);
-		for (int i = 0, max = pts.length; i < max; i++) {
+		for (int i = startingIndex, max = pts.length; i < max; i++) {
 			if (i == max - 1) {
 				appendTypeSignatureForAnchor(pts[i], 0 , buffer, isVargArgs);
 			} else {
