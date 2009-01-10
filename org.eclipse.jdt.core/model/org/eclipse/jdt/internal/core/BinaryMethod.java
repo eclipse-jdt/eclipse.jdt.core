@@ -594,11 +594,13 @@ private String extractJavadoc(IType declaringType, String contents) throws JavaM
 	if (declaringTypeIsMember && !Flags.isStatic(declaringType.getFlags())) {
 		int indexOfOpeningParen = anchor.indexOf('(');
 		if (indexOfOpeningParen == -1) return null;
-		int index = indexOfOpeningParen;
+		int index = indexOfOpeningParen +1;
 		indexOfOpeningParen++;
 		int indexOfComma = anchor.indexOf(',', index);
 		if (indexOfComma != -1) {
 			index = indexOfComma + 2;
+		} else {
+			index = anchor.indexOf(')', index);
 		}
 		anchor = anchor.substring(0, indexOfOpeningParen) + anchor.substring(index);
 	}
