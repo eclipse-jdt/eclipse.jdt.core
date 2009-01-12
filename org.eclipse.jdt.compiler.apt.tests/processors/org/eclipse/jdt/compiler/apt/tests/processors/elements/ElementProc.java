@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2009 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -393,6 +393,21 @@ public class ElementProc extends BaseProcessor {
 			reportError("Return type of A.methodIAString() does not equal java.lang.String");
 			return false;
 		}
+		List<ExecutableElement> methodsD = ElementFilter.methodsIn(_elementString.getEnclosedElements());
+		for (ExecutableElement method : methodsD) {
+			List<? extends VariableElement> params = method.getParameters();
+			for (VariableElement param : params) {
+				Element enclosingElement = param.getEnclosingElement();
+				if (enclosingElement == null) {
+					reportError("Enclosing element of a parameter in one of the java.lang.String methods is null");
+					return false;
+				}
+				if (!enclosingElement.equals(method)) {
+					reportError("Enclosing element of a parameter in one of the java.lang.String methods is not the method itself");
+					return false;
+				}
+			}
+		}
 		List<? extends VariableElement> paramsMethodIAString = methodIAString.getParameters();
 		VariableElement int1 = null;
 		for (VariableElement param : paramsMethodIAString) {
@@ -528,6 +543,11 @@ public class ElementProc extends BaseProcessor {
 		TypeMirror param1Type = param1.asType();
 		if (null == param1Type || param1Type.getKind() != TypeKind.DECLARED) {
 			reportError("First parameter of D.methodDvoid() is not a declared type");
+			return false;
+		}
+		Element enclosingElement = param1.getEnclosingElement();
+		if (enclosingElement == null || enclosingElement.getKind() != ElementKind.METHOD) {
+			reportError("Enclosing element of first parameter of D.methodDvoid() is null or not a method");
 			return false;
 		}
 		if (!"targets.model.pb.D.DEnum".equals(param1Type.toString())) {

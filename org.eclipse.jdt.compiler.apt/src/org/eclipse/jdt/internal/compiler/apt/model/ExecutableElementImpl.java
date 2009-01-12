@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 IBM Corporation and others.
+ * Copyright (c) 2005, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,7 +34,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationHolder;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryLocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.AptBinaryLocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -163,11 +163,12 @@ public class ExecutableElementImpl extends ElementImpl implements
 						StringBuilder builder = new StringBuilder("arg");//$NON-NLS-1$
 						builder.append(i - 2);
 						VariableElement param = new VariableElementImpl(_env,
-								new BinaryLocalVariableBinding(
+								new AptBinaryLocalVariableBinding(
 										String.valueOf(builder).toCharArray(),
 										typeBinding,
 										0,
-										null));
+										null,
+										binding));
 						params.add(param);
 					}
 				} else {
@@ -176,11 +177,12 @@ public class ExecutableElementImpl extends ElementImpl implements
 						StringBuilder builder = new StringBuilder("arg");//$NON-NLS-1$
 						builder.append(i);
 						VariableElement param = new VariableElementImpl(_env,
-								new BinaryLocalVariableBinding(
+								new AptBinaryLocalVariableBinding(
 										String.valueOf(builder).toCharArray(),
 										typeBinding,
 										0,
-										parameterAnnotationBindings != null ? parameterAnnotationBindings[i] : null));
+										parameterAnnotationBindings != null ? parameterAnnotationBindings[i] : null,
+										binding));
 						params.add(param);
 						i++;
 					}

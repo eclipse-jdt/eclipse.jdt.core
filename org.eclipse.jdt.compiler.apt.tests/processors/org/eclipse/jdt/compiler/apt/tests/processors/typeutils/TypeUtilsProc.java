@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2009 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
+import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
@@ -160,7 +161,11 @@ public class TypeUtilsProc extends BaseProcessor
 			reportError("isAssignable(float, java.lang.Integer) should be false");
 			return false;
 		}
-		
+		TypeMirror erasureOfInt = _typeUtils.erasure(intType);
+		if (erasureOfInt != intType) {
+			reportError("erasure of a primitive type is the type itself");
+			return false;
+		}
 		return true;
 	}
 	
@@ -196,6 +201,39 @@ public class TypeUtilsProc extends BaseProcessor
 		TypeMirror typeDSuper = elementD.getSuperclass();
 		if (typeDSuper == null || !_typeUtils.isSameType(typeAB, typeDSuper)) {
 			reportError("Type of AB and superclass of D are not same type");
+			return false;
+		}
+		TypeMirror typeD = elementD.asType();
+		if (!_typeUtils.isSubtype(typeD, typeAB)) {
+			reportError("Type of D is not a subtype of type AB");
+			return false;
+		}
+		ArrayType arrayOfTypeD = _typeUtils.getArrayType(typeD);
+		ArrayType arrayOfTypeAB = _typeUtils.getArrayType(typeAB);
+		if (!_typeUtils.isSubtype(arrayOfTypeD, arrayOfTypeAB)) {
+			reportError("Array of type D is not a subtype of array of type AB");
+			return false;
+		}
+		PrimitiveType typeInt = _typeUtils.getPrimitiveType(TypeKind.INT);
+		ArrayType arrayOfInt = _typeUtils.getArrayType(typeInt);
+		ArrayType arrayOfIntInt = _typeUtils.getArrayType(arrayOfInt);
+		TypeElement objectTypeElement = _elementUtils.getTypeElement("java.lang.Object");
+		TypeMirror javaLangObject = objectTypeElement.asType();
+		if (!_typeUtils.isSubtype(arrayOfIntInt, javaLangObject)) {
+			reportError("int[][] is not a subtype of Object");
+			return false;
+		}
+		TypeElement stringTypeElement = _elementUtils.getTypeElement("java.lang.String");
+		TypeMirror javaLangString = stringTypeElement.asType();
+		ArrayType arrayOfString = _typeUtils.getArrayType(javaLangString);
+		ArrayType arrayOfObject = _typeUtils.getArrayType(javaLangObject);
+		ArrayType arrayOfObjectObject = _typeUtils.getArrayType(arrayOfObject);
+		if (_typeUtils.isSubtype(arrayOfString, arrayOfObjectObject)) {
+			reportError("String[] is a subtype of Object[][]");
+			return false;
+		}
+		if (!_typeUtils.isSubtype(arrayOfString, arrayOfObject)) {
+			reportError("String[] is not a subtype of Object[]");
 			return false;
 		}
 		return true;

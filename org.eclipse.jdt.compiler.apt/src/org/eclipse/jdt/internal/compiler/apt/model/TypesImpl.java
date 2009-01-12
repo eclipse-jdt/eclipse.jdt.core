@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2009 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ import javax.lang.model.util.Types;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -199,8 +200,13 @@ public class TypesImpl implements Types {
         if (binding instanceof ReferenceBinding) {
             return _env.getFactory().newTypeMirror(((ReferenceBinding) binding).erasure());
         }
-        // TODO should we return null or NoType ?
-        throw new UnsupportedOperationException("NYI: TypesImpl.erasure(...) when not a reference binding"); //$NON-NLS-1$
+        if (binding instanceof ArrayBinding) {
+        	TypeBinding typeBinding = (TypeBinding) binding;
+            return new ArrayTypeImpl(_env, this._env.getLookupEnvironment().createArrayType(
+                    typeBinding.leafComponentType().erasure(),
+                    typeBinding.dimensions()));
+        }
+        return t;
     }
 
     /* (non-Javadoc)
@@ -431,8 +437,7 @@ public class TypesImpl implements Types {
                 return ((TypeBinding)b1).isCompatibleWith((TypeBinding)b2);
             }
         }
-        // TODO: array types and reference types
-        throw new UnsupportedOperationException("NYI: TypesImpl.isSubtype(TypeMirror, TypeMirror) for array and reference types"); //$NON-NLS-1$
+        return ((TypeBinding)b1).isCompatibleWith((TypeBinding)b2);
     }
 
     @Override
