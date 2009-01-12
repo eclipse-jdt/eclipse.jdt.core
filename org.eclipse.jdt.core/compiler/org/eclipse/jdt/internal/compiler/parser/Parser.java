@@ -2831,12 +2831,7 @@ protected void consumeEmptyInternalCompilationUnit() {
 	// nothing to do by default
 	if (this.compilationUnit.isPackageInfo()) {
 		this.compilationUnit.types = new TypeDeclaration[1];
-		// create a fake interface declaration
-		TypeDeclaration declaration = new TypeDeclaration(this.compilationUnit.compilationResult);
-		declaration.name = TypeConstants.PACKAGE_INFO_NAME;
-		declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
-		this.compilationUnit.types[0] = declaration;
-		declaration.javadoc = this.compilationUnit.javadoc;
+		this.compilationUnit.createPackageInfoType();
 	}
 }
 protected void consumeEmptyMemberValueArrayInitializer() {
@@ -4040,12 +4035,7 @@ protected void consumeInternalCompilationUnit() {
 	// InternalCompilationUnit ::= ImportDeclarations ReduceImports
 	if (this.compilationUnit.isPackageInfo()) {
 		this.compilationUnit.types = new TypeDeclaration[1];
-		// create a fake interface declaration
-		TypeDeclaration declaration = new TypeDeclaration(this.compilationUnit.compilationResult);
-		declaration.name = TypeConstants.PACKAGE_INFO_NAME;
-		declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
-		this.compilationUnit.types[0] = declaration;
-		declaration.javadoc = this.compilationUnit.javadoc;
+		this.compilationUnit.createPackageInfoType();
 	}
 }
 protected void consumeInternalCompilationUnitWithTypes() {
@@ -4060,12 +4050,7 @@ protected void consumeInternalCompilationUnitWithTypes() {
 			this.compilationUnit.types = new TypeDeclaration[length + 1];
 			this.astPtr -= length;
 			System.arraycopy(this.astStack, this.astPtr + 1, this.compilationUnit.types, 1, length);
-			// create a fake interface declaration
-			TypeDeclaration declaration = new TypeDeclaration(this.compilationUnit.compilationResult);
-			declaration.name = TypeConstants.PACKAGE_INFO_NAME;
-			declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
-			this.compilationUnit.types[0] = declaration;
-			declaration.javadoc = this.compilationUnit.javadoc;
+			this.compilationUnit.createPackageInfoType();
 		} else {
 			this.compilationUnit.types = new TypeDeclaration[length];
 			this.astPtr -= length;

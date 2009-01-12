@@ -12,7 +12,9 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /**
@@ -239,5 +241,28 @@ public class AnnotationDependencyTests extends BuilderTests {
 		// verify that B was not recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
-	
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=214948
+	public void testPackageInfoDependency() throws Exception {
+		String notypes = "@question.SimpleAnnotation(\"foo\") package notypes;";
+		String question = "package question;";
+		String deprecatedQuestion = "@Deprecated package question;";
+		String SimpleAnnotation = "package question; " + "\n"
+			+ "public @interface SimpleAnnotation { String value(); }";
+
+		IPath notypesPath = env.addClass( this.srcRoot, "notypes", "package-info", notypes );
+		env.addClass( this.srcRoot, "question", "package-info", question );
+		env.addClass( this.srcRoot, "question", "SimpleAnnotation", SimpleAnnotation );
+
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+
+		env.addClass( this.srcRoot, "question", "package-info", deprecatedQuestion );
+		incrementalBuild( this.projectPath );
+		expectingOnlySpecificProblemFor(notypesPath, new Problem("", "The type SimpleAnnotation is deprecated", notypesPath, 1, 26, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$
+
+		env.addClass( this.srcRoot, "question", "package-info", question );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+	}	
 }

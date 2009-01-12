@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
@@ -178,6 +179,14 @@ public void checkUnusedImports(){
 
 public CompilationResult compilationResult() {
 	return this.compilationResult;
+}
+
+public void createPackageInfoType() {
+	TypeDeclaration declaration = new TypeDeclaration(this.compilationResult);
+	declaration.name = TypeConstants.PACKAGE_INFO_NAME;
+	declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
+	declaration.javadoc = this.javadoc;
+	this.types[0] = declaration; // Assumes the first slot is meant for this type
 }
 
 /*
@@ -493,10 +502,6 @@ public void resolve() {
 			syntheticTypeDeclaration.javadoc = new Javadoc(syntheticTypeDeclaration.declarationSourceStart, syntheticTypeDeclaration.declarationSourceStart);
 		}
 		syntheticTypeDeclaration.resolve(this.scope);
-		// resolve annotations if any, skip this step if we don't have a valid scope due to an earlier error. (bug 252555)
-		if (this.currentPackage!= null && this.currentPackage.annotations != null && syntheticTypeDeclaration.staticInitializerScope != null) {
-			resolveAnnotations(syntheticTypeDeclaration.staticInitializerScope, this.currentPackage.annotations, this.scope.fPackage);
-		}
 		/*
 		 * resolve javadoc package if any, skip this step if we don't have a valid scope due to an earlier error (bug 252555)
 		 * we do it now as the javadoc in the fake type won't be resolved. The peculiar usage of MethodScope to resolve the

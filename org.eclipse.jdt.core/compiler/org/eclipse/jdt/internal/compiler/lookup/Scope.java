@@ -2937,16 +2937,15 @@ public abstract class Scope {
 					MethodBinding context = ((AbstractMethodDeclaration)methodScope.referenceContext).binding;
 					if (context != null && context.isViewedAsDeprecated())
 						return true;
-				} else {
-					SourceTypeBinding type = ((BlockScope)this).referenceType().binding;
+				} else if (methodScope.initializedField != null && methodScope.initializedField.isViewedAsDeprecated()) {
 					// inside field declaration ? check field modifier to see if deprecated
-					if (methodScope.initializedField != null && methodScope.initializedField.isViewedAsDeprecated())
+					return true;
+				}
+				SourceTypeBinding declaringType = ((BlockScope)this).referenceType().binding;
+				if (declaringType != null) {
+					declaringType.initializeDeprecatedAnnotationTagBits(); // may not have been resolved until then
+					if (declaringType.isViewedAsDeprecated())
 						return true;
-					if (type != null) {
-						type.initializeDeprecatedAnnotationTagBits(); // may not have been resolved until then
-						if (type.isViewedAsDeprecated())
-							return true;
-					}
 				}
 				break;
 			case Scope.CLASS_SCOPE :

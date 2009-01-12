@@ -94,10 +94,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 			// resolve package annotations now if this is "package-info.java".
 			if (this.referenceContext.types == null || this.referenceContext.types.length == 0) {
 				this.referenceContext.types = new TypeDeclaration[1];
-				TypeDeclaration declaration = new TypeDeclaration(this.referenceContext.compilationResult);
-				this.referenceContext.types[0] = declaration;
-				declaration.name = TypeConstants.PACKAGE_INFO_NAME;
-				declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
+				this.referenceContext.createPackageInfoType();
 				firstIsSynthetic = true;
 			}
 			// ensure the package annotations are copied over before resolution

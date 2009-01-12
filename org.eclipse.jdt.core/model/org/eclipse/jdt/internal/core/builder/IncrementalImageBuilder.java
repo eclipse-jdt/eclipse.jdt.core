@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -224,12 +225,19 @@ protected void addDependentsOf(IPath path, boolean isStructuralChange) {
 }
 
 protected void addDependentsOf(IPath path, boolean isStructuralChange, StringSet qualifiedNames, StringSet simpleNames, StringSet rootNames) {
+	path = path.setDevice(null);
+	if (isStructuralChange) {
+		String last = path.lastSegment();
+		if (last.length() == TypeConstants.PACKAGE_INFO_NAME.length)
+			if (CharOperation.equals(last.toCharArray(), TypeConstants.PACKAGE_INFO_NAME))
+				path = path.removeLastSegments(1); // the package-info file has changed so blame the package itself
+	}
+
 	if (isStructuralChange && !this.hasStructuralChanges) {
 		this.newState.tagAsStructurallyChanged();
 		this.hasStructuralChanges = true;
 	}
 	// the qualifiedStrings are of the form 'p1/p2' & the simpleStrings are just 'X'
-	path = path.setDevice(null);
 	rootNames.add(path.segment(0));
 	String packageName = path.removeLastSegments(1).toString();
 	boolean wasNew = qualifiedNames.add(packageName);
