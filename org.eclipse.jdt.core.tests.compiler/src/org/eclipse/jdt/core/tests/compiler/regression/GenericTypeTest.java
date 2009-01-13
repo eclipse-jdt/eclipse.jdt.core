@@ -48855,4 +48855,20 @@ public void test1439() {
 			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=260567
+public void test1440() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.*;\n" + 
+				"interface GenricInterface<T> {}\n" + 
+				"class NewMapType<U, V, R extends GenricInterface<U>> extends HashMap<R<U>, V> {}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	class NewMapType<U, V, R extends GenricInterface<U>> extends HashMap<R<U>, V> {}\n" + 
+			"	                                                                     ^\n" + 
+			"The type R is not generic; it cannot be parameterized with arguments <U>\n" + 
+			"----------\n");
+}
 }
