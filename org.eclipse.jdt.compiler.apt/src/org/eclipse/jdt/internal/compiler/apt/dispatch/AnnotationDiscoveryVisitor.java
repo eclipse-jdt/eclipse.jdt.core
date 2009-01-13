@@ -57,9 +57,9 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(Argument argument, BlockScope scope) {
 		Annotation[] annotations = argument.annotations;
-		TypeDeclaration typeDeclaration = scope.referenceType();
 		MethodBinding binding = ((AbstractMethodDeclaration) scope.referenceContext()).binding;
 		if (binding != null) {
+			TypeDeclaration typeDeclaration = scope.referenceType();
 			typeDeclaration.binding.resolveTypesFor(binding);
 			if (argument.binding != null) {
 				argument.binding = new AptSourceLocalVariableBinding(argument.binding, binding);
