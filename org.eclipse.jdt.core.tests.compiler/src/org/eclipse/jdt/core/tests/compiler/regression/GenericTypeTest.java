@@ -48871,4 +48871,22 @@ public void test1440() {
 			"The type R is not generic; it cannot be parameterized with arguments <U>\n" + 
 			"----------\n");
 }
+public void test1441() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X<T> {\n" + 
+				"	void bar(T t) {}\n" + 
+				"	void foo(X<? extends String> x1, X<? extends Integer> x2) {\n" + 
+				"		(x1 != null ? x1 : x2).bar(new Object());\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	(x1 != null ? x1 : x2).bar(new Object());\n" + 
+			"	                       ^^^\n" + 
+			"The method bar(capture#4-of ? extends Object&Serializable&Comparable<? extends Object&Serializable&Comparable<?>>) in the type X<capture#4-of ? extends Object&Serializable&Comparable<? extends Object&Serializable&Comparable<?>>> is not applicable for the arguments (Object)\n" + 
+			"----------\n");
+}
 }
