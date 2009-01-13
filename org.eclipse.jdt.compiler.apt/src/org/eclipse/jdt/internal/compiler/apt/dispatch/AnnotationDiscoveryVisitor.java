@@ -59,9 +59,11 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		Annotation[] annotations = argument.annotations;
 		TypeDeclaration typeDeclaration = scope.referenceType();
 		MethodBinding binding = ((AbstractMethodDeclaration) scope.referenceContext()).binding;
-		typeDeclaration.binding.resolveTypesFor(binding);
-		if (argument.binding != null) {
-			argument.binding = new AptSourceLocalVariableBinding(argument.binding, binding);
+		if (binding != null) {
+			typeDeclaration.binding.resolveTypesFor(binding);
+			if (argument.binding != null) {
+				argument.binding = new AptSourceLocalVariableBinding(argument.binding, binding);
+			}
 		}
 		if (annotations != null) {
 			this.resolveAnnotations(
