@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1966,4 +1966,112 @@ public void testBug239941() throws JavaModelException {
 		"	public native Object[] getSigners();\n" + 
 		"}\n"
 	);
-}}
+}
+
+/**
+ * @bug 260274: [formatter] * character is removed while formatting block comments
+ * @test Ensure that the comment formatter keep '*' characters while formatting block comments
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260274"
+ */
+public void testBug260274() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/*\n" + 
+		" * The formatter should NOT remove * character\n" + 
+		" * in block comments!\n" + 
+		" */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * The formatter should NOT remove * character in block comments!\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260274b() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/*\n" + 
+		" * The formatter should keep \'*\' characters\n" + 
+		" * in block comments!\n" + 
+		" */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * The formatter should keep \'*\' characters in block comments!\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260274c() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"    /**\n" + 
+		"	 * @see #spacing(Point)\n" + 
+		"	 * * @see #spacing(int, int)\n" + 
+		"	 */\n" + 
+		"    public void foo() {\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/**\n" + 
+		"	 * @see #spacing(Point) * @see #spacing(int, int)\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 260276: [formatter] Inconsistent formatting of one-line block comment
+ * @test Ensure that the comment formatter has a consistent behavior while formatting one-line block comment
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260276"
+ */
+public void testBug260276() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/* a\n" + 
+		"comment */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * a comment\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260276b() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/* a\n" + 
+		" comment */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * a comment\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+public void testBug260276c() throws JavaModelException {
+	String source = 
+		"class X {\n" + 
+		"/* a\n" + 
+		" * comment */\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	/*\n" + 
+		"	 * a comment\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+
+}

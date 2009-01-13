@@ -1350,7 +1350,7 @@ public class Scribe implements IJavaDocTagConstants {
 					} else {
 						previousToken = token;
 					}
-					lineNumber = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+					lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 					if (lineNumber > scannerLine) {
 						hasMultiLines = true;
 						newLine = true;
@@ -1359,7 +1359,7 @@ public class Scribe implements IJavaDocTagConstants {
 					continue;
 				case TerminalTokens.TokenNameMULTIPLY:
 					previousToken = token;
-					lineNumber = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+					lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 					if (this.scanner.currentCharacter == '/') {
 						editEnd = this.scanner.startPosition - 1;
 						// Add remaining buffered tokens
@@ -1378,14 +1378,18 @@ public class Scribe implements IJavaDocTagConstants {
 				    	this.scanner.getNextChar(); // reach the end of scanner
 				    	continue;
 					}
-					scannerLine = lineNumber;
-					continue;
+					if (newLine) {
+						scannerLine = lineNumber;
+						newLine = false;
+						continue;
+					}
+					break;
 				case TerminalTokens.TokenNameMULTIPLY_EQUAL:
 					if (newLine) {
 						this.scanner.resetTo(this.scanner.startPosition, currentTokenEndPosition-1);
 						this.scanner.getNextChar(); // consume the multiply
 						previousToken = TerminalTokens.TokenNameMULTIPLY;
-						scannerLine = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+						scannerLine = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 						continue;
 					}
 				case TerminalTokens.TokenNameMINUS:
@@ -1406,7 +1410,7 @@ public class Scribe implements IJavaDocTagConstants {
 			// Look at gap and insert corresponding lines if necessary
 			int linesGap;
 			int max;
-			lineNumber = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+			lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 			if (lastTextLine == -1) {
 				linesGap = lineNumber - firstLine;
 				max = 0;
