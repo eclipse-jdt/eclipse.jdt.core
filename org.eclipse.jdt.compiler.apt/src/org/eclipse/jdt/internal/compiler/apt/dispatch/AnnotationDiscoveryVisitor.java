@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2008 IBM Corporation and others.
+ * Copyright (c) 2006, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.AptSourceLocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -56,9 +57,15 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(Argument argument, BlockScope scope) {
 		Annotation[] annotations = argument.annotations;
-		if (annotations != null) {
+		MethodBinding binding = ((AbstractMethodDeclaration) scope.referenceContext()).binding;
+		if (binding != null) {
 			TypeDeclaration typeDeclaration = scope.referenceType();
-			typeDeclaration.binding.resolveTypesFor(((AbstractMethodDeclaration) scope.referenceContext()).binding);
+			typeDeclaration.binding.resolveTypesFor(binding);
+			if (argument.binding != null) {
+				argument.binding = new AptSourceLocalVariableBinding(argument.binding, binding);
+			}
+		}
+		if (annotations != null) {
 			this.resolveAnnotations(
 					scope,
 					annotations,
@@ -72,7 +79,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		Annotation[] annotations = constructorDeclaration.annotations;
 		if (annotations != null) {
 			MethodBinding constructorBinding = constructorDeclaration.binding;
-			((SourceTypeBinding) constructorBinding.declaringClass).resolveTypesFor(constructorBinding);					
+			((SourceTypeBinding) constructorBinding.declaringClass).resolveTypesFor(constructorBinding);
 			this.resolveAnnotations(
 					constructorDeclaration.scope,
 					annotations,
@@ -104,7 +111,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		Annotation[] annotations = methodDeclaration.annotations;
 		if (annotations != null) {
 			MethodBinding methodBinding = methodDeclaration.binding;
-			((SourceTypeBinding) methodBinding.declaringClass).resolveTypesFor(methodBinding);					
+			((SourceTypeBinding) methodBinding.declaringClass).resolveTypesFor(methodBinding);
 			this.resolveAnnotations(
 					methodDeclaration.scope,
 					annotations,

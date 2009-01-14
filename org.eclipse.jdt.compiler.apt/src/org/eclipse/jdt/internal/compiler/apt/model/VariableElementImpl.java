@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007 2009 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,8 +28,9 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.AptBinaryLocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.AptSourceLocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -99,9 +100,10 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		if (_binding instanceof FieldBinding) {
 			return _env.getFactory().newElement(((FieldBinding)_binding).declaringClass);
 		}
-		else if (_binding instanceof LocalVariableBinding){
-			//TODO: return enclosing method binding
-			throw new UnsupportedOperationException("NYI: VariableElementImpl.getEnclosingElement()"); //$NON-NLS-1$
+		else if (_binding instanceof AptSourceLocalVariableBinding){
+			return _env.getFactory().newElement(((AptSourceLocalVariableBinding) _binding).methodBinding);
+		} else if (_binding instanceof AptBinaryLocalVariableBinding) {
+			return _env.getFactory().newElement(((AptBinaryLocalVariableBinding) _binding).methodBinding);
 		}
 		return null;
 	}
