@@ -3428,4 +3428,110 @@ public void testBug260276c() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 260798: [formatter] Strange behavior of never join lines
+ * @test Ensure that the formatter indents lines correctly when never join lines pref is activated
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260798"
+ */
+public void testBug260798() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source = 
+		"class X {\n" + 
+		"    @Override\n" + 
+		"    public void addSelectionListener(SelectionListener listener) {\n" + 
+		"        super.addSelectionListener(new SelectionListener() {\n" + 
+		"            @Override\n" + 
+		"            public void widgetSelected(SelectionEvent e) {\n" + 
+		"            }\n" + 
+		"\n" + 
+		"            @Override\n" + 
+		"            public void widgetDefaultSelected(SelectionEvent e) {\n" + 
+		"            };\n" + 
+		"        });\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"	@Override\n" + 
+		"	public void addSelectionListener(SelectionListener listener) {\n" + 
+		"		super.addSelectionListener(new SelectionListener() {\n" + 
+		"			@Override\n" + 
+		"			public void widgetSelected(SelectionEvent e) {\n" + 
+		"			}\n" + 
+		"\n" + 
+		"			@Override\n" + 
+		"			public void widgetDefaultSelected(SelectionEvent e) {\n" + 
+		"			};\n" + 
+		"		});\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug260798b() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source = 
+		"class X {\n" + 
+		"\n" + 
+		"    void foo() {\n" + 
+		"        this.bar(new Object() {\n" + 
+		"            @Override\n" + 
+		"            public String toString() {\n" + 
+		"                return \"\";\n" + 
+		"            }\n" + 
+		"        });\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		this.bar(new Object() {\n" + 
+		"			@Override\n" + 
+		"			public String toString() {\n" + 
+		"				return \"\";\n" + 
+		"			}\n" + 
+		"		});\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug260798c() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source = 
+		"class X {\n" + 
+		"\n" + 
+		"{\n" + 
+		"    this.bar(new Object() {\n" + 
+		"        @Override\n" + 
+		"        public String toString() {\n" + 
+		"            return \"\";\n" + 
+		"        }\n" + 
+		"    });\n" + 
+		"}\n" + 
+		"    void bar(Object object) {\n" + 
+		"        \n" + 
+		"    }\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"class X {\n" + 
+		"\n" + 
+		"	{\n" + 
+		"		this.bar(new Object() {\n" + 
+		"			@Override\n" + 
+		"			public String toString() {\n" + 
+		"				return \"\";\n" + 
+		"			}\n" + 
+		"		});\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	void bar(Object object) {\n" + 
+		"\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+
 }

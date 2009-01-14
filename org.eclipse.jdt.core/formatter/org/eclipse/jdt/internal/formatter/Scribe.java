@@ -936,13 +936,15 @@ public class Scribe implements IJavaDocTagConstants {
 		if (count == 0) {
 			// preserve line breaks in wrapping if specified
 			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=198074
-			if (this.currentAlignment != null && !this.formatter.preferences.join_wrapped_lines) {
-				int savedIndentation = this.indentationLevel;
-				StringBuffer buffer = new StringBuffer(getNewLine());
-				this.indentationLevel = this.currentAlignment.breakIndentationLevel;
-				printIndentationIfNecessary(buffer);
-				this.indentationLevel = savedIndentation;
-				return buffer.toString();
+			if (this.currentAlignment != null && this.memberAlignment != null && !this.formatter.preferences.join_wrapped_lines) {
+				if (this.memberAlignment.depth() <= this.currentAlignment.depth()) {
+					int savedIndentation = this.indentationLevel;
+					StringBuffer buffer = new StringBuffer(getNewLine());
+					this.indentationLevel = this.currentAlignment.breakIndentationLevel;
+					printIndentationIfNecessary(buffer);
+					this.indentationLevel = savedIndentation;
+					return buffer.toString();
+				}
 			}
 			return Util.EMPTY_STRING;
 		}

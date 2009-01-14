@@ -222,6 +222,16 @@ public class Alignment {
 		}
 	}
 
+	public int depth() {
+		int depth = 0;
+		Alignment current = this.enclosing;
+		while (current != null) {
+			depth++;
+			current = current.enclosing;
+		}
+		return depth;
+	}
+
 	public boolean couldBreak(){
 		int i;
 		switch(this.mode & SPLIT_MASK){
