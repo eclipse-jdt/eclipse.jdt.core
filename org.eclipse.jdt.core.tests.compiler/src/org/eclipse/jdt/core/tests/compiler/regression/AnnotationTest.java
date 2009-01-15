@@ -8735,4 +8735,26 @@ public void test265() {
 		System.err.print(requestor.problemLog); // problem log empty if no problems
 	compiler = null;
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220311
+public void test266() {
+	this.runNegativeTest(
+		new String[] {
+			"p/package-info.java",
+			"@Deprecated\n" + 
+			"@Deprecated\n" + 
+			"package p;"
+		},
+		"----------\n" + 
+		"1. ERROR in p\\package-info.java (at line 1)\n" + 
+		"	@Deprecated\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Duplicate annotation @Deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\package-info.java (at line 2)\n" + 
+		"	@Deprecated\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Duplicate annotation @Deprecated\n" + 
+		"----------\n"
+	);
+}
 }
