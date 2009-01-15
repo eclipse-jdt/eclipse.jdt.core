@@ -2473,7 +2473,7 @@ public class JavaProject
 	 * Resolve the given raw classpath.
 	 */
 	public IClasspathEntry[] resolveClasspath(IClasspathEntry[] rawClasspath) throws JavaModelException {
-		return resolveClasspath(rawClasspath, false/*don't use previous session*/).resolvedClasspath;
+		return resolveClasspath(rawClasspath, false/*don't use previous session*/, true/*resolve chained libraries*/).resolvedClasspath;
 	}
 	
 	class ResolvedClasspath {
@@ -2483,7 +2483,7 @@ public class JavaProject
 		Map rootPathToResolvedEntries = new HashMap();
 	}
 	
-	private ResolvedClasspath resolveClasspath(IClasspathEntry[] rawClasspath, boolean usePreviousSession) throws JavaModelException {
+	public ResolvedClasspath resolveClasspath(IClasspathEntry[] rawClasspath, boolean usePreviousSession, boolean resolveChainedLibraries) throws JavaModelException {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 		ResolvedClasspath result = new ResolvedClasspath();
@@ -2509,7 +2509,7 @@ public class JavaProject
 					if (resolvedEntry == null) {
 						result.unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, this, rawEntry.getPath());
 					} else {
-						if (resolvedEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+						if (resolveChainedLibraries && resolvedEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 							// resolve Class-Path: in manifest
 							ClasspathEntry[] extraEntries = ((ClasspathEntry) resolvedEntry).resolvedChainedLibraries();
 							for (int j = 0, length2 = extraEntries.length; j < length2; j++) {
@@ -2551,10 +2551,12 @@ public class JavaProject
 							// resolve ".." in library path
 							cEntry = cEntry.resolvedDotDot();
 							
-							// resolve Class-Path: in manifest
-							ClasspathEntry[] extraEntries = cEntry.resolvedChainedLibraries();
-							for (int k = 0, length2 = extraEntries.length; k < length2; k++) {
-								addToResult(rawEntry, extraEntries[k], result, resolvedEntries, externalFoldersManager);
+							if (resolveChainedLibraries) {
+								// resolve Class-Path: in manifest
+								ClasspathEntry[] extraEntries = cEntry.resolvedChainedLibraries();
+								for (int k = 0, length2 = extraEntries.length; k < length2; k++) {
+									addToResult(rawEntry, extraEntries[k], result, resolvedEntries, externalFoldersManager);
+								}
 							}
 						}
 						addToResult(rawEntry, cEntry, result, resolvedEntries, externalFoldersManager);
@@ -2565,10 +2567,12 @@ public class JavaProject
 					// resolve ".." in library path
 					resolvedEntry = ((ClasspathEntry) rawEntry).resolvedDotDot();
 					
-					// resolve Class-Path: in manifest
-					ClasspathEntry[] extraEntries = ((ClasspathEntry) resolvedEntry).resolvedChainedLibraries();
-					for (int k = 0, length2 = extraEntries.length; k < length2; k++) {
-						addToResult(rawEntry, extraEntries[k], result, resolvedEntries, externalFoldersManager);
+					if (resolveChainedLibraries) {
+						// resolve Class-Path: in manifest
+						ClasspathEntry[] extraEntries = ((ClasspathEntry) resolvedEntry).resolvedChainedLibraries();
+						for (int k = 0, length2 = extraEntries.length; k < length2; k++) {
+							addToResult(rawEntry, extraEntries[k], result, resolvedEntries, externalFoldersManager);
+						}
 					}
 
 					addToResult(rawEntry, resolvedEntry, result, resolvedEntries, externalFoldersManager);
@@ -2618,7 +2622,7 @@ public class JavaProject
 				timeStamp = perProjectInfo.rawTimeStamp;
 			}
 			
-			ResolvedClasspath result = resolveClasspath(rawClasspath, usePreviousSession);
+			ResolvedClasspath result = resolveClasspath(rawClasspath, usePreviousSession, true/*resolve chained libraries*/);
 
 			if (CP_RESOLUTION_BP_LISTENERS != null)
 				breakpoint(2, this);

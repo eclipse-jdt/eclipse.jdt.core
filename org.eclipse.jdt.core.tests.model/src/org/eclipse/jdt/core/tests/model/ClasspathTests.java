@@ -3689,6 +3689,42 @@ public void testExtraLibraries16() throws Exception {
 	}
 }
 /*
+ * Ensures that nested libraries in the Class-Path: clause of a jar doesn't create a marker.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=259685 )
+ */
+public void testExtraLibraries17() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addExternalLibrary(p, getExternalResourcePath("lib.jar"), new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib/ \n",
+			},
+			JavaCore.VERSION_1_4);
+		waitForAutoBuild();
+		
+		org.eclipse.jdt.core.tests.util.Util.createJar(
+			null/*no classes*/,
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib/ lib/sublib/ \n",
+			},
+			getExternalResourcePath("lib.jar"),
+			null/*no classpath*/,
+			JavaCore.VERSION_1_4);
+		refreshExternalArchives(p);
+		assertMarkers(
+			"Unexpected markers",
+			"",
+			p);
+	} finally {
+		deleteProject("P");
+		deleteExternalResource("lib.jar");
+	}
+}
+/*
  * Ensures that a marker is removed if adding an internal jar that is on the classpath in another project
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=213723 )
  */

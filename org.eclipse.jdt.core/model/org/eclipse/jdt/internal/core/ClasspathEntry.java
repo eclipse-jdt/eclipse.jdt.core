@@ -1513,7 +1513,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		// retrieve resolved classpath
 		IClasspathEntry[] classpath;
 		try {
-			classpath = ((JavaProject)javaProject).resolveClasspath(rawClasspath);
+			// don't resolve chained libraries: see https://bugs.eclipse.org/bugs/show_bug.cgi?id=259685
+			classpath = ((JavaProject)javaProject).resolveClasspath(rawClasspath, false/*don't use previous session*/, false/*don't resolve chained libraries*/).resolvedClasspath;
 		} catch(JavaModelException e){
 			return e.getJavaModelStatus();
 		}
