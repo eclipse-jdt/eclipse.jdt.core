@@ -47,6 +47,130 @@ Eclipse SDK 3.5M5 - %date% - 3.5 MILESTONE 5
 <br>Project org.eclipse.jdt.core v_934
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_934">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added new API to propose constructor completion<br>
+When "new ArrayLis" is completed now constructors are proposed instead of type references.
+This new completion kind is <code>CONSTRUCTOR_INVOCATION</code> and this proposal has always a 
+<code>TYPE_REF</code> required proposal to describe the type of the constructor.
+The <code>CONSTRUCTOR_INVOCATION</code> has "()" as completion string and <code>TYPE_REF</code> has
+"java.util.ArrayList" as completion string.<br>
+There is also a similar new API to complete anonymous type constructor: <code>ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION</code><br>
+
+
+<pre>
+
+	/**
+	 * Completion is a reference to a constructor.
+	 * This kind of completion might occur in a context like
+	 * &lt;code&gt;"new Lis"&lt;/code&gt; and complete it to
+	 * &lt;code&gt;"new List();"&lt;/code&gt; if List is a class that is not abstract.
+	 * &lt;p&gt;
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the constructor that is referenced
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getFlags()} -
+	 * the modifiers flags of the constructor that is referenced
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getName()} -
+	 * the simple name of the constructor that is referenced
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getSignature()} -
+	 * the method signature of the constructor that is referenced
+	 * &lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * This kind of proposal could require a long computation, so they are computed only if completion operation is called with a {@link IProgressMonitor}
+	 * (eg. {@link ICodeAssist#codeComplete(int, CompletionRequestor, IProgressMonitor)}).&lt;br&gt;
+	 * This kind of proposal is always is only proposals with a {@link #TYPE_REF} required proposal, so this kind of required proposal must be allowed:
+	 * &lt;code&gt;requestor.setAllowsRequiredProposals(CONSTRUCTOR_INVOCATION, TYPE_REF, true)&lt;/code&gt;.
+	 * &lt;/p&gt;
+	 *
+	 * @see #getKind()
+	 * @see CompletionRequestor#setAllowsRequiredProposals(int, int, boolean)
+	 * 
+	 * @since 3.5
+	 */
+	public static final int CONSTRUCTOR_INVOCATION = 26;
+	
+	/**
+	 * Completion is a reference of a constructor of an anonymous class.
+	 * This kind of completion might occur in a context like
+	 * &lt;code&gt;"new Lis^;"&lt;/code&gt; and complete it to
+	 * &lt;code&gt;"new List() {}"&lt;/code&gt; if List is an interface or abstract class.
+	 * &lt;p&gt;
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;{@link #getDeclarationSignature()} -
+	 * the type signature of the type being implemented or subclassed
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getDeclarationKey()} -
+	 * the type unique key of the type being implemented or subclassed
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getSignature()} -
+	 * the method signature of the constructor that is referenced
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getKey()} -
+	 * the method unique key of the constructor that is referenced
+	 * if the declaring type is not an interface
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getFlags()} -
+	 * the modifiers flags of the constructor that is referenced
+	 * &lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * This kind of proposal could require a long computation, so they are computed only if completion operation is called with a {@link IProgressMonitor}
+	 * (eg. {@link ICodeAssist#codeComplete(int, CompletionRequestor, IProgressMonitor)})&lt;br&gt;
+	 * This kind of proposal is always is only proposals with a {@link #TYPE_REF} required proposal, so this kind of required proposal must be allowed:
+	 * &lt;code&gt;requestor.setAllowsRequiredProposals(CONSTRUCTOR_INVOCATION, TYPE_REF, true)&lt;/code&gt;.
+	 * &lt;/p&gt;
+	 *
+	 * @see #getKind()
+	 * @see CompletionRequestor#setAllowsRequiredProposals(int, int, boolean)
+	 * 
+	 * @since 3.5
+	 */
+	public static final int ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION = 27;
+</pre>
+These new proposals can require a long computation so they are proposed only if code assist was called with a progress monitor.
+To avoid that the code assist operation take too much time a <code>IProgressMonitor</code> which automatically cancel the code
+assist operation when a specified amount of time is reached could be used.
+
+<pre>
+new IProgressMonitor() {
+    private final static int TIMEOUT = 500; //ms
+    private long endTime;
+    public void beginTask(String name, int totalWork) {
+        fEndTime= System.currentTimeMillis() + TIMEOUT;
+    }
+    public boolean isCanceled() {
+        return endTime <= System.currentTimeMillis();
+    }
+    ...
+ };
+</pre>
+</li>
+<li>Search indexes for constructor declaration contains more information.<br>
+The new index keys for :
+<ul>
+<li>binary constructor for class are: <code>TypeName '/' Arity '/' TypeModifers '/' PackageName '/' Signature '/' ParameterNamesopt '/' Modifiers</code></li>
+<li>bource constructor for class are: <code>TypeName '/' Arity '/' TypeModifers '/' PackageName '/' ParameterTypes '/' ParameterNamesopt '/' Modifiers</code></li>
+<li>constructor with 0 arity for class are: <code>TypeName '/' 0 '/' TypeModifers '/' PackageName '/' Modifiers</code></li>
+<li>constructor for enum, interface (annotation) and class with default constructor are: <code>TypeName '/' # '/' TypeModifers '/' PackageName</code></li>
+<li>constructor for member type are: <code>TypeName '/' Arity '/' TypeModifers</code></li>
+</ul>
+These new index keys are use by the new method <code>BasicSearchEngine#searchAllConstructorDeclarations()</code>. 
+</li>
+<li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6930">bug 6930</a> required the index version to be incremented. 
+    Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress 
+    dialogs).
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6930">6930</a>
