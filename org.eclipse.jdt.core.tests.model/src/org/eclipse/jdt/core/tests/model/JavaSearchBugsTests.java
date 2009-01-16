@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -158,6 +158,157 @@ public void testBug41018() throws CoreException {
 	assertSearchResults(
 		"src/b41018/A.java void b41018.A.anotherMethod() [methodA(null)] EXACT_MATCH"
 	);
+}
+
+public void testBug6930_AllConstructorDeclarations01() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p6930/AllConstructorDeclarations01.java",
+		"package p6930;\n" +
+		"public class AllConstructorDeclarations01 {\n" +
+		"  public AllConstructorDeclarations01() {}\n" +
+		"  public AllConstructorDeclarations01(Object o) {}\n" +
+		"  public AllConstructorDeclarations01(Object o, String s) {}\n" +
+		"}\n"
+	);
+	
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p6930/AllConstructorDeclarations01b.java",
+		"package p6930;\n" +
+		"public class AllConstructorDeclarations01b {\n" +
+		"}\n"
+	);
+	
+	ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
+	searchAllConstructorDeclarations("AllConstructorDeclarations", SearchPattern.R_PREFIX_MATCH, requestor);
+	assertSearchResults(
+		"p6930.AllConstructorDeclarations01#AllConstructorDeclarations01()\n" + 
+		"p6930.AllConstructorDeclarations01#AllConstructorDeclarations01(Object o)\n" + 
+		"p6930.AllConstructorDeclarations01#AllConstructorDeclarations01(Object o,String s)\n" + 
+		"p6930.AllConstructorDeclarations01b#AllConstructorDeclarations01b()*",
+		requestor
+	);
+}
+
+public void testBug6930_AllConstructorDeclarations02() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib6930.jar"}, "");
+		
+		createJar(new String[] {
+			"p6930/AllConstructorDeclarations02.java",
+			"package p6930;\n" +
+			"public class AllConstructorDeclarations02 {\n" +
+			"  public AllConstructorDeclarations02() {}\n" +
+			"  public AllConstructorDeclarations02(Object o) {}\n" +
+			"  public AllConstructorDeclarations02(Object o, String s) {}\n" +
+			"}",
+			"p6930/AllConstructorDeclarations02b.java",
+			"package p6930;\n" +
+			"public class AllConstructorDeclarations02b {\n" +
+			"}"
+		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
+		refresh(p);
+		
+		ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
+		searchAllConstructorDeclarations("AllConstructorDeclarations", SearchPattern.R_PREFIX_MATCH, requestor);
+		assertSearchResults(
+			"p6930.AllConstructorDeclarations02#AllConstructorDeclarations02()\n" + 
+			"p6930.AllConstructorDeclarations02#AllConstructorDeclarations02(java.lang.Object o)\n" + 
+			"p6930.AllConstructorDeclarations02#AllConstructorDeclarations02(java.lang.Object o,java.lang.String s)\n" + 
+			"p6930.AllConstructorDeclarations02b#AllConstructorDeclarations02b()",
+			requestor
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug6930_AllConstructorDeclarations03() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {}, "bin");
+		
+		createFolder("/P/src/p6930");
+		
+		createFile(
+				"/P/src/p6930/AllConstructorDeclarations03.java",
+				"package p6930;\n" +
+				"public class AllConstructorDeclarations03 {\n" +
+				"  public AllConstructorDeclarations03() {}\n" +
+				"  public AllConstructorDeclarations03(Object o) {}\n" +
+				"  public AllConstructorDeclarations03(Object o, String s) {}\n" +
+				"}");
+		
+		createFile(
+				"/P/src/p6930/AllConstructorDeclarations03b.java",
+				"package p6930;\n" +
+				"public class AllConstructorDeclarations03b {\n" +
+				"}");
+		refresh(p);
+		
+		ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
+		searchAllConstructorDeclarations("AllConstructorDeclarations", SearchPattern.R_PREFIX_MATCH, requestor);
+		assertSearchResults(
+			"p6930.AllConstructorDeclarations03#AllConstructorDeclarations03()\n" + 
+			"p6930.AllConstructorDeclarations03#AllConstructorDeclarations03(Object o)\n" + 
+			"p6930.AllConstructorDeclarations03#AllConstructorDeclarations03(Object o,String s)\n" + 
+			"p6930.AllConstructorDeclarations03b#AllConstructorDeclarations03b()*",
+			requestor
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug6930_AllConstructorDeclarations04() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib6930.jar"}, "","1.5");
+		
+		createJar(
+			new String[] {
+				"p6930/AllConstructorDeclarations04.java",
+				"package p6930;\n" +
+				"public class AllConstructorDeclarations04 {\n" +
+				"  public AllConstructorDeclarations04(java.util.Collection<Object> c) {}\n" +
+				"}"
+			},
+			p.getProject().getLocation().append("lib6930.jar").toOSString(),
+			new String[]{getExternalJCLPathString("1.5")},
+			"1.5");
+		refresh(p);
+		
+		ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
+		searchAllConstructorDeclarations("AllConstructorDeclarations", SearchPattern.R_PREFIX_MATCH, requestor);
+		assertSearchResults(
+			"p6930.AllConstructorDeclarations04#AllConstructorDeclarations04(java.util.Collection<java.lang.Object> c)",
+			requestor
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug6930_AllConstructorDeclarations05() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib6930.jar"}, "");
+		
+		createJar(new String[] {
+			"p6930/AllConstructorDeclarations05.java",
+			"package p6930;\n" +
+			"public class AllConstructorDeclarations05 {\n" +
+			"  public class AllConstructorDeclarations05b {\n" +
+			"    public AllConstructorDeclarations05b(Object o) {}\n" +
+			"  }\n" +
+			"}"
+		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
+		refresh(p);
+		
+		ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
+		searchAllConstructorDeclarations("AllConstructorDeclarations", SearchPattern.R_PREFIX_MATCH, requestor);
+		assertSearchResults(
+			"p6930.AllConstructorDeclarations05#AllConstructorDeclarations05()",
+			requestor
+		);
+	} finally {
+		deleteProject("P");
+	}
 }
 
 /**
@@ -10273,5 +10424,4 @@ public void testBug250083() throws Exception {
 		deleteProject("P");
 	}
 }
-
 }

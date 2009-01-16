@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.compiler.ExtraFlags;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -52,6 +54,159 @@ public final static int FINE_GRAIN_MASK =
 	IJavaSearchConstants.THIS_REFERENCE |
 	IJavaSearchConstants.IMPLICIT_THIS_REFERENCE;
 
+
+/**
+ * Constructor entries are encoded as described
+ * 
+ * Binary constructor for class
+ * TypeName '/' Arity '/' TypeModifers '/' PackageName '/' Signature '/' ParameterNamesopt '/' Modifiers
+ * Source constructor for class
+ * TypeName '/' Arity '/' TypeModifers '/' PackageName '/' ParameterTypes '/' ParameterNamesopt '/' Modifiers
+ * Constructor with 0 arity for class
+ * TypeName '/' 0 '/' TypeModifers '/' PackageName '/' Modifiers
+ * Constructor for enum, interface (annotation) and class with default constructor
+ * TypeName '/' # '/' TypeModifers '/' PackageName
+ * Constructor for member type
+ * TypeName '/' Arity '/' TypeModifers
+ * 
+ * TypeModifiers contains some encoded extra information
+ * 		{@link ExtraFlags#IsMemberType}
+ * 		{@link ExtraFlags#HasNonPrivateStaticMemberTypes}
+ * 		{@link ExtraFlags#ParameterTypesStoredAsSignature}
+ */
+public static char[] createDeclarationIndexKey(
+		char[] typeName,
+		int argCount,
+		char[] signature,
+		char[][] parameterTypes,
+		char[][] parameterNames,
+		int modifiers,
+		char[] packageName,
+		int typeModifiers,
+		int extraFlags) {
+	
+	char[] countChars;
+	char[] parameterTypesChars = null;
+	char[] parameterNamesChars = null;
+	
+	if (argCount < 0) {
+		countChars = DEFAULT_CONSTRUCTOR;
+	} else {
+		countChars = argCount < 10
+		? COUNTS[argCount]
+		: ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
+		
+		if (argCount > 0) {
+			if (signature == null) {
+				if (parameterTypes != null && parameterTypes.length == argCount) {
+					char[][] parameterTypeErasures = new char[argCount][];
+					for (int i = 0; i < parameterTypes.length; i++) {
+						parameterTypeErasures[i] = getTypeErasure(parameterTypes[i]);
+					}
+					parameterTypesChars = CharOperation.concatWith(parameterTypeErasures, PARAMETER_SEPARATOR);
+				}
+			} else {
+				extraFlags |= ExtraFlags.ParameterTypesStoredAsSignature;
+			}
+			
+			if (parameterNames != null && parameterNames.length == argCount) {
+				parameterNamesChars = CharOperation.concatWith(parameterNames, PARAMETER_SEPARATOR);
+			}
+		}
+	}
+	
+	boolean isMemberType = (extraFlags & ExtraFlags.IsMemberType) != 0;
+	
+	int typeNameLength = typeName == null ? 0 : typeName.length;
+	int packageNameLength = packageName == null ? 0 : packageName.length;
+	int countCharsLength = countChars.length;
+	int parameterTypesLength = signature == null ? (parameterTypesChars == null ? 0 : parameterTypesChars.length): signature.length;
+	int parameterNamesLength = parameterNamesChars == null ? 0 : parameterNamesChars.length;
+	
+	int resultLength = typeNameLength + countCharsLength + 3; // SEPARATOR=1 + TypeModifers=2
+	if (!isMemberType) {
+		resultLength += packageNameLength + 1; // SEPARATOR=1
+		if (argCount >= 0) {
+			resultLength += 3; // SEPARATOR=1 + Modifiers=2
+		}
+		
+		if (argCount > 0) {
+			resultLength += parameterTypesLength + parameterNamesLength + 2; //SEPARATOR=1 + SEPARATOR=1
+		}
+	}
+	
+	char[] result = new char[resultLength];
+	
+	int pos = 0;
+	if (typeNameLength > 0) {
+		System.arraycopy(typeName, 0, result, pos, typeNameLength);
+		pos += typeNameLength;
+	}
+	
+	if (countCharsLength > 0) {
+		System.arraycopy(countChars, 0, result, pos, countCharsLength);
+		pos += countCharsLength;
+	}
+	
+	int typeModifiersWithExtraFlags = typeModifiers | encodeExtraFlags(extraFlags);
+	result[pos++] = SEPARATOR;
+	result[pos++] = (char) typeModifiersWithExtraFlags;
+	result[pos++] = (char) (typeModifiersWithExtraFlags>>16);
+	
+	if (!isMemberType) {
+		result[pos++] = SEPARATOR;
+		if (packageNameLength > 0) {
+			System.arraycopy(packageName, 0, result, pos, packageNameLength);
+			pos += packageNameLength;
+		}
+		
+		if (argCount == 0) {
+			result[pos++] = SEPARATOR;
+			result[pos++] = (char) modifiers;
+			result[pos++] = (char) (modifiers>>16);
+		} else if (argCount > 0) {
+			result[pos++] = SEPARATOR;
+			if (parameterTypesLength > 0) {
+				if (signature == null) {
+					System.arraycopy(parameterTypesChars, 0, result, pos, parameterTypesLength);
+				} else {
+					System.arraycopy(CharOperation.replaceOnCopy(signature, SEPARATOR, '\\'), 0, result, pos, parameterTypesLength);
+				}
+				pos += parameterTypesLength;
+			}
+			
+			result[pos++] = SEPARATOR;
+			if (parameterNamesLength > 0) {
+				System.arraycopy(parameterNamesChars, 0, result, pos, parameterNamesLength);
+				pos += parameterNamesLength;
+			}
+			
+			result[pos++] = SEPARATOR;
+			result[pos++] = (char) modifiers;
+			result[pos++] = (char) (modifiers>>16);
+		}
+		
+	}
+	
+	return result;
+}
+public static char[] createDefaultDeclarationIndexKey(
+		char[] typeName,
+		char[] packageName,
+		int typeModifiers,
+		int extraFlags) {
+	return createDeclarationIndexKey(
+			typeName,
+			-1, // used to identify default constructor
+			null,
+			null,
+			null,
+			0, //
+			packageName,
+			typeModifiers,
+			extraFlags);
+}
+
 /**
  * Constructor entries are encoded as TypeName '/' Arity:
  * e.g. 'X/0'
@@ -62,7 +217,79 @@ public static char[] createIndexKey(char[] typeName, int argCount) {
 		: ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
 	return CharOperation.concat(typeName, countChars);
 }
-
+static int decodeExtraFlags(int modifiersWithExtraFlags) {
+	int extraFlags = 0;
+	
+	if ((modifiersWithExtraFlags & ASTNode.Bit28) != 0) {
+		extraFlags |= ExtraFlags.ParameterTypesStoredAsSignature;
+	}
+	
+	if ((modifiersWithExtraFlags & ASTNode.Bit29) != 0) {
+		extraFlags |= ExtraFlags.IsLocalType;
+	}
+	
+	if ((modifiersWithExtraFlags & ASTNode.Bit30) != 0) {
+		extraFlags |= ExtraFlags.IsMemberType;
+	}
+	
+	if ((modifiersWithExtraFlags & ASTNode.Bit31) != 0) {
+		extraFlags |= ExtraFlags.HasNonPrivateStaticMemberTypes;
+	}
+	
+	return extraFlags;
+}
+static int decodeModifers(int modifiersWithExtraFlags) {
+	return modifiersWithExtraFlags & ~(ASTNode.Bit31 | ASTNode.Bit30 | ASTNode.Bit29 | ASTNode.Bit28);
+}
+private static int encodeExtraFlags(int extraFlags) {
+	int encodedExtraFlags = 0;
+	
+	if ((extraFlags & ExtraFlags.ParameterTypesStoredAsSignature) != 0) {
+		encodedExtraFlags |= ASTNode.Bit28;
+	}
+	
+	if ((extraFlags & ExtraFlags.IsLocalType) != 0) {
+		encodedExtraFlags |= ASTNode.Bit29;
+	}
+	
+	if ((extraFlags & ExtraFlags.IsMemberType) != 0) {
+		encodedExtraFlags |= ASTNode.Bit30;
+	}
+	if ((extraFlags & ExtraFlags.HasNonPrivateStaticMemberTypes) != 0) {
+		encodedExtraFlags |= ASTNode.Bit31;
+	}
+	
+	return encodedExtraFlags;
+}
+private static char[] getTypeErasure(char[] typeName) {
+	int index;
+	if ((index = CharOperation.indexOf('<', typeName)) == -1) return typeName;
+	
+	int length = typeName.length;
+	char[] typeErasurename = new char[length - 2];
+	
+	System.arraycopy(typeName, 0, typeErasurename, 0, index);
+	
+	int depth = 1;
+	for (int i = index + 1; i < length; i++) {
+		switch (typeName[i]) {
+			case '<':
+				depth++;
+				break;
+			case '>':
+				depth--;
+				break;
+			default:
+				if (depth == 0) {
+					typeErasurename[index++] = typeName[i];
+				}
+				break;
+		}
+	}
+	
+	System.arraycopy(typeErasurename, 0, typeErasurename = new char[index], 0, index);
+	return typeErasurename;
+}
 ConstructorPattern(int matchRule) {
 	super(CONSTRUCTOR_PATTERN, matchRule);
 }
@@ -225,21 +452,31 @@ public ConstructorPattern(
 	}
 	if (hasConstructorArguments())  this.mustResolve = true;
 }
+
 public void decodeIndexKey(char[] key) {
 	int last = key.length - 1;
-	this.parameterCount = 0;
-	this.declaringSimpleName = null;
-	int power = 1;
-	for (int i=last; i>=0; i--) {
-		if (key[i] == SEPARATOR) {
-			System.arraycopy(key, 0, this.declaringSimpleName = new char[i], 0, i);
-			break;
-		}
-		if (i == last) {
-			this.parameterCount = key[i] - '0';
-		} else {
-			power *= 10;
-			this.parameterCount += power * (key[i] - '0');
+	int slash = CharOperation.indexOf(SEPARATOR, key, 0);
+	this.declaringSimpleName = CharOperation.subarray(key, 0, slash);
+	
+	int start = slash + 1;
+	slash = CharOperation.indexOf(SEPARATOR, key, start);
+	if (slash != -1) {
+		last = slash - 1;
+	}
+	
+	boolean isDefaultConstructor = key[last] == '#';
+	if (isDefaultConstructor) {
+		this.parameterCount = -1;
+	} else {
+		this.parameterCount = 0;
+		int power = 1;
+		for (int i = last; i >= start; i--) {
+			if (i == last) {
+				this.parameterCount = key[i] - '0';
+			} else {
+				power *= 10;
+				this.parameterCount += power * (key[i] - '0');
+			}
 		}
 	}
 }
@@ -262,7 +499,8 @@ boolean hasConstructorParameters() {
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	ConstructorPattern pattern = (ConstructorPattern) decodedPattern;
 
-	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || this.varargs)
+	return pattern.parameterCount != -1
+		&& (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || this.varargs)
 		&& matchesName(this.declaringSimpleName, pattern.declaringSimpleName);
 }
 protected boolean mustResolve() {
@@ -280,12 +518,11 @@ public EntryResult[] queryIn(Index index) throws IOException {
 
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
-			if (this.declaringSimpleName != null && this.parameterCount >= 0 && !this.varargs)
+			if (this.declaringSimpleName != null && this.parameterCount >= 0 && !this.varargs) {
 				key = createIndexKey(this.declaringSimpleName, this.parameterCount);
-			else { // do a prefix query with the declaringSimpleName
-				matchRule &= ~R_EXACT_MATCH;
-				matchRule |= R_PREFIX_MATCH;
 			}
+			matchRule &= ~R_EXACT_MATCH;
+			matchRule |= R_PREFIX_MATCH;
 			break;
 		case R_PREFIX_MATCH :
 			// do a prefix query with the declaringSimpleName
@@ -295,6 +532,7 @@ public EntryResult[] queryIn(Index index) throws IOException {
 				key = createIndexKey(this.declaringSimpleName == null ? ONE_STAR : this.declaringSimpleName, this.parameterCount);
 			else if (this.declaringSimpleName != null && this.declaringSimpleName[this.declaringSimpleName.length - 1] != '*')
 				key = CharOperation.concat(this.declaringSimpleName, ONE_STAR, SEPARATOR);
+			key = CharOperation.concat(key, ONE_STAR);
 			// else do a pattern query with just the declaringSimpleName
 			break;
 		case R_REGEXP_MATCH :

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,8 +65,14 @@ public abstract class Engine implements ITypeRequestor {
 	 */
 	public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
 		CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
+		
+		AssistParser assistParser = getParser();
+		Object parserState = assistParser.becomeSimpleParser();
+		
 		CompilationUnitDeclaration parsedUnit =
-			getParser().dietParse(sourceUnit, result);
+			assistParser.dietParse(sourceUnit, result);
+		
+		assistParser.restoreAssistParser(parserState);
 
 		this.lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
 		this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
@@ -97,17 +103,12 @@ public abstract class Engine implements ITypeRequestor {
 	public abstract AssistParser getParser();
 
 	public void initializeImportCaches() {
+		if (this.currentPackageName == null) {
+			initializePackageCache();
+		}
+		
 		ImportBinding[] importBindings = this.unitScope.imports;
 		int length = importBindings == null ? 0 : importBindings.length;
-
-		if (this.unitScope.fPackage != null) {
-			this.currentPackageName = CharOperation.concatWith(this.unitScope.fPackage.compoundName, '.');
-		} else if (this.unitScope.referenceContext != null &&
-				this.unitScope.referenceContext.currentPackage != null) {
-			this.currentPackageName = CharOperation.concatWith(this.unitScope.referenceContext.currentPackage.tokens, '.');
-		} else {
-			this.currentPackageName = CharOperation.NO_CHAR;
-		}
 
 		for (int i = 0; i < length; i++) {
 			ImportBinding importBinding = importBindings[i];
@@ -132,6 +133,17 @@ public abstract class Engine implements ITypeRequestor {
 		}
 
 		this.importCachesInitialized = true;
+	}
+	
+	public void initializePackageCache() {
+		if (this.unitScope.fPackage != null) {
+			this.currentPackageName = CharOperation.concatWith(this.unitScope.fPackage.compoundName, '.');
+		} else if (this.unitScope.referenceContext != null &&
+				this.unitScope.referenceContext.currentPackage != null) {
+			this.currentPackageName = CharOperation.concatWith(this.unitScope.referenceContext.currentPackage.tokens, '.');
+		} else {
+			this.currentPackageName = CharOperation.NO_CHAR;
+		}
 	}
 
 	protected boolean mustQualifyType(

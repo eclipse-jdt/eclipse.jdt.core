@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2006 IBM Corporation and others.
+ * Copyright (c) 2004, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,13 +18,19 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.ICodeAssist;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.core.BinaryType;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.SourceMapper;
 
 /**
  * Internal completion proposal
@@ -32,16 +38,8 @@ import org.eclipse.jdt.internal.core.NameLookup;
  */
 public class InternalCompletionProposal extends CompletionProposal {
 	private static Object NO_ATTACHED_SOURCE = new Object();
+	private static final int OPENED_BYNARY_TYPES_THRESHOLD = 100; // threshold of opened binary to avoid to harm java model cache
 
-	static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
-	static final char[] ARG0 = "arg0".toCharArray();  //$NON-NLS-1$
-	static final char[] ARG1 = "arg1".toCharArray();  //$NON-NLS-1$
-	static final char[] ARG2 = "arg2".toCharArray();  //$NON-NLS-1$
-	static final char[] ARG3 = "arg3".toCharArray();  //$NON-NLS-1$
-	static final char[][] ARGS1 = new char[][]{ARG0};
-	static final char[][] ARGS2 = new char[][]{ARG0, ARG1};
-	static final char[][] ARGS3 = new char[][]{ARG0, ARG1, ARG2};
-	static final char[][] ARGS4 = new char[][]{ARG0, ARG1, ARG2, ARG3};
 
 	protected CompletionEngine completionEngine;
 	protected NameLookup nameLookup;
@@ -55,6 +53,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 	protected char[] originalSignature;
 
+	private boolean hasNoParameterNamesFromIndex = false;
 	private boolean updateCompletion = false;
 
 	protected int accessibility = IAccessRule.K_ACCESSIBLE;
@@ -179,34 +178,104 @@ public class InternalCompletionProposal extends CompletionProposal {
 	 * Indicates whether parameter names have been computed.
 	 */
 	private boolean parameterNamesComputed = false;
+	
+	protected char[][] findConstructorParameterNames(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] paramTypeNames){
+		if(paramTypeNames == null || declaringTypeName == null) return null;
 
-	protected char[][] createDefaultParameterNames(int length) {
-		char[][] parameters;
-		switch (length) {
-			case 0 :
-				parameters = new char[length][];
-				break;
-			case 1 :
-				parameters = ARGS1;
-				break;
-			case 2 :
-				parameters = ARGS2;
-				break;
-			case 3 :
-				parameters = ARGS3;
-				break;
-			case 4 :
-				parameters = ARGS4;
-				break;
-			default :
-				parameters = new char[length][];
-				for (int i = 0; i < length; i++) {
-					parameters[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
-				}
-				break;
+		char[][] parameters = null;
+		int length = paramTypeNames.length;
+
+		char[] tName = CharOperation.concat(declaringTypePackageName,declaringTypeName,'.');
+		Object cachedType = this.completionEngine.typeCache.get(tName);
+
+		IType type = null;
+		if(cachedType != null) {
+			if(cachedType != NO_ATTACHED_SOURCE && cachedType instanceof BinaryType) {
+				type = (BinaryType)cachedType;
+			}
+		} else {
+			// TODO (david) shouldn't it be NameLookup.ACCEPT_ALL ?
+			NameLookup.Answer answer = this.nameLookup.findType(new String(tName),
+				false,
+				NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES,
+				true/* consider secondary types */,
+				false/* do NOT wait for indexes */,
+				false/*don't check restrictions*/,
+				null);
+			type = answer == null ? null : answer.type;
+			if(type instanceof BinaryType){
+				this.completionEngine.typeCache.put(tName, type);
+			} else {
+				type = null;
+			}
 		}
+
+		if(type != null) {
+			String[] args = new String[length];
+			for(int i = 0;	i< length ; i++){
+				args[i] = new String(paramTypeNames[i]);
+			}
+			IMethod method = type.getMethod(new String(selector),args);
+			
+			if (this.hasNoParameterNamesFromIndex) {
+				IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+				if (packageFragmentRoot.isArchive() ||
+						this.completionEngine.openedBinaryTypes < OPENED_BYNARY_TYPES_THRESHOLD) {
+					SourceMapper mapper = ((JavaElement)method).getSourceMapper();
+					if (mapper != null) {
+						try {
+							char[][] paramNames = mapper.getMethodParameterNames(method);
+					
+							// map source and try to find parameter names
+							if(paramNames == null) {
+								if (!packageFragmentRoot.isArchive()) this.completionEngine.openedBinaryTypes++;
+								IBinaryType info = (IBinaryType) ((BinaryType) type).getElementInfo();
+								char[] source = mapper.findSource(type, info);
+								if (source != null){
+									mapper.mapSource(type, source, info);
+								}
+								paramNames = mapper.getMethodParameterNames(method);
+							}
+							
+							if(paramNames != null) {
+								parameters = paramNames;
+							}
+						} catch(JavaModelException e){
+							//parameters == null;
+						}
+					}
+				}
+			} else {
+				try{
+					IBinaryMethod info = (IBinaryMethod) ((JavaElement)method).getElementInfo();
+					char[][] argumentNames = info.getArgumentNames();
+					if (argumentNames != null && argumentNames.length == length) {
+						parameters = argumentNames;
+					}
+				} catch(JavaModelException e){
+					//parameters == null;
+				}
+				
+				try{
+					parameters = new char[length][];
+					String[] params = method.getParameterNames();
+					for(int i = 0;	i< length ; i++){
+						parameters[i] = params[i].toCharArray();
+					}
+				} catch(JavaModelException e){
+					parameters = null;
+				}
+			}
+		}
+
+		// default parameters name
+		if(parameters == null) {
+			parameters = CompletionEngine.createDefaultParameterNames(length);
+		}
+
 		return parameters;
 	}
+	
 	protected char[][] findMethodParameterNames(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] paramTypeNames){
 		if(paramTypeNames == null || declaringTypeName == null) return null;
 
@@ -257,7 +326,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 		// default parameters name
 		if(parameters == null) {
-			parameters = createDefaultParameterNames(length);
+			parameters = CompletionEngine.createDefaultParameterNames(length);
 		}
 
 		return parameters;
@@ -1206,6 +1275,10 @@ public class InternalCompletionProposal extends CompletionProposal {
 	public void setFlags(int flags) {
 		this.flags = flags;
 	}
+	
+	public void setHasNoParameterNamesFromIndex(boolean hasNoParameterNamesFromIndex) {
+		this.hasNoParameterNamesFromIndex = hasNoParameterNamesFromIndex;
+	}
 
 	/**
 	 * Returns the required completion proposals.
@@ -1312,7 +1385,23 @@ public class InternalCompletionProposal extends CompletionProposal {
 					} catch(IllegalArgumentException e) {
 						// protection for invalid signature
 						if(this.parameterTypeNames != null) {
-							this.parameterNames =  createDefaultParameterNames(this.parameterTypeNames.length);
+							this.parameterNames =  CompletionEngine.createDefaultParameterNames(this.parameterTypeNames.length);
+						} else {
+							this.parameterNames = null;
+						}
+					}
+					break;
+				case ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION:
+					try {
+						this.parameterNames = findConstructorParameterNames(
+								this.declarationPackageName,
+								this.declarationTypeName,
+								CharOperation.lastSegment(this.declarationTypeName, '.'),
+								Signature.getParameterTypes(this.originalSignature == null ? this.signature : this.originalSignature));
+					} catch(IllegalArgumentException e) {
+						// protection for invalid signature
+						if(this.parameterTypeNames != null) {
+							this.parameterNames =  CompletionEngine.createDefaultParameterNames(this.parameterTypeNames.length);
 						} else {
 							this.parameterNames = null;
 						}
@@ -1329,7 +1418,23 @@ public class InternalCompletionProposal extends CompletionProposal {
 					} catch(IllegalArgumentException e) {
 						// protection for invalid signature
 						if(this.parameterTypeNames != null) {
-							this.parameterNames =  createDefaultParameterNames(this.parameterTypeNames.length);
+							this.parameterNames =  CompletionEngine.createDefaultParameterNames(this.parameterTypeNames.length);
+						} else {
+							this.parameterNames = null;
+						}
+					}
+					break;
+				case CONSTRUCTOR_INVOCATION:
+					try {
+						this.parameterNames = findConstructorParameterNames(
+								this.declarationPackageName,
+								this.declarationTypeName,
+								this.name,
+								Signature.getParameterTypes(this.originalSignature == null ? this.signature : this.originalSignature));
+					} catch(IllegalArgumentException e) {
+						// protection for invalid signature
+						if(this.parameterTypeNames != null) {
+							this.parameterNames =  CompletionEngine.createDefaultParameterNames(this.parameterTypeNames.length);
 						} else {
 							this.parameterNames = null;
 						}
@@ -1345,7 +1450,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 					} catch(IllegalArgumentException e) {
 						// protection for invalid signature
 						if(this.parameterTypeNames != null) {
-							this.parameterNames =  createDefaultParameterNames(this.parameterTypeNames.length);
+							this.parameterNames =  CompletionEngine.createDefaultParameterNames(this.parameterTypeNames.length);
 						} else {
 							this.parameterNames = null;
 						}
@@ -1622,6 +1727,12 @@ public class InternalCompletionProposal extends CompletionProposal {
 				break;
 			case CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER :
 				buffer.append("FIELD_REF_WITH_CASTED_RECEIVER"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.CONSTRUCTOR_INVOCATION :
+				buffer.append("CONSTRUCTOR_INVOCATION"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION :
+				buffer.append("ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION"); //$NON-NLS-1$
 				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$

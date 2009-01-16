@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 IBM Corporation and others.
+ * Copyright (c) 2004, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,7 @@ public class CompletionProposal {
 	/**
 	 * Completion is a declaration of an anonymous class.
 	 * This kind of completion might occur in a context like
-	 * <code>"new List^;"</code> and complete it to
+	 * <code>"new List(^;"</code> and complete it to
 	 * <code>"new List() {}"</code>.
 	 * <p>
 	 * The following additional context information is available
@@ -792,6 +792,84 @@ public class CompletionProposal {
 	 * @since 3.4
 	 */
 	public static final int FIELD_REF_WITH_CASTED_RECEIVER = 25;
+	
+	/**
+	 * Completion is a reference to a constructor.
+	 * This kind of completion might occur in a context like
+	 * <code>"new Lis"</code> and complete it to
+	 * <code>"new List();"</code> if List is a class that is not abstract.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the constructor that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags of the constructor that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the constructor that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the method signature of the constructor that is referenced
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * <p>
+	 * This kind of proposal could require a long computation, so they are computed only if completion operation is called with a {@link IProgressMonitor}
+	 * (eg. {@link ICodeAssist#codeComplete(int, CompletionRequestor, IProgressMonitor)}).<br>
+	 * This kind of proposal is always is only proposals with a {@link #TYPE_REF} required proposal, so this kind of required proposal must be allowed:
+	 * <code>requestor.setAllowsRequiredProposals(CONSTRUCTOR_INVOCATION, TYPE_REF, true)</code>.
+	 * </p>
+	 *
+	 * @see #getKind()
+	 * @see CompletionRequestor#setAllowsRequiredProposals(int, int, boolean)
+	 * 
+	 * @since 3.5
+	 */
+	public static final int CONSTRUCTOR_INVOCATION = 26;
+	
+	/**
+	 * Completion is a reference of a constructor of an anonymous class.
+	 * This kind of completion might occur in a context like
+	 * <code>"new Lis^;"</code> and complete it to
+	 * <code>"new List() {}"</code> if List is an interface or abstract class.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type being implemented or subclassed
+	 * </li>
+	 * <li>{@link #getDeclarationKey()} -
+	 * the type unique key of the type being implemented or subclassed
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the method signature of the constructor that is referenced
+	 * </li>
+	 * <li>{@link #getKey()} -
+	 * the method unique key of the constructor that is referenced
+	 * if the declaring type is not an interface
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags of the constructor that is referenced
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * <p>
+	 * This kind of proposal could require a long computation, so they are computed only if completion operation is called with a {@link IProgressMonitor}
+	 * (eg. {@link ICodeAssist#codeComplete(int, CompletionRequestor, IProgressMonitor)})<br>
+	 * This kind of proposal is always is only proposals with a {@link #TYPE_REF} required proposal, so this kind of required proposal must be allowed:
+	 * <code>requestor.setAllowsRequiredProposals(CONSTRUCTOR_INVOCATION, TYPE_REF, true)</code>.
+	 * </p>
+	 *
+	 * @see #getKind()
+	 * @see CompletionRequestor#setAllowsRequiredProposals(int, int, boolean)
+	 * 
+	 * @since 3.5
+	 */
+	public static final int ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION = 27;
 
 	/**
 	 * First valid completion kind.
@@ -805,7 +883,7 @@ public class CompletionProposal {
 	 *
 	 * @since 3.1
 	 */
-	protected static final int LAST_KIND = FIELD_REF_WITH_CASTED_RECEIVER;
+	protected static final int LAST_KIND = ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION;
 
 	/**
 	 * Creates a basic completion proposal. All instance
@@ -1459,6 +1537,16 @@ public class CompletionProposal {
 	 *  </li>
 	 * </li>
 	 * 	<li><code>TYPE_REF</code> - The allowed required proposals for this kind are:
+	 *   <ul>
+	 *    <li><code>TYPE_REF</code></li>
+	 *   </ul>
+	 *  </li>
+	 *  <li><code>CONSTRUCTOR_INVOCATION</code> - The allowed required proposals for this kind are:
+	 *   <ul>
+	 *    <li><code>TYPE_REF</code></li>
+	 *   </ul>
+	 *  </li>
+	 *  <li><code>ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION</code> - The allowed required proposals for this kind are:
 	 *   <ul>
 	 *    <li><code>TYPE_REF</code></li>
 	 *   </ul>

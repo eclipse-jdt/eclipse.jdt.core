@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
+import org.eclipse.jdt.internal.core.search.IRestrictedAccessConstructorRequestor;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 
 /**
@@ -445,6 +446,151 @@ public class SearchableEnvironment
 				new String(prefix),
 				storage,
 				convertSearchFilterToModelFilter(searchFor));
+		}
+	}
+	
+	/**
+	 * Must be used only by CompletionEngine.
+	 * The progress monitor is used to be able to cancel completion operations
+	 * 
+	 * Find constructor declarations that are defined
+	 * in the current environment and whose name starts with the
+	 * given prefix. The prefix is a qualified name separated by periods
+	 * or a simple name (ex. java.util.V or V).
+	 *
+	 * The constructors found are passed to one of the following methods:
+	 *    ISearchRequestor.acceptConstructor(...)
+	 */
+	public void findConstructorDeclarations(char[] prefix, boolean camelCaseMatch, final ISearchRequestor storage, IProgressMonitor monitor) {
+		try {
+			final String excludePath;
+			if (this.unitToSkip != null && this.unitToSkip instanceof IJavaElement) {
+				excludePath = ((IJavaElement) this.unitToSkip).getPath().toString();
+			} else {
+				excludePath = null;
+			}
+			
+			int lastDotIndex = CharOperation.lastIndexOf('.', prefix);
+			char[] qualification, simpleName;
+			if (lastDotIndex < 0) {
+				qualification = null;
+				if (camelCaseMatch) {
+					simpleName = prefix;
+				} else {
+					simpleName = CharOperation.toLowerCase(prefix);
+				}
+			} else {
+				qualification = CharOperation.subarray(prefix, 0, lastDotIndex);
+				if (camelCaseMatch) {
+					simpleName = CharOperation.subarray(prefix, lastDotIndex + 1, prefix.length);
+				} else {
+					simpleName =
+						CharOperation.toLowerCase(
+							CharOperation.subarray(prefix, lastDotIndex + 1, prefix.length));
+				}
+			}
+
+			IProgressMonitor progressMonitor = new IProgressMonitor() {
+				boolean isCanceled = false;
+				public void beginTask(String name, int totalWork) {
+					// implements interface method
+				}
+				public void done() {
+					// implements interface method
+				}
+				public void internalWorked(double work) {
+					// implements interface method
+				}
+				public boolean isCanceled() {
+					return this.isCanceled;
+				}
+				public void setCanceled(boolean value) {
+					this.isCanceled = value;
+				}
+				public void setTaskName(String name) {
+					// implements interface method
+				}
+				public void subTask(String name) {
+					// implements interface method
+				}
+				public void worked(int work) {
+					// implements interface method
+				}
+			};
+			
+			IRestrictedAccessConstructorRequestor constructorRequestor = new IRestrictedAccessConstructorRequestor() {
+				public void acceptConstructor(
+						int modifiers,
+						char[] simpleTypeName,
+						int parameterCount,
+						char[] signature,
+						char[][] parameterTypes,
+						char[][] parameterNames,
+						int typeModifiers,
+						char[] packageName,
+						int extraFlags,
+						String path,
+						AccessRestriction access) {
+					if (excludePath != null && excludePath.equals(path))
+						return;
+					
+					storage.acceptConstructor(
+							modifiers,
+							simpleTypeName,
+							parameterCount,
+							signature,
+							parameterTypes,
+							parameterNames, 
+							typeModifiers,
+							packageName,
+							extraFlags,
+							path,
+							access);
+				}
+			};
+			
+			int matchRule = SearchPattern.R_PREFIX_MATCH;
+			if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
+			if (monitor != null) {
+				found : while (true) { //the loop will finish if the search request ends or is cancelled
+					try {
+						new BasicSearchEngine(this.workingCopies).searchAllConstructorDeclarations(
+								qualification,
+								simpleName,
+								matchRule,
+								getSearchScope(),
+								constructorRequestor,
+								CANCEL_IF_NOT_READY_TO_SEARCH,
+								progressMonitor);
+						break found;
+					} catch (OperationCanceledException e) {
+						if (monitor.isCanceled()) {
+							throw e;
+						} else {
+							try {
+								Thread.sleep(50); // indexes are not ready. sleep 50ms and retry the search request
+							} catch (InterruptedException e1) {
+								// Do nothing
+							}
+						}
+					}
+				}
+			} else {
+				try {
+					new BasicSearchEngine(this.workingCopies).searchAllConstructorDeclarations(
+							qualification,
+							simpleName,
+							matchRule,
+							getSearchScope(),
+							constructorRequestor,
+							CANCEL_IF_NOT_READY_TO_SEARCH,
+							progressMonitor);
+				} catch (OperationCanceledException e) {
+					// Do nothing
+				}
+			}
+		} catch (JavaModelException e) {
+			// Do nothing
 		}
 	}
 

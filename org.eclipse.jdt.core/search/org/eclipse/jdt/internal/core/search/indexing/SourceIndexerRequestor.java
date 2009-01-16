@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,9 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.internal.compiler.ExtraFlags;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -130,6 +132,29 @@ public void acceptUnknownReference(char[][] name, int sourceStart, int sourceEnd
 public void acceptUnknownReference(char[] name, int sourcePosition) {
 	this.indexer.addNameReference(name);
 }
+
+private void addDefaultConstructorIfNecessary(TypeInfo typeInfo) {
+	boolean hasConstructor = false;
+	
+	TypeDeclaration typeDeclaration = typeInfo.node;
+	AbstractMethodDeclaration[] methods = typeDeclaration.methods;
+	int methodCounter = methods == null ? 0 : methods.length;
+	done : for (int i = 0; i < methodCounter; i++) {
+		AbstractMethodDeclaration method = methods[i];
+		if (method.isConstructor() && !method.isDefaultConstructor()) {
+			hasConstructor = true;
+			break done;
+		}
+	}
+	
+	if (!hasConstructor) {
+		this.indexer.addDefaultConstructorDeclaration(
+				typeInfo.name,
+				this.packageName == null ? CharOperation.NO_CHAR : this.packageName,
+				typeInfo.modifiers,
+				getMoreExtraFlags(typeInfo.extraFlags));
+	}
+}
 /*
  * Rebuild the proper qualification for the current source type:
  *
@@ -153,6 +178,7 @@ private void enterAnnotationType(TypeInfo typeInfo) {
 		typeNames = enclosingTypeNames();
 	}
 	this.indexer.addAnnotationTypeDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, typeInfo.secondary);
+	addDefaultConstructorIfNecessary(typeInfo);
 	pushTypeName(typeInfo.name);
 }
 
@@ -187,6 +213,7 @@ private void enterClass(TypeInfo typeInfo) {
 		}
 	}
 	this.indexer.addClassDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, typeInfo.superclass, typeInfo.superinterfaces, typeParameterSignatures, typeInfo.secondary);
+	addDefaultConstructorIfNecessary(typeInfo);
 	pushTypeName(typeInfo.name);
 }
 /**
@@ -199,7 +226,18 @@ public void enterCompilationUnit() {
  * @see ISourceElementRequestor#enterConstructor(ISourceElementRequestor.MethodInfo)
  */
 public void enterConstructor(MethodInfo methodInfo) {
-	this.indexer.addConstructorDeclaration(methodInfo.name, methodInfo.parameterTypes, methodInfo.exceptionTypes);
+	int argCount = methodInfo.parameterTypes == null ? 0 : methodInfo.parameterTypes.length;
+	this.indexer.addConstructorDeclaration(
+			methodInfo.name,
+			argCount,
+			null,
+			methodInfo.parameterTypes,
+			methodInfo.parameterNames,
+			methodInfo.modifiers,
+			methodInfo.declaringPackageName,
+			methodInfo.declaringTypeModifiers,
+			methodInfo.exceptionTypes,
+			getMoreExtraFlags(methodInfo.extraFlags));
 	this.methodDepth++;
 }
 private void enterEnum(TypeInfo typeInfo) {
@@ -217,6 +255,7 @@ private void enterEnum(TypeInfo typeInfo) {
 	}
 	char[] superclass = typeInfo.superclass == null ? CharOperation.concatWith(TypeConstants.JAVA_LANG_ENUM, '.'): typeInfo.superclass;
 	this.indexer.addEnumDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, superclass, typeInfo.superinterfaces, typeInfo.secondary);
+	addDefaultConstructorIfNecessary(typeInfo);
 	pushTypeName(typeInfo.name);
 }
 /**
@@ -255,6 +294,7 @@ private void enterInterface(TypeInfo typeInfo) {
 		}
 	}
 	this.indexer.addInterfaceDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, typeInfo.superinterfaces, typeParameterSignatures, typeInfo.secondary);
+	addDefaultConstructorIfNecessary(typeInfo);
 	pushTypeName(typeInfo.name);
 }
 /**
@@ -352,6 +392,12 @@ private char[] getSimpleName(char[] typeName) {
 		return  CharOperation.subarray(typeName, lastDot + 1, length);
 	}
 	return  CharOperation.subarray(typeName, lastDot + 1, lastGenericStart);
+}
+private int getMoreExtraFlags(int extraFlags) {
+	if (this.methodDepth > 0) {
+		extraFlags |= ExtraFlags.IsLocalType;
+	}
+	return extraFlags;
 }
 public void popTypeName() {
 	if (this.depth > 0) {

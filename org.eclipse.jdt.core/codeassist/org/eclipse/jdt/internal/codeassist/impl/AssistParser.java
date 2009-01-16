@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -85,6 +85,21 @@ public AssistParser(ProblemReporter problemReporter) {
 	setStatementsRecovery(false);
 }
 public abstract char[] assistIdentifier();
+
+/**
+ * The parser become a simple parser which behave like a Parser
+ * @return the state of the assist parser to be able to restore the assist parser state
+ */
+public Object becomeSimpleParser() {
+	return null;
+}
+/**
+ * Restore the parser as an assist parser
+ * @param parserState
+ */
+public void restoreAssistParser(Object parserState) {
+	//Do nothing
+}
 public int bodyEnd(AbstractMethodDeclaration method){
 	return method.bodyEnd;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 IBM Corporation and others.
+ * Copyright (c) 2004, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,7 +84,6 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this.shortContext = shortContext;
 		this.showMissingTypes = showMissingTypes;
 		this.showModifiers = showModifiers;
-
 	}
 	public void acceptContext(CompletionContext cc) {
 		this.context = cc;
@@ -98,8 +97,8 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	}
 
 	public void allowAllRequiredProposals() {
-		for (int i = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; i <= CompletionProposal.TYPE_IMPORT; i++) {
-			for (int j = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; j <= CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER; j++) {
+		for (int i = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; i <= CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION; i++) {
+			for (int j = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; j <= CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION; j++) {
 				setAllowsRequiredProposals(i, j, true);
 			}
 		}
@@ -394,6 +393,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.TYPE_IMPORT :
 				buffer.append("TYPE_IMPORT"); //$NON-NLS-1$
 				break;
+			case CompletionProposal.CONSTRUCTOR_INVOCATION :
+				buffer.append("CONSTRUCTOR_INVOCATION"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION :
+				buffer.append("ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION"); //$NON-NLS-1$
+				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$
 				break;
@@ -572,6 +577,8 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.JAVADOC_VALUE_REF :
 			case CompletionProposal.FIELD_IMPORT :
 			case CompletionProposal.METHOD_IMPORT :
+			case CompletionProposal.CONSTRUCTOR_INVOCATION :
+			case CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION :
 				return new String(proposal.getName());
 			case CompletionProposal.PACKAGE_REF:
 				return new String(proposal.getDeclarationSignature());

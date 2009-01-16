@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -571,6 +571,15 @@ protected void attachOrphanCompletionNode(){
 			}
 		}
 	}
+}
+public Object becomeSimpleParser() {
+	CompletionScanner completionScanner = (CompletionScanner)this.scanner;
+	int[] parserState = new int[] {this.cursorLocation, completionScanner.cursorLocation};
+	
+	this.cursorLocation = Integer.MAX_VALUE;
+	completionScanner.cursorLocation = Integer.MAX_VALUE;
+	
+	return parserState;
 }
 private void buildMoreAnnotationCompletionContext(MemberValuePair memberValuePair) {
 	if(this.identifierPtr < 0 || this.identifierLengthPtr < 0 ) return;
@@ -1208,6 +1217,8 @@ private boolean checkClassInstanceCreation() {
 			}
 			if(type instanceof CompletionOnSingleTypeReference) {
 				((CompletionOnSingleTypeReference)type).isConstructorType = true;
+			} else if (type instanceof CompletionOnQualifiedTypeReference) {
+				((CompletionOnQualifiedTypeReference)type).isConstructorType = true;
 			}
 			allocExpr.type = type;
 			allocExpr.sourceStart = type.sourceStart;
@@ -1226,6 +1237,9 @@ private boolean checkClassInstanceCreation() {
 				popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
 			} else {
 				type = getTypeReference(0);
+			}
+			if(type instanceof CompletionOnSingleTypeReference) {
+				((CompletionOnSingleTypeReference)type).isConstructorType = true;
 			}
 			allocExpr.type = type;
 			allocExpr.enclosingInstance = this.expressionStack[this.qualifier];
@@ -4538,6 +4552,14 @@ public void reset() {
 public void resetAfterCompletion() {
 	this.cursorLocation = 0;
 	flushAssistState();
+}
+public void restoreAssistParser(Object parserState) {
+	int[] state = (int[]) parserState;
+	
+	CompletionScanner completionScanner = (CompletionScanner)this.scanner;
+	
+	this.cursorLocation = state[0];
+	completionScanner.cursorLocation = state[1];
 }
 /*
  * Reset context so as to resume to regular parse loop

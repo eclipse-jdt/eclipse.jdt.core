@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,10 +71,30 @@ public abstract class AbstractIndexer implements IIndexConstants {
 			typeName = CharOperation.subarray(typeName, 0, genericStart);
 		return typeName;
 	}
-	public void addConstructorDeclaration(char[] typeName, char[][] parameterTypes, char[][] exceptionTypes) {
-		int argCount = parameterTypes == null ? 0 : parameterTypes.length;
-		addIndexEntry(CONSTRUCTOR_DECL, ConstructorPattern.createIndexKey(CharOperation.lastSegment(typeName,'.'), argCount));
-
+	public void addConstructorDeclaration(
+			char[] typeName,
+			int argCount,
+			char[] signature,
+			char[][] parameterTypes,
+			char[][] parameterNames,
+			int modifiers,
+			char[] packageName,
+			int typeModifiers,
+			char[][] exceptionTypes,
+			int extraFlags) {
+		addIndexEntry(
+				CONSTRUCTOR_DECL,
+				ConstructorPattern.createDeclarationIndexKey(
+						typeName,
+						argCount,
+						signature,
+						parameterTypes,
+						parameterNames,
+						modifiers,
+						packageName,
+						typeModifiers,
+						extraFlags));
+		
 		if (parameterTypes != null) {
 			for (int i = 0; i < argCount; i++)
 				addTypeReference(parameterTypes[i]);
@@ -90,6 +110,13 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		char[] innermostTypeName = CharOperation.lastSegment(simpleTypeName,'$');
 		if (innermostTypeName != simpleTypeName)
 			addIndexEntry(CONSTRUCTOR_REF, ConstructorPattern.createIndexKey(innermostTypeName, argCount));
+	}
+	public void addDefaultConstructorDeclaration(
+			char[] typeName,
+			char[] packageName,
+			int typeModifiers,
+			int extraFlags) {
+		addIndexEntry(CONSTRUCTOR_DECL, ConstructorPattern.createDefaultDeclarationIndexKey(CharOperation.lastSegment(typeName,'.'), packageName, typeModifiers, extraFlags));
 	}
 	public void addEnumDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[] superclass, char[][] superinterfaces, boolean secondary) {
 		addTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, secondary);

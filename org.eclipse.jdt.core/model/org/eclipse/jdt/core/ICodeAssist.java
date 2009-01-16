@@ -92,6 +92,26 @@ public interface ICodeAssist {
 	 * An <code>offset</code> of -1 indicates to code assist at the beginning of this
 	 * compilation unit.
 	 * <p>
+	 * <p>
+	 * If {@link IProgressMonitor} is not <code>null</code> then some proposals which
+	 * can be very long to compute are proposed. To avoid that the code assist operation
+	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
+	 * assist operation when a specified amount of time is reached could be used.
+	 * 
+	 * <pre>
+	 * new IProgressMonitor() {
+	 *     private final static int TIMEOUT = 500; //ms
+	 *     private long endTime;
+	 *     public void beginTask(String name, int totalWork) {
+	 *         fEndTime= System.currentTimeMillis() + TIMEOUT;
+	 *     }
+	 *     public boolean isCanceled() {
+	 *         return endTime <= System.currentTimeMillis();
+	 *     }
+	 *     ...
+	 * };
+	 * </pre>
+	 * <p>
 	 *
 	 * @param offset the given offset position
 	 * @param requestor the given completion requestor
@@ -180,6 +200,26 @@ public interface ICodeAssist {
 	 * Note that if a working copy is empty, it will be as if the original compilation
 	 * unit had been deleted.
 	 * </p>
+	 * <p>
+	 * If {@link IProgressMonitor} is not <code>null</code> then some proposals which
+	 * can be very long to compute are proposed. To avoid that the code assist operation
+	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
+	 * assist operation when a specified amount of time is reached could be used.
+	 * 
+	 * <pre>
+	 * new IProgressMonitor() {
+	 *     private final static int TIMEOUT = 500; //ms
+	 *     private long endTime;
+	 *     public void beginTask(String name, int totalWork) {
+	 *         fEndTime= System.currentTimeMillis() + TIMEOUT;
+	 *     }
+	 *     public boolean isCanceled() {
+	 *         return endTime <= System.currentTimeMillis();
+	 *     }
+	 *     ...
+	 * };
+	 * </pre>
+	 * <p>
 	 *
 	 * @param offset the given offset position
 	 * @param requestor the given completion requestor

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,16 +17,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Vector;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.ExtraFlags;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.SourceRefElement;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
+import org.eclipse.jdt.internal.core.search.IRestrictedAccessConstructorRequestor;
 import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 
 /**
@@ -60,6 +65,91 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 	static protected final int SHOW_MATCH_KIND	= 0x0200;
 	static protected final int SHOW_JAR_FILE			= 0x0400;
 
+	public static class ConstructorDeclarationsCollector implements IRestrictedAccessConstructorRequestor {
+		Vector results = new Vector();
+		
+		public void acceptConstructor(
+				int modifiers,
+				char[] simpleTypeName,
+				int parameterCount,
+				char[] signature,
+				char[][] parameterTypes,
+				char[][] parameterNames,
+				int typeModifiers,
+				char[] packageName,
+				int extraFlags,
+				String path,
+				AccessRestriction access) {
+			StringBuffer buffer = new StringBuffer();
+			
+			boolean isMemberType = (extraFlags & ExtraFlags.IsMemberType) != 0;
+			
+			buffer.append(packageName == null ? CharOperation.NO_CHAR : packageName);
+			if (isMemberType) {
+				buffer.append('.');
+				buffer.append('?'); // enclosing type names are not stored in the indexes
+				buffer.append('?');
+				buffer.append('?');
+			}
+			buffer.append('.');
+			buffer.append(simpleTypeName);
+			buffer.append('#');
+			buffer.append(simpleTypeName);
+			buffer.append('(');
+			
+			parameterTypes = signature == null ? parameterTypes : Signature.getParameterTypes(signature);
+			
+			for (int i = 0; i < parameterCount; i++) {
+				if (i != 0) buffer.append(',');
+				
+				if (parameterTypes != null) {
+					char[] parameterType;
+					if (signature != null) {
+						parameterType = Signature.toCharArray(parameterTypes[i]);
+						CharOperation.replace(parameterType, '/', '.');
+					} else {
+						parameterType = parameterTypes[i];
+					}
+					buffer.append(parameterType);
+				} else {
+					buffer.append('?'); // parameter type names are not stored in the indexes
+					buffer.append('?');
+					buffer.append('?');
+				}
+				buffer.append(' ');
+				if (parameterNames != null) {
+					buffer.append(parameterNames[i]);
+				} else {
+					buffer.append("arg"+i);
+				}
+			}
+			buffer.append(')');
+			
+			if (parameterCount < 0) {
+				buffer.append('*');
+			}
+			
+			this.results.addElement(buffer.toString());
+		}
+		
+		public String toString(){
+			int length = this.results.size();
+			String[] strings = new String[length];
+			this.results.toArray(strings);
+			org.eclipse.jdt.internal.core.util.Util.sort(strings);
+			StringBuffer buffer = new StringBuffer(100);
+			for (int i = 0; i < length; i++){
+				buffer.append(strings[i]);
+				if (i != length-1) {
+					buffer.append('\n');
+				}
+			}
+			return buffer.toString();
+		}
+		public int size() {
+			return this.results.size();
+		}
+	}
 	/**
 	 * Collects results as a string.
 	 */
@@ -766,6 +856,16 @@ protected JavaSearchResultCollector resultCollector;
 	}
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule) throws CoreException {
 		search(patternString, searchFor, limitTo, matchRule, getJavaSearchScope(), this.resultCollector);
+	}
+	protected void searchAllConstructorDeclarations(String pattern, int matchRule, IRestrictedAccessConstructorRequestor requestor) throws JavaModelException {
+		new BasicSearchEngine(this.workingCopies).searchAllConstructorDeclarations(
+				null,
+				pattern.toCharArray(),
+				matchRule,
+				SearchEngine.createWorkspaceScope(),
+				requestor,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null);
 	}
 	protected void searchAllTypeNames(String pattern, int matchRule, TypeNameRequestor requestor) throws JavaModelException {
 		new SearchEngine(this.workingCopies).searchAllTypeNames(

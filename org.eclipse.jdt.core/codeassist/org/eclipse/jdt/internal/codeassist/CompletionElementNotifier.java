@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -182,11 +182,11 @@ public class CompletionElementNotifier extends SourceElementNotifier {
 		return typeParameterBounds;
 	}
 
-	protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclaration) {
+	protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclaration, TypeDeclaration declaringType, ImportReference currentPackage) {
 		if (methodDeclaration instanceof CompletionOnMethodReturnType) return;
 		if (methodDeclaration instanceof CompletionOnMethodTypeParameter) return;
 		if (methodDeclaration instanceof CompletionOnMethodName) return;
-		super.notifySourceElementRequestor(methodDeclaration);
+		super.notifySourceElementRequestor(methodDeclaration, declaringType, currentPackage);
 	}
 
 	public void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit, int sourceStart, int sourceEnd, boolean reportReference, HashtableOfObjectToInt sourceEndsMap, Map nodesToCategoriesMap) {
@@ -209,8 +209,8 @@ public class CompletionElementNotifier extends SourceElementNotifier {
 		super.notifySourceElementRequestor(importReference, isPackage);
 	}
 
-	protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType) {
+	protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType, ImportReference currentPackage) {
 		if (typeDeclaration instanceof CompletionOnAnnotationOfType) return;
-		super.notifySourceElementRequestor(typeDeclaration, notifyTypePresence, declaringType);
+		super.notifySourceElementRequestor(typeDeclaration, notifyTypePresence, declaringType, currentPackage);
 	}
 }

@@ -184,6 +184,26 @@ public interface IEvaluationContext {
 	 * <p>
 	 * Note that code completion does not involve evaluation.
 	 * <p>
+	 * <p>
+	 * If {@link IProgressMonitor} is not <code>null</code> then some proposals which
+	 * can be very long to compute are proposed. To avoid that the code assist operation
+	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
+	 * assist operation when a specified amount of time is reached could be used.
+	 * 
+	 * <pre>
+	 * new IProgressMonitor() {
+	 *     private final static int TIMEOUT = 500; //ms
+	 *     private long endTime;
+	 *     public void beginTask(String name, int totalWork) {
+	 *         fEndTime= System.currentTimeMillis() + TIMEOUT;
+	 *     }
+	 *     public boolean isCanceled() {
+	 *         return endTime <= System.currentTimeMillis();
+	 *     }
+	 *     ...
+	 * };
+	 * </pre>
+	 * <p>
 	 *
 	 * @param codeSnippet the code snippet to complete in
 	 * @param position the character position in the code snippet to complete at,
@@ -251,6 +271,26 @@ public interface IEvaluationContext {
 	 * </p>
 	 * <p>
 	 * Note that code completion does not involve evaluation.
+	 * <p>
+	 * <p>
+	 * If {@link IProgressMonitor} is not <code>null</code> then some proposals which
+	 * can be very long to compute are proposed. To avoid that the code assist operation
+	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
+	 * assist operation when a specified amount of time is reached could be used.
+	 * 
+	 * <pre>
+	 * new IProgressMonitor() {
+	 *     private final static int TIMEOUT = 500; //ms
+	 *     private long endTime;
+	 *     public void beginTask(String name, int totalWork) {
+	 *         fEndTime= System.currentTimeMillis() + TIMEOUT;
+	 *     }
+	 *     public boolean isCanceled() {
+	 *         return endTime <= System.currentTimeMillis();
+	 *     }
+	 *     ...
+	 * };
+	 * </pre>
 	 * <p>
 	 *
 	 * @param codeSnippet the code snippet to complete in

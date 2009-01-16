@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,6 +59,7 @@ public interface ISourceElementRequestor {
 		public boolean secondary;
 		public boolean anonymousMember;
 		public Annotation[] annotations;
+		public int extraFlags;
 		public TypeDeclaration node;
 		public HashMap childrenCategories = new HashMap();
 	}
@@ -87,6 +88,9 @@ public interface ISourceElementRequestor {
 		public TypeParameterInfo[] typeParameters;
 		public char[][] categories;
 		public Annotation[] annotations;
+		public char[] declaringPackageName;
+		public int declaringTypeModifiers;
+		public int extraFlags;
 		public AbstractMethodDeclaration node;
 	}
 

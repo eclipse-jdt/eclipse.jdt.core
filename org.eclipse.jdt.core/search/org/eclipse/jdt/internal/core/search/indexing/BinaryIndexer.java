@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.internal.compiler.ExtraFlags;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -700,9 +701,12 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			if (tagBits != 0) {
 				addBinaryStandardAnnotations(tagBits);
 			}
+			
+			int extraFlags = ExtraFlags.getExtraFlags(reader);
 
 			// first reference all methods declarations and field declarations
 			MethodInfo[] methods = (MethodInfo[]) reader.getMethods();
+			boolean noConstructor = true;
 			if (methods != null) {
 				for (int i = 0, max = methods.length; i < max; i++) {
 					MethodInfo method = methods[i];
@@ -712,7 +716,26 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					char[] returnType = decodeReturnType(descriptor);
 					char[][] exceptionTypes = replace('/', '.', method.getExceptionTypeNames());
 					if (isConstructor) {
-						addConstructorDeclaration(className, parameterTypes, exceptionTypes);
+						noConstructor = false;
+						char[] signature = method.getGenericSignature();
+						if (signature == null) {
+							if (reader.isNestedType() && ((modifiers & ClassFileConstants.AccStatic) == 0)) {
+								signature = removeFirstSyntheticParameter(descriptor);
+							} else {
+								signature = descriptor;
+							}
+						}
+						addConstructorDeclaration(
+								name,
+								parameterTypes == null ? 0 : parameterTypes.length,
+								signature,	
+								parameterTypes,
+								method.getArgumentNames(),
+								method.getModifiers(),
+								packageName,
+								modifiers,
+								exceptionTypes,
+								extraFlags);
 					} else {
 						if (!method.isClinit()) {
 							addMethodDeclaration(method.getSelector(), parameterTypes, returnType, exceptionTypes);
@@ -731,6 +754,9 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 						addBinaryStandardAnnotations(tagBits);
 					}
 				}
+			}
+			if (noConstructor) {
+				addDefaultConstructorDeclaration(className, packageName, modifiers, extraFlags);
 			}
 			FieldInfo[] fields = (FieldInfo[]) reader.getFields();
 			if (fields != null) {
@@ -765,6 +791,23 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			// we remove all entries relative to the boggus document
 			this.document.removeAllIndexEntries();
 			Util.log(IStatus.WARNING, "The Java indexing could not index " + this.document.getPath() + ". This .class file doesn't follow the class file format specification. Please report this issue against the .class file vendor"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+	
+	private char[] removeFirstSyntheticParameter(char[] descriptor) {
+		if (descriptor == null) return null;
+		if (descriptor.length < 3) return descriptor;
+		if (descriptor[0] != '(') return descriptor;
+		if (descriptor[1] != ')') {
+			// remove the first synthetic parameter
+			int start = Util.scanTypeSignature(descriptor, 1) + 1;
+			int length = descriptor.length - start;
+			char[] signature = new char[length + 1];
+			signature[0] = descriptor[0];
+			System.arraycopy(descriptor, start, signature, 1, length);
+			return signature;
+		} else {
+			return descriptor;
 		}
 	}
 	/*

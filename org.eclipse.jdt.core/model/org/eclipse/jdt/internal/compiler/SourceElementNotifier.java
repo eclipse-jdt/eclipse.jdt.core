@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,6 +54,7 @@ public class SourceElementNotifier {
 	 * An ast visitor that visits local type declarations.
 	 */
 	public class LocalDeclarationVisitor extends ASTVisitor {
+		public ImportReference currentPackage;
 		ArrayList declaringTypes;
 		public void pushDeclaringType(TypeDeclaration declaringType) {
 			if (this.declaringTypes == null) {
@@ -71,11 +72,11 @@ public class SourceElementNotifier {
 			return (TypeDeclaration) this.declaringTypes.get(size-1);
 		}
 		public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
-			notifySourceElementRequestor(typeDeclaration, true, peekDeclaringType());
+			notifySourceElementRequestor(typeDeclaration, true, peekDeclaringType(), this.currentPackage);
 			return false; // don't visit members as this was done during notifySourceElementRequestor(...)
 		}
 		public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
-			notifySourceElementRequestor(typeDeclaration, true, peekDeclaringType());
+			notifySourceElementRequestor(typeDeclaration, true, peekDeclaringType(), this.currentPackage);
 			return false; // don't visit members as this was done during notifySourceElementRequestor(...)
 		}
 	}
@@ -215,7 +216,7 @@ private boolean hasDeprecatedAnnotation(Annotation[] annotations) {
 /*
  * Update the bodyStart of the corresponding parse node
  */
-protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclaration) {
+protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclaration, TypeDeclaration declaringType, ImportReference currentPackage) {
 
 	// range check
 	boolean isInRange =
@@ -288,6 +289,9 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 			methodInfo.typeParameters = getTypeParameterInfos(methodDeclaration.typeParameters());
 			methodInfo.categories = (char[][]) this.nodesToCategories.get(methodDeclaration);
 			methodInfo.annotations = methodDeclaration.annotations;
+			methodInfo.declaringPackageName = currentPackage == null ? CharOperation.NO_CHAR : CharOperation.concatWith(currentPackage.tokens, '.');
+			methodInfo.declaringTypeModifiers = declaringType.modifiers;
+			methodInfo.extraFlags = ExtraFlags.getExtraFlags(declaringType);
 			methodInfo.node = methodDeclaration;
 			this.requestor.enterConstructor(methodInfo);
 		}
@@ -394,6 +398,9 @@ public void notifySourceElementRequestor(
 			this.requestor.enterCompilationUnit();
 		}
 		ImportReference currentPackage = parsedUnit.currentPackage;
+		if (this.localDeclarationVisitor !=  null) {
+			this.localDeclarationVisitor.currentPackage = currentPackage;
+		}
 		ImportReference[] imports = parsedUnit.imports;
 		TypeDeclaration[] types = parsedUnit.types;
 		length =
@@ -429,7 +436,7 @@ public void notifySourceElementRequestor(
 						notifySourceElementRequestor(importRef, false);
 					}
 				} else { // instanceof TypeDeclaration
-					notifySourceElementRequestor((TypeDeclaration)node, true, null);
+					notifySourceElementRequestor((TypeDeclaration)node, true, null, currentPackage);
 				}
 			}
 		}
@@ -544,7 +551,7 @@ protected void notifySourceElementRequestor(
 			importReference.modifiers);
 	}
 }
-protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType) {
+protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType, ImportReference currentPackage) {
 
 	if (CharOperation.equals(TypeConstants.PACKAGE_INFO_NAME, typeDeclaration.name)) return;
 
@@ -600,6 +607,7 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 			typeInfo.secondary = typeDeclaration.isSecondary();
 			typeInfo.anonymousMember = typeDeclaration.allocation != null && typeDeclaration.allocation.enclosingInstance != null;
 			typeInfo.annotations = typeDeclaration.annotations;
+			typeInfo.extraFlags = ExtraFlags.getExtraFlags(typeDeclaration);
 			typeInfo.node = typeDeclaration;
 			this.requestor.enterType(typeInfo);
 			switch (kind) {
@@ -663,11 +671,11 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 				break;
 			case 1 :
 				methodIndex++;
-				notifySourceElementRequestor(nextMethodDeclaration);
+				notifySourceElementRequestor(nextMethodDeclaration, typeDeclaration, currentPackage);
 				break;
 			case 2 :
 				memberTypeIndex++;
-				notifySourceElementRequestor(nextMemberDeclaration, true, null);
+				notifySourceElementRequestor(nextMemberDeclaration, true, null, currentPackage);
 		}
 	}
 	if (notifyTypePresence){

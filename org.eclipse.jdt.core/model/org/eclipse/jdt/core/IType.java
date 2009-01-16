@@ -161,6 +161,26 @@ public interface IType extends IMember, IAnnotatable {
 	 * If the type has access to its source code and the insertion position is valid,
 	 * then completion is performed against the source. Otherwise the completion is performed
 	 * against the type structure and the given locals variables.
+	 * <p>
+	 * If {@link IProgressMonitor} is not <code>null</code> then some proposals which
+	 * can be very long to compute are proposed. To avoid that the code assist operation
+	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
+	 * assist operation when a specified amount of time is reached could be used.
+	 * 
+	 * <pre>
+	 * new IProgressMonitor() {
+	 *     private final static int TIMEOUT = 500; //ms
+	 *     private long endTime;
+	 *     public void beginTask(String name, int totalWork) {
+	 *         fEndTime= System.currentTimeMillis() + TIMEOUT;
+	 *     }
+	 *     public boolean isCanceled() {
+	 *         return endTime <= System.currentTimeMillis();
+	 *     }
+	 *     ...
+	 * };
+	 * </pre>
+	 * <p>
 	 *
 	 * @param snippet the code snippet
 	 * @param insertion the position with in source where the snippet
@@ -251,6 +271,26 @@ public interface IType extends IMember, IAnnotatable {
 	 * then completion is performed against the source. Otherwise the completion is performed
 	 * against the type structure and the given locals variables.
 	 * </p>
+	 * <p>
+	 * If {@link IProgressMonitor} is not <code>null</code> then some proposals which
+	 * can be very long to compute are proposed. To avoid that the code assist operation
+	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
+	 * assist operation when a specified amount of time is reached could be used.
+	 * 
+	 * <pre>
+	 * new IProgressMonitor() {
+	 *     private final static int TIMEOUT = 500; //ms
+	 *     private long endTime;
+	 *     public void beginTask(String name, int totalWork) {
+	 *         fEndTime= System.currentTimeMillis() + TIMEOUT;
+	 *     }
+	 *     public boolean isCanceled() {
+	 *         return endTime <= System.currentTimeMillis();
+	 *     }
+	 *     ...
+	 * };
+	 * </pre>
+	 * <p>
 	 *
 	 * @param snippet the code snippet
 	 * @param insertion the position with in source where the snippet
