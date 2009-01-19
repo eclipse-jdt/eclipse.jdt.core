@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Hashtable;
 
 import junit.framework.Test;
 
@@ -130,6 +131,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 */
 	public void testCreateCompilationUnitAndImportContainer() throws JavaModelException, CoreException {
 		String savedEncoding = null;
+		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Preferences preferences = ResourcesPlugin.getPlugin().getPluginPreferences();
 			
@@ -168,6 +170,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			Preferences preferences = ResourcesPlugin.getPlugin().getPluginPreferences();
 			preferences.setValue(ResourcesPlugin.PREF_ENCODING, savedEncoding);
 			ResourcesPlugin.getPlugin().savePluginPreferences();
+			JavaCore.setOptions(javaCoreOptions);
 		}
 	}	
 
