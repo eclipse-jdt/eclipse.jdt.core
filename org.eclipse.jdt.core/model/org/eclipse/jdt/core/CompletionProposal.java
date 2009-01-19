@@ -1551,6 +1551,11 @@ public class CompletionProposal {
 	 *    <li><code>TYPE_REF</code></li>
 	 *   </ul>
 	 *  </li>
+	 *  <li><code>ANONYMOUS_CLASS_DECLARATION</code> - The allowed required proposals for this kind are:
+	 *   <ul>
+	 *    <li><code>TYPE_REF</code></li>
+	 *   </ul>
+	 *  </li>
 	 * </ul>
 	 * </p>
 	 * <p>

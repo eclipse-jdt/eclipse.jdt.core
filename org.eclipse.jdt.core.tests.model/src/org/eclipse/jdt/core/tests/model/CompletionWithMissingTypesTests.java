@@ -1667,4 +1667,209 @@ public void test0040() throws JavaModelException {
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=260717
+public void test0041() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    new MissingType(\n" +
+		"  }\n" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/missing/MissingType.java",
+		"package missing;"+
+		"public class MissingType {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new MissingType(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NO_PROBLEMS;
+	int start1 = str.lastIndexOf("new MissingType(") + "new MissingType(".length();
+	int end1 = start1 + "".length();
+	int start2 = str.indexOf("MissingType");
+	int end2 = start2 + "MissingType".length();
+	assertResults(
+			"MissingType[ANONYMOUS_CLASS_DECLARATION]{, Lmissing.MissingType;, ()V, null, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
+			"MissingType[METHOD_REF<CONSTRUCTOR>]{, Lmissing.MissingType;, ()V, MissingType, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=260717
+public void test0042() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    new MissingType.Member(\n" +
+		"  }\n" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/missing/MissingType.java",
+		"package missing;"+
+		"public class MissingType {\n" +
+		"  public static class Member {}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new MissingType.Member(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NO_PROBLEMS;
+	int start1 = str.lastIndexOf("new MissingType.Member(") + "new MissingType.Member(".length();
+	int end1 = start1 + "".length();
+	int start2 = str.indexOf("MissingType");
+	int end2 = start2 + "MissingType".length();
+	assertResults(
+			"Member[METHOD_REF<CONSTRUCTOR>]{, Lmissing.MissingType$Member;, ()V, Member, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
+			"MissingType.Member[ANONYMOUS_CLASS_DECLARATION]{, Lmissing.MissingType$Member;, ()V, null, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=260717
+public void test0043() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    this.new MissingType(\n" +
+		"  }\n" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/missing/MissingType.java",
+		"package missing;"+
+		"public class MissingType {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new MissingType(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=260717
+public void test0044() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    MissingType m = null;\n" +
+		"    m.new Member(\n" +
+		"  }\n" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/missing/MissingType.java",
+		"package missing;"+
+		"public class MissingType {\n" +
+		"  public class Member {}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new Member(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=260717
+public void test0045() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    new MissingType(\n" +
+		"  }\n" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/missing/MissingType.java",
+		"package missing;"+
+		"public interface MissingType {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new MissingType(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NO_PROBLEMS;
+	int start1 = str.lastIndexOf("new MissingType(") + "new MissingType(".length();
+	int end1 = start1 + "".length();
+	int start2 = str.indexOf("MissingType");
+	int end2 = start2 + "MissingType".length();
+	assertResults(
+			"MissingType[ANONYMOUS_CLASS_DECLARATION]{, Lmissing.MissingType;, ()V, null, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=260717
+public void test0046() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    new MissingType(\n" +
+		"  }\n" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/missing/MissingType.java",
+		"package missing;"+
+		"public abstract class MissingType {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new MissingType(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NO_PROBLEMS;
+	int start1 = str.lastIndexOf("new MissingType(") + "new MissingType(".length();
+	int end1 = start1 + "".length();
+	int start2 = str.indexOf("MissingType");
+	int end2 = start2 + "MissingType".length();
+	assertResults(
+			"MissingType[ANONYMOUS_CLASS_DECLARATION]{, Lmissing.MissingType;, ()V, null, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
 }

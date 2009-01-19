@@ -1581,7 +1581,7 @@ public final class CompletionEngine
 		}
 	}
 
-	private void checkCancel() {
+	void checkCancel() {
 		if (this.monitor != null && this.monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
@@ -2072,6 +2072,10 @@ public final class CompletionEngine
 				argTypes,
 				scope,
 				constructorCall,
+				false,
+				null,
+				null,
+				null,
 				false);
 		}
 	}
@@ -2150,7 +2154,7 @@ public final class CompletionEngine
 
 		ReferenceBinding ref = (ReferenceBinding) qualifiedBinding;
 		if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF) && ref.isClass()) {
-			findConstructors(ref, argTypes, scope, allocExpression, false);
+			findConstructors(ref, argTypes, scope, allocExpression, false, null, null, null, false);
 		}
 	}
 	//TODO
@@ -2222,7 +2226,7 @@ public final class CompletionEngine
 					if (this.completionToken == null
 							|| CharOperation.prefixEquals(this.completionToken, refBinding.sourceName)
 							|| (this.options.camelCaseMatch && CharOperation.camelCaseMatch(this.completionToken, refBinding.sourceName))) {
-						findConstructors(refBinding, null, scope, fieldRef, false);
+						findConstructors(refBinding, null, scope, fieldRef, false, null, null, null, false);
 					}
 				}
 			}
@@ -2809,27 +2813,44 @@ public final class CompletionEngine
 		TypeBinding[] argTypes = computeTypes(allocExpression.arguments);
 
 		ReferenceBinding ref = (ReferenceBinding) qualifiedBinding;
-		if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)
-				&& ref.isClass()
-				&& !ref.isAbstract()) {
-				findConstructors(
+		
+		if (ref.problemId() == ProblemReasons.NotFound) {
+			findConstructorsFromMissingType(
+					allocExpression.type,
+					argTypes,
+					scope,
+					allocExpression);
+		} else {
+			if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)
+					&& ref.isClass()
+					&& !ref.isAbstract()) {
+					findConstructors(
+						ref,
+						argTypes,
+						scope,
+						allocExpression,
+						false,
+						null,
+						null,
+						null,
+						false);
+			}
+			
+			checkCancel();
+			
+			if (!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)
+					&& !ref.isFinal()
+					&& !ref.isEnum()){
+				findAnonymousType(
 					ref,
 					argTypes,
 					scope,
 					allocExpression,
+					null,
+					null,
+					null,
 					false);
-		}
-		
-		checkCancel();
-		
-		if (!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)
-				&& !ref.isFinal()
-				&& !ref.isEnum()){
-			findAnonymousType(
-				ref,
-				argTypes,
-				scope,
-				allocExpression);
+			}
 		}
 	}
 	
@@ -4475,24 +4496,47 @@ public final class CompletionEngine
 			}
 		}
 	}
-	private void findAnonymousType(
+	void findAnonymousType(
 			ReferenceBinding currentType,
 			TypeBinding[] argTypes,
 			Scope scope,
-			InvocationSite invocationSite) {
+			InvocationSite invocationSite,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems) {
 		
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForResolution();
 		relevance += computeRelevanceForInterestingProposal();
 		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 		
-		findAnonymousType(currentType, argTypes, scope, invocationSite, true, false, relevance);
+		if (missingElements != null) {
+			relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+		}
+		
+		findAnonymousType(
+				currentType,
+				argTypes,
+				scope,
+				invocationSite,
+				missingElements,
+				missingElementsStarts,
+				missingElementsEnds,
+				missingElementsHaveProblems,
+				true,
+				false,
+				relevance);
 	}
 	private void findAnonymousType(
 		ReferenceBinding currentType,
 		TypeBinding[] argTypes,
 		Scope scope,
 		InvocationSite invocationSite,
+		Binding[] missingElements,
+		int[] missingElementsStarts,
+		int[] missingElementsEnds,
+		boolean missingElementsHaveProblems,
 		boolean exactMatch,
 		boolean isQualified,
 		int relevance) {
@@ -4564,7 +4608,7 @@ public final class CompletionEngine
 					}
 				}
 			}  else {
-				if(!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)) {
+				if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, missingElements != null)) {
 					InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(currentType));
 					proposal.setDeclarationKey(currentType.computeUniqueKey());
@@ -4582,6 +4626,18 @@ public final class CompletionEngine
 					//proposal.setParameterTypeNames(null);
 					//proposal.setPackageName(null);
 					//proposal.setTypeName(null);
+					if (missingElements != null) {
+						CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
+						for (int i = 0; i < missingElements.length; i++) {
+							subProposals[i] =
+								createRequiredTypeProposal(
+										missingElements[i],
+										missingElementsStarts[i],
+										missingElementsEnds[i],
+										relevance);
+						}
+						proposal.setRequiredProposals(subProposals);
+					}
 					proposal.setCompletion(completion);
 					proposal.setFlags(Flags.AccPublic);
 					proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
@@ -4600,6 +4656,10 @@ public final class CompletionEngine
 				scope,
 				invocationSite,
 				true,
+				missingElements,
+				missingElementsStarts,
+				missingElementsEnds,
+				missingElementsHaveProblems,
 				exactMatch,
 				isQualified,
 				relevance);
@@ -4681,19 +4741,93 @@ public final class CompletionEngine
 			}
 		}
 	}
-	private void findConstructors(
+	
+	void findConstructors(
 		ReferenceBinding currentType,
 		TypeBinding[] argTypes,
 		Scope scope,
 		InvocationSite invocationSite,
-		boolean forAnonymousType) {
+		boolean forAnonymousType,
+		Binding[] missingElements,
+		int[] missingElementsStarts,
+		int[] missingElementsEnds,
+		boolean missingElementsHaveProblems) {
 		
 		int relevance = computeBaseRelevance();
-						relevance += computeRelevanceForResolution();
-						relevance += computeRelevanceForInterestingProposal();
-						relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+		relevance += computeRelevanceForResolution();
+		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 		
-		findConstructors(currentType, argTypes, scope, invocationSite, forAnonymousType, true, false, relevance);
+		if (missingElements != null) {
+			relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+		}
+		
+		findConstructors(
+				currentType,
+				argTypes,
+				scope,
+				invocationSite,
+				forAnonymousType,
+				missingElements,
+				missingElementsStarts,
+				missingElementsEnds,
+				missingElementsHaveProblems,
+				true,
+				false,
+				relevance);
+	}
+	
+	
+	private void findConstructorsFromMissingType(
+			TypeReference typeRef,
+			final TypeBinding[] argTypes,
+			final Scope scope,
+			final InvocationSite invocationSite) {
+		MissingTypesGuesser missingTypesConverter = new MissingTypesGuesser(this);
+		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor =
+			new MissingTypesGuesser.GuessedTypeRequestor() {
+				public void accept(
+						TypeBinding guessedType,
+						Binding[] missingElements,
+						int[] missingElementsStarts,
+						int[] missingElementsEnds,
+						boolean hasProblems) {
+					if (guessedType instanceof ReferenceBinding) {
+						ReferenceBinding ref = (ReferenceBinding) guessedType;
+						if (!isIgnored(CompletionProposal.METHOD_REF, missingElements != null)
+								&& ref.isClass()
+								&& !ref.isAbstract()) {
+								findConstructors(
+									ref,
+									argTypes,
+									scope,
+									invocationSite,
+									false,
+									missingElements,
+									missingElementsStarts,
+									missingElementsEnds,
+									hasProblems);
+						}
+								
+						checkCancel();
+			
+						if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, missingElements != null)
+								&& !ref.isFinal()
+								&& !ref.isEnum()){
+							findAnonymousType(
+								ref,
+								argTypes,
+								scope,
+								invocationSite,
+								missingElements,
+								missingElementsStarts,
+								missingElementsEnds,
+								hasProblems);
+						}
+					}
+				}
+			};
+		missingTypesConverter.guess(typeRef, scope, substitutionRequestor);
 	}
 		
 	private void findConstructors(
@@ -4702,6 +4836,10 @@ public final class CompletionEngine
 		Scope scope,
 		InvocationSite invocationSite,
 		boolean forAnonymousType,
+		Binding[] missingElements,
+		int[] missingElementsStarts,
+		int[] missingElementsEnds,
+		boolean missingElementsHaveProblems,
 		boolean exactMatch,
 		boolean isQualified,
 		int relevance) {
@@ -4813,7 +4951,7 @@ public final class CompletionEngine
 								}
 							}
 						} else {
-							if(!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)) {
+							if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, missingElements != null)) {
 								InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, this.actualCompletionPosition);
 								proposal.setDeclarationSignature(getSignature(currentType));
 								proposal.setDeclarationKey(currentType.computeUniqueKey());
@@ -4829,6 +4967,18 @@ public final class CompletionEngine
 								proposal.setParameterTypeNames(parameterTypeNames);
 								//proposal.setPackageName(null);
 								//proposal.setTypeName(null);
+								if (missingElements != null) {
+									CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
+									for (int i = 0; i < missingElements.length; i++) {
+										subProposals[i] =
+											createRequiredTypeProposal(
+													missingElements[i],
+													missingElementsStarts[i],
+													missingElementsEnds[i],
+													relevance);
+									}
+									proposal.setRequiredProposals(subProposals);
+								}
 								proposal.setCompletion(completion);
 								proposal.setFlags(constructor.modifiers);
 								proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
@@ -4960,7 +5110,7 @@ public final class CompletionEngine
 								}
 							}
 						} else {
-							if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
+							if(!isIgnored(CompletionProposal.METHOD_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
 								InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 								proposal.setDeclarationSignature(getSignature(currentType));
 								proposal.setSignature(getSignature(constructor));
@@ -4975,6 +5125,18 @@ public final class CompletionEngine
 								//proposal.setPackageName(null);
 								//proposal.setTypeName(null);
 								proposal.setName(currentType.sourceName());
+								if (missingElements != null) {
+									CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
+									for (int i = 0; i < missingElements.length; i++) {
+										subProposals[i] =
+											createRequiredTypeProposal(
+													missingElements[i],
+													missingElementsStarts[i],
+													missingElementsEnds[i],
+													relevance);
+									}
+									proposal.setRequiredProposals(subProposals);
+								}
 								proposal.setIsContructor(true);
 								proposal.setCompletion(completion);
 								proposal.setFlags(constructor.modifiers);
@@ -5124,6 +5286,10 @@ public final class CompletionEngine
 					scope,
 					invocationSite,
 					false,
+					null,
+					null,
+					null,
+					false,
 					false,
 					isQualified,
 					relevance);
@@ -5138,6 +5304,10 @@ public final class CompletionEngine
 				null,
 				scope,
 				invocationSite,
+				null,
+				null,
+				null,
+				false,
 				false,
 				isQualified,
 				relevance);
@@ -11431,7 +11601,7 @@ public final class CompletionEngine
 	private boolean isIgnored(int kind) {
 		return this.requestor.isIgnored(kind);
 	}
-	private boolean isIgnored(int kind, boolean missingTypes) {
+	boolean isIgnored(int kind, boolean missingTypes) {
 		return this.requestor.isIgnored(kind) ||
 			(missingTypes && !this.requestor.isAllowingRequiredProposals(kind, CompletionProposal.TYPE_REF));
 	}
