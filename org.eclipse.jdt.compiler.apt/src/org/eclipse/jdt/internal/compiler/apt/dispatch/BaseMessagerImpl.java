@@ -20,8 +20,10 @@ import org.eclipse.jdt.internal.compiler.apt.model.TypeElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.VariableElementImpl;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.AptSourceLocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -84,6 +86,7 @@ public class BaseMessagerImpl {
 				case EXCEPTION_PARAMETER :
 					break;
 				case FIELD :
+				case PARAMETER :
 					VariableElementImpl variableElementImpl = (VariableElementImpl) e;
 					binding = variableElementImpl._binding;
 					if (binding instanceof FieldBinding) {
@@ -99,14 +102,23 @@ public class BaseMessagerImpl {
 							startPosition = fieldDeclaration.sourceStart;
 							endPosition = fieldDeclaration.sourceEnd;
 						}
+					} else if (binding instanceof AptSourceLocalVariableBinding){
+						AptSourceLocalVariableBinding parameterBinding = (AptSourceLocalVariableBinding) binding;
+						LocalDeclaration parameterDeclaration = parameterBinding.declaration;
+						if (parameterDeclaration != null) {
+							MethodBinding methodBinding = parameterBinding.methodBinding;
+							if (methodBinding != null) {
+								referenceContext = methodBinding.sourceMethod();
+							}
+							startPosition = parameterDeclaration.sourceStart;
+							endPosition = parameterDeclaration.sourceEnd;
+						}
 					}
 					break;
 				case INSTANCE_INIT :
 				case STATIC_INIT :
 					break;
 				case LOCAL_VARIABLE :
-					break;
-				case PARAMETER :
 					break;
 				case TYPE_PARAMETER :
 			}

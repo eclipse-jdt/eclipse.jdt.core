@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -31,6 +32,75 @@ public class MessagerTests extends TestCase {
 	// See corresponding usages in the MessagerProc class
 	private static final String MESSAGERPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.messager.MessagerProc";
 	
+	// Expected output for Eclipse compiler.
+	// Note that this is actually a series of regular expressions, which will be matched line by line!
+	// This is required in order to deal with things like hard-coded paths.
+	private static final String[] EXPECTED_ECLIPSE_MESSAGES = {
+		"----------", 
+		"1\\. WARNING in \\(original file name is not available\\)", 
+		"Informational message not associated with an element", 
+		"----------", 
+		"2\\. ERROR in .*D\\.java \\(at line 15\\)", 
+		"	public class D \\{", 
+		"	             \\^", 
+		"Error on element D", 
+		"----------", 
+		"3\\. ERROR in .*D\\.java \\(at line 15\\)", 
+		"	public class D \\{", 
+		"	             \\^", 
+		"Error on element D", 
+		"----------", 
+		"4\\. ERROR in .*D\\.java \\(at line 15\\)", 
+		"	public class D \\{", 
+		"	             \\^", 
+		"Error on element D", 
+		"----------", 
+		"5\\. ERROR in \\(original file name is not available\\)", 
+		"Error on element java\\.lang\\.String", 
+		"----------", 
+		"6\\. WARNING in .*E\\.java \\(at line 12\\)", 
+		"	public void foo\\(int i\\) \\{\\}", 
+		"	            \\^\\^\\^\\^\\^\\^\\^\\^\\^\\^", 
+		"Warning on method foo", 
+		"----------", 
+		"7\\. WARNING in .*E\\.java \\(at line 14\\)", 
+		"	public static int j;", 
+		"	                  \\^", 
+		"Note for field j", 
+		"----------", 
+		"8\\. WARNING in .*D\\.java \\(at line 19\\)", 
+		"	public void methodDvoid\\(DEnum dEnum1\\) \\{", 
+		"	                              \\^\\^\\^\\^\\^\\^", 
+		"Error on parameter of D\\.methodDvoid", 
+		"----------", 
+		"8 problems \\(4 errors, 4 warnings\\)" 
+	};
+	
+	/**
+	 * Compare an actual multi-line string against an array of regular expressions
+	 * representing an expected string. Each regular expression will be matched against
+	 * one line of the actual string.
+	 * @return true if every line in the actual was matched by the corresponding regex
+	 * in the expected.
+	 */
+	private static boolean compareRegexLines(String actual, String[] expected) {
+		String[] actualLines = actual.split("\n");
+		if (actualLines.length != expected.length) {
+			return false;
+		}
+		int i = 0;
+		for (String pattern : expected) {
+			int iCR = actualLines[i].indexOf('\r');
+			actualLines[i] = iCR > 0 ? actualLines[i].substring(0, iCR) : actualLines[i];
+			int iNL = actualLines[i].indexOf('\n');
+			actualLines[i] = iNL > 0 ? actualLines[i].substring(0, iNL) : actualLines[i];
+			if (!Pattern.matches(pattern, actualLines[i++])) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -44,6 +114,7 @@ public class MessagerTests extends TestCase {
 	public void testMessagerWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestMessager(compiler);
+		// TODO: validate errors against expected
 	}
 
 	/**
@@ -52,14 +123,16 @@ public class MessagerTests extends TestCase {
 	 */
 	public void testMessagerWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestMessager(compiler);
+		String actualErrors = internalTestMessager(compiler);
+		assertTrue(compareRegexLines(actualErrors, EXPECTED_ECLIPSE_MESSAGES));
 	}
 
 	/**
 	 * Attempt to report errors on various elements.
 	 * @throws IOException
+	 * @return the outputted errors, if the test succeeded enough to generate them
 	 */
-	private void internalTestMessager(JavaCompiler compiler) throws IOException {
+	private String internalTestMessager(JavaCompiler compiler) throws IOException {
 		System.clearProperty(MESSAGERPROCNAME);
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "errors");
 		BatchTestUtils.copyResources("targets/errors", targetFolder);
@@ -81,7 +154,7 @@ public class MessagerTests extends TestCase {
 		assertNotNull("No property", property);
 		assertEquals("succeeded", property);
 		
-		// TODO: check "errors" against expected values to ensure that the problems were correctly reported
+		return errors.getBuffer().toString();
 	}
 
 	/* (non-Javadoc)

@@ -33,6 +33,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic.Kind;
 
@@ -107,6 +108,9 @@ public class MessagerProc extends AbstractProcessor {
 	// Initialized in collectElements()
 	private TypeElement _elementF;
 
+	// Initialized in collectElements()
+	private VariableElement _parameterElement;
+	
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.AbstractProcessor#init(javax.annotation.processing.ProcessingEnvironment)
 	 */
@@ -160,6 +164,17 @@ public class MessagerProc extends AbstractProcessor {
 			return false;
 		}
 //		printVariableElements(_elementD);
+		
+		for (ExecutableElement method : ElementFilter.methodsIn(_elementD.getEnclosedElements())) {
+			if ("methodDvoid".equals(method.getSimpleName().toString())) {
+				List<? extends VariableElement> params = method.getParameters();
+				if (params.size() < 1) {
+					reportError("D.methodDvoid() had no parameters");
+					return false;
+				}
+				_parameterElement = params.get(0);
+			}
+		}
 		
 		_elementE = _elementUtils.getTypeElement("targets.errors.pb.E");
 		if (null == _elementE || _elementE.getKind() != ElementKind.CLASS) {
@@ -292,6 +307,7 @@ public class MessagerProc extends AbstractProcessor {
 		_messager.printMessage(Kind.ERROR, "Error on element java.lang.String", _element2);
 		_messager.printMessage(Kind.WARNING, "Warning on method foo", _methodElement);
 		_messager.printMessage(Kind.NOTE, "Note for field j", _variableElement);
+		_messager.printMessage(Kind.WARNING, "Error on parameter of D.methodDvoid", _parameterElement);
 		return true;
 	}
 }
