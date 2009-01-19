@@ -138,7 +138,7 @@ There is also a similar new API to complete anonymous type constructor: <code>AN
 	public static final int ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION = 27;
 </pre>
 These new proposals can require a long computation so they are proposed only if code assist was called with a progress monitor.
-To avoid that the code assist operation take too much time a <code>IProgressMonitor</code> which automatically cancel the code
+To avoid that the code assist operation takes too much time a <code>IProgressMonitor</code> which automatically cancel the code
 assist operation when a specified amount of time is reached could be used.
 
 <pre>
@@ -155,20 +155,9 @@ new IProgressMonitor() {
  };
 </pre>
 </li>
-<li>Search indexes for constructor declaration contains more information.<br>
-The new index keys for :
-<ul>
-<li>binary constructor for class are: <code>TypeName '/' Arity '/' TypeModifers '/' PackageName '/' Signature '/' ParameterNamesopt '/' Modifiers</code></li>
-<li>bource constructor for class are: <code>TypeName '/' Arity '/' TypeModifers '/' PackageName '/' ParameterTypes '/' ParameterNamesopt '/' Modifiers</code></li>
-<li>constructor with 0 arity for class are: <code>TypeName '/' 0 '/' TypeModifers '/' PackageName '/' Modifiers</code></li>
-<li>constructor for enum, interface (annotation) and class with default constructor are: <code>TypeName '/' # '/' TypeModifers '/' PackageName</code></li>
-<li>constructor for member type are: <code>TypeName '/' Arity '/' TypeModifers</code></li>
-</ul>
-These new index keys are use by the new method <code>BasicSearchEngine#searchAllConstructorDeclarations()</code>. 
-</li>
 <li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6930">bug 6930</a> required the index version to be incremented. 
     Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress 
-    dialogs).
+    dialogs) and the size of the new indexes will be bigger.
 </li>
 </ul>
 
