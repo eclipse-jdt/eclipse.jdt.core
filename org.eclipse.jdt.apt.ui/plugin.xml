@@ -28,7 +28,7 @@
             name="%annotationProcessingName"
             objectClass="org.eclipse.core.resources.IProject">
          <filter
-               name="%natureName"
+               name="nature"
                value="org.eclipse.jdt.core.javanature">
          </filter>
       </page>            
@@ -39,7 +39,7 @@
             name="%annotationProcessingName"
             objectClass="org.eclipse.jdt.core.IJavaProject">
          <filter
-               name="%natureName"
+               name="nature"
                value="org.eclipse.jdt.core.javanature">
          </filter>
       </page>
@@ -50,7 +50,7 @@
             name="%factoryPathName"
             objectClass="org.eclipse.core.resources.IProject">
          <filter
-               name="%natureName"
+               name="nature"
                value="org.eclipse.jdt.core.javanature"/>
       </page>
       <page
@@ -60,7 +60,7 @@
             name="%factoryPathName"
             objectClass="org.eclipse.jdt.core.IJavaProject">
          <filter
-               name="%natureName"
+               name="nature"
                value="org.eclipse.jdt.core.javanature"/>
       </page>            
    </extension>
