@@ -1294,10 +1294,7 @@ public class BasicSearchEngine {
 			Util.verbose("BasicSearchEngine.searchAllTypeNames(char[][], char[][], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
 			Util.verbose("	- package name: "+(qualifications==null?"null":new String(CharOperation.concatWith(qualifications, ',')))); //$NON-NLS-1$ //$NON-NLS-2$
 			Util.verbose("	- type name: "+(typeNames==null?"null":new String(CharOperation.concatWith(typeNames, ',')))); //$NON-NLS-1$ //$NON-NLS-2$
-			Util.verbose("	- match rule: "+matchRule); //$NON-NLS-1$
-			if (validatedMatchRule != matchRule) {
-				Util.verbose("	- validated match rule: "+getMatchRuleString(validatedMatchRule)); //$NON-NLS-1$
-			}
+			Util.verbose("	- match rule: "+getMatchRuleString(matchRule)); //$NON-NLS-1$
 			Util.verbose("	- search for: "+searchFor); //$NON-NLS-1$
 			Util.verbose("	- scope: "+scope); //$NON-NLS-1$
 		}
