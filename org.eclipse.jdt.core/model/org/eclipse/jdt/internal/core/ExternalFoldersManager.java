@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -135,13 +136,14 @@ public class ExternalFoldersManager {
 		if (roots == null && sourceAttachments == null)
 			return null;
 		HashMap knownFolders = getFolders();
-		Iterator iterator = knownFolders.keySet().iterator();
+		Iterator iterator = knownFolders.entrySet().iterator();
 		ArrayList result = null;
 		while (iterator.hasNext()) {
-			IPath path = (IPath) iterator.next();
+			Map.Entry entry = (Map.Entry) iterator.next();
+			IPath path = (IPath) entry.getKey();
 			if ((roots != null && !roots.containsKey(path))
 					&& (sourceAttachments != null && !sourceAttachments.containsKey(path))) {
-				IFolder folder = (IFolder) knownFolders.get(path);
+				IFolder folder = (IFolder) entry.getValue();
 				if (folder != null) {
 					if (result == null)
 						result = new ArrayList();
