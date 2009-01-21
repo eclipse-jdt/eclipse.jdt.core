@@ -48889,4 +48889,38 @@ public void test1441() {
 			"The method bar(capture#4-of ? extends Object&Serializable&Comparable<? extends Object&Serializable&Comparable<?>>) in the type X<capture#4-of ? extends Object&Serializable&Comparable<? extends Object&Serializable&Comparable<?>>> is not applicable for the arguments (Object)\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=221253
+public void test1442() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X<T extends Comparable<T>> {\n" + 
+				"        T[] array;\n" + 
+				"\n" + 
+				"        @Override public boolean equals(Object o) {\n" + 
+				"                X<Comparable<T>> x;\n" + 
+				"                if (array.length == ((X<Comparable<T>>) o).array.length) {\n" + 
+				"                        return true;\n" + 
+				"                }\n" + 
+				"                return false;\n" + 
+				"        }\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	X<Comparable<T>> x;\n" + 
+			"	  ^^^^^^^^^^\n" + 
+			"Bound mismatch: The type Comparable<T> is not a valid substitute for the bounded parameter <T extends Comparable<T>> of the type X<T>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	if (array.length == ((X<Comparable<T>>) o).array.length) {\n" + 
+			"	                    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from Object to X<Comparable<T>>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	if (array.length == ((X<Comparable<T>>) o).array.length) {\n" + 
+			"	                        ^^^^^^^^^^\n" + 
+			"Bound mismatch: The type Comparable<T> is not a valid substitute for the bounded parameter <T extends Comparable<T>> of the type X<T>\n" + 
+			"----------\n");
+}
 }
