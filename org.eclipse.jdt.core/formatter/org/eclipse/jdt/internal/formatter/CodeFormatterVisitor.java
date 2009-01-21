@@ -753,7 +753,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		// reset the scribe
 		this.scribe.reset();
 
-		long startTime = System.currentTimeMillis();
+		long startTime = 0;
+		if (DEBUG) {
+			startTime = System.currentTimeMillis();
+		}
 
 		final char[] compilationUnitSource = string.toCharArray();
 
@@ -787,7 +790,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			return failedToFormat();
 		}
 
-		long startTime = System.currentTimeMillis();
+		long startTime = 0;
+		if (DEBUG) {
+			startTime = System.currentTimeMillis();
+		}
 
 		final char[] compilationUnitSource = string.toCharArray();
 
@@ -813,7 +819,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		// reset the scribe
 		this.scribe.reset();
 
-		long startTime = System.currentTimeMillis();
+		long startTime = 0;
+		if (DEBUG) {
+			startTime = System.currentTimeMillis();
+		}
 
 		final char[] compilationUnitSource = string.toCharArray();
 
@@ -854,7 +863,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		// reset the scribe
 		this.scribe.reset();
 
-		long startTime = System.currentTimeMillis();
+		long startTime = 0;
+		if (DEBUG) {
+			startTime = System.currentTimeMillis();
+		}
 
 		final char[] compilationUnitSource = string.toCharArray();
 
