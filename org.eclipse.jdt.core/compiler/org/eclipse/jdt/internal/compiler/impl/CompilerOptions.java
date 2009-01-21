@@ -517,6 +517,7 @@ public class CompilerOptions {
 
 	public static long optionKeyToIrritant(String optionName) {
 		if (OptionToIrritants == null) {
+			OptionToIrritants = new HashMap();
 			int group = 0;
 			for (int g = 0; g < 8; g++) {
 				group <<= 1;
