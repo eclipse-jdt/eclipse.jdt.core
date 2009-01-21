@@ -145,11 +145,24 @@ public final class HashtableOfObjectToIntArray implements Cloneable {
 	}
 
 	public String toString() {
-		String s = ""; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer();
 		Object key;
-		for (int i = 0, length = this.keyTable.length; i < length; i++)
-			if ((key = this.keyTable[i]) != null)
-				s += key + " -> " + this.valueTable[i] + "\n"; 	//$NON-NLS-2$ //$NON-NLS-1$
-		return s;
+		for (int i = 0, length = this.keyTable.length; i < length; i++) {
+			if ((key = this.keyTable[i]) != null) {
+				buffer.append(key).append(" -> "); //$NON-NLS-1$
+				int[] ints = this.valueTable[i];
+				buffer.append('[');
+				if (ints != null) {
+					for (int j = 0, max = ints.length; j < max; j++) {
+						if (j > 0) {
+							buffer.append(',');
+						}
+						buffer.append(ints[j]);
+					}
+				}
+				buffer.append("]\n"); //$NON-NLS-1$
+			}
+		}
+		return String.valueOf(buffer);
 	}
 }
