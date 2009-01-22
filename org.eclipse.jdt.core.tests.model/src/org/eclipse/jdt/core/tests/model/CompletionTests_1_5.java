@@ -6082,7 +6082,7 @@ public void test0191() throws JavaModelException {
 
     assertResults(
             "expectedTypesSignatures={Ltest0191.ZZClass1<+TU;>;}\n" +
-            "expectedTypesKeys={Ltest0191/Test~ZZClass1<Ltest0191/Test~ZZClass1;+Ltest0191/Test;:TU;>;}",
+    		"expectedTypesKeys={Ltest0191/Test~ZZClass1<Ltest0191/Test~ZZClass1;{0}+Ltest0191/Test;:TU;>;}",
             result.context);
 
     assertResults(

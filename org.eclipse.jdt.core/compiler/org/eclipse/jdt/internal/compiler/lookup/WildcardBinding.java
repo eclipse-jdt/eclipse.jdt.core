@@ -23,8 +23,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
  */
 public class WildcardBinding extends ReferenceBinding {
 
-	ReferenceBinding genericType;
-	int rank;
+	public ReferenceBinding genericType;
+	public int rank;
     public TypeBinding bound; // when unbound denotes the corresponding type variable (so as to retrieve its bound lazily)
     public TypeBinding[] otherBounds; // only positionned by lub computations (if so, #bound is also set) and associated to EXTENDS mode
 	char[] genericSignature;
@@ -341,12 +341,14 @@ public class WildcardBinding extends ReferenceBinding {
 	}
 
 	/*
-	 * genericTypeKey *|+|- [boundKey]
-	 * p.X<T> { X<?> ... } --> Lp/X<TT;>;*
+	 * genericTypeKey {rank}*|+|- [boundKey]
+	 * p.X<T> { X<?> ... } --> Lp/X<TT;>;{0}*
 	 */
 	public char[] computeUniqueKey(boolean isLeaf) {
 		char[] genericTypeKey = this.genericType.computeUniqueKey(false/*not a leaf*/);
 		char[] wildCardKey;
+		// We now encode the rank also in the binding key - https://bugs.eclipse.org/bugs/show_bug.cgi?id=234609
+		char[] rankComponent = ('{' + String.valueOf(this.rank) + '}').toCharArray();
         switch (this.boundKind) {
             case Wildcard.UNBOUND :
                 wildCardKey = TypeConstants.WILDCARD_STAR;
@@ -358,8 +360,10 @@ public class WildcardBinding extends ReferenceBinding {
 			    wildCardKey = CharOperation.concat(TypeConstants.WILDCARD_MINUS, this.bound.computeUniqueKey(false/*not a leaf*/));
 				break;
         }
-        return CharOperation.concat(genericTypeKey, wildCardKey);
-       }
+		return CharOperation.concat(genericTypeKey, rankComponent, wildCardKey);
+    }
+
+
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#constantPoolName()

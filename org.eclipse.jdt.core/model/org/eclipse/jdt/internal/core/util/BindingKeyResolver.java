@@ -64,8 +64,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	TypeBinding typeBinding;
 	TypeDeclaration typeDeclaration;
 	ArrayList types = new ArrayList();
-	int rank = 0;
-
+	
 	int wildcardRank;
 
 	CompilationUnitDeclaration outerMostParsedUnit;
@@ -75,11 +74,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 */
 	HashtableOfObject resolvedUnits;
 
-	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank, CompilationUnitDeclaration outerMostParsedUnit, HashtableOfObject parsedUnits) {
+	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, CompilationUnitDeclaration outerMostParsedUnit, HashtableOfObject parsedUnits) {
 		super(parser);
 		this.compiler = compiler;
 		this.environment = environment;
-		this.wildcardRank = wildcardRank;
 		this.outerMostParsedUnit = outerMostParsedUnit;
 		this.resolvedUnits = parsedUnits;
 	}
@@ -349,8 +347,6 @@ public class BindingKeyResolver extends BindingKeyParser {
 
 	public void consumeParser(BindingKeyParser parser) {
 		this.types.add(parser);
-		if (((BindingKeyResolver) parser).compilerBinding instanceof WildcardBinding)
-			this.rank++;
 	}
 
 	public void consumeScope(int scopeNumber) {
@@ -430,6 +426,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 		this.typeBinding =(TypeBinding) resolver.compilerBinding;
 	}
 
+	public void consumeWildcardRank(int aRank) {
+		this.wildcardRank = aRank;
+	}
+	
 	public void consumeWildCard(int kind) {
 		switch (kind) {
 			case Wildcard.EXTENDS:
@@ -438,7 +438,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 				this.typeBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, this.wildcardRank, (TypeBinding) boundResolver.compilerBinding, null /*no extra bound*/, kind);
 				break;
 			case Wildcard.UNBOUND:
-				this.typeBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, this.rank++, null/*no bound*/, null /*no extra bound*/, kind);
+				this.typeBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, this.wildcardRank, null/*no bound*/, null /*no extra bound*/, kind);
 				break;
 		}
 	}
@@ -576,7 +576,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 
 	public BindingKeyParser newParser() {
-		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank, this.outerMostParsedUnit == null ? this.parsedUnit : this.outerMostParsedUnit, this.resolvedUnits);
+		return new BindingKeyResolver(this, this.compiler, this.environment, this.outerMostParsedUnit == null ? this.parsedUnit : this.outerMostParsedUnit, this.resolvedUnits);
 	}
 
 	public String toString() {

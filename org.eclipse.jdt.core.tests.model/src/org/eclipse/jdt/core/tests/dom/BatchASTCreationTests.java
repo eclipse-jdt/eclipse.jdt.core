@@ -929,7 +929,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X;*>;.foo()V");
+			"Lp1/X<Lp1/X;{0}*>;.foo()V");
 	}
 
 	/*
@@ -948,7 +948,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X;+Ljava/lang/Object;>;.foo()V");
+			"Lp1/X<Lp1/X;{0}+Ljava/lang/Object;>;.foo()V");
 	}
 
 	/*
@@ -967,7 +967,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X;-Ljava/lang/Error;>;.foo()V");
+			"Lp1/X<Lp1/X;{0}-Ljava/lang/Error;>;.foo()V");
 	}
 
 	/*
@@ -986,7 +986,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X;-Ljava/lang/Error;Lp1/X;*Ljava/lang/String;Lp1/X;+Ljava/lang/Object;>;.foo()V");
+			"Lp1/X<Lp1/X;{0}-Ljava/lang/Error;Lp1/X;{1}*Ljava/lang/String;Lp1/X;{2}+Ljava/lang/Object;>;.foo()V");
 	}
 
 	/*
@@ -1036,7 +1036,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  X<? super T> field;\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X;-Lp1/X;:TT;>;");
+			"Lp1/X<Lp1/X;{0}-Lp1/X;:TT;>;");
 	}
 
 	/*
@@ -1052,7 +1052,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  Class<? extends E> field;\n" +
 				"}",
 			},
-			"Ljava/lang/Class<Lp1/X;+Lp1/X;:TE;>;");
+			"Ljava/lang/Class<Lp1/X;{0}+Lp1/X;:TE;>;");
 	}
 
 	/*
@@ -1073,12 +1073,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			new String[] {
 				"Lp1/X;",
-				"Lp1/Y<Lp1/Y;+Lp1/X;>;"
+				"Lp1/Y<Lp1/Y;{0}+Lp1/X;>;"
 			}
 		);
 		assertBindingsEqual(
 			"Lp1/X;\n" +
-			"Lp1/Y<Lp1/Y;+Lp1/X;>;",
+			"Lp1/Y<Lp1/Y;{0}+Lp1/X;>;",
 			bindings);
 	}
 
@@ -1133,9 +1133,9 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public void test050() throws CoreException {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {},
-			new String[] {"Ljava/lang/Class<Ljava/lang/Class<TT;>;+[Ljava/lang/Object;>;"});
+			new String[] {"Ljava/lang/Class<Ljava/lang/Class<TT;>;{0}+[Ljava/lang/Object;>;"});
 		assertBindingsEqual(
-				"Ljava/lang/Class<Ljava/lang/Class;+[Ljava/lang/Object;>;",
+				"Ljava/lang/Class<Ljava/lang/Class;{0}+[Ljava/lang/Object;>;",
 				bindings);
 	}
 
@@ -1311,7 +1311,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"    }\n" +
 				"}",
 			},
-			"Lp1/X;&!Lp1/X;*77;"
+			"Lp1/X;&!Lp1/X;{0}*77;"
 		);
 	}
 
@@ -1338,7 +1338,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}"
 			},
-			"Lxy/Cap;&!Ljava/util/Vector;*82;"
+			"Lxy/Cap;&!Ljava/util/Vector;{0}*82;"
 		);
 	}
 
@@ -1404,7 +1404,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"class W<T> extends Z<T> {\n" +
 				"}",
 			},
-			"Lp1/X;.foo<T:Lp1/Y<-TT;>;>(Lp1/Z<TT;>;)V%<Lp1/X~Y<Lp1/X~Y;-Lp1/X~Y<Lp1/X~Y;-Lp1/X;:2TT;>;>;>"
+			"Lp1/X;.foo<T:Lp1/Y<-TT;>;>(Lp1/Z<TT;>;)V%<Lp1/X~Y<Lp1/X~Y;{0}-Lp1/X~Y<Lp1/X~Y;{0}-Lp1/X;:2TT;>;>;>"
 		);
 	}
 
@@ -1461,7 +1461,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			new String[] {
 				"Lp1/X;",
-				"Lp1/X;&Lp1/Y<!Lp1/Y;*83;>;",
+				"Lp1/X;&Lp1/Y<!Lp1/Y;{0}*83;>;",
 			}
 		);
 	}
@@ -2048,7 +2048,7 @@ public void test081() throws CoreException, IOException {
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
-		// this doesn’t really do a parse; it’s a type lookup
+		// this doesnï¿½t really do a parse; itï¿½s a type lookup
 		parser.createASTs(new ICompilationUnit[] {}, keys, requestor, null);
 		ITypeBinding typeBinding = requestor._result;
 		assertNotNull("No binding", typeBinding);
@@ -2077,7 +2077,7 @@ public void test082() throws CoreException, IOException {
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
-		// this doesn’t really do a parse; it’s a type lookup
+		// this doesnï¿½t really do a parse; itï¿½s a type lookup
 		parser.createASTs(new ICompilationUnit[] {}, keys, requestor, null);
 		ITypeBinding typeBinding = requestor._result;
 		assertNull("Got a binding", typeBinding);

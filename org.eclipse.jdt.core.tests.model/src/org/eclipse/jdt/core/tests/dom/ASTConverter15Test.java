@@ -61,7 +61,126 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy = null;
 		}
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=234609 BindingKey#toSignature() fails with key from createWilcardTypeBindingKey(..)
+	public void test234609() throws JavaModelException {
 
+		String newContents = 	"package p;\n" +
+		"import java.util.HashMap;\n" + 
+		"public class X {\n" +
+		"  /*start*/HashMap<? extends Integer,? super String>/*end*/ s;" +
+		"}";
+
+		this.workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+
+		Type node = (Type) buildAST(
+				newContents,
+				this.workingCopy);
+
+		ITypeBinding bindingFromAST = node.resolveBinding();
+		String recoveredBindingKey = bindingFromAST.getKey();
+
+		String genericTypeKey = BindingKey.createTypeBindingKey("java.util.HashMap");
+		String [] wildcardKeys = new String [] { BindingKey.createWildcardTypeBindingKey(genericTypeKey, Signature.C_EXTENDS, BindingKey.createTypeBindingKey("java.lang.Integer"), 0),
+				BindingKey.createWildcardTypeBindingKey(genericTypeKey, Signature.C_SUPER, BindingKey.createTypeBindingKey("java.lang.String"), 1)
+		};
+
+		String composedBindingKey = BindingKey.createParameterizedTypeBindingKey(genericTypeKey, wildcardKeys);
+
+		if (!composedBindingKey.equals(recoveredBindingKey))
+			fail("Composed binding key differs from Recovered binding key");
+
+
+		this.workingCopy.discardWorkingCopy();
+		this.workingCopy = null;
+
+		ITypeBinding [] bindingFromKey = createTypeBindings(
+						new String[] {
+							"/Converter15/src/p/X.java",
+							newContents
+						},
+						new String[] {
+							composedBindingKey
+						},
+						getJavaProject("Converter15")
+					);
+		
+		if (bindingFromKey.length != 1)
+			fail("Problem in going from key to binding\n");
+		if (!composedBindingKey.equals(bindingFromKey[0].getKey()))
+			fail ("Binding key mismatch");
+		String signature = new BindingKey(composedBindingKey).toSignature();
+		if (!signature.equals("Ljava.util.HashMap<+Ljava.lang.Integer;-Ljava.lang.String;>;"))
+			fail("Bad signature");
+
+		assertTrue("Equals", bindingFromKey[0].isEqualTo(bindingFromAST));
+		
+		// check existence of getGenericType() API.
+		ITypeBinding gType = bindingFromAST.getTypeArguments()[0].getGenericTypeOfWildcardType();
+		if (gType == null)
+			fail("Missing generic type");
+		if (!gType.getKey().equals("Ljava/util/HashMap<TK;TV;>;"))
+			fail("getKey() API is broken");
+		
+		// test for getRank API.
+		if (bindingFromAST.getTypeArguments()[0].getRank() != 0)
+			fail ("Wrong rank");
+		
+		if (bindingFromAST.getTypeArguments()[1].getRank() != 1)
+			fail ("Wrong rank");	
+	}
+
+	// Similar test as above - variation in wildcard type being unbounded.
+	public void test234609b() throws JavaModelException {
+
+		String newContents = 	"package p;\n" +
+		"import java.util.ArrayList;\n" + 
+		"public class X {\n" +
+		"  /*start*/ArrayList<?>/*end*/ s;" +
+		"}";
+
+		this.workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+
+		Type node = (Type) buildAST(
+				newContents,
+				this.workingCopy);
+
+		ITypeBinding bindingFromAST = node.resolveBinding();
+		String recoveredBindingKey = bindingFromAST.getKey();
+
+		String genericTypeKey = BindingKey.createTypeBindingKey("java.util.ArrayList");
+		String [] wildcardKeys = new String [] { BindingKey.createWildcardTypeBindingKey(genericTypeKey, Signature.C_STAR, null, 0) };
+		
+		String composedBindingKey = BindingKey.createParameterizedTypeBindingKey(genericTypeKey, wildcardKeys);
+
+		if (!composedBindingKey.equals(recoveredBindingKey))
+			fail("Composed binding key differs from Recovered binding key");
+
+
+		this.workingCopy.discardWorkingCopy();
+		this.workingCopy = null;
+
+		ITypeBinding [] bindingFromKey = createTypeBindings(
+						new String[] {
+							"/Converter15/src/p/X.java",
+							newContents
+						},
+						new String[] {
+							composedBindingKey
+						},
+						getJavaProject("Converter15")
+					);
+		
+		if (bindingFromKey.length != 1)
+			fail("Problem in going from key to binding\n");
+		if (!composedBindingKey.equals(bindingFromKey[0].getKey()))
+			fail ("Binding key mismatch");
+		String signature = new BindingKey(composedBindingKey).toSignature();
+		if (!signature.equals("Ljava.util.ArrayList<*>;"))
+			fail("Bad signature");
+		assertTrue("Equals", bindingFromKey[0].isEqualTo(bindingFromAST));
+	}
+	
 	public void test0001() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0001", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -2710,7 +2829,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
 		assertBindingKeyEquals(
-			"Lp/X<!Lp/X;*75;>;.foo()V",
+			"Lp/X<!Lp/X;{0}*75;>;.foo()V",
 			binding.getKey());
 	}
 
@@ -3531,7 +3650,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
-			"LX;+Ljava/lang/String;",
+			"LX;{0}+Ljava/lang/String;",
 			binding);
 	}
 
@@ -3731,7 +3850,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding();
 		assertBindingEquals(
-			"Ljava/lang/Class<Ljava/lang/Class;+LX;:TE;>;",
+			"Ljava/lang/Class<Ljava/lang/Class;{0}+LX;:TE;>;",
 			binding);
 	}
 
@@ -10175,7 +10294,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				this.workingCopy);
 		IBinding binding = ((MethodInvocation) node).resolveTypeBinding();
 		assertBindingKeyEquals(
-				"Lpack1/E<Lpack1/E<!Lpack1/E;*122;>;>;",
+				"Lpack1/E<Lpack1/E<!Lpack1/E;{0}*122;>;>;",
 				binding.getKey());
 	}
 	/*

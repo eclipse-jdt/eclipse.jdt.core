@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.KeyKind;
 import org.eclipse.jdt.internal.core.util.KeyToSignature;
 
@@ -169,9 +170,12 @@ public final class BindingKey {
 	 * @param typeKey the binding key of the given type
 	 * @param kind one of {@link Signature#C_STAR}, {@link Signature#C_SUPER}, or {@link Signature#C_EXTENDS}
 	 * @return a new wildcard type binding key
+	 * @deprecated  This method is missing crucial information necessary for proper wildcard binding key creation.
+	 * @see org.eclipse.jdt.core.BindingKey#createWildcardTypeBindingKey(String, char, String, int)
 	 */
 	public static String createWilcardTypeBindingKey(String typeKey, char kind) {
-		// Note this implementation is heavily dependent on WildcardBinding#computeUniqueKey()
+		// Note this implementation is supposed to closely follow the behavior in WildcardBinding#computeUniqueKey()
+		// but it doesn't and hence the deprecation. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=234609
 		switch (kind) {
 			case Signature.C_STAR:
 				return "*"; //$NON-NLS-1$
@@ -181,6 +185,50 @@ public final class BindingKey {
 				return '+' + typeKey;
 		}
 		return null;
+	}
+
+	/**
+	 * Creates a new wildcard type binding key from the given generic type binding key, the given wildcard
+	 * kind (one of {@link Signature#C_STAR}, {@link Signature#C_SUPER}, or {@link Signature#C_EXTENDS}
+	 * the given bound type binding key and the given rank. If the wildcard kind is {@link Signature#C_STAR},
+	 * the given bound type binding key is ignored.
+	 * <p>
+	 * For example:
+	 * <pre>
+	 * <code>
+	 * createWildcardTypeBindingKey("Ljava/util/ArrayList;", Signature.C_STAR, null, 0) -&gt; "Ljava/util/ArrayList;{0}*"
+	 * createWildcardTypeBindingKey("Ljava/util/ArrayList;", Signature.C_SUPER, "Ljava/lang/String;", 0) -&gt; "Ljava/util/ArrayList;{0}-Ljava/lang/String;"
+	 * createWildcardTypeBindingKey("Ljava/util/HashMap;", Signature.C_EXTENDS, "Ljava/lang/String;", 1) -&gt;
+	 *    "Ljava/util/HashMap;{1}+Ljava/lang/String;"
+	 * </code>
+	 * </pre>
+	 * </p>
+	 *
+	 * @param genericTypeKey the binding key of the generic type
+	 * @param boundKind one of {@link Signature#C_STAR}, {@link Signature#C_SUPER}, or {@link Signature#C_EXTENDS}
+	 * @param boundTypeKey the binding key of the bounding type.
+	 * @param rank the relative position of this wild card type in the parameterization of the generic type. 
+	 * @return a new wildcard type binding key
+	 * @since 3.5
+	 */
+	
+	public static String createWildcardTypeBindingKey(String genericTypeKey, char boundKind, String boundTypeKey, int rank) {
+		// Note this implementation is heavily dependent on WildcardBinding#computeUniqueKey()
+		String wildCardKey;
+		switch (boundKind) {
+			case Signature.C_STAR:
+				wildCardKey = new String(TypeConstants.WILDCARD_STAR);
+				break;
+			case Signature.C_SUPER:
+				wildCardKey = new String(TypeConstants.WILDCARD_MINUS) + boundTypeKey;
+				break;
+			case Signature.C_EXTENDS:
+				wildCardKey = new String(TypeConstants.WILDCARD_PLUS) + boundTypeKey;
+				break;
+			default:
+				return null;
+		}
+		return genericTypeKey + '{' + rank + '}' + wildCardKey;
 	}
 
 	/**

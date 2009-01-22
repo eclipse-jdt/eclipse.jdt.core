@@ -2109,7 +2109,7 @@ public void test0095() throws JavaModelException {
 
 	assertElementsEqual(
 		"Unexpected elements",
-		"Y {key=Ltest0095/X~Y<Ltest0095/X~Y;*Ltest0095/X~Y;+Ltest0095/X~Z<Ltest0095/X~Z;-Ljava/lang/Exception;>;>;} [in [Working copy] X.java [in test0095 [in src2 [in Resolve]]]]",
+		"Y {key=Ltest0095/X~Y<Ltest0095/X~Y;{0}*Ltest0095/X~Y;{1}+Ltest0095/X~Z<Ltest0095/X~Z;{0}-Ljava/lang/Exception;>;>;} [in [Working copy] X.java [in test0095 [in src2 [in Resolve]]]]",
 		elements,
 		true/*show key*/
 	);

@@ -47,9 +47,16 @@ Eclipse SDK 3.5M5 - %date% - 3.5 MILESTONE 5
 <br>Project org.eclipse.jdt.core v_935
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_935">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added APIs to take into account the generic type and the rank of a wildcard type binding:
+       <code>ITypeBinding#getGenericTypeOfWildcardType()</code>, <code>ITypeBinding#getRank()</code>, and
+       <code>BindingKey#createWildcardTypeBindingKey(String genericTypeKey, char boundKind, String boundTypeKey, int rank)</code>.</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=261973">261973</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=234609">234609</a>
+[dom] BindingKey#toSignature() fails with key from createWilcardTypeBindingKey(..)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=261973">261973</a>
 [assist] Constructor completion should be improved (bug 6930)
 
 <a name="v_934"></a>

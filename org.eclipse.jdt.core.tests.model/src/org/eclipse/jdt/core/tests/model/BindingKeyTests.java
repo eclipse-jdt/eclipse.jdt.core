@@ -261,34 +261,54 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			key);
 	}
 
+	/**
+	 * @deprecated
+	 */
+	private String getWildcardBindingKey(String typeKey, char kind) {
+		return BindingKey.createWilcardTypeBindingKey(typeKey, kind);
+	}
+	
 	/*
 	 * Create a wildcard type binding key
 	 */
 	public void test022() {
-		String key = BindingKey.createWilcardTypeBindingKey(null, Signature.C_STAR);
+		String key = getWildcardBindingKey(null, Signature.C_STAR);
 		assertBindingKeyEquals(
 			"*",
 			key);
+		assertBindingKeyEquals(BindingKey.createWildcardTypeBindingKey(
+				BindingKey.createTypeBindingKey("java.util.ArrayList"), Signature.C_STAR, null, 0),
+				"Ljava/util/ArrayList;{0}*");
 	}
 
 	/*
 	 * Create a wildcard type binding key
 	 */
 	public void test023() {
-		String key = BindingKey.createWilcardTypeBindingKey("Ljava/util/List<TE;>;", Signature.C_SUPER);
+		String key = getWildcardBindingKey("Ljava/util/List<TE;>;", Signature.C_SUPER);
 		assertBindingKeyEquals(
 			"-Ljava/util/List<TE;>;",
 			key);
+		assertBindingKeyEquals(BindingKey.createWildcardTypeBindingKey(
+				BindingKey.createTypeBindingKey("java.util.ArrayList"), Signature.C_SUPER,
+				BindingKey.createTypeBindingKey("java.lang.String"), 0),
+				"Ljava/util/ArrayList;{0}-Ljava/lang/String;"		
+				);
 	}
 
 	/*
 	 * Create a wildcard type binding key
 	 */
 	public void test024() {
-		String key = BindingKey.createWilcardTypeBindingKey("Ljava/util/ArrayList;", Signature.C_EXTENDS);
+		String key = getWildcardBindingKey("Ljava/util/ArrayList;", Signature.C_EXTENDS);
 		assertBindingKeyEquals(
 			"+Ljava/util/ArrayList;",
 			key);
+		assertBindingKeyEquals(BindingKey.createWildcardTypeBindingKey(
+				BindingKey.createTypeBindingKey("java.util.ArrayList"), Signature.C_EXTENDS,
+				BindingKey.createTypeBindingKey("java.lang.String"), 0),
+				"Ljava/util/ArrayList;{0}+Ljava/lang/String;"		
+				);
 	}
 
 	/*
@@ -327,7 +347,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test028() {
 		assertBindingKeySignatureEquals(
 			"*",
-			"Lp1/X;*"
+			"Lp1/X;{0}*"
 		);
 	}
 
@@ -337,7 +357,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test029() {
 		assertBindingKeySignatureEquals(
 			"-Ljava.util.List<TT;>;",
-			"Lp1/X;-Ljava/util/List<Lp1/X;:TT;>;"
+			"Lp1/X;{0}-Ljava/util/List<Lp1/X;:TT;>"
 		);
 	}
 
@@ -347,7 +367,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test030() {
 		assertBindingKeySignatureEquals(
 			"+Ljava.util.ArrayList;",
-			"Lp1/X;+Ljava/util/ArrayList;"
+			"Lp1/X;{0}+Ljava/util/ArrayList;"
 		);
 	}
 
@@ -357,7 +377,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test031() {
 		assertBindingKeySignatureEquals(
 			"!*",
-			"Ljava/util/List;&!Lp1/X;*123;"
+			"Ljava/util/List;&!Lp1/X;{0}*123;"
 		);
 	}
 
@@ -367,7 +387,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test032() {
 		assertBindingKeySignatureEquals(
 			"!-Ljava.util.List<TT;>;",
-			"Ljava/util/List;&!Lp1/X;-Ljava/util/List<Lp1/X;:TT;>;123;"
+			"Ljava/util/List;&!Lp1/X;{0}-Ljava/util/List<Lp1/X;:TT;>;123;"
 		);
 	}
 
@@ -377,7 +397,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test033() {
 		assertBindingKeySignatureEquals(
 			"!+Ljava.util.ArrayList;",
-			"Ljava/util/List;&!Lp1/X;+Ljava/util/ArrayList<>;123;"
+			"Ljava/util/List;&!Lp1/X;{0}+Ljava/util/ArrayList<>;123;"
 		);
 	}
 
@@ -598,7 +618,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test054() {
 		assertBindingKeySignatureEquals(
 			"!*",
-			"LX;&LX~Box<!LX~Box;*232;!LX~Box;*232;>;.value)!LX~Box;*232;"
+			"LX;&LX~Box<!LX~Box;{0}*232;!LX~Box;{1}*232;>;.value)!LX~Box;{0}*232;"
 		);
 	}
 }

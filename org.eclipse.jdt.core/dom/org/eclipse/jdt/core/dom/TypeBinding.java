@@ -163,7 +163,37 @@ class TypeBinding implements ITypeBinding {
 		}
 		return null;
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getGenericTypeOfWildcardType()
+	 */
+	public ITypeBinding getGenericTypeOfWildcardType() {
+		switch (this.binding.kind()) {
+			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE :
+				WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
+				if (wildcardBinding.genericType != null) {
+					return this.resolver.getTypeBinding(wildcardBinding.genericType);
+				}
+				break;
+		}
+		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getRank()
+	 */
+	public int getRank() {
+		switch (this.binding.kind()) {
+			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE :
+				WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
+				return wildcardBinding.rank;
+			default:
+				return -1;
+		}
+	}
+	
 	/*
 	 * @see ITypeBinding#getComponentType()
 	 */

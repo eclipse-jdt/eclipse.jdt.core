@@ -89,6 +89,20 @@ class RecoveredTypeBinding implements ITypeBinding {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getGenericTypeOfWildcardType()
+	 */
+	public ITypeBinding getGenericTypeOfWildcardType() {
+		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getRank()
+	 */
+	public int getRank() {
+		return -1;
+	}
+	
+	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getComponentType()
 	 */
 	public ITypeBinding getComponentType() {

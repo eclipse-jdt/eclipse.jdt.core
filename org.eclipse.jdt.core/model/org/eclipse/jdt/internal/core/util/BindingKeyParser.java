@@ -111,7 +111,7 @@ public class BindingKeyParser {
 		boolean isAtWildcardStart() {
 			return
 				this.index < this.source.length
-				&& "*+-".indexOf(this.source[this.index]) != -1; //$NON-NLS-1$
+				&& this.source[this.index] == '{';   // e.g {1}+Ljava/lang/String;
 		}
 
 		boolean isAtTypeParameterStart() {
@@ -339,6 +339,12 @@ public class BindingKeyParser {
 			}
 		}
 
+		void skipRank() {
+			this.start = this.index;
+			while (this.index < this.source.length && "0123456789".indexOf(this.source[this.index]) != -1) //$NON-NLS-1$
+				this.index++;
+		}
+		
 		void skipThrownStart() {
 			while (this.index < this.source.length && this.source[this.index] == C_THROWN)
 				this.index++;
@@ -358,6 +364,17 @@ public class BindingKeyParser {
 		void skipTypeEnd() {
 			if (this.index < this.source.length && this.source[this.index] == ';')
 				this.index++;
+		}
+		
+		void skipRankStart() {
+			if (this.index < this.source.length && this.source[this.index] == '{')
+				this.index++;
+		}
+		
+		void skipRankEnd() {
+			if (this.index < this.source.length && this.source[this.index] == '}')
+				this.index++;
+			this.start = this.index;
 		}
 
 		public String toString() {
@@ -541,6 +558,10 @@ public class BindingKeyParser {
 	}
 
 	public void consumeWildCard(int kind) {
+		// default is to do nothing
+	}
+	
+	public void consumeWildcardRank(int rank) {
 		// default is to do nothing
 	}
 
@@ -883,6 +904,7 @@ public class BindingKeyParser {
 	}
 
 	private void parseWildcard() {
+		parseWildcardRank();
 		if (this.scanner.nextToken() != Scanner.WILDCARD) return;
 	 	char[] source = this.scanner.getTokenSource();
 	 	if (source.length == 0) {
@@ -910,6 +932,14 @@ public class BindingKeyParser {
 	 	consumeWildCard(kind);
 	}
 
+	private void parseWildcardRank() {
+		this.scanner.skipRankStart();
+		this.scanner.skipRank();
+		char[] source = this.scanner.getTokenSource();
+		consumeWildcardRank(Integer.parseInt(new String(source)));
+		this.scanner.skipRankEnd();
+	}
+	
 	private void parseWildcardBound() {
 		BindingKeyParser parser = newParser();
 		parser.parse();

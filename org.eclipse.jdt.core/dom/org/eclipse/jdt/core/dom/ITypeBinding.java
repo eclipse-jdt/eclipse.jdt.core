@@ -89,7 +89,28 @@ public interface ITypeBinding extends IBinding {
 	 * @since 3.1
 	 */
 	public ITypeBinding getBound();
+	
+	/**
+	 * Returns the generic type associated with this wildcard type, if it has one.
+	 * Returns <code>null</code> if this is not a wildcard type.
+	 *
+	 * @return the generic type associated with this wildcard type, or <code>null</code> if none
+	 * @see #isWildcardType()
+	 * @since 3.5
+	 */
+	public ITypeBinding getGenericTypeOfWildcardType();
 
+	/**
+	 * Returns the rank associated with this wildcard type. The rank of this wild card type is the relative
+	 * position of the wild card type in the parameterization of the associated generic type.
+	 * Returns <code>-1</code> if this is not a wildcard type.
+	 *
+	 * @return the rank associated with this wildcard type, or <code>-1</code> if none
+	 * @see #isWildcardType()
+	 * @since 3.5
+	 */
+	public int getRank();
+	
 	/**
 	 * Returns the binding representing the component type of this array type,
 	 * or <code>null</code> if this is not an array type binding. The component
