@@ -48923,4 +48923,65 @@ public void test1442() {
 			"Bound mismatch: The type Comparable<T> is not a valid substitute for the bounded parameter <T extends Comparable<T>> of the type X<T>\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=254627
+public void test1443() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"  private static class C {}\n" + 
+				"  private static class B<T extends C> {}\n" + 
+				"  private static class A<T extends B<? extends C>> {}\n" + 
+				"  void bar (List<A> a) {\n" + 
+				"    baz((List)a);\n" + 
+				"    // Neither of these two following statements compile under javac\n" + 
+				"    buz(a);\n" + 
+				"    buz((List)a);\n" + 
+				"    // Side note: the following statement is correctly identified as an error\n" + 
+				"    // by Eclipse, but it does not suggest casting as a Quick Fix.\n" + 
+				"    // baz(a);\n" + 
+				"    Zork z;\n" +
+				"  }\n" + 
+				"  <R extends C, T extends B<R>> void baz(List<A<T>> a) {}\n" + 
+				"  <R extends C, T extends B<R>> void buz(List a) {}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	void bar (List<A> a) {\n" + 
+			"	               ^\n" + 
+			"X.A is a raw type. References to generic type X.A<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	baz((List)a);\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation baz(List) of the generic method baz(List<X.A<T>>) of type X\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
+			"	baz((List)a);\n" + 
+			"	    ^^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<X.A<X.B<X.C>>>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
+			"	baz((List)a);\n" + 
+			"	     ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 10)\n" + 
+			"	buz((List)a);\n" + 
+			"	     ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 14)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 17)\n" + 
+			"	<R extends C, T extends B<R>> void buz(List a) {}\n" + 
+			"	                                       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n");
+}
 }
