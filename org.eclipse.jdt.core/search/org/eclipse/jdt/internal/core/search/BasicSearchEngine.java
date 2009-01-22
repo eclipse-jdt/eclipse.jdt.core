@@ -430,43 +430,6 @@ public class BasicSearchEngine {
 		}
 		return true;
 	}
-	
-	boolean match(char[] patternPkg, char[] patternTypeName, int matchRule, char[] pkg, char[] typeName) {
-		
-		boolean isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
-		
-		if (patternPkg != null && !CharOperation.equals(patternPkg, pkg, true))
-			return false;
-		
-		if (patternTypeName != null) {
-			boolean isCamelCase = (matchRule & (SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
-			int matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
-			if (!isCaseSensitive && !isCamelCase) {
-				patternTypeName = CharOperation.toLowerCase(patternTypeName);
-			}
-			boolean matchFirstChar = !isCaseSensitive || patternTypeName[0] == typeName[0];
-			switch(matchMode) {
-				case SearchPattern.R_EXACT_MATCH :
-					return matchFirstChar && CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
-				case SearchPattern.R_PREFIX_MATCH :
-					return matchFirstChar && CharOperation.prefixEquals(patternTypeName, typeName, isCaseSensitive);
-				case SearchPattern.R_PATTERN_MATCH :
-					return CharOperation.match(patternTypeName, typeName, isCaseSensitive);
-				case SearchPattern.R_REGEXP_MATCH :
-					// TODO (frederic) implement regular expression match
-					break;
-				case SearchPattern.R_CAMELCASE_MATCH:
-					if (matchFirstChar && CharOperation.camelCaseMatch(patternTypeName, typeName, false)) {
-						return true;
-					}
-					return !isCaseSensitive && matchFirstChar && CharOperation.prefixEquals(patternTypeName, typeName, false);
-				case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
-					return matchFirstChar && CharOperation.camelCaseMatch(patternTypeName, typeName, true);
-			}
-		}
-		return true;
-
-	}
 
 	boolean match(char patternTypeSuffix, char[] patternPkg, char[] patternTypeName, int matchRule, int typeKind, char[] pkg, char[] typeName) {
 		switch(patternTypeSuffix) {
@@ -493,14 +456,18 @@ public class BasicSearchEngine {
 				break;
 			case IIndexConstants.TYPE_SUFFIX : // nothing
 		}
-
-		boolean isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
-		if (patternPkg != null && !CharOperation.equals(patternPkg, pkg, isCaseSensitive))
-				return false;
-
+		return match(patternPkg, matchRule, patternTypeName, matchRule, pkg, typeName);
+	}
+	
+	boolean match(char[] patternPkg, int matchRulePkg, char[] patternTypeName, int matchRuleTypeName, char[] pkg, char[] typeName) {
+		boolean isPkgCaseSensitive = (matchRulePkg & SearchPattern.R_CASE_SENSITIVE) != 0;
+		if (patternPkg != null && !CharOperation.equals(patternPkg, pkg, isPkgCaseSensitive))
+			return false;
+		
+		boolean isCaseSensitive = (matchRuleTypeName & SearchPattern.R_CASE_SENSITIVE) != 0;
 		if (patternTypeName != null) {
-			boolean isCamelCase = (matchRule & (SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
-			int matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
+			boolean isCamelCase = (matchRuleTypeName & (SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
+			int matchMode = matchRuleTypeName & JavaSearchPattern.MATCH_MODE_MASK;
 			if (!isCaseSensitive && !isCamelCase) {
 				patternTypeName = CharOperation.toLowerCase(patternTypeName);
 			}
@@ -554,6 +521,8 @@ public class BasicSearchEngine {
 
 		// Validate match rule first
 		final int validatedTypeMatchRule = SearchPattern.validateMatchRule(typeName == null ? null : new String (typeName), typeMatchRule);
+		
+		final int pkgMatchRule = SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE;
 
 		// Debug
 		if (VERBOSE) {
@@ -685,7 +654,7 @@ public class BasicSearchEngine {
 						for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
 							IType type = allTypes[j];
 							char[] simpleName = type.getElementName().toCharArray();
-							if (match(packageName, typeName, validatedTypeMatchRule, packageDeclaration, simpleName) && !type.isMember()) {
+							if (match(packageName, pkgMatchRule, typeName, validatedTypeMatchRule, packageDeclaration, simpleName) && !type.isMember()) {
 								
 								int extraFlags = ExtraFlags.getExtraFlags(type);
 								
@@ -752,7 +721,7 @@ public class BasicSearchEngine {
 								private void endVisit(TypeDeclaration typeDeclaration) {
 									if (!hasConstructor(typeDeclaration) && typeDeclaration.enclosingType == null) {
 									
-										if (match(packageName, typeName, validatedTypeMatchRule, packageDeclaration, typeDeclaration.name)) {
+										if (match(packageName, pkgMatchRule, typeName, validatedTypeMatchRule, packageDeclaration, typeDeclaration.name)) {
 											nameRequestor.acceptConstructor(
 													Flags.AccPublic,
 													typeName,
@@ -793,7 +762,7 @@ public class BasicSearchEngine {
 								}
 								public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope classScope) {
 									TypeDeclaration typeDeclaration = this.declaringTypes[this.declaringTypesPtr];
-									if (match(packageName, typeName, validatedTypeMatchRule, packageDeclaration, typeDeclaration.name)) {
+									if (match(packageName, pkgMatchRule, typeName, validatedTypeMatchRule, packageDeclaration, typeDeclaration.name)) {
 										Argument[] arguments = constructorDeclaration.arguments;
 										int length = arguments == null ? 0 : arguments.length;
 										char[][] parameterNames = new char[length][];

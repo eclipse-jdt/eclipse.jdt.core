@@ -1129,6 +1129,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, jarPath, "1.4");
 	}
 	
+	protected void createJar(String[] javaPathsAndContents, String jarPath, Map options) throws IOException {
+		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, null, jarPath, null, "1.4", options);
+	}
+	
 	protected void createJar(String[] javaPathsAndContents, String jarPath, String[] classpath, String compliance) throws IOException {
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, null,jarPath, classpath, compliance);
 	}
@@ -1609,6 +1613,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		};
 		getWorkspace().run(create, null);
 		return project;
+	}
+	public void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
+		org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathsAndContents, zipPath);
 	}
 	public void deleteResource(File resource) {
 		int retryCount = 0;

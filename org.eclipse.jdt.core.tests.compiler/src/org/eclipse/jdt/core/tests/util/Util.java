@@ -360,6 +360,11 @@ public static void createJar(String[] javaPathsAndContents, String[] extraPathsA
 public static void createJar(String[] javaPathsAndContents, String[] extraPathsAndContents, String jarPath, String[] classpath, String compliance) throws IOException {
 	createJar(javaPathsAndContents, extraPathsAndContents, getCompileOptions(compliance), classpath, jarPath);
 }
+public static void createJar(String[] javaPathsAndContents, String[] extraPathsAndContents, String jarPath, String[] classpath, String compliance, Map options) throws IOException {
+	Map compileOptions = getCompileOptions(compliance);
+	compileOptions.putAll(options);
+	createJar(javaPathsAndContents, extraPathsAndContents, compileOptions, classpath, jarPath);
+}
 public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
     String sourcesPath = getOutputDirectory() + File.separator + "sources";
     createSourceDir(pathsAndContents, sourcesPath);

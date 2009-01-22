@@ -4683,4 +4683,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public Stats debugNewOpenableCacheStats() {
 		return this.cache.openableCache.new Stats();
 	}
+	
+	public int getOpenableCacheSize() {
+		return this.cache.openableCache.getSpaceLimit();
+	}
 }

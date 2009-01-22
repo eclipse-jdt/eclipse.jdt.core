@@ -107,7 +107,7 @@ public void testAbortCompletion2() throws JavaModelException {
 		IProgressMonitor monitor = new NullProgressMonitor();
 		monitor.setCanceled(true); /*force completion to abort*/
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
-		assertTrue("Should not be cancelled", false);
+		assertTrue("Should be cancelled", false);
 	} catch (OperationCanceledException e) {
 		assertResults(
 				"",

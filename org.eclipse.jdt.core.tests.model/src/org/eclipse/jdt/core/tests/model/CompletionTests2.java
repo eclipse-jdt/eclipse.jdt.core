@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import junit.framework.*;
@@ -2614,8 +2615,136 @@ public void testBug6930_33() throws Exception {
 	    assertResults(
 			"AllConstructors33[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors33;, (Lp6930_1.ParamType;Lp6930_2.ParamType;)V, AllConstructors33, (p21, p22), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
 			"   AllConstructors33[TYPE_REF]{p6930.AllConstructors33, p6930, Lp6930.AllConstructors33;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors33[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors33;, (Lp6930_1.ParamType;Lp6930_2.ParamType;)V, AllConstructors33, (p11, p12), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"AllConstructors33[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors33;, (Lp6930_2.ParamType;Lp6930_2.ParamType;)V, AllConstructors33, (p11, p12), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
 			"   AllConstructors33[TYPE_REF]{p6930.AllConstructors33, p6930, Lp6930.AllConstructors33;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(oldOptions);
+	}
+}
+public void testBug6930_34() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		
+		Map compileOptions = new HashMap();
+		compileOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+	    
+		String[] pathsAndContents =
+			new String[] {
+				"p6930/AllConstructors34.java",
+				"package p6930;\n" +
+				"public class AllConstructors34 {\n" +
+				"  public AllConstructors34(Object o) {}\n" +
+				"}"
+			};
+		createJar(
+				pathsAndContents,
+				p.getProject().getLocation().append("lib6930.jar").toOSString(),
+				compileOptions);
+		
+		addLibraryEntry(p, "/P/lib6930.jar", null);
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/test/Test.java",
+				"package test;"+
+				"public class Test {\n" +
+				"  void foo() {\n" +
+				"    new AllConstructors\n" +
+				"  }\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "AllConstructors";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"AllConstructors34[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors34;, (Ljava.lang.Object;)V, AllConstructors34, (arg0), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   AllConstructors34[TYPE_REF]{p6930.AllConstructors34, p6930, Lp6930.AllConstructors34;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(oldOptions);
+	}
+}
+public void testBug6930_35() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		
+		Map compileOptions = new HashMap();
+		compileOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+	    
+		String[] pathsAndContents =
+			new String[] {
+				"p6930/AllConstructors35.java",
+				"package p6930;\n" +
+				"public class AllConstructors35 {\n" +
+				"  public AllConstructors35(Object o) {}\n" +
+				"}"
+			};
+		createJar(
+				pathsAndContents,
+				p.getProject().getLocation().append("lib6930.jar").toOSString(),
+				compileOptions);
+		
+		createSourceZip(
+				pathsAndContents,
+				p.getProject().getLocation().append("lib6930src.zip").toOSString());
+		
+		addLibraryEntry(p, "/P/lib6930.jar", "/P/lib6930src.zip");
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/test/Test.java",
+				"package test;"+
+				"public class Test {\n" +
+				"  void foo() {\n" +
+				"    new AllConstructors\n" +
+				"  }\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "AllConstructors";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"AllConstructors35[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors35;, (Ljava.lang.Object;)V, AllConstructors35, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   AllConstructors35[TYPE_REF]{p6930.AllConstructors35, p6930, Lp6930.AllConstructors35;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");

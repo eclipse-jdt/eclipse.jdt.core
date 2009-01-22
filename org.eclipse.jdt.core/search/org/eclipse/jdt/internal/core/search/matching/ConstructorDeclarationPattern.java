@@ -10,14 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.core.index.EntryResult;
-import org.eclipse.jdt.internal.core.index.Index;
 
 public class ConstructorDeclarationPattern extends ConstructorPattern {
 	public int extraFlags;
@@ -151,40 +147,6 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 
 	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || this.varargs)
 		&& matchesName(this.declaringSimpleName, pattern.declaringSimpleName);
-}
-public EntryResult[] queryIn(Index index) throws IOException {
-	char[] key = this.declaringSimpleName; // can be null
-	int matchRule = getMatchRule();
-
-	switch(getMatchMode()) {
-		case R_EXACT_MATCH :
-			if (this.declaringSimpleName != null && this.parameterCount >= 0 && !this.varargs) {
-				key = createIndexKey(this.declaringSimpleName, this.parameterCount);
-			} 
-			matchRule &= ~R_EXACT_MATCH;
-			matchRule |= R_PREFIX_MATCH;
-			break;
-		case R_PREFIX_MATCH :
-			// do a prefix query with the declaringSimpleName
-			break;
-		case R_PATTERN_MATCH :
-			if (this.parameterCount >= 0 && !this.varargs)
-				key = createIndexKey(this.declaringSimpleName == null ? ONE_STAR : this.declaringSimpleName, this.parameterCount);
-			else if (this.declaringSimpleName != null && this.declaringSimpleName[this.declaringSimpleName.length - 1] != '*')
-				key = CharOperation.concat(this.declaringSimpleName, ONE_STAR, SEPARATOR);
-			key = CharOperation.concat(key, ONE_STAR);
-			// else do a pattern query with just the declaringSimpleName
-			break;
-		case R_REGEXP_MATCH :
-			// TODO (frederic) implement regular expression match
-			break;
-		case R_CAMELCASE_MATCH:
-		case R_CAMELCASE_SAME_PART_COUNT_MATCH:
-			// do a prefix query with the declaringSimpleName
-			break;
-	}
-
-	return index.query(getIndexCategories(), key, matchRule); // match rule is irrelevant when the key is null
 }
 private void removeInternalFlags() {
 	this.extraFlags = this.extraFlags & ~ExtraFlags.ParameterTypesStoredAsSignature; // ParameterTypesStoredAsSignature is an internal flags only used to decode key

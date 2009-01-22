@@ -528,11 +528,13 @@ public EntryResult[] queryIn(Index index) throws IOException {
 			// do a prefix query with the declaringSimpleName
 			break;
 		case R_PATTERN_MATCH :
-			if (this.parameterCount >= 0 && !this.varargs)
-				key = createIndexKey(this.declaringSimpleName == null ? ONE_STAR : this.declaringSimpleName, this.parameterCount);
-			else if (this.declaringSimpleName != null && this.declaringSimpleName[this.declaringSimpleName.length - 1] != '*')
+			if (this.parameterCount >= 0 && !this.varargs) {
+				key = CharOperation.concat(createIndexKey(this.declaringSimpleName == null ? ONE_STAR : this.declaringSimpleName, this.parameterCount), ONE_STAR);
+			} else if (this.declaringSimpleName != null && this.declaringSimpleName[this.declaringSimpleName.length - 1] != '*') {
 				key = CharOperation.concat(this.declaringSimpleName, ONE_STAR, SEPARATOR);
-			key = CharOperation.concat(key, ONE_STAR);
+			} else if (key != null){
+				key = CharOperation.concat(key, ONE_STAR);
+			}
 			// else do a pattern query with just the declaringSimpleName
 			break;
 		case R_REGEXP_MATCH :

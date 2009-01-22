@@ -5214,56 +5214,30 @@ public final class CompletionEngine
 		}
 
 		if (guessedType != null && guessedType.isValidBinding()) {
-			if (guessedType instanceof ReferenceBinding) {
-				ReferenceBinding refBinding = (ReferenceBinding) guessedType;
+			if (guessedType instanceof SourceTypeBinding) {
+				SourceTypeBinding refBinding = (SourceTypeBinding) guessedType;
 				
-				MethodBinding bestConstructor = null;
-				int[] bestMatchingLengths = null;
-				
-				MethodBinding[] methods = refBinding.methods();
+				refBinding.methods(); // force resolution
+				if (refBinding.scope == null || refBinding.scope.referenceContext == null) return null;
+				TypeDeclaration typeDeclaration = refBinding.scope.referenceContext;
+				AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 				next : for (int i = 0; i < methods.length; i++) {
-					MethodBinding method = methods[i];
+					AbstractMethodDeclaration method = methods[i];
 					
-					if (!method.isConstructor()) break next;
+					if (method.binding == null || !method.isConstructor()) continue next;
 					
-					TypeBinding[] parameters = method.parameters;
-					//TODO take careful of member types
-					int parametersLength = parameters == null ? 0 : parameters.length;
-					if (parameterCount != parametersLength) continue next;
+					Argument[] arguments = method.arguments;
+					int argumentsLength = arguments == null ? 0 : arguments.length;
+					if (parameterCount != argumentsLength) continue next;
 					
-					int[] matchingLengths = new int[parameterCount];
-					for (int j = 0; j < parametersLength; j++) {
-						TypeBinding parameter = parameters[j];
-						
-						char[] parameterTypeName;
-						if (parameter instanceof ReferenceBinding) {
-							parameterTypeName = CharOperation.concatWith(((ReferenceBinding)parameter).compoundName, '.');
-						} else {
-							parameterTypeName = parameter.sourceName();
-						}
-						
-						if (!CharOperation.endsWith(parameterTypeName, parameterTypes[j])) {
+					for (int j = 0; j < argumentsLength; j++) {
+						if (!CharOperation.equals(CharOperation.concatWith(arguments[j].type.getTypeName(), '.'), parameterTypes[j])) {
 							continue next;
 						}
-						
-						int matchingLength = parameterTypes[j].length;
-						
-						if (bestMatchingLengths != null) {
-							if (bestMatchingLengths[j] > matchingLength) {
-								continue next;
-							}
-						}
-						
-						matchingLengths[j] = matchingLength;
 					}
 					
-					
-					bestConstructor = method;
-					bestMatchingLengths = matchingLengths;
+					return getSignature(method.binding);
 				}
-				
-				if (bestConstructor == null) return null;
-				return getSignature(bestConstructor);
 			}
 		}
 		

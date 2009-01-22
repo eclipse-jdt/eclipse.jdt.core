@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SourceMapper;
 
@@ -38,9 +39,7 @@ import org.eclipse.jdt.internal.core.SourceMapper;
  */
 public class InternalCompletionProposal extends CompletionProposal {
 	private static Object NO_ATTACHED_SOURCE = new Object();
-	private static final int OPENED_BYNARY_TYPES_THRESHOLD = 100; // threshold of opened binary to avoid to harm java model cache
-
-
+	
 	protected CompletionEngine completionEngine;
 	protected NameLookup nameLookup;
 
@@ -220,7 +219,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 			if (this.hasNoParameterNamesFromIndex) {
 				IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 				if (packageFragmentRoot.isArchive() ||
-						this.completionEngine.openedBinaryTypes < OPENED_BYNARY_TYPES_THRESHOLD) {
+						this.completionEngine.openedBinaryTypes < getOpenedBinaryTypesThreshold()) {
 					SourceMapper mapper = ((JavaElement)method).getSourceMapper();
 					if (mapper != null) {
 						try {
@@ -338,6 +337,10 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 	protected char[] getDeclarationTypeName() {
 		return this.declarationTypeName;
+	}
+	
+	private int getOpenedBinaryTypesThreshold() {
+		return JavaModelManager.getJavaModelManager().getOpenableCacheSize() / 10;
 	}
 
 	protected char[] getPackageName() {
