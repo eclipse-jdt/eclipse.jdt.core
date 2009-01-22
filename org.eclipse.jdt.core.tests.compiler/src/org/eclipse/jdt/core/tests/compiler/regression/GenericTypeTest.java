@@ -48940,8 +48940,7 @@ public void test1443() {
 				"    buz((List)a);\n" + 
 				"    // Side note: the following statement is correctly identified as an error\n" + 
 				"    // by Eclipse, but it does not suggest casting as a Quick Fix.\n" + 
-				"    // baz(a);\n" + 
-				"    Zork z;\n" +
+				"    baz(a);\n" + 
 				"  }\n" + 
 				"  <R extends C, T extends B<R>> void baz(List<A<T>> a) {}\n" + 
 				"  <R extends C, T extends B<R>> void buz(List a) {}\n" + 
@@ -48973,12 +48972,12 @@ public void test1443() {
 			"	     ^^^^\n" + 
 			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 14)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"6. ERROR in X.java (at line 13)\n" + 
+			"	baz(a);\n" + 
+			"	^^^\n" + 
+			"The method baz(List<X.A<T>>) in the type X is not applicable for the arguments (List<X.A>)\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 17)\n" + 
+			"7. WARNING in X.java (at line 16)\n" + 
 			"	<R extends C, T extends B<R>> void buz(List a) {}\n" + 
 			"	                                       ^^^^\n" + 
 			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
