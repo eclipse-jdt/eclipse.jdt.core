@@ -431,7 +431,7 @@ public class BasicSearchEngine {
 		return true;
 	}
 
-	boolean match(char patternTypeSuffix, char[] patternPkg, char[] patternTypeName, int matchRule, int typeKind, char[] pkg, char[] typeName) {
+	boolean match(char patternTypeSuffix, char[] patternPkg, int matchRulePkg, char[] patternTypeName, int matchRuleType, int typeKind, char[] pkg, char[] typeName) {
 		switch(patternTypeSuffix) {
 			case IIndexConstants.CLASS_SUFFIX :
 				if (typeKind != TypeDeclaration.CLASS_DECL) return false;
@@ -456,18 +456,15 @@ public class BasicSearchEngine {
 				break;
 			case IIndexConstants.TYPE_SUFFIX : // nothing
 		}
-		return match(patternPkg, matchRule, patternTypeName, matchRule, pkg, typeName);
-	}
-	
-	boolean match(char[] patternPkg, int matchRulePkg, char[] patternTypeName, int matchRuleTypeName, char[] pkg, char[] typeName) {
+
 		boolean isPkgCaseSensitive = (matchRulePkg & SearchPattern.R_CASE_SENSITIVE) != 0;
 		if (patternPkg != null && !CharOperation.equals(patternPkg, pkg, isPkgCaseSensitive))
 			return false;
 		
-		boolean isCaseSensitive = (matchRuleTypeName & SearchPattern.R_CASE_SENSITIVE) != 0;
+		boolean isCaseSensitive = (matchRuleType & SearchPattern.R_CASE_SENSITIVE) != 0;
 		if (patternTypeName != null) {
-			boolean isCamelCase = (matchRuleTypeName & (SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
-			int matchMode = matchRuleTypeName & JavaSearchPattern.MATCH_MODE_MASK;
+			boolean isCamelCase = (matchRuleType & (SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
+			int matchMode = matchRuleType & JavaSearchPattern.MATCH_MODE_MASK;
 			if (!isCaseSensitive && !isCamelCase) {
 				patternTypeName = CharOperation.toLowerCase(patternTypeName);
 			}
@@ -523,6 +520,7 @@ public class BasicSearchEngine {
 		final int validatedTypeMatchRule = SearchPattern.validateMatchRule(typeName == null ? null : new String (typeName), typeMatchRule);
 		
 		final int pkgMatchRule = SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE;
+		final char NoSuffix = IIndexConstants.TYPE_SUFFIX; // Used as TYPE_SUFFIX has no effect in method #match(char, char[] , int, char[], int , int, char[], char[])
 
 		// Debug
 		if (VERBOSE) {
@@ -654,7 +652,7 @@ public class BasicSearchEngine {
 						for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
 							IType type = allTypes[j];
 							char[] simpleName = type.getElementName().toCharArray();
-							if (match(packageName, pkgMatchRule, typeName, validatedTypeMatchRule, packageDeclaration, simpleName) && !type.isMember()) {
+							if (match(NoSuffix, packageName, pkgMatchRule, typeName, validatedTypeMatchRule, 0/*no kind*/, packageDeclaration, simpleName) && !type.isMember()) {
 								
 								int extraFlags = ExtraFlags.getExtraFlags(type);
 								
@@ -721,7 +719,7 @@ public class BasicSearchEngine {
 								private void endVisit(TypeDeclaration typeDeclaration) {
 									if (!hasConstructor(typeDeclaration) && typeDeclaration.enclosingType == null) {
 									
-										if (match(packageName, pkgMatchRule, typeName, validatedTypeMatchRule, packageDeclaration, typeDeclaration.name)) {
+										if (match(NoSuffix, packageName, pkgMatchRule, typeName, validatedTypeMatchRule, 0/*no kind*/, packageDeclaration, typeDeclaration.name)) {
 											nameRequestor.acceptConstructor(
 													Flags.AccPublic,
 													typeName,
@@ -762,7 +760,7 @@ public class BasicSearchEngine {
 								}
 								public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope classScope) {
 									TypeDeclaration typeDeclaration = this.declaringTypes[this.declaringTypesPtr];
-									if (match(packageName, pkgMatchRule, typeName, validatedTypeMatchRule, packageDeclaration, typeDeclaration.name)) {
+									if (match(NoSuffix, packageName, pkgMatchRule, typeName, validatedTypeMatchRule, 0/*no kind*/, packageDeclaration, typeDeclaration.name)) {
 										Argument[] arguments = constructorDeclaration.arguments;
 										int length = arguments == null ? 0 : arguments.length;
 										char[][] parameterNames = new char[length][];
@@ -1161,7 +1159,7 @@ public class BasicSearchEngine {
 							} else /*if (type.isInterface())*/ {
 								kind = TypeDeclaration.INTERFACE_DECL;
 							}
-							if (match(typeSuffix, packageName, typeName, validatedTypeMatchRule, kind, packageDeclaration, simpleName)) {
+							if (match(typeSuffix, packageName, packageMatchRule, typeName, validatedTypeMatchRule, kind, packageDeclaration, simpleName)) {
 								if (nameRequestor instanceof TypeNameMatchRequestorWrapper) {
 									((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, type.getFlags()));
 								} else {
@@ -1181,7 +1179,7 @@ public class BasicSearchEngine {
 									return false; // no local/anonymous type
 								}
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
-									if (match(typeSuffix, packageName, typeName, validatedTypeMatchRule, TypeDeclaration.kind(typeDeclaration.modifiers), packageDeclaration, typeDeclaration.name)) {
+									if (match(typeSuffix, packageName, packageMatchRule, typeName, validatedTypeMatchRule, TypeDeclaration.kind(typeDeclaration.modifiers), packageDeclaration, typeDeclaration.name)) {
 										if (nameRequestor instanceof TypeNameMatchRequestorWrapper) {
 											IType type = workingCopy.getType(new String(typeName));
 											((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, typeDeclaration.modifiers));
@@ -1192,7 +1190,7 @@ public class BasicSearchEngine {
 									return true;
 								}
 								public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope classScope) {
-									if (match(typeSuffix, packageName, typeName, validatedTypeMatchRule, TypeDeclaration.kind(memberTypeDeclaration.modifiers), packageDeclaration, memberTypeDeclaration.name)) {
+									if (match(typeSuffix, packageName, packageMatchRule, typeName, validatedTypeMatchRule, TypeDeclaration.kind(memberTypeDeclaration.modifiers), packageDeclaration, memberTypeDeclaration.name)) {
 										// compute enclosing type names
 										TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
 										char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
@@ -1244,19 +1242,12 @@ public class BasicSearchEngine {
 	public void searchAllTypeNames(
 		final char[][] qualifications,
 		final char[][] typeNames,
-		int matchRule,
+		final int matchRule,
 		int searchFor,
 		IJavaSearchScope scope,
 		final IRestrictedAccessTypeRequestor nameRequestor,
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException {
-
-		// Validate match rule first
-		int namesLength = typeNames == null ? 0 : typeNames.length;
-		for (int i=0; i<namesLength; i++) {
-			matchRule &= SearchPattern.validateMatchRule(new String(typeNames[i]), matchRule);
-		}
-		final int validatedMatchRule = matchRule;
 
 		// Debug
 		if (VERBOSE) {
@@ -1297,7 +1288,7 @@ public class BasicSearchEngine {
 				typeSuffix = IIndexConstants.TYPE_SUFFIX;
 				break;
 		}
-		final MultiTypeDeclarationPattern pattern = new MultiTypeDeclarationPattern(qualifications, typeNames, typeSuffix, validatedMatchRule);
+		final MultiTypeDeclarationPattern pattern = new MultiTypeDeclarationPattern(qualifications, typeNames, typeSuffix, matchRule);
 
 		// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
 		final HashSet workingCopyPaths = new HashSet();
@@ -1432,7 +1423,7 @@ public class BasicSearchEngine {
 								}
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
 									SearchPattern decodedPattern =
-										new QualifiedTypeDeclarationPattern(packageDeclaration, typeDeclaration.name, convertTypeKind(TypeDeclaration.kind(typeDeclaration.modifiers)), validatedMatchRule);
+										new QualifiedTypeDeclarationPattern(packageDeclaration, typeDeclaration.name, convertTypeKind(TypeDeclaration.kind(typeDeclaration.modifiers)), matchRule);
 									if (pattern.matchesDecodedKey(decodedPattern)) {
 										nameRequestor.acceptType(typeDeclaration.modifiers, packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
 									}
@@ -1453,7 +1444,7 @@ public class BasicSearchEngine {
 										}
 									}
 									SearchPattern decodedPattern =
-										new QualifiedTypeDeclarationPattern(qualification, memberTypeDeclaration.name, convertTypeKind(TypeDeclaration.kind(memberTypeDeclaration.modifiers)), validatedMatchRule);
+										new QualifiedTypeDeclarationPattern(qualification, memberTypeDeclaration.name, convertTypeKind(TypeDeclaration.kind(memberTypeDeclaration.modifiers)), matchRule);
 									if (pattern.matchesDecodedKey(decodedPattern)) {
 										nameRequestor.acceptType(memberTypeDeclaration.modifiers, packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
 									}
