@@ -68,12 +68,12 @@ public class WildcardBinding extends ReferenceBinding {
 	        case Wildcard.UNBOUND :
 	            return true;
 	        case Wildcard.EXTENDS :
-	            if (argumentType.isCompatibleWith(this.bound)) return true;
+	            if (!argumentType.isCompatibleWith(this.bound)) return false;
 	            // check other bounds (lub scenario)
             	for (int i = 0, length = this.otherBounds == null ? 0 : this.otherBounds.length; i < length; i++) {
-            		if (argumentType.isCompatibleWith(this.otherBounds[i])) return true;
+            		if (!argumentType.isCompatibleWith(this.otherBounds[i])) return false;
             	}
-            	return false;
+            	return true;
 	        default: // SUPER
 	        	// ? super Exception   ok for:  IOException, since it would be ok for (Exception)ioException
 	            return argumentType.isCompatibleWith(this.bound);

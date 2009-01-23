@@ -290,6 +290,18 @@ public class TypeVariableBinding extends ReferenceBinding {
 		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
 	}
 
+	boolean hasOnlyRawBounds() {
+		if (this.superclass != null && !this.superclass.isRawType())
+			return false;
+
+		if (this.superInterfaces != null)
+			for (int i = 0, l = this.superInterfaces.length; i < l; i++)
+		   		if (!this.superInterfaces[i].isRawType())
+		   			return false;
+
+		return true;
+	}
+
 	/**
 	 * Returns true if the type variable is directly bound to a given type
 	 */

@@ -949,6 +949,321 @@ public void test010c() {
 			false
 		);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=262209
+	public void test014i() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I<T> {}\n" +
+				"interface J<T> extends I<T> {}\n" +
+				"\n" +
+				"class X {\n" +
+				"	void a(G x) {}\n" +
+				"	<T extends C, S extends F<T>> void a(S x) {}\n" +
+				"\n" +
+				"	void b(G x) {}\n" +
+				"	void b(F x) {}\n" +
+				"\n" +
+				"	void c(G x) {}\n" +
+				"	void c(F<?> x) {}\n" +
+				"\n" +
+				"	void d(G x) {}\n" +
+				"	void d(F<C> x) {}\n" +
+				"\n" +
+				"	void e(G x) {}\n" +
+				"	<T extends C> void e(F<T> x) {}\n" +
+				"\n" +
+				"	void f(G x) {}\n" +
+				"	<S extends F> void f(S x) {}\n" +
+				"\n" +
+				"	void g(G x) {}\n" +
+				"	<S extends F & J<S>> void g(S x) {}\n" +
+				"\n" +
+				"	<T extends G> void a2(T x) {}\n" +
+				"	<T extends C, S extends F<T>> void a2(S x) {}\n" +
+				"\n" +
+				"	<T extends G> void b2(T x) {}\n" +
+				"	void b2(F x) {}\n" +
+				"\n" +
+				"	<T extends G> void c2(T x) {}\n" +
+				"	void c2(F<?> x) {}\n" +
+				"\n" +
+				"	<T extends G> void d2(T x) {}\n" +
+				"	void d2(F<C> x) {}\n" +
+				"\n" +
+				"	<T extends G> void e2(T x) {}\n" +
+				"	<T extends C> void e2(F<T> x) {}\n" +
+				"\n" +
+				"	<T extends G> void f2(T x) {}\n" +
+				"	<S extends F & J> void f2(S x) {}\n" +
+				"\n" +
+				"	<T extends G> void g2(T x) {}\n" +
+				"	<S extends F & J<S>> void g2(S x) {}\n" +
+				"\n" +
+				"	void test() {\n" +
+				"		X x = new X();\n" +
+				"		H<C> h = null;\n" +
+				"		H hraw = null;\n" +
+				"\n" +
+				"		x.a(h);\n" +
+				"		x.a(hraw);\n" +
+				"\n" +
+				"		x.b(h);\n" +
+				"		x.b(hraw);\n" +
+				"\n" +
+				"		x.c(h);\n" +
+				"		x.c(hraw);\n" +
+				"\n" +
+				"		x.d(h);\n" +
+				"		x.d(hraw);\n" +
+				"\n" +
+				"		x.e(h);\n" +
+				"		x.e(hraw);\n" +
+				"\n" +
+				"		x.f(h);\n" +
+				"		x.f(hraw);\n" +
+				"\n" +
+				"		x.g(h);\n" +
+				"		x.g(hraw);\n" +
+				"\n" +
+				"		x.a2(h);\n" +
+				"		x.a2(hraw);\n" +
+				"\n" +
+				"		x.b2(h);	\n" +
+				"		x.b2(hraw);\n" +
+				"\n" +
+				"		x.c2(h);\n" +
+				"		x.c2(hraw);\n" +
+				"\n" +
+				"		x.d2(h);\n" +
+				"		x.d2(hraw);\n" +
+				"\n" +
+				"		x.e2(h);\n" +
+				"		x.e2(hraw);\n" +
+				"\n" +
+				"		x.f2(h);\n" +
+				"		x.f2(hraw);\n" +
+				"\n" +
+				"		x.g2(h);	\n" +
+				"		x.g2(hraw);\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"class A {}\n" +
+				"class B extends A {}\n" +
+				"class C extends B implements I {}\n" +
+				"class F<T1> {} \n" +
+				"class G<T2> extends F<T2> implements J<T2> {}\n" +
+				"class H<T3> extends G<T3> {}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	void a(G x) {}\n" + 
+			"	       ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	void b(G x) {}\n" + 
+			"	       ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	void b(F x) {}\n" + 
+			"	       ^\n" + 
+			"F is a raw type. References to generic type F<T1> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
+			"	void c(G x) {}\n" + 
+			"	       ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 14)\n" + 
+			"	void d(G x) {}\n" + 
+			"	       ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 17)\n" + 
+			"	void e(G x) {}\n" + 
+			"	       ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 20)\n" + 
+			"	void f(G x) {}\n" + 
+			"	       ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 21)\n" + 
+			"	<S extends F> void f(S x) {}\n" + 
+			"	           ^\n" + 
+			"F is a raw type. References to generic type F<T1> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 23)\n" + 
+			"	void g(G x) {}\n" + 
+			"	       ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"10. WARNING in X.java (at line 24)\n" + 
+			"	<S extends F & J<S>> void g(S x) {}\n" + 
+			"	           ^\n" + 
+			"F is a raw type. References to generic type F<T1> should be parameterized\n" + 
+			"----------\n" + 
+			"11. WARNING in X.java (at line 26)\n" + 
+			"	<T extends G> void a2(T x) {}\n" + 
+			"	           ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"12. WARNING in X.java (at line 29)\n" + 
+			"	<T extends G> void b2(T x) {}\n" + 
+			"	           ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"13. WARNING in X.java (at line 30)\n" + 
+			"	void b2(F x) {}\n" + 
+			"	        ^\n" + 
+			"F is a raw type. References to generic type F<T1> should be parameterized\n" + 
+			"----------\n" + 
+			"14. WARNING in X.java (at line 32)\n" + 
+			"	<T extends G> void c2(T x) {}\n" + 
+			"	           ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"15. WARNING in X.java (at line 35)\n" + 
+			"	<T extends G> void d2(T x) {}\n" + 
+			"	           ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"16. WARNING in X.java (at line 38)\n" + 
+			"	<T extends G> void e2(T x) {}\n" + 
+			"	           ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"17. WARNING in X.java (at line 41)\n" + 
+			"	<T extends G> void f2(T x) {}\n" + 
+			"	           ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"18. WARNING in X.java (at line 42)\n" + 
+			"	<S extends F & J> void f2(S x) {}\n" + 
+			"	           ^\n" + 
+			"F is a raw type. References to generic type F<T1> should be parameterized\n" + 
+			"----------\n" + 
+			"19. WARNING in X.java (at line 42)\n" + 
+			"	<S extends F & J> void f2(S x) {}\n" + 
+			"	               ^\n" + 
+			"J is a raw type. References to generic type J<T> should be parameterized\n" + 
+			"----------\n" + 
+			"20. WARNING in X.java (at line 44)\n" + 
+			"	<T extends G> void g2(T x) {}\n" + 
+			"	           ^\n" + 
+			"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+			"----------\n" + 
+			"21. WARNING in X.java (at line 45)\n" + 
+			"	<S extends F & J<S>> void g2(S x) {}\n" + 
+			"	           ^\n" + 
+			"F is a raw type. References to generic type F<T1> should be parameterized\n" + 
+			"----------\n" + 
+			"22. WARNING in X.java (at line 50)\n" + 
+			"	H hraw = null;\n" + 
+			"	^\n" + 
+			"H is a raw type. References to generic type H<T3> should be parameterized\n" + 
+			"----------\n" + 
+			"23. ERROR in X.java (at line 52)\n" + 
+			"	x.a(h);\n" + 
+			"	  ^\n" + 
+			"The method a(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"24. ERROR in X.java (at line 53)\n" + 
+			"	x.a(hraw);\n" + 
+			"	  ^\n" + 
+			"The method a(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"25. ERROR in X.java (at line 58)\n" + 
+			"	x.c(h);\n" + 
+			"	  ^\n" + 
+			"The method c(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"26. ERROR in X.java (at line 59)\n" + 
+			"	x.c(hraw);\n" + 
+			"	  ^\n" + 
+			"The method c(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"27. ERROR in X.java (at line 61)\n" + 
+			"	x.d(h);\n" + 
+			"	  ^\n" + 
+			"The method d(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"28. ERROR in X.java (at line 62)\n" + 
+			"	x.d(hraw);\n" + 
+			"	  ^\n" + 
+			"The method d(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"29. ERROR in X.java (at line 64)\n" + 
+			"	x.e(h);\n" + 
+			"	  ^\n" + 
+			"The method e(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"30. ERROR in X.java (at line 65)\n" + 
+			"	x.e(hraw);\n" + 
+			"	  ^\n" + 
+			"The method e(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"31. ERROR in X.java (at line 71)\n" + 
+			"	x.g(hraw);\n" + 
+			"	  ^\n" + 
+			"The method g(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"32. ERROR in X.java (at line 73)\n" + 
+			"	x.a2(h);\n" + 
+			"	  ^^\n" + 
+			"The method a2(H<C>) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"33. ERROR in X.java (at line 74)\n" + 
+			"	x.a2(hraw);\n" + 
+			"	  ^^\n" + 
+			"The method a2(H) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"34. ERROR in X.java (at line 79)\n" + 
+			"	x.c2(h);\n" + 
+			"	  ^^\n" + 
+			"The method c2(H<C>) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"35. ERROR in X.java (at line 80)\n" + 
+			"	x.c2(hraw);\n" + 
+			"	  ^^\n" + 
+			"The method c2(H) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"36. ERROR in X.java (at line 82)\n" + 
+			"	x.d2(h);\n" + 
+			"	  ^^\n" + 
+			"The method d2(H<C>) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"37. ERROR in X.java (at line 83)\n" + 
+			"	x.d2(hraw);\n" + 
+			"	  ^^\n" + 
+			"The method d2(H) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"38. ERROR in X.java (at line 85)\n" + 
+			"	x.e2(h);\n" + 
+			"	  ^^\n" + 
+			"The method e2(H<C>) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"39. ERROR in X.java (at line 86)\n" + 
+			"	x.e2(hraw);\n" + 
+			"	  ^^\n" + 
+			"The method e2(H) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"40. ERROR in X.java (at line 92)\n" + 
+			"	x.g2(hraw);\n" + 
+			"	  ^^\n" + 
+			"The method g2(H) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"41. WARNING in X.java (at line 98)\n" + 
+			"	class C extends B implements I {}\n" + 
+			"	                             ^\n" + 
+			"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+			"----------\n"
+		);
+	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798
 	public void test015() {
 		this.runConformTest(

@@ -148,6 +148,29 @@ public final boolean areTypeVariableErasuresEqual(MethodBinding method) {
 			return false;
 	return true;
 }
+MethodBinding asRawMethod(LookupEnvironment env) {
+	if (this.typeVariables == Binding.NO_TYPE_VARIABLES) return this;
+
+	// substitute type arguments with raw types
+	int length = this.typeVariables.length;
+	TypeBinding[] arguments = new TypeBinding[length];
+	for (int i = 0; i < length; i++) {
+		TypeVariableBinding var = this.typeVariables[i];
+		if (var.boundsCount() <= 1) {
+			arguments[i] = env.convertToRawType(var.upperBound(), false /*do not force conversion of enclosing types*/);
+		} else {
+			// use an intersection type to retain full bound information if more than 1 bound
+			TypeBinding rawSuperclass = env.convertToRawType(var.superclass(), false);
+			TypeBinding[] itsSuperinterfaces = var.superInterfaces();
+			int superLength = itsSuperinterfaces.length;
+			TypeBinding[] rawSuperinterfaces = new TypeBinding[superLength];
+			for (int s = 0; s < superLength; s++)
+				rawSuperinterfaces[s] = env.convertToRawType(itsSuperinterfaces[s], false);
+			arguments[i] = env.createWildcard(null, 0, rawSuperclass, rawSuperinterfaces, org.eclipse.jdt.internal.compiler.ast.Wildcard.EXTENDS);
+		}
+	}
+	return env.createParameterizedGenericMethod(this, arguments);
+}
 /* Answer true if the receiver is visible to the type provided by the scope.
 * InvocationSite implements isSuperAccess() to provide additional information
 * if the receiver is protected.

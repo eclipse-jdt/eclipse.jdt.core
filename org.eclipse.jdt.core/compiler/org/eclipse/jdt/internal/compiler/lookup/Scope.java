@@ -2778,36 +2778,36 @@ public abstract class Scope {
 		int oneParamsLength = oneParams.length;
 		int twoParamsLength = twoParams.length;
 		if (oneParamsLength == twoParamsLength) {
-			for (int i = 0; i < oneParamsLength; i++) {
+			next : for (int i = 0; i < oneParamsLength; i++) {
 				TypeBinding oneParam = oneParams[i];
 				TypeBinding twoParam = twoParams[i];
-				if (oneParam == twoParam) {
-					if (twoParam.leafComponentType().isRawType()) {
-						// must detect & reject this case
-						// when Y<U> extends X<U>
-						// void foo(Y y) {}
-						// <T extends X<Object>> void foo(T t) {}
-						// foo(T) will show up as foo(Y#RAW) and not foo(X#RAW)
-						// Y#RAW is not more specific than a rawified X<T>
-						TypeBinding originalOneParam = one.original().parameters[i].leafComponentType();
-						if ((originalOneParam.isTypeVariable() ? ((TypeVariableBinding) originalOneParam).upperBound()
-								: originalOneParam).isRawType())
-							if (twoParam.leafComponentType().erasure() != two.original().parameters[i]
-									.leafComponentType().erasure())
-								return false;
-					}
-				} else if (oneParam.isCompatibleWith(twoParam)) {
-					if (oneParam.leafComponentType().isRawType()) {
-						if (oneParam.needsUncheckedConversion(twoParam))
-							if (oneParam.leafComponentType().erasure() != twoParam.leafComponentType().erasure())
-								return false;
+				if (oneParam == twoParam || oneParam.isCompatibleWith(twoParam)) {
+					if (two.declaringClass.isRawType()) continue next;
+
+					TypeBinding originalOneParam = one.original().parameters[i].leafComponentType();
+					switch (originalOneParam.kind()) {
+					   	case Binding.TYPE_PARAMETER :
+					   		if (!((TypeVariableBinding) originalOneParam).upperBound().isRawType()) break;
+					   		//$FALL-THROUGH$
+					   	case Binding.RAW_TYPE:
+					   		// originalOneParam is RAW so it cannot be more specific than a wildcard or parameterized type
+							TypeBinding originalTwoParam = two.original().parameters[i].leafComponentType();
+							switch (originalTwoParam.kind()) {
+							   	case Binding.TYPE_PARAMETER :
+							   		if (((TypeVariableBinding) originalTwoParam).hasOnlyRawBounds())
+								   		continue next;
+								   	return false;
+							   	case Binding.WILDCARD_TYPE :
+							   	case Binding.INTERSECTION_TYPE:
+							   	case Binding.PARAMETERIZED_TYPE :
+							   		return false;
+							}
 					}
 				} else {
 					if (i == oneParamsLength - 1 && one.isVarargs() && two.isVarargs()) {
 						TypeBinding eType = ((ArrayBinding) twoParam).elementsType();
 						if (oneParam == eType || oneParam.isCompatibleWith(eType))
-							return true; // special case to choose between 2 varargs methods when the last arg is
-											// Object[]
+							return true; // special case to choose between 2 varargs methods when the last arg is Object[]
 					}
 					return false;
 				}
@@ -2817,8 +2817,7 @@ public abstract class Scope {
 
 		if (one.isVarargs() && two.isVarargs()) {
 			if (oneParamsLength > twoParamsLength) {
-				// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or
-				// (Integer, int...)
+				// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or (Integer, int...)
 				if (((ArrayBinding) twoParams[twoParamsLength - 1]).elementsType().id != TypeIds.T_JavaLangObject)
 					return false;
 			}
