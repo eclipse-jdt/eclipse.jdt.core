@@ -40,18 +40,18 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
 public class AnnotationTest extends AbstractComparableTest {
 
-	String reportMissingJavadocComments = null;
-
-	public AnnotationTest(String name) {
-		super(name);
-	}
-
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
 //		TESTS_NUMBERS = new int[] { 249 };
 //		TESTS_RANGE = new int[] { 249, -1 };
+	}
+
+	String reportMissingJavadocComments = null;
+
+	public AnnotationTest(String name) {
+		super(name);
 	}
 
 	public static Test suite() {
@@ -475,6 +475,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n",
 			JavacTestOptions.EclipseJustification.EclipseJustification0001);
 	}
+
 	// check for duplicate member value pairs - simplified to check javac
 	public void test018b() {
 		this.runNegativeTest(
@@ -502,7 +503,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Duplicate attribute last in annotation @Name\n" +
 			"----------\n");
 	}
-
 	// check class annotation member value must be a class literal
 	public void test019() {
 		this.runNegativeTest(
@@ -568,6 +568,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"The value for annotation attribute Foo.value must be a constant expression\n" +
 			"----------\n");
 	}
+
 	// check String annotation member value must be a constant
 	public void test021() {
 		this.runNegativeTest(
@@ -595,7 +596,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			"The value for annotation attribute Foo.value must be a constant expression\n" +
 			"----------\n");
 	}
-
 	// check String annotation member value must be a constant
 	public void test022() {
 		this.runNegativeTest(
@@ -1323,6 +1323,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+
 	public void test052() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1527,7 +1528,6 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-
 	public void test058() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1601,6 +1601,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+
 	public void test060() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1744,7 +1745,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
 		}
 	}
-
 	public void test063() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1849,6 +1849,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79848
 	public void test065() throws Exception {
 		this.runConformTest(
@@ -1923,7 +1924,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from long to int\n" +
 			"----------\n");
 	}
-
 	// 79844 - variation
 	public void test068() {
 		this.runConformTest(
@@ -2059,6 +2059,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"The attribute hashCode is undefined for the annotation type I\n" +
 			"----------\n");
 	}
+
 	// check code generation of annotation default attribute (autowrapping)
 	public void test073() throws Exception {
 		this.runConformTest(
@@ -2339,7 +2340,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			},
 			expectedOutput);
 	}
-
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80114
 	public void test078() {
 		this.runNegativeTest(
@@ -2356,6 +2356,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Annotation type declaration cannot have a constructor\n" +
 			"----------\n");
 	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
 	public void test079() {
 		this.runConformTest(
@@ -2562,7 +2563,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			},
 			"true");
 	}
-
 	// check handling of empty array initializer
 	public void test086() {
 		this.runNegativeTest(
@@ -2625,6 +2625,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"The annotation @Annot is disallowed for this location\n" +
 			"----------\n");
 	}
+
 	// Add check for parameter
 	public void test089() {
 		this.runConformTest(
@@ -2728,7 +2729,6 @@ public class AnnotationTest extends AbstractComparableTest {
 		"The annotation @Inherited is disallowed for this location\n" +
 		"----------\n");
 	}
-
 	// check handling of empty array initializer (binary check)
 	public void test094() {
 		this.runConformTest(
@@ -2836,6 +2836,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Syntax error on token \"default\", = expected\n" +
 			"----------\n");
 	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80328
 	public void test098() {
 		this.runNegativeTest(
@@ -2924,7 +2925,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
 		}
 	}
-
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80544
 	public void test100() {
 		this.runConformTest(
@@ -3166,7 +3166,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			}
 	}
 
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83939
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83939
     public void test106() {
         this.runNegativeTest(
             new String[] {
@@ -3401,6 +3401,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
     		"----------\n");
     }
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291
     public void test112() {
         this.runNegativeTest(
@@ -3715,7 +3716,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" +
 			"----------\n");
     }
-
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88446
     public void test122() {
         this.runConformTest(
@@ -3751,6 +3751,7 @@ public class AnnotationTest extends AbstractComparableTest {
             },
             "aMethod1");
     }
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90110
     public void test123() {
         this.runNegativeTest(
@@ -4152,7 +4153,7 @@ public class AnnotationTest extends AbstractComparableTest {
     // check @SuppressWarning support
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=69505 -- NOT READY YET: "all" only so far, no file support --
     //                                                        hence no import support
-    public void _test135() {
+    public void test135() {
         this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -4169,11 +4170,16 @@ public class AnnotationTest extends AbstractComparableTest {
     			"	}\n" +
     			"}"
             },
-    		"----------\n" +
-    		"1. ERROR in X.java (at line 11)\n" +
-    		"	Zork z;\n" +
-    		"	^^^^\n" +
-    		"Zork cannot be resolved to a type\n" +
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 2)\n" + 
+    		"	import java.util.List;\n" + 
+    		"	^^^^^^\n" + 
+    		"Syntax error on token \"import\", package expected\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 10)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
     		"----------\n");
     }
     // check @SuppressWarning support
@@ -4441,46 +4447,46 @@ public class AnnotationTest extends AbstractComparableTest {
 			true,
 			null);
     }
-public void test142b() {
-	Map raiseInvalidJavadocSeverity =
-		new HashMap(2);
-	raiseInvalidJavadocSeverity.put(
-			CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
-	// admittingly, when these are errors, SuppressWarnings is not enough to
-	// filter them out *but* the deprecation level being WARNING, we get them
-	// out anyway
-    this.runNegativeTest(
-        new String[] {
-            "X.java",
-			"@SuppressWarnings(\"deprecation\")\n" +
-			"public class X extends p.OldStuff {\n" +
-			"	/**\n" +
-			"	 * @see p.OldStuff#foo()\n" +
-			"	 */\n" +
-			"	@Override\n" +
-			"	public void foo() {\n" +
-			"		super.foo();\n" +
-			"	}\n" +
-			"}\n",
-            "p/OldStuff.java",
-            "package p;\n" +
-            "@Deprecated\n" +
-			"public class OldStuff {\n" +
-			"	public void foo() {\n" +
-			"	}	\n" +
-			"  Zork z;\n" +
-			"}\n",
-        },
-		"----------\n" +
-		"1. ERROR in p\\OldStuff.java (at line 6)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n",
-		null,
-		true,
-		raiseInvalidJavadocSeverity);
-}
+    public void test142b() {
+		Map raiseInvalidJavadocSeverity =
+			new HashMap(2);
+		raiseInvalidJavadocSeverity.put(
+				CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+		// admittingly, when these are errors, SuppressWarnings is not enough to
+		// filter them out *but* the deprecation level being WARNING, we get them
+		// out anyway
+	    this.runNegativeTest(
+	        new String[] {
+	            "X.java",
+				"@SuppressWarnings(\"deprecation\")\n" +
+				"public class X extends p.OldStuff {\n" +
+				"	/**\n" +
+				"	 * @see p.OldStuff#foo()\n" +
+				"	 */\n" +
+				"	@Override\n" +
+				"	public void foo() {\n" +
+				"		super.foo();\n" +
+				"	}\n" +
+				"}\n",
+	            "p/OldStuff.java",
+	            "package p;\n" +
+	            "@Deprecated\n" +
+				"public class OldStuff {\n" +
+				"	public void foo() {\n" +
+				"	}	\n" +
+				"  Zork z;\n" +
+				"}\n",
+	        },
+			"----------\n" +
+			"1. ERROR in p\\OldStuff.java (at line 6)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			raiseInvalidJavadocSeverity);
+	}
 public void test142c() {
 	Map raiseDeprecationReduceInvalidJavadocSeverity =
 		new HashMap(2);
@@ -4525,38 +4531,38 @@ public void test142c() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
-    public void test143() {
-        this.runNegativeTest(
-            new String[] {
-                "X.java",
-				"public class X extends p.OldStuff {\n" +
-				"	@SuppressWarnings(\"all\")\n" +
-				"	public void foo() {\n" +
-				"		super.foo();\n" +
-				"	}\n" +
-				"}\n",
-                "p/OldStuff.java",
-                "package p;\n" +
-                "@Deprecated\n" +
-				"public class OldStuff {\n" +
-				"	public void foo() {\n" +
-				"	}	\n" +
-				"  Zork z;\n" +
-				"}\n",
-            },
-    		"----------\n" +
-    		"1. WARNING in X.java (at line 1)\n" +
-    		"	public class X extends p.OldStuff {\n" +
-    		"	                       ^^^^^^^^^^\n" +
-    		"The type OldStuff is deprecated\n" +
-    		"----------\n" +
-    		"----------\n" +
-    		"1. ERROR in p\\OldStuff.java (at line 6)\n" +
-    		"	Zork z;\n" +
-    		"	^^^^\n" +
-    		"Zork cannot be resolved to a type\n" +
-    		"----------\n");
-    }
+public void test143() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"public class X extends p.OldStuff {\n" +
+			"	@SuppressWarnings(\"all\")\n" +
+			"	public void foo() {\n" +
+			"		super.foo();\n" +
+			"	}\n" +
+			"}\n",
+            "p/OldStuff.java",
+            "package p;\n" +
+            "@Deprecated\n" +
+			"public class OldStuff {\n" +
+			"	public void foo() {\n" +
+			"	}	\n" +
+			"  Zork z;\n" +
+			"}\n",
+        },
+		"----------\n" +
+		"1. WARNING in X.java (at line 1)\n" +
+		"	public class X extends p.OldStuff {\n" +
+		"	                       ^^^^^^^^^^\n" +
+		"The type OldStuff is deprecated\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in p\\OldStuff.java (at line 6)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
+		"----------\n");
+}
     public void test144() {
         this.runNegativeTest(
             new String[] {
@@ -4676,7 +4682,6 @@ public void test142c() {
             },
 			"");
     }
-
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96974
     public void test147() {
 		Map options = getCompilerOptions();
@@ -4755,6 +4760,7 @@ public void test142c() {
 			"Cannot reference a field before it is defined\n" +
 			"----------\n");
     }
+
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98091
     public void test150() {
         this.runConformTest(
@@ -5114,7 +5120,6 @@ public void test142c() {
 			options
 		);
     }
-
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test164() {
 		Map options = getCompilerOptions();
@@ -5196,7 +5201,7 @@ public void test142c() {
 		);
     }
 
-	// check array handling of singleton
+    // check array handling of singleton
 	public void test166() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -5452,6 +5457,7 @@ public void test142c() {
 				"\n",
 				ClassFileBytesDisassembler.DETAILED);
 	}
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99469
 	public void test167() {
 		this.runNegativeTest(
@@ -5469,7 +5475,7 @@ public void test142c() {
 		"Return type for the method is missing\n" +
 		"----------\n");
     }
-    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=94759
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94759
     public void test168() {
     	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
 			?	"----------\n" +
@@ -5527,7 +5533,6 @@ public void test142c() {
 			null, null,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
-
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test170() {
     	Map customOptions = getCompilerOptions();
@@ -5543,6 +5548,7 @@ public void test142c() {
     		"",
 			null, true, null, customOptions, null);
     }
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test171() {
     	Map customOptions = getCompilerOptions();
@@ -6114,44 +6120,43 @@ public void test142c() {
     		"The value for annotation attribute A1.values must be an array initializer\n" +
     		"----------\n");
     }
-// partial recompile - keep a binary
-public void test189() {
-	this.runConformTest(
-		true,
-		new String[] {
-			"A1.java",
-			"@A2(@A1(m1 = \"u\"))\n" +
-			"public @interface A1 {\n" +
-			"  String m1();\n" +
-			"  String m2() default \"v\";\n" +
-			"}\n",
-			"A2.java",
-			"@A2(@A1(m1 = \"u\", m2 = \"w\"))\n" +
-			"public @interface A2 {\n" +
-			"  A1[] value();\n" +
-			"}\n",
-		},
-		"",
-		"",
-		null,
-		JavacTestOptions.DEFAULT);
-	// keep A2 binary, recompile A1 with a name change
-	this.runConformTest(
-		false, // do not flush A2.class
-		new String[] {
-			"A1.java",
-			"@A2(@A1(m1 = \"u\"))\n" +
-			"public @interface A1 {\n" +
-			"  String m1();\n" +
-			"  String m3() default \"v\";\n" +
-			"}\n",
-		},
-		null,
-		"",
-		null,
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
-}
-
+    // partial recompile - keep a binary
+	public void test189() {
+		this.runConformTest(
+			true,
+			new String[] {
+				"A1.java",
+				"@A2(@A1(m1 = \"u\"))\n" +
+				"public @interface A1 {\n" +
+				"  String m1();\n" +
+				"  String m2() default \"v\";\n" +
+				"}\n",
+				"A2.java",
+				"@A2(@A1(m1 = \"u\", m2 = \"w\"))\n" +
+				"public @interface A2 {\n" +
+				"  A1[] value();\n" +
+				"}\n",
+			},
+			"",
+			"",
+			null,
+			JavacTestOptions.DEFAULT);
+		// keep A2 binary, recompile A1 with a name change
+		this.runConformTest(
+			false, // do not flush A2.class
+			new String[] {
+				"A1.java",
+				"@A2(@A1(m1 = \"u\"))\n" +
+				"public @interface A1 {\n" +
+				"  String m1();\n" +
+				"  String m3() default \"v\";\n" +
+				"}\n",
+			},
+			null,
+			"",
+			null,
+			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
+	}
 // transitive closure on binary types does not need to include annotations
 public void test190() {
 	this.runConformTest(
@@ -6274,6 +6279,7 @@ public void test191() {
 		false, // do not flush
 		null);
 }
+
 public void test192() {
 	this.runConformTest(
 		new String[] {
@@ -7560,7 +7566,6 @@ public void test228() {
 		"Zork cannot be resolved to a type\n" +
 		"----------\n");
 }
-
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533
 public void test229() {
 	this.runNegativeTest(
@@ -7732,6 +7737,7 @@ public void test234() {
 		"Zork cannot be resolved\n" +
 		"----------\n");
 }
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207758
 public void test235() {
 	this.runNegativeTest(
@@ -8756,5 +8762,34 @@ public void test266() {
 		"Duplicate annotation @Deprecated\n" + 
 		"----------\n"
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=261323.
+// Test to make sure that the use of a static import as an annotation value counts as a use
+// (and consequently that there is no unused static import warning)
+public void test267() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+
+	runNegativeTest(
+		true,
+		new String[] {
+				"com/SomeTest.java",
+				"package com;\n" + 
+				"import static com.SomeTest.UNCHECKED;\n" + 
+				"@SuppressWarnings(UNCHECKED)\n" + 
+				"public class SomeTest {\n" + 
+				"    public static final String UNCHECKED = \"unchecked\";\n" + 
+				"}\n"
+		}, 
+		null, customOptions,
+		"----------\n" +
+		"1. ERROR in com\\SomeTest.java (at line 3)\n" +
+		"	@SuppressWarnings(UNCHECKED)\n" +
+		"	                  ^^^^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"unchecked\")\n" +
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 }
