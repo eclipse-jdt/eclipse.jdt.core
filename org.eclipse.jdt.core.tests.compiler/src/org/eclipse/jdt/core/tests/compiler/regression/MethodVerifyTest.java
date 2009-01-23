@@ -7728,7 +7728,12 @@ public void test135() {
 			"}"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 10)\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public A foo(Number n) { return null; }\n" +
+		"	       ^\n" +
+		"Type safety: The return type A for foo(Number) from the type X2 needs unchecked conversion to conform to T from the type I\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 10)\n" +
 		"	A foo(Number n);\n" +
 		"	^\n" +
 		"Type safety: The return type A for foo(Number) from the type J needs unchecked conversion to conform to T from the type I\n" +
@@ -7779,7 +7784,7 @@ public void test137() {
 			"  XX foo(Number n);\n" +
 			"}\n" +
 			"class Z { }\n" +
-			"class Y <U> extends Z { }" +
+			"class Y <U> extends Z { }\n" +
 			"abstract class XX extends Y<XX> implements Cloneable {}"
 		},
 		"----------\n" +
@@ -7812,7 +7817,7 @@ public void test138() {
 		"1. WARNING in X.java (at line 6)\n" +
 		"	A<XX> foo(Number n);\n" +
 		"	^\n" +
-		"Type safety: The return type A<XX> for foo(Number) from the type J needs unchecked conversion to conform to A<T> from the type I\n" +
+		"Type safety: The return type A<XX> for foo(Number) from the type J needs unchecked conversion to conform to A<Exception&Cloneable> from the type I\n" + 
 		"----------\n"
 	);
 }
@@ -7837,7 +7842,12 @@ public void test139() {
 			"}"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 9)\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public XX foo(Number n) { return null; }\n" +
+		"	       ^^\n" +
+		"Type safety: The return type XX for foo(Number) from the type X needs unchecked conversion to conform to T from the type I\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 9)\n" +
 		"	XX foo(Number n);\n" +
 		"	^^\n" +
 		"Type safety: The return type XX for foo(Number) from the type J needs unchecked conversion to conform to T from the type I\n" +
@@ -9327,6 +9337,50 @@ public void test182() {
 		"----------\n",
 		null,
 		false
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262208
+public void test183() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class XX {\n" +
+			"	<T extends C, S extends G<T>> void a(S gC) {}\n" +
+			"	<T extends C, S extends G<T>> void b(T c) {}\n" +
+			"	<T extends C> void c(G<T> gC) {}\n" +
+			"	<T extends C, S extends G<T>> void d(S gC) {}\n" +
+			"}\n" +
+			"class X extends XX {\n" +
+			"	@Override void a(G g) {}\n" +
+			"	@Override void b(C c) {}\n" +
+			"	@Override void c(G g) {}\n" +
+			"	@Override <T extends C, S extends G<C>> void d(S gc) {}\n" +
+			"}\n" +
+			"class C {}\n" +
+			"class G<T2> {}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	@Override void a(G g) {}\n" + 
+		"	                 ^\n" + 
+		"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	@Override void c(G g) {}\n" + 
+		"	                 ^\n" + 
+		"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	@Override <T extends C, S extends G<C>> void d(S gc) {}\n" + 
+		"	                                             ^^^^^^^\n" + 
+		"Name clash: The method d(S) of type X has the same erasure as d(S) of type XX but does not override it\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	@Override <T extends C, S extends G<C>> void d(S gc) {}\n" + 
+		"	                                             ^^^^^^^\n" + 
+		mustOverrideMessage("d(S)", "X") + 
+		"----------\n"
 	);
 }
 }

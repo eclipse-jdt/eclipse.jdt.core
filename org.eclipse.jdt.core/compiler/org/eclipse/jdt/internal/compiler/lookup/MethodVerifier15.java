@@ -516,25 +516,22 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 		((BinaryTypeBinding) inheritedMethod.declaringClass).resolveTypesFor(inheritedMethod);
 
 	TypeVariableBinding[] inheritedTypeVariables = inheritedMethod.typeVariables;
-	if (inheritedTypeVariables == Binding.NO_TYPE_VARIABLES) return inheritedMethod;
 	int inheritedLength = inheritedTypeVariables.length;
+	if (inheritedLength == 0) return inheritedMethod; // no substitution needed
 	TypeVariableBinding[] typeVariables = currentMethod.typeVariables;
 	int length = typeVariables.length;
-	if (length > 0 && inheritedLength != length) return inheritedMethod; // no match JLS 8.4.2
-	TypeBinding[] arguments = new TypeBinding[inheritedLength];
-	if (inheritedLength <= length) {
-		System.arraycopy(typeVariables, 0, arguments, 0, inheritedLength);
-	} else {
-		System.arraycopy(typeVariables, 0, arguments, 0, length);
-		for (int i = length; i < inheritedLength; i++)
-			arguments[i] = inheritedTypeVariables[i].upperBound();
-	}
-	ParameterizedGenericMethodBinding substitute =
-		this.environment.createParameterizedGenericMethod(inheritedMethod, arguments);
+	if (length == 0)
+		return inheritedMethod.asRawMethod(this.environment);
+	if (length != inheritedLength)
+		return inheritedMethod; // no match JLS 8.4.2
 
 	// interface I { <T> void foo(T t); }
 	// class X implements I { public <T extends I> void foo(T t) {} }
 	// for the above case, we do not want to answer the substitute method since its not a match
+	TypeBinding[] arguments = new TypeBinding[length];
+	System.arraycopy(typeVariables, 0, arguments, 0, length);
+	ParameterizedGenericMethodBinding substitute =
+		this.environment.createParameterizedGenericMethod(inheritedMethod, arguments);
 	for (int i = 0; i < inheritedLength; i++) {
 		TypeVariableBinding inheritedTypeVariable = inheritedTypeVariables[i];
 		TypeBinding argument = arguments[i];
@@ -562,7 +559,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 				return inheritedMethod; // not a match
 			}
 		} else if (inheritedTypeVariable.boundCheck(substitute, argument) != TypeConstants.OK) {
-	    		return inheritedMethod;
+	    	return inheritedMethod;
 		}
 	}
    return substitute;
