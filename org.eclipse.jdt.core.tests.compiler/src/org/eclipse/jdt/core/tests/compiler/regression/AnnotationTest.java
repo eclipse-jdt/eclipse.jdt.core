@@ -8698,7 +8698,7 @@ public void test264() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=258906 
-public void test265() {
+public void _test265() {
 	INameEnvironment nameEnvironment = new FileSystem(Util.getJavaClassLibs(), new String[] {}, null);
 	IErrorHandlingPolicy errorHandlingPolicy = new IErrorHandlingPolicy() {
 		public boolean proceedOnErrors() { return true; }
