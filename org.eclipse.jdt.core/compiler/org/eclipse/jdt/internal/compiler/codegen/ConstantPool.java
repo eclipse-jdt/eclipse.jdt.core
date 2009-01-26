@@ -999,4 +999,11 @@ public void reset() {
     this.currentIndex = 1;
     this.currentOffset = 0;
 }
+public void resetForAttributeName(char[] attributeName, int constantPoolIndex, int constantPoolOffset) {
+	this.currentIndex = constantPoolIndex;
+	this.currentOffset = constantPoolOffset;
+	if (this.UTF8Cache.get(attributeName) >= constantPoolIndex) {
+		this.UTF8Cache.remove(attributeName);
+	}
+}
 }
