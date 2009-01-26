@@ -192,6 +192,8 @@ public class MemberValuePair extends ASTNode {
 							}
 						}
 					}
+				}  else {
+					scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value, true);
 				}
 				break checkAnnotationMethodType;
 			}

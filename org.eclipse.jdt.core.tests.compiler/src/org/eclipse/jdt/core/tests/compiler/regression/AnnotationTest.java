@@ -8792,4 +8792,36 @@ public void test267() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262304
+public void test268() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"	protected enum E {\n" + 
+			"		E1, E2\n" + 
+			"	}\n" + 
+			"	protected @interface Anno1 { E value(); }\n" + 
+			"	protected @interface Anno2 { E value(); }\n" + 
+			"	protected @interface Anno3 { E value(); }\n" + 
+			"	@Anno1(true ? E.E1 : E.E2)\n" + 
+			"	@Anno2(bar())\n" + 
+			"	@Anno3(((E.E1)))\n" + 
+			"	public void foo() {\n" + 
+			"	}\n" + 
+			"	public E bar() { return E.E1; }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	@Anno1(true ? E.E1 : E.E2)\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^\n" + 
+		"The value for annotation attribute X.Anno1.value must be an enum constant expression\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	@Anno2(bar())\n" + 
+		"	       ^^^^^\n" + 
+		"The value for annotation attribute X.Anno2.value must be an enum constant expression\n" + 
+		"----------\n");
+}
 }
