@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 BEA Systems, Inc. 
+ * Copyright (c) 2007 - 2009 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,6 +72,7 @@ public class ElementProc extends BaseProcessor {
 	// Initialized in examineDMethods()
 	private ExecutableElement _methodDvoid;
 	private ExecutableElement _methodDvoid2;
+	private ExecutableElement _methodDvoid3;
 	private TypeElement _elementDEnum;
 	
 	// Always return false from this processor, because it supports "*".
@@ -516,6 +517,7 @@ public class ElementProc extends BaseProcessor {
 		List<ExecutableElement> methodsD = ElementFilter.methodsIn(_elementD.getEnclosedElements());
 		_methodDvoid = null;
 		_methodDvoid2 = null;
+		_methodDvoid3 = null;
 		for (ExecutableElement method : methodsD) {
 			Name methodName = method.getSimpleName();
 			if ("methodDvoid".equals(methodName.toString())) {
@@ -523,6 +525,9 @@ public class ElementProc extends BaseProcessor {
 			}
 			if ("methodDvoid2".equals(methodName.toString())) {
 				_methodDvoid2 = method;
+			}
+			if ("methodDvoid3".equals(methodName.toString())) {
+				_methodDvoid3 = method;
 			}
 		}
 		if (null == _methodDvoid) {
@@ -754,6 +759,39 @@ public class ElementProc extends BaseProcessor {
 					break;
 				}
 			}
+		}
+		
+		// methodDvoid3 has an annotation with string array type, but its value is a single string.
+		// See bug 261969.
+		List<? extends AnnotationMirror> annotsMethodDvoid3 = _methodDvoid3.getAnnotationMirrors();
+		if (1 != annotsMethodDvoid3.size()) {
+			reportError("Wrong number of annotations on D.methodDvoid3(): expected 1, got " + annotsMethodDvoid3.size());
+			return false;
+		}
+		AnnotationMirror annotMethodDvoid3 = annotsMethodDvoid3.get(0);
+		Map<? extends ExecutableElement, ? extends AnnotationValue> annotMethodDvoid3Values = annotMethodDvoid3.getElementValues();
+		if (1 != annotMethodDvoid3Values.size()) {
+			reportError("Wrong number of values on annotation on D.methodDvoid3(): expected 1, got " 
+					+ annotMethodDvoid3Values.size());
+			return false;
+		}
+		AnnotationValue annotMethodDvoid3Value = annotMethodDvoid3Values.values().iterator().next();
+		Object annotMethodDvoid3RealValue = annotMethodDvoid3Value.getValue();
+		if (null == annotMethodDvoid3RealValue) {
+			reportError("Value of annotation on D.methodDvoid3() was null");
+			return false;
+		}
+		if (!(annotMethodDvoid3RealValue instanceof List<?>)) {
+			reportError("Expected type of annotation on D.methodDvoid3() to be List<?> but was: " +
+					annotMethodDvoid3RealValue.getClass().getName());
+			return false;
+		}
+		// If it's a List, then it's a List<AnnotationValue> so we've got another layer to decipher
+		AnnotationValue innerDvoid3Value = ((AnnotationValue)((List<?>)annotMethodDvoid3RealValue).get(0));
+		if (!"methodDvoid3Value".equals((String)innerDvoid3Value.getValue())) {
+			reportError("Expected value of annotation on D.methodDvoid3() to be \"methodDvoid3Value\" but was: " +
+					innerDvoid3Value.getValue());
+			return false;
 		}
 		
 		return true;

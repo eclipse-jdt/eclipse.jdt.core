@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc.
+ * Copyright (c) 2007 - 2009 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 package targets.model.pb;
 
 import targets.model.pa.AnnoZ;
+import org.eclipse.jdt.compiler.apt.tests.annotations.TypedAnnos.AnnoArrayString;
 
 @AnnoZ(annoZString = "annoZOnD")
 public class D extends AB {
@@ -18,6 +19,9 @@ public class D extends AB {
 	
 	@AnnoZ(annoZString = "annoZOnDMethod2", annoZint = 12)
 	public void methodDvoid2() {}
+	
+	@AnnoArrayString(value = "methodDvoid3Value")
+	public void methodDvoid3() {}
 }
 
 // Should inherit AnnoZ
