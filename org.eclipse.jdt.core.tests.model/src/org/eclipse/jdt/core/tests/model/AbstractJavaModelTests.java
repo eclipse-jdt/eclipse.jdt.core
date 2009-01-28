@@ -287,6 +287,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected DeltaListener deltaListener = new DeltaListener();
 
 	protected ILogListener logListener;
+	protected ILog log;
 
 
 	public AbstractJavaModelTests(String name) {
@@ -2756,10 +2757,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		clearDeltas();
 	}
 	protected void startLogListening() {
-		ILog log = JavaCore.getPlugin().getLog();
-		if (this.logListener != null) {
-			log.removeLogListener(this.logListener);
-		}
+		startLogListening(JavaCore.getPlugin().getLog());
+	}
+	protected void startLogListening(ILog logToListen) {
+		stopLogListening(); // cleanup if we forgot to stop listening
+		this.log = logToListen;
 		this.logListener = new ILogListener(){
 			private StringBuffer buffer = new StringBuffer();
 			public void logging(IStatus status, String plugin) {
@@ -2770,14 +2772,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				return this.buffer.toString();
 			}
 		};
-		log.addLogListener(this.logListener);
+		if (logToListen == null) {
+			Platform.addLogListener(this.logListener);
+		} else {
+			this.log.addLogListener(this.logListener);
+		}
 	}
 	protected void stopLogListening() {
 		if (this.logListener == null)
 			return;
-		ILog log = JavaCore.getPlugin().getLog();
-		log.removeLogListener(this.logListener);
+		if (this.log == null) {
+			Platform.removeLogListener(this.logListener);
+		} else {
+			this.log.removeLogListener(this.logListener);
+		}
 		this.logListener = null;
+		this.log = null;
 	}
 	protected void assertLogEquals(String expected) {
 		String actual = this.logListener == null ? "<null>" : this.logListener.toString();
