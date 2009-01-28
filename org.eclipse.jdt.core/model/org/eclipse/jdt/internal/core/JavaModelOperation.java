@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.util.Messages;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
 /**
@@ -192,14 +194,10 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	}
 	protected void applyTextEdit(ICompilationUnit cu, TextEdit edits) throws JavaModelException {
 		try {
-			cu.applyTextEdit(edits, this.progressMonitor);
-		} catch (JavaModelException e) {
-			if (e.getJavaModelStatus().getCode() == IJavaModelStatusConstants.BAD_TEXT_EDIT_LOCATION) {
-				// content changed under us
-				throw new JavaModelException(e.getException(), IJavaModelStatusConstants.INVALID_CONTENTS);
-			} else {
-				throw e;
-			}
+			edits.apply(getDocument(cu));
+		} catch (BadLocationException e) {
+			// content changed under us
+			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
 		}
 	}
 	/**
@@ -432,6 +430,15 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			operationStacks.set(stack);
 		}
 		return stack;
+	}
+	/*
+	 * Returns the existing document for the given cu, or a DocumentAdapter if none.
+	 */
+	protected IDocument getDocument(ICompilationUnit cu) throws JavaModelException {
+		IBuffer buffer = cu.getBuffer();
+		if (buffer instanceof IDocument)
+			return (IDocument) buffer;
+		return new DocumentAdapter(buffer);
 	}
 	/**
 	 * Returns the element to which this operation applies,
