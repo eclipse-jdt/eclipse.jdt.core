@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,12 +16,15 @@ import java.net.URISyntaxException;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
+import org.eclipse.jdt.internal.core.Buffer;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.text.edits.ReplaceEdit;
@@ -2257,6 +2260,34 @@ public void testApplyEdit2() throws CoreException {
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
+}
+
+/*
+ * Ensures that IBuffer.ITextEditCapability.applyTextEdit() is not called when doing a Java model operation
+ * on a compilation unit since some implementations don't support such a call
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=262389)
+ */
+public void testApplyEdit3() throws CoreException {
+	class DisabledTestBuffer extends Buffer implements IBuffer.ITextEditCapability {
+		public DisabledTestBuffer(IFile file, IOpenable owner, boolean readOnly) {
+			super(file, owner, readOnly);
+		}
+		public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws JavaModelException {
+			throw new RuntimeException("Should not call applyTextEdit()");
+		}
+	}
+	this.workingCopy = getWorkingCopy("/P/src/X.java", "public class X {}", new WorkingCopyOwner() {
+		public IBuffer createBuffer(ICompilationUnit copy) {
+			return new DisabledTestBuffer((IFile) copy.getResource(), copy, false);
+		}
+	});
+	this.workingCopy.createType("class Y {}", null, false, null);
+	assertSourceEquals(
+		"Unexpeted source", 
+		"public class X {}\n" + 
+		"\n" + 
+		"class Y {}",
+		this.workingCopy.getSource());
 }
 
 
