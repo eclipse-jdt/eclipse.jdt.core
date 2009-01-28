@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,6 +64,14 @@ public static final int ENABLE_BINDINGS_RECOVERY = 0x04;
 
 /**
  * Applies a text edit to the compilation unit's buffer.
+ * <p>
+ * Note that the edit is simply applied to the compilation unit's buffer.
+ * In particular the undo edit is not grouped with previous undo edits
+ * if the buffer doesn't implement {@link IBuffer.ITextEditCapability}.
+ * If it does, the exact semantics for grouping undo edit depends
+ * on how {@link IBuffer.ITextEditCapability#applyTextEdit(TextEdit, IProgressMonitor)}
+ * is implemented.
+ * </p>
  *
  * @param edit the edit to apply
  * @param monitor the progress monitor to use or <code>null</code> if no progress should be reported
