@@ -131,7 +131,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	boolean isStatic = codegenBinding.isStatic();
 	if (isStatic) {
 		this.receiver.generateCode(currentScope, codeStream, false);
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	} else if ((this.bits & ASTNode.DepthMASK) != 0 && this.receiver.isImplicitThis()) { // outer access ?
 		// outer method can be reached through emulation if implicit access
 		ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT);
@@ -142,8 +141,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		if ((this.bits & NeedReceiverGenericCast) != 0) {
 			codeStream.checkcast(this.actualReceiverType);
 		}
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 	// generate arguments
 	generateArguments(this.binding, this.arguments, currentScope, codeStream);
 	pc = codeStream.position;

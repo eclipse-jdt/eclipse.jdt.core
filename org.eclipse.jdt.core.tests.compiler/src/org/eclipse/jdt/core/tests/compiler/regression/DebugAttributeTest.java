@@ -233,4 +233,56 @@ public void test003() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262717
+public void test004() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X{\n" + 
+			"	public class Inner {\n" + 
+			"		public void foo() {\n" + 
+			"			int i = 0;\n" + 
+			"			final int NEW = 1;\n" + 
+			"			if (i == NEW) {\n" + 
+			"				System.out.println();\n" + 
+			"			}\n" + 
+			"			bar();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public void bar() {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X().new Inner().foo();\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+
+	String expectedOutput =
+		"    22  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 2, line: 5]\n" + 
+		"        [pc: 4, line: 6]\n" + 
+		"        [pc: 9, line: 7]\n" + 
+		"        [pc: 15, line: 9]\n" + 
+		"        [pc: 22, line: 10]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 23] local: this index: 0 type: X.Inner\n" + 
+		"        [pc: 2, pc: 23] local: i index: 1 type: int\n" + 
+		"        [pc: 4, pc: 23] local: NEW index: 2 type: int\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X$Inner.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
 }
