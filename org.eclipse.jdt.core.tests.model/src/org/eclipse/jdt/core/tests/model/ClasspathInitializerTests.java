@@ -480,9 +480,9 @@ public void testContainerInitializer09() throws CoreException {
  */
 public void testContainerInitializer10() throws CoreException {
 	class LogListener implements ILogListener {
-    	IStatus log;
+    	IStatus loggedStatus;
         public void logging(IStatus status, String plugin) {
-            this.log = status;
+            this.loggedStatus = status;
         }
 	}
 	LogListener listener = new LogListener();
@@ -533,7 +533,7 @@ public void testContainerInitializer10() throws CoreException {
              }
         }, null);
 
-		assertEquals("Should not get any exception in log", null, listener.log);
+		assertEquals("Should not get any exception in log", null, listener.loggedStatus);
 	} finally {
 	    Platform.removeLogListener(listener);
 		deleteProject("P1");

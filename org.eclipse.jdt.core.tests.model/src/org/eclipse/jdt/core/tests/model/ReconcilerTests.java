@@ -1699,9 +1699,9 @@ public void testExternal1() throws CoreException {
  */
 public void testExternal2() throws CoreException {
 	class LogListener implements ILogListener {
-    	IStatus log;
+    	IStatus loggedStatus;
         public void logging(IStatus status, String plugin) {
-            this.log = status;
+            this.loggedStatus = status;
         }
 	}
 	LogListener listener = new LogListener();
@@ -1722,7 +1722,7 @@ public void testExternal2() throws CoreException {
 			"}\n"
 		);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null/*no owner*/, null);
-		assertEquals("Should not get any exception in log", null, listener.log);
+		assertEquals("Should not get any exception in log", null, listener.loggedStatus);
 	} finally {
 		Platform.removeLogListener(listener);
 	}
