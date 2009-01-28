@@ -1271,9 +1271,13 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 
 	while (wrapper.signature[wrapper.start] == '.') {
 		wrapper.start++; // skip '.'
+		int memberStart = wrapper.start;
 		char[] memberName = wrapper.nextWord();
 		BinaryTypeBinding.resolveType(parameterizedType, this, false);
 		ReferenceBinding memberType = parameterizedType.genericType().getMemberType(memberName);
+		// need to protect against the member type being null when the signature is invalid
+		if (memberType == null)
+			this.problemReporter.corruptedSignature(parameterizedType, wrapper.signature, memberStart); // aborts
 		if (wrapper.signature[wrapper.start] == '<') {
 			wrapper.start++; // skip '<'
 			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, memberType, missingTypeNames);
