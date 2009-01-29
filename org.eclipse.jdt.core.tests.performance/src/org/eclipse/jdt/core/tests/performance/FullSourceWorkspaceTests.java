@@ -618,7 +618,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		File[] directories = wkspDir.listFiles(filter);
 		long start = System.currentTimeMillis();
 		int dirLength = directories.length;
-		if (dirLength != 62) {
+		if (dirLength < 62) {
 			String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
 			System.out.println("Unzipping "+fullSourceZipPath);
 			System.out.print("	in "+targetWorkspacePath+"...");
