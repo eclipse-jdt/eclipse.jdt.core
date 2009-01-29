@@ -59,7 +59,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			FieldBinding fieldBinding;
 			if ((fieldBinding = (FieldBinding) this.binding).isBlankFinal()
 					&& currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
-				if (!flowInfo.isDefinitelyAssigned(fieldBinding)) {
+				FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(fieldBinding.declaringClass.original(), flowInfo);
+				if (!fieldInits.isDefinitelyAssigned(fieldBinding)) {
 					currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 				}
 			}

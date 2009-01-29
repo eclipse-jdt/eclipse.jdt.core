@@ -56,15 +56,17 @@ public FieldReference(char[] source, long pos) {
 
 }
 
-public FlowInfo analyseAssignment(BlockScope currentScope, 	FlowContext flowContext, 	FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
+public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
 	// compound assignment extra work
 	if (isCompound) { // check the variable part is initialized if blank final
 		if (this.binding.isBlankFinal()
 			&& this.receiver.isThis()
-			&& currentScope.needBlankFinalFieldInitializationCheck(this.binding)
-			&& (!flowInfo.isDefinitelyAssigned(this.binding))) {
-			currentScope.problemReporter().uninitializedBlankFinalField(this.binding, this);
-			// we could improve error msg here telling "cannot use compound assignment on final blank field"
+			&& currentScope.needBlankFinalFieldInitializationCheck(this.binding)) {
+			FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(this.binding.declaringClass.original(), flowInfo);
+			if (!fieldInits.isDefinitelyAssigned(this.binding)) {
+				currentScope.problemReporter().uninitializedBlankFinalField(this.binding, this);
+				// we could improve error msg here telling "cannot use compound assignment on final blank field"
+			}
 		}
 		manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 	}

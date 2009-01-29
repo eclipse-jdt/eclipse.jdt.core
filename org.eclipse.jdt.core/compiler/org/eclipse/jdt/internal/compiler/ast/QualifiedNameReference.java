@@ -75,10 +75,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			if (lastFieldBinding.isBlankFinal()
 				    && this.otherBindings != null // the last field binding is only assigned
 	 				&& currentScope.needBlankFinalFieldInitializationCheck(lastFieldBinding)) {
-				if (!flowInfo.isDefinitelyAssigned(lastFieldBinding)) {
-					currentScope.problemReporter().uninitializedBlankFinalField(
-						lastFieldBinding,
-						this);
+				FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(lastFieldBinding.declaringClass.original(), flowInfo);
+				if (!fieldInits.isDefinitelyAssigned(lastFieldBinding)) {
+					currentScope.problemReporter().uninitializedBlankFinalField(lastFieldBinding, this);
 				}
 			}
 			break;
@@ -116,9 +115,11 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 	if (isCompound) {
 		if (otherBindingsCount == 0
 				&& lastFieldBinding.isBlankFinal()
-				&& currentScope.needBlankFinalFieldInitializationCheck(lastFieldBinding)
-				&& (!flowInfo.isDefinitelyAssigned(lastFieldBinding))) {
-			currentScope.problemReporter().uninitializedBlankFinalField(lastFieldBinding, this);
+				&& currentScope.needBlankFinalFieldInitializationCheck(lastFieldBinding)) {
+			FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(lastFieldBinding.declaringClass, flowInfo);
+			if (!fieldInits.isDefinitelyAssigned(lastFieldBinding)) {
+				currentScope.problemReporter().uninitializedBlankFinalField(lastFieldBinding, this);
+			}
 		}
 		manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, otherBindingsCount, flowInfo);
 	}
@@ -176,9 +177,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				FieldBinding fieldBinding = (FieldBinding) this.binding;
 				// check if reading a final blank field
 				if (fieldBinding.isBlankFinal()
-						&& currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)
-						&& !flowInfo.isDefinitelyAssigned(fieldBinding)) {
-					currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
+						&& currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
+					FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(fieldBinding.declaringClass.original(), flowInfo);
+					if (!fieldInits.isDefinitelyAssigned(fieldBinding)) {
+						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
+					}
 				}
 			}
 			break;

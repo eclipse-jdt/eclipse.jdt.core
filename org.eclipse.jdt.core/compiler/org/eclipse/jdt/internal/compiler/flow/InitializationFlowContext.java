@@ -21,22 +21,21 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  *	try statements, exception handlers, etc...
  */
 public class InitializationFlowContext extends ExceptionHandlingFlowContext {
-
 	public int exceptionCount;
 	public TypeBinding[] thrownExceptions = new TypeBinding[5];
 	public ASTNode[] exceptionThrowers = new ASTNode[5];
 	public FlowInfo[] exceptionThrowerFlowInfos = new FlowInfo[5];
-
-	public InitializationFlowContext(
-		FlowContext parent,
-		ASTNode associatedNode,
-		BlockScope scope) {
+	public FlowInfo	initsBeforeContext;
+	
+	public InitializationFlowContext(FlowContext parent, ASTNode associatedNode, FlowInfo initsBeforeContext, FlowContext initializationParent, BlockScope scope) {
 		super(
 			parent,
 			associatedNode,
 			Binding.NO_EXCEPTIONS, // no exception allowed by default
+			initializationParent,
 			scope,
 			FlowInfo.DEAD_END);
+		this.initsBeforeContext = initsBeforeContext;
 	}
 
 	public void checkInitializerExceptions(
