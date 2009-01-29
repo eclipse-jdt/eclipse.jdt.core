@@ -255,13 +255,6 @@ public final class NamingConventions {
 	 */
 	public static final int VK_STATIC_FINAL_FIELD = InternalNamingConventions.VK_STATIC_FINAL_FIELD;
 	/**
-	 * Variable kind which represents a constant field (static final).
-	 * 
-	 * @since 3.5
-	 * @deprecated use VK_STATIC_FINAL_FIELD instead. This constant will be removed before 3.5M5.
-	 */
-	public static final int VK_CONSTANT_FIELD = InternalNamingConventions.VK_STATIC_FINAL_FIELD;
-	/**
 	 * Variable kind which represents an argument.
 	 * 
 	 * @since 3.5
