@@ -422,6 +422,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 			createFolder(new Path("/Completion/src/javadoc/tags"));
 		} else {
 			setUpProjectCompliance(COMPLETION_PROJECT, "1.4");
+			this.currentProject = COMPLETION_PROJECT;
 		}
 	}
 
