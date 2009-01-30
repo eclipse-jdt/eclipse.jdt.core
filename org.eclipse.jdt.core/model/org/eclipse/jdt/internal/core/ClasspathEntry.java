@@ -874,70 +874,82 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (visited.contains( jarPath))
 			return;
 		visited.add(jarPath);
-		Object target = JavaModel.getTarget(jarPath, true/*check existence, otherwise the manifest cannot be read*/);
-		if (target instanceof IFile || target instanceof File) {
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ZipFile zip = null;
-			BufferedReader reader = null;
-			try {
-				zip = manager.getZipFile(jarPath);
-				ZipEntry manifest =	zip.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
-				if (manifest != null) { // non-null implies regular file
-					reader = new BufferedReader(new InputStreamReader(zip.getInputStream(manifest)));
-					ManifestAnalyzer analyzer = new ManifestAnalyzer();
-					boolean success = analyzer.analyzeManifestContents(reader);
-					List calledFileNames = analyzer.getCalledFileNames();
-					if (!success || analyzer.getClasspathSectionsCount() == 1 && calledFileNames == null) {
-						if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-							Util.verbose("Invalid Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
-						}
-						return;
-					} else if (analyzer.getClasspathSectionsCount() > 1) {
-						if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-							Util.verbose("Multiple Class-Path headers in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
-						}
-						return;
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		if (manager.isNonChainingJar(jarPath))
+			return;
+		List calledFileNames = getCalledFileNames(jarPath);
+		if (calledFileNames == null) {
+			manager.addNonChainingJar(jarPath);
+		} else {
+			Iterator calledFilesIterator = calledFileNames.iterator();
+			IPath directoryPath = jarPath.removeLastSegments(1);
+			while (calledFilesIterator.hasNext()) {
+				String calledFileName = (String) calledFilesIterator.next();
+				if (!directoryPath.isValidPath(calledFileName)) {
+					if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+						Util.verbose("Invalid Class-Path entry " + calledFileName + " in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 					}
-					if (calledFileNames != null) {
-						Iterator calledFilesIterator = calledFileNames.iterator();
-						IPath directoryPath = jarPath.removeLastSegments(1);
-						while (calledFilesIterator.hasNext()) {
-							String calledFileName = (String) calledFilesIterator.next();
-							if (!directoryPath.isValidPath(calledFileName)) {
-								if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-									Util.verbose("Invalid Class-Path entry " + calledFileName + " in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-								}
-							} else {
-								IPath calledJar = directoryPath.append(new Path(calledFileName));
-								resolvedChainedLibraries(calledJar, visited, result);
-								result.add(calledJar);
-							}
-						}
-					}
-				}
-			} catch (CoreException e) {
-				// not a zip file
-				if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-					Util.verbose("Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
-					e.printStackTrace();
-				}
-			} catch (IOException e) {
-				// not a zip file
-				if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-					Util.verbose("Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
-					e.printStackTrace();
-				}
-			} finally {
-				manager.closeZipFile(zip);
-				if (reader != null) {
-					try {
-						reader.close();
-					} catch (IOException e) {
-						// best effort
-					}
+				} else {
+					IPath calledJar = directoryPath.append(new Path(calledFileName));
+					resolvedChainedLibraries(calledJar, visited, result);
+					result.add(calledJar);
 				}
 			}
 		}
+	}
+
+	private static List getCalledFileNames(IPath jarPath) {
+		Object target = JavaModel.getTarget(jarPath, true/*check existence, otherwise the manifest cannot be read*/);
+		if (!(target instanceof IFile || target instanceof File))
+			return null;
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		ZipFile zip = null;
+		BufferedReader reader = null;
+		List calledFileNames = null;
+		try {
+			zip = manager.getZipFile(jarPath);
+			ZipEntry manifest =	zip.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
+			if (manifest == null) 
+				return null;
+			// non-null implies regular file
+			reader = new BufferedReader(new InputStreamReader(zip.getInputStream(manifest)));
+			ManifestAnalyzer analyzer = new ManifestAnalyzer();
+			boolean success = analyzer.analyzeManifestContents(reader);
+			calledFileNames = analyzer.getCalledFileNames();
+			if (!success || analyzer.getClasspathSectionsCount() == 1 && calledFileNames == null) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+					Util.verbose("Invalid Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+				}
+				return null;
+			} else if (analyzer.getClasspathSectionsCount() > 1) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+					Util.verbose("Multiple Class-Path headers in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+				}
+				return null;
+			}
+		} catch (CoreException e) {
+			// not a zip file
+			if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+				Util.verbose("Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+				e.printStackTrace();
+			}
+		} catch (IOException e) {
+			// not a zip file
+			if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+				Util.verbose("Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+				e.printStackTrace();
+			}
+		} finally {
+			manager.closeZipFile(zip);
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// best effort
+				}
+			}
+		}
+		return calledFileNames;
 	}
 	
 	/*
