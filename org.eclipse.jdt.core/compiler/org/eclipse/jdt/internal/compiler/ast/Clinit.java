@@ -53,6 +53,7 @@ public class Clinit extends AbstractMethodDeclaration {
 					staticInitializerFlowContext.parent,
 					this,
 					Binding.NO_EXCEPTIONS,
+					staticInitializerFlowContext,
 					scope,
 					FlowInfo.DEAD_END);
 

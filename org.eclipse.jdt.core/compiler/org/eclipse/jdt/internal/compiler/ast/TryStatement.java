@@ -87,6 +87,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				flowContext,
 				this,
 				this.caughtExceptionTypes,
+				null,
 				this.scope,
 				flowInfo.unconditionalInits());
 		handlingContext.initsOnFinally =
@@ -198,6 +199,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				insideSubContext,
 				this,
 				this.caughtExceptionTypes,
+				null,
 				this.scope,
 				flowInfo.unconditionalInits());
 		handlingContext.initsOnFinally =

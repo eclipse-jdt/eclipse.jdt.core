@@ -593,8 +593,8 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			this.scope.problemReporter().unusedPrivateType(this);
 		}
 	}
-	InitializationFlowContext initializerContext = new InitializationFlowContext(null, this, this.initializerScope);
-	InitializationFlowContext staticInitializerContext = new InitializationFlowContext(null, this, this.staticInitializerScope);
+	InitializationFlowContext initializerContext = new InitializationFlowContext(null, this, flowInfo, flowContext, this.initializerScope);
+	InitializationFlowContext staticInitializerContext = new InitializationFlowContext(null, this, flowInfo, flowContext, this.staticInitializerScope);
 	FlowInfo nonStaticFieldInfo = flowInfo.unconditionalFieldLessCopy();
 	FlowInfo staticFieldInfo = flowInfo.unconditionalFieldLessCopy();
 	if (this.fields != null) {
@@ -609,11 +609,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				} else {*/
 				staticInitializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
 				/*}*/
-				staticFieldInfo =
-					field.analyseCode(
-						this.staticInitializerScope,
-						staticInitializerContext,
-						staticFieldInfo);
+				staticFieldInfo = field.analyseCode(this.staticInitializerScope, staticInitializerContext, staticFieldInfo);
 				// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 				// branch, since the previous initializer already got the blame.
 				if (staticFieldInfo == FlowInfo.DEAD_END) {
@@ -629,8 +625,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				} else {*/
 					initializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
 				/*}*/
-				nonStaticFieldInfo =
-					field.analyseCode(this.initializerScope, initializerContext, nonStaticFieldInfo);
+				nonStaticFieldInfo = field.analyseCode(this.initializerScope, initializerContext, nonStaticFieldInfo);
 				// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 				// branch, since the previous initializer already got the blame.
 				if (nonStaticFieldInfo == FlowInfo.DEAD_END) {

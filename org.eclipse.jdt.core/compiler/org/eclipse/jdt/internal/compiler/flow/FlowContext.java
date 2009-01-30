@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -43,6 +44,25 @@ public class FlowContext implements TypeConstants {
 		// any null related operation happening within the try block
 		
 boolean deferNullDiagnostic, preemptNullDiagnostic;
+
+public static final int 
+  CAN_ONLY_NULL_NON_NULL = 0x0000, 
+  	// check against null and non null, with definite values -- comparisons
+  CAN_ONLY_NULL = 0x0001,
+  	// check against null, with definite values -- comparisons
+  CAN_ONLY_NON_NULL = 0x0002,
+	// check against non null, with definite values -- comparisons
+  MAY_NULL = 0x0003,
+	// check against null, with potential values -- NPE guard
+  CHECK_MASK = 0x00FF,
+  IN_COMPARISON_NULL = 0x0100,
+  IN_COMPARISON_NON_NULL = 0x0200,
+    // check happened in a comparison
+  IN_ASSIGNMENT = 0x0300,
+    // check happened in an assignment
+  IN_INSTANCEOF = 0x0400,
+    // check happened in an instanceof expression
+  CONTEXT_MASK = ~CHECK_MASK;
 
 public FlowContext(FlowContext parent, ASTNode associatedNode) {
 	this.parent = parent;
@@ -287,6 +307,28 @@ public BranchLabel continueLabel() {
 	return null;
 }
 
+public FlowInfo getInitsForFinalBlankInitializationCheck(TypeBinding declaringType, FlowInfo flowInfo) {
+	FlowContext current = this;
+	FlowInfo inits = flowInfo;
+	do {
+		if (current instanceof InitializationFlowContext) {
+			InitializationFlowContext initializationContext = (InitializationFlowContext) current;
+			if (((TypeDeclaration)initializationContext.associatedNode).binding == declaringType) {
+				return inits;
+			}
+			inits = initializationContext.initsBeforeContext;
+			current = initializationContext.initializationParent;
+		} else if (current instanceof ExceptionHandlingFlowContext) {
+			ExceptionHandlingFlowContext exceptionContext = (ExceptionHandlingFlowContext) current;
+			current = exceptionContext.initializationParent == null ? exceptionContext.parent : exceptionContext.initializationParent;
+		} else {
+			current = current.parent;
+		}
+	} while (current != null);
+	// not found
+	return null;
+}
+
 /*
  * lookup through break labels
  */
@@ -467,25 +509,6 @@ public void recordSettingFinal(VariableBinding variable, Reference finalReferenc
 	}
 	}
 }
-
-public static final int 
-  CAN_ONLY_NULL_NON_NULL = 0x0000, 
-  	// check against null and non null, with definite values -- comparisons
-  CAN_ONLY_NULL = 0x0001,
-  	// check against null, with definite values -- comparisons
-  CAN_ONLY_NON_NULL = 0x0002,
-	// check against non null, with definite values -- comparisons
-  MAY_NULL = 0x0003,
-	// check against null, with potential values -- NPE guard
-  CHECK_MASK = 0x00FF,
-  IN_COMPARISON_NULL = 0x0100,
-  IN_COMPARISON_NON_NULL = 0x0200,
-    // check happened in a comparison
-  IN_ASSIGNMENT = 0x0300,
-    // check happened in an assignment
-  IN_INSTANCEOF = 0x0400,
-    // check happened in an instanceof expression
-  CONTEXT_MASK = ~CHECK_MASK;
 
 /**
  * Record a null reference for use by deferred checks. Only looping or 

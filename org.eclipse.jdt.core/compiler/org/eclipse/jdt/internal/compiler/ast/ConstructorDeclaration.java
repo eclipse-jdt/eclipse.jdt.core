@@ -76,6 +76,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				initializerFlowContext.parent,
 				this,
 				this.binding.thrownExceptions,
+				initializerFlowContext,
 				this.scope,
 				FlowInfo.DEAD_END);
 		initializerFlowContext.checkInitializerExceptions(

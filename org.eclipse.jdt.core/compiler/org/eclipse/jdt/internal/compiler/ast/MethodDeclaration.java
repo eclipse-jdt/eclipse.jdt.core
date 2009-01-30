@@ -72,6 +72,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					initializationContext,
 					this,
 					binding.thrownExceptions,
+					null,
 					scope,
 					FlowInfo.DEAD_END);
 
