@@ -31,9 +31,6 @@ public void setUpSuite() throws Exception {
 	}
 	super.setUpSuite();
 }
-public void tearDownSuite() throws Exception {
-	super.tearDownSuite();
-}
 static {
 //	TESTS_NAMES = new String[] { "testZZZ"};
 }

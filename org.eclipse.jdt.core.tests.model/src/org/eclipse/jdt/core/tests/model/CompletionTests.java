@@ -51,9 +51,6 @@ public void setUpSuite() throws Exception {
 	}
 	super.setUpSuite();
 }
-public void tearDownSuite() throws Exception {
-	super.tearDownSuite();
-}
 private String getVarClassSignature(IEvaluationContext context) {
 	char[] varClassName = ((EvaluationContextWrapper)context).getVarClassName();
 	return Signature.createTypeSignature(varClassName, true);

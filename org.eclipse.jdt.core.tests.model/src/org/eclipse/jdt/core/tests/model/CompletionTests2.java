@@ -136,13 +136,27 @@ public CompletionTests2(String name) {
 	super(name);
 }
 public void setUpSuite() throws Exception {
+	if (AbstractJavaModelCompletionTests.COMPLETION_PROJECT == null)  {
+		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = setUpJavaProject("Completion");
+	} else {
+		setUpProjectCompliance(AbstractJavaModelCompletionTests.COMPLETION_PROJECT, "1.4");
+		this.currentProject = AbstractJavaModelCompletionTests.COMPLETION_PROJECT;
+	}
 	super.setUpSuite();
-
-	setUpJavaProject("Completion");
 }
 public void tearDownSuite() throws Exception {
-	deleteProject("Completion");
-
+	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
+		deleteProject("Completion");
+	} else {
+		AbstractJavaModelCompletionTests.COMPLETION_SUITES.remove(getClass());
+		if (AbstractJavaModelCompletionTests.COMPLETION_SUITES.size() == 0) {
+			deleteProject("Completion");
+			AbstractJavaModelCompletionTests.COMPLETION_SUITES = null;
+		}
+	}
+	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
+		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = null;
+	}
 	super.tearDownSuite();
 }
 

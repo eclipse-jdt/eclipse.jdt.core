@@ -2830,12 +2830,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			new CompilerOptions(defaultOptions).toString(),
 			new CompilerOptions(options).toString());
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
-	 */
-	public void tearDownSuite() throws Exception {
-		super.tearDownSuite();
-	}
 
 	/**
 	 * Wait for autobuild notification to occur

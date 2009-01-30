@@ -37,10 +37,6 @@ public void setUpSuite() throws Exception {
 	}
 	super.setUpSuite();
 }
-
-public void tearDownSuite() throws Exception {
-	super.tearDownSuite();
-}
 public static Test suite() {
 	return buildModelTestSuite(CompletionTests_1_5.class);
 }
