@@ -73,7 +73,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			}
 		}
 
-		super.tearDown();
+		super.tearDownSuite();
 	}
 
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {

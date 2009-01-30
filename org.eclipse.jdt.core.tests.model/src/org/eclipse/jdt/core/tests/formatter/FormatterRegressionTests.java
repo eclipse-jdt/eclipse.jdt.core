@@ -187,7 +187,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		if (DEBUG) {
 			System.out.println("Time spent = " + (System.currentTimeMillis() - this.time));//$NON-NLS-1$
 		}
-		super.tearDown();
+		super.tearDownSuite();
 	}
 
 	private String getIn(String compilationUnitName) {
