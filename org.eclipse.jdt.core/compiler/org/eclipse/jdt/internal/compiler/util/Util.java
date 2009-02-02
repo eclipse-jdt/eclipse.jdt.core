@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.util;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -287,7 +289,7 @@ public class Util implements SuffixConstants {
 	 * @throws IOException if a problem occured reading the stream.
 	 */
 	public static byte[] getInputStreamAsByteArray(InputStream stream, int length)
-		throws IOException {
+			throws IOException {
 		byte[] contents;
 		if (length == -1) {
 			contents = new byte[0];
@@ -369,15 +371,15 @@ public class Util implements SuffixConstants {
 	 * @throws IOException if a problem occured reading the stream.
 	 */
 	public static char[] getInputStreamAsCharArray(InputStream stream, int length, String encoding)
-		throws IOException {
-		InputStreamReader reader = null;
+			throws IOException {
+		BufferedReader reader = null;
 		try {
 			reader = encoding == null
-						? new InputStreamReader(stream)
-						: new InputStreamReader(stream, encoding);
+						? new BufferedReader(new InputStreamReader(stream))
+						: new BufferedReader(new InputStreamReader(stream, encoding));
 		} catch (UnsupportedEncodingException e) {
 			// encoding is not supported
-			reader =  new InputStreamReader(stream);
+			reader =  new BufferedReader(new InputStreamReader(stream));
 		}
 		char[] contents;
 		int totalRead = 0;
