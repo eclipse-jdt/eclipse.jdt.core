@@ -1318,51 +1318,6 @@ public void conflictingImport(ImportReference importRef) {
 		importRef.sourceStart,
 		importRef.sourceEnd);
 }
-public void constantOutOfFormat(NumberLiteral literal) {
-	// the literal is not in a correct format
-	// this code is called on IntLiteral and LongLiteral
-	// example 000811 ...the 8 is uncorrect.
-
-	if ((literal instanceof LongLiteral) || (literal instanceof IntLiteral)) {
-		char[] source = literal.source();
-		try {
-			final String Radix;
-			final int radix;
-			if ((source[1] == 'x') || (source[1] == 'X')) {
-				radix = 16;
-				Radix = "Hex"; //$NON-NLS-1$
-			} else {
-				radix = 8;
-				Radix = "Octal"; //$NON-NLS-1$
-			}
-			//look for the first digit that is incorrect
-			int place = -1;
-			label : for (int i = radix == 8 ? 1 : 2; i < source.length; i++) {
-				if (ScannerHelper.digit(source[i], radix) == -1) {
-					place = i;
-					break label;
-				}
-			}
-			String[] arguments = new String[] {
-				new String(literal.literalType(null).readableName()), // numeric literals do not need scope to reach type
-				Radix + " " + new String(source) + " (digit " + new String(new char[] {source[place]}) + ")"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-			this.handle(
-				IProblem.NumericValueOutOfRange,
-				arguments,
-				arguments,
-				literal.sourceStart,
-				literal.sourceEnd);
-			return;
-		} catch (IndexOutOfBoundsException ex) {
-			// should never happen
-		}
-
-		// just in case .... use a predefined error..
-		// we should never come here...(except if the code changes !)
-		constantOutOfRange(literal, literal.literalType(null)); // numeric literals do not need scope to reach type
-	}
-}
 public void constantOutOfRange(Literal literal, TypeBinding literalType) {
 	String[] arguments = new String[] {new String(literalType.readableName()), new String(literal.source())};
 	this.handle(
