@@ -16,10 +16,12 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
@@ -872,6 +874,55 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262517
+	public void testSingleMemberAnnotation1() throws Exception {
+		String previousValue = null;
+		try {
+			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_ANNOTATION, false);
+			
+			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_ANNOTATION, JavaCore.INSERT);
+			
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST3(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+			AST ast= astRoot.getAST();
+	
+			{
+				TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+	
+				SingleMemberAnnotation newAnnot= ast.newSingleMemberAnnotation();
+				
+				newAnnot.setTypeName(ast.newName("SuppressWarnings"));
+				
+				StringLiteral newStringLiteral= ast.newStringLiteral();
+				newStringLiteral.setLiteralValue("deprecation");
+				newAnnot.setValue(newStringLiteral);
+	
+				ListRewrite modifiers= rewrite.getListRewrite(type, TypeDeclaration.MODIFIERS2_PROPERTY);
+				modifiers.insertFirst(newAnnot, null);
+			}
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("@SuppressWarnings (\"deprecation\")\n");
+			buf.append("public class E {\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (previousValue != null) {
+				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_ANNOTATION, previousValue);
+			}
+		}
 	}
 
 	public void testSingleVariableDeclaration() throws Exception {

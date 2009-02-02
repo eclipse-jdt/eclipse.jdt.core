@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
@@ -264,7 +265,12 @@ import org.eclipse.text.edits.TextEdit;
 				code= CodeFormatter.K_STATEMENTS;
 			}
 		} else if (node instanceof Expression && node.getNodeType() != ASTNode.VARIABLE_DECLARATION_EXPRESSION) {
-			code= CodeFormatter.K_EXPRESSION;
+			if (node instanceof Annotation) {
+				suffix= "\nclass A {}"; //$NON-NLS-1$
+				code= CodeFormatter.K_COMPILATION_UNIT;
+			} else {
+				code= CodeFormatter.K_EXPRESSION;
+			}
 		} else if (node instanceof BodyDeclaration) {
 			code= CodeFormatter.K_CLASS_BODY_DECLARATIONS;
 		} else {
