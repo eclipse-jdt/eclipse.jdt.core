@@ -17,16 +17,15 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class LongLiteral extends NumberLiteral {
-	static final Constant FORMAT_ERROR = DoubleConstant.fromValue(1.0/0.0); // NaN;
 
 public LongLiteral(char[] token, int s,int e) {
 	super(token, s,e);
 }
+
 public void computeConstant() {
 	//the overflow (when radix=10) is tested using the fact that
 	//the value should always grow during its computation
 	int length = this.source.length - 1; //minus one because the last char is 'l' or 'L'
-
 	long computedValue ;
 	if (this.source[0] == '0') {
 		if (length == 1) {
@@ -46,13 +45,13 @@ public void computeConstant() {
 			if ( j == length) {
 				//watch for 0000000000000L
 				this.constant = LongConstant.fromValue(0L);
-				return ;
+				return;
 			}
 		}
 
 		int digitValue ;
 		if ((digitValue = ScannerHelper.digit(this.source[j++],radix)) < 0 ) {
-			this.constant = FORMAT_ERROR; return ;
+			return; /*constant stays null*/
 		}
 		if (digitValue >= 8)
 			nbDigit = 4;
@@ -65,10 +64,10 @@ public void computeConstant() {
 		computedValue = digitValue ;
 		while (j<length) {
 			if ((digitValue = ScannerHelper.digit(this.source[j++],radix)) < 0) {
-				this.constant = FORMAT_ERROR; return ;
+				return; /*constant stays null*/
 			}
 			if ((nbDigit += shift) > 64)
-				return /*constant stays null*/ ;
+				return; /*constant stays null*/
 			computedValue = (computedValue<<shift) | digitValue ;
 		}
 	} else {
@@ -81,17 +80,18 @@ public void computeConstant() {
 			if ((digitValue = ScannerHelper.digit(this.source[i], 10)) < 0 ) return /*constant stays null*/;
 			previous = computedValue;
 			if (computedValue > limit)
-				return /*constant stays null*/;
+				return; /*constant stays null*/
 			computedValue *= 10;
 			if ((computedValue + digitValue) > Long.MAX_VALUE)
-				return /*constant stays null*/;
+				return; /*constant stays null*/
 			computedValue += digitValue;
 			if (previous > computedValue)
-				return /*constant stays null*/;
+				return; /*constant stays null*/
 		}
 	}
 	this.constant = LongConstant.fromValue(computedValue);
 }
+
 /**
  * Code generation for long literal
  *
@@ -106,15 +106,16 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
+
 public TypeBinding literalType(BlockScope scope) {
 	return TypeBinding.LONG;
 }
+
 public final boolean mayRepresentMIN_VALUE(){
 	//a special autorized int literral is 9223372036854775808L
 	//which is ONE over the limit. This special case
 	//only is used in combinaison with - to denote
 	//the minimal value of int -9223372036854775808L
-
 	return ((this.source.length == 20) &&
 			(this.source[0] == '9') &&
 			(this.source[1] == '2') &&
@@ -137,19 +138,7 @@ public final boolean mayRepresentMIN_VALUE(){
 			(this.source[18] == '8') &&
 			(((this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0));
 }
-public TypeBinding resolveType(BlockScope scope) {
-	// the format may be incorrect while the scanner could detect
-	// such error only on painfull tests...easier and faster here
 
-	TypeBinding tb = super.resolveType(scope);
-	if (this.constant == FORMAT_ERROR) {
-		this.constant = Constant.NotAConstant;
-		scope.problemReporter().constantOutOfFormat(this);
-		this.resolvedType = null;
-		return null;
-	}
-	return tb;
-}
 public void traverse(ASTVisitor visitor, BlockScope scope) {
 	visitor.visit(this, scope);
 	visitor.endVisit(this, scope);

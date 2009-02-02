@@ -11,36 +11,32 @@
 package org.eclipse.jdt.internal.compiler.impl;
 
 public class StringConstant extends Constant {
-private String value;
 
+	private String value;
 
-public static Constant fromValue(String value) {
-	return new StringConstant(value);
-}
+	public static Constant fromValue(String value) {
+		return new StringConstant(value);
+	}
 
-private StringConstant(String value) {
-	this.value = value ;
-}
+	private StringConstant(String value) {
+		this.value = value;
+	}
 
-public String stringValue() {
-	//spec 15.17.11
+	public String stringValue() {
+		// spec 15.17.11
 
-	//the next line do not go into the toString() send....!
-	return this.value ;
+		// the next line do not go into the toString() send....!
+		return this.value;
+		/*
+		 * String s = value.toString() ; if (s == null) return "null"; else return s;
+		 */
+	}
 
-	/*
-	String s = value.toString() ;
-	if (s == null)
-		return "null";
-	else
-		return s;
-	*/
+	public String toString() {
+		return "(String)\"" + this.value + "\""; //$NON-NLS-2$ //$NON-NLS-1$
+	}
 
-}
-public String toString(){
-
-	return "(String)\"" + this.value +"\""; } //$NON-NLS-2$ //$NON-NLS-1$
-public int typeID() {
-	return T_JavaLangString;
-}
+	public int typeID() {
+		return T_JavaLangString;
+	}
 }

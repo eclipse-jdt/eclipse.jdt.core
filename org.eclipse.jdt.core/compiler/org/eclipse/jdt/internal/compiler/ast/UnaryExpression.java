@@ -206,7 +206,6 @@ public FlowInfo analyseCode(
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
-
 		boolean expressionIsCast;
 		if ((expressionIsCast = this.expression instanceof CastExpression) == true) this.expression.bits |= DisableUnnecessaryCastCheck; // will check later on
 		TypeBinding expressionType = this.expression.resolveType(scope);

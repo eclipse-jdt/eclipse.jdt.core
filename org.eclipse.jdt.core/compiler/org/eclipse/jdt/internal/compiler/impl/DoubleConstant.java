@@ -15,7 +15,6 @@ public class DoubleConstant extends Constant {
 	private double value;
 
 	public static Constant fromValue(double value) {
-
 		return new DoubleConstant(value);
 	}
 

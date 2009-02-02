@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
+
 /*
  * Implementors are valid compilation contexts from which we can
  * escape in case of error:
@@ -19,8 +20,12 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 
 public interface ReferenceContext {
+
 	void abort(int abortLevel, CategorizedProblem problem);
+
 	CompilationResult compilationResult();
+
 	boolean hasErrors();
+
 	void tagAsHavingErrors();
 }

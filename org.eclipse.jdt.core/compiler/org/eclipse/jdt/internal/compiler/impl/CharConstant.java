@@ -21,35 +21,44 @@ public class CharConstant extends Constant {
 	private CharConstant(char value) {
 		this.value = value;
 	}
+
 	public byte byteValue() {
 		return (byte) this.value;
 	}
+
 	public char charValue() {
 		return this.value;
 	}
+
 	public double doubleValue() {
 		return this.value; // implicit cast to return type
 	}
+
 	public float floatValue() {
 		return this.value; // implicit cast to return type
 	}
+
 	public int intValue() {
 		return this.value; // implicit cast to return type
 	}
+
 	public long longValue() {
 		return this.value; // implicit cast to return type
 	}
+
 	public short shortValue() {
 		return (short) this.value;
 	}
+
 	public String stringValue() {
-		//spec 15.17.11
+		// spec 15.17.11
 		return String.valueOf(this.value);
 	}
-	public String toString(){
 
+	public String toString() {
 		return "(char)" + this.value; //$NON-NLS-1$
 	}
+
 	public int typeID() {
 		return T_char;
 	}

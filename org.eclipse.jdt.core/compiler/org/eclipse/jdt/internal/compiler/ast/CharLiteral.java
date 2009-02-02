@@ -17,23 +17,25 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class CharLiteral extends NumberLiteral {
+	
 	char value;
+	
 public CharLiteral(char[] token, int s, int e) {
 	super(token, s, e);
 	computeValue();
 }
+
 public void computeConstant() {
 	//The source is a  char[3] first and last char are '
 	//This is true for both regular char AND unicode char
 	//BUT not for escape char like '\b' which are char[4]....
-
 	this.constant = CharConstant.fromValue(this.value);
 }
+
 private void computeValue() {
 	//The source is a  char[3] first and last char are '
 	//This is true for both regular char AND unicode char
 	//BUT not for escape char like '\b' which are char[4]....
-
 	if ((this.value = this.source[1]) != '\\')
 		return;
 	char digit;
@@ -76,6 +78,7 @@ private void computeValue() {
 			break;
 	}
 }
+
 /**
  * CharLiteral code generation
  *
@@ -90,9 +93,11 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
+
 public TypeBinding literalType(BlockScope scope) {
 	return TypeBinding.CHAR;
 }
+
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	visitor.visit(this, blockScope);
 	visitor.endVisit(this, blockScope);

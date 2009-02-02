@@ -14,6 +14,7 @@ public class IntConstant extends Constant {
 
 	int value;
 
+	private static final IntConstant MIN_VALUE = new IntConstant(Integer.MIN_VALUE);
 	private static final IntConstant MINUS_FOUR = new IntConstant(-4);
 	private static final IntConstant MINUS_THREE = new IntConstant(-3);
 	private static final IntConstant MINUS_TWO = new IntConstant(-2);
@@ -31,8 +32,8 @@ public class IntConstant extends Constant {
 	private static final IntConstant TEN = new IntConstant(10);
 
 	public static Constant fromValue(int value) {
-
 		switch (value) {
+			case Integer.MIN_VALUE : return IntConstant.MIN_VALUE;
 			case -4 : return IntConstant.MINUS_FOUR;
 			case -3 : return IntConstant.MINUS_THREE;
 			case -2 : return IntConstant.MINUS_TWO;

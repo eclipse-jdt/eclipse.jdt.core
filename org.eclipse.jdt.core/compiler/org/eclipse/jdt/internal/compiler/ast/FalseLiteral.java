@@ -18,7 +18,9 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class FalseLiteral extends MagicLiteral {
+	
 	static final char[] source = {'f', 'a', 'l', 's', 'e'};
+	
 public FalseLiteral(int s , int e) {
 	super(s,e);
 }

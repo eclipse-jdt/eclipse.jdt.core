@@ -11,43 +11,55 @@
 package org.eclipse.jdt.internal.compiler.impl;
 
 public class ByteConstant extends Constant {
+
 	private byte value;
 
-public static Constant fromValue(byte value) {
-	return new ByteConstant(value);
-}
-private ByteConstant(byte value) {
-	this.value = value;
-}
-public byte byteValue() {
-	return this.value;
-}
-public char charValue() {
-	return (char) this.value;
-}
-public double doubleValue() {
-	return this.value; // implicit cast to return type
-}
-public float floatValue() {
-	return this.value; // implicit cast to return type
-}
-public int intValue() {
-	return this.value; // implicit cast to return type
-}
-public long longValue() {
-	return this.value; // implicit cast to return type
-}
-public short shortValue() {
-	return this.value; // implicit cast to return type
-}
-public String stringValue() {
-	//spec 15.17.11
-	return String.valueOf(this.value) ;
-}
-public String toString(){
+	public static Constant fromValue(byte value) {
+		return new ByteConstant(value);
+	}
 
-	return "(byte)" + this.value ; } //$NON-NLS-1$
-public int typeID() {
-	return T_byte;
-}
+	private ByteConstant(byte value) {
+		this.value = value;
+	}
+
+	public byte byteValue() {
+		return this.value;
+	}
+
+	public char charValue() {
+		return (char) this.value;
+	}
+
+	public double doubleValue() {
+		return this.value; // implicit cast to return type
+	}
+
+	public float floatValue() {
+		return this.value; // implicit cast to return type
+	}
+
+	public int intValue() {
+		return this.value; // implicit cast to return type
+	}
+
+	public long longValue() {
+		return this.value; // implicit cast to return type
+	}
+
+	public short shortValue() {
+		return this.value; // implicit cast to return type
+	}
+
+	public String stringValue() {
+		// spec 15.17.11
+		return String.valueOf(this.value);
+	}
+
+	public String toString() {
+		return "(byte)" + this.value; //$NON-NLS-1$
+	}
+
+	public int typeID() {
+		return T_byte;
+	}
 }

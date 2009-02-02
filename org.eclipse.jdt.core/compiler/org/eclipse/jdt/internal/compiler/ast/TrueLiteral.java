@@ -18,7 +18,9 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class TrueLiteral extends MagicLiteral {
+	
 	static final char[] source = {'t' , 'r' , 'u' , 'e'};
+	
 public TrueLiteral(int s , int e) {
 	super(s,e);
 }
