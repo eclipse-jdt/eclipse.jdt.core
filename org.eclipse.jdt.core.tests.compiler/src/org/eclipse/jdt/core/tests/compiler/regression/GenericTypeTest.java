@@ -49189,4 +49189,26 @@ public void test1445() {
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=202393
+public void test1446() {
+     this.runConformTest(
+             new String[] {
+                     "Bug202393.java",
+                     "public class Bug202393 {\n" + 
+                     "   static <T> T id(T in) { return in; }\n" +
+                     "   public static void main(String[] args) {\n" +
+                     "      try {" +
+                     "         bad();" +
+                     "      } catch (Throwable t) {\n" +
+                     "         System.out.print(\"CAUGHT\");\n" +
+                     "      }\n" +
+                     "   }\n" +
+                     "   static void bad() throws Throwable {\n" +
+                     "      throw id(new Exception());\n" +
+                     "   }\n" +
+                     "}\n"},
+             "CAUGHT"
+     );
+}
+
 }
