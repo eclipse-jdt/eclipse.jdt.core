@@ -48983,4 +48983,210 @@ public void test1443() {
 			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=263215
+public void test1444() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.ArrayList;\n" + 
+				"import java.util.Iterator;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	@SuppressWarnings(\"all\") public static <T> T[] asArray(Iterator<? extends T> it, Class<T> clazz) {\n" + 
+				"		List<T> lst = new ArrayList<T>();\n" + 
+				"		while (it.hasNext()) {\n" + 
+				"			lst.add(it.next());\n" + 
+				"		}\n" + 
+				"		return lst.toArray((T[]) java.lang.reflect.Array.newInstance(clazz, lst.size()));\n" + 
+				"	}\n" + 
+				"	public void test() {\n" + 
+				"		String[] asString = null;\n" + 
+				"		// eclipse 3.5M4 this worked in build I20090129-1200 it doesnt anymore\n" + 
+				"		asString = X.<String> asArray(getIterator(), String.class);\n" + 
+				"		// now i have to do this:\n" + 
+				"		Iterator<String> iterator = getIterator();\n" + 
+				"		asString = X.<String> asArray(iterator, String.class);\n" + 
+				"		// this also works except if i have remove unnecessary cast enabled then\n" + 
+				"		// the cast is removed and i get a compile error\n" + 
+				"		asString = X.<String> asArray((Iterator<String>) getIterator(), String.class);\n" + 
+				"	}\n" + 
+				"	@SuppressWarnings(\"all\") public Iterator getIterator() {\n" + 
+				"		return new Iterator() {\n" + 
+				"			public void remove() {\n" + 
+				"			}\n" + 
+				"			public Object next() {\n" + 
+				"				return null;\n" + 
+				"			}\n" + 
+				"			public boolean hasNext() {\n" + 
+				"				return false;\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"	Zork z;\n" +
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 16)\n" + 
+			"	asString = X.<String> asArray(getIterator(), String.class);\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation asArray(Iterator, Class<String>) of the generic method asArray(Iterator<? extends T>, Class<T>) of type X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 16)\n" + 
+			"	asString = X.<String> asArray(getIterator(), String.class);\n" + 
+			"	                              ^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Iterator needs unchecked conversion to conform to Iterator<? extends String>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 18)\n" + 
+			"	Iterator<String> iterator = getIterator();\n" + 
+			"	                            ^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Iterator needs unchecked conversion to conform to Iterator<String>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 22)\n" + 
+			"	asString = X.<String> asArray((Iterator<String>) getIterator(), String.class);\n" + 
+			"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from Iterator to Iterator<String>\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 22)\n" + 
+			"	asString = X.<String> asArray((Iterator<String>) getIterator(), String.class);\n" + 
+			"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from Iterator to Iterator<String>\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 36)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=263215 - variation
+public void test1445() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.io.IOException;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	<T extends Throwable> X(List<T> lt) throws T { }\n" + 
+				"	<T extends Throwable> List<T> foo(List<T> t) throws T { return t; }\n" + 
+				"\n" + 
+				"	static void bar(List l) {\n" + 
+				"		new X(l).foo(l);\n" + 
+				"	}\n" + 
+				"	static void baz(List l) throws IOException {\n" + 
+				"		new <IOException> X(l). <IOException> foo(l);\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	X(List l, long l2) throws IOException {\n" + 
+				"		<IOException> this(l);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static void baz2(List l) throws IOException {\n" + 
+				"		new <IOException> X(l){}. <IOException> foo(l);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	static void bar(List l) {\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	new X(l).foo(l);\n" + 
+			"	^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	new X(l).foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>) of type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	new X(l).foo(l);\n" + 
+			"	^^^^^^^^\n" + 
+			"Unhandled exception type Throwable\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 9)\n" + 
+			"	new X(l).foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type Throwable\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 9)\n" + 
+			"	new X(l).foo(l);\n" + 
+			"	      ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<Throwable>\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 9)\n" + 
+			"	new X(l).foo(l);\n" + 
+			"	             ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<Throwable>\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 11)\n" + 
+			"	static void baz(List l) throws IOException {\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 12)\n" + 
+			"	new <IOException> X(l). <IOException> foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
+			"----------\n" + 
+			"10. WARNING in X.java (at line 12)\n" + 
+			"	new <IOException> X(l). <IOException> foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>) of type X\n" + 
+			"----------\n" + 
+			"11. WARNING in X.java (at line 12)\n" + 
+			"	new <IOException> X(l). <IOException> foo(l);\n" + 
+			"	                    ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
+			"----------\n" + 
+			"12. WARNING in X.java (at line 12)\n" + 
+			"	new <IOException> X(l). <IOException> foo(l);\n" + 
+			"	                                          ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
+			"----------\n" + 
+			"13. WARNING in X.java (at line 15)\n" + 
+			"	X(List l, long l2) throws IOException {\n" + 
+			"	  ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"14. WARNING in X.java (at line 16)\n" + 
+			"	<IOException> this(l);\n" + 
+			"	              ^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
+			"----------\n" + 
+			"15. WARNING in X.java (at line 16)\n" + 
+			"	<IOException> this(l);\n" + 
+			"	                   ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
+			"----------\n" + 
+			"16. WARNING in X.java (at line 19)\n" + 
+			"	static void baz2(List l) throws IOException {\n" + 
+			"	                 ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"17. WARNING in X.java (at line 20)\n" + 
+			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
+			"----------\n" + 
+			"18. WARNING in X.java (at line 20)\n" + 
+			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>) of type X\n" + 
+			"----------\n" + 
+			"19. WARNING in X.java (at line 20)\n" + 
+			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
+			"	                    ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
+			"----------\n" + 
+			"20. WARNING in X.java (at line 20)\n" + 
+			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
+			"	                                            ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
+			"----------\n");
+}
 }

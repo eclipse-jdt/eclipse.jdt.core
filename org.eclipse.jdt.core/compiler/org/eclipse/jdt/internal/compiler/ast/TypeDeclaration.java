@@ -345,7 +345,7 @@ public ConstructorDeclaration createDefaultConstructor(	boolean needExplicitCons
 }
 
 // anonymous type constructor creation: rank is important since bindings already got sorted
-public MethodBinding createDefaultConstructorWithBinding(MethodBinding inheritedConstructorBinding, boolean isUnchecked) {
+public MethodBinding createDefaultConstructorWithBinding(MethodBinding inheritedConstructorBinding, boolean eraseThrownExceptions) {
 	//Add to method'set, the default constuctor that just recall the
 	//super constructor with the same arguments
 	String baseName = "$anonymous"; //$NON-NLS-1$
@@ -393,7 +393,7 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 	}
 
 	//============BINDING UPDATE==========================
-	ReferenceBinding[] thrownExceptions = isUnchecked
+	ReferenceBinding[] thrownExceptions = eraseThrownExceptions
 			? this.scope.environment().convertToRawTypes(inheritedConstructorBinding.original().thrownExceptions, true, true)
 			: inheritedConstructorBinding.thrownExceptions;
 

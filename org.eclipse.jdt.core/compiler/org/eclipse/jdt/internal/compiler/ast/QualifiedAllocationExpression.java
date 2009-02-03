@@ -82,7 +82,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		// record some dependency information for exception types
 		ReferenceBinding[] thrownExceptions;
 		if (((thrownExceptions = this.binding.thrownExceptions).length) != 0) {
-			if ((this.bits & ASTNode.Unchecked) != 0) {
+			if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
 				thrownExceptions = currentScope.environment().convertToRawTypes(this.binding.original().thrownExceptions, true, true);
 			}			
 			// check exception handling
@@ -455,7 +455,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(inheritedBinding, this.genericTypeArguments, this.typeArguments);
 		}
 		// Update the anonymous inner class : superclass, interface
-		this.binding = this.anonymousType.createDefaultConstructorWithBinding(inheritedBinding, 	(this.bits & ASTNode.Unchecked) != 0);
+		this.binding = this.anonymousType.createDefaultConstructorWithBinding(inheritedBinding, 	(this.bits & ASTNode.Unchecked) != 0 && genericTypeArguments == null);
 		return this.resolvedType;
 	}
 

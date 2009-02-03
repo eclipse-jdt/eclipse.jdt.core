@@ -81,7 +81,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 
 			ReferenceBinding[] thrownExceptions;
 			if ((thrownExceptions = this.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
-				if ((this.bits & ASTNode.Unchecked) != 0) {
+				if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
 					thrownExceptions = currentScope.environment().convertToRawTypes(this.binding.original().thrownExceptions, true, true);
 				}				
 				// check exceptions

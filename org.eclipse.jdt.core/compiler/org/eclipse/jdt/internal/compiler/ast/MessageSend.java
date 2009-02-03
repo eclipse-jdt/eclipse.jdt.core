@@ -69,7 +69,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	ReferenceBinding[] thrownExceptions;
 	if ((thrownExceptions = this.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
-		if ((this.bits & ASTNode.Unchecked) != 0) {
+		if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
 			thrownExceptions = currentScope.environment().convertToRawTypes(this.binding.original().thrownExceptions, true, true);
 		}
 		// must verify that exceptions potentially thrown by this expression are caught in the method
@@ -484,7 +484,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.resolvedType = this.actualReceiverType;
 	} else {
 		TypeBinding returnType;
-		if ((this.bits & ASTNode.Unchecked) != 0) {
+		if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
 			returnType = this.binding.original().returnType;
 			if (returnType != null) {
 				returnType = scope.environment().convertToRawType(returnType.erasure(), true);

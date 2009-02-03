@@ -43,7 +43,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	// record some dependency information for exception types
 	ReferenceBinding[] thrownExceptions;
 	if (((thrownExceptions = this.binding.thrownExceptions).length) != 0) {
-		if ((this.bits & ASTNode.Unchecked) != 0) {
+		if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
 			thrownExceptions = currentScope.environment().convertToRawTypes(this.binding.original().thrownExceptions, true, true);
 		}		
 		// check exception handling
