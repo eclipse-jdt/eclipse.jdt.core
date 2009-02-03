@@ -455,7 +455,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(inheritedBinding, this.genericTypeArguments, this.typeArguments);
 		}
 		// Update the anonymous inner class : superclass, interface
-		this.binding = this.anonymousType.createDefaultConstructorWithBinding(inheritedBinding, 	(this.bits & ASTNode.Unchecked) != 0 && genericTypeArguments == null);
+		this.binding = this.anonymousType.createDefaultConstructorWithBinding(inheritedBinding, 	(this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null);
 		return this.resolvedType;
 	}
 
