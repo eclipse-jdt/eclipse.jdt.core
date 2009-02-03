@@ -1468,8 +1468,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private JavaModelManager() {
 		// singleton: prevent others from creating a new instance
-		if (Platform.isRunning()) this.indexManager = new IndexManager();
-		this.nonChainingJars = loadNonChainingJarsCache();
+		if (Platform.isRunning()) {
+			this.indexManager = new IndexManager();
+			this.nonChainingJars = loadNonChainingJarsCache();
+		}
 	}
 
 	/**
