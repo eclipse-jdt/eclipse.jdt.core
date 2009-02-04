@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
@@ -2972,6 +2973,650 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 
+	}
+	
+	public void testSwitchStatement2() throws Exception {
+		String previousValue = null;
+		try {
+			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, false);
+			
+			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.FALSE);
+			
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        }\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("            break;\n");
+			buf.append("        case 2:\n");
+			buf.append("            i= 2;\n");
+			buf.append("            break;\n");
+			buf.append("        default:\n");
+			buf.append("            i= 3;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+			AST ast= astRoot.getAST();
+	
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 2", blockStatements.size() == 2);
+			{ // insert statements, replace expression
+				SwitchStatement switchStatement= (SwitchStatement) blockStatements.get(0);
+	
+				ASTNode expression= switchStatement.getExpression();
+				SimpleName newExpression= ast.newSimpleName("x");
+				rewrite.replace(expression, newExpression, null);
+	
+				List statements= switchStatement.statements();
+				assertTrue("Number of statements not 0", statements.size() == 0);
+	
+				SwitchCase caseStatement1= ast.newSwitchCase();
+				caseStatement1.setExpression(ast.newNumberLiteral("1"));
+	
+				Statement statement1= ast.newReturnStatement();
+	
+				SwitchCase caseStatement2= ast.newSwitchCase(); // default
+				caseStatement2.setExpression(null);
+	
+				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
+				listRewrite.insertLast(caseStatement1, null);
+				listRewrite.insertLast(statement1, null);
+				listRewrite.insertLast(caseStatement2, null);
+			}
+	
+			{ // insert, remove, replace statements, change case statements
+				SwitchStatement switchStatement= (SwitchStatement) blockStatements.get(1);
+	
+				List statements= switchStatement.statements();
+				assertTrue("Number of statements not 8", statements.size() == 8);
+	
+				// remove statements
+	
+				rewrite.remove((ASTNode) statements.get(0), null);
+				rewrite.remove((ASTNode) statements.get(1), null);
+				rewrite.remove((ASTNode) statements.get(2), null);
+	
+				// change case statement
+				SwitchCase caseStatement= (SwitchCase) statements.get(3);
+				Expression newCaseExpression= ast.newNumberLiteral("10");
+				rewrite.replace(caseStatement.getExpression(), newCaseExpression, null);
+	
+				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
+	
+				{
+					// insert case statement
+					SwitchCase caseStatement2= ast.newSwitchCase();
+					caseStatement2.setExpression(ast.newNumberLiteral("11"));
+					listRewrite.insertFirst(caseStatement2, null);
+	
+					// insert statement
+					Statement statement1= ast.newReturnStatement();
+					listRewrite.insertAfter(statement1, caseStatement2, null);
+				}
+	
+				{
+					// insert case statement
+					SwitchCase caseStatement2= ast.newSwitchCase();
+					caseStatement2.setExpression(ast.newNumberLiteral("12"));
+					listRewrite.insertLast(caseStatement2, null);
+	
+					// insert statement
+					Statement statement1= ast.newReturnStatement();
+					listRewrite.insertAfter(statement1, caseStatement2, null);
+				}
+	
+	
+			}
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (x) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            return;\n");
+			buf.append("        default:\n");
+			buf.append("        }\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 11:\n");
+			buf.append("            return;\n");
+			buf.append("        case 10:\n");
+			buf.append("            i= 2;\n");
+			buf.append("            break;\n");
+			buf.append("        default:\n");
+			buf.append("            i= 3;\n");
+			buf.append("        case 12:\n");
+			buf.append("            return;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (previousValue != null) {
+				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, previousValue);
+			}
+		}
+	}
+	
+	public void testSwitchStatement3() throws Exception {
+		String previousValue = null;
+		try {
+			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, false);
+			
+			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.FALSE);
+			
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("        case 2:\n");
+			buf.append("            i= 2;\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+			AST ast= astRoot.getAST();
+	
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 2", blockStatements.size() == 1);
+			{ // insert statements, replace expression
+				SwitchStatement switchStatement= (SwitchStatement) blockStatements.get(0);
+				
+				List statements= switchStatement.statements();
+				assertTrue("Number of statements not 0", statements.size() == 5);
+				
+				SwitchCase caseStatement = (SwitchCase)statements.get(2);
+	
+				BreakStatement breakStatement= ast.newBreakStatement();
+				
+				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
+				listRewrite.insertBefore(breakStatement, caseStatement, null);
+			}
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("            break;\n");
+			buf.append("        case 2:\n");
+			buf.append("            i= 2;\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (previousValue != null) {
+				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, previousValue);
+			}
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=246627
+	 * Insert a statement before an unchanged statement (and preceded by an unchanged statement)
+	 */
+	public void testSwitchStatement5() throws Exception {
+		String previousValue = null;
+		try {
+			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, false);
+			
+			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.FALSE);
+			
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("        case 2:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+			AST ast= astRoot.getAST();
+	
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 1", blockStatements.size() == 1);
+			{ // insert statements, replace expression
+				SwitchStatement switchStatement= (SwitchStatement) blockStatements.get(0);
+				
+				List statements= switchStatement.statements();
+				assertTrue("Number of statements not 4", statements.size() == 4);
+				
+				SwitchCase caseStatement = (SwitchCase)statements.get(2); // case 2:
+				
+				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
+				listRewrite.insertBefore(ast.newBreakStatement(), caseStatement, null);
+			}
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("            break;\n");
+			buf.append("        case 2:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (previousValue != null) {
+				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, previousValue);
+			}
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=246627
+	 * Insert a statement after an unchanged statement (and preceded by an unchanged statement)
+	 */
+	public void testSwitchStatement6() throws Exception {
+		String previousValue = null;
+		try {
+			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, false);
+			
+			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.FALSE);
+			
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("        case 2:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+			AST ast= astRoot.getAST();
+	
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 1", blockStatements.size() == 1);
+			{ // insert statements, replace expression
+				SwitchStatement switchStatement= (SwitchStatement) blockStatements.get(0);
+				
+				List statements= switchStatement.statements();
+				assertTrue("Number of statements not 4", statements.size() == 4);
+				
+				ExpressionStatement assignment = (ExpressionStatement)statements.get(1); // i= 1;
+				
+				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
+				listRewrite.insertAfter(ast.newBreakStatement(), assignment, null);
+			}
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("            break;\n");
+			buf.append("        case 2:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (previousValue != null) {
+				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, previousValue);
+			}
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=246627
+	 * Replace a statement preceded by an unchanged statement)
+	 */
+	public void testSwitchStatement7() throws Exception {
+		String previousValue = null;
+		try {
+			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, false);
+			
+			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.FALSE);
+			
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("        case 3:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+			AST ast= astRoot.getAST();
+	
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 1", blockStatements.size() == 1);
+			{ // insert statements, replace expression
+				SwitchStatement switchStatement= (SwitchStatement) blockStatements.get(0);
+				
+				List statements= switchStatement.statements();
+				assertTrue("Number of statements not 4", statements.size() == 4);
+				
+				ExpressionStatement assignment = (ExpressionStatement)statements.get(1); // i= 1;:
+				
+				SwitchCase switchCase = ast.newSwitchCase();
+				switchCase.setExpression(ast.newNumberLiteral("2"));
+				
+				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
+				listRewrite.replace(assignment, switchCase, null);
+			}
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("        case 2:\n");
+			buf.append("        case 3:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (previousValue != null) {
+				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, previousValue);
+			}
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=246627
+	 * Remove a statement preceded by an unchanged statement)
+	 */
+	public void testSwitchStatement8() throws Exception {
+		String previousValue = null;
+		try {
+			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, false);
+			
+			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.FALSE);
+			
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("        case 2:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 1", blockStatements.size() == 1);
+			{ // insert statements, replace expression
+				SwitchStatement switchStatement= (SwitchStatement) blockStatements.get(0);
+				
+				List statements= switchStatement.statements();
+				assertTrue("Number of statements not 4", statements.size() == 4);
+				
+				ExpressionStatement assignment = (ExpressionStatement)statements.get(1); // i= 1;:
+				
+				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
+				listRewrite.remove(assignment, null);
+			}
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("        case 2:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (previousValue != null) {
+				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, previousValue);
+			}
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=246627
+	 * Remove a statement followed by an inserted statement)
+	 */
+	public void testSwitchStatement9() throws Exception {
+		String previousValue = null;
+		try {
+			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, false);
+			
+			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.FALSE);
+			
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("        case 3:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+			
+			AST ast= astRoot.getAST();
+	
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 1", blockStatements.size() == 1);
+			{ // insert statements, replace expression
+				SwitchStatement switchStatement= (SwitchStatement) blockStatements.get(0);
+				
+				List statements= switchStatement.statements();
+				assertTrue("Number of statements not 4", statements.size() == 4);
+				
+				ExpressionStatement assignment = (ExpressionStatement)statements.get(1); // i= 1;
+				
+				SwitchCase switchCase = ast.newSwitchCase();
+				switchCase.setExpression(ast.newNumberLiteral("2"));
+				
+				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
+				listRewrite.remove(assignment, null);
+				listRewrite.insertAfter(switchCase, assignment, null);
+			}
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("        case 2:\n");
+			buf.append("        case 3:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (previousValue != null) {
+				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, previousValue);
+			}
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=246627
+	 * Remove a statement preceded by an inserted statement)
+	 */
+	public void testSwitchStatement10() throws Exception {
+		String previousValue = null;
+		try {
+			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, false);
+			
+			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.FALSE);
+			
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            i= 1;\n");
+			buf.append("        case 2:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+			
+			AST ast= astRoot.getAST();
+			
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 1", blockStatements.size() == 1);
+			{ // insert statements, replace expression
+				SwitchStatement switchStatement= (SwitchStatement) blockStatements.get(0);
+				
+				List statements= switchStatement.statements();
+				assertTrue("Number of statements not 4", statements.size() == 4);
+				
+				ExpressionStatement assignment = (ExpressionStatement)statements.get(1); // i= 1;:
+				
+				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
+				listRewrite.insertBefore(ast.newBreakStatement(), assignment, null);
+				listRewrite.remove(assignment, null);
+			}
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch (i) {\n");
+			buf.append("        case 1:\n");
+			buf.append("            break;\n");
+			buf.append("        case 2:\n");
+			buf.append("            break;\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (previousValue != null) {
+				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, previousValue);
+			}
+		}
 	}
 
 	public void testSynchronizedStatement() throws Exception {

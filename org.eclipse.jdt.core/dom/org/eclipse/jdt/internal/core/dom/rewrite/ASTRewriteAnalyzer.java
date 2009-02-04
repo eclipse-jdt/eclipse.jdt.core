@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer.SourceRange;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.BlockContext;
@@ -79,6 +80,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	private final LineCommentEndOffsets lineCommentEndOffsets;
 	
 	private int beforeRequiredSpaceIndex = -1;
+	
+	Map options;
 
 	/**
 	 * Constructor for ASTRewriteAnalyzer.
@@ -105,6 +108,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		this.extendedSourceRangeComputer = extendedSourceRangeComputer;
 		this.lineCommentEndOffsets= new LineCommentEndOffsets(comments);
+		
+		this.options = options;
 	}
 
 	final TokenScanner getScanner() {
@@ -491,6 +496,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 
 			int prevEnd= currPos;
+			int prevMark= RewriteEvent.UNCHANGED;
 
 			final int NONE= 0, NEW= 1, EXISTING= 2;
 			int separatorState= NEW;
@@ -509,6 +515,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						separatorState= NEW;
 					}
 					if (separatorState == NEW || insertAfterSeparator(node)) {
+						if (separatorState == EXISTING) {
+							updateIndent(prevMark, currPos, i, editGroup);
+						}
+						
 						doTextInsert(currPos, node, getNodeIndent(i), true, editGroup); // insert node
 
 						separatorState= NEW;
@@ -534,6 +544,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						currPos= currEnd;
 						prevEnd= currEnd;
 					} else {
+						if (i < lastNonDelete) {
+							updateIndent(prevMark, currPos, i, editGroup);
+						}
+						
 						// remove element and next separator
 						int end= getStartOfNextNode(nextIndex, currEnd); // start of next
 						doTextRemoveAndVisit(currPos, currEnd - currPos, node, getEditGroup(currEvent)); // remove node
@@ -549,6 +563,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 						TextEditGroup editGroup= getEditGroup(currEvent);
 						ASTNode changed= (ASTNode) currEvent.getNewValue();
+						
+						updateIndent(prevMark, currPos, i, editGroup);
+						
 						doTextRemoveAndVisit(currPos, currEnd - currPos, node, editGroup);
 						doTextInsert(currPos, changed, getNodeIndent(i), true, editGroup);
 
@@ -574,11 +591,15 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						separatorState= EXISTING;
 					}
 				}
-
+				
+				prevMark = currMark;
 			}
 			return currPos;
 		}
-
+		
+		protected void updateIndent(int prevMark, int originalOffset, int nodeIndex, TextEditGroup editGroup) {
+			// Do nothing.
+		}
 	}
 
 	private int rewriteRequiredNode(ASTNode parent, StructuralPropertyDescriptor property) {
@@ -794,6 +815,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		protected String getSeparatorString(int nodeIndex) {
+			return getSeparatorString(nodeIndex, nodeIndex + 1);
+		}
+		
+		protected String getSeparatorString(int nodeIndex, int nextNodeIndex) {
 			int newLines= this.separatorLines == -1 ? getNewLines(nodeIndex) : this.separatorLines;
 
 			String lineDelim= getLineDelimiter();
@@ -801,7 +826,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			for (int i= 0; i < newLines; i++) {
 				buf.append(lineDelim);
 			}
-			buf.append(createIndentString(getNodeIndent(nodeIndex + 1)));
+			buf.append(createIndentString(getNodeIndent(nextNodeIndex)));
 			return buf.toString();
 		}
 
@@ -2651,21 +2676,70 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	class SwitchListRewriter extends ParagraphListRewriter {
+		
+		private boolean indentSwitchStatementsCompareToCases;
 
 		public SwitchListRewriter(int initialIndent) {
 			super(initialIndent, 0);
+			this.indentSwitchStatementsCompareToCases = 
+				DefaultCodeFormatterConstants.TRUE.equals(ASTRewriteAnalyzer.this.options.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES));
 		}
 
 		protected int getNodeIndent(int nodeIndex) {
 			int indent= getInitialIndent();
-			ASTNode node= (ASTNode) this.list[nodeIndex].getOriginalValue();
-			if (node == null) {
-				node= (ASTNode) this.list[nodeIndex].getNewValue();
-			}
-			if (node.getNodeType() != ASTNode.SWITCH_CASE) {
-				indent++;
+			
+			if (this.indentSwitchStatementsCompareToCases) {
+				RewriteEvent event = this.list[nodeIndex];
+				int changeKind = event.getChangeKind();
+				
+				ASTNode node;
+				if (changeKind == RewriteEvent.INSERTED || changeKind == RewriteEvent.REPLACED) {
+					node= (ASTNode)event.getNewValue();
+				} else {
+					node= (ASTNode)event.getOriginalValue();
+				}
+				
+				if (node.getNodeType() != ASTNode.SWITCH_CASE) {
+					indent++;
+				}
 			}
 			return indent;
+		}
+		
+		protected String getSeparatorString(int nodeIndex) {
+			int total = this.list.length;
+			
+			int nextNodeIndex = nodeIndex + 1;
+			while (nextNodeIndex < total && this.list[nextNodeIndex].getChangeKind() == RewriteEvent.REMOVED) {
+				nextNodeIndex++;
+			}
+			if (nextNodeIndex == total) {
+				return super.getSeparatorString(nodeIndex);
+			}
+			return getSeparatorString(nodeIndex, nextNodeIndex);
+		}
+		
+		protected void updateIndent(int prevMark, int originalOffset, int nodeIndex, TextEditGroup editGroup) {
+			if (prevMark != RewriteEvent.UNCHANGED && prevMark != RewriteEvent.REPLACED) return;
+			
+			int total = this.list.length;
+			while (nodeIndex < total && this.list[nodeIndex].getChangeKind() == RewriteEvent.REMOVED) {
+				nodeIndex++;
+			}
+			
+			int originalIndent = getIndent(originalOffset);
+			int newIndent = getNodeIndent(nodeIndex);
+			
+			if (originalIndent != newIndent) {
+				
+				int line= getLineInformation().getLineOfOffset(originalOffset);
+				if (line >= 0) {
+					int lineStart= getLineInformation().getLineOffset(line);
+					
+					doTextRemove(lineStart, originalOffset - lineStart, editGroup); // remove previous indentation
+					doTextInsert(lineStart, createIndentString(newIndent), editGroup); // add new indentation
+				}
+			}
 		}
 	}
 
@@ -2683,8 +2757,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (getChangeKind(node, property) != RewriteEvent.UNCHANGED) {
 			try {
 				pos= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNameLBRACE, pos);
-				int insertIndent= getIndent(node.getStartPosition()) + 1;
-
+				int insertIndent= getIndent(node.getStartPosition());
+				if (DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH))) {
+					insertIndent++;
+				}
+				
 				ParagraphListRewriter listRewriter= new SwitchListRewriter(insertIndent);
 				StringBuffer leadString= new StringBuffer();
 				leadString.append(getLineDelimiter());
