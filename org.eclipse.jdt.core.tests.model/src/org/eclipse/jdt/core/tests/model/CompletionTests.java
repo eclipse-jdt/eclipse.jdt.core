@@ -15484,6 +15484,197 @@ public void testCompletionWithProblem1() throws JavaModelException {
 		}
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
+public void testConstructor1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"        public void foo() {\n" +
+		"                TestConstructor1[] var = new TestConstructor\n" +
+		"        }\n" +
+		"}");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestConstructor1.java",
+		"package test;"+
+		"public class TestConstructor1 {\n" +
+		"        public TestConstructor1(int i) {\n" +
+		"        }\n" +
+		"}");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+	requestor.allowAllRequiredProposals();
+	NullProgressMonitor monitor = new NullProgressMonitor();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "TestConstructor";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+	assertResults(
+			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
+public void testConstructor2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"        public void foo(TestConstructor1[] var) {\n" +
+		"                foo(new TestConstructor\n" +
+		"        }\n" +
+		"}");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestConstructor1.java",
+		"package test;"+
+		"public class TestConstructor1 {\n" +
+		"        public TestConstructor1(int i) {\n" +
+		"        }\n" +
+		"}");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+	requestor.allowAllRequiredProposals();
+	NullProgressMonitor monitor = new NullProgressMonitor();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "TestConstructor";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+	assertResults(
+			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
+public void testConstructor3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"        public TestConstructor1[] foo() {\n" +
+		"                return new TestConstructor\n" +
+		"        }\n" +
+		"}");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestConstructor1.java",
+		"package test;"+
+		"public class TestConstructor1 {\n" +
+		"        public TestConstructor1(int i) {\n" +
+		"        }\n" +
+		"}");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+	requestor.allowAllRequiredProposals();
+	NullProgressMonitor monitor = new NullProgressMonitor();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "TestConstructor";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+	assertResults(
+			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
+public void testConstructor4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"        public Test(TestConstructor1[] var) {}\n" +
+		"        public void foo() {\n" +
+		"                new Test(new TestConstructor\n" +
+		"        }\n" +
+		"}");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestConstructor1.java",
+		"package test;"+
+		"public class TestConstructor1 {\n" +
+		"        public TestConstructor1(int i) {\n" +
+		"        }\n" +
+		"}");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+	requestor.allowAllRequiredProposals();
+	NullProgressMonitor monitor = new NullProgressMonitor();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "TestConstructor";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+	assertResults(
+			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
+public void testConstructor5() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"        public void foo(TestConstructor1[] var) {\n" +
+		"                if (var == new TestConstructor) {}\n" +
+		"        }\n" +
+		"}");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestConstructor1.java",
+		"package test;"+
+		"public class TestConstructor1 {\n" +
+		"        public TestConstructor1(int i) {\n" +
+		"        }\n" +
+		"}");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+	requestor.allowAllRequiredProposals();
+	NullProgressMonitor monitor = new NullProgressMonitor();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "TestConstructor";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+	assertResults(
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
+public void testConstructor6() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"        public void foo(Object o) {\n" +
+		"                o = (TestConstructor1[])new TestConstructor\n" +
+		"        }\n" +
+		"}");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestConstructor1.java",
+		"package test;"+
+		"public class TestConstructor1 {\n" +
+		"        public TestConstructor1(int i) {\n" +
+		"        }\n" +
+		"}");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+	requestor.allowAllRequiredProposals();
+	NullProgressMonitor monitor = new NullProgressMonitor();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "TestConstructor";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+	assertResults(
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck1() throws JavaModelException {
 	Hashtable options = JavaCore.getOptions();

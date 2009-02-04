@@ -487,6 +487,8 @@ public final class CompletionEngine
 	TypeBinding[] expectedTypes = new TypeBinding[1];
 	int expectedTypesFilter;
 	boolean hasJavaLangObjectAsExpectedType = false;
+	boolean hasExpectedArrayTypes = false;
+	boolean hasComputedExpectedArrayTypes = false;
 	int uninterestingBindingsPtr = -1;
 	Binding[] uninterestingBindings = new Binding[1];
 	int forbbidenBindingsPtr = -1;
@@ -759,7 +761,7 @@ public final class CompletionEngine
 				final int extraFlags = acceptedConstructor.extraFlags;
 				final int accessibility = acceptedConstructor.accessibility;
 				
-				boolean proposeType = (extraFlags & ExtraFlags.HasNonPrivateStaticMemberTypes) != 0;
+				boolean proposeType = hasArrayTypeAsExpectedSuperTypes() || (extraFlags & ExtraFlags.HasNonPrivateStaticMemberTypes) != 0;
 				
 				char[] fullyQualifiedName = CharOperation.concat(packageName, simpleTypeName, '.');
 						
@@ -9249,7 +9251,8 @@ public final class CompletionEngine
 			if (!this.assistNodeIsConstructor ||
 					!allowingLongComputationProposals ||
 					hasStaticMemberTypes(memberType, invocationType, this.unitScope) ||
-					(memberType instanceof SourceTypeBinding && hasMemberTypesInEnclosingScope((SourceTypeBinding)memberType, scope))) {
+					(memberType instanceof SourceTypeBinding && hasMemberTypesInEnclosingScope((SourceTypeBinding)memberType, scope)) ||
+					hasArrayTypeAsExpectedSuperTypes()) {
 				createTypeProposal(
 						memberType,
 						memberType.qualifiedSourceName(),
@@ -9689,7 +9692,7 @@ public final class CompletionEngine
 								relevance += computeRelevanceForAnnotationTarget(localType);
 
 								boolean allowingLongComputationProposals = isAllowingLongComputationProposals();
-								if (!this.assistNodeIsConstructor || !allowingLongComputationProposals) {
+								if (!this.assistNodeIsConstructor || !allowingLongComputationProposals || hasArrayTypeAsExpectedSuperTypes()) {
 									this.noProposal = false;
 									if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 										createTypeProposal(
@@ -10085,7 +10088,8 @@ public final class CompletionEngine
 						(!this.assistNodeIsConstructor ||
 								!allowingLongComputationProposals ||
 								hasStaticMemberTypes(sourceType, null, this.unitScope) ||
-								hasMemberTypesInEnclosingScope(sourceType, scope))) {
+								hasMemberTypesInEnclosingScope(sourceType, scope)) ||
+								hasArrayTypeAsExpectedSuperTypes()) {
 					char[] typeName = sourceType.sourceName();
 					createTypeProposal(
 							sourceType,
@@ -10313,7 +10317,8 @@ public final class CompletionEngine
 						(!this.assistNodeIsConstructor ||
 								!allowingLongComputationProposals ||
 								hasStaticMemberTypes(sourceType, null, this.unitScope) ||
-								hasMemberTypesInEnclosingScope(sourceType, scope))) {
+								hasMemberTypesInEnclosingScope(sourceType, scope)) ||
+								hasArrayTypeAsExpectedSuperTypes()) {
 					char[] typeName = sourceType.sourceName();
 					createTypeProposal(
 							sourceType,
@@ -10433,7 +10438,7 @@ public final class CompletionEngine
 
 					for (int j = 0; j < typesFound.size(); j++) {
 						ReferenceBinding typeFound = (ReferenceBinding)typesFound.elementAt(j);
-						if (typeFound == refBinding) {
+						if (typeFound == refBinding.erasure()) {
 							continue next;
 						}
 					}
@@ -10484,7 +10489,11 @@ public final class CompletionEngine
 							relevance += computeRelevanceForInterface();
 						}
 						
-						if (proposeType && (!this.assistNodeIsConstructor || !allowingLongComputationProposals || hasStaticMemberTypes(refBinding, scope.enclosingSourceType() ,this.unitScope))) {
+						if (proposeType &&
+								(!this.assistNodeIsConstructor ||
+										!allowingLongComputationProposals ||
+										hasStaticMemberTypes(refBinding, scope.enclosingSourceType() ,this.unitScope)) ||
+										hasArrayTypeAsExpectedSuperTypes()) {
 							this.noProposal = false;
 							if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 								InternalCompletionProposal proposal =  createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
@@ -10610,7 +10619,8 @@ public final class CompletionEngine
 								relevance += computeRelevanceForException(typeBinding.sourceName);
 							}
 							
-							if (proposeType && hasStaticMemberTypes(typeBinding, scope.enclosingSourceType(), this.unitScope)) {
+							if (proposeType && 
+									(hasStaticMemberTypes(typeBinding, scope.enclosingSourceType(), this.unitScope) || hasArrayTypeAsExpectedSuperTypes())) {
 								this.noProposal = false;
 								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 									InternalCompletionProposal proposal =  createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
@@ -11507,6 +11517,24 @@ public final class CompletionEngine
 	public AssistParser getParser() {
 
 		return this.parser;
+	}
+	protected boolean hasArrayTypeAsExpectedSuperTypes() {
+		if ((this.expectedTypesFilter & ~SUBTYPE) != 0) return false;
+		
+		if (!this.hasComputedExpectedArrayTypes) {
+			if(this.expectedTypes != null) {
+				done : for (int i = 0; i <= this.expectedTypesPtr; i++) {
+					if(this.expectedTypes[i].isArrayType()) {
+						this.hasExpectedArrayTypes = true;
+						break done;
+					}
+				}
+			}
+			
+			this.hasComputedExpectedArrayTypes = true;
+		}
+		
+		return this.hasExpectedArrayTypes;
 	}
 	protected boolean hasPossibleAnnotationTarget(TypeBinding typeBinding, Scope scope) {
 		if (this.targetedElement == TagBits.AnnotationForPackage) {
