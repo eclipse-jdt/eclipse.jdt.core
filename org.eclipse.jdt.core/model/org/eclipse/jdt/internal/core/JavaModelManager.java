@@ -1468,6 +1468,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private JavaModelManager() {
 		// singleton: prevent others from creating a new instance
+		/*
+		 * It is required to initialize all fields that depends on a headless environment
+		 * only if the platform is running. Otherwise this breaks the ability to use
+		 * ASTParser in a non-headless environment.
+		 */
 		if (Platform.isRunning()) {
 			this.indexManager = new IndexManager();
 			this.nonChainingJars = loadNonChainingJarsCache();
