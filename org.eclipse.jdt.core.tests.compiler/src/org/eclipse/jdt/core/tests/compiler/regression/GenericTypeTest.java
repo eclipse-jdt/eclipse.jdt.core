@@ -49210,5 +49210,27 @@ public void test1446() {
              "CAUGHT"
      );
 }
-
+public void test1447() {
+     this.runConformTest(
+             new String[] {
+                     "X.java",
+         			"interface Visitor<T, C, O, P, EL, PM, S, COA, SSA, CT> {\n" + 
+        			"}\n" + 
+        			"public class X<U> {\n" + 
+        			"	public <T, U extends Visitor<T, ?, ?, ?, ?, ?, ?, ?, ?, ?>> T accept(U v) {\n" + 
+        			"		throw new UnsupportedOperationException();\n" + 
+        			"	}\n" + 
+        			"}\n" + 
+        			"class Y<V> extends X<V> {\n" + 
+        			"	public <T, U extends Visitor<T, ?, ?, ?, ?, ?, ?, ?, ?, ?>> T accept(U v) {\n" + 
+        			"		if (v == null)\n" + 
+        			"			return super.accept(v);\n" + 
+        			"		else\n" + 
+        			"			return super.<T, U> accept(v);\n" + 
+        			"	}\n" + 
+        			"}\n",
+        		},
+             ""
+     );
+}
 }
