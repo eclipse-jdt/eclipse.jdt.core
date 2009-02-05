@@ -467,7 +467,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);
 		}
 	}
-	checkInvocationArguments(scope, this.receiver, this.actualReceiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this, (this.bits & ASTNode.Unchecked) != 0);
+	if (checkInvocationArguments(scope, this.receiver, this.actualReceiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this)) {
+		this.bits |= ASTNode.Unchecked;
+	}
 
 	//-------message send that are known to fail at compile time-----------
 	if (this.binding.isAbstract()) {
@@ -536,14 +538,6 @@ public void setExpectedType(TypeBinding expectedType) {
 }
 public void setFieldIndex(int depth) {
 	// ignore for here
-}
-
-public void setUnchecked(boolean isUnchecked) {
-	if (isUnchecked) {
-		this.bits |= ASTNode.Unchecked;
-	} else {
-		this.bits &= ~ASTNode.Unchecked;
-	}
 }
 
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {

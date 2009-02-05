@@ -372,7 +372,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				if (isMethodUseDeprecated(this.binding, scope, true)) {
 					scope.problemReporter().deprecatedMethod(this.binding, this);
 				}
-				checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this, (this.bits & ASTNode.Unchecked) != 0);
+				if (checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this)) {
+					this.bits |= ASTNode.Unchecked;
+				}
 				if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 					scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 				}
@@ -449,7 +451,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			this.enclosingInstance.computeConversion(scope, targetEnclosing, enclosingInstanceType);
 		}
 		if (this.arguments != null) {
-			checkInvocationArguments(scope, null, anonymousSuperclass, inheritedBinding, this.arguments, argumentTypes, argsContainCast, this, (this.bits & ASTNode.Unchecked) != 0);
+			if (checkInvocationArguments(scope, null, anonymousSuperclass, inheritedBinding, this.arguments, argumentTypes, argsContainCast, this)) {
+				this.bits |= ASTNode.Unchecked;
+			}
 		}
 		if (this.typeArguments != null && inheritedBinding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 			scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(inheritedBinding, this.genericTypeArguments, this.typeArguments);

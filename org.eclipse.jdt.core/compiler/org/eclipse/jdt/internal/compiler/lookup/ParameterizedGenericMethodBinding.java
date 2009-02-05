@@ -97,7 +97,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, augmentedArguments, ProblemReasons.ParameterBoundMismatch);
 				case TypeConstants.UNCHECKED :
 					// tolerate unchecked bounds
-					invocationSite.setUnchecked(true);
+					methodSubstitute.tagBits |= TagBits.HasUncheckedTypeArgumentForBoundCheck;
 					break;
 			}
 		}

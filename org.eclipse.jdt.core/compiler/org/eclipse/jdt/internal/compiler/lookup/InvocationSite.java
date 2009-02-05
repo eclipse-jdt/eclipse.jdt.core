@@ -22,12 +22,6 @@ public interface InvocationSite {
 	void setActualReceiverType(ReferenceBinding receiverType);
 	void setDepth(int depth);
 	void setFieldIndex(int depth);
-	/**
-	 * Positioned when a method/constructor invocation is detected having required unchecked conversion
-	 * for becoming applicable.
-	 * @param isUnchecked
-	 */
-	void setUnchecked(boolean isUnchecked);
 	int sourceEnd();
 	int sourceStart();
 }

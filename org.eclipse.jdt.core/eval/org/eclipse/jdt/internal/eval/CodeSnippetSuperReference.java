@@ -54,10 +54,5 @@ public void setDepth(int depth){
 public void setFieldIndex(int index){
 	// ignored
 }
-
-public void setUnchecked(boolean isUnchecked) {
-	// ignored
-}
-
 }
 

@@ -128,9 +128,4 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	public void setFieldIndex(int depth) {
 		// do nothing by default
 	}
-	
-	public void setUnchecked(boolean isUnchecked) {
-		// ignored
-	}
-	
 }

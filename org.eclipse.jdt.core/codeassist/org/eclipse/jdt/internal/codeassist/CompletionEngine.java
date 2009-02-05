@@ -596,7 +596,6 @@ public final class CompletionEngine
 		public void setActualReceiverType(ReferenceBinding receiverType) {/* empty */}
 		public void setDepth(int depth){/* empty */}
 		public void setFieldIndex(int depth){/* empty */}
-		public void setUnchecked(boolean isUnchecked) {/* empty */}
 		public int sourceEnd() { return 0; 	}
 		public int sourceStart() { return 0; 	}
 	};

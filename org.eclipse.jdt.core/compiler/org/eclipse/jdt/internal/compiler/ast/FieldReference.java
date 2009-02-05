@@ -611,10 +611,6 @@ public void setFieldIndex(int index) {
 	// ignored
 }
 
-public void setUnchecked(boolean isUnchecked) {
-	// ignored
-}
-
 public void traverse(ASTVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {
 		this.receiver.traverse(visitor, scope);

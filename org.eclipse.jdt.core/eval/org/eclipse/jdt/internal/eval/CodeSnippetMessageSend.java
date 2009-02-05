@@ -312,7 +312,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			}			
 		}
 	}
-	checkInvocationArguments(scope, this.receiver, this.actualReceiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this, (this.bits & ASTNode.Unchecked) != 0);
+	if (checkInvocationArguments(scope, this.receiver, this.actualReceiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this)) {
+		this.bits |= ASTNode.Unchecked;
+	}
 
 	//-------message send that are known to fail at compile time-----------
 	if (this.binding.isAbstract()) {

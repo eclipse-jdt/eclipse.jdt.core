@@ -400,7 +400,9 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				if (isMethodUseDeprecated(this.binding, scope, this.accessMode != ExplicitConstructorCall.ImplicitSuper)) {
 					scope.problemReporter().deprecatedMethod(this.binding, this);
 				}
-				checkInvocationArguments(scope, null, receiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this, (this.bits & ASTNode.Unchecked) != 0);
+				if (checkInvocationArguments(scope, null, receiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this)) {
+					this.bits |= ASTNode.Unchecked;
+				}
 				if (this.binding.isPrivate() || receiverType.isLocalType()) {
 					this.binding.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 				}
@@ -431,15 +433,6 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 
 	public void setFieldIndex(int depth) {
 		// ignore for here
-	}
-
-	public void setUnchecked(boolean isUnchecked) {
-		if (isUnchecked) {
-			this.bits |= ASTNode.Unchecked;
-		} else {
-			this.bits &= ~ASTNode.Unchecked;
-		}
-		
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

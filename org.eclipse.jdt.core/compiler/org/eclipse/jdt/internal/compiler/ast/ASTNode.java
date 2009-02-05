@@ -251,7 +251,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 		return INVOCATION_ARGUMENT_OK;
 	}
-	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite, boolean uncheckedBoundCheck) {
+	public static boolean checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
 		TypeBinding[] params = method.parameters;
 		int paramLength = params.length;
 		boolean isRawMemberInvocation = !method.isStatic()
@@ -259,6 +259,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				&& method.declaringClass.isRawType()
 				&& method.hasSubstitutedParameters();
 
+		boolean uncheckedBoundCheck = (method.tagBits & TagBits.HasUncheckedTypeArgumentForBoundCheck) != 0;
 		MethodBinding rawOriginalGenericMethod = null;
 		if (!isRawMemberInvocation) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
@@ -342,9 +343,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				|| ((invocationStatus & INVOCATION_ARGUMENT_UNCHECKED) != 0 
 						&& method instanceof ParameterizedGenericMethodBinding
 						/*&& method.returnType != scope.environment().convertToRawType(method.returnType.erasure(), true)*/)) {
-			invocationSite.setUnchecked(true);
-		    scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method, argumentTypes);
+			scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method, argumentTypes);
+			return true;
 		}
+		return false;
 	}
 	public ASTNode concreteStatement() {
 		return this;

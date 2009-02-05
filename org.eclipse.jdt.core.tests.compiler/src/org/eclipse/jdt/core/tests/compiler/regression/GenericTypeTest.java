@@ -49210,7 +49210,59 @@ public void test1446() {
              "CAUGHT"
      );
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=263633
 public void test1447() {
+    this.runConformTest(
+            new String[] {
+                    "X.java",
+        			"public abstract class X implements Visitable {\n" + 
+        			"	public <T, U extends Visitor<T>> T accept(U v) {\n" + 
+        			"		return null;\n" + 
+        			"	}\n" + 
+        			"	public <T, U extends Visitor<T>> T accept2(U v) {\n" + 
+        			"		if (v == null)\n" + 
+        			"			return this.accept(v);\n" + 
+        			"		else \n" + 
+        			"			return this.<T, U> accept(v);\n" + 
+        			"	}\n" + 
+        			"}\n" + 
+        			"interface Visitable {\n" + 
+        			"	<T, U extends Visitor<T>> T accept(U v);\n" + 
+        			"}\n" + 
+        			"interface Visitor<T> {\n" + 
+        			"}\n",
+       		},
+            ""
+    );
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=263633 - variation
+public void test1448() {
+    this.runConformTest(
+            new String[] {
+                    "X.java",
+        			"public abstract class X implements Visitable {\n" + 
+        			"	public <T, U extends Visitor> T accept(U v) {\n" + 
+        			"		return null;\n" + 
+        			"	}\n" + 
+        			"	public <T, U extends Visitor> T accept2(U v) {\n" + 
+        			"		if (v == null)\n" + 
+        			"			return this.accept(v);\n" + 
+        			"		else \n" + 
+        			"			return this.<T, U> accept(v);\n" + 
+        			"	}\n" + 
+        			"}\n" + 
+        			"interface Visitable {\n" + 
+        			"	<T, U extends Visitor> T accept(U v);\n" + 
+        			"}\n" + 
+        			"interface Visitor{\n" + 
+        			"}\n",
+       		},
+            ""
+    );
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=263633 - variation
+public void test1449() {
      this.runConformTest(
              new String[] {
                      "X.java",

@@ -356,7 +356,9 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (isMethodUseDeprecated(this.binding, scope, true))
 		scope.problemReporter().deprecatedMethod(this.binding, this);
-	checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this, (this.bits & ASTNode.Unchecked) != 0);
+	if (checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this)) {
+		this.bits |= ASTNode.Unchecked;
+	}
 	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 	}
@@ -373,15 +375,6 @@ public void setDepth(int i) {
 
 public void setFieldIndex(int i) {
 	// ignored
-}
-
-public void setUnchecked(boolean isUnchecked) {
-	if (isUnchecked) {
-		this.bits |= ASTNode.Unchecked;
-	} else {
-		this.bits &= ~ASTNode.Unchecked;
-	}
-	
 }
 
 public void traverse(ASTVisitor visitor, BlockScope scope) {

@@ -29,6 +29,9 @@ public interface TagBits {
 	// set for all bindings either represeting a missing type (type), or directly referencing a missing type (field/method/variable)
 	long HasMissingType = ASTNode.Bit8;
 
+	// for method
+	long HasUncheckedTypeArgumentForBoundCheck = ASTNode.Bit9;
+	
 	// for the type cycle hierarchy check used by ClassScope
 	long BeginHierarchyCheck = ASTNode.Bit9;  // type
 	long EndHierarchyCheck = ASTNode.Bit10; // type

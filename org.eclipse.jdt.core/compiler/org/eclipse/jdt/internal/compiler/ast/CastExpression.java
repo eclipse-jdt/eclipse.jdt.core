@@ -256,7 +256,6 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
 			public void setDepth(int depth) { /* ignore */}
 			public void setFieldIndex(int depth){ /* ignore */}
-			public void setUnchecked(boolean isUnchecked) {/* ignore */}
 			public int sourceStart() { return 0; }
 			public int sourceEnd() { return 0; }
 		};

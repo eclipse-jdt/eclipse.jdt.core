@@ -64,9 +64,5 @@ public void setFieldIndex(int index){
 	// ignored
 }
 
-public void setUnchecked(boolean isUnchecked) {
-	// ignored
-}
-
 public abstract String unboundReferenceErrorName();
 }

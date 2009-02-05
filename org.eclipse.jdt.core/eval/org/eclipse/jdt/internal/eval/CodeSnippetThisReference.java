@@ -123,8 +123,4 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 	public void setFieldIndex(int index){
 		// ignored
 	}
-	
-	public void setUnchecked(boolean isUnchecked) {
-		// ignored
-	}	
 }
