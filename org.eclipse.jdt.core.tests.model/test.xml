@@ -29,7 +29,7 @@
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
       <!-- Use a subdir 'data' so that the JCL jars are put in jdt-model-folder and are deleted at the end of the tests. -->
       <property name="data-dir" value="${jdt-model-folder}/data"/>
-	  <property name="vmargs" value="-DstoreMemory=jdtcore_mem_trace,dir=${basedir}/../.."/>
+	  <property name="vmargs" value="-XX:+HeapDumpOnOutOfMemoryError -DstoreMemory=jdtcore_mem_trace,dir=${basedir}/../.."/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.model.AllJavaModelTests"/>
