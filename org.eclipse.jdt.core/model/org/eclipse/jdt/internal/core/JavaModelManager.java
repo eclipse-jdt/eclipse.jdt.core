@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1188,41 +1188,19 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return buffer.toString();
 		}
 		
-		public boolean writeAndCacheClasspath(final JavaProject javaProject, final IClasspathEntry[] newRawClasspath, final IPath newOutputLocation) throws JavaModelException {
-			final boolean[] result = new boolean[1];
+		public boolean writeAndCacheClasspath(JavaProject javaProject, final IClasspathEntry[] newRawClasspath, final IPath newOutputLocation) throws JavaModelException {
 			try {
-				// use a workspace runnable so that the notification of .classpath file change is done outside the synchronized block (to avoid deadlocks)
-				IWorkspace workspace = 	ResourcesPlugin.getWorkspace();
-				workspace.run(new IWorkspaceRunnable() {
-					public void run(IProgressMonitor monitor) throws CoreException {
-						// ensure that the writing of the .classpath file and the caching in memory are synchronized (see also readAnCacheClasspath which is synchronized)
-						try {
-							PerProjectInfo.this.writtingRawClasspath = true;
-							synchronized (PerProjectInfo.this) {
-								if (!javaProject.writeFileEntries(newRawClasspath, newOutputLocation)) {
-									result[0] = false;
-									return;
-								}
-								// store new raw classpath, new output and new status, and null out resolved info
-								setClasspath(newRawClasspath, newOutputLocation, JavaModelStatus.VERIFIED_OK, null, null, null, null);
-								result[0] = true;
-							}
-						} finally {
-							PerProjectInfo.this.writtingRawClasspath = false;
-						}
-					}
-				}, 
-				workspace.getRuleFactory().modifyRule(this.project), // use project modification rule as this is needed to create the .classpath file if it doesn't exist yet
-				IWorkspace.AVOID_UPDATE,
-				null);
-			} catch (JavaModelException e) {
-			    // rethrow exception (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=245576 )
-				throw e;
-			} catch (CoreException e) {
-			    // rethrow exception (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=245576 )
-				throw new JavaModelException(e);
+				this.writtingRawClasspath = true;
+				// write .classpath
+				if (!javaProject.writeFileEntries(newRawClasspath, newOutputLocation)) {
+					return false;
+				}
+				// store new raw classpath, new output and new status, and null out resolved info
+				setClasspath(newRawClasspath, newOutputLocation, JavaModelStatus.VERIFIED_OK, null, null, null, null);
+			} finally {
+				this.writtingRawClasspath = false;
 			}
-			return result[0];
+			return true;
 		}
 	}
 	

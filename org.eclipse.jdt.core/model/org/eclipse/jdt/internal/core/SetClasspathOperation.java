@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.resources.IResourceRuleFactory;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
@@ -63,6 +67,20 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 		} finally {		
 			done();
 		}
+	}
+	
+	protected ISchedulingRule getSchedulingRule() {
+		if (this.canChangeResources) {
+			IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
+			return new MultiRule(new ISchedulingRule[] {
+				// use project modification rule as this is needed to create the .classpath file if it doesn't exist yet, or to update project references
+				ruleFactory.modifyRule(this.project.getProject()),
+				
+				// and external project modification rule in case the external folders are modified
+				ruleFactory.modifyRule(JavaModelManager.getExternalManager().getExternalFoldersProject())
+			});
+		}
+		return super.getSchedulingRule();
 	}
 
 	public String toString(){
