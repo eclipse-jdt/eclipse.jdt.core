@@ -780,8 +780,8 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 
 			if (field.isStatic()) {
-				ReferenceBinding declaringClass = field.original().declaringClass;
-				if (declaringClass.isEnum()) {
+				if ((field.modifiers & ClassFileConstants.AccEnum) != 0) { // enum constants are checked even when qualified)
+					ReferenceBinding declaringClass = field.original().declaringClass;
 					MethodScope methodScope = scope.methodScope();
 					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
 					if ((this.bits & ASTNode.IsStrictlyAssigned) == 0
@@ -1014,13 +1014,13 @@ public TypeBinding resolveType(BlockScope scope) {
 					MethodScope methodScope = scope.methodScope();
 					TypeBinding declaringClass = fieldBinding.original().declaringClass;
 					// check for forward references
-					if ((this.indexOfFirstFieldBinding == 1 || declaringClass.isEnum())
+					if ((this.indexOfFirstFieldBinding == 1 || (fieldBinding.modifiers & ClassFileConstants.AccEnum) != 0) // enum constants are checked even when qualified
 							&& methodScope.enclosingSourceType() == declaringClass
 							&& methodScope.lastVisibleFieldID >= 0
 							&& fieldBinding.id >= methodScope.lastVisibleFieldID
 							&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
 						scope.problemReporter().forwardReference(this, 0, fieldBinding);
-					}
+					}					
 					if (fieldBinding.isStatic()) {
 						// check if accessing enum static field in initializer					
 						if (declaringClass.isEnum()) {

@@ -5704,59 +5704,86 @@ public void test169() {
 		"	              ^^^^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	NOWAY(BadEnum.NOWAY.CONST),\n" + 
-		"	                    ^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 2)\n" + 
+		"2. WARNING in X.java (at line 2)\n" + 
 		"	NOWAY(BadEnum.NOWAY.CONST),\n" + 
 		"	                    ^^^^^\n" + 
 		"The static field BadEnum.CONST should be accessed in a static way\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 3)\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
 		"	INVALID(INVALID.CONST),\n" + 
 		"	        ^^^^^^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 3)\n" + 
-		"	INVALID(INVALID.CONST),\n" + 
-		"	                ^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 3)\n" + 
+		"4. WARNING in X.java (at line 3)\n" + 
 		"	INVALID(INVALID.CONST),\n" + 
 		"	                ^^^^^\n" + 
 		"The static field BadEnum.CONST should be accessed in a static way\n" + 
 		"----------\n" + 
-		"7. ERROR in X.java (at line 4)\n" + 
+		"5. ERROR in X.java (at line 4)\n" + 
 		"	WRONG(WRONG.VALUE()),\n" + 
 		"	      ^^^^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"8. WARNING in X.java (at line 4)\n" + 
+		"6. WARNING in X.java (at line 4)\n" + 
 		"	WRONG(WRONG.VALUE()),\n" + 
 		"	      ^^^^^^^^^^^^^\n" + 
 		"The static method VALUE() from the type BadEnum should be accessed in a static way\n" + 
 		"----------\n" + 
-		"9. ERROR in X.java (at line 5)\n" + 
+		"7. ERROR in X.java (at line 5)\n" + 
 		"	ILLEGAL(ILLEGAL.value());\n" + 
 		"	        ^^^^^^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"10. ERROR in X.java (at line 14)\n" + 
+		"8. ERROR in X.java (at line 14)\n" + 
 		"	X x4 = new X(x4.CONST);//4 - WRONG\n" + 
 		"	             ^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"11. WARNING in X.java (at line 14)\n" + 
+		"9. WARNING in X.java (at line 14)\n" + 
 		"	X x4 = new X(x4.CONST);//4 - WRONG\n" + 
 		"	                ^^^^^\n" + 
 		"The static field X.CONST should be accessed in a static way\n" + 
 		"----------\n" + 
-		"12. ERROR in X.java (at line 15)\n" + 
+		"10. ERROR in X.java (at line 15)\n" + 
 		"	X x5 = new X(x5.value());//5 - WRONG\n" + 
 		"	             ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=263877
+public void test170() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"enum Days {\n" + 
+			"    Monday(\"Mon\", Days.OFFSET + 0),    // should not complain\n" + 
+			"    Tuesday(\"Tue\", Days.Wednesday.hashCode()),   // should complain since enum constant\n" + 
+			"    Wednesday(\"Wed\", OFFSET + 2);   // should complain since unqualified\n" + 
+			"    public static final int OFFSET = 0;  // cannot move this above, else more errors\n" + 
+			"    Days(String abbr, int index) {\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class X {\n" + 
+			"    public static final int FOO = X.OFFSET + 0;\n" + 
+			"    public static final int BAR = OFFSET + 1;\n" + 
+			"    public static final int OFFSET = 0;  // cannot move this above, else more errors\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Tuesday(\"Tue\", Days.Wednesday.hashCode()),   // should complain since enum constant\n" + 
+		"	                    ^^^^^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	Wednesday(\"Wed\", OFFSET + 2);   // should complain since unqualified\n" + 
+		"	                 ^^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 12)\n" + 
+		"	public static final int BAR = OFFSET + 1;\n" + 
+		"	                              ^^^^^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n");
 }
