@@ -17,7 +17,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class LongLiteral extends NumberLiteral {
-	static final Constant FORMAT_ERROR = DoubleConstant.fromValue(1.0/0.0); // NaN;	
 		
 public LongLiteral(char[] token, int s,int e) {
 	super(token, s,e);
@@ -52,7 +51,7 @@ public void computeConstant() {
 				
 		int digitValue ;
 		if ((digitValue = ScannerHelper.digit(source[j++],radix)) < 0 ) {
-			constant = FORMAT_ERROR; return ;
+			return /*constant stays null*/ ;
 		}
 		if (digitValue >= 8)
 			nbDigit = 4;
@@ -65,7 +64,7 @@ public void computeConstant() {
 		computedValue = digitValue ;
 		while (j<length) {
 			if ((digitValue = ScannerHelper.digit(source[j++],radix)) < 0) {
-				constant = FORMAT_ERROR; return ;
+				return /*constant stays null*/ ;
 			}
 			if ((nbDigit += shift) > 64)
 				return /*constant stays null*/ ;
@@ -136,19 +135,6 @@ public final boolean mayRepresentMIN_VALUE(){
 			(source[17] == '0') &&
 			(source[18] == '8') &&
 			(((this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0));
-}
-public TypeBinding resolveType(BlockScope scope) {
-	// the format may be incorrect while the scanner could detect
-	// such error only on painfull tests...easier and faster here
-
-	TypeBinding tb = super.resolveType(scope);
-	if (constant == FORMAT_ERROR) {
-		constant = Constant.NotAConstant;
-		scope.problemReporter().constantOutOfFormat(this);
-		this.resolvedType = null;
-		return null;
-	}
-	return tb;
 }
 public void traverse(ASTVisitor visitor, BlockScope scope) {
 	visitor.visit(this, scope);

@@ -22,7 +22,6 @@ public class IntLiteral extends NumberLiteral {
 	public static final IntLiteral
 		One = new IntLiteral(new char[]{'1'},0,0,1);//used for ++ and -- 
 
-	static final Constant FORMAT_ERROR = DoubleConstant.fromValue(1.0/0.0); // NaN;
 public IntLiteral(char[] token, int s, int e) {
 	super(token, s,e);
 }
@@ -71,7 +70,7 @@ public void computeConstant() {
 		while (j<length)
 		{	int digitValue ;
 			if ((digitValue = ScannerHelper.digit(source[j++],radix))	< 0 ) 	
-			{	constant = FORMAT_ERROR; return ;}
+			{	return /*constant stays null*/ ;}
 			computedValue = (computedValue<<shift) | digitValue ;
 			if (computedValue > MAX) return /*constant stays null*/ ;}}
 	else
@@ -79,7 +78,7 @@ public void computeConstant() {
 		for (int i = 0 ; i < length;i++)
 		{	int digitValue ;
 			if ((digitValue = ScannerHelper.digit(source[i],10))	< 0 ) 
-			{	constant = FORMAT_ERROR; return ;}
+			{	return /*constant stays null*/ ; }
 			computedValue = 10*computedValue + digitValue;
 			if (computedValue > MAX) return /*constant stays null*/ ; }}
 
@@ -121,19 +120,6 @@ public final boolean mayRepresentMIN_VALUE(){
 			(source[8] == '4') &&
 			(source[9] == '8') &&
 			(((this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0));
-}
-public TypeBinding resolveType(BlockScope scope) {
-	// the format may be incorrect while the scanner could detect
-	// such an error only on painfull tests...easier and faster here
-
-	TypeBinding tb = super.resolveType(scope);
-	if (constant == FORMAT_ERROR) {
-		constant = Constant.NotAConstant;
-		scope.problemReporter().constantOutOfFormat(this);
-		this.resolvedType = null;
-		return null;
-	}
-	return tb;
 }
 public StringBuffer printExpression(int indent, StringBuffer output){
 

@@ -15,11 +15,10 @@ import org.eclipse.jdt.internal.compiler.impl.*;
 public class IntLiteralMinValue extends IntLiteral {
 
 	final static char[] CharValue = new char[]{'-','2','1','4','7','4','8','3','6','4','8'};
-	final static Constant MIN_VALUE = IntConstant.fromValue(Integer.MIN_VALUE) ; 
 
 public IntLiteralMinValue() {
-	super(CharValue,0,0,Integer.MIN_VALUE);
-	constant = MIN_VALUE;
+	super(CharValue, 0,0, Integer.MIN_VALUE);
+	constant = IntConstant.fromValue(Integer.MIN_VALUE);
 }
 public void computeConstant(){
 	

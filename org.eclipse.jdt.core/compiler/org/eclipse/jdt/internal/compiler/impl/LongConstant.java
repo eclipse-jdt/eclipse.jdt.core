@@ -12,12 +12,15 @@ package org.eclipse.jdt.internal.compiler.impl;
 
 public class LongConstant extends Constant {
 private static final LongConstant ZERO = new LongConstant(0L);
+private static final LongConstant MIN_VALUE = new LongConstant(Long.MIN_VALUE); 
 
 private long value;
 
 public static Constant fromValue(long value) {
 	if (value == 0L) {
 		return ZERO;
+	} else if (value == Long.MIN_VALUE) {
+		return MIN_VALUE;
 	}
 	return new LongConstant(value);
 }
