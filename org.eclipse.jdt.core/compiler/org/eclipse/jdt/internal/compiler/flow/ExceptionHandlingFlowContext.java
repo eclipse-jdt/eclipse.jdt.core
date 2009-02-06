@@ -41,7 +41,8 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	boolean isMethodContext;
 
 	public UnconditionalFlowInfo initsOnReturn;
-
+	public FlowContext initializationParent; // special parent relationship only for initialization purpose
+	
 	// for dealing with anonymous constructor thrown exceptions
 	public ArrayList extendedExceptions;
 	
@@ -49,6 +50,7 @@ public ExceptionHandlingFlowContext(
 		FlowContext parent,
 		ASTNode associatedNode,
 		ReferenceBinding[] handledExceptions,
+		FlowContext initializationParent,
 		BlockScope scope,
 		UnconditionalFlowInfo flowInfo) {
 
@@ -79,6 +81,7 @@ public ExceptionHandlingFlowContext(
 		System.arraycopy(this.isReached, 0, this.isNeeded, 0, cacheSize);
 	}
 	this.initsOnReturn = FlowInfo.DEAD_END;	
+	this.	initializationParent = initializationParent;	
 }
 
 public void complainIfUnusedExceptionHandlers(AbstractMethodDeclaration method) {
