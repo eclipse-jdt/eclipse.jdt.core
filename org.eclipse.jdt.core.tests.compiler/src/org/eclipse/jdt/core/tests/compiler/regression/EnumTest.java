@@ -32,7 +32,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 145 };
+//		TESTS_NUMBERS = new int[] { 170 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -6104,6 +6104,23 @@ public void test169() {
 		"	             ^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=263877
+public void _test170() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"public enum X {\n" + 
+				"	Monday(\"Mon\", X.OFFSET + 0),\n" + 
+				"	Tuesday(\"Tue\", X.OFFSET + 1);\n" + 
+				"	public static final int OFFSET = 0;\n" + 
+				"	X(String abbr, int index) {}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}", // =================
+			},
+			"SUCCESS");
 }
 }
 
