@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -1897,7 +1898,18 @@ public class DeltaProcessor {
 				return;
 
 			case IResourceChangeEvent.PRE_REFRESH:
-				JavaModelManager.getExternalManager().refreshReferences((IProject) resource, null);
+				IProject [] projects = null;
+				Object o = event.getSource();
+				if (o instanceof IProject) {
+					projects = new IProject[] { (IProject) o };
+				} else if (o instanceof IWorkspace) {
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=261594. The single workspace refresh
+					// notification we see, implies that all projects are about to be refreshed.
+					 projects = ((IWorkspace) o).getRoot().getProjects(IContainer.INCLUDE_HIDDEN);
+				}
+				for (int i = 0; projects != null && i < projects.length; i++) {
+					JavaModelManager.getExternalManager().refreshReferences(projects[i], null);
+				}
 				return;
 
 			case IResourceChangeEvent.POST_CHANGE :

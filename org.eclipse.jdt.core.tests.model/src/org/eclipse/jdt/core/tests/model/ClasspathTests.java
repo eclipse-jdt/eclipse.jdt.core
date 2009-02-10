@@ -526,6 +526,26 @@ public void testAddExternalLibFolder6() throws CoreException {
 }
 
 /*
+ * Ensures that creating an external library folder referenced by a library entry and refreshing the workspace doesn't log a NPE
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=262363 )
+ */
+public void testAddExternalLibFolder7() throws CoreException {
+	try {
+		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
+		waitForAutoBuild();
+		createExternalFolder("externalLib");
+		startLogListening(null/*listen to Platform's log*/);
+		getWorkspaceRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
+		waitForManualRefresh();
+		assertLogEquals("");
+	} finally {
+		stopLogListening();
+		deleteExternalResource("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
  * Ensures that adding a library entry for an existing external ZIP archive doesn't generate a marker
  */
 public void testAddZIPArchive1() throws CoreException {
