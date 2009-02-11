@@ -1175,7 +1175,7 @@ public final boolean isUsed() {
  */
 public final boolean isViewedAsDeprecated() {
 	return (this.modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0
-			|| (getPackage().getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0;
+			|| getPackage().isViewedAsDeprecated();
 }
 
 public ReferenceBinding[] memberTypes() {

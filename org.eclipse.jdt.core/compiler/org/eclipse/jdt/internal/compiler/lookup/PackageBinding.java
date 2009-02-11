@@ -204,28 +204,19 @@ public Binding getTypeOrPackage(char[] name) {
 
 	return null;
 }
-
-/**
- * Compute the tagbits for standard annotations. For source types, these could require
- * lazily resolving corresponding annotation nodes, in case of forward references.
- * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
- * NOTE : when the name environment is based on the JavaModel, the synthetic
- * package-info type is not stored so the package's annotations will not be available.
- */
-public long getAnnotationTagBits() {
-	if ((this.tagBits & TagBits.AnnotationResolved) != 0)
-		return this.tagBits;
-
-	this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-	if (this.compoundName == CharOperation.NO_CHAR_CHAR)
-		return this.tagBits;
-
-	ReferenceBinding packageInfo = this.getType(TypeConstants.PACKAGE_INFO_NAME);
-	if (packageInfo != null)
-		this.tagBits |= (packageInfo.getAnnotationTagBits() & TagBits.AllStandardAnnotationsMask);
-	return this.tagBits;
+public final boolean isViewedAsDeprecated() {
+	if ((this.tagBits & TagBits.DeprecatedAnnotationResolved) == 0) {
+		this.tagBits |= TagBits.DeprecatedAnnotationResolved;
+		if (this.compoundName != CharOperation.NO_CHAR_CHAR) {
+			ReferenceBinding packageInfo = this.getType(TypeConstants.PACKAGE_INFO_NAME);
+			if (packageInfo != null) {
+				packageInfo.initializeDeprecatedAnnotationTagBits();
+				this.tagBits |= packageInfo.tagBits & TagBits.AllStandardAnnotationsMask;
+			}
+		}
+	}
+	return (this.tagBits & TagBits.AnnotationDeprecated) != 0;
 }
-
 /* API
 * Answer the receiver's binding type from Binding.BindingID.
 */

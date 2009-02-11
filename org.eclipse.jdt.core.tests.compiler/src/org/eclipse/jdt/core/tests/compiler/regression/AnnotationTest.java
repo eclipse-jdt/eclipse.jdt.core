@@ -8698,7 +8698,9 @@ public void test264() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=258906 
-public void _test265() {
+public void test265() {
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_6) return;
+
 	INameEnvironment nameEnvironment = new FileSystem(Util.getJavaClassLibs(), new String[] {}, null);
 	IErrorHandlingPolicy errorHandlingPolicy = new IErrorHandlingPolicy() {
 		public boolean proceedOnErrors() { return true; }
