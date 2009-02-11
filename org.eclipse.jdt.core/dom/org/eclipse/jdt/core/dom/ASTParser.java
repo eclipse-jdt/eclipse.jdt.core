@@ -719,8 +719,8 @@ public class ASTParser {
      *
      * @param compilationUnits the compilation units to create ASTs for
      * @param bindingKeys the binding keys to create bindings for
-     * @param requestor the AST requestor that collects abtract syntax trees and bindings
-	 * @param monitor the progress monitor used to report progress and request cancelation,
+     * @param requestor the AST requestor that collects abstract syntax trees and bindings
+	 * @param monitor the progress monitor used to report progress and request cancellation,
 	 *   or <code>null</code> if none
 	 * @exception IllegalStateException if the settings provided
 	 * are insufficient, contradictory, or otherwise unsupported
