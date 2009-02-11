@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 697, 698 };
+//		TESTS_NUMBERS =  new int[] { 699, 700, 701 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9971,6 +9971,133 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				true);
 			String expectedContents = "Object o = new new Object() {};";
 			checkSourceRange(statement, expectedContents, contents);
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=264443
+	public void test0699() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter/src/example/Test.java", true/*resolve*/);
+			String contents =
+				"package example;\n" + 
+				"public class Test {\n" + 
+				"	public void test() throws Throwable {\n" + 
+				"		B /*start*/b = new B()/*end*/;\n" + 
+				"	}\n" + 
+				"}";
+	
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) buildAST(contents, workingCopy, false, true, true);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			final String key = variableBinding.getKey();
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setProject(workingCopy.getJavaProject());
+			parser.setResolveBindings(true);
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	
+			parser.createASTs(
+					new ICompilationUnit[] { workingCopy },
+					new String[] { key },
+					new ASTRequestor() {
+						public void acceptBinding(String bindingKey,
+								IBinding binding) {
+							assertEquals("Wrong key", key, bindingKey);
+							assertTrue("Not a variable binding", binding.getKind() == IBinding.VARIABLE);
+						}
+	
+						public void acceptAST(ICompilationUnit source,
+								CompilationUnit astCompilationUnit) {
+						}
+					}, null);
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=264443
+	public void test0700() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter/src/example/Test.java", true/*resolve*/);
+			String contents =
+				"package example;\n" + 
+				"import java.io.IOException;\n" +
+				"public class Test {\n" + 
+				"	public void test() throws IOException, RuntimeException {\n" + 
+				"		B /*start*/b = new B()/*end*/;\n" + 
+				"	}\n" + 
+				"}";
+	
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) buildAST(contents, workingCopy, false, true, true);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			final String key = variableBinding.getKey();
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setProject(workingCopy.getJavaProject());
+			parser.setResolveBindings(true);
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	
+			parser.createASTs(
+					new ICompilationUnit[] { workingCopy },
+					new String[] { key },
+					new ASTRequestor() {
+						public void acceptBinding(String bindingKey,
+								IBinding binding) {
+							assertEquals("Wrong key", key, bindingKey);
+							assertTrue("Not a variable binding", binding.getKind() == IBinding.VARIABLE);
+						}
+	
+						public void acceptAST(ICompilationUnit source,
+								CompilationUnit astCompilationUnit) {
+						}
+					}, null);
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=264443
+	//no thrown exceptions
+	public void test0701() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter/src/example/Test.java", true/*resolve*/);
+			String contents =
+				"package example;\n" + 
+				"import java.io.IOException;\n" +
+				"public class Test {\n" + 
+				"	public void test() {\n" + 
+				"		B /*start*/b = new B()/*end*/;\n" + 
+				"	}\n" + 
+				"}";
+	
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) buildAST(contents, workingCopy, false, true, true);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			final String key = variableBinding.getKey();
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setProject(workingCopy.getJavaProject());
+			parser.setResolveBindings(true);
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	
+			parser.createASTs(
+					new ICompilationUnit[] { workingCopy },
+					new String[] { key },
+					new ASTRequestor() {
+						public void acceptBinding(String bindingKey,
+								IBinding binding) {
+							assertEquals("Wrong key", key, bindingKey);
+							assertTrue("Not a variable binding", binding.getKind() == IBinding.VARIABLE);
+						}
+	
+						public void acceptAST(ICompilationUnit source,
+								CompilationUnit astCompilationUnit) {
+						}
+					}, null);
 		} finally {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();

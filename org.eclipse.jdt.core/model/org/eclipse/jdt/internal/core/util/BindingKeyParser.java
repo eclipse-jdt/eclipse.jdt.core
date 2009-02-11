@@ -743,10 +743,10 @@ public class BindingKeyParser {
 	}
 
 	private void parseLocalVariable() {
-	 	if (this.scanner.nextToken() != Scanner.LOCAL_VAR) {
-	 		malformedKey();
+		if (this.scanner.nextToken() != Scanner.LOCAL_VAR) {
+			malformedKey();
 			return;
-	 	}
+		}
 		char[] varName = this.scanner.getTokenSource();
 		if (Character.isDigit(varName[0])) {
 			int index = Integer.parseInt(new String(varName));
@@ -759,34 +759,40 @@ public class BindingKeyParser {
 		} else {
 			int occurrenceCount = 0;
 			if (this.scanner.isAtLocalVariableStart()) {
-			 	if (this.scanner.nextToken() != Scanner.LOCAL_VAR) {
-			 		malformedKey();
+				if (this.scanner.nextToken() != Scanner.LOCAL_VAR) {
+					malformedKey();
 					return;
-			 	}
+				}
 				char[] occurrence = this.scanner.getTokenSource();
 				occurrenceCount = Integer.parseInt(new String(occurrence));
 			}
-		 	consumeLocalVar(varName, occurrenceCount);
+			consumeLocalVar(varName, occurrenceCount);
 		}
- 	}
+	}
 
 	private void parseMethod() {
-	 	char[] selector = this.scanner.getTokenSource();
-	 	this.scanner.skipMethodSignature();
-	 	char[] signature = this.scanner.getTokenSource();
-	 	consumeMethod(selector, signature);
-	 	if (this.scanner.isAtThrownStart()) {
+		char[] selector = this.scanner.getTokenSource();
+		this.scanner.skipMethodSignature();
+		char[] signature = this.scanner.getTokenSource();
+		consumeMethod(selector, signature);
+		if (this.scanner.isAtThrownStart()) {
 			parseThrownExceptions();
-	 	}
+		}
 		if (this.scanner.isAtParametersStart())
 			parseParameterizedMethod();
 	}
 
 	private void parseAnnotation() {
+		/*
+		 * The call parser.parse() might have a side-effect on the current token type
+		 * See bug 264443
+		 */
+		int token = this.scanner.token;
 		BindingKeyParser parser = newParser();
 		parser.parse();
 		consumeParser(parser);
 		consumeAnnotation();
+		this.scanner.token = token;
 	}
 
 	private void parseCapture() {
@@ -803,9 +809,15 @@ public class BindingKeyParser {
 	}
 
 	private void parseCaptureWildcard() {
+		/*
+		 * The call parser.parse() might have a side-effect on the current token type
+		 * See bug 264443
+		 */
+		int token = this.scanner.token;
 		BindingKeyParser parser = newParser();
 		parser.parse();
 		consumeParser(parser);
+		this.scanner.token = token;
 	}
 
 	private void parseField() {
@@ -815,6 +827,11 @@ public class BindingKeyParser {
 	}
 
 	private void parseThrownExceptions() {
+		/*
+		 * The call parser.parse() might have a side-effect on the current token type
+		 * See bug 264443
+		 */
+		int token = this.scanner.token;
 		while (this.scanner.isAtThrownStart()) {
 			this.scanner.skipThrownStart();
 			BindingKeyParser parser = newParser();
@@ -822,6 +839,7 @@ public class BindingKeyParser {
 			consumeParser(parser);
 			consumeException();
 		}
+		this.scanner.token = token;
 	}
 
 	private void parseParameterizedType(char[] typeName, boolean isRaw) {
@@ -860,9 +878,15 @@ public class BindingKeyParser {
 
 	private void parseReturnType() {
 		this.scanner.index++; // skip ')'
+		/*
+		 * The call parser.parse() might have a side-effect on the current token type
+		 * See bug 264443
+		 */
+		int token = this.scanner.token;
 		BindingKeyParser parser = newParser();
 		parser.parse();
 		consumeParser(parser);
+		this.scanner.token = token;
 	}
 
 	private void parseSecondaryType() {
@@ -871,17 +895,29 @@ public class BindingKeyParser {
 	}
 
 	private void parseTypeArgument() {
+		/*
+		 * The call parser.parse() might have a side-effect on the current token type
+		 * See bug 264443
+		 */
+		int token = this.scanner.token;
 		BindingKeyParser parser = newParser();
 		parser.parse();
 		consumeParser(parser);
+		this.scanner.token = token;
 	}
 
 	private void parseTypeWithCapture() {
 		if (this.scanner.nextToken() != Scanner.CAPTURE) return;
+		/*
+		 * The call parser.parse() might have a side-effect on the current token type
+		 * See bug 264443
+		 */
+		int token = this.scanner.token;
 		BindingKeyParser parser = newParser();
 		parser.parse();
 		consumeParser(parser);
 		consumeTypeWithCapture();
+		this.scanner.token = token;
 	}
 
 	private void parseTypeVariable() {
@@ -941,9 +977,15 @@ public class BindingKeyParser {
 	}
 	
 	private void parseWildcardBound() {
+		/*
+		 * The call parser.parse() might have a side-effect on the current token type
+		 * See bug 264443
+		 */
+		int token = this.scanner.token;
 		BindingKeyParser parser = newParser();
 		parser.parse();
 		consumeParser(parser);
+		this.scanner.token = token;
 	}
 
 }
