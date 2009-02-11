@@ -2048,7 +2048,7 @@ public void test081() throws CoreException, IOException {
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
-		// this doesn�t really do a parse; it�s a type lookup
+		// this doesn't really do a parse; it's a type lookup
 		parser.createASTs(new ICompilationUnit[] {}, keys, requestor, null);
 		ITypeBinding typeBinding = requestor._result;
 		assertNotNull("No binding", typeBinding);
@@ -2077,7 +2077,7 @@ public void test082() throws CoreException, IOException {
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
-		// this doesn�t really do a parse; it�s a type lookup
+		// this doesn't really do a parse; it's a type lookup
 		parser.createASTs(new ICompilationUnit[] {}, keys, requestor, null);
 		ITypeBinding typeBinding = requestor._result;
 		assertNull("Got a binding", typeBinding);
@@ -2208,6 +2208,4 @@ public void test082() throws CoreException, IOException {
 			},
 			"LA~B<LC;:1TV;LC;:1TE;>;");
 	}
-
-
 }
