@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -535,11 +535,12 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 public static final boolean camelCaseMatch(char[] pattern, int patternStart, int patternEnd, char[] name, int nameStart, int nameEnd, boolean samePartCount) {
 
 	/* !!!!!!!!!! WARNING !!!!!!!!!!
-	 * The content of this method has been fully copied to
-	 * SearchPattern#camelCaseMatch(String, int, int, String, int, int, boolean).
+	 * The algorithm implemented in this method has been heavily used in
+	 * StringOperation#getCamelCaseMatchingRegions(String, int, int, String, int, int, boolean)
+	 * method.
 	 *
-	 * So, if current method is modified, do NOT forget to copy again its content
-	 * to SearchPattern corresponding method!
+	 * So, if any change needs to be applied in the current algorithm,
+	 * do NOT forget to also apply the same change in the StringOperation method!
 	 */
 
 	if (name == null)

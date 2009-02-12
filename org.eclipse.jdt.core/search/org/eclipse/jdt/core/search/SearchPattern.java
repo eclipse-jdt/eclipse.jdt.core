@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchScope;
+import org.eclipse.jdt.internal.core.search.StringOperation;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.*;
 
@@ -668,128 +669,167 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
  * @since 3.4
  */
 public static final boolean camelCaseMatch(String pattern, int patternStart, int patternEnd, String name, int nameStart, int nameEnd, boolean samePartCount) {
+	return StringOperation.getCamelCaseMatchingRegions(pattern, patternStart, patternEnd, name, nameStart, nameEnd, samePartCount) != null;
+}
 
-	/* !!!!!!!!!! WARNING !!!!!!!!!!
-	 * The algorithm of this method has been entirely copied from
-	 * CharOperation#camelCaseMatch(char[], int, int, char[], int, int, boolean).
-	 * Array lengths have been replaced with call to {@link String#length()} and
-	 * array direct access have been replaced with call to {@link String#charAt(int)}.
-	 *
-	 * So, do NOT modify this method directly to fix any bug but modify first the
-	 * corresponding CharOperation method and do the copy again to be sure that
-	 * these two methods are kept synchronized.
-	 */
-
-	if (name == null)
-		return false; // null name cannot match
-	if (pattern == null)
-		return true; // null pattern is equivalent to '*'
-	if (patternEnd < 0) 	patternEnd = pattern.length();
-	if (nameEnd < 0) nameEnd = name.length();
-
-	if (patternEnd <= patternStart) return nameEnd <= nameStart;
-	if (nameEnd <= nameStart) return false;
-	// check first pattern char
-	if (name.charAt(nameStart) != pattern.charAt(patternStart)) {
-		// first char must strictly match (upper/lower)
-		return false;
+/**
+ * Answers all the regions in a given name matching a given pattern using
+ * a specified match rule.
+ * </p><p>
+ * Each of these regions is made of its starting index and its length in the given
+ * name. They are all concatenated in a single array of <code>int</code>
+ * which therefore always has an even length.
+ * </p><p>
+ * All returned regions are disjointed from each other. That means that the end
+ * of a region is always different than the start of the following one.<br>
+ * For example, if two regions are returned:<br>
+ * <code>{ start1, length1, start2, length2 }</code><br>
+ * then <code>start1+length1</code> will always be smaller than
+ * <code>start2</code>.
+ * </p><p>
+ * The possible comparison rules between the name and the pattern are:
+ * <ul>
+ * <li>{@link #R_EXACT_MATCH exact matching}</li>
+ * <li>{@link #R_PREFIX_MATCH prefix matching}</li>
+ * <li>{@link #R_PATTERN_MATCH pattern matching}</li>
+ * <li>{@link #R_CAMELCASE_MATCH camel case matching}</li>
+ * <li>{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH camel case matching with same parts count}</li>
+ * </ul>
+ * Each of these rules may be combined with the
+ * {@link #R_CASE_SENSITIVE case sensitive flag} if the match comparison
+ * should respect the case.
+ * <pre>
+ * Examples:
+ * <ol><li>  pattern = "NPE"
+ *  name = NullPointerException / NoPermissionException
+ *  matchRule = {@link #R_CAMELCASE_MATCH}
+ *  result:  { 0, 1, 4, 1, 11, 1 } / { 0, 1, 2, 1, 12, 1 } </li>
+ * <li>  pattern = "NuPoEx"
+ *  name = NullPointerException
+ *  matchRule = {@link #R_CAMELCASE_MATCH}
+ *  result:  { 0, 2, 4, 2, 11, 2 }</li>
+ * <li>  pattern = "IPL3"
+ *  name = "IPerspectiveListener3"
+ *  matchRule = {@link #R_CAMELCASE_MATCH}
+ *  result:  { 0, 2, 12, 1, 20, 1 }</li>
+ * <li>  pattern = "HashME"
+ *  name = "HashMapEntry"
+ *  matchRule = {@link #R_CAMELCASE_MATCH}
+ *  result:  { 0, 5, 7, 1 }</li>
+ * <li>  pattern = "N???Po*Ex?eption"
+ *  name = NullPointerException
+ *  matchRule = {@link #R_PATTERN_MATCH} | {@link #R_CASE_SENSITIVE}
+ *  result:  { 0, 1, 4, 2, 11, 2, 14, 6 }</li>
+ * <li>  pattern = "Ha*M*ent*"
+ *  name = "HashMapEntry"
+ *  matchRule = {@link #R_PATTERN_MATCH}
+ *  result:  { 0, 2, 4, 1, 7, 3 }</li>
+ * </ol></pre>
+ *
+ * @see #camelCaseMatch(String, String, boolean) for more details on the
+ * 	camel case behavior
+ * @see CharOperation#match(char[], char[], boolean) for more details on the
+ * 	pattern match behavior
+ *
+ * @param pattern the given pattern. If <code>null</code>,
+ * 	then the returned region will be the entire given name.
+ * @param name the given name
+ * @param matchRule the rule to apply for the comparison.<br>
+ *     The following values are accepted:
+ *     <ul>
+ *         <li>{@link #R_EXACT_MATCH}</li>
+ *         <li>{@link #R_PREFIX_MATCH}</li>
+ *         <li>{@link #R_PATTERN_MATCH}</li>
+ *         <li>{@link #R_CAMELCASE_MATCH}</li>
+ *         <li>{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}</li>
+ *     </ul>
+ *     <p>
+ *     Each of these valid values may be also combined with
+ *     the {@link #R_CASE_SENSITIVE} flag.
+ *     </p>
+ *     Some examples:
+ *     <ul>
+ *         <li>{@link #R_EXACT_MATCH} | {@link #R_CASE_SENSITIVE}:
+ *                 if an exact case sensitive match is expected,</li>
+ *         <li>{@link #R_PREFIX_MATCH}:
+ *                 if a case insensitive prefix match is expected,</li>
+ *         <li>{@link #R_CAMELCASE_MATCH}:
+ *                 if a case insensitive camel case match is expected,</li>
+ *         <li>{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}
+ *                 | {@link #R_CASE_SENSITIVE}:
+ *                 if a case sensitive camel case with same parts count match
+ *                 is expected,</li>
+ *         <li>etc.</li>
+ *     </ul>
+ * @return an array of <code>int</code> having two slots per returned
+ *     regions: the first one is the region starting index and the second one
+ *     is the region length.
+ *     <p>
+ *     The returned region may be the entire given name if the given pattern
+ *     is either <code>null</code> (whatever the match rule is) or
+ *     <code>'*'</code>  with a pattern match rule.
+ *     </p><p>
+ *     May also be <code>null</code> if the given name does not match
+ *     the given pattern.
+ *     </p>
+ * 
+ * @since 3.5
+ */
+public static final int[] getMatchingRegions(String pattern, String name, int matchRule) {
+	if (name == null) return null;
+	final int nameLength = name.length();
+	if (pattern == null) {
+		return new int[] { 0, nameLength };
 	}
-
-	char patternChar, nameChar;
-	int iPattern = patternStart;
-	int iName = nameStart;
-
-	// Main loop is on pattern characters
-	while (true) {
-
-		iPattern++;
-		iName++;
-
-		if (iPattern == patternEnd) { // we have exhausted pattern...
-			// it's a match if the name can have additional parts (i.e. uppercase characters) or is also exhausted
-			if (!samePartCount || iName == nameEnd) return true;
-
-			// otherwise it's a match only if the name has no more uppercase characters
-			while (true) {
-				if (iName == nameEnd) {
-					// we have exhausted the name, so it's a match
-					return true;
-				}
-				nameChar = name.charAt(iName);
-				// test if the name character is uppercase
-				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
-					if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & ScannerHelper.C_UPPER_LETTER) != 0) {
-						return false;
-					}
-				}
-				else if (!Character.isJavaIdentifierPart(nameChar) || Character.isUpperCase(nameChar)) {
-					return false;
-				}
-				iName++;
+	final int patternLength = pattern.length();
+	boolean countMatch = false;
+	switch (matchRule) {
+		case SearchPattern.R_EXACT_MATCH:
+			if (patternLength == nameLength && pattern.equalsIgnoreCase(name)) {
+				return new int[] { 0, patternLength };
 			}
-		}
-
-		if (iName == nameEnd){
-			// We have exhausted the name (and not the pattern), so it's not a match
-			return false;
-		}
-
-		// For as long as we're exactly matching, bring it on (even if it's a lower case character)
-		if ((patternChar = pattern.charAt(iPattern)) == name.charAt(iName)) {
-			continue;
-		}
-
-		// If characters are not equals, then it's not a match if patternChar is lowercase
-		if (patternChar < ScannerHelper.MAX_OBVIOUS) {
-			if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_DIGIT)) == 0) {
-				return false;
+			break;
+		case SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE:
+			if (patternLength == nameLength && pattern.equals(name)) {
+				return new int[] { 0, patternLength };
 			}
-		}
-		else if (Character.isJavaIdentifierPart(patternChar) && !Character.isUpperCase(patternChar) && !Character.isDigit(patternChar)) {
-			return false;
-		}
-
-		// patternChar is uppercase, so let's find the next uppercase in name
-		while (true) {
-			if (iName == nameEnd){
-	            //	We have exhausted name (and not pattern), so it's not a match
-				return false;
+			break;
+		case SearchPattern.R_PREFIX_MATCH:
+			if (patternLength <= nameLength && name.substring(0, patternLength).equalsIgnoreCase(pattern)) {
+				return new int[] { 0, patternLength };
 			}
-
-			nameChar = name.charAt(iName);
-			if (nameChar < ScannerHelper.MAX_OBVIOUS) {
-				int charNature = ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar];
-				if ((charNature & (ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_SPECIAL)) != 0) {
-					// nameChar is lowercase
-					iName++;
-				} else if ((charNature & ScannerHelper.C_DIGIT) != 0) {
-					// nameChar is digit => break if the digit is current pattern character otherwise consume it
-					if (patternChar == nameChar) break;
-					iName++;
-				// nameChar is uppercase...
-				} else  if (patternChar != nameChar) {
-					//.. and it does not match patternChar, so it's not a match
-					return false;
-				} else {
-					//.. and it matched patternChar. Back to the big loop
-					break;
+			break;
+		case SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE:
+			if (name.startsWith(pattern)) {
+				return new int[] { 0, patternLength };
+			}
+			break;
+		case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
+			countMatch = true;
+			//$FALL-THROUGH$
+		case SearchPattern.R_CAMELCASE_MATCH:
+			if (patternLength <= nameLength) {
+				int[] regions = StringOperation.getCamelCaseMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, countMatch);
+				if (regions != null) return regions;
+				if (name.substring(0, patternLength).equalsIgnoreCase(pattern)) {
+					return new int[] { 0, patternLength };
 				}
 			}
-			// Same tests for non-obvious characters
-			else if (Character.isJavaIdentifierPart(nameChar) && !Character.isUpperCase(nameChar)) {
-				iName++;
-			} else if (Character.isDigit(nameChar)) {
-				if (patternChar == nameChar) break;
-				iName++;
-			} else  if (patternChar != nameChar) {
-				return false;
-			} else {
-				break;
+			break;
+		case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE:
+			countMatch = true;
+			//$FALL-THROUGH$
+		case SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE:
+			if (patternLength <= nameLength) {
+				return StringOperation.getCamelCaseMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, countMatch);
 			}
-		}
-		// At this point, either name has been exhausted, or it is at an uppercase letter.
-		// Since pattern is also at an uppercase letter
+			break;
+		case SearchPattern.R_PATTERN_MATCH:
+			return StringOperation.getPatternMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, false);
+		case SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE:
+			return StringOperation.getPatternMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, true);
 	}
+	return null;
 }
 
 /**
