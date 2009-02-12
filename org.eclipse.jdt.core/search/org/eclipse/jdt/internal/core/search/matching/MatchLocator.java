@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -169,7 +169,7 @@ public static class WrappedCoreException extends RuntimeException {
 public static SearchDocument[] addWorkingCopies(SearchPattern pattern, SearchDocument[] indexMatches, org.eclipse.jdt.core.ICompilationUnit[] copies, SearchParticipant participant) {
 	if (copies == null) return indexMatches;
 	// working copies take precedence over corresponding compilation units
-	HashMap workingCopyDocuments = workingCopiesThatCanSeeFocus(copies, pattern.focus, pattern.isPolymorphicSearch(), participant);
+	HashMap workingCopyDocuments = workingCopiesThatCanSeeFocus(copies, pattern, participant);
 	if (workingCopyDocuments.size() == 0) return indexMatches;
 	SearchDocument[] matches = null;
 	int length = indexMatches.length;
@@ -207,18 +207,13 @@ public static void setFocus(SearchPattern pattern, IJavaElement focus) {
 /*
  * Returns the working copies that can see the given focus.
  */
-private static HashMap workingCopiesThatCanSeeFocus(org.eclipse.jdt.core.ICompilationUnit[] copies, IJavaElement focus, boolean isPolymorphicSearch, SearchParticipant participant) {
+private static HashMap workingCopiesThatCanSeeFocus(org.eclipse.jdt.core.ICompilationUnit[] copies, SearchPattern pattern, SearchParticipant participant) {
 	if (copies == null) return new HashMap();
-	if (focus != null) {
-		while (!(focus instanceof IJavaProject) && !(focus instanceof JarPackageFragmentRoot)) {
-			focus = focus.getParent();
-		}
-	}
 	HashMap result = new HashMap();
 	for (int i=0, length = copies.length; i<length; i++) {
 		org.eclipse.jdt.core.ICompilationUnit workingCopy = copies[i];
 		IPath projectOrJar = MatchLocator.getProjectOrJar(workingCopy).getPath();
-		if (focus == null || IndexSelector.canSeeFocus(focus, isPolymorphicSearch, projectOrJar)) {
+		if (pattern.focus == null || IndexSelector.canSeeFocus(pattern, projectOrJar)) {
 			result.put(
 				workingCopy.getPath().toString(),
 				new WorkingCopyDocument(workingCopy, participant)

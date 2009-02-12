@@ -1210,9 +1210,9 @@ public void testBug199392_Zip_SamePartCount() throws CoreException {
 }
 
 /**
- * @bug 48534: [search] Java Search for OR-pattern finds too much in strange project setup
- * @test Ensure that search does not find illegal references with given projects setup
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=48534"
+ * @bug 210689: [search] Import references not found on working copies not written on disk
+ * @test Ensure that import references are found when searching on working copies not written on disk
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=210689"
  */
 public void testBug210689() throws CoreException {
 	try {
@@ -1427,6 +1427,132 @@ public void testBug229951b() throws Exception {
 			scope);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
+	}
+}
+
+/**
+ * @bug 250454: [search] Cannot find method references between projects
+ * @test Ensure that search does not find illegal references with given projects setup
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=250454"
+ */
+public void testBug250454() throws CoreException {
+	try {
+		// setup project P0
+		createJavaProject("P0");
+		createFolder("/P0/p");
+		createFile(
+			"/P0/p/Shape.java",
+			"package p;\n" +
+			"public interface Shape {\n" + 
+			"	public void f();\n" + 
+			"}\n"
+		);
+
+		// setup project P1
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P0" }, "");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/Square.java",
+			"package p;\n" +
+			"public class Square implements Shape {\n" + 
+			"	public void f() {}\n" + 
+			"}\n"
+		);
+
+		// setup project P2
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P0" }, "");
+		createFolder("/P2/p");
+		createFile(
+			"/P2/p/ShapeUser.java",
+			"package p;\n" +
+			"public class ShapeUser {\n" + 
+			"	public void useShape(Shape p_shape) {\n" + 
+			"		p_shape.f();\n" + 
+			"	}\n"
+		);
+
+		// Perform search
+		IType type = getCompilationUnit("/P1/p/Square.java").getType("Square");
+		IMethod method = type.getMethod("f", new String[0]);
+		SearchPattern pattern = SearchPattern.createPattern(method, REFERENCES);
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject();
+		resultCollector.showAccuracy(true);
+		new SearchEngine().search(
+			pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			SearchEngine.createWorkspaceScope(),
+			resultCollector,
+			null
+		);
+		assertSearchResults(
+			"Unexpected references to "+method,
+			"p/ShapeUser.java [in P2] void p.ShapeUser.useShape(Shape) [f()] EXACT_MATCH",
+			resultCollector);
+	} finally {
+		deleteProject("P0");
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+public void testBug250454_jars() throws CoreException, IOException {
+	String jarPath = getExternalPath()+"b250454.jar";
+	try {
+		// setup jar
+		String[] pathsAndContents= new String[] {
+			"p/Shape.java",
+			"package p;\n" +
+			"public interface Shape {\n" + 
+			"	public void f();\n" + 
+			"}\n"
+		};
+		createJar(pathsAndContents, jarPath);
+
+		// setup project P1
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB", jarPath}, "");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/Square.java",
+			"package p;\n" +
+			"public class Square implements Shape {\n" + 
+			"	public void f() {}\n" + 
+			"}\n"
+		);
+
+		// setup project P2
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB", jarPath}, "");
+		createFolder("/P2/p");
+		createFile(
+			"/P2/p/ShapeUser.java",
+			"package p;\n" +
+			"public class ShapeUser {\n" + 
+			"	public void useShape(Shape p_shape) {\n" + 
+			"		p_shape.f();\n" + 
+			"	}\n"
+		);
+
+		// Perform search
+		IType type = getCompilationUnit("/P1/p/Square.java").getType("Square");
+		IMethod method = type.getMethod("f", new String[0]);
+		SearchPattern pattern = SearchPattern.createPattern(method, REFERENCES);
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject();
+		resultCollector.showAccuracy(true);
+		new SearchEngine().search(
+			pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			SearchEngine.createWorkspaceScope(),
+			resultCollector,
+			null
+		);
+		assertSearchResults(
+			"Unexpected references to "+method,
+			"p/ShapeUser.java [in P2] void p.ShapeUser.useShape(Shape) [f()] EXACT_MATCH",
+			resultCollector);
+	} finally {
+		deleteExternalFile(jarPath);
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 }
