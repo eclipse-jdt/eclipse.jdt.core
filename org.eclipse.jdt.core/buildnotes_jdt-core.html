@@ -47,8 +47,115 @@ Eclipse SDK 3.5M6 - %date% - 3.5 MILESTONE 6
 <br>Project org.eclipse.jdt.core v_939
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_939">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added a new API method on <code>SearchPattern</code> to provide matching
+regions between a pattern and a name when they are compared using a given match rule<br>
+(see more details in bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=218605">218605</a>).
+<pre>
+/**
+ * Answers all the regions in a given name matching a given pattern using
+ * a specified match rule.
+ * 
+ * Each of these regions is made of its starting index and its length in the given
+ * name. They are all concatenated in a single array of <code>int</code>
+ * which therefore always has an even length.
+ * 
+ * All returned regions are disjointed from each other. That means that the end
+ * of a region is always different than the start of the following one.
+ * For example, if two regions are returned:
+ * <code>{ start1, length1, start2, length2 }</code>
+ * then <code>start1+length1</code> will always be smaller than
+ * <code>start2</code>.
+ * 
+ * The possible comparison rules between the name and the pattern are:
+ *     . {@link #R_EXACT_MATCH exact matching}
+ *     . {@link #R_PREFIX_MATCH prefix matching}
+ *     . {@link #R_PATTERN_MATCH pattern matching}
+ *     . {@link #R_CAMELCASE_MATCH camel case matching}
+ *     . {@link #R_CAMELCASE_SAME_PART_COUNT_MATCH camel case matching with same parts count}
+ *
+ * Each of these rules may be combined with the
+ * {@link #R_CASE_SENSITIVE case sensitive flag} if the match comparison
+ * should respect the case.
+ *
+ * Examples:
+ *    .   pattern = "NPE"
+ *        name = NullPointerException / NoPermissionException
+ *        matchRule = {@link #R_CAMELCASE_MATCH}
+ *        result:  { 0, 1, 4, 1, 11, 1 } / { 0, 1, 2, 1, 12, 1 } 
+ *     .  pattern = "NuPoEx"
+ *        name = NullPointerException
+ *        matchRule = {@link #R_CAMELCASE_MATCH}
+ *        result:  { 0, 2, 4, 2, 11, 2 }
+ *     .  pattern = "IPL3"
+ *        name = "IPerspectiveListener3"
+ *        matchRule = {@link #R_CAMELCASE_MATCH}
+ *        result:  { 0, 2, 12, 1, 20, 1 }
+ *     .  pattern = "HashME"
+ *        name = "HashMapEntry"
+ *        matchRule = {@link #R_CAMELCASE_MATCH}
+ *        result:  { 0, 5, 7, 1 }
+ *     .  pattern = "N???Po*Ex?eption"
+ *        name = NullPointerException
+ *        matchRule = {@link #R_PATTERN_MATCH} | {@link #R_CASE_SENSITIVE}
+ *        result:  { 0, 1, 4, 2, 11, 2, 14, 6 }
+ *     .  pattern = "Ha*M*ent*"
+ *        name = "HashMapEntry"
+ *        matchRule = {@link #R_PATTERN_MATCH}
+ *        result:  { 0, 2, 4, 1, 7, 3 }
+ * 
+ * @see #camelCaseMatch(String, String, boolean) for more details on the
+ * 	camel case behavior
+ * @see CharOperation#match(char[], char[], boolean) for more details on the
+ * 	pattern match behavior
+ *
+ * @param pattern the given pattern. If <code>null</code>,
+ * 	then the returned region will be the entire given name.
+ * @param name the given name
+ * @param matchRule the rule to apply for the comparison.
+ *     The following values are accepted:
+ *         . {@link #R_EXACT_MATCH}
+ *         . {@link #R_PREFIX_MATCH}
+ *         . {@link #R_PATTERN_MATCH}
+ *         . {@link #R_CAMELCASE_MATCH}
+ *         . {@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}
+ * 
+ *     Each of these valid values may be also combined with
+ *     the {@link #R_CASE_SENSITIVE} flag.
+ * 
+ *     Some examples:
+ *         . {@link #R_EXACT_MATCH} | {@link #R_CASE_SENSITIVE}:
+ *           if an exact case sensitive match is expected,
+ *         . {@link #R_PREFIX_MATCH}:
+ *           if a case insensitive prefix match is expected,
+ *         . {@link #R_CAMELCASE_MATCH}:
+ *           if a case insensitive camel case match is expected,
+ *         . {@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}
+ *            | {@link #R_CASE_SENSITIVE}:
+ *           if a case sensitive camel case with same parts count match
+ *           is expected,
+ *         . etc.
+ * 
+ * @return an array of <code>int</code> having two slots per returned
+ *     regions: the first one is the region starting index and the second one
+ *     is the region length.
+ * 
+ *     The returned region may be the entire given name if the given pattern
+ *     is either <code>null</code> (whatever the match rule is) or
+ *     <code>'*'</code>  with a pattern match rule.
+ * 
+ *     May also be <code>null</code> if the given name does not match
+ *     the given pattern.
+ * 
+ * @since 3.5
+ */
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=218605">218605</a>
+[search] SearchPattern: provide way to get the matching regions
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=263558">263558</a>
 Can't compile package-info.java from FindBugs with 3.5 Eclipse
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=264443">264443</a>
@@ -255,7 +362,7 @@ new IProgressMonitor() {
         fEndTime= System.currentTimeMillis() + TIMEOUT;
     }
     public boolean isCanceled() {
-        return endTime <= System.currentTimeMillis();
+        return endTime &lt;= System.currentTimeMillis();
     }
     ...
  };
