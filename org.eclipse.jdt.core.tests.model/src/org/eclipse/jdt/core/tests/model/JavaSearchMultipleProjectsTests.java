@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
+import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 
 /**
  * Tests the Java search engine accross multiple projects.
@@ -1478,6 +1479,7 @@ public void testBug250454() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject();
 		resultCollector.showAccuracy(true);
+		resultCollector.showFlavors = PatternLocator.SUPER_INVOCATION_FLAVOR;
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -1487,7 +1489,7 @@ public void testBug250454() throws CoreException {
 		);
 		assertSearchResults(
 			"Unexpected references to "+method,
-			"p/ShapeUser.java [in P2] void p.ShapeUser.useShape(Shape) [f()] EXACT_MATCH",
+			"p/ShapeUser.java [in P2] void p.ShapeUser.useShape(Shape) [f()] EXACT_MATCH SUPER INVOCATION",
 			resultCollector);
 	} finally {
 		deleteProject("P0");
@@ -1538,6 +1540,7 @@ public void testBug250454_jars() throws CoreException, IOException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject();
 		resultCollector.showAccuracy(true);
+		resultCollector.showFlavors = PatternLocator.SUPER_INVOCATION_FLAVOR;
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -1547,7 +1550,7 @@ public void testBug250454_jars() throws CoreException, IOException {
 		);
 		assertSearchResults(
 			"Unexpected references to "+method,
-			"p/ShapeUser.java [in P2] void p.ShapeUser.useShape(Shape) [f()] EXACT_MATCH",
+			"p/ShapeUser.java [in P2] void p.ShapeUser.useShape(Shape) [f()] EXACT_MATCH SUPER INVOCATION",
 			resultCollector);
 	} finally {
 		deleteExternalFile(jarPath);
