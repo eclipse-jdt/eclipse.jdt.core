@@ -47,11 +47,13 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (this.binding == null)
 				return;
 
-			if (!this.binding.isUsed() &&
-					(this.binding.isPrivate()
-						|| (((this.binding.modifiers & (ExtraCompilerModifiers.AccOverriding|ExtraCompilerModifiers.AccImplementing)) == 0) && this.binding.declaringClass.isLocalType()))) {
-				if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
-					this.scope.problemReporter().unusedPrivateMethod(this);
+			if (!this.binding.isUsed()) {
+				if (this.binding.isPrivate()
+					|| (((this.binding.modifiers & (ExtraCompilerModifiers.AccOverriding|ExtraCompilerModifiers.AccImplementing)) == 0)
+						&& this.binding.isOrEnclosedByPrivateType())) {
+					if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
+						this.scope.problemReporter().unusedPrivateMethod(this);
+					}
 				}
 			}
 

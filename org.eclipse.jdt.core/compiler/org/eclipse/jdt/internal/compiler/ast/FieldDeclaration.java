@@ -51,11 +51,9 @@ public FieldDeclaration(	char[] name, int sourceStart, int sourceEnd) {
 }
 
 public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowContext, FlowInfo flowInfo) {
-	if (this.binding != null && !this.binding.isUsed()) {
-		if (this.binding.isPrivate() || (this.binding.declaringClass != null && this.binding.declaringClass.isLocalType())) {
-			if (!initializationScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
-				initializationScope.problemReporter().unusedPrivateField(this);
-			}
+	if (this.binding != null && !this.binding.isUsed() && this.binding.isOrEnclosedByPrivateType()) {
+		if (!initializationScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
+			initializationScope.problemReporter().unusedPrivateField(this);
 		}
 	}
 	// cannot define static non-constant field inside nested class

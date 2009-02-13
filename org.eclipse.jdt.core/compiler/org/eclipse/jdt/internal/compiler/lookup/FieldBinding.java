@@ -286,6 +286,14 @@ public final boolean isDeprecated() {
 public final boolean isPrivate() {
 	return (this.modifiers & ClassFileConstants.AccPrivate) != 0;
 }
+/* Answer true if the receiver has private visibility or is enclosed by a class that does.
+*/
+
+public final boolean isOrEnclosedByPrivateType() {
+	if ((this.modifiers & ClassFileConstants.AccPrivate) != 0)
+		return true;
+	return this.declaringClass != null && this.declaringClass.isOrEnclosedByPrivateType();
+}
 /* Answer true if the receiver has private visibility and is used locally
 */
 

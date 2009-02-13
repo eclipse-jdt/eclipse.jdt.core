@@ -1077,6 +1077,20 @@ public final boolean isPrivate() {
 }
 
 /**
+ * Answer true if the receiver or any of its enclosing types have private visibility
+ */
+public final boolean isOrEnclosedByPrivateType() {
+	if (isLocalType()) return true; // catch all local types
+	ReferenceBinding type = this;
+	while (type != null) {
+		if ((type.modifiers & ClassFileConstants.AccPrivate) != 0)
+			return true;
+		type = type.enclosingType();
+	}
+	return false;
+}
+
+/**
  * Answer true if the receiver has protected visibility
  */
 public final boolean isProtected() {

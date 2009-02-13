@@ -41220,7 +41220,12 @@ public void test1216() {
 		"The type A.P is not visible\n" +
 		"----------\n" +
 		"----------\n" +
-		"1. WARNING in p\\A.java (at line 18)\n" +
+		"1. WARNING in p\\A.java (at line 9)\n" +
+		"	public int pval;\n" +
+		"	           ^^^^\n" +
+		"The field A.P.pval is never read locally\n" +
+		"----------\n" +
+		"2. WARNING in p\\A.java (at line 18)\n" +
 		"	this.box.set(new P());\n" +
 		"	             ^^^^^^^\n" +
 		"Access to enclosing constructor A.P() is emulated by a synthetic accessor method\n" +

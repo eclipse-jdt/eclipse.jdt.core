@@ -138,4 +138,60 @@ public void test003() {
 		"Zork cannot be resolved to a type\n" +
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=201912, test to make sure that unused public members of 
+// private class (including constructors, fields, types and methods) get warned about.
+public void test004() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	private class M { \n" + // expect unused field, method, constructor and type warnings
+				"       private int state = 0;\n" +
+				"       public int unusedMethod() { return this.state; }\n" +
+				"       public M (int state) { this.state = state;} \n" +
+				"       public int unusedField = 0;\n" +
+				"       public class N {}\n" +
+				"	}\n" +
+				"	private class N { \n" +  // No warnings should come from within here
+				"       private int state = 0;\n" +
+				"       public int usedMethod() { new O(); return new N(this.state + this.usedField).state; }\n" +
+				"       public N (int state) { this.state = state;} \n" +
+				"       public int usedField = 0;\n" +
+				"       public class O {}\n" +
+				"	}\n" +
+				"	public class P { \n" + // No warnings should come from within here.
+				"       private int state = 0;\n" +
+				"       public int unusedMethod() { return this.state; }\n" +
+				"       public P (int state) { this.state = state;} \n" +
+				"       public int unusedField = 0;\n" +
+				"       public class N {}\n" +
+				"	}\n" +
+				"	public M foo(M m, N n) {\n" +
+				"   n.usedMethod(); return m;\n" +
+				"	}\n" +
+				"} \n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	public int unusedMethod() { return this.state; }\n" + 
+			"	           ^^^^^^^^^^^^^^\n" + 
+			"The method unusedMethod() from the type X.M is never used locally\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	public M (int state) { this.state = state;} \n" + 
+			"	       ^^^^^^^^^^^^^\n" + 
+			"The constructor X.M(int) is never used locally\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	public int unusedField = 0;\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"The field X.M.unusedField is never read locally\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
+			"	public class N {}\n" + 
+			"	             ^\n" + 
+			"The type X.M.N is never used locally\n" + 
+			"----------\n"
+			);
+}
 }

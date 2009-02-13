@@ -40,6 +40,7 @@ public class ClassScope extends Scope {
 
 	void buildAnonymousTypeBinding(SourceTypeBinding enclosingType, ReferenceBinding supertype) {
 		LocalTypeBinding anonymousType = buildLocalType(enclosingType, supertype, enclosingType.fPackage);
+		anonymousType.modifiers |= ExtraCompilerModifiers.AccLocallyUsed; // tag all anonymous types as used locally
 		if (supertype.isInterface()) {
 			anonymousType.superclass = getJavaLangObject();
 			anonymousType.superInterfaces = new ReferenceBinding[] { supertype };

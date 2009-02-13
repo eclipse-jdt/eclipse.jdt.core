@@ -205,6 +205,15 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 	if (concreteMethod.thrownExceptions != Binding.NO_EXCEPTIONS)
 		for (int i = abstractMethods.length; --i >= 0;)
 			checkExceptions(concreteMethod, abstractMethods[i]);
+
+	// A subclass inheriting this method and putting it up as the implementation to meet its own
+	// obligations should qualify as a use.
+	if (concreteMethod.isOrEnclosedByPrivateType())
+		concreteMethod.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+	for (int i = abstractMethods.length; --i >= 0;) {
+		if (abstractMethods[i].isOrEnclosedByPrivateType())
+			abstractMethods[i].original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+	}
 }
 
 /*

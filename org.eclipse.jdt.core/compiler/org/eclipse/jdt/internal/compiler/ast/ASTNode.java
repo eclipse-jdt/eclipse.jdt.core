@@ -354,10 +354,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope, boolean isStrictlyAssigned) {
 		// ignore references insing Javadoc comments
-		if ((this.bits & ASTNode.InsideJavadoc) ==0 &&
-				!isStrictlyAssigned &&
-				(field.isPrivate() || (field.declaringClass != null && field.declaringClass.isLocalType())) && !scope.isDefinedInField(field)) {
-			// ignore cases where field is used from within inside itself
+		if ((this.bits & ASTNode.InsideJavadoc) == 0 && !isStrictlyAssigned && field.isOrEnclosedByPrivateType() && !scope.isDefinedInField(field)) {
+			// ignore cases where field is used from inside itself
 			field.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 
@@ -392,9 +390,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final boolean isMethodUseDeprecated(MethodBinding method, Scope scope,
 			boolean isExplicitUse) {
 		// ignore references insing Javadoc comments
-		if ((this.bits & ASTNode.InsideJavadoc) ==0 &&
-				(method.isPrivate() || method.declaringClass.isLocalType()) && !scope.isDefinedInMethod(method)) {
-			// ignore cases where method is used from within inside itself (e.g. direct recursions)
+		if ((this.bits & ASTNode.InsideJavadoc) == 0 && method.isOrEnclosedByPrivateType() && !scope.isDefinedInMethod(method)) {
+			// ignore cases where method is used from inside itself (e.g. direct recursions)
 			method.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 
@@ -451,9 +448,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 		ReferenceBinding refType = (ReferenceBinding) type;
 		// ignore references insing Javadoc comments
-		if ((this.bits & ASTNode.InsideJavadoc) == 0 &&
-				(refType.isPrivate() || refType.isLocalType()) && !scope.isDefinedInType(refType)) {
-			// ignore cases where type is used from within inside itself
+		if ((this.bits & ASTNode.InsideJavadoc) == 0 && refType.isOrEnclosedByPrivateType() && !scope.isDefinedInType(refType)) {
+			// ignore cases where type is used from inside itself
 			((ReferenceBinding)refType.erasure()).modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 

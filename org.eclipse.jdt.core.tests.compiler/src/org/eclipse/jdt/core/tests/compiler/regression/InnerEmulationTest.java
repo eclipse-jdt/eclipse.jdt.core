@@ -1468,7 +1468,12 @@ public void test033() {
 		"	              ^\n" +
 		"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"3. ERROR in p1\\A2.java (at line 20)\n" +
+		"3. WARNING in p1\\A2.java (at line 19)\n" +
+		"	public void foo() {	\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type A2.C is never used locally\n" +
+		"----------\n" +
+		"4. ERROR in p1\\A2.java (at line 20)\n" +
 		"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
@@ -1556,7 +1561,12 @@ public void test035() {
 		"	              ^\n" +
 		"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"3. ERROR in p1\\A2.java (at line 20)\n" +
+		"3. WARNING in p1\\A2.java (at line 19)\n" +
+		"	public void foo() {	\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type A2.C is never used locally\n" +
+		"----------\n" +
+		"4. ERROR in p1\\A2.java (at line 20)\n" +
 		"	(new D.E(null, null, null, new F(get()) {})).execute();	\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
@@ -5579,7 +5589,12 @@ public void test136() {
 			"}", // =================,
 		},
 		"----------\n" +
-		"1. ERROR in p\\X.java (at line 11)\n" +
+		"1. WARNING in p\\X.java (at line 5)\n" +
+		"	String variable = \"my testing\";\n" +
+		"	       ^^^^^^^^\n" +
+		"The field X.Outer.Inner.variable is never read locally\n" + 
+		"----------\n" +
+		"2. ERROR in p\\X.java (at line 11)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -5633,7 +5648,12 @@ public void test138() {
 			"}", // =================,
 		},
 		"----------\n" +
-		"1. ERROR in p\\X.java (at line 12)\n" +
+		"1. WARNING in p\\X.java (at line 4)\n" + 
+		"	String variable = \"my testing\";\n" +
+		"	       ^^^^^^^^\n" + 
+		"The field X.Outer.Inner.variable is never read locally\n" + 
+		"----------\n" +
+		"2. ERROR in p\\X.java (at line 12)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -6423,22 +6443,27 @@ public void test154() {
 				"	              ^^^^^\n" +
 				"The type X.Test4 is never used locally\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 16)\n" +
+				"2. WARNING in X.java (at line 13)\n" +
+				"	public Test4() {\n" +
+				"	       ^^^^^^^\n" +
+				"The constructor X.Test4() is never used locally\n" + 
+				"----------\n" +
+				"3. ERROR in X.java (at line 16)\n" +
 				"	System.out.println(X.this.var1.trim());\n" +
 				"	                   ^^^^^^\n" +
 				"No enclosing instance of the type X is accessible in scope\n" +
 				"----------\n" +
-				"3. WARNING in X.java (at line 16)\n" +
+				"4. WARNING in X.java (at line 16)\n" +
 				"	System.out.println(X.this.var1.trim());\n" +
 				"	                          ^^^^\n" +
 				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"4. WARNING in X.java (at line 17)\n" +
+				"5. WARNING in X.java (at line 17)\n" +
 				"	System.out.println(var1.trim());\n" +
 				"	                   ^^^^\n" +
 				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"5. ERROR in X.java (at line 17)\n" +
+				"6. ERROR in X.java (at line 17)\n" +
 				"	System.out.println(var1.trim());\n" +
 				"	                   ^^^^\n" +
 				"No enclosing instance of the type X is accessible in scope\n" +

@@ -748,6 +748,15 @@ public final boolean isOverriding() {
 public final boolean isPrivate() {
 	return (this.modifiers & ClassFileConstants.AccPrivate) != 0;
 }
+
+/* Answer true if the receiver has private visibility or if any of its enclosing types do.
+*/
+public final boolean isOrEnclosedByPrivateType() {
+	if ((this.modifiers & ClassFileConstants.AccPrivate) != 0)
+		return true;
+	return this.declaringClass != null && this.declaringClass.isOrEnclosedByPrivateType();
+}
+
 /* Answer true if the receiver has protected visibility
 */
 public final boolean isProtected() {
