@@ -5043,4 +5043,63 @@ public void test167() {
 		"The expression of type Integer is unboxed into int\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=264843
+public void test168() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    <T extends Integer> T a() { return 35; }\n" + 
+			"    <T extends Integer> T[] b() { return new int[]{35}; }\n" + 
+			"    <T extends Integer> T c() { return new Integer(35); }\n" +
+			"    <T extends Integer> T[] d() { return new Integer[]{35}; }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	<T extends Integer> T a() { return 35; }\n" + 
+		"	           ^^^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	<T extends Integer> T a() { return 35; }\n" + 
+		"	                                   ^^\n" + 
+		"Type mismatch: cannot convert from int to T\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 3)\n" + 
+		"	<T extends Integer> T[] b() { return new int[]{35}; }\n" + 
+		"	           ^^^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 3)\n" + 
+		"	<T extends Integer> T[] b() { return new int[]{35}; }\n" + 
+		"	                                     ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from int[] to T[]\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 4)\n" + 
+		"	<T extends Integer> T c() { return new Integer(35); }\n" + 
+		"	           ^^^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 4)\n" + 
+		"	<T extends Integer> T c() { return new Integer(35); }\n" + 
+		"	                                   ^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Integer to T\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 5)\n" + 
+		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" + 
+		"	           ^^^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 5)\n" + 
+		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" + 
+		"	                                     ^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Integer[] to T[]\n" + 
+		"----------\n" + 
+		"9. WARNING in X.java (at line 5)\n" + 
+		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" + 
+		"	                                                   ^^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n");
+}
 }

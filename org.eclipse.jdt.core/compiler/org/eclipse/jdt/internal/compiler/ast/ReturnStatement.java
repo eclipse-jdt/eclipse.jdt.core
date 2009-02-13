@@ -245,6 +245,7 @@ public void resolve(BlockScope scope) {
 						|| (expressionType.isBaseType()  // narrowing then boxing ?
 								&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
 								&& !methodType.isBaseType()
+								&& !methodType.isTypeVariable()
 								&& this.expression.isConstantValueOfTypeAssignableToType(expressionType, scope.environment().computeBoxingType(methodType)))) {
 		this.expression.computeConversion(scope, methodType, expressionType);
 		if (this.expression instanceof CastExpression
