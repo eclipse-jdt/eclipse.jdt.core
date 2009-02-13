@@ -361,7 +361,11 @@ public static final int[] getPatternMatchingRegions(
 					break;
 			}
 		} else {
-			if (patternChar != (isCaseSensitive ? name.charAt(iName) : ScannerHelper.toLowerCase(name.charAt(iName)))) {
+			if (isCaseSensitive) {
+				if (patternChar != name.charAt(iName)) {
+					return null;
+				}
+			} else if (ScannerHelper.toLowerCase(patternChar) != ScannerHelper.toLowerCase(name.charAt(iName))) {
 				return null;
 			}
 			switch (previous) {
@@ -446,7 +450,13 @@ public static final int[] getPatternMatchingRegions(
 					break;
 			}
 		} else {
-			if ((isCaseSensitive ? name.charAt(iName) : ScannerHelper.toLowerCase(name.charAt(iName))) != patternChar) {
+			boolean mismatch;
+			if (isCaseSensitive) {
+				mismatch = name.charAt(iName) != patternChar;
+			} else {
+				mismatch = ScannerHelper.toLowerCase(name.charAt(iName)) != ScannerHelper.toLowerCase(patternChar);
+			}
+			if (mismatch) {
 				iPattern = segmentStart; // mismatch - restart current segment
 				iName = ++prefixStart;
 				start = prefixStart;
