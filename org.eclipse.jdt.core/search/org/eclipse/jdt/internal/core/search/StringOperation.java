@@ -18,6 +18,8 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
  */
 public final class StringOperation {
 
+	private final static int[] EMPTY_REGIONS = new int[0];
+
 /**
  * Answers all the regions in a given name matching a given camel case pattern.
  * </p><p>
@@ -85,8 +87,11 @@ public static final int[] getCamelCaseMatchingRegions(String pattern, int patter
 
 	if (name == null)
 		return null; // null name cannot match
-	if (pattern == null)
-		return new int[] { patternStart, patternEnd-patternStart }; // null pattern is equivalent to '*'
+	if (pattern == null) {
+		// null pattern cannot match any region
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=264816
+		return EMPTY_REGIONS;
+	}
 	if (patternEnd < 0) 	patternEnd = pattern.length();
 	if (nameEnd < 0) nameEnd = name.length();
 
@@ -293,9 +298,10 @@ public static final int[] getPatternMatchingRegions(
 	 */
 
 	if (name == null) return null; // null name cannot match
-	if (pattern == null || pattern.equals("*")) {	//$NON-NLS-1$
-		// null and '*' patterns match the entire name
-		return new int[] { nameStart, nameEnd-nameStart };
+	if (pattern == null) {
+		// null pattern cannot match any region
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=264816
+		return EMPTY_REGIONS;
 	}
 	int iPattern = patternStart;
 	int iName = nameStart;
@@ -328,6 +334,10 @@ public static final int[] getPatternMatchingRegions(
 				}
 		}
 		previous = ch;
+	}
+	if (parts == 0) {
+		if (questions <= (nameEnd - nameStart)) return EMPTY_REGIONS;
+		return null;
 	}
 	int[] segments = new int[parts*2];
 

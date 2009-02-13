@@ -732,7 +732,9 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
  * 	pattern match behavior
  *
  * @param pattern the given pattern. If <code>null</code>,
- * 	then the returned region will be the entire given name.
+ *     then an empty region (<code>new int[0]</code>) will be returned
+ *     showing that the name matches the pattern but no common
+ *     character has been found.
  * @param name the given name
  * @param matchRule the rule to apply for the comparison.<br>
  *     The following values are accepted:
@@ -762,15 +764,16 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
  *         <li>etc.</li>
  *     </ul>
  * @return an array of <code>int</code> having two slots per returned
- *     regions: the first one is the region starting index and the second one
- *     is the region length.
+ *     regions (the first one is the region starting index and the second one
+ *     is the region length or <code>null</code> if the given name does not
+ *     match the given pattern).
  *     <p>
- *     The returned region may be the entire given name if the given pattern
- *     is either <code>null</code> (whatever the match rule is) or
- *     <code>'*'</code>  with a pattern match rule.
- *     </p><p>
- *     May also be <code>null</code> if the given name does not match
- *     the given pattern.
+ *     The returned regions may be empty (<code>new int[0]</code>) if the
+ *     pattern is <code>null</code> (whatever the match rule is). The returned
+ *     regions will also be empty if the pattern is only made of <code>'?'</code>
+ *     and/or <code>'*'</code> character(s) (e.g. <code>'*'</code>,
+ *     <code>'?*'</code>, <code>'???'</code>, etc.) when using a pattern
+ *     match rule.
  *     </p>
  * 
  * @since 3.5
