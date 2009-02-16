@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2098,8 +2098,12 @@ public void testBug65180f() {
 }
 
 /**
- * Bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
- * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253">65253</a>
+ * @bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
+ * @test Verify that @@return is not interpreted as a return tag<br>
+ * 	Note that since fix for bug 237742, the '@' in a tag name does no longer
+ * 	flag it as invalid...
+ * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253"
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237742"
  */
 public void testBug65253() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
@@ -2122,22 +2126,7 @@ public void testBug65253() {
 				"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in Test.java (at line 3)\n" +
-		"	* @@@@see Unknown Should not complain on ref\n" +
-		"	   ^^^^^^\n" +
-		"Javadoc: Invalid tag\n" +
-		"----------\n" +
-		"2. ERROR in Test.java (at line 8)\n" +
-		"	* @@@param xxx Should not complain on param\n" +
-		"	   ^^^^^^^\n" +
-		"Javadoc: Invalid tag\n" +
-		"----------\n" +
-		"3. ERROR in Test.java (at line 9)\n" +
-		"	* @@return int\n" +
-		"	   ^^^^^^^\n" +
-		"Javadoc: Invalid tag\n" +
-		"----------\n" +
-		"4. ERROR in Test.java (at line 11)\n" +
+		"1. ERROR in Test.java (at line 11)\n" +
 		"	int foo() { // should warn on missing tag for return type\n" +
 		"	^^^\n" +
 		"Javadoc: Missing tag for return type\n" +

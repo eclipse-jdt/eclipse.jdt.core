@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -429,241 +429,239 @@ public class JavadocParser extends AbstractCommentParser {
 		}
 		this.tagWaitingForDescription = NO_TAG_VALUE;
 
-		// Read tag name
+		// Verify first character
+		this.tagSourceStart = this.index;
+		this.tagSourceEnd = previousPosition;
+		this.scanner.startPosition = this.index;
 		int currentPosition = this.index;
-		int token = readTokenAndConsume();
-	    if (currentPosition != this.scanner.startPosition) {
-			this.tagSourceStart = previousPosition;
-			this.tagSourceEnd = currentPosition;
-			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
-			return false;
-		}
-		if (this.index >= this.scanner.eofPosition) {
-			this.tagSourceStart = previousPosition;
-			this.tagSourceEnd = this.tokenPreviousPosition;
-			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
-			return false;
-		}
-		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
-		this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-		char[] tagName = this.scanner.getCurrentIdentifierSource();
-
-		// Try to get tag name other than java identifier
-		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
-		if (this.scanner.currentCharacter != ' ' && !ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
-			boolean validTag = true;
-			tagNameToken: while (token != TerminalTokens.TokenNameEOF && this.index < this.scanner.eofPosition) {
-				int length = tagName.length;
-				// !, ", #, %, &, ', -, :, <, >, * chars and spaces are not allowed in tag names
-				switch (this.scanner.currentCharacter) {
-					case '}':
-					case '*': // break for '*' as this is perhaps the end of comment (bug 65288)
-						break tagNameToken;
-					case '!':
-					case '#':
-					case '%':
-					case '&':
-					case '\'':
-					case '"':
-					case ':':
-					case '<':
-					case '>':
-					case '@':
-						validTag = false;
-						this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-						this.index = this.scanner.currentPosition;
-						break;
-					case '-': // allowed in tag names as this character is often used in doclets (bug 68087)
-						System.arraycopy(tagName, 0, tagName = new char[length+1], 0, length);
-						tagName[length] = this.scanner.currentCharacter;
-						this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-						this.index = this.scanner.currentPosition;
-						break;
-					default:
-						if (this.scanner.currentCharacter == ' ' || ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
-							break tagNameToken;
-						}
-						token = readTokenAndConsume();
-						char[] ident = this.scanner.getCurrentIdentifierSource();
-						System.arraycopy(tagName, 0, tagName = new char[length+ident.length], 0, length);
-						System.arraycopy(ident, 0, tagName, length, ident.length);
-						this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-						break;
-				}
-				this.scanner.getNextChar();
-			}
-			if (!validTag) {
-				if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
+		char firstChar = readChar();
+		switch (firstChar) {
+			case ' ':
+			case '*':
+			case '}':
+			case '#':
+				// the first character is not valid, hence report invalid empty tag
+				if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(previousPosition, currentPosition);
+				if (this.textStart == -1) this.textStart = currentPosition;
+				this.scanner.currentCharacter = firstChar;
 				return false;
+			default:
+				if (ScannerHelper.isWhitespace(firstChar)) {
+					// the first character is not valid, hence report invalid empty tag
+					if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(previousPosition, currentPosition);
+					if (this.textStart == -1) this.textStart = currentPosition;
+					this.scanner.currentCharacter = firstChar;
+					return false;
+				}
+				break;
+		}
+		
+		// Read tag name
+		char[] tagName = new char[32];
+		int length = 0;
+		char currentChar = firstChar;
+		int tagNameLength = tagName.length;
+		boolean validTag = true;
+		tagLoop: while (true) {
+			if (length == tagNameLength) {
+				System.arraycopy(tagName, 0, tagName = new char[tagNameLength+32], 0, tagNameLength);
+				tagNameLength = tagName.length;
+			}
+			tagName[length++] = currentChar;
+			currentPosition = this.index;
+			currentChar = readChar();
+			switch (currentChar) {
+				case ' ':
+				case '*':
+				case '}':
+					// these characters mark the end of the tag reading
+					break tagLoop;
+				case '#':
+					// invalid tag character, mark the tag as invalid but continue until the end of the tag
+					validTag = false;
+					break;
+				default:
+					if (ScannerHelper.isWhitespace(currentChar)) {
+						// whitespace characters mark the end of the tag reading
+						break tagLoop;
+					}
+					break;
 			}
 		}
-		int length = tagName.length;
-		if (length == 0) return false; // may happen for some parser (completion for example)
+
+		// Init positions
+		this.tagSourceEnd = currentPosition - 1;
+		this.scanner.currentCharacter = currentChar;
+		this.scanner.currentPosition = currentPosition;
 		this.index = this.tagSourceEnd+1;
-		this.scanner.currentPosition = this.tagSourceEnd+1;
-		if ((this.kind & FORMATTER_COMMENT_PARSER) != 0) {
-			this.tagSourceStart = previousPosition;
+
+		// Return if the tag is not valid
+		if (!validTag) {
+			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
+			if (this.textStart == -1) this.textStart = this.index;
+			this.scanner.currentCharacter = currentChar;
+			return false;
 		}
 
 		// Decide which parse to perform depending on tag name
 		this.tagValue = TAG_OTHERS_VALUE;
 		boolean valid = false;
-		switch (token) {
-			case TerminalTokens.TokenNameIdentifier :
-				switch (tagName[0]) {
-					case 'a':
-						if (length == TAG_AUTHOR_LENGTH && CharOperation.equals(TAG_AUTHOR, tagName)) {
-							this.tagValue = TAG_AUTHOR_VALUE;
-							this.tagWaitingForDescription = this.tagValue;
-						}
-						break;
-					case 'c':
-						if (length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, tagName)) {
-							this.tagValue = TAG_CATEGORY_VALUE;
-							valid = parseIdentifierTag(false); // TODO (frederic) reconsider parameter value when @category will be significant in spec
-						} else if (length == TAG_CODE_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_CODE, tagName)) {
-							this.tagValue = TAG_CODE_VALUE;
-							this.tagWaitingForDescription = this.tagValue;
-						}
-						break;
-					case 'd':
-						if (length == TAG_DEPRECATED_LENGTH && CharOperation.equals(TAG_DEPRECATED, tagName)) {
-							this.deprecated = true;
-							valid = true;
-							this.tagValue = TAG_DEPRECATED_VALUE;
-							this.tagWaitingForDescription = this.tagValue;
-						} else if (length == TAG_DOC_ROOT_LENGTH && CharOperation.equals(TAG_DOC_ROOT, tagName)) {
-							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730
-							// identify @docRoot tag as a base tag that does not expect any argument
-							valid = true;
-							this.tagValue = TAG_DOC_ROOT_VALUE;
-						}
-						break;
-					case 'e':
-						if (length == TAG_EXCEPTION_LENGTH && CharOperation.equals(TAG_EXCEPTION, tagName)) {
-							this.tagValue = TAG_EXCEPTION_VALUE;
-							valid = parseThrows();
-						}
-						break;
-					case 'i':
-						if (length == TAG_INHERITDOC_LENGTH && CharOperation.equals(TAG_INHERITDOC, tagName)) {
-							// inhibits inherited flag when tags have been already stored
-							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51606
-							// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
-							// was encountered in comment. But it cannot be the case for COMPILER_PARSER
-							// and so is enough as it is only this parser which signals the missing tag warnings...
-							if (this.astPtr==-1) {
-								this.inheritedPositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
-							}
-							valid = true;
-							this.tagValue = TAG_INHERITDOC_VALUE;
-						}
-						break;
-					case 'l':
-						if (length == TAG_LINK_LENGTH && CharOperation.equals(TAG_LINK, tagName)) {
-							this.tagValue = TAG_LINK_VALUE;
-							if (this.inlineTagStarted || (this.kind & COMPLETION_PARSER) != 0) {
-								valid= parseReference();
-							} else {
-								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
-								// Cannot have @link outside inline comment
-								valid = false;
-								if (this.reportProblems) {
-									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
-								}
-							}
-						} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, tagName)) {
-							this.tagValue = TAG_LINKPLAIN_VALUE;
-							if (this.inlineTagStarted) {
-								valid = parseReference();
-							} else {
-								valid = false;
-								if (this.reportProblems) {
-									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
-								}
-							}
-						} else if (length == TAG_LITERAL_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_LITERAL, tagName)) {
-							this.tagValue = TAG_LITERAL_VALUE;
-							this.tagWaitingForDescription = this.tagValue;
-						}
-						break;
-					case 'p':
-						if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, tagName)) {
-							this.tagValue = TAG_PARAM_VALUE;
-							valid = parseParam();
-						}
-						break;
-					case 's':
-						if (length == TAG_SEE_LENGTH && CharOperation.equals(TAG_SEE, tagName)) {
-							if (this.inlineTagStarted) {
-								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
-								// Cannot have @see inside inline comment
-								valid = false;
-								if (this.reportProblems) {
-									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
-								}
-							} else {
-								this.tagValue = TAG_SEE_VALUE;
-								valid = parseReference();
-							}
-						} else if (length == TAG_SERIAL_LENGTH && CharOperation.equals(TAG_SERIAL, tagName)) {
-							this.tagValue = TAG_SERIAL_VALUE;
-							this.tagWaitingForDescription = this.tagValue;
-						} else if (length == TAG_SERIAL_DATA_LENGTH && CharOperation.equals(TAG_SERIAL_DATA, tagName)) {
-							this.tagValue = TAG_SERIAL_DATA_VALUE;
-							this.tagWaitingForDescription = this.tagValue;
-						} else if (length == TAG_SERIAL_FIELD_LENGTH && CharOperation.equals(TAG_SERIAL_FIELD, tagName)) {
-							this.tagValue = TAG_SERIAL_FIELD_VALUE;
-							this.tagWaitingForDescription = this.tagValue;
-						} else if (length == TAG_SINCE_LENGTH && CharOperation.equals(TAG_SINCE, tagName)) {
-							this.tagValue = TAG_SINCE_VALUE;
-							this.tagWaitingForDescription = this.tagValue;
-						}
-						break;
-					case 'v':
-						if (length == TAG_VALUE_LENGTH && CharOperation.equals(TAG_VALUE, tagName)) {
-							this.tagValue = TAG_VALUE_VALUE;
-							if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
-								if (this.inlineTagStarted) {
-									valid = parseReference();
-								} else {
-									valid = false;
-									if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
-								}
-							} else {
-								if (this.validValuePositions == -1) {
-									if (this.invalidValuePositions != -1) {
-										if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag((int) (this.invalidValuePositions>>>32), (int) this.invalidValuePositions);
-									}
-									if (valid) {
-										this.validValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
-										this.invalidValuePositions = -1;
-									} else {
-										this.invalidValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
-									}
-								} else {
-									if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
-								}
-							}
-						} else if (length == TAG_VERSION_LENGTH && CharOperation.equals(TAG_VERSION, tagName)) {
-							this.tagValue = TAG_VERSION_VALUE;
-							this.tagWaitingForDescription = this.tagValue;
-						} else {
-							createTag();
-						}
-						break;
-					default:
-						createTag();
-						break;
+		switch (firstChar) {
+			case 'a':
+				if (length == TAG_AUTHOR_LENGTH && CharOperation.equals(TAG_AUTHOR, tagName, 0, length)) {
+					this.tagValue = TAG_AUTHOR_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
 				}
 				break;
-			case TerminalTokens.TokenNamereturn :
-				this.tagValue = TAG_RETURN_VALUE;
-				valid = parseReturn();
+			case 'c':
+				if (length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, tagName, 0, length)) {
+					this.tagValue = TAG_CATEGORY_VALUE;
+					valid = parseIdentifierTag(false); // TODO (frederic) reconsider parameter value when @category will be significant in spec
+				} else if (length == TAG_CODE_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_CODE, tagName, 0, length)) {
+					this.tagValue = TAG_CODE_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				}
 				break;
-			case TerminalTokens.TokenNamethrows :
-				this.tagValue = TAG_THROWS_VALUE;
-				valid = parseThrows();
+			case 'd':
+				if (length == TAG_DEPRECATED_LENGTH && CharOperation.equals(TAG_DEPRECATED, tagName, 0, length)) {
+					this.deprecated = true;
+					valid = true;
+					this.tagValue = TAG_DEPRECATED_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_DOC_ROOT_LENGTH && CharOperation.equals(TAG_DOC_ROOT, tagName, 0, length)) {
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730
+					// identify @docRoot tag as a base tag that does not expect any argument
+					valid = true;
+					this.tagValue = TAG_DOC_ROOT_VALUE;
+				}
+				break;
+			case 'e':
+				if (length == TAG_EXCEPTION_LENGTH && CharOperation.equals(TAG_EXCEPTION, tagName, 0, length)) {
+					this.tagValue = TAG_EXCEPTION_VALUE;
+					valid = parseThrows();
+				}
+				break;
+			case 'i':
+				if (length == TAG_INHERITDOC_LENGTH && CharOperation.equals(TAG_INHERITDOC, tagName, 0, length)) {
+					// inhibits inherited flag when tags have been already stored
+					// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51606
+					// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
+					// was encountered in comment. But it cannot be the case for COMPILER_PARSER
+					// and so is enough as it is only this parser which signals the missing tag warnings...
+					if (this.astPtr==-1) {
+						this.inheritedPositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
+					}
+					valid = true;
+					this.tagValue = TAG_INHERITDOC_VALUE;
+				}
+				break;
+			case 'l':
+				if (length == TAG_LINK_LENGTH && CharOperation.equals(TAG_LINK, tagName, 0, length)) {
+					this.tagValue = TAG_LINK_VALUE;
+					if (this.inlineTagStarted || (this.kind & COMPLETION_PARSER) != 0) {
+						valid= parseReference();
+					} else {
+						// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
+						// Cannot have @link outside inline comment
+						valid = false;
+						if (this.reportProblems) {
+							this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+						}
+					}
+				} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, tagName, 0, length)) {
+					this.tagValue = TAG_LINKPLAIN_VALUE;
+					if (this.inlineTagStarted) {
+						valid = parseReference();
+					} else {
+						valid = false;
+						if (this.reportProblems) {
+							this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+						}
+					}
+				} else if (length == TAG_LITERAL_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_LITERAL, tagName, 0, length)) {
+					this.tagValue = TAG_LITERAL_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				}
+				break;
+			case 'p':
+				if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, tagName, 0, length)) {
+					this.tagValue = TAG_PARAM_VALUE;
+					valid = parseParam();
+				}
+				break;
+			case 'r':
+				if (length == TAG_RETURN_LENGTH && CharOperation.equals(TAG_RETURN, tagName, 0, length)) {
+					this.tagValue = TAG_RETURN_VALUE;
+					valid = parseReturn();
+				}
+				break;
+			case 's':
+				if (length == TAG_SEE_LENGTH && CharOperation.equals(TAG_SEE, tagName, 0, length)) {
+					if (this.inlineTagStarted) {
+						// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
+						// Cannot have @see inside inline comment
+						valid = false;
+						if (this.reportProblems) {
+							this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+						}
+					} else {
+						this.tagValue = TAG_SEE_VALUE;
+						valid = parseReference();
+					}
+				} else if (length == TAG_SERIAL_LENGTH && CharOperation.equals(TAG_SERIAL, tagName, 0, length)) {
+					this.tagValue = TAG_SERIAL_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_SERIAL_DATA_LENGTH && CharOperation.equals(TAG_SERIAL_DATA, tagName, 0, length)) {
+					this.tagValue = TAG_SERIAL_DATA_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_SERIAL_FIELD_LENGTH && CharOperation.equals(TAG_SERIAL_FIELD, tagName, 0, length)) {
+					this.tagValue = TAG_SERIAL_FIELD_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_SINCE_LENGTH && CharOperation.equals(TAG_SINCE, tagName, 0, length)) {
+					this.tagValue = TAG_SINCE_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				}
+				break;
+			case 't':
+				if (length == TAG_THROWS_LENGTH && CharOperation.equals(TAG_THROWS, tagName, 0, length)) {
+					this.tagValue = TAG_THROWS_VALUE;
+					valid = parseThrows();
+				}
+				break;
+			case 'v':
+				if (length == TAG_VALUE_LENGTH && CharOperation.equals(TAG_VALUE, tagName, 0, length)) {
+					this.tagValue = TAG_VALUE_VALUE;
+					if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
+						if (this.inlineTagStarted) {
+							valid = parseReference();
+						} else {
+							valid = false;
+							if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+						}
+					} else {
+						if (this.validValuePositions == -1) {
+							if (this.invalidValuePositions != -1) {
+								if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag((int) (this.invalidValuePositions>>>32), (int) this.invalidValuePositions);
+							}
+							if (valid) {
+								this.validValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
+								this.invalidValuePositions = -1;
+							} else {
+								this.invalidValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
+							}
+						} else {
+							if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+						}
+					}
+				} else if (length == TAG_VERSION_LENGTH && CharOperation.equals(TAG_VERSION, tagName, 0, length)) {
+					this.tagValue = TAG_VERSION_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				} else {
+					createTag();
+				}
+				break;
+			default:
+				createTag();
 				break;
 		}
 		this.textStart = this.index;
