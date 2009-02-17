@@ -59,7 +59,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		if (constructorBinding.isPrivate()) {
 			if ((this.binding.declaringClass.tagBits & TagBits.HasNonPrivateConstructor) == 0)
 				break checkUnused; // tolerate as known pattern to block instantiation
-		} else if (!constructorBinding.isOrEnclosedByPrivateType()) {
+		} else if ((this.binding.declaringClass.tagBits & (TagBits.IsAnonymousType|TagBits.IsLocalType)) != TagBits.IsLocalType) {
 			break checkUnused;
 		}
 		// complain unused

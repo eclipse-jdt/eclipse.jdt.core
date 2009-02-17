@@ -6443,27 +6443,22 @@ public void test154() {
 				"	              ^^^^^\n" +
 				"The type X.Test4 is never used locally\n" +
 				"----------\n" +
-				"2. WARNING in X.java (at line 13)\n" +
-				"	public Test4() {\n" +
-				"	       ^^^^^^^\n" +
-				"The constructor X.Test4() is never used locally\n" + 
-				"----------\n" +
-				"3. ERROR in X.java (at line 16)\n" +
+				"2. ERROR in X.java (at line 16)\n" +
 				"	System.out.println(X.this.var1.trim());\n" +
 				"	                   ^^^^^^\n" +
 				"No enclosing instance of the type X is accessible in scope\n" +
 				"----------\n" +
-				"4. WARNING in X.java (at line 16)\n" +
+				"3. WARNING in X.java (at line 16)\n" +
 				"	System.out.println(X.this.var1.trim());\n" +
 				"	                          ^^^^\n" +
 				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"5. WARNING in X.java (at line 17)\n" +
+				"4. WARNING in X.java (at line 17)\n" +
 				"	System.out.println(var1.trim());\n" +
 				"	                   ^^^^\n" +
 				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"6. ERROR in X.java (at line 17)\n" +
+				"5. ERROR in X.java (at line 17)\n" +
 				"	System.out.println(var1.trim());\n" +
 				"	                   ^^^^\n" +
 				"No enclosing instance of the type X is accessible in scope\n" +

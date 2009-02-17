@@ -177,21 +177,44 @@ public void test004() {
 			"	           ^^^^^^^^^^^^^^\n" + 
 			"The method unusedMethod() from the type X.M is never used locally\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
-			"	public M (int state) { this.state = state;} \n" + 
-			"	       ^^^^^^^^^^^^^\n" + 
-			"The constructor X.M(int) is never used locally\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 6)\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
 			"	public int unusedField = 0;\n" + 
 			"	           ^^^^^^^^^^^\n" + 
 			"The field X.M.unusedField is never read locally\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 7)\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
 			"	public class N {}\n" + 
 			"	             ^\n" + 
 			"The type X.M.N is never used locally\n" + 
 			"----------\n"
 			);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=264991, wrong unused warning reported. Test to ensure that
+// we DON'T complain about the constructor of B not being used (as its removal would result in a compile
+// error since its base class does not have a no-arg constructor for the synthesized default constructor
+// to invoke.
+public void test005() {
+	this.runNegativeTest(
+		new String[] {
+				"A.java",
+				"public class A {\n" +
+			    "    public A(String s) {\n" +
+			    "            B.test();\n" +
+			    "    }\n" +
+                "\n" +
+			    "    private static class B extends A {\n" +
+			    "       public B () { super(\"\"); }\n" +
+			    "\n" +
+			    "            private static void test() {\n" +
+			    "            };\n" +
+			    "   }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in A.java (at line 3)\n" + 
+			"	B.test();\n" + 
+			"	^^^^^^^^\n" + 
+			"Access to enclosing method test() from the type A.B is emulated by a synthetic accessor method\n" + 
+			"----------\n");
 }
 }
