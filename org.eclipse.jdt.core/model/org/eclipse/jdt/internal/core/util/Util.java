@@ -304,6 +304,29 @@ public class Util {
 	}
 
 	/**
+	 * Concatenate a String[] compound name to a continuous char[].
+	 */
+	public static char[] concatCompoundNameToCharArray(String[] compoundName) {
+		if (compoundName == null) return null;
+		int length = compoundName.length;
+		if (length == 0) return new char[0];
+		int size = 0;
+		for (int i=0; i<length; i++) {
+			size += compoundName[i].length();
+		}
+		char[] compoundChars = new char[size+length-1];
+		int pos = 0;
+		for (int i=0; i<length; i++) {
+			String name = compoundName[i];
+			if (i > 0) compoundChars[pos++] = '.';
+			int nameLength = name.length();
+			name.getChars(0, nameLength, compoundChars, pos);
+			pos += nameLength;
+		}
+		return compoundChars;
+	}
+
+	/**
 	 * Returns the concatenation of the given array parts using the given separator between each part.
 	 * <br>
 	 * <br>
@@ -2249,30 +2272,6 @@ public class Util {
 		return (partialMatch || prefixLength == nameLength) && compoundName[prefixLength-1].toLowerCase().startsWith(prefix[prefixLength-1].toLowerCase());
 	}
 
-	/*
-	 * Returns whether the given compound name matches the given pattern.
-	 */
-	public static boolean matchesWithIgnoreCase(String[] compoundName, String pattern) {
-		if (pattern.equals("*")) return true; //$NON-NLS-1$
-		int nameLength = compoundName.length;
-		if (pattern.length() == 0) return nameLength == 0;
-		if (nameLength == 0) return false;
-		int length = nameLength-1;
-		for (int i=0; i<nameLength; i++) {
-			length += compoundName[i].length();
-		}
-		char[] compoundChars = new char[length];
-		int pos = 0;
-		for (int i=0; i<nameLength; i++) {
-			if (pos > 0) compoundChars[pos++] = '.';
-			char[] array = compoundName[i].toCharArray();
-			int size = array.length;
-			System.arraycopy(array, 0, compoundChars, pos, size);
-			pos += size;
-		}
-		return CharOperation.match(pattern.toCharArray(), compoundChars, false);
-	}
-
 	/**
 	 * Converts a String[] to char[][].
 	 */
@@ -2309,6 +2308,7 @@ public class Util {
 		}
 		return segs;
 	}
+
 	/*
 	 * Converts the given URI to a local file. Use the existing file if the uri is on the local file system.
 	 * Otherwise fetch it.

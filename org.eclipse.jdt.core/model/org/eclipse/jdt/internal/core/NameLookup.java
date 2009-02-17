@@ -513,12 +513,13 @@ public class NameLookup implements SuffixConstants {
 			String[] splittedName = Util.splitOn('.', name, 0, name.length());
 			IPackageFragment[] oneFragment = null;
 			ArrayList pkgs = null;
+			char[] lowercaseName = name.toLowerCase().toCharArray();
 			Object[][] keys = this.packageFragments.keyTable;
 			for (int i = 0, length = keys.length; i < length; i++) {
 				String[] pkgName = (String[]) keys[i];
 				if (pkgName != null) {
 					boolean match = hasPatternChars
-						? Util.matchesWithIgnoreCase(pkgName, name)
+						? CharOperation.match(lowercaseName, Util.concatCompoundNameToCharArray(pkgName), false)
 						: Util.startsWithIgnoreCase(pkgName, splittedName, partialMatch);
 					if (match) {
 						Object value = this.packageFragments.valueTable[i];
