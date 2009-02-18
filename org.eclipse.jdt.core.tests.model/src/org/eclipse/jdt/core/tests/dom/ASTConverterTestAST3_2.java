@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 699, 700, 701 };
+//		TESTS_NUMBERS =  new int[] { 702 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -10093,7 +10093,6 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 							assertEquals("Wrong key", key, bindingKey);
 							assertTrue("Not a variable binding", binding.getKind() == IBinding.VARIABLE);
 						}
-	
 						public void acceptAST(ICompilationUnit source,
 								CompilationUnit astCompilationUnit) {
 						}
@@ -10103,5 +10102,19 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 			}
 		}
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=264590
+	 */
+	public void _test0702() throws JavaModelException {
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_EXPRESSION);
+		String commentsText = "/**\n * @generated\n */\n";
+		char[] source = commentsText.toCharArray();
+		parser.setSource(source);
+		parser.setSourceRange(0, source.length);
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result = parser.createAST(null);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
 	}
 }
