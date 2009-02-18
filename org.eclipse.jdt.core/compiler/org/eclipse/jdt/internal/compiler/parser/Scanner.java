@@ -1092,8 +1092,15 @@ public int getNextToken() throws InvalidInputException {
 					if (this.currentPosition > this.eofPosition)
 						return TokenNameEOF;
 				}
-				if (this.currentPosition > this.eofPosition)
+				if (this.currentPosition > this.eofPosition) {
+					if (this.tokenizeWhiteSpace && (whiteStart != this.currentPosition - 1)) {
+						this.currentPosition--;
+						// reposition scanner in case we are interested by spaces as tokens
+						this.startPosition = whiteStart;
+						return TokenNameWHITESPACE;
+					}
 					return TokenNameEOF;
+				}
 				if (checkIfUnicode) {
 					isWhiteSpace = jumpOverUnicodeWhiteSpace();
 					offset = this.currentPosition - offset;

@@ -31,7 +31,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 42, 43, 44 };
+//		TESTS_NUMBERS = new int[] { 46 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 
@@ -997,5 +997,24 @@ public class ScannerTest extends AbstractRegressionTest {
 					"}"
 				},
 				"SUCCESS");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=264950
+	public void test046() {
+		IScanner scanner = ToolFactory.createScanner(
+				true,
+				true,
+				true,
+				JavaCore.getOption(JavaCore.COMPILER_SOURCE),
+				JavaCore.getOption(JavaCore.COMPILER_COMPLIANCE));
+		final char[] source = "{\r\n\t}".toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(1, 3);
+		try {
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong source", "\r\n\t", new String(scanner.getCurrentTokenSource()));
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameEOF, scanner.getNextToken());
+		} catch (InvalidInputException e) {
+			assertTrue("Wrong exception", false);
+		}
 	}
 }

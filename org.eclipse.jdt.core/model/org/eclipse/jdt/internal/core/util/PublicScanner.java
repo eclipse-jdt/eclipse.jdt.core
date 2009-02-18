@@ -1089,8 +1089,15 @@ public int getNextToken() throws InvalidInputException {
 					if (this.currentPosition > this.eofPosition)
 						return TokenNameEOF;
 				}
-				if (this.currentPosition > this.eofPosition)
+				if (this.currentPosition > this.eofPosition) {
+					if (this.tokenizeWhiteSpace && (whiteStart != this.currentPosition - 1)) {
+						this.currentPosition--;
+						// reposition scanner in case we are interested by spaces as tokens
+						this.startPosition = whiteStart;
+						return TokenNameWHITESPACE;
+					}
 					return TokenNameEOF;
+				}
 				if (checkIfUnicode) {
 					isWhiteSpace = jumpOverUnicodeWhiteSpace();
 					offset = this.currentPosition - offset;
@@ -2549,12 +2556,16 @@ public final void pushUnicodeLineSeparator() {
 
 public void recordComment(int token) {
 	// compute position
+	int commentStart = this.startPosition;
 	int stopPosition = this.currentPosition;
 	switch (token) {
 		case TokenNameCOMMENT_LINE:
+			// both positions are negative
+			commentStart = -this.startPosition;
 			stopPosition = -this.lastCommentLinePosition;
 			break;
 		case TokenNameCOMMENT_BLOCK:
+			// only end position is negative
 			stopPosition = -this.currentPosition;
 			break;
 	}
@@ -2568,7 +2579,7 @@ public void recordComment(int token) {
 		System.arraycopy(this.commentTagStarts, 0, this.commentTagStarts = new int[newLength], 0, length);
 	}
 	this.commentStops[this.commentPtr] = stopPosition;
-	this.commentStarts[this.commentPtr] = this.startPosition;
+	this.commentStarts[this.commentPtr] = commentStart;
 }
 
 /**
