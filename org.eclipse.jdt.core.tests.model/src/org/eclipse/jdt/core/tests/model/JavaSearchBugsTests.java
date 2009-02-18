@@ -10424,4 +10424,95 @@ public void testBug250083() throws Exception {
 		deleteProject("P");
 	}
 }
+
+
+/**
+ * @bug 265065: [search] java.lang.ClassCastException while running "Refactor...Extract Class"
+ * @test Ensure that no CCE occurs while using an OrPattern made of VariablePattern
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=265065"
+ */
+public void testBug265065() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/MyClass.java",
+		"public class MyClass {\n" + 
+		"    class MyPrivateClass {\n" + 
+		"            public String type = TYPE_A;\n" + 
+		"            public Object value = null;\n" + 
+		"            public MyPrivateClass(String type, Object value) {\n" + 
+		"                    this.type = type;\n" + 
+		"                    this.value = value;\n" + 
+		"            }\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    private static final String TYPE_A = \"A\";\n" + 
+		"    private static final String TYPE_B = \"B\";\n" + 
+		"    private static final String TYPE_C = \"C\";\n" + 
+		"\n" + 
+		"    void foo (Object value) {\n" + 
+		"		MyPrivateClass mpc = new MyPrivateClass(TYPE_B, value);\n" + 
+		"		if (mpc.value == null) {\n" + 
+		"			mpc.type = TYPE_C;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	this.resultCollector.showRule();
+	this.resultCollector.showAccess();
+	SearchPattern leftPattern = SearchPattern.createPattern("MyClass.MyPrivateClass.value Object", FIELD, ALL_OCCURRENCES, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	SearchPattern rightPattern = SearchPattern.createPattern("MyClass.MyPrivateClass.type String", FIELD, ALL_OCCURRENCES, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	new SearchEngine(this.workingCopies).search(
+		SearchPattern.createOrPattern(leftPattern, rightPattern),
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		getJavaSearchWorkingCopiesScope(),
+		this.resultCollector,
+		null);
+	assertSearchResults(
+		"src/MyClass.java void MyClass.foo(Object) [value] EXACT_MATCH READ ACCESS\n" + 
+		"src/MyClass.java void MyClass.foo(Object) [type] EXACT_MATCH READ ACCESS\n" + 
+		"src/MyClass.java MyClass$MyPrivateClass.type [type] EXACT_MATCH\n" + 
+		"src/MyClass.java MyClass$MyPrivateClass.value [value] EXACT_MATCH\n" + 
+		"src/MyClass.java MyClass$MyPrivateClass(String, Object) [type] EXACT_MATCH WRITE ACCESS\n" + 
+		"src/MyClass.java MyClass$MyPrivateClass(String, Object) [value] EXACT_MATCH WRITE ACCESS"
+	);
+}
+public void testBug265065b() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
+		"package pack;\n" +
+		"public class Test {\n" +
+		"	public int field;\n" +
+		"}\n"
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/X.java",
+		"package test;\n" +
+		"import pack.Test;\n" +
+		"public class X {\n" +
+		"	void foo(Test t1, Test t2) {\n" +
+		"		t1 = t2;\n" +
+		"		t1.field = t1.field;\n" +
+		"		t2.field = t1.field;\n" +
+		"	}\n" +
+		"}\n"
+	);
+	this.resultCollector.showAccess();
+	ILocalVariable localVar1 = selectLocalVariable(this.workingCopies[1], "t1");
+	SearchPattern leftPattern = createPattern(localVar1, IJavaSearchConstants.REFERENCES);
+	ILocalVariable localVar2 = selectLocalVariable(this.workingCopies[1], "t2");
+	SearchPattern rightPattern = createPattern(localVar2, IJavaSearchConstants.REFERENCES);
+	new SearchEngine(this.workingCopies).search(
+		SearchPattern.createOrPattern(leftPattern, rightPattern),
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		getJavaSearchWorkingCopiesScope(),
+		this.resultCollector,
+		null);
+	assertSearchResults(
+		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH WRITE ACCESS\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [t2] EXACT_MATCH READ ACCESS\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH READ ACCESS\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH READ ACCESS\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [t2] EXACT_MATCH READ ACCESS\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH READ ACCESS"
+	);
+}
+
 }

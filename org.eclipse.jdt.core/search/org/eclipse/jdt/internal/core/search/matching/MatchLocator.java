@@ -1403,7 +1403,15 @@ public FieldReferenceMatch newFieldReferenceMatch(
 		if (reference instanceof QualifiedNameReference) {
 			char[][] tokens = ((QualifiedNameReference)reference).tokens;
 			char[] lastToken = tokens[tokens.length-1];
-			if (!this.patternLocator.matchesName(((VariablePattern)this.pattern).name, lastToken)) {
+			if (this.pattern instanceof OrPattern) {
+				SearchPattern[] patterns = ((OrPattern) this.pattern).patterns;
+				for (int i = 0, pLength = patterns.length; i < pLength; i++) {
+					if (!this.patternLocator.matchesName(((VariablePattern)patterns[i]).name, lastToken)) {
+			        	isWriteAccess = false;
+			        	isReadAccess = true;
+					}
+				}
+			} else if (!this.patternLocator.matchesName(((VariablePattern)this.pattern).name, lastToken)) {
 	        	isWriteAccess = false;
 	        	isReadAccess = true;
 			}
@@ -1434,7 +1442,15 @@ public SearchMatch newLocalVariableReferenceMatch(
 		if (reference instanceof QualifiedNameReference) {
 			char[][] tokens = ((QualifiedNameReference)reference).tokens;
 			char[] lastToken = tokens[tokens.length-1];
-			if (!this.patternLocator.matchesName(((VariablePattern)this.pattern).name, lastToken)) {
+			if (this.pattern instanceof OrPattern) {
+				SearchPattern[] patterns = ((OrPattern) this.pattern).patterns;
+				for (int i = 0, pLength = patterns.length; i < pLength; i++) {
+					if (!this.patternLocator.matchesName(((VariablePattern)patterns[i]).name, lastToken)) {
+			        	isWriteAccess = false;
+			        	isReadAccess = true;
+					}
+				}
+			} else if (!this.patternLocator.matchesName(((VariablePattern)this.pattern).name, lastToken)) {
 	        	isWriteAccess = false;
 	        	isReadAccess = true;
 			}
