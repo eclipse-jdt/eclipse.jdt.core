@@ -12,7 +12,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -179,11 +178,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			CastExpression.checkNeedForAssignedCast(scope, lhsType, (CastExpression) this.expression);
 		}
 		return this.resolvedType;
-	} else if (scope.isBoxingCompatibleWith(rhsType, lhsType)
-						|| (rhsType.isBaseType()  // narrowing then boxing ?
-								&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
-								&& !lhsType.isBaseType()
-								&& this.expression.isConstantValueOfTypeAssignableToType(rhsType, scope.environment().computeBoxingType(lhsType)))) {
+	} else if (isBoxingCompatible(rhsType, lhsType, this.expression, scope)) {
 		this.expression.computeConversion(scope, lhsType, rhsType);
 		if (this.expression instanceof CastExpression
 				&& (this.expression.bits & ASTNode.UnnecessaryCast) == 0) {

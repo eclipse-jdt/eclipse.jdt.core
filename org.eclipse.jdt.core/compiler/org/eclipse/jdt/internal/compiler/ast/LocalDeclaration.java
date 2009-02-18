@@ -197,11 +197,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 								&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
 							CastExpression.checkNeedForAssignedCast(scope, variableType, (CastExpression) this.initialization);
 						}
-					} else if (scope.isBoxingCompatibleWith(initializationType, variableType)
-										|| (initializationType.isBaseType()  // narrowing then boxing ?
-												&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
-												&& !variableType.isBaseType()
-												&& this.initialization.isConstantValueOfTypeAssignableToType(initializationType, scope.environment().computeBoxingType(variableType)))) {
+					} else if (isBoxingCompatible(initializationType, variableType, this.initialization, scope)) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
 						if (this.initialization instanceof CastExpression
 								&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {

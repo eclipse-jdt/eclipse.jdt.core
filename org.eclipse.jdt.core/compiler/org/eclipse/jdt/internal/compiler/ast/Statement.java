@@ -114,6 +114,17 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 
 public abstract void generateCode(BlockScope currentScope, CodeStream codeStream);
 
+protected boolean isBoxingCompatible(TypeBinding expressionType, TypeBinding targetType, Expression expression, Scope scope) {
+	if (scope.isBoxingCompatibleWith(expressionType, targetType))
+		return true;
+
+	return expressionType.isBaseType()  // narrowing then boxing ?
+		&& !targetType.isBaseType()
+		&& !targetType.isTypeVariable()
+		&& scope.compilerOptions().sourceLevel >= org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_5 // autoboxing
+		&& expression.isConstantValueOfTypeAssignableToType(expressionType, scope.environment().computeBoxingType(targetType));
+}
+
 public boolean isEmptyBlock() {
 	return false;
 }

@@ -5102,4 +5102,70 @@ public void test168() {
 		"The expression of type int is boxed into Integer\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=264843
+public void test169() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Integer> {\n" + 
+			"    T x = 12;\n" + 
+			"    Byte y = 12;\n" + 
+			"    	void x(T t) {\n" +
+			"    		t = 5;\n" +
+			"    		switch (t) {\n" +
+			"    		case 1:\n" +
+			"    			break;\n" +
+			"    		}\n" +
+			"    	}\n" +
+			"    	void y(Byte t) {\n" +
+			"    		t = 5;\n" +
+			"    		switch (t) {\n" +
+			"    		case 1:\n" +
+			"    			break;\n" +
+			"    		}\n" +
+			"    	}\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	public class X<T extends Integer> {\n" + 
+		"	                         ^^^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	T x = 12;\n" + 
+		"	      ^^\n" + 
+		"Type mismatch: cannot convert from int to T\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 3)\n" + 
+		"	Byte y = 12;\n" + 
+		"	         ^^\n" + 
+		"The expression of type int is boxed into Byte\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	t = 5;\n" + 
+		"	    ^\n" + 
+		"Type mismatch: cannot convert from int to T\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 6)\n" + 
+		"	switch (t) {\n" + 
+		"	        ^\n" + 
+		"The expression of type T is unboxed into int\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 7)\n" + 
+		"	case 1:\n" + 
+		"	     ^\n" + 
+		"Type mismatch: cannot convert from int to T\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 12)\n" + 
+		"	t = 5;\n" + 
+		"	    ^\n" + 
+		"The expression of type int is boxed into Byte\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 13)\n" + 
+		"	switch (t) {\n" + 
+		"	        ^\n" + 
+		"The expression of type Byte is unboxed into int\n" + 
+		"----------\n");
+}
 }

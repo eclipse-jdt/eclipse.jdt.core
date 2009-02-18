@@ -227,11 +227,7 @@ public void resolve(MethodScope initializationScope) {
 							&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
 						CastExpression.checkNeedForAssignedCast(initializationScope, fieldType, (CastExpression) this.initialization);
 					}
-				} else if (initializationScope.isBoxingCompatibleWith(initializationType, fieldType)
-									|| (initializationType.isBaseType()  // narrowing then boxing ?
-											&& initializationScope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
-											&& !fieldType.isBaseType()
-											&& this.initialization.isConstantValueOfTypeAssignableToType(initializationType, initializationScope.environment().computeBoxingType(fieldType)))) {
+				} else if (isBoxingCompatible(initializationType, fieldType, this.initialization, initializationScope)) {
 					this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 					if (this.initialization instanceof CastExpression
 							&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
