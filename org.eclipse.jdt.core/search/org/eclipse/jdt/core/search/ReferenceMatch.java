@@ -123,6 +123,9 @@ final public IJavaElement getLocalElement() {
  * Return the stored local element.
  *
  * @see org.eclipse.jdt.core.search.ReferenceMatch#getLocalElement()
+ * 
+ * @noreference This method is not intended to be referenced by clients.
+ * @nooverride This method is not intended to be re-implemented or extended by clients.
  */
 protected IJavaElement localElement() {
 	return null;
