@@ -321,7 +321,7 @@ public TypeBinding resolveType(BlockScope scope) {
 						}
 						this.binding = closestMatch;
 						MethodBinding closestMatchOriginal = closestMatch.original();
-						if ((closestMatchOriginal.isPrivate() || closestMatchOriginal.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatchOriginal)) {
+						if (closestMatchOriginal.isOrEnclosedByPrivateType() && !scope.isDefinedInMethod(closestMatchOriginal)) {
 							// ignore cases where method is used from within inside itself (e.g. direct recursions)
 							closestMatchOriginal.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 						}

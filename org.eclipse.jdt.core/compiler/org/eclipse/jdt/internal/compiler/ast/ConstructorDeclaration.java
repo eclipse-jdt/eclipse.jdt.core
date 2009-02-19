@@ -59,8 +59,25 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		if (constructorBinding.isPrivate()) {
 			if ((this.binding.declaringClass.tagBits & TagBits.HasNonPrivateConstructor) == 0)
 				break checkUnused; // tolerate as known pattern to block instantiation
-		} else if ((this.binding.declaringClass.tagBits & (TagBits.IsAnonymousType|TagBits.IsLocalType)) != TagBits.IsLocalType) {
+		} else if (!constructorBinding.isOrEnclosedByPrivateType()) {
 			break checkUnused;
+ 		}
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=264991, Don't complain about this
+		// constructor being unused if the base class doesn't have a no-arg constructor.
+		// See that a seemingly unused constructor that chains to another constructor with a
+		// this(...) can be flagged as being unused without hesitation.
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142
+		if (this.constructorCall.accessMode != ExplicitConstructorCall.This) {
+			ReferenceBinding superClass = constructorBinding.declaringClass.superclass();
+			if (superClass == null)
+				break checkUnused;
+			// see if there is a no-arg super constructor
+			MethodBinding methodBinding = superClass.getExactConstructor(Binding.NO_PARAMETERS);
+			if (methodBinding == null)
+				break checkUnused;
+			if (!methodBinding.canBeSeenBy(SuperReference.implicitSuperConstructorCall(), this.scope))
+				break checkUnused;
+			// otherwise default super constructor exists, so go ahead and complain unused.
 		}
 		// complain unused
 		this.scope.problemReporter().unusedPrivateConstructor(this);

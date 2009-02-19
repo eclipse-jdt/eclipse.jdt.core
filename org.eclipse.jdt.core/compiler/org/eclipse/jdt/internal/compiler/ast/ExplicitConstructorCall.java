@@ -376,7 +376,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 							}
 							this.binding = closestMatch;
 							MethodBinding closestMatchOriginal = closestMatch.original();
-							if ((closestMatchOriginal.isPrivate() || closestMatchOriginal.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatchOriginal)) {
+							if (closestMatchOriginal.isOrEnclosedByPrivateType() && !scope.isDefinedInMethod(closestMatchOriginal)) {
 								// ignore cases where method is used from within inside itself (e.g. direct recursions)
 								closestMatchOriginal.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 							}
@@ -403,7 +403,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				if (checkInvocationArguments(scope, null, receiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this)) {
 					this.bits |= ASTNode.Unchecked;
 				}
-				if (this.binding.isPrivate() || receiverType.isLocalType()) {
+				if (this.binding.isOrEnclosedByPrivateType()) {
 					this.binding.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 				}
 				if (this.typeArguments != null
