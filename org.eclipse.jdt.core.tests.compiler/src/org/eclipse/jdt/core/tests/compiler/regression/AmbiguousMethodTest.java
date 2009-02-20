@@ -2163,9 +2163,7 @@ public void test050() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 public void test051() {
-	this.runConformTest(
-		// test directory preparation
-		true /* flush output directory */,
+	this.runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
 			"interface I<T> {\n" +
@@ -2184,23 +2182,17 @@ public void test051() {
 			"  }\n" +
 			"}\n"
 		},
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. WARNING in X.java (at line 9)\n" +
-		"	bar(new Z());\n" +
-		"	    ^^^^^^^\n" +
-		"Access to enclosing constructor X.Z() is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 13)\n" +
-		"	private static final class Z implements I {\n" +
-		"	                                        ^\n" +
-		"I is a raw type. References to generic type I<T> should be parameterized\n" +
-		"----------\n",
-		// runtime options
-		"" /* expected output string */,
-		"" /* do not check error string */,
-		// javac options
-		JavacTestOptions.EclipseHasABug.EclipseBug166355 /* javac test options */);
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	bar(new Z());\n" + 
+		"	^^^\n" + 
+		"The method bar(X.Z) is ambiguous for the type X\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	private static final class Z implements I {\n" + 
+		"	                                        ^\n" + 
+		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant
@@ -2229,9 +2221,7 @@ public void test052() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant
 public void test053() {
-	this.runConformTest(
-		// test directory preparation
-		true /* flush output directory */,
+	this.runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
 			"interface I<T> {\n" +
@@ -2250,23 +2240,17 @@ public void test053() {
 			"  }\n" +
 			"}\n"
 		},
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. WARNING in X.java (at line 9)\n" +
-		"	bar(new Z(){});\n" +
-		"	        ^^^\n" +
-		"Access to enclosing constructor X.Z() is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 13)\n" +
-		"	private static class Z implements I {\n" +
-		"	                                  ^\n" +
-		"I is a raw type. References to generic type I<T> should be parameterized\n" +
-		"----------\n",
-		// runtime results
-		"" /* expected output string */,
-		"" /* expected error string */,
-		// javac options
-		JavacTestOptions.EclipseHasABug.EclipseBug166355 /* javac test options */);
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	bar(new Z(){});\n" + 
+		"	^^^\n" + 
+		"The method bar(X.Z) is ambiguous for the type X\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	private static class Z implements I {\n" + 
+		"	                                  ^\n" + 
+		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant
@@ -2934,6 +2918,122 @@ public void test073() {
 		"	byte a = a();\n" +
 		"	         ^\n" +
 		"The method a() is ambiguous for the type Y2\n" +
+		"----------\n"
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=206930
+public void test074() {
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"interface I<T> {}\n" +
+			"class A {\n" +
+			"	void a(I x) {}\n" +
+			"	void b(I<?> x) {}\n" +
+			"	void b(I<?>[] x) {}\n" +
+			"	<U> void c(I<?> x) {}\n" +
+			"}\n" +
+			"class B extends A {}\n" +
+			"class C extends B implements I {\n" +
+			"	void a(C c) {}\n" +
+			"	void b(C c) {}\n" +
+			"	void b(C[] c) {}\n" +
+			"	void c(C c) {}\n" +
+			"}\n" +
+			"class D extends C {\n" +
+			"    void test() {\n" +
+			"        a(new C());\n" +
+			"        a(new D());\n" +
+			"        b(new C());\n" + // ambiguous b(I<?>) in A and b(C) in C match
+			"        b(new D());\n" + // ambiguous b(I<?>) in A and b(C) in C match
+			"        b(new C[0]);\n" + // ambiguous b(I<?>[]) in A and b(C[]) in C match
+			"        b(new D[0]);\n" + // ambiguous b(I<?>[]) in A and b(C[]) in C match
+			"        c(new C());\n" + // ambiguous <U>c(I<?>) in A and c(C) in C match
+			"        c(new D());\n" + // ambiguous <U>c(I<?>) in A and c(C) in C match
+			"    }\n" +
+			"}\n" +
+			"class A2<T> {\n" +
+			"	void a(I x) {}\n" +
+			"	void b(I<?> x) {}\n" +
+			"	<U> void c(I<?> x) {}\n" +
+			"	void d(I<T> x) {}\n" +
+			"}\n" +
+			"class B2 extends A2 {}\n" +
+			"class C2 extends B2 implements I {\n" +
+			"	void a(C2 c) {}\n" +
+			"	void b(C2 c) {}\n" +
+			"	void c(C2 c) {}\n" +
+			"	void d(C2 c) {}\n" +
+			"}\n" +
+			"class D2 extends C2 {\n" +
+			"    void test() {\n" +
+			"        a(new C2());\n" +
+			"        a(new D2());\n" +
+			"        b(new C2());\n" +
+			"        b(new D2());\n" +
+			"        c(new C2());\n" +
+			"        c(new D2());\n" +
+			"        d(new C2());\n" +
+			"        d(new D2());\n" +
+			"    }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in Y.java (at line 3)\n" + 
+		"	void a(I x) {}\n" + 
+		"	       ^\n" + 
+		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in Y.java (at line 9)\n" + 
+		"	class C extends B implements I {\n" + 
+		"	                             ^\n" + 
+		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in Y.java (at line 19)\n" + 
+		"	b(new C());\n" + 
+		"	^\n" + 
+		"The method b(C) is ambiguous for the type D\n" + 
+		"----------\n" + 
+		"4. ERROR in Y.java (at line 20)\n" + 
+		"	b(new D());\n" + 
+		"	^\n" + 
+		"The method b(C) is ambiguous for the type D\n" + 
+		"----------\n" + 
+		"5. ERROR in Y.java (at line 21)\n" + 
+		"	b(new C[0]);\n" + 
+		"	^\n" + 
+		"The method b(C[]) is ambiguous for the type D\n" + 
+		"----------\n" + 
+		"6. ERROR in Y.java (at line 22)\n" + 
+		"	b(new D[0]);\n" + 
+		"	^\n" + 
+		"The method b(C[]) is ambiguous for the type D\n" + 
+		"----------\n" + 
+		"7. ERROR in Y.java (at line 23)\n" + 
+		"	c(new C());\n" + 
+		"	^\n" + 
+		"The method c(C) is ambiguous for the type D\n" + 
+		"----------\n" + 
+		"8. ERROR in Y.java (at line 24)\n" + 
+		"	c(new D());\n" + 
+		"	^\n" + 
+		"The method c(C) is ambiguous for the type D\n" + 
+		"----------\n" + 
+		"9. WARNING in Y.java (at line 28)\n" + 
+		"	void a(I x) {}\n" + 
+		"	       ^\n" + 
+		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+		"----------\n" + 
+		"10. WARNING in Y.java (at line 33)\n" + 
+		"	class B2 extends A2 {}\n" + 
+		"	                 ^^\n" + 
+		"A2 is a raw type. References to generic type A2<T> should be parameterized\n" + 
+		"----------\n" + 
+		"11. WARNING in Y.java (at line 34)\n" + 
+		"	class C2 extends B2 implements I {\n" + 
+		"	                               ^\n" + 
+		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
 		"----------\n"
 	);
 }

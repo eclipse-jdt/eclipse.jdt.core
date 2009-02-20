@@ -898,7 +898,7 @@ public abstract class Scope {
 			// in >= 1.5 mode, ensure the exactMatch did not match raw types
 			if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5)
 				for (int i = argumentTypes.length; --i >= 0;)
-					if (argumentTypes[i].isRawType())
+					if (isSubtypeOfRawType(argumentTypes[i]))
 						return null;
 			// must find both methods for this case: <S extends A> void foo() {}  and  <N extends B> N foo() { return null; }
 			// or find an inherited method when the exact match is to a bridge method
@@ -2784,22 +2784,27 @@ public abstract class Scope {
 				if (oneParam == twoParam || oneParam.isCompatibleWith(twoParam)) {
 					if (two.declaringClass.isRawType()) continue next;
 
-					TypeBinding originalOneParam = one.original().parameters[i].leafComponentType();
-					switch (originalOneParam.kind()) {
+					TypeBinding originalTwoParam = two.original().parameters[i].leafComponentType();
+					switch (originalTwoParam.kind()) {
 					   	case Binding.TYPE_PARAMETER :
-					   		if (!((TypeVariableBinding) originalOneParam).upperBound().isRawType()) break;
+					   		if (((TypeVariableBinding) originalTwoParam).hasOnlyRawBounds())
+						   		continue next;
 					   		//$FALL-THROUGH$
-					   	case Binding.RAW_TYPE:
-					   		// originalOneParam is RAW so it cannot be more specific than a wildcard or parameterized type
-							TypeBinding originalTwoParam = two.original().parameters[i].leafComponentType();
-							switch (originalTwoParam.kind()) {
+					   	case Binding.WILDCARD_TYPE :
+					   	case Binding.INTERSECTION_TYPE:
+					   	case Binding.PARAMETERIZED_TYPE :
+							TypeBinding originalOneParam = one.original().parameters[i].leafComponentType();
+							switch (originalOneParam.kind()) {
+							   	case Binding.TYPE :
+							   	case Binding.GENERIC_TYPE :
+									TypeBinding inheritedTwoParam = oneParam.findSuperTypeOriginatingFrom(twoParam);
+									if (inheritedTwoParam == null || !inheritedTwoParam.leafComponentType().isRawType()) break;
+							   		return false;
 							   	case Binding.TYPE_PARAMETER :
-							   		if (((TypeVariableBinding) originalTwoParam).hasOnlyRawBounds())
-								   		continue next;
-								   	return false;
-							   	case Binding.WILDCARD_TYPE :
-							   	case Binding.INTERSECTION_TYPE:
-							   	case Binding.PARAMETERIZED_TYPE :
+							   		if (!((TypeVariableBinding) originalOneParam).upperBound().isRawType()) break;
+							   		return false;
+							   	case Binding.RAW_TYPE:
+							   		// originalOneParam is RAW so it cannot be more specific than a wildcard or parameterized type
 							   		return false;
 							}
 					}
@@ -2966,6 +2971,55 @@ public abstract class Scope {
 							return true;
 					}
 				}
+		}
+		return false;
+	}
+
+	public boolean isSubtypeOfRawType(TypeBinding paramType) {
+		TypeBinding t = paramType.leafComponentType();
+		if (t.isBaseType()) return false;
+
+		ReferenceBinding currentType = (ReferenceBinding) t;
+		ReferenceBinding[] interfacesToVisit = null;
+		int nextPosition = 0;
+		do {
+			if (currentType.isRawType()) return true;
+	
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
+				if (interfacesToVisit == null) {
+					interfacesToVisit = itsInterfaces;
+					nextPosition = interfacesToVisit.length;
+				} else {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
+			}
+		} while ((currentType = currentType.superclass()) != null);
+
+		for (int i = 0; i < nextPosition; i++) {
+			currentType = interfacesToVisit[i];
+			if (currentType.isRawType()) return true;
+
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
+				int itsLength = itsInterfaces.length;
+				if (nextPosition + itsLength >= interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+				nextInterface : for (int a = 0; a < itsLength; a++) {
+					ReferenceBinding next = itsInterfaces[a];
+					for (int b = 0; b < nextPosition; b++)
+						if (next == interfacesToVisit[b]) continue nextInterface;
+					interfacesToVisit[nextPosition++] = next;
+				}
+			}
 		}
 		return false;
 	}
