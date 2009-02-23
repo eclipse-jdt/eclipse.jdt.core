@@ -508,19 +508,20 @@ public class NameLookup implements SuffixConstants {
 	 *		<code>false</code> otherwise.
 	 */
 	public IPackageFragment[] findPackageFragments(String name, boolean partialMatch, boolean patternMatch) {
-		boolean hasPatternChars = patternMatch && (name.indexOf('*') >= 0 || name.indexOf('?') >= 0);
+		boolean isStarPattern = name.equals("*"); //$NON-NLS-1$
+		boolean hasPatternChars = isStarPattern || (patternMatch && (name.indexOf('*') >= 0 || name.indexOf('?') >= 0));
 		if (partialMatch || hasPatternChars) {
 			String[] splittedName = Util.splitOn('.', name, 0, name.length());
 			IPackageFragment[] oneFragment = null;
 			ArrayList pkgs = null;
-			char[] lowercaseName = name.toLowerCase().toCharArray();
+			char[] lowercaseName = hasPatternChars && !isStarPattern ? name.toLowerCase().toCharArray() : null;
 			Object[][] keys = this.packageFragments.keyTable;
 			for (int i = 0, length = keys.length; i < length; i++) {
 				String[] pkgName = (String[]) keys[i];
 				if (pkgName != null) {
-					boolean match = hasPatternChars
+					boolean match = isStarPattern || (hasPatternChars
 						? CharOperation.match(lowercaseName, Util.concatCompoundNameToCharArray(pkgName), false)
-						: Util.startsWithIgnoreCase(pkgName, splittedName, partialMatch);
+						: Util.startsWithIgnoreCase(pkgName, splittedName, partialMatch));
 					if (match) {
 						Object value = this.packageFragments.valueTable[i];
 						if (value instanceof PackageFragmentRoot) {
