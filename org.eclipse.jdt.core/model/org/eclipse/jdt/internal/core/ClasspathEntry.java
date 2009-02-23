@@ -908,7 +908,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		List calledFileNames = null;
 		try {
 			zip = manager.getZipFile(jarPath);
-			ZipEntry manifest =	zip.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
+			ZipEntry manifest = zip.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
 			if (manifest == null) 
 				return null;
 			// non-null implies regular file
