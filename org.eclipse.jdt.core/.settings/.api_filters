@@ -7,6 +7,22 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="search/org/eclipse/jdt/core/search/ReferenceMatch.java" type="org.eclipse.jdt.core.search.ReferenceMatch">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.search.ReferenceMatch"/>
+                <message_argument value="localElement()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="search/org/eclipse/jdt/core/search/ReferenceMatch.java" type="org.eclipse.jdt.core.search.ReferenceMatch">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.search.ReferenceMatch"/>
+                <message_argument value="localElement()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="model/org/eclipse/jdt/core/compiler/CompilationParticipant.java" type="org.eclipse.jdt.core.compiler.CompilationParticipant">
         <filter id="388100214">
             <message_arguments>

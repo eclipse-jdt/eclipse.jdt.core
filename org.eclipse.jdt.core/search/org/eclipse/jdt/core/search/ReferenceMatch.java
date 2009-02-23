@@ -15,12 +15,12 @@ import org.eclipse.jdt.core.*;
 
 /**
  * An abstract Java search match that represents a reference.
- * <p>
- * This class is not intended to be subclassed by clients.
- * </p>
+ * 
  * @since 3.4
  */
 public abstract class ReferenceMatch extends SearchMatch {
+
+	IJavaElement localElement;
 
 /**
  * Creates a new reference match.
@@ -116,15 +116,17 @@ public ReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, i
  * @since 3.4
  */
 final public IJavaElement getLocalElement() {
-	return localElement();
+	return this.localElement;
 }
 
 /**
- * Return the stored local element.
+ * Store the local element in the match.
  *
- * @see org.eclipse.jdt.core.search.ReferenceMatch#getLocalElement()
+ * @param element The local element to be stored
+ * 
+ * @since 3.5
  */
-protected IJavaElement localElement() {
-	return null;
+final public void setLocalElement(IJavaElement element) {
+	this.localElement = element;
 }
 }

@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.*;
  */
 public class TypeReferenceMatch extends ReferenceMatch {
 
-	private IJavaElement localElement;
 	private IJavaElement[] otherElements;
 
 /**
@@ -81,26 +80,6 @@ public final IJavaElement[] getOtherElements() {
 		return this.otherElements;
 	}
 	return null;
-}
-
-/**
- * Return the stored local element.
- *
- * @see org.eclipse.jdt.core.search.ReferenceMatch#getLocalElement()
- */
-protected IJavaElement localElement() {
-	return this.localElement;
-}
-
-/**
- * Sets the local element of this search match.
- *
- * @param element A more specific local element that corresponds to the match,
- * 	or <code>null</code> if none
- * @since 3.2
- */
-public final void setLocalElement(IJavaElement element) {
-	this.localElement = element;
 }
 
 /**
