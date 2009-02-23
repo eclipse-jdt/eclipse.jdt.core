@@ -28,21 +28,21 @@ import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
  */
 public class JavaSearchParticipant extends SearchParticipant {
 
-	IndexSelector indexSelector;
+	private ThreadLocal indexSelector = new ThreadLocal();
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.search.SearchParticipant#beginSearching()
 	 */
 	public void beginSearching() {
 		super.beginSearching();
-		this.indexSelector = null;
+		this.indexSelector.set(null);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.search.SearchParticipant#doneSearching()
 	 */
 	public void doneSearching() {
-		this.indexSelector = null;
+		this.indexSelector.set(null);
 		super.doneSearching();
 	}
 
@@ -97,14 +97,14 @@ public class JavaSearchParticipant extends SearchParticipant {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.search.SearchParticipant#selectIndexes(org.eclipse.jdt.core.search.SearchQuery, org.eclipse.jdt.core.search.SearchContext)
 	 */
-	public IPath[] selectIndexes(
-		SearchPattern pattern,
-		IJavaSearchScope scope) {
+	public IPath[] selectIndexes(SearchPattern pattern, IJavaSearchScope scope) {
 
-		if (this.indexSelector == null) {
-			this.indexSelector = new IndexSelector(scope, pattern);
+		IndexSelector selector = (IndexSelector) this.indexSelector.get();
+		if (selector == null) {
+			selector = new IndexSelector(scope, pattern);
+			this.indexSelector.set(selector);
 		}
-		return this.indexSelector.getIndexLocations();
+		return selector.getIndexLocations();
 	}
 
 }
