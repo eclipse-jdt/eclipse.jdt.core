@@ -291,8 +291,15 @@ public abstract class JobManager implements Runnable {
 		// append the job to the list of ones to process later on
 		int size = this.awaitingJobs.length;
 		if (++this.jobEnd == size) { // when growing, relocate jobs starting at position 0
-			this.jobEnd -= this.jobStart;
-			System.arraycopy(this.awaitingJobs, this.jobStart, this.awaitingJobs = new IJob[size * 2], 0, this.jobEnd);
+			this.jobEnd -= this.jobStart; // jobEnd now equals the number of jobs
+			if (this.jobEnd < 50 && this.jobEnd < this.jobStart) {
+				// plenty of free space in the queue so shift the remaining jobs to the beginning instead of growing it
+				System.arraycopy(this.awaitingJobs, this.jobStart, this.awaitingJobs, 0, this.jobEnd);
+				for (int i = this.jobStart; i < size; i++)
+					this.awaitingJobs[i] = null;
+			} else {
+				System.arraycopy(this.awaitingJobs, this.jobStart, this.awaitingJobs = new IJob[size * 2], 0, this.jobEnd);
+			}
 			this.jobStart = 0;
 		}
 		this.awaitingJobs[this.jobEnd] = job;
