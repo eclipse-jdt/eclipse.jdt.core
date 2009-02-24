@@ -834,15 +834,6 @@ public final class ImportRewriteAnalyzer {
 	 * of all types from the same package
 	 */
 	private final static class PackageEntry {
-
-		public static PackageEntry createOnPlaceholderEntry(String preferenceOrder) {
-			if (preferenceOrder.length() > 0 && preferenceOrder.charAt(0) == '#') {
-				String curr= preferenceOrder.substring(1);
-				return new PackageEntry(curr, curr, true);
-			}
-			return new PackageEntry(preferenceOrder, preferenceOrder, false);
-		}
-
 		private String name;
 		private ArrayList importEntries;
 		private String group;
@@ -996,14 +987,6 @@ public final class ImportRewriteAnalyzer {
 			} else {
 				return this.group.equals(other.getGroupID()) && (this.isStatic == other.isStatic());
 			}
-		}
-
-		public ImportDeclEntry getLast() {
-			int nImports= getNumberOfImports();
-			if (nImports > 0) {
-				return getImportAt(nImports - 1);
-			}
-			return null;
 		}
 
 		public boolean isComment() {
