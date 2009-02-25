@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 /**
  * Maps back and forth a code snippet to a compilation unit.
  * The structure of the compilation unit is as follows:
+ * <pre>
  * [package <package name>;]
  * [import <import name>;]*
  * public class <code snippet class name> extends <global variable class name> {
@@ -30,6 +31,7 @@ import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
  *     <code snippet>
  *   }
  * }
+ * </pre>
  */
 class CodeSnippetToCuMapper implements EvaluationConstants {
 	/**
