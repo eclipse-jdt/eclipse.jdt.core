@@ -148,7 +148,7 @@ public class VariableDeclarationStatement extends Statement {
 
 	/**
 	 * The list of variable variable declaration fragments (element type:
-	 * <code VariableDeclarationFragment</code>).  Defaults to an empty list.
+	 * {@link VariableDeclarationFragment}).  Defaults to an empty list.
 	 */
 	private ASTNode.NodeList variableDeclarationFragments =
 		new ASTNode.NodeList(FRAGMENTS_PROPERTY);

@@ -68,7 +68,7 @@ public final class NormalAnnotation extends Annotation {
 
 	/**
 	 * The list of member value pairs (element type:
-	 * <code MemberValuePair</code>). Defaults to an empty list.
+	 * {@link MemberValuePair}). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList values =
 		new ASTNode.NodeList(VALUES_PROPERTY);
