@@ -47,7 +47,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (this.binding == null)
 				return;
 
-			if (!this.binding.isUsed()) {
+			if (!this.binding.isUsed() && !this.binding.isAbstract()) {
 				if (this.binding.isPrivate()
 					|| (((this.binding.modifiers & (ExtraCompilerModifiers.AccOverriding|ExtraCompilerModifiers.AccImplementing)) == 0)
 						&& this.binding.isOrEnclosedByPrivateType())) {

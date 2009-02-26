@@ -210,10 +210,6 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 	// obligations should qualify as a use.
 	if (concreteMethod.isOrEnclosedByPrivateType())
 		concreteMethod.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
-	for (int i = abstractMethods.length; --i >= 0;) {
-		if (abstractMethods[i].isOrEnclosedByPrivateType())
-			abstractMethods[i].original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
-	}
 }
 
 /*
