@@ -159,6 +159,15 @@ public boolean isKnownType(String qualifiedTypeName) {
 	return this.typeLocators.containsKey(qualifiedTypeName);
 }
 
+boolean isSourceFolderEmpty(IContainer sourceFolder) {
+	String sourceFolderName = sourceFolder.getProjectRelativePath().addTrailingSeparator().toString();
+	Object[] table = this.typeLocators.valueTable;
+	for (int i = 0, l = table.length; i < l; i++)
+		if (table[i] != null && ((String) table[i]).startsWith(sourceFolderName))
+			return false;
+	return true;
+}
+
 void record(String typeLocator, char[][][] qualifiedRefs, char[][] simpleRefs, char[][] rootRefs, char[] mainTypeName, ArrayList typeNames) {
 	if (typeNames.size() == 1 && CharOperation.equals(mainTypeName, (char[]) typeNames.get(0))) {
 		this.references.put(typeLocator, new ReferenceCollection(qualifiedRefs, simpleRefs, rootRefs));

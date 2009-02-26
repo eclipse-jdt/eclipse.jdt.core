@@ -487,6 +487,9 @@ private boolean hasClasspathChanged() {
 			if (newSourceLocations[n].sourceFolder.members().length == 0) { // added new empty source folder
 				o--;
 				continue;
+			} else if (this.lastState.isSourceFolderEmpty(oldSourceLocations[o].sourceFolder)) {
+				n--;
+				continue;
 			}
 		} catch (CoreException ignore) { // skip it
 		}
@@ -510,9 +513,13 @@ private boolean hasClasspathChanged() {
 		}
 		return true;
 	}
-	if (o < oldLength) {
+	while (o < oldLength) {
+		if (this.lastState.isSourceFolderEmpty(oldSourceLocations[o].sourceFolder)) {
+			o++;
+			continue;
+		}
 		if (DEBUG) {
-			System.out.println("Removed source folder"); //$NON-NLS-1$
+			System.out.println("Removed non-empty source folder"); //$NON-NLS-1$
 			printLocations(newSourceLocations, oldSourceLocations);
 		}
 		return true;
