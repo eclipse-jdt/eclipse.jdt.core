@@ -38,6 +38,366 @@ IPath getOutputFolder() {
 }
 
 /**
+ * @bug 198963: [formatter] 3.3 Code Formatter repeatedly indents block comment
+ * @test Ensure that no the formatter indents the block comment only once
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=198963"
+ */
+public void testBug198963_Tabs01() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 0; /*\n" + 
+		"    * XXXX\n" + 
+		"    */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int x = 0; /*\n" + 
+		"				* XXXX\n" + 
+		"				*/\n" + 
+		"}"
+	);
+}
+public void testBug198963_Tabs02() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 10; /*\n" + 
+		"    * XXXX\n" + 
+		"    */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int x = 10; /*\n" + 
+		"				* XXXX\n" + 
+		"				*/\n" + 
+		"}"
+	);
+}
+public void testBug198963_Tabs03() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 100; /*\n" + 
+		"    * XXXX\n" + 
+		"    */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int x = 100; /*\n" + 
+		"					* XXXX\n" + 
+		"					*/\n" + 
+		"}"
+	);
+}
+public void testBug198963_Tabs04() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 0; /*\n" + 
+		"                      * XXXX\n" + 
+		"                        */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int x = 0; /*\n" + 
+		"				       * XXXX\n" + 
+		"				         */\n" + 
+		"}"
+	);
+}
+public void testBug198963_Tabs05() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"        /*\n" + 
+		"             * XXXX\n" + 
+		"               */\n" + 
+		"    int x = 0;\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	     * XXXX\n" + 
+		"	       */\n" + 
+		"	int x = 0;\n" + 
+		"}"
+	);
+}
+public void testBug198963_Tabs06() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"            /*\n" + 
+		"         * XXXX\n" + 
+		"       */\n" + 
+		"    int x = 0;\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	* XXXX\n" + 
+		"	*/\n" + 
+		"	int x = 0;\n" + 
+		"}"
+	);
+}
+public void testBug198963_Spaces01() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 0; /*\n" + 
+		"    * XXXX\n" + 
+		"    */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 0; /*\n" + 
+		"               * XXXX\n" + 
+		"               */\n" + 
+		"}"
+	);
+}
+public void testBug198963_Spaces02() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 10; /*\n" + 
+		"    * XXXX\n" + 
+		"    */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 10; /*\n" + 
+		"                * XXXX\n" + 
+		"                */\n" + 
+		"}"
+	);
+}
+public void testBug198963_Spaces03() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 100; /*\n" + 
+		"    * XXXX\n" + 
+		"    */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 100; /*\n" + 
+		"                 * XXXX\n" + 
+		"                 */\n" + 
+		"}"
+	);
+}
+public void testBug198963_Spaces04() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 0; /*\n" + 
+		"                      * XXXX\n" + 
+		"                        */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 0; /*\n" + 
+		"                      * XXXX\n" + 
+		"                        */\n" + 
+		"}"
+	);
+}
+public void testBug198963_Spaces05() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"        /*\n" + 
+		"             * XXXX\n" + 
+		"               */\n" + 
+		"    int x = 0;\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"    /*\n" + 
+		"         * XXXX\n" + 
+		"           */\n" + 
+		"    int x = 0;\n" + 
+		"}"
+	);
+}
+public void testBug198963_Spaces06() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"            /*\n" + 
+		"         * XXXX\n" + 
+		"       */\n" + 
+		"    int x = 0;\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"    /*\n" + 
+		"    * XXXX\n" + 
+		"    */\n" + 
+		"    int x = 0;\n" + 
+		"}"
+	);
+}
+public void testBug198963_Mixed01() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 0; /*\n" + 
+		"    * XXXX\n" + 
+		"    */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int x = 0; /*\n" + 
+		"			   * XXXX\n" + 
+		"			   */\n" + 
+		"}"
+	);
+}
+public void testBug198963_Mixed02() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 10; /*\n" + 
+		"    * XXXX\n" + 
+		"    */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int x = 10; /*\n" + 
+		"				* XXXX\n" + 
+		"				*/\n" + 
+		"}"
+	);
+}
+public void testBug198963_Mixed03() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 100; /*\n" + 
+		"    * XXXX\n" + 
+		"    */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int x = 100; /*\n" + 
+		"				 * XXXX\n" + 
+		"				 */\n" + 
+		"}"
+	);
+}
+public void testBug198963_Mixed04() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    int x = 0; /*\n" + 
+		"                      * XXXX\n" + 
+		"                        */\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int x = 0; /*\n" + 
+		"			          * XXXX\n" + 
+		"			            */\n" + 
+		"}"
+	);
+}
+public void testBug198963_Mixed05() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"        /*\n" + 
+		"             * XXXX\n" + 
+		"               */\n" + 
+		"    int x = 0;\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	     * XXXX\n" + 
+		"	       */\n" + 
+		"	int x = 0;\n" + 
+		"}"
+	);
+}
+public void testBug198963_Mixed06() {
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"            /*\n" + 
+		"         * XXXX\n" + 
+		"       */\n" + 
+		"    int x = 0;\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	* XXXX\n" + 
+		"	*/\n" + 
+		"	int x = 0;\n" + 
+		"}"
+	);
+}
+
+/**
  * @bug 204091: [formatter] format region in comment introduces comment start/end tokens
  * @test Ensure that a region inside a javadoc comment is well formatted
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091"

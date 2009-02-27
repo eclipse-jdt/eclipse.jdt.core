@@ -797,14 +797,12 @@ public class Scribe implements IJavaDocTagConstants {
 				case '\t' :
 					offset += this.tabLength;
 					break;
-				case ' ' :
-					offset++;
-					break;
 				case '\r' :
 				case '\n' :
 					break;
 				default:
-					return offset;
+					offset++;
+					break;
 			}
 		}
 		return offset;
@@ -1250,51 +1248,85 @@ public class Scribe implements IJavaDocTagConstants {
 		this.needSpace = false;
 		this.pendingSpace = false;
 
+		int commentColumn = this.column;
 		if (includesBlockComments) {
 			if (printBlockComment(currentTokenStartPosition, currentTokenEndPosition)) {
 				return;
 			}
 		}
 
+		int currentIndentationLevel = this.indentationLevel;
+		if ((commentColumn-1) > this.indentationLevel) {
+			this.indentationLevel = commentColumn-1;
+		}
 		int currentCommentOffset = onFirstColumn ? 0 : getCurrentCommentOffset(start);
 		boolean formatComment = (isJavadoc && (this.formatComments & CodeFormatter.K_JAVA_DOC) != 0) || (!isJavadoc && (this.formatComments & CodeFormatter.K_MULTI_LINE_COMMENT) != 0);
 
-		while (nextCharacterStart <= currentTokenEndPosition && (currentCharacter = this.scanner.getNextChar()) != -1) {
-			nextCharacterStart = this.scanner.currentPosition;
-
-			switch(currentCharacter) {
-				case '\r' :
-					start = previousStart;
-					isNewLine = true;
-					if (this.scanner.getNextChar('\n')) {
-						currentCharacter = '\n';
+		try {
+			while (nextCharacterStart <= currentTokenEndPosition && (currentCharacter = this.scanner.getNextChar()) != -1) {
+				nextCharacterStart = this.scanner.currentPosition;
+	
+				switch(currentCharacter) {
+					case '\r' :
+						start = previousStart;
+						isNewLine = true;
+						if (this.scanner.getNextChar('\n')) {
+							currentCharacter = '\n';
+							nextCharacterStart = this.scanner.currentPosition;
+						}
+						break;
+					case '\n' :
+						start = previousStart;
+						isNewLine = true;
 						nextCharacterStart = this.scanner.currentPosition;
-					}
-					break;
-				case '\n' :
-					start = previousStart;
-					isNewLine = true;
-					nextCharacterStart = this.scanner.currentPosition;
-					break;
-				default:
-					if (isNewLine) {
-						this.column = 1;
-						this.line++;
-						isNewLine = false;
-
-						StringBuffer buffer = new StringBuffer();
-						if (onFirstColumn) {
-							// simply insert indentation if necessary
-							buffer.append(this.lineSeparator);
-							if (indentComment) {
-								printIndentationIfNecessary(buffer);
-							}
-							if (formatComment) {
+						break;
+					default:
+						if (isNewLine) {
+							this.column = 1;
+							this.line++;
+							isNewLine = false;
+	
+							StringBuffer buffer = new StringBuffer();
+							if (onFirstColumn) {
+								// simply insert indentation if necessary
+								buffer.append(this.lineSeparator);
+								if (indentComment) {
+									printIndentationIfNecessary(buffer);
+								}
+								if (formatComment) {
+									if (ScannerHelper.isWhitespace((char) currentCharacter)) {
+										int previousStartPosition = this.scanner.currentPosition;
+										while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
+											previousStart = nextCharacterStart;
+											previousStartPosition = this.scanner.currentPosition;
+											currentCharacter = this.scanner.getNextChar();
+											nextCharacterStart = this.scanner.currentPosition;
+										}
+										if (currentCharacter == '\r' || currentCharacter == '\n') {
+											nextCharacterStart = previousStartPosition;
+										}
+									}
+									if (currentCharacter != '\r' && currentCharacter != '\n') {
+										buffer.append(' ');
+									}
+								}
+							} else {
 								if (ScannerHelper.isWhitespace((char) currentCharacter)) {
 									int previousStartPosition = this.scanner.currentPosition;
-									while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
+									int count = 0;
+									loop: while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
+										if (count >= currentCommentOffset) {
+											break loop;
+										}
 										previousStart = nextCharacterStart;
 										previousStartPosition = this.scanner.currentPosition;
+										switch(currentCharacter) {
+											case '\t' :
+												count += this.tabLength;
+												break;
+											default :
+												count ++;
+										}
 										currentCharacter = this.scanner.getNextChar();
 										nextCharacterStart = this.scanner.currentPosition;
 									}
@@ -1302,62 +1334,37 @@ public class Scribe implements IJavaDocTagConstants {
 										nextCharacterStart = previousStartPosition;
 									}
 								}
-								if (currentCharacter != '\r' && currentCharacter != '\n') {
-									buffer.append(' ');
+								buffer.append(this.lineSeparator);
+								if (indentComment) {
+									printIndentationIfNecessary(buffer);
+								}
+								if (formatComment) {
+									int previousStartTemp = previousStart;
+									int nextCharacterStartTemp = nextCharacterStart;
+									while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
+										previousStart = nextCharacterStart;
+										currentCharacter = this.scanner.getNextChar();
+										nextCharacterStart = this.scanner.currentPosition;
+									}
+									if (currentCharacter == '*') {
+										buffer.append(' ');
+									} else {
+										previousStart = previousStartTemp;
+										nextCharacterStart = nextCharacterStartTemp;
+									}
+									this.scanner.currentPosition = nextCharacterStart;
 								}
 							}
+							addReplaceEdit(start, previousStart - 1, String.valueOf(buffer));
 						} else {
-							if (ScannerHelper.isWhitespace((char) currentCharacter)) {
-								int previousStartPosition = this.scanner.currentPosition;
-								int count = 0;
-								loop: while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
-									if (count >= currentCommentOffset) {
-										break loop;
-									}
-									previousStart = nextCharacterStart;
-									previousStartPosition = this.scanner.currentPosition;
-									switch(currentCharacter) {
-										case '\t' :
-											count += this.tabLength;
-											break;
-										default :
-											count ++;
-									}
-									currentCharacter = this.scanner.getNextChar();
-									nextCharacterStart = this.scanner.currentPosition;
-								}
-								if (currentCharacter == '\r' || currentCharacter == '\n') {
-									nextCharacterStart = previousStartPosition;
-								}
-							}
-							buffer.append(this.lineSeparator);
-							if (indentComment) {
-								printIndentationIfNecessary(buffer);
-							}
-							if (formatComment) {
-								int previousStartTemp = previousStart;
-								int nextCharacterStartTemp = nextCharacterStart;
-								while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
-									previousStart = nextCharacterStart;
-									currentCharacter = this.scanner.getNextChar();
-									nextCharacterStart = this.scanner.currentPosition;
-								}
-								if (currentCharacter == '*') {
-									buffer.append(' ');
-								} else {
-									previousStart = previousStartTemp;
-									nextCharacterStart = nextCharacterStartTemp;
-								}
-								this.scanner.currentPosition = nextCharacterStart;
-							}
+							this.column += (nextCharacterStart - previousStart);
 						}
-						addReplaceEdit(start, previousStart - 1, String.valueOf(buffer));
-					} else {
-						this.column += (nextCharacterStart - previousStart);
-					}
+				}
+				previousStart = nextCharacterStart;
+				this.scanner.currentPosition = nextCharacterStart;
 			}
-			previousStart = nextCharacterStart;
-			this.scanner.currentPosition = nextCharacterStart;
+		} finally {
+			this.indentationLevel = currentIndentationLevel;
 		}
 		this.lastNumberOfNewLines = 0;
 		this.needSpace = false;
@@ -1365,7 +1372,6 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	private boolean printBlockComment(int currentTokenStartPosition, int currentTokenEndPosition) {
-
 
 		// Compute indentation
 		int maxColumn = this.formatter.preferences.comment_line_length + 1;
