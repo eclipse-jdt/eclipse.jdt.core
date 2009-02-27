@@ -142,13 +142,6 @@ private int getHtmlTagIndex(char[] htmlTag) {
 	int length = htmlTag == null ? 0 : htmlTag.length;
 	int tagId = 0;
 	if (length > 0) {
-		for (int i=0, max=JAVADOC_SPECIAL_TAGS.length; i<max; i++) {
-			char[] tag = JAVADOC_SPECIAL_TAGS[i];
-			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				tagId = JAVADOC_SPECIAL_TAGS_ID;
-				break;
-			}
-		}
 		for (int i=0, max=JAVADOC_SINGLE_BREAK_TAG.length; i<max; i++) {
 			char[] tag = JAVADOC_SINGLE_BREAK_TAG[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
@@ -193,7 +186,10 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
     boolean valid = false;
     boolean incremented = false;
     int start = this.scanner.currentPosition;
+    int currentPosition = start;
     int htmlPtr = this.htmlTagsPtr;
+    char firstChar = peekChar();
+    boolean hasWhitespaces = firstChar == ' ' || ScannerHelper.isWhitespace(firstChar);
 	try {
 	    int token = readTokenAndConsume();
 	    char[] htmlTag;
@@ -240,6 +236,7 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 		    		}
 				}
 				// Accept xhtml syntax
+				currentPosition = this.scanner.currentPosition;
 				if (readToken() == TerminalTokens.TokenNameDIVIDE) {
 					consumeToken();
 				}
@@ -268,24 +265,60 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 				// set closing flag
 				htmlIndex |= JAVADOC_CLOSED_TAG;
 				closing = true;
+				currentPosition = this.scanner.currentPosition;
 	    		break;
 	    	default:
     			return false;
 	    }
-	    if ((token = readTokenAndConsume()) != TerminalTokens.TokenNameGREATER) {
-	    	if ((htmlIndex & JAVADOC_SPECIAL_TAGS_ID) == JAVADOC_SPECIAL_TAGS_ID) {
-	    		// Special tags may have attributes, so consume tokens until the greater token is encountered
-	    		while (token != TerminalTokens.TokenNameGREATER) {
-	    			token = readTokenAndConsume();
-	    			if (token == TerminalTokens.TokenNameEOF) {
-	    				return false;
-	    			}
+	    
+	    // Looking for tag closing
+	    switch (token = readTokenAndConsume()) {
+	    	case TerminalTokens.TokenNameLESS:
+	    	case TerminalTokens.TokenNameLESS_EQUAL:
+	    		// consider that the closing '>' is missing
+	    		return false;
+	    	case TerminalTokens.TokenNameGREATER:
+	    		// simple tag without attributes
+	    		break;
+	    	case TerminalTokens.TokenNameGREATER_EQUAL:
+	    	case TerminalTokens.TokenNameRIGHT_SHIFT:
+	    	case TerminalTokens.TokenNameRIGHT_SHIFT_EQUAL:
+	    		// simple tag without attributes, but the closing '>' is followed by an '=' or '>'
+	    		break;
+	    	default:
+	    		this.index = currentPosition;
+	    		loop: while (true) {
+//	    			currentPosition = this.index;
+				    switch (readChar()) {
+				    	case '<':
+				    		if (hasWhitespaces) {
+				    			// not 100% sure this is a tag definition => give up
+				    			return false;
+				    		}
+				    		// opening tag => consider the current one as closed
+				    		this.index = currentPosition;
+				    		this.scanner.startPosition = currentPosition;
+				    		this.scanner.currentPosition = currentPosition;
+				    		this.scanner.currentCharacter = '<';
+				    		break loop;
+				    	case '>':
+				    		// simple tag without attributes
+				    		this.scanner.startPosition = this.index;
+				    		this.scanner.currentPosition = this.index;
+				    		this.scanner.currentCharacter = peekChar();
+				    		break loop;
+			    		default:
+			    			break;
+				    }
+				    if (this.index >= this.javadocTextEnd) {
+		    			// the end of the comment is reached => consider current tag as closed
+			    		this.index = currentPosition;
+			    		this.scanner.startPosition = currentPosition;
+			    		this.scanner.currentPosition = currentPosition;
+			    		break;
+				    }
 	    		}
-	    	} else {
-		    	// invalid syntax
-				return false;
-	    	}
-	    }
+		}
 
 	    // Push texts
 		if (this.lineStarted && this.textStart != -1 && this.textStart < endTextPosition) {

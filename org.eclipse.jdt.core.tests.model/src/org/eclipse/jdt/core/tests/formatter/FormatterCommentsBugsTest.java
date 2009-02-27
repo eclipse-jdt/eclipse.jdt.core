@@ -3771,6 +3771,356 @@ public void testBug254998c() throws JavaModelException {
 }
 
 /**
+ * @bug 260011: [formatter] Formatting of html in javadoc comments doesn't work with style attributes
+ * @test Ensure that the comment formatter understand <p> html tag with attributes
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260011"
+ */
+public void testBug260011() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"    /**\n" + 
+		"     * some comment text here\n" + 
+		"     * <p style=\"font-variant:small-caps;\">\n" + 
+		"     * some text to be styled a certain way\n" + 
+		"     * </p>\n" + 
+		"     */\n" + 
+		"    void foo() {}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	/**\n" + 
+		"	 * some comment text here\n" + 
+		"	 * <p style=\"font-variant:small-caps;\">\n" + 
+		"	 * some text to be styled a certain way\n" + 
+		"	 * </p>\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_01() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"    /**\n" + 
+		"     * some comment text here\n" + 
+		"     * <ul style=\"font-variant:small-caps;\"><li style=\"font-variant:small-caps;\">\n" + 
+		"     * some text to be styled a certain way</li></ul>\n" + 
+		"     * end of comment\n" + 
+		"     */\n" + 
+		"    void foo() {}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	/**\n" + 
+		"	 * some comment text here\n" + 
+		"	 * <ul style=\"font-variant:small-caps;\">\n" + 
+		"	 * <li style=\"font-variant:small-caps;\">\n" + 
+		"	 * some text to be styled a certain way</li>\n" + 
+		"	 * </ul>\n" + 
+		"	 * end of comment\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_02() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"    /**\n" + 
+		"     * some comment text here\n" + 
+		"     * <pre style=\"font-variant:small-caps;\">\n" + 
+		"     *      some text\n" + 
+		"     *           to be styled\n" + 
+		"     *                 a certain way\n" + 
+		"     *      \n" + 
+		"     * </pre>\n" + 
+		"     * end of comment\n" + 
+		"     */\n" + 
+		"    void foo() {}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	/**\n" + 
+		"	 * some comment text here\n" + 
+		"	 * \n" + 
+		"	 * <pre style=\"font-variant:small-caps;\">\n" + 
+		"	 *      some text\n" + 
+		"	 *           to be styled\n" + 
+		"	 *                 a certain way\n" + 
+		"	 * \n" + 
+		"	 * </pre>\n" + 
+		"	 * \n" + 
+		"	 * end of comment\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_03() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Indent char is a space char but not a line delimiters.\n" + 
+		"	 * <code>== Character.isWhitespace(ch) && ch != \'\\n\' && ch != \'\\r\'</code>\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Indent char is a space char but not a line delimiters.\n" + 
+		"	 * <code>== Character.isWhitespace(ch) && ch != \'\\n\' && ch != \'\\r\'</code>\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_04() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * The list of variable declaration fragments (element type: \n" + 
+		"	 * <code VariableDeclarationFragment</code>).  Defaults to an empty list.\n" + 
+		"	 */\n" + 
+		"	int field;\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * The list of variable declaration fragments (element type:\n" + 
+		"	 * <code VariableDeclarationFragment</code>). Defaults to an empty list.\n" + 
+		"	 */\n" + 
+		"	int field;\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_05() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Compares version strings.\n" + 
+		"	 * \n" + 
+		"	 * @return result of comparison, as integer;\n" + 
+		"	 * <code><0 if left is less than right </code>\n" + 
+		"	 * <code>0 if left is equals to right</code>\n" + 
+		"	 * <code>>0 if left is greater than right</code>\n" + 
+		"	 */\n" + 
+		"	int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Compares version strings.\n" + 
+		"	 * \n" + 
+		"	 * @return result of comparison, as integer;\n" + 
+		"	 *         <code><0 if left is less than right </code>\n" + 
+		"	 *         <code>0 if left is equals to right</code>\n" + 
+		"	 *         <code>>0 if left is greater than right</code>\n" + 
+		"	 */\n" + 
+		"	int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_06() throws JavaModelException {
+	String source = 
+		"public interface Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Returns the length of this array.\n" + 
+		"	 * \n" + 
+		"	 * @return the length of this array\n" + 
+		"	 * @exception DebugException if this method fails. Reasons include:<ul>\n" + 
+		"	 * <li>Failure communicating with the VM.  The DebugException\'s\n" + 
+		"	 * status code contains the underlying exception responsible for\n" + 
+		"	 * the failure.</li>\n" + 
+		"	 * </ul\n" + 
+		"	 */\n" + 
+		"	public int getLength();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Returns the length of this array.\n" + 
+		"	 * \n" + 
+		"	 * @return the length of this array\n" + 
+		"	 * @exception DebugException\n" + 
+		"	 *                if this method fails. Reasons include:\n" + 
+		"	 *                <ul>\n" + 
+		"	 *                <li>Failure communicating with the VM. The\n" + 
+		"	 *                DebugException\'s status code contains the underlying\n" + 
+		"	 *                exception responsible for the failure.</li>\n" + 
+		"	 *                </ul\n" + 
+		"	 */\n" + 
+		"	public int getLength();\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_07() throws JavaModelException {
+	String source = 
+		"public interface Test {\n" + 
+		"\n" + 
+		"	\n" + 
+		"	/**\n" + 
+		"	 * Returns the change directly associated with this change element or <code\n" + 
+		"	 * null</code> if the element isn\'t associated with a change.\n" + 
+		"	 * \n" + 
+		"	 * @return the change or <code>null</code>\n" + 
+		"	 */\n" + 
+		"	public String getChange();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Returns the change directly associated with this change element or <code\n" + 
+		"	 * null</code>\n" + 
+		"	 * if the element isn\'t associated with a change.\n" + 
+		"	 * \n" + 
+		"	 * @return the change or <code>null</code>\n" + 
+		"	 */\n" + 
+		"	public String getChange();\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_08() throws JavaModelException {
+	String source = 
+		"public interface Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Answer the element factory for an id, or <code>null</code. if not found.\n" + 
+		"	 * @param targetID\n" + 
+		"	 * @return\n" + 
+		"	 */\n" + 
+		"	public int foo(String targetID);\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Answer the element factory for an id, or <code>null</code. if not found.\n" + 
+		"	 * \n" + 
+		"	 * @param targetID\n" + 
+		"	 * @return\n" + 
+		"	 */\n" + 
+		"	public int foo(String targetID);\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_09() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"     * o   Example: baseCE < a << b <<< q << c < d < e * nextCE(X,1) \n" + 
+		"	 */\n" + 
+		"	int field;\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * o Example: baseCE < a << b <<< q << c < d < e * nextCE(X,1)\n" + 
+		"	 */\n" + 
+		"	int field;\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_09b() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"     * o   Example: baseCE < a < b < q < c < p < e * nextCE(X,1) \n" + 
+		"	 */\n" + 
+		"	int field;\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * o Example: baseCE < a < b < q < c < p < e * nextCE(X,1)\n" + 
+		"	 */\n" + 
+		"	int field;\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_10() throws JavaModelException {
+	String source = 
+		"public interface Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Creates and opens a dialog to edit the given template.\n" + 
+		"	 * <p\n" + 
+		"	 * Subclasses may override this method to provide a custom dialog.</p>\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Creates and opens a dialog to edit the given template.\n" + 
+		"	 * <p\n" + 
+		"	 * Subclasses may override this method to provide a custom dialog.\n" + 
+		"	 * </p>\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug260011_11() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"    /** \n" + 
+		"     * <p>Binary property IDS_Trinary_Operator (new).</p> \n" + 
+		"     * <p?For programmatic determination of Ideographic Description \n" + 
+		"     * Sequences.</p> \n" + 
+		"     * @stable ICU 2.6\n" + 
+		"     */ \n" + 
+		"    public static final int IDS_TRINARY_OPERATOR = 19; \n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <p>\n" + 
+		"	 * Binary property IDS_Trinary_Operator (new).\n" + 
+		"	 * </p>\n" + 
+		"	 * <p\n" + 
+		"	 * ?For programmatic determination of Ideographic Description Sequences.\n" + 
+		"	 * </p>\n" + 
+		"	 * \n" + 
+		"	 * @stable ICU 2.6\n" + 
+		"	 */\n" + 
+		"	public static final int IDS_TRINARY_OPERATOR = 19;\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 260274: [formatter] * character is removed while formatting block comments
  * @test Ensure that the comment formatter keep '*' characters while formatting block comments
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260274"
