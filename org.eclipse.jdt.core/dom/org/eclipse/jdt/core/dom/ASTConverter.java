@@ -3660,13 +3660,11 @@ class ASTConverter {
 			while(!(currentNode instanceof AbstractTypeDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
-			if (currentNode instanceof AbstractTypeDeclaration) {
-				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-				if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
-					return typeDecl.staticInitializerScope;
-				} else {
-					return typeDecl.initializerScope;
-				}
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+			if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
+				return typeDecl.staticInitializerScope;
+			} else {
+				return typeDecl.initializerScope;
 			}
 		} else if (currentNode instanceof AbstractTypeDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
