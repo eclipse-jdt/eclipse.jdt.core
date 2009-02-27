@@ -2476,7 +2476,7 @@ public class JavaProject
 		return resolveClasspath(rawClasspath, false/*don't use previous session*/, true/*resolve chained libraries*/).resolvedClasspath;
 	}
 	
-	class ResolvedClasspath {
+	static class ResolvedClasspath {
 		IClasspathEntry[] resolvedClasspath;
 		IJavaModelStatus unresolvedEntryStatus = JavaModelStatus.VERIFIED_OK;
 		HashMap rawReverseMap = new HashMap();
