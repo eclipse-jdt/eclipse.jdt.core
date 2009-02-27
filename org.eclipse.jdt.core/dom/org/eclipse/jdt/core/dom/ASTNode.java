@@ -1349,7 +1349,7 @@ public abstract class ASTNode {
 		 *    or removed
 		 * @param delta +1 for add, and -1 for remove
 		 */
-		private void updateCursors(int index, int delta) {
+		private synchronized void updateCursors(int index, int delta) {
 			if (this.cursors == null) {
 				// there are no cursors to worry about
 				return;
