@@ -7344,7 +7344,7 @@ public void wildcardInvocation(ASTNode location, TypeBinding receiverType, Metho
 		}
 	}
 
-    if (method.isConstructor()) {
+	if (method.isConstructor()) {
 		this.handle(
 			IProblem.WildcardConstructorInvocation,
 			new String[] {
