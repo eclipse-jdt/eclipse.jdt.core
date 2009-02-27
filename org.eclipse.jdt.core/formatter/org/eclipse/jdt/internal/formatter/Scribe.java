@@ -1726,6 +1726,9 @@ public class Scribe implements IJavaDocTagConstants {
 						if (count == 0) {
 							hasWhitespace = true;
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+						} else if (hasLineComment) {
+							preserveEmptyLines(count, this.scanner.getCurrentTokenStartPosition());
+							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						} else if (hasComment) {
 							if (count == 1) {
 								this.printNewLine(this.scanner.getCurrentTokenStartPosition());
@@ -1953,9 +1956,6 @@ public class Scribe implements IJavaDocTagConstants {
 							} else {
 								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
 							}
-							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-						} else if (hasLineComment) {
-							preserveEmptyLines(count, this.scanner.getCurrentTokenStartPosition());
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						} else if (count != 0 && (!this.formatter.preferences.join_wrapped_lines || this.formatter.preferences.number_of_empty_lines_to_preserve != 0)) {
 							addReplaceEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), getPreserveEmptyLines(count-1));

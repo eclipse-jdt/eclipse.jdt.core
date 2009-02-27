@@ -431,6 +431,188 @@ public void _testBug204091() {
 }
 
 /**
+ * @bug 217108: [formatter] deletes blank lines between comments
+ * @test Ensure that blank lines are preserved
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=217108"
+ */
+public void testBug217108a() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    /* a */\n" + 
+		"    // b\n" + 
+		"\n" + 
+		"    int i;\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/* a */\n" + 
+		"	// b\n" + 
+		"\n" + 
+		"	int i;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug217108b() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    /* a */\n" + 
+		"\n" + 
+		"    // b\n" + 
+		"\n" + 
+		"    int i;\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/* a */\n" + 
+		"\n" + 
+		"	// b\n" + 
+		"\n" + 
+		"	int i;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug217108c() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    // b\n" + 
+		"    /* a */\n" + 
+		"\n" + 
+		"    int i;\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	// b\n" + 
+		"	/* a */\n" + 
+		"\n" + 
+		"	int i;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug217108d() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    // b\n" + 
+		"\n" + 
+		"    /* a */\n" + 
+		"\n" + 
+		"    int i;\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	// b\n" + 
+		"\n" + 
+		"	/* a */\n" + 
+		"\n" + 
+		"	int i;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug217108e() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    // a\n" + 
+		"\n" + 
+		"    // b\n" + 
+		"\n" + 
+		"    int i;\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	// a\n" + 
+		"\n" + 
+		"	// b\n" + 
+		"\n" + 
+		"	int i;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug217108f() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    // a\n" + 
+		"    // b\n" + 
+		"\n" + 
+		"    int i;\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	// a\n" + 
+		"	// b\n" + 
+		"\n" + 
+		"	int i;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug217108g() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    /** a */\n" + 
+		"    // b\n" + 
+		"\n" + 
+		"    int i;\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/** a */\n" + 
+		"	// b\n" + 
+		"\n" + 
+		"	int i;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug217108h() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    /** a */\n" + 
+		"\n" + 
+		"    // b\n" + 
+		"\n" + 
+		"    int i;\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/** a */\n" + 
+		"\n" + 
+		"	// b\n" + 
+		"\n" + 
+		"	int i;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 228652: [formatter] New line inserted while formatting a region of a compilation unit.
  * @test Ensure that no new line is inserted before the formatted region
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228652"
