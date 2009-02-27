@@ -3037,4 +3037,33 @@ public void test074() {
 		"----------\n"
 	);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=266421
+public void test075() {
+	this.runNegativeTest(
+		new String[] {
+			"C.java",
+			"abstract class A<T extends Comparable> {\n" +
+			"	abstract int x(T val);\n" +
+			"}\n" +
+			"class B<T extends Comparable> extends A<T> {\n" +
+			"	@Override int x(T val) { return 0; }\n" +
+			"}\n" +
+			"class C extends B<Double> {\n" +
+			"    int test(Double val) { return x(val); }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in C.java (at line 1)\n" + 
+		"	abstract class A<T extends Comparable> {\n" + 
+		"	                           ^^^^^^^^^^\n" + 
+		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in C.java (at line 4)\n" + 
+		"	class B<T extends Comparable> extends A<T> {\n" + 
+		"	                  ^^^^^^^^^^\n" + 
+		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+		"----------\n"
+	);
+}
 }

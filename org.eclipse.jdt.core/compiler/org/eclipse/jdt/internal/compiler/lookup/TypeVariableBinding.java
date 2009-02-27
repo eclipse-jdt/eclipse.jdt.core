@@ -291,8 +291,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 
 	boolean hasOnlyRawBounds() {
-		if (this.superclass != null && !this.superclass.isRawType())
-			return false;
+		if (this.superclass != null && this.firstBound == this.superclass)
+			if (!this.superclass.isRawType())
+				return false;
 
 		if (this.superInterfaces != null)
 			for (int i = 0, l = this.superInterfaces.length; i < l; i++)
