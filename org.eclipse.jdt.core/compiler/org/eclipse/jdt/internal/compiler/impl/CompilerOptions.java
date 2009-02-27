@@ -517,7 +517,7 @@ public class CompilerOptions {
 
 	public static long optionKeyToIrritant(String optionName) {
 		if (OptionToIrritants == null) {
-			OptionToIrritants = new HashMap();
+			Map temp = new HashMap();
 			int group = 0;
 			for (int g = 0; g < 8; g++) {
 				group <<= 1;
@@ -527,10 +527,10 @@ public class CompilerOptions {
 					int irritant = (group<<IrritantSet.GROUP_SHIFT)+index;
 					String optionKey = optionKeyFromIrritant(irritant);
 					if (optionKey == null) continue;
-					OptionToIrritants.put(optionKey, new Integer(irritant));
+					temp.put(optionKey, new Integer(irritant));
 				}
-				
 			}
+			OptionToIrritants = temp;
 		}
 		Long irritant = (Long)OptionToIrritants.get(optionName);
 		return irritant == null ? 0 : irritant.longValue();
