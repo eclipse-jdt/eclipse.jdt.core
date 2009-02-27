@@ -191,7 +191,8 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 		WRITE_DIR = writeDir;
 		COMPARE = compare;
 	}
-	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2")); //$NON-NLS-1$
+	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2"));
+	private final static boolean NO_COMMENTS = System.getProperty("no_comments", "false").equals("true");
 
 	// Failures management
 	int failureIndex;
@@ -323,6 +324,11 @@ public void setUp() throws Exception {
 	super.setUp();
 	this.hasSpaceFailure = false;
 	this.preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
+	if (NO_COMMENTS) {
+		this.preferences.comment_format_javadoc_comment = false;
+		this.preferences.comment_format_block_comment = false;
+		this.preferences.comment_format_line_comment = false;
+	}
 }
 
 /* (non-Javadoc)
