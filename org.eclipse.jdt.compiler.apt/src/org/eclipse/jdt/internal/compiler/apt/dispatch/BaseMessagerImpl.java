@@ -11,18 +11,25 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic.Kind;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.apt.model.AnnotationMemberValue;
+import org.eclipse.jdt.internal.compiler.apt.model.AnnotationMirrorImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.ExecutableElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.TypeElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.VariableElementImpl;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.AptSourceLocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -44,8 +51,10 @@ public class BaseMessagerImpl {
 	 * and filename will be set to null.
 	 * @return
 	 */
-	public static AptProblem createProblem(Kind kind, CharSequence msg, Element e) {
+	public static AptProblem createProblem(Kind kind, CharSequence msg, Element e, 
+			AnnotationMirror a, AnnotationValue v) {
 		ReferenceContext referenceContext = null;
+		Annotation[] elementAnnotations = null;
 		int startPosition = 0;
 		int endPosition = 0;
 		if (e != null) {
@@ -60,6 +69,7 @@ public class BaseMessagerImpl {
 						SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) typeBinding;
 						TypeDeclaration typeDeclaration = (TypeDeclaration) sourceTypeBinding.scope.referenceContext();
 						referenceContext = typeDeclaration;
+						elementAnnotations = typeDeclaration.annotations;
 						startPosition = typeDeclaration.sourceStart;
 						endPosition = typeDeclaration.sourceEnd;
 					}
@@ -76,6 +86,7 @@ public class BaseMessagerImpl {
 						AbstractMethodDeclaration sourceMethod = methodBinding.sourceMethod();
 						if (sourceMethod != null) {
 							referenceContext = sourceMethod;
+							elementAnnotations = sourceMethod.annotations;
 							startPosition = sourceMethod.sourceStart;
 							endPosition = sourceMethod.sourceEnd;
 						}
@@ -99,6 +110,7 @@ public class BaseMessagerImpl {
 								TypeDeclaration typeDeclaration = (TypeDeclaration) sourceTypeBinding.scope.referenceContext();
 								referenceContext = typeDeclaration;
 							}
+							elementAnnotations = fieldDeclaration.annotations;
 							startPosition = fieldDeclaration.sourceStart;
 							endPosition = fieldDeclaration.sourceEnd;
 						}
@@ -110,6 +122,7 @@ public class BaseMessagerImpl {
 							if (methodBinding != null) {
 								referenceContext = methodBinding.sourceMethod();
 							}
+							elementAnnotations = parameterDeclaration.annotations;
 							startPosition = parameterDeclaration.sourceStart;
 							endPosition = parameterDeclaration.sourceEnd;
 						}
@@ -126,6 +139,33 @@ public class BaseMessagerImpl {
 		StringBuilder builder = new StringBuilder();
 		if (msg != null) {
 			builder.append(msg);
+		}
+		if (a != null && elementAnnotations != null) {
+			AnnotationBinding annotationBinding = ((AnnotationMirrorImpl) a)._binding;
+			Annotation annotation = null;
+			for (int i = 0; annotation == null && i < elementAnnotations.length; i++) {
+				if (annotationBinding == elementAnnotations[i].getCompilerAnnotation()) {
+					annotation = elementAnnotations[i];
+				}
+			}
+			if (annotation != null) {
+				startPosition = annotation.sourceStart;
+				endPosition = annotation.sourceEnd;
+				if (v != null && v instanceof AnnotationMemberValue) {
+					MethodBinding methodBinding = ((AnnotationMemberValue) v).getMethodBinding();
+					MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
+					MemberValuePair memberValuePair = null;
+					for (int i = 0; memberValuePair == null && i < memberValuePairs.length; i++) {
+						if (methodBinding == memberValuePairs[i].binding) {
+							memberValuePair = memberValuePairs[i];
+						}
+					}
+					if (memberValuePair != null) {
+						startPosition = memberValuePair.sourceStart;
+						endPosition = memberValuePair.sourceEnd;
+					}
+				}
+			}
 		}
 		int lineNumber = 0;
 		int columnNumber = 1;

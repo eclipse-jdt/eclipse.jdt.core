@@ -66,11 +66,10 @@ public class BatchMessagerImpl extends BaseMessagerImpl implements Messager {
 	@Override
 	public void printMessage(Kind kind, CharSequence msg, Element e,
 			AnnotationMirror a, AnnotationValue v) {
-		//TODO: we are currently ignoring 'a' and 'v'
 		if (kind == Kind.ERROR) {
 			_processingEnv.setErrorRaised(true);
 		}
-		CategorizedProblem problem = createProblem(kind, msg, e);
+		CategorizedProblem problem = createProblem(kind, msg, e, a, v);
 		if (problem != null) {
 			this._compiler.addExtraProblems(problem);
 		}

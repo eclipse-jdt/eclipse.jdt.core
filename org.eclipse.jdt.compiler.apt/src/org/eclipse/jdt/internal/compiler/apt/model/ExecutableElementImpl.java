@@ -69,7 +69,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 	public AnnotationValue getDefaultValue() {
 		MethodBinding binding = (MethodBinding)_binding;
 		Object defaultValue = binding.getDefaultValue();
-		if (defaultValue != null) return new AnnotationValueImpl(_env, defaultValue, binding.returnType);
+		if (defaultValue != null) return new AnnotationMemberValue(_env, defaultValue, binding);
 		return null;
 	}
 	

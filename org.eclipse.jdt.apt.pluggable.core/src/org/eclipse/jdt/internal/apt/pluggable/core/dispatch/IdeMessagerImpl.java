@@ -72,7 +72,7 @@ public class IdeMessagerImpl implements Messager {
 	 */
 	public void printMessage(Kind kind, CharSequence msg, Element e, AnnotationMirror a,
 			AnnotationValue v) {
-		AptProblem problem = BatchMessagerImpl.createProblem(kind, msg, e);
+		AptProblem problem = BatchMessagerImpl.createProblem(kind, msg, e, a, v);
 		if (kind == Kind.NOTE) {
 			Apt6Plugin.log(new Status(IStatus.INFO, Apt6Plugin.PLUGIN_ID, Apt6Plugin.STATUS_EXCEPTION, problem.getMessage(), null));
 		}
