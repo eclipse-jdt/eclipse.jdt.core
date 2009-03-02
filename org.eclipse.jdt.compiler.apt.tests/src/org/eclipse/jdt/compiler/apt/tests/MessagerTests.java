@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2009 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,8 +29,36 @@ import junit.framework.TestCase;
  * @since 3.3
  */
 public class MessagerTests extends TestCase {
+	private static final String COMPARE_OK = "OK";
 	// See corresponding usages in the MessagerProc class
 	private static final String MESSAGERPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.messager.MessagerProc";
+	
+	// Expected output for the javac compiler.
+	// Note that this is actually a series of regular expressions, which will be matched line by line!
+	// This is required in order to deal with things like hard-coded paths.
+	private static final String[] EXPECTED_JAVAC_MESSAGES = {
+		"Note\\: Informational message not associated with an element",
+		".*D\\.java\\:15\\: Error on element D",
+		"public class D \\{",
+		"       \\^",
+		".*D\\.java\\:12\\: Error on element D",
+		"\\@AnnoZ\\(",
+		"\\^",
+		".*D\\.java\\:12\\: Error on element D",
+		"\\@AnnoZ\\(",
+		"\\^",
+		"error\\: Error on element java\\.lang\\.String",
+		".*E\\.java\\:12\\: warning\\: Warning on method foo",
+		"	public void foo\\(int i\\) \\{\\}",
+		"	            \\^",
+		".*E\\.java\\:14\\: Note\\: Note for field j",
+		"	public static int j;",
+		"	                  \\^",
+		".*D\\.java\\:19\\: warning\\: Error on parameter of D\\.methodDvoid",
+		"	public void methodDvoid\\(DEnum dEnum1\\) \\{",
+		"	                              \\^",
+		"4 errors"
+	};
 	
 	// Expected output for Eclipse compiler.
 	// Note that this is actually a series of regular expressions, which will be matched line by line!
@@ -45,14 +73,14 @@ public class MessagerTests extends TestCase {
 		"	             \\^", 
 		"Error on element D", 
 		"----------", 
-		"3\\. ERROR in .*D\\.java \\(at line 15\\)", 
-		"	public class D \\{", 
-		"	             \\^", 
+		"3\\. ERROR in .*D\\.java \\(at line 12\\)", 
+		"	@AnnoZ\\(",
+		"	\\^\\^\\^\\^\\^\\^",
 		"Error on element D", 
 		"----------", 
-		"4\\. ERROR in .*D\\.java \\(at line 15\\)", 
-		"	public class D \\{", 
-		"	             \\^", 
+		"4\\. ERROR in .*D\\.java \\(at line 13\\)", 
+		"	annoZString = \"annoZOnD\"\\)", 
+		"	\\^\\^\\^\\^\\^\\^\\^\\^\\^\\^\\^", 
 		"Error on element D", 
 		"----------", 
 		"5\\. ERROR in \\(original file name is not available\\)", 
@@ -80,13 +108,13 @@ public class MessagerTests extends TestCase {
 	 * Compare an actual multi-line string against an array of regular expressions
 	 * representing an expected string. Each regular expression will be matched against
 	 * one line of the actual string.
-	 * @return true if every line in the actual was matched by the corresponding regex
-	 * in the expected.
+	 * @return the string "OK" if every line in the actual was matched by the corresponding regex
+	 * in the expected, or an error string if not.
 	 */
-	private static boolean compareRegexLines(String actual, String[] expected) {
+	private static String compareRegexLines(String actual, String[] expected) {
 		String[] actualLines = actual.split("\n");
 		if (actualLines.length != expected.length) {
-			return false;
+			return "ERROR: expected " + expected.length + " lines but found " + actualLines.length;
 		}
 		int i = 0;
 		for (String pattern : expected) {
@@ -95,10 +123,11 @@ public class MessagerTests extends TestCase {
 			int iNL = actualLines[i].indexOf('\n');
 			actualLines[i] = iNL > 0 ? actualLines[i].substring(0, iNL) : actualLines[i];
 			if (!Pattern.matches(pattern, actualLines[i++])) {
-				return false;
+				--i;
+				return "ERROR: mismatch at line " + i + ": actual line was [" + actualLines[i] + "]";
 			}
 		}
-		return true;
+		return COMPARE_OK;
 	}
 	
 	@Override
@@ -113,8 +142,8 @@ public class MessagerTests extends TestCase {
 	 */
 	public void testMessagerWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestMessager(compiler);
-		// TODO: validate errors against expected
+		String actualErrors = internalTestMessager(compiler);
+		assertEquals(COMPARE_OK, compareRegexLines(actualErrors, EXPECTED_JAVAC_MESSAGES));
 	}
 
 	/**
@@ -124,7 +153,7 @@ public class MessagerTests extends TestCase {
 	public void testMessagerWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		String actualErrors = internalTestMessager(compiler);
-		assertTrue(compareRegexLines(actualErrors, EXPECTED_ECLIPSE_MESSAGES));
+		assertEquals(COMPARE_OK, compareRegexLines(actualErrors, EXPECTED_ECLIPSE_MESSAGES));
 	}
 
 	/**
@@ -153,6 +182,8 @@ public class MessagerTests extends TestCase {
 		String property = System.getProperty(MESSAGERPROCNAME);
 		assertNotNull("No property", property);
 		assertEquals("succeeded", property);
+		
+		//System.out.println(errors.getBuffer().toString());
 		
 		return errors.getBuffer().toString();
 	}
