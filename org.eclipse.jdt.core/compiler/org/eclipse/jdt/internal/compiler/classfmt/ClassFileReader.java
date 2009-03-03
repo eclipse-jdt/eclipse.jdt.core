@@ -50,6 +50,7 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private long version;
 	private char[] enclosingTypeName;
 	private char[][][] missingTypeNames;
+	private int enclosingNameAndTypeIndex;
 	
 private static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -276,8 +277,9 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 				case 'E' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.EnclosingMethodName)) {
 						utf8Offset = 
-							constantPoolOffsets[u2At(constantPoolOffsets[u2At(readOffset + 6)] - structOffset + 1)] - structOffset; 
+							this.constantPoolOffsets[u2At(this.constantPoolOffsets[u2At(readOffset + 6)] + 1)];
 						this.enclosingTypeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+						this.enclosingNameAndTypeIndex = u2At(readOffset + 8);
 					}
 					break;
 				case 'D' :
@@ -443,6 +445,23 @@ private char[] getConstantClassNameAt(int constantPoolIndex) {
  */
 public int[] getConstantPoolOffsets() {
 	return this.constantPoolOffsets;
+}
+
+public char[] getEnclosingMethod() {
+	if (this.enclosingNameAndTypeIndex <= 0) {
+		return null;
+	}
+	// read the name
+	StringBuffer buffer = new StringBuffer();
+	
+	int nameAndTypeOffset = this.constantPoolOffsets[this.enclosingNameAndTypeIndex];
+	int utf8Offset = this.constantPoolOffsets[u2At(nameAndTypeOffset + 1)];
+	buffer.append(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
+
+	utf8Offset = this.constantPoolOffsets[u2At(nameAndTypeOffset + 3)];
+	buffer.append(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
+
+	return String.valueOf(buffer).toCharArray();
 }
 
 /*

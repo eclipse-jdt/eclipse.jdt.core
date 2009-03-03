@@ -51,6 +51,9 @@ public HierarchyBinaryType(int modifiers, char[] qualification, char[] sourceNam
 public IBinaryAnnotation[] getAnnotations() {
 	return null;
 }
+public char[] getEnclosingMethod() {
+	return null;
+}
 /**
  * Answer the resolved name of the enclosing type in the
  * class file format as specified in section 4.2 of the Java 2 VM spec

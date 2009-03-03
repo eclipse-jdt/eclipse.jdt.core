@@ -243,91 +243,101 @@ public MethodBinding[] availableMethods() {
 	return availableMethods;
 }
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
-	// default initialization for super-interfaces early, in case some aborting compilation error occurs,
-	// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
-	this.typeVariables = Binding.NO_TYPE_VARIABLES;
-	this.superInterfaces = Binding.NO_SUPERINTERFACES;
-
-	// must retrieve member types in case superclass/interfaces need them
-	this.memberTypes = Binding.NO_MEMBER_TYPES;
-	IBinaryNestedType[] memberTypeStructures = binaryType.getMemberTypes();
-	if (memberTypeStructures != null) {
-		int size = memberTypeStructures.length;
-		if (size > 0) {
-			this.memberTypes = new ReferenceBinding[size];
-			for (int i = 0; i < size; i++)
-				// attempt to find each member type if it exists in the cache (otherwise - resolve it when requested)
-				this.memberTypes[i] = environment.getTypeFromConstantPoolName(memberTypeStructures[i].getName(), 0, -1, false, null /* could not be missing */);
-			this.tagBits |= 	TagBits.HasUnresolvedMemberTypes;
-		}
-	}
-
-	
-	long sourceLevel = environment.globalOptions.sourceLevel;
-	char[] typeSignature = null;
-	if (sourceLevel >= ClassFileConstants.JDK1_5) {
-		typeSignature = binaryType.getGenericSignature();
-		this.tagBits |= binaryType.getTagBits();
-	}
-	char[][][] missingTypeNames = binaryType.getMissingTypeNames();	
-	if (typeSignature == null) {
-		char[] superclassName = binaryType.getSuperclassName();
-		if (superclassName != null) {
-			// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
-			this.superclass = environment.getTypeFromConstantPoolName(superclassName, 0, -1, false, missingTypeNames);
-			this.tagBits |= TagBits.HasUnresolvedSuperclass;
-		}
-
+	try {
+		// default initialization for super-interfaces early, in case some aborting compilation error occurs,
+		// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
+		this.typeVariables = Binding.NO_TYPE_VARIABLES;
 		this.superInterfaces = Binding.NO_SUPERINTERFACES;
-		char[][] interfaceNames = binaryType.getInterfaceNames();
-		if (interfaceNames != null) {
-			int size = interfaceNames.length;
+
+		// must retrieve member types in case superclass/interfaces need them
+		this.memberTypes = Binding.NO_MEMBER_TYPES;
+		IBinaryNestedType[] memberTypeStructures = binaryType.getMemberTypes();
+		if (memberTypeStructures != null) {
+			int size = memberTypeStructures.length;
 			if (size > 0) {
-				this.superInterfaces = new ReferenceBinding[size];
+				this.memberTypes = new ReferenceBinding[size];
 				for (int i = 0; i < size; i++)
-					// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
-					this.superInterfaces[i] = environment.getTypeFromConstantPoolName(interfaceNames[i], 0, -1, false, missingTypeNames);
+					// attempt to find each member type if it exists in the cache (otherwise - resolve it when requested)
+					this.memberTypes[i] = environment.getTypeFromConstantPoolName(memberTypeStructures[i].getName(), 0, -1, false, null /* could not be missing */);
+				this.tagBits |= 	TagBits.HasUnresolvedMemberTypes;
+			}
+		}
+
+		long sourceLevel = environment.globalOptions.sourceLevel;
+		char[] typeSignature = null;
+		if (sourceLevel >= ClassFileConstants.JDK1_5) {
+			typeSignature = binaryType.getGenericSignature();
+			this.tagBits |= binaryType.getTagBits();
+		}
+		char[][][] missingTypeNames = binaryType.getMissingTypeNames();	
+		if (typeSignature == null) {
+			char[] superclassName = binaryType.getSuperclassName();
+			if (superclassName != null) {
+				// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
+				this.superclass = environment.getTypeFromConstantPoolName(superclassName, 0, -1, false, missingTypeNames);
+				this.tagBits |= TagBits.HasUnresolvedSuperclass;
+			}
+
+			this.superInterfaces = Binding.NO_SUPERINTERFACES;
+			char[][] interfaceNames = binaryType.getInterfaceNames();
+			if (interfaceNames != null) {
+				int size = interfaceNames.length;
+				if (size > 0) {
+					this.superInterfaces = new ReferenceBinding[size];
+					for (int i = 0; i < size; i++)
+						// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
+						this.superInterfaces[i] = environment.getTypeFromConstantPoolName(interfaceNames[i], 0, -1, false, missingTypeNames);
+					this.tagBits |= TagBits.HasUnresolvedSuperinterfaces;
+				}
+			}
+		} else {
+			// ClassSignature = ParameterPart(optional) super_TypeSignature interface_signature
+			SignatureWrapper wrapper = new SignatureWrapper(typeSignature);
+			if (wrapper.signature[wrapper.start] == '<') {
+				// ParameterPart = '<' ParameterSignature(s) '>'
+				wrapper.start++; // skip '<'
+				this.typeVariables = createTypeVariables(wrapper, true, missingTypeNames);
+				wrapper.start++; // skip '>'
+				this.tagBits |=  TagBits.HasUnresolvedTypeVariables;
+				this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+			}
+			TypeVariableBinding[] typeVars = Binding.NO_TYPE_VARIABLES;
+			char[] methodDescriptor = binaryType.getEnclosingMethod();
+			if (methodDescriptor != null) {
+				MethodBinding enclosingMethod = findMethod(methodDescriptor, missingTypeNames);
+				typeVars = enclosingMethod.typeVariables;
+			}
+
+			// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
+			this.superclass = (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, typeVars, this, missingTypeNames);
+			this.tagBits |= TagBits.HasUnresolvedSuperclass;
+
+			this.superInterfaces = Binding.NO_SUPERINTERFACES;
+			if (!wrapper.atEnd()) {
+				// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
+				java.util.ArrayList types = new java.util.ArrayList(2);
+				do {
+					types.add(environment.getTypeFromTypeSignature(wrapper, typeVars, this, missingTypeNames));
+				} while (!wrapper.atEnd());
+				this.superInterfaces = new ReferenceBinding[types.size()];
+				types.toArray(this.superInterfaces);
 				this.tagBits |= TagBits.HasUnresolvedSuperinterfaces;
 			}
 		}
-	} else {
-		// ClassSignature = ParameterPart(optional) super_TypeSignature interface_signature
-		SignatureWrapper wrapper = new SignatureWrapper(typeSignature);
-		if (wrapper.signature[wrapper.start] == '<') {
-			// ParameterPart = '<' ParameterSignature(s) '>'
-			wrapper.start++; // skip '<'
-			this.typeVariables = createTypeVariables(wrapper, true, missingTypeNames);
-			wrapper.start++; // skip '>'
-			this.tagBits |=  TagBits.HasUnresolvedTypeVariables;
-			this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+
+		if (needFieldsAndMethods) {
+			createFields(binaryType.getFields(), sourceLevel, missingTypeNames);
+			createMethods(binaryType.getMethods(), sourceLevel, missingTypeNames);
 		}
-
-		// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
-		this.superclass = (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, Binding.NO_TYPE_VARIABLES, this, missingTypeNames);
-		this.tagBits |= TagBits.HasUnresolvedSuperclass;
-
-		this.superInterfaces = Binding.NO_SUPERINTERFACES;
-		if (!wrapper.atEnd()) {
-			// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
-			java.util.ArrayList types = new java.util.ArrayList(2);
-			do {
-				types.add(environment.getTypeFromTypeSignature(wrapper, Binding.NO_TYPE_VARIABLES, this, missingTypeNames));
-			} while (!wrapper.atEnd());
-			this.superInterfaces = new ReferenceBinding[types.size()];
-			types.toArray(this.superInterfaces);
-			this.tagBits |= TagBits.HasUnresolvedSuperinterfaces;
-		}
-	}
-
-	if (needFieldsAndMethods) {
-		createFields(binaryType.getFields(), sourceLevel, missingTypeNames);
-		createMethods(binaryType.getMethods(), sourceLevel, missingTypeNames);
-	} else { // protect against incorrect use of the needFieldsAndMethods flag, see 48459
-		this.fields = Binding.NO_FIELDS;
-		this.methods = Binding.NO_METHODS;
-	}
-	if (this.environment.globalOptions.storeAnnotations)
-		setAnnotations(createAnnotations(binaryType.getAnnotations(), this.environment, missingTypeNames));	
+		if (this.environment.globalOptions.storeAnnotations)
+			setAnnotations(createAnnotations(binaryType.getAnnotations(), this.environment, missingTypeNames));	
+	} finally {
+		// protect against incorrect use of the needFieldsAndMethods flag, see 48459
+		if (this.fields == null)
+			this.fields = Binding.NO_FIELDS;
+		if (this.methods == null)
+			this.methods = Binding.NO_METHODS;
+ 	}
 }
 private void createFields(IBinaryField[] iFields, long sourceLevel, char[][][] missingTypeNames) {
 	this.fields = Binding.NO_FIELDS;
@@ -646,6 +656,45 @@ public FieldBinding[] fields() {
 		resolveTypeFor(fields[i]);
 	this.tagBits |= TagBits.AreFieldsComplete;
 	return fields;
+}
+private MethodBinding findMethod(char[] methodDescriptor, char[][][] missingTypeNames) {
+	int index = -1;
+	while (methodDescriptor[++index] != '(') {
+		// empty
+	}
+	char[] selector = new char[index];
+	System.arraycopy(methodDescriptor, 0, selector, 0, index);
+	TypeBinding[] parameters = Binding.NO_PARAMETERS;
+	int numOfParams = 0;
+	char nextChar;
+	while ((nextChar = methodDescriptor[++index]) != ')') {
+		if (nextChar != '[') {
+			numOfParams++;
+			if (nextChar == 'L')
+				while ((nextChar = methodDescriptor[++index]) != ';'){/*empty*/}
+		}
+	}
+
+	int startIndex = 0;
+	if (numOfParams > 0) {
+		parameters = new TypeBinding[numOfParams];
+		index = 1;
+		int end = 0;   // first character is always '(' so skip it
+		for (int i = 0; i < numOfParams; i++) {
+			while ((nextChar = methodDescriptor[++end]) == '['){/*empty*/}
+			if (nextChar == 'L')
+				while ((nextChar = methodDescriptor[++end]) != ';'){/*empty*/}
+
+			if (i >= startIndex) {   // skip the synthetic arg if necessary
+				parameters[i - startIndex] = this.environment.getTypeFromSignature(methodDescriptor, index, end, false, this, missingTypeNames);
+			}
+			index = end + 1;
+		}
+	}
+
+	return CharOperation.equals(selector, TypeConstants.INIT)
+		? this.enclosingType.getExactConstructor(parameters)
+		: this.enclosingType.getExactMethod(selector, parameters, null);
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#genericTypeSignature()

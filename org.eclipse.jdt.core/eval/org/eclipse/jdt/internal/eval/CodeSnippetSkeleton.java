@@ -108,6 +108,9 @@ public CodeSnippetSkeleton() {
 public IBinaryAnnotation[] getAnnotations() {
 	return null;
 }
+public char[] getEnclosingMethod() {
+	return null;
+}
 public char[] getEnclosingTypeName() {
 	return null;
 }
