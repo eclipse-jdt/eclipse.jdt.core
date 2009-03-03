@@ -2157,13 +2157,17 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 						int length = nodes.length;
 						for (int i = 0; i < length; i++) {
 							Integer level = (Integer) nodeSet.matchingNodes.removeKey(nodes[i]);
-			    	        this.patternLocator.matchReportReference(nodes[i], enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), method.binding, level.intValue(), this);
+							if (level != null) { // ensure that the reference has not been already reported while visiting
+				    	        this.patternLocator.matchReportReference(nodes[i], enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), method.binding, level.intValue(), this);
+							}
 						}
 					} else {
 						for (int i = 0, l = nodes.length; i < l; i++) {
 							ASTNode node = nodes[i];
 							Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-							this.patternLocator.matchReportReference(node, enclosingElement, null, null, method.binding, level.intValue(), this);
+							if (level != null) { // ensure that the reference has not been already reported while visiting
+								this.patternLocator.matchReportReference(node, enclosingElement, null, null, method.binding, level.intValue(), this);
+							}
 						}
 					}
 					return;
@@ -2452,14 +2456,16 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 					for (int i = 0; i < length; i++) {
 						ASTNode node = nodes[i];
 						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-						if (node instanceof TypeDeclaration) {
-							// use field declaration to report match (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174)
-							AllocationExpression allocation = ((TypeDeclaration)node).allocation;
-							if (allocation != null && allocation.enumConstant != null) {
-								node = field;
+						if (level != null) { // ensure that the reference has not been already reported while visiting
+							if (node instanceof TypeDeclaration) {
+								// use field declaration to report match (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174)
+								AllocationExpression allocation = ((TypeDeclaration)node).allocation;
+								if (allocation != null && allocation.enumConstant != null) {
+									node = field;
+								}
 							}
+			    	        this.patternLocator.matchReportReference(node, enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), field.binding, level.intValue(), this);
 						}
-		    	        this.patternLocator.matchReportReference(node, enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), field.binding, level.intValue(), this);
 					}
 					return;
 				}
