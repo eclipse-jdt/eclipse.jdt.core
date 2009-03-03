@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -169,11 +168,7 @@ public class ArrayInitializer extends Expression {
 						|| (elementType.isBaseType() && BaseTypeBinding.isWidening(elementType.id, expressionType.id)))
 						|| expressionType.isCompatibleWith(elementType)) {
 					expression.computeConversion(scope, elementType, expressionType);
-				} else if (scope.isBoxingCompatibleWith(expressionType, elementType) 
-									|| (expressionType.isBaseType()  // narrowing then boxing ?
-											&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
-											&& !elementType.isBaseType()
-											&& expression.isConstantValueOfTypeAssignableToType(expressionType, scope.environment().computeBoxingType(elementType)))) {
+				} else if (isBoxingCompatible(expressionType, elementType, expression, scope)) {
 					expression.computeConversion(scope, elementType, expressionType);
 				} else {
 					scope.problemReporter().typeMismatchError(expressionType, elementType, expression, null);

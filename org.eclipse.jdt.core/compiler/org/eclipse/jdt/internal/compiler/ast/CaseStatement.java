@@ -127,11 +127,7 @@ public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, 
 		} else {
 			return this.constantExpression.constant;
 		}
-	} else if (scope.isBoxingCompatibleWith(caseType, switchExpressionType)
-					|| (caseType.isBaseType()  // narrowing then boxing ?
-							&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
-							&& !switchExpressionType.isBaseType()
-							&& this.constantExpression.isConstantValueOfTypeAssignableToType(caseType, scope.environment().computeBoxingType(switchExpressionType)))) {
+	} else if (isBoxingCompatible(caseType, switchExpressionType, this.constantExpression, scope)) {
 		// constantExpression.computeConversion(scope, caseType, switchExpressionType); - do not report boxing/unboxing conversion
 		return this.constantExpression.constant;
 	}
