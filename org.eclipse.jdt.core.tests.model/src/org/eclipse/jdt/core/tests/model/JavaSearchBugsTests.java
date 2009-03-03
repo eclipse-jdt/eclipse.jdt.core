@@ -10624,4 +10624,25 @@ public void _testBug266582() throws Exception {
 	}
 }
 
+/**
+ * @bug 266837: SourceField.getConstant does not supply a value if type is fully qualified
+ * @test Ensure that source field constant is not null when fully qualified type String is used
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=266837"
+ */
+public void testBug266837() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"	private static final java.lang.String f266837 = \"myString\";\n" + 
+		"}\n"
+	);
+	SearchRequestor requestor = new SearchRequestor() {
+		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+	        IField sourceField = (IField) searchMatch.getElement();
+	        assertEquals("Unexpected source field constant!", "\"myString\"", sourceField.getConstant());
+        }
+	};
+	search("f266837", FIELD, DECLARATIONS, requestor);
+}
+
 }

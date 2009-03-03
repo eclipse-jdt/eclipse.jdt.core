@@ -825,6 +825,9 @@ protected JavaSearchResultCollector resultCollector;
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope) throws CoreException {
 		search(patternString, searchFor, limitTo, EXACT_RULE, scope, this.resultCollector);
 	}
+	protected void search(String patternString, int searchFor, int limitTo, SearchRequestor requestor) throws CoreException {
+		search(patternString, searchFor, limitTo, EXACT_RULE, getJavaSearchScope(), requestor);
+	}
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope) throws CoreException {
 		search(patternString, searchFor, limitTo, matchRule, scope, this.resultCollector);
 	}

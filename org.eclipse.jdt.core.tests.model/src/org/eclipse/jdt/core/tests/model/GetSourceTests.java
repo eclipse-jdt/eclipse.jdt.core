@@ -85,7 +85,9 @@ public class GetSourceTests extends ModifyingResourceTests {
 			"  static final char field4 = ' ';\n" +
 			"  static final double field5 = 938245798324893D;\n" +
 			"  static final float field6 = 123456f;\n" +
-			"  static final int field7 = 1<<0;\n" +
+			"  static final String field7 = \"simple string\";\n" +
+			"  static final java.lang.String field8 = \"qualified string\";\n" +
+			"  static final int field9 = 1<<0;\n" +
 			"}";
 		createFile("/P/p/Constants.java", cuSource);
 	}
@@ -158,6 +160,16 @@ public class GetSourceTests extends ModifyingResourceTests {
 
 	public void testFieldConstant07() throws CoreException {
 		IField field = getConstantField("field7");
+		assertEquals("Wrong value", "\"simple string\"", field.getConstant());
+	}
+
+	public void testFieldConstant08() throws CoreException {
+		IField field = getConstantField("field8");
+		assertEquals("Wrong value", "\"qualified string\"", field.getConstant());
+	}
+
+	public void testFieldConstant09() throws CoreException {
+		IField field = getConstantField("field9");
 
 		Object constant = field.getConstant();
 		assertNull("Should not be a constant", constant);
