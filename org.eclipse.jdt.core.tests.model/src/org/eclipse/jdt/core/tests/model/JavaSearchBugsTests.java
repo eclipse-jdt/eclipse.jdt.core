@@ -10592,4 +10592,34 @@ public void testBug265065b() throws CoreException {
 	);
 }
 
+/**
+ * @bug 266582: [search] NPE finding references 
+ * @test Ensure that no NPE occurs when searching for type references
+ * 	in a project which has the same jar twice on its classpath
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=266582"
+ */
+// TODO (Kent) activate this test when fix for bug is released
+public void _testBug266582() throws Exception {
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b266582a.jar", false);
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b266582b.jar", false);
+	try {
+		createFile("/JavaSearchBugs/src/A.java",
+			"import foo.JohnsonException;\n" + 
+			"class A {\n" + 
+			"	void foo() throws JohnsonException {}\n" + 
+			"}"
+		);
+		IType type = getClassFile("JavaSearchBugs", "/JavaSearchBugs/lib/b266582a.jar", "foo", "JohnsonException.class").getType();
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/A.java [foo.JohnsonException] EXACT_MATCH\n" + 
+			"src/A.java void A.foo() [JohnsonException] EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b266582a.jar"));
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b266582b.jar"));
+	}
+}
+
 }
