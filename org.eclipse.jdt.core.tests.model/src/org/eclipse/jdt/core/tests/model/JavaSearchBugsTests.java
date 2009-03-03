@@ -10600,8 +10600,7 @@ public void testBug265065b() throws CoreException {
  * 	in a project which has the same jar twice on its classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=266582"
  */
-// TODO (Kent) activate this test when fix for bug is released
-public void _testBug266582() throws Exception {
+public void testBug266582() throws Exception {
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b266582a.jar", false);
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b266582b.jar", false);
 	try {

@@ -24,6 +24,14 @@ public interface IBinaryType extends IGenericType {
 
 IBinaryAnnotation[] getAnnotations();
 /**
+ * Answer the enclosing method (including method selector and method descriptor), or
+ * null if none.
+ *
+ * For example, "foo()Ljava/lang/Object;V"
+ */
+
+char[] getEnclosingMethod();
+/**
  * Answer the resolved name of the enclosing type in the
  * class file format as specified in section 4.2 of the Java 2 VM spec
  * or null if the receiver is a top level type.
