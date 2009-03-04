@@ -59,6 +59,7 @@ public static Test suite() {
 	standardTests.add(RuntimeTests.class);
 	standardTests.add(DebugAttributeTest.class);
 	standardTests.add(NullReferenceTest.class);
+	standardTests.add(ManifestAnalyzerTest.class);
 	if (UnconditionalFlowInfo.coverageTestFlag) {
 		standardTests.add(NullReferenceImplTests.class);
 	}
