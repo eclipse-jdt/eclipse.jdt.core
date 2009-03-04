@@ -51,7 +51,7 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 	try {
 		initialize();
 		ArrayList result = new ArrayList();
-		ZipEntry manifest =	this.zipFile.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
+		ZipEntry manifest = this.zipFile.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
 		if (manifest != null) { // non-null implies regular file
 			reader = new BufferedReader(new InputStreamReader(this.zipFile.getInputStream(manifest)));
 			ManifestAnalyzer analyzer = new ManifestAnalyzer();
