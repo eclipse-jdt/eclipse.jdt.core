@@ -2076,6 +2076,11 @@ protected void consumeClassHeaderName1() {
 protected void consumeClassHeaderExtends() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_CLASS);
 	super.consumeClassHeaderExtends();
+	if (this.assistNode != null && this.assistNodeParent == null) {
+		TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+		if (typeDecl != null && typeDecl.superclass == this.assistNode)
+			this.assistNodeParent = typeDecl;
+	}
 	popElement(K_NEXT_TYPEREF_IS_CLASS);
 	popElement(K_EXTENDS_KEYWORD);
 
@@ -3752,18 +3757,38 @@ protected void consumeTypeParameter1() {
 }
 protected void consumeTypeParameterWithExtends() {
 	super.consumeTypeParameterWithExtends();
+	if (this.assistNode != null && this.assistNodeParent == null) {
+		TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
+		if (typeParameter != null && typeParameter.type == this.assistNode)
+			this.assistNodeParent = typeParameter;
+	}
 	popElement(K_EXTENDS_KEYWORD);
 }
 protected void consumeTypeParameterWithExtendsAndBounds() {
 	super.consumeTypeParameterWithExtendsAndBounds();
+	if (this.assistNode != null && this.assistNodeParent == null) {
+		TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
+		if (typeParameter != null && typeParameter.type == this.assistNode)
+			this.assistNodeParent = typeParameter;
+	}
 	popElement(K_EXTENDS_KEYWORD);
 }
 protected void consumeTypeParameter1WithExtends() {
 	super.consumeTypeParameter1WithExtends();
+	if (this.assistNode != null && this.assistNodeParent == null) {
+		TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
+		if (typeParameter != null && typeParameter.type == this.assistNode)
+			this.assistNodeParent = typeParameter;
+	}
 	popElement(K_EXTENDS_KEYWORD);
 }
 protected void consumeTypeParameter1WithExtendsAndBounds() {
 	super.consumeTypeParameter1WithExtendsAndBounds();
+	if (this.assistNode != null && this.assistNodeParent == null) {
+		TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
+		if (typeParameter != null && typeParameter.type == this.assistNode)
+			this.assistNodeParent = typeParameter;
+	}
 	popElement(K_EXTENDS_KEYWORD);
 }
 protected void consumeWildcard() {
@@ -3808,18 +3833,38 @@ protected void consumeWildcard3() {
 }
 protected void consumeWildcardBoundsExtends() {
 	super.consumeWildcardBoundsExtends();
+	if (this.assistNode != null && this.assistNodeParent == null) {
+		Wildcard wildcard = (Wildcard) this.genericsStack[this.genericsPtr];
+		if (wildcard != null && wildcard.bound == this.assistNode)
+			this.assistNodeParent = wildcard;
+	}
 	popElement(K_EXTENDS_KEYWORD);
 }
 protected void consumeWildcardBounds1Extends() {
 	super.consumeWildcardBounds1Extends();
+	if (this.assistNode != null && this.assistNodeParent == null) {
+		Wildcard wildcard = (Wildcard) this.genericsStack[this.genericsPtr];
+		if (wildcard != null && wildcard.bound == this.assistNode)
+			this.assistNodeParent = wildcard;
+	}
 	popElement(K_EXTENDS_KEYWORD);
 }
 protected void consumeWildcardBounds2Extends() {
 	super.consumeWildcardBounds2Extends();
+	if (this.assistNode != null && this.assistNodeParent == null) {
+		Wildcard wildcard = (Wildcard) this.genericsStack[this.genericsPtr];
+		if (wildcard != null && wildcard.bound == this.assistNode)
+			this.assistNodeParent = wildcard;
+	}
 	popElement(K_EXTENDS_KEYWORD);
 }
 protected void consumeWildcardBounds3Extends() {
 	super.consumeWildcardBounds3Extends();
+	if (this.assistNode != null && this.assistNodeParent == null) {
+		Wildcard wildcard = (Wildcard) this.genericsStack[this.genericsPtr];
+		if (wildcard != null && wildcard.bound == this.assistNode)
+			this.assistNodeParent = wildcard;
+	}
 	popElement(K_EXTENDS_KEYWORD);
 }
 protected void consumeUnaryExpression(int op) {

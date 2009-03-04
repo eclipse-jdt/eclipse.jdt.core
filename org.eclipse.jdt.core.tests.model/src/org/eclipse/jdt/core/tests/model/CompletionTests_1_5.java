@@ -13476,4 +13476,105 @@ public void testNameWithUnresolvedReferences003() throws JavaModelException {
 			requestor.getResults());
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99399 test to verify that we continue to propose final
+// types in extends contexts but where they are not directly extended.
+public void testCompletionOnExtends() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"class X<T> {};\n" +
+			"final class ThisClassIsFinal {}\n" +
+			"class ThisClassIsNotFinal {}\n" +
+			"public class Test extends X<ThisClassI> {}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ThisClassI";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ThisClassIsFinal[TYPE_REF]{ThisClassIsFinal, test, Ltest.ThisClassIsFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}\n" +
+			"ThisClassIsNotFinal[TYPE_REF]{ThisClassIsNotFinal, test, Ltest.ThisClassIsNotFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99399 test to verify that we don't propose final
+//types in extends contexts where we should not.
+public void testCompletionOnExtends2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"final class ThisClassIsFinal {}\n" +
+			"class ThisClassIsNotFinal {}\n" +
+			"public class Test <T extends ThisClassI> {}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ThisClassI";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ThisClassIsNotFinal[TYPE_REF]{ThisClassIsNotFinal, test, Ltest.ThisClassIsNotFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99399 test to verify that we don't propose final
+//types in extends contexts where we should not.
+public void testCompletionOnExtends3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"final class ThisClassIsFinal {}\n" +
+			"class ThisClassIsNotFinal {}\n" +
+			"public class Test {\n" +
+			"    Test(Bag<? extends ThisClassI> p) {}" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ThisClassI";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ThisClassIsNotFinal[TYPE_REF]{ThisClassIsNotFinal, test, Ltest.ThisClassIsNotFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99399 test to verify that we do propose final
+//types in super contexts where we should.
+public void testCompletionOnExtends4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"final class ThisClassIsFinal {}\n" +
+			"class ThisClassIsNotFinal {}\n" +
+			"public class Test {\n" +
+			"    void boo() {\n" +
+			"        Bag<? super ThisClassI> local;\n" +
+			"    }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ThisClassI";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ThisClassIsFinal[TYPE_REF]{ThisClassIsFinal, test, Ltest.ThisClassIsFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"ThisClassIsNotFinal[TYPE_REF]{ThisClassIsNotFinal, test, Ltest.ThisClassIsNotFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
 }

@@ -504,6 +504,7 @@ public final class CompletionEngine
 	boolean assistNodeIsAnnotation;
 	boolean assistNodeIsConstructor;
 	boolean assistNodeIsSuperType;
+	boolean assistNodeIsExtendedType;
 	int  assistNodeInJavadoc = 0;
 	boolean assistNodeCanBeSingleMemberAnnotation = false;
 	
@@ -1113,6 +1114,7 @@ public final class CompletionEngine
 		this.foundTypesCount++;
 		
 		if (this.options.checkDeprecation && (modifiers & ClassFileConstants.AccDeprecated) != 0) return;
+		if (this.assistNodeIsExtendedType && (modifiers & ClassFileConstants.AccFinal) != 0) return;
 
 		if (this.options.checkVisibility) {
 			if((modifiers & ClassFileConstants.AccPublic) == 0) {
@@ -2761,6 +2763,7 @@ public final class CompletionEngine
 			this.assistNodeIsException = ref.isException();
 			this.assistNodeIsInterface = ref.isInterface();
 			this.assistNodeIsSuperType = ref.isSuperType();
+			this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
 
 			this.completionToken = ref.completionIdentifier;
 			long completionPosition = ref.sourcePositions[ref.tokens.length];
@@ -2804,6 +2807,23 @@ public final class CompletionEngine
 					false);
 			}
 		}
+	}
+
+	private boolean assistNodeIsExtendedType(ASTNode astNode, ASTNode astNodeParent) {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99399, don't propose final types for extension.
+		if (astNodeParent == null)
+			return false;
+		if (astNodeParent instanceof TypeDeclaration) {
+			TypeDeclaration typeDeclaration = (TypeDeclaration) astNodeParent;
+			return (typeDeclaration.superclass == astNode);	
+		} else if (astNodeParent instanceof TypeParameter) {
+			TypeParameter typeParameter = (TypeParameter) astNodeParent;
+			return (typeParameter.type == astNode);
+		} else if (astNodeParent instanceof Wildcard) {
+			Wildcard wildcard = (Wildcard) astNodeParent;
+			return (wildcard.bound == astNode && wildcard.kind == Wildcard.EXTENDS);
+		}
+		return false;
 	}
 	
 	private void completionOnQualifiedAllocationExpression(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
@@ -3004,6 +3024,7 @@ public final class CompletionEngine
 		this.assistNodeIsInterface = ref.isInterface();
 		this.assistNodeIsConstructor = ref.isConstructorType;
 		this.assistNodeIsSuperType = ref.isSuperType();
+		this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
 
 		this.completionToken = ref.completionIdentifier;
 		long completionPosition = ref.sourcePositions[ref.tokens.length];
@@ -3137,6 +3158,7 @@ public final class CompletionEngine
 		this.assistNodeIsInterface = singleRef.isInterface();
 		this.assistNodeIsConstructor = singleRef.isConstructorType;
 		this.assistNodeIsSuperType = singleRef.isSuperType();
+		this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
 
 		// can be the start of a qualified type name
 		if (qualifiedBinding == null) {
@@ -3343,7 +3365,7 @@ public final class CompletionEngine
 		this.hasJavaLangObjectAsExpectedType = false;
 
 		// find types from parent
-		if(parent instanceof AbstractVariableDeclaration) {
+		if(parent instanceof AbstractVariableDeclaration && !(parent instanceof TypeParameter)) {
 			AbstractVariableDeclaration variable = (AbstractVariableDeclaration)parent;
 			TypeBinding binding = variable.type.resolvedType;
 			if(binding != null) {
@@ -9184,6 +9206,7 @@ public final class CompletionEngine
 
 			typesFound.add(memberType);
 
+			if (this.assistNodeIsExtendedType && memberType.isFinal()) continue next;
 			if(!this.insideQualifiedReference) {
 				if(this.assistNodeIsClass) {
 					if(!memberType.isClass()) continue next;
@@ -9671,6 +9694,7 @@ public final class CompletionEngine
 										continue next;
 								}
 
+								if (this.assistNodeIsExtendedType && localType.isFinal()) continue next;
 								if(this.assistNodeIsClass) {
 									if(!localType.isClass()) continue next;
 								} else if(this.assistNodeIsInterface) {
@@ -10051,6 +10075,7 @@ public final class CompletionEngine
 				
 				typesFound.add(sourceType);
 
+				if (this.assistNodeIsExtendedType && sourceType.isFinal()) continue next;
 				if(this.assistNodeIsClass) {
 					if(!sourceType.isClass()) continue next;
 				} else if(this.assistNodeIsInterface) {
@@ -10271,6 +10296,7 @@ public final class CompletionEngine
 						!scope.isDefinedInSameUnit(sourceType))
 					continue;
 
+			    if (this.assistNodeIsExtendedType && sourceType.isFinal()) continue;
 				int accessibility = IAccessRule.K_ACCESSIBLE;
 				if(sourceType.hasRestrictedAccess()) {
 					AccessRestriction accessRestriction = this.lookupEnvironment.getAccessRestriction(sourceType);
@@ -10463,6 +10489,7 @@ public final class CompletionEngine
 							}
 						}
 
+						if (this.assistNodeIsExtendedType && refBinding.isFinal()) continue next;
 						if(this.assistNodeIsClass) {
 							if(!refBinding.isClass()) continue next;
 						} else if(this.assistNodeIsInterface) {
@@ -10592,6 +10619,7 @@ public final class CompletionEngine
 							
 							typesFound.add(typeBinding);
 							
+							if (this.assistNodeIsExtendedType && typeBinding.isFinal()) continue;
 							if(this.assistNodeIsClass) {
 								if(!typeBinding.isClass()) continue;
 							} else if(this.assistNodeIsInterface) {
@@ -10694,6 +10722,7 @@ public final class CompletionEngine
 
 							typesFound.add(typeBinding);
 
+							if (this.assistNodeIsExtendedType && typeBinding.isFinal()) continue;
 							if(this.assistNodeIsClass) {
 								if(!typeBinding.isClass()) continue;
 							} else if(this.assistNodeIsInterface) {

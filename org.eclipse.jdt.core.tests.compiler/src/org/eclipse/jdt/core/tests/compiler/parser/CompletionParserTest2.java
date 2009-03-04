@@ -9327,7 +9327,13 @@ public void test0139(){
 	String completeBehind = "Z.";
 	int cursorLocation = str.indexOf("Z.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnClass:Z.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = 
+		"public class X extends <CompleteOnClass:Z.> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Z.";
 	String expectedUnitDisplayString =

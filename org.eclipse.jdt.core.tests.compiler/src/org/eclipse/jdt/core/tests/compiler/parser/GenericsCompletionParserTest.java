@@ -39,7 +39,7 @@ public void test0001(){
 	String completeBehind = "Z<Y>.";
 	int cursorLocation = str.indexOf("Z<Y>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Z<Y>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Z<Y>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Z<Y>.";
 	String expectedUnitDisplayString =
@@ -67,7 +67,7 @@ public void test0002(){
 	String completeBehind = "Z<Y>.W";
 	int cursorLocation = str.indexOf("Z<Y>.W") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Z<Y>.W>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Z<Y>.W>";
 	String completionIdentifier = "W";
 	String expectedReplacedSource = "Z<Y>.W";
 	String expectedUnitDisplayString =
@@ -95,7 +95,7 @@ public void test0003(){
 	String completeBehind = "X<Y>.Z";
 	int cursorLocation = str.indexOf("X<Y>.Z") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:test0001.X<Y>.Z>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:test0001.X<Y>.Z>";
 	String completionIdentifier = "Z";
 	String expectedReplacedSource = "test0001.X<Y>.Z";
 	String expectedUnitDisplayString =
@@ -428,7 +428,11 @@ public void test0014(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnClass:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = 
+		"public class X extends <CompleteOnClass:Y<Z>.> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -623,7 +627,7 @@ public void test0020(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Y<Z>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -654,7 +658,7 @@ public void test0021(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Y<Z>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -685,7 +689,7 @@ public void test0022(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Y<Z>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -715,7 +719,7 @@ public void test0023(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Y<Z>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -745,7 +749,7 @@ public void test0024(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Y<Z>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -777,7 +781,7 @@ public void test0025(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Y<Z>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -809,7 +813,7 @@ public void test0026(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Y<Z>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -841,7 +845,7 @@ public void test0027(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Y<Z>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -872,7 +876,7 @@ public void test0028(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Y<Z>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -902,7 +906,7 @@ public void test0029(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Y<Z>.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =
@@ -7792,7 +7796,7 @@ public void test0161(){
 	String completeBehind = "Z";
 	int cursorLocation = str.indexOf("Z") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Z>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:Z>";
 	String completionIdentifier = "Z";
 	String expectedReplacedSource = "Z";
 	String expectedUnitDisplayString =
@@ -7820,7 +7824,7 @@ public void test0162(){
 	String completeBehind = "Z";
 	int cursorLocation = str.indexOf("Z") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:X.Z>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:X.Z>";
 	String completionIdentifier = "Z";
 	String expectedReplacedSource = "X.Z";
 	String expectedUnitDisplayString =
@@ -7848,7 +7852,7 @@ public void test0163(){
 	String completeBehind = "Z";
 	int cursorLocation = str.indexOf("Z") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:X<W>.Z>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:X<W>.Z>";
 	String completionIdentifier = "Z";
 	String expectedReplacedSource = "X<W>.Z";
 	String expectedUnitDisplayString =
@@ -7877,7 +7881,7 @@ public void test0164(){
 	String completeBehind = "Z";
 	int cursorLocation = str.indexOf("Z") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:X<W>.Z>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "T extends <CompleteOnType:X<W>.Z>";
 	String completionIdentifier = "Z";
 	String expectedReplacedSource = "X<W>.Z";
 	String expectedUnitDisplayString =
@@ -9057,7 +9061,7 @@ public void test0184_Method(){
 	String completeBehind = "Strin";
 	int cursorLocation = str.indexOf("Strin") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Strin>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "? extends <CompleteOnType:Strin>";
 	String completionIdentifier = "Strin";
 	String expectedReplacedSource = "String";
 	String expectedUnitDisplayString =
@@ -10682,7 +10686,7 @@ public void test0212(){
 	String completeBehind = "Obj";
 	int cursorLocation = str.indexOf("Obj") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:Obj>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "? extends <CompleteOnType:Obj>";
 	String completionIdentifier = "Obj";
 	String expectedReplacedSource = "Obj";
 	String expectedUnitDisplayString =
