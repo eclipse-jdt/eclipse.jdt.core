@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessConstructorRequestor;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  *	This class provides a <code>SearchableBuilderEnvironment</code> for code assist which
@@ -36,6 +37,7 @@ public class SearchableEnvironment
 	public NameLookup nameLookup;
 	protected ICompilationUnit unitToSkip;
 	protected org.eclipse.jdt.core.ICompilationUnit[] workingCopies;
+	protected WorkingCopyOwner owner;
 
 	protected JavaProject project;
 	protected IJavaSearchScope searchScope;
@@ -59,6 +61,7 @@ public class SearchableEnvironment
 	 */
 	public SearchableEnvironment(JavaProject project, WorkingCopyOwner owner) throws JavaModelException {
 		this(project, owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary WCs*/));
+		this.owner = owner;
 	}
 
 	private static int convertSearchFilterToModelFilter(int searchFilter) {
@@ -86,6 +89,13 @@ public class SearchableEnvironment
 	protected NameEnvironmentAnswer find(String typeName, String packageName) {
 		if (packageName == null)
 			packageName = IPackageFragment.DEFAULT_PACKAGE_NAME;
+		if (this.owner != null) {
+			String source = this.owner.findSource(typeName, packageName);
+			if (source != null) {
+				ICompilationUnit cu = new BasicCompilationUnit(source.toCharArray(), CharOperation.splitOn('.', packageName.toCharArray()), typeName + Util.defaultJavaExtension());
+				return new NameEnvironmentAnswer(cu, null);
+			}
+		}
 		NameLookup.Answer answer =
 			this.nameLookup.findType(
 				typeName,
@@ -99,7 +109,7 @@ public class SearchableEnvironment
 				try {
 					return new NameEnvironmentAnswer((IBinaryType) ((BinaryType) answer.type).getElementInfo(), answer.restriction);
 				} catch (JavaModelException npe) {
-					return null;
+					// fall back to using owner
 				}
 			} else { //SourceType
 				try {
@@ -124,7 +134,7 @@ public class SearchableEnvironment
 					}
 					return new NameEnvironmentAnswer(sourceTypes, answer.restriction);
 				} catch (JavaModelException npe) {
-					return null;
+					// fall back to using owner
 				}
 			}
 		}
@@ -647,7 +657,9 @@ public class SearchableEnvironment
 				pkgName[i] = new String(parentPackageName[i]);
 			pkgName[length] = new String(subPackageName);
 		}
-		return this.nameLookup.isPackage(pkgName);
+		return 
+			(this.owner != null && this.owner.isPackage(pkgName))
+			|| this.nameLookup.isPackage(pkgName);
 	}
 
 	/**

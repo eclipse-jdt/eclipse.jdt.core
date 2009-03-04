@@ -79,6 +79,16 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		super.tearDown();
 	}
 
+	private void assertProblems(String expectedProblems, String path, String source, WorkingCopyOwner owner) throws JavaModelException {
+		this.workingCopy = getWorkingCopy(path, source);
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setSource(this.workingCopy);
+		parser.setResolveBindings(true);
+		parser.setWorkingCopyOwner(owner);
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		assertProblems("Unexpected problems", expectedProblems, cu.getProblems(), source.toCharArray());
+	}
+	
 	protected void assertTypeBindingsEqual(String message, String expected, ITypeBinding[] types) {
 		StringBuffer buffer = new StringBuffer();
 		if (types == null) {
@@ -613,6 +623,67 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			if (cu != null) {
 				cu.discardWorkingCopy();
 			}
+		}
+	}
+
+	/*
+	 * Ensures that a type that is otherwise missing can be looked up using the working copy owner.
+	 */
+	public void testFindType1() throws Exception {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {
+			public String findSource(String typeName, String packageName) {
+				if ("to.be".equals(packageName) && "Generated".equals(typeName)) {
+					return
+						"package to.be;\n" +
+						"public class Generated {\n" +
+						"}";
+				}
+				return super.findSource(typeName, packageName);
+			}
+			public boolean isPackage(String[] pkg) {
+				switch (pkg.length) {
+				case 1:
+					return "to".equals(pkg[0]);
+				case 2:
+					return "to".equals(pkg[0]) && "be".equals(pkg[1]);
+				}
+				return false;
+			}
+		};
+		assertProblems(
+			"",
+			"/P/X.java",
+			"public class X extends to.be.Generated {\n" +
+			"}", 
+			owner);
+	}
+
+	/*
+	 * Ensures that a type that is otherwise available can be hidden using the working copy owner.
+	 */
+	public void testFindType2() throws Exception {
+		try {
+			createFile("/P/Y.java", "public class Y {}");
+			WorkingCopyOwner owner = new WorkingCopyOwner() {
+				public String findSource(String typeName, String packageName) {
+					if ("".equals(packageName) && "Y".equals(typeName)) {
+						return "";
+					}
+					return super.findSource(typeName, packageName);
+				}
+			};
+			assertProblems(
+				"1. ERROR in /P/X.java (at line 1)\n" + 
+				"	public class X extends Y {\n" + 
+				"	                       ^\n" + 
+				"Y cannot be resolved to a type\n" + 
+				"----------\n",
+				"/P/X.java",
+				"public class X extends Y {\n" +
+				"}", 
+				owner);
+		} finally {
+			deleteFile("/P/Y.java");
 		}
 	}
 

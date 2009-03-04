@@ -89,6 +89,80 @@ public abstract class WorkingCopyOwner {
 	public IProblemRequestor getProblemRequestor(ICompilationUnit workingCopy) {
 		return null;
 	}
+	
+	/**
+	 * Returns the source of the compilation unit that defines the given type in
+	 * the given package, or <code>null</code> if the type is unknown to this
+	 * owner.
+	 * <p>This method is called before the normal lookup (i.e. before looking 
+	 * at the project's classpath and before looking at the working copies of this 
+	 * owner.)</p>
+	 * <p>This allows to provide types that are not normally available, or to hide 
+	 * types that would normally be available by returning an empty source for 
+	 * the given type and package.</p>
+	 * <p>Example of use:
+	 * <pre>
+	 * WorkingCopyOwner owner = new WorkingCopyOwner() {
+	 *   public String findSource(String typeName, String packageName) {
+	 *     if ("to.be".equals(packageName) && "Generated".equals(typeName)) {
+	 *       return
+	 *         "package to.be;\n" +
+	 *         "public class Generated {\n" +
+	 *         "}";
+	 *     }
+	 *     return super.findSource(typeName, packageName);
+	 *   }
+	 *   public boolean isPackage(String[] pkg) {
+	 *     switch (pkg.length) {
+	 *     case 1:
+	 *       return "to".equals(pkg[0]);
+	 *     case 2:
+	 *       return "to".equals(pkg[0]) && "be".equals(pkg[1]);
+	 *     }
+	 *     return false;
+	 *   }
+	 * };
+	 * // Working copy on X.java with the following contents:
+	 * //    public class X extends to.be.Generated {
+	 * //    }
+	 * ICompilationUnit workingCopy = ... 
+	 * ASTParser parser = ASTParser.newParser(AST.JLS3);
+	 * parser.setSource(workingCopy);
+	 * parser.setResolveBindings(true);
+	 * parser.setWorkingCopyOwner(owner);
+	 * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+	 * assert cu.getProblems().length == 0;
+	 * </pre>
+	 * </p>
+	 * 
+	 * @param typeName the simple name of the type to lookup
+	 * @param packageName the dot-separated name of the package of type
+	 * @return the source of the compilation unit that defines the given type in
+	 * the given package, or <code>null</code> if the type is unknown
+	 * @see #isPackage(String[])
+	 * @since 3.5
+	 */
+	public String findSource(String typeName, String packageName) {
+		return null;
+	}
+	
+	/**
+	 * Returns whether the given package segments represent a package.
+	 * <p>This method is called before the normal lookup (i.e. before looking 
+	 * at the project's classpath and before looking at the working copies of this 
+	 * owner.)</p>
+	 * <p>This allows to provide packages that are not normally available.</p>
+	 * <p>If <code>false</code> is returned, then normal lookup is used on 
+	 * this package.</p>
+	 * 
+	 * @param pkg the segments of a package to lookup
+	 * @return whether the given package segments represent a package.
+	 * @see #findSource(String, String)
+	 * @since 3.5
+	 */
+	public boolean isPackage(String[] pkg) {
+		return false;
+	}
 
 	/**
 	 * Returns a new working copy with the given name using this working copy owner to

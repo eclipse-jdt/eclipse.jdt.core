@@ -47,9 +47,21 @@ Eclipse SDK 3.5M6 - %date% - 3.5 MILESTONE 6
 <br>Project org.eclipse.jdt.core v_942
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_942">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added the following APIs to allow clients to provide the source of a compilation unit or a package that is neither on the 
+       classpath nor in a working copy.
+       <ul>
+       <li><code>org.eclipse.jdt.core.WorkingCopyOwner.findSource(String, String)</code></li>
+       <li><code>org.eclipse.jdt.core.WorkingCopyOwner.isPackage(String[])</code></li>
+       </ul>
+       See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=257528">bug 257528</a> for details.
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=266582">266582</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=257528">257528</a>
+An API to incrementaly generate compilation units for binding resolution environment
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=266582">266582</a>
 [1.5][compiler] AbortCompilation while decoding the type variable of an anonymous type
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=266837">266837</a>
 [model] SourceField.getConstant does not supply a value if type is fully qualified

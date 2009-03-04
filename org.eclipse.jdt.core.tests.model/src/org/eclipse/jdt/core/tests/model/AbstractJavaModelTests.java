@@ -697,6 +697,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertEquals("Unexpected member value pair", expected, actual);
 	}
 
+	protected void assertProblems(String message, String expected, IProblem[] problems, char[] source) {
+		ProblemRequestor pbRequestor = new ProblemRequestor();
+		pbRequestor.unitSource = source;
+		for (int i = 0, length = problems.length; i < length; i++) {
+			pbRequestor.acceptProblem(problems[i]);
+		}
+		assertProblems(message, expected, pbRequestor);
+	}
 	protected void assertProblems(String message, String expected, ProblemRequestor problemRequestor) {
 		String actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(problemRequestor.problems.toString());
 		String independantExpectedString = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(expected);
