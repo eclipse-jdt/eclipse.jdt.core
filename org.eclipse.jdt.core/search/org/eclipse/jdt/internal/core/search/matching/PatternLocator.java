@@ -464,10 +464,13 @@ protected void updateMatch(ParameterizedTypeBinding parameterizedBinding, char[]
 		if (!isRaw && patternHasTypeParameters && argumentsBindings != null) {
 			boolean needUpdate = false;
 			TypeVariableBinding[] typeVariables = parameterizedBinding.genericType().typeVariables();
-			for (int i=0, l=argumentsBindings.length; i<l; i++) {
-				if (argumentsBindings[i] != typeVariables[i]) {
-					needUpdate = true;
-					break;
+			int length = argumentsBindings.length;
+			if (length == typeVariables.length) {
+				for (int i=0; i<length; i++) {
+					if (argumentsBindings[i] != typeVariables[i]) {
+						needUpdate = true;
+						break;
+					}
 				}
 			}
 			if (needUpdate) {

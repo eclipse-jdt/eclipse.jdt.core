@@ -10381,6 +10381,32 @@ public void testBug231622() throws Exception {
 }
 
 /**
+ * @bug 236520: [search] AIOOBE in PatternLocator.updateMatch
+ * @test Ensure that no exception occurs even when code has compiler errors
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=236520"
+ */
+public void testBug236520() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack1/I.java",
+		"package pack1;\n" + 
+		"public interface I<V> {\n" + 
+		"}\n"
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/pack2/X.java",
+		"package pack2;\n" + 
+		"public class X {\n" + 
+		"    public I<A> foo() {}\n" + 
+		"}\n"
+	);
+	this.resultCollector.showRule();
+	IType type = this.workingCopies[0].getType("I");
+	search(type, REFERENCES, ERASURE_RULE, getJavaSearchWorkingCopiesScope());
+	assertSearchResults(
+		"src/pack2/X.java I<A> pack2.X.foo() [I] ERASURE_MATCH"
+	);
+}
+
+/**
  * @bug 250083: Search indexes are not correctly updated
  * @test Ensure that a library that is no longer referenced, modified, and referenced again is re-indexed
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=250083"
