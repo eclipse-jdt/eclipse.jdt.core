@@ -1432,6 +1432,71 @@ public void test049() {
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=265962
+public void test061() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        private static final boolean isIS() {\n" + 
+			"                return System.currentTimeMillis()<0 ;\n" + 
+			"        }\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                do {\n" + 
+			"                        return;\n" + 
+			"                } while(isIS() && false);\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  public static void main(java.lang.String[] args);\n" + 
+		"    0  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 1] local: args index: 0 type: java.lang.String[]\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=265962 - variation
+public void test062() {
+	runNegativeTest(
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"        private static final boolean isIS() {\n" + 
+			"                return System.currentTimeMillis()<0 ;\n" + 
+			"        }\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                do {\n" + 
+			"                        return;\n" + 
+			"                } while(isIS() && false);\n" + 
+			"                return;\n" + 
+			"        }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
