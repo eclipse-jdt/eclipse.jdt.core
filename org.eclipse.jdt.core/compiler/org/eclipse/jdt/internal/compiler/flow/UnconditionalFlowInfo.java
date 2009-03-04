@@ -1622,10 +1622,12 @@ public FlowInfo safeInitsWhenTrue() {
 }
 
 public FlowInfo setReachMode(int reachMode) {
-	if (reachMode == REACHABLE && this != DEAD_END) { // cannot modify DEAD_END
+	if (this == DEAD_END) {// cannot modify DEAD_END
+		return this;
+	}	
+	if (reachMode == REACHABLE ) {
 		this.tagBits &= ~UNREACHABLE;
-	}
-	else {
+	} else {
 		if ((this.tagBits & UNREACHABLE) == 0) {
 			// reset optional inits when becoming unreachable
 			// see InitializationTest#test090 (and others)

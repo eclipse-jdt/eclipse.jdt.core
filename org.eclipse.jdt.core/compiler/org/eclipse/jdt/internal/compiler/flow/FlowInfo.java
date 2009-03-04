@@ -58,7 +58,7 @@ abstract public FlowInfo addPotentialInitializationsFrom(FlowInfo otherInits);
 	}
 
 	public static FlowInfo conditional(FlowInfo initsWhenTrue, FlowInfo initsWhenFalse){
-
+		if (initsWhenTrue == initsWhenFalse) return initsWhenTrue;
 		// if (initsWhenTrue.equals(initsWhenFalse)) return initsWhenTrue; -- could optimize if #equals is defined
 		return new ConditionalFlowInfo(initsWhenTrue, initsWhenFalse);
 	}
