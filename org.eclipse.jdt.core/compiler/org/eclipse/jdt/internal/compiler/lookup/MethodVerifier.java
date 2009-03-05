@@ -326,9 +326,10 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 	MethodBinding concreteMethod = this.type.isInterface() || methods[0].isAbstract() ? null : methods[0];
 	if (concreteMethod == null) {
 		MethodBinding bestAbstractMethod = length == 1 ? methods[0] : findBestInheritedAbstractMethod(methods, length);
-		if (bestAbstractMethod == null) {
-			problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
-		} else if (mustImplementAbstractMethod(bestAbstractMethod.declaringClass)) {
+		boolean noMatch = bestAbstractMethod == null;
+		if (noMatch)
+			bestAbstractMethod = methods[0];
+		if (mustImplementAbstractMethod(bestAbstractMethod.declaringClass)) {
 			TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
 			MethodBinding superclassAbstractMethod = methods[0];
 			if (superclassAbstractMethod == bestAbstractMethod || superclassAbstractMethod.declaringClass.isInterface()) {
@@ -346,6 +347,8 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 					problemReporter().abstractMethodMustBeImplemented(this.type, bestAbstractMethod, superclassAbstractMethod);
 				}
 			}
+		} else if (noMatch) {
+			problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
 		}
 		return;
 	}

@@ -9461,4 +9461,21 @@ public void test184() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=267088
+public void test185() {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"interface I { I hello(); }\n" +
+			"interface J { J hello(); }\n" +
+			"class A implements I, J {}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 3)\n" + 
+		"	class A implements I, J {}\n" + 
+		"	      ^\n" + 
+		"The type A must implement the inherited abstract method I.hello()\n" + 
+		"----------\n"
+	);
+}
 }
