@@ -45,7 +45,7 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	private static final IMethod[] NO_METHODS = new IMethod[0];
 	private static final IType[] NO_TYPES = new IType[0];
 	private static final IInitializer[] NO_INITIALIZERS = new IInitializer[0];
-	public static final String EMPTY_JAVADOC = org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING;
+	public static final JavadocContents EMPTY_JAVADOC = new JavadocContents(null, org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING);
 
 protected BinaryType(JavaElement parent, String name) {
 	super(parent, name);
@@ -991,62 +991,17 @@ protected void toStringName(StringBuffer buffer) {
 		buffer.append("<anonymous>"); //$NON-NLS-1$
 }
 public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
-	final String contents = getJavadocContents(monitor);
-	if (contents == null) return null;
-	final int indexOfStartOfClassData = contents.indexOf(JavadocConstants.START_OF_CLASS_DATA);
-	if (indexOfStartOfClassData == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
-	int indexOfNextSummary = contents.indexOf(JavadocConstants.NESTED_CLASS_SUMMARY);
-	if (isEnum() && indexOfNextSummary == -1) {
-		// try to find enum constant summary start
-		indexOfNextSummary = contents.indexOf(JavadocConstants.ENUM_CONSTANT_SUMMARY);
-	}
-	if (isAnnotation() && indexOfNextSummary == -1) {
-		// try to find required enum constant summary start
-		indexOfNextSummary = contents.indexOf(JavadocConstants.ANNOTATION_TYPE_REQUIRED_MEMBER_SUMMARY);
-		if (indexOfNextSummary == -1) {
-			// try to find optional enum constant summary start
-			indexOfNextSummary = contents.indexOf(JavadocConstants.ANNOTATION_TYPE_OPTIONAL_MEMBER_SUMMARY);
-		}
-	}
-	if (indexOfNextSummary == -1) {
-		// try to find field summary start
-		indexOfNextSummary = contents.indexOf(JavadocConstants.FIELD_SUMMARY);
-	}
-	if (indexOfNextSummary == -1) {
-		// try to find constructor summary start
-		indexOfNextSummary = contents.indexOf(JavadocConstants.CONSTRUCTOR_SUMMARY);
-	}
-	if (indexOfNextSummary == -1) {
-		// try to find method summary start
-		indexOfNextSummary = contents.indexOf(JavadocConstants.METHOD_SUMMARY);
-	}
-	if (indexOfNextSummary == -1) {
-		// we take the end of class data
-		indexOfNextSummary = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA);
-	}
-	if (indexOfNextSummary == -1) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
-	}
-	/*
-	 * Check out to cut off the hierarchy see 119844
-	 * We remove what the contents between the start of class data and the first <P>
-	 */
-	int start = indexOfStartOfClassData + JavadocConstants.START_OF_CLASS_DATA_LENGTH;
-	int indexOfFirstParagraph = contents.indexOf("<P>", start); //$NON-NLS-1$
-	if (indexOfFirstParagraph == -1) {
-		indexOfFirstParagraph = contents.indexOf("<p>", start); //$NON-NLS-1$
-	}
-	if (indexOfFirstParagraph != -1 && indexOfFirstParagraph < indexOfNextSummary) {
-		start = indexOfFirstParagraph;
-	}
-	return contents.substring(start, indexOfNextSummary);
+	JavadocContents javadocContents = getJavadocContents(monitor);
+	if (javadocContents == null) return null;
+	return javadocContents.getTypeDoc();
 }
-public String getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
+public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
 	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());
-	String cachedJavadoc = null;
+	JavadocContents cachedJavadoc = null;
 	synchronized (projectInfo.javadocCache) {
-		cachedJavadoc = (String) projectInfo.javadocCache.get(this);
+		cachedJavadoc = (JavadocContents) projectInfo.javadocCache.get(this);
 	}
+	
 	if (cachedJavadoc != null && cachedJavadoc != EMPTY_JAVADOC) {
 		return cachedJavadoc;
 	}
@@ -1077,12 +1032,12 @@ public String getJavadocContents(IProgressMonitor monitor) throws JavaModelExcep
 	}
 
 	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(JavadocConstants.HTML_EXTENSION);
-
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	final String contents = getURLContents(String.valueOf(pathBuffer));
+	JavadocContents javadocContents = new JavadocContents(this, contents);
 	synchronized (projectInfo.javadocCache) {
-		projectInfo.javadocCache.put(this, contents);
+		projectInfo.javadocCache.put(this, javadocContents);
 	}
-	return contents;
+	return javadocContents;
 }
 }

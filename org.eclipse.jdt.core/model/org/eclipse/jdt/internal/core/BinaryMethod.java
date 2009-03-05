@@ -188,15 +188,17 @@ public String[] getParameterNames() throws JavaModelException {
 		if ((modifiers & ClassFileConstants.AccSynthetic) != 0) {
 			return this.parameterNames = getRawParameterNames(paramCount);
 		}
-		String javadocContents = null;
+		JavadocContents javadocContents = null;
 		IType declaringType = getDeclaringType();
 		PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());
 		synchronized (projectInfo.javadocCache) {
-			javadocContents = (String) projectInfo.javadocCache.get(declaringType);
+			javadocContents = (JavadocContents) projectInfo.javadocCache.get(declaringType);
 			if (javadocContents == null) {
 				projectInfo.javadocCache.put(declaringType, BinaryType.EMPTY_JAVADOC);
 			}
 		}
+		
+		String methodDoc = null;
 		if (javadocContents == null) {
 			long timeOut = 50; // default value
 			try {
@@ -245,23 +247,23 @@ public String[] getParameterNames() throws JavaModelException {
 					// ignore
 				}
 			}
-			javadocContents = nameCollector.getJavadoc();
+			methodDoc = nameCollector.getJavadoc();
 		} else if (javadocContents != BinaryType.EMPTY_JAVADOC){
 			// need to extract the part relative to the binary method since javadoc contains the javadoc for the declaring type
 			try {
-				javadocContents = extractJavadoc(declaringType, javadocContents);
+				methodDoc = javadocContents.getMethodDoc(this);
 			} catch(JavaModelException e) {
 				javadocContents = null;
 			}
 		}
-		if (javadocContents != null && javadocContents != BinaryType.EMPTY_JAVADOC) {
-			final int indexOfOpenParen = javadocContents.indexOf('(');
+		if (methodDoc != null) {
+			final int indexOfOpenParen = methodDoc.indexOf('(');
 			if (indexOfOpenParen != -1) {
-				final int indexOfClosingParen = javadocContents.indexOf(')', indexOfOpenParen);
+				final int indexOfClosingParen = methodDoc.indexOf(')', indexOfOpenParen);
 				if (indexOfClosingParen != -1) {
 					final char[] paramsSource =
 						CharOperation.replace(
-							javadocContents.substring(indexOfOpenParen + 1, indexOfClosingParen).toCharArray(),
+							methodDoc.substring(indexOfOpenParen + 1, indexOfClosingParen).toCharArray(),
 							"&nbsp;".toCharArray(), //$NON-NLS-1$
 							new char[] {' '});
 					final char[][] params = splitParameters(paramsSource, paramCount);
@@ -553,76 +555,8 @@ protected void toStringName(StringBuffer buffer, int flags) {
 	}
 }
 public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
-	IType declaringType = getDeclaringType();
-
-	String contents = ((BinaryType) declaringType).getJavadocContents(monitor);
-	return extractJavadoc(declaringType, contents);
-}
-private String extractJavadoc(IType declaringType, String contents) throws JavaModelException {
-	if (contents == null) return null;
-
-	String typeQualifiedName = null;
-	final boolean declaringTypeIsMember = declaringType.isMember();
-	if (declaringTypeIsMember) {
-		IType currentType = declaringType;
-		StringBuffer buffer = new StringBuffer();
-		while (currentType != null) {
-			buffer.insert(0, currentType.getElementName());
-			currentType = currentType.getDeclaringType();
-			if (currentType != null) {
-				buffer.insert(0, '.');
-			}
-		}
-		typeQualifiedName = new String(buffer.toString());
-	} else {
-		typeQualifiedName = declaringType.getElementName();
-	}
-	String methodName = getElementName();
-	if (isConstructor()) {
-		methodName = typeQualifiedName;
-	}
-	IBinaryMethod info = (IBinaryMethod) getElementInfo();
-	char[] genericSignature = info.getGenericSignature();
-	String anchor = null;
-	if (genericSignature != null) {
-		genericSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
-		anchor = Util.toAnchor(0, genericSignature, methodName, Flags.isVarargs(getFlags()));
-		if (anchor == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
-	} else {
-		anchor = Signature.toString(getSignature().replace('/', '.'), methodName, null, true, false, Flags.isVarargs(getFlags()));
-	}
-	if (declaringTypeIsMember && !Flags.isStatic(declaringType.getFlags())) {
-		int indexOfOpeningParen = anchor.indexOf('(');
-		if (indexOfOpeningParen == -1) return null;
-		int index = indexOfOpeningParen +1;
-		indexOfOpeningParen++;
-		int indexOfComma = anchor.indexOf(',', index);
-		if (indexOfComma != -1) {
-			index = indexOfComma + 2;
-		} else {
-			index = anchor.indexOf(')', index);
-		}
-		anchor = anchor.substring(0, indexOfOpeningParen) + anchor.substring(index);
-	}
-	int indexAnchor = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START + anchor + JavadocConstants.ANCHOR_PREFIX_END);
-	if (indexAnchor == -1) {
-		return null; // method without javadoc
-	}
-	int indexOfEndLink = contents.indexOf(JavadocConstants.ANCHOR_SUFFIX, indexAnchor);
-	if (indexOfEndLink == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
-	int indexOfNextMethod = contents.indexOf(JavadocConstants.ANCHOR_PREFIX_START, indexOfEndLink);
-	// find bottom
-	int indexOfBottom = -1;
-	if (isConstructor()) {
-		indexOfBottom = contents.indexOf(JavadocConstants.METHOD_DETAIL, indexOfEndLink);
-		if (indexOfBottom == -1) {
-			indexOfBottom = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA, indexOfEndLink);
-		}
-	} else {
-		indexOfBottom = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA, indexOfEndLink);
-	}
-	if (indexOfBottom == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
-	indexOfNextMethod = indexOfNextMethod == -1 ? indexOfBottom : Math.min(indexOfNextMethod, indexOfBottom);
-	return contents.substring(indexOfEndLink + JavadocConstants.ANCHOR_SUFFIX_LENGTH, indexOfNextMethod);
+	JavadocContents javadocContents = ((BinaryType) this.getDeclaringType()).getJavadocContents(monitor);
+	if (javadocContents == null) return null;
+	return javadocContents.getMethodDoc(this);
 }
 }
