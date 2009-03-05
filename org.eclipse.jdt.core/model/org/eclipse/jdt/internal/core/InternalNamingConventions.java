@@ -625,10 +625,27 @@ public class InternalNamingConventions {
 							tempName[length+1] = 'S';
 						}
 					} else if(tempName[length-1] == 'Y') {
-						System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
-						tempName[length-1] = 'I';
-						tempName[length] = 'E';
-						tempName[length+1] = 'S';
+						boolean precededByAVowel = false;
+						if(tempName.length > 1) {
+							switch (tempName[length-2]) {
+								case 'A':
+								case 'E':
+								case 'I':
+								case 'O':
+								case 'U':
+									precededByAVowel = true;
+									break;
+							}
+						}
+						if (precededByAVowel) {
+							System.arraycopy(tempName, 0, tempName = new char[length + 1], 0, length);
+							tempName[length] = 'S';
+						} else {
+							System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
+							tempName[length-1] = 'I';
+							tempName[length] = 'E';
+							tempName[length+1] = 'S';
+						}
 					} else {
 						System.arraycopy(tempName, 0, tempName = new char[length + 1], 0, length);
 						tempName[length] = 'S';
@@ -641,10 +658,27 @@ public class InternalNamingConventions {
 							tempName[length+1] = 's';
 						}
 					} else if(tempName[length-1] == 'y') {
-						System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
-						tempName[length-1] = 'i';
-						tempName[length] = 'e';
-						tempName[length+1] = 's';
+						boolean precededByAVowel = false;
+						if(tempName.length > 1) {
+							switch (tempName[length-2]) {
+								case 'a':
+								case 'e':
+								case 'i':
+								case 'o':
+								case 'u':
+									precededByAVowel = true;
+									break;
+							}
+						}
+						if (precededByAVowel) {
+							System.arraycopy(tempName, 0, tempName = new char[length + 1], 0, length);
+							tempName[length] = 's';
+						} else {
+							System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
+							tempName[length-1] = 'i';
+							tempName[length] = 'e';
+							tempName[length+1] = 's';
+						}
 					} else {
 						System.arraycopy(tempName, 0, tempName = new char[length + 1], 0, length);
 						tempName[length] = 's';

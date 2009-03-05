@@ -860,6 +860,40 @@ public void testSuggestFieldName040() {
 		"INT", //$NON-NLS-1$
 		toString(suggestions));
 }
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=260840
+ */
+public void testSuggestFieldName041() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_INSTANCE_FIELD,
+			NamingConventions.BK_TYPE_NAME,
+			"Key", //$NON-NLS-1$
+			this.project,
+			1,
+			new String[]{},
+			true);
+	
+	assumeEquals(
+		"keys", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=260840
+ */
+public void testSuggestFieldName042() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_STATIC_FINAL_FIELD,
+			NamingConventions.BK_TYPE_NAME,
+			"Key", //$NON-NLS-1$
+			this.project,
+			1,
+			new String[]{},
+			true);
+	
+	assumeEquals(
+		"KEYS", //$NON-NLS-1$
+		toString(suggestions));
+}
 /** @deprecated */
 public void testRemovePrefixAndSuffixForFieldName001() {
 	Hashtable options = JavaCore.getOptions();
