@@ -6051,6 +6051,66 @@ public void testCompletionImportedType6() throws JavaModelException {
 			requestor.getResults());
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=243406
+public void testCompletionImportedType7() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"import AClas.Foo;"+
+		"public class Test {\n"+
+		"  \n"+
+		"}");
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test2/AClass1.java",
+		"package test2;"+
+		"public class AClass {"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "AClas";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int start = str.indexOf("AClas");
+	int end = start + "AClas".length();
+	assertResults(
+			"AClass[TYPE_REF]{test2.AClass;, test2, Ltest2.AClass;, null, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=243406
+public void testCompletionImportedType8() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"import test2.AClas.Foo;"+
+		"public class Test {\n"+
+		"  \n"+
+		"}");
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test2/AClass1.java",
+		"package test2;"+
+		"public class AClass {"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "AClas";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int start = str.indexOf("AClas");
+	int end = start + "AClas".length();
+	assertResults(
+			"AClass[TYPE_REF]{AClass;, test2, Ltest2.AClass;, null, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
 public void testCompletionInsideExtends1() throws JavaModelException {
 	this.wc = getWorkingCopy(

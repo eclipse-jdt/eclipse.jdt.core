@@ -1747,7 +1747,7 @@ public final class CompletionEngine
 								contextAccepted = true;
 								buildContext(importReference, null, parsedUnit, null, null);
 
-								long positions = importReference.sourcePositions[importReference.sourcePositions.length - 1];
+								long positions = importReference.sourcePositions[importReference.tokens.length - 1];
 								setSourceAndTokenRange((int) (positions >>> 32), (int) positions);
 
 								char[][] oldTokens = importReference.tokens;
