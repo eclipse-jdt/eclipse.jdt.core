@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.AptSourceLocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -57,19 +58,22 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(Argument argument, BlockScope scope) {
 		Annotation[] annotations = argument.annotations;
-		MethodBinding binding = ((AbstractMethodDeclaration) scope.referenceContext()).binding;
-		if (binding != null) {
-			TypeDeclaration typeDeclaration = scope.referenceType();
-			typeDeclaration.binding.resolveTypesFor(binding);
-			if (argument.binding != null) {
-				argument.binding = new AptSourceLocalVariableBinding(argument.binding, binding);
+		ReferenceContext referenceContext = scope.referenceContext();
+		if (referenceContext instanceof AbstractMethodDeclaration) {
+			MethodBinding binding = ((AbstractMethodDeclaration) referenceContext).binding;
+			if (binding != null) {
+				TypeDeclaration typeDeclaration = scope.referenceType();
+				typeDeclaration.binding.resolveTypesFor(binding);
+				if (argument.binding != null) {
+					argument.binding = new AptSourceLocalVariableBinding(argument.binding, binding);
+				}
 			}
-		}
-		if (annotations != null) {
-			this.resolveAnnotations(
-					scope,
-					annotations,
-					argument.binding);
+			if (annotations != null) {
+				this.resolveAnnotations(
+						scope,
+						annotations,
+						argument.binding);
+			}
 		}
 		return false;
 	}
