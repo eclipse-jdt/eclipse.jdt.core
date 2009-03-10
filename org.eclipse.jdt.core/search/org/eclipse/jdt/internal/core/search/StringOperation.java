@@ -382,7 +382,7 @@ public static final int[] getPatternMatchingRegions(
 	/* check sequence of star+segment */
 	int segmentStart;
 	if (patternChar == '*') {
-		if (iPattern > 0) {
+		if (iPattern > 0 && previous != '?') {
 			segments[count++] = start;
 			segments[count++] = iName-start;
 			start = iName;
@@ -404,6 +404,7 @@ public static final int[] getPatternMatchingRegions(
 		return null;
 	}
 	int prefixStart = iName;
+	int previousCount = count;
 	previous = patternChar;
 	char previousSegment = patternChar;
 	checkSegment : while (iName < nameEnd) {
@@ -439,6 +440,7 @@ public static final int[] getPatternMatchingRegions(
 			continue checkSegment;
 		}
 		/* check current name character */
+		previousCount = count;
 		if (patternChar == '?') {
 			switch (previous) {
 				case '*':
@@ -460,7 +462,7 @@ public static final int[] getPatternMatchingRegions(
 				iPattern = segmentStart; // mismatch - restart current segment
 				iName = ++prefixStart;
 				start = prefixStart;
-				if (previous == '?') count -= 2;
+				count = previousCount;
 				previous = previousSegment;
 				continue checkSegment;
 			}
