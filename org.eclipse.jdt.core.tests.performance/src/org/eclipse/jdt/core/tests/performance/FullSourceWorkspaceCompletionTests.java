@@ -16,6 +16,7 @@ import junit.framework.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.test.performance.Performance;
 
 /**
  */
@@ -175,6 +176,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	}
 	public void testPerfCompleteMemberAccess() throws JavaModelException {
 		tagAsGlobalSummary("Codeassist in expression", true); // put in global fingerprint
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "The regression cannot be reproduced locally and nothing has changed in this area when it appeared!?");
 		complete(
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
