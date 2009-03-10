@@ -4426,4 +4426,73 @@ public void testBug260798c() throws JavaModelException {
 	);
 }
 
+/**
+ * @bug 267658: [formatter] Javadoc comments may be still formatted as block comments
+ * @test Ensure that javadoc comment are formatted as block comment with certain
+ * 	options configuration
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=267658"
+ */
+public void testBug267658() throws JavaModelException {
+	this.formatterPrefs.comment_format_javadoc_comment = false;
+	this.formatterPrefs.comment_format_block_comment = true;
+	this.formatterPrefs.comment_format_line_comment = false;
+	String source = 
+		"/**\n" + 
+		" * Test for\n" + 
+		" * bug 267658\n" + 
+		" */\n" + 
+		"package javadoc;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * Test for\n" + 
+		" * bug 267658\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"/**\n" + 
+		" * Test for\n" + 
+		" * bug 267658\n" + 
+		" */\n" + 
+		"int field;\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Test for\n" + 
+		" * bug 267658\n" + 
+		" */\n" + 
+		"package javadoc;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * Test for\n" + 
+		" * bug 267658\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"	/**\n" + 
+		"	 * Test for\n" + 
+		"	 * bug 267658\n" + 
+		"	 */\n" + 
+		"	int field;\n" + 
+		"}\n"
+	);
+}
+public void testBug267658b() throws JavaModelException {
+	this.formatterPrefs.comment_format_javadoc_comment = false;
+	this.formatterPrefs.comment_format_block_comment = true;
+	this.formatterPrefs.comment_format_line_comment = false;
+	String source = 
+		"public class Test {\n" + 
+		"/**\n" + 
+		" * @test bug\n" + 
+		" */\n" + 
+		"int field;\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	/**\n" + 
+		"	 * @test bug\n" + 
+		"	 */\n" + 
+		"	int field;\n" + 
+		"}\n"
+	);
+}
+
 }

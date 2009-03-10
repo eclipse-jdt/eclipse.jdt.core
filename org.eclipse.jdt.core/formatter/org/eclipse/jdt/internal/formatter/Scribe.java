@@ -1223,7 +1223,7 @@ public class Scribe implements IJavaDocTagConstants {
 	private void printBlockComment(boolean isJavadoc) {
 		int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 		int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
-		boolean includesBlockComments = includesBlockComments();
+		boolean includesBlockComments = !isJavadoc && includesBlockComments();
 
 		this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
 		int currentCharacter;
