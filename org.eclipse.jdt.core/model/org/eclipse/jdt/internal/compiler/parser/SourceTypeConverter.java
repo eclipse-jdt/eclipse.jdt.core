@@ -577,32 +577,34 @@ public class SourceTypeConverter extends TypeConverter {
 	}
 
 	private Annotation[] convertAnnotations(IAnnotatable element) throws JavaModelException {
-		char[] cuSource = getSource();
 		IAnnotation[] annotations = element.getAnnotations();
 		int length = annotations.length;
 		Annotation[] astAnnotations = new Annotation[length];
-		int recordedAnnotations = 0;
-		for (int i = 0; i < length; i++) {
-			ISourceRange positions = annotations[i].getSourceRange();
-			int start = positions.getOffset();
-			int end = start + positions.getLength();
-			char[] annotationSource = CharOperation.subarray(cuSource, start, end);
-			if (annotationSource != null) {
-    			Expression expression = parseMemberValue(annotationSource);
-    			/*
-    			 * expression can be null or not an annotation if the source has changed between
-    			 * the moment where the annotation source positions have been retrieved and the moment were
-    			 * this parsing occurred.
-    			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=90916
-    			 */
-    			if (expression instanceof Annotation) {
-    				astAnnotations[recordedAnnotations++] = (Annotation) expression;
-    			}
+		if (length > 0) {
+			char[] cuSource = getSource();
+			int recordedAnnotations = 0;
+			for (int i = 0; i < length; i++) {
+				ISourceRange positions = annotations[i].getSourceRange();
+				int start = positions.getOffset();
+				int end = start + positions.getLength();
+				char[] annotationSource = CharOperation.subarray(cuSource, start, end);
+				if (annotationSource != null) {
+	    			Expression expression = parseMemberValue(annotationSource);
+	    			/*
+	    			 * expression can be null or not an annotation if the source has changed between
+	    			 * the moment where the annotation source positions have been retrieved and the moment were
+	    			 * this parsing occurred.
+	    			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=90916
+	    			 */
+	    			if (expression instanceof Annotation) {
+	    				astAnnotations[recordedAnnotations++] = (Annotation) expression;
+	    			}
+				}
 			}
-		}
-		if (length != recordedAnnotations) {
-			// resize to remove null annotations
-			System.arraycopy(astAnnotations, 0, (astAnnotations = new Annotation[recordedAnnotations]), 0, recordedAnnotations);
+			if (length != recordedAnnotations) {
+				// resize to remove null annotations
+				System.arraycopy(astAnnotations, 0, (astAnnotations = new Annotation[recordedAnnotations]), 0, recordedAnnotations);
+			}
 		}
 		return astAnnotations;
 	}
