@@ -217,6 +217,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			}
 			System.out.println(this.scenarioShortName+": Unexpected ERROR marker(s):\n" + debugBuffer.toString());
 			System.out.println("--------------------");
+			String target = javaProject == null ? "workspace" : javaProject.getElementName();
+			assertEquals("Found "+size+" unexpected errors while building "+target, 0, size);
 		}
 		if (DEBUG) System.out.println("done");
 
