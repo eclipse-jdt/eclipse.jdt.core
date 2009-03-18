@@ -27,6 +27,7 @@
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
    	  <!-- Use a subdir 'data' so that the JCL jars are put in jdt-core-perf-folder and are deleted at the end of the tests. -->
       <property name="data-dir" value="${jdt-core-perf-folder}/data"/>
+  	  <property name="vmargs" value="-DstoreMemory=jdtcoreperf_mem_trace,all,dir=${basedir}/../.."/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.performance.OneTest"/>
