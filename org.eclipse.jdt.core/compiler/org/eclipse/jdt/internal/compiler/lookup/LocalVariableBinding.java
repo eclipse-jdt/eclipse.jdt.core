@@ -180,7 +180,9 @@ public class LocalVariableBinding extends VariableBinding {
 
 	public void recordInitializationStartPC(int pc) {
 
-		if (this.initializationPCs == null) 	return;
+		if (this.initializationPCs == null) {
+			return;
+		}
 		if (this.initializationCount > 0) {
 			int previousEndPC = this.initializationPCs[ ((this.initializationCount - 1) << 1) + 1];
 			 // interval still open, keep using it (108180)
