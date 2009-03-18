@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. and others.
+ * Copyright (c) 2005, 2009 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
  * Contributors:
  *     BEA Systems Inc. - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import java.util.ArrayList;
@@ -18,20 +17,43 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ProjectScope;
+import org.osgi.service.prefs.BackingStoreException;
+
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
+import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jdt.apt.core.internal.AptPlugin;
-import org.eclipse.jdt.apt.core.util.AptConfig;
-import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
+
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ProjectScope;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.PixelConverter;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.window.Window;
+
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+
 import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
-import org.eclipse.jdt.internal.ui.util.PixelConverter;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
@@ -40,21 +62,7 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.ListDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerComparator;
-import org.eclipse.jface.window.Window;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
-import org.osgi.service.prefs.BackingStoreException;
+
 
 /**
  * Preference pane for most APT (Java annotation processing) settings.
@@ -72,7 +80,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private static Key[] getAllKeys() {
 		return new Key[] {
 				KEY_APTENABLED, KEY_RECONCILEENABLED, KEY_GENSRCDIR
-		};	
+		};
 	}
 	
 	private static final int IDX_ADD= 0;
@@ -95,7 +103,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private boolean fOriginalReconcileEnabled;
 	
 	// used to distinguish actual changes from re-setting of same value - see useProjectSpecificSettings()
-	private boolean fPerProjSettingsEnabled; 
+	private boolean fPerProjSettingsEnabled;
 	
 	/**
 	 * Event handler for Processor Options list control.
@@ -125,7 +133,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 
 		public void dialogFieldChanged(DialogField field) {
 			updateModel(field);
-		}			
+		}
 
 		@SuppressWarnings("unchecked")
 		private boolean canEdit(DialogField field, List selectedElements) {
@@ -240,7 +248,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		
 	}
 	
-	/* 
+	/*
 	 * At workspace level, don't ask for a rebuild.
 	 */
 	@Override
@@ -302,7 +310,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		
 		fBlockControl.setLayout(layout);
 		
-		DialogField[] fields = fAptEnabledField != null ? 
+		DialogField[] fields = fAptEnabledField != null ?
 				new DialogField[] {
 					fAptEnabledField,
 					fReconcileEnabledField,
@@ -322,7 +330,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fReconcileEnabledField.getSelectionButton(parent).setLayoutData(reconcileGD);
 		
 		Label description= new Label(fBlockControl, SWT.WRAP);
-		description.setText(Messages.AptConfigurationBlock_classpathAddedAutomaticallyNote); 
+		description.setText(Messages.AptConfigurationBlock_classpathAddedAutomaticallyNote);
 		GridData gdLabel= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		gdLabel.horizontalSpan= 2;
 		gdLabel.widthHint= fPixelConverter.convertWidthInCharsToPixels(60);
@@ -354,8 +362,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		List<ProcessorOption> elements;
 		boolean isProjSpecificDisabled = (fJProj != null) && !fBlockControl.isEnabled();
 		if (isProjSpecificDisabled) {
-			// We're in a project properties pane but the entire configuration 
-			// block control is disabled.  That means the per-project settings checkbox 
+			// We're in a project properties pane but the entire configuration
+			// block control is disabled.  That means the per-project settings checkbox
 			// is unchecked.  To save that state, we'll clear the proc options map.
 			elements = Collections.<ProcessorOption>emptyList();
 		}
@@ -396,7 +404,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	}
 	
 	/**
-	 * Set the org.eclipse.jdt.core.compiler.processAnnotations setting.  
+	 * Set the org.eclipse.jdt.core.compiler.processAnnotations setting.
 	 * In Eclipse 3.3, this value replaces org.eclipse.jdt.apt.aptEnabled,
 	 * but we continue to set both values in order to ensure backward
 	 * compatibility with prior versions.
@@ -404,7 +412,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 * @param enable
 	 */
 	private void setJDTProcessAnnotationsSetting(boolean enable) {
-		IScopeContext context = (null != fJProj) ? 
+		IScopeContext context = (null != fJProj) ?
 				new ProjectScope(fJProj.getProject()) : new InstanceScope();
 		IEclipsePreferences node = context.getNode(JavaCore.PLUGIN_ID);
 		final String value = enable ? AptPreferenceConstants.ENABLED : AptPreferenceConstants.DISABLED;
@@ -468,7 +476,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		}
 
 		fContext.statusChanged(status);
-	}	
+	}
 	
 	/**
 	 * Validate "generated source directory" setting.  It must be a valid
@@ -499,7 +507,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		List<ProcessorOption> elements = getListElements();
 		for (ProcessorOption o : elements) {
 			if (AptConfig.isAutomaticProcessorOption(o.key)) {
-				return new StatusInfo(IStatus.WARNING, 
+				return new StatusInfo(IStatus.WARNING,
 						Messages.AptConfigurationBlock_warningIgnoredOptions + ": " + o.key); //$NON-NLS-1$
 			}
 		}
@@ -519,7 +527,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fReconcileEnabledField.setSelection(reconcileEnabled);
 		String str= getValue(KEY_GENSRCDIR);
 		fGenSrcDirField.setText(str == null ? "" : str); //$NON-NLS-1$
-	}	
+	}
 	
 	/**
 	 * Update the values stored in the keys based on the UI.

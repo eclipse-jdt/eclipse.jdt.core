@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2009 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
  * Contributors:
  *   wharley@bea.com - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import java.util.ArrayList;
@@ -16,14 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
@@ -31,9 +22,35 @@ import org.eclipse.jdt.apt.core.internal.util.FactoryPath.Attributes;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.IFactoryPath;
 import org.eclipse.jdt.apt.ui.internal.util.ExceptionHandler;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.PixelConverter;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.window.Window;
+
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.ui.util.PixelConverter;
+
+import org.eclipse.jdt.ui.wizards.BuildPathDialogAccess;
+
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.CheckedListDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
@@ -41,16 +58,7 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IListAdapter;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.ListDialogField;
-import org.eclipse.jdt.ui.wizards.BuildPathDialogAccess;
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.window.Window;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+
 
 /**
  * Data and controls for the Java Annotation Factory Path preference page.
@@ -71,7 +79,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	private static final int IDX_ENABLEALL= 11;
 	private static final int IDX_DISABLEALL= 12;
 
-	private final static String[] buttonLabels = { 
+	private final static String[] buttonLabels = {
 		Messages.FactoryPathConfigurationBlock_up,
 		Messages.FactoryPathConfigurationBlock_down,
 		null,                    // 2
@@ -107,9 +115,9 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
         /**
          * This method gets called when, among other things, a checkbox is
          * clicked.  However, it doesn't get any information about which
-         * item it was whose checkbox was clicked.  We could hook into the 
-         * list control's CheckboxTableViewer event listener for changes to 
-         * individual checkboxes; but that does not get called for enableAll 
+         * item it was whose checkbox was clicked.  We could hook into the
+         * list control's CheckboxTableViewer event listener for changes to
+         * individual checkboxes; but that does not get called for enableAll
          * and disableAll events.
          */
 		public void dialogFieldChanged(DialogField field) {
@@ -147,7 +155,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	
 	/**
 	 * The factory path is a list of containers, plus some information about
-	 * each container.  That makes it a list of FactoryPathEntry.  
+	 * each container.  That makes it a list of FactoryPathEntry.
 	 */
 	private static class FactoryPathEntry {
 		/* shallow copies - beware! */
@@ -162,7 +170,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 
 		// CONVERSION TO/FROM INDIVIDUAL ELEMENTS
 		public static Map<FactoryContainer, Attributes> pathMapFromList(List<FactoryPathEntry> list) {
-			Map<FactoryContainer, FactoryPath.Attributes> map = 
+			Map<FactoryContainer, FactoryPath.Attributes> map =
 				new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>(list.size());
 			for (FactoryPathEntry fpe : list) {
 				map.put(fpe._fc, fpe._attr);
@@ -202,9 +210,9 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	
 	private final IJavaProject fJProj;
 
-	/** 
+	/**
 	 * The GUI control representing the factory path.  Its data items
-	 * are of type FactoryPathEntry. 
+	 * are of type FactoryPathEntry.
 	 */
 	private CheckedListDialogField fFactoryPathList;
 	
@@ -231,7 +239,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		fFactoryPathList.setDownButtonIndex(IDX_DOWN);
 		fFactoryPathList.setRemoveButtonIndex(IDX_REMOVE);
 		fFactoryPathList.setCheckAllButtonIndex(IDX_ENABLEALL);
-		fFactoryPathList.setUncheckAllButtonIndex(IDX_DISABLEALL);		
+		fFactoryPathList.setUncheckAllButtonIndex(IDX_DISABLEALL);
 	}
 
 	/**
@@ -240,7 +248,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * with a new one with the correct "enabled" value.
 	 * We don't have information about which entry was changed, so we
 	 * have to look at all of them.  This is inefficient - somewhere
-	 * around O(n log n) depending on how the list is implemented - but 
+	 * around O(n log n) depending on how the list is implemented - but
 	 * hopefully the list is not so huge that it's a problem.
 	 */
 	private void updateFactoryPathEntries() {
@@ -412,7 +420,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper method to get rid of unchecked conversion warning
 	 */
-	@SuppressWarnings("unchecked") 
+	@SuppressWarnings("unchecked")
 	private List<FactoryPathEntry> getListContents() {
 		List<FactoryPathEntry> contents= fFactoryPathList.getElements();
 		return contents;
@@ -421,7 +429,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper method to get rid of unchecked conversion warning
 	 */
-	@SuppressWarnings("unchecked") 
+	@SuppressWarnings("unchecked")
 	private List<FactoryPathEntry> getSelectedListContents() {
 		List<FactoryPathEntry> contents= fFactoryPathList.getSelectedElements();
 		return contents;
@@ -506,7 +514,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 				++countType;
 			}
 		}
-		// create an array of paths, one per entry of this type 
+		// create an array of paths, one per entry of this type
 		IPath[] some = new IPath[countType];
 		int i = 0;
 		for (FactoryPathEntry fpe : all) {
@@ -523,7 +531,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * contained by the selected container and allows the user to specify
 	 * options that are needed only in certain special cases.
 	 * 
-	 * We treat advanced options as an attribute of the factory path, not of the 
+	 * We treat advanced options as an attribute of the factory path, not of the
 	 * container; the same container may have different advanced options in different
 	 * projects.  We treat advanced options the same way as the "enabled" flag.
 	 */
@@ -533,7 +541,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			return;
 		}
 		FactoryPathEntry original= selected.get(0);
-		AdvancedFactoryPathOptionsDialog dialog= 
+		AdvancedFactoryPathOptionsDialog dialog=
 			new AdvancedFactoryPathOptionsDialog(getShell(), original._fc, original._attr);
 		if (dialog.open() == Window.OK) {
 			original._attr = dialog.getResult();
@@ -594,7 +602,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	}
 
 	/**
-	 * Add or edit an external (not project-relative) jar file.  
+	 * Add or edit an external (not project-relative) jar file.
 	 * @param original null, or an existing list entry to be edited
 	 * @return a list of additional factory path entries to be added
 	 */
@@ -630,7 +638,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	
 	/**
 	 * Add or edit an external (not project-relative) jar file whose
-	 * location includes a classpath variable name.  
+	 * location includes a classpath variable name.
 	 * @param original null, or an existing list entry to be edited
 	 * @return a list of additional factory path entries to be added
 	 */
@@ -682,8 +690,8 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	protected void saveSettings() {
 		FactoryPath fp;
 		if ((fJProj != null) && !fBlockControl.isEnabled()) {
-			// We're in a project properties pane but the entire configuration 
-			// block control is disabled.  That means the per-project settings checkbox 
+			// We're in a project properties pane but the entire configuration
+			// block control is disabled.  That means the per-project settings checkbox
 			// is unchecked.  To save that state, we'll delete the settings file.
 			fp = null;
 		}
