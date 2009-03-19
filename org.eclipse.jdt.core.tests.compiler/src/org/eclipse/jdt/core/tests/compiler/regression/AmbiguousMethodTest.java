@@ -2894,30 +2894,20 @@ public void test073() {
 		"	               ^\n" +
 		"The return types are incompatible for the inherited methods J.a(), I.a()\n" +
 		"----------\n" +
-		"4. ERROR in Y.java (at line 15)\n" +
-		"	byte a = a();\n" +
-		"	         ^\n" +
-		"The method a() is ambiguous for the type Y\n" +
-		"----------\n" +
-		"5. ERROR in Y.java (at line 20)\n" +
+		"4. ERROR in Y.java (at line 20)\n" +
 		"	abstract class Y2 extends X implements J, I {\n" +
 		"	               ^^\n" +
 		"The return types are incompatible for the inherited methods J.c(), X.c()\n" +
 		"----------\n" +
-		"6. ERROR in Y.java (at line 20)\n" +
+		"5. ERROR in Y.java (at line 20)\n" +
 		"	abstract class Y2 extends X implements J, I {\n" +
 		"	               ^^\n" +
 		"The return types are incompatible for the inherited methods I.b(), X.b()\n" +
 		"----------\n" +
-		"7. ERROR in Y.java (at line 20)\n" +
+		"6. ERROR in Y.java (at line 20)\n" +
 		"	abstract class Y2 extends X implements J, I {\n" +
 		"	               ^^\n" +
 		"The return types are incompatible for the inherited methods I.a(), J.a()\n" +
-		"----------\n" +
-		"8. ERROR in Y.java (at line 22)\n" +
-		"	byte a = a();\n" +
-		"	         ^\n" +
-		"The method a() is ambiguous for the type Y2\n" +
 		"----------\n"
 	);
 }
@@ -3063,6 +3053,156 @@ public void test075() {
 		"	class B<T extends Comparable> extends A<T> {\n" + 
 		"	                  ^^^^^^^^^^\n" + 
 		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+		"----------\n"
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=268837
+public void test076() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I<E> {\n" +
+			"	I<String> a();\n" +
+			"	I<String> b();\n" +
+			"	<T1> I<T1> c();\n" +
+			"}\n" +
+			"interface J<E> extends I<E> {\n" +
+			"	J<String> a();\n" +
+			"	<U> J<String> b();\n" +
+			"	<T2> J<T2> c();\n" +
+			"}\n" +
+			"class X {\n" +
+			"	void a(J<Integer> ints) {\n" +
+			"		ints.a();\n" +
+			"		J<String> a = ints.a();\n" +
+			"		J<Integer> b = ints.a();\n" + // incompatible types
+			"		J<Object> c = ints.a();\n" + // incompatible types
+			"		J d = ints.a();\n" +
+			"		I<String> e = ints.a();\n" +
+			"		I<Integer> f = ints.a();\n" + // incompatible types
+			"		I<Object> g = ints.a();\n" + // incompatible types
+			"		I h = ints.a();\n" +
+			"	}\n" +
+			"	void b(J<Integer> ints) {\n" +
+			"		ints.b();\n" + // ambiguous
+			"		J<String> a = ints.b();\n" + // ambiguous
+			"		J<Integer> b = ints.b();\n" + // ambiguous
+			"		J<Object> c = ints.b();\n" + // ambiguous
+			"		J d = ints.b();\n" + // ambiguous
+			"		I<String> e = ints.b();\n" + // ambiguous
+			"		I<Integer> f = ints.b();\n" + // ambiguous
+			"		I<Object> g = ints.b();\n" + // ambiguous
+			"		I h = ints.b();\n" + // ambiguous
+			"	}\n" +
+			"	void c(J<Integer> ints) {\n" +
+			"		ints.c();\n" +
+			"		J<String> a = ints.c();\n" +
+			"		J<Integer> b = ints.c();\n" +
+			"		J<Object> c = ints.c();\n" +
+			"		J d = ints.c();\n" +
+			"		I<String> e = ints.c();\n" +
+			"		I<Integer> f = ints.c();\n" +
+			"		I<Object> g = ints.c();\n" +
+			"		I h = ints.c();\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	J<Integer> b = ints.a();\n" + 
+		"	               ^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from J<String> to J<Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 16)\n" + 
+		"	J<Object> c = ints.a();\n" + 
+		"	              ^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from J<String> to J<Object>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 17)\n" + 
+		"	J d = ints.a();\n" + 
+		"	^\n" + 
+		"J is a raw type. References to generic type J<E> should be parameterized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 19)\n" + 
+		"	I<Integer> f = ints.a();\n" + 
+		"	               ^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from J<String> to I<Integer>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 20)\n" + 
+		"	I<Object> g = ints.a();\n" + 
+		"	              ^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from J<String> to I<Object>\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 21)\n" + 
+		"	I h = ints.a();\n" + 
+		"	^\n" + 
+		"I is a raw type. References to generic type I<E> should be parameterized\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 24)\n" + 
+		"	ints.b();\n" + 
+		"	     ^\n" + 
+		"The method b() is ambiguous for the type J<Integer>\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 25)\n" + 
+		"	J<String> a = ints.b();\n" + 
+		"	                   ^\n" + 
+		"The method b() is ambiguous for the type J<Integer>\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 26)\n" + 
+		"	J<Integer> b = ints.b();\n" + 
+		"	                    ^\n" + 
+		"The method b() is ambiguous for the type J<Integer>\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 27)\n" + 
+		"	J<Object> c = ints.b();\n" + 
+		"	                   ^\n" + 
+		"The method b() is ambiguous for the type J<Integer>\n" + 
+		"----------\n" + 
+		"11. WARNING in X.java (at line 28)\n" + 
+		"	J d = ints.b();\n" + 
+		"	^\n" + 
+		"J is a raw type. References to generic type J<E> should be parameterized\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 28)\n" + 
+		"	J d = ints.b();\n" + 
+		"	           ^\n" + 
+		"The method b() is ambiguous for the type J<Integer>\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 29)\n" + 
+		"	I<String> e = ints.b();\n" + 
+		"	                   ^\n" + 
+		"The method b() is ambiguous for the type J<Integer>\n" + 
+		"----------\n" + 
+		"14. ERROR in X.java (at line 30)\n" + 
+		"	I<Integer> f = ints.b();\n" + 
+		"	                    ^\n" + 
+		"The method b() is ambiguous for the type J<Integer>\n" + 
+		"----------\n" + 
+		"15. ERROR in X.java (at line 31)\n" + 
+		"	I<Object> g = ints.b();\n" + 
+		"	                   ^\n" + 
+		"The method b() is ambiguous for the type J<Integer>\n" + 
+		"----------\n" + 
+		"16. WARNING in X.java (at line 32)\n" + 
+		"	I h = ints.b();\n" + 
+		"	^\n" + 
+		"I is a raw type. References to generic type I<E> should be parameterized\n" + 
+		"----------\n" + 
+		"17. ERROR in X.java (at line 32)\n" + 
+		"	I h = ints.b();\n" + 
+		"	           ^\n" + 
+		"The method b() is ambiguous for the type J<Integer>\n" + 
+		"----------\n" + 
+		"18. WARNING in X.java (at line 39)\n" + 
+		"	J d = ints.c();\n" + 
+		"	^\n" + 
+		"J is a raw type. References to generic type J<E> should be parameterized\n" + 
+		"----------\n" + 
+		"19. WARNING in X.java (at line 43)\n" + 
+		"	I h = ints.c();\n" + 
+		"	^\n" + 
+		"I is a raw type. References to generic type I<E> should be parameterized\n" + 
 		"----------\n"
 	);
 }
