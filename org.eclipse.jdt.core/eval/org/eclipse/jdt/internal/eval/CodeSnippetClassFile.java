@@ -127,12 +127,7 @@ public CodeSnippetClassFile(
 	}
 	// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
 	// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)
-	if (this.enclosingClassFile == null) {
-		this.codeStream.maxFieldCount = aType.scope.referenceType().maxFieldCount;
-	} else {
-		ClassFile outermostClassFile = outerMostEnclosingClassFile();
-		this.codeStream.maxFieldCount = outermostClassFile.codeStream.maxFieldCount;
-	}
+	this.codeStream.maxFieldCount = aType.scope.outerMostClassScope().referenceType().maxFieldCount;
 }
 /**
  * INTERNAL USE-ONLY

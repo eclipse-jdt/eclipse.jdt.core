@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
@@ -32,7 +31,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 38 };
+//		TESTS_NUMBERS = new int[] { 40, 41 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
@@ -6116,5 +6115,124 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"}",
 			},
 		"SUCCESS");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=251539
+	public void test040() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"I.java",
+				"public interface I {\n" + 
+				"\n" + 
+				"	public Object foo();\n" + 
+				"\n" + 
+				"	public static class B implements I {\n" + 
+				"		public Object foo() {\n" + 
+				"			return X.myI.foo();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"X.java",
+				"public class X {\n" + 
+				"	public static final I myI = new I.B() {\n" + 
+				"		int a = 0;\n" + 
+				"		int b = 1;\n" + 
+				"	};\n" + 
+				"\n" + 
+				"	private Object bar() {\n" + 
+				"		Object o = null;\n" + 
+				"		if (o != null) {\n" + 
+				"			o.toString();\n" + 
+				"		}\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}",
+			},
+		"");
+		String expectedOutput =
+			"  // Stack: 1, Locals: 2\n" + 
+			"  private java.lang.Object bar();\n" + 
+			"     0  aconst_null\n" + 
+			"     1  astore_1 [o]\n" + 
+			"     2  aload_1 [o]\n" + 
+			"     3  ifnull 11\n" + 
+			"     6  aload_1 [o]\n" + 
+			"     7  invokevirtual java.lang.Object.toString() : java.lang.String [24]\n" + 
+			"    10  pop\n" + 
+			"    11  aconst_null\n" + 
+			"    12  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 8]\n" + 
+			"        [pc: 2, line: 9]\n" + 
+			"        [pc: 6, line: 10]\n" + 
+			"        [pc: 11, line: 12]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
+			"        [pc: 2, pc: 13] local: o index: 1 type: java.lang.Object\n" + 
+			"      Stack map table: number of frames 1\n" + 
+			"        [pc: 11, append: {java.lang.Object}]\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=251539
+	public void test041() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"I.java",
+				"public interface I {\n" + 
+				"\n" + 
+				"	public Object foo();\n" + 
+				"\n" + 
+				"	public static class B implements I {\n" + 
+				"		public Object foo() {\n" + 
+				"			return String.valueOf(X.myI.foo()) + String.valueOf(X.myU.foo());\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"X.java",
+				"public class X {\n" + 
+				"	public static final I myI = new I.B() {\n" + 
+				"		int a = 0;\n" + 
+				"		int b = 1;\n" + 
+				"	};\n" + 
+				"	public static final I myU = new I.B() {\n" + 
+				"		int a = 0;\n" + 
+				"		int b = 1;\n" + 
+				"		int c = 2;\n" + 
+				"	};\n" +
+				"	private Object bar() {\n" + 
+				"		Object o = null;\n" + 
+				"		if (o != null) {\n" + 
+				"			o.toString();\n" + 
+				"		}\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}",
+			},
+		"");
+	
+		String expectedOutput =
+			"  // Stack: 1, Locals: 2\n" + 
+			"  private java.lang.Object bar();\n" + 
+			"     0  aconst_null\n" + 
+			"     1  astore_1 [o]\n" + 
+			"     2  aload_1 [o]\n" + 
+			"     3  ifnull 11\n" + 
+			"     6  aload_1 [o]\n" + 
+			"     7  invokevirtual java.lang.Object.toString() : java.lang.String [30]\n" + 
+			"    10  pop\n" + 
+			"    11  aconst_null\n" + 
+			"    12  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 12]\n" + 
+			"        [pc: 2, line: 13]\n" + 
+			"        [pc: 6, line: 14]\n" + 
+			"        [pc: 11, line: 16]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
+			"        [pc: 2, pc: 13] local: o index: 1 type: java.lang.Object\n" + 
+			"      Stack map table: number of frames 1\n" + 
+			"        [pc: 11, append: {java.lang.Object}]\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 }

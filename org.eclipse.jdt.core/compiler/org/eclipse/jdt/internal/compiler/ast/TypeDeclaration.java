@@ -1016,7 +1016,8 @@ public void resolve() {
 				}
 			} while ((current = current.enclosingType()) != null);
 		}
-		this.maxFieldCount = 0;
+		// this.maxFieldCount might already be set
+		int localMaxFieldCount = 0;
 		int lastVisibleFieldID = -1;
 		boolean hasEnumConstants = false;
 		FieldDeclaration[] enumConstantsWithoutBody = null;
@@ -1057,7 +1058,7 @@ public void resolve() {
 								&& TypeBinding.LONG == fieldBinding.type) {
 							needSerialVersion = false;
 						}
-						this.maxFieldCount++;
+						localMaxFieldCount++;
 						lastVisibleFieldID = field.binding.id;
 						break;
 
@@ -1067,6 +1068,9 @@ public void resolve() {
 				}
 				field.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
 			}
+		}
+		if (this.maxFieldCount < localMaxFieldCount) {
+			this.maxFieldCount = localMaxFieldCount;
 		}
 		if (needSerialVersion) {
 			this.scope.problemReporter().missingSerialVersion(this);
