@@ -846,8 +846,8 @@ public char[] readableName() /* foo(int, Thread) */ {
 public void setAnnotations(AnnotationBinding[] annotations) {
 	this.declaringClass.storeAnnotations(this, annotations);
 }
-public void setAnnotations(AnnotationBinding[] annotations, AnnotationBinding[][] parameterAnnotations, Object defaultValue) {
-	this.declaringClass.storeAnnotationHolder(this,  AnnotationHolder.storeAnnotations(annotations, parameterAnnotations, defaultValue));
+public void setAnnotations(AnnotationBinding[] annotations, AnnotationBinding[][] parameterAnnotations, Object defaultValue, LookupEnvironment optionalEnv) {
+	this.declaringClass.storeAnnotationHolder(this,  AnnotationHolder.storeAnnotations(annotations, parameterAnnotations, defaultValue, optionalEnv));
 }
 public void setDefaultValue(Object defaultValue) {
 	MethodBinding originalMethod = original();
@@ -855,16 +855,16 @@ public void setDefaultValue(Object defaultValue) {
 
 	AnnotationHolder holder = this.declaringClass.retrieveAnnotationHolder(this, false);
 	if (holder == null)
-		setAnnotations(null, null, defaultValue);
+		setAnnotations(null, null, defaultValue, null);
 	else
-		setAnnotations(holder.getAnnotations(), holder.getParameterAnnotations(), defaultValue);
+		setAnnotations(holder.getAnnotations(), holder.getParameterAnnotations(), defaultValue, null);
 }
 public void setParameterAnnotations(AnnotationBinding[][] parameterAnnotations) {
 	AnnotationHolder holder = this.declaringClass.retrieveAnnotationHolder(this, false);
 	if (holder == null)
-		setAnnotations(null, parameterAnnotations, null);
+		setAnnotations(null, parameterAnnotations, null, null);
 	else
-		setAnnotations(holder.getAnnotations(), parameterAnnotations, holder.getDefaultValue());
+		setAnnotations(holder.getAnnotations(), parameterAnnotations, holder.getDefaultValue(), null);
 }
 protected final void setSelector(char[] selector) {
 	this.selector = selector;

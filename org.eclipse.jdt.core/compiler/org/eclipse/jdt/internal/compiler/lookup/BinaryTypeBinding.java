@@ -50,13 +50,8 @@ static Object convertMemberValue(Object binaryValue, LookupEnvironment env, char
 	if (binaryValue == null) return null;
 	if (binaryValue instanceof Constant)
 		return binaryValue;
-	if (binaryValue instanceof ClassSignature) {
-		TypeBinding typeFromSignature = env.getTypeFromSignature(((ClassSignature) binaryValue).getTypeName(), 0, -1, false, null, missingTypeNames);
-		if (typeFromSignature.isBaseType()) {
-			return typeFromSignature;
-		}
-		return resolveType(typeFromSignature, env, false /* no raw conversion */);
-	}
+	if (binaryValue instanceof ClassSignature)
+		return env.getTypeFromSignature(((ClassSignature) binaryValue).getTypeName(), 0, -1, false, null, missingTypeNames);
 	if (binaryValue instanceof IBinaryAnnotation)
 		return createAnnotation((IBinaryAnnotation) binaryValue, env, missingTypeNames);
 	if (binaryValue instanceof EnumConstantSignature) {
@@ -518,7 +513,8 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 		result.setAnnotations(
 			createAnnotations(method.getAnnotations(), this.environment, missingTypeNames),
 			paramAnnotations,
-			isAnnotationType() ? convertMemberValue(method.getDefaultValue(), this.environment, missingTypeNames) : null);
+			isAnnotationType() ? convertMemberValue(method.getDefaultValue(), this.environment, missingTypeNames) : null,
+			this.environment);
 
 	if (use15specifics)
 		result.tagBits |= method.getTagBits();
