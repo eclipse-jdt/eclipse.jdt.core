@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Map;
 
 import junit.framework.Test;
 
@@ -30,6 +31,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 
 public class CompletionTests extends AbstractJavaModelCompletionTests {
@@ -19480,4 +19482,149 @@ public void testCompletionOnExtendFinalClass3() throws JavaModelException {
 			requestor.getResults());
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203060: assert keyword should not be proposed when
+// compliance level is set to 1.3
+public void test203060a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/KeywordAssert.java",
+		"package test;" +
+		"public class CompletionKeywordAssert1 {\n" +
+		"	void foo() {\n" +
+		"		as\n" +
+		"	}\n" +
+		"}\n");
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "as";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	
+	// Save current compliance settings
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	
+	try {
+		// Verify that at 1.3 assert is not proposed.
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertEquals("", requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203060: Verify that assert keyword gets proposed when
+//compliance level is set to 1.4
+public void test203060b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/KeywordAssert.java",
+		"package test;" +
+		"public class CompletionKeywordAssert1 {\n" +
+		"	void foo() {\n" +
+		"		as\n" +
+		"	}\n" +
+		"}\n");
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "as";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	
+	// Save current compliance settings
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertEquals(
+				"element:assert    completion:assert    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203060: assert keyword should not be proposed when
+//compliance level is set to 1.3 (variation)
+public void test203060c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/KeywordAssert.java",
+		"package test;" +
+		"public class KeywordAssert {\n" +
+		"			void foo() {\n" +
+		"		switch(0) {\n" +
+		"			case 1 :\n" +
+		"				ass\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+		
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "as";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	
+	// Save current compliance settings
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	
+	try {
+		// Verify that at 1.3 assert is not proposed.
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertEquals("", requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203060: Verify that assert keyword gets proposed when
+//compliance level is set to 1.4 (variation)
+public void test203060d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/KeywordAssert.java",
+			"package test;" +
+			"public class KeywordAssert {\n" +
+			"			void foo() {\n" +
+			"		switch(0) {\n" +
+			"			case 1 :\n" +
+			"				ass\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "as";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	
+	// Save current compliance settings
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertEquals(
+				"element:assert    completion:assert    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
 }

@@ -4018,8 +4018,9 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 				if(this.canBeExplicitConstructor == YES) {
 					canBeExplicitConstructorCall = true;
 				}
-
-				keywords[count++]= Keywords.ASSERT;
+				if (this.options.complianceLevel >= ClassFileConstants.JDK1_4) {
+					keywords[count++]= Keywords.ASSERT;
+				}
 				keywords[count++]= Keywords.DO;
 				keywords[count++]= Keywords.FOR;
 				keywords[count++]= Keywords.IF;
@@ -4061,8 +4062,9 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 					}
 					keywords[count++]= Keywords.BREAK;
 					keywords[count++]= Keywords.CASE;
-
-					keywords[count++]= Keywords.ASSERT;
+					if (this.options.complianceLevel >= ClassFileConstants.JDK1_4) {
+						keywords[count++]= Keywords.ASSERT;
+					}
 					keywords[count++]= Keywords.DO;
 					keywords[count++]= Keywords.FOR;
 					keywords[count++]= Keywords.IF;
