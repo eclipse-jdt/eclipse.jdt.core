@@ -3592,6 +3592,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public static final void doNotUse() {
 		// used by tests to simulate a startup
+		MANAGER.deltaState.doNotUse();
 		MANAGER = new JavaModelManager();
 	}
 

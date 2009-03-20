@@ -49,6 +49,12 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	 * The delta processor for the current thread.
 	 */
 	private ThreadLocal deltaProcessors = new ThreadLocal();
+	
+	public void doNotUse() {
+		// reset the delta processor of the current thread to avoid to keep it in memory
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=269476
+		this.deltaProcessors.set(null);
+	}
 
 	/* A table from IPath (from a classpath entry) to DeltaProcessor.RootInfo */
 	public HashMap roots = new HashMap();
