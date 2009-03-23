@@ -965,6 +965,23 @@ public void testGetNonJavaResources4() throws CoreException {
 	}
 }
 /*
+ * Ensures that an internal jar referred to with its OS-path is not part of the non-Java resources
+ */
+public void testGetNonJavaResources5() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		IFile file = createFile("/P/lib.jar", "");
+		addLibraryEntry(project, file.getLocation(), false/*not exported*/);
+		assertResourcesEqual(
+			"Unexpected non-java resources for project",
+			"/P/.classpath\n" + 
+			"/P/.project",
+			project.getNonJavaResources());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
  * Ensures that getRequiredProjectNames() returns the project names in the classpath order
  * (regression test for bug 25605 [API] someJavaProject.getRequiredProjectNames(); API should specify that the array is returned in ClassPath order)
  */

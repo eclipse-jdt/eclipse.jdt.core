@@ -134,7 +134,8 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 							String resName = res.getName();
 
 							// ignore a jar file on the classpath
-							if (isClasspathResolved && isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
+							if (isClasspathResolved && 
+									isClasspathEntryOrOutputLocation(resFullPath, res.getLocation()/* see https://bugs.eclipse.org/bugs/show_bug.cgi?id=244406 */, classpath, projectOutput)) {
 								break;
 							}
 							// ignore .java file if src == project
@@ -164,7 +165,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 
 							// ignore non-excluded folders on the classpath or that correspond to an output location
 							if ((srcIsProject && !Util.isExcluded(res, inclusionPatterns, exclusionPatterns) && Util.isValidFolderNameForPackage(res.getName(), sourceLevel, complianceLevel))
-									|| (isClasspathResolved && isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput))) {
+									|| (isClasspathResolved && isClasspathEntryOrOutputLocation(resFullPath, res.getLocation(), classpath, projectOutput))) {
 								break;
 							}
 							// else add non java resource
@@ -264,11 +265,12 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	/*
 	 * Returns whether the given path is a classpath entry or an output location.
 	 */
-	private boolean isClasspathEntryOrOutputLocation(IPath path, IClasspathEntry[] resolvedClasspath, IPath projectOutput) {
+	private boolean isClasspathEntryOrOutputLocation(IPath path, IPath location, IClasspathEntry[] resolvedClasspath, IPath projectOutput) {
 		if (projectOutput.equals(path)) return true;
 		for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
 			IClasspathEntry entry = resolvedClasspath[i];
-			if (entry.getPath().equals(path)) {
+			IPath entryPath;
+			if ((entryPath = entry.getPath()).equals(path) || entryPath.equals(location)) {
 				return true;
 			}
 			IPath output;
