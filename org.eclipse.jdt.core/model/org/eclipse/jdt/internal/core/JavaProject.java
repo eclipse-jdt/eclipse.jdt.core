@@ -161,6 +161,12 @@ public class JavaProject
 	protected IProject project;
 
 	/**
+	 * Preferences listeners
+	 */
+	private IEclipsePreferences.INodeChangeListener preferencesNodeListener;
+	private IEclipsePreferences.IPreferenceChangeListener preferencesChangeListener;
+
+	/**
 	 * Constructor needed for <code>IProject.getNature()</code> and <code>IProject.addNature()</code>.
 	 *
 	 * @see #setProject(IProject)
@@ -421,6 +427,28 @@ public class JavaProject
 		info.setChildren(computePackageFragmentRoots(resolvedClasspath, false, null /*no reverse map*/));
 
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.core.JavaElement#close()
+	 */
+	public void close() throws JavaModelException {
+		if (JavaProject.hasJavaNature(this.project)) {
+			// Get cached preferences if exist
+			JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, false);
+			if (perProjectInfo != null && perProjectInfo.preferences != null) {
+				IEclipsePreferences eclipseParentPreferences = (IEclipsePreferences) perProjectInfo.preferences.parent();
+				if (this.preferencesNodeListener != null) {
+					eclipseParentPreferences.removeNodeChangeListener(this.preferencesNodeListener);
+					this.preferencesNodeListener = null;
+				}
+				if (this.preferencesChangeListener != null) {
+					perProjectInfo.preferences.removePreferenceChangeListener(this.preferencesChangeListener);
+					this.preferencesChangeListener = null;
+				}
+			}
+		}
+		super.close();
 	}
 
 	/**
@@ -1361,63 +1389,72 @@ public class JavaProject
 		return null;
 	}
 
-		/**
-    	 * Returns the project custom preference pool.
-    	 * Project preferences may include custom encoding.
-    	 * @return IEclipsePreferences or <code>null</code> if the project
-    	 * 	does not have a java nature.
-    	 */
-    	public IEclipsePreferences getEclipsePreferences(){
-    		if (!JavaProject.hasJavaNature(this.project)) return null;
-    		// Get cached preferences if exist
-    		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, true);
-    		if (perProjectInfo.preferences != null) return perProjectInfo.preferences;
-    		// Init project preferences
-    		IScopeContext context = new ProjectScope(getProject());
-    		final IEclipsePreferences eclipsePreferences = context.getNode(JavaCore.PLUGIN_ID);
-    		updatePreferences(eclipsePreferences);
-    		perProjectInfo.preferences = eclipsePreferences;
+	/**
+	 * Returns the project custom preference pool.
+	 * Project preferences may include custom encoding.
+	 * @return IEclipsePreferences or <code>null</code> if the project
+	 * 	does not have a java nature.
+	 */
+	public IEclipsePreferences getEclipsePreferences() {
+		if (!JavaProject.hasJavaNature(this.project)) return null;
+		// Get cached preferences if exist
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, true);
+		if (perProjectInfo.preferences != null) return perProjectInfo.preferences;
+		// Init project preferences
+		IScopeContext context = new ProjectScope(getProject());
+		final IEclipsePreferences eclipsePreferences = context.getNode(JavaCore.PLUGIN_ID);
+		updatePreferences(eclipsePreferences);
+		perProjectInfo.preferences = eclipsePreferences;
 
-    		// Listen to node removal from parent in order to reset cache (see bug 68993)
-    		IEclipsePreferences.INodeChangeListener nodeListener = new IEclipsePreferences.INodeChangeListener() {
-    			public void added(IEclipsePreferences.NodeChangeEvent event) {
-    				// do nothing
-    			}
-    			public void removed(IEclipsePreferences.NodeChangeEvent event) {
-    				if (event.getChild() == eclipsePreferences) {
-    					JavaModelManager.getJavaModelManager().resetProjectPreferences(JavaProject.this);
-    				}
-    			}
-    		};
-    		((IEclipsePreferences) eclipsePreferences.parent()).addNodeChangeListener(nodeListener);
+		// Listen to new preferences node
+		final IEclipsePreferences eclipseParentPreferences = (IEclipsePreferences) eclipsePreferences.parent();
+		if (eclipseParentPreferences != null) {
+			if (this.preferencesNodeListener != null) {
+				eclipseParentPreferences.removeNodeChangeListener(this.preferencesNodeListener);
+			}
+			this.preferencesNodeListener = new IEclipsePreferences.INodeChangeListener() {
+				public void added(IEclipsePreferences.NodeChangeEvent event) {
+					// do nothing
+				}
+				public void removed(IEclipsePreferences.NodeChangeEvent event) {
+					if (event.getChild() == eclipsePreferences) {
+						JavaModelManager.getJavaModelManager().resetProjectPreferences(JavaProject.this);
+					}
+				}
+			};
+			eclipseParentPreferences.addNodeChangeListener(this.preferencesNodeListener);
+		}
 
-    		// Listen to preference changes
-    		IEclipsePreferences.IPreferenceChangeListener preferenceListener = new IEclipsePreferences.IPreferenceChangeListener() {
-    			public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
-    				String propertyName = event.getKey();
-					JavaModelManager manager = JavaModelManager.getJavaModelManager();
-					if (propertyName.startsWith(JavaCore.PLUGIN_ID)) {
-						if (propertyName.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
-							propertyName.equals(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER) ||
-							propertyName.equals(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE) ||
-							propertyName.equals(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER) ||
-							propertyName.equals(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH) ||
-							propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS) ||
-							propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS) ||
-							propertyName.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
-							propertyName.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
-							propertyName.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL))
-						{
-							manager.deltaState.addClasspathValidation(JavaProject.this);
-						}
-						manager.resetProjectOptions(JavaProject.this);
-						JavaProject.this.resetCaches(); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=233568
-    				}
-    			}
-    		};
-    		eclipsePreferences.addPreferenceChangeListener(preferenceListener);
-    		return eclipsePreferences;
-    	}
+		// Listen to preferences changes
+		if (this.preferencesChangeListener != null) {
+			eclipsePreferences.removePreferenceChangeListener(this.preferencesChangeListener);
+		}
+		this.preferencesChangeListener = new IEclipsePreferences.IPreferenceChangeListener() {
+			public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
+				String propertyName = event.getKey();
+				JavaModelManager manager = JavaModelManager.getJavaModelManager();
+				if (propertyName.startsWith(JavaCore.PLUGIN_ID)) {
+					if (propertyName.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
+						propertyName.equals(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER) ||
+						propertyName.equals(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE) ||
+						propertyName.equals(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER) ||
+						propertyName.equals(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH) ||
+						propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS) ||
+						propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS) ||
+						propertyName.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
+						propertyName.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
+						propertyName.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL))
+					{
+						manager.deltaState.addClasspathValidation(JavaProject.this);
+					}
+					manager.resetProjectOptions(JavaProject.this);
+					JavaProject.this.resetCaches(); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=233568
+				}
+			}
+		};
+		eclipsePreferences.addPreferenceChangeListener(this.preferencesChangeListener);
+		return eclipsePreferences;
+	}
 
 	public String getElementName() {
 		return this.project.getName();
