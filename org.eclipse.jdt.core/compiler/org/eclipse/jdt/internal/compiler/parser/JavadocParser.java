@@ -543,15 +543,26 @@ public class JavadocParser extends AbstractCommentParser {
 				break;
 			case 'i':
 				if (length == TAG_INHERITDOC_LENGTH && CharOperation.equals(TAG_INHERITDOC, tagName, 0, length)) {
-					// inhibits inherited flag when tags have been already stored
-					// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51606
-					// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
-					// was encountered in comment. But it cannot be the case for COMPILER_PARSER
-					// and so is enough as it is only this parser which signals the missing tag warnings...
-					if (this.astPtr==-1) {
-						this.inheritedPositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, @inheritDoc usage is illegal
+					// outside of few block tags and the main description.
+					switch (this.lastBlockTagValue) {
+						case TAG_RETURN_VALUE:
+						case TAG_THROWS_VALUE:
+						case TAG_EXCEPTION_VALUE:
+						case TAG_PARAM_VALUE:
+						case NO_TAG_VALUE:     // Still in main description
+							valid = true;
+							if (this.reportProblems) {
+								recordInheritedPosition((((long) this.tagSourceStart) << 32) + this.tagSourceEnd);
+							}
+							break;
+						default:
+							valid = false;
+							if (this.reportProblems) {
+								this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart,
+										this.tagSourceEnd);
+							}
 					}
-					valid = true;
 					this.tagValue = TAG_INHERITDOC_VALUE;
 				}
 				break;
@@ -665,6 +676,9 @@ public class JavadocParser extends AbstractCommentParser {
 				break;
 		}
 		this.textStart = this.index;
+		if (this.tagValue != TAG_OTHERS_VALUE && !this.inlineTagStarted) {
+			this.lastBlockTagValue = this.tagValue;
+		}
 		return valid;
 	}
 
@@ -860,6 +874,11 @@ public class JavadocParser extends AbstractCommentParser {
 		this.tagWaitingForDescription = NO_TAG_VALUE;
 
 		// Set positions
+		if (this.inheritedPositions != null && this.inheritedPositionsPtr != this.inheritedPositions.length) {
+			// Compact array by shrinking.
+			System.arraycopy(this.inheritedPositions, 0, 
+					this.inheritedPositions = new long[this.inheritedPositionsPtr], 0, this.inheritedPositionsPtr);
+		}
 		this.docComment.inheritedPositions = this.inheritedPositions;
 		this.docComment.valuePositions = this.validValuePositions != -1 ? this.validValuePositions : this.invalidValuePositions;
 

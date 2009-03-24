@@ -1729,9 +1729,12 @@ public void testBug62812a() {
  * Bug 51606: [Javadoc] Compiler should complain when tag name is not correct
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51606">51606</a>
  */
+// Cleaned up this test as part of fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037
+// We should not complain about the missing @param tag for Y.foo at all, since the comments are
+// automatically inherited.
 public void testBug51606() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
+	runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1751,13 +1754,7 @@ public void testBug51606() {
 				"  }\n" +
 				"}\n"
 		},
-		"----------\n" +
-			"1. ERROR in Y.java (at line 5)\n" +
-			"	public void foo(int a, int b) {\n" +
-			"	                           ^\n" +
-			"Javadoc: Missing tag for parameter b\n" +
-			"----------\n",
-			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+		""
 	);
 }
 public void testBug51606a() {
@@ -8321,4 +8318,173 @@ public void testBug258798_3() {
 	}
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, make sure that we complain when @inheritdoc
+// is used where it is outlawed by the specs. This test verifies that we complain when @inheritDoc
+// is used with classes and interfaces.
+public void testBug247037() {
+	this.reportMissingJavadocTags = CompilerOptions.ERROR;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"/**\n" +
+			" * {@inheritDoc}\n" +              // error, cannot be applied to a class
+			" */\n" +
+			"public class X {\n" +
+			"}\n" +
+			"/**\n" +
+			" * {@inheritDoc}\n" +              // error, cannot be applied to interfaces.
+			" */" +
+			"interface Blah {\n" +
+			"    void BlahBlah();\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	* {@inheritDoc}\n" + 
+		"	    ^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	* {@inheritDoc}\n" + 
+		"	    ^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, make sure that we complain when @inheritdoc
+//is used where it is outlawed by the specs. Here we test that when @inheritDoc is applied to a
+// field or constructor, we complain.
+public void testBug247037b() {
+	this.reportMissingJavadocTags = CompilerOptions.ERROR;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"    /**\n" +
+			"     * {@inheritDoc}\n" +  // error, cannot be applied to a field
+			"    */\n" +
+			"    public int field = 10;\n" +
+			"    /**\n" +
+			"     * @param x {@inheritDoc}\n" +  // error, cannot be applied to a constructor
+			"    */\n" +
+			"    Y(int x) {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	* {@inheritDoc}\n" + 
+		"	    ^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	* @param x {@inheritDoc}\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, make sure that we complain when @inheritdoc
+//is used where it is outlawed by the specs. In this test we test the use of @inheritedDoc in some
+// block tags.
+public void testBug247037c() {
+	this.reportMissingJavadocTags = CompilerOptions.ERROR;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    /**\n" +
+			"     * @since 1.0\n" +
+			"     * @return Blah\n" +
+			"     * @param blah Blah Blah\n" +
+			"     * @throws Exception When something is wrong\n" +
+			"     */\n" +
+			"    public int m(int blah) throws Exception {\n" +
+			"        return 0;\n" +
+			"    }\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"    /**\n" +
+			"     * @param blah {@inheritDoc}\n" +
+			"     * @return {@inheritDoc}\n" +
+			"     * @since {@inheritDoc}\n" +  // error, cannot be used in @since
+			"     * @author {@inheritDoc}\n" + // error, cannot be used in @author
+			"     * @see {@inheritDoc}\n" +    // error, cannot be used in @see
+			"     * @throws Exception {@inheritDoc}\n" +  
+			"     * @exception Exception {@inheritDoc}\n" + 
+			"     */\n" +
+			"    public int m(int blah) throws Exception {\n" +
+			"		return 1;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	* @since {@inheritDoc}\n" + 
+		"	           ^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\n" + 
+		"	* @author {@inheritDoc}\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 18)\n" + 
+		"	* @see {@inheritDoc}\n" + 
+		"	   ^^^\n" + 
+		"Javadoc: Missing reference\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 18)\n" + 
+		"	* @see {@inheritDoc}\n" + 
+		"	         ^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, make sure that we complain when @inheritdoc
+// is used where it is outlawed by the specs. Test to verify that every bad use of @inheritDoc triggers
+// a message from the compiler
+public void testBug247037d() {
+	this.reportMissingJavadocTags = CompilerOptions.ERROR;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"    /**\n" +
+			"     * @param blah {@inheritDoc}\n" + // error n() doesn't override anything.
+			"     * @return {@inheritDoc}\n" +  // error, n() doesn't override anything
+			"     * @author {@inheritDoc}\n" +   // error, cannot be used in @author
+			"     */\n" +
+			"    public int n(int blah) {\n" +
+			"		return 1;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	* @param blah {@inheritDoc}\n" + 
+		"	                ^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	* @return {@inheritDoc}\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	* @author {@inheritDoc}\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
 }

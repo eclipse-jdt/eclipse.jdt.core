@@ -27,7 +27,7 @@ public class Javadoc extends ASTNode {
 	public TypeReference[] exceptionReferences; // @throws, @exception
 	public JavadocReturnStatement returnStatement; // @return
 	public Expression[] seeReferences; // @see
-	public long inheritedPositions = -1;
+	public long[] inheritedPositions = null;
 	// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
 	// Store param references for tag with invalid syntax
 	public JavadocSingleNameReference[] invalidParameters; // @param
@@ -184,7 +184,16 @@ public class Javadoc extends ASTNode {
 	 * Resolve type javadoc
 	 */
 	public void resolve(ClassScope scope) {
-
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, @inheritDoc tag cannot
+		// be used in the documentation comment for a class or interface.
+		if (this.inheritedPositions != null) {
+			int length = this.inheritedPositions.length;
+			for (int i = 0; i < length; ++i) {
+				int start = (int) (this.inheritedPositions[i] >>> 32);
+				int end = (int) this.inheritedPositions[i];
+				scope.problemReporter().javadocUnexpectedTag(start, end);
+			}
+		}
 		// @param tags
 		int paramTagsSize = this.paramReferences == null ? 0 : this.paramReferences.length;
 		for (int i = 0; i < paramTagsSize; i++) {
@@ -303,11 +312,14 @@ public class Javadoc extends ASTNode {
 		}
 
 		// Store if a reference exists to an overriden method/constructor or the method is in a local type,
-		boolean reportMissing = methDecl == null || !((overriding && this.inheritedPositions != -1) || superRef || (methDecl.binding.declaringClass != null && methDecl.binding.declaringClass.isLocalType()));
-		if (!overriding && this.inheritedPositions != -1) {
-			int start = (int) (this.inheritedPositions >>> 32);
-			int end = (int) this.inheritedPositions;
-			methScope.problemReporter().javadocUnexpectedTag(start, end);
+		boolean reportMissing = methDecl == null || !((overriding && this.inheritedPositions != null) || superRef || (methDecl.binding.declaringClass != null && methDecl.binding.declaringClass.isLocalType()));
+		if (!overriding && this.inheritedPositions != null) {
+			int length = this.inheritedPositions.length;
+			for (int i = 0; i < length; ++i) {
+				int start = (int) (this.inheritedPositions[i] >>> 32);
+				int end = (int) this.inheritedPositions[i];
+				methScope.problemReporter().javadocUnexpectedTag(start, end);
+			}
 		}
 
 		// @param tags

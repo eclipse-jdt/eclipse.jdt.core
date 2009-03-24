@@ -51,9 +51,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	public boolean reportProblems;
 	protected long complianceLevel;
 	protected long sourceLevel;
+	
+	// Support for {@inheritDoc}
+	protected long [] inheritedPositions;
+	protected int inheritedPositionsPtr;
+	private final static int INHERITED_POSITIONS_ARRAY_INCREMENT = 4;
 
 	// Results
-	protected long inheritedPositions;
 	protected boolean deprecated;
 	protected Object returnStatement;
 
@@ -74,6 +78,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected boolean abort = false;
 	protected int kind;
 	protected int tagValue = NO_TAG_VALUE;
+	protected int lastBlockTagValue = NO_TAG_VALUE;
 
 	// Line pointers
 	private int linePtr, lastLinePtr;
@@ -129,7 +134,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.inlineTagStart = -1;
 			this.lineStarted = false;
 			this.returnStatement = null;
-			this.inheritedPositions = -1;
+			this.inheritedPositions = null;
+			this.lastBlockTagValue = NO_TAG_VALUE;
 			this.deprecated = false;
 			this.lastLinePtr = getLineNumber(this.javadocEnd);
 			this.textStart = -1;
@@ -1467,6 +1473,21 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return token;
 	}
 
+	protected void recordInheritedPosition(long position) {
+		if (this.inheritedPositions == null) {
+			this.inheritedPositions = new long[INHERITED_POSITIONS_ARRAY_INCREMENT];
+			this.inheritedPositionsPtr = 0;
+		} else {
+			if (this.inheritedPositionsPtr == this.inheritedPositions.length) {
+				System.arraycopy(
+						this.inheritedPositions, 0,
+						this.inheritedPositions = new long[this.inheritedPositionsPtr + INHERITED_POSITIONS_ARRAY_INCREMENT], 0,
+						this.inheritedPositionsPtr);
+			}
+		}
+		this.inheritedPositions[this.inheritedPositionsPtr++] = position;
+	}
+	
 	/*
 	 * Refresh start position and length of an inline tag.
 	 */

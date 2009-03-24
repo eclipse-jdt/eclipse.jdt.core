@@ -420,13 +420,8 @@ class DocCommentParser extends AbstractCommentParser {
 					break;
 					case 'i':
 						if (length == TAG_INHERITDOC_LENGTH && CharOperation.equals(TAG_INHERITDOC, tagName)) {
-							// inhibits inherited flag when tags have been already stored
-							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51606
-							// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
-							// was encountered in comment. But it cannot be the case for COMPILER_PARSER
-							// and so is enough as it is only this parser which signals the missing tag warnings...
-							if (this.astPtr==-1) {
-								this.inheritedPositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
+							if (this.reportProblems) {
+								recordInheritedPosition((((long) this.tagSourceStart) << 32) + this.tagSourceEnd);
 							}
 							this.tagValue = TAG_INHERITDOC_VALUE;
 						} else {

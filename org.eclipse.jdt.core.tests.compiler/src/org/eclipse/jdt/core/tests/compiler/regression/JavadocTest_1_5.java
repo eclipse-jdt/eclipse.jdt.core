@@ -3863,4 +3863,71 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, verify that we complain about @inheritDoc
+	// being used in package level javadoc.
+	public void testBug247037a() {
+		runNegativeTest(
+			new String[] {
+				"pack/package-info.java",
+				"/**\n" +
+				" * {@inheritDoc}\n" +
+				" * @since {@inheritDoc}\n" +
+				" * @blah {@inheritDoc}\n" +
+				" */\n" +
+				"package pack;\n"
+			},
+			"----------\n" + 
+			"1. ERROR in pack\\package-info.java (at line 2)\n" + 
+			"	* {@inheritDoc}\n" + 
+			"	    ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"2. ERROR in pack\\package-info.java (at line 3)\n" + 
+			"	* @since {@inheritDoc}\n" + 
+			"	           ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"3. ERROR in pack\\package-info.java (at line 4)\n" + 
+			"	* @blah {@inheritDoc}\n" + 
+			"	          ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n"
+		);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, verify that we complain about @inheritDoc
+	// being used in package level javadoc (variation)
+	public void testBug247037b() {
+		runNegativeTest(
+			new String[] {
+				"pack/package-info.java",
+				"/**\n" +
+				" * @return {@inheritDoc}\n" +
+				" * @param blah {@inheritDoc}\n" +
+				" */\n" +
+				"package pack;\n"
+			},
+			"----------\n" + 
+			"1. ERROR in pack\\package-info.java (at line 2)\n" + 
+			"	* @return {@inheritDoc}\n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"2. ERROR in pack\\package-info.java (at line 2)\n" + 
+			"	* @return {@inheritDoc}\n" + 
+			"	            ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"3. ERROR in pack\\package-info.java (at line 3)\n" + 
+			"	* @param blah {@inheritDoc}\n" + 
+			"	   ^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"4. ERROR in pack\\package-info.java (at line 3)\n" + 
+			"	* @param blah {@inheritDoc}\n" + 
+			"	                ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n"
+		);
+	}
 }
