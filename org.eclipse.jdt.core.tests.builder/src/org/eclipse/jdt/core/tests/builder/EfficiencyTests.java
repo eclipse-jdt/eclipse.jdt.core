@@ -27,6 +27,37 @@ public class EfficiencyTests extends BuilderTests {
 		return buildTestSuite(EfficiencyTests.class);
 	}
 
+	public void testProjectAsClassFolder() throws JavaModelException {
+		IPath projectPath1 = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(projectPath1, Util.getJavaClassLibs());
+
+		IPath projectPath2 = env.addProject("Project2"); //$NON-NLS-1$
+		env.addExternalJars(projectPath2, Util.getJavaClassLibs());
+		env.addClassFolder(projectPath2, projectPath1, false);
+
+		env.addClass(projectPath2, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public abstract class X {}\n" //$NON-NLS-1$
+		);
+
+		env.addClass(projectPath2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Y {}\n" //$NON-NLS-1$
+		);
+
+		fullBuild();
+
+		env.addClass(projectPath2, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class X {}\n" //$NON-NLS-1$
+		);
+
+		incrementalBuild(projectPath2);
+
+		// if a full build happens instead of an incremental, then both types will be recompiled
+		expectingCompiledClasses(new String[]{"p1.X"}); //$NON-NLS-1$
+	}
+
 	public void testEfficiency() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());

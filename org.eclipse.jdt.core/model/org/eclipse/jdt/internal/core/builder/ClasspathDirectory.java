@@ -33,7 +33,7 @@ AccessRuleSet accessRuleSet;
 
 ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet) {
 	this.binaryFolder = binaryFolder;
-	this.isOutputFolder = isOutputFolder;
+	this.isOutputFolder = isOutputFolder || binaryFolder.getProjectRelativePath().isEmpty(); // if binaryFolder == project, then treat it as an outputFolder
 	this.directoryCache = new SimpleLookupTable(5);
 	this.accessRuleSet = accessRuleSet;
 }
