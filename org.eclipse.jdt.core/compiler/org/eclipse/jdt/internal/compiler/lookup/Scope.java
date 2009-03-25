@@ -541,18 +541,13 @@ public abstract class Scope {
 			method = ParameterizedGenericMethodBinding.computeCompatibleMethod(method, arguments, this, invocationSite);
 			if (method == null) return null; // incompatible
 			if (!method.isValidBinding()) return method; // bound check issue is taking precedence
-		} else if (genericTypeArguments != null) {
+		} else if (genericTypeArguments != null && compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
-				if (!((ParameterizedGenericMethodBinding) method).wasInferred) {
+				if (!((ParameterizedGenericMethodBinding) method).wasInferred)
 					// attempt to invoke generic method of raw type with type hints <String>foo()
-					if (compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
-						return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeArgumentsForRawGenericMethod);
-					}
-				}
-			} else {
-				if (compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
-					return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeParameterArityMismatch);
-				}
+					return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeArgumentsForRawGenericMethod);
+			} else if (!method.isOverriding() || !isOverriddenMethodGeneric(method)) {
+				return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeParameterArityMismatch);
 			}
 		}
 
@@ -1289,6 +1284,13 @@ public abstract class Scope {
 
 		// no match was found
 		if (candidatesCount == 0) {
+			if (problemMethod != null) {
+				switch (problemMethod.problemId()) {
+					case ProblemReasons.TypeArgumentsForRawGenericMethod :
+					case ProblemReasons.TypeParameterArityMismatch :
+						return problemMethod;
+				}
+			}
 			// abstract classes may get a match in interfaces; for non abstract
 			// classes, reduces secondary errors since missing interface method
 			// error is already reported
@@ -2971,6 +2973,22 @@ public abstract class Scope {
 							return true;
 					}
 				}
+		}
+		return false;
+	}
+
+	private boolean isOverriddenMethodGeneric(MethodBinding method) {
+		MethodVerifier verifier = environment().methodVerifier();
+		ReferenceBinding currentType = method.declaringClass.superclass();
+		while (currentType != null) {
+			MethodBinding[] currentMethods = currentType.getMethods(method.selector);
+			for (int i = 0, l = currentMethods.length; i < l; i++) {
+				MethodBinding currentMethod = currentMethods[i];
+				if (currentMethod != null && currentMethod.original().typeVariables != Binding.NO_TYPE_VARIABLES)
+					if (verifier.doesMethodOverride(method, currentMethod))
+						return true;
+			}
+			currentType = currentType.superclass();
 		}
 		return false;
 	}

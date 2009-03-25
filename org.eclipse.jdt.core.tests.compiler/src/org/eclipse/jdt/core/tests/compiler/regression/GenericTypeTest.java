@@ -40775,22 +40775,24 @@ public void test1203a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
 // this case is not solved as expected in 1.5 and 1.6 mode; keeping the 1.7 mode
-// activated
+// activated test in all modes so we can track any changes
 public void test1203b() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
-		return;
-	}
 	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_7
-		? 	"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	return this.<String>foobar(one, two);\n" +
-			"	             ^^^^^^\n" +
-			"Unused type arguments for the non generic method foobar(String, String) of type X; it should not be parameterized with arguments <String>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 16)\n" +
-			"	this.<String,String>foobar(one, two);\n" +
-			"	                    ^^^^^^\n" +
-			"Incorrect number of type arguments for generic method <T>foobar(String, String) of type Y; it cannot be parameterized with arguments <String, String>\n" +
+		? 	"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	return this.<String>foobar(one, two);\n" + 
+			"	             ^^^^^^\n" + 
+			"Unused type arguments for the non generic method foobar(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	return this.<String>foobar2(one, two);// silenced\n" + 
+			"	                    ^^^^^^^\n" + 
+			"The method foobar2(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 16)\n" + 
+			"	this.<String,String>foobar(one, two);\n" + 
+			"	                    ^^^^^^\n" + 
+			"Incorrect number of type arguments for generic method <T>foobar(String, String) of type Y; it cannot be parameterized with arguments <String, String>\n" + 
 			"----------\n"
 		: 	"----------\n" +
 			"1. WARNING in X.java (at line 4)\n" +
@@ -40827,6 +40829,169 @@ public void test1203b() {
 			"}\n", // =================
 		},
 		expectedOutput);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
+public void test1203c() {
+	String[] sources =
+		new String[] {
+			"X.java",
+			"class X extends Y {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = \"\";\n" +
+			"		new X().<String> a(s);\n" + // fails before 7
+			"		new X().<String> b(s, s);\n" + // fails before 7
+			"		new X().<String> c(s, s);\n" + // works in 1.5, 6.0 & 7.0
+			"		new X().<String> d(s, s);\n" + // works in 1.5, 6.0 & 7.0
+			"	}\n" +
+			"	@Override void a(String one) {}\n" +
+			"	void b(String one, Object two) {}\n" +
+			"	@Override void c(String one, String two) {}\n" +
+			"	@Override void d(String one, Object two) {}\n" +
+			"}\n" +
+			"class Y extends Z {\n" +
+			"	void a(String one) {}\n" +
+			"	<U> void b(String one) {}\n" +
+			"	@Override void c(String one, String two) {}\n" +
+			"}\n" +
+			"class Z {\n" +
+			"	<U> void c(String one, String two) {}\n" +
+			"	<U> void d(String one, U u) {}\n" +
+			"}"
+		};
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		runNegativeTest(
+			sources,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	new X().<String> a(s);\n" + 
+			"	                 ^\n" + 
+			"The method a(String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	new X().<String> b(s, s);\n" + 
+			"	                 ^\n" + 
+			"The method b(String, Object) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	new X().<String> c(s, s);\n" + 
+			"	         ^^^^^^\n" + 
+			"Unused type arguments for the non generic method c(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
+			"	new X().<String> d(s, s);\n" + 
+			"	         ^^^^^^\n" + 
+			"Unused type arguments for the non generic method d(String, Object) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n");
+	} else {
+		runConformTest(
+			true,
+			sources,
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	new X().<String> a(s);\n" + 
+			"	         ^^^^^^\n" + 
+			"Unused type arguments for the non generic method a(String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	new X().<String> b(s, s);\n" + 
+			"	         ^^^^^^\n" + 
+			"Unused type arguments for the non generic method b(String, Object) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	new X().<String> c(s, s);\n" + 
+			"	         ^^^^^^\n" + 
+			"Unused type arguments for the non generic method c(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
+			"	new X().<String> d(s, s);\n" + 
+			"	         ^^^^^^\n" + 
+			"Unused type arguments for the non generic method d(String, Object) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
+public void test1203d() {
+	String[] sources =
+		new String[] {
+			"X.java",
+			"class X implements I {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = \"\";\n" +
+			"		new X().<String> a(s);\n" + // fails before 7
+			"		new X().<String> b(s, s);\n" + // fails before 7
+			"		new X().<String> c(s, s);\n" + // fails before 7
+			"		new X().<String> d(s, s);\n" + // fails before 7
+			"	}\n" +
+			"	public void a(String one) {}\n" +
+			"	public void b(String one, Object two) {}\n" +
+			"	public void c(String one, String two) {}\n" +
+			"	public void d(String one, Object two) {}\n" +
+			"}\n" +
+			"interface I extends J {\n" +
+			"	void a(String one);\n" +
+			"	void c(String one, String two);\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	<U> void c(String one, String two);\n" +
+			"	<U> void d(String one, U u);\n" +
+			"}"
+		};
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		runNegativeTest(
+			sources,
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	new X().<String> a(s);\n" + 
+			"	                 ^\n" + 
+			"The method a(String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	new X().<String> b(s, s);\n" + 
+			"	                 ^\n" + 
+			"The method b(String, Object) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	new X().<String> c(s, s);\n" + 
+			"	                 ^\n" + 
+			"The method c(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	new X().<String> d(s, s);\n" + 
+			"	                 ^\n" + 
+			"The method d(String, Object) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n");
+	} else {
+		runConformTest(
+			true,
+			sources,
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	new X().<String> a(s);\n" + 
+			"	         ^^^^^^\n" + 
+			"Unused type arguments for the non generic method a(String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	new X().<String> b(s, s);\n" + 
+			"	         ^^^^^^\n" + 
+			"Unused type arguments for the non generic method b(String, Object) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	new X().<String> c(s, s);\n" + 
+			"	         ^^^^^^\n" + 
+			"Unused type arguments for the non generic method c(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
+			"	new X().<String> d(s, s);\n" + 
+			"	         ^^^^^^\n" + 
+			"Unused type arguments for the non generic method d(String, Object) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+	}
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207299
