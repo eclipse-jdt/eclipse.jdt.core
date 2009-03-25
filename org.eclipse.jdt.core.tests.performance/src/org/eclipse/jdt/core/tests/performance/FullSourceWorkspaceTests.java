@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -618,7 +618,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		File[] directories = wkspDir.listFiles(filter);
 		long start = System.currentTimeMillis();
 		int dirLength = directories.length;
-		if (dirLength != 62) {
+		if (dirLength < 62) {
 			String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
 			System.out.println("Unzipping "+fullSourceZipPath);
 			System.out.print("	in "+targetWorkspacePath+"...");
@@ -642,26 +642,23 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 
-		// Init JRE_LIB variable
+		// Create lib entries for the JDKs
+		System.out.print("Create lib entries for the JDKs...");
+		start = System.currentTimeMillis();
 		String[] jdkLibs = Util.getJavaClassLibs();
-		int length = jdkLibs.length;
-		String jdkLib = null;
-		for (int i=0; i<length; i++) {
-			if (jdkLibs[i].endsWith("rt.jar")) {
-				jdkLib = jdkLibs[i];
-				break;
-			}
+		int jdkLibsLength = jdkLibs.length;
+		IClasspathEntry[] jdkEntries = new IClasspathEntry[jdkLibsLength];
+		for (int i=0; i<jdkLibsLength; i++) {
+			jdkEntries[i] = JavaCore.newLibraryEntry(new Path(jdkLibs[i]), null, null);
 		}
-		if (jdkLib == null) {
-			throw new RuntimeException("Cannot set JRE_LIB classpath variable as the rt.jar lib was not found!!!");
-		}
-		JavaCore.setClasspathVariable("JRE_LIB", new Path(jdkLib), null);
+		System.out.println(jdkLibsLength+" found ("+(System.currentTimeMillis()-start)+"ms)");
 
 		// Set classpaths (workaround bug 73253 Project references not set on project open)
 		System.out.print("Set projects classpaths...");
+		start = System.currentTimeMillis();
 		ALL_PROJECTS = JavaCore.create(workspaceRoot).getJavaProjects();
-		length = ALL_PROJECTS.length;
-		for (int i = 0; i < length; i++) {
+		int projectsLength = ALL_PROJECTS.length;
+		for (int i = 0; i < projectsLength; i++) {
 			String projectName = ALL_PROJECTS[i].getElementName();
 			if (BIG_PROJECT_NAME.equals(projectName)) continue; // will be set later
 			if (JavaCore.PLUGIN_ID.equals(projectName)) {
@@ -669,14 +666,23 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 //			} else if (JUNIT_PROJECT_NAME.equals(projectName)) {
 //				JUNIT_PROJECT = ALL_PROJECTS[i];
 			}
-			ALL_PROJECTS[i].setRawClasspath(ALL_PROJECTS[i].getRawClasspath(), null);
+
+			// Set jdk jars onto the project classpath
+			IClasspathEntry[] entries = ALL_PROJECTS[i].getRawClasspath();
+			int entriesLength = entries.length;
+			if (!entries[0].equals(jdkEntries[0])) {
+				System.arraycopy(entries, 0, entries = new IClasspathEntry[jdkLibsLength+entriesLength], jdkLibsLength, entriesLength);
+				System.arraycopy(jdkEntries, 0, entries, 0, jdkLibsLength);
+				ALL_PROJECTS[i].setRawClasspath(entries, null);
+			}
+
 			// Make Big project dependent from jdt.core one
 //			IClasspathEntry[] bigProjectEntries = BIG_PROJECT.getRawClasspath();
 //			int bpeLength = bigProjectEntries.length;
 //			System.arraycopy(bigProjectEntries, 0, bigProjectEntries = new IClasspathEntry[bpeLength+1], 0, bpeLength);
 //			bigProjectEntries[bpeLength] = JavaCore.newProjectEntry(JDT_CORE_PROJECT.getPath());
 		}
-		System.out.println("done");
+		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 
 		// Initialize Parser wokring copy
 		IJavaElement element = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.compiler.parser.Parser");

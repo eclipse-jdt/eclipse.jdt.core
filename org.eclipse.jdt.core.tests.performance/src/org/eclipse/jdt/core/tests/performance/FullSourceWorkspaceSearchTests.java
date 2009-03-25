@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -204,9 +204,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 *
 	 * First wait that already started indexing jobs ends before performing test and measure.
 	 * Consider this initial indexing jobs as warm-up for this test.
-	 *
-	 * TODO (frederic) After 3.3, activate several iteration for this test to have more accurate results,
-	 * 	then rename the test as numbers will be different...
 	 */
 	public void testIndexing() throws CoreException {
 		tagAsSummary("Indexing all workspace projects", false); // do NOT put in fingerprint
@@ -214,28 +211,23 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		// Wait for indexing end (we use initial indexing as warm-up)
 		AbstractJavaModelTests.waitUntilIndexesReady();
 
-		// Measures
-		int measures = false ? MEASURES_COUNT/2 : 1;
-		for (int i=0; i<measures; i++) {
+		// Remove project previous indexing
+		INDEX_MANAGER.removeIndexFamily(new Path(""));
+		INDEX_MANAGER.reset();
 
-			// Remove project previous indexing
-			INDEX_MANAGER.removeIndexFamily(new Path(""));
-			INDEX_MANAGER.reset();
+		// Clean memory
+		runGc();
 
-			// Clean memory
-			runGc();
-
-			// Restart brand new indexing
-			INDEX_MANAGER.request(new Measuring(true/*start measuring*/));
-			for (int j=0, length=ALL_PROJECTS.length; j<length; j++) {
-				INDEX_MANAGER.indexAll(ALL_PROJECTS[j].getProject());
-			}
-			AbstractJavaModelTests.waitUntilIndexesReady();
-
-			// end measure
-			INDEX_MANAGER.request(new Measuring(false /*end measuring*/));
-			AbstractJavaModelTests.waitUntilIndexesReady();
+		// Restart brand new indexing
+		INDEX_MANAGER.request(new Measuring(true/*start measuring*/));
+		for (int j=0, length=ALL_PROJECTS.length; j<length; j++) {
+			INDEX_MANAGER.indexAll(ALL_PROJECTS[j].getProject());
 		}
+		AbstractJavaModelTests.waitUntilIndexesReady();
+
+		// end measure
+		INDEX_MANAGER.request(new Measuring(false /*end measuring*/));
+		AbstractJavaModelTests.waitUntilIndexesReady();
 
 		// Commit
 		commitMeasurements();
