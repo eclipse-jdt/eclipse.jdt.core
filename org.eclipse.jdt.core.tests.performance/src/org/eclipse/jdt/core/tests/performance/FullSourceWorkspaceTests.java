@@ -643,12 +643,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 
 		// Create lib entries for the JDKs
+		System.out.print("Create lib entries for the JDKs...");
+		start = System.currentTimeMillis();
 		String[] jdkLibs = Util.getJavaClassLibs();
 		int jdkLibsLength = jdkLibs.length;
 		IClasspathEntry[] jdkEntries = new IClasspathEntry[jdkLibsLength];
 		for (int i=0; i<jdkLibsLength; i++) {
 			jdkEntries[i] = JavaCore.newLibraryEntry(new Path(jdkLibs[i]), null, null);
 		}
+		System.out.println(jdkLibsLength+" found ("+(System.currentTimeMillis()-start)+"ms)");
 
 		// Set classpaths (workaround bug 73253 Project references not set on project open)
 		System.out.print("Set projects classpaths...");
@@ -663,13 +666,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 //			} else if (JUNIT_PROJECT_NAME.equals(projectName)) {
 //				JUNIT_PROJECT = ALL_PROJECTS[i];
 			}
-			
+
 			// Set jdk jars onto the project classpath
 			IClasspathEntry[] entries = ALL_PROJECTS[i].getRawClasspath();
 			int entriesLength = entries.length;
-			System.arraycopy(entries, 0, entries = new IClasspathEntry[jdkLibsLength+entriesLength], jdkLibsLength, entriesLength);
-			System.arraycopy(jdkEntries, 0, entries, 0, jdkLibsLength);
-			ALL_PROJECTS[i].setRawClasspath(entries, null);
+			if (!entries[0].equals(jdkEntries[0])) {
+				System.arraycopy(entries, 0, entries = new IClasspathEntry[jdkLibsLength+entriesLength], jdkLibsLength, entriesLength);
+				System.arraycopy(jdkEntries, 0, entries, 0, jdkLibsLength);
+				ALL_PROJECTS[i].setRawClasspath(entries, null);
+			}
 
 			// Make Big project dependent from jdt.core one
 //			IClasspathEntry[] bigProjectEntries = BIG_PROJECT.getRawClasspath();
