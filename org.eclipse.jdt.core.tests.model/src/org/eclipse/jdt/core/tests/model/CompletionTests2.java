@@ -4897,4 +4897,57 @@ public void testBug237469b() throws Exception {
 		this.deleteExternalFile(externalJar2);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=270113
+public void testBug270113_01() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib270113.jar"}, "bin");
+		
+		createJar(new String[] {
+			"p270113/AllConstructors01.java",
+			"package p270113;\n" +
+			"public abstract class AllConstructors01 {\n" +
+			"  protected AllConstructors01(int i) {}\n" +
+			"}"
+		}, p.getProject().getLocation().append("lib270113.jar").toOSString());
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/test/Test.java",
+				"package test;"+
+				"public class Test {\n" +
+				"  void foo() {\n" +
+				"    new AllConstructors\n" +
+				"  }\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "AllConstructors";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"AllConstructors01[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), Lp270113.AllConstructors01;, (I)V, AllConstructors01, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   AllConstructors01[TYPE_REF]{p270113.AllConstructors01, p270113, Lp270113.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(oldOptions);
+	}
+}
 }

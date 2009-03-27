@@ -790,8 +790,12 @@ public final class CompletionEngine
 							}
 							
 							if(!CharOperation.equals(packageName, this.currentPackageName)) {
-								if (!proposeType) continue next;
-								proposeConstructor = false;
+								
+								if((typeModifiers & ClassFileConstants.AccAbstract) == 0 ||
+										(modifiers & ClassFileConstants.AccProtected) == 0) {
+									if (!proposeType) continue next;
+									proposeConstructor = false;
+								}
 							}
 						}
 					}
