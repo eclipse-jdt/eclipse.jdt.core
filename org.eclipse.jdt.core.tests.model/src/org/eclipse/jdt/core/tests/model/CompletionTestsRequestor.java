@@ -17,6 +17,10 @@ import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.Signature;
 
+/**
+ * {@link CompletionTestsRequestor} is deprecated. {@link CompletionTestsRequestor2} must be used instead.
+ */
+//TODO all instances of CompletionTestsRequestor should be replaced by an instance of CompletionTestsRequestor2
 public class CompletionTestsRequestor extends CompletionRequestor {
 	private Vector elements = new Vector();
 	private Vector completions = new Vector();
