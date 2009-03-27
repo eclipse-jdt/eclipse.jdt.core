@@ -834,7 +834,7 @@ public abstract class Scope {
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
 						if (concreteMatch != null && concreteMatch.declaringClass.findSuperTypeOriginatingFrom(compatibleMethod.declaringClass) != null)
-							if (environment().methodVerifier().isParameterSubsignature(concreteMatch, compatibleMethod))
+							if (environment().methodVerifier().isParameterSubsignature(concreteMatch.original(), compatibleMethod.original()))
 								continue; // can skip this method since concreteMatch overrides it
 						if (candidatesCount == 0) {
 							candidates = new MethodBinding[foundSize - startFoundSize + 1];

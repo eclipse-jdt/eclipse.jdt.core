@@ -3206,4 +3206,23 @@ public void test076() {
 		"----------\n"
 	);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=270194
+public void test077() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"abstract class X implements I {\n" +
+			"	public <A extends J<A, D>, D extends J<A, D>> A method(A arg) { return null; }\n" +
+			"	void test(Y<String> c) { method(c); }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	<A extends J<A,D>, D extends J<A,D>> A method(A arg);\n" +
+			"}\n" +
+			"interface J<A extends J<A,D>, D extends J<A,D>> {}\n" +
+			"class Y<E> implements J<Y<E>, Y<E>> {}"
+		},
+		""
+	);
+}
 }
