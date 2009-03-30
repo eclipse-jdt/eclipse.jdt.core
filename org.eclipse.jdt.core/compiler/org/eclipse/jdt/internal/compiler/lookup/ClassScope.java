@@ -651,7 +651,11 @@ public class ClassScope extends Scope {
 				problemReporter().illegalModifierForEnumConstant(declaringClass, fieldDecl);
 
 			// set the modifiers
-			final int IMPLICIT_MODIFIERS = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum;
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=267670. Force all enumerators to be marked
+			// as used locally. We are unable to track the usage of these reliably as they could be used
+			// in non obvious ways via the synthesized methods values() and valueOf(String) or by using 
+			// Enum.valueOf(Class<T>, String).
+			final int IMPLICIT_MODIFIERS = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum | ExtraCompilerModifiers.AccLocallyUsed;
 			fieldBinding.modifiers|= IMPLICIT_MODIFIERS;
 			return;
 		}

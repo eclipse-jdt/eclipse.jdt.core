@@ -6132,5 +6132,74 @@ public void test170() {
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=267670. Make sure we don't emit any unused
+// warnings about enumerators. Since these could be used in indirect ways not obvious. 
+public void test171() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runConformTest(
+		true,	
+		new String[] {
+			"X.java",
+			"public class X { \n" +
+			"    private enum Colors {\n" +
+			"	     BLEU,\n" +
+			"	     BLANC,\n" +
+			"	     ROUGE\n" +
+			"	 }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		for (Colors c: Colors.values()) {\n" +
+			"           System.out.print(c);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		null, customOptions,
+		"",
+		"BLEUBLANCROUGE", null, 
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=267670. Make sure we don't emit any unused
+// warnings about enumerators. Since these could be used in indirect ways not obvious. This
+// test also verifies that while we don't complain about individual enumerators not being used
+// we DO complain if the enumeration type itself is not used.
+public void test172() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runConformTest(
+		true,	
+		new String[] {
+			"X.java",
+			"public class X { \n" +
+			"    private enum Greet {\n" + 
+			"	     HELLO, HOWDY, BONJOUR; \n" +
+			"    }\n" +
+			"	 private enum Colors {\n" +
+			"        RED, BLACK, BLUE;\n"+
+			"    }\n" +
+            "   private enum Complaint {" +
+            "       WARNING, ERROR, FATAL_ERROR, PANIC;\n" +
+            "   }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Greet g = Greet.valueOf(\"HELLO\");\n" +	
+		    "		System.out.print(g);\n" +
+		    "       Colors c = Enum.valueOf(Colors.class, \"RED\");\n" +
+		    "		System.out.print(c);\n" +
+		    "   }\n" +
+			"}\n"
+		},
+		null, customOptions,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	private enum Complaint {       WARNING, ERROR, FATAL_ERROR, PANIC;\n" + 
+		"	             ^^^^^^^^^\n" + 
+		"The type X.Complaint is never used locally\n" + 
+		"----------\n",
+		"HELLORED", null, 
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
 }
 
