@@ -643,13 +643,17 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 
 		// Create lib entries for the JDKs
+		String jreLibPath = JavaCore.getClasspathVariable("JRE_LIB").toOSString();
 		System.out.print("Create lib entries for the JDKs...");
 		start = System.currentTimeMillis();
 		String[] jdkLibs = Util.getJavaClassLibs();
 		int jdkLibsLength = jdkLibs.length;
 		IClasspathEntry[] jdkEntries = new IClasspathEntry[jdkLibsLength];
+		int jdkEntriesCount = 0;
 		for (int i=0; i<jdkLibsLength; i++) {
-			jdkEntries[i] = JavaCore.newLibraryEntry(new Path(jdkLibs[i]), null, null);
+			if (!jdkLibs[i].equals(jreLibPath)) { // do not include JRE_LIB in additional JDK entries
+				jdkEntries[jdkEntriesCount++] = JavaCore.newLibraryEntry(new Path(jdkLibs[i]), null, null);
+			}
 		}
 		System.out.println(jdkLibsLength+" found ("+(System.currentTimeMillis()-start)+"ms)");
 
@@ -670,9 +674,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			// Set jdk jars onto the project classpath
 			IClasspathEntry[] entries = ALL_PROJECTS[i].getRawClasspath();
 			int entriesLength = entries.length;
-			if (!entries[0].equals(jdkEntries[0])) {
-				System.arraycopy(entries, 0, entries = new IClasspathEntry[jdkLibsLength+entriesLength], jdkLibsLength, entriesLength);
-				System.arraycopy(jdkEntries, 0, entries, 0, jdkLibsLength);
+			if (!entries[entriesLength-1].equals(jdkEntries[jdkEntriesCount-1])) {
+				System.arraycopy(entries, 0, entries = new IClasspathEntry[jdkEntriesCount+entriesLength], 0, entriesLength);
+				System.arraycopy(jdkEntries, 0, entries, entriesLength, jdkEntriesCount);
 				ALL_PROJECTS[i].setRawClasspath(entries, null);
 			}
 
