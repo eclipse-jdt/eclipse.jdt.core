@@ -19627,4 +19627,251 @@ public void test203060d() throws JavaModelException {
 		COMPLETION_PROJECT.setOptions(options);	
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for loop without block
+// All the tests with the prefix test269493 are designed to offer coverage for all the changes that went
+// into this fix.
+public void test269493() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test269493 {\n" +
+			"	void foo() {\n" +
+			"   for (int i = 0; i < 10; i++)\n" +
+			"       ass\n" +
+			"	}\n" +
+			"}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(); 
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ass";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	// Save current compliance settings
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"assert[KEYWORD]{assert, null, null, assert, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for loop without block
+public void test269493b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test269493 {\n" +
+			"	void foo() {\n" +
+			"   for (int i = 0; i < 10; i++)\n" +
+			"       ret\n" +
+			"	}\n" +
+			"}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ret";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"return[KEYWORD]{return, null, null, return, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for loop without block
+public void test269493c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test269493 {\n" +
+			"	void foo() {\n" +
+			"   for (int i = 0; i < 10; i++)\n" +
+			"       bre\n" +
+			"	}\n" +
+			"}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bre";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"break[KEYWORD]{break, null, null, break, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for loop without block
+public void test269493d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test269493 {\n" +
+			"	void foo() {\n" +
+			"   for (int i = 0; i < 10; i++)\n" +
+			"       cont\n" +
+			"	}\n" +
+			"}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "cont";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"continue[KEYWORD]{continue, null, null, continue, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for loop without block
+public void test269493e() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test269493 {\n" +
+			"	int foo(int p) {\n" +
+			"       if (p == 0)\n" +
+			"           return 0;\n" +
+			"       else\n" +
+			"           ret\n" +
+			"	}\n" +
+			"}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ret";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"return[KEYWORD]{return, null, null, return, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for loop without block
+public void test269493f() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test269493 {\n" +
+			"	int foo(int p) {\n" +
+			"       if (p == 0)\n" +
+			"           return 0;\n" +
+			"       els\n" +
+			"	}\n" +
+			"}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "els";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"else[KEYWORD]{else, null, null, else, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for loop without block
+public void test269493g() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test269493 {\n" +
+			"	int foo(int p) {\n" +
+			"       els\n" +
+			"	}\n" +
+			"}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "els";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for loop without block
+public void test269493h() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test269493 {\n" +
+			"	int foo(int p) {\n" +
+			"       if (p == 0)\n" +
+			"           return 0;\n" +
+			"       else\n" +
+			"           els\n" +
+			"	}\n" +
+			"}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "els";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for loop without block
+public void test269493i() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test269493 {\n" +
+			"	int foo(int p) {\n" +
+			"       if (p == 0) {\n" +
+			"           return 0;\n" +
+			"       }\n" +
+			"       else\n" +
+			"           els\n" +
+			"	}\n" +
+			"}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "els";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"",
+			requestor.getResults());
+}
+
 }

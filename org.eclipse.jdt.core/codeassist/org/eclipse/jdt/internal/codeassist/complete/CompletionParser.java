@@ -3595,6 +3595,7 @@ protected void consumeToken(int token) {
 				if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_CONTROL_STATEMENT_DELIMITER) {
 					popElement(K_CONTROL_STATEMENT_DELIMITER);
 				}
+				pushOnElementStack(K_CONTROL_STATEMENT_DELIMITER);
 				break;
 			case TokenNamewhile:
 				pushOnElementStack(K_BETWEEN_WHILE_AND_RIGHT_PAREN, this.bracketDepth);
@@ -4013,8 +4014,10 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 				keywords[count++]= Keywords.THIS;
 			}
 			keywords[count++]= Keywords.NEW;
-
-			if(kind == K_BLOCK_DELIMITER) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for
+			// loop without block. Completion while at K_CONTROL_STATEMENT_DELIMITER case needs to handled
+			// similar to the K_BLOCK_DELIMITER with minor differences.
+			if(kind == K_BLOCK_DELIMITER || kind == K_CONTROL_STATEMENT_DELIMITER) {
 				if(this.canBeExplicitConstructor == YES) {
 					canBeExplicitConstructorCall = true;
 				}
@@ -4044,6 +4047,8 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 							keywords[count++]= Keywords.FINALLY;
 							break;
 					}
+				} else if(this.previousKind == K_CONTROL_STATEMENT_DELIMITER && this.previousInfo == IF) {
+					keywords[count++]= Keywords.ELSE;
 				}
 				if(isInsideLoop()) {
 					keywords[count++]= Keywords.CONTINUE;
@@ -4341,6 +4346,7 @@ protected boolean isInsideBreakable(){
 			case K_FIELD_INITIALIZER_DELIMITER : return false;
 			case K_SWITCH_LABEL : return true;
 			case K_BLOCK_DELIMITER :
+			case K_CONTROL_STATEMENT_DELIMITER:
 				switch(this.elementInfoStack[i]) {
 					case FOR :
 					case DO :
@@ -4360,6 +4366,7 @@ protected boolean isInsideLoop(){
 			case K_METHOD_DELIMITER : return false;
 			case K_FIELD_INITIALIZER_DELIMITER : return false;
 			case K_BLOCK_DELIMITER :
+			case K_CONTROL_STATEMENT_DELIMITER:
 				switch(this.elementInfoStack[i]) {
 					case FOR :
 					case DO :
@@ -4379,6 +4386,7 @@ protected boolean isInsideReturn(){
 			case K_METHOD_DELIMITER : return false;
 			case K_FIELD_INITIALIZER_DELIMITER : return false;
 			case K_BLOCK_DELIMITER : return false;
+			case K_CONTROL_STATEMENT_DELIMITER: return false; // FWIW
 			case K_INSIDE_RETURN_STATEMENT : return true;
 		}
 		i--;
