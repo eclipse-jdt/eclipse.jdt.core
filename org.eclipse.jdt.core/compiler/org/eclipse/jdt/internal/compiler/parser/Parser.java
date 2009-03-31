@@ -9670,6 +9670,7 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 	}
 }
 public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
+	boolean oldDiet = this.diet;
 	/* automaton initialization */
 	initialize();
 	goForClassBodyDeclarations();
@@ -9685,27 +9686,103 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 	this.nestedType = 1;
 
 	/* unit creation */
-	this.referenceContext = unit;
+	TypeDeclaration referenceContextTypeDeclaration = new TypeDeclaration(unit.compilationResult);
+	referenceContextTypeDeclaration.name = Util.EMPTY_STRING.toCharArray();
+	referenceContextTypeDeclaration.fields = new FieldDeclaration[0];
 	this.compilationUnit = unit;
+	unit.types = new TypeDeclaration[1];
+	unit.types[0] = referenceContextTypeDeclaration;
+	this.referenceContext = unit;
 
 	/* run automaton */
 	try {
+		this.diet = true;
 		parse();
 	} catch (AbortCompilation ex) {
 		this.lastAct = ERROR_ACTION;
+	} finally {
+		this.diet = oldDiet;
 	}
 
+	ASTNode[] result = null;
 	if (this.lastAct == ERROR_ACTION) {
-		return null;
+		if (!this.options.performMethodsFullRecovery && !this.options.performStatementsRecovery) {
+			return null;
+		}
+		// collect all body declaration inside the compilation unit except the default constructor
+		final List bodyDeclarations = new ArrayList();
+		ASTVisitor visitor = new ASTVisitor() {
+			public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
+				if (!methodDeclaration.isDefaultConstructor()) {
+					bodyDeclarations.add(methodDeclaration);
+				}
+				return false;
+			}
+			public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
+				bodyDeclarations.add(fieldDeclaration);
+				return false;
+			}
+			public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
+				bodyDeclarations.add(memberTypeDeclaration);
+				return false;
+			}
+		};
+		unit.ignoreFurtherInvestigation = false;
+		unit.traverse(visitor, unit.scope);
+		unit.ignoreFurtherInvestigation = true;
+		result = (ASTNode[]) bodyDeclarations.toArray(new ASTNode[bodyDeclarations.size()]);
+	} else {
+		int astLength;
+		if (this.astLengthPtr > -1 && (astLength = this.astLengthStack[this.astLengthPtr--]) != 0) {
+			result = new ASTNode[astLength];
+			this.astPtr -= astLength;
+			System.arraycopy(this.astStack, this.astPtr + 1, result, 0, astLength);
+		}
 	}
-	int astLength;
-	if (this.astLengthPtr > -1 && (astLength = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		ASTNode[] result = new ASTNode[astLength];
-		this.astPtr -= astLength;
-		System.arraycopy(this.astStack, this.astPtr + 1, result, 0, astLength);
-		return result;
+	boolean containsInitializers = false;
+	TypeDeclaration typeDeclaration = null;
+	for (int i = 0, max = result.length; i< max; i++) {
+		// parse each class body declaration
+		ASTNode node = result[i];
+		if (node instanceof TypeDeclaration) {
+			((TypeDeclaration) node).parseMethods(this, unit);
+		} else if (node instanceof AbstractMethodDeclaration) {
+			((AbstractMethodDeclaration) node).parseStatements(this, unit);
+		} else if (node instanceof FieldDeclaration) {
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			switch(fieldDeclaration.getKind()) {
+				case AbstractVariableDeclaration.INITIALIZER:
+					containsInitializers = true;
+					if (typeDeclaration == null) {
+						typeDeclaration = referenceContextTypeDeclaration;
+					}
+					if (typeDeclaration.fields == null) {
+						typeDeclaration.fields = new FieldDeclaration[1];
+						typeDeclaration.fields[0] = fieldDeclaration;
+					} else {
+						int length2 = typeDeclaration.fields.length;
+						FieldDeclaration[] temp = new FieldDeclaration[length2 + 1];
+						System.arraycopy(typeDeclaration.fields, 0, temp, 0, length2);
+						temp[length2] = fieldDeclaration;
+						typeDeclaration.fields = temp;
+					}
+					break;
+			}
+		}
+		if (this.lastAct == ERROR_ACTION && (!this.options.performMethodsFullRecovery && !this.options.performStatementsRecovery)) {
+			return null;
+		}
 	}
-	return null;
+	if (containsInitializers) {
+		FieldDeclaration[] fieldDeclarations = typeDeclaration.fields;
+		for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
+			((Initializer) fieldDeclarations[i]).parseStatements(this, typeDeclaration , unit);
+			if (this.lastAct == ERROR_ACTION && (!this.options.performMethodsFullRecovery && !this.options.performStatementsRecovery)) {
+				return null;
+			}
+		}
+	}
+	return result;
 }
 public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
 
@@ -10414,6 +10491,13 @@ protected boolean resumeOnSyntaxError() {
 	}
 	/* update recovery state with current error state of the parser */
 	updateRecoveryState();
+	if (getFirstToken() == TokenNameAND) {
+		if (this.referenceContext instanceof CompilationUnitDeclaration) {
+			TypeDeclaration typeDeclaration = new TypeDeclaration(this.referenceContext.compilationResult());
+			typeDeclaration.name = Util.EMPTY_STRING.toCharArray();
+			this.currentElement = this.currentElement.add(typeDeclaration, 0);
+		}
+	}
 
 	if (this.lastPosistion < this.scanner.currentPosition) {
 		this.lastPosistion = this.scanner.currentPosition;

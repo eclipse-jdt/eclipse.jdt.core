@@ -4042,8 +4042,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		parser.setCompilerOptions(JavaCore.getOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
-		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
-		CompilationUnit compilationUnit = (CompilationUnit) result2;
+		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
+		CompilationUnit compilationUnit = (CompilationUnit) ((TypeDeclaration) result2).getParent();
 		assertEquals("wrong problem size", 1, compilationUnit.getProblems().length);
 	}
 	/**
@@ -4067,8 +4067,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		parser.setCompilerOptions(JavaCore.getOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
-		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
-		CompilationUnit compilationUnit = (CompilationUnit) result2;
+		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
+		CompilationUnit compilationUnit = (CompilationUnit) ((TypeDeclaration) result2).getParent();
 		assertEquals("wrong problem size", 1, compilationUnit.getProblems().length);
 	}
 	/**
@@ -4092,8 +4092,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		parser.setCompilerOptions(JavaCore.getOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
-		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
-		CompilationUnit compilationUnit = (CompilationUnit) result2;
+		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
+		CompilationUnit compilationUnit = (CompilationUnit) ((TypeDeclaration) result2).getParent();
 		assertEquals("wrong problem size", 1, compilationUnit.getProblems().length);
 	}
 	/**

@@ -90,14 +90,17 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) t
 		} else {
 			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 			if ((typeDeclaration.getFlags() & ASTNode.MALFORMED) != 0) {
-				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+				createdNodeSource = generateSyntaxIncorrectAST();
+				if (this.createdNode == null)
+					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+			} else {
+				List bodyDeclarations = typeDeclaration.bodyDeclarations();
+				if (bodyDeclarations.size() == 0) {
+					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+				}
+				this.createdNode = (ASTNode) bodyDeclarations.iterator().next();
+				createdNodeSource = this.source;
 			}
-			List bodyDeclarations = typeDeclaration.bodyDeclarations();
-			if (bodyDeclarations.size() == 0) {
-				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
-			}
-			this.createdNode = (ASTNode) bodyDeclarations.iterator().next();
-			createdNodeSource = this.source;
 		}
 		if (this.alteredName != null) {
 			SimpleName newName = this.createdNode.getAST().newSimpleName(this.alteredName);

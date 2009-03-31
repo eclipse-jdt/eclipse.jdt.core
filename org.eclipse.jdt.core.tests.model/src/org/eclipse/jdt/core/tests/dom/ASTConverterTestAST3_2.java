@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 702 };
+//		TESTS_NUMBERS =  new int[] { 708 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -4115,8 +4115,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setCompilerOptions(JavaCore.getOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
-		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
-		CompilationUnit compilationUnit = (CompilationUnit) result2;
+		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
+		CompilationUnit compilationUnit = (CompilationUnit) ((TypeDeclaration) result2).getParent();
 		assertEquals("wrong problem size", 1, compilationUnit.getProblems().length);
 	}
 	/**
@@ -4140,8 +4140,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setCompilerOptions(JavaCore.getOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
-		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
-		CompilationUnit compilationUnit = (CompilationUnit) result2;
+		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
+		CompilationUnit compilationUnit = (CompilationUnit) ((TypeDeclaration) result2).getParent();
 		assertEquals("wrong problem size", 1, compilationUnit.getProblems().length);
 	}
 	/**
@@ -4165,8 +4165,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setCompilerOptions(JavaCore.getOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
-		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
-		CompilationUnit compilationUnit = (CompilationUnit) result2;
+		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
+		CompilationUnit compilationUnit = (CompilationUnit) ((TypeDeclaration) result2).getParent();
 		assertEquals("wrong problem size", 1, compilationUnit.getProblems().length);
 	}
 	/**
@@ -10104,17 +10104,151 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		}
 	}
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=264590
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=270148
 	 */
-	public void _test0702() throws JavaModelException {
+	public void test0702() throws JavaModelException {
+		final char[] source = ("void foo() {\n" + 
+				"	Integer I = new ${cursor}\n" +
+				"}").toCharArray();
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setKind(ASTParser.K_EXPRESSION);
-		String commentsText = "/**\n * @generated\n */\n";
-		char[] source = commentsText.toCharArray();
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setStatementsRecovery(true);
 		parser.setSource(source);
-		parser.setSourceRange(0, source.length);
-		parser.setCompilerOptions(JavaCore.getOptions());
-		ASTNode result = parser.createAST(null);
-		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, root.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) root;
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+		MethodDeclaration declaration = (MethodDeclaration) bodyDeclaration;
+		// check if there is a body with one statement in it
+		assertEquals("No statement found", 1, declaration.getBody().statements().size());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=270148
+	 */
+	public void test0703() throws JavaModelException {
+		final char[] source = ("public class Try {\n" + 
+				"	void foo() {\n" + 
+				"		Integer I = new ${cursor}\n" + 
+				"	}\n" + 
+				"}").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a compilation declaration", ASTNode.COMPILATION_UNIT, root.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) ((CompilationUnit) root).types().get(0);
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+		MethodDeclaration declaration = (MethodDeclaration) bodyDeclaration;
+		// check if there is a body with one statement in it
+		assertEquals("No statement found", 1, declaration.getBody().statements().size());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=270148
+	 */
+	public void test0704() throws JavaModelException {
+		final char[] source = ("{\n" + 
+				"	Integer I = new ${cursor}\n" +
+				"}").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, root.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) root;
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("Not an initializer", ASTNode.INITIALIZER, bodyDeclaration.getNodeType());
+		Initializer initializer = (Initializer) bodyDeclaration;
+		// check if there is a body with one statement in it
+		assertEquals("No statement found", 1, initializer.getBody().statements().size());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=270148
+	 */
+	public void test0705() throws JavaModelException {
+		final char[] source = ("{\n" + 
+				"	Integer I = new ${cursor}\n" +
+				"}\n" +
+				"{\n" + 
+				"	Integer I = new ${cursor}\n" +
+				"}").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, root.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) root;
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 2, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("Not an initializer", ASTNode.INITIALIZER, bodyDeclaration.getNodeType());
+		Initializer initializer = (Initializer) bodyDeclaration;
+		// check if there is a body with one statement in it
+		assertEquals("No statement found", 1, initializer.getBody().statements().size());
+		bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(1);
+		assertEquals("Not an initializer", ASTNode.INITIALIZER, bodyDeclaration.getNodeType());
+		initializer = (Initializer) bodyDeclaration;
+		// check if there is a body with one statement in it
+		assertEquals("No statement found", 1, initializer.getBody().statements().size());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=270148
+	 */
+	public void test0706() throws JavaModelException {
+		final char[] source = ("public class Try {\n" + 
+				"	Integer i = new Integer() {\n" + 
+				"		Integer I = new ${cursor}\n" + 
+				"	};\"\n" + 
+				"}").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a compilation declaration", ASTNode.COMPILATION_UNIT, root.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) ((CompilationUnit) root).types().get(0);
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=270148
+	 */
+	public void test0707() throws JavaModelException {
+		final char[] source = ("Integer i = new Integer() {\n" + 
+				"	Integer I = new ${cursor}\n" + 
+				"};").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, root.getNodeType());
+		List bodyDeclarations = ((TypeDeclaration) root).bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=270148
+	 */
+	public void test0708() throws JavaModelException {
+		final char[] source = ("System.out.println()\nint i;\n").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_STATEMENTS);
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a block", ASTNode.BLOCK, root.getNodeType());
+		Block block = (Block) root;
+		List statements = block.statements();
+		assertEquals("Wrong size", 2, statements.size());
 	}
 }

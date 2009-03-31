@@ -1099,29 +1099,19 @@ public class ASTParser {
 					return compilationUnit;
 				}
 			case K_CLASS_BODY_DECLARATIONS :
-				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = codeSnippetParsingUtil.parseClassBodyDeclarations(this.rawSource, this.sourceOffset, this.sourceLength, this.compilerOptions, true);
+				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = codeSnippetParsingUtil.parseClassBodyDeclarations(this.rawSource, this.sourceOffset, this.sourceLength, this.compilerOptions, true, this.statementsRecovery);
 				recordedParsingInformation = codeSnippetParsingUtil.recordedParsingInformation;
 				comments = recordedParsingInformation.commentPositions;
 				if (comments != null) {
 					converter.buildCommentsTable(compilationUnit, comments);
 				}
 				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
-				if (nodes != null) {
-					TypeDeclaration typeDeclaration = converter.convert(nodes);
-					typeDeclaration.setSourceRange(this.sourceOffset, this.sourceOffset + this.sourceLength);
-					rootNodeToCompilationUnit(typeDeclaration.getAST(), compilationUnit, typeDeclaration, codeSnippetParsingUtil.recordedParsingInformation, null);
-					ast.setDefaultNodeFlag(0);
-					ast.setOriginalModificationCount(ast.modificationCount());
-					return typeDeclaration;
-				} else {
-					CategorizedProblem[] problems = recordedParsingInformation.problems;
-					if (problems != null) {
-						compilationUnit.setProblems(problems);
-					}
-					ast.setDefaultNodeFlag(0);
-					ast.setOriginalModificationCount(ast.modificationCount());
-					return compilationUnit;
-				}
+				TypeDeclaration typeDeclaration = converter.convert(nodes);
+				typeDeclaration.setSourceRange(this.sourceOffset, this.sourceOffset + this.sourceLength);
+				rootNodeToCompilationUnit(typeDeclaration.getAST(), compilationUnit, typeDeclaration, codeSnippetParsingUtil.recordedParsingInformation, null);
+				ast.setDefaultNodeFlag(0);
+				ast.setOriginalModificationCount(ast.modificationCount());
+				return typeDeclaration;
 		}
 		throw new IllegalStateException();
 	}
