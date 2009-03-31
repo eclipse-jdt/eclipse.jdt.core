@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 708 };
+//		TESTS_NUMBERS =  new int[] { 709 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -10250,5 +10250,35 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		Block block = (Block) root;
 		List statements = block.statements();
 		assertEquals("Wrong size", 2, statements.size());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=270367
+	public void test0709() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			String contents =
+				"public class X {\n" + 
+				"	public Integer test() {\n" + 
+				"		return (new Integer(getId()));\n" + 
+				"	}\n" + 
+				"	public String getId() {\n" + 
+				"		return \"1\";\n" + 
+				"	}\n" + 
+				"}";
+	
+			ASTNode node = buildAST(
+					contents,
+					workingCopy);
+			node.accept(new ASTVisitor() {
+				public boolean visit(ParenthesizedExpression parenthesizedExpression) {
+					assertNotNull(parenthesizedExpression.resolveTypeBinding());
+					return true;
+				}
+			});
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
 	}
 }
