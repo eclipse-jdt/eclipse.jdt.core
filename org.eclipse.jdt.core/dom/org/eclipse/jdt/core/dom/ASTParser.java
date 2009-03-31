@@ -1106,12 +1106,24 @@ public class ASTParser {
 					converter.buildCommentsTable(compilationUnit, comments);
 				}
 				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
-				TypeDeclaration typeDeclaration = converter.convert(nodes);
-				typeDeclaration.setSourceRange(this.sourceOffset, this.sourceOffset + this.sourceLength);
-				rootNodeToCompilationUnit(typeDeclaration.getAST(), compilationUnit, typeDeclaration, codeSnippetParsingUtil.recordedParsingInformation, null);
-				ast.setDefaultNodeFlag(0);
-				ast.setOriginalModificationCount(ast.modificationCount());
-				return typeDeclaration;
+				if (nodes != null) {
+					// source has no syntax error or the statement recovery is enabled
+					TypeDeclaration typeDeclaration = converter.convert(nodes);
+					typeDeclaration.setSourceRange(this.sourceOffset, this.sourceOffset + this.sourceLength);
+					rootNodeToCompilationUnit(typeDeclaration.getAST(), compilationUnit, typeDeclaration, codeSnippetParsingUtil.recordedParsingInformation, null);
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
+					return typeDeclaration;
+				} else {
+					// source has syntax error and the statement recovery is disabled
+					CategorizedProblem[] problems = recordedParsingInformation.problems;
+					if (problems != null) {
+						compilationUnit.setProblems(problems);
+					}
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
+					return compilationUnit;
+				}
 		}
 		throw new IllegalStateException();
 	}

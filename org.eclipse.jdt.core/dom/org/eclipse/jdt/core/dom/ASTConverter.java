@@ -938,7 +938,7 @@ class ASTConverter {
 	public TypeDeclaration convert(org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes) {
 		final TypeDeclaration typeDecl = new TypeDeclaration(this.ast);
 		typeDecl.setInterface(false);
-		int nodesLength = nodes == null ? 0 : nodes.length;
+		int nodesLength = nodes.length;
 		for (int i = 0; i < nodesLength; i++) {
 			org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodes[i];
 			if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
