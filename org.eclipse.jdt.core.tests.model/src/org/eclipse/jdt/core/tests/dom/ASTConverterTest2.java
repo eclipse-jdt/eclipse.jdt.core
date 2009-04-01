@@ -5539,5 +5539,35 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270446. NPE while building abridged AST
+	public void test0610() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/Converter/src/X.java",
+				"public class X {\n" +
+				"	  private class B {\n" +
+				"	    public B() {\n" +
+				"	    }\n" +
+				"	  }\n" +
+				"	  public X() {\n" +
+				"	  }\n" +
+				"	}\n"
+			);
+			
+			// Create parser
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setSource(workingCopy);
+			parser.setFocalPosition(0);
+			parser.setResolveBindings(true);
+
+			ASTNode result = parser.createAST(null);
+			assertNotNull("Should get an AST", result);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 
 }

@@ -62,6 +62,10 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		} else if (!constructorBinding.isOrEnclosedByPrivateType()) {
 			break checkUnused;
  		}
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270446, When the AST built is an abridged version
+		// we don't have all tree nodes we would otherwise expect. (see ASTParser.setFocalPosition)
+		if (this.constructorCall == null)
+			break checkUnused; 
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=264991, Don't complain about this
 		// constructor being unused if the base class doesn't have a no-arg constructor.
 		// See that a seemingly unused constructor that chains to another constructor with a
