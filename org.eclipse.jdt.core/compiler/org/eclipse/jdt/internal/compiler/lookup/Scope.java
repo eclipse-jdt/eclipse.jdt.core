@@ -3907,6 +3907,18 @@ public abstract class Scope {
 		return null;
 	}
 
+	public void deferBoundCheck(TypeReference typeRef) {
+		if (this.kind == CLASS_SCOPE) {
+			ClassScope classScope = (ClassScope) this;
+			if (classScope.deferredBoundChecks == null) {
+				classScope.deferredBoundChecks = new ArrayList(3);
+				classScope.deferredBoundChecks.add(typeRef);
+			} else if (!classScope.deferredBoundChecks.contains(typeRef)) {
+				classScope.deferredBoundChecks.add(typeRef);
+			}
+		}
+	}
+
 	// start position in this scope - for ordering scopes vs. variables
 	int startIndex() {
 		return 0;

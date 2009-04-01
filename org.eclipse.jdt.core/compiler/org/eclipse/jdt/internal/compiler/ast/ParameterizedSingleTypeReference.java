@@ -231,9 +231,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 
     	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentOriginal, argTypes, enclosingType);
 		// check argument type compatibility
-		if (checkBounds) { // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
+		if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 			parameterizedType.boundCheck(scope, this.typeArguments);
-		}
+		else
+			scope.deferBoundCheck(this);
 		if (isTypeUseDeprecated(parameterizedType, scope))
 			reportDeprecatedType(parameterizedType, scope);
 

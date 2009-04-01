@@ -49455,4 +49455,81 @@ public void test1449() {
              ""
      );
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159851
+public void test1450() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class A {}\n" +
+			"class B<T extends A> {}\n" +
+			"class X<T extends ArrayList<B<Integer>>> extends TreeMap<Integer, B<String>> {}\n" +
+			"\n" +
+			"class D<T> {}\n" +
+			"class E<T extends Number> {}\n" +
+			"class Y<T> extends E<D<T>> {}",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	class X<T extends ArrayList<B<Integer>>> extends TreeMap<Integer, B<String>> {}\n" + 
+		"	      ^\n" + 
+		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	class X<T extends ArrayList<B<Integer>>> extends TreeMap<Integer, B<String>> {}\n" + 
+		"	                              ^^^^^^^\n" + 
+		"Bound mismatch: The type Integer is not a valid substitute for the bounded parameter <T extends A> of the type B<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	class X<T extends ArrayList<B<Integer>>> extends TreeMap<Integer, B<String>> {}\n" + 
+		"	                                                                    ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends A> of the type B<T>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	class Y<T> extends E<D<T>> {}\n" + 
+		"	                     ^\n" + 
+		"Bound mismatch: The type D<T> is not a valid substitute for the bounded parameter <T extends Number> of the type E<T>\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159851
+public void test1451() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A<T> {}\n" +
+			"class B<T2 extends Number> {}\n" +
+			"class C<T3, T4> {}\n" +
+			"class X<T1, T2> extends C<A<A<B<T1>>>, A<B<T2>>> {}\n" +
+			"class Y<T> extends A<A<B<T>>> {}\n" +
+			"class Z<T> extends C<B<T>, A<B<T>>> {}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	class X<T1, T2> extends C<A<A<B<T1>>>, A<B<T2>>> {}\n" + 
+		"	                                ^^\n" + 
+		"Bound mismatch: The type T1 is not a valid substitute for the bounded parameter <T2 extends Number> of the type B<T2>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	class X<T1, T2> extends C<A<A<B<T1>>>, A<B<T2>>> {}\n" + 
+		"	                                           ^^\n" + 
+		"Bound mismatch: The type T2 is not a valid substitute for the bounded parameter <T2 extends Number> of the type B<T2>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	class Y<T> extends A<A<B<T>>> {}\n" + 
+		"	                         ^\n" + 
+		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <T2 extends Number> of the type B<T2>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	class Z<T> extends C<B<T>, A<B<T>>> {}\n" + 
+		"	                       ^\n" + 
+		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <T2 extends Number> of the type B<T2>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
+		"	class Z<T> extends C<B<T>, A<B<T>>> {}\n" + 
+		"	                               ^\n" + 
+		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <T2 extends Number> of the type B<T2>\n" + 
+		"----------\n"
+	);
+}
 }

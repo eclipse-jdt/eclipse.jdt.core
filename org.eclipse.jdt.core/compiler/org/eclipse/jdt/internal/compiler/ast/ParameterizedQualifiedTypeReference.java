@@ -261,6 +261,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				// check argument type compatibility
 				if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 					parameterizedType.boundCheck(scope, args);
+				else
+					scope.deferBoundCheck(this);
 				qualifyingType = parameterizedType;
 		    } else {
 				ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();

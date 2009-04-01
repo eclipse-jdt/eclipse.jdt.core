@@ -32,10 +32,12 @@ public class ClassScope extends Scope {
 
 	public TypeDeclaration referenceContext;
 	public TypeReference superTypeReference;
+	java.util.ArrayList deferredBoundChecks;
 
 	public ClassScope(Scope parent, TypeDeclaration context) {
 		super(Scope.CLASS_SCOPE, parent);
 		this.referenceContext = context;
+		this.deferredBoundChecks = null; // initialized if required
 	}
 
 	void buildAnonymousTypeBinding(SourceTypeBinding enclosingType, ReferenceBinding supertype) {
@@ -813,19 +815,9 @@ public class ClassScope extends Scope {
 
 	// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
 	public void  checkParameterizedTypeBounds() {
-		TypeReference superclass = this.referenceContext.superclass;
-		if (superclass != null)
-			superclass.checkBounds(this);
-
-		TypeReference[] superinterfaces = this.referenceContext.superInterfaces;
-		if (superinterfaces != null)
-			for (int i = 0, length = superinterfaces.length; i < length; i++)
-				superinterfaces[i].checkBounds(this);
-
-		TypeParameter[] typeParameters = this.referenceContext.typeParameters;
-		if (typeParameters != null)
-			for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++)
-				typeParameters[i].checkBounds(this);
+		for (int i = 0, l = this.deferredBoundChecks == null ? 0 : this.deferredBoundChecks.size(); i < l; i++)
+			((TypeReference) this.deferredBoundChecks.get(i)).checkBounds(this);
+		this.deferredBoundChecks = null;
 
 		ReferenceBinding[] memberTypes = this.referenceContext.binding.memberTypes;
 		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES)
