@@ -57,7 +57,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	DefaultCodeFormatterOptions formatterPrefs;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 719 };
+//		TESTS_NUMBERS = new int[] { 721 };
 //		TESTS_RANGE = new int[] { 715, -1 };
 	}
 	public static Test suite() {
@@ -10762,5 +10762,27 @@ public void testBug213700() throws JavaModelException {
 		"	}\n" + 
 		"}\n"
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270983
+public void test720() {
+	final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+	DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+	Map compilerOptions = new HashMap();
+	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+	runTest(codeFormatter, "test720", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=270983
+public void test721() {
+	final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+	DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+	Map compilerOptions = new HashMap();
+	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+	runTest(codeFormatter, "test721", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 }
 }

@@ -1110,9 +1110,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (kind == TypeDeclaration.ENUM_DECL) {
 			FieldDeclaration[] fieldDeclarations = typeDeclaration.fields;
 			boolean hasConstants = false;
+			int length = fieldDeclarations != null ? fieldDeclarations.length : 0;
+			int enumConstantsLength = 0;
 			if (fieldDeclarations != null) {
-				int length = fieldDeclarations.length;
-				int enumConstantsLength = 0;
 				for (int i = 0; i < length; i++) {
 					FieldDeclaration fieldDeclaration = fieldDeclarations[i];
 					if (fieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
@@ -1155,7 +1155,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						}
 					} while (!ok);
 					this.scribe.exitAlignment(enumConstantsAlignment, true);
-				} else {
+				} else if (hasConstants) {
+					// only one enum constant
 					FieldDeclaration fieldDeclaration = fieldDeclarations[0];
 					fieldDeclaration.traverse(this, typeDeclaration.initializerScope);
 					if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
@@ -1173,8 +1174,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
-			}
-			if (hasConstants) {
+				if (hasConstants
+						|| ((enumConstantsLength - length) != 0)
+						|| typeDeclaration.methods != null
+						|| typeDeclaration.memberTypes != null) {
+					// make sure that empty enums don't get a new line
+					this.scribe.printNewLine();
+				}
+			} else if (hasConstants) {
+				// only had a new line if there is at least one enum constant
 				this.scribe.printNewLine();
 			}
 		}
