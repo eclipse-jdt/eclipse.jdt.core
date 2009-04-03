@@ -262,8 +262,11 @@ public class BatchTestUtils {
 	}
 	protected static String getPluginDirectoryPath() {
 		try {
-			URL platformURL = Platform.getBundle("org.eclipse.jdt.compiler.apt.tests").getEntry("/");
-			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
+			if (Platform.isRunning()) {
+				URL platformURL = Platform.getBundle("org.eclipse.jdt.compiler.apt.tests").getEntry("/");
+				return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
+			}
+			return new File(System.getProperty("user.dir")).getAbsolutePath();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
