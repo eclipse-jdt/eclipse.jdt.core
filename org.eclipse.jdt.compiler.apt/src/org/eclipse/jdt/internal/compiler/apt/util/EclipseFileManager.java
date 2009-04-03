@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 IBM Corporation and others.
+ * Copyright (c) 2006, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -128,7 +128,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 */
 	public void close() throws IOException {
 		this.locations = null;
-		for (Archive archive : archivesCache.values()) {
+		for (Archive archive : this.archivesCache.values()) {
 			archive.close();
 		}
 	}
@@ -218,7 +218,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 * @see javax.tools.JavaFileManager#flush()
 	 */
 	public void flush() throws IOException {
-		for (Archive archive : archivesCache.values()) {
+		for (Archive archive : this.archivesCache.values()) {
 			archive.flush();
 		}
 	}
@@ -375,7 +375,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	private String getExtension(String name) {
 		int index = name.lastIndexOf('.');
 		if (index == -1) {
-			return NO_EXTENSION;
+			return EclipseFileManager.NO_EXTENSION;
 		}
 		return name.substring(index);
 	}
@@ -503,10 +503,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				return new EclipseFileObject(className, uri2, kind, this.charset);
 			} else {
 				String normalizedFileName = normalized(className);
-				int index = normalizedFileName.lastIndexOf('/');
-				if (index != -1) {
-					normalizedFileName = normalizedFileName.substring(index + 1);
-				}
 				normalizedFileName += kind.extension;
 				File f = new File(System.getProperty("user.dir"), normalizedFileName);//$NON-NLS-1$
 				return new EclipseFileObject(className, f.toURI(), kind, this.charset);
@@ -872,6 +868,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	public void processPathEntries(final int defaultSize, final ArrayList paths,
 			final String currentPath, String customEncoding, boolean isSourceOnly,
 			boolean rejectDestinationPathOnJars) {
+
 		String currentClasspathName = null;
 		String currentDestinationPath = null;
 		ArrayList currentRuleSpecs = new ArrayList(defaultSize);
@@ -945,8 +942,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				switch (state) {
 				case start:
 					currentClasspathName = ""; //$NON-NLS-1$
+					//$FALL-THROUGH$
 				case readyToClose:
 					bracket = cursor - 1;
+					//$FALL-THROUGH$
 				case bracketClosed:
 					state = bracketOpened;
 					break;
@@ -994,6 +993,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						state = destinationPathReadyToClose;
 						break;
 					} // else we proceed with a rule
+					//$FALL-THROUGH$
 				case rulesNeedAnotherRule:
 					if (currentDestinationPath != null) {
 						throw new IllegalArgumentException(
