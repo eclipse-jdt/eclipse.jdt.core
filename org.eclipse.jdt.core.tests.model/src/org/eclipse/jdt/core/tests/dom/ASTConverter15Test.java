@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 323 };
+//		TESTS_NUMBERS = new int[] { 324 };
 //		TESTS_RANGE = new int[] { 308, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10490,5 +10490,54 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				true/*resolve*/
 			);
 		assertNotNull("No node", buildAST(contents, this.workingCopy, false, true, true));
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270367
+	public void test0324() throws JavaModelException {
+		String contents = "package test0324;\n"
+			+ "public class X {\n"
+			+ "  public void someMethod() {\n"
+			+ "     int i = /*start*/(new Integer(getId())).intValue()/*end*/;\n"
+			+ "  }\n"
+			+ "  public String getId() {\n"
+			+ "     return null;\n"
+			+ "  }\n"
+			+ "}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0324/X.java", contents, true/*resolve*/
+		);
+		MethodInvocation methodCall = (MethodInvocation) buildAST(contents, this.workingCopy, false, true, true);
+		ParenthesizedExpression intValueReceiver = (ParenthesizedExpression) methodCall.getExpression();
+		ParenthesizedExpression newParenthesizedExpression = (ParenthesizedExpression) ASTNode.copySubtree(
+				intValueReceiver.getAST(), intValueReceiver);
+		replaceNodeInParent(methodCall, newParenthesizedExpression);
+		
+		// copied node
+		ClassInstanceCreation constructorCall = (ClassInstanceCreation) newParenthesizedExpression.getExpression();
+		constructorCall.resolveTypeBinding();
+		IMethodBinding constructorBinding = constructorCall.resolveConstructorBinding();
+		assertNull("Not null constructor binding", constructorBinding);
+
+		// original node
+		constructorCall = (ClassInstanceCreation) intValueReceiver.getExpression();
+		constructorCall.resolveTypeBinding(); // This should not throw a NPE
+		constructorBinding = constructorCall.resolveConstructorBinding();
+		assertNotNull("Null constructor binding", constructorBinding);
+	}
+
+	// Utility method to replace "node" by "replacement"
+	private void replaceNodeInParent(Expression node, Expression replacement) {
+		StructuralPropertyDescriptor loc = node.getLocationInParent();
+		if (loc.isChildProperty()) {
+			node.getParent().setStructuralProperty(loc, replacement);
+		}
+		else {
+			List l = (List) node.getParent().getStructuralProperty(loc);
+			for (int i = 0; i < l.size(); i++) {
+				if (node.equals(l.get(i))) {
+					l.set(i, replacement);
+					break;
+				}
+			}
+		}
 	}
 }

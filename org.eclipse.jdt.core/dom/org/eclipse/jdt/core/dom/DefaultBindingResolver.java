@@ -550,7 +550,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	boolean resolveBoxing(Expression expression) {
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if (node != null && (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression)) {
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
 			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
 			return (compilerExpression.implicitConversion & TypeIds.BOXING) != 0;
 		}
@@ -562,7 +562,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	boolean resolveUnboxing(Expression expression) {
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if (node != null && (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression)) {
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
 			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
 			return (compilerExpression.implicitConversion & TypeIds.UNBOXING) != 0;
 		}
@@ -574,7 +574,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	Object resolveConstantExpressionValue(Expression expression) {
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if (node != null && (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression)) {
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
 			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
 			Constant constant = compilerExpression.constant;
 			if (constant != null && constant != Constant.NotAConstant) {
@@ -662,7 +662,7 @@ class DefaultBindingResolver extends BindingResolver {
 						if (typeBinding != null) {
 							return typeBinding;
 						}
-					} else {
+					} else if (astNode instanceof AllocationExpression) {
 						// should be an AllocationExpression
 						AllocationExpression allocationExpression = (AllocationExpression) astNode;
 						return this.getTypeBinding(allocationExpression.resolvedType);
@@ -704,7 +704,10 @@ class DefaultBindingResolver extends BindingResolver {
 				case ASTNode.CHARACTER_LITERAL :
 				case ASTNode.NUMBER_LITERAL :
 					Literal literal = (Literal) this.newAstToOldAst.get(expression);
-					return this.getTypeBinding(literal.literalType(null));
+					if (literal != null) {
+						return this.getTypeBinding(literal.literalType(null));
+					}
+					break;
 				case ASTNode.THIS_EXPRESSION :
 					ThisReference thisReference = (ThisReference) this.newAstToOldAst.get(expression);
 					BlockScope blockScope = (BlockScope) this.astNodesToBlockScope.get(expression);
@@ -1302,7 +1305,7 @@ class DefaultBindingResolver extends BindingResolver {
 							}
 						}
 					}
-	 			}
+				}
 			}
 		} else if (node instanceof QualifiedSuperReference) {
 			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
@@ -1398,8 +1401,7 @@ class DefaultBindingResolver extends BindingResolver {
 		org.eclipse.jdt.internal.compiler.ast.Expression expression = (org.eclipse.jdt.internal.compiler.ast.Expression) this.newAstToOldAst.get(ref);
 		if (expression instanceof TypeReference) {
 			return getTypeBinding(expression.resolvedType);
-		}
-		else if (expression instanceof JavadocFieldReference) {
+		} else if (expression instanceof JavadocFieldReference) {
 			JavadocFieldReference fieldRef = (JavadocFieldReference) expression;
 			if (fieldRef.methodBinding != null) {
 				return getMethodBinding(fieldRef.methodBinding);
@@ -1415,7 +1417,10 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	synchronized IMemberValuePairBinding resolveMemberValuePair(org.eclipse.jdt.core.dom.MemberValuePair memberValuePair) {
 		MemberValuePair valuePair = (MemberValuePair) this.newAstToOldAst.get(memberValuePair);
-		return getMemberValuePairBinding(valuePair.compilerElementPair);
+		if (valuePair != null) {
+			return getMemberValuePairBinding(valuePair.compilerElementPair);
+		}
+		return null;
 	}
 
 	/* (non-Javadoc)
@@ -1503,29 +1508,29 @@ class DefaultBindingResolver extends BindingResolver {
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(type);
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = null;
 		if (node != null) {
-            if (node instanceof ParameterizedQualifiedTypeReference) {
+			if (node instanceof ParameterizedQualifiedTypeReference) {
  				ParameterizedQualifiedTypeReference typeReference = (ParameterizedQualifiedTypeReference) node;
- 				org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = typeReference.resolvedType;
- 				int index;
- 				if (type.isQualifiedType()) {
- 					index = ((QualifiedType) type).index;
- 				} else if (type.isParameterizedType()) {
- 					index = ((ParameterizedType) type).index;
- 				} else {
- 					index = 1;
- 				}
- 				final int numberOfTypeArgumentsNotNull = getTypeArguments(typeReference);
- 				if (index != numberOfTypeArgumentsNotNull) {
-	 				int  i = numberOfTypeArgumentsNotNull;
-	 				while (i != index) {
-	 					typeBinding = typeBinding.enclosingType();
-	 					i --;
-	 				}
-	 				binding = typeBinding;
- 				} else {
+				org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = typeReference.resolvedType;
+				int index;
+				if (type.isQualifiedType()) {
+					index = ((QualifiedType) type).index;
+				} else if (type.isParameterizedType()) {
+					index = ((ParameterizedType) type).index;
+				} else {
+					index = 1;
+				}
+				final int numberOfTypeArgumentsNotNull = getTypeArguments(typeReference);
+				if (index != numberOfTypeArgumentsNotNull) {
+					int  i = numberOfTypeArgumentsNotNull;
+					while (i != index) {
+						typeBinding = typeBinding.enclosingType();
+						i --;
+					}
 					binding = typeBinding;
- 				}
-            } else if (node instanceof TypeReference) {
+				} else {
+					binding = typeBinding;
+				}
+			} else if (node instanceof TypeReference) {
 				TypeReference typeReference = (TypeReference) node;
 				binding = typeReference.resolvedType;
 			} else if (node instanceof SingleNameReference && ((SingleNameReference)node).isTypeReference()) {
