@@ -162,7 +162,8 @@ public void test1FVRQQA_2() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    Enumeration e;\n" +
-		"    <CompleteOnName:e.has>;\n" +
+	    "    for (; <CompleteOnName:e.has>; ) \n" +
+	    "      ;\n" + 
 		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:

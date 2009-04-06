@@ -2265,7 +2265,8 @@ public void testCompletionAfterInstanceof03_06() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance2 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
 	int start1 = str.lastIndexOf("equal") + "".length();
 	int end1 = start1 + "equal".length();
 	int start2 = str.lastIndexOf("a.equal");
@@ -2273,8 +2274,8 @@ public void testCompletionAfterInstanceof03_06() throws JavaModelException {
 	int start3 = str.lastIndexOf("a.");
 	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance2) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -8120,7 +8121,7 @@ public void testCompletionKeywordFalse2() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:false    completion:false    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+			"element:false    completion:false    relevance:"+(R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFalse3() throws JavaModelException {
@@ -8146,7 +8147,7 @@ public void testCompletionKeywordFalse4() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:false    completion:false    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+			"element:false    completion:false    relevance:"+(R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95008
@@ -11585,7 +11586,7 @@ public void testCompletionKeywordTrue2() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:true    completion:true    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordTrue3() throws JavaModelException {
@@ -11611,7 +11612,7 @@ public void testCompletionKeywordTrue4() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:true    completion:true    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=90615
@@ -11718,7 +11719,7 @@ public void testCompletionKeywordTry2() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:true    completion:true    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordTry3() throws JavaModelException {
@@ -11757,7 +11758,7 @@ public void testCompletionKeywordTry5() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:true    completion:true    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordTry6() throws JavaModelException {
@@ -18826,8 +18827,8 @@ public void testNameWithUnresolvedReferences018() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"zzzz1[LOCAL_VARIABLE_REF]{zzzz1, null, Z, zzzz1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_RESOLVED + R_NON_RESTRICTED) + "}\n" +
-			"zzzz2[LOCAL_VARIABLE_REF]{zzzz2, null, Z, zzzz2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_RESOLVED + R_NON_RESTRICTED) + "}",
+			"zzzz1[LOCAL_VARIABLE_REF]{zzzz1, null, Z, zzzz1, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_RESOLVED + R_NON_RESTRICTED) + "}\n" +
+			"zzzz2[LOCAL_VARIABLE_REF]{zzzz2, null, Z, zzzz2, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_RESOLVED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testParameterNames1() throws CoreException, IOException {
@@ -19871,6 +19872,165 @@ public void test269493i() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
 			"",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253008, prefer boolean proposal inside if(), while() etc
+public void test253008() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test253008 {\n" +
+			"	boolean methodReturningBoolean() { return true; }\n" +
+			"   void methodReturningBlah() { return; }\n" +
+			"	int foo(int p) {\n" +
+			"       if (methodR) {\n" +
+			"           return 0;\n" +
+			"       }\n" +
+			"	}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "methodR";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test253008;, ()Z, methodReturningBoolean, " + (R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+public void test253008b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test253008 {\n" +
+			"	boolean methodReturningBoolean() { return true; }\n" +
+			"   void methodReturningBlah() { return; }\n" +
+			"	int foo(int p) {\n" +
+			"       while (methodR) {\n" +
+			"           return 0;\n" +
+			"       }\n" +
+			"	}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "methodR";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test253008;, ()Z, methodReturningBoolean, " + (R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+public void test253008c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test253008 {\n" +
+			"	boolean methodReturningBoolean() { return true; }\n" +
+			"   void methodReturningBlah() { return; }\n" +
+			"	int foo(int p) {\n" +
+			"   do { \n" +
+			"   }  while (methodR);\n" +
+			"	}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "methodR";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test253008;, ()Z, methodReturningBoolean, " + (R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+public void test253008d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test253008 {\n" +
+			"	boolean methodReturningBoolean() { return true; }\n" +
+			"   void methodReturningBlah() { return; }\n" +
+			"	int foo(int p) {\n" +
+			"   for (int i = 0; methodR; i++) {\n" +
+			"   }\n" +
+			"	}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "methodR";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test253008;, ()Z, methodReturningBoolean, " + (R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+public void test253008e() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test253008 {\n" +
+			"	boolean methodReturningBoolean() { return true; }\n" +
+			"   void methodReturningBlah() { return; }\n" +
+			"	int foo(int p) {\n" +
+			"   for (methodR; true;) {\n" +
+			"   }\n" +
+			"	}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "methodR";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test253008;, ()Z, methodReturningBoolean, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+public void test253008f() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;" +
+			"public class Test253008 {\n" +
+			"	boolean methodReturningBoolean() { return true; }\n" +
+			"   void methodReturningBlah() { return; }\n" +
+			"	int foo(int p) {\n" +
+			"   for (int i = 0; true; methodR) {\n" +
+			"   }\n" +
+			"	}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "methodR";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test253008;, ()Z, methodReturningBoolean, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 

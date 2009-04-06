@@ -76,6 +76,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_MEMBER_VALUE_ARRAY_INITIALIZER = COMPLETION_PARSER + 37;
 	protected static final int K_CONTROL_STATEMENT_DELIMITER = COMPLETION_PARSER + 38;
 	protected static final int K_INSIDE_ASSERT_EXCEPTION = COMPLETION_PARSER + 39;
+	protected static final int K_INSIDE_FOR_CONDITIONAL = COMPLETION_PARSER + 40;
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
 	public final static char[] FAKE_METHOD_NAME = new char[]{' '};
@@ -978,6 +979,13 @@ private void buildMoreCompletionContext(Expression expression) {
 			case K_BETWEEN_WHILE_AND_RIGHT_PAREN :
 				WhileStatement whileStatement = new WhileStatement(expression, new EmptyStatement(expression.sourceEnd, expression.sourceEnd), expression.sourceStart, expression.sourceEnd);
 				this.assistNodeParent = whileStatement;
+				break nextElement;
+			case K_INSIDE_FOR_CONDITIONAL: // https://bugs.eclipse.org/bugs/show_bug.cgi?id=253008
+				ForStatement forStatement = new ForStatement(new Statement[0], expression, new Statement[0],
+															 new EmptyStatement(expression.sourceEnd, expression.sourceEnd),
+						                                     false,
+						                                     expression.sourceStart, expression.sourceEnd);
+				this.assistNodeParent = forStatement;
 				break nextElement;
 			case K_BETWEEN_SWITCH_AND_RIGHT_PAREN:
 				SwitchStatement switchStatement = new SwitchStatement();
@@ -3477,6 +3485,18 @@ protected void consumeToken(int token) {
 					case K_INSIDE_CONTINUE_STATEMENT:
 						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth) {
 							popElement(K_INSIDE_CONTINUE_STATEMENT);
+						}
+						break;
+					case K_BETWEEN_FOR_AND_RIGHT_PAREN:
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth - 1) {
+							popElement(K_BETWEEN_FOR_AND_RIGHT_PAREN);
+							pushOnElementStack(K_INSIDE_FOR_CONDITIONAL, this.bracketDepth - 1);
+						}
+						break;
+					case K_INSIDE_FOR_CONDITIONAL:
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth - 1) {
+							popElement(K_INSIDE_FOR_CONDITIONAL);
+							pushOnElementStack(K_BETWEEN_FOR_AND_RIGHT_PAREN, this.bracketDepth - 1);
 						}
 						break;
 				}

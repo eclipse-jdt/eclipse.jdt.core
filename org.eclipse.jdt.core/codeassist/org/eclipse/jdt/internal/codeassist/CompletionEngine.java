@@ -3608,6 +3608,14 @@ public final class CompletionEngine
 					switchStatement.expression.resolvedType != null) {
 				addExpectedType(switchStatement.expression.resolvedType, scope);
 			}
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253008, flag boolean as the expected
+		// type if we are completing inside if(), for (; ;), while() and do while()
+		} else if (parent instanceof WhileStatement) {  // covers both while and do-while loops
+			addExpectedType(TypeBinding.BOOLEAN, scope);
+		} else if (parent instanceof IfStatement) {  
+			addExpectedType(TypeBinding.BOOLEAN, scope);
+		} else if (parent instanceof ForStatement) {   // astNodeParent set to ForStatement only for the condition  
+			addExpectedType(TypeBinding.BOOLEAN, scope);
 
 		// Expected types for javadoc
 		} else if (parent instanceof Javadoc) {
