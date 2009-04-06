@@ -9478,4 +9478,32 @@ public void test185() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=271303
+public void test186() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" +
+			"public class A { void m() {} }\n",
+			"p2/B.java",
+			"package p2;\n" +
+			"public class B extends p1.A { void m() {} }\n",
+			"p1/C.java",
+			"package p1;\n" +
+			"public class C extends p2.B { @Override void m() {} }"
+		},
+		"----------\n" + 
+		"1. WARNING in p2\\B.java (at line 2)\n" + 
+		"	public class B extends p1.A { void m() {} }\n" + 
+		"	                                   ^^^\n" + 
+		"The method B.m() does not override the inherited method from A since it is private to a different package\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in p1\\C.java (at line 2)\n" + 
+		"	public class C extends p2.B { @Override void m() {} }\n" + 
+		"	                                             ^^^\n" + 
+		"The method C.m() does not override the inherited method from B since it is private to a different package\n" + 
+		"----------\n"
+	);
+}
 }

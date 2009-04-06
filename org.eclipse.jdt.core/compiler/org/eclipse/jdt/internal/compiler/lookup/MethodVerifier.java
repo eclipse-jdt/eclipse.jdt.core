@@ -576,11 +576,6 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 					}
 				}
 			}
-			MethodBinding[] nonVisible = (MethodBinding[]) nonVisibleDefaultMethods.get(inheritedMethod.selector);
-			if (nonVisible != null)
-				for (int i = 0, l = nonVisible.length; i < l; i++)
-					if (areMethodsCompatible(nonVisible[i], inheritedMethod))
-						continue nextMethod;
 
 			if (!inheritedMethod.isDefault() || inheritedMethod.declaringClass.fPackage == this.type.fPackage) {
 				if (existingMethods == null) {
@@ -592,6 +587,11 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 				}
 				this.inheritedMethods.put(inheritedMethod.selector, existingMethods);
 			} else {
+				MethodBinding[] nonVisible = (MethodBinding[]) nonVisibleDefaultMethods.get(inheritedMethod.selector);
+				if (nonVisible != null)
+					for (int i = 0, l = nonVisible.length; i < l; i++)
+						if (areMethodsCompatible(nonVisible[i], inheritedMethod))
+							continue nextMethod;
 				if (nonVisible == null) {
 					nonVisible = new MethodBinding[] {inheritedMethod};
 				} else {
