@@ -49,7 +49,7 @@ protected IAnnotation[] getAnnotations(IBinaryAnnotation[] binaryAnnotations, lo
 	int standardLength = standardAnnotations.length;
 	IAnnotation[] annotations = new IAnnotation[length + standardLength];
 	for (int i = 0; i < length; i++) {
-		annotations[i] = Util.getAnnotation(this, binaryAnnotations[i]);
+		annotations[i] = Util.getAnnotation(this, binaryAnnotations[i], null);
 	}
 	System.arraycopy(standardAnnotations, 0, annotations, length, standardLength);
 	return annotations;

@@ -55,14 +55,29 @@ private void generateAnnotationsInfos(BinaryMember member, IBinaryAnnotation[] b
 	generateStandardAnnotationsInfos(member, tagBits, newElements);
 }
 private void generateAnnotationInfo(JavaElement parent, HashMap newElements, IBinaryAnnotation annotationInfo) {
+	generateAnnotationInfo(parent, newElements, annotationInfo, null);
+}
+private void generateAnnotationInfo(JavaElement parent, HashMap newElements, IBinaryAnnotation annotationInfo, String memberValuePairName) {
 	char[] typeName = org.eclipse.jdt.core.Signature.toCharArray(CharOperation.replaceOnCopy(annotationInfo.getTypeName(), '/', '.'));
-	Annotation annotation = new Annotation(parent, new String(typeName));
+	Annotation annotation = new Annotation(parent, new String(typeName), memberValuePairName);
+	while (newElements.containsKey(annotation)) {
+		annotation.occurrenceCount++;
+	}
 	newElements.put(annotation, annotationInfo);
 	IBinaryElementValuePair[] pairs = annotationInfo.getElementValuePairs();
 	for (int i = 0, length = pairs.length; i < length; i++) {
 		Object value = pairs[i].getValue();
 		if (value instanceof IBinaryAnnotation) {
-			generateAnnotationInfo(annotation, newElements, (IBinaryAnnotation) value);
+			generateAnnotationInfo(annotation, newElements, (IBinaryAnnotation) value, new String(pairs[i].getName()));
+		} else if (value instanceof Object[]) {
+			// if the value is an array, it can have no more than 1 dimension - no need to recurse
+			Object[] valueArray = (Object[]) value;
+			for (int j = 0, valueArrayLength = valueArray.length; j < valueArrayLength; j++) {
+				Object nestedValue = valueArray[j];
+				if (nestedValue instanceof IBinaryAnnotation) {
+					generateAnnotationInfo(annotation, newElements, (IBinaryAnnotation) nestedValue, new String(pairs[i].getName()));
+				}
+			}
 		}
 	}
 }
@@ -268,7 +283,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 		generateAnnotationsInfos(method, methodInfo.getAnnotations(), methodInfo.getTagBits(), newElements);
 		Object defaultValue = methodInfo.getDefaultValue();
 		if (defaultValue instanceof IBinaryAnnotation) {
-			generateAnnotationInfo(method, newElements, (IBinaryAnnotation) defaultValue);
+			generateAnnotationInfo(method, newElements, (IBinaryAnnotation) defaultValue, new String(methodInfo.getSelector()));
 		}
 	}
 }

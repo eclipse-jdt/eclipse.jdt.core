@@ -38,7 +38,7 @@ public ClassFileTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX = "testGetCategories";
-//	TESTS_NAMES = new String[] { "testWorkingCopy11"};
+//	TESTS_NAMES = new String[] { "testDefaultValue2"};
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }

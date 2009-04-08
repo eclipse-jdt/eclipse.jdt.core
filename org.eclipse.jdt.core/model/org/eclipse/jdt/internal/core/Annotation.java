@@ -26,14 +26,31 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	public static final IMemberValuePair[] NO_MEMBER_VALUE_PAIRS = new IMemberValuePair[0];
 
 	protected String name;
+	// require to distinguish same annotations in different member value pairs
+	protected String memberValuePairName;
 
 	public Annotation(JavaElement parent, String name) {
+		this(parent, name, null);
+	}
+
+	public Annotation(JavaElement parent, String name, String memberValuePairName) {
 		super(parent);
 		this.name = name;
+		this.memberValuePairName = memberValuePairName;
 	}
 
 	public boolean equals(Object o) {
-		if (!(o instanceof Annotation)) return false;
+		if (!(o instanceof Annotation)) {
+			return false;
+		}
+		Annotation other = (Annotation) o;
+		if (this.memberValuePairName == null) {
+			if (other.memberValuePairName != null)
+				return false;
+		} else if (!this.memberValuePairName.equals(other.memberValuePairName)) {
+			return false;
+		}
+		// name equality is checked as part of the super.equals(..)
 		return super.equals(o);
 	}
 
@@ -105,6 +122,14 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 
 	public IClassFile getClassFile() {
 		return ((JavaElement)getParent()).getClassFile();
+	}
+
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((this.memberValuePairName == null) ? 0 : this.memberValuePairName.hashCode());
+		result = prime * result + this.name.hashCode();
+		return result;
 	}
 
 	protected void toStringName(StringBuffer buffer) {

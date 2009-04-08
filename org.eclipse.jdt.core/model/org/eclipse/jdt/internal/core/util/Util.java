@@ -3065,9 +3065,9 @@ public class Util {
 		}
 		return typeArguments;
 	}
-	public static IAnnotation getAnnotation(JavaElement parent, IBinaryAnnotation binaryAnnotation) {
+	public static IAnnotation getAnnotation(JavaElement parent, IBinaryAnnotation binaryAnnotation, String memberValuePairName) {
 		char[] typeName = org.eclipse.jdt.core.Signature.toCharArray(CharOperation.replaceOnCopy(binaryAnnotation.getTypeName(), '/', '.'));
-		return new Annotation(parent, new String(typeName));
+		return new Annotation(parent, new String(typeName), memberValuePairName);
 	}
 	
 	public static Object getAnnotationMemberValue(JavaElement parent, MemberValuePair memberValuePair, Object binaryValue) {
@@ -3075,7 +3075,7 @@ public class Util {
 			return getAnnotationMemberValue(memberValuePair, (Constant) binaryValue);
 		} else if (binaryValue instanceof IBinaryAnnotation) {
 			memberValuePair.valueKind = IMemberValuePair.K_ANNOTATION;
-			return getAnnotation(parent, (IBinaryAnnotation) binaryValue);
+			return getAnnotation(parent, (IBinaryAnnotation) binaryValue, memberValuePair.getMemberName());
 		} else if (binaryValue instanceof ClassSignature) {
 			memberValuePair.valueKind = IMemberValuePair.K_CLASS;
 			char[] className = Signature.toCharArray(CharOperation.replaceOnCopy(((ClassSignature) binaryValue).getTypeName(), '/', '.'));
@@ -3097,6 +3097,14 @@ public class Util {
 				if (previousValueKind != -1 && memberValuePair.valueKind != previousValueKind) {
 					// values are heterogeneous, value kind is thus unknown
 					memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+				}
+				if (value instanceof Annotation) {
+					Annotation annotation = (Annotation) value;
+					for (int j = 0; j < i; j++) {
+						if (annotation.equals(values[j])) {
+							annotation.occurrenceCount++;
+						}
+					}
 				}
 				values[i] = value;
 			}

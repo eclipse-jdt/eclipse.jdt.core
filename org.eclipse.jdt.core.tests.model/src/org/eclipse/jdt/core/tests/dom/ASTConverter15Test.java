@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -46,8 +47,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 324 };
-//		TESTS_RANGE = new int[] { 308, -1 };
+//		TESTS_NUMBERS = new int[] { 333 };
+//		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -10491,7 +10492,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			);
 		assertNotNull("No node", buildAST(contents, this.workingCopy, false, true, true));
 	}
-
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270367
 	public void test0324() throws JavaModelException {
 		String contents = "package test0324;\n"
@@ -10539,5 +10539,156 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				}
 			}
 		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=271561
+	 */
+	public void test0325() throws JavaModelException {
+		String contents =
+			"package test0325;\n" +
+			"public class Y {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0325/Y.java",
+				contents,
+				true/*resolve*/
+			);
+		IAnnotation[] annotations = this.workingCopy.getJavaProject().findType("test0325.X").getAnnotations();
+		assertAnnotationsEqual("@test0325.SecondaryTables({@test0325.SecondaryTable(name=\"FOO\"), @test0325.SecondaryTable(name=\"BAR\")})\n", annotations);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=271561
+	 */
+	public void test0326() throws JavaModelException {
+		String contents =
+			"package test0326;\n" +
+			"@SecondaryTables({@SecondaryTable(name=\"FOO\"), @SecondaryTable(name=\"BAR\")})\n" +
+			"public class X {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0326/X.java",
+				contents,
+				true/*resolve*/
+			);
+		IAnnotation[] annotations = this.workingCopy.getType("X").getAnnotations();
+		assertAnnotationsEqual("@SecondaryTables({@SecondaryTable(name=\"FOO\"), @SecondaryTable(name=\"BAR\")})\n", annotations);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=271561
+	 */
+	public void test0327() throws JavaModelException {
+		String contents =
+			"package test0327;\n" +
+			"@SecondaryTables({@SecondaryTable(name=\"FOO\"), @SecondaryTable(name=\"BAR\")})\n" +
+			"public class X {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0327/X.java",
+				contents,
+				true/*resolve*/
+			);
+		IAnnotation[] annotations = this.workingCopy.getType("X").getAnnotations();
+		assertAnnotationsEqual("@SecondaryTables({@SecondaryTable(name=\"FOO\"), @SecondaryTable(name=\"BAR\")})\n", annotations);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=271561
+	 */
+	public void test0328() throws JavaModelException {
+		String contents =
+			"package test0328;\n" +
+			"public class Y {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0328/Y.java",
+				contents,
+				true/*resolve*/
+			);
+		IAnnotation[] annotations = this.workingCopy.getJavaProject().findType("test0328.X").getAnnotations();
+		assertAnnotationsEqual("@test0328.JoinTable(name=\"EMP_PROJ\", joinColumns={@test0328.JoinColumn(name=\"EMP_ID\", referencedColumnName=\"EMP_ID\")}, inverseJoinColumns={@test0328.JoinColumn(name=\"PROJ_ID\", referencedColumnName=\"PROJ_ID\")})\n", annotations);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=271561
+	 */
+	public void test0329() throws JavaModelException {
+		String contents =
+			"package test0329;\n" + 
+			"@JoinTable(\n" + 
+			"	name=\"EMP_PROJ\",\n" + 
+			"	joinColumns = {\n" + 
+			"			@JoinColumn(name = \"EMP_ID\", referencedColumnName = \"EMP_ID\")\n" + 
+			"	},\n" + 
+			"	inverseJoinColumns = {\n" + 
+			"			@JoinColumn(name = \"PROJ_ID\", referencedColumnName = \"PROJ_ID\")\n" + 
+			"	}\n" +
+			")\n" + 
+			"public class X {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0329/X.java",
+				contents,
+				true/*resolve*/
+			);
+		IAnnotation[] annotations = this.workingCopy.getType("X").getAnnotations();
+		assertAnnotationsEqual("@JoinTable(name=\"EMP_PROJ\", joinColumns={@JoinColumn(name=\"EMP_ID\", referencedColumnName=\"EMP_ID\")}, inverseJoinColumns={@JoinColumn(name=\"PROJ_ID\", referencedColumnName=\"PROJ_ID\")})\n", annotations);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=271561
+	 */
+	public void test0330() throws JavaModelException {
+		String contents =
+			"package test0330;\n" +
+			"public class Y {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0330/Y.java",
+				contents,
+				true/*resolve*/
+			);
+		IAnnotation[] annotations = this.workingCopy.getJavaProject().findType("test0330.X").getAnnotations();
+		assertAnnotationsEqual("@test0330.JoinTable(name=\"EMP_PROJ\", joinColumns=@test0330.JoinColumn(name=\"EMP_ID\", referencedColumnName=\"EMP_ID\"), inverseJoinColumns=@test0330.JoinColumn(name=\"PROJ_ID\", referencedColumnName=\"PROJ_ID\"))\n", annotations);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=271561
+	 */
+	public void test0331() throws JavaModelException {
+		String contents =
+			"package test0331;\n" + 
+			"@JoinTable(\n" + 
+			"	name=\"EMP_PROJ\",\n" + 
+			"	joinColumns = @JoinColumn(name = \"EMP_ID\", referencedColumnName = \"EMP_ID\"),\n" + 
+			"	inverseJoinColumns = @JoinColumn(name = \"PROJ_ID\", referencedColumnName = \"PROJ_ID\")\n" +
+			")\n" + 
+			"public class X {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0331/X.java",
+				contents,
+				true/*resolve*/
+			);
+		IAnnotation[] annotations = this.workingCopy.getType("X").getAnnotations();
+		assertAnnotationsEqual("@JoinTable(name=\"EMP_PROJ\", joinColumns=@JoinColumn(name=\"EMP_ID\", referencedColumnName=\"EMP_ID\"), inverseJoinColumns=@JoinColumn(name=\"PROJ_ID\", referencedColumnName=\"PROJ_ID\"))\n", annotations);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=271561
+	 */
+	public void test0332() throws JavaModelException {
+		String contents =
+			"package test0332;\n" +
+			"public class Y {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0332/Y.java",
+				contents,
+				true/*resolve*/
+			);
+		IAnnotation[] annotations = this.workingCopy.getJavaProject().findType("test0332.X").getAnnotations();
+		assertAnnotationsEqual("@test0332.JoinTable(name=\"EMP_PROJ\", joinColumns=@test0332.JoinColumn(name=\"EMP_ID\", referencedColumnClass=java.lang.Object.class), inverseJoinColumns=@test0332.JoinColumn(name=\"PROJ_ID\", referencedColumnClass=java.lang.Class.class), getLocalClass=java.lang.String.class)\n", annotations);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=271561
+	 */
+	public void test0333() throws JavaModelException {
+		String contents =
+			"package test0333;\n" +
+			"public class Y {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0333/Y.java",
+				contents,
+				true/*resolve*/
+			);
+		IAnnotation[] annotations = this.workingCopy.getJavaProject().findType("test0333.X").getAnnotations();
+		assertAnnotationsEqual("@test0333.JoinTable(name=\"EMP_PROJ\", joinColumns=@test0333.JoinColumn(name=\"EMP_ID\", referencedColumnClass=java.lang.Class.class), inverseJoinColumns=@test0333.JoinColumn(name=\"PROJ_ID\", referencedColumnClass=java.lang.Class.class), getLocalClass=java.lang.String.class)\n", annotations);
 	}
 }
