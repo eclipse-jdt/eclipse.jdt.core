@@ -390,6 +390,22 @@ public final class CompletionEngine
 		return result;
 	}
 	
+	private static char[] getTypeName(TypeReference typeReference) {
+		char[] typeName = CharOperation.concatWith(typeReference.getTypeName(), '.');
+		int dims = typeReference.dimensions();
+		if (dims > 0) {
+			int length = typeName.length;
+			int newLength = length + (dims*2);
+			System.arraycopy(typeName, 0, typeName = new char[newLength], 0, length);
+			for (int k = length; k < newLength; k += 2) {
+				typeName[k] = '[';
+				typeName[k+1] = ']';
+			}
+		}
+		
+		return typeName;
+	}
+	
 	private static boolean hasStaticMemberTypes(ReferenceBinding typeBinding, SourceTypeBinding invocationType, CompilationUnitScope unitScope) {
 		ReferenceBinding[] memberTypes = typeBinding.memberTypes();
 		int length = memberTypes == null ? 0 : memberTypes.length;
@@ -5244,41 +5260,48 @@ public final class CompletionEngine
 					guessedType = ref.resolveType((ClassScope)scope);
 					break;
 			}
-		} finally {
-			this.lookupEnvironment.nameEnvironment = oldNameEnvironment;
-		}
+		
 
-		if (guessedType != null && guessedType.isValidBinding()) {
-			if (guessedType instanceof SourceTypeBinding) {
-				SourceTypeBinding refBinding = (SourceTypeBinding) guessedType;
-				
-				refBinding.methods(); // force resolution
-				if (refBinding.scope == null || refBinding.scope.referenceContext == null) return null;
-				TypeDeclaration typeDeclaration = refBinding.scope.referenceContext;
-				AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-				next : for (int i = 0; i < methods.length; i++) {
-					AbstractMethodDeclaration method = methods[i];
+			if (guessedType != null && guessedType.isValidBinding()) {
+				if (guessedType instanceof SourceTypeBinding) {
+					SourceTypeBinding refBinding = (SourceTypeBinding) guessedType;
 					
-					if (method.binding == null || !method.isConstructor()) continue next;
+					if (refBinding.scope == null || refBinding.scope.referenceContext == null) return null;
 					
-					Argument[] arguments = method.arguments;
-					int argumentsLength = arguments == null ? 0 : arguments.length;
-					if (parameterCount != argumentsLength) continue next;
+					TypeDeclaration typeDeclaration = refBinding.scope.referenceContext;
+					AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 					
-					for (int j = 0; j < argumentsLength; j++) {
-						if (!CharOperation.equals(CharOperation.concatWith(arguments[j].type.getTypeName(), '.'), parameterTypes[j])) {
-							continue next;
+					next : for (int i = 0; i < methods.length; i++) {
+						AbstractMethodDeclaration method = methods[i];
+						
+						if (!method.isConstructor()) continue next;
+						
+						Argument[] arguments = method.arguments;
+						int argumentsLength = arguments == null ? 0 : arguments.length;
+						
+						if (parameterCount != argumentsLength) continue next;
+						
+						for (int j = 0; j < argumentsLength; j++) {
+							char[] argumentTypeName = getTypeName(arguments[j].type);
+	
+							if (!CharOperation.equals(argumentTypeName, parameterTypes[j])) {
+								continue next;
+							}
 						}
+						
+						refBinding.resolveTypesFor(method.binding); // force resolution
+						if (method.binding == null) continue next;
+						return getSignature(method.binding);
 					}
-					
-					return getSignature(method.binding);
 				}
 			}
+		} finally {
+			this.lookupEnvironment.nameEnvironment = oldNameEnvironment;
 		}
 		
 		return null;
 	}
-
+	
 	private void findConstructorsOrAnonymousTypes(
 			ReferenceBinding currentType,
 			Scope scope,
