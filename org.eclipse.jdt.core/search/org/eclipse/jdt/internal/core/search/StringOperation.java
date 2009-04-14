@@ -114,7 +114,12 @@ public static final int[] getCamelCaseMatchingRegions(String pattern, int patter
 	// init segments
 	int parts = 1;
 	for (int i=patternStart+1; i<patternEnd; i++) {
-		if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[pattern.charAt(i)] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_DIGIT)) != 0) {
+		final char ch = pattern.charAt(i);
+		if (ch < ScannerHelper.MAX_OBVIOUS) {
+			if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[ch] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_DIGIT)) != 0) {
+				parts++;
+			}
+		} else if (Character.isJavaIdentifierPart(ch) && (Character.isUpperCase(ch) || Character.isDigit(ch))) {
 			parts++;
 		}
 	}
