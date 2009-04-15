@@ -49,15 +49,17 @@ import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 public class JavaSearchBugsTests extends AbstractJavaSearchTests {
 	private final static int UI_DECLARATIONS = DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE;
 
+// Debug
+static {
+//	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
+}
+
 public JavaSearchBugsTests(String name) {
 	super(name);
 	this.endChar = "";
 }
 public static Test suite() {
 	return buildModelTestSuite(JavaSearchBugsTests.class);
-}
-static {
-//	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 }
 class TestCollector extends JavaSearchResultCollector {
 	public List matches = new ArrayList();
@@ -5143,8 +5145,7 @@ public void testBug110060_TypePattern05_SamePartCount() throws CoreException {
 	search("Ax", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults("");
 }
-// TODO: reenable after assessing whether the reference in java.lang.Deprecated is expected
-public void _testBug110060_TypePattern06() throws CoreException {
+public void testBug110060_TypePattern06() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("A*A*", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
 	// Invalid camel case pattern => replace the camel case flag with pattern match one (case insensitive)
@@ -5157,8 +5158,7 @@ public void _testBug110060_TypePattern06() throws CoreException {
 		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
 	);
 }
-// TODO: reenable after assessing whether the reference in java.lang.Deprecated is expected
-public void _testBug110060_TypePattern06_SamePartCount() throws CoreException {
+public void testBug110060_TypePattern06_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("A*A*", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	// Invalid camel case pattern => replace the camel case flag with pattern match one (case insensitive)
@@ -10451,6 +10451,93 @@ public void testBug250083() throws Exception {
 		deleteExternalFile(libPath);
 		deleteProject("P");
 	}
+}
+
+/**
+ * @bug 251827: [search] Search for type reference with wildcards finds references in package
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=251827"
+ */
+public void testBug251827a() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b251827/B251827.java",
+		"package b251827;\n" +
+		"public class B251827 {\n" +
+		"	static int VAL=251827;\n" +
+		"	static void foo() {};\n" +
+		"}\n",
+		owner
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b251827/X.java",
+		"package b251827;\n" +
+		"import static b251827.B251827.VAL;\n" +
+		"import static b251827.B251827.foo;\n" +
+		"public class X {\n" +
+		"	double val = VAL;\n" +
+		"	void bar() { foo(); };\n" +
+		"}\n",
+		owner
+	);
+	this.resultCollector.showSelection();
+	search("B251827*", TYPE, REFERENCES);
+	assertSearchResults(
+		"src/b251827/X.java [import static b251827.§|B251827|§.VAL;] EXACT_MATCH\n" + 
+		"src/b251827/X.java [import static b251827.§|B251827|§.foo;] EXACT_MATCH"
+	);
+}
+public void testBug251827b() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b251827/B251827.java",
+		"package b251827;\n" +
+		"public class B251827 {\n" +
+		"	static int VAL=251827;\n" +
+		"	static void foo() {};\n" +
+		"}\n",
+		owner
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b251827/X.java",
+		"package b251827;\n" +
+		"import static b251827.B251827.*;\n" +
+		"public class X {\n" +
+		"	double val = VAL;\n" +
+		"	void bar() { foo(); };\n" +
+		"}\n",
+		owner
+	);
+	this.resultCollector.showSelection();
+	search("B251827*", TYPE, REFERENCES);
+	assertSearchResults(
+		"src/b251827/X.java [import static b251827.§|B251827|§.*;] EXACT_MATCH"
+	);
+}
+public void testBug251827c() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b251827/B251827.java",
+		"package b251827;\n" +
+		"public class B251827 {\n" +
+		"	int VAL=251827;\n" +
+		"	void foo() {};\n" +
+		"}\n",
+		owner
+	);
+	this.resultCollector.showSelection();
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b251827/X.java",
+		"package b251827;\n" +
+		"import static b251827.*;\n" +
+		"public class X {\n" +
+		"	void bar(B251827 m) {;\n" +
+		"		double val = m.VAL;\n" +
+		"		m.foo();\n" +
+		"	};\n" +
+		"}\n",
+		owner
+	);
+	search("B251827*", TYPE, REFERENCES);
+	assertSearchResults(
+		"src/b251827/X.java void b251827.X.bar(B251827) [	void bar(§|B251827|§ m) {;] EXACT_MATCH"
+	);
 }
 
 /**

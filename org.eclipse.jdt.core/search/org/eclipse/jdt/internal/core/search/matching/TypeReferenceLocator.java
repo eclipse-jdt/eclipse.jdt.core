@@ -102,7 +102,20 @@ protected int matchLevel(ImportReference importRef) {
 	if (this.pattern.qualification == null) {
 		if (this.pattern.simpleName == null) return ACCURATE_MATCH;
 		char[][] tokens = importRef.tokens;
-		if (matchesName(this.pattern.simpleName, tokens[tokens.length-1])) return ACCURATE_MATCH;
+		boolean onDemand = (importRef.bits & ASTNode.OnDemand) != 0;
+		final boolean isStatic = importRef.isStatic();
+		if (!isStatic && onDemand) {
+			return IMPOSSIBLE_MATCH;
+		}
+		int length = tokens.length;
+		if (matchesName(this.pattern.simpleName, tokens[length-1])) {
+			return ACCURATE_MATCH;
+		}
+		if (isStatic && !onDemand && length > 1) {
+			if (matchesName(this.pattern.simpleName, tokens[length-2])) {
+				return ACCURATE_MATCH;
+			}
+		}
 	} else {
 		char[][] tokens = importRef.tokens;
 		char[] qualifiedPattern = this.pattern.simpleName == null
