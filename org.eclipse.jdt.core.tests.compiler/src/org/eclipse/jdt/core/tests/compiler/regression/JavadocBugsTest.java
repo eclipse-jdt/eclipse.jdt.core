@@ -16,6 +16,7 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 
 public class JavadocBugsTest extends JavadocTest {
 
@@ -3318,23 +3319,33 @@ public void testBug73479() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73995">73995</a>
  */
 public void testBug73995() {
-	runConformTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
+			"public class X extends Base {\n" +
 				"	/**\n" +
 				"	 *	@return {@link Object}     \n" +
 				"	 */\n" +
 				"	public int foo1() {return 0; }\n" +
-				"	/** @return {@inheritedDoc} */\n" +
+				"	/** @return {@inheritDoc} */\n" +
 				"	public int foo2() {return 0; }\n" +
 				"	/**\n" +
 				"	 *	@return\n" +
 				"	 *		{@unknown_tag}\n" +
 				"	 */\n" +
 				"	public int foo3() {return 0; }\n" +
-				"}\n"
-		}
+				"}\n" +
+				"class Base {\n" +
+				"/** return \"The foo2 value\" */" +
+				"public int foo2(){return 0;}\n" +
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	*		{@unknown_tag}\n" + 
+		"	 		  ^^^^^^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n"
 	);
 }
 
@@ -8487,4 +8498,157 @@ public void testBug247037d() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+/**
+ * @bug 267833:[javadoc] Custom tags should not be allowed for inline tags 
+ * @test Ensure that a warning is raised when customs tags are used as inline tags
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=267833"
+ */
+public void testBug267833() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"/**\n" +
+			"* Invalid custom tag {@custom \"Invalid\"}   \n" +
+			"* @custom \"Valid\"\n" +
+			"*/\n" +
+			"public class X {\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	* Invalid custom tag {@custom \"Invalid\"}   \n" + 
+		"	                       ^^^^^^\n" + 
+		"Javadoc: Unexpected tag\n" + 
+		"----------\n"
+	);
+}
+/**
+ * Additional test for bug 267833
+ * @test Ensure that the JavadocTagConstants.JAVADOC_TAG_TYPE array is up to date with the other arrays, such as 
+ *  JavadocTagConstants.TAG_NAMES, JavadocTagConstants.INLINE_TAGS and JavadocTagConstants.BLOCK_TAGS
+ */
+public void testBug267833_2() {
+	
+	assertEquals(JavadocTagConstants.TAG_NAMES.length,JavadocTagConstants.JAVADOC_TAG_TYPE.length);
+	
+	int tagsLength = JavadocTagConstants.TAG_NAMES.length;
+	nextTag:for (int index=0; index < tagsLength; index++) {
+		char[] tagName = JavadocTagConstants.TAG_NAMES[index];
+		if (tagName.length > 0) {
+			for (int i=0; i < JavadocTagConstants.BLOCK_TAGS_LENGTH; i++) {
+				int length = JavadocTagConstants.BLOCK_TAGS[i].length;
+				for (int j=0; j < length; j++) {
+					if (tagName == JavadocTagConstants.BLOCK_TAGS[i][j]) {
+						assertEquals(JavadocTagConstants.JAVADOC_TAG_TYPE[index], JavadocTagConstants.TAG_TYPE_BLOCK);
+						continue nextTag;
+					}
+				}
+			}
+			for (int i=0; i < JavadocTagConstants.INLINE_TAGS_LENGTH; i++) {
+				int length = JavadocTagConstants.INLINE_TAGS[i].length;
+				for (int j=0; j < length; j++) {
+					if (tagName == JavadocTagConstants.INLINE_TAGS[i][j]) {
+						assertEquals(JavadocTagConstants.JAVADOC_TAG_TYPE[index], JavadocTagConstants.TAG_TYPE_INLINE);
+						continue nextTag;
+					}
+				}
+			}
+		}
+		assertEquals(JavadocTagConstants.JAVADOC_TAG_TYPE[index], JavadocTagConstants.TAG_TYPE_NONE);
+	}
+}
+/**
+ * Additional test for bug 267833
+ * @test Ensure that a warning is raised when block tags are used as inline tags. 
+ */
+public void testBug267833_3() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"/** \n" +
+			"* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" +
+			"* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" +
+			"* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" +
+			"* @param i\n" + 
+			"* @return value\n" +
+			"* @throws NullPointerException \n" + 
+			"*/\n" +
+			"public int foo(int i) {\n" + 
+			"	return 0;\n" +
+			"}\n" + 
+			"}\n" },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" + 
+			"	                ^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" + 
+			"	                               ^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" + 
+			"	                                                ^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 3)\n" + 
+			"	* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" + 
+			"	                                                                ^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 3)\n" + 
+			"	* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" + 
+			"	                                                                            ^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 4)\n" + 
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" + 
+			"	             ^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 4)\n" + 
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" + 
+			"	                            ^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 4)\n" + 
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" + 
+			"	                                             ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"9. ERROR in X.java (at line 4)\n" + 
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" + 
+			"	                                                            ^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"10. ERROR in X.java (at line 4)\n" + 
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" + 
+			"	                                                                                    ^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"11. ERROR in X.java (at line 5)\n" + 
+			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" + 
+			"	             ^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"12. ERROR in X.java (at line 5)\n" + 
+			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" + 
+			"	                           ^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"13. ERROR in X.java (at line 5)\n" + 
+			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" + 
+			"	                                         ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"14. ERROR in X.java (at line 5)\n" + 
+			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" + 
+			"	                                                             ^^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n");
+}
+
 }
