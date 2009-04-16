@@ -13,6 +13,9 @@ package org.eclipse.jdt.internal.compiler.parser;
 /**
  * Internal field structure for parsing recovery
  */
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
@@ -250,11 +253,13 @@ public CompilationUnitDeclaration updatedCompilationUnitDeclaration(){
 			this.types[this.typeCount - 1].typeDeclaration.declarationSourceEnd = this.unitDeclaration.sourceEnd;
 			this.types[this.typeCount - 1].typeDeclaration.bodyEnd = this.unitDeclaration.sourceEnd;
 		}
+		
+		Set knownTypes = new HashSet();
 		int actualCount = existingCount;
 		for (int i = 0; i < this.typeCount; i++){
-			TypeDeclaration typeDecl = this.types[i].updatedTypeDeclaration();
+			TypeDeclaration typeDecl = this.types[i].updatedTypeDeclaration(0, knownTypes);
 			// filter out local types (12454)
-			if ((typeDecl.bits & ASTNode.IsLocalType) == 0){
+			if (typeDecl != null && (typeDecl.bits & ASTNode.IsLocalType) == 0){
 				typeDeclarations[actualCount++] = typeDecl;
 			}
 		}

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
@@ -276,7 +279,7 @@ public String toString(int tab) {
 /*
  * Rebuild a block from the nested structure which is in scope
  */
-public Block updatedBlock(){
+public Block updatedBlock(int depth, Set knownTypes){
 
 	// if block was not marked to be preserved or empty, then ignore it
 	if (!this.preserveContent || this.statementCount == 0) return null;
@@ -322,7 +325,7 @@ public Block updatedBlock(){
 
 	// only collect the non-null updated statements
 	for (int i = 0; i < this.statementCount; i++){
-		Statement updatedStatement = this.statements[i].updatedStatement();
+		Statement updatedStatement = this.statements[i].updatedStatement(depth, knownTypes);
 		if (updatedStatement != null){
 			updatedStatements[updatedCount++] = updatedStatement;
 
@@ -366,9 +369,9 @@ public Block updatedBlock(){
 /*
  * Rebuild a statement from the nested structure which is in scope
  */
-public Statement updatedStatement(){
+public Statement updatedStatement(int depth, Set knownTypes){
 
-	return updatedBlock();
+	return updatedBlock(depth, knownTypes);
 }
 /*
  * A closing brace got consumed, might have closed the current element,
@@ -407,12 +410,12 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
  */
 public void updateParseTree(){
 
-	updatedBlock();
+	updatedBlock(0, new HashSet());
 }
 /*
  * Rebuild a flattened block from the nested structure which is in scope
  */
-public Statement updateStatement(){
+public Statement updateStatement(int depth, Set knownTypes){
 
 	// if block was closed or empty, then ignore it
 	if (this.blockDeclaration.sourceEnd != 0 || this.statementCount == 0) return null;
@@ -422,7 +425,7 @@ public Statement updateStatement(){
 
 	// only collect the non-null updated statements
 	for (int i = 0; i < this.statementCount; i++){
-		Statement updatedStatement = this.statements[i].updatedStatement();
+		Statement updatedStatement = this.statements[i].updatedStatement(depth, knownTypes);
 		if (updatedStatement != null){
 			updatedStatements[updatedCount++] = updatedStatement;
 		}

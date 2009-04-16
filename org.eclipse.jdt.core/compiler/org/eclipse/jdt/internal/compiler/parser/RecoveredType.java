@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
@@ -29,6 +32,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
  */
 
 public class RecoveredType extends RecoveredStatement implements TerminalTokens {
+	public static final int MAX_TYPE_DEPTH = 256;
+	
 	public TypeDeclaration typeDeclaration;
 
 	public RecoveredAnnotation[] annotations;
@@ -439,15 +444,15 @@ public void updateBodyStart(int bodyStart){
 	this.foundOpeningBrace = true;
 	this.typeDeclaration.bodyStart = bodyStart;
 }
-public Statement updatedStatement(){
+public Statement updatedStatement(int depth, Set knownTypes){
 
 	// ignore closed anonymous type
 	if ((this.typeDeclaration.bits & ASTNode.IsAnonymousType) != 0 && !this.preserveContent){
 		return null;
 	}
 
-	TypeDeclaration updatedType = updatedTypeDeclaration();
-	if ((updatedType.bits & ASTNode.IsAnonymousType) != 0){
+	TypeDeclaration updatedType = updatedTypeDeclaration(depth + 1, knownTypes);
+	if (updatedType != null && (updatedType.bits & ASTNode.IsAnonymousType) != 0){
 		/* in presence of an anonymous type, we want the full allocation expression */
 		QualifiedAllocationExpression allocation = updatedType.allocation;
 
@@ -458,7 +463,12 @@ public Statement updatedStatement(){
 	}
 	return updatedType;
 }
-public TypeDeclaration updatedTypeDeclaration(){
+public TypeDeclaration updatedTypeDeclaration(int depth, Set knownTypes){
+	if (depth >= MAX_TYPE_DEPTH) return null;
+
+	if(knownTypes.contains(this.typeDeclaration)) return null;
+	knownTypes.add(this.typeDeclaration);
+	
 	int lastEnd = this.typeDeclaration.bodyStart;
 	/* update annotations */
 	if (this.modifiers != 0) {
@@ -497,12 +507,24 @@ public TypeDeclaration updatedTypeDeclaration(){
 			this.memberTypes[this.memberTypeCount - 1].typeDeclaration.declarationSourceEnd = bodyEndValue;
 			this.memberTypes[this.memberTypeCount - 1].typeDeclaration.bodyEnd =  bodyEndValue;
 		}
+		
+		int updatedCount = 0;
 		for (int i = 0; i < this.memberTypeCount; i++){
-			memberTypeDeclarations[existingCount + i] = this.memberTypes[i].updatedTypeDeclaration();
+			TypeDeclaration updatedTypeDeclaration = this.memberTypes[i].updatedTypeDeclaration(depth + 1, knownTypes);
+			if (updatedTypeDeclaration != null) {
+				memberTypeDeclarations[existingCount + (updatedCount++)] = updatedTypeDeclaration;
+			}
 		}
-		this.typeDeclaration.memberTypes = memberTypeDeclarations;
-		if(memberTypeDeclarations[memberTypeDeclarations.length - 1].declarationSourceEnd > lastEnd) {
-			lastEnd = memberTypeDeclarations[memberTypeDeclarations.length - 1].declarationSourceEnd;
+		if (updatedCount < this.memberTypeCount) {
+			int length = existingCount + updatedCount;
+			System.arraycopy(memberTypeDeclarations, 0, memberTypeDeclarations = new TypeDeclaration[length], 0, length);
+		}
+		
+		if (memberTypeDeclarations.length > 0) { 
+			this.typeDeclaration.memberTypes = memberTypeDeclarations;
+			if(memberTypeDeclarations[memberTypeDeclarations.length - 1].declarationSourceEnd > lastEnd) {
+				lastEnd = memberTypeDeclarations[memberTypeDeclarations.length - 1].declarationSourceEnd;
+			}
 		}
 	}
 	/* update fields */
@@ -519,7 +541,7 @@ public TypeDeclaration updatedTypeDeclaration(){
 			this.fields[this.fieldCount - 1].fieldDeclaration.declarationEnd = temp;
 		}
 		for (int i = 0; i < this.fieldCount; i++){
-			fieldDeclarations[existingCount + i] = this.fields[i].updatedFieldDeclaration();
+			fieldDeclarations[existingCount + i] = this.fields[i].updatedFieldDeclaration(depth, knownTypes);
 		}
 		this.typeDeclaration.fields = fieldDeclarations;
 		if(fieldDeclarations[fieldDeclarations.length - 1].declarationSourceEnd > lastEnd) {
@@ -546,7 +568,7 @@ public TypeDeclaration updatedTypeDeclaration(){
 			this.methods[this.methodCount - 1].methodDeclaration.bodyEnd = bodyEndValue;
 		}
 		for (int i = 0; i < this.methodCount; i++){
-			AbstractMethodDeclaration updatedMethod = this.methods[i].updatedMethodDeclaration();
+			AbstractMethodDeclaration updatedMethod = this.methods[i].updatedMethodDeclaration(depth, knownTypes);
 			if (updatedMethod.isConstructor()) hasRecoveredConstructor = true;
 			if (updatedMethod.isAbstract()) hasAbstractMethods = true;
 			methodDeclarations[existingCount + i] = updatedMethod;
@@ -731,7 +753,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 	return super.updateOnOpeningBrace(braceStart, braceEnd);
 }
 public void updateParseTree(){
-	updatedTypeDeclaration();
+	updatedTypeDeclaration(0, new HashSet());
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node

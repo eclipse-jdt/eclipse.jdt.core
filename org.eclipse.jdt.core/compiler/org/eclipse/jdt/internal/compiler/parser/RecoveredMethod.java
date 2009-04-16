@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
@@ -329,7 +332,7 @@ public void updateBodyStart(int bodyStart){
 	this.foundOpeningBrace = true;
 	this.methodDeclaration.bodyStart = bodyStart;
 }
-public AbstractMethodDeclaration updatedMethodDeclaration(){
+public AbstractMethodDeclaration updatedMethodDeclaration(int depth, Set knownTypes){
 	/* update annotations */
 	if (this.modifiers != 0) {
 		this.methodDeclaration.modifiers |= this.modifiers;
@@ -356,7 +359,7 @@ public AbstractMethodDeclaration updatedMethodDeclaration(){
 	}
 
 	if (this.methodBody != null){
-		Block block = this.methodBody.updatedBlock();
+		Block block = this.methodBody.updatedBlock(depth, knownTypes);
 		if (block != null){
 			this.methodDeclaration.statements = block.statements;
 
@@ -564,7 +567,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 	return super.updateOnOpeningBrace(braceStart, braceEnd);
 }
 public void updateParseTree(){
-	updatedMethodDeclaration();
+	updatedMethodDeclaration(0, new HashSet());
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node

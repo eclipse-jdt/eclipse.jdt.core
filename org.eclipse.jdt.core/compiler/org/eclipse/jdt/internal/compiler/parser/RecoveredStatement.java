@@ -13,6 +13,9 @@ package org.eclipse.jdt.internal.compiler.parser;
 /**
  * Internal statement structure for parsing recovery
  */
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 
@@ -38,11 +41,11 @@ public int sourceEnd(){
 public String toString(int tab){
 	return tabString(tab) + "Recovered statement:\n" + this.statement.print(tab + 1, new StringBuffer(10)); //$NON-NLS-1$
 }
-public Statement updatedStatement(){
+public Statement updatedStatement(int depth, Set knownTypes){
 	return this.statement;
 }
 public void updateParseTree(){
-	updatedStatement();
+	updatedStatement(0, new HashSet());
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node

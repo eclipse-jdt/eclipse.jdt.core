@@ -13,6 +13,9 @@ package org.eclipse.jdt.internal.compiler.parser;
 /**
  * Internal local variable structure for parsing recovery
  */
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
@@ -89,7 +92,7 @@ public int sourceEnd(){
 public String toString(int tab) {
 	return tabString(tab) + "Recovered local variable:\n" + this.localDeclaration.print(tab + 1, new StringBuffer(10)); //$NON-NLS-1$
 }
-public Statement updatedStatement(){
+public Statement updatedStatement(int depth, Set knownTypes){
 	/* update annotations */
 	if (this.modifiers != 0) {
 		this.localDeclaration.modifiers |= this.modifiers;
@@ -149,7 +152,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 	return this.parent.updateOnOpeningBrace(braceStart, braceEnd);
 }
 public void updateParseTree(){
-	updatedStatement();
+	updatedStatement(0, new HashSet());
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node

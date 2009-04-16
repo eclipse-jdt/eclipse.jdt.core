@@ -13,6 +13,9 @@ package org.eclipse.jdt.internal.compiler.parser;
 /**
  * Internal field structure for parsing recovery
  */
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
@@ -145,7 +148,7 @@ public String toString(int tab){
 	}
 	return buffer.toString();
 }
-public FieldDeclaration updatedFieldDeclaration(){
+public FieldDeclaration updatedFieldDeclaration(int depth, Set knownTypes){
 	/* update annotations */
 	if (this.modifiers != 0) {
 		this.fieldDeclaration.modifiers |= this.modifiers;
@@ -181,12 +184,14 @@ public FieldDeclaration updatedFieldDeclaration(){
 					typeDeclaration.bodyEnd = this.fieldDeclaration.declarationSourceEnd;
 				}
 				if (recoveredType.preserveContent){
-					TypeDeclaration anonymousType = recoveredType.updatedTypeDeclaration();
-					this.fieldDeclaration.initialization = anonymousType.allocation;
-					if(this.fieldDeclaration.declarationSourceEnd == 0) {
-						int end = anonymousType.declarationSourceEnd;
-						this.fieldDeclaration.declarationSourceEnd = end;
-						this.fieldDeclaration.declarationEnd = end;
+					TypeDeclaration anonymousType = recoveredType.updatedTypeDeclaration(depth + 1, knownTypes);
+					if (anonymousType != null) {
+						this.fieldDeclaration.initialization = anonymousType.allocation;
+						if(this.fieldDeclaration.declarationSourceEnd == 0) {
+							int end = anonymousType.declarationSourceEnd;
+							this.fieldDeclaration.declarationSourceEnd = end;
+							this.fieldDeclaration.declarationEnd = end;
+						}
 					}
 				}
 			}
@@ -200,7 +205,9 @@ public FieldDeclaration updatedFieldDeclaration(){
 					typeDeclaration.declarationSourceEnd = this.fieldDeclaration.declarationSourceEnd;
 					typeDeclaration.bodyEnd = this.fieldDeclaration.declarationSourceEnd;
 				}
-				recoveredType.updatedTypeDeclaration();
+				// if the enum is recovered then enum constants must be recovered too.
+				// depth is considered as the same as the depth of the enum
+				recoveredType.updatedTypeDeclaration(depth, knownTypes);
 			}
 		}
 	}
@@ -254,7 +261,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 	return this.parent.updateOnOpeningBrace(braceStart, braceEnd);
 }
 public void updateParseTree(){
-	updatedFieldDeclaration();
+	updatedFieldDeclaration(0, new HashSet());
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node

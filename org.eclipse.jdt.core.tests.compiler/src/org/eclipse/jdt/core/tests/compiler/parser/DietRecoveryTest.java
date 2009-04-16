@@ -7675,4 +7675,88 @@ public void test124() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=271680
+public void test125() {
+	String s =
+		"public class Test {\n" +
+		"}\n";
+	
+	StringBuffer buf = new StringBuffer();
+	for (int i = 0; i < 1000; i++) {
+		buf.append("class AClass #\n");
+	}
+	s+= buf.toString();
+
+	// expectedDietUnitToString
+	String expectedDietUnitToString =
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"}\n";
+	buf = new StringBuffer();
+	int max = 256;
+	for (int i = 0; i < max; i++) {
+		String indent = "";
+		for (int j = 0; j < i; j++) {
+			indent+= "  ";
+		}
+		buf.append(indent).append("class AClass {\n");
+	}
+	for (int i = max - 1; i >= 0; i--) {
+		String indent = "";
+		for (int j = 0; j < i; j++) {
+			indent+= "  ";
+		}
+		buf.append(indent).append("  AClass() {\n");
+		buf.append(indent).append("  }\n");
+		buf.append(indent).append("}\n");
+	}
+	
+	expectedDietUnitToString += buf.toString();
+	
+	// expectedDietPlusBodyUnitToString
+	String expectedDietPlusBodyUnitToString =
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"    super();\n" + 
+		"  }\n" +
+		"}\n";
+	buf = new StringBuffer();
+	for (int i = 0; i < max; i++) {
+		String indent = "";
+		for (int j = 0; j < i; j++) {
+			indent+= "  ";
+		}
+		buf.append(indent).append("class AClass {\n");
+	}
+	for (int i = max - 1; i >= 0; i--) {
+		String indent = "";
+		for (int j = 0; j < i; j++) {
+			indent+= "  ";
+		}
+		buf.append(indent).append("  AClass() {\n");
+		buf.append(indent).append("    super();\n");
+		buf.append(indent).append("  }\n");
+		buf.append(indent).append("}\n");
+	}
+	expectedDietPlusBodyUnitToString += buf.toString();
+
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		expectedDietPlusBodyUnitToString;
+
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+
+	String expectedCompletionDietUnitToString =
+		expectedDietUnitToString;
+
+	String testName = "test";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
 }

@@ -19,6 +19,9 @@ package org.eclipse.jdt.internal.codeassist.complete;
  *	0  means completion behind the first character
  *  n  means completion behind the n-th character
  */
+
+import java.util.HashSet;
+
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -1053,7 +1056,7 @@ private Statement buildMoreCompletionEnclosingContext(Statement statement) {
 					condition.sourceStart < recoveredLocalVariable.localDeclaration.sourceStart) {
 				this.currentElement.add(statement, 0);
 
-				statement = recoveredLocalVariable.updatedStatement();
+				statement = recoveredLocalVariable.updatedStatement(0, new HashSet());
 
 				// RecoveredLocalVariable must be removed from its parent because the IfStatement will be added instead
 				RecoveredBlock recoveredBlock =  (RecoveredBlock) recoveredLocalVariable.parent;

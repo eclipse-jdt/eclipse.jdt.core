@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
@@ -256,10 +258,10 @@ public String toString(int tab) {
 	}
 	return result.toString();
 }
-public FieldDeclaration updatedFieldDeclaration(){
+public FieldDeclaration updatedFieldDeclaration(int depth, Set knownTypes){
 
 	if (this.initializerBody != null){
-		Block block = this.initializerBody.updatedBlock();
+		Block block = this.initializerBody.updatedBlock(depth, knownTypes);
 		if (block != null){
 			Initializer initializer = (Initializer) this.fieldDeclaration;
 			initializer.block = block;
