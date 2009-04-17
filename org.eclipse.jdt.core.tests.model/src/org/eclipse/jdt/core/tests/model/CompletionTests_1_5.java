@@ -13576,5 +13576,48 @@ public void testCompletionOnExtends4() throws JavaModelException {
 			"ThisClassIsNotFinal[TYPE_REF]{ThisClassIsNotFinal, test, Ltest.ThisClassIsNotFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=246832
+ * To test whether camel case completion works for imported static methods 
+ */
+public void testCamelCaseStaticMethodImport() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	this.workingCopies = new ICompilationUnit[2];
+	try {
+		Hashtable options = new Hashtable(this.oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/a/A.java",
+				"package a;\n" +
+				"public class A{\n" +
+				"public static void testMethodWithLongName(){}\n" +
+				"public static void testMethodWithLongName2(){}\n" +				
+				"}}");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/b/B.java",
+				"import static a.A.testMethodWithLongName;\n" +
+				"public class B {\n" +
+				"public void b() {\n" +
+				"tMWLN \n" +
+				"}}");
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(
+				true);
+		String str = this.workingCopies[1].getSource();
+		String completeBehind = "tMWLN";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[1].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+			assertResults(
+					"testMethodWithLongName[METHOD_REF]{testMethodWithLongName(), La.A;, ()V, testMethodWithLongName, null, " +
+					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}", 
+					requestor.getResults());
+	} finally {
+		JavaCore.setOptions(this.oldOptions);
+	}
+}
 
 }

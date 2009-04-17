@@ -7089,11 +7089,11 @@ public final class CompletionEngine
 							if(proposeMethod && !insideAnnotationAttribute) {
 								MethodBinding methodBinding = (MethodBinding)binding;
 								if ((exactMatch && CharOperation.equals(token, methodBinding.selector)) ||
-										!exactMatch && CharOperation.prefixEquals(token, methodBinding.selector)) {
-
+										!exactMatch && CharOperation.prefixEquals(token, methodBinding.selector) ||
+										(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, methodBinding.selector))) {
 									findLocalMethodsFromStaticImports(
-											methodBinding.selector,
-											methodBinding.declaringClass.methods(),
+											token,
+											methodBinding.declaringClass.getMethods(methodBinding.selector),
 											scope,
 											exactMatch,
 											methodsFound,
@@ -8704,7 +8704,13 @@ public final class CompletionEngine
 			}
 		}
 
-	// Helper method for findMethods(char[], TypeBinding[], ReferenceBinding, Scope, ObjectVector, boolean, boolean, boolean)
+	/**
+	 * Helper method for findMethods(char[], TypeBinding[], ReferenceBinding, Scope, ObjectVector, boolean, boolean, boolean)
+	 * Note that the method doesn't do a comparison of the method names and expects the client to handle the same.
+	 * 
+	 * @methodName method as entered by the user, the one to completed
+	 * @param methods a resultant array of MethodBinding, whose names should match methodName. The calling client must ensure that this check is handled.
+	 */
 	private void findLocalMethodsFromStaticImports(
 		char[] methodName,
 		MethodBinding[] methods,
@@ -8734,10 +8740,6 @@ public final class CompletionEngine
 
 			if (this.options.checkVisibility
 				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
-
-			if (!CharOperation.equals(methodName, method.selector, false /* ignore case */)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector)))
-				continue next;
 
 			for (int i = methodsFound.size; --i >= 0;) {
 				Object[] other = (Object[]) methodsFound.elementAt(i);
