@@ -1403,7 +1403,7 @@ public void testGetBytes() throws CoreException {
 /*
  * Ensures that the annotations of a binary field are correct
  */
-public void testGenericFieldGetgetTypeSignature() throws JavaModelException {
+public void testGenericFieldGetTypeSignature() throws JavaModelException {
 	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("GenericField.class").getType();
 	IField field = type.getField("myField");
 	assertEquals(

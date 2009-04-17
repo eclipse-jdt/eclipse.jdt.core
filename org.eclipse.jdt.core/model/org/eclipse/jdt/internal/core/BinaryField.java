@@ -75,6 +75,10 @@ public String getKey(boolean forceOpen) throws JavaModelException {
  */
 public String getTypeSignature() throws JavaModelException {
 	IBinaryField info = (IBinaryField) getElementInfo();
+	char[] genericSignature = info.getGenericSignature();
+	if (genericSignature != null) {
+		return new String(ClassFile.translatedName(genericSignature));
+	}
 	return new String(ClassFile.translatedName(info.getTypeName()));
 }
 /* (non-Javadoc)
