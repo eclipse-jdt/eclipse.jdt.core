@@ -84,6 +84,12 @@ public void setUpSuite() throws Exception {
 		"package generic;\n" +
 		"public class V extends X<Thread> implements I<String> {\n" +
 		"}",
+		"generic/GenericField.java",
+		"package generic;\n" +
+		"import java.util.List;\n" +
+		"public class GenericField {\n" +
+		"	protected List<String> myField;\n" + 
+		"}",
 		"annotated/X.java",
 		"package annotated;\n" +
 		"@MyOtherAnnot\n" +
@@ -1393,5 +1399,16 @@ public void testGetBytes() throws CoreException {
 	assertEquals("Wrong value", 0xFE, bytes[1] & 0xFF);
 	assertEquals("Wrong value", 0xBA, bytes[2] & 0xFF);
 	assertEquals("Wrong value", 0xBE, bytes[3] & 0xFF);
+}
+/*
+ * Ensures that the annotations of a binary field are correct
+ */
+public void testGenericFieldGetgetTypeSignature() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("GenericField.class").getType();
+	IField field = type.getField("myField");
+	assertEquals(
+		"Wrong type signature",
+		"Ljava.util.List<Ljava.lang.String;>;",
+		field.getTypeSignature());
 }
 }
