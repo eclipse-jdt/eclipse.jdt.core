@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -47,15 +46,15 @@ public ClasspathJar(File file, boolean closeZipFileAtEnd,
 public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
 	// expected to be called once only - if multiple calls desired, consider
 	// using a cache
-	BufferedReader reader = null;
+	InputStream inputStream = null;
 	try {
 		initialize();
 		ArrayList result = new ArrayList();
 		ZipEntry manifest = this.zipFile.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
 		if (manifest != null) { // non-null implies regular file
-			reader = new BufferedReader(new InputStreamReader(this.zipFile.getInputStream(manifest)));
+			inputStream = this.zipFile.getInputStream(manifest);
 			ManifestAnalyzer analyzer = new ManifestAnalyzer();
-			boolean success = analyzer.analyzeManifestContents(reader);
+			boolean success = analyzer.analyzeManifestContents(inputStream);
 			List calledFileNames = analyzer.getCalledFileNames();
 			if (problemReporter != null) {
 				if (!success || analyzer.getClasspathSectionsCount() == 1 &&  calledFileNames == null) {
@@ -78,9 +77,9 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 	} catch (IOException e) {
 		return null;
 	} finally {
-		if (reader != null) {
+		if (inputStream != null) {
 			try {
-				reader.close();
+				inputStream.close();
 			} catch (IOException e) {
 				// best effort
 			}

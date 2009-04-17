@@ -12,10 +12,12 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.text.MessageFormat;
@@ -10518,13 +10520,13 @@ public void test267_jar_ref_in_jar(){
 public void test268_jar_ref_in_jar(){
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
-		assertTrue(analyzer.analyzeManifestContents(
-			new StringReader(
-				"Manifest-Version: 1.0\n" +
-				"Created-By: Eclipse JDT Test Harness\n" +
-				"Class-Path: lib1.jar\n" +
-				"\n" +
-				"Class-Path: lib3.jar\n")));
+		assertTrue(analyzeManifestContents(
+			analyzer,
+			"Manifest-Version: 1.0\n" +
+			"Created-By: Eclipse JDT Test Harness\n" +
+			"Class-Path: lib1.jar\n" +
+			"\n" +
+			"Class-Path: lib3.jar\n"));
 		assertEquals(2, analyzer.getClasspathSectionsCount());
 		assertEquals(2, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
@@ -10539,13 +10541,13 @@ public void test268_jar_ref_in_jar(){
 public void test269_jar_ref_in_jar(){
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
-		assertTrue(analyzer.analyzeManifestContents(
-			new StringReader(
-				"Manifest-Version: 1.0\n" +
-				"Created-By: Eclipse JDT Test Harness\n" +
-				"Class-Path: lib1.jar\n" +
-				"Dummy:\n" +
-				"Class-Path: lib3.jar\n")));
+		assertTrue(analyzeManifestContents(
+			analyzer,
+			"Manifest-Version: 1.0\n" +
+			"Created-By: Eclipse JDT Test Harness\n" +
+			"Class-Path: lib1.jar\n" +
+			"Dummy:\n" +
+			"Class-Path: lib3.jar\n"));
 		assertEquals(2, analyzer.getClasspathSectionsCount());
 		assertEquals(2, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
@@ -10559,11 +10561,11 @@ public void test269_jar_ref_in_jar(){
 public void test270_jar_ref_in_jar(){
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
-		assertTrue(analyzer.analyzeManifestContents(
-			new StringReader(
-				"Manifest-Version: 1.0\n" +
-				"Created-By: Eclipse JDT Test Harness\n" +
-				"Class-Path: lib1.jar\tlib2.jar\n")));
+		assertTrue(analyzeManifestContents(
+			analyzer,
+			"Manifest-Version: 1.0\n" +
+			"Created-By: Eclipse JDT Test Harness\n" +
+			"Class-Path: lib1.jar\tlib2.jar\n"));
 		assertEquals(1, analyzer.getClasspathSectionsCount());
 		assertEquals(1, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
@@ -10600,13 +10602,13 @@ public void test271_jar_ref_in_jar(){
 public void test272_jar_ref_in_jar(){
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
-		assertTrue(analyzer.analyzeManifestContents(
-			new StringReader(
-				"Manifest-Version: 1.0\n" +
-				"Created-By: Eclipse JDT Test Harness\n" +
-				"Class-Path: \n" +
-				"            lib1.jar       \n" +
-				"\n")));
+		assertTrue(analyzeManifestContents(
+			analyzer,
+			"Manifest-Version: 1.0\n" +
+			"Created-By: Eclipse JDT Test Harness\n" +
+			"Class-Path: \n" +
+			"            lib1.jar       \n" +
+			"\n"));
 		assertEquals(1, analyzer.getClasspathSectionsCount());
 		assertEquals(1, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
@@ -10619,16 +10621,16 @@ public void test272_jar_ref_in_jar(){
 public void test273_jar_ref_in_jar(){
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
-		assertTrue(analyzer.analyzeManifestContents(
-			new StringReader(
-				"Manifest-Version: 1.0\n" +
-				"Created-By: Eclipse JDT Test Harness\n" +
-				"Class-Path: \n" +
-				" \n" +
-				"            lib1.jar       \n" +
-				" \n" +
-				"            lib1.jar       \n" +
-				"\n")));
+		assertTrue(analyzeManifestContents(
+			analyzer,
+			"Manifest-Version: 1.0\n" +
+			"Created-By: Eclipse JDT Test Harness\n" +
+			"Class-Path: \n" +
+			" \n" +
+			"            lib1.jar       \n" +
+			" \n" +
+			"            lib1.jar       \n" +
+			"\n"));
 		assertEquals(1, analyzer.getClasspathSectionsCount());
 		assertEquals(2, analyzer.getCalledFileNames().size());
 	} catch (IOException e) {
@@ -10641,12 +10643,12 @@ public void test273_jar_ref_in_jar(){
 public void test274_jar_ref_in_jar(){
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
-		assertFalse(analyzer.analyzeManifestContents(
-			new StringReader(
-				"Manifest-Version: 1.0\n" +
-				"Created-By: Eclipse JDT Test Harness\n" +
-				"Class-Path: \n" +
-				"            lib1.jar")));
+		assertFalse(analyzeManifestContents(
+			analyzer,
+			"Manifest-Version: 1.0\n" +
+			"Created-By: Eclipse JDT Test Harness\n" +
+			"Class-Path: \n" +
+			"            lib1.jar"));
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
@@ -10656,28 +10658,37 @@ public void test274_jar_ref_in_jar(){
 // white-box test: variants on continuations
 public void test275_jar_ref_in_jar(){
 	try {
-		assertFalse(new ManifestAnalyzer().analyzeManifestContents(
-			new StringReader(
-				"Manifest-Version: 1.0\n" +
-				"Created-By: Eclipse JDT Test Harness\n" +
-				"Class-Path: \n" +
-				" \n" +
-				"            lib1.jar")));
+		assertFalse(analyzeManifestContents(
+			new ManifestAnalyzer(),
+			"Manifest-Version: 1.0\n" +
+			"Created-By: Eclipse JDT Test Harness\n" +
+			"Class-Path: \n" +
+			" \n" +
+			"            lib1.jar"));
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
+	}
+}
+private boolean analyzeManifestContents(ManifestAnalyzer manifestAnalyzer,
+		String string) throws IOException {
+	InputStream stream = new ByteArrayInputStream(string.getBytes());
+	try {
+		return manifestAnalyzer.analyzeManifestContents(stream);
+	} finally {
+		stream.close();
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
 public void test276_jar_ref_in_jar(){
 	try {
-		assertFalse(new ManifestAnalyzer().analyzeManifestContents(
-			new StringReader(
-				"Manifest-Version: 1.0\n" +
-				"Created-By: Eclipse JDT Test Harness\n" +
-				"Class-Path:      \n" +
-				"lib1.jar")));
+		assertFalse(analyzeManifestContents(
+			new ManifestAnalyzer(),
+			"Manifest-Version: 1.0\n" +
+			"Created-By: Eclipse JDT Test Harness\n" +
+			"Class-Path:      \n" +
+			"lib1.jar"));
 	} catch (IOException e) {
 		e.printStackTrace();
 		fail();
@@ -11031,13 +11042,13 @@ public void test290_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=251079 
 public void test291_jar_ref_in_jar() throws Exception {
 	ManifestAnalyzer analyzer = new ManifestAnalyzer();
-	assertTrue(analyzer.analyzeManifestContents(
-		new StringReader(
-			"Manifest-Version: 1.0\r\n" +
-			"Created-By: Eclipse JDT Test Harness\r\n" +
-			"Class-Path: \r\n" +
-			"\r\n"
-		)));
+	assertTrue(analyzeManifestContents(
+		analyzer,
+		"Manifest-Version: 1.0\r\n" +
+		"Created-By: Eclipse JDT Test Harness\r\n" +
+		"Class-Path: \r\n" +
+		"\r\n"
+		));
 	List calledFileNames = analyzer.getCalledFileNames();
 	String actual = calledFileNames == null ? "<null>" : Util.toString((String[]) calledFileNames.toArray(new String[calledFileNames.size()]), false/*don't add extra new lines*/);
 	assertStringEquals(

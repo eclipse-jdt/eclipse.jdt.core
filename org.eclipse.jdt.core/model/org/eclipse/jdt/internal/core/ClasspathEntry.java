@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -49,8 +48,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
-import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -904,7 +903,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			return null;
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		ZipFile zip = null;
-		BufferedReader reader = null;
+		InputStream inputStream = null;
 		List calledFileNames = null;
 		try {
 			zip = manager.getZipFile(jarPath);
@@ -912,9 +911,9 @@ public class ClasspathEntry implements IClasspathEntry {
 			if (manifest == null) 
 				return null;
 			// non-null implies regular file
-			reader = new BufferedReader(new InputStreamReader(zip.getInputStream(manifest)));
 			ManifestAnalyzer analyzer = new ManifestAnalyzer();
-			boolean success = analyzer.analyzeManifestContents(reader);
+			inputStream = zip.getInputStream(manifest);
+			boolean success = analyzer.analyzeManifestContents(inputStream);
 			calledFileNames = analyzer.getCalledFileNames();
 			if (!success || analyzer.getClasspathSectionsCount() == 1 && calledFileNames == null) {
 				if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
@@ -941,9 +940,9 @@ public class ClasspathEntry implements IClasspathEntry {
 			}
 		} finally {
 			manager.closeZipFile(zip);
-			if (reader != null) {
+			if (inputStream != null) {
 				try {
-					reader.close();
+					inputStream.close();
 				} catch (IOException e) {
 					// best effort
 				}
@@ -1462,7 +1461,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 *   <li> The project output location path cannot be null, must be absolute and located inside the project.
 	 *   <li> Specific output locations (specified on source entries) can be null, if not they must be located inside the project,
 	 *   <li> A project entry cannot refer to itself directly (that is, a project cannot prerequisite itself).
-     *   <li> Classpath entries or output locations cannot coincidate or be nested in each other, except for the following scenarii listed below:
+	 *   <li> Classpath entries or output locations cannot coincidate or be nested in each other, except for the following scenarii listed below:
 	 *      <ul><li> A source folder can coincidate with its own output location, in which case this output can then contain library archives.
 	 *                     However, a specific output location cannot coincidate with any library or a distinct source folder than the one referring to it. </li>
 	 *              <li> A source/library folder can be nested in any source folder as long as the nested folder is excluded from the enclosing one. </li>
@@ -1581,8 +1580,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		// check nesting across output locations
 		for (int i = 1 /*no check for default output*/ ; i < outputCount; i++) {
-		    IPath customOutput = outputLocations[i];
-		    int index;
+			IPath customOutput = outputLocations[i];
+			int index;
 			// check nesting
 			if ((index = Util.indexOfEnclosingPath(customOutput, outputLocations, outputCount)) != -1 && index != i) {
 				if (index == 0) {
@@ -1681,26 +1680,26 @@ public class ClasspathEntry implements IClasspathEntry {
 			}
 
 			// prevent nesting output location inside entry unless enclosing is a source entry which explicitly exclude the output location
-		    char[][] inclusionPatterns = ((ClasspathEntry)entry).fullInclusionPatternChars();
-		    char[][] exclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
-		    for (int j = 0; j < outputCount; j++){
-		        IPath currentOutput = outputLocations[j];
-    			if (entryPath.equals(currentOutput)) continue;
+			char[][] inclusionPatterns = ((ClasspathEntry)entry).fullInclusionPatternChars();
+			char[][] exclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
+			for (int j = 0; j < outputCount; j++){
+				IPath currentOutput = outputLocations[j];
+				if (entryPath.equals(currentOutput)) continue;
 				if (entryPath.isPrefixOf(currentOutput)) {
 				    if (kind != IClasspathEntry.CPE_SOURCE || !Util.isExcluded(currentOutput, inclusionPatterns, exclusionPatterns, true)) {
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestOutputInEntry, new String[] {currentOutput.makeRelative().toString(), entryPath.makeRelative().toString()}));
 				    }
 				}
-		    }
+			}
 
-		    // prevent nesting entry inside output location - when distinct from project or a source folder
-		    for (int j = 0; j < outputCount; j++){
-		        if (allowNestingInOutputLocations[j]) continue;
-		        IPath currentOutput = outputLocations[j];
+			// prevent nesting entry inside output location - when distinct from project or a source folder
+			for (int j = 0; j < outputCount; j++){
+				if (allowNestingInOutputLocations[j]) continue;
+				IPath currentOutput = outputLocations[j];
 				if (currentOutput.isPrefixOf(entryPath)) {
 					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestEntryInOutput, new String[] {entryPath.makeRelative().toString(), currentOutput.makeRelative().toString()}));
 				}
-		    }
+			}
 		}
 		// ensure that no specific output is coincidating with another source folder (only allowed if matching current source folder)
 		// 36465 - for 2.0 backward compatibility, only check specific output locations (the default can still coincidate)
@@ -1921,7 +1920,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			// project source folder
 			case IClasspathEntry.CPE_SOURCE :
 				if (((entry.getInclusionPatterns() != null && entry.getInclusionPatterns().length > 0)
-				        	|| (entry.getExclusionPatterns() != null && entry.getExclusionPatterns().length > 0))
+						|| (entry.getExclusionPatterns() != null && entry.getExclusionPatterns().length > 0))
 						&& JavaCore.DISABLED.equals(project.getOption(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, true))) {
 					return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_EXCLUSION_PATTERNS, project, path);
 				}
@@ -2014,21 +2013,21 @@ public class ClasspathEntry implements IClasspathEntry {
 				}
 			} else if (target instanceof File){
 				File file = JavaModel.getFile(target);
-			    if (file == null) {
-			    	if (container != null) {
-			    		return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolderInContainer, new String[] {path.toOSString(), container}));
-			    	} else {
-			    		return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolder, new String[] {path.toOSString(), project.getElementName()}));
-			    	}
-			    } else if (sourceAttachment != null
+				if (file == null) {
+					if (container != null) {
+						return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolderInContainer, new String[] {path.toOSString(), container}));
+					} else {
+						return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolder, new String[] {path.toOSString(), project.getElementName()}));
+					}
+				} else if (sourceAttachment != null
 						&& !sourceAttachment.isEmpty()
 						&& JavaModel.getTarget(sourceAttachment, true) == null){
-			    		if (container != null) {
-			    			return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachmentInContainedLibrary, new String [] {sourceAttachment.toString(), path.toOSString(), container}));
-			    		} else {
-			    			return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toOSString(), project.getElementName()}));
-			    		}
-			    	}
+					if (container != null) {
+						return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachmentInContainedLibrary, new String [] {sourceAttachment.toString(), path.toOSString(), container}));
+					} else {
+						return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toOSString(), project.getElementName()}));
+					}
+				}
 			} else {
 				boolean isExternal = path.getDevice() != null || !ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0)).exists();
 				if (isExternal) {

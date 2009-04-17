@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,116 +31,131 @@ public class ManifestAnalyzer {
 		"Class-Path:".toCharArray(); //$NON-NLS-1$
 	private int classpathSectionsCount;
 	private ArrayList calledFilesNames;
-	public boolean analyzeManifestContents(Reader reader) throws IOException {
-		int state = START, substate = 0;
-		StringBuffer currentJarToken = new StringBuffer();
-		int currentChar;
-		this.classpathSectionsCount = 0;
-		this.calledFilesNames = null;
-		for (;;) {
-			currentChar = reader.read();
-			if (currentChar == '\r')  // skip \r, will consider \n later (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=251079 )
+	
+	/**
+	 * Analyze the manifest contents. The given input stream is read using a UTF-8 encoded reader.
+	 * If the contents of the input stream is not encoded using a UTF-8 encoding, the analysis will fail.
+	 * 
+	 * @param inputStream the given input stream.
+	 * 
+	 * @return <code>true</code> if the analysis is successful, <code>false</code> otherwise.
+	 * @throws IOException if an exception occurs while analyzing the file
+	 */
+	public boolean analyzeManifestContents(InputStream inputStream) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName(Util.UTF_8)));
+		try {
+			int state = START, substate = 0;
+			StringBuffer currentJarToken = new StringBuffer();
+			int currentChar;
+			this.classpathSectionsCount = 0;
+			this.calledFilesNames = null;
+			for (;;) {
 				currentChar = reader.read();
-			switch (state) {
-				case START:
-					if (currentChar == -1) {
-						return true;
-					} else if (currentChar == CLASSPATH_HEADER_TOKEN[0]) {
-						state = IN_CLASSPATH_HEADER;
-						substate = 1;
-					} else {
-						state = SKIP_LINE;
-					}
-					break;
-				case IN_CLASSPATH_HEADER:
-					if (currentChar == -1) {
-						return true;
-					} else if (currentChar == '\n') {
-						state = START;
-					} else if (currentChar != CLASSPATH_HEADER_TOKEN[substate++]) {
-						state = SKIP_LINE;
-					} else if (substate == CLASSPATH_HEADER_TOKEN.length) {
-						state = PAST_CLASSPATH_HEADER;
-					}
-					break;
-				case PAST_CLASSPATH_HEADER:
-					if (currentChar == ' ') {
-						state = SKIPPING_WHITESPACE;
-						this.classpathSectionsCount++;
-					} else {
-						return false;
-					}
-					break;
-				case SKIPPING_WHITESPACE:
-					if (currentChar == -1) {
-						// >>>>>>>>>>>>>>>>>> Add the latest jar read
-						addCurrentTokenJarWhenNecessary(currentJarToken);
-						return true;
-					} else if (currentChar == '\n') {
-						state = CONTINUING;
-					} else if (currentChar != ' ') {
-						currentJarToken.append((char) currentChar);
-						state = READING_JAR;
-					} else {
-						// >>>>>>>>>>>>>>>>>> Add the latest jar read
-						addCurrentTokenJarWhenNecessary(currentJarToken);
-					}
-					break;
-				case CONTINUING:
-					if (currentChar == -1) {
-						// >>>>>>>>>>>>>>>>>> Add the latest jar read
-						addCurrentTokenJarWhenNecessary(currentJarToken);
-						return true;
-					} else if (currentChar == '\n') {
-						addCurrentTokenJarWhenNecessary(currentJarToken);
-						state = START;
-					} else if (currentChar == ' ') {
-						state = SKIPPING_WHITESPACE;
-					} else if (currentChar == CLASSPATH_HEADER_TOKEN[0]) {
-						addCurrentTokenJarWhenNecessary(currentJarToken);
-						state = IN_CLASSPATH_HEADER;
-						substate = 1;
-					} else if (this.calledFilesNames == null) {
-						// >>>>>>>>>>>>>>>>>> Add the latest jar read
-						addCurrentTokenJarWhenNecessary(currentJarToken);
-						state = START;
-					} else {
-						// >>>>>>>>>>>>>>>>>> Add the latest jar read
-						addCurrentTokenJarWhenNecessary(currentJarToken);
-						state = SKIP_LINE;
-					}
-					break;
-				case SKIP_LINE:
-					if (currentChar == -1) {
-						if (this.classpathSectionsCount != 0) {
-							if (this.calledFilesNames == null) {
-								return false;
-							}
+				if (currentChar == '\r')  // skip \r, will consider \n later (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=251079 )
+					currentChar = reader.read();
+				switch (state) {
+					case START:
+						if (currentChar == -1) {
+							return true;
+						} else if (currentChar == CLASSPATH_HEADER_TOKEN[0]) {
+							state = IN_CLASSPATH_HEADER;
+							substate = 1;
+						} else {
+							state = SKIP_LINE;
 						}
-						return true;
-					} else if (currentChar == '\n') {
-						state = START;
-					}
-					break;
-				case READING_JAR:
-					if (currentChar == -1) {
-						// >>>>>>>>>>>>>>>>>> Add the latest jar read
-						return false;
-					} else if (currentChar == '\n') {
-						// appends token below
-						state = CONTINUING;
-						// >>>>>>>>>>> Add a break to not add the jar yet as it can continue on the next line
 						break;
-					} else if (currentChar == ' ') {
-						// appends token below
-						state = SKIPPING_WHITESPACE;
-					} else {
-						currentJarToken.append((char) currentChar);
+					case IN_CLASSPATH_HEADER:
+						if (currentChar == -1) {
+							return true;
+						} else if (currentChar == '\n') {
+							state = START;
+						} else if (currentChar != CLASSPATH_HEADER_TOKEN[substate++]) {
+							state = SKIP_LINE;
+						} else if (substate == CLASSPATH_HEADER_TOKEN.length) {
+							state = PAST_CLASSPATH_HEADER;
+						}
 						break;
-					}
-					addCurrentTokenJarWhenNecessary(currentJarToken);
-					break;
+					case PAST_CLASSPATH_HEADER:
+						if (currentChar == ' ') {
+							state = SKIPPING_WHITESPACE;
+							this.classpathSectionsCount++;
+						} else {
+							return false;
+						}
+						break;
+					case SKIPPING_WHITESPACE:
+						if (currentChar == -1) {
+							// >>>>>>>>>>>>>>>>>> Add the latest jar read
+							addCurrentTokenJarWhenNecessary(currentJarToken);
+							return true;
+						} else if (currentChar == '\n') {
+							state = CONTINUING;
+						} else if (currentChar != ' ') {
+							currentJarToken.append((char) currentChar);
+							state = READING_JAR;
+						} else {
+							// >>>>>>>>>>>>>>>>>> Add the latest jar read
+							addCurrentTokenJarWhenNecessary(currentJarToken);
+						}
+						break;
+					case CONTINUING:
+						if (currentChar == -1) {
+							// >>>>>>>>>>>>>>>>>> Add the latest jar read
+							addCurrentTokenJarWhenNecessary(currentJarToken);
+							return true;
+						} else if (currentChar == '\n') {
+							addCurrentTokenJarWhenNecessary(currentJarToken);
+							state = START;
+						} else if (currentChar == ' ') {
+							state = SKIPPING_WHITESPACE;
+						} else if (currentChar == CLASSPATH_HEADER_TOKEN[0]) {
+							addCurrentTokenJarWhenNecessary(currentJarToken);
+							state = IN_CLASSPATH_HEADER;
+							substate = 1;
+						} else if (this.calledFilesNames == null) {
+							// >>>>>>>>>>>>>>>>>> Add the latest jar read
+							addCurrentTokenJarWhenNecessary(currentJarToken);
+							state = START;
+						} else {
+							// >>>>>>>>>>>>>>>>>> Add the latest jar read
+							addCurrentTokenJarWhenNecessary(currentJarToken);
+							state = SKIP_LINE;
+						}
+						break;
+					case SKIP_LINE:
+						if (currentChar == -1) {
+							if (this.classpathSectionsCount != 0) {
+								if (this.calledFilesNames == null) {
+									return false;
+								}
+							}
+							return true;
+						} else if (currentChar == '\n') {
+							state = START;
+						}
+						break;
+					case READING_JAR:
+						if (currentChar == -1) {
+							// >>>>>>>>>>>>>>>>>> Add the latest jar read
+							return false;
+						} else if (currentChar == '\n') {
+							// appends token below
+							state = CONTINUING;
+							// >>>>>>>>>>> Add a break to not add the jar yet as it can continue on the next line
+							break;
+						} else if (currentChar == ' ') {
+							// appends token below
+							state = SKIPPING_WHITESPACE;
+						} else {
+							currentJarToken.append((char) currentChar);
+							break;
+						}
+						addCurrentTokenJarWhenNecessary(currentJarToken);
+						break;
+				}
 			}
+		} finally {
+			reader.close();
 		}
 	}	
 
