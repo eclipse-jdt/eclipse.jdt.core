@@ -926,7 +926,7 @@ public class Util {
 
 	/**
 	 * Returns the line separator found in the given text.
-	 * If it is null, or not found return the line delimitor for the given project.
+	 * If it is null, or not found return the line delimiter for the given project.
 	 * If the project is null, returns the line separator for the workspace.
 	 * If still null, return the system line separator.
 	 */
@@ -940,20 +940,22 @@ public class Util {
 				return lineSeparator;
 		}
 
-		// line delimiter in project preference
-		IScopeContext[] scopeContext;
-		if (project != null) {
-			scopeContext= new IScopeContext[] { new ProjectScope(project.getProject()) };
-			lineSeparator= Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
+		if (Platform.isRunning()) {
+			// line delimiter in project preference
+			IScopeContext[] scopeContext;
+			if (project != null) {
+				scopeContext= new IScopeContext[] { new ProjectScope(project.getProject()) };
+				lineSeparator= Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
+				if (lineSeparator != null)
+					return lineSeparator;
+			}
+	
+			// line delimiter in workspace preference
+			scopeContext= new IScopeContext[] { new InstanceScope() };
+			lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
 			if (lineSeparator != null)
 				return lineSeparator;
 		}
-
-		// line delimiter in workspace preference
-		scopeContext= new IScopeContext[] { new InstanceScope() };
-		lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
-		if (lineSeparator != null)
-			return lineSeparator;
 
 		// system line delimiter
 		return org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
@@ -1860,8 +1862,8 @@ public class Util {
 	}
 
 	/**
-	 * Normalizes the cariage returns in the given text.
-	 * They are all changed  to use given buffer's line sepatator.
+	 * Normalizes the carriage returns in the given text.
+	 * They are all changed to use given buffer's line separator.
 	 */
 	public static String normalizeCRs(String text, String buffer) {
 		return new String(normalizeCRs(text.toCharArray(), buffer.toCharArray()));
