@@ -251,7 +251,8 @@ public void testFindPackageFragmentWithWorkingCopy() throws CoreException {
 	}
 }
 /*
- * Ensure that finding a package fragment with a path with a length equals to an external jar path length + 1
+ * Ensure that a package fragment with a path with a length equals to an external jar path length + 1
+ * is not found
  * (regression test for bug 266771 NameLookup.findPackageFragment returns very incorrect package fragments)
  */
 public void testFindPackageFragment2() throws CoreException {
