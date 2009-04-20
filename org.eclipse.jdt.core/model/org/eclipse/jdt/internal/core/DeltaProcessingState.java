@@ -87,6 +87,13 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	/* A table from file system absoulte path (String) to timestamp (Long) */
 	public Hashtable externalTimeStamps;
 
+	/*
+	 * Map from IProject to ClasspathChange
+	 * Note these changes need to be kept on the delta processing state to ensure we don't loose them
+	 * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=271102 Java model corrupt after switching target platform)
+	 */
+	private HashMap classpathChanges = new HashMap();
+
 	/* A table from JavaProject to ClasspathValidation */
 	private HashMap classpathValidations = new HashMap();
 
@@ -169,6 +176,32 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		deltaProcessor = new DeltaProcessor(this, JavaModelManager.getJavaModelManager());
 		this.deltaProcessors.set(deltaProcessor);
 		return deltaProcessor;
+	}
+
+	public synchronized ClasspathChange addClasspathChange(IProject project, IClasspathEntry[] oldRawClasspath, IPath oldOutputLocation, IClasspathEntry[] oldResolvedClasspath) {
+		ClasspathChange change = (ClasspathChange) this.classpathChanges.get(project);
+		if (change == null) {
+			change = new ClasspathChange((JavaProject) JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(project), oldRawClasspath, oldOutputLocation, oldResolvedClasspath);
+			this.classpathChanges.put(project, change);
+		} else {
+			if (change.oldRawClasspath == null)
+				change.oldRawClasspath = oldRawClasspath;
+			if (change.oldOutputLocation == null)
+				change.oldOutputLocation = oldOutputLocation;
+			if (change.oldResolvedClasspath == null)
+				change.oldResolvedClasspath = oldResolvedClasspath;
+		}
+		return change;
+	}
+	
+	public synchronized ClasspathChange getClasspathChange(IProject project) {
+		return (ClasspathChange) this.classpathChanges.get(project);
+	}
+	
+	public synchronized HashMap removeAllClasspathChanges() {
+		HashMap result = this.classpathChanges;
+		this.classpathChanges = new HashMap(result.size());
+		return result;
 	}
 
 	public synchronized ClasspathValidation addClasspathValidation(JavaProject project) {

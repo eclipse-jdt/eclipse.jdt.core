@@ -252,30 +252,9 @@ public class DeltaProcessor {
 	 */
 	private SourceElementParser sourceElementParserCache;
 
-	/*
-	 * Map from IProject to ClasspathChange
-	 */
-	public HashMap classpathChanges = new HashMap();
-
 	public DeltaProcessor(DeltaProcessingState state, JavaModelManager manager) {
 		this.state = state;
 		this.manager = manager;
-	}
-
-	public ClasspathChange addClasspathChange(IProject project, IClasspathEntry[] oldRawClasspath, IPath oldOutputLocation, IClasspathEntry[] oldResolvedClasspath) {
-		ClasspathChange change = (ClasspathChange) this.classpathChanges.get(project);
-		if (change == null) {
-			change = new ClasspathChange((JavaProject) this.manager.getJavaModel().getJavaProject(project), oldRawClasspath, oldOutputLocation, oldResolvedClasspath);
-			this.classpathChanges.put(project, change);
-		} else {
-			if (change.oldRawClasspath == null)
-				change.oldRawClasspath = oldRawClasspath;
-			if (change.oldOutputLocation == null)
-				change.oldOutputLocation = oldOutputLocation;
-			if (change.oldResolvedClasspath == null)
-				change.oldResolvedClasspath = oldResolvedClasspath;
-		}
-		return change;
 	}
 
 	/*
@@ -487,12 +466,12 @@ public class DeltaProcessor {
 	}
 
 	private void checkExternalFolderChange(IProject project, JavaProject javaProject) {
-		ClasspathChange change = (ClasspathChange) this.classpathChanges.get(project);
+		ClasspathChange change = this.state.getClasspathChange(project);
 		this.state.addExternalFolderChange(javaProject, change == null ? null : change.oldResolvedClasspath);
 	}
 
 	private void checkProjectReferenceChange(IProject project, JavaProject javaProject) {
-		ClasspathChange change = (ClasspathChange) this.classpathChanges.get(project);
+		ClasspathChange change = this.state.getClasspathChange(project);
 		this.state.addProjectReferenceChange(javaProject, change == null ? null : change.oldResolvedClasspath);
 	}
 
@@ -1927,10 +1906,11 @@ public class DeltaProcessor {
 							}
 
 							// generate classpath change deltas
-							if (this.classpathChanges.size() > 0) {
+							HashMap classpathChanges = this.state.removeAllClasspathChanges();
+							if (classpathChanges.size() > 0) {
 								boolean hasDelta = this.currentDelta != null;
 								JavaElementDelta javaDelta = currentDelta();
-								Iterator changes = this.classpathChanges.values().iterator();
+								Iterator changes = classpathChanges.values().iterator();
 								while (changes.hasNext()) {
 									ClasspathChange change = (ClasspathChange) changes.next();
 									int result = change.generateDelta(javaDelta);
@@ -1955,7 +1935,6 @@ public class DeltaProcessor {
 								if (elementsToRefresh != null) {
 									hasDelta |= createExternalArchiveDelta(elementsToRefresh, null);
 								}
-								this.classpathChanges.clear();
 								if (!hasDelta)
 									this.currentDelta = null;
 							}

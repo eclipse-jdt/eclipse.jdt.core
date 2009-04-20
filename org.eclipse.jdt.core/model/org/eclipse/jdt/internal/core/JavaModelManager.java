@@ -1151,8 +1151,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		protected ClasspathChange addClasspathChange() {
 			// remember old info
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			DeltaProcessor deltaProcessor = manager.deltaState.getDeltaProcessor();
-			ClasspathChange classpathChange = deltaProcessor.addClasspathChange(this.project, this.rawClasspath, this.outputLocation, this.resolvedClasspath);
+			ClasspathChange classpathChange = manager.deltaState.addClasspathChange(this.project, this.rawClasspath, this.outputLocation, this.resolvedClasspath);
 			return classpathChange;
 		}
 
