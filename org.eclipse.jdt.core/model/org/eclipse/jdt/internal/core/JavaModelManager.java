@@ -3958,13 +3958,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// save variable and container values on snapshot/full save
 		saveVariablesAndContainers(context);
 		
-		// save non-chaining jar cache on snapshot/full save
-		saveNonChainingJarsCache();
-
 		if (VERBOSE)
 			traceVariableAndContainers("Saved", start); //$NON-NLS-1$
 
 		if (context.getKind() == ISaveContext.FULL_SAVE) {
+			// save non-chaining jar cache on snapshot/full save
+			saveNonChainingJarsCache();
+
 			// will need delta since this save (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658)
 			context.needDelta();
 
