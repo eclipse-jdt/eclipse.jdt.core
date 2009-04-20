@@ -414,8 +414,7 @@ public class NameLookup implements SuffixConstants {
 					continue;
 				}
 				IPath rootPath = root.getPath();
-				int matchingCount = rootPath.matchingFirstSegments(path);
-				if (matchingCount != 0) {
+				if (rootPath.isPrefixOf(path)) {
 					String name = path.toOSString();
 					// + 1 is for the File.separatorChar
 					name = name.substring(rootPath.toOSString().length() + 1, name.length());

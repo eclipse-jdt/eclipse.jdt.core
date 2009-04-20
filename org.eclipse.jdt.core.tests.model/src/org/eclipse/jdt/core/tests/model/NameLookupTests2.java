@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
@@ -249,6 +250,25 @@ public void testFindPackageFragmentWithWorkingCopy() throws CoreException {
 		deleteProject("P");
 	}
 }
+/*
+ * Ensure that finding a package fragment with a path with a length equals to an external jar path length + 1
+ * (regression test for bug 266771 NameLookup.findPackageFragment returns very incorrect package fragments)
+ */
+public void testFindPackageFragment2() throws CoreException {
+	try {
+		JavaProject project = (JavaProject)createJavaProject("P", new String[0], new String[] {"JCL_LIB"}, "bin");
+		NameLookup nameLookup =getNameLookup(project);
+		IPath pathToSearch = new Path(getExternalJCLPathString() + 'a');
+		IPackageFragment pkg = nameLookup.findPackageFragment(pathToSearch);
+		assertElementEquals(
+			"Unexpected package",
+			"<null>",
+			pkg);
+	} finally {
+		deleteProject("P");
+	}
+}
+
 /*
  * Ensure that a member type with a name ending with a dollar and a number is found
  * (regression test for bug 103466 Stack Overflow: Requesting Java AST from selection)
