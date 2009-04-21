@@ -48,7 +48,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
 	final static boolean PRINT = "true".equals(System.getProperty("print"));
 	/**
-	 * Flag to validate test run environnement.
+	 * Flag to validate test run environment.
 	 * <p>
 	 * This property has been added to speed-up check-up of local shells to run the
 	 * entire performance tests.
@@ -171,6 +171,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	static Map SCENARII_COMMENT = new HashMap();
 
 	// Time measuring
+	int nbMeasures;
 	long startMeasuring, testDuration;
 
 	// Error threshold. Statistic should not be take into account when it's reached
@@ -591,6 +592,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 		// Time measuring
 		this.testDuration = 0;
+		this.nbMeasures = 0;
 
 		// Wait 2 seconds
 		Thread.sleep(2000);
@@ -674,10 +676,16 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			// Set jdk jars onto the project classpath
 			IClasspathEntry[] entries = ALL_PROJECTS[i].getRawClasspath();
 			int entriesLength = entries.length;
-			if (!entries[entriesLength-1].equals(jdkEntries[jdkEntriesCount-1])) {
+			try {
 				System.arraycopy(entries, 0, entries = new IClasspathEntry[jdkEntriesCount+entriesLength], 0, entriesLength);
 				System.arraycopy(jdkEntries, 0, entries, entriesLength, jdkEntriesCount);
 				ALL_PROJECTS[i].setRawClasspath(entries, null);
+			}
+			catch (JavaModelException jme) {
+				// skip name collision as it means that JRE lib were already set on the classpath
+				if (jme.getStatus().getCode() != IJavaModelStatusConstants.NAME_COLLISION) {
+					throw jme;
+				}
 			}
 
 			// Make Big project dependent from jdt.core one
@@ -771,15 +779,22 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		if (fingerprint) super.tagAsSummary(shortName, dimensions);
 	}
 	public void startMeasuring() {
+		if (PRINT && this.nbMeasures==0) System.out.println("	Measures (~Elapsed Process time):");
 		this.startMeasuring = System.currentTimeMillis();
 		super.startMeasuring();
 	}
 	public void stopMeasuring() {
 		super.stopMeasuring();
-		this.testDuration += System.currentTimeMillis() - this.startMeasuring;
+		this.nbMeasures++;
+		long duration = System.currentTimeMillis() - this.startMeasuring;
+		if (PRINT) System.out.println("		- n° "+this.nbMeasures+": "+duration+"ms");
+		this.testDuration += duration;
 	}
 	public void commitMeasurements() {
-		if (PRINT) System.out.println("	Test duration = "+this.testDuration+"ms");
+		if (PRINT) {
+			System.out.println("	Test duration = "+this.testDuration+"ms");
+			System.out.println("	Time average = "+(((this.testDuration*1000)/this.nbMeasures)/1000));
+		}
 		super.commitMeasurements();
 	}
 	/**
