@@ -939,7 +939,6 @@ public class ClasspathEntry implements IClasspathEntry {
 				e.printStackTrace();
 			}
 		} finally {
-			manager.closeZipFile(zip);
 			if (inputStream != null) {
 				try {
 					inputStream.close();
@@ -947,6 +946,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					// best effort
 				}
 			}
+			manager.closeZipFile(zip);
 		}
 		return calledFileNames;
 	}
