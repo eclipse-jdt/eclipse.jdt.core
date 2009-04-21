@@ -2538,7 +2538,7 @@ public void testTypeDeclaration07() throws CoreException { // was testTypeDeclar
 		this.resultCollector);
 }
 /**
- * Memeber type declaration test.
+ * Member type declaration test.
  * (regression test for bug 9992 Member class declaration not found)
  */
 public void testTypeDeclaration08() throws CoreException { // was testMemberTypeDeclaration
