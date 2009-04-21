@@ -14,7 +14,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class ManifestAnalyzer {
 	 * @throws IOException if an exception occurs while analyzing the file
 	 */
 	public boolean analyzeManifestContents(InputStream inputStream) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName(Util.UTF_8)));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Util.UTF_8));
 		try {
 			int state = START, substate = 0;
 			StringBuffer currentJarToken = new StringBuffer();
