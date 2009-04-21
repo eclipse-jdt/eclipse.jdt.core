@@ -1180,7 +1180,7 @@ private static boolean waitUntilFileDeleted(File file) {
  * @param resource Deleted resource
  * @return true if the file was finally deleted, false otherwise
  */
-private static boolean waitUntilResourceDeleted(IResource resource) {
+public static boolean waitUntilResourceDeleted(IResource resource) {
     IPath location = resource.getLocation();
     if (location == null) {
         System.out.println();
