@@ -90,19 +90,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IMarkerDelta;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -116,6 +103,21 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -123,6 +125,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
+
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -4816,19 +4819,20 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * Sets the default's compiler options inside the given options map according
+	 * Sets the default compiler options inside the given options map according
 	 * to the given compliance.
 	 *
 	 * <p>The given compliance must be one of those supported by the compiler,
 	 * that is one of the acceptable values for option {@link #COMPILER_COMPLIANCE}.
 	 *
-	 * <p>The list of modified options is:</p>
+	 * <p>The list of modified options is currently:</p>
 	 * <ul>
-	 * <li>{@link #COMPILER_CODEGEN_TARGET_PLATFORM}</li>
-	 * <li>{@link #COMPILER_SOURCE}</li>
 	 * <li>{@link #COMPILER_COMPLIANCE}</li>
+	 * <li>{@link #COMPILER_SOURCE}</li>
+	 * <li>{@link #COMPILER_CODEGEN_TARGET_PLATFORM}</li>
 	 * <li>{@link #COMPILER_PB_ASSERT_IDENTIFIER}</li>
 	 * <li>{@link #COMPILER_PB_ENUM_IDENTIFIER}</li>
+	 * <li>{@link #COMPILER_CODEGEN_INLINE_JSR_BYTECODE} for compliance levels 1.5 and greater</li>
 	 * </ul>
 	 *
 	 * <p>If the given compliance is unknown, the given map is unmodified.</p>
