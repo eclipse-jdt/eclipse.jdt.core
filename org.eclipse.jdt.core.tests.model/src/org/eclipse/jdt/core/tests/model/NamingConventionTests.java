@@ -1207,6 +1207,58 @@ public void testSuggestGetterName009() {
 		"getFieldName", //$NON-NLS-1$
 		new String(suggestion));
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=154823
+public void testSuggestGetterName010() {
+	char[] suggestion = NamingConventions.suggestGetterName(
+		this.project,
+		"eMail".toCharArray(), //$NON-NLS-1$
+		0,
+		false,
+		CharOperation.NO_CHAR_CHAR);
+
+	assumeEquals(
+		"geteMail", //$NON-NLS-1$
+		new String(suggestion));
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=154823
+public void testSuggestGetterName011() {
+	char[] suggestion = NamingConventions.suggestGetterName(
+		this.project,
+		"EMail".toCharArray(), //$NON-NLS-1$
+		0,
+		false,
+		CharOperation.NO_CHAR_CHAR);
+
+	assumeEquals(
+		"getEMail", //$NON-NLS-1$
+		new String(suggestion));
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=154823
+public void testSuggestGetterName012() {
+	char[] suggestion = NamingConventions.suggestGetterName(
+		this.project,
+		"z".toCharArray(), //$NON-NLS-1$
+		0,
+		false,
+		CharOperation.NO_CHAR_CHAR);
+
+	assumeEquals(
+		"getZ", //$NON-NLS-1$
+		new String(suggestion));
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=154823
+public void testSuggestGetterName013() {
+	char[] suggestion = NamingConventions.suggestGetterName(
+		this.project,
+		"Z".toCharArray(), //$NON-NLS-1$
+		0,
+		false,
+		CharOperation.NO_CHAR_CHAR);
+
+	assumeEquals(
+		"getZ", //$NON-NLS-1$
+		new String(suggestion));
+}
 public void testSuggestSetterName001() {
 	char[] suggestion = NamingConventions.suggestSetterName(
 		this.project,

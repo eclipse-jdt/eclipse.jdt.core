@@ -530,7 +530,7 @@ public final class NamingConventions {
 			int variableKind,
 			String variableName,
 			IJavaProject javaProject) {
-		return String.valueOf(InternalNamingConventions.getBaseName(variableKind, javaProject, variableName.toCharArray()));
+		return String.valueOf(InternalNamingConventions.getBaseName(variableKind, javaProject, variableName.toCharArray(), true));
 	}
 	
 	private static int getFieldVariableKind(int modifiers) {
@@ -544,9 +544,11 @@ public final class NamingConventions {
 	}
 
 	private static char[] suggestAccessorName(IJavaProject project, char[] fieldName, int modifiers) {
-		char[] name = InternalNamingConventions.getBaseName(getFieldVariableKind(modifiers), project, fieldName);
+		char[] name = InternalNamingConventions.getBaseName(getFieldVariableKind(modifiers), project, fieldName, false);
 		if (name.length > 0 && ScannerHelper.isLowerCase(name[0])) {
-			name[0] = ScannerHelper.toUpperCase(name[0]);
+			if (name.length == 1 || !ScannerHelper.isUpperCase(name[1])) {
+				name[0] = ScannerHelper.toUpperCase(name[0]);
+			}
 		}
 		return name;
 	}
@@ -777,7 +779,7 @@ public final class NamingConventions {
 	 */
 	public static char[] suggestGetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {
 		if (isBoolean) {
-			char[] name = InternalNamingConventions.getBaseName(getFieldVariableKind(modifiers), project, fieldName);
+			char[] name = InternalNamingConventions.getBaseName(getFieldVariableKind(modifiers), project, fieldName, false);
 			int prefixLen =  GETTER_BOOL_NAME.length;
 			if (CharOperation.prefixEquals(GETTER_BOOL_NAME, name)
 				&& name.length > prefixLen && ScannerHelper.isUpperCase(name[prefixLen])) {
@@ -977,7 +979,7 @@ public final class NamingConventions {
 	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {
 
 		if (isBoolean) {
-			char[] name = InternalNamingConventions.getBaseName(getFieldVariableKind(modifiers), project, fieldName);
+			char[] name = InternalNamingConventions.getBaseName(getFieldVariableKind(modifiers), project, fieldName, false);
 			int prefixLen =  GETTER_BOOL_NAME.length;
 			if (CharOperation.prefixEquals(GETTER_BOOL_NAME, name)
 				&& name.length > prefixLen && ScannerHelper.isUpperCase(name[prefixLen])) {

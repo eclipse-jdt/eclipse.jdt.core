@@ -298,7 +298,8 @@ public class InternalNamingConventions {
 	public static char[] getBaseName(
 			int variableKind,
 			IJavaProject javaProject,
-			char[] name) {
+			char[] name,
+			boolean updateFirstCharacter) {
 		
 		AssistOptions assistOptions;
 		if (javaProject != null) {
@@ -333,11 +334,11 @@ public class InternalNamingConventions {
 		}
 		
 		
-		return getBaseName(name, prefixes, suffixes, variableKind == VK_STATIC_FINAL_FIELD);
+		return getBaseName(name, prefixes, suffixes, variableKind == VK_STATIC_FINAL_FIELD, updateFirstCharacter);
 	}
 
-	private static char[] getBaseName(char[] name, char[][] prefixes, char[][] suffixes, boolean isConstant) {
-		char[] nameWithoutPrefixAndSiffix = removeVariablePrefixAndSuffix(name, prefixes, suffixes, true);
+	private static char[] getBaseName(char[] name, char[][] prefixes, char[][] suffixes, boolean isConstant, boolean updateFirstCharacter) {
+		char[] nameWithoutPrefixAndSiffix = removeVariablePrefixAndSuffix(name, prefixes, suffixes, updateFirstCharacter);
 		
 		char[] baseName;
 		if (isConstant) {
