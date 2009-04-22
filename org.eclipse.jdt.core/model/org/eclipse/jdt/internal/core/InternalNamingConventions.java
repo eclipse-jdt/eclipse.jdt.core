@@ -59,14 +59,14 @@ public class InternalNamingConventions {
 
 	private static char[][] computeBaseTypeNames(char[] typeName, boolean isConstantField, char[][] excludedNames){
 		if (isConstantField) {
-			return computeNonBaseTypeNames(typeName, isConstantField);
+			return computeNonBaseTypeNames(typeName, isConstantField, false);
 		} else {
 			char[] name = computeBaseTypeNames(typeName[0], excludedNames);
 			if(name != null) {
 				return new char[][]{name};
 			} else {
 				// compute variable name like from non base type
-				return computeNonBaseTypeNames(typeName, isConstantField);
+				return computeNonBaseTypeNames(typeName, isConstantField, false);
 			}
 		}
 	}
@@ -87,7 +87,7 @@ public class InternalNamingConventions {
 		return name;
 	}
 
-	private static char[][] computeNonBaseTypeNames(char[] sourceName, boolean isConstantField){
+	private static char[][] computeNonBaseTypeNames(char[] sourceName, boolean isConstantField, boolean onlyLongest){
 		int length = sourceName.length;
 		
 		if (length == 0) {
@@ -96,9 +96,9 @@ public class InternalNamingConventions {
 		
 		if (length == 1) {
 			if (isConstantField) {
-				return generateConstantName(new char[][]{CharOperation.toLowerCase(sourceName)}, 0);
+				return generateConstantName(new char[][]{CharOperation.toLowerCase(sourceName)}, 0, onlyLongest);
 			} else {
-				return generateNonConstantName(new char[][]{CharOperation.toLowerCase(sourceName)}, 0);
+				return generateNonConstantName(new char[][]{CharOperation.toLowerCase(sourceName)}, 0, onlyLongest);
 			}
 		}
 		
@@ -188,9 +188,9 @@ public class InternalNamingConventions {
 		}
 		
 		if (isConstantField) {
-			return generateConstantName(nameParts, namePartsPtr);
+			return generateConstantName(nameParts, namePartsPtr, onlyLongest);
 		} else {
-			return generateNonConstantName(nameParts, namePartsPtr);
+			return generateNonConstantName(nameParts, namePartsPtr, onlyLongest);
 		}
 	}
 	
@@ -218,30 +218,53 @@ public class InternalNamingConventions {
 		return suffixName;
 	}
 	
-	private static char[][] generateNonConstantName(char[][] nameParts, int namePartsPtr) {
-		char[][] names = new char[namePartsPtr + 1][];
+	private static char[][] generateNonConstantName(char[][] nameParts, int namePartsPtr, boolean onlyLongest) {
+		char[][] names;
+		if (onlyLongest) {
+			names = new char[1][];
+		} else {
+			names = new char[namePartsPtr + 1][];
+		}
 		
-		char[] namePart = CharOperation.toLowerCase(nameParts[0]);
+		char[] namePart = nameParts[0];
 		int namePartLength = namePart.length;
-		System.arraycopy(namePart, 0, namePart, 0, namePartLength);
 		
-		char[] name = namePart;
 		
-		names[namePartsPtr] = name;
+		char[] name = CharOperation.toLowerCase(namePart);
+		
+		if (!onlyLongest) {
+			names[namePartsPtr] = name;
+		}
+		
+		char[] nameSuffix = namePart;
 		
 		for (int i = 1; i <= namePartsPtr; i++) {
-			namePart = CharOperation.toLowerCase(nameParts[i]);
+			namePart = nameParts[i];
 			namePartLength = namePart.length;
-			name = CharOperation.concat(namePart, name);
+			
+			name = CharOperation.concat(CharOperation.toLowerCase(namePart), nameSuffix);
 			name[namePartLength] = ScannerHelper.toUpperCase(name[namePartLength]);
 			
-			names[namePartsPtr - i] = name;
+			if (!onlyLongest) {
+				names[namePartsPtr - i] = name;
+			}
+			
+			nameSuffix = CharOperation.concat(namePart, nameSuffix);
+			nameSuffix[namePartLength] = ScannerHelper.toUpperCase(nameSuffix[namePartLength]);
+		}
+		if (onlyLongest) {
+			names[0] = name;
 		}
 		return names;
 	}
 
-	private static char[][] generateConstantName(char[][] nameParts, int namePartsPtr) {
-		char[][] names = new char[namePartsPtr + 1][];
+	private static char[][] generateConstantName(char[][] nameParts, int namePartsPtr, boolean onlyLongest) {
+		char[][] names;
+		if (onlyLongest) {
+			names = new char[1][];
+		} else {
+			names = new char[namePartsPtr + 1][];
+		}
 		
 		char[] namePart = CharOperation.toUpperCase(nameParts[0]);
 		int namePartLength = namePart.length;
@@ -249,7 +272,9 @@ public class InternalNamingConventions {
 		
 		char[] name = namePart;
 		
-		names[namePartsPtr] = name;
+		if (!onlyLongest) {
+			names[namePartsPtr] = name;
+		}
 		
 		for (int i = 1; i <= namePartsPtr; i++) {
 			namePart = CharOperation.toUpperCase(nameParts[i]);
@@ -260,7 +285,12 @@ public class InternalNamingConventions {
 				name = CharOperation.concat(namePart, name);
 			}
 			
-			names[namePartsPtr - i] = name;
+			if (!onlyLongest) {
+				names[namePartsPtr - i] = name;
+			}
+		}
+		if (onlyLongest) {
+			names[0] = name;
 		}
 		return names;
 	}
@@ -601,10 +631,10 @@ public class InternalNamingConventions {
 				tempNames = computeBaseTypeNames(baseName, isConstantField, excluded);
 			} else {
 				// compute variable name for non base type
-				tempNames = computeNonBaseTypeNames(baseName, isConstantField);
+				tempNames = computeNonBaseTypeNames(baseName, isConstantField, false);
 			}
 		} else {
-			tempNames = new char[][]{baseName};
+			tempNames = computeNonBaseTypeNames(baseName, isConstantField, true);
 		}
 
 		boolean acceptDefaultName = true;

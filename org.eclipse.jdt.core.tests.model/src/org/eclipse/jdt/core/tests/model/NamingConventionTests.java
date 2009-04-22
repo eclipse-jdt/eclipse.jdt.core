@@ -747,7 +747,7 @@ public void testSuggestFieldName034() {
 			true);
 
 	assumeEquals(
-		"myFirstType\n" +  //$NON-NLS-1$
+		"myFIRSTType\n" +  //$NON-NLS-1$
 		"firstType\n" +  //$NON-NLS-1$
 		"type", //$NON-NLS-1$
 		toString(suggestions));
@@ -892,6 +892,110 @@ public void testSuggestFieldName042() {
 	
 	assumeEquals(
 		"KEYS", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=263786
+ */
+public void testSuggestFieldName043() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_INSTANCE_FIELD,
+			NamingConventions.BK_TYPE_NAME,
+			"TheURI", //$NON-NLS-1$
+			this.project,
+			0,
+			new String[]{},
+			true);
+
+	assumeEquals(
+		"theURI\n" + //$NON-NLS-1$
+		"uri", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=263786
+ */
+public void testSuggestFieldName044() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_INSTANCE_FIELD,
+			NamingConventions.BK_TYPE_NAME,
+			"URI", //$NON-NLS-1$
+			this.project,
+			0,
+			new String[]{},
+			true);
+
+	assumeEquals(
+		"uri", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=263786
+ */
+public void testSuggestFieldName045() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_INSTANCE_FIELD,
+			NamingConventions.BK_TYPE_NAME,
+			"URIZork", //$NON-NLS-1$
+			this.project,
+			0,
+			new String[]{},
+			true);
+
+	assumeEquals(
+		"uriZork\n" +  //$NON-NLS-1$
+		"zork", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=263786
+ */
+public void testSuggestFieldName046() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_INSTANCE_FIELD,
+			NamingConventions.BK_NAME,
+			"TheURI", //$NON-NLS-1$
+			this.project,
+			0,
+			new String[]{},
+			true);
+
+	assumeEquals(
+		"theURI", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=263786
+ */
+public void testSuggestFieldName047() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_INSTANCE_FIELD,
+			NamingConventions.BK_NAME,
+			"URI", //$NON-NLS-1$
+			this.project,
+			0,
+			new String[]{},
+			true);
+
+	assumeEquals(
+		"uri", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=263786
+ */
+public void testSuggestFieldName048() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_INSTANCE_FIELD,
+			NamingConventions.BK_NAME,
+			"URIZork", //$NON-NLS-1$
+			this.project,
+			0,
+			new String[]{},
+			true);
+
+	assumeEquals(
+		"uriZork", //$NON-NLS-1$
 		toString(suggestions));
 }
 /** @deprecated */
