@@ -45,6 +45,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public int parseThreshold = -1;
 
 	public AbstractAnnotationProcessorManager annotationProcessorManager;
+	public int annotationProcessorStartIndex = 0;
 	public ReferenceBinding[] referenceBindings;
 	public boolean useSingleThread = true; // by default the compiler will not use worker threads to read/process/write
 
@@ -417,12 +418,31 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			// build and record parsed units
 			reportProgress(Messages.compilation_beginningToCompile);
 
-			beginToCompile(sourceUnits);
+			if (this.annotationProcessorManager == null) {
+				beginToCompile(sourceUnits);
+			} else {
+				ICompilationUnit[] originalUnits = (ICompilationUnit[]) sourceUnits.clone(); // remember source units in case a source type collision occurs
+				try {
+					beginToCompile(sourceUnits);
 
-			if (this.annotationProcessorManager != null) {
-				processAnnotations();
-				if (!this.options.generateClassFiles) {
-					// -proc:only was set on the command line
+					processAnnotations();
+					if (!this.options.generateClassFiles) {
+						// -proc:only was set on the command line
+						return;
+					}
+				} catch (SourceTypeCollisionException e) {
+					reset();
+					// a generated type was referenced before it was created
+					// the compiler either created a MissingType or found a BinaryType for it
+					// so add the processor's generated files & start over,
+					// but remember to only pass the generated files to the annotation processor
+					int originalLength = originalUnits.length;
+					int newProcessedLength = e.newAnnotationProcessorUnits.length;
+					ICompilationUnit[] combinedUnits = new ICompilationUnit[originalLength + newProcessedLength];
+					System.arraycopy(originalUnits, 0, combinedUnits, 0, originalLength);
+					System.arraycopy(e.newAnnotationProcessorUnits, 0, combinedUnits, originalLength, newProcessedLength);
+					this.annotationProcessorStartIndex  = originalLength;
+					compile(combinedUnits);
 					return;
 				}
 			}
@@ -767,7 +787,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	protected void processAnnotations() {
 		int newUnitSize = 0;
 		int newClassFilesSize = 0;
-		int bottom = 0;
+		int bottom = this.annotationProcessorStartIndex;
 		int top = this.totalUnits;
 		ReferenceBinding[] binaryTypeBindingsTemp = this.referenceBindings;
 		if (top == 0 && binaryTypeBindingsTemp == null) return;
@@ -793,14 +813,22 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			binaryTypeBindingsTemp = newClassFiles;
 			newClassFilesSize = newClassFiles.length;
 			if (newUnitSize != 0) {
-				// we reset the compiler in order to restart with the new units
-				internalBeginToCompile(newUnits, newUnitSize);
+				ICompilationUnit[] newProcessedUnits = (ICompilationUnit[]) newUnits.clone(); // remember new units in case a source type collision occurs
+				try {
+					this.lookupEnvironment.isProcessingAnnotations = true;
+					internalBeginToCompile(newUnits, newUnitSize);
+				} catch (SourceTypeCollisionException e) {
+					e.newAnnotationProcessorUnits = newProcessedUnits;
+					throw e;
+				} finally {
+					this.lookupEnvironment.isProcessingAnnotations = false;
+					this.annotationProcessorManager.reset();
+				}
 				bottom = top;
 				top = this.totalUnits; // last unit added
 			} else {
 				bottom = top;
 			}
-			this.annotationProcessorManager.reset();
 		} while (newUnitSize != 0 || newClassFilesSize != 0);
 		// one more loop to create possible resources
 		// this loop cannot create any java source files

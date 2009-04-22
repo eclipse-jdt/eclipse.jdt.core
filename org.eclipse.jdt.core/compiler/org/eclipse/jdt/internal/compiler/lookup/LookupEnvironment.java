@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +63,9 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	public MethodBinding arrayClone;
 
+	private ArrayList missingTypes;
+	public boolean isProcessingAnnotations = false;
+
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
 	final static int CHECK_AND_SET_IMPORTS = 2;
@@ -84,6 +88,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
+	this.missingTypes = null;
 	this.accessRestrictions = new HashMap(3);
 	this.classFilePool = ClassFilePool.newInstance();
 }
@@ -657,6 +662,9 @@ public MissingTypeBinding createMissingType(PackageBinding packageBinding, char[
 		missingType.setMissingSuperclass(objectType);
 	}
 	packageBinding.addType(missingType);
+	if (this.missingTypes == null)
+		this.missingTypes = new ArrayList(3);
+	this.missingTypes.add(missingType);
 	return missingType;
 }
 
@@ -1237,6 +1245,15 @@ TypeBinding getTypeFromVariantTypeSignature(
 	}
 }
 
+boolean isMissingType(char[] typeName) {
+	for (int i = this.missingTypes == null ? 0 : this.missingTypes.size(); --i >= 0;) {
+		MissingTypeBinding missingType = (MissingTypeBinding) this.missingTypes.get(i);
+		if (CharOperation.equals(missingType.sourceName, typeName))
+			return true;
+	}
+	return false;
+}
+
 /* Ask the oracle if a package exists named name in the package named compoundName.
 */
 boolean isPackage(char[][] compoundName, char[] name) {
@@ -1276,6 +1293,7 @@ public void reset() {
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
+	this.missingTypes = null;
 
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;
