@@ -64,7 +64,7 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 		} else {
 			DeltaProcessingState state = JavaModelManager.getDeltaState();
 			JavaElementDelta delta = new JavaElementDelta(getJavaModel());
-			int result = change.generateDelta(delta);
+			int result = change.generateDelta(delta, true/*add classpath change*/);
 			if ((result & ClasspathChange.HAS_DELTA) != 0) {
 				// create delta
 				addDelta(delta);

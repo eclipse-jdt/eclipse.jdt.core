@@ -1913,7 +1913,7 @@ public class DeltaProcessor {
 								Iterator changes = classpathChanges.values().iterator();
 								while (changes.hasNext()) {
 									ClasspathChange change = (ClasspathChange) changes.next();
-									int result = change.generateDelta(javaDelta);
+									int result = change.generateDelta(javaDelta, false/*don't add classpath change*/);
 									if ((result & ClasspathChange.HAS_DELTA) != 0) {
 										hasDelta = true;
 

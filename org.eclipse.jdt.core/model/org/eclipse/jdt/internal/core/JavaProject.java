@@ -1858,12 +1858,12 @@ public class JavaProject
 		PerProjectInfo perProjectInfo = getPerProjectInfo();
 		IClasspathEntry[] resolvedClasspath = perProjectInfo.getResolvedClasspath();
 		if (resolvedClasspath == null) {
-			resolveClasspath(perProjectInfo, false/*don't use previous session values*/);
+			resolveClasspath(perProjectInfo, false/*don't use previous session values*/, true/*add classpath change*/);
 			resolvedClasspath = perProjectInfo.getResolvedClasspath();
 			if (resolvedClasspath == null) {
 				// another thread reset the resolved classpath, use a temporary PerProjectInfo
 				PerProjectInfo temporaryInfo = newTemporaryInfo();
-				resolveClasspath(temporaryInfo, false/*don't use previous session values*/);
+				resolveClasspath(temporaryInfo, false/*don't use previous session values*/, true/*add classpath change*/);
 				resolvedClasspath = temporaryInfo.getResolvedClasspath();
 			}
 		}
@@ -1891,7 +1891,7 @@ public class JavaProject
 
 		if (resolvedClasspath == null
 				|| (unresolvedEntryStatus != null && !unresolvedEntryStatus.isOK())) { // force resolution to ensure initializers are run again
-			resolveClasspath(perProjectInfo, false/*don't use previous session values*/);
+			resolveClasspath(perProjectInfo, false/*don't use previous session values*/, true/*add classpath change*/);
 			synchronized (perProjectInfo) {
 				resolvedClasspath = perProjectInfo.getResolvedClasspath();
 				unresolvedEntryStatus = perProjectInfo.unresolvedEntryStatus;
@@ -1899,7 +1899,7 @@ public class JavaProject
 			if (resolvedClasspath == null) {
 				// another thread reset the resolved classpath, use a temporary PerProjectInfo
 				PerProjectInfo temporaryInfo = newTemporaryInfo();
-				resolveClasspath(temporaryInfo, false/*don't use previous session values*/);
+				resolveClasspath(temporaryInfo, false/*don't use previous session values*/, true/*add classpath change*/);
 				resolvedClasspath = temporaryInfo.getResolvedClasspath();
 				unresolvedEntryStatus = temporaryInfo.unresolvedEntryStatus;
 			}
@@ -2639,7 +2639,7 @@ public class JavaProject
 	/*
 	 * Resolve the given perProjectInfo's raw classpath and store the resolved classpath in the perProjectInfo.
 	 */
-	public void resolveClasspath(PerProjectInfo perProjectInfo, boolean usePreviousSession) throws JavaModelException {
+	public void resolveClasspath(PerProjectInfo perProjectInfo, boolean usePreviousSession, boolean addClasspathChange) throws JavaModelException {
 		if (CP_RESOLUTION_BP_LISTENERS != null)
 			breakpoint(1, this);
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
@@ -2665,7 +2665,7 @@ public class JavaProject
 				breakpoint(2, this);
 
 			// store resolved info along with the raw info to ensure consistency
-			perProjectInfo.setResolvedClasspath(result.resolvedClasspath, result.rawReverseMap, result.rootPathToResolvedEntries, usePreviousSession ? PerProjectInfo.NEED_RESOLUTION : result.unresolvedEntryStatus, timeStamp);
+			perProjectInfo.setResolvedClasspath(result.resolvedClasspath, result.rawReverseMap, result.rootPathToResolvedEntries, usePreviousSession ? PerProjectInfo.NEED_RESOLUTION : result.unresolvedEntryStatus, timeStamp, addClasspathChange);
 		} finally {
 			if (!isClasspathBeingResolved) {
 				manager.setClasspathBeingResolved(this, false);

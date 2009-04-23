@@ -1130,11 +1130,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			JavaModelManager.getJavaModelManager().resetNonChainingJarsCache();
 			
 			// null out resolved information
-			return setResolvedClasspath(null, null, null, null, this.rawTimeStamp);
+			return setResolvedClasspath(null, null, null, null, this.rawTimeStamp, true/*add classpath change*/);
 		}
 
-		private ClasspathChange setClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus) {
-			ClasspathChange classpathChange = addClasspathChange();
+		private ClasspathChange setClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus, boolean addClasspathChange) {
+			ClasspathChange classpathChange = addClasspathChange ? addClasspathChange() : null;
 
 			this.rawClasspath = newRawClasspath;
 			this.outputLocation = newOutputLocation;
@@ -1157,13 +1157,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		public synchronized ClasspathChange setRawClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus) {
 			this.rawTimeStamp++;
-			return setClasspath(newRawClasspath, newOutputLocation, newRawClasspathStatus, null/*resolved classpath*/, null/*root to raw map*/, null/*root to resolved map*/, null/*unresolved status*/);
+			return setClasspath(newRawClasspath, newOutputLocation, newRawClasspathStatus, null/*resolved classpath*/, null/*root to raw map*/, null/*root to resolved map*/, null/*unresolved status*/, true/*add classpath change*/);
 		}
 
-		public synchronized ClasspathChange setResolvedClasspath(IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus, int timeStamp) {
+		public synchronized ClasspathChange setResolvedClasspath(IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus, int timeStamp, boolean addClasspathChange) {
 			if (this.rawTimeStamp != timeStamp)
 				return null;
-			return setClasspath(this.rawClasspath, this.outputLocation, this.rawClasspathStatus, newResolvedClasspath, newRootPathToRawEntries, newRootPathToResolvedEntries, newUnresolvedEntryStatus);
+			return setClasspath(this.rawClasspath, this.outputLocation, this.rawClasspathStatus, newResolvedClasspath, newRootPathToRawEntries, newRootPathToResolvedEntries, newUnresolvedEntryStatus, addClasspathChange);
 		}
 
 		public synchronized IClasspathEntry[] readAndCacheClasspath(JavaProject javaProject) {

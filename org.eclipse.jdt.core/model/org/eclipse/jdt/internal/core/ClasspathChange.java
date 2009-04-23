@@ -197,7 +197,7 @@ public class ClasspathChange {
 	 * Generates a classpath change delta for this classpath change.
 	 * Returns whether a delta was generated, and whether project reference have changed.
 	 */
-	public int generateDelta(JavaElementDelta delta) {
+	public int generateDelta(JavaElementDelta delta, boolean addClasspathChange) {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		DeltaProcessingState state = manager.deltaState;
 		if (state.findJavaProject(this.project.getElementName()) == null)
@@ -214,7 +214,7 @@ public class ClasspathChange {
 			PerProjectInfo perProjectInfo = this.project.getPerProjectInfo();
 
 			// get new info
-			this.project.resolveClasspath(perProjectInfo, false/*don't use previous session values*/);
+			this.project.resolveClasspath(perProjectInfo, false/*don't use previous session values*/, addClasspathChange);
 			IClasspathEntry[] newRawClasspath;
 
 			// use synchronized block to ensure consistency
@@ -227,7 +227,7 @@ public class ClasspathChange {
 			if (newResolvedClasspath == null) {
 				// another thread reset the resolved classpath, use a temporary PerProjectInfo
 				PerProjectInfo temporaryInfo = this.project.newTemporaryInfo();
-				this.project.resolveClasspath(temporaryInfo, false/*don't use previous session values*/);
+				this.project.resolveClasspath(temporaryInfo, false/*don't use previous session values*/, addClasspathChange);
 				newRawClasspath = temporaryInfo.rawClasspath;
 				newResolvedClasspath = temporaryInfo.getResolvedClasspath();
 				newOutputLocation = temporaryInfo.outputLocation;

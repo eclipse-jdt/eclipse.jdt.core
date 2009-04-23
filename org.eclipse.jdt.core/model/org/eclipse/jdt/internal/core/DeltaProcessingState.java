@@ -298,7 +298,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			try {
 				if (usePreviousSession) {
 					PerProjectInfo perProjectInfo = project.getPerProjectInfo();
-					project.resolveClasspath(perProjectInfo, true/*use previous session values*/);
+					project.resolveClasspath(perProjectInfo, true/*use previous session values*/, false/*don't add classpath change*/);
 					classpath = perProjectInfo.resolvedClasspath;
 				} else {
 					classpath = project.getResolvedClasspath();
