@@ -13,7 +13,9 @@ package org.eclipse.jdt.apt.pluggable.tests.processors.genclass6;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -84,30 +86,42 @@ public class GenClass6Proc extends AbstractProcessor {
 		Set<? extends Element> annotatedEls = roundEnv.getElementsAnnotatedWith(genClassAnno);
 		for (Element e : annotatedEls) {
 			GenClass6 genClassMirror = e.getAnnotation(GenClass6.class);
-			generateType(genClassMirror, e);
+			processType(genClassMirror, e);
 		}
 	}
 
 	/**
 	 * @param genClassMirror
 	 */
-	private void generateType(GenClass6 genClassMirror, Element annotatedEl) {
+	private void processType(GenClass6 genClassMirror, Element annotatedEl) {
 		// Collect and validate the parameters of the annotation
 		String pkg = null;
 		String name = null;
 		String method = null;
 		boolean summary = false;
 		int rounds = 1;
+		String[] options = null;
 		try {
 			pkg = genClassMirror.pkg();
 			name = genClassMirror.name();
 			method = genClassMirror.method();
 			summary = genClassMirror.summary();
 			rounds = genClassMirror.rounds();
+			options = genClassMirror.options();
 		} catch (Exception e) {
 			_messager.printMessage(Diagnostic.Kind.WARNING, "Unable to read @GenClass6 annotation" + e.getLocalizedMessage(), annotatedEl);
 			return;
 		}
+		
+		// Options allow the processor to expose certain error conditions.
+		if (null != options) {
+			Set<String> optionSet = new HashSet<String>(Arrays.asList(options));
+			// See https://bugs.eclipse.org/269934: calling getEnclosedElements forces resolution of referenced types
+			if (optionSet.contains("forceElementResolution")) {
+				annotatedEl.getEnclosedElements();
+			}
+		}
+		
 		if (name.length() == 0) {
 			// User hasn't specified name yet
 			_messager.printMessage(Diagnostic.Kind.WARNING, "The name attribute is missing", annotatedEl);

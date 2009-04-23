@@ -134,6 +134,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
+		if (memberTypeDeclaration.ignoreFurtherInvestigation) return false;
 		Annotation[] annotations = memberTypeDeclaration.annotations;
 		if (annotations != null) {
 			this.resolveAnnotations(
@@ -146,6 +147,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
+		if (typeDeclaration.ignoreFurtherInvestigation) return false;
 		Annotation[] annotations = typeDeclaration.annotations;
 		if (annotations != null) {
 			this.resolveAnnotations(

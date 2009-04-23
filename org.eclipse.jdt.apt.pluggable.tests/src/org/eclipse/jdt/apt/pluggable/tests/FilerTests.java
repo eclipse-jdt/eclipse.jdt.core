@@ -132,6 +132,46 @@ public class FilerTests extends TestBase
 	}
 	
 	/**
+	 * Test generation of a source file that is referenced by the parent, using the GenClass6 annotation.
+	 * Processor calls getEnclosedElements(), causing the to-be-generated type to be resolved before it exists.
+	 */
+	public void testBug269934() throws Throwable
+	{
+		// Temporary workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=201931
+		// Bail out on Linux
+		String osName = System.getProperty("os.name");
+		if (null == osName || !osName.contains("Windows")) {
+			return;
+		}
+
+		IJavaProject jproj = createJavaProject(_projectName);
+		IProject proj = jproj.getProject();
+		IdeTestUtils.copyResources(proj, "targets/filer03a", "src/targets/filer");
+		
+		disableJava5Factories(jproj);
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		// Without the fix for bug 269934, the following lines must be uncommented for the test to pass:
+			// IPath parentPath = proj.getFullPath().append("src/targets/filer/Parent03.java");
+			// Problem problem = new Problem("Parent03", "Generated03 cannot be resolved to a type", parentPath, 992, 1003, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR);
+			// expectingOnlySpecificProblemFor(parentPath, problem);
+		// With the fix, the following line works:
+		expectingNoProblems();
+		
+		// Check whether generated sources were generated and compiled
+		expectingFile(proj, ".apt_generated/gen6/Generated03.java");
+		final String[] expectedClasses = { "targets.filer.Parent03", "gen6.Generated03" };
+		expectingUniqueCompiledClasses(expectedClasses);
+		
+		// Modify target file to and incrementally rebuild; file should be regenerated.
+		IdeTestUtils.copyResources(proj, "targets/filer03b", "src/targets/filer");
+		incrementalBuild();
+		// Note that even with bug 269934, after an incremental build there are no problems reported.
+		expectingNoProblems();
+		expectingUniqueCompiledClasses(expectedClasses);
+	}
+	
+	/**
 	 * Call FilerTesterProc.testGetResource01(), which checks getResource() in SOURCE_OUTPUT location
 	 */
 	public void testGetResource01() throws Throwable {
