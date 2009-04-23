@@ -887,14 +887,23 @@ protected void consumeModifiers() {
 		this.declarationSourceStart >= 0 ? this.declarationSourceStart : this.modifiersSourceStart);
 	resetModifiers();
 }
+protected void consumePackageComment() {
+	// get possible comment for syntax since 1.5
+	if(this.options.sourceLevel >= ClassFileConstants.JDK1_5) {
+		checkComment();
+	} else {
+		pushOnIntArrayStack(getJavaDocPositions());
+	}
+	resetModifiers();
+}
 /*
  *
  * INTERNAL USE-ONLY
  */
 protected void consumePackageDeclarationName() {
-	/* persisting javadoc positions */
-	pushOnIntArrayStack(getJavaDocPositions());
-
+	/*
+	 * Javadoc positions are persisted in consumePackageComment
+	 */
 	super.consumePackageDeclarationName();
 	ImportReference importReference = this.compilationUnit.currentPackage;
 
@@ -910,9 +919,6 @@ protected void consumePackageDeclarationName() {
 * INTERNAL USE-ONLY
 */
 protected void consumePackageDeclarationNameWithModifiers() {
-	/* persisting javadoc positions */
-	pushOnIntArrayStack(getJavaDocPositions());
-
 	super.consumePackageDeclarationNameWithModifiers();
 	ImportReference importReference = this.compilationUnit.currentPackage;
 

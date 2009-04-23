@@ -106,7 +106,14 @@ public void acceptInitializer(int declarationStart, int declarationEnd, int[] ja
  */
 public void acceptPackage(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name,
 	int nameStartPosition) {
-	int[] sourceRange = {declarationStart, declarationEnd};
+	int[] sourceRange = null;
+	if (javaDocPositions != null) {
+		int length = javaDocPositions.length;
+		// get last javadoc comment (see bug 68772)
+		sourceRange = new int[] {javaDocPositions[length - 2], declarationEnd};
+	} else {
+		sourceRange = new int[] {declarationStart, declarationEnd};
+	}
 	int[] nameRange = {nameStartPosition, declarationEnd - 1};
 	this.fNode= new DOMPackage(this.fDocument, sourceRange, CharOperation.charToString(name), nameRange);
 	addChild(this.fNode);
@@ -457,11 +464,11 @@ public void enterField(int declarationStart, int[] javaDocPositions, int modifie
 		(extendedTypeDimensionEnd > nameEnd) ? extendedTypeDimensionEnd : nameEnd};
 	int[] nameRange = {nameStart, nameEnd};
 	int[] commentRange = {-1, -1};
-		if (javaDocPositions != null) {
-			int length = javaDocPositions.length;
-			commentRange[0] = javaDocPositions[length - 2]; // get last javadoc comment (see bug 68772)
-			commentRange[1] = javaDocPositions[length - 1];
-		}
+	if (javaDocPositions != null) {
+		int length = javaDocPositions.length;
+		commentRange[0] = javaDocPositions[length - 2]; // get last javadoc comment (see bug 68772)
+		commentRange[1] = javaDocPositions[length - 1];
+	}
 	int[] modifiersRange = {-1, -1};
 	if (modifiersStart > -1) {
 		modifiersRange[0] = modifiersStart;

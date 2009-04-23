@@ -707,6 +707,9 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	return methodDeclaration;
 }
 protected CompilationUnitDeclaration endParse(int act) {
+	if (this.scanner.recordLineSeparator) {
+		this.requestor.acceptLineSeparatorPositions(this.scanner.getLineEnds());
+	}
 	if (this.compilationUnit != null) {
 		CompilationUnitDeclaration result = super.endParse(act);
 		return result;
