@@ -48,7 +48,7 @@ public static Test suite() {
 
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {"JCL_LIB", "/P/lib"}, "");
+	IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {"JCL15_LIB", "/P/lib"}, "", JavaCore.VERSION_1_5);
 	String[] pathAndContents = new String[] {
 		"nongeneric/A.java",
 		"package nongeneric;\n" +
@@ -86,9 +86,9 @@ public void setUpSuite() throws Exception {
 		"}",
 		"generic/GenericField.java",
 		"package generic;\n" +
-		"import java.util.List;\n" +
+		"import java.util.Collection;\n" +
 		"public class GenericField {\n" +
-		"	protected List<String> myField;\n" + 
+		"	protected Collection<String> myField;\n" + 
 		"}",
 		"annotated/X.java",
 		"package annotated;\n" +
@@ -737,7 +737,7 @@ public void testDefaultValue3() throws JavaModelException {
  * Ensures that the default value for an regular method is correct.
  */
 public void testDefaultValue4() throws JavaModelException {
-	IType type = getPackageFragmentRoot("P", getExternalJCLPathString()).getPackageFragment("java.lang").getClassFile("Object.class").getType();
+	IType type = getPackageFragmentRoot("P", getExternalJCLPathString(JavaCore.VERSION_1_5)).getPackageFragment("java.lang").getClassFile("Object.class").getType();
 	IMethod method = type.getMethod("toString", new String[0]);
 	assertMemberValuePairEquals(
 		"<null>",
@@ -1408,7 +1408,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 	IField field = type.getField("myField");
 	assertEquals(
 		"Wrong type signature",
-		"Ljava.util.List<Ljava.lang.String;>;",
+		"Ljava.util.Collection<Ljava.lang.String;>;",
 		field.getTypeSignature());
 }
 }
