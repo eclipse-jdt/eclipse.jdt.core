@@ -508,22 +508,24 @@ public class JavadocParser extends AbstractCommentParser {
 		boolean valid = false;
 		switch (firstChar) {
 			case 'a':
-				if (!this.inlineTagStarted && length == TAG_AUTHOR_LENGTH && CharOperation.equals(TAG_AUTHOR, tagName, 0, length)) {
+				if (length == TAG_AUTHOR_LENGTH && CharOperation.equals(TAG_AUTHOR, tagName, 0, length)) {
 					this.tagValue = TAG_AUTHOR_VALUE;
 					this.tagWaitingForDescription = this.tagValue;
 				}
 				break;
 			case 'c':
-				if (!this.inlineTagStarted && length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, tagName, 0, length)) {
+				if (length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, tagName, 0, length)) {
 					this.tagValue = TAG_CATEGORY_VALUE;
-					valid = parseIdentifierTag(false); // TODO (frederic) reconsider parameter value when @category will be significant in spec
+					if (!this.inlineTagStarted) {
+						valid = parseIdentifierTag(false); // TODO (frederic) reconsider parameter value when @category will be significant in spec
+					}
 				} else if (length == TAG_CODE_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_CODE, tagName, 0, length)) {
 					this.tagValue = TAG_CODE_VALUE;
 					this.tagWaitingForDescription = this.tagValue;
 				}
 				break;
 			case 'd':
-				if (!this.inlineTagStarted && length == TAG_DEPRECATED_LENGTH && CharOperation.equals(TAG_DEPRECATED, tagName, 0, length)) {
+				if (length == TAG_DEPRECATED_LENGTH && CharOperation.equals(TAG_DEPRECATED, tagName, 0, length)) {
 					this.deprecated = true;
 					valid = true;
 					this.tagValue = TAG_DEPRECATED_VALUE;
@@ -536,9 +538,11 @@ public class JavadocParser extends AbstractCommentParser {
 				}
 				break;
 			case 'e':
-				if (!this.inlineTagStarted && length == TAG_EXCEPTION_LENGTH && CharOperation.equals(TAG_EXCEPTION, tagName, 0, length)) {
+				if (length == TAG_EXCEPTION_LENGTH && CharOperation.equals(TAG_EXCEPTION, tagName, 0, length)) {
 					this.tagValue = TAG_EXCEPTION_VALUE;
-					valid = parseThrows();
+					if (!this.inlineTagStarted) {
+						valid = parseThrows();
+					}
 				}
 				break;
 			case 'i':
@@ -571,65 +575,59 @@ public class JavadocParser extends AbstractCommentParser {
 					this.tagValue = TAG_LINK_VALUE;
 					if (this.inlineTagStarted || (this.kind & COMPLETION_PARSER) != 0) {
 						valid= parseReference();
-					} else {
-						// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
-						// Cannot have @link outside inline comment
-						valid = false;
-						if (this.reportProblems) {
-							this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
-						}
 					}
 				} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, tagName, 0, length)) {
 					this.tagValue = TAG_LINKPLAIN_VALUE;
 					if (this.inlineTagStarted) {
 						valid = parseReference();
-					} else {
-						valid = false;
-						if (this.reportProblems) {
-							this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
-						}
-					}
+					} 
 				} else if (length == TAG_LITERAL_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_LITERAL, tagName, 0, length)) {
 					this.tagValue = TAG_LITERAL_VALUE;
 					this.tagWaitingForDescription = this.tagValue;
 				}
 				break;
 			case 'p':
-				if (!this.inlineTagStarted && length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, tagName, 0, length)) {
+				if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, tagName, 0, length)) {
 					this.tagValue = TAG_PARAM_VALUE;
-					valid = parseParam();
+					if (!this.inlineTagStarted) {
+						valid = parseParam();
+					}
 				}
 				break;
 			case 'r':
-				if (!this.inlineTagStarted && length == TAG_RETURN_LENGTH && CharOperation.equals(TAG_RETURN, tagName, 0, length)) {
+				if (length == TAG_RETURN_LENGTH && CharOperation.equals(TAG_RETURN, tagName, 0, length)) {
 					this.tagValue = TAG_RETURN_VALUE;
-					valid = parseReturn();
+					if (!this.inlineTagStarted) {
+						valid = parseReturn();
+					}
 				}
 				break;
 			case 's':
-				if (!this.inlineTagStarted) {
-					if (length == TAG_SEE_LENGTH && CharOperation.equals(TAG_SEE, tagName, 0, length)) {
-						this.tagValue = TAG_SEE_VALUE;
+				if (length == TAG_SEE_LENGTH && CharOperation.equals(TAG_SEE, tagName, 0, length)) {
+					this.tagValue = TAG_SEE_VALUE;
+					if (!this.inlineTagStarted) {
 						valid = parseReference();
-					} else if (length == TAG_SERIAL_LENGTH && CharOperation.equals(TAG_SERIAL, tagName, 0, length)) {
-						this.tagValue = TAG_SERIAL_VALUE;
-						this.tagWaitingForDescription = this.tagValue;
-					} else if (length == TAG_SERIAL_DATA_LENGTH && CharOperation.equals(TAG_SERIAL_DATA, tagName, 0, length)) {
-						this.tagValue = TAG_SERIAL_DATA_VALUE;
-						this.tagWaitingForDescription = this.tagValue;
-					} else if (length == TAG_SERIAL_FIELD_LENGTH && CharOperation.equals(TAG_SERIAL_FIELD, tagName, 0, length)) {
-						this.tagValue = TAG_SERIAL_FIELD_VALUE;
-						this.tagWaitingForDescription = this.tagValue;
-					} else if (length == TAG_SINCE_LENGTH && CharOperation.equals(TAG_SINCE, tagName, 0, length)) {
-						this.tagValue = TAG_SINCE_VALUE;
-						this.tagWaitingForDescription = this.tagValue;
-					}					
-				}
+					}
+				} else if (length == TAG_SERIAL_LENGTH && CharOperation.equals(TAG_SERIAL, tagName, 0, length)) {
+					this.tagValue = TAG_SERIAL_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_SERIAL_DATA_LENGTH && CharOperation.equals(TAG_SERIAL_DATA, tagName, 0, length)) {
+					this.tagValue = TAG_SERIAL_DATA_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_SERIAL_FIELD_LENGTH && CharOperation.equals(TAG_SERIAL_FIELD, tagName, 0, length)) {
+					this.tagValue = TAG_SERIAL_FIELD_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_SINCE_LENGTH && CharOperation.equals(TAG_SINCE, tagName, 0, length)) {
+					this.tagValue = TAG_SINCE_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				}					
 				break;
 			case 't':
-				if (!this.inlineTagStarted && length == TAG_THROWS_LENGTH && CharOperation.equals(TAG_THROWS, tagName, 0, length)) {
+				if (length == TAG_THROWS_LENGTH && CharOperation.equals(TAG_THROWS, tagName, 0, length)) {
 					this.tagValue = TAG_THROWS_VALUE;
-					valid = parseThrows();
+					if (!this.inlineTagStarted) {
+						valid = parseThrows();
+					}
 				}
 				break;
 			case 'v':
@@ -638,9 +636,6 @@ public class JavadocParser extends AbstractCommentParser {
 					if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
 						if (this.inlineTagStarted) {
 							valid = parseReference();
-						} else {
-							valid = false;
-							if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 						}
 					} else {
 						if (this.validValuePositions == -1) {
@@ -657,7 +652,7 @@ public class JavadocParser extends AbstractCommentParser {
 							if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 						}
 					}
-				} else if (!this.inlineTagStarted && length == TAG_VERSION_LENGTH && CharOperation.equals(TAG_VERSION, tagName, 0, length)) {
+				} else if (length == TAG_VERSION_LENGTH && CharOperation.equals(TAG_VERSION, tagName, 0, length)) {
 					this.tagValue = TAG_VERSION_VALUE;
 					this.tagWaitingForDescription = this.tagValue;
 				} else {
@@ -669,12 +664,21 @@ public class JavadocParser extends AbstractCommentParser {
 				break;
 		}
 		this.textStart = this.index;
-		if (this.tagValue != TAG_OTHERS_VALUE && !this.inlineTagStarted) {
-			this.lastBlockTagValue = this.tagValue;
-		}
-		if (this.inlineTagStarted && this.reportProblems
-				&& (this.tagValue >= JAVADOC_TAG_TYPE.length || JAVADOC_TAG_TYPE[this.tagValue] != TAG_TYPE_INLINE)) {
-				this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+		if (this.tagValue != TAG_OTHERS_VALUE) {
+			if (!this.inlineTagStarted) {
+				this.lastBlockTagValue = this.tagValue;
+			}
+			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=267833
+			// Report a problem if a block tag is being used in the context of an inline tag and vice versa.
+			if ((this.inlineTagStarted && JAVADOC_TAG_TYPE[this.tagValue] == TAG_TYPE_BLOCK)
+					|| (!this.inlineTagStarted && JAVADOC_TAG_TYPE[this.tagValue] == TAG_TYPE_INLINE)) {
+				valid = false;
+				this.tagValue = TAG_OTHERS_VALUE;
+				this.tagWaitingForDescription = NO_TAG_VALUE;
+				if (this.reportProblems) {
+					this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+				}
+			}
 		}
 		return valid;
 	}

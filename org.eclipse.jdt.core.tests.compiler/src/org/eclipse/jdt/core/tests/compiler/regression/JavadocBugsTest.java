@@ -3319,7 +3319,7 @@ public void testBug73479() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73995">73995</a>
  */
 public void testBug73995() {
-	runNegativeTest(
+	runConformTest(
 		new String[] {
 			"X.java",
 			"public class X extends Base {\n" +
@@ -3339,14 +3339,7 @@ public void testBug73995() {
 				"/** return \"The foo2 value\" */" +
 				"public int foo2(){return 0;}\n" +
 				"}"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 10)\n" + 
-		"	*		{@unknown_tag}\n" + 
-		"	 		  ^^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
-		"----------\n"
-	);
+		});
 }
 
 /**
@@ -8504,7 +8497,7 @@ public void testBug247037d() {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=267833"
  */
 public void testBug267833() {
-	runNegativeTest(
+	runConformTest(
 		new String[] {
 			"X.java",
 			"/**\n" +
@@ -8513,14 +8506,7 @@ public void testBug267833() {
 			"*/\n" +
 			"public class X {\n" +
 			"}"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	* Invalid custom tag {@custom \"Invalid\"}   \n" + 
-		"	                       ^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
-		"----------\n"
-	);
+		});
 }
 /**
  * Additional test for bug 267833
@@ -8567,8 +8553,8 @@ public void testBug267833_3() {
 			"X.java",
 			"public class X {\n" +
 			"/** \n" +
-			"* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" +
-			"* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" +
+			"* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" +
+			"* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" +
 			"* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" +
 			"* @param i\n" + 
 			"* @return value\n" +
@@ -8580,53 +8566,53 @@ public void testBug267833_3() {
 			"}\n" },
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
-			"	* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" + 
+			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" + 
 			"	                ^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
-			"	* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" + 
-			"	                               ^^^^^^\n" + 
+			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" + 
+			"	                                ^^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 3)\n" + 
-			"	* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" + 
-			"	                                                ^^^^^\n" + 
+			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" + 
+			"	                                               ^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 3)\n" + 
-			"	* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" + 
-			"	                                                                ^^^^^\n" + 
+			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" + 
+			"	                                                             ^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 3)\n" + 
-			"	* Description {@see value} , {@return value}, {@since value}, {@param i}, {@throws NullPointerException}\n" + 
-			"	                                                                            ^^^^^^\n" + 
+			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" + 
+			"	                                                                         ^^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 4)\n" + 
-			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" + 
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" + 
 			"	             ^^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n" + 
 			"7. ERROR in X.java (at line 4)\n" + 
-			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" + 
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" + 
 			"	                            ^^^^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n" + 
 			"8. ERROR in X.java (at line 4)\n" + 
-			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" + 
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" + 
 			"	                                             ^^^^^^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n" + 
 			"9. ERROR in X.java (at line 4)\n" + 
-			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" + 
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" + 
 			"	                                                            ^^^^^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n" + 
 			"10. ERROR in X.java (at line 4)\n" + 
-			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception Exception}, {@version 1.1}\n" + 
-			"	                                                                                    ^^^^^^^\n" + 
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" + 
+			"	                                                                                               ^^^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n" + 
 			"11. ERROR in X.java (at line 5)\n" + 
