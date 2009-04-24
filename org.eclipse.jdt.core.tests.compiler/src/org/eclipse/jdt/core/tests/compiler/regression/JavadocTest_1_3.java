@@ -3674,7 +3674,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 	}
 
 	/**
-	 * Bug 112346: [javadoc] {@inheritedDoc} should be inactive for non-overridden method
+	 * Bug 112346: [javadoc] {&#064;inheritedDoc} should be inactive for non-overridden method
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=112346"
 	 */
 	public void testBug112346() {

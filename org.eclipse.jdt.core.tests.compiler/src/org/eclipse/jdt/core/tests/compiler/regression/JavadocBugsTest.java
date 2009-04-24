@@ -3315,7 +3315,7 @@ public void testBug73479() {
 }
 
 /**
- * Bug 73995: [Javadoc] Wrong warning for missing return type description for @return {@inheritdoc}
+ * Bug 73995: [Javadoc] Wrong warning for missing return type description for &#064;return {&#064;inheritdoc}
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73995">73995</a>
  */
 public void testBug73995() {
@@ -4621,7 +4621,7 @@ public void testBug87404() {
 }
 
 /**
- * Bug 90302: [javadoc] {@inheritedDoc} should be inactive for non-overridden method
+ * Bug 90302: [javadoc] {&#064;inheritDoc} should be inactive for non-overridden method
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=90302"
  */
 public void testBug90302() {

@@ -235,12 +235,12 @@ public class CompilerOptions {
 
 	// Severity level for handlers
 	/** 
-	 * Defaults defined at {@lnk IrritantSet#COMPILER_DEFAULT_ERRORS} 
+	 * Defaults defined at {@link IrritantSet#COMPILER_DEFAULT_ERRORS} 
 	 * @see #resetDefaults()
 	 */
 	protected IrritantSet errorThreshold;
 	/** 
-	 * Defaults defined at {@lnk IrritantSet#COMPILER_DEFAULT_WARNINGS}
+	 * Defaults defined at {@link IrritantSet#COMPILER_DEFAULT_WARNINGS}
 	 * @see #resetDefaults()
 	 */
 	protected IrritantSet warningThreshold;
