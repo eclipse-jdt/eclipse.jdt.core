@@ -83,6 +83,9 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		Annotation[] annotations = constructorDeclaration.annotations;
 		if (annotations != null) {
 			MethodBinding constructorBinding = constructorDeclaration.binding;
+			if (constructorBinding == null) {
+				return false;
+			}
 			((SourceTypeBinding) constructorBinding.declaringClass).resolveTypesFor(constructorBinding);
 			this.resolveAnnotations(
 					constructorDeclaration.scope,
@@ -104,7 +107,10 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		Annotation[] annotations = fieldDeclaration.annotations;
 		if (annotations != null) {
 			FieldBinding fieldBinding = fieldDeclaration.binding;
-			((SourceTypeBinding) fieldBinding.declaringClass).resolveTypeFor(fieldBinding);			
+			if (fieldBinding == null) {
+				return false;
+			}
+			((SourceTypeBinding) fieldBinding.declaringClass).resolveTypeFor(fieldBinding);
 			this.resolveAnnotations(scope, annotations, fieldBinding);
 		}
 		return false;
@@ -115,6 +121,9 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		Annotation[] annotations = methodDeclaration.annotations;
 		if (annotations != null) {
 			MethodBinding methodBinding = methodDeclaration.binding;
+			if (methodBinding == null) {
+				return false;
+			}
 			((SourceTypeBinding) methodBinding.declaringClass).resolveTypesFor(methodBinding);
 			this.resolveAnnotations(
 					methodDeclaration.scope,
@@ -134,24 +143,32 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
+		SourceTypeBinding binding = memberTypeDeclaration.binding;
+		if (binding == null) {
+			return false;
+		}
 		Annotation[] annotations = memberTypeDeclaration.annotations;
 		if (annotations != null) {
 			this.resolveAnnotations(
 					memberTypeDeclaration.staticInitializerScope,
 					annotations,
-					memberTypeDeclaration.binding);
+					binding);
 		}
 		return true;
 	}
 
 	@Override
 	public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
+		SourceTypeBinding binding = typeDeclaration.binding;
+		if (binding == null) {
+			return false;
+		}
 		Annotation[] annotations = typeDeclaration.annotations;
 		if (annotations != null) {
 			this.resolveAnnotations(
 					typeDeclaration.staticInitializerScope,
 					annotations,
-					typeDeclaration.binding);
+					binding);
 		}
 		return true;
 	}
