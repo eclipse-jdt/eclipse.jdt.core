@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AmbiguousMethodTest extends AbstractComparableTest {
 
@@ -228,6 +230,8 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		);
 	}
 	public void test005() {
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -250,6 +254,8 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		);
 	}
 	public void test006() {
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -473,6 +479,8 @@ public void test010c() {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
 	public void test011a() {
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runConformTest(
 			new String[] {
 				"Combined.java",
@@ -492,6 +500,8 @@ public void test010c() {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
 	public void test011b() {
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runNegativeTest(
 			new String[] {
 				"Test1.java",
@@ -1454,34 +1464,38 @@ public void test010c() {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	// variant: having both methods in the same class should not change anything
 	public void test021() {
-	this.runConformTest(
-		new String[] {
-			"Y.java",
-			"class X<T extends Object> {\n" +
-			"}\n" +
-			"public class Y<V extends String> extends X<V> {\n" +
-			"  public static <W extends String> Y<W> make(Class<W> clazz) {\n" +
-			"    System.out.print(true);\n" +
-			"    return new Y<W>();\n" +
-			"  }\n" +
-			"  public static <U extends Object> X<U> make(Class<U> clazz) {\n" +
-			"    System.out.print(false);\n" +
-			"    return new X<U>();\n" +
-			"  }\n" +
-			"  public static void main(String[] args) throws Exception {\n" +
-			"    Y.make(getClazz());\n" +
-			"  }\n" +
-			"  public static Class getClazz() {\n" +
-			"    return String.class;\n" +
-			"  }\n" +
-			"}"
-		},
-		"true");
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"Y.java",
+				"class X<T extends Object> {\n" +
+				"}\n" +
+				"public class Y<V extends String> extends X<V> {\n" +
+				"  public static <W extends String> Y<W> make(Class<W> clazz) {\n" +
+				"    System.out.print(true);\n" +
+				"    return new Y<W>();\n" +
+				"  }\n" +
+				"  public static <U extends Object> X<U> make(Class<U> clazz) {\n" +
+				"    System.out.print(false);\n" +
+				"    return new X<U>();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) throws Exception {\n" +
+				"    Y.make(getClazz());\n" +
+				"  }\n" +
+				"  public static Class getClazz() {\n" +
+				"    return String.class;\n" +
+				"  }\n" +
+				"}"
+			},
+			"true");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	// variant: using instances triggers raw methods, which are ambiguous
 	public void test022() {
-	this.runNegativeTest(
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
+		this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T extends Object> {\n" +
@@ -1548,68 +1562,68 @@ public void test010c() {
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
 public void test023() {
-this.runConformTest(
-	new String[] {
-		"X.java",
-		"import java.util.*;\n" +
-		"public class X {\n" +
-		"  public static void staticFoo(Collection<?> p) {\n" +
-		"    System.out.print(1);\n" +
-		"  }\n" +
-		"  public static <T extends List<?>> void staticFoo(T p) {\n" +
-		"    System.out.print(2);\n" +
-		"  }\n" +
-		"  public void foo(Collection<?> p) {\n" +
-		"    System.out.print(1);\n" +
-		"  }\n" +
-		"  public <T extends List<?>> void foo(T p) {\n" +
-		"    System.out.print(2);\n" +
-		"  }\n" +
-		"  public void foo2(Collection<?> p) {\n" +
-		"    System.out.print(1);\n" +
-		"  }\n" +
-		"  public void foo2(List<?> p) {\n" +
-		"    System.out.print(2);\n" +
-		"  }\n" +
-		"  public static void main(String[] args) {\n" +
-		"    staticFoo(new ArrayList<String>(Arrays.asList(\"\")));\n" +
-		"    new X().foo(new ArrayList<String>(Arrays.asList(\"\")));\n" +
-		"    new X().foo2(new ArrayList<String>(Arrays.asList(\"\")));\n" +
-		"  }\n" +
-		"}"
-	},
-	"222");
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"public class X {\n" +
+			"  public static void staticFoo(Collection<?> p) {\n" +
+			"    System.out.print(1);\n" +
+			"  }\n" +
+			"  public static <T extends List<?>> void staticFoo(T p) {\n" +
+			"    System.out.print(2);\n" +
+			"  }\n" +
+			"  public void foo(Collection<?> p) {\n" +
+			"    System.out.print(1);\n" +
+			"  }\n" +
+			"  public <T extends List<?>> void foo(T p) {\n" +
+			"    System.out.print(2);\n" +
+			"  }\n" +
+			"  public void foo2(Collection<?> p) {\n" +
+			"    System.out.print(1);\n" +
+			"  }\n" +
+			"  public void foo2(List<?> p) {\n" +
+			"    System.out.print(2);\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    staticFoo(new ArrayList<String>(Arrays.asList(\"\")));\n" +
+			"    new X().foo(new ArrayList<String>(Arrays.asList(\"\")));\n" +
+			"    new X().foo2(new ArrayList<String>(Arrays.asList(\"\")));\n" +
+			"  }\n" +
+			"}"
+		},
+		"222");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
 // self contained variant
 public void test024() {
-this.runConformTest(
-	new String[] {
-		"X.java",
-		"public class X {\n" +
-		"  public static void foo(L1<?> p) {\n" +
-		"    System.out.println(1);\n" +
-		"  }\n" +
-		"  public static <T extends L2<?>> void foo(T p) {\n" +
-		"    System.out.println(2);\n" +
-		"  }\n" +
-		"  public static void main(String[] args) {\n" +
-		"    foo(new L3<String>());\n" +
-		"  }\n" +
-		"}",
-		"L1.java",
-		"public interface L1<T> {\n" +
-		"}",
-		"L2.java",
-		"public interface L2<T> extends L1<T> {\n" +
-		"}",
-		"L3.java",
-		"public class L3<T> implements L2<T> {\n" +
-		"  public L3() {\n" +
-		"  }\n" +
-		"}",
-	},
-	"2");
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  public static void foo(L1<?> p) {\n" +
+			"    System.out.println(1);\n" +
+			"  }\n" +
+			"  public static <T extends L2<?>> void foo(T p) {\n" +
+			"    System.out.println(2);\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    foo(new L3<String>());\n" +
+			"  }\n" +
+			"}",
+			"L1.java",
+			"public interface L1<T> {\n" +
+			"}",
+			"L2.java",
+			"public interface L2<T> extends L1<T> {\n" +
+			"}",
+			"L3.java",
+			"public class L3<T> implements L2<T> {\n" +
+			"  public L3() {\n" +
+			"  }\n" +
+			"}",
+		},
+		"2");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
 public void test025() {

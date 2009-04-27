@@ -17605,6 +17605,8 @@ public void test0500(){
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87956
 	public void test0561() {
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -17937,6 +17939,8 @@ public void test0500(){
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test0574() {
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -22371,10 +22375,17 @@ public void test0706() {
 			"	bb.<Object>test();\r\n" +
 			"	           ^^^^\n" +
 			"The method test() is ambiguous for the type BB\n" +
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
+			"	                                 ^^^^^^\n" + 
+			"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
 public void test0706a() {
+	// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22411,6 +22422,8 @@ public void test0706a() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
 public void test0706b() {
+	// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23596,6 +23609,8 @@ public void test0747() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100007
 public void test0748() {
+	// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -40008,6 +40023,8 @@ public void test1180() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=204534
 public void test1181() {
+	// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

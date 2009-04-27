@@ -3223,6 +3223,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X1.java",
@@ -3236,6 +3237,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048a() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X2.java",
@@ -3278,6 +3280,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048c() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X4.java",
@@ -3296,6 +3299,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048d() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X5.java",
@@ -3314,6 +3318,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048e() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X6.java",
@@ -3332,6 +3337,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048f() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X7.java",
@@ -3433,6 +3439,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
 	public void test050() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3453,6 +3460,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
 	public void test050a() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3484,6 +3492,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test050b() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3547,6 +3556,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test050c() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3580,6 +3590,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test050d() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3599,6 +3610,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050e() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3697,6 +3709,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050i() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3878,6 +3891,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89470
 	public void test051b() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4028,6 +4042,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054a() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4059,6 +4074,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054b() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4096,6 +4112,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054d() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4216,6 +4233,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
 	public void test058a() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4246,6 +4264,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
 	public void test058b() {
+		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6209,6 +6228,7 @@ public void test100() {
 
 // name conflict
 public void test101() {
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7293,6 +7313,7 @@ public void test120() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202830
 public void test120a() {
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 	this.runConformTest(
 		new String[] {
 			"Bar.java",
@@ -8992,7 +9013,52 @@ public void test176() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251091
 public void test177() {
-	if (new CompilerOptions(getCompilerOptions()).sourceLevel >= ClassFileConstants.JDK1_6) {
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) { // see test187()
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"interface I { I foo(Collection<?> c); }\n" +
+				"class A extends LinkedHashMap {\n" +
+				"	public A foo(Collection c) { return this; }\n" +
+				"}\n" +
+				"class X extends A implements I {\n" +
+				"	@Override public X foo(Collection<?> c) { return this; }\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class A extends LinkedHashMap {\n" + 
+			"	      ^\n" + 
+			"The serializable class A does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	class A extends LinkedHashMap {\n" + 
+			"	                ^^^^^^^^^^^^^\n" + 
+			"LinkedHashMap is a raw type. References to generic type LinkedHashMap<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	public A foo(Collection c) { return this; }\n" + 
+			"	             ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	class X extends A implements I {\n" + 
+			"	      ^\n" + 
+			"Name clash: The method foo(Collection<?>) of type I has the same erasure as foo(Collection) of type A but does not override it\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 6)\n" + 
+			"	class X extends A implements I {\n" + 
+			"	      ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 7)\n" + 
+			"	@Override public X foo(Collection<?> c) { return this; }\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" + 
+			"----------\n"
+		);
+	} else if (new CompilerOptions(getCompilerOptions()).sourceLevel == ClassFileConstants.JDK1_6) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9504,6 +9570,53 @@ public void test186() {
 		"	                                             ^^^\n" + 
 		"The method C.m() does not override the inherited method from B since it is private to a different package\n" + 
 		"----------\n"
+	);
+}
+// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=?
+public void test187() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"    int f(List<String> l) {return 0;}\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"    double f(List<Integer> l) {return 0;}\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	double f(List<Integer> l);\n" +
+			"}\n" +
+			"abstract class Z extends X implements I {}\n" +
+			"class XX {\n" +
+			"    int f(List<String> l) {return 0;}\n" +
+    			"double f(List<Integer> l) {return 0;}\n" +
+			"}"
+		},
+		new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_7
+			? ""
+			: "----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	double f(List<Integer> l) {return 0;}\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method f(List<Integer>) of type Y has the same erasure as f(List<String>) of type X but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	abstract class Z extends X implements I {}\n" + 
+			"	               ^\n" + 
+			"Name clash: The method f(List<String>) of type X has the same erasure as f(List<Integer>) of type I but does not override it\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 13)\n" + 
+			"	int f(List<String> l) {return 0;}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^\n" + 
+			"Method f(List<String>) has the same erasure f(List<E>) as another method in type XX\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 14)\n" + 
+			"	double f(List<Integer> l) {return 0;}\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^\n" + 
+			"Method f(List<Integer>) has the same erasure f(List<E>) as another method in type XX\n" + 
+			"----------\n"
 	);
 }
 }

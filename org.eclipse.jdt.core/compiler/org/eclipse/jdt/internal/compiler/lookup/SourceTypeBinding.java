@@ -1096,6 +1096,7 @@ public MethodBinding[] methods() {
 
 		// find & report collision cases
 		boolean complyTo15 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
+		boolean complyTo17 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7;
 		for (int i = 0, length = this.methods.length; i < length; i++) {
 			MethodBinding method = resolvedMethods[i];
 			if (method == null)
@@ -1133,8 +1134,12 @@ public MethodBinding[] methods() {
 					boolean equalParams = method.areParametersEqual(subMethod);
 					if (equalParams && equalTypeVars) {
 						// duplicates regardless of return types
-					} else if (method.returnType.erasure() == subMethod.returnType.erasure() && (equalParams || method.areParameterErasuresEqual(method2))) {
+					} else if ((complyTo17 || method.returnType.erasure() == subMethod.returnType.erasure())
+						&& (equalParams || method.areParameterErasuresEqual(method2))) {
+						// with fix for http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
+						// we now ignore return types when detecting duplicates, just as we did before 1.5 
 						// name clash for sure if not duplicates, report as duplicates
+						// FYI for now we will only make this change when compliance is set to 1.7 or higher
 					} else if (!equalTypeVars && vars != Binding.NO_TYPE_VARIABLES && vars2 != Binding.NO_TYPE_VARIABLES) {
 						// type variables are different so we can distinguish between methods
 						continue nextSibling;
