@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
 import org.eclipse.jdt.internal.core.dom.rewrite.LineInformation;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
@@ -197,7 +198,7 @@ public class ASTRewrite {
 
 		ASTNode astRoot= rootNode.getRoot();
 		List commentNodes= astRoot instanceof CompilationUnit ? ((CompilationUnit) astRoot).getCommentList() : null;
-		return internalRewriteAST(content, lineInfo, lineDelim, commentNodes, options, rootNode);
+		return internalRewriteAST(content, lineInfo, lineDelim, commentNodes, options, rootNode, (RecoveryScannerData)((CompilationUnit) astRoot).getStatementsRecoveryData());
 	}
 
 	/**
@@ -255,17 +256,17 @@ public class ASTRewrite {
 		String lineDelim= typeRoot.findRecommendedLineSeparator();
 		Map options= typeRoot.getJavaProject().getOptions(true);
 
-		return internalRewriteAST(content, lineInfo, lineDelim, astRoot.getCommentList(), options, rootNode);
+		return internalRewriteAST(content, lineInfo, lineDelim, astRoot.getCommentList(), options, rootNode, (RecoveryScannerData)astRoot.getStatementsRecoveryData());
 	}
 
-	private TextEdit internalRewriteAST(char[] content, LineInformation lineInfo, String lineDelim, List commentNodes, Map options, ASTNode rootNode) {
+	private TextEdit internalRewriteAST(char[] content, LineInformation lineInfo, String lineDelim, List commentNodes, Map options, ASTNode rootNode, RecoveryScannerData recoveryScannerData) {
 		TextEdit result= new MultiTextEdit();
 		//validateASTNotModified(rootNode);
 
 		TargetSourceRangeComputer sourceRangeComputer= getExtendedSourceRangeComputer();
 		this.eventStore.prepareMovedNodes(sourceRangeComputer);
 
-		ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(content, lineInfo, lineDelim, result, this.eventStore, this.nodeStore, commentNodes, options, sourceRangeComputer);
+		ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(content, lineInfo, lineDelim, result, this.eventStore, this.nodeStore, commentNodes, options, sourceRangeComputer, recoveryScannerData);
 		rootNode.accept(visitor); // throws IllegalArgumentException
 
 		this.eventStore.revertMovedNodes();

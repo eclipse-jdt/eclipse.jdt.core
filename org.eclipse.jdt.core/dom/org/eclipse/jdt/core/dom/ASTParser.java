@@ -1048,6 +1048,8 @@ public class ASTParser {
 					converter.scanner = new RecoveryScanner(scanner, data.removeUnused());
 					converter.docParser.scanner = converter.scanner;
 					converter.scanner.setSource(scanner.source);
+					
+					compilationUnit.setStatementsRecoveryData(data);
 				}
 				RecordedParsingInformation recordedParsingInformation = codeSnippetParsingUtil.recordedParsingInformation;
 				int[][] comments = recordedParsingInformation.commentPositions;

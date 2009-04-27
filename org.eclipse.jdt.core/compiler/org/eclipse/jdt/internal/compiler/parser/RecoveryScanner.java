@@ -39,6 +39,26 @@ public class RecoveryScanner extends Scanner {
 				scanner.isTaskCaseSensitive);
 		setData(data);
 	}
+	
+	public RecoveryScanner(
+			boolean tokenizeWhiteSpace,
+			boolean checkNonExternalizedStringLiterals,
+			long sourceLevel,
+			long complianceLevel,
+			char[][] taskTags,
+			char[][] taskPriorities,
+			boolean isTaskCaseSensitive,
+			RecoveryScannerData data) {
+		super(false,
+				tokenizeWhiteSpace,
+				checkNonExternalizedStringLiterals,
+				sourceLevel,
+				complianceLevel,
+				taskTags,
+				taskPriorities,
+				isTaskCaseSensitive);
+		setData(data);
+	}
 
 	public void insertToken(int token, int completedToken, int position) {
 		insertTokens(new int []{token}, completedToken, position);

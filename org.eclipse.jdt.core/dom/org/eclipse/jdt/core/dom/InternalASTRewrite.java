@@ -22,6 +22,7 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
 import org.eclipse.jdt.internal.core.dom.rewrite.LineInformation;
 import org.eclipse.jdt.internal.core.dom.rewrite.ListRewriteEvent;
@@ -89,7 +90,7 @@ class InternalASTRewrite extends NodeEventHandler {
 			String lineDelim= TextUtilities.getDefaultLineDelimiter(document);
 			List comments= rootNode.getCommentList();
 
-			ASTRewriteAnalyzer visitor = new ASTRewriteAnalyzer(content, lineInfo, lineDelim, result, this.eventStore, this.nodeStore, comments, options, xsrComputer);
+			ASTRewriteAnalyzer visitor = new ASTRewriteAnalyzer(content, lineInfo, lineDelim, result, this.eventStore, this.nodeStore, comments, options, xsrComputer, (RecoveryScannerData)rootNode.getStatementsRecoveryData());
 			rootNode.accept(visitor);
 		}
 		return result;

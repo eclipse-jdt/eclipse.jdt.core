@@ -1228,6 +1228,7 @@ class ASTConverter {
 		this.compilationUnitSourceLength = source.length;
 		this.scanner.setSource(source, unit.compilationResult);
 		CompilationUnit compilationUnit = new CompilationUnit(this.ast);
+		compilationUnit.setStatementsRecoveryData(unit.compilationResult.recoveryScannerData);
 
 		// Parse comments
 		int[][] comments = unit.comments;

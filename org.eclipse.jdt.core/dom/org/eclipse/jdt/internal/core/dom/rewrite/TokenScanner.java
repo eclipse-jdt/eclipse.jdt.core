@@ -14,9 +14,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.IScanner;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
  * Wraps a scanner and offers convenient methods for finding tokens
@@ -27,14 +27,14 @@ public class TokenScanner {
 	public static final int LEXICAL_ERROR= 20002;
 	public static final int DOCUMENT_ERROR= 20003;
 
-	private final IScanner scanner;
+	private final Scanner scanner;
 	private final int endPosition;
 
 	/**
 	 * Creates a TokenScanner
 	 * @param scanner The scanner to be wrapped
 	 */
-	public TokenScanner(IScanner scanner) {
+	public TokenScanner(Scanner scanner) {
 		this.scanner= scanner;
 		this.endPosition= this.scanner.getSource().length - 1;
 	}
@@ -43,7 +43,7 @@ public class TokenScanner {
 	 * Returns the wrapped scanner
 	 * @return IScanner
 	 */
-	public IScanner getScanner() {
+	public Scanner getScanner() {
 		return this.scanner;
 	}
 
@@ -88,7 +88,7 @@ public class TokenScanner {
 		do {
 			try {
 				curr= this.scanner.getNextToken();
-				if (curr == ITerminalSymbols.TokenNameEOF) {
+				if (curr == TerminalTokens.TokenNameEOF) {
 					throw new CoreException(createError(END_OF_FILE, "End Of File", null)); //$NON-NLS-1$
 				}
 			} catch (InvalidInputException e) {
@@ -208,23 +208,23 @@ public class TokenScanner {
 	}
 
 	public static boolean isComment(int token) {
-		return token == ITerminalSymbols.TokenNameCOMMENT_BLOCK || token == ITerminalSymbols.TokenNameCOMMENT_JAVADOC
-			|| token == ITerminalSymbols.TokenNameCOMMENT_LINE;
+		return token == TerminalTokens.TokenNameCOMMENT_BLOCK || token == TerminalTokens.TokenNameCOMMENT_JAVADOC
+			|| token == TerminalTokens.TokenNameCOMMENT_LINE;
 	}
 
 	public static boolean isModifier(int token) {
 		switch (token) {
-			case ITerminalSymbols.TokenNamepublic:
-			case ITerminalSymbols.TokenNameprotected:
-			case ITerminalSymbols.TokenNameprivate:
-			case ITerminalSymbols.TokenNamestatic:
-			case ITerminalSymbols.TokenNamefinal:
-			case ITerminalSymbols.TokenNameabstract:
-			case ITerminalSymbols.TokenNamenative:
-			case ITerminalSymbols.TokenNamevolatile:
-			case ITerminalSymbols.TokenNamestrictfp:
-			case ITerminalSymbols.TokenNametransient:
-			case ITerminalSymbols.TokenNamesynchronized:
+			case TerminalTokens.TokenNamepublic:
+			case TerminalTokens.TokenNameprotected:
+			case TerminalTokens.TokenNameprivate:
+			case TerminalTokens.TokenNamestatic:
+			case TerminalTokens.TokenNamefinal:
+			case TerminalTokens.TokenNameabstract:
+			case TerminalTokens.TokenNamenative:
+			case TerminalTokens.TokenNamevolatile:
+			case TerminalTokens.TokenNamestrictfp:
+			case TerminalTokens.TokenNametransient:
+			case TerminalTokens.TokenNamesynchronized:
 				return true;
 			default:
 				return false;

@@ -49,6 +49,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		suite.addTest(SourceModifierTest.allTests());
 		suite.addTest(ImportRewriteTest.allTests());
 		suite.addTest(LineCommentOffsetsTest.allTests());
+		suite.addTest(ASTRewritingWithStatementsRecoveryTest.allTests());
 		return suite;
 	}
 
@@ -97,9 +98,14 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	}
 
 	protected CompilationUnit createAST3(ICompilationUnit cu) {
+		return createAST3(cu, false);
+	}
+	
+	protected CompilationUnit createAST3(ICompilationUnit cu, boolean statementsRecovery) {
 		ASTParser parser= ASTParser.newParser(AST.JLS3);
 		parser.setSource(cu);
 		parser.setResolveBindings(false);
+		parser.setStatementsRecovery(statementsRecovery);
 		return (CompilationUnit) parser.createAST(null);
 	}
 
