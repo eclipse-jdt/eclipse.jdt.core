@@ -288,8 +288,11 @@ private IType[] findSuperInterfaces(IGenericType type, ReferenceBinding typeBind
 				bindingIndex++;
 				for (int t = this.typeIndex; t >= 0; t--) {
 					if (this.typeBindings[t] == interfaceBinding) {
-						superinterfaces[index++] = this.builder.getHandle(this.typeModels[t], interfaceBinding);
-						continue next;
+						IType handle = this.builder.getHandle(this.typeModels[t], interfaceBinding);
+						if (handle != null) {
+							superinterfaces[index++] = handle;
+							continue next;
+						}
 					}
 				}
 			}
