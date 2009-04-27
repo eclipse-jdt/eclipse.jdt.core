@@ -31,7 +31,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 40, 41 };
+//		TESTS_NUMBERS = new int[] { 42 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
@@ -6233,6 +6233,41 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"        [pc: 2, pc: 13] local: o index: 1 type: java.lang.Object\n" + 
 			"      Stack map table: number of frames 1\n" + 
 			"        [pc: 11, append: {java.lang.Object}]\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=260031
+	public void test042() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	private static void foo(Class<?> c, int n) { }\n" + 
+				"	public static void main(String... args) {\n" + 
+				"		foo(Integer.class, (args == null ? -1 : 1));\n" + 
+				"	}\n" + 
+				"}",
+			},
+		"");
+	
+		String expectedOutput =
+			"  // Stack: 2, Locals: 1\n" + 
+			"  public static void main(java.lang.String... args);\n" + 
+			"     0  ldc <Class java.lang.Integer> [26]\n" + 
+			"     2  aload_0 [args]\n" + 
+			"     3  ifnonnull 10\n" + 
+			"     6  iconst_m1\n" + 
+			"     7  goto 11\n" + 
+			"    10  iconst_1\n" + 
+			"    11  invokestatic X.foo(java.lang.Class, int) : void [28]\n" + 
+			"    14  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"        [pc: 14, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+			"      Stack map table: number of frames 2\n" + 
+			"        [pc: 10, same_locals_1_stack_item, stack: {java.lang.Class}]\n" + 
+			"        [pc: 11, full, stack: {java.lang.Class, int}, locals: {java.lang.String[]}]\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 }

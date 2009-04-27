@@ -7427,13 +7427,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 							frame.addStackItem(TypeBinding.FLOAT);
 							break;
 						case ClassFileConstants.ClassTag:
-							int utf8index = u2At(poolContents, 1,
-									constantPoolOffsets[index]);
-							char[] classSignature = utf8At(poolContents,
-									constantPoolOffsets[utf8index] + 3, u2At(
-											poolContents, 1,
-											constantPoolOffsets[utf8index]));
-							frame.addStackItem(new VerificationTypeInfo(0, classSignature));
+							frame.addStackItem(new VerificationTypeInfo(
+									TypeIds.T_JavaLangClass,
+									ConstantPool.JavaLangClassConstantPoolName));
 					}
 					pc += 2;
 					break;
@@ -7453,14 +7449,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 							frame.addStackItem(TypeBinding.FLOAT);
 							break;
 						case ClassFileConstants.ClassTag:
-							int utf8index = u2At(poolContents, 1,
-									constantPoolOffsets[index]);
-							char[] classSignature = utf8At(poolContents,
-									constantPoolOffsets[utf8index] + 3, u2At(
-											poolContents, 1,
-											constantPoolOffsets[utf8index]));
-							frame.addStackItem(new VerificationTypeInfo(0,
-									classSignature));
+							frame.addStackItem(new VerificationTypeInfo(
+									TypeIds.T_JavaLangClass,
+									ConstantPool.JavaLangClassConstantPoolName));
 					}
 					pc += 3;
 					break;
