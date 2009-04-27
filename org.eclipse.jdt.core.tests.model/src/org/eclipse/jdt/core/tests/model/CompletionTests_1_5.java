@@ -13619,5 +13619,130 @@ public void testCamelCaseStaticMethodImport() throws JavaModelException {
 		JavaCore.setOptions(this.oldOptions);
 	}
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84720
+ * to test that the methods with Boxed/unboxed return types get higher relevance than the ones that return void  
+ */
+public void testCompletionWithUnboxing() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class C {\n" +
+			"public void myMethod1(){}\n" +
+			"public void myMethod2(){}\n" +
+			"public int myMethod3(){return 0;}\n" +
+			"public Integer myMethod4(){return 0;}\n" +
+			"public void foo() {\n" +
+			"	int i = myMeth \n" +
+			"}\n" +
+			"}");
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/java/lang/Test.java",
+			"package java.lang;\n" +
+			"public class Integer {\n" +
+			"}");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "= myMeth";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"myMethod1[METHOD_REF]{myMethod1(), Ltest.C;, ()V, myMethod1, null, " +
+				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"myMethod2[METHOD_REF]{myMethod2(), Ltest.C;, ()V, myMethod2, null, " +
+				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"myMethod4[METHOD_REF]{myMethod4(), Ltest.C;, ()Ljava.lang.Integer;, myMethod4, null, " +
+				(R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"myMethod3[METHOD_REF]{myMethod3(), Ltest.C;, ()I, myMethod3, null, " +
+				(R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());	
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84720
+ * Additional tests for bug 84720  
+ */
+public void testCompletionWithUnboxing_1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class C {\n" +
+			"public void myMethod1(){}\n" +
+			"public void myMethod2(){}\n" +
+			"public int myMethod3(){return 0;}\n" +
+			"public Integer myMethod4(){return 0;}\n" +
+			"public void foo() {\n" +
+			"	Integer i = myMeth \n" +
+			"}\n" +
+			"}");
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/java/lang/Test.java",
+			"package java.lang;\n" +
+			"public class Integer {\n" +
+			"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "= myMeth";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"myMethod1[METHOD_REF]{myMethod1(), Ltest.C;, ()V, myMethod1, null, " +
+				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"myMethod2[METHOD_REF]{myMethod2(), Ltest.C;, ()V, myMethod2, null, " +
+				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"myMethod3[METHOD_REF]{myMethod3(), Ltest.C;, ()I, myMethod3, null, " +
+				(R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"myMethod4[METHOD_REF]{myMethod4(), Ltest.C;, ()Ljava.lang.Integer;, myMethod4, null, " +
+				(R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());	
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84720
+ * Additional tests for bug 84720  
+ */
+public void testCompletionWithUnboxing_2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class C {\n" +
+			"int myVariable1 = 0;\n" +
+			"long myVariable2 = 0;\n" +
+			"boolean myVariable3 = false;\n" +
+			"Boolean myVariable4 = false;\n" +
+			"public void foo() {\n" +
+			"	if(myVar \n" +
+			"}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/java/lang/Test.java",
+			"package java.lang;\n" +
+			"public class Boolean {\n" +
+			"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "if(myVar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"myVariable1[FIELD_REF]{myVariable1, Ltest.C;, I, myVariable1, null, " +
+				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"myVariable2[FIELD_REF]{myVariable2, Ltest.C;, J, myVariable2, null, " +
+				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"myVariable4[FIELD_REF]{myVariable4, Ltest.C;, Ljava.lang.Boolean;, myVariable4, null, " +
+				(R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"myVariable3[FIELD_REF]{myVariable3, Ltest.C;, Z, myVariable3, null, " +
+				(R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());	
+}
 
 }

@@ -3977,6 +3977,11 @@ public final class CompletionEngine
 
 					relevance = R_EXPECTED_TYPE;
 				}
+				// Bug 84720 - [1.5][assist] proposal ranking by return value should consider auto(un)boxing
+				// Just ensuring that the unitScope is not null, even though it's an unlikely case.
+				if (this.unitScope != null && this.unitScope.isBoxingCompatibleWith(this.expectedTypes[i], proposalType)) {
+					relevance = R_EXPECTED_TYPE;
+				}
 			}
 			return relevance;
 		}
