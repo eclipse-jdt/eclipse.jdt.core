@@ -526,6 +526,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				processingTask = null;
 			}
 			reset();
+			this.annotationProcessorStartIndex  = 0;
 			this.stats.endTime = System.currentTimeMillis();
 		}
 		if (this.options.verbose) {
