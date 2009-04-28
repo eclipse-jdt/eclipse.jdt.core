@@ -829,6 +829,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				top = this.totalUnits; // last unit added
 			} else {
 				bottom = top;
+				this.annotationProcessorManager.reset();
 			}
 		} while (newUnitSize != 0 || newClassFilesSize != 0);
 		// one more loop to create possible resources
