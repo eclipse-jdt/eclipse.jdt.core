@@ -40,7 +40,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		InputStream stream = new ByteArrayInputStream(contents.getBytes());
 		try {
 			this.manifestAnalyzer.analyzeManifestContents(stream);
-		} catch(IOException e) {
+		} finally {
 			stream.close();
 		}
 	}
@@ -151,8 +151,11 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 
 	public void testWithOneJarUsingUTF8Name() throws IOException {
 		InputStream inputStream = ManifestAnalyzerTest.class.getResourceAsStream("MANIFEST.MF");
-		this.manifestAnalyzer.analyzeManifestContents(inputStream);
-		inputStream.close();
+		try {
+			this.manifestAnalyzer.analyzeManifestContents(inputStream);
+		} finally {
+			inputStream.close();
+		}
 		List jars = this.manifestAnalyzer.getCalledFileNames();
 		assertEquals("Wrong size", 1, jars.size());
 		assertEquals("called\u3042.jar", jars.get(0));
