@@ -4182,13 +4182,15 @@ public void testReadOnly() throws CoreException {
 	IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
 	IClasspathEntry[] originalCP= project.getRawClasspath();
 
+	IFile classpathFile = null;
 	try {
 		IClasspathEntry newEntry= JavaCore.newSourceEntry(project.getProject().getFullPath().append("extra"));
 		IClasspathEntry[] newCP= new IClasspathEntry[originalCP.length + 1];
 		System.arraycopy(originalCP, 0 , newCP, 0, originalCP.length);
 		newCP[originalCP.length]= newEntry;
 		
-		org.eclipse.jdt.internal.core.util.Util.setReadOnly(getFile("/P/.classpath"), true);
+		classpathFile = getFile("/P/.classpath");
+		org.eclipse.jdt.internal.core.util.Util.setReadOnly(classpathFile, true);
 		JavaModelException expected = null;
 		try {
 			project.setRawClasspath(newCP, null);
@@ -4198,6 +4200,9 @@ public void testReadOnly() throws CoreException {
 		assertExceptionEquals("Unexpected exception", "File /P/.classpath is read-only.", expected);
 	} finally {
 		// cleanup
+		if (classpathFile != null) {
+			org.eclipse.jdt.internal.core.util.Util.setReadOnly(classpathFile, false);
+		}
 		this.deleteProject("P");
 	}
 }

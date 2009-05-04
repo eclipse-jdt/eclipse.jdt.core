@@ -1672,12 +1672,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	public void deleteResource(IResource resource) throws CoreException {
 		int retryCount = 0; // wait 1 minute at most
-		while (++retryCount <= 60) {
+		while (++retryCount <= 6) {
 			if (org.eclipse.jdt.core.tests.util.Util.delete(resource)) {
 				return;
-			} else {
-				System.gc();
 			}
+			System.gc();
 		}
 		throw new RuntimeException("Could not delete " + resource.getFullPath());
 	}
