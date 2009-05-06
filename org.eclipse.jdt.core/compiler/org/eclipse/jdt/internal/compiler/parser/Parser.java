@@ -1357,6 +1357,10 @@ protected void consumeAnnotationTypeDeclaration() {
 	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 }
 protected void consumeAnnotationTypeDeclarationHeader() {
+	TypeDeclaration annotationTypeDeclaration = (TypeDeclaration) this.astStack[this.astPtr];
+	if (this.currentToken == TokenNameLBRACE) {
+		annotationTypeDeclaration.bodyStart = this.scanner.currentPosition;
+	}
 	if (this.currentElement != null) {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}

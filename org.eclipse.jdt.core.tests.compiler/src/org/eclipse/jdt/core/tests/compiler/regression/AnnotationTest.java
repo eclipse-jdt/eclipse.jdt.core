@@ -44,7 +44,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 249 };
+//		TESTS_NUMBERS = new int[] { 269 };
 //		TESTS_RANGE = new int[] { 249, -1 };
 	}
 
@@ -8825,5 +8825,29 @@ public void test268() {
 		"	       ^^^^^\n" + 
 		"The value for annotation attribute X.Anno2.value must be an enum constant expression\n" + 
 		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=274917
+public void test269() {
+	Map customOptions = new Hashtable();
+	String[] warnings = CompilerOptions.warningOptionNames();
+	for (int i = 0, ceil = warnings.length; i < ceil; i++) {
+		customOptions.put(warnings[i], CompilerOptions.WARNING);
+	}
+	this.runConformTest(
+			true,
+			new String[] {
+					"X.java",
+					"@interface X {}",
+			},
+			null,
+			customOptions,
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	@interface X {}\n" + 
+			"	             ^^\n" + 
+			"Empty block should be documented\n" + 
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 }
