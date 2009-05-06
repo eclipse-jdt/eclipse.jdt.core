@@ -1652,6 +1652,7 @@ public void test012b(){
         "      deprecation        + deprecation outside deprecated code\n" +
         "      discouraged        + use of types matching a discouraged access rule\n" +
         "      emptyBlock           undocumented empty block\n" +
+        "      enumIdentifier       ''enum'' used as identifier\n" + 
         "      enumSwitch           incomplete enum switch\n" +
         "      fallthrough          possible fall-through case\n" +
         "      fieldHiding          field hiding another variable\n" +
@@ -1704,10 +1705,7 @@ public void test012b(){
         "      uselessTypeCheck     unnecessary cast/instanceof operation\n" +
         "      varargsCast        + varargs argument need explicit cast\n" +
         "      warningToken       + unsupported or unnecessary @SuppressWarnings\n" +
-        " \n" +
-        " Advanced options:\n" +
-        "    -? -help           print the help message\n" +
-        "\n";
+		"\n";
 	String expandedExpectedOutput =
 		MessageFormat.format(expectedOutput, new String[] {
 				MAIN.bind("compiler.name"),
