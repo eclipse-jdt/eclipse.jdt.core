@@ -11063,4 +11063,70 @@ public void test0218_Diet() {
 			expectedReplacedSource,
 	"diet ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=274557
+public void test0219_Diet() {
+
+	String str =
+		"public class X {\n" +
+		"	@Annot(value=\"\")\n" +
+		"	int field;\n" +
+		"}\n";
+
+	String completeBehind = "value=\"";
+	int cursorLocation = str.lastIndexOf("value=\"") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompletionOnString:\"\">";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "\"\"";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(value = <CompletionOnString:\"\">)\n" + 
+		"  int field;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=274557
+public void test0220_Diet() {
+
+	String str =
+		"public class X {\n" +
+		"	@Annot(\"\")\n" +
+		"	int field;\n" +
+		"}\n";
+
+	String completeBehind = "@Annot(\"";
+	int cursorLocation = str.lastIndexOf("@Annot(\"") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompletionOnString:\"\">";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "\"\"";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(value = <CompletionOnString:\"\">)\n" + 
+		"  int field;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }

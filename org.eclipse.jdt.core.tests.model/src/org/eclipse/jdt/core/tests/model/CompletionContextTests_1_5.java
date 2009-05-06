@@ -1300,4 +1300,74 @@ public void test0040() throws JavaModelException {
 		"}",
 		result.context);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=274557
+public void test0041() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" +
+		"public class X {\n" +
+		"  @TestAnnot(value=\"\")\n" +
+		"  public int field = 0;\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/TestAnnot.java",
+		"package test;\n" +
+		"public @interface X {\n" +
+		"  String value();\n" +
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"\"");
+	int tokenEnd = tokenStart + "\"\"".length() - 1;
+	int cursorLocation = str.lastIndexOf("value=\"") + "value=\"".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location=UNKNOWN",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=274557
+public void test0042() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" +
+		"public class X {\n" +
+		"  @TestAnnot(\"\")\n" +
+		"  public int field = 0;\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/TestAnnot.java",
+		"package test;\n" +
+		"public @interface X {\n" +
+		"  String value();\n" +
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("\"\"");
+	int tokenEnd = tokenStart + "\"\"".length() - 1;
+	int cursorLocation = str.lastIndexOf("@TestAnnot(\"") + "@TestAnnot(\"".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location=UNKNOWN",
+		result.context);
+}
 }

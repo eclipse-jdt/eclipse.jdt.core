@@ -386,7 +386,7 @@ protected void attachOrphanCompletionNode(){
 
 						buildMoreAnnotationCompletionContext(memberValueName);
 						return;
-					} else if (expression instanceof QualifiedNameReference) {
+					} else if (expression instanceof QualifiedNameReference || expression instanceof StringLiteral) {
 						MemberValuePair valuePair =
 							new MemberValuePair(VALUE, expression.sourceStart, expression.sourceEnd, expression);
 						buildMoreAnnotationCompletionContext(valuePair);
