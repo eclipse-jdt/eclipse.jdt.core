@@ -1072,7 +1072,7 @@ public abstract class Scope {
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
 			unitScope.recordTypeReference(memberType);
-			if (enclosingSourceType == null
+			if (enclosingSourceType == null || (this.parent == unitScope && (enclosingSourceType.tagBits & TagBits.TypeVariablesAreConnected) == 0)
 				? memberType.canBeSeenBy(currentPackage)
 				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
 					return memberType;

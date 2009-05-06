@@ -38459,9 +38459,7 @@ public void test1134() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
 public void test1135() {
-	runConformTest(
-		// test directory preparation
-		true /* flush output directory */,
+	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
 			"class Foo <T>{\n" +
@@ -38492,13 +38490,12 @@ public void test1135() {
 			"    }    \n" +
 			"}\n", // =================
 		},
-		// compiler results
-		null /* do not check compiler log */,
-		// runtime results
-		"Baz" /* expected output string */,
-		"" /* expected error string */,
-		// javac options
-		JavacTestOptions.EclipseJustification.EclipseBug185422 /* javac test options */);
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	public class X extends Foo<X.Baz> {\n" + 
+		"	                           ^^^^^\n" + 
+		"The type X.Baz is not visible\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154029
 public void test1136() {
@@ -42388,9 +42385,7 @@ public void test1243() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
 public void test1244() {
-	runConformTest(
-		// test directory preparation
-		true /* flush output directory */,
+	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
@@ -42419,13 +42414,12 @@ public void test1244() {
 			"    protected abstract E delegate();\n" +
 			"}\n", // =================
 		},
-		// compiler results
-		null /* do not check compiler log */,
-		// runtime results
-		"SUCCESS" /* expected output string */,
-		"" /* expected error string */,
-		// javac options
-		JavacTestOptions.EclipseJustification.EclipseBug185422 /* javac test options */);
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	abstract class Pool<E extends Pool.Entry<E>> {\n" + 
+		"	                              ^^^^^^^^^^\n" + 
+		"The type Pool.Entry is not visible\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
 public void test1245() {
@@ -42447,8 +42441,7 @@ public void test1245() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
 public void test1246() {
-	runConformTest(
-		// test directory preparation
+	runNegativeTest(
 		new String[] { /* test files */
 			"X.java",
 			"public class X<T extends X.Private> {\n" +
@@ -42456,8 +42449,12 @@ public void test1246() {
 			"	<U extends X.Private> void foo(U u) {}\n" +
 			"}\n", // =================
 		},
-		// javac options
-		JavacTestOptions.EclipseJustification.EclipseBug185422 /* javac test options */);
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends X.Private> {\n" + 
+		"	                         ^^^^^^^^^\n" + 
+		"The type X.Private is not visible\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558
 public void test1247() {
@@ -49546,6 +49543,41 @@ public void test1451() {
 		"	class Z<T> extends C<B<T>, A<B<T>>> {}\n" + 
 		"	                               ^\n" + 
 		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <T2 extends Number> of the type B<T2>\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=273751
+public void test1452() {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"class A<T> {}\n" +
+			"class B extends A<B.Secret> {\n" +
+			"	private class Secret {};\n" +
+			"	B.Secret s;\n" +
+			"	A<B.Secret> a;\n" +
+			"}\n" +
+			"class C extends B.Secret {}\n" +
+			"class D {\n" +
+			"	class M { private class Secret {}; }\n" +
+			"	class N extends A<M.Secret> {}\n" +
+			"}\n" +
+			"class E {\n" +
+			"	class M extends A<M.Secret> {\n" +
+			"	  private class Secret {};\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 2)\n" + 
+		"	class B extends A<B.Secret> {\n" + 
+		"	                  ^^^^^^^^\n" + 
+		"The type B.Secret is not visible\n" + 
+		"----------\n" + 
+		"2. ERROR in A.java (at line 7)\n" + 
+		"	class C extends B.Secret {}\n" + 
+		"	                ^^^^^^^^\n" + 
+		"The type B.Secret is not visible\n" + 
 		"----------\n"
 	);
 }
