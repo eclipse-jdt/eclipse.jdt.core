@@ -3960,26 +3960,29 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (VERBOSE)
 			traceVariableAndContainers("Saved", start); //$NON-NLS-1$
 
-		if (context.getKind() == ISaveContext.FULL_SAVE) {
-			// save non-chaining jar cache on snapshot/full save
-			saveNonChainingJarsCache();
-
-			// will need delta since this save (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658)
-			context.needDelta();
-
-			// clean up indexes on workspace full save
-			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=52347)
-			IndexManager manager = this.indexManager;
-			if (manager != null
-					// don't force initialization of workspace scope as we could be shutting down
-					// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93941)
-					&& this.workspaceScope != null) {
-				manager.cleanUpIndexes();
+		switch(context.getKind()) {
+			case ISaveContext.FULL_SAVE : {
+				// save non-chaining jar cache on snapshot/full save
+				saveNonChainingJarsCache();
+	
+				// will need delta since this save (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658)
+				context.needDelta();
+	
+				// clean up indexes on workspace full save
+				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=52347)
+				IndexManager manager = this.indexManager;
+				if (manager != null
+						// don't force initialization of workspace scope as we could be shutting down
+						// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93941)
+						&& this.workspaceScope != null) {
+					manager.cleanUpIndexes();
+				}
 			}
-		}
-		// clean up external folders on full save or snapshot
-		if (context.getKind() == ISaveContext.FULL_SAVE || context.getKind() == ISaveContext.SNAPSHOT) {
-			this.externalFoldersManager.cleanUp(null);
+			//$FALL-THROUGH$
+			case ISaveContext.SNAPSHOT : {
+				// clean up external folders on full save or snapshot
+				this.externalFoldersManager.cleanUp(null);
+			}
 		}
 
 		IProject savedProject = context.getProject();
