@@ -3976,8 +3976,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					&& this.workspaceScope != null) {
 				manager.cleanUpIndexes();
 			}
-
-			// clean up external folders on full save
+		}
+		// clean up external folders on full save or snapshot
+		if (context.getKind() == ISaveContext.FULL_SAVE || context.getKind() == ISaveContext.SNAPSHOT) {
 			this.externalFoldersManager.cleanUp(null);
 		}
 
