@@ -258,7 +258,7 @@ public class KeyToSignature extends BindingKeyParser {
 				// TODO (jerome) add type parameter bounds in binding key
 			}
 			typeParametersSig.append('>');
-			this.signature.insert(this.typeSigStart, typeParametersSig);
+			this.signature.insert(this.typeSigStart, typeParametersSig.toString());
 			this.typeParameters = new ArrayList();
 		}
 		this.signature.append(';');
