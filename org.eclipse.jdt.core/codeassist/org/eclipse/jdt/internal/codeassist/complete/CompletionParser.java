@@ -2238,10 +2238,10 @@ protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 		this.pendingAnnotation = null;
 	}
 }
-protected void consumeEnterAnonymousClassBody() {
+protected void consumeEnterAnonymousClassBody(boolean qualified) {
 	popElement(K_SELECTOR_QUALIFIER);
 	popElement(K_SELECTOR_INVOCATION_TYPE);
-	super.consumeEnterAnonymousClassBody();
+	super.consumeEnterAnonymousClassBody(qualified);
 }
 protected void consumeEnterVariable() {
 	this.identifierPtr--;

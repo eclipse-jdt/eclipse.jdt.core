@@ -311,8 +311,8 @@ protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 		this.currentElement = this.currentElement.add(localDecl, 0);
 	}
 }
-protected void consumeEnterAnonymousClassBody() {
-	super.consumeEnterAnonymousClassBody();
+protected void consumeEnterAnonymousClassBody(boolean qualified) {
+	super.consumeEnterAnonymousClassBody(qualified);
 	popElement(K_SELECTOR);
 	pushOnElementStack(K_TYPE_DELIMITER);
 }

@@ -7759,4 +7759,77 @@ public void test125() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=132679
+public void test126() {
+	String s =
+		"package p;\n" +
+		"public class ContextTest {\n" +
+		"  private Context context = new Context();\n" +
+		"  public void test() {\n" +
+		"      context.new Callback() {\n" +
+		"      public void doit(int value) {\n" +
+		"       #\n" +
+		"      }\n" +
+		"    };\n" +
+		"  }\n" +
+		"}\n";
+
+	String expectedDietUnitToString =
+		"package p;\n" + 
+		"public class ContextTest {\n" + 
+		"  private Context context = new Context();\n" + 
+		"  public ContextTest() {\n" + 
+		"  }\n" + 
+		"  public void test() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString =
+		"package p;\n" + 
+		"public class ContextTest {\n" + 
+		"  private Context context = new Context();\n" + 
+		"  public ContextTest() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void test() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"package p;\n" + 
+		"public class ContextTest {\n" + 
+		"  private Context context = new Context();\n" + 
+		"  public ContextTest() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void test() {\n" + 
+		"    context.new Callback() {\n" + 
+		"      public void doit(int value) {\n" + 
+		"      }\n" + 
+		"    };\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+
+	String expectedCompletionDietUnitToString =
+		"package p;\n" + 
+		"public class ContextTest {\n" + 
+		"  private Context context;\n" + 
+		"  public ContextTest() {\n" + 
+		"  }\n" + 
+		"  public void test() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String testName = "test";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
 }

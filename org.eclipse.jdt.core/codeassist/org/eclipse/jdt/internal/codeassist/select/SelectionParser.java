@@ -369,11 +369,11 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		super.consumeClassInstanceCreationExpressionWithTypeArguments();
 	}
 }
-protected void consumeEnterAnonymousClassBody() {
+protected void consumeEnterAnonymousClassBody(boolean qualified) {
 	// EnterAnonymousClassBody ::= $empty
 
 	if (this.indexOfAssistIdentifier() < 0) {
-		super.consumeEnterAnonymousClassBody();
+		super.consumeEnterAnonymousClassBody(qualified);
 		return;
 	}
 
@@ -400,6 +400,11 @@ protected void consumeEnterAnonymousClassBody() {
 			alloc.arguments = new Expression[argumentLength],
 			0,
 			argumentLength);
+	}
+	
+	if (qualified) {
+		this.expressionLengthPtr--;
+		alloc.enclosingInstance = this.expressionStack[this.expressionPtr--];
 	}
 
 	alloc.type = typeReference;

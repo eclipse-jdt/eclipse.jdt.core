@@ -139,7 +139,45 @@ public void testArrayInitializer1() throws JavaModelException {
 			"bar[METHOD_REF]{, LArrayInitializer;, ()I, bar, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132679
+public void testBug132679() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test269493.java",
+			"package test;\n" +
+			"class Context {\n" +
+			"\n" +
+			"  private int value = 10;\n" +
+			"\n" +
+			"  public abstract class Callback {\n" +
+			"      public abstract void doit(int value);\n" +
+			"  }\n" +
+			"}\n" +
+			"\n" +
+			"public class ContextTest {\n" +
+			"\n" +
+			"  private Context context = new Context();\n" +
+			"\n" +
+			"  public void test() {\n" +
+			"      context.new Callback() {\n" +
+			"      public void doit(int value) {\n" +
+			"        Object foo = new Object();\n" +
+			"        foo.equ\n" +
+			"      }\n" +
+			"    };\n" +
+			"  }\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo.equ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=164311
 public void testBug164311() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
