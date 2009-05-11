@@ -1147,11 +1147,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.log = new GenericXMLWriter(new OutputStreamWriter(new FileOutputStream(logFileName, false), Util.UTF_8), Util.LINE_SEPARATOR, true);
 						this.tagBits |= Logger.XML;
 						// insert time stamp as comment
-						try {
-							this.log.println("<!-- " + new String(dateFormat.format(date).getBytes(), Util.UTF_8) + " -->");//$NON-NLS-1$//$NON-NLS-2$
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-						}
+						this.log.println("<!-- " + dateFormat.format(date) + " -->");//$NON-NLS-1$//$NON-NLS-2$
 						this.log.println(Logger.XML_DTD_DECLARATION);
 						this.parameters.put(Logger.COMPILER_NAME, this.main.bind("compiler.name")); //$NON-NLS-1$
 						this.parameters.put(Logger.COMPILER_VERSION, this.main.bind("compiler.version")); //$NON-NLS-1$
