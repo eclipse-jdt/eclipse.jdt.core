@@ -146,6 +146,7 @@ public void cleanUp() {
 		classFile.referenceBinding = null;
 		classFile.innerClassesBindings = null;
 		classFile.missingTypes = null;
+		classFile.visitedTypes = null;
 	}
 
 	this.suppressWarningAnnotations = null;

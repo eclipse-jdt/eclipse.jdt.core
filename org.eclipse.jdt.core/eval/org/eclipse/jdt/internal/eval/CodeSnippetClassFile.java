@@ -24,6 +24,9 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class CodeSnippetClassFile extends ClassFile {
 /**
@@ -143,6 +146,13 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 	// inner attributes
 	if (typeBinding.isNestedType()) {
 		classFile.recordInnerClasses(typeBinding);
+	}
+	TypeVariableBinding[] typeVariables = typeBinding.typeVariables();
+	for (int i = 0, max = typeVariables.length; i < max; i++) {
+		TypeVariableBinding typeVariableBinding = typeVariables[i];
+		if ((typeVariableBinding.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+			Util.recordNestedType(classFile, typeVariableBinding);
+		}
 	}
 
 	// add its fields

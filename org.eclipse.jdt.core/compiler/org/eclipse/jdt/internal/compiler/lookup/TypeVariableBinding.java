@@ -398,14 +398,19 @@ public class TypeVariableBinding extends ReferenceBinding {
 			return this;
 
 		TypeBinding oldSuperclass = this.superclass, oldFirstInterface = null;
-		if (this.superclass != null)
-			this.superclass = (ReferenceBinding) BinaryTypeBinding.resolveType(this.superclass, this.environment, true /* raw conversion */);
+		if (this.superclass != null) {
+			ReferenceBinding resolveType = (ReferenceBinding) BinaryTypeBinding.resolveType(this.superclass, this.environment, true /* raw conversion */);
+			this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences;
+			this.superclass = resolveType;
+		}
 		ReferenceBinding[] interfaces = this.superInterfaces;
 		int length;
 		if ((length = interfaces.length) != 0) {
 			oldFirstInterface = interfaces[0];
 			for (int i = length; --i >= 0;) {
-				interfaces[i] = (ReferenceBinding) BinaryTypeBinding.resolveType(interfaces[i], this.environment, true /* raw conversion */);
+				ReferenceBinding resolveType = (ReferenceBinding) BinaryTypeBinding.resolveType(interfaces[i], this.environment, true /* raw conversion */);
+				this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences;
+				interfaces[i] = resolveType;
 			}
 		}
 		// refresh the firstBound in case it changed

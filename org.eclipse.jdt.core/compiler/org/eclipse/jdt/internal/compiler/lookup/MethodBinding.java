@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class MethodBinding extends Binding {
 
@@ -962,7 +963,7 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
  */
 public final char[] signature(ClassFile classFile) {
 	if (this.signature != null) {
-		if ((this.tagBits & TagBits.ContainsNestedTypesInSignature) != 0) {
+		if ((this.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 			// we need to record inner classes references
 			boolean isConstructor = isConstructor();
 			TypeBinding[] targetParameters = this.parameters;
@@ -973,8 +974,8 @@ public final char[] signature(ClassFile classFile) {
 				if (syntheticArgumentTypes != null) {
 					for (int i = 0, count = syntheticArgumentTypes.length; i < count; i++) {
 						ReferenceBinding syntheticArgumentType = syntheticArgumentTypes[i];
-						if (syntheticArgumentType.isNestedType()) {
-							classFile.recordInnerClasses(syntheticArgumentType);
+						if ((syntheticArgumentType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+							Util.recordNestedType(classFile, syntheticArgumentType);
 						}
 					}
 				}
@@ -984,11 +985,11 @@ public final char[] signature(ClassFile classFile) {
 			}
 
 			if (targetParameters != Binding.NO_PARAMETERS) {
-				for (int i = 0; i < targetParameters.length; i++) {
+				for (int i = 0, max = targetParameters.length; i < max; i++) {
 					TypeBinding targetParameter = targetParameters[i];
 					TypeBinding leafTargetParameterType = targetParameter.leafComponentType();
-					if (leafTargetParameterType.isNestedType()) {
-						classFile.recordInnerClasses(leafTargetParameterType);
+					if ((leafTargetParameterType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+						Util.recordNestedType(classFile, leafTargetParameterType);
 					}
 				}
 			}
@@ -997,15 +998,15 @@ public final char[] signature(ClassFile classFile) {
 				for (int i = targetParameters.length, extraLength = this.parameters.length; i < extraLength; i++) {
 					TypeBinding parameter = this.parameters[i];
 					TypeBinding leafParameterType = parameter.leafComponentType();
-					if (leafParameterType.isNestedType()) {
-						classFile.recordInnerClasses(leafParameterType);
+					if ((leafParameterType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+						Util.recordNestedType(classFile, leafParameterType);
 					}
 				}
 			}
 			if (this.returnType != null) {
 				TypeBinding ret = this.returnType.leafComponentType();
-				if (ret.isNestedType()) {
-					classFile.recordInnerClasses(ret);
+				if ((ret.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+					Util.recordNestedType(classFile, ret);
 				}
 			}
 		}
@@ -1028,9 +1029,9 @@ public final char[] signature(ClassFile classFile) {
 		if (syntheticArgumentTypes != null) {
 			for (int i = 0, count = syntheticArgumentTypes.length; i < count; i++) {
 				ReferenceBinding syntheticArgumentType = syntheticArgumentTypes[i];
-				if (syntheticArgumentType.isNestedType()) {
-					this.tagBits |= TagBits.ContainsNestedTypesInSignature;
-					classFile.recordInnerClasses(syntheticArgumentType);
+				if ((syntheticArgumentType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+					this.tagBits |= TagBits.ContainsNestedTypeReferences;
+					Util.recordNestedType(classFile, syntheticArgumentType);
 				}
 				buffer.append(syntheticArgumentType.signature());
 			}
@@ -1042,12 +1043,12 @@ public final char[] signature(ClassFile classFile) {
 	}
 
 	if (targetParameters != Binding.NO_PARAMETERS) {
-		for (int i = 0; i < targetParameters.length; i++) {
+		for (int i = 0, max = targetParameters.length; i < max; i++) {
 			TypeBinding targetParameter = targetParameters[i];
 			TypeBinding leafTargetParameterType = targetParameter.leafComponentType();
-			if (leafTargetParameterType.isNestedType()) {
-				this.tagBits |= TagBits.ContainsNestedTypesInSignature;
-				classFile.recordInnerClasses(leafTargetParameterType);
+			if ((leafTargetParameterType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+				this.tagBits |= TagBits.ContainsNestedTypeReferences;
+				Util.recordNestedType(classFile, leafTargetParameterType);
 			}
 			buffer.append(targetParameter.signature());
 		}
@@ -1062,9 +1063,9 @@ public final char[] signature(ClassFile classFile) {
 		for (int i = targetParameters.length, extraLength = this.parameters.length; i < extraLength; i++) {
 			TypeBinding parameter = this.parameters[i];
 			TypeBinding leafParameterType = parameter.leafComponentType();
-			if (leafParameterType.isNestedType()) {
-				this.tagBits |= TagBits.ContainsNestedTypesInSignature;
-				classFile.recordInnerClasses(leafParameterType);
+			if ((leafParameterType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+				this.tagBits |= TagBits.ContainsNestedTypeReferences;
+				Util.recordNestedType(classFile, leafParameterType);
 			}
 			buffer.append(parameter.signature());
 		}
@@ -1072,9 +1073,9 @@ public final char[] signature(ClassFile classFile) {
 	buffer.append(')');
 	if (this.returnType != null) {
 		TypeBinding ret = this.returnType.leafComponentType();
-		if (ret.isNestedType()) {
-			this.tagBits |= TagBits.ContainsNestedTypesInSignature;
-			classFile.recordInnerClasses(ret);
+		if ((ret.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+			this.tagBits |= TagBits.ContainsNestedTypeReferences;
+			Util.recordNestedType(classFile, ret);
 		}
 		buffer.append(this.returnType.signature());
 	}

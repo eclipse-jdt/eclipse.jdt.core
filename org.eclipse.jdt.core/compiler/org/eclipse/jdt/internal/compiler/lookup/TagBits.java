@@ -19,11 +19,12 @@ public interface TagBits {
 	long IsBaseType = ASTNode.Bit2;
 	long IsNestedType = ASTNode.Bit3;
 	long IsMemberType = ASTNode.Bit4;
-	long MemberTypeMask = IsNestedType | IsMemberType;
+	long ContainsNestedTypeReferences = ASTNode.Bit12; // method/parameterized type binding
+	long MemberTypeMask = IsNestedType | IsMemberType | ContainsNestedTypeReferences;
 	long IsLocalType = ASTNode.Bit5;
-	long LocalTypeMask = IsNestedType | IsLocalType;
+	long LocalTypeMask = IsNestedType | IsLocalType | ContainsNestedTypeReferences;
 	long IsAnonymousType = ASTNode.Bit6;
-	long AnonymousTypeMask = LocalTypeMask | IsAnonymousType;
+	long AnonymousTypeMask = LocalTypeMask | IsAnonymousType | ContainsNestedTypeReferences;
 	long IsBinaryBinding = ASTNode.Bit7;
 
 	// set for all bindings either represeting a missing type (type), or directly referencing a missing type (field/method/variable)
@@ -35,8 +36,8 @@ public interface TagBits {
 	// for the type cycle hierarchy check used by ClassScope
 	long BeginHierarchyCheck = ASTNode.Bit9;  // type
 	long EndHierarchyCheck = ASTNode.Bit10; // type
-	long ContainsNestedTypesInSignature = ASTNode.Bit10; // method
 	long HasParameterAnnotations = ASTNode.Bit11; // method
+
 
 	// test bit to see if default abstract methods were computed
 	long KnowsDefaultAbstractMethods = ASTNode.Bit11; // type

@@ -516,6 +516,13 @@ public void generateCode(ClassFile enclosingClassFile) {
 			enclosingClassFile.recordInnerClasses(this.binding);
 			classFile.recordInnerClasses(this.binding);
 		}
+		TypeVariableBinding[] typeVariables = this.binding.typeVariables();
+		for (int i = 0, max = typeVariables.length; i < max; i++) {
+			TypeVariableBinding typeVariableBinding = typeVariables[i];
+			if ((typeVariableBinding.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+				Util.recordNestedType(classFile, typeVariableBinding);
+			}
+		}
 
 		// generate all fiels
 		classFile.addFieldInfos();

@@ -673,10 +673,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 						this.tagBits |= TagBits.IsBoundParameterizedType;
 						break;
 				}
-			    this.tagBits |= someArgument.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType);
+				this.tagBits |= someArgument.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences);
 			}
 		}
-		this.tagBits |= someType.tagBits & (TagBits.IsLocalType| TagBits.IsMemberType | TagBits.IsNestedType | TagBits.HasMissingType);
+		this.tagBits |= someType.tagBits & (TagBits.IsLocalType| TagBits.IsMemberType | TagBits.IsNestedType | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences);
 		this.tagBits &= ~(TagBits.AreFieldsComplete|TagBits.AreMethodsComplete);
 	}
 
@@ -845,10 +845,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 		this.tagBits &= ~TagBits.HasUnresolvedTypeVariables; // can be recursive so only want to call once
 		ReferenceBinding resolvedType = (ReferenceBinding) BinaryTypeBinding.resolveType(this.type, this.environment, false /* no raw conversion */); // still part of parameterized type ref
+		this.tagBits |= resolvedType.tagBits & TagBits.ContainsNestedTypeReferences;
 		if (this.arguments != null) {
 			int argLength = this.arguments.length;
-			for (int i = 0; i < argLength; i++)
-				this.arguments[i] = BinaryTypeBinding.resolveType(this.arguments[i], this.environment, true /* raw conversion */);
+			for (int i = 0; i < argLength; i++) {
+				TypeBinding resolveType = BinaryTypeBinding.resolveType(this.arguments[i], this.environment, true /* raw conversion */);
+				this.arguments[i] = resolveType;
+				this.tagBits |= resolvedType.tagBits & TagBits.ContainsNestedTypeReferences;
+			}
 			// arity check
 			TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 			if (refTypeVariables == Binding.NO_TYPE_VARIABLES) { // check generic

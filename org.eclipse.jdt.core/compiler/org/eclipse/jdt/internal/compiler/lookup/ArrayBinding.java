@@ -35,7 +35,7 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
 	if (type instanceof UnresolvedReferenceBinding)
 		((UnresolvedReferenceBinding) type).addWrapper(this, environment);
 	else
-    	this.tagBits |= type.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType);
+		this.tagBits |= type.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences);
 }
 
 public TypeBinding closestMatch() {

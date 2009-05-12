@@ -1217,8 +1217,8 @@ public void fdiv() {
 
 public void fieldAccess(byte opcode, FieldBinding fieldBinding, TypeBinding declaringClass) {
 	if (declaringClass == null) declaringClass = fieldBinding.declaringClass;
-	if (declaringClass.leafComponentType().isNestedType()) {
-		this.classFile.recordInnerClasses(declaringClass);
+	if ((declaringClass.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+		Util.recordNestedType(this.classFile, declaringClass);
 	}
 	TypeBinding returnType = fieldBinding.type;
 	int returnTypeSize;
@@ -3835,52 +3835,52 @@ protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, 
 
 public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declaringClass) {
 	if (declaringClass == null) declaringClass = methodBinding.declaringClass;
-    if (declaringClass.isNestedType()) {
-        this.classFile.recordInnerClasses(declaringClass);
-    }
-    // compute receiverAndArgsSize
-    int receiverAndArgsSize;
-    switch(opcode) {
-    	case Opcodes.OPC_invokestatic :
-    		receiverAndArgsSize = 0; // no receiver
-    		break;
-    	case Opcodes.OPC_invokeinterface :
-    	case Opcodes.OPC_invokevirtual :
-    		receiverAndArgsSize = 1; // receiver
-    		break;
-    	case Opcodes.OPC_invokespecial :
-    		receiverAndArgsSize = 1; // receiver
-    		if (methodBinding.isConstructor()) {
-    			if (declaringClass.isNestedType()) {
-        			ReferenceBinding nestedType = (ReferenceBinding) declaringClass;
-    				// enclosing instances
-        			receiverAndArgsSize += nestedType.getEnclosingInstancesSlotSize();
-    				// outer local variables
-    				SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticOuterLocalVariables();
-    				if (syntheticArguments != null) {
-    					for (int i = 0, max = syntheticArguments.length; i < max; i++) {
-    						switch (syntheticArguments[i].id)  {
-    							case TypeIds.T_double :
-    							case TypeIds.T_long :
-	    							receiverAndArgsSize += 2;
+	if ((declaringClass.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+		Util.recordNestedType(this.classFile, declaringClass);
+	}
+	// compute receiverAndArgsSize
+	int receiverAndArgsSize;
+	switch(opcode) {
+		case Opcodes.OPC_invokestatic :
+			receiverAndArgsSize = 0; // no receiver
+			break;
+		case Opcodes.OPC_invokeinterface :
+		case Opcodes.OPC_invokevirtual :
+			receiverAndArgsSize = 1; // receiver
+			break;
+		case Opcodes.OPC_invokespecial :
+			receiverAndArgsSize = 1; // receiver
+			if (methodBinding.isConstructor()) {
+				if (declaringClass.isNestedType()) {
+					ReferenceBinding nestedType = (ReferenceBinding) declaringClass;
+					// enclosing instances
+					receiverAndArgsSize += nestedType.getEnclosingInstancesSlotSize();
+					// outer local variables
+					SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticOuterLocalVariables();
+					if (syntheticArguments != null) {
+						for (int i = 0, max = syntheticArguments.length; i < max; i++) {
+							switch (syntheticArguments[i].id)  {
+								case TypeIds.T_double :
+								case TypeIds.T_long :
+									receiverAndArgsSize += 2;
 									break;
-    							default: 
-	    							receiverAndArgsSize++;
-    								break;
-    						}    						
-    					}
-    				}
-    			}
-    			if (declaringClass.isEnum()) {
-    				// adding String (name) and int (ordinal)
-    				receiverAndArgsSize += 2;
-    			}
-    		}    		
-    		break;
-    	default :
-    		return; // should not occur
-    		
-    }
+								default: 
+									receiverAndArgsSize++;
+									break;
+							}    						
+						}
+					}
+				}
+				if (declaringClass.isEnum()) {
+					// adding String (name) and int (ordinal)
+					receiverAndArgsSize += 2;
+				}
+			}    		
+			break;
+		default :
+			return; // should not occur
+
+	}
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--) {
 		switch (methodBinding.parameters[i].id) {
 			case TypeIds.T_double :
@@ -3993,9 +3993,9 @@ public void invokeEnumOrdinal(char[] enumTypeConstantPoolName) {
 
 public void invokeIterableIterator(TypeBinding iterableReceiverType) {
 	// invokevirtual/interface: <iterableReceiverType>.iterator()
-    if (iterableReceiverType.isNestedType()) {
-        this.classFile.recordInnerClasses(iterableReceiverType);
-    }	
+	if ((iterableReceiverType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+		Util.recordNestedType(this.classFile, iterableReceiverType);
+	}
 	invoke(
 			iterableReceiverType.isInterface() ? Opcodes.OPC_invokeinterface : Opcodes.OPC_invokevirtual,
 			1, // receiverAndArgsSize

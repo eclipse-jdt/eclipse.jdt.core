@@ -13,10 +13,12 @@ package org.eclipse.jdt.internal.compiler.codegen;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.Util;
 /**
  * This type is used to store all the constant pool entries.
  */
@@ -297,11 +299,11 @@ public int literalIndex(byte[] utf8encoding, char[] stringCharArray) {
     return index;
 }
 public int literalIndex(TypeBinding binding) {
-    TypeBinding typeBinding = binding.leafComponentType();
-    if (typeBinding.isNestedType()) {
-        this.classFile.recordInnerClasses(typeBinding);
-    }
-    return literalIndex(binding.signature());
+	TypeBinding typeBinding = binding.leafComponentType();
+	if ((typeBinding.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+		Util.recordNestedType(this.classFile, typeBinding);
+	}
+	return literalIndex(binding.signature());
 }
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
@@ -647,11 +649,11 @@ public int literalIndexForType(final char[] constantPoolName) {
  * binding must not be an array type.
  */
 public int literalIndexForType(final TypeBinding binding) {
-    TypeBinding typeBinding = binding.leafComponentType();
-    if (typeBinding.isNestedType()) {
-        this.classFile.recordInnerClasses(typeBinding);
-    }
-    return this.literalIndexForType(binding.constantPoolName());
+	TypeBinding typeBinding = binding.leafComponentType();
+	if ((typeBinding.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+		Util.recordNestedType(this.classFile, typeBinding);
+	}
+	return this.literalIndexForType(binding.constantPoolName());
 }
 public int literalIndexForMethod(char[] declaringClass, char[] selector, char[] signature, boolean isInterface) {
     int index;
@@ -688,10 +690,10 @@ public int literalIndexForMethod(char[] declaringClass, char[] selector, char[] 
     return index;
 }
 public int literalIndexForMethod(TypeBinding declaringClass, char[] selector, char[] signature, boolean isInterface) {
-    if (declaringClass.isNestedType()) {
-        this.classFile.recordInnerClasses(declaringClass);
-    }
-    return this.literalIndexForMethod(declaringClass.constantPoolName(), selector, signature, isInterface);
+	if ((declaringClass.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+		Util.recordNestedType(this.classFile, declaringClass);
+	}
+	return this.literalIndexForMethod(declaringClass.constantPoolName(), selector, signature, isInterface);
 }
 public int literalIndexForNameAndType(char[] name, char[] signature) {
     int index;

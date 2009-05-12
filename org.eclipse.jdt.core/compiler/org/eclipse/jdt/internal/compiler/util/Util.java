@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -32,6 +33,12 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
 public class Util implements SuffixConstants {
 
@@ -808,6 +815,71 @@ public class Util implements SuffixConstants {
 			throw e;
 		} finally {
 			output.close();
+		}
+	}
+	public static void recordNestedType(ClassFile classFile, TypeBinding typeBinding) {
+		if (classFile.visitedTypes == null) {
+			classFile.visitedTypes = new HashSet(3);
+		} else if (classFile.visitedTypes.contains(typeBinding)) {
+			// type is already visited
+			return;
+		}
+		classFile.visitedTypes.add(typeBinding);
+		if (typeBinding.isParameterizedType()
+				&& ((typeBinding.tagBits & TagBits.ContainsNestedTypeReferences) != 0)) {
+			ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) typeBinding;
+			ReferenceBinding genericType = parameterizedTypeBinding.genericType();
+			if ((genericType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+				recordNestedType(classFile, genericType);
+			}
+			TypeBinding[] arguments = parameterizedTypeBinding.arguments;
+			if (arguments != null) {
+				for (int j = 0, max2 = arguments.length; j < max2; j++) {
+					TypeBinding argument = arguments[j];
+					if (argument.isWildcard()) {
+						WildcardBinding wildcardBinding = (WildcardBinding) argument;
+						TypeBinding bound = wildcardBinding.bound;
+						if (bound != null
+								&& ((bound.tagBits & TagBits.ContainsNestedTypeReferences) != 0)) {
+							recordNestedType(classFile, bound);
+						}
+						ReferenceBinding superclass = wildcardBinding.superclass();
+						if (superclass != null
+								&& ((superclass.tagBits & TagBits.ContainsNestedTypeReferences) != 0)) {
+							recordNestedType(classFile, superclass);
+						}
+						ReferenceBinding[] superInterfaces = wildcardBinding.superInterfaces();
+						if (superInterfaces != null) {
+							for (int k = 0, max3 =  superInterfaces.length; k < max3; k++) {
+								ReferenceBinding superInterface = superInterfaces[k];
+								if ((superInterface.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+									recordNestedType(classFile, superInterface);
+								}
+							}
+						}
+					} else if ((argument.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+						recordNestedType(classFile, argument);
+					}
+				}
+			}
+		} else if (typeBinding.isTypeVariable()
+				&& ((typeBinding.tagBits & TagBits.ContainsNestedTypeReferences) != 0)) {
+			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) typeBinding;
+			TypeBinding upperBound = typeVariableBinding.upperBound();
+			if (upperBound != null && ((upperBound.tagBits & TagBits.ContainsNestedTypeReferences) != 0)) {
+				recordNestedType(classFile, upperBound);
+			}
+			TypeBinding[] upperBounds = typeVariableBinding.otherUpperBounds();
+			if (upperBounds != null) {
+				for (int k = 0, max3 =  upperBounds.length; k < max3; k++) {
+					TypeBinding otherUpperBound = upperBounds[k];
+					if ((otherUpperBound.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+						recordNestedType(classFile, otherUpperBound);
+					}
+				}
+			}
+		} else if (typeBinding.isNestedType()) {
+			classFile.recordInnerClasses(typeBinding);
 		}
 	}
 }

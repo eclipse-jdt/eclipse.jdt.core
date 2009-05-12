@@ -67,6 +67,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
@@ -123,6 +124,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 	public List missingTypes = null;
 
+	public Set visitedTypes;
+
 	public static final int INITIAL_CONTENTS_SIZE = 400;
 	public static final int INITIAL_HEADER_SIZE = 1500;
 	public static final int INNER_CLASSES_SIZE = 5;
@@ -151,7 +154,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (typeBinding.isNestedType()) {
 			classFile.recordInnerClasses(typeBinding);
 		}
-
+		TypeVariableBinding[] typeVariables = typeBinding.typeVariables();
+		for (int i = 0, max = typeVariables.length; i < max; i++) {
+			TypeVariableBinding typeVariableBinding = typeVariables[i];
+			if ((typeVariableBinding.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+				Util.recordNestedType(classFile, typeVariableBinding);
+			}
+		}
 		// add its fields
 		FieldBinding[] fields = typeBinding.fields();
 		if ((fields != null) && (fields != Binding.NO_FIELDS)) {
@@ -7182,6 +7191,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.innerClassesBindings.clear();
 		}
 		this.missingTypes = null;
+		this.visitedTypes = null;
 	}
 
 	/**

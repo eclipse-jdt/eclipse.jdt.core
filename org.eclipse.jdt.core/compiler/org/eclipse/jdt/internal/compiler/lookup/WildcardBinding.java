@@ -425,7 +425,13 @@ public class WildcardBinding extends ReferenceBinding {
 			this.fPackage = someGenericType.getPackage();
 		}
 		if (someBound != null) {
-			this.tagBits |= someBound.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType);
+			this.tagBits |= someBound.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences);
+		}
+		if (someOtherBounds != null) {
+			for (int i = 0, max = someOtherBounds.length; i < max; i++) {
+				TypeBinding someOtherBound = someOtherBounds[i];
+				this.tagBits |= someOtherBound.tagBits & TagBits.ContainsNestedTypeReferences;
+			}
 		}
 	}
 
@@ -494,18 +500,24 @@ public class WildcardBinding extends ReferenceBinding {
 
 		this.tagBits &= ~TagBits.HasUnresolvedTypeVariables;
 		BinaryTypeBinding.resolveType(this.genericType, this.environment, false /* no raw conversion */);
-	    switch(this.boundKind) {
-	        case Wildcard.EXTENDS :
-				this.bound = BinaryTypeBinding.resolveType(this.bound, this.environment, true /* raw conversion */);
-	        	for (int i = 0, length = this.otherBounds == null ? 0 : this.otherBounds.length; i < length; i++) {
-					this.otherBounds[i]= BinaryTypeBinding.resolveType(this.bound, this.environment, true /* raw conversion */);
-	        	}
+		switch(this.boundKind) {
+			case Wildcard.EXTENDS :
+				TypeBinding resolveType = BinaryTypeBinding.resolveType(this.bound, this.environment, true /* raw conversion */);
+				this.bound = resolveType;
+				this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences;
+				for (int i = 0, length = this.otherBounds == null ? 0 : this.otherBounds.length; i < length; i++) {
+					resolveType = BinaryTypeBinding.resolveType(this.otherBounds[i], this.environment, true /* raw conversion */);
+					this.otherBounds[i]= resolveType;
+					this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences;
+				}
 				break;
-	        case Wildcard.SUPER :
-				this.bound = BinaryTypeBinding.resolveType(this.bound, this.environment, true /* raw conversion */);
+			case Wildcard.SUPER :
+				resolveType = BinaryTypeBinding.resolveType(this.bound, this.environment, true /* raw conversion */);
+				this.bound = resolveType;
+				this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences;
 				break;
 			case Wildcard.UNBOUND :
-	    }
+		}
 		return this;
 	}
 
