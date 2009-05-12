@@ -212,6 +212,7 @@ public interface JavadocTagConstants {
 		TAG_DOC_ROOT,
 		TAG_VALUE,
 	};
+	public static final char[][] COMPILATION_UNIT_TAGS = {};
 	public static final char[][] CLASS_TAGS = {
 		TAG_SEE,
 		TAG_SINCE,

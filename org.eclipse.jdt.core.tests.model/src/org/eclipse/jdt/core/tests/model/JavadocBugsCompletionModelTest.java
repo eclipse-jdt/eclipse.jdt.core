@@ -1129,4 +1129,46 @@ public void testBug249785a() throws JavaModelException {
 		"field[FIELD_REF]{field, Lbugs.b171016.BasicTestBugs;, I, field, null, "+this.positions+R_DRICNRNS+"}"
 	);
 }
+/**
+ * @bug 255752 [javadoc][assist] Inappropriate completion proposals for javadoc at compilation unit level 
+ * @test that there are no tag completions offered at the compilation unit level for a non package-info.java
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=255752"
+ */
+public void testBug255752() throws JavaModelException {
+	String source =
+		"/**\n" +
+		" *\n" +
+		" * @\n" +
+		" */" +
+		"package javadoc.bugs;\n" +
+		"public class BasicTestBugs {}\n";
+	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "@", -1);
+	assertSortedResults("");
+}
+/**
+ * Additional tests for bug 255752
+ * @test whether an orphan Javadoc comment gets all the possible tags applicable to the class level.
+ */
+public void testBug255752a() throws JavaModelException {
+	String source =
+		"/**\n" +
+		" *\n" +
+		" * @\n" +
+		" */" +
+		"\n";
+	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "@", -1);
+	assertResults(
+			"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"version[JAVADOC_BLOCK_TAG]{@version, null, null, version, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		);
+}
 }
