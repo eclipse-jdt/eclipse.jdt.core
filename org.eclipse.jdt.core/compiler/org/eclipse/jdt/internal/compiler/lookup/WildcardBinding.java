@@ -456,6 +456,10 @@ public class WildcardBinding extends ReferenceBinding {
     	return this.otherBounds != null;
     }
 
+	public boolean isHierarchyConnected() {
+		return this.superclass != null && this.superInterfaces != null;
+	}
+
     /**
 	 * Returns true if the type is a wildcard
 	 */

@@ -733,6 +733,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         return false;
 	}
 
+	public boolean isHierarchyConnected() {
+		return this.superclass != null && this.superInterfaces != null;
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Substitution#isRawSubstitution()
 	 */

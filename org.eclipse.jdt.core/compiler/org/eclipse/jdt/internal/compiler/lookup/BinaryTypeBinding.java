@@ -910,6 +910,9 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 public boolean isGenericType() {
     return this.typeVariables != Binding.NO_TYPE_VARIABLES;
 }
+public boolean isHierarchyConnected() {
+	return (this.tagBits & (TagBits.HasUnresolvedSuperclass | TagBits.HasUnresolvedSuperinterfaces)) == 0;
+}
 public int kind() {
 	if (this.typeVariables != Binding.NO_TYPE_VARIABLES)
 		return Binding.GENERIC_TYPE;

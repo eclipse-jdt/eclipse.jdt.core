@@ -1064,6 +1064,13 @@ public boolean isHierarchyBeingConnected() {
 	return (this.tagBits & TagBits.EndHierarchyCheck) == 0 && (this.tagBits & TagBits.BeginHierarchyCheck) != 0;
 }
 
+/**
+ * Returns true if the type hierarchy is connected
+ */
+public boolean isHierarchyConnected() {
+	return true;
+}
+
 public boolean isInterface() {
 	// consider strict interfaces and annotation types
 	return (this.modifiers & ClassFileConstants.AccInterface) != 0;

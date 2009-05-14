@@ -316,6 +316,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 		return false;
 	}
 
+	public boolean isHierarchyConnected() {
+		return (this.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0;
+	}
+
 	/**
 	 * Returns true if the 2 variables are playing exact same role: they have
 	 * the same bounds, providing one is substituted with the other: <T1 extends
