@@ -62,7 +62,6 @@ import org.eclipse.jdt.internal.core.Annotation;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.MemberValuePair;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
@@ -1385,28 +1384,24 @@ public class Util {
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding original = methodBinding.original();
 			String selector = original.isConstructor() ? declaringType.getElementName() : new String(original.selector);
 			boolean isBinary = declaringType.isBinary();
-			ReferenceBinding enclosingType = original.declaringClass.enclosingType();
-			boolean isInnerBinaryTypeConstructor = isBinary && original.isConstructor() && enclosingType != null;
 			TypeBinding[] parameters = original.parameters;
 			int length = parameters == null ? 0 : parameters.length;
-			int declaringIndex = isInnerBinaryTypeConstructor ? 1 : 0;
-			String[] parameterSignatures = new String[declaringIndex + length];
-			if (isInnerBinaryTypeConstructor)
-				parameterSignatures[0] = new String(enclosingType.genericTypeSignature()).replace('/', '.');
-			for (int i = 0;  i < length; i++) {
-				char[] signature = parameters[i].genericTypeSignature();
-				if (isBinary) {
-					signature = CharOperation.replaceOnCopy(signature, '/', '.');
-				} else {
-					signature = toUnresolvedTypeSignature(signature);
+			if (isBinary) {
+				ReferenceBinding enclosingType = original.declaringClass.enclosingType();
+				boolean isInnerBinaryTypeConstructor = original.isConstructor() && enclosingType != null;
+				int declaringIndex = isInnerBinaryTypeConstructor ? 1 : 0;
+				String[] parameterSignatures = new String[declaringIndex + length];
+				if (isInnerBinaryTypeConstructor) {
+					parameterSignatures[0] = new String(enclosingType.genericTypeSignature()).replace('/', '.');
 				}
-				parameterSignatures[declaringIndex + i] = new String(signature);
+				for (int i = 0;  i < length; i++) {
+					char[] signature = parameters[i].genericTypeSignature();
+					signature = CharOperation.replaceOnCopy(signature, '/', '.');
+					parameterSignatures[declaringIndex + i] = new String(signature);
+				}
+				IMethod result = declaringType.getMethod(selector, parameterSignatures);
+				return (JavaElement) result;
 			}
-			IMethod result = declaringType.getMethod(selector, parameterSignatures);
-			if (isBinary)
-				return (JavaElement) result;
-			if (result.exists()) // if perfect match (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=249567 )
-				return (JavaElement) result;
 			IMethod[] methods = null;
 			try {
 				methods = declaringType.getMethods();
@@ -1414,13 +1409,55 @@ public class Util {
 				// declaring type doesn't exist
 				return null;
 			}
-			IMethod[] candidates = Member.findMethods(result, methods);
-			if (candidates == null || candidates.length == 0)
-				return null;
-			return (JavaElement) candidates[0];
+			return findMethod(selector, parameters, methods);
 		}
 	}
+	private static JavaElement findMethod(
+			String selector,
+			TypeBinding[] parameters,
+			IMethod[] methods) {
 
+		ArrayList list = new ArrayList();
+		int parametersLength = parameters.length;
+		for (int i = 0, length = methods.length; i < length; i++) {
+			IMethod existingMethod = methods[i];
+			if (selector.equals(existingMethod.getElementName())
+					&& parametersLength == existingMethod.getParameterTypes().length) {
+				list.add(existingMethod);
+			}
+		}
+		int size = list.size();
+		switch(size) {
+			case 0 :
+				return null;
+			case 1 :
+				return (JavaElement) list.get(0);
+		}
+		// more than one match by the selector
+		// try to match the parameters
+		methodLoop: for (Iterator iterator = list.iterator(); iterator.hasNext(); ) {
+			IMethod existingMethod = (IMethod) iterator.next();
+			String[] parameterTypes = existingMethod.getParameterTypes();
+			parametersLoop: for (int i = 0; i < parametersLength; i++) {
+				TypeBinding parameter = parameters[i];
+				char[] genericTypeSignature = parameter.genericTypeSignature();
+				// first try unresolved signature
+				String signature = toUnresolvedTypeSignature(genericTypeSignature);
+				if (signature.equals(parameterTypes[i])) {
+					continue parametersLoop;
+				}
+				// try unresolved qualified signature
+				signature = toUnresolvedQualifiedTypeSignature(genericTypeSignature);
+				if (signature.equals(parameterTypes[i])) {
+					continue parametersLoop;
+				}
+				// one parameter didn't match so we can abort
+				continue methodLoop;
+			}
+			return (JavaElement) existingMethod;
+		}
+		return null;
+	}
 	/**
 	 * Return the java element corresponding to the given compiler binding.
 	 */
@@ -2361,19 +2398,122 @@ public class Util {
 		}
 		return result;
 	}
-	private static char[] toUnresolvedTypeSignature(char[] signature) {
+	private static String toUnresolvedTypeSignature(char[] signature) {
 		int length = signature.length;
-		if (length <= 1)
-			return signature;
+		if (length <= 1) {
+			return new String(signature);
+		}
 		StringBuffer buffer = new StringBuffer(length);
 		toUnresolvedTypeSignature(signature, 0, length, buffer);
-		int bufferLength = buffer.length();
-		char[] result = new char[bufferLength];
-		buffer.getChars(0, bufferLength, result, 0);
-		return result;
+		return String.valueOf(buffer);
 	}
 
-	private static int toUnresolvedTypeSignature(char[] signature, int start, int length, StringBuffer buffer) {
+	/*
+	 * "Ljava/awt/geom/Point2D$Double;" => "QPoint2D.Double;"
+	 * "[Ljava/awt/geom/Point2D$Double;" => "[QPoint2D.Double;"
+	 * "[La/A$B<Ljava/lang/String;>;" => "[QA.B<QString;>;"
+	 */
+	private static void toUnresolvedTypeSignature(char[] signature, int start, int length, StringBuffer buffer) {
+		int slashPosition = start;
+		boolean hasDollar = false;
+		boolean record = true;
+		for (int i = start; i < length; i++) {
+			char currentChar = signature[i];
+			switch(currentChar) {
+				case Signature.C_TYPE_VARIABLE :
+					buffer.append(Signature.C_UNRESOLVED);
+					slashPosition = i + 1;
+					record = false;
+					break;
+				case Signature.C_RESOLVED :
+					buffer.append(Signature.C_UNRESOLVED);
+					slashPosition = i + 1;
+					record = false;
+					// find the end of the fully qualified name
+					break;
+				case Signature.C_DOLLAR :
+					hasDollar = true;
+					break;
+				case Signature.C_GENERIC_START :
+					// dump last identifier part
+					if (hasDollar) {
+						for (int j = slashPosition; j < i; j++) {
+							char current = signature[j];
+							if (current == Signature.C_DOLLAR) {
+								buffer.append(Signature.C_DOT);
+							} else {
+								buffer.append(current);
+							}
+						}
+						hasDollar = false;
+					} else {
+						buffer.append(signature, slashPosition, i - slashPosition);
+					}
+					slashPosition = -1;
+					// recurse on the generic type
+					buffer.append(Signature.C_GENERIC_START);
+					break;
+				case '/' :
+					slashPosition = i + 1;
+					break;
+				case Signature.C_GENERIC_END :
+				case Signature.C_COLON :
+				case Signature.C_CAPTURE :
+				case Signature.C_EXTENDS :
+				case Signature.C_EXCEPTION_START :
+				case Signature.C_SUPER :
+				case Signature.C_STAR :
+					buffer.append(currentChar);
+					break;
+				case Signature.C_BOOLEAN :
+				case Signature.C_BYTE :
+				case Signature.C_CHAR :
+				case Signature.C_DOUBLE :
+				case Signature.C_FLOAT :
+				case Signature.C_INT :
+				case Signature.C_LONG:
+				case Signature.C_SHORT :
+					if (record) {
+						buffer.append(currentChar);
+					}
+					break;
+				case Signature.C_ARRAY :
+					buffer.append(currentChar);
+					record = true;
+					break;
+				case Signature.C_SEMICOLON :
+					if (slashPosition != -1) {
+						if (hasDollar) {
+							for (int j = slashPosition; j < i; j++) {
+								char current = signature[j];
+								if (current == Signature.C_DOLLAR) {
+									buffer.append(Signature.C_DOT);
+								} else {
+									buffer.append(current);
+								}
+							}
+							hasDollar = false;
+						} else {
+							buffer.append(signature, slashPosition, i - slashPosition);
+						}
+						slashPosition = -1;
+					}
+					buffer.append(currentChar);
+					break;
+			}
+		}
+	}
+
+	private static String toUnresolvedQualifiedTypeSignature(char[] signature) {
+		int length = signature.length;
+		if (length <= 1)
+			return new String(signature);
+		StringBuffer buffer = new StringBuffer(length);
+		toUnresolvedQualifiedTypeSignature(signature, 0, length, buffer);
+		return String.valueOf(buffer);
+	}
+
+	private static int toUnresolvedQualifiedTypeSignature(char[] signature, int start, int length, StringBuffer buffer) {
 		if (signature[start] == Signature.C_RESOLVED)
 			buffer.append(Signature.C_UNRESOLVED);
 		else
@@ -2387,7 +2527,7 @@ public class Util {
 				break;
 			case Signature.C_GENERIC_START:
 				buffer.append(Signature.C_GENERIC_START);
-				i = toUnresolvedTypeSignature(signature, i+1, length, buffer);
+				i = toUnresolvedQualifiedTypeSignature(signature, i+1, length, buffer);
 				break;
 			case Signature.C_GENERIC_END:
 				buffer.append(Signature.C_GENERIC_END);
@@ -2399,6 +2539,7 @@ public class Util {
 		}
 		return length;
 	}
+
 	private static void appendArrayTypeSignature(char[] string, int start, StringBuffer buffer, boolean compact) {
 		int length = string.length;
 		// need a minimum 2 char

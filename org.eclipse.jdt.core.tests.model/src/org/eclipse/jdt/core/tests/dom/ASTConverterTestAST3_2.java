@@ -20,6 +20,7 @@ import java.util.Set;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IClassFile;
@@ -34,6 +35,7 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
@@ -10280,5 +10282,73 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 			}
 		}
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=275853
+	public void test0710() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0710", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		ASTRequestor requestor= new ASTRequestor() {
+			public void acceptAST(ICompilationUnit source, CompilationUnit compilationUnit) {
+				compilationUnit.accept(new ASTVisitor(){
+					public boolean visit (MethodDeclaration method){
+						try {
+							IMethodBinding binding = method.resolveBinding();
+							assertNotNull("No binding", binding);
+							IMethodBinding methodDeclaration = binding.getMethodDeclaration();
+							IMethod iMethod = (IMethod) methodDeclaration.getJavaElement();
+							assertNotNull("No IMethod", iMethod);
+							String name = binding.getReturnType().getName();
+							assertEquals("Different return type", name, Signature.toString(iMethod.getReturnType()));
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+							assertTrue(false);
+						} catch (JavaModelException e) {
+							e.printStackTrace();
+							assertTrue(false);
+						}
+						return true;
+					}
+				});
+			}
+		};
+
+		ASTParser parser= ASTParser.newParser(AST.JLS3);
+		parser.setProject(unit.getJavaProject());
+		parser.setResolveBindings(true);
+		parser.createASTs(new ICompilationUnit[]{unit}, new String[0], requestor, new NullProgressMonitor());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=275853
+	public void test0711() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0711", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		ASTRequestor requestor= new ASTRequestor() {
+			public void acceptAST(ICompilationUnit source, CompilationUnit compilationUnit) {
+				compilationUnit.accept(new ASTVisitor(){
+					public boolean visit (MethodDeclaration method){
+						try {
+							IMethodBinding binding = method.resolveBinding();
+							assertNotNull("No binding", binding);
+							IMethodBinding methodDeclaration = binding.getMethodDeclaration();
+							IMethod iMethod = (IMethod) methodDeclaration.getJavaElement();
+							assertNotNull("No IMethod", iMethod);
+							String name = binding.getReturnType().getName();
+							assertEquals("Different return type", name, Signature.toString(iMethod.getReturnType()));
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+							assertTrue(false);
+						} catch (JavaModelException e) {
+							e.printStackTrace();
+							assertTrue(false);
+						}
+						return true;
+					}
+				});
+			}
+		};
+
+		ASTParser parser= ASTParser.newParser(AST.JLS3);
+		parser.setProject(unit.getJavaProject());
+		parser.setResolveBindings(true);
+		parser.createASTs(new ICompilationUnit[]{unit}, new String[0], requestor, new NullProgressMonitor());
 	}
 }

@@ -21,11 +21,13 @@ import junit.framework.Test;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -10690,5 +10692,69 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			);
 		IAnnotation[] annotations = this.workingCopy.getJavaProject().findType("test0333.X").getAnnotations();
 		assertAnnotationsEqual("@test0333.JoinTable(name=\"EMP_PROJ\", joinColumns=@test0333.JoinColumn(name=\"EMP_ID\", referencedColumnClass=java.lang.Class.class), inverseJoinColumns=@test0333.JoinColumn(name=\"PROJ_ID\", referencedColumnClass=java.lang.Class.class), getLocalClass=java.lang.String.class)\n", annotations);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=275853
+	public void test0334() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter15" , "src", "test0334", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		ASTRequestor requestor= new ASTRequestor() {
+			public void acceptAST(ICompilationUnit source, CompilationUnit compilationUnit) {
+				compilationUnit.accept(new ASTVisitor(){
+					public boolean visit (MethodDeclaration method){
+						try {
+							IMethodBinding binding = method.resolveBinding();
+							IMethodBinding methodDeclaration = binding.getMethodDeclaration();
+							IMethod iMethod = (IMethod) methodDeclaration.getJavaElement();
+							String name = binding.getReturnType().getName();
+							assertEquals("Different return type", name, Signature.toString(iMethod.getReturnType()));
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+							assertTrue(false);
+						} catch(JavaModelException e) {
+							e.printStackTrace();
+							assertTrue(false);
+						}
+						return true;
+					}
+				});
+			}
+		};
+
+		ASTParser parser= ASTParser.newParser(AST.JLS3);
+		parser.setProject(unit.getJavaProject());
+		parser.setResolveBindings(true);
+		parser.createASTs(new ICompilationUnit[]{unit}, new String[0], requestor, new NullProgressMonitor());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=275853
+	public void test0335() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter15" , "src", "test0335", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		ASTRequestor requestor= new ASTRequestor() {
+			public void acceptAST(ICompilationUnit source, CompilationUnit compilationUnit) {
+				compilationUnit.accept(new ASTVisitor(){
+					public boolean visit (MethodDeclaration method){
+						try {
+							IMethodBinding binding = method.resolveBinding();
+							IMethodBinding methodDeclaration = binding.getMethodDeclaration();
+							IMethod iMethod = (IMethod) methodDeclaration.getJavaElement();
+							String name = binding.getReturnType().getName();
+							assertEquals("Different return type", name, Signature.toString(iMethod.getReturnType()));
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+							assertTrue(false);
+						} catch(JavaModelException e) {
+							e.printStackTrace();
+							assertTrue(false);
+						}
+						return true;
+					}
+				});
+			}
+		};
+
+		ASTParser parser= ASTParser.newParser(AST.JLS3);
+		parser.setProject(unit.getJavaProject());
+		parser.setResolveBindings(true);
+		parser.createASTs(new ICompilationUnit[]{unit}, new String[0], requestor, new NullProgressMonitor());
 	}
 }
