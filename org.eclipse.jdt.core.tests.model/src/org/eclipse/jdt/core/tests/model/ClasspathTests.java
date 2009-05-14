@@ -5804,5 +5804,64 @@ public void testRemoveDuplicates() throws CoreException {
 		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
+ * Make sure null references don't make their way into ClasspathEntry's state
+ */
+public void testForceNullArgumentsToEmptySet() throws CoreException {
+	IClasspathEntry e =	JavaCore.newContainerEntry(new Path("JRE_CONTAINER"), null, null, false);
+	assertTrue("Access rule was null", e.getAccessRules() != null);
+	assertTrue("Extra attributes was null", e.getExtraAttributes() != null);
+	assertTrue("Inclusion pattern was null", e.getInclusionPatterns() != null);
+	assertTrue("Exclusion pattern was null", e.getExclusionPatterns() != null);
+}
+
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
+ * Make sure null references don't make their way into ClasspathEntry's state
+ */
+public void testForceNullArgumentsToEmptySet2() throws CoreException {
+	IClasspathEntry e = JavaCore.newLibraryEntry(new Path("/P0/JUNK"), new Path("/P0/SBlah"), new Path("/P0"), null, null, false);
+	assertTrue("Access rule was null", e.getAccessRules() != null);
+	assertTrue("Extra attributes was null", e.getExtraAttributes() != null);
+	assertTrue("Inclusion pattern was null", e.getInclusionPatterns() != null);
+	assertTrue("Exclusion pattern was null", e.getExclusionPatterns() != null);
+}
+
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
+ * Make sure null references don't make their way into ClasspathEntry's state 
+ */
+public void testForceNullArgumentsToEmptySet3() throws CoreException {
+	IClasspathEntry e = JavaCore.newProjectEntry(new Path("/P2"), null, false, null, false);
+	assertTrue("Access rule was null", e.getAccessRules() != null);
+	assertTrue("Extra attributes was null", e.getExtraAttributes() != null);
+	assertTrue("Inclusion pattern was null", e.getInclusionPatterns() != null);
+	assertTrue("Exclusion pattern was null", e.getExclusionPatterns() != null);
+}
+
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
+ * Make sure null references don't make their way into ClasspathEntry's state
+ */
+public void testForceNullArgumentsToEmptySet4() throws CoreException {
+	IClasspathEntry e = JavaCore.newSourceEntry(new Path("/P"), null, null, null, null);
+	assertTrue("Access rule was null", e.getAccessRules() != null);
+	assertTrue("Extra attributes was null", e.getExtraAttributes() != null);
+	assertTrue("Inclusion pattern was null", e.getInclusionPatterns() != null);
+	assertTrue("Exclusion pattern was null", e.getExclusionPatterns() != null);
+}
+
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
+ * Make sure null references don't make their way into ClasspathEntry's state
+ */
+public void testForceNullArgumentsToEmptySet5() throws CoreException {
+	IClasspathEntry e = JavaCore.newVariableEntry(new Path("JCL_LIB"), new Path("JCL_SRC"), null, null, null, false); 
+	assertTrue("Access rule was null", e.getAccessRules() != null);
+	assertTrue("Extra attributes was null", e.getExtraAttributes() != null);
+	assertTrue("Inclusion pattern was null", e.getInclusionPatterns() != null);
+	assertTrue("Exclusion pattern was null", e.getExclusionPatterns() != null);
+}
 
 }

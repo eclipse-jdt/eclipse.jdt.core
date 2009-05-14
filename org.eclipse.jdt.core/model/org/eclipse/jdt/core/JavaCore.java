@@ -3838,6 +3838,12 @@ public final class JavaCore extends Plugin {
 		} else if (containerPath.segmentCount() < 1) {
 			throw new ClasspathEntry.AssertionFailedException("Illegal classpath container path: \'" + containerPath.makeRelative().toString() + "\', must have at least one segment (containerID+hints)"); //$NON-NLS-1$//$NON-NLS-2$
 		}
+		if (accessRules == null) {
+			accessRules = ClasspathEntry.NO_ACCESS_RULES;
+		}
+		if (extraAttributes == null) {
+			extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+		}
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_CONTAINER,
@@ -4026,6 +4032,12 @@ public final class JavaCore extends Plugin {
 			boolean isExported) {
 
 		if (path == null) throw new ClasspathEntry.AssertionFailedException("Library path cannot be null"); //$NON-NLS-1$
+		if (accessRules == null) {
+			accessRules = ClasspathEntry.NO_ACCESS_RULES;
+		}
+		if (extraAttributes == null) {
+			extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+		}
 		boolean hasDotDot = ClasspathEntry.hasDotDot(path);
 		if (!hasDotDot && !path.isAbsolute()) throw new ClasspathEntry.AssertionFailedException("Path for IClasspathEntry must be absolute: " + path); //$NON-NLS-1$
 		if (sourceAttachmentPath != null) {
@@ -4147,7 +4159,12 @@ public final class JavaCore extends Plugin {
 			boolean isExported) {
 
 		if (!path.isAbsolute()) throw new ClasspathEntry.AssertionFailedException("Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
-
+		if (accessRules == null) {
+			accessRules = ClasspathEntry.NO_ACCESS_RULES;
+		}
+		if (extraAttributes == null) {
+			extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+		}
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_PROJECT,
@@ -4350,9 +4367,15 @@ public final class JavaCore extends Plugin {
 
 		if (path == null) throw new ClasspathEntry.AssertionFailedException("Source path cannot be null"); //$NON-NLS-1$
 		if (!path.isAbsolute()) throw new ClasspathEntry.AssertionFailedException("Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
-		if (exclusionPatterns == null) throw new ClasspathEntry.AssertionFailedException("Exclusion pattern set cannot be null"); //$NON-NLS-1$
-		if (inclusionPatterns == null) throw new ClasspathEntry.AssertionFailedException("Inclusion pattern set cannot be null"); //$NON-NLS-1$
-
+		if (exclusionPatterns == null) {
+			exclusionPatterns = ClasspathEntry.EXCLUDE_NONE;
+		}
+		if (inclusionPatterns == null) {
+			inclusionPatterns = ClasspathEntry.INCLUDE_ALL;
+		}
+		if (extraAttributes == null) {
+			extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+		}
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_SOURCE,
@@ -4495,6 +4518,12 @@ public final class JavaCore extends Plugin {
 		if (variablePath == null) throw new ClasspathEntry.AssertionFailedException("Variable path cannot be null"); //$NON-NLS-1$
 		if (variablePath.segmentCount() < 1) {
 			throw new ClasspathEntry.AssertionFailedException("Illegal classpath variable path: \'" + variablePath.makeRelative().toString() + "\', must have at least one segment"); //$NON-NLS-1$//$NON-NLS-2$
+		}
+		if (accessRules == null) {
+			accessRules = ClasspathEntry.NO_ACCESS_RULES;
+		}
+		if (extraAttributes == null) {
+			extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
 		}
 
 		return new ClasspathEntry(
