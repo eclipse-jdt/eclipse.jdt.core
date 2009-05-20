@@ -10189,6 +10189,80 @@ public void testBug231622() throws Exception {
 }
 
 /**
+ * @bug 261722: [search] NPE after removing a project
+ * @test Ensure that no NPE occurs when project is deleted before the end of the search request
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=261722"
+ */
+public void testBug261722() throws Exception {
+	IPath projectPath = null;
+	IJavaProject javaProject = null;
+	try {
+		// Create jar and project
+		final int MAX = 10;
+		final String[] pathsAndContents = new String[(1+MAX)*2];
+		pathsAndContents[0] = "p261722/X.java";
+		pathsAndContents[1] = "package p261722;\n" +
+        	"public class X {}";
+		for (int i=1; i<=MAX; i++) {
+			String className = (i<10) ? "X0"+i : "X"+i;
+			pathsAndContents[i*2] = "p261722/"+className+".java";
+			pathsAndContents[i*2+1] = "package p261722;\n" +
+	        	"public class "+className+" extends X {}";
+        }
+		javaProject = createJavaProject("P");
+		projectPath = javaProject.getProject().getLocation();
+		addLibrary(javaProject, "lib261722.jar", "lib261722.zip", pathsAndContents, "1.4");
+		waitUntilIndexesReady();
+		
+		// Search in separated thread
+		class TestSearchRequestor extends SearchRequestor {
+			int count = 0;
+			public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+			    try {
+	                Thread.sleep(100);
+                } catch (InterruptedException e) {
+	                // skip
+                }
+                this.count++;
+		    }
+		}
+		final TestSearchRequestor requestor = new TestSearchRequestor();
+		final SearchPattern pattern = SearchPattern.createPattern("X*", IJavaSearchConstants.DECLARATIONS, IJavaSearchConstants.TYPE, SearchPattern.R_PATTERN_MATCH);
+		final IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { javaProject });
+		Runnable search = new Runnable() {
+			public void run() {
+				try {
+					new SearchEngine().search(pattern, new SearchParticipant[] { SearchEngine.getDefaultSearchParticipant() }, scope, requestor, null);
+				} catch (CoreException e) {
+					throw new RuntimeException(e);
+				}
+		    }
+		};
+		Thread thread = new Thread(search);
+		thread.start();
+
+		// Delete project in current thread
+		while (requestor.count < (MAX/3)) {
+			Thread.sleep(10);
+		}
+		deleteProject(javaProject);
+		
+		// Wait until search is finished
+		while (thread.isAlive()) {
+			Thread.sleep(100);
+		}
+		
+		// Verify search results
+		assertEquals("Unexpected matches count", MAX+1, requestor.count);
+	} finally {
+		if (projectPath != null) {
+			deleteFile("/P/lib261722.jar");
+			deleteFile("/P/lib261722.zip");
+		}
+	}
+}
+
+/**
  * @bug 266582: [search] NPE finding references 
  * @test Ensure that no NPE occurs when searching for type references
  * 	in a project which has the same jar twice on its classpath

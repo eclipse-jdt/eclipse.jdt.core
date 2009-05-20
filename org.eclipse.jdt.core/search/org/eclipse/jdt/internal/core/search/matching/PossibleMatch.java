@@ -68,8 +68,10 @@ public char[] getContents() {
 			if (fileName == NO_SOURCE_FILE_NAME) return CharOperation.NO_CHAR;
 	
 			SourceMapper sourceMapper = this.openable.getSourceMapper();
-			IType type = ((ClassFile) this.openable).getType();
-			contents = sourceMapper.findSource(type, fileName);
+			if (sourceMapper != null) {
+				IType type = ((ClassFile) this.openable).getType();
+				contents = sourceMapper.findSource(type, fileName);
+			}
 		} else {
 			contents = this.document.getCharContents();
 		}
