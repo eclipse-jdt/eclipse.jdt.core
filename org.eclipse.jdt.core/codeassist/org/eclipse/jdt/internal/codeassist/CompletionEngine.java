@@ -5268,6 +5268,9 @@ public final class CompletionEngine
 		
 
 			if (guessedType != null && guessedType.isValidBinding()) {
+				// the erasure must be used because guessedType can be a RawTypeBinding (https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890)
+				guessedType = guessedType.erasure();
+				
 				if (guessedType instanceof SourceTypeBinding) {
 					SourceTypeBinding refBinding = (SourceTypeBinding) guessedType;
 					

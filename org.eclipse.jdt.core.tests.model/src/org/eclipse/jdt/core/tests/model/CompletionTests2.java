@@ -4603,6 +4603,200 @@ public void testBug96950() throws Exception {
 		this.deleteProject("P2");
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890
+public void testBug276890_01() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB"}, "bin", "1.5");
+		
+		createFolder("/P/src/p276890");
+		
+		createFile(
+				"/P/src/p276890/Stuff.java",
+				"package p276890;\n" +
+				"public class Stuff<E> {\n"+
+				"  public Stuff(E e) {}\n"+
+				"  public Stuff(Object o, Object o2) {}\n"+
+				"  public Stuff(Stuff<E> ees) {}\n"+
+				"  public Stuff() {}\n"+
+				"}");
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/test/Test.java",
+				"package test;\n"+
+				"public class Test {\n" +
+				"  void foo() {\n" +
+				"    new Stuf\n" +
+				"  }\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "Stuf";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, ()V, Stuff, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Ljava.lang.Object;Ljava.lang.Object;)V, Stuff, (o, o2), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Lp276890.Stuff<TE;>;)V, Stuff, (ees), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (TE;)V, Stuff, (e), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(oldOptions);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890
+public void testBug276890_02() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB"}, "bin", "1.5");
+		
+		createFolder("/P/src/p276890");
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/test/Test.java",
+				"package test;\n"+
+				"public class Test {\n" +
+				"  void foo() {\n" +
+				"    new Stuf\n" +
+				"  }\n" +
+				"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+				"/P/src/p276890/Stuff.java",
+				"package p276890;\n" +
+				"public class Stuff<E> {\n"+
+				"  public Stuff(E e) {}\n"+
+				"  public Stuff(Object o, Object o2) {}\n"+
+				"  public Stuff(Stuff<E> ees) {}\n"+
+				"  public Stuff() {}\n"+
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "Stuf";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, ()V, Stuff, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Ljava.lang.Object;Ljava.lang.Object;)V, Stuff, (o, o2), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Lp276890.Stuff<TE;>;)V, Stuff, (ees), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (TE;)V, Stuff, (e), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(oldOptions);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890
+public void testBug276890_03() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib276890.jar"}, "bin", "1.5");
+		
+		createFolder("/P/src/p276890");
+		
+		createJar(
+				new String[] {
+						"p276890/Stuff.java",
+						"package p276890;\n" +
+						"public class Stuff<E> {\n"+
+						"  public Stuff(E e) {}\n"+
+						"  public Stuff(Object o, Object o2) {}\n"+
+						"  public Stuff(Stuff<E> ees) {}\n"+
+						"  public Stuff() {}\n"+
+						"}"
+				},
+				p.getProject().getLocation().append("lib276890.jar").toOSString(),
+				new String[]{getExternalJCLPathString("1.5")},
+				"1.5");
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/test/Test.java",
+				"package test;\n"+
+				"public class Test {\n" +
+				"  void foo() {\n" +
+				"    new Stuf\n" +
+				"  }\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "Stuf";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, ()V, Stuff, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Ljava.lang.Object;Ljava.lang.Object;)V, Stuff, (o, o2), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Lp276890.Stuff<TE;>;)V, Stuff, (ees), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (TE;)V, Stuff, (e), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(oldOptions);
+	}
+}
 /**
  * @bug 162621: [model][delta] Validation errors do not clear after replacing jar file
  * @test Ensures that changing an internal jar and refreshing takes the change into account
