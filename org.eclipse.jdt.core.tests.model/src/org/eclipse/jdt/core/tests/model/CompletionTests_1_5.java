@@ -13663,27 +13663,35 @@ public void testCompletionWithUnboxing() throws JavaModelException {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84720
  * Additional tests for bug 84720  
+ * 
+ * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=273991 also
  */
 public void testCompletionWithUnboxing_1() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
 			"package test;\n" +
 			"public class C {\n" +
 			"public void myMethod1(){}\n" +
-			"public void myMethod2(){}\n" +
-			"public int myMethod3(){return 0;}\n" +
-			"public Integer myMethod4(){return 0;}\n" +
+			"public long myMethod2(){return 0;}\n" +
+			"public Long myMethod3(){return 0;}\n" +
+			"public float myMethod4(){return 0;}\n" +
+			"public Float myMethod5(){return 0;}\n" +
 			"public void foo() {\n" +
-			"	Integer i = myMeth \n" +
+			"	Long l = myMeth \n" +
 			"}\n" +
 			"}");
 	this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src3/java/lang/Test.java",
+			"/Completion/src3/java/lang/Long.java",
 			"package java.lang;\n" +
-			"public class Integer {\n" +
+			"public class Long {\n" +
 			"}");
-
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/java/lang/Float.java",
+			"package java.lang;\n" +
+			"public class Float {\n" +
+			"}");
+	
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
 	String str = this.workingCopies[0].getSource();
@@ -13694,12 +13702,14 @@ public void testCompletionWithUnboxing_1() throws JavaModelException {
 	assertResults(
 			"myMethod1[METHOD_REF]{myMethod1(), Ltest.C;, ()V, myMethod1, null, " +
 				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"myMethod2[METHOD_REF]{myMethod2(), Ltest.C;, ()V, myMethod2, null, " +
+			"myMethod4[METHOD_REF]{myMethod4(), Ltest.C;, ()F, myMethod4, null, " +
 				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"myMethod3[METHOD_REF]{myMethod3(), Ltest.C;, ()I, myMethod3, null, " +
+			"myMethod5[METHOD_REF]{myMethod5(), Ltest.C;, ()Ljava.lang.Float;, myMethod5, null, " +
+			(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"myMethod2[METHOD_REF]{myMethod2(), Ltest.C;, ()J, myMethod2, null, " +
 				(R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"myMethod4[METHOD_REF]{myMethod4(), Ltest.C;, ()Ljava.lang.Integer;, myMethod4, null, " +
-				(R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"myMethod3[METHOD_REF]{myMethod3(), Ltest.C;, ()Ljava.lang.Long;, myMethod3, null, " +
+				(R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}" ,
 			requestor.getResults());	
 }
 /*
