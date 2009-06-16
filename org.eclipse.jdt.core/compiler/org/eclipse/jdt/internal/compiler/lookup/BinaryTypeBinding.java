@@ -847,6 +847,43 @@ public MethodBinding[] getMethods(char[] selector) {
 	}
 	return Binding.NO_METHODS;
 }
+// Answer methods named selector, which take no more than the suggestedParameterLength.
+// The suggested parameter length is optional and may not be guaranteed by every type.
+public MethodBinding[] getMethods(char[] selector, int suggestedParameterLength) {
+	if ((this.tagBits & TagBits.AreMethodsComplete) != 0)
+		return getMethods(selector);
+	// lazily sort methods
+	if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
+		int length = this.methods.length;
+		if (length > 1)
+			ReferenceBinding.sortMethods(this.methods, 0, length);
+		this.tagBits |= TagBits.AreMethodsSorted;
+	}
+	long range;
+	if ((range = ReferenceBinding.binarySearch(selector, this.methods)) >= 0) {
+		int start = (int) range, end = (int) (range >> 32);
+		int length = end - start + 1;
+		int count = 0;
+		for (int i = start; i <= end; i++)
+			if (this.methods[i].parameters.length <= suggestedParameterLength)
+				count++;
+		if (count == 0) {
+			MethodBinding[] result = new MethodBinding[length];
+			// iterate methods to resolve them
+			for (int i = start, index = 0; i <= end; i++)
+				result[index++] = resolveTypesFor(this.methods[i]);
+			return result;
+		} else {
+			MethodBinding[] result = new MethodBinding[count];
+			// iterate methods to resolve them
+			for (int i = start, index = 0; i <= end; i++)
+				if (this.methods[i].parameters.length <= suggestedParameterLength)
+					result[index++] = resolveTypesFor(this.methods[i]);
+			return result;
+		}
+	}
+	return Binding.NO_METHODS;
+}
 public boolean hasMemberTypes() {
     return this.memberTypes.length > 0;
 }

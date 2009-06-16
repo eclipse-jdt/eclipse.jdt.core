@@ -1189,7 +1189,7 @@ public abstract class Scope {
 
 		if (receiverTypeIsInterface) {
 			unitScope.recordTypeReference(receiverType);
-			MethodBinding[] receiverMethods = receiverType.getMethods(selector);
+			MethodBinding[] receiverMethods = receiverType.getMethods(selector, argumentTypes.length);
 			if (receiverMethods.length > 0)
 				found.addAll(receiverMethods);
 			findMethodInSuperInterfaces(receiverType, selector, found, invocationSite);
@@ -1205,7 +1205,7 @@ public abstract class Scope {
 		while (currentType != null) {
 			unitScope.recordTypeReference(currentType);
 			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceEnd());
-			MethodBinding[] currentMethods = currentType.getMethods(selector);
+			MethodBinding[] currentMethods = currentType.getMethods(selector, argumentTypes.length);
 			int currentLength = currentMethods.length;
 			if (currentLength > 0) {
 				if (isCompliant14 && (receiverTypeIsInterface || found.size > 0)) {
@@ -1797,7 +1797,7 @@ public abstract class Scope {
 			    	methodBinding = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 				return methodBinding;
 			}
-			MethodBinding[] methods = receiverType.getMethods(TypeConstants.INIT);
+			MethodBinding[] methods = receiverType.getMethods(TypeConstants.INIT, argumentTypes.length);
 			if (methods == Binding.NO_METHODS)
 				return new ProblemMethodBinding(
 					TypeConstants.INIT,
@@ -3683,7 +3683,7 @@ public abstract class Scope {
 						if (current.hasSubstitutedParameters() || original.typeVariables != Binding.NO_TYPE_VARIABLES) {
 							if (original2.declaringClass != superType) {
 								// must find inherited method with the same substituted variables
-								MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector);
+								MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector, argumentTypes.length);
 								for (int m = 0, l = superMethods.length; m < l; m++) {
 									if (superMethods[m].original() == original2) {
 										original2 = superMethods[m];
@@ -3700,7 +3700,7 @@ public abstract class Scope {
 							// keep original
 						} else {
 							// must find inherited method with the same substituted variables
-							MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original.selector);
+							MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original.selector, argumentTypes.length);
 							for (int m = 0, l = superMethods.length; m < l; m++) {
 								if (superMethods[m].original() == original) {
 									original = superMethods[m];
@@ -3713,7 +3713,7 @@ public abstract class Scope {
 							// keep original2
 						} else {
 							// must find inherited method with the same substituted variables
-							MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector);
+							MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector, argumentTypes.length);
 							for (int m = 0, l = superMethods.length; m < l; m++) {
 								if (superMethods[m].original() == original2) {
 									original2 = superMethods[m];

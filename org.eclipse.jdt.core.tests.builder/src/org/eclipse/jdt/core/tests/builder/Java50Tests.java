@@ -154,14 +154,14 @@ public class Java50Tests extends BuilderTests {
 		IPath xx = env.addClass(root1, "p1", "XX", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class XX {\n"+ //$NON-NLS-1$
-			"	void test(p2.Y y) { y.foo('c'); }\n"+ //$NON-NLS-1$
+			"	void test(p2.Y y) { y.foo('c', null); }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
 
 		incrementalBuild(p1);
 		expectingOnlySpecificProblemsFor(p1,new Problem[]{
 				new Problem("p1", "The project was not built since its build path is incomplete. Cannot find the class file for p2.Z. Fix the build path then try building this project", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p1", "The type p2.Z cannot be resolved. It is indirectly referenced from required .class files", xx, 51, 61, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "The type p2.Z cannot be resolved. It is indirectly referenced from required .class files", xx, 51, 67, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 	}
 
