@@ -4495,4 +4495,48 @@ public void testBug267658b() throws JavaModelException {
 	);
 }
 
+/**
+ * @bug 273619: [formatter] Formatting repeats *} in javadoc
+ * @test Ensure that *} is not repeated while formatting
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=273619"
+ */
+public void testBug273619a() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * <ul>\n" + 
+		" * <li>{@code *}</li>\n" + 
+		" * </ul>\n" + 
+		" */\n" + 
+		"public class X {\n" +
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * <ul>\n" + 
+		" * <li>{@code *}</li>\n" + 
+		" * </ul>\n" + 
+		" */\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug273619b() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * <p>\n" + 
+		" * {@link *}\n" + 
+		" * </p>\n" + 
+		" */\n" + 
+		"public class X {\n" +
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * <p>\n" + 
+		" * {@link *}\n" + 
+		" * </p>\n" + 
+		" */\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+
 }
