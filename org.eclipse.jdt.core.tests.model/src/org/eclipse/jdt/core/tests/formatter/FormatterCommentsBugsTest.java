@@ -4539,4 +4539,45 @@ public void testBug273619b() throws JavaModelException {
 	);
 }
 
+/**
+ * @bug 279359: [formatter] Formatter with 'never join lines' produces extra level of indent
+ * @test Ensure that no extra indentation is produced at the end of a body when
+ * 	'never join lines' preference is set.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=279359"
+ */
+public void testBug279359() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source = 
+		"public class Formatter {\n" + 
+		"\n" + 
+		"        public static void main(String[] args) {\n" + 
+		"\n" + 
+		"                Executors.newCachedThreadPool().execute(new Runnable() {\n" + 
+		"\n" + 
+		"                        public void run() {\n" + 
+		"                                throw new UnsupportedOperationException(\"stub\");\n" + 
+		"                        }\n" + 
+		"\n" + 
+		"                });\n" + 
+		"\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Formatter {\n" + 
+		"\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"\n" + 
+		"		Executors.newCachedThreadPool().execute(new Runnable() {\n" + 
+		"\n" + 
+		"			public void run() {\n" + 
+		"				throw new UnsupportedOperationException(\"stub\");\n" + 
+		"			}\n" + 
+		"\n" + 
+		"		});\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
 }
