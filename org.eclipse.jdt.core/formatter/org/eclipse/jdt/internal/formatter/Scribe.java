@@ -1855,46 +1855,48 @@ public class Scribe implements IJavaDocTagConstants {
 			return;
 		}
 
-		// 3 - process snippet (@see JavaDocRegion#formatCodeSnippet)
+		// 3 - format snippet (@see JavaDocRegion#formatCodeSnippet)
 		// include comments in case of line comments are present in the snippet
 		String formattedSnippet = convertedSnippet;
 		TextEdit edit= CommentFormatterUtil.format2(CodeFormatter.K_UNKNOWN | CodeFormatter.F_INCLUDE_COMMENTS, convertedSnippet, 0, this.lineSeparator, this.formatter.preferences.getMap());
-		if (edit != null) {
-			formattedSnippet= CommentFormatterUtil.evaluateFormatterEdit(convertedSnippet, edit, null);
+		if (edit == null) {
+			// 3.a - not a valid code to format, keep initial buffer
+			formattedSnippet = inputBuffer.toString();
+		} else {
+			// 3.b - valid code formatted
+			// 3.b.i - get the result
+			formattedSnippet = CommentFormatterUtil.evaluateFormatterEdit(convertedSnippet, edit, null);
+
+			// 3.b.ii- convert back to HTML (@see JavaDocRegion#convertJava2Html)
+			Java2HTMLEntityReader javaReader= new Java2HTMLEntityReader(new StringReader(formattedSnippet));
+			buf= new char[256];
+			StringBuffer conversionBuffer= new StringBuffer();
+			int l;
+			try {
+				do {
+					l= javaReader.read(buf);
+					if (l != -1)
+						conversionBuffer.append(buf, 0, l);
+				} while (l > 0);
+				formattedSnippet = conversionBuffer.toString();
+			} catch (IOException e) {
+				// should not happen
+				CommentFormatterUtil.log(e);
+				return;
+			}
 		}
 
 		// 4 - add the content prefix (@see JavaDocRegion#postprocessCodeSnippet)
-		StringBuffer outputBuffer= new StringBuffer();
-		tracker= new DefaultLineTracker();
+		StringBuffer outputBuffer = new StringBuffer();
+		tracker = new DefaultLineTracker();
 		this.column = 1;
 		printIndentationIfNecessary(outputBuffer); // append indentation
 		outputBuffer.append(BLOCK_LINE_PREFIX);
 		String linePrefix = outputBuffer.toString();
 		outputBuffer.setLength(0);
-
-		// 5 - convert back to HTML (@see JavaDocRegion#convertJava2Html)
-		Java2HTMLEntityReader javaReader= new Java2HTMLEntityReader(new StringReader(formattedSnippet));
-		buf= new char[256];
-		StringBuffer conversionBuffer= new StringBuffer();
-		int l;
-		try {
-			do {
-				l= javaReader.read(buf);
-				if (l != -1)
-					conversionBuffer.append(buf, 0, l);
-			} while (l > 0);
-			formattedSnippet = conversionBuffer.toString();
-		} catch (IOException e) {
-			// should not happen
-			CommentFormatterUtil.log(e);
-			return;
-		}
-
 		outputBuffer.append(formattedSnippet);
-
 		tracker.set(outputBuffer.toString());
-
-		for (int lines= tracker.getNumberOfLines() - 1; lines > 0; lines--) {
+		for (int lines=tracker.getNumberOfLines() - 1; lines > 0; lines--) {
 			try {
 				outputBuffer.insert(tracker.getLineOffset(lines), linePrefix);
 			} catch (BadLocationException e) {
@@ -1903,7 +1905,8 @@ public class Scribe implements IJavaDocTagConstants {
 				return;
 			}
 		}
-		// replace old text with the formatted snippet
+
+		// 5 - replace old text with the formatted snippet
 		addReplaceEdit(startPosition, endPosition, outputBuffer.toString());
 	}
 

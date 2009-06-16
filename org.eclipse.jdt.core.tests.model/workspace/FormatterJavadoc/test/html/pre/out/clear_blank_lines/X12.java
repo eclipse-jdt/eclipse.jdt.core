@@ -12,7 +12,7 @@ public class X12 {
 	 * x start      former x stop   x stop
 	 *     |               |           |
 	 * +---------+  +----------+  +--------+
-	 * | x start |  | y start  |-&gt;| y stop |
+	 * | x start |  | y start  |->| y stop |
 	 * +---------+  +----------+  +--------+
 	 * </pre>
 	 * 
