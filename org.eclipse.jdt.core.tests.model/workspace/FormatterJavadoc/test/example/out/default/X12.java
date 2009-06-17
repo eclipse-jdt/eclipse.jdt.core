@@ -20,18 +20,18 @@ package test.prefs.example;
  * marker definition.
  * 
  * <pre>
- * &lt;extension point=&quot;org.eclipse.debug.core.breakpoints&quot;&gt;
+ * &lt;extension point="org.eclipse.debug.core.breakpoints"&gt;
  *   &lt;breakpoint 
- *      id=&quot;com.example.Breakpoint&quot;
- *      class=&quot;com.example.Breakpoint&quot;
- *      markerType=&quot;com.example.BreakpointMarker&quot;&gt;
+ *      id="com.example.Breakpoint"
+ *      class="com.example.Breakpoint"
+ *      markerType="com.example.BreakpointMarker"&gt;
  *   &lt;/breakpoint&gt;
  * &lt;/extension&gt;
- * &lt;extension point=&quot;org.eclipse.core.resources.markers&quot;&gt;
+ * &lt;extension point="org.eclipse.core.resources.markers"&gt;
  *   &lt;marker 
- *      id=&quot;com.example.BreakpointMarker&quot;
- *      super type=&quot;org.eclipse.debug.core.breakpointMarker&quot;
- *      attribute name =&quot;exampleAttribute&quot;&gt;
+ *      id="com.example.BreakpointMarker"
+ *      super type="org.eclipse.debug.core.breakpointMarker"
+ *      attribute name ="exampleAttribute"&gt;
  *   &lt;/marker&gt;
  * &lt;/extension&gt;
  * </pre>

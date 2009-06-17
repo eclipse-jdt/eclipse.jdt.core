@@ -28,7 +28,7 @@ package test.html.others;
  * <li>X.L1
  * 
  * <pre>
- *    [application-args] := *( &quot;:&quot; [value])
+ *    [application-args] := *( ":" [value])
  *    [value] := [token] | [quoted-string]
  * </pre>
  * 

@@ -38,6 +38,79 @@ IPath getOutputFolder() {
 }
 
 /**
+ * @bug 196308: [formatter] Don't escape entity when formatting in <pre> tags within javadoc comments
+ * @test Ensure that entity are not escaped when formatting in <pre> tags
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=196308"
+ */
+public void testBug196308() throws JavaModelException {
+	String source = 
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 * &at;MyAnnotation\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 * &at;MyAnnotation\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=204257
+public void testBug196308b() throws JavaModelException {
+	String source = 
+		"public class A\n" + 
+		"{\n" + 
+		"  /**\n" + 
+		"   * <pre>\n" + 
+		"   *   &#92;u\n" + 
+		"   * </pre>\n" + 
+		"   */\n" + 
+		"  public void a()\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class A {\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 *   &#92;u\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	public void a() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=238547
+public void testBug196308c() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * &#x01;&#x20;&#x21;&#x40;&#x41;&#233;\n" + 
+		" * <pre>&#x01;&#x20;&#x21;&#x40;&#x41;&#233;</pre>\n" + 
+		" */\n" + 
+		"public class TestClass {}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * &#x01;&#x20;&#x21;&#x40;&#x41;&#233;\n" + 
+		" * \n" + 
+		" * <pre>\n" + 
+		" * &#x01;&#x20;&#x21;&#x40;&#x41;&#233;\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		"public class TestClass {\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 198963: [formatter] 3.3 Code Formatter repeatedly indents block comment
  * @test Ensure that no the formatter indents the block comment only once
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=198963"
