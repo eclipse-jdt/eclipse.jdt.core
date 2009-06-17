@@ -813,6 +813,12 @@ public class EqualExpression extends BinaryExpression {
 			Binding leftDirect = Expression.getDirectBinding(this.left);
 			if (leftDirect != null && leftDirect == Expression.getDirectBinding(this.right)) {
 				scope.problemReporter().comparingIdenticalExpressions(this);
+			} else if (this.constant != Constant.NotAConstant) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=276740
+				int operator = (this.bits & OperatorMASK) >> OperatorSHIFT;
+				if ((operator == EQUAL_EQUAL && this.constant == BooleanConstant.fromValue(true))
+						|| (operator == NOT_EQUAL && this.constant == BooleanConstant.fromValue(false)))
+					scope.problemReporter().comparingIdenticalExpressions(this);
 			}
 			return this.resolvedType = TypeBinding.BOOLEAN;
 		}

@@ -978,11 +978,15 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 				"===== Details =====\n" + 
 				"1:EMPTY_STATEMENT,[77,0],,RECOVERED,[N/A]\n" + 
 				"===== Problems =====\n" + 
-				"1. ERROR in /Converter/src/p/X.java (at line 4)\n" + 
+				"1. WARNING in /Converter/src/p/X.java (at line 4)\n" + 
+				"	if (1==1 && var.equals(1) {\n" + 
+				"	    ^^^^\n" + 
+				"Comparing identical expressions\n" + 
+				"2. ERROR in /Converter/src/p/X.java (at line 4)\n" + 
 				"	if (1==1 && var.equals(1) {\n" + 
 				"	                ^^^^^^\n" + 
 				"The method equals(Object) in the type Object is not applicable for the arguments (int)\n" + 
-				"2. ERROR in /Converter/src/p/X.java (at line 4)\n" + 
+				"3. ERROR in /Converter/src/p/X.java (at line 4)\n" + 
 				"	if (1==1 && var.equals(1) {\n" + 
 				"	                        ^\n" + 
 				"Syntax error, insert \") Statement\" to complete BlockStatements\n",

@@ -1399,4 +1399,134 @@ public void test0037() {
 			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 }
+
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=276740"
+ */
+public void test0038() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b1 = 1 == 1;\n" +
+			"		boolean b2 = 1 != 1;\n" +
+			"		boolean b3 = 1 == 1.0;\n" +
+			"		boolean b4 = 1 != 1.0;\n" +
+			"		boolean b5 = 1 == 2;\n" +
+			"		boolean b6 = 1 != 2;\n" +
+			"		boolean b7 = 1 == 2.0;\n" +
+			"		boolean b8 = 1 != 2.0;\n" +
+			"       final short s1 = 1;\n" +
+			"       final short s2 = 2;\n" +
+			"       boolean b9 = 1 == s1;\n" +
+			"       boolean b10 = 1 == s2;\n" +
+			"       boolean b91 = 1 != s1;\n" +
+			"       boolean b101 = 1 != s2;\n" +
+			"       final long l1 = 1;\n" +
+			"       final long l2 = 2;\n" +
+			"       boolean b11 = 1 == l1;\n" +
+			"       boolean b12 = 1 == l2;\n" +
+			"       boolean b111 = 1 != l1;\n" +
+			"       boolean b121 = 1 != l2;\n" +
+			"       boolean b13 = s1 == l1;\n" +
+			"       boolean b14 = s1 == l2;\n" +
+			"       boolean b15 = s1 != l1;\n" +
+			"       boolean b16 = s1 != l2;\n" +
+			"	}\n" +
+			"	Zork z;\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	boolean b1 = 1 == 1;\n" + 
+			"	             ^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	boolean b2 = 1 != 1;\n" + 
+			"	             ^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	boolean b3 = 1 == 1.0;\n" + 
+			"	             ^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 6)\n" + 
+			"	boolean b4 = 1 != 1.0;\n" + 
+			"	             ^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 13)\n" + 
+			"	boolean b9 = 1 == s1;\n" + 
+			"	             ^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 15)\n" + 
+			"	boolean b91 = 1 != s1;\n" + 
+			"	              ^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 19)\n" + 
+			"	boolean b11 = 1 == l1;\n" + 
+			"	              ^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 21)\n" + 
+			"	boolean b111 = 1 != l1;\n" + 
+			"	               ^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 23)\n" + 
+			"	boolean b13 = s1 == l1;\n" + 
+			"	              ^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"10. WARNING in X.java (at line 25)\n" + 
+			"	boolean b15 = s1 != l1;\n" + 
+			"	              ^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"11. ERROR in X.java (at line 28)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=276741"
+ */
+public void test0039() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void gain(String[] args) {\n" +
+			"		boolean b1 = this == this;\n" +
+			"		boolean b2 = this != this;\n" +		
+			"		boolean b3 = this != new X();\n" +
+			"		boolean b4 = this == new X();\n" +
+			"	}\n" +
+			"	Zork z;\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	boolean b1 = this == this;\n" + 
+			"	             ^^^^^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	boolean b2 = this != this;\n" + 
+			"	             ^^^^^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }

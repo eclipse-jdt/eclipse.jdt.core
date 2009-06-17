@@ -705,10 +705,15 @@ public void test0033_conditional_expression() {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	Object o = (1 == 1) ? null : new Object();\n" + 
+			"	           ^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	Object o = (1 == 1) ? null : new Object();\n" + 
 			"	                             ^^^^^^^^^^^^\n" + 
 			"Dead code\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
 			"	o.toString();\n" + 
 			"	^\n" + 
 			"Null pointer access: The variable o can only be null at this location\n" + 

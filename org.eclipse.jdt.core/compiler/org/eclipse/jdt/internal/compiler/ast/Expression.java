@@ -776,6 +776,8 @@ public static Binding getDirectBinding(Expression someExpression) {
 			// case where a static field is retrieved using ClassName.fieldname
 			return qualifiedNameReference.binding;
 		}
+	} else if (someExpression.isThis()) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=276741
+		return someExpression.resolvedType;
 	}
 //		} else if (someExpression instanceof PostfixExpression) { // recurse for postfix: i++ --> i
 //			// note: "b = b++" is equivalent to doing nothing, not to "b++"
