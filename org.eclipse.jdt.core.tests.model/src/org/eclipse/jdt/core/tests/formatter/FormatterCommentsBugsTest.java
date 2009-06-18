@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 import junit.framework.Test;
