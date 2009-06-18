@@ -4734,4 +4734,55 @@ public void testBug280255b() throws JavaModelException {
 	);
 }
 
+/**
+ * @bug 280616: [formatter] Valid 1.5 code is not formatted inside <pre> tag
+ * @test Ensure that 1.5 snippet is formatted when source level is 1.5
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=280616"
+ */
+public void testBug280616() throws JavaModelException {
+	String source = 
+		"public interface X {\n" + 
+		"/**\n" + 
+		" * <pre>\n" + 
+		" *   void solve(Executor e,\n" + 
+		" *              Collection&lt;Callable&lt;Result&gt;&gt; solvers)\n" + 
+		" *     throws InterruptedException, ExecutionException {\n" + 
+		" *       CompletionService&lt;Result&gt; ecs\n" + 
+		" *           = new ExecutorCompletionService&lt;Result&gt;(e);\n" + 
+		" *       for (Callable&lt;Result&gt; s : solvers)\n" + 
+		" *           ecs.submit(s);\n" + 
+		" *       int n = solvers.size();\n" + 
+		" *       for (int i = 0; i &lt; n; ++i) {\n" + 
+		" *           Result r = ecs.take().get();\n" + 
+		" *           if (r != null)\n" + 
+		" *               use(r);\n" + 
+		" *       }\n" + 
+		" *   }\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		" void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X {\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 * void solve(Executor e, Collection&lt;Callable&lt;Result&gt;&gt; solvers)\n" + 
+		"	 * 		throws InterruptedException, ExecutionException {\n" + 
+		"	 * 	CompletionService&lt;Result&gt; ecs = new ExecutorCompletionService&lt;Result&gt;(e);\n" + 
+		"	 * 	for (Callable&lt;Result&gt; s : solvers)\n" + 
+		"	 * 		ecs.submit(s);\n" + 
+		"	 * 	int n = solvers.size();\n" + 
+		"	 * 	for (int i = 0; i &lt; n; ++i) {\n" + 
+		"	 * 		Result r = ecs.take().get();\n" + 
+		"	 * 		if (r != null)\n" + 
+		"	 * 			use(r);\n" + 
+		"	 * 	}\n" + 
+		"	 * }\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+
 }
