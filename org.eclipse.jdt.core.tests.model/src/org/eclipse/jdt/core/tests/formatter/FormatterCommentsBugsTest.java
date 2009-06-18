@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 import junit.framework.Test;
@@ -4649,6 +4650,60 @@ public void testBug279359() throws JavaModelException {
 		"		});\n" + 
 		"\n" + 
 		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 280061: [formatter] AIOOBE while formatting javadoc comment
+ * @test Ensure that no exception occurs while formatting 1.5 snippet
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=280061"
+ */
+public void testBug280061() throws JavaModelException {
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+	String source = 
+		"public interface X {\n" + 
+		"/**\n" + 
+		" * <pre>\n" + 
+		" *   void solve(Executor e,\n" + 
+		" *              Collection&lt;Callable&lt;Result&gt;&gt; solvers)\n" + 
+		" *     throws InterruptedException, ExecutionException {\n" + 
+		" *       CompletionService&lt;Result&gt; ecs\n" + 
+		" *           = new ExecutorCompletionService&lt;Result&gt;(e);\n" + 
+		" *       for (Callable&lt;Result&gt; s : solvers)\n" + 
+		" *           ecs.submit(s);\n" + 
+		" *       int n = solvers.size();\n" + 
+		" *       for (int i = 0; i &lt; n; ++i) {\n" + 
+		" *           Result r = ecs.take().get();\n" + 
+		" *           if (r != null)\n" + 
+		" *               use(r);\n" + 
+		" *       }\n" + 
+		" *   }\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		" void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X {\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 * void solve(Executor e,\n" + 
+		"	 *              Collection&lt;Callable&lt;Result&gt;&gt; solvers)\n" + 
+		"	 *     throws InterruptedException, ExecutionException {\n" + 
+		"	 *       CompletionService&lt;Result&gt; ecs\n" + 
+		"	 *           = new ExecutorCompletionService&lt;Result&gt;(e);\n" + 
+		"	 *       for (Callable&lt;Result&gt; s : solvers)\n" + 
+		"	 *           ecs.submit(s);\n" + 
+		"	 *       int n = solvers.size();\n" + 
+		"	 *       for (int i = 0; i &lt; n; ++i) {\n" + 
+		"	 *           Result r = ecs.take().get();\n" + 
+		"	 *           if (r != null)\n" + 
+		"	 *               use(r);\n" + 
+		"	 *       }\n" + 
+		"	 *   }\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
 		"}\n"
 	);
 }
