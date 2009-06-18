@@ -14,12 +14,16 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -1863,7 +1867,11 @@ public class Scribe implements IJavaDocTagConstants {
 		// 3 - format snippet (@see JavaDocRegion#formatCodeSnippet)
 		// include comments in case of line comments are present in the snippet
 		String formattedSnippet = convertedSnippet;
-		TextEdit edit= CommentFormatterUtil.format2(CodeFormatter.K_UNKNOWN | CodeFormatter.F_INCLUDE_COMMENTS, convertedSnippet, 0, this.lineSeparator, this.formatter.preferences.getMap());
+		Map options = this.formatter.preferences.getMap();
+		if (this.scanner.sourceLevel > ClassFileConstants.JDK1_3) {
+			options.put(JavaCore.COMPILER_SOURCE, CompilerOptions.versionFromJdkLevel(this.scanner.sourceLevel));
+		}
+		TextEdit edit= CommentFormatterUtil.format2(CodeFormatter.K_UNKNOWN | CodeFormatter.F_INCLUDE_COMMENTS, convertedSnippet, 0, this.lineSeparator, options);
 		if (edit == null) {
 			// 3.a - not a valid code to format, keep initial buffer
 			formattedSnippet = inputBuffer.toString();
