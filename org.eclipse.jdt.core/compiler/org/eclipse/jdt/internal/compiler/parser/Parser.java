@@ -1299,6 +1299,7 @@ protected void consumeAllocationHeader() {
 		anonymousType.name = CharOperation.NO_CHAR;
 		anonymousType.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
 		anonymousType.sourceStart = this.intStack[this.intPtr--];
+		anonymousType.declarationSourceStart = anonymousType.sourceStart;
 		anonymousType.sourceEnd = this.rParenPos; // closing parenthesis
 		QualifiedAllocationExpression alloc = new QualifiedAllocationExpression(anonymousType);
 		alloc.type = getTypeReference(0);
