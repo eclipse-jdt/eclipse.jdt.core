@@ -157,7 +157,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	protected void setUp() throws Exception {
 	    super.setUp();
 		this.formatterPrefs = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
-		this.formatterOptions = JAVA_PROJECT.getOptions(true);
+		if (JAVA_PROJECT != null) {
+			this.formatterOptions = JAVA_PROJECT.getOptions(true);
+		}
 	}
 
 	/**
@@ -216,6 +218,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	DefaultCodeFormatter codeFormatter() {
+		if (this.formatterOptions == null) {
+			this.formatterOptions = JAVA_PROJECT.getOptions(true);
+		}
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.formatterPrefs, this.formatterOptions);
 		return codeFormatter;
 	}
