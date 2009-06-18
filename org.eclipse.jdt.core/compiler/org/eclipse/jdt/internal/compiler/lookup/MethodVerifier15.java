@@ -737,6 +737,12 @@ boolean isSubstituteParameterSubsignature(MethodBinding method, MethodBinding su
 		// but method cannot have a "generic-enabled" parameter type
 		if (substituteMethod.hasSubstitutedParameters() && method.areParameterErasuresEqual(substituteMethod))
 			return method.typeVariables == Binding.NO_TYPE_VARIABLES && !hasGenericParameter(method);
+
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=279836
+		if (method.declaringClass.isRawType() && substituteMethod.declaringClass.isRawType())
+			if (method.hasSubstitutedParameters() && substituteMethod.hasSubstitutedParameters())
+				return areMethodsCompatible(method, substituteMethod);
+
 		return false;
 	}
 
