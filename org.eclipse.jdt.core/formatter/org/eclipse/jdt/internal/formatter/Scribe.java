@@ -316,17 +316,22 @@ public class Scribe implements IJavaDocTagConstants {
 					    	int linesCount = linesOutside >= linesReplaced ? linesReplaced : linesOutside;
 					    	if (linesCount > 0) {
 					    		int idx=0;
-					    		while (idx < length) {
+					    		loop: while (idx < length) {
 					    			char ch = edit.replacement.charAt(idx);
-					    			if (ch == '\n') {
-					    				linesCount--;
-					    				if (linesCount == 0) {
-					    					idx++;
+					    			switch (ch) {
+					    				case '\n':
+						    				linesCount--;
+						    				if (linesCount == 0) {
+						    					idx++;
+						    					break loop;
+						    				}
+						    				break;
+					    				case '\r':
+					    				case ' ':
+					    				case '\t':
 					    					break;
-					    				}
-					    			}
-					    			else if (ch != '\r') {
-					    				break;
+					    				default:
+					    					break loop;
 					    			}
 					    			idx++;
 					    		}
