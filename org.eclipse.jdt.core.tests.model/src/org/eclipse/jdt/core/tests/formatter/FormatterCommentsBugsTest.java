@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 import junit.framework.Test;
@@ -4664,6 +4663,73 @@ public void testBug280061() throws JavaModelException {
 		"	 */\n" + 
 		"	void foo();\n" + 
 		"}\n"
+	);
+}
+
+/**
+ * @bug 280255: [formatter] Format edited lines adds two new lines on each save
+ * @test Ensure that no new line is added while formatting edited lines
+ * 	options configuration
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=280255"
+ */
+public void testBug280255() throws JavaModelException {
+	this.formatterPrefs.indent_empty_lines = true;
+	String source = 
+		"public class X {\n" + 
+		"	private void foo(int val) {\n" + 
+		"		switch (val) {\n" + 
+		"			case 0:\n" + 
+		"			{\n" + 
+		"\n" + 
+		"\n" + 
+		"[#				return ;#]\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	private void foo(int val) {\n" + 
+		"		switch (val) {\n" + 
+		"			case 0:\n" + 
+		"			{\n" + 
+		"\n" + 
+		"\n" + 
+		"			return;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug280255b() throws JavaModelException {
+	this.formatterPrefs.indent_empty_lines = true;
+	String source = 
+		"public class X {\r\n" + 
+		"	private void foo(int val) {\r\n" + 
+		"		switch (val) {\r\n" + 
+		"			case 0:\r\n" + 
+		"			{\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"[#				return ;#]\r\n" + 
+		"			}\r\n" + 
+		"		}\r\n" + 
+		"	}\r\n" + 
+		"}\r\n";
+	formatSource(source,
+		"public class X {\r\n" + 
+		"	private void foo(int val) {\r\n" + 
+		"		switch (val) {\r\n" + 
+		"			case 0:\r\n" + 
+		"			{\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"			return;\r\n" + 
+		"			}\r\n" + 
+		"		}\r\n" + 
+		"	}\r\n" + 
+		"}\r\n"
 	);
 }
 
