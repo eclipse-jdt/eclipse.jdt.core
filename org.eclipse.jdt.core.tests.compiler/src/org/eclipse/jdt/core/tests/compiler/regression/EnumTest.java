@@ -6200,6 +6200,35 @@ public void test172() {
 		"HELLORED", null, 
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=273990
+public void test173() {
+	this.runNegativeTest(
+		new String[] {
+			"E.java",
+			"public enum E {\n" +
+			"	A(E.STATIK);\n" +
+			"	private static int STATIK = 1;\n" +
+			"	private E(final int i) {}\n" +
+			"}\n",
+			"E2.java",
+			"public enum E2 {\n" +
+			"	A(E2.STATIK);\n" +
+			"	static int STATIK = 1;\n" +
+			"	private E2(final int i) {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in E.java (at line 2)\n" + 
+		"	A(E.STATIK);\n" + 
+		"	    ^^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in E2.java (at line 2)\n" + 
+		"	A(E2.STATIK);\n" + 
+		"	     ^^^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n"
+	);
 }
-
+}
