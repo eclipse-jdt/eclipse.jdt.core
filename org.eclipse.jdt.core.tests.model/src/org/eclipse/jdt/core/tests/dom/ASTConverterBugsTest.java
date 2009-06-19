@@ -1251,4 +1251,41 @@ public void testBug277204d() throws JavaModelException {
 			"Syntax error, insert \";\" to complete ClassBodyDeclarations\n",
 			result);
 }
+public void testBug277204e() throws JavaModelException {
+	ASTResult result = this.buildMarkedAST(
+			"/Converter15/src/a/X.java",
+			"package a;\n" +
+			"public class X {\n" +
+			"	{\n" +
+			"        class Local {\n" +
+			"                [*1*]Object [*2*]x[*2*],\n" +
+			"                [*3*]Local[*3*]  \n" +
+			"        [*1*]}\n" +
+			"	}\n" +
+			"}\n");
+
+	assertASTResult(
+			"===== AST =====\n" + 
+			"package a;\n" + 
+			"public class X {\n" + 
+			"{\n" + 
+			"class Local {\n" + 
+			"      [*1*]Object [*2*]x[*2*], [*3*]Local[*3*];[*1*]\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"\n" + 
+			"===== Details =====\n" + 
+			"1:FIELD_DECLARATION,[69,42],,MALFORMED,[N/A]\n" + 
+			"2:VARIABLE_DECLARATION_FRAGMENT,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]\n" + 
+			"2:SIMPLE_NAME,[76,1],,,[VARIABLE,La/X$45$Local;.x)Ljava/lang/Object;,]\n" + 
+			"3:VARIABLE_DECLARATION_FRAGMENT,[95,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]\n" + 
+			"3:SIMPLE_NAME,[95,5],,,[VARIABLE,La/X$45$Local;.Local)Ljava/lang/Object;,]\n" + 
+			"===== Problems =====\n" + 
+			"1. ERROR in /Converter15/src/a/X.java (at line 6)\n" + 
+			"	Local  \n" + 
+			"	^^^^^\n" + 
+			"Syntax error, insert \";\" to complete ClassBodyDeclarations\n",
+			result);
+}
 }
