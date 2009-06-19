@@ -1061,4 +1061,70 @@ public void testBug226357() throws CoreException, IOException {
 		methodInvocation.resolveMethodBinding()
 	);
 }
+public void testBug274898a() throws JavaModelException {
+	ASTResult result = this.buildMarkedAST(
+			"/Converter15/src/a/X.java",
+			"package a;\n" +
+			"public class X {\n"+
+			"        public void foo() {\n"+
+			"                [*1*]Object o = new [*1*][*2*]new Object(){}[*2*]; \n"+
+			"        }\n"+
+			"}\n");
+
+	assertASTResult(
+			"===== AST =====\n" + 
+			"package a;\n" + 
+			"public class X {\n" + 
+			"  public void foo(){\n" + 
+			"    [*1*]Object o;[*1*]\n" + 
+			"    [*2*]new Object(){\n" + 
+			"    }\n" + 
+			";[*2*]\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"\n" + 
+			"===== Details =====\n" + 
+			"1:VARIABLE_DECLARATION_STATEMENT,[72,15],,,[N/A]\n" + 
+			"2:EXPRESSION_STATEMENT,[87,14],,,[N/A]\n" + 
+			"2:CLASS_INSTANCE_CREATION,[87,14],,RECOVERED,[N/A]\n" + 
+			"===== Problems =====\n" + 
+			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
+			"	Object o = new new Object(){}; \n" + 
+			"	               ^^^\n" + 
+			"Syntax error on token \"new\", delete this token\n",
+			result);
+}
+public void testBug274898b() throws JavaModelException {
+	ASTResult result = this.buildMarkedAST(
+			"/Converter15/src/a/X.java",
+			"package a;\n" +
+			"public class X {\n"+
+			"        public void foo() {\n"+
+			"                [*1*]Object o = new # [*1*][*2*]new Object(){}[*2*]; \n"+
+			"        }\n"+
+			"}\n");
+
+	assertASTResult(
+			"===== AST =====\n" + 
+			"package a;\n" + 
+			"public class X {\n" + 
+			"  public void foo(){\n" + 
+			"    [*1*]Object o;[*1*]\n" + 
+			"    [*2*]new Object(){\n" + 
+			"    }\n" + 
+			";[*2*]\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"\n" + 
+			"===== Details =====\n" + 
+			"1:VARIABLE_DECLARATION_STATEMENT,[72,17],,,[N/A]\n" + 
+			"2:EXPRESSION_STATEMENT,[89,14],,,[N/A]\n" + 
+			"2:CLASS_INSTANCE_CREATION,[89,14],,,[N/A]\n" + 
+			"===== Problems =====\n" + 
+			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
+			"	Object o = new # new Object(){}; \n" + 
+			"	               ^^^^^\n" + 
+			"Syntax error on tokens, delete these tokens\n",
+			result);
+}
 }
