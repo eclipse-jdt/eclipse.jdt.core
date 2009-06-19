@@ -10197,6 +10197,42 @@ public void testBug221110b() throws CoreException {
 }
 
 /**
+ * @bug 221065: [search] Search still finds overridden method
+ * @test Ensure that correct number of method references are found
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=221065"
+ */
+public void testBug221065() throws CoreException {
+	this.resultCollector.showRule();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" +
+		"	abstract class A {\n" +
+		"		void foo() {}\n" +
+		"		void bar() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class B extends A {\n" +
+		"		void foo() {}\n" +
+		"		void bar() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class C extends B {\n" +
+		"		void method() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
+		"}"
+	);
+	IMethod method = this.workingCopies[0].getType("Test").getType("A").getMethod("foo", new String[0]);
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/Test.java void Test$A.bar() [foo()] EXACT_MATCH"
+	);
+}
+
+/**
  * @bug 222284: [search] ZipException while searching if linked jar doesn't exist any longer
  * @test Ensure that no exception is raised while searching for a type of the missing jar file
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222284"
