@@ -69,16 +69,24 @@ class TestCollector extends JavaSearchResultCollector {
 	}
 }
 class ReferenceCollector extends JavaSearchResultCollector {
-	protected IJavaElement getElement(SearchMatch searchMatch) {
-		IJavaElement element = super.getElement(searchMatch);
-		IJavaElement localElement = null;
+	protected void writeLine() throws CoreException {
+		super.writeLine();
 		ReferenceMatch refMatch = (ReferenceMatch) this.match;
-		localElement = refMatch.getLocalElement();
+		IJavaElement localElement = refMatch.getLocalElement();
 		if (localElement != null) {
-			return localElement;
+			this.line.append("+[");
+			if (localElement.getElementType() == IJavaElement.ANNOTATION) {
+				this.line.append('@');
+				this.line.append(localElement.getElementName());
+				this.line.append(" on ");
+				this.line.append(localElement.getParent().getElementName());
+			} else {
+				this.line.append(localElement.getElementName());
+			}
+			this.line.append(']');
 		}
-		return element;
 	}
+
 }
 class TypeReferenceCollector extends ReferenceCollector {
 	protected void writeLine() throws CoreException {
@@ -91,7 +99,14 @@ class TypeReferenceCollector extends ReferenceCollector {
 			for (int i=0; i<length; i++) {
 				IJavaElement other = others[i];
 				if (i>0) this.line.append(',');
-				this.line.append(other.getElementName());
+				if (other.getElementType() == IJavaElement.ANNOTATION) {
+					this.line.append('@');
+					this.line.append(other.getElementName());
+					this.line.append(" on ");
+					this.line.append(other.getParent().getElementName());
+				} else {
+					this.line.append(other.getElementName());
+				}
 			}
 			this.line.append(']');
 		}
@@ -5908,12 +5923,12 @@ public void testBug110336a() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).TP [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).clazz [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar1 [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar1 [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar2 [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar2 [Test]",
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[TP]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[clazz]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar1]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar1]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar2]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar2]",
 		collector
 	);
 }
@@ -5936,13 +5951,13 @@ public void testBug110336b() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1 [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1.c [Test]\n" +
-		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().TP [Test]\n" +
-		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().o [Test]\n" +
-		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().o [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.method1(Test).methodParam [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.method1(Test).localVar1 [Test]",
+		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1.c [Test]\n" + 
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo() [Test]+[TP]\n" + 
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo() [Test]+[o]\n" + 
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo() [Test]+[o]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test) [Test]+[methodParam]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test) [Test]+[localVar1]",
 		collector
 	);
 }
@@ -5960,7 +5975,7 @@ public void testBug110336c() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java b110336.Test.TP [X]\n" +
+		"src/b110336/Test.java b110336.Test [X]+[TP]\n" + 
 		"src/b110336/Test.java b110336.Test.x [X]",
 		collector
 	);
@@ -6004,12 +6019,12 @@ public void testBug110336e() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.foo().lv1 [Test]+[lv2,lv3]\n" +
-		"src/b110336/Test.java void b110336.Test.foo().lv2 [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.foo().lv4 [Test]+[lv5,lv6]\n" +
-		"src/b110336/Test.java void b110336.Test.foo().lv4 [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.foo().lv7 [Test]+[lv8,lv9]\n" +
-		"src/b110336/Test.java void b110336.Test.foo().lv9 [Test]",
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv1]+[lv2,lv3]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv2]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv4]+[lv5,lv6]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv4]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv7]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv9]",
 		collector
 	);
 }
@@ -6034,11 +6049,11 @@ public void testBug110336f() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.foo(Test).test1 [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.foo(Test).test2 [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.foo(Test).test4 [Test]\n" +
-		"src/b110336/Test.java void b110336.Test.foo(Test).test3 [Test]",
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test1]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test2]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test4]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test3]",
 		collector
 	);
 }
@@ -6058,12 +6073,12 @@ public void testBug110336g() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java b110336.Test.{}.lv1 [Test]+[lv2,lv3]\n" +
-		"src/b110336/Test.java b110336.Test.{}.lv2 [Test]\n" +
-		"src/b110336/Test.java b110336.Test.{}.lv4 [Test]+[lv5,lv6]\n" +
-		"src/b110336/Test.java b110336.Test.{}.lv4 [Test]\n" +
-		"src/b110336/Test.java b110336.Test.{}.lv7 [Test]+[lv8,lv9]\n" +
-		"src/b110336/Test.java b110336.Test.{}.lv9 [Test]",
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv1]+[lv2,lv3]\n" + 
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv2]\n" + 
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv4]+[lv5,lv6]\n" + 
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv4]\n" + 
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv7]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv9]",
 		collector
 	);
 }
@@ -6083,12 +6098,12 @@ public void testBug110336h() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java b110336.Test.static {}.lv1 [Test]+[lv2,lv3]\n" +
-		"src/b110336/Test.java b110336.Test.static {}.lv2 [Test]\n" +
-		"src/b110336/Test.java b110336.Test.static {}.lv4 [Test]+[lv5,lv6]\n" +
-		"src/b110336/Test.java b110336.Test.static {}.lv4 [Test]\n" +
-		"src/b110336/Test.java b110336.Test.static {}.lv7 [Test]+[lv8,lv9]\n" +
-		"src/b110336/Test.java b110336.Test.static {}.lv9 [Test]",
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv1]+[lv2,lv3]\n" + 
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv2]\n" + 
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv4]+[lv5,lv6]\n" + 
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv4]\n" + 
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv7]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv9]",
 		collector
 	);
 }
@@ -9430,8 +9445,8 @@ public void testBug209778() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/xy/Try.java @Constants(value=Try.class) [Try]\n" +
-		"src/xy/Try.java @Constants(value=Try.class) [Try]",
+		"src/xy/Try.java xy.Try.fTryA [Try]+[@Constants on fTryA]+[@Constants on fTryB]\n" + 
+		"src/xy/Try.java void xy.Try.tryB(int) [Try]+[@Constants on tryCopy]+[@Constants on tryCopy2]",
 		collector
 	);
 }
@@ -9459,7 +9474,7 @@ public void testBug209996a() throws CoreException {
 	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/test/Test.java @Annot(clazz=Test.class) [        @Annot(clazz=§|Test|§.class) int x;]",
+		"src/test/Test.java void test.Test.method() [        @Annot(clazz=§|Test|§.class) int x;]+[@Annot on x]",
 		collector
 	);
 }
@@ -9475,7 +9490,7 @@ public void testBug209996b() throws CoreException {
 	collector.showSelection();
 	search("Deprecated", TYPE, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/test/Test.java @Deprecated() [        @§|Deprecated|§ foo() {}]",
+		"src/test/Test.java void test.Test.foo() [        @§|Deprecated|§ foo() {}]+[@Deprecated on foo]",
 		collector
 	);
 }
@@ -9501,11 +9516,11 @@ public void testBug209996_c5() throws CoreException {
 	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/comment5/Ref.java void comment5.Ref.doA(Ref).ref [    void doA(§|Ref|§ ref) {}]\n" +
-		"src/comment5/Ref.java void comment5.Ref.doB(List<Ref>).ref [    void doB(List<§|Ref|§> ref) {}]\n" +
-		"src/comment5/Ref.java @Tag(value=Ref.class) [    void doC(@Tag(§|Ref|§.class) Ref ref) {}]\n" +
-		"src/comment5/Ref.java void comment5.Ref.doC(Ref).ref [    void doC(@Tag(Ref.class) §|Ref|§ ref) {}]\n" +
-		"src/comment5/Ref.java @Tag(value=Ref.class) [    void dontD(@Tag(§|Ref|§.class) Object ref) {}]",
+		"src/comment5/Ref.java void comment5.Ref.doA(Ref) [    void doA(§|Ref|§ ref) {}]+[ref]\n" + 
+		"src/comment5/Ref.java void comment5.Ref.doB(List<Ref>) [    void doB(List<§|Ref|§> ref) {}]+[ref]\n" + 
+		"src/comment5/Ref.java void comment5.Ref.doC(Ref) [    void doC(@Tag(§|Ref|§.class) Ref ref) {}]+[@Tag on ref]\n" + 
+		"src/comment5/Ref.java void comment5.Ref.doC(Ref) [    void doC(@Tag(Ref.class) §|Ref|§ ref) {}]+[ref]\n" + 
+		"src/comment5/Ref.java void comment5.Ref.dontD(Object) [    void dontD(@Tag(§|Ref|§.class) Object ref) {}]+[@Tag on ref]",
 		collector
 	);
 }
@@ -9524,7 +9539,7 @@ public void testBug209996_c10() throws CoreException {
 	collector.showSelection();
 	search(field, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/comment10/Ref.java @Num(number=Num.CONST) [@Num(number= Num.§|CONST|§)]",
+		"src/comment10/Ref.java comment10.Num [@Num(number= Num.§|CONST|§)]+[@Num on Num]",
 		collector
 	);
 }
@@ -9546,9 +9561,9 @@ public void testBug209996_c22_3() throws CoreException {
 	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/comment22/Test.java @Tag() [    @§|Tag|§ Test test1, test2, test3;]\n" +
-		"src/comment22/Test.java @Tag() [        @§|Tag|§ Test local= null;]\n" +
-		"src/comment22/Test.java @Tag() [        @§|Tag|§ Test local1, local2, local3;]",
+		"src/comment22/Test.java comment22.Test.test1 [    @§|Tag|§ Test test1, test2, test3;]+[@Tag on test1]+[@Tag on test2,@Tag on test3]\n" + 
+		"src/comment22/Test.java void comment22.Test.method() [        @§|Tag|§ Test local= null;]+[@Tag on local]\n" + 
+		"src/comment22/Test.java void comment22.Test.method() [        @§|Tag|§ Test local1, local2, local3;]+[@Tag on local1]+[@Tag on local2,@Tag on local3]",
 		collector
 	);
 }
@@ -9568,7 +9583,7 @@ public void testBug209996_c22_4() throws CoreException {
 	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/test/Test.java @Annot(clazz=test.Test.class) [    @Annot(clazz = §|test.Test|§.class) int x, y;]",
+		"src/test/Test.java test.TestMethodReference.x [    @Annot(clazz = §|test.Test|§.class) int x, y;]+[@Annot on x]+[@Annot on y]",
 		collector
 	);
 }
