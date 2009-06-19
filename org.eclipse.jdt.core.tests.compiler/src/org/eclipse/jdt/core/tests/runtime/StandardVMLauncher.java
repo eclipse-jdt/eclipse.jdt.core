@@ -97,7 +97,9 @@ public String[] getCommandLine() {
 	}
 
 	String vmVersion = System.getProperty("java.vm.version");
-	if (vmVersion != null && vmVersion.startsWith("1.6")) {
+	String javaVersion = System.getProperty("java.version");
+	if ((vmVersion != null && vmVersion.startsWith("1.6"))
+			|| (javaVersion != null && javaVersion.startsWith("1.6"))) {
 		commandLine.addElement("-XX:-FailOverToOldVerifier");
 		commandLine.addElement("-Xverify:all");
 	}

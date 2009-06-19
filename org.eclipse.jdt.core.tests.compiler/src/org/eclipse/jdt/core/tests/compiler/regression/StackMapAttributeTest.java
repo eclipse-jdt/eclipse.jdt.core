@@ -31,7 +31,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 42 };
+//		TESTS_NUMBERS = new int[] { 44 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
@@ -6268,6 +6268,208 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"      Stack map table: number of frames 2\n" + 
 			"        [pc: 10, same_locals_1_stack_item, stack: {java.lang.Class}]\n" + 
 			"        [pc: 11, full, stack: {java.lang.Class, int}, locals: {java.lang.String[]}]\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=279183
+	public void test043() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"ok\");\n" + 
+				"	}\n" + 
+				"	private static int willNotVerify() {\n" + 
+				"		int limit = 100;\n" + 
+				"		int match;\n" + 
+				"		int result = 200;\n" + 
+				"		do {\n" + 
+				"			if (limit > 0) {\n" + 
+				"				continue;\n" + 
+				"			}\n" + 
+				"			match = 0;\n" + 
+				"			while (++match < 100) {\n" + 
+				"				System.out.println();\n" + 
+				"			}\n" + 
+				"		} while (--limit != 0);\n" + 
+				"		return result;\n" + 
+				"	}\n" + 
+				"}",
+			},
+		"ok");
+	
+		String expectedOutput =
+			"  // Method descriptor #33 ()I\n" + 
+			"  // Stack: 2, Locals: 3\n" + 
+			"  private static int willNotVerify();\n" + 
+			"     0  bipush 100\n" + 
+			"     2  istore_0 [limit]\n" + 
+			"     3  sipush 200\n" + 
+			"     6  istore_2 [result]\n" + 
+			"     7  iload_0 [limit]\n" + 
+			"     8  ifle 14\n" + 
+			"    11  goto 34\n" + 
+			"    14  iconst_0\n" + 
+			"    15  istore_1 [match]\n" + 
+			"    16  goto 25\n" + 
+			"    19  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    22  invokevirtual java.io.PrintStream.println() : void [34]\n" + 
+			"    25  iinc 1 1 [match]\n" + 
+			"    28  iload_1 [match]\n" + 
+			"    29  bipush 100\n" + 
+			"    31  if_icmplt 19\n" + 
+			"    34  iinc 0 -1 [limit]\n" + 
+			"    37  iload_0 [limit]\n" + 
+			"    38  ifne 7\n" + 
+			"    41  iload_2 [result]\n" + 
+			"    42  ireturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 3, line: 8]\n" + 
+			"        [pc: 7, line: 10]\n" + 
+			"        [pc: 11, line: 11]\n" + 
+			"        [pc: 14, line: 13]\n" + 
+			"        [pc: 16, line: 14]\n" + 
+			"        [pc: 19, line: 15]\n" + 
+			"        [pc: 25, line: 14]\n" + 
+			"        [pc: 34, line: 17]\n" + 
+			"        [pc: 41, line: 18]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 43] local: limit index: 0 type: int\n" + 
+			"        [pc: 16, pc: 34] local: match index: 1 type: int\n" + 
+			"        [pc: 7, pc: 43] local: result index: 2 type: int\n" + 
+			"      Stack map table: number of frames 5\n" + 
+			"        [pc: 7, full, stack: {}, locals: {int, _, int}]\n" + 
+			"        [pc: 14, same]\n" + 
+			"        [pc: 19, full, stack: {}, locals: {int, int, int}]\n" + 
+			"        [pc: 25, same]\n" + 
+			"        [pc: 34, full, stack: {}, locals: {int, _, int}]\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=279183
+	public void test044() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"ok\");\n" + 
+				"	}\n" + 
+				"	private static int willNotVerify() {\n" + 
+				"		int limit = 100;\n" + 
+				"		int match;\n" + 
+				"		int result = 200;\n" + 
+				"		do {\n" + 
+				"			if (limit > 0) {\n" + 
+				"				continue;\n" + 
+				"			}\n" + 
+				"			match = 0;\n" + 
+				"			while (++match < 100) {\n" + 
+				"				// empty\n" + 
+				"			}\n" + 
+				"		} while (--limit != 0);\n" + 
+				"		return result;\n" + 
+				"	}\n" + 
+				"}",
+			},
+		"ok");
+	
+		String expectedOutput =
+			"  // Method descriptor #33 ()I\n" + 
+			"  // Stack: 2, Locals: 3\n" + 
+			"  private static int willNotVerify();\n" + 
+			"     0  bipush 100\n" + 
+			"     2  istore_0 [limit]\n" + 
+			"     3  sipush 200\n" + 
+			"     6  istore_2 [result]\n" + 
+			"     7  iload_0 [limit]\n" + 
+			"     8  ifle 14\n" + 
+			"    11  goto 25\n" + 
+			"    14  iconst_0\n" + 
+			"    15  istore_1 [match]\n" + 
+			"    16  iinc 1 1 [match]\n" + 
+			"    19  iload_1 [match]\n" + 
+			"    20  bipush 100\n" + 
+			"    22  if_icmplt 16\n" + 
+			"    25  iinc 0 -1 [limit]\n" + 
+			"    28  iload_0 [limit]\n" + 
+			"    29  ifne 7\n" + 
+			"    32  iload_2 [result]\n" + 
+			"    33  ireturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 3, line: 8]\n" + 
+			"        [pc: 7, line: 10]\n" + 
+			"        [pc: 11, line: 11]\n" + 
+			"        [pc: 14, line: 13]\n" + 
+			"        [pc: 16, line: 14]\n" + 
+			"        [pc: 25, line: 17]\n" + 
+			"        [pc: 32, line: 18]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 34] local: limit index: 0 type: int\n" + 
+			"        [pc: 16, pc: 25] local: match index: 1 type: int\n" + 
+			"        [pc: 7, pc: 34] local: result index: 2 type: int\n" + 
+			"      Stack map table: number of frames 4\n" + 
+			"        [pc: 7, full, stack: {}, locals: {int, _, int}]\n" + 
+			"        [pc: 14, same]\n" + 
+			"        [pc: 16, full, stack: {}, locals: {int, int, int}]\n" + 
+			"        [pc: 25, full, stack: {}, locals: {int, _, int}]\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=279183
+	public void test045() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String args[]) {\n" + 
+				"		int i;\n" + 
+				"		do {\n" + 
+				"		} while ((i = 2) < 0);\n" + 
+				"		if (i != 2) {\n" + 
+				"			System.out.println(\"FAILED\");\n" + 
+				"		} else {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+			},
+		"SUCCESS");
+	
+		String expectedOutput =
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 2\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
+			"     0  iconst_2\n" + 
+			"     1  dup\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iflt 0\n" + 
+			"     6  iload_1 [i]\n" + 
+			"     7  iconst_2\n" + 
+			"     8  if_icmpeq 22\n" + 
+			"    11  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    14  ldc <String \"FAILED\"> [22]\n" + 
+			"    16  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+			"    19  goto 30\n" + 
+			"    22  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    25  ldc <String \"SUCCESS\"> [30]\n" + 
+			"    27  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+			"    30  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 11, line: 7]\n" + 
+			"        [pc: 22, line: 9]\n" + 
+			"        [pc: 30, line: 11]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 31] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 31] local: i index: 1 type: int\n" + 
+			"      Stack map table: number of frames 3\n" + 
+			"        [pc: 0, same]\n" + 
+			"        [pc: 22, append: {int}]\n" + 
+			"        [pc: 30, same]\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 }
