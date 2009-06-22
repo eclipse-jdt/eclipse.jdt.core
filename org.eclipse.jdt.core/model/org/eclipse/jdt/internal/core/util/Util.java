@@ -2516,7 +2516,7 @@ public class Util {
 
 		// decode declaring class name
 		// it can be either an array signature or a type signature
-		if (declaringClass.length > 0) {
+		if (declaringClass != null && declaringClass.length > 0) {
 			char[] declaringClassSignature = null;
 			if (declaringClass[0] == Signature.C_ARRAY) {
 				CharOperation.replace(declaringClass, '/', '.');
@@ -2531,14 +2531,14 @@ public class Util {
 			} else {
 				buffer.append(declaringClassSignature);
 			}
+			if (!isConstructor) {
+				buffer.append('.');
+			}
 		}
 
 		// selector
-		if (!isConstructor) {
-			buffer.append('.');
-			if (methodName != null) {
-				buffer.append(methodName);
-			}
+		if (!isConstructor && methodName != null) {
+			buffer.append(methodName);
 		}
 
 		// parameters

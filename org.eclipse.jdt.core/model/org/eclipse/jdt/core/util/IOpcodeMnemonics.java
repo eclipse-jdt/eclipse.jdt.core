@@ -204,6 +204,10 @@ public interface IOpcodeMnemonics {
 	int INVOKESPECIAL = 0xB7;
 	int INVOKESTATIC = 0xB8;
 	int INVOKEINTERFACE = 0xB9;
+	/**
+	 * @since 3.5
+	 */
+	int INVOKEDYNAMIC = 0xBA;
 	int NEW = 0xBB;
 	int NEWARRAY = 0xBC;
 	int ANEWARRAY = 0xBD;

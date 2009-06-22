@@ -207,6 +207,7 @@ public class OpcodeStringValues implements IOpcodeMnemonics {
 		BYTECODE_NAMES[INVOKESPECIAL] = "invokespecial"; //$NON-NLS-1$
 		BYTECODE_NAMES[INVOKESTATIC] = "invokestatic"; //$NON-NLS-1$
 		BYTECODE_NAMES[INVOKEINTERFACE] = "invokeinterface"; //$NON-NLS-1$
+		BYTECODE_NAMES[INVOKEDYNAMIC] = "invokedynamic"; //$NON-NLS-1$
 		BYTECODE_NAMES[NEW] = "new"; //$NON-NLS-1$
 		BYTECODE_NAMES[NEWARRAY] = "newarray"; //$NON-NLS-1$
 		BYTECODE_NAMES[ANEWARRAY] = "anewarray"; //$NON-NLS-1$

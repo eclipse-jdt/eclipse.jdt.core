@@ -48,9 +48,27 @@ Eclipse SDK 3.6M1 - %date% - 3.6M1
 <br>Project org.eclipse.jdt.core v_A00
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A00">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>New API added to handle the new <code>invokedynamic</code> bytecode:
+<pre>
+org.eclipse.jdt.core.util.ByteCodeVisitorAdapter:
+	public void _invokedynamic(
+			int pc,
+			int index,
+			IConstantPoolEntry nameEntry,
+			IConstantPoolEntry descriptorEntry) {
+		// default behavior is to do nothing
+	}
+</pre>
+<pre>org.eclipse.jdt.core.util.IBytecodeVisitor#_invokedynamic(int, int, IConstantPoolEntry, IConstantPoolEntry)</pre>
+<pre>org.eclipse.jdt.core.util.IOpcodeMnemonics#INVOKEDYNAMIC</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=267551">267551</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=240934">240934</a>
+Add support for the invokedynamic bytecode into the disassembler
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=267551">267551</a>
 [formatter] Wrong spacing in default array parameter for annotation type
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=277965">277965</a>
 [compiler] NPE in canBeSeenBy due to illegal protected toplevel class
