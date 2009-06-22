@@ -3623,7 +3623,10 @@ public class Scribe implements IJavaDocTagConstants {
 						}
 						this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
 						if (annotationsIndex < annotationsLength) {
+							boolean insertSpaceBeforeBrace = this.formatter.preferences.insert_space_before_opening_brace_in_array_initializer;
+							this.formatter.preferences.insert_space_before_opening_brace_in_array_initializer = false;
 							annotations[annotationsIndex++].traverse(visitor, (BlockScope) null);
+							this.formatter.preferences.insert_space_before_opening_brace_in_array_initializer = insertSpaceBeforeBrace;
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
 							boolean shouldAddNewLine = false;
 							switch (annotationSourceKind) {

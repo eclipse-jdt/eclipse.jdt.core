@@ -4501,6 +4501,28 @@ public void testBug260798c() throws JavaModelException {
 }
 
 /**
+ * @bug 267551: [formatter] Wrong spacing in default array parameter for annotation type
+ * @test Ensure that no space is inserted before the array initializer when used inside annotation
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=267551"
+ */
+public void testBug267551() throws JavaModelException {
+	String source = 
+		"import java.lang.annotation.*;\n" + 
+		"\n" + 
+		"@Target({ ElementType.ANNOTATION_TYPE })\n" + 
+		"@Retention(RetentionPolicy.RUNTIME)\n" + 
+		"public @interface Foo { }\n";
+	formatSource(source,
+		"import java.lang.annotation.*;\n" + 
+		"\n" + 
+		"@Target({ ElementType.ANNOTATION_TYPE })\n" + 
+		"@Retention(RetentionPolicy.RUNTIME)\n" + 
+		"public @interface Foo {\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 267658: [formatter] Javadoc comments may be still formatted as block comments
  * @test Ensure that javadoc comment are formatted as block comment with certain
  * 	options configuration
