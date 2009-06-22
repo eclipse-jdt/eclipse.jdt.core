@@ -9437,6 +9437,7 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, bo
 	checkNonNLSAfterBodyEnd(cd.declarationSourceEnd);
 
 	if (this.lastAct == ERROR_ACTION) {
+		cd.bits |= ASTNode.HasSyntaxErrors;
 		initialize();
 		return;
 	}
@@ -9506,6 +9507,7 @@ public void parse(
 	}
 
 	if (this.lastAct == ERROR_ACTION) {
+		field.bits |= ASTNode.HasSyntaxErrors;
 		return;
 	}
 
@@ -9614,6 +9616,7 @@ public void parse(
 	checkNonNLSAfterBodyEnd(initializer.declarationSourceEnd);
 
 	if (this.lastAct == ERROR_ACTION) {
+		initializer.bits |= ASTNode.HasSyntaxErrors;
 		return;
 	}
 
@@ -9677,6 +9680,7 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 	checkNonNLSAfterBodyEnd(md.declarationSourceEnd);
 
 	if (this.lastAct == ERROR_ACTION) {
+		md.bits |= ASTNode.HasSyntaxErrors;
 		return;
 	}
 
@@ -9764,11 +9768,14 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 			result = new ASTNode[astLength];
 			this.astPtr -= astLength;
 			System.arraycopy(this.astStack, this.astPtr + 1, result, 0, astLength);
+		} else {
+			// empty class body declaration (like ';' see https://bugs.eclipse.org/bugs/show_bug.cgi?id=280079).
+			result = new ASTNode[0];
 		}
 	}
 	boolean containsInitializers = false;
 	TypeDeclaration typeDeclaration = null;
-	for (int i = 0, max = result.length; i< max; i++) {
+	for (int i = 0, max = result.length; i < max; i++) {
 		// parse each class body declaration
 		ASTNode node = result[i];
 		if (node instanceof TypeDeclaration) {
@@ -9796,15 +9803,16 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 					break;
 			}
 		}
-		if (this.lastAct == ERROR_ACTION && (!this.options.performMethodsFullRecovery && !this.options.performStatementsRecovery)) {
+		if (((node.bits & ASTNode.HasSyntaxErrors) != 0) && (!this.options.performMethodsFullRecovery && !this.options.performStatementsRecovery)) {
 			return null;
 		}
 	}
 	if (containsInitializers) {
 		FieldDeclaration[] fieldDeclarations = typeDeclaration.fields;
 		for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
-			((Initializer) fieldDeclarations[i]).parseStatements(this, typeDeclaration , unit);
-			if (this.lastAct == ERROR_ACTION && (!this.options.performMethodsFullRecovery && !this.options.performStatementsRecovery)) {
+			Initializer initializer = (Initializer) fieldDeclarations[i];
+			initializer.parseStatements(this, typeDeclaration , unit);
+			if (((initializer.bits & ASTNode.HasSyntaxErrors) != 0) && (!this.options.performMethodsFullRecovery && !this.options.performStatementsRecovery)) {
 				return null;
 			}
 		}
