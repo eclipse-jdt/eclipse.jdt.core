@@ -924,7 +924,7 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 	}
 	/**
 	 * @see IBytecodeVisitor#_invokeinterface(int, int, byte, IConstantPoolEntry)
-	 * @since 3.5
+	 * @since 3.6
 	 */
 	public void _invokedynamic(
 			int pc,

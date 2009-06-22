@@ -167,7 +167,7 @@ public interface IBytecodeVisitor {
 		int index,
 		IConstantPoolEntry constantClass);
 	/**
-	 * @since 3.5
+	 * @since 3.6
 	 */
 	void _invokedynamic(
 			int pc,
