@@ -1426,4 +1426,48 @@ public void testBug153133() throws JavaModelException {
 		root.close();
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=267046
+public void test267046() throws JavaModelException {
+	IJavaProject project = getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/267046.jar"));
+	attachSource(root, "/AttachSourceTests/267046_src.zip", null);
+
+	IClassFile cf = root.getPackageFragment("test").getClassFile("Foo.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package test;\n" + 
+		"\n" + 
+		"public class Foo {\n" + 
+		"	public static class Bar<A, B> {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	public static void gotchaFunc1(Bar<byte[], Object> bar) {\n" + 
+		"	}\n" + 
+		"	public static void gotchaFunc2(Bar<boolean[], Object> bar) {\n" + 
+		"	}\n" + 
+		"	public static void gotchaFunc3(Bar<char[], Object> bar) {\n" + 
+		"	}\n" + 
+		"	public static void gotchaFunc4(Bar<double[], Object> bar) {\n" + 
+		"	}\n" + 
+		"	public static void gotchaFunc5(Bar<float[], Object> bar) {\n" + 
+		"	}\n" + 
+		"	public static void gotchaFunc6(Bar<int[], Object> bar) {\n" + 
+		"	}\n" + 
+		"	public static void gotchaFunc7(Bar<long[], Object> bar) {\n" + 
+		"	}\n" + 
+		"	public static void gotchaFunc8(Bar<short[], Object> bar) {\n" + 
+		"	}\n" + 
+		"}\n",
+		cf.getSource());
+	IType type = cf.getType();
+	IMethod[] methods = type.getMethods();
+	for (int i = 0, max = methods.length; i < max; i++) {
+		IMethod currentMethod = methods[i];
+		if (currentMethod.isConstructor()) continue;
+		assertNotNull("No source for method : " + currentMethod.getElementName(), currentMethod.getSource());
+	}
+
+	attachSource(root, null, null); // detach source
+	root.close();
+}
 }
