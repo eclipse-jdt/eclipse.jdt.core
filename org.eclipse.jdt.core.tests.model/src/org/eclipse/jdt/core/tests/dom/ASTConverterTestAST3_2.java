@@ -121,8 +121,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 709 };
+//		TESTS_RANGE = new int[] { 713, -1 };
+//		TESTS_NUMBERS =  new int[] { 710, 711 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -10280,5 +10280,121 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 			}
 		}
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=280079
+	 */
+	public void test0710() throws JavaModelException {
+		final char[] source = (";").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, root.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) root;
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 0, bodyDeclarations.size());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=280079
+	 */
+	public void test0711() throws JavaModelException {
+		final char[] source = (";void foo() {}").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, root.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) root;
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=280079
+	 */
+	public void test0712() throws JavaModelException {
+		final char[] source = (";void foo() {};").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, root.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) root;
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=280063
+	 */
+	public void test0713() throws JavaModelException {
+		final char[] source = ("  class MyCommand extends CompoundCommand\n" + 
+				"  {\n" + 
+				"    public void execute()\n" + 
+				"    {\n" + 
+				"      // ...\n" + 
+				"      appendAndExecute(new AddCommand(...));\n" + 
+				"      if (condition) appendAndExecute(new AddCommand(...));\n" + 
+				"    }\n" + 
+				"  }").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setStatementsRecovery(false);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a type declaration", ASTNode.COMPILATION_UNIT, root.getNodeType());
+		CompilationUnit unit = (CompilationUnit) root;
+		assertTrue("No problem reported", unit.getProblems().length != 0);
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=280063
+	 */
+	public void test0714() throws JavaModelException {
+		final char[] source = ("class MyCommand extends CommandBase\n" + 
+				"  {\n" + 
+				"    protected Command subcommand;\n" + 
+				"\n" + 
+				"    //...\n" + 
+				"\n" + 
+				"    public void execute()\n" + 
+				"    {\n" + 
+				"      // ...\n" + 
+				"      Compound subcommands = new CompoundCommand();\n" + 
+				"      subcommands.appendAndExecute(new AddCommand(...));\n" + 
+				"      if (condition) subcommands.appendAndExecute(new AddCommand(...));\n" + 
+				"      subcommand = subcommands.unwrap();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public void undo()\n" + 
+				"    {\n" + 
+				"      // ...\n" + 
+				"      subcommand.undo();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public void redo()\n" + 
+				"    {\n" + 
+				"      // ...\n" + 
+				"      subcommand.redo();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public void dispose()\n" + 
+				"    {\n" + 
+				"      // ...\n" + 
+				"      if (subcommand != null)\n" + 
+				"     {\n" + 
+				"        subcommand.dispose();\n" + 
+				"      }\n" + 
+				"    }\n" + 
+				"  }").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setStatementsRecovery(false);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a type declaration", ASTNode.COMPILATION_UNIT, root.getNodeType());
+		CompilationUnit unit = (CompilationUnit) root;
+		assertTrue("No problem reported", unit.getProblems().length != 0);
 	}
 }
