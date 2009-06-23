@@ -147,6 +147,10 @@ class CompilationUnitResolver extends Compiler {
 		SourceTypeElementInfo sourceType = (SourceTypeElementInfo) sourceTypes[0];
 		accept((org.eclipse.jdt.internal.compiler.env.ICompilationUnit) sourceType.getHandle().getCompilationUnit(), accessRestriction);
 	}
+	
+	public synchronized void accept(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
+		super.accept(sourceUnit, accessRestriction);
+	}
 
 	/**
 	 * Add the initial set of compilation units into the loop
