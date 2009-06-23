@@ -3630,6 +3630,13 @@ public final class CompletionEngine
 			addExpectedType(TypeBinding.BOOLEAN, scope);
 		} else if (parent instanceof IfStatement) {  
 			addExpectedType(TypeBinding.BOOLEAN, scope);
+		} else if (parent instanceof AssertStatement) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=274466
+			// If the assertExpression is same as the node , then the assistNode is the conditional part of the assert statement
+			AssertStatement assertStatement = (AssertStatement) parent;
+			if (assertStatement.assertExpression == node) {
+				addExpectedType(TypeBinding.BOOLEAN, scope);
+			}
 		} else if (parent instanceof ForStatement) {   // astNodeParent set to ForStatement only for the condition  
 			addExpectedType(TypeBinding.BOOLEAN, scope);
 
