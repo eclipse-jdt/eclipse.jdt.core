@@ -13754,5 +13754,41 @@ public void testCompletionWithUnboxing_2() throws JavaModelException {
 				(R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());	
 }
+//bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=274466
+//Check for boolean methods with higher relevance in assert statement's conditional part
+public void test274466() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test274466.java",
+			"package test;" +
+			"public class Test274466 {\n" +
+			"	boolean methodReturningBoolean() { return true; }\n" +
+			"	Boolean methodReturningBooleanB() { return true; }\n" +			
+			"   void methodReturningBlah() { return; }\n" +
+			"	int foo(int p) {\n" +
+			"     assert methodR : \"Exception Message\";" +
+			"	}\n" +
+			"}\n");
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/java/lang/Test.java",
+			"package java.lang;\n" +
+			"public class Boolean {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "methodR";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test274466;, ()V, methodReturningBlah, " + 
+					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBooleanB[METHOD_REF]{methodReturningBooleanB(), Ltest.Test274466;, ()Ljava.lang.Boolean;, methodReturningBooleanB, " + 
+					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test274466;, ()Z, methodReturningBoolean, " + 
+					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());	
+}
 
 }
