@@ -882,4 +882,29 @@ public class Util implements SuffixConstants {
 			classFile.recordInnerClasses(typeBinding);
 		}
 	}
+	
+	public static long getMajorMinorVMVersion() {
+		String classFileVersion = System.getProperty("java.class.version"); //$NON-NLS-1$
+		if (classFileVersion != null) {
+			String[] versionParts = classFileVersion.split("\\."); //$NON-NLS-1$
+			if (versionParts.length >= 2) {
+				int majorVersion = -1;
+				try {
+					majorVersion = Integer.parseInt(versionParts[0]);
+				} catch (NumberFormatException e) {
+					// ignore
+				}
+				int minorVersion = -1;
+				try {
+					minorVersion = Integer.parseInt(versionParts[1]);
+				} catch (NumberFormatException e) {
+					// ignore
+				}
+				if (minorVersion != -1 && majorVersion != -1) {
+					return ((long) majorVersion << 16) + minorVersion;
+				}
+			}
+		}
+		return -1;
+	}
 }
