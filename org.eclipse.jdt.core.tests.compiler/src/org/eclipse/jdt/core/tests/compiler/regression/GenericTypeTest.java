@@ -49581,4 +49581,28 @@ public void test1452() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=278305
+public void test1453() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" +
+			"	I<?> i = new I<?>() {};\n" +
+			"}\n" +
+			"class Y implements I<?> {}\n" +
+			"interface I<T> {}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	I<?> i = new I<?>() {};\n" + 
+		"	             ^\n" + 
+		"The type new I(){} cannot extend or implement I<?>. A supertype may not specify any wildcard\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	class Y implements I<?> {}\n" + 
+		"	                   ^\n" + 
+		"The type Y cannot extend or implement I<?>. A supertype may not specify any wildcard\n" + 
+		"----------\n"
+	);
+}
 }
