@@ -18,6 +18,9 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.util.Util;
+
 /**
  * A standard VM launcher launches an external standard VM with
  * the given arguments on the same machine.
@@ -96,10 +99,8 @@ public String[] getCommandLine() {
 		}
 	}
 
-	String vmVersion = System.getProperty("java.vm.version");
-	String javaVersion = System.getProperty("java.version");
-	if ((vmVersion != null && vmVersion.startsWith("1.6"))
-			|| (javaVersion != null && javaVersion.startsWith("1.6"))) {
+	long vmVersion = Util.getMajorMinorVMVersion();
+	if (vmVersion != -1  && vmVersion >= ClassFileConstants.JDK1_6) {
 		commandLine.addElement("-XX:-FailOverToOldVerifier");
 		commandLine.addElement("-Xverify:all");
 	}
