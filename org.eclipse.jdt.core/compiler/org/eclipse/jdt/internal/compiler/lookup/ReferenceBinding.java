@@ -768,6 +768,12 @@ public MethodBinding[] getMethods(char[] selector) {
 	return Binding.NO_METHODS;
 }
 
+// Answer methods named selector, which take no more than the suggestedParameterLength.
+// The suggested parameter length is optional and may not be guaranteed by every type.
+public MethodBinding[] getMethods(char[] selector, int suggestedParameterLength) {
+	return getMethods(selector);
+}
+
 /**
  * @return the outerLocalVariablesSlotSize
  */
