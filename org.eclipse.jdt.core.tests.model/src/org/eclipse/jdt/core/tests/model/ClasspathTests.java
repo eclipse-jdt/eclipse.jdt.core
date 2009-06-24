@@ -48,6 +48,7 @@ import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaModelStatus;
@@ -5862,6 +5863,76 @@ public void testForceNullArgumentsToEmptySet5() throws CoreException {
 	assertTrue("Extra attributes was null", e.getExtraAttributes() != null);
 	assertTrue("Inclusion pattern was null", e.getInclusionPatterns() != null);
 	assertTrue("Exclusion pattern was null", e.getExclusionPatterns() != null);
+}
+/**
+ * Test adding jar files with absolute file system path using the following modes and ensure the comparison
+ * with a relative path return true.
+ * 1. Variable Entry
+ * 2. User Library
+ * 3. External Jar file
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=276373"
+ * @throws Exception
+ */
+public void testBug276373() throws Exception {
+	File libDir = null;
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
+		IPath libPath = proj.getResource().getLocation().append("lib");
+		JavaCore.setClasspathVariable("MyVar", libPath, null);
+		libDir = new File(libPath.toPortableString());
+		libDir.mkdirs();
+		IClasspathEntry[] classpath = new IClasspathEntry[3];
+		File libJar = new File(libDir, "variableLib.jar");
+		libJar.createNewFile();
+		classpath[0] = JavaCore.newVariableEntry(new Path("/MyVar/variableLib.jar"), null, null);
+
+		libJar = new File(libDir, "externalLib.jar");
+		libJar.createNewFile();
+		classpath[1] = JavaCore.newLibraryEntry(new Path(libJar.getAbsolutePath()), null, null);
+
+		libJar = new File(libDir, "userLib.jar");
+		libJar.createNewFile();
+		
+		ClasspathContainerInitializer initializer= JavaCore.getClasspathContainerInitializer(JavaCore.USER_LIBRARY_CONTAINER_ID);
+		String libraryName = "TestUserLibrary";
+		IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID);
+		UserLibraryClasspathContainer containerSuggestion = new UserLibraryClasspathContainer(libraryName);
+		initializer.requestClasspathContainerUpdate(containerPath.append(libraryName), null, containerSuggestion);
+
+		IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"TestUserLibrary";
+		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
+		propertyValue.append(" path=\"" + libJar.getAbsolutePath());
+		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
+		preferences.put(propertyName, propertyValue.toString());
+		preferences.flush();	
+		
+		classpath[2] = JavaCore.newContainerEntry(containerSuggestion.getPath());
+		proj.setRawClasspath(classpath, null);
+		
+		IResource resource = getWorkspaceRoot().getProject("P").getFile("lib/variableLib.jar");
+		assertTrue(proj.isOnClasspath(resource));
+		IJavaElement element = proj.getPackageFragmentRoot(resource);
+		assertTrue(proj.isOnClasspath(element));
+		
+		resource = getWorkspaceRoot().getProject("P").getFile("lib/externalLib.jar");
+		assertTrue(proj.isOnClasspath(resource));
+		element = proj.getPackageFragmentRoot(resource);
+		assertTrue(proj.isOnClasspath(element));		
+
+		resource = getWorkspaceRoot().getProject("P").getFile("lib/userLib.jar");
+		assertTrue(proj.isOnClasspath(resource));
+		element = proj.getPackageFragmentRoot(resource);
+		assertTrue(proj.isOnClasspath(element));
+	}
+	finally {
+		if (libDir != null) {
+			org.eclipse.jdt.core.tests.util.Util.delete(libDir);
+		}
+		this.deleteProject("P");
+		JavaCore.removeClasspathVariable("MyVar", null);
+	}		
 }
 
 }
