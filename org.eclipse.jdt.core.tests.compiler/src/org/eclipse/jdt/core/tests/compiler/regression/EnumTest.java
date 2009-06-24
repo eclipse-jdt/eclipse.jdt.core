@@ -6231,4 +6231,58 @@ public void test173() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=278562
+public void test174() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.HashMap;\n" +
+			"import java.util.Map;\n" +
+			"interface S {}\n" +
+			"enum A implements S {\n" +
+			"	L;\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) throws Exception {\n" +
+			"		i(A.L);\n" +
+			"	}\n" +
+			"	static void i(Enum<? extends S> enumConstant) {\n" +
+			"		Map m = new HashMap();\n" +
+			"		for (Enum e : enumConstant.getDeclaringClass().getEnumConstants()) {\n" +
+			"			m.put(e.name(), e);\n" +
+			"		}\n" +
+			"		System.out.print(1);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"1"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=278562
+public void test175() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.HashMap;\n" +
+			"import java.util.Map;\n" +
+			"interface S {}\n" +
+			"enum A implements S {\n" +
+			"	L, M, N, O;\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) throws Exception {\n" +
+			"		i(new Enum[] {A.L, A.M, A.N, A.O});\n" +
+			"	}\n" +
+			"	static void i(Enum[] tab) {\n" +
+			"		Map m = new HashMap();\n" +
+			"		for (Enum s : tab) {\n" +
+			"			m.put(s.name(), s);\n" +
+			"		}\n" +
+			"		System.out.print(1);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"1"
+	);
+}
 }
