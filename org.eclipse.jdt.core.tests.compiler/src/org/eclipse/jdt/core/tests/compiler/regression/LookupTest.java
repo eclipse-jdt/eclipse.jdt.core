@@ -3079,6 +3079,29 @@ public void test094() {
 		},
 		"");
 }	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=277965
+public void test095() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/B.java",
+			"package p1;\n" + 
+			"protected class B1 {}",
+			"X.java", // =================
+			"public class X extends p1.B1 {}",
+	},
+	"----------\n" + 
+	"1. ERROR in p1\\B.java (at line 2)\n" + 
+	"	protected class B1 {}\n" + 
+	"	                ^^\n" + 
+	"Illegal modifier for the class B1; only public, abstract & final are permitted\n" + 
+	"----------\n" + 
+	"----------\n" + 
+	"1. ERROR in X.java (at line 1)\n" + 
+	"	public class X extends p1.B1 {}\n" + 
+	"	                       ^^^^^\n" + 
+	"The type p1.B1 is not visible\n" + 
+	"----------\n");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }
