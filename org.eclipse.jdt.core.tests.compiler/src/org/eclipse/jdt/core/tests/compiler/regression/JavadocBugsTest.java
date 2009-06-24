@@ -6035,12 +6035,12 @@ public void testBug165794() {
 		"class Y {}\n" +
 		"class Z {}"
 	};
-	if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4
+			|| this.complianceLevel >= ClassFileConstants.JDK1_7) {
 		return;
 	}
 	runConformTest(testFiles);
 }
-
 /**
  * @bug 166365: [javadoc] severity level of malformed javadoc comments did not work properly
  * @test Ensure that no warning is raised when visibility is lower than the javadoc option one
