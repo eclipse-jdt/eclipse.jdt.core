@@ -4027,7 +4027,7 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 		// reset scribe/scanner to restart at this given location
 		resetAt(this.currentAlignment.location);
-		this.scanner.resetTo(this.currentAlignment.location.inputOffset, this.scanner.eofPosition);
+		this.scanner.resetTo(this.currentAlignment.location.inputOffset, this.scanner.eofPosition - 1);
 		// clean alignment chunkKind so it will think it is a new chunk again
 		this.currentAlignment.chunkKind = 0;
 	}
@@ -4035,7 +4035,7 @@ public class Scribe implements IJavaDocTagConstants {
 	void redoMemberAlignment(AlignmentException e){
 		// reset scribe/scanner to restart at this given location
 		resetAt(this.memberAlignment.location);
-		this.scanner.resetTo(this.memberAlignment.location.inputOffset, this.scanner.eofPosition);
+		this.scanner.resetTo(this.memberAlignment.location.inputOffset, this.scanner.eofPosition - 1);
 		// clean alignment chunkKind so it will think it is a new chunk again
 		this.memberAlignment.chunkKind = 0;
 	}
