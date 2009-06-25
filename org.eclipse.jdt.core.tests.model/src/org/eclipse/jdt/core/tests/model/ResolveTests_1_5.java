@@ -2909,4 +2909,31 @@ public void test0122() throws Exception {
 			true
 		);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209639
+public void test0123() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" + 
+			"        <T> T bar(T t) { return t; }\n" + 
+			"        void foo(boolean b, Runnable r) {\n" + 
+			"                Zork z = null;\n" + 
+			"                String s = (String) bar(z); // 5\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("bar");
+	int length = "bar".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"bar(T) {key=Ltest/Test;.bar<T:Ljava/lang/Object;>(TT;)TT;%<Ljava/lang/Object;>} [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			elements,
+			true
+		);
+}
 }

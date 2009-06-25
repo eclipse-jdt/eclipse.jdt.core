@@ -794,7 +794,7 @@ public void test19() {
 		"  public X() {\n" +
 		"  }\n" +
 		"  Object foo() {\n" +
-		"    return <SelectOnName:Object>;\n" +
+		"    <SelectOnName:Object>;\n" +
 		"  }\n" +
 		"}\n";
 

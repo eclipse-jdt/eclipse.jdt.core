@@ -934,4 +934,51 @@ public void test0023() {
 		expectedReplacedSource,
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=255142
+public void test0024() {
+
+	String str =
+		"import java.util.List;\n" + 
+		"public class X {\n" + 
+		"        <T> T bar(T t) { return t; }\n" + 
+		"        void foo(boolean b, Runnable r) {\n" + 
+		"                Zork z = null;\n" + 
+		"                String s = (String) bar(z); // 5\n" + 
+		"        }\n" + 
+		"}\n" + 
+		"\n";
+
+	String selection = "bar";
+
+	String expectedCompletionNodeToString = "<SelectOnMessageSend:bar(z)>";
+
+	String completionIdentifier = "bar";
+	String expectedUnitDisplayString =
+		"import java.util.List;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  <T>T bar(T t) {\n" + 
+		"  }\n" + 
+		"  void foo(boolean b, Runnable r) {\n" + 
+		"    Zork z;\n" + 
+		"    String s = (String) <SelectOnMessageSend:bar(z)>;\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "bar(z)";
+	String testName = "<select method>";
+
+	int selectionStart = str.lastIndexOf(selection);
+	int selectionEnd = str.lastIndexOf(selection) + selection.length() - 1;
+
+	this.checkMethodParse(
+		str.toCharArray(),
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
 }
