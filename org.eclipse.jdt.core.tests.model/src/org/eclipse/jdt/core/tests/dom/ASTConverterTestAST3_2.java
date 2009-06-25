@@ -9926,7 +9926,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248246
 	 */
-	public void _test0697() throws JavaModelException {
+	public void test0697() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =
@@ -9943,7 +9943,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				false,
 				true);
 			Block body = methodDeclaration.getBody();
-			assertEquals("Should be empty", 0, body.statements().size());
+			assertEquals("Should contain 1 statement", 1, body.statements().size());
 		} finally {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
@@ -9953,13 +9953,41 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248246
 	 */
-	public void _test0698() throws JavaModelException {
+	public void test0698a() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =
 				"public class X {\n" + 
 				"	private void foo() {\n" + 
-				"		/*start*/Object o = new new Object() {};/*end*/\n" + 
+				"		Object o = new /*start*/new Object() {}/*end*/;\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ExpressionStatement statement = (ExpressionStatement) buildAST(
+				contents,
+				workingCopy,
+				false,
+				true,
+				true);
+			String expectedContents = "new Object() {}";
+			checkSourceRange(statement, expectedContents, new MarkerInfo(contents).source);
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248246
+	 */
+	public void test0698b() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	private void foo() {\n" + 
+				"		/*start*/Object o = new /*end*/new Object() {};\n" + 
 				"	}\n" + 
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
@@ -9969,8 +9997,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				false,
 				true,
 				true);
-			String expectedContents = "Object o = new new Object() {};";
-			checkSourceRange(statement, expectedContents, contents);
+			String expectedContents = "Object o = new ";
+			checkSourceRange(statement, expectedContents, new MarkerInfo(contents).source);
 		} finally {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
