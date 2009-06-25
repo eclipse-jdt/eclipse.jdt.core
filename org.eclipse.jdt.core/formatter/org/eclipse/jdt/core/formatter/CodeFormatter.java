@@ -85,14 +85,19 @@ public abstract class CodeFormatter {
 	 * {@link #K_UNKNOWN} kinds for now but might be extended to other ones
 	 * in future versions.
 	 * </p><p>
-	 * Note also that it has an effect only when the option
-	 * {@link DefaultCodeFormatterConstants#FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT}
-	 * is set to {@link DefaultCodeFormatterConstants#TRUE} while calling
+	 * Note also that it has an effect only when one or several format comments
+	 * options for
+	 * {@link DefaultCodeFormatterConstants#FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT javadoc}
+	 * ,
+	 * {@link DefaultCodeFormatterConstants#FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT block}
+	 * or
+	 * {@link DefaultCodeFormatterConstants#FORMATTER_COMMENT_FORMAT_LINE_COMMENT line}
+	 * are set to {@link DefaultCodeFormatterConstants#TRUE true} while calling
 	 * {@link #format(int, String, int, int, int, String)} or
 	 * {@link #format(int, String, IRegion[], int, String)} methods
 	 * </p><p>
-	 * For example, with the Eclipse default formatter options, the formatting of
-	 * the following code snippet using {@link #K_COMPILATION_UNIT}:
+	 * For example, with the Eclipse default formatter options, the formatting
+	 * of the following code snippet using {@link #K_COMPILATION_UNIT}:
 	 * <pre>
 	 * public class X {
 	 * &#047;&#042;&#042;
