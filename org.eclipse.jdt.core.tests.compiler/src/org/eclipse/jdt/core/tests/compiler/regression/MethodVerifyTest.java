@@ -9619,4 +9619,23 @@ public void test187() {
 			"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=279836
+public void test188() {
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"abstract class Y<T extends Number> implements I<T> {\n" +
+			"	public T get(T element) { return null; }\n" +
+			"}\n" +
+			"interface I<T> { T get(T element); }\n" +
+			"class Z extends Y {}"
+		},
+		"----------\n" + 
+		"1. WARNING in Y.java (at line 5)\n" + 
+		"	class Z extends Y {}\n" + 
+		"	                ^\n" + 
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n"
+	);
+}
 }
