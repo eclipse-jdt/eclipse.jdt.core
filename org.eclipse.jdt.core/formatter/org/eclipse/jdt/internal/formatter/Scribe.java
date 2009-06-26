@@ -2158,7 +2158,7 @@ public class Scribe implements IJavaDocTagConstants {
 		int indentLevel = this.indentationLevel;
 		int indentations = this.numberOfIndentations;
 		this.indentationLevel = getNextIndentationLevel(firstColumn);
-		this.numberOfIndentations = this.indentationLevel / this.indentationSize;
+		this.numberOfIndentations = this.indentationSize==0 ? 0 : this.indentationLevel / this.indentationSize;
 
 		// Consume the comment prefix
 		this.scanner.resetTo(commentStart, commentEnd);

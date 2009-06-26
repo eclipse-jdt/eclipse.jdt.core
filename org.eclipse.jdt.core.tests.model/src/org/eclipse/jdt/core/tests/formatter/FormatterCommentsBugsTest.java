@@ -4785,4 +4785,27 @@ public void testBug280616() throws JavaModelException {
 	);
 }
 
+/**
+ * @bug 281533: [formatter] Valid 1.5 code is not formatted inside <pre> tag
+ * @test Ensure that 1.5 snippet is formatted when source level is 1.5
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=281533"
+ */
+public void testBug281533() throws JavaModelException {
+	this.formatterPrefs.tab_size = 0;
+	this.formatterPrefs.indentation_size = 0;
+	String source = 
+		"public class X {\n" + 
+		"    // test\n" + 
+		"    int x;\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"// test\n" + 
+		"int x;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+
 }
