@@ -1033,23 +1033,62 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					consumeToken();
 					break;
 
-				case TerminalTokens.TokenNamevoid :
-				case TerminalTokens.TokenNameboolean :
-				case TerminalTokens.TokenNamebyte :
-				case TerminalTokens.TokenNamechar :
-				case TerminalTokens.TokenNamedouble :
-				case TerminalTokens.TokenNamefloat :
-				case TerminalTokens.TokenNameint :
-				case TerminalTokens.TokenNamelong :
-				case TerminalTokens.TokenNameshort :
-					if (iToken > 0) {
-						throw new InvalidInputException();
+				case TerminalTokens.TokenNameabstract:
+				case TerminalTokens.TokenNameassert:
+				case TerminalTokens.TokenNameboolean:
+				case TerminalTokens.TokenNamebreak:
+				case TerminalTokens.TokenNamebyte:
+				case TerminalTokens.TokenNamecase:
+				case TerminalTokens.TokenNamecatch:
+				case TerminalTokens.TokenNamechar:
+				case TerminalTokens.TokenNameclass:
+				case TerminalTokens.TokenNamecontinue:
+				case TerminalTokens.TokenNamedefault:
+				case TerminalTokens.TokenNamedo:
+				case TerminalTokens.TokenNamedouble:
+				case TerminalTokens.TokenNameelse:
+				case TerminalTokens.TokenNameextends:
+				case TerminalTokens.TokenNamefalse:
+				case TerminalTokens.TokenNamefinal:
+				case TerminalTokens.TokenNamefinally:
+				case TerminalTokens.TokenNamefloat:
+				case TerminalTokens.TokenNamefor:
+				case TerminalTokens.TokenNameif:
+				case TerminalTokens.TokenNameimplements:
+				case TerminalTokens.TokenNameimport:
+				case TerminalTokens.TokenNameinstanceof:
+				case TerminalTokens.TokenNameint:
+				case TerminalTokens.TokenNameinterface:
+				case TerminalTokens.TokenNamelong:
+				case TerminalTokens.TokenNamenative:
+				case TerminalTokens.TokenNamenew:
+				case TerminalTokens.TokenNamenull:
+				case TerminalTokens.TokenNamepackage:
+				case TerminalTokens.TokenNameprivate:
+				case TerminalTokens.TokenNameprotected:
+				case TerminalTokens.TokenNamepublic:
+				case TerminalTokens.TokenNameshort:
+				case TerminalTokens.TokenNamestatic:
+				case TerminalTokens.TokenNamestrictfp:
+				case TerminalTokens.TokenNamesuper:
+				case TerminalTokens.TokenNameswitch:
+				case TerminalTokens.TokenNamesynchronized:
+				case TerminalTokens.TokenNamethis:
+				case TerminalTokens.TokenNamethrow:
+				case TerminalTokens.TokenNametransient:
+				case TerminalTokens.TokenNametrue:
+				case TerminalTokens.TokenNametry:
+				case TerminalTokens.TokenNamevoid:
+				case TerminalTokens.TokenNamevolatile:
+				case TerminalTokens.TokenNamewhile:
+					if (iToken == 0) {
+						pushIdentifier(true, true);
+						primitiveToken = token;
+						consumeToken();
+						break nextToken;
 					}
-					pushIdentifier(true, false);
-					primitiveToken = token;
-					consumeToken();
-					break nextToken;
-
+					// Fall through default case to verify that we do not leave on a dot
+					//$FALL-THROUGH$
 				default :
 					if (iToken == 0) {
 						if (this.identifierPtr>=0) {

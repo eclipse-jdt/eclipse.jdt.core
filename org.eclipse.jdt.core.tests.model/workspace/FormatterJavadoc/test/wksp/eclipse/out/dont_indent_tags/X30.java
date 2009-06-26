@@ -10,8 +10,8 @@ public class X30 {
 	 * the resource to check for errors
 	 * @return <code>true</code> if the resource (and its children) are error
 	 * free
-	 * @throws import org.eclipse.core.runtime.CoreException if there's a marker
-	 * problem
+	 * @throws import
+	 * org.eclipse.core.runtime.CoreException if there's a marker problem
 	 */
 	void foo() {
 	}

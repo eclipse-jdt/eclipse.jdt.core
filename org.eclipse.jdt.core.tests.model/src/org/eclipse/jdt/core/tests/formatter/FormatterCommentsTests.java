@@ -1150,9 +1150,6 @@ public void testWkspEclipse29() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X29.java");
 }
 public void testWkspEclipse30() throws JavaModelException {
-	// Difference with old formatter:
-	// 1) Consider any tag as normal root tag when syntax is invalid
-	//		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231796
 	formatUnit("wksp.eclipse", "X30.java");
 }
 public void testWkspEclipse31() throws JavaModelException {
