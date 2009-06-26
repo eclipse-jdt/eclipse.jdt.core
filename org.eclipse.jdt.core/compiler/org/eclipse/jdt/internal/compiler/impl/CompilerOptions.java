@@ -229,9 +229,6 @@ public class CompilerOptions {
 	// group 2
 	public static final int ShouldImplementHashcode = IrritantSet.GROUP2 | ASTNode.Bit1;
 	public static final int DeadCode = IrritantSet.GROUP2 | ASTNode.Bit2;
-	
-	// Map: String optionKey --> Long irritant>
-	private static Map OptionToIrritants;
 
 	// Severity level for handlers
 	/** 
@@ -513,27 +510,6 @@ public class CompilerOptions {
 				return OPTION_ReportDeadCode;
 		}
 		return null;
-	}
-
-	public static long optionKeyToIrritant(String optionName) {
-		if (OptionToIrritants == null) {
-			Map temp = new HashMap();
-			int group = 0;
-			for (int g = 0; g < 8; g++) {
-				group <<= 1;
-				int index = 0;
-				for (int i = 0; i < 30; i++) {
-					index <<= 1;
-					int irritant = (group<<IrritantSet.GROUP_SHIFT)+index;
-					String optionKey = optionKeyFromIrritant(irritant);
-					if (optionKey == null) continue;
-					temp.put(optionKey, new Integer(irritant));
-				}
-			}
-			OptionToIrritants = temp;
-		}
-		Long irritant = (Long)OptionToIrritants.get(optionName);
-		return irritant == null ? 0 : irritant.longValue();
 	}
 
 	public static String versionFromJdkLevel(long jdkLevel) {
