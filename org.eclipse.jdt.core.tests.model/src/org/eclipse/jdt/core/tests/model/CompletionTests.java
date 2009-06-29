@@ -20219,4 +20219,100 @@ public void test253008f() throws JavaModelException {
 			requestor.getResults());
 }
 
+public void test201762() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[8];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test201762.java",
+			"import test.ControlAdapter;\n" +
+			"import test.Label;\n" +
+			"import test.PaintEvent;\n" +
+			"import test.PaintListener;\n" +
+			"import test.SWT;\n" +
+			"import test.Shell;\n" +
+			"\n" +
+			"public class Test201762 {\n" +
+			"\n" +
+			"    void main(Shell shell) {\n" +
+			"\n" +
+			"        final Label label= new Label(shell, SWT.WRAP);\n" +
+			"        label.addPaintListener(new PaintListener() {\n" +
+			"            public void paintControl(PaintEvent e) {\n" +
+			"                e.gc.setLineCap(SWT.CAP_); // content assist after CAP_\n" +
+			"            }\n" +
+			"        });\n" +
+			"\n" +
+			"        shell.addControlListener(new ControlAdapter() { });\n" +
+			"\n" +
+			"        while (!shell.isDisposed()) { }\n" +
+			"    }\n" +
+			"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/AnObject.java",
+			"package test;\n" +
+			"public class AnObject {\n" +
+			"	public void setLineCap(int capZz) {}\n" +
+			"}\n");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/test/ControlAdapter.java",
+			"package test;\n" +
+			"public class ControlAdapter {\n" +
+			"}\n");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src/test/Label.java",
+			"package test;\n" +
+			"public class Label {\n" +
+			"	public Label(Shell shell, int wrap) {\n" +
+			"	}\n" +
+			"	public void addPaintListener(PaintListener paintListener) {\n" +
+			"	}\n" +
+			"}\n");
+	
+	this.workingCopies[4] = getWorkingCopy(
+			"/Completion/src/test/Label.java",
+			"package test;\n" +
+			"public class PaintEvent {\n" +
+			"	public AnObject gc;\n" +
+			"}\n");
+	
+	this.workingCopies[5] = getWorkingCopy(
+			"/Completion/src/test/PaintListener.java",
+			"package test;\n" +
+			"public interface PaintListener {\n" +
+			"}\n");
+	
+	this.workingCopies[6] = getWorkingCopy(
+			"/Completion/src/test/Shell.java",
+			"package test;\n" +
+			"public class Shell {\n" +
+			"	public boolean isDisposed() {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public void addControlListener(ControlAdapter controlAdapter) {\n" +
+			"	}\n" +
+			"}\n");
+	
+	this.workingCopies[7] = getWorkingCopy(
+			"/Completion/src/test/SWT.java",
+			"package test;\n" +
+			"public interface SWT {\n" +
+			"	int WRAP = 0;\n" +
+			"	int CAP_ZZ = 0;\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "SWT.CAP_";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"CAP_ZZ[FIELD_REF]{CAP_ZZ, Ltest.SWT;, I, CAP_ZZ, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+
+
 }
