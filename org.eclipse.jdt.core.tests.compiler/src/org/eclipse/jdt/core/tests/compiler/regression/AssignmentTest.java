@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ protected Map getCompilerOptions() {
 // All specified tests which does not belong to the class are skipped...
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 61 };
+//	TESTS_NUMBERS = new int[] { 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public static Test suite() {
@@ -1846,6 +1846,21 @@ public void test63() {
 		"	                                                      ^^^^^^^^^\n" + 
 		"Cannot cast from boolean to double\n" + 
 		"----------\n");
+}
+public void test064() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		byte b = (byte)1;\n" +
+			"		b += 1;\n" +
+			"		System.out.print(b);\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"2"
+	);
 }
 public static Class testClass() {
 	return AssignmentTest.class;
