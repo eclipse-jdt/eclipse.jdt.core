@@ -5674,7 +5674,7 @@ public void test121() throws Exception {
 		"",
 		"",
 		true);
-	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
+	String expectedOutput = "// Compiled from X.java (version 1.7 : 51.0, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // command line - unusual classpath (ends with ';;;', still OK)

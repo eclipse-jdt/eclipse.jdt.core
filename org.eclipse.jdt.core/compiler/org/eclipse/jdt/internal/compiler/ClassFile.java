@@ -6856,9 +6856,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 
 		long targetVersion = this.targetJDK;
-		if (targetVersion == ClassFileConstants.JDK1_7) {
-			targetVersion = ClassFileConstants.JDK1_6;
-		}
 		this.header[this.headerOffset++] = (byte) (targetVersion >> 8); // minor high
 		this.header[this.headerOffset++] = (byte) (targetVersion>> 0); // minor low
 		this.header[this.headerOffset++] = (byte) (targetVersion >> 24); // major high
