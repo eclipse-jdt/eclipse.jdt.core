@@ -1568,13 +1568,11 @@ public class JavaProject
 	 * @see org.eclipse.jdt.core.IJavaProject#getOption(String, boolean)
 	 */
 	public String getOption(String optionName, boolean inheritJavaCoreOptions) {
-
-		String propertyName = optionName;
-		if (JavaModelManager.getJavaModelManager().optionNames.contains(propertyName)){
+		if (JavaModelManager.getJavaModelManager().optionNames.contains(optionName)){
 			IEclipsePreferences projectPreferences = getEclipsePreferences();
-			String javaCoreDefault = inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : null;
+			String javaCoreDefault = inheritJavaCoreOptions ? JavaCore.getOption(optionName) : null;
 			if (projectPreferences == null) return javaCoreDefault;
-			String value = projectPreferences.get(propertyName, javaCoreDefault);
+			String value = projectPreferences.get(optionName, javaCoreDefault);
 			return value == null ? null : value.trim();
 		}
 		return null;
