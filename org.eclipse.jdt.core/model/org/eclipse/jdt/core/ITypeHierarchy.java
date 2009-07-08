@@ -21,7 +21,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * created such that the root of the hierarchy is always included. For example, if a type
  * hierarchy is created for a <code>java.io.File</code>, and the region the hierarchy was
  * created in is the package fragment <code>java.io</code>, the supertype
- * <code>java.lang.Object</code> will still be included.
+ * <code>java.lang.Object</code> will still be included. As a historical quirk,
+ * <code>java.lang.Object</code> has always been included in type hierarchies
+ * created on interface types.
  * <p>
  * A type hierarchy is static and can become stale. Although consistent when
  * created, it does not automatically track changes in the model.
@@ -141,7 +143,7 @@ IType[] getAllSupertypes(IType type);
  * order. Any types in the creation region which were not resolved to
  * have any subtypes or supertypes are not included in the result.
  *
- * @return all types in this type hierarchy's grap
+ * @return all types in this type hierarchy's graph
  */
 IType[] getAllTypes();
 
