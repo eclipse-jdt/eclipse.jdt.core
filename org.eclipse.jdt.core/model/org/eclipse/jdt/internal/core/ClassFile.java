@@ -445,8 +445,8 @@ public IJavaElement getElementAtConsideringSibling(int position) throws JavaMode
 
 				SourceRange range = mapper.getSourceRange(classFile.getType());
 				if (range == SourceMapper.UNKNOWN_RANGE) continue;
-				int newStart = range.offset;
-				int newEnd = newStart + range.length - 1;
+				int newStart = range.getOffset();
+				int newEnd = newStart + range.getLength() - 1;
 				if(newStart > start && newEnd < end
 						&& newStart <= position && newEnd >= position) {
 					type = classFile.getType();

@@ -28,10 +28,12 @@ public interface ISourceRange {
 int getLength();
 /**
  * Returns the 0-based index of the first character of the source code for this element,
- * relative to the source buffer in which this element is contained.
+ * relative to the source buffer in which this element is contained. However, if the element
+ * has no associated source code, an implementation may return -1. 
  *
  * @return the 0-based index of the first character of the source code for this element,
- * relative to the source buffer in which this element is contained
+ * relative to the source buffer in which this element is contained. However, if the element
+ * has no associated source code, an implementation may return -1. 
  */
 int getOffset();
 }

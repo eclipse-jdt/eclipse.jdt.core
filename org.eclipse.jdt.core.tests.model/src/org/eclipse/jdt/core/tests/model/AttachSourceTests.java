@@ -1470,4 +1470,18 @@ public void test267046() throws JavaModelException {
 	attachSource(root, null, null); // detach source
 	root.close();
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88265
+// Test to ensure availability and correctness of API SourceRange
+public void test88265 () {
+	org.eclipse.jdt.core.SourceRange one = new org.eclipse.jdt.core.SourceRange(10, 7);
+	org.eclipse.jdt.core.SourceRange two = new org.eclipse.jdt.core.SourceRange(9, 13);
+	assertTrue(two.getOffset() == 9);
+	assertTrue(two.getLength() == 13);
+	assertFalse(one.equals(two));
+	SourceRange three = new org.eclipse.jdt.core.SourceRange(10, 7);
+	assertTrue(one.equals(three));
+	assertTrue(SourceRange.isAvailable(one));
+	assertFalse(SourceRange.isAvailable(null));
+	assertFalse(SourceRange.isAvailable(new SourceRange(-1, 0)));
+}
 }

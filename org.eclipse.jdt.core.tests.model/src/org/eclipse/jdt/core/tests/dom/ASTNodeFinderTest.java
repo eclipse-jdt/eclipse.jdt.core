@@ -15,11 +15,11 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.SourceRange;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.NodeFinder;
-import org.eclipse.jdt.internal.core.SourceRange;
 
 public class ASTNodeFinderTest extends ConverterTestSetup {
 
