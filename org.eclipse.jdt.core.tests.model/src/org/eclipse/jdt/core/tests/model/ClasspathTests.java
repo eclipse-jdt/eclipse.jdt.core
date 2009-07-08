@@ -5872,6 +5872,7 @@ public void testForceNullArgumentsToEmptySet5() throws CoreException {
  * 3. External Jar file
  * 
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=276373"
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=280497"
  * @throws Exception
  */
 public void testBug276373() throws Exception {
@@ -5915,16 +5916,19 @@ public void testBug276373() throws Exception {
 		assertTrue(proj.isOnClasspath(resource));
 		IJavaElement element = proj.getPackageFragmentRoot(resource);
 		assertTrue(proj.isOnClasspath(element));
+		assertNotNull(((JavaProject)proj).getClasspathEntryFor(resource.getFullPath()));
 		
 		resource = getWorkspaceRoot().getProject("P").getFile("lib/externalLib.jar");
 		assertTrue(proj.isOnClasspath(resource));
 		element = proj.getPackageFragmentRoot(resource);
-		assertTrue(proj.isOnClasspath(element));		
+		assertTrue(proj.isOnClasspath(element));
+		assertNotNull(((JavaProject)proj).getClasspathEntryFor(resource.getFullPath()));
 
 		resource = getWorkspaceRoot().getProject("P").getFile("lib/userLib.jar");
 		assertTrue(proj.isOnClasspath(resource));
 		element = proj.getPackageFragmentRoot(resource);
 		assertTrue(proj.isOnClasspath(element));
+		assertNotNull(((JavaProject)proj).getClasspathEntryFor(resource.getFullPath()));
 	}
 	finally {
 		if (libDir != null) {

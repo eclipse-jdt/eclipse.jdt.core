@@ -1365,7 +1365,12 @@ public class JavaProject
 		Map rootPathToResolvedEntries = perProjectInfo.rootPathToResolvedEntries;
 		if (rootPathToResolvedEntries == null)
 			return null;
-		return (IClasspathEntry) rootPathToResolvedEntries.get(path);
+		IClasspathEntry classpathEntry = (IClasspathEntry) rootPathToResolvedEntries.get(path);
+		if (classpathEntry == null) {
+			path = getProject().getWorkspace().getRoot().getLocation().append(path);
+			classpathEntry = (IClasspathEntry) rootPathToResolvedEntries.get(path);
+		}
+		return classpathEntry;
 	}
 
 	/*
