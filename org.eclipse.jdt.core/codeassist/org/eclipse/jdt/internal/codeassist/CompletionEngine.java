@@ -3963,6 +3963,11 @@ public final class CompletionEngine
 	private int computeRelevanceForExpectingType(TypeBinding proposalType){
 		if(this.expectedTypes != null && proposalType != null) {
 			int relevance = 0;
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=271296
+			// If there is at least one expected type, then void proposal types attract a degraded relevance.  
+			if (proposalType == TypeBinding.VOID && this.expectedTypesPtr >=0) {
+				return R_VOID;
+			}	
 			for (int i = 0; i <= this.expectedTypesPtr; i++) {
 				if((this.expectedTypesFilter & SUBTYPE) != 0
 						&& proposalType.isCompatibleWith(this.expectedTypes[i])) {

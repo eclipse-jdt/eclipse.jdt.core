@@ -1032,7 +1032,7 @@ public void test080() throws JavaModelException {
 			" */\n" +
 			"public class BasicTestTypes {}\n";
 		completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BTT");
-		assertResults("BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+"17}");
+		assertResults("BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+"22}");
 	} finally {
 		JavaCore.setOptions(this.oldOptions);
 	}

@@ -512,7 +512,7 @@ public void test030() throws JavaModelException {
 			"}";
 		completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "oTT");
 		assertResults(
-			"oneTwoThree[FIELD_REF]{oneTwoThree, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, oneTwoThree, null, "+this.positions+"25}"
+			"oneTwoThree[FIELD_REF]{oneTwoThree, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, oneTwoThree, null, "+this.positions+"30}"
 		);
 	} finally {
 		JavaCore.setOptions(this.oldOptions);

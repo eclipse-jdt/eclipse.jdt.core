@@ -2294,8 +2294,8 @@ public void testCompletionAfterInstanceof03_02() throws JavaModelException {
 	int start3 = str.lastIndexOf("a.");
 	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1 + R_VOID) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -2329,8 +2329,8 @@ public void testCompletionAfterInstanceof03_03() throws JavaModelException {
 	int start3 = str.lastIndexOf("a.");
 	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1 + R_VOID) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -2364,8 +2364,8 @@ public void testCompletionAfterInstanceof03_04() throws JavaModelException {
 	int start3 = str.lastIndexOf("a.");
 	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1 + R_VOID) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -2421,7 +2421,7 @@ public void testCompletionAfterInstanceof03_06() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
-	int relevance2 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance2 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_VOID + R_NON_STATIC + R_NON_RESTRICTED;
 	int start1 = str.lastIndexOf("equal") + "".length();
 	int end1 = start1 + "equal".length();
 	int start2 = str.lastIndexOf("a.equal");
@@ -2939,8 +2939,8 @@ public void testCompletionAfterInstanceof18_01() throws JavaModelException {
 	int start3 = str.lastIndexOf("a.");
 	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1 +  R_VOID) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -2973,8 +2973,8 @@ public void testCompletionAfterInstanceof18_02() throws JavaModelException {
 	int start3 = str.lastIndexOf("a.");
 	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1 + R_VOID) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -3007,8 +3007,8 @@ public void testCompletionAfterInstanceof18_03() throws JavaModelException {
 	int start3 = str.lastIndexOf("a.");
 	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1 + R_VOID) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -4897,16 +4897,16 @@ public void testCompletionEmptyTypeName2() throws JavaModelException {
 			"element:a    completion:a    relevance:"+(R_DEFAULT + R_RESOLVED + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
+			"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
 			"element:getClass    completion:getClass()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:notify    completion:notify()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:notifyAll    completion:notifyAll()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
+			"element:notify    completion:notify()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:notifyAll    completion:notifyAll()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
 			"element:toString    completion:toString()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED),
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED),
 			requestor.getResults());
 	} else {
 		assertEquals(
@@ -4915,16 +4915,16 @@ public void testCompletionEmptyTypeName2() throws JavaModelException {
 			"element:a    completion:a    relevance:"+(R_DEFAULT + R_RESOLVED + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
+			"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
 			"element:getClass    completion:getClass()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:notify    completion:notify()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:notifyAll    completion:notifyAll()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
+			"element:notify    completion:notify()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:notifyAll    completion:notifyAll()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
 			"element:toString    completion:toString()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED),
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID+ R_NON_RESTRICTED),
 			requestor.getResults());
 	}
 }
@@ -4965,16 +4965,16 @@ public void testCompletionEmptyTypeName3() throws JavaModelException {
 			"element:CompletionEmptyTypeName3_2    completion:CompletionEmptyTypeName3_2    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
+			"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
 			"element:getClass    completion:getClass()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:notify    completion:notify()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:notifyAll    completion:notifyAll()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
+			"element:notify    completion:notify()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:notifyAll    completion:notifyAll()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
 			"element:toString    completion:toString()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
 			"element:x    completion:x    relevance:"+(R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE+ R_NON_RESTRICTED),
 			requestor.getResults());
 	}
@@ -8322,17 +8322,17 @@ public void testCompletionKeywordFalse5() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED) + "}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED) + "}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED) + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED) + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED) + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED) + "}\n" +
 			"Test[TYPE_REF]{Test, test, Ltest.Test;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"test[FIELD_REF]{test, Ltest.Test;, Z, test, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
 			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
 			"false[KEYWORD]{false, null, null, false, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_TRUE_OR_FALSE + R_NON_RESTRICTED) + "}\n" +
@@ -8787,7 +8787,7 @@ public void testCompletionKeywordFor2() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED),
+			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFor3() throws JavaModelException {
@@ -8827,7 +8827,7 @@ public void testCompletionKeywordFor5() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED),
+			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFor6() throws JavaModelException {
@@ -11832,18 +11832,18 @@ public void testCompletionKeywordTrue6() throws JavaModelException {
 				requestor.getResults());
 	} else {
 		assertResults(
+				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"}\n"+
+				"foo[METHOD_REF]{foo(), Ltest.CompletionKeywordTrue6;, ()V, foo, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"}\n"+
+				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"}\n"+
+				"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"}\n"+
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"}\n"+
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"}\n"+
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"}\n"+
 				"CompletionKeywordTrue6[TYPE_REF]{CompletionKeywordTrue6, test, Ltest.CompletionKeywordTrue6;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
 				"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-				"foo[METHOD_REF]{foo(), Ltest.CompletionKeywordTrue6;, ()V, foo, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
 				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
 				"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-				"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
 				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
 				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n"+
 				"var[LOCAL_VARIABLE_REF]{var, null, Z, var, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n"+
 				"false[KEYWORD]{false, null, null, false, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_TRUE_OR_FALSE + R_NON_RESTRICTED)+"}\n"+
@@ -15638,7 +15638,7 @@ public void testCompletionVoidMethod() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
+		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
 		"element:foo1    completion:foo1()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:foo3    completion:foo3()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED),
 		requestor.getResults());
@@ -16712,7 +16712,7 @@ public void testDuplicateLocals3() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"bar[METHOD_REF]{bar(), Ltest.TestString;, ()V, bar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"bar[METHOD_REF]{bar(), Ltest.TestString;, ()V, bar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_VOID + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
@@ -16746,7 +16746,7 @@ public void testDuplicateLocals4() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"bar[METHOD_REF]{bar(), Ltest.TestString;, ()V, bar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"bar[METHOD_REF]{bar(), Ltest.TestString;, ()V, bar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_VOID + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
@@ -20083,7 +20083,7 @@ public void test253008() throws JavaModelException {
 
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID  + R_NON_RESTRICTED) + "}\n" +
 			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test253008;, ()Z, methodReturningBoolean, " + (R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
@@ -20110,7 +20110,7 @@ public void test253008b() throws JavaModelException {
 
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID  + R_NON_RESTRICTED) + "}\n" +
 			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test253008;, ()Z, methodReturningBoolean, " + (R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
@@ -20136,7 +20136,7 @@ public void test253008c() throws JavaModelException {
 
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID  + R_NON_RESTRICTED) + "}\n" +
 			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test253008;, ()Z, methodReturningBoolean, " + (R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
@@ -20162,7 +20162,7 @@ public void test253008d() throws JavaModelException {
 
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test253008;, ()V, methodReturningBlah, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED) + "}\n" +
 			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test253008;, ()Z, methodReturningBoolean, " + (R_DEFAULT + R_RESOLVED + R_EXACT_EXPECTED_TYPE + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }

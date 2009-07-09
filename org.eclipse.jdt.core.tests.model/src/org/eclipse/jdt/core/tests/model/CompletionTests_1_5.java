@@ -11823,7 +11823,7 @@ public void test0367() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-		"Zz[TYPE_REF]{Zz, , LZz;, null, null, 26}",
+		"Zz[TYPE_REF]{Zz, , LZz;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_EXACT_NAME + R_UNQUALIFIED) + "}",
 		requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=209643
@@ -13651,13 +13651,13 @@ public void testCompletionWithUnboxing() throws JavaModelException {
 
 	assertResults(
 			"myMethod1[METHOD_REF]{myMethod1(), Ltest.C;, ()V, myMethod1, null, " +
-				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED) + "}\n" +
 			"myMethod2[METHOD_REF]{myMethod2(), Ltest.C;, ()V, myMethod2, null, " +
-				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED) + "}\n" +
 			"myMethod4[METHOD_REF]{myMethod4(), Ltest.C;, ()Ljava.lang.Integer;, myMethod4, null, " +
-				(R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myMethod3[METHOD_REF]{myMethod3(), Ltest.C;, ()I, myMethod3, null, " +
-				(R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());	
 }
 /*
@@ -13701,15 +13701,15 @@ public void testCompletionWithUnboxing_1() throws JavaModelException {
 
 	assertResults(
 			"myMethod1[METHOD_REF]{myMethod1(), Ltest.C;, ()V, myMethod1, null, " +
-				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_VOID + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myMethod4[METHOD_REF]{myMethod4(), Ltest.C;, ()F, myMethod4, null, " +
-				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myMethod5[METHOD_REF]{myMethod5(), Ltest.C;, ()Ljava.lang.Float;, myMethod5, null, " +
-			(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myMethod2[METHOD_REF]{myMethod2(), Ltest.C;, ()J, myMethod2, null, " +
-				(R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myMethod3[METHOD_REF]{myMethod3(), Ltest.C;, ()Ljava.lang.Long;, myMethod3, null, " +
-				(R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}" ,
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}" ,
 			requestor.getResults());	
 }
 /*
@@ -13745,13 +13745,13 @@ public void testCompletionWithUnboxing_2() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
 			"myVariable1[FIELD_REF]{myVariable1, Ltest.C;, I, myVariable1, null, " +
-				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myVariable2[FIELD_REF]{myVariable2, Ltest.C;, J, myVariable2, null, " +
-				(R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myVariable4[FIELD_REF]{myVariable4, Ltest.C;, Ljava.lang.Boolean;, myVariable4, null, " +
-				(R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myVariable3[FIELD_REF]{myVariable3, Ltest.C;, Z, myVariable3, null, " +
-				(R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());	
 }
 //bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=274466
@@ -13783,7 +13783,7 @@ public void test274466() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
 			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test274466;, ()V, methodReturningBlah, " + 
-					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_VOID + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"methodReturningBooleanB[METHOD_REF]{methodReturningBooleanB(), Ltest.Test274466;, ()Ljava.lang.Boolean;, methodReturningBooleanB, " + 
 					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
 			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test274466;, ()Z, methodReturningBoolean, " + 
