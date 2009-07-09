@@ -33,11 +33,13 @@ import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 import junit.framework.*;
 
@@ -5142,6 +5144,144 @@ public void testBug270113_01() throws Exception {
 		deleteProject("P");
 		
 		JavaCore.setOptions(oldOptions);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=281598
+public void testBug281598() throws Exception {
+
+	try {
+		// Create project and jar
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/empty.jar"}, "bin");
+		createFile("/P/empty.jar", "");
+		refresh(p);
+		waitUntilIndexesReady();
+
+		// Create working copy
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/test/Test.java",
+				"package test;"+
+				"public class Test {\n" +
+				"  void foo() {\n" +
+				"    sys\n" +
+				"  }\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor() {
+			long start = System.currentTimeMillis();
+
+			public boolean isCanceled() {
+	            long time = System.currentTimeMillis() - this.start;
+	            return time > 1000; // cancel after 1 sec
+            }
+			
+		};
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "sys";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    // no results expected, just verify that no cancel operation exception occurs...
+	    assertResults("", requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug281598b() throws Exception {
+	try {
+		// Create project and jar
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/empty.jar"}, "bin");
+		createFile("/P/empty.jar", "");
+		refresh(p);
+		waitUntilIndexesReady();
+
+		// Create working copy
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/test/Test.java",
+				"package test;"+
+				"public class Test {\n" +
+				"  void foo() {\n" +
+				"    new String\n" +
+				"  }\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor() {
+			long start = System.currentTimeMillis();
+
+			public boolean isCanceled() {
+	            long time = System.currentTimeMillis() - this.start;
+	            return time > 1000; // cancel after 1 sec
+            }
+			
+		};
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "String";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"String[CONSTRUCTOR_INVOCATION]{(), Ljava.lang.String;, ()V, String, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_EXACT_NAME+R_UNQUALIFIED+R_NON_RESTRICTED)+"}\n" +
+			"   String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_EXACT_NAME+R_UNQUALIFIED+R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug281598c() throws Exception {
+	IndexManager indexManager = JavaModelManager.getIndexManager();
+	try {
+		// Create project
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		waitUntilIndexesReady();
+		
+		// Disable indexing
+		indexManager.disable();
+
+		// Create compilation unit in which completion occurs
+		String path = "/P/src/test/Test.java";
+		String source = "package test;\n" +
+			"public class Test {\n" +
+			"	public void foo() {\n" +
+			"		Strin\n" +
+			"	}\n" +
+			"}\n";
+		createFolder("/P/src/test");
+		createFile(path, source);
+		refresh(p);
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor() {
+			long start = System.currentTimeMillis();
+
+			public boolean isCanceled() {
+	            long time = System.currentTimeMillis() - this.start;
+	            return time > 1000; // cancel after 1 sec
+            }
+			
+		};
+
+	    String completeBehind = "Strin";
+	    int cursorLocation = source.lastIndexOf(completeBehind) + completeBehind.length();
+	    IType type = p.findType("test.Test");
+	    type.getTypeRoot().codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_UNQUALIFIED+R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+	} finally {
+		indexManager.enable();
+		deleteProject("P");
 	}
 }
 }
