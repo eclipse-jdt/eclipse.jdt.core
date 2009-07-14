@@ -14,12 +14,28 @@ package org.eclipse.jdt.core;
 /**
  * A source range defines an element's source coordinates relative to
  * its source buffer.
+ *
  * @see ISourceRange
  * @since 3.6
  */
-public class SourceRange implements ISourceRange {
+public final class SourceRange implements ISourceRange {
 
-	private int offset, length;
+	/**
+	 * Helper method that answers whether a valid source range is available
+	 * in the given ISourceRange. When an element has no associated source
+	 * code, Java Model APIs may return either <code>null</code> or a range of
+	 * [-1, 0] to indicate an invalid range. This utility method can be used
+	 * to detect that case.
+	 *
+	 * @param range a source range, can be <code>null</code>
+	 * @return <code>true</code> iff range is not null and range.getOffset() is not -1
+	 */
+	public static boolean isAvailable(ISourceRange range) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=130161
+		return range != null && range.getOffset() != -1;
+	}
+
+	private int offset;
+	private int length;
 
 	public SourceRange(int offset, int length) {
 		this.offset = offset;
@@ -46,25 +62,12 @@ public class SourceRange implements ISourceRange {
 	public int getOffset() {
 		return this.offset;
 	}
+
 	/*
 	 * @see Object#hashCode()
 	 */
 	public int hashCode() {
 		return this.length ^ this.offset;
-	}
-
-	/**
-	 * Helper method that answers whether a valid source range is available
-	 * in the given ISourceRange. When an element has no associated source
-	 * code, Java Model APIs may return either <code>null</code> or a range of
-	 * [-1, 0] to indicate an invalid range. This utility method can be used
-	 * to detect that case.
-	 *
-	 * @param range a source range, can be <code>null</code>
-	 * @return <code>true</code> iff range is not null and range.getOffset() is not -1
-	 */
-	public static boolean isAvailable(ISourceRange range) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=130161
-		return range != null && range.getOffset() != -1;
 	}
 
 	public String toString() {
