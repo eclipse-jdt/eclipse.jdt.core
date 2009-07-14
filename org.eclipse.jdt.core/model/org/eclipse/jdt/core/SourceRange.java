@@ -37,6 +37,12 @@ public final class SourceRange implements ISourceRange {
 	private int offset;
 	private int length;
 
+	/**
+	 * Instantiate a new source range using the given offset and the given length.
+	 * 
+	 * @param offset the given offset
+	 * @param length the given length
+	 */
 	public SourceRange(int offset, int length) {
 		this.offset = offset;
 		this.length = length;

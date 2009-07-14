@@ -14,6 +14,13 @@ package org.eclipse.jdt.core;
  * A source range defines an element's source coordinates relative to
  * its source buffer.
  *
+ * <p>Clients may use the method {@link org.eclipse.jdt.core.SourceRange#isAvailable(ISourceRange)}
+ * in order to find out if a source range is available. This method returns <code>false</code>
+ * when the source range offset is equals to <code>-1</code>.</p>
+ * 
+ * <p>Clients may use the default implementation provided by {@link SourceRange}.</p>
+ *
+ * @see SourceRange
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ISourceRange {
