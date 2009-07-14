@@ -68,16 +68,17 @@ public final class IndentManipulation {
 	 * @return the number of indentation units that line is indented by
 	 * @exception IllegalArgumentException if:
 	 * <ul>
-	 * <li>the given <code>indentWidth</code> is lower or equals to zero</li>
+	 * <li>the given <code>indentWidth</code> is lower than zero</li>
 	 * <li>the given <code>tabWidth</code> is lower than zero</li>
 	 * <li>the given <code>line</code> is null</li>
 	 * </ul>
 	 */
 	public static int measureIndentUnits(CharSequence line, int tabWidth, int indentWidth) {
-		if (indentWidth <= 0 || tabWidth < 0 || line == null) {
+		if (indentWidth < 0 || tabWidth < 0 || line == null) {
 			throw new IllegalArgumentException();
 		}
 
+		if (indentWidth == 0) return 0;
 		int visualLength= measureIndentInSpaces(line, tabWidth);
 		return visualLength / indentWidth;
 	}
