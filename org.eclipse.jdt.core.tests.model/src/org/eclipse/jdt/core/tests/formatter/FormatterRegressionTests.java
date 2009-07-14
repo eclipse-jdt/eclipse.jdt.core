@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -58,7 +59,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	Map formatterOptions;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 721 };
+//		TESTS_NUMBERS = new int[] { 722 };
 //		TESTS_RANGE = new int[] { 715, -1 };
 	}
 	public static Test suite() {
@@ -10791,5 +10792,13 @@ public void test721() {
 	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 	runTest(codeFormatter, "test721", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=283133
+public void test722() {
+	try {
+		assertEquals("Should be 0", 0, IndentManipulation.measureIndentUnits("", 1, 0));
+	} catch (IllegalArgumentException e) {
+		assertTrue("Should not happen", false);
+	}
 }
 }
