@@ -1718,6 +1718,32 @@ public void test045() {
 		},
 		"3");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282869
+public void _test046() {
+	this.runConformTest(
+		true,
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		char a = 65;\n" + 
+			"		String b = \"\" + a; // -> \"A\"\n" + 
+			"		String c = \"\" + (int) a;\n" + 
+			"		System.out.print(b);\n" + 
+			"		System.out.print(c);\n" + 
+			"		\n" + 
+			"		String logText = \" second case \";\n" + 
+			"		char firstChar = 65;\n" + 
+			"		logText += (int) firstChar;\n" + 
+			"		System.out.println(logText);\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"",
+		"A65 second case 65",
+		"",
+		JavacTestOptions.SKIP);
+}
 public static Class testClass() {
 	return CastTest.class;
 }
