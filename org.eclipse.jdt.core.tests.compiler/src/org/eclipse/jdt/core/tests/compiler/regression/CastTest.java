@@ -1479,16 +1479,7 @@ public void test036() {
 			"}\n"
 		},
 		// compiler results
-		"----------\n" + 
-		"1. WARNING in X.java (at line 7)\n" + 
-		"	null : new Base() {\n" + 
-		"				public final String test() {\n" + 
-		"					return (\"anonymous\");\n" + 
-		"				}\n" + 
-		"			};\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
-		"----------\n", /* expected compiler log */
+		"", /* expected compiler log */
 		// runtime results
 		"no base" /* expected output string */,
 		"" /* expected error string */,

@@ -17,6 +17,37 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
 
+	/**
+	 * Answers true if the if is identified as a known coding pattern which
+	 * should be tolerated by dead code analysis.
+	 * e.g. if (DEBUG) print(); // no complaint
+	 * Only invoked when overall condition is known to be optimizeable into false.
+	 */
+	protected static boolean isKnowDeadCodePattern(Expression expression) {
+		// if (!DEBUG) print(); - tolerated
+		if (expression instanceof UnaryExpression) {
+			expression = ((UnaryExpression) expression).expression;
+		}
+		// if (DEBUG) print(); - tolerated
+		if (expression instanceof Reference) return true;
+
+//		if (expression instanceof BinaryExpression) {
+//			BinaryExpression binary = (BinaryExpression) expression;
+//			switch ((binary.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT/* operator */) {
+//				case OperatorIds.AND_AND :
+//				case OperatorIds.OR_OR :
+//					break;
+//				default: 
+//					// if (DEBUG_LEVEL > 0) print(); - tolerated
+//					if ((binary.left instanceof Reference) && binary.right.constant != Constant.NotAConstant)
+//						return true;
+//					// if (0 < DEBUG_LEVEL) print(); - tolerated
+//					if ((binary.right instanceof Reference) && binary.left.constant != Constant.NotAConstant)
+//						return true;
+//			}
+//		}
+		return false;
+	}
 public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
 
 	public static final int NOT_COMPLAINED = 0;
