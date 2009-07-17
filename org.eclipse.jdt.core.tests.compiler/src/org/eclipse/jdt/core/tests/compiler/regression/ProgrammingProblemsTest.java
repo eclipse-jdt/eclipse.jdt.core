@@ -1529,4 +1529,34 @@ public void test0039() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=281776"
+ * We now tolerate comparison of float and double entities against
+ * themselves as a legitimate idiom for NaN checking. 
+ */
+public void test0040() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+		    "    public static void main(String[] args) {\n" +
+		    "        double var = Double.NaN;\n" +
+		    "            if(var != var) {\n" +
+		    "                  System.out.println(\"NaN\");\n" +
+		    "            }\n" +
+		    "            float varf = 10;\n" +
+		    "            if(varf != varf) {\n" +
+		    "            	System.out.println(\"NaN\");\n" +
+		    "            }\n" +
+		    "   }\n" +
+			"	Zork z;\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }
