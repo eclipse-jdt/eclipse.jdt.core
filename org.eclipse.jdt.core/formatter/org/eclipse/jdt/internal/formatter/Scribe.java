@@ -943,10 +943,12 @@ public class Scribe implements IJavaDocTagConstants {
 		if (count == 0) {
 			// preserve line breaks in wrapping if specified
 			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=198074
-			if (this.currentAlignment != null && this.memberAlignment != null && !this.formatter.preferences.join_wrapped_lines) {
-				if (this.scanner.currentCharacter != '}' && this.memberAlignment.depth() <= this.currentAlignment.depth()) {
-					int savedIndentation = this.indentationLevel;
+			if (this.currentAlignment != null && !this.formatter.preferences.join_wrapped_lines) {
+				// insert a new line only if it has not been already done before
+				// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=283476
+				if (this.lastNumberOfNewLines == 0) {
 					StringBuffer buffer = new StringBuffer(getNewLine());
+					int savedIndentation = this.indentationLevel;
 					this.indentationLevel = this.currentAlignment.breakIndentationLevel;
 					printIndentationIfNecessary(buffer);
 					this.indentationLevel = savedIndentation;
