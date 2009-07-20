@@ -10792,4 +10792,42 @@ public void test721() {
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 	runTest(codeFormatter, "test721", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=283467
+public void testBug283467() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source = 
+		"public class TestFormatter {\n" + 
+		"\n" + 
+		"        public static void main(String[] args) {\n" + 
+		"                int variable = TestFormatter.doInCallback(new Runnable() {\n" + 
+		"                        public void run() {\n" + 
+		"                                // Some comments or code here\n" + 
+		"                        }\n" + 
+		"                });\n" + 
+		"                System.out.println(variable);\n" + 
+		"        }\n" + 
+		"\n" + 
+		"        public static int doInCallback(Runnable r) {\n" + 
+		"                return 0;\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class TestFormatter {\n" + 
+		"\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int variable = TestFormatter.doInCallback(new Runnable() {\n" + 
+		"			public void run() {\n" + 
+		"				// Some comments or code here\n" + 
+		"			}\n" + 
+		"		});\n" + 
+		"		System.out.println(variable);\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	public static int doInCallback(Runnable r) {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
 }
