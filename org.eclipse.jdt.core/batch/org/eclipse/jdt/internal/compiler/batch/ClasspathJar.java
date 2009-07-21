@@ -182,7 +182,8 @@ public String toString() {
 }
 public char[] normalizedPath() {
 	if (this.normalizedPath == null) {
-		char[] rawName = this.file.getAbsolutePath().toCharArray();
+		String path2 = this.getPath();
+		char[] rawName = path2.toCharArray();
 		if (File.separatorChar == '\\') {
 			CharOperation.replace(rawName, '\\', '/');
 		}
@@ -190,9 +191,14 @@ public char[] normalizedPath() {
 	}
 	return this.normalizedPath;
 }
-public String getPath(){
+public String getPath() {
 	if (this.path == null) {
-		this.path = this.file.getAbsolutePath();
+		try {
+			this.path = this.file.getCanonicalPath();
+		} catch (IOException e) {
+			// in case of error, simply return the absolute path
+			this.path = this.file.getAbsolutePath();
+		}
 	}
 	return this.path;
 }
