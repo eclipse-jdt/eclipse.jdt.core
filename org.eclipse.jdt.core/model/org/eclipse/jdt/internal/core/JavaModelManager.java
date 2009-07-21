@@ -1961,11 +1961,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// set options using preferences service lookup
 		Iterator iterator = this.optionNames.iterator();
 		while (iterator.hasNext()) {
-		    String propertyName = (String) iterator.next();
-		    String propertyValue = service.get(propertyName, null, this.preferencesLookup);
-		    if (propertyValue != null) {
-			    options.put(propertyName, propertyValue);
-		    }
+			String propertyName = (String) iterator.next();
+			String propertyValue = service.get(propertyName, null, this.preferencesLookup);
+			if (propertyValue != null) {
+				options.put(propertyName, propertyValue);
+			}
 		}
 
 		// get encoding through resource plugin
@@ -4516,6 +4516,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void setOptions(Hashtable newOptions) {
 
 		try {
+			Hashtable cachedValue = newOptions == null ? null : new Hashtable(newOptions);
 			IEclipsePreferences defaultPreferences = getDefaultPreferences();
 			IEclipsePreferences instancePreferences = getInstancePreferences();
 
@@ -4526,7 +4527,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				while (keys.hasMoreElements()){
 					String key = (String)keys.nextElement();
 					if (!this.optionNames.contains(key)) continue; // unrecognized option
-					if (key.equals(JavaCore.CORE_ENCODING)) continue; // skipped, contributed by resource prefs
+					if (key.equals(JavaCore.CORE_ENCODING)) {
+						if (cachedValue != null) {
+							cachedValue.put(key, JavaCore.getEncoding());
+						}
+						continue; // skipped, contributed by resource prefs
+					}
 					String value = (String)newOptions.get(key);
 					String defaultValue = defaultPreferences.get(key, null);
 					if (defaultValue != null && defaultValue.equals(value)) {
@@ -4541,7 +4547,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			instancePreferences.flush();
 
 			// update cache
-			this.optionsCache = newOptions==null ? null : new Hashtable(newOptions);
+			this.optionsCache = cachedValue;
 		} catch (BackingStoreException e) {
 			// ignore
 		}

@@ -14,6 +14,8 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.Test;
+
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -522,7 +524,15 @@ public void test12() throws CoreException {
 		preferences.remove(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST");
 	}
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=217443
+public void test13() {
+	Hashtable options = JavaCore.getDefaultOptions();
+	String immutableValue = (String) options.get(JavaCore.CORE_ENCODING);
+	assertEquals(ResourcesPlugin.getEncoding(), immutableValue);
+	options.put(JavaCore.CORE_ENCODING, immutableValue + "_extra_tail");
+	JavaCore.setOptions(options);
+	assertEquals(immutableValue, JavaCore.getOptions().get(JavaCore.CORE_ENCODING));
+}
 /**
  * Bug 68993: [Preferences] IAE when opening project preferences
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68993"
