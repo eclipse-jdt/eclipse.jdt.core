@@ -439,7 +439,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.AutoBoxing :
 			case CompilerOptions.MissingOverrideAnnotation :
 			case CompilerOptions.MissingDeprecatedAnnotation :
-			case CompilerOptions.ParameterAssignment :				
+			case CompilerOptions.ParameterAssignment :
 				return CategorizedProblem.CAT_CODE_STYLE;
 
 			case CompilerOptions.MaskedCatchBlock :
@@ -467,7 +467,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.LocalVariableHiding :
 			case CompilerOptions.FieldHiding :
 			case CompilerOptions.TypeHiding :
-				return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;		
+				return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;
 
 			case CompilerOptions.UnusedLocalVariable :
 			case CompilerOptions.UnusedArgument :
@@ -480,7 +480,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnusedWarningToken :
 			case CompilerOptions.UnusedLabel :
 			case CompilerOptions.RedundantSuperinterface :	
-				return CategorizedProblem.CAT_UNNECESSARY_CODE;					
+				return CategorizedProblem.CAT_UNNECESSARY_CODE;
 
 			case CompilerOptions.UsingDeprecatedAPI :
 				return CategorizedProblem.CAT_DEPRECATION;
@@ -495,11 +495,11 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.MissingJavadocTags :
 			case CompilerOptions.InvalidJavadoc :
 			case CompilerOptions.InvalidJavadoc|CompilerOptions.UsingDeprecatedAPI :
-				return CategorizedProblem.CAT_JAVADOC;					
+				return CategorizedProblem.CAT_JAVADOC;
 
 			case CompilerOptions.UncheckedTypeOperation :
 			case CompilerOptions.RawTypeReference :
-				return CategorizedProblem.CAT_UNCHECKED_RAW;				
+				return CategorizedProblem.CAT_UNCHECKED_RAW;
 			
 			case CompilerOptions.ForbiddenReference :
 			case CompilerOptions.DiscouragedReference :
