@@ -3786,6 +3786,7 @@ public final class CompletionEngine
 			TypeDeclaration typeDeclaration = ((ClassScope)scope).referenceContext;
 			if(typeDeclaration.superclass == astNode) {
 				addForbiddenBindings(typeDeclaration.binding);
+				addForbiddenBindingsForMemberTypes(typeDeclaration);
 				return scope.parent;
 			}
 			TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
@@ -3793,6 +3794,7 @@ public final class CompletionEngine
 			for (int i = 0; i < length; i++) {
 				if(superInterfaces[i] == astNode) {
 					addForbiddenBindings(typeDeclaration.binding);
+					addForbiddenBindingsForMemberTypes(typeDeclaration);
 					return scope.parent;
 				}
 			}
@@ -3827,6 +3829,16 @@ public final class CompletionEngine
 //			}
 //		}
 		return scope;
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270437
+	private void addForbiddenBindingsForMemberTypes(TypeDeclaration typeDeclaration) {
+		TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
+		int memberTypesLen = memberTypes == null ? 0 : memberTypes.length;
+		for (int i = 0; i < memberTypesLen; i++) {
+			addForbiddenBindings(memberTypes[i].binding);
+			addForbiddenBindingsForMemberTypes(memberTypes[i]);
+		}
 	}
 
 	private char[] computePrefix(SourceTypeBinding declarationType, SourceTypeBinding invocationType, boolean isStatic){

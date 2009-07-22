@@ -20314,5 +20314,91 @@ public void test201762() throws JavaModelException {
 }
 
 
+/**
+ * An inner/member class should not be offered as completion suggestion.
+ * @throws JavaModelException
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=270437"
+ */
+public void test270437a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test270437a.java",
+			"package test;" +
+			"public class Test270437a extends Test270437a. {\n" +
+			"	public class Inner {}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Test270437a.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	// In the absence of the fix, the results would be as follows, which is wrong:
+	//"Test270437a.Inner[TYPE_REF]{Inner, test, Ltest.Test270437a$Inner;, null, 39}",
+	assertResults(
+			"", //Empty!
+			requestor.getResults());
+}
+
+/**
+ * An inner/member interface should not be offered as completion suggestion.
+ * @throws JavaModelException
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=270437"
+ */
+public void test270437b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test270437b.java",
+			"package test;" +
+			"public class Test270437b implements Test270437b. {\n" +
+			"	public interface Inner {}\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Test270437b.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	// In the absence of the fix, the results would be as follows, which is wrong:
+	//"Test270437b.Inner[TYPE_REF]{Inner, test, Ltest.Test270437b$Inner;, null, 39}",
+	assertResults(
+			"", //Empty!
+			requestor.getResults());
+}
+
+/**
+ * An inner/member interface should not be offered as completion suggestion.
+ * @throws JavaModelException
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=270437"
+ */
+public void test270437c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test270437c.java",
+			"package test;" +
+			"class X extends X.MyClass1. {\n" +
+		    "    public class MyClass1 {\n" +
+		    "            public class MyClass2 {\n" +
+		    "            }\n" +
+		    "    }\n" +
+			"}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "X.MyClass1.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	// In the absence of the fix, the results would be as follows, which is wrong:
+	//"X.MyClass1.MyClass2[TYPE_REF]{MyClass2, test, Ltest.X$MyClass1$MyClass2;, null, 39}",
+	assertResults(
+			"", //Empty!
+			requestor.getResults());
+}
 
 }
