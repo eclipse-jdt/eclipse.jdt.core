@@ -9638,4 +9638,55 @@ public void test188() {
 		"----------\n"
 	);
 }
+public void test189() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"    void m() throws CloneNotSupportedException, InterruptedException;\n" +
+			"}\n" +
+			"abstract class A {\n" +
+			"    public abstract void m() throws ClassNotFoundException, CloneNotSupportedException;\n" +
+			"}\n" +
+			"abstract class B extends A implements I {\n" +
+			"	void test() {\n" +
+			"        try { m(); } catch (CloneNotSupportedException e) { }\n" +
+			"    }\n" +
+			"}\n" +
+			"class X extends A implements I {\n" +
+			"	@Override public void m() throws CloneNotSupportedException {}\n" +
+			"}\n" +
+			"class Y extends A implements I {\n" +
+			"	@Override public void m() throws ClassNotFoundException, CloneNotSupportedException {}\n" +
+			"}\n" +
+			"class Z extends A implements I {\n" +
+			"	@Override public void m() throws CloneNotSupportedException, InterruptedException {}\n" +
+			"}\n" +
+			"class All extends A implements I {\n" +
+			"	@Override public void m() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	@Override public void m() throws ClassNotFoundException, CloneNotSupportedException {}\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Exception ClassNotFoundException is not compatible with throws clause in I.m()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 19)\n" + 
+		"	@Override public void m() throws CloneNotSupportedException, InterruptedException {}\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Exception InterruptedException is not compatible with throws clause in A.m()\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 22)\n" + 
+		"	@Override public void m() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Exception ClassNotFoundException is not compatible with throws clause in I.m()\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 22)\n" + 
+		"	@Override public void m() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Exception InterruptedException is not compatible with throws clause in A.m()\n" + 
+		"----------\n"
+	);
+}
 }
