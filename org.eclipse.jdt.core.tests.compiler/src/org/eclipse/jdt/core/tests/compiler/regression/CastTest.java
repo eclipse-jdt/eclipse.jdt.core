@@ -1719,7 +1719,7 @@ public void test045() {
 		"3");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282869
-public void _test046() {
+public void test046() {
 	this.runConformTest(
 		true,
 		new String[] {
