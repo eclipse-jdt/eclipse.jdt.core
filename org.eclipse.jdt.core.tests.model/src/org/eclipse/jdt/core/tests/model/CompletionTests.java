@@ -20401,4 +20401,78 @@ public void test270437c() throws JavaModelException {
 			requestor.getResults());
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270436
+public void test270436a() throws JavaModelException {
+	// This test is to ensure that an interface is not offered as a choice when expecting a class.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test270436a.java",
+			"package test;\n" +
+			"public final class TestClass {}\n" +
+			"interface TestInterface {}\n" +
+			"class Subclass extends test.Test {}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "test.Test";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	// In the absence of the fix, it would have been:
+	// TestInterface[TYPE_REF]{TestInterface, test, Ltest.TestInterface;, null, 19}
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270436
+public void test270436b() throws JavaModelException {
+	// This test is to ensure that itself is not offered as choice during completion.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test270436b.java",
+			"package test;\n" +
+			"public final class TestClass {}\n" +
+			"interface TestInterface {}\n" +
+			"class Subclass extends test.Sub {}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "test.Sub";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	// In the absence of the fix, it would have been:
+	// Subclass[TYPE_REF]{Subclass, test, Ltest.Subclass;, null, 39}
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270436
+public void test270436c() throws JavaModelException {
+	// This test is to ensure that a class is not offered as a choice when expecting an interface.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test270436c.java",
+			"package test;\n" +
+			"public final class TestClass {}\n" +
+			"interface TestInterface {}\n" +
+			"class Subclass {}\n" +
+			"interface Subinterface extends test.");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "test.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			// In the absence of this fix, it will have these additional ones as well.
+			//"Subclass[TYPE_REF]{Subclass, test, Ltest.Subclass;, null, 19}\n" +
+			//"TestClass[TYPE_REF]{TestClass, test, Ltest.TestClass;, null, 19}\n" +
+			"TestInterface[TYPE_REF]{TestInterface, test, Ltest.TestInterface;, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_INTERFACE)+ "}",
+			requestor.getResults());
+}
+
 }

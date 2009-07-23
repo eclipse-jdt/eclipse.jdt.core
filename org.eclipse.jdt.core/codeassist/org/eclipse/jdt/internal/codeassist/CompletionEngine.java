@@ -10349,6 +10349,10 @@ public final class CompletionEngine
 				checkCancel();
 				
 				SourceTypeBinding sourceType = types[i];
+				
+				if (isForbidden(sourceType)) continue;
+				if (this.assistNodeIsClass && sourceType.isInterface()) continue;
+				if (this.assistNodeIsInterface && sourceType.isClass()) continue;
 
 				char[] qualifiedSourceTypeName = CharOperation.concatWith(sourceType.compoundName, '.');
 
