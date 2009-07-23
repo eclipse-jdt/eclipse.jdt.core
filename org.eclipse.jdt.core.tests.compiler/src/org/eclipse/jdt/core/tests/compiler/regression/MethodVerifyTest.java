@@ -9638,4 +9638,62 @@ public void test188() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
+public void test189() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Interface {\n" + 
+			"    void foo() throws CloneNotSupportedException, InterruptedException;\n" + 
+			"}\n" + 
+			"abstract class AbstractClass1 {\n" + 
+			"    public abstract void foo() throws ClassNotFoundException, CloneNotSupportedException;\n" + 
+			"}\n" + 
+			"abstract class AbstractClass2 extends AbstractClass1  implements Interface {\n" + 
+			"	void bar() {\n" + 
+			"        try {\n" + 
+			"        	foo();\n" + 
+			"        } catch (CloneNotSupportedException e) {\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class X extends AbstractClass2 {\n" + 
+			"	@Override\n" + 
+			"	public void foo() throws CloneNotSupportedException {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y extends AbstractClass2 {\n" +
+			"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException {}\n" +
+			"}\n" +
+			"class Z extends AbstractClass2 {\n" +
+			"	@Override public void foo() throws CloneNotSupportedException, InterruptedException {}\n" +
+			"}\n" +
+			"class All extends AbstractClass2 {\n" +
+			"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 22)\n" + 
+		"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException {}\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Exception ClassNotFoundException is not compatible with throws clause in Interface.foo()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 25)\n" + 
+		"	@Override public void foo() throws CloneNotSupportedException, InterruptedException {}\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Exception InterruptedException is not compatible with throws clause in AbstractClass1.foo()\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 28)\n" + 
+		"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Exception ClassNotFoundException is not compatible with throws clause in Interface.foo()\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 28)\n" + 
+		"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Exception InterruptedException is not compatible with throws clause in AbstractClass1.foo()\n" + 
+		"----------\n"
+	);
+}
 }

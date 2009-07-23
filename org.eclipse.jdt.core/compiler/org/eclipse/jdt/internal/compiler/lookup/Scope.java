@@ -900,6 +900,8 @@ public abstract class Scope {
 			// must find both methods for this case: <S extends A> void foo() {}  and  <N extends B> N foo() { return null; }
 			// or find an inherited method when the exact match is to a bridge method
 			unitScope.recordTypeReferences(exactMethod.thrownExceptions);
+			if (exactMethod.isAbstract() && exactMethod.thrownExceptions != Binding.NO_EXCEPTIONS)
+				return null; // may need to merge exceptions with interface method
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 				if (argumentTypes == Binding.NO_PARAMETERS
@@ -3666,7 +3668,7 @@ public abstract class Scope {
 			if (current != null) {
 				ReferenceBinding[] mostSpecificExceptions = null;
 				MethodBinding original = current.original();
-				boolean shouldIntersectExceptions = original.declaringClass.isInterface() && original.thrownExceptions != Binding.NO_EXCEPTIONS; // only needed when selecting from interface methods
+				boolean shouldIntersectExceptions = original.declaringClass.isAbstract() && original.thrownExceptions != Binding.NO_EXCEPTIONS; // only needed when selecting from interface methods
 				for (int j = 0; j < visibleSize; j++) {
 					MethodBinding next = moreSpecific[j];
 					if (next == null || i == j) continue;
