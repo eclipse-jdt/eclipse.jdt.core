@@ -96,6 +96,7 @@ boolean contains(IResource resource);
  * 		name and <code>replace</code> has been specified as <code>false</code> (<code>NAME_COLLISION</code>)</li>
  * <li> A container or element is read-only (<code>READ_ONLY</code>) </li>
  * </ul>
+ * @see org.eclipse.jdt.core.IJavaModelStatusConstants#INVALID_DESTINATION
  */
 void copy(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] siblings, String[] renamings, boolean replace, IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -201,6 +202,7 @@ IWorkspace getWorkspace();
  * </ul>
  *
  * @exception IllegalArgumentException any element or container is <code>null</code>
+ * @see org.eclipse.jdt.core.IJavaModelStatusConstants#INVALID_DESTINATION
  */
 void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] siblings, String[] renamings, boolean replace, IProgressMonitor monitor) throws JavaModelException;
 

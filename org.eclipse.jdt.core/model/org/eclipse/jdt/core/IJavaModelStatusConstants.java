@@ -132,7 +132,12 @@ public interface IJavaModelStatusConstants {
 
 	/**
 	 * Status constant indicating that a destination provided for a copy/move/rename operation
-	 * is invalid.
+	 * is invalid. The destination for a package fragment must be a package fragment root; the 
+	 * destination for a compilation unit must be a package fragment; the destination for 
+	 * a package declaration or import declaration must be a compilation unit; the 
+	 * destination for a type must be a type or compilation unit; the destination for any 
+	 * type member (other than a type) must be a type. <br>
+	 * 
 	 * The destination element can be retrieved using <code>getElements</code> on the status object.
 	 */
 	public static final int INVALID_DESTINATION = 978;
