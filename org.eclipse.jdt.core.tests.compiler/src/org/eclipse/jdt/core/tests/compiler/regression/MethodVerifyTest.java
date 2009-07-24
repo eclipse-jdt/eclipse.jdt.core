@@ -9638,6 +9638,7 @@ public void test188() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
 public void test189() {
 	this.runNegativeTest(
 		new String[] {
