@@ -28,7 +28,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
 //		TESTS_NUMBERS = new int[] { 121 };
-//		TESTS_RANGE = new int[] { 113, -1};
+//		TESTS_RANGE = new int[] { 190, -1};
 	}
 
 	public MethodVerifyTest(String name) {
@@ -9694,6 +9694,222 @@ public void test189() {
 		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Exception InterruptedException is not compatible with throws clause in AbstractClass1.foo()\n" + 
 		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
+public void _test190() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public int foo() {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public int foo() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"TBD"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
+public void _test191() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	static void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public static int foo() {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public static int foo() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"TBD"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
+public void _test192() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public static int foo() {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public static int foo() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"TBD"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
+public void _test193() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public int foo() {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public static int foo() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"TBD"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
+public void _test194() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	static void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public int foo() {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public static int foo() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"TBD"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
+public void _test195() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	static void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public int foo() {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public int foo() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"TBD"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
+public void _test196() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	static void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public static int foo() {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public int foo() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"TBD"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
+public void _test197() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public static int foo() {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public int foo() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"TBD"
 	);
 }
 }
