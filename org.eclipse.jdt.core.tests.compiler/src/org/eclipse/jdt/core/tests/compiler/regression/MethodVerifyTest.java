@@ -9696,4 +9696,260 @@ public void test189() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+public void test190() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	@Override public int foo() { return 0; }\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public int foo() { return 1; }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\B.java (at line 3)\n" + 
+		"	@Override public int foo() { return 0; }\n" + 
+		"	                 ^^^\n" + 
+		"The return type is incompatible with A.foo()\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in p2\\C.java (at line 3)\n" + 
+		"	public int foo() { return 1; }\n" + 
+		"	           ^^^^^\n" + 
+		"The method C.foo() does not override the inherited method from A since it is private to a different package\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+public void test191() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	static void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public static int foo() { return 0; }\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public static int foo() { return 1; }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\B.java (at line 3)\n" + 
+		"	public static int foo() { return 0; }\n" + 
+		"	              ^^^\n" + 
+		"The return type is incompatible with A.foo()\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+public void test192() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public static int foo() { return 0; }\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public static int foo() { return 1; }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\B.java (at line 3)\n" + 
+		"	public static int foo() { return 0; }\n" + 
+		"	                  ^^^^^\n" + 
+		"This static method cannot hide the instance method from A\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+public void test193() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	@Override public int foo() { return 0; }\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public static int foo() { return 1; }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\B.java (at line 3)\n" + 
+		"	@Override public int foo() { return 0; }\n" + 
+		"	                 ^^^\n" + 
+		"The return type is incompatible with A.foo()\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\B.java (at line 3)\n" + 
+		"	@Override public int foo() { return 0; }\n" + 
+		"	                     ^^^^^\n" + 
+		"This instance method cannot override the static method from C\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+public void test194() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	static void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public int foo() { return 0; }\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public static int foo() { return 1; }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\B.java (at line 3)\n" + 
+		"	public int foo() { return 0; }\n" + 
+		"	           ^^^^^\n" + 
+		"This instance method cannot override the static method from A\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\B.java (at line 3)\n" + 
+		"	public int foo() { return 0; }\n" + 
+		"	           ^^^^^\n" + 
+		"This instance method cannot override the static method from C\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+public void test195() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	static void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	@Override public int foo() { return 0; }\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public int foo() { return 1; }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\B.java (at line 3)\n" + 
+		"	@Override public int foo() { return 0; }\n" + 
+		"	                     ^^^^^\n" + 
+		"This instance method cannot override the static method from A\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+public void test196() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	static void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public static int foo() { return 0; }\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public int foo() { return 1; }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\B.java (at line 3)\n" + 
+		"	public static int foo() { return 0; }\n" + 
+		"	              ^^^\n" + 
+		"The return type is incompatible with A.foo()\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\B.java (at line 3)\n" + 
+		"	public static int foo() { return 0; }\n" + 
+		"	                  ^^^^^\n" + 
+		"This static method cannot hide the instance method from C\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+public void test197() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	void foo() {}\n" + 
+			"}",
+			"p1/B.java",
+			"package p1;\n" + 
+			"public class B extends p2.C {\n" + 
+			"	public static int foo() { return 0; }\n" + 
+			"}",
+			"p2/C.java",
+			"package p2;\n" + 
+			"public class C extends p1.A {\n" + 
+			"	public int foo() { return 1; }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\B.java (at line 3)\n" + 
+		"	public static int foo() { return 0; }\n" + 
+		"	                  ^^^^^\n" + 
+		"This static method cannot hide the instance method from A\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\B.java (at line 3)\n" + 
+		"	public static int foo() { return 0; }\n" + 
+		"	                  ^^^^^\n" + 
+		"This static method cannot hide the instance method from C\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in p2\\C.java (at line 3)\n" + 
+		"	public int foo() { return 1; }\n" + 
+		"	           ^^^^^\n" + 
+		"The method C.foo() does not override the inherited method from A since it is private to a different package\n" + 
+		"----------\n"
+	);
+}
 }
