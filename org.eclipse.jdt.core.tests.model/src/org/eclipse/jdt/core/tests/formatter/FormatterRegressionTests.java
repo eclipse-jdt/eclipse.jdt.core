@@ -59,7 +59,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	Map formatterOptions;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 722 };
+//		TESTS_NUMBERS = new int[] { 723 };
 //		TESTS_RANGE = new int[] { 715, -1 };
 	}
 	public static Test suite() {
@@ -10838,5 +10838,15 @@ public void testBug283467() throws JavaModelException {
 		"}\n"
 	);
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284679
+public void test723() {
+	final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+	DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+	Map compilerOptions = new HashMap();
+	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+	runTest(codeFormatter, "test723", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+}
 }

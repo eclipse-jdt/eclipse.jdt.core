@@ -931,38 +931,38 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	private void format(TypeDeclaration typeDeclaration){
-        /*
-         * Print comments to get proper line number
-         */
-        this.scribe.printComment();
-        int line = this.scribe.line;
+		/*
+		 * Print comments to get proper line number
+		 */
+		this.scribe.printComment();
+		int line = this.scribe.line;
 
 		this.scribe.printModifiers(typeDeclaration.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
 
 		if (this.scribe.line > line) {
-        	// annotations introduced new line, but this is not a line wrapping
+			// annotations introduced new line, but this is not a line wrapping
 			// see 158267
 			line = this.scribe.line;
 		}
 
-        /*
+		/*
 		 * Type name
 		 */
-        switch(TypeDeclaration.kind(typeDeclaration.modifiers)) {
-        	case TypeDeclaration.CLASS_DECL :
+		switch(TypeDeclaration.kind(typeDeclaration.modifiers)) {
+			case TypeDeclaration.CLASS_DECL :
 				this.scribe.printNextToken(TerminalTokens.TokenNameclass, true);
-        		break;
-        	case TypeDeclaration.INTERFACE_DECL :
+				break;
+			case TypeDeclaration.INTERFACE_DECL :
 				this.scribe.printNextToken(TerminalTokens.TokenNameinterface, true);
-        		break;
-        	case TypeDeclaration.ENUM_DECL :
+				break;
+			case TypeDeclaration.ENUM_DECL :
 				this.scribe.printNextToken(TerminalTokens.TokenNameenum, true);
-        		break;
-        	case TypeDeclaration.ANNOTATION_TYPE_DECL :
+				break;
+			case TypeDeclaration.ANNOTATION_TYPE_DECL :
 				this.scribe.printNextToken(TerminalTokens.TokenNameAT, this.preferences.insert_space_before_at_in_annotation_type_declaration);
 				this.scribe.printNextToken(TerminalTokens.TokenNameinterface, this.preferences.insert_space_after_at_in_annotation_type_declaration);
-        		break;
-        }
+				break;
+		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
 
 		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
@@ -1088,7 +1088,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				space_before_opening_brace = this.preferences.insert_space_before_opening_brace_in_type_declaration;
 				break;
 		}
-        formatLeftCurlyBrace(line, class_declaration_brace);
+		formatLeftCurlyBrace(line, class_declaration_brace);
 		formatTypeOpeningBrace(class_declaration_brace, space_before_opening_brace, typeDeclaration);
 
 		boolean indent_body_declarations_compare_to_header;
@@ -1992,69 +1992,76 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		ASTNode[] members = computeMergedMemberDeclarations(typeDeclaration);
 		boolean isChunkStart = false;
 		boolean ok = false;
-		int startIndex = 0;
-		do {
-			try {
-				for (int i = startIndex, max = members.length; i < max; i++) {
-					ASTNode member = members[i];
-					if (member instanceof FieldDeclaration) {
-						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_FIELD, i, this.scribe.scanner.currentPosition);
-						if (member instanceof MultiFieldDeclaration) {
-							MultiFieldDeclaration multiField = (MultiFieldDeclaration) member;
-
-							if (multiField.isStatic()) {
-								format(multiField, this, typeDeclaration.staticInitializerScope, isChunkStart, i == 0);
+		int membersLength = members.length;
+		if (membersLength > 0) {
+			int startIndex = 0;
+			do {
+				try {
+					for (int i = startIndex, max = members.length; i < max; i++) {
+						ASTNode member = members[i];
+						if (member instanceof FieldDeclaration) {
+							isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_FIELD, i, this.scribe.scanner.currentPosition);
+							if (member instanceof MultiFieldDeclaration) {
+								MultiFieldDeclaration multiField = (MultiFieldDeclaration) member;
+	
+								if (multiField.isStatic()) {
+									format(multiField, this, typeDeclaration.staticInitializerScope, isChunkStart, i == 0);
+								} else {
+									format(multiField, this, typeDeclaration.initializerScope, isChunkStart, i == 0);
+								}
+							} else if (member instanceof Initializer) {
+								int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
+								if (newLineBeforeChunk > 0 && i != 0) {
+									this.scribe.printEmptyLines(newLineBeforeChunk);
+								} else if (i == 0) {
+									int newLinesBeforeFirstClassBodyDeclaration = this.preferences.blank_lines_before_first_class_body_declaration;
+									if (newLinesBeforeFirstClassBodyDeclaration > 0) {
+										this.scribe.printEmptyLines(newLinesBeforeFirstClassBodyDeclaration);
+									}
+								}
+								Initializer initializer = (Initializer) member;
+								if (initializer.isStatic()) {
+									initializer.traverse(this, typeDeclaration.staticInitializerScope);
+								} else {
+									initializer.traverse(this, typeDeclaration.initializerScope);
+								}
 							} else {
-								format(multiField, this, typeDeclaration.initializerScope, isChunkStart, i == 0);
-							}
-						} else if (member instanceof Initializer) {
-							int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-							if (newLineBeforeChunk > 0 && i != 0) {
-								this.scribe.printEmptyLines(newLineBeforeChunk);
-							} else if (i == 0) {
-								int newLinesBeforeFirstClassBodyDeclaration = this.preferences.blank_lines_before_first_class_body_declaration;
-								if (newLinesBeforeFirstClassBodyDeclaration > 0) {
-									this.scribe.printEmptyLines(newLinesBeforeFirstClassBodyDeclaration);
+								FieldDeclaration field = (FieldDeclaration) member;
+								if (field.isStatic()) {
+									format(field, this, typeDeclaration.staticInitializerScope, isChunkStart, i == 0);
+								} else {
+									format(field, this, typeDeclaration.initializerScope, isChunkStart, i == 0);
 								}
 							}
-							Initializer initializer = (Initializer) member;
-							if (initializer.isStatic()) {
-								initializer.traverse(this, typeDeclaration.staticInitializerScope);
-							} else {
-								initializer.traverse(this, typeDeclaration.initializerScope);
-							}
-						} else {
-							FieldDeclaration field = (FieldDeclaration) member;
-							if (field.isStatic()) {
-								format(field, this, typeDeclaration.staticInitializerScope, isChunkStart, i == 0);
-							} else {
-								format(field, this, typeDeclaration.initializerScope, isChunkStart, i == 0);
-							}
+						} else if (member instanceof AbstractMethodDeclaration) {
+							isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_METHOD, i, this.scribe.scanner.currentPosition);
+							format((AbstractMethodDeclaration) member, typeDeclaration.scope, isChunkStart, i == 0);
+						} else if (member instanceof TypeDeclaration) {
+							isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_TYPE, i, this.scribe.scanner.currentPosition);
+							format((TypeDeclaration)member, typeDeclaration.scope, isChunkStart, i == 0);
 						}
-					} else if (member instanceof AbstractMethodDeclaration) {
-						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_METHOD, i, this.scribe.scanner.currentPosition);
-						format((AbstractMethodDeclaration) member, typeDeclaration.scope, isChunkStart, i == 0);
-					} else if (member instanceof TypeDeclaration) {
-						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_TYPE, i, this.scribe.scanner.currentPosition);
-						format((TypeDeclaration)member, typeDeclaration.scope, isChunkStart, i == 0);
+						if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
+							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+							this.scribe.printTrailingComment();
+						}
+						this.scribe.printNewLine();
+						// realign to the proper value
+						if (this.scribe.memberAlignment != null) {
+							// select the last alignment
+							this.scribe.indentationLevel = this.scribe.memberAlignment.originalIndentationLevel;
+						}
 					}
-					if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
-						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-						this.scribe.printTrailingComment();
-					}
-					this.scribe.printNewLine();
-					// realign to the proper value
-					if (this.scribe.memberAlignment != null) {
-						// select the last alignment
-						this.scribe.indentationLevel = this.scribe.memberAlignment.originalIndentationLevel;
-					}
+					ok = true;
+				} catch(AlignmentException e){
+					startIndex = memberAlignment.chunkStartIndex;
+					this.scribe.redoMemberAlignment(e);
 				}
-				ok = true;
-			} catch(AlignmentException e){
-				startIndex = memberAlignment.chunkStartIndex;
-				this.scribe.redoMemberAlignment(e);
-			}
-		} while (!ok);
+			} while (!ok);
+		} else if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
+			// the only body declaration is an empty declaration (';')
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printTrailingComment();
+		}
 		this.scribe.printComment();
 		this.scribe.exitMemberAlignment(memberAlignment);
 	}
