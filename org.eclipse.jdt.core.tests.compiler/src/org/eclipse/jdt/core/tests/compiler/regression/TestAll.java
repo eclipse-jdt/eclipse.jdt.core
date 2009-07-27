@@ -97,6 +97,7 @@ public static Test suite() {
 	// Tests to run when compliance is greater than 1.5
 	ArrayList since_1_6 = new ArrayList();
 	since_1_6.add(StackMapAttributeTest.class);
+	since_1_6.add(Compliance_1_6.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

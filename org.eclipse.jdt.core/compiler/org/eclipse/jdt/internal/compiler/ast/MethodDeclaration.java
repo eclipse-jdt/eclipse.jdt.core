@@ -145,8 +145,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		final CompilerOptions compilerOptions = this.scope.compilerOptions();
 		checkOverride: {
 			if (this.binding == null) break checkOverride;
-			long sourceLevel = compilerOptions.sourceLevel;
-			if (sourceLevel < ClassFileConstants.JDK1_5) break checkOverride;
+			long complianceLevel = compilerOptions.complianceLevel;
+			if (complianceLevel < ClassFileConstants.JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;
 			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
 			if (hasOverrideAnnotation) {
@@ -155,7 +155,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					break checkOverride;
 				//	in 1.5, strictly for overriding superclass method
 				//	in 1.6 and above, also tolerate implementing interface method
-				if (sourceLevel >= ClassFileConstants.JDK1_6
+				if (complianceLevel >= ClassFileConstants.JDK1_6
 						&& ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccImplementing))
 					break checkOverride;
 				// claims to override, and doesn't actually do so
