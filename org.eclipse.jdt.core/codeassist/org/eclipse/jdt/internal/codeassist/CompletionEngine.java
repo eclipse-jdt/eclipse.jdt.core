@@ -1162,6 +1162,10 @@ public final class CompletionEngine
 					break;
 			}
 		}
+		
+		if (isForbiddenType(packageName, simpleTypeName, enclosingTypeNames)) {
+			return;
+		}
 
 		if(this.acceptedTypes == null) {
 			this.acceptedTypes = new ObjectVector();
@@ -3791,12 +3795,21 @@ public final class CompletionEngine
 			}
 			TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
 			int length = superInterfaces == null ? 0 : superInterfaces.length;
+			int astNodeIndex = -1;
 			for (int i = 0; i < length; i++) {
 				if(superInterfaces[i] == astNode) {
 					addForbiddenBindings(typeDeclaration.binding);
 					addForbiddenBindingsForMemberTypes(typeDeclaration);
-					return scope.parent;
+					astNodeIndex = i;
+					break;
 				}
+			}
+			if (astNodeIndex >= 0) {
+				// Need to loop only up to astNodeIndex as the rest will be undefined.
+				for (int i = 0; i < astNodeIndex; i++) {
+					addForbiddenBindings(superInterfaces[i].resolvedType);
+				}
+				return scope.parent;
 			}
 		} else {
 			if (astNodeParent != null && astNodeParent instanceof TryStatement) {
@@ -11695,6 +11708,24 @@ public final class CompletionEngine
 						this.forbbidenBindings[i] instanceof TypeBinding &&
 						((TypeBinding)binding).isCompatibleWith((TypeBinding)this.forbbidenBindings[i])) {
 					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean isForbiddenType(char[] givenPkgName, char[] givenTypeName, char[][] enclosingTypeNames) {
+		// CharOperation.concatWith() handles the cases where input args are null/empty
+		char[] fullTypeName = CharOperation.concatWith(enclosingTypeNames, givenTypeName, '.');
+		for (int i = 0; i <= this.forbbidenBindingsPtr; i++) {
+			if (this.forbbidenBindings[i] instanceof TypeBinding) {
+				TypeBinding typeBinding = (TypeBinding) this.forbbidenBindings[i];
+				char[] currPkgName = typeBinding.qualifiedPackageName();
+				if (CharOperation.equals(givenPkgName, currPkgName))	{
+					char[] currTypeName = typeBinding.qualifiedSourceName();
+					if (CharOperation.equals(fullTypeName, currTypeName)) {
+						return true;
+					}
 				}
 			}
 		}

@@ -20475,4 +20475,129 @@ public void test270436c() throws JavaModelException {
 			requestor.getResults());
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=276526
+public void test276526a() throws JavaModelException {
+	// This test is to ensure that an existing super interface is not offered as a completion choice,
+	// when all of them are in the same compilation unit.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test276526a.java",
+			"package test;\n" +
+			"interface IFoo {}\n" +
+			"interface IBar {}\n" +
+			"class Foo implements IFoo, test. {}\n");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "test.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	// In the absence of the fix, it would have been:
+	// "IBar[TYPE_REF]{IBar, test, Ltest.IBar;, null, 44}\n" +
+	// "IFoo[TYPE_REF]{IFoo, test, Ltest.IFoo;, null, 44}"
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"IBar[TYPE_REF]{IBar, test, Ltest.IBar;, null, 44}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=276526
+public void test276526b() throws JavaModelException {
+	// This test is to ensure that an existing super interface is not offered as a completion choice,
+	// when they are in different compilation units.
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test276526b1.java",
+			"package test;\n" +
+			"public class TestClazz implements Interface1, test. {}");
+			
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/Test276526b2.java",
+			"package test;\n" +
+			"public interface Interface1 {}");
+			
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/test/Test276526b3.java",
+			"package test;\n" +
+			"public interface Interface2 {}");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "test.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			// In the absence of the fix, it would also complete to Interface1:
+			//"Interface1[TYPE_REF]{Interface1, test, Ltest.Interface1;, null, 44}\n"+
+			"Interface2[TYPE_REF]{Interface2, test, Ltest.Interface2;, null, 44}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=276526
+public void test276526c() throws JavaModelException {
+	// This test is to ensure that an existing super interface is not offered as a completion choice,
+	// when they are in different compilation units and nested-types.
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/p/Enclosing.java",
+			"package p;\n" +
+			"public class Enclosing {\n" +
+			"	public interface Interface1 {}\n" +
+			"	public interface Interface2 {}\n" +
+			"}\n");
+			
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/TestClazz.java",
+			"public class TestClazz implements p.Enclosing.Interface1, Interf {}");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[1].getSource();
+	String completeBehind = "Interf";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[1].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			// In the absence of the fix, it would suggest both p.Enclosing.Interface2, and
+			// p.Enclosing.Interface1 while it should have suppressed the latter which is in use.
+			"Enclosing.Interface2[TYPE_REF]{p.Enclosing.Interface2, p, Lp.Enclosing$Interface2;, null, 44}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=276526
+public void test276526d() throws JavaModelException {
+	// This test is to ensure that an existing super interface is not offered as a completion choice,
+	// when they are in different compilation units and combination of nested and top-level types.
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/p/Eclosing.java",
+			"package p;\n" +
+			"public class Enclosing {\n" +
+			"	public interface Interface1 {}\n" +
+			"	public interface Interface2 {}\n" +
+			"}\n");
+			
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/p/Interface1.java",
+			"package p;\n" +
+			"public interface Interface1 {}");
+			
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/TestClazz.java",
+			"public class TestClazz implements p.Interface1, Interf {}");
+			
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+	String str = this.workingCopies[2].getSource();
+	String completeBehind = "Interf";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			// In the absence of the fix, it would suggest only p.Enclosing.Interface2, as it
+			// was wrongly suppressing p.Enclosing.Interface1 confusing it with p.Interface1.
+			"Enclosing.Interface1[TYPE_REF]{p.Enclosing.Interface1, p, Lp.Enclosing$Interface1;, null, 44}\n" +
+			"Enclosing.Interface2[TYPE_REF]{p.Enclosing.Interface2, p, Lp.Enclosing$Interface2;, null, 44}",
+			requestor.getResults());
+}
+
 }
