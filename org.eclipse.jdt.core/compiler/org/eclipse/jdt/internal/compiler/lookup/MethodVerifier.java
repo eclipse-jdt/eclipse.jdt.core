@@ -889,13 +889,25 @@ ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 	return exceptions;
 }
 
-void verify(SourceTypeBinding someType) {
-	this.type = someType;
+void verify() {
 	computeMethods();
 	computeInheritedMethods();
 	checkMethods();
 	if (this.type.isClass())
 		checkForMissingHashCodeMethod();
+}
+
+void verify(SourceTypeBinding someType) {
+	if (this.type == null) {
+		try {
+			this.type = someType;
+			verify();
+		} finally {
+			this.type = null;
+		}
+	} else {
+		this.environment.newMethodVerifier().verify(someType);
+	}
 }
 
 public String toString() {
