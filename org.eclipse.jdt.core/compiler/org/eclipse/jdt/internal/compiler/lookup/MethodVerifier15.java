@@ -781,14 +781,14 @@ boolean reportIncompatibleReturnTypeError(MethodBinding currentMethod, MethodBin
 	}
 	return super.reportIncompatibleReturnTypeError(currentMethod, inheritedMethod);
 }
-void verify(SourceTypeBinding someType) {
-	if (someType.isAnnotationType())
-		someType.detectAnnotationCycle();
+void verify() {
+	if (this.type.isAnnotationType())
+		this.type.detectAnnotationCycle();
 
-	super.verify(someType);
+	super.verify();
 
-	for (int i = someType.typeVariables.length; --i >= 0;) {
-		TypeVariableBinding var = someType.typeVariables[i];
+	for (int i = this.type.typeVariables.length; --i >= 0;) {
+		TypeVariableBinding var = this.type.typeVariables[i];
 		// must verify bounds if the variable has more than 1
 		if (var.superInterfaces == Binding.NO_SUPERINTERFACES) continue;
 		if (var.superInterfaces.length == 1 && var.superclass.id == TypeIds.T_JavaLangObject) continue;
@@ -805,7 +805,7 @@ void verify(SourceTypeBinding someType) {
 				: itsInterfaces[j];
 		}
 		computeInheritedMethods(superclass, superInterfaces);
-		checkTypeVariableMethods(someType.scope.referenceContext.typeParameters[i]);
+		checkTypeVariableMethods(this.type.scope.referenceContext.typeParameters[i]);
 	}
 }
 }

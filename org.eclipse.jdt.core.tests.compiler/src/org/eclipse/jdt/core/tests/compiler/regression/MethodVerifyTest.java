@@ -9952,4 +9952,60 @@ public void test197() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284948
+public void test198() {
+	if (new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6) return;
+
+	this.runConformTest(
+		new String[] {
+			"MyAnnotation.java",
+			"@interface MyAnnotation {\n" + 
+			"    MyEnum value();\n" + 
+			"}",
+			"MyClass.java",
+			"public class MyClass implements MyInterface {\n" + 
+			"    @Override public void foo() {}\n" + 
+			"}",
+			"MyEnum.java",
+			"enum MyEnum implements Runnable {\n" + 
+			"	G {\n" + 
+			"		@Override public void methodA() {\n" + 
+			"			new Runnable() {\n" + 
+			"				@Override public void run() {}\n" + 
+			"			};\n" + 
+			"		}\n" + 
+			"	},\n" + 
+			"	D {\n" + 
+			"		@Override public void methodA() {}\n" + 
+			"	},\n" + 
+			"	A {\n" + 
+			"		@Override public void methodA() {}\n" + 
+			"		@Override public void methodB() {}\n" + 
+			"	},\n" + 
+			"	B {\n" + 
+			"		@Override public void methodA() {}\n" + 
+			"	},\n" + 
+			"	C {\n" + 
+			"		@Override public void methodA() {}\n" + 
+			"		@Override public void methodB() {}\n" + 
+			"	},\n" + 
+			"	E {\n" + 
+			"		@Override public void methodA() {}\n" + 
+			"	},\n" + 
+			"	F {\n" + 
+			"		@Override public void methodA() {}\n" + 
+			"	};\n" + 
+			"	private MyEnum() {}\n" + 
+			"	public void methodA() {}\n" + 
+			"	public void methodB() {}\n" + 
+			"	@Override public void run() {}\n" + 
+			"}",
+			"MyInterface.java",
+			"interface MyInterface {\n" + 
+			"    @MyAnnotation(MyEnum.D) public void foo();\n" + 
+			"}"
+		},
+		""
+	);
+}
 }
