@@ -18,6 +18,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class EnumTest extends AbstractComparableTest {
@@ -32,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 145 };
+//		TESTS_NUMBERS = new int[] { 176, 177, 178, 179 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -6284,5 +6285,191 @@ public void test175() {
 		},
 		"1"
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285701
+public void test176() {
+	if(this.complianceLevel < ClassFileConstants.JDK1_6) {
+		return;
+	}
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public enum X {\n" + 
+			"	A(\"\"), B(\"SUCCESS\"), C(\"Hello\");\n" + 
+			"	\n" + 
+			"	String message;\n" + 
+			"	\n" + 
+			"	X(@Deprecated String s) {\n" + 
+			"		this.message = s;\n" + 
+			"	}\n" + 
+			"	@Override\n" + 
+			"	public String toString() {\n" + 
+			"		return this.message;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		""
+	);
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+		false,
+		new String[] {
+			"Y.java",
+			"public class Y {\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(X.B);\n" +
+			"	}\n" + 
+			"}"
+		},
+		null,
+		options,
+		"",
+		"SUCCESS",
+		"",
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285701
+public void test177() {
+	if(this.complianceLevel < ClassFileConstants.JDK1_6) {
+		return;
+	}
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public enum X {\n" + 
+			"	A(\"\", 0, \"A\"), B(\"SUCCESS\", 0, \"B\"), C(\"Hello\", 0, \"C\");\n" + 
+			"	\n" + 
+			"	private String message;\n" + 
+			"	private int index;\n" + 
+			"	private String name;\n" + 
+			"	\n" + 
+			"	X(@Deprecated String s, int i, @Deprecated String name) {\n" + 
+			"		this.message = s;\n" + 
+			"		this.index = i;\n" + 
+			"		this.name = name;\n" + 
+			"	}\n" + 
+			"	@Override\n" + 
+			"	public String toString() {\n" + 
+			"		return this.message + this.name;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		""
+	);
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+		false,
+		new String[] {
+			"Y.java",
+			"public class Y {\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(X.B);\n" +
+			"	}\n" + 
+			"}"
+		},
+		null,
+		options,
+		"",
+		"SUCCESSB",
+		"",
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285701
+public void test178() {
+	if(this.complianceLevel < ClassFileConstants.JDK1_6) {
+		return;
+	}
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static enum Y {\n" + 
+			"		A(\"\", 0, \"A\"), B(\"SUCCESS\", 0, \"B\"), C(\"Hello\", 0, \"C\");\n" + 
+			"		\n" + 
+			"		private String message;\n" + 
+			"		private int index;\n" + 
+			"		private String name;\n" + 
+			"		Y(@Deprecated String s, int i, @Deprecated String name) {\n" + 
+			"			this.message = s;\n" + 
+			"			this.index = i;\n" + 
+			"			this.name = name;\n" + 
+			"		}\n" + 
+			"		@Override\n" + 
+			"		public String toString() {\n" + 
+			"			return this.message + this.name;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		""
+	);
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+		false,
+		new String[] {
+			"Z.java",
+			"public class Z {\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(X.Y.B);\n" +
+			"	}\n" + 
+			"}"
+		},
+		null,
+		options,
+		"",
+		"SUCCESSB",
+		"",
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285701
+public void test179() {
+	if(this.complianceLevel < ClassFileConstants.JDK1_6) {
+		return;
+	}
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public enum Y {\n" + 
+			"		A(\"\", 0, \"A\"), B(\"SUCCESS\", 0, \"B\"), C(\"Hello\", 0, \"C\");\n" + 
+			"		\n" + 
+			"		private String message;\n" + 
+			"		private int index;\n" + 
+			"		private String name;\n" + 
+			"		Y(@Deprecated String s, int i, @Deprecated String name) {\n" + 
+			"			this.message = s;\n" + 
+			"			this.index = i;\n" + 
+			"			this.name = name;\n" + 
+			"		}\n" + 
+			"		@Override\n" + 
+			"		public String toString() {\n" + 
+			"			return this.message + this.name;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		""
+	);
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+		false,
+		new String[] {
+			"Z.java",
+			"public class Z {\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(X.Y.B);\n" +
+			"	}\n" + 
+			"}"
+		},
+		null,
+		options,
+		"",
+		"SUCCESSB",
+		"",
+		null);
 }
 }
