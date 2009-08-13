@@ -403,7 +403,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 		char[] methodDescriptor = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
 		int numOfParams = 0;
 		char nextChar;
-		int index = 0;   // first character is always '(' so skip it
+		int index = 0; // first character is always '(' so skip it
 		while ((nextChar = methodDescriptor[++index]) != ')') {
 			if (nextChar != '[') {
 				numOfParams++;
@@ -412,8 +412,18 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 			}
 		}
 
-		// Ignore synthetic argument for member types.
-		int startIndex = (method.isConstructor() && isMemberType() && !isStatic()) ? 1 : 0;
+		// Ignore synthetic argument for member types or enum types.
+		int startIndex = 0;
+		if (method.isConstructor()) {
+			if (isMemberType() && !isStatic()) {
+				// enclosing type
+				startIndex++;
+			}
+			if (isEnum()) {
+				// synthetic arguments (String, int)
+				startIndex += 2;
+			}
+		}
 		int size = numOfParams - startIndex;
 		if (size > 0) {
 			parameters = new TypeBinding[size];
@@ -431,7 +441,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 					// 'paramAnnotations' line up with 'parameters'
 					// int parameter to method.getParameterAnnotations() include the synthetic arg
 					if (paramAnnotations != null)
-						paramAnnotations[i - startIndex] = createAnnotations(method.getParameterAnnotations(i), this.environment, missingTypeNames);
+						paramAnnotations[i - startIndex] = createAnnotations(method.getParameterAnnotations(i - startIndex), this.environment, missingTypeNames);
 				}
 				index = end + 1;
 			}
