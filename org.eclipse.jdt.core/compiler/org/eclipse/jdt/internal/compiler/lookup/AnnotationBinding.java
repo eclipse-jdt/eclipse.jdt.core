@@ -80,12 +80,13 @@ private static AnnotationBinding buildRetentionAnnotation(long bits, LookupEnvir
 		env.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY,
 			null);
 	Object value = null;
-	if ((bits & TagBits.AnnotationRuntimeRetention) != 0)
+	if ((bits & TagBits.AnnotationRuntimeRetention) == TagBits.AnnotationRuntimeRetention) {
 		value = retentionPolicy.getField(TypeConstants.UPPER_RUNTIME, true);
-	else if ((bits & TagBits.AnnotationClassRetention) != 0)
+	} else if ((bits & TagBits.AnnotationClassRetention) != 0) {
 		value = retentionPolicy.getField(TypeConstants.UPPER_CLASS, true);
-	else if ((bits & TagBits.AnnotationSourceRetention) != 0)
+	} else if ((bits & TagBits.AnnotationSourceRetention) != 0) {
 		value = retentionPolicy.getField(TypeConstants.UPPER_SOURCE, true);
+	}
 	return env.createAnnotation(
 		env.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_RETENTION, null),
 		new ElementValuePair[] {
