@@ -421,8 +421,7 @@ public void testAnnotations18() throws JavaModelException {
 }
 
 /*
- * Ensures that the standard annotations of a binary type are correct
- * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=248309 )
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=286407
  */
 public void testAnnotations19() throws JavaModelException {
 	IPackageFragment packageFragment = this.jarRoot.getPackageFragment("annotated");
@@ -433,8 +432,7 @@ public void testAnnotations19() throws JavaModelException {
 		type.getAnnotations());
 }
 /*
- * Ensures that the standard annotations of a binary type are correct
- * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=248309 )
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=286407
  */
 public void testAnnotations20() throws JavaModelException {
 	IPackageFragment packageFragment = this.jarRoot.getPackageFragment("annotated");
@@ -445,8 +443,7 @@ public void testAnnotations20() throws JavaModelException {
 		type.getAnnotations());
 }
 /*
- * Ensures that the standard annotations of a binary type are correct
- * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=248309 )
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=286407
  */
 public void testAnnotations21() throws JavaModelException {
 	IPackageFragment packageFragment = this.jarRoot.getPackageFragment("annotated");
