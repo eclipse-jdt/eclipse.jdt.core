@@ -38,7 +38,7 @@ public ClassFileTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX = "testGetCategories";
-//	TESTS_NAMES = new String[] { "testDefaultValue2"};
+//	TESTS_NAMES = new String[] { "testAnnotations19"};
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -177,6 +177,24 @@ public void setUpSuite() throws Exception {
 		"    return t;\n" +
 		"  }\n" +
 		"}",
+		"annotated/MyAnnotation.java",
+		"package annotated;\n" +
+		"import java.lang.annotation.Retention;\n" +
+		"import java.lang.annotation.RetentionPolicy;\n" + 
+		"@Retention(value = RetentionPolicy.RUNTIME)\n" + 
+		"public @interface MyAnnotation {}",
+		"annotated/MyAnnotation2.java",
+		"package annotated;\n" +
+		"import java.lang.annotation.Retention;\n" +
+		"import java.lang.annotation.RetentionPolicy;\n" + 
+		"@Retention(value = RetentionPolicy.SOURCE)\n" + 
+		"public @interface MyAnnotation2 {}",
+		"annotated/MyAnnotation3.java",
+		"package annotated;\n" +
+		"import java.lang.annotation.Retention;\n" +
+		"import java.lang.annotation.RetentionPolicy;\n" + 
+		"@Retention(value = RetentionPolicy.CLASS)\n" + 
+		"public @interface MyAnnotation3 {}"
 	};
 	addLibrary(javaProject, "lib.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 	this.jarRoot = javaProject.getPackageFragmentRoot(getFile("/P/lib.jar"));
@@ -400,6 +418,43 @@ public void testAnnotations17() throws JavaModelException {
 public void testAnnotations18() throws JavaModelException {
 	IAnnotation annotation = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType().getAnnotation("annotated.MyOtherAnnot");
 	assertTrue("Annotation should exist", annotation.exists());
+}
+
+/*
+ * Ensures that the standard annotations of a binary type are correct
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=248309 )
+ */
+public void testAnnotations19() throws JavaModelException {
+	IPackageFragment packageFragment = this.jarRoot.getPackageFragment("annotated");
+	IClassFile classFile2 = packageFragment.getClassFile("MyAnnotation.class");
+	IType type = classFile2.getType();
+	assertAnnotationsEqual(
+		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n",
+		type.getAnnotations());
+}
+/*
+ * Ensures that the standard annotations of a binary type are correct
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=248309 )
+ */
+public void testAnnotations20() throws JavaModelException {
+	IPackageFragment packageFragment = this.jarRoot.getPackageFragment("annotated");
+	IClassFile classFile2 = packageFragment.getClassFile("MyAnnotation2.class");
+	IType type = classFile2.getType();
+	assertAnnotationsEqual(
+		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)\n",
+		type.getAnnotations());
+}
+/*
+ * Ensures that the standard annotations of a binary type are correct
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=248309 )
+ */
+public void testAnnotations21() throws JavaModelException {
+	IPackageFragment packageFragment = this.jarRoot.getPackageFragment("annotated");
+	IClassFile classFile2 = packageFragment.getClassFile("MyAnnotation3.class");
+	IType type = classFile2.getType();
+	assertAnnotationsEqual(
+		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS)\n",
+		type.getAnnotations());
 }
 
 /*

@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 333 };
+//		TESTS_NUMBERS = new int[] { 334 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10690,5 +10690,116 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			);
 		IAnnotation[] annotations = this.workingCopy.getJavaProject().findType("test0333.X").getAnnotations();
 		assertAnnotationsEqual("@test0333.JoinTable(name=\"EMP_PROJ\", joinColumns=@test0333.JoinColumn(name=\"EMP_ID\", referencedColumnClass=java.lang.Class.class), inverseJoinColumns=@test0333.JoinColumn(name=\"PROJ_ID\", referencedColumnClass=java.lang.Class.class), getLocalClass=java.lang.String.class)\n", annotations);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=286407
+	public void test0334() throws CoreException, IOException {
+		String contents =
+			"package test0334;\n" +
+			"public class Y {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0334/Y.java",
+				contents,
+				true/*resolve*/
+			);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String typeName = "test0334.MyAnnotation";
+		class BindingRequestor extends ASTRequestor {
+			ITypeBinding _result = null;
+			public void acceptBinding(String bindingKey, IBinding binding) {
+				if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+					this._result = (ITypeBinding) binding;
+			}
+		}
+		String[] keys = new String[] {
+			BindingKey.createTypeBindingKey(typeName)
+		};
+		final BindingRequestor requestor = new BindingRequestor();
+		final ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(javaProject);
+		// this doesn't really do a parse; it's a type lookup
+		parser.createASTs(new ICompilationUnit[] {}, keys, requestor, null);
+		ITypeBinding typeBinding = requestor._result;
+		assertFalse("Is from source", typeBinding.isFromSource());
+		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+		assertEquals("Wrong number", 1, annotations.length);
+		IMemberValuePairBinding[] allMemberValuePairs = annotations[0].getAllMemberValuePairs();
+		assertEquals("Wrong number", 1, allMemberValuePairs.length);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=286407
+	public void test0335() throws CoreException, IOException {
+		String contents =
+			"package test0335;\n" +
+			"public class Y {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0335/Y.java",
+				contents,
+				true/*resolve*/
+			);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String typeName = "test0335.MyAnnotation";
+		class BindingRequestor extends ASTRequestor {
+			ITypeBinding _result = null;
+			public void acceptBinding(String bindingKey, IBinding binding) {
+				if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+					this._result = (ITypeBinding) binding;
+			}
+		}
+		String[] keys = new String[] {
+			BindingKey.createTypeBindingKey(typeName)
+		};
+		final BindingRequestor requestor = new BindingRequestor();
+		final ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(javaProject);
+		// this doesn't really do a parse; it's a type lookup
+		parser.createASTs(new ICompilationUnit[] {}, keys, requestor, null);
+		ITypeBinding typeBinding = requestor._result;
+		assertFalse("Is from source", typeBinding.isFromSource());
+		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+		assertEquals("Wrong number", 1, annotations.length);
+		IMemberValuePairBinding[] allMemberValuePairs = annotations[0].getAllMemberValuePairs();
+		assertEquals("Wrong number", 1, allMemberValuePairs.length);
+		IMemberValuePairBinding memberValuePair = allMemberValuePairs[0];
+		IVariableBinding variableBinding = (IVariableBinding) memberValuePair.getValue();
+		assertEquals("Wrong field", "RUNTIME", variableBinding.getName());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=286407
+	public void test0336() throws CoreException, IOException {
+		String contents =
+			"package test0336;\n" +
+			"public class Y {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter15/src/test0336/Y.java",
+				contents,
+				true/*resolve*/
+			);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String typeName = "test0336.MyAnnotation";
+		class BindingRequestor extends ASTRequestor {
+			ITypeBinding _result = null;
+			public void acceptBinding(String bindingKey, IBinding binding) {
+				if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+					this._result = (ITypeBinding) binding;
+			}
+		}
+		String[] keys = new String[] {
+			BindingKey.createTypeBindingKey(typeName)
+		};
+		final BindingRequestor requestor = new BindingRequestor();
+		final ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(javaProject);
+		// this doesn't really do a parse; it's a type lookup
+		parser.createASTs(new ICompilationUnit[] {}, keys, requestor, null);
+		ITypeBinding typeBinding = requestor._result;
+		assertFalse("Is from source", typeBinding.isFromSource());
+		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+		assertEquals("Wrong number", 1, annotations.length);
+		IMemberValuePairBinding[] allMemberValuePairs = annotations[0].getAllMemberValuePairs();
+		assertEquals("Wrong number", 1, allMemberValuePairs.length);
+		IMemberValuePairBinding memberValuePair = allMemberValuePairs[0];
+		IVariableBinding variableBinding = (IVariableBinding) memberValuePair.getValue();
+		assertEquals("Wrong field", "CLASS", variableBinding.getName());
 	}
 }
