@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 15 };
+//		TESTS_NUMBERS = new int[] { 16 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -504,5 +504,19 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 		String expectedOutput =
 			"  public void foo(@Deprecated @Annot(value=(int) 2) int i);";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=286405
+	 */
+	public void test016() throws Exception {
+		String source =
+			"public @interface MonAnnotation {\n" + 
+			"	String test1() default \"\\0\";\n" + 
+			"	char test2() default '\\0';\n" + 
+			"}\n" + 
+			"";
+		String expectedOutput =
+			"  public abstract char test2() default \'\\0\';";
+		checkClassFile("", "MonAnnotation", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 }
