@@ -18,6 +18,9 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -706,6 +709,25 @@ public void test017() {
 	null,
 	true,
 	options);
+}
+public void test018() {
+	this.runConformTest(new String[] {
+		"p/X.java",
+		"package p;\n" +
+		"public class X {\n" +
+		"  public static void foo(int i) { \n" +
+		"    switch (i) {\n" +
+		"    }\n" +
+		"  }\n" +
+		"}\n",
+	},
+	new ASTVisitor() {
+		public boolean visit(SingleNameReference reference, BlockScope scope) {
+			assertNotNull("No scope", scope);
+			return true;
+		}
+	}
+	);
 }
 public static Class testClass() {
 	return SwitchTest.class;

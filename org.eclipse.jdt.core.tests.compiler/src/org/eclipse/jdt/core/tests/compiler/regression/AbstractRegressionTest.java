@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
@@ -1139,6 +1140,32 @@ protected static class JavacTestOptions {
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
 
+	// WORK replace null logs (no test) by empty string in most situations (more
+	//  complete coverage) and see what happens
+	protected void runConformTest(String[] testFiles, ASTVisitor visitor) {
+		runTest(
+	 		// test directory preparation
+			true /* flush output directory */,
+			testFiles /* test files */,
+			// compiler options
+			null /* no class libraries */,
+			null /* no custom options */,
+			false /* do not perform statements recovery */,
+			null /* no custom requestor */,
+			// compiler results
+			false /* expecting no compiler errors */,
+			null /* do not check compiler log */,
+			// runtime options
+			false /* do not force execution */,
+			null /* no vm arguments */,
+			// runtime results
+			null /* do not check output string */,
+			null /* do not check error string */,
+			visitor,
+			// javac options
+			JavacTestOptions.DEFAULT /* default javac test options */);
+	}
+
 	protected void runConformTest(String[] testFiles, String expectedOutputString) {
 		runTest(
 	 		// test directory preparation
@@ -1993,7 +2020,41 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 			// javac options
 			javacTestOptions /* javac test options */);
 	}
-
+	private void runTest(
+			// test directory preparation
+			boolean shouldFlushOutputDirectory,
+			String[] testFiles,
+			// compiler options
+			String[] classLibraries,
+			Map customOptions,
+			boolean performStatementsRecovery,
+			ICompilerRequestor customRequestor,
+			// compiler results
+			boolean expectingCompilerErrors,
+			String expectedCompilerLog,
+			// runtime options
+			boolean forceExecution,
+			String[] vmArguments,
+			// runtime results
+			String expectedOutputString,
+			String expectedErrorString,
+			// javac options
+			JavacTestOptions javacTestOptions) {
+		runTest(shouldFlushOutputDirectory,
+			testFiles,
+			classLibraries,
+			customOptions,
+			performStatementsRecovery,
+			customRequestor,
+			expectingCompilerErrors,
+			expectedCompilerLog,
+			forceExecution,
+			vmArguments,
+			expectedOutputString,
+			expectedErrorString,
+			null,
+			javacTestOptions);
+	}
 // This is a worker method to support regression tests. To ease policy changes,
 // it should not be called directly, but through the runConformTest and
 // runNegativeTest series.
@@ -2084,6 +2145,7 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 			// runtime results
 			String expectedOutputString,
 			String expectedErrorString,
+			final ASTVisitor visitor,
 			// javac options
 			JavacTestOptions javacTestOptions) {
 		// non-javac part
@@ -2119,7 +2181,14 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 				getErrorHandlingPolicy(),
 				compilerOptions,
 				requestor,
-				getProblemFactory());
+				getProblemFactory()) {
+				public void process(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration unit, int i) {
+					super.process(unit, i);
+					if (visitor != null) {
+						unit.traverse(visitor, unit.scope);
+					}
+				}
+			};
 		compilerOptions.produceReferenceInfo = true;
 		Throwable exception = null;
 		try {
