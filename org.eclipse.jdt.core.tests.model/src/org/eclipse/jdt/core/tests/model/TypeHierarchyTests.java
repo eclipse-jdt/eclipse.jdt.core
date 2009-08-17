@@ -2351,4 +2351,57 @@ public void testBug215841() throws JavaModelException, CoreException, Interrupte
 		project.setRawClasspath(originalClasspath, null);
 	}
 }
+/**
+ * @bug 254738: NPE in HierarchyResolver.setFocusType
+ * @test that a nested method/anonymous sub type is included in the hierarchy when the number of annotations > 10
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=254738"
+ */
+public void testBug254738() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {}, "bin", "1.5");
+		createFolder("/P/src/abc");
+		createFile(
+			"/P/src/abc/Parent.java",
+			"package abc;\n" +
+			"public class Parent {\n" +
+			"	public void parentmethod() {\n" +
+			"   	new Object() {\n" +
+			"			void nestedonemethod() {\n" +
+			"           	new Object(){\n" +
+			"               	public int hashCode() {\n" +
+			"                   	return 0; \n" +
+			"                   } \n" +
+			"				}; \n" +
+			"         	}\n" +
+			"   	};\n" +
+			"	}\n" +
+			"}\n" +
+			"@Deprecated\n" +
+			"class Dep {\n" +
+			"        @Deprecated void a() {}\n" +
+			"        @Deprecated void b() {}\n" +
+			"        @Deprecated void c() {}\n" +
+			"        @Deprecated void d() {}\n" +
+			"        @Deprecated void e() {}\n" +
+			"        @Deprecated void f() {}\n" +
+			"        @Deprecated void g() {}\n" +
+			"        @Deprecated void h() {}\n" +
+			"        @Deprecated void i() {}\n" +
+			"        @Deprecated void j() {}\n" +
+			"        @Deprecated void k() {}\n" +
+			"}"
+			);
+		IType focus  = getCompilationUnit("/P/src/abc/Parent.java").getType("Parent");
+		focus =	focus.getMethod("parentmethod", new String[]{}).getType("", 1).getMethod("nestedonemethod", new String[]{}).
+												getType("", 1);
+		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
+		assertHierarchyEquals(
+				"Focus: <anonymous #1> [in nestedonemethod() [in <anonymous #1> [in parentmethod() [in Parent [in Parent.java [in abc [in src [in P]]]]]]]]\n" + 
+				"Super types:\n" + 
+				"Sub types:\n",
+			hierarchy);
+	} finally {
+		deleteProjects(new String[] {"P"});
+	}
+}
 }
