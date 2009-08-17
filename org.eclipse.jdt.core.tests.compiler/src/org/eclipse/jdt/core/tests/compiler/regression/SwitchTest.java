@@ -710,6 +710,7 @@ public void test017() {
 	true,
 	options);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=286682
 public void test018() {
 	this.runConformTest(new String[] {
 		"p/X.java",
