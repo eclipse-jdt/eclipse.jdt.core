@@ -874,9 +874,11 @@ public MethodBinding[] getMethods(char[] selector, int suggestedParameterLength)
 		int start = (int) range, end = (int) (range >> 32);
 		int length = end - start + 1;
 		int count = 0;
-		for (int i = start; i <= end; i++)
-			if (this.methods[i].parameters.length <= suggestedParameterLength)
+		for (int i = start; i <= end; i++) {
+			int len = this.methods[i].parameters.length;
+			if (len <= suggestedParameterLength || (this.methods[i].isVarargs() && len == suggestedParameterLength + 1))
 				count++;
+		}
 		if (count == 0) {
 			MethodBinding[] result = new MethodBinding[length];
 			// iterate methods to resolve them
@@ -886,9 +888,11 @@ public MethodBinding[] getMethods(char[] selector, int suggestedParameterLength)
 		} else {
 			MethodBinding[] result = new MethodBinding[count];
 			// iterate methods to resolve them
-			for (int i = start, index = 0; i <= end; i++)
-				if (this.methods[i].parameters.length <= suggestedParameterLength)
+			for (int i = start, index = 0; i <= end; i++) {
+				int len = this.methods[i].parameters.length;
+				if (len <= suggestedParameterLength || (this.methods[i].isVarargs() && len == suggestedParameterLength + 1))
 					result[index++] = resolveTypesFor(this.methods[i]);
+			}
 			return result;
 		}
 	}
