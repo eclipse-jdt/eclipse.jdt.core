@@ -10008,4 +10008,32 @@ public void test198() {
 		""
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284785
+public void test199() {
+	this.runConformTest(
+		new String[] {
+			"Bar.java",
+			"public interface Bar {\n" + 
+			"	void addError(String message, Object... arguments);\n" + 
+			"	void addError(Throwable t);\n" + 
+			"}",
+		},
+		""
+	);
+	this.runConformTest(
+		false,
+		new String[] {
+			"Foo.java",
+			"public class Foo {\n" + 
+			"	void bar(Bar bar) {\n" + 
+			"		bar.addError(\"g\");\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"",
+		"",
+		"",
+		JavacTestOptions.SKIP
+	);
+}
 }
