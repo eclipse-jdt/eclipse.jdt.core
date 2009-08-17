@@ -2695,7 +2695,7 @@ public void testNegative003() throws InstallException {
 			}
 		}
 		assertEquals("Unexpected errors",
-			"zork cannot be resolved|",
+			"zork cannot be resolved to a variable|",
 			buffer == null ? "none" : buffer.toString());
 	} finally {
 		removeTempClass("ANegative003");

@@ -9185,7 +9185,7 @@ public void test231_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" +
 		"	System.out.println(X.CONST);\n" +
 		"	                   ^^^^^^^\n" +
-		"X.CONST cannot be resolved\n" +
+		"X.CONST cannot be resolved to a variable\n" +
 		"----------\n" +
 		"1 problem (1 error)",
 		false /* shouldFlushOutputDirectory */,
@@ -9431,7 +9431,7 @@ public void test235_classpath() throws IOException, InterruptedException {
 		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" +
 		"	System.out.println(X.CONST);\n" +
 		"	                   ^^^^^^^\n" +
-		"X.CONST cannot be resolved\n" +
+		"X.CONST cannot be resolved to a variable\n" +
 		"----------\n" +
 		"1 problem (1 error)",
 		false /* shouldFlushOutputDirectory */,
@@ -9730,7 +9730,7 @@ public void test241_jar_ref_in_jar(){
 	  "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
 	  "	int j = R.R3;\n" +
 	  "	        ^^^^\n" +
-	  "R.R3 cannot be resolved\n" +
+	  "R.R3 cannot be resolved to a variable\n" +
 	  "----------\n" +
 	  "1 problem (1 error)",
 	  true);
@@ -9760,7 +9760,7 @@ public void test242_jar_ref_in_jar(){
 	  "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
 	  "	int j = R.R3;\n" +
 	  "	        ^^^^\n" +
-	  "R.R3 cannot be resolved\n" +
+	  "R.R3 cannot be resolved to a variable\n" +
 	  "----------\n" +
 	  "1 problem (1 error)",
 	  true);

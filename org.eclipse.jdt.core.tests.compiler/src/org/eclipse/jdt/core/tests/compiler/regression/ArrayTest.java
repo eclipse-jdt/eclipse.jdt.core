@@ -371,27 +371,27 @@ public void test013() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	System.out.println(argument + argument);\n" +
 		"	                   ^^^^^^^^\n" +
-		"argument cannot be resolved\n" +
+		"argument cannot be resolved to a variable\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	System.out.println(argument + argument);\n" +
 		"	                              ^^^^^^^^\n" +
-		"argument cannot be resolved\n" +
+		"argument cannot be resolved to a variable\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 4)\n" +
 		"	return new String[] { argument + argument, argument/*no problem*/ };\n" +
 		"	                      ^^^^^^^^\n" +
-		"argument cannot be resolved\n" +
+		"argument cannot be resolved to a variable\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 4)\n" +
 		"	return new String[] { argument + argument, argument/*no problem*/ };\n" +
 		"	                                 ^^^^^^^^\n" +
-		"argument cannot be resolved\n" +
+		"argument cannot be resolved to a variable\n" +
 		"----------\n" +
 		"5. ERROR in X.java (at line 4)\n" +
 		"	return new String[] { argument + argument, argument/*no problem*/ };\n" +
 		"	                                           ^^^^^^^^\n" +
-		"argument cannot be resolved\n" +
+		"argument cannot be resolved to a variable\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247307

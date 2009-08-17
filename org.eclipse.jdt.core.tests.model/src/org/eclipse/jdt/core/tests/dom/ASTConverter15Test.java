@@ -8113,7 +8113,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		String expectedError = "x cannot be resolved";
+		String expectedError = "x cannot be resolved to a variable";
 		assertProblemsSize(unit, 1, expectedError);
 		node = getASTNode(unit, 0, 1, 0);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
@@ -8851,7 +8851,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors = "Constructor call must be the first statement in a constructor\n" +
-		"zork cannot be resolved\n" +
+		"zork cannot be resolved to a variable\n" +
 		"Constructor call must be the first statement in a constructor\n" +
 		"Zork cannot be resolved to a type\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -8926,8 +8926,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors =
-			"x cannot be resolved\n" +
-			"x cannot be resolved";
+			"x cannot be resolved to a variable\n" +
+			"x cannot be resolved to a variable";
 		assertProblemsSize(unit, 2, expectedErrors);
 		node = getASTNode(unit, 0, 1, 0);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
@@ -8973,8 +8973,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors =
-			"x cannot be resolved\n" +
-			"x cannot be resolved";
+			"x cannot be resolved to a variable\n" +
+			"x cannot be resolved to a variable";
 		assertProblemsSize(unit, 2, expectedErrors);
 		node = getASTNode(unit, 0, 1, 0);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
@@ -9021,8 +9021,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors =
-			"x cannot be resolved\n" +
-			"x cannot be resolved";
+			"x cannot be resolved to a variable\n" +
+			"x cannot be resolved to a variable";
 		assertProblemsSize(unit, 2, expectedErrors);
 		node = getASTNode(unit, 0, 1, 0);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
@@ -9070,8 +9070,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors =
-			"x cannot be resolved\n" +
-			"x cannot be resolved";
+			"x cannot be resolved to a variable\n" +
+			"x cannot be resolved to a variable";
 		assertProblemsSize(unit, 2, expectedErrors);
 		node = getASTNode(unit, 0, 1, 0);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
@@ -9121,8 +9121,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedErrors =
-			"x cannot be resolved\n" +
-			"x cannot be resolved";
+			"x cannot be resolved to a variable\n" +
+			"x cannot be resolved to a variable";
 		assertProblemsSize(unit, 2, expectedErrors);
 		node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a super constructor invocation", ASTNode.SUPER_CONSTRUCTOR_INVOCATION, node.getNodeType());
@@ -9158,7 +9158,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		String expectedError = "x cannot be resolved";
+		String expectedError = "x cannot be resolved to a variable";
 		assertProblemsSize(unit, 1, expectedError);
 		node = getASTNode(unit, 0, 1, 0);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());

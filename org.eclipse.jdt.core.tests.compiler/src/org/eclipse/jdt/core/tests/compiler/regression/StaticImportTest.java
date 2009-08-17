@@ -193,12 +193,12 @@ public class StaticImportTest extends AbstractComparableTest {
 			"4. ERROR in p\\X.java (at line 7)\n" +
 			"	int y = Yint;\n" +
 			"	        ^^^^\n" +
-			"Yint cannot be resolved\n" +
+			"Yint cannot be resolved to a variable\n" +
 			"----------\n" +
 			"5. ERROR in p\\X.java (at line 8)\n" +
 			"	int z = Zint;\n" +
 			"	        ^^^^\n" +
-			"Zint cannot be resolved\n" +
+			"Zint cannot be resolved to a variable\n" +
 			"----------\n" +
 			"6. ERROR in p\\X.java (at line 9)\n" +
 			"	void m1(YMember m) {}\n" +
@@ -265,7 +265,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		"5. ERROR in p\\X.java (at line 8)\n" +
 		"	int z = Zint;\n" +
 		"	        ^^^^\n" +
-		"Zint cannot be resolved\n" +
+		"Zint cannot be resolved to a variable\n" +
 		"----------\n" +
 		"6. ERROR in p\\X.java (at line 9)\n" +
 		"	void m1(YMember m) {}\n" +
@@ -1106,7 +1106,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"1. ERROR in PointRadius.java (at line 7)\n" +
 			"	radius = sqrt(pondArea / Math.PI);\n" +
 			"	              ^^^^^^^^\n" +
-			"pondArea cannot be resolved\n" +
+			"pondArea cannot be resolved to a variable\n" +
 			"----------\n");
 	}
 
@@ -1369,7 +1369,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"3. ERROR in X.java (at line 7)\n" +
 			"	static int n = CONSTANT_B;\n" +
 			"	               ^^^^^^^^^^\n" +
-			"CONSTANT_B cannot be resolved\n" +
+			"CONSTANT_B cannot be resolved to a variable\n" +
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564 - variation
@@ -2513,7 +2513,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"2. ERROR in test\\Outer.java (at line 4)\n" + 
 			"	int i = VALUE;\n" + 
 			"	        ^^^^^\n" + 
-			"VALUE cannot be resolved\n" + 
+			"VALUE cannot be resolved to a variable\n" + 
 			"----------\n");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=256375 - variation

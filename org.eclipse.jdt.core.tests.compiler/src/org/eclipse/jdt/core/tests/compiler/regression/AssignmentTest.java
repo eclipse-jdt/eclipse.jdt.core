@@ -98,17 +98,17 @@ public void test002() {
 		"1. ERROR in X.java (at line 6)\n" +
 		"	zork = zork;	\n" +
 		"	^^^^\n" +
-		"zork cannot be resolved\n" +
+		"zork cannot be resolved to a variable\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	zork = zork;	\n" +
 		"	       ^^^^\n" +
-		"zork cannot be resolved\n" +
+		"zork cannot be resolved to a variable\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 7)\n" +
 		"	arg = zork;	\n" +
 		"	      ^^^^\n" +
-		"zork cannot be resolved\n" +
+		"zork cannot be resolved to a variable\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 9)\n" +
 		"	arg = arg;  // noop	\n" +

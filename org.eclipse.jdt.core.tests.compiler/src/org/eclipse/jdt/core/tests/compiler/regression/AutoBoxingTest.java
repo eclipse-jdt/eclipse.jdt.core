@@ -2772,7 +2772,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"3. ERROR in X.java (at line 8)\n" +
 			"	System.out.println(zork);\n" +
 			"	                   ^^^^\n" +
-			"zork cannot be resolved\n" +
+			"zork cannot be resolved to a variable\n" +
 			"----------\n"
         );
     }

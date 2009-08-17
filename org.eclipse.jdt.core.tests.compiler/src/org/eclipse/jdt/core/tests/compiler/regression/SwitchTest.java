@@ -250,7 +250,7 @@ public void test010() {
 	"3. ERROR in X.java (at line 11)\n" +
 	"	switch(x){\n" +
 	"	       ^\n" +
-	"x cannot be resolved\n" +
+	"x cannot be resolved to a variable\n" +
 	"----------\n" +
 	"4. ERROR in X.java (at line 13)\n" +
 	"	Zork z;\n" +

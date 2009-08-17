@@ -370,6 +370,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("FinalFieldAssignment", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UninitializedBlankFinalField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateBlankFinalFieldInitialization", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("UnresolvedVariable", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("LocalVariableHidingLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
 		expectedProblemAttributes.put("LocalVariableHidingField", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
 		expectedProblemAttributes.put("FieldHidingLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
@@ -998,6 +999,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("FinalFieldAssignment", SKIP);
 		expectedProblemAttributes.put("UninitializedBlankFinalField", SKIP);
 		expectedProblemAttributes.put("DuplicateBlankFinalFieldInitialization", SKIP);
+		expectedProblemAttributes.put("UnresolvedVariable", SKIP);
 		expectedProblemAttributes.put("LocalVariableHidingLocalVariable", new ProblemAttributes(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING));
 		expectedProblemAttributes.put("LocalVariableHidingField", new ProblemAttributes(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING));
 		expectedProblemAttributes.put("FieldHidingLocalVariable", new ProblemAttributes(JavaCore.COMPILER_PB_FIELD_HIDING));

@@ -356,6 +356,8 @@ void setSourceStart(int sourceStart);
 	int FinalFieldAssignment = FieldRelated + 80;
 	int UninitializedBlankFinalField = FieldRelated + 81;
 	int DuplicateBlankFinalFieldInitialization = FieldRelated + 82;
+	/** @since 3.6 */
+	int UnresolvedVariable = FieldRelated + 83;
 
 	// variable hiding
 	/** @since 3.0 */

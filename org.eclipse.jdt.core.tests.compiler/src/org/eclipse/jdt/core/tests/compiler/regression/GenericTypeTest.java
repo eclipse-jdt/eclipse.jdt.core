@@ -7392,7 +7392,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"1. ERROR in X.java (at line 6)\n" + 
 					"	return zork;\n" + 
 					"	       ^^^^\n" + 
-					"zork cannot be resolved\n" + 
+					"zork cannot be resolved to a variable\n" + 
 					"----------\n" + 
 					"2. WARNING in X.java (at line 10)\n" + 
 					"	X rx = new X();\n" + 
@@ -32863,7 +32863,7 @@ public void test1008() {
 		"5. ERROR in X.java (at line 6)\n" + 
 		"	return zork;\n" + 
 		"	       ^^^^\n" + 
-		"zork cannot be resolved\n" + 
+		"zork cannot be resolved to a variable\n" + 
 		"----------\n",
 		JavacTestOptions.EclipseJustification.EclipseBug148061);
 }
@@ -33050,7 +33050,7 @@ public void test1012() {
 		"11. ERROR in X.java (at line 14)\n" + 
 		"	return zork;\n" + 
 		"	       ^^^^\n" + 
-		"zork cannot be resolved\n" + 
+		"zork cannot be resolved to a variable\n" + 
 		"----------\n",
 		JavacTestOptions.EclipseJustification.EclipseBug148061);
 }
@@ -37856,7 +37856,7 @@ public void test1120() {
 		"2. ERROR in X.java (at line 4)\n" +
 		"	this(zork);\n" +
 		"	     ^^^^\n" +
-		"zork cannot be resolved\n" +
+		"zork cannot be resolved to a variable\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 5)\n" +
 		"	Zork.this.this();\n" +

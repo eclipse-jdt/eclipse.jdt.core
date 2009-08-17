@@ -823,17 +823,17 @@ public void test026() {
 		"2. ERROR in X.java (at line 8)\n" +
 		"	case BLEU :\n" +
 		"	     ^^^^\n" +
-		"BLEU cannot be resolved\n" +
+		"BLEU cannot be resolved to a variable\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 10)\n" +
 		"	case BLANC :\n" +
 		"	     ^^^^^\n" +
-		"BLANC cannot be resolved\n" +
+		"BLANC cannot be resolved to a variable\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 12)\n" +
 		"	case ROUGE :\n" +
 		"	     ^^^^^\n" +
-		"ROUGE cannot be resolved\n" +
+		"ROUGE cannot be resolved to a variable\n" +
 		"----------\n");
 }
 // check enum name visibility
@@ -895,7 +895,7 @@ public void test028() {
 		"2. ERROR in X.java (at line 18)\n" +
 		"	C++;\n" +
 		"	^\n" +
-		"C cannot be resolved\n" +
+		"C cannot be resolved to a variable\n" +
 		"----------\n");
 }
 // check enum name visibility
@@ -1693,7 +1693,7 @@ public void test058() {
 		"3. ERROR in X.java (at line 16)\n" +
 		"	System.out.println(a); // cannot find a\n" +
 		"	                   ^\n" +
-		"a cannot be resolved\n" +
+		"a cannot be resolved to a variable\n" +
 		"----------\n"
 	);
 }

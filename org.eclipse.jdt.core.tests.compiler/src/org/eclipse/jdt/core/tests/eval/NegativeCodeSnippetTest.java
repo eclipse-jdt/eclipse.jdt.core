@@ -308,7 +308,7 @@ public void testRemoveVariable() {
 		// evaluate same code snippet
 		evaluateWithExpectedProblem(
 			codeSnippet,
-			newProblem(IProblem.UndefinedName, Error, 0, 0, 1)); // i cannot be resolved
+			newProblem(IProblem.UnresolvedVariable, Error, 0, 0, 1)); // i cannot be resolved to a variable
 	} finally {
 		// Clean up
 		if (var != null) {

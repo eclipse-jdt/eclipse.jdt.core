@@ -169,7 +169,7 @@ public void test0004() {
 		"2. ERROR in X.java (at line 3)\n" +
 		"	for(String o: c) {\n" +
 		"	              ^\n" +
-		"c cannot be resolved\n" +
+		"c cannot be resolved to a variable\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -179,7 +179,7 @@ public void test0004() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	for(String o: c) {\n" +
 		"	              ^\n" +
-		"c cannot be resolved\n" +
+		"c cannot be resolved to a variable\n" +
 		"----------\n";
 
 	runComplianceParserTest(

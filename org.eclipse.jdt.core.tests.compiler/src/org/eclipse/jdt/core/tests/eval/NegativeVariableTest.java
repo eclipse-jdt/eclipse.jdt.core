@@ -45,7 +45,7 @@ public void testInitializerProblem() {
 			"(j + 2)"}));
 		evaluateWithExpectedProblem(
 			var,
-			newProblem(IProblem.UndefinedName, Error, 11, 11, 2)); // j cannot be resolved
+			newProblem(IProblem.UnresolvedVariable, Error, 11, 11, 2)); // j cannot be resolved to a variable
 	} finally {
 		if (var != null) {
 			this.context.deleteVariable(var);

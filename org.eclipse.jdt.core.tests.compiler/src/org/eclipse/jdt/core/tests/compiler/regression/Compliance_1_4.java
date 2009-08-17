@@ -2790,7 +2790,7 @@ public void test086() {
 			"2. ERROR in X.java (at line 5)\n" +
 			"	System.out.print(full+\" \"+p.S.success);\n" +
 			"	                 ^^^^\n" +
-			"full cannot be resolved\n" +
+			"full cannot be resolved to a variable\n" +
 			"----------\n"
 		);
 }
@@ -2825,7 +2825,7 @@ public void test087() {
 			"3. ERROR in X.java (at line 5)\n" +
 			"	System.out.print(full+\" \"+S.success);\n" +
 			"	                 ^^^^\n" +
-			"full cannot be resolved\n" +
+			"full cannot be resolved to a variable\n" +
 			"----------\n"
 		);
 }

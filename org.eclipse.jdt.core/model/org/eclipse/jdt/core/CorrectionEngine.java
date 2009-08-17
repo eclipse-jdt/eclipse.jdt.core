@@ -219,6 +219,7 @@ public class CorrectionEngine {
 					argument = arguments[0];
 					break;
 				case IProblem.UndefinedName :
+				case IProblem.UnresolvedVariable :
 					this.filter = FIELD | LOCAL;
 					argument = arguments[0];
 					break;

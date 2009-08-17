@@ -142,7 +142,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		"1. ERROR in A4.java (at line 4)\n" +
 		"	assert false : unbound;	\n" +
 		"	               ^^^^^^^\n" +
-		"unbound cannot be resolved\n" +
+		"unbound cannot be resolved to a variable\n" +
 		"----------\n");
 	}
 	public void test007() {

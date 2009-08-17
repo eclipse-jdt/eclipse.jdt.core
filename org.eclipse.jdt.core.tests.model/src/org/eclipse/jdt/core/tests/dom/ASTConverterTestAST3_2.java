@@ -7013,12 +7013,12 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			String expectedOutput =
-				"first cannot be resolved\n" +
-				"second cannot be resolved\n" +
-				"first cannot be resolved\n" +
-				"second cannot be resolved\n" +
-				"first cannot be resolved\n" +
-				"second cannot be resolved";
+				"first cannot be resolved to a variable\n" +
+				"second cannot be resolved to a variable\n" +
+				"first cannot be resolved to a variable\n" +
+				"second cannot be resolved to a variable\n" +
+				"first cannot be resolved to a variable\n" +
+				"second cannot be resolved to a variable";
 			assertProblemsSize(unit, 6, expectedOutput);
 			unit.accept(new ASTVisitor() {
 				public boolean visit(ConstructorInvocation constructorInvocation) {
@@ -7732,7 +7732,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertProblemsSize(
 					unit,
 					2,
-					"Object.equ cannot be resolved\n" +
+					"Object.equ cannot be resolved to a variable\n" +
 					"Syntax error, insert \"AssignmentOperator Expression\" to complete Expression");
 			node = getASTNode(unit, 0, 0);
 			assertEquals("Not a field declaration statement", ASTNode.INITIALIZER, node.getNodeType());

@@ -6811,8 +6811,11 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 		SingleNameReference ref = (SingleNameReference) nameRef;
 		if (isRecoveredName(ref.token)) return;
 	}
+	int problemId = (nameRef.bits & Binding.VARIABLE) != 0 && (nameRef.bits & Binding.TYPE) == 0
+		? IProblem.UnresolvedVariable
+		: IProblem.UndefinedName;
 	this.handle(
-		IProblem.UndefinedName,
+		problemId,
 		arguments,
 		arguments,
 		nameRef.sourceStart,

@@ -2961,7 +2961,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 3)\r\n" +
 			"	@Target(Element)\r\n" +
 			"	        ^^^^^^^\n" +
-			"Element cannot be resolved\n" +
+			"Element cannot be resolved to a variable\n" +
 			"----------\n");
 	}
 
@@ -3419,7 +3419,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	@Annot(foo1=zzz)\n" +
 			"	            ^^^\n" +
-			"zzz cannot be resolved\n" +
+			"zzz cannot be resolved to a variable\n" +
 			"----------\n");
     }
     public void test113() {
@@ -3508,7 +3508,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"4. ERROR in X.java (at line 5)\n" +
     		"	@Annot(foo = M.class, bar = baz()+s)\n" +
     		"	                                  ^\n" +
-    		"s cannot be resolved\n" +
+    		"s cannot be resolved to a variable\n" +
     		"----------\n" +
     		"5. ERROR in X.java (at line 11)\n" +
     		"	@Annot(foo = T.class, bar = s)\n" +
@@ -6656,7 +6656,7 @@ public void test202() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	@Ann(m=Object)\n" +
 		"	       ^^^^^^\n" +
-		"Object cannot be resolved\n" +
+		"Object cannot be resolved to a variable\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	private NonExisting bar;\n" +
@@ -7501,7 +7501,7 @@ public void test226() {
 		"1. ERROR in X.java (at line 6)\n" +
 		"	@Annot(value={x}, classe={Zork.class,zork})\n" +
 		"	              ^\n" +
-		"x cannot be resolved\n" +
+		"x cannot be resolved to a variable\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	@Annot(value={x}, classe={Zork.class,zork})\n" +
@@ -7516,7 +7516,7 @@ public void test226() {
 		"4. ERROR in X.java (at line 6)\n" +
 		"	@Annot(value={x}, classe={Zork.class,zork})\n" +
 		"	                                     ^^^^\n" +
-		"zork cannot be resolved\n" +
+		"zork cannot be resolved to a variable\n" +
 		"----------\n" +
 		"5. ERROR in X.java (at line 6)\n" +
 		"	@Annot(value={x}, classe={Zork.class,zork})\n" +
@@ -7714,7 +7714,7 @@ public void test233() {
 		"2. ERROR in X.java (at line 5)\n" +
 		"	return Zork;\n" +
 		"	       ^^^^\n" +
-		"Zork cannot be resolved\n" +
+		"Zork cannot be resolved to a variable\n" +
 		"----------\n");
 }
 
@@ -7734,7 +7734,7 @@ public void test234() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	return Zork;\n" +
 		"	       ^^^^\n" +
-		"Zork cannot be resolved\n" +
+		"Zork cannot be resolved to a variable\n" +
 		"----------\n");
 }
 
