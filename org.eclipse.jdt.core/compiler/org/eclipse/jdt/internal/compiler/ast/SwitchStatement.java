@@ -365,7 +365,7 @@ public class SwitchStatement extends Statement {
 			BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
-			this.expression.traverse(visitor, this.scope);
+			this.expression.traverse(visitor, blockScope);
 			if (this.statements != null) {
 				int statementsLength = this.statements.length;
 				for (int i = 0; i < statementsLength; i++)
