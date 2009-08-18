@@ -1,4 +1,0 @@
-#
-pub class CompletionKeywordPublic13 {
-	
-}
