@@ -7439,7 +7439,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"1. ERROR in X.java (at line 6)\n" + 
 				"	return zork;\n" + 
 				"	       ^^^^\n" + 
-				"zork cannot be resolved\n" + 
+				"zork cannot be resolved to a variable\n" + 
 				"----------\n" + 
 				"2. WARNING in X.java (at line 10)\n" + 
 				"	X rx = new X();\n" + 
@@ -10502,7 +10502,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"4. ERROR in X.java (at line 7)\n" + 
 				"	public void run() { zork = 0; }\n" + 
 				"	                    ^^^^\n" + 
-				"zork cannot be resolved\n" + 
+				"zork cannot be resolved to a variable\n" + 
 				"----------\n" + 
 				"5. WARNING in X.java (at line 10)\n" + 
 				"	public <T extends Exception> T bar(T t) { return t; }\n" + 
