@@ -948,10 +948,14 @@ public class Scribe implements IJavaDocTagConstants {
 				// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=283476
 				if (this.lastNumberOfNewLines == 0) {
 					StringBuffer buffer = new StringBuffer(getNewLine());
-					int savedIndentation = this.indentationLevel;
-					this.indentationLevel = this.currentAlignment.breakIndentationLevel;
-					printIndentationIfNecessary(buffer);
-					this.indentationLevel = savedIndentation;
+					if (this.currentAlignment.useBreakIndentation) {
+						int savedIndentation = this.indentationLevel;
+						this.indentationLevel = this.currentAlignment.breakIndentationLevel;
+						printIndentationIfNecessary(buffer);
+						this.indentationLevel = savedIndentation;
+					} else {
+						printIndentationIfNecessary(buffer);
+					}
 					return buffer.toString();
 				}
 			}

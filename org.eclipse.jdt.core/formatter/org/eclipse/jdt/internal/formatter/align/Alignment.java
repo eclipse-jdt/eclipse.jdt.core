@@ -45,6 +45,7 @@ public class Alignment {
 	public int shiftBreakIndentationLevel;
 	public int[] fragmentBreaks;
 	public boolean wasSplit;
+	public boolean useBreakIndentation = false; // used while preserving line breaks
 
 	public Scribe scribe;
 

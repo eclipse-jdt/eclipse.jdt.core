@@ -10849,4 +10849,69 @@ public void test723() {
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 	runTest(codeFormatter, "test723", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=286601
+public void testBug286601() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source = 
+		"public class Test\n" + 
+		"{\n" + 
+		"    public void aMethod()\n" + 
+		"    {\n" + 
+		"        Object anObject = new Object()\n" + 
+		"        {\n" + 
+		"            boolean aVariable;\n" + 
+		"        };\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	public void aMethod() {\n" + 
+		"		Object anObject = new Object()\n" + 
+		"		{\n" + 
+		"			boolean aVariable;\n" + 
+		"		};\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug286601b() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source = 
+		"public class Test {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"long x1 = 100000000\n" + 
+		"        + 200000000\n" + 
+		"        + 300000000;\n" + 
+		"long x2 = 100000000\n" + 
+		"        + 200000000\n" + 
+		"        + 300000000\n" + 
+		"        + 400000000;\n" + 
+		"long x3 = 100000000\n" + 
+		"        + 200000000\n" + 
+		"        + 300000000\n" + 
+		"        + 400000000\n" + 
+		"        + 500000000;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		long x1 = 100000000\n" + 
+		"				+ 200000000\n" + 
+		"				+ 300000000;\n" + 
+		"		long x2 = 100000000\n" + 
+		"				+ 200000000\n" + 
+		"				+ 300000000\n" + 
+		"				+ 400000000;\n" + 
+		"		long x3 = 100000000\n" + 
+		"				+ 200000000\n" + 
+		"				+ 300000000\n" + 
+		"				+ 400000000\n" + 
+		"				+ 500000000;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }

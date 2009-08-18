@@ -427,10 +427,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		BinaryExpressionFragmentBuilder builder = buildFragments(binaryExpression, scope);
 		final int fragmentsSize = builder.size();
 
-		if ((builder.realFragmentsSize() > 1 || builder.size() > 4) && numberOfParens == 0) {
-			this.scribe.printComment();
+		if ((builder.realFragmentsSize() > 1 || fragmentsSize > 2) && numberOfParens == 0) {
 			Alignment binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.alignment_for_binary_expression, Alignment.R_OUTERMOST, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 			this.scribe.enterAlignment(binaryExpressionAlignment);
+			binaryExpressionAlignment.useBreakIndentation = true;
+			this.scribe.printComment();
 			boolean ok = false;
 			ASTNode[] fragments = builder.fragments();
 			int[] operators = builder.operators();
@@ -4861,11 +4862,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			manageOpeningParenthesizedExpression(stringLiteral, numberOfParens);
 		}
 
-		this.scribe.printComment();
 		ASTNode[] fragments = stringLiteral.literals;
 		int fragmentsSize = stringLiteral.counter;
 		Alignment binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.alignment_for_binary_expression, Alignment.R_OUTERMOST, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterAlignment(binaryExpressionAlignment);
+		binaryExpressionAlignment.useBreakIndentation = true;
+		this.scribe.printComment();
 		boolean ok = false;
 		do {
 			try {
