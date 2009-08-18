@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc. 
+ * Copyright (c) 2007 - 2009 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.apt.pluggable.core.filer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -91,12 +92,17 @@ public class IdeFilerImpl implements Filer {
 		IFile file = getFileFromOutputLocation(location, pkg, relativeName);
 		
 		//TODO: check whether file has already been generated in this run
-		Set<IFile> parentFiles = new HashSet<IFile>(originatingElements.length);
-		for (Element elem : originatingElements) {
-			IFile enclosing = _env.getEnclosingIFile(elem);
-			if (null != enclosing) {
-				parentFiles.add(enclosing);
+		Set<IFile> parentFiles;
+		if (originatingElements != null && originatingElements.length > 0) {
+			parentFiles = new HashSet<IFile>(originatingElements.length);
+			for (Element elem : originatingElements) {
+				IFile enclosing = _env.getEnclosingIFile(elem);
+				if (null != enclosing) {
+					parentFiles.add(enclosing);
+				}
 			}
+		} else {
+			parentFiles = Collections.emptySet();
 		}
 		return new IdeOutputNonSourceFileObject(_env, file, parentFiles);
 	}
@@ -115,11 +121,14 @@ public class IdeFilerImpl implements Filer {
 			throw new IllegalArgumentException("Name is null");
 		}
 		//TODO: check whether file has already been generated in this run
-		Set<IFile> parentFiles = new HashSet<IFile>(originatingElements.length);
-		for (Element elem : originatingElements) {
-			IFile enclosing = _env.getEnclosingIFile(elem);
-			if (null != enclosing) {
-				parentFiles.add(enclosing);
+		Set<IFile> parentFiles = Collections.emptySet();
+		if (originatingElements != null && originatingElements.length > 0) {
+			parentFiles = new HashSet<IFile>(originatingElements.length);
+			for (Element elem : originatingElements) {
+				IFile enclosing = _env.getEnclosingIFile(elem);
+				if (null != enclosing) {
+					parentFiles.add(enclosing);
+				}
 			}
 		}
 		return new IdeOutputJavaFileObject(_env, name, parentFiles);

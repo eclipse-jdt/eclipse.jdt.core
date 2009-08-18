@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2009 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
+import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
 import org.eclipse.jdt.apt.pluggable.tests.ProcessorTestStatus;
@@ -166,7 +167,7 @@ public class FilerTesterProc extends AbstractProcessor {
 	}
 	
 	/**
-	 * Attempt to get an existing resource from the SOURCE_OUTPUT.
+	 * Attempt to create a new resource in SOURCE_OUTPUT.
 	 */
 	public void testCreateNonSourceFile(Element e, String pkg, String relName) throws Exception {
 		FileObject fo = _filer.createResource(StandardLocation.SOURCE_OUTPUT,
@@ -185,6 +186,33 @@ public class FilerTesterProc extends AbstractProcessor {
 		if (!name.contains(relName)) {
 			ProcessorTestStatus.fail("File object getName() returned " + name + 
 					", expected it to contain " + relName);
+		}
+	}
+	
+	/**
+	 * Attempt to create new resources with null parentage.
+	 * See <a href="http://bugs.eclipse.org/285838">Bug 285838</a>.
+	 */
+	public void testNullParents(Element e, String pkg, String relName) throws Exception {
+		FileObject fo = _filer.createResource(StandardLocation.SOURCE_OUTPUT,
+				pkg, relName + ".txt", (Element[])null);
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(fo.openWriter());
+			pw.println("Hello world");
+		} finally {
+			if (pw != null)
+				pw.close();
+		}
+		
+		JavaFileObject jfo = _filer.createSourceFile(pkg + "/" + relName, (Element[])null);
+		pw = null;
+		try {
+			pw = new PrintWriter(jfo.openWriter());
+			pw.println("package " + pkg + ";\npublic class " + relName + "{ }");
+		} finally {
+			if (pw != null)
+				pw.close();
 		}
 	}
 	
