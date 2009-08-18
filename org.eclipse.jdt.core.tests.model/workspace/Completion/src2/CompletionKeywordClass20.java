@@ -1,2 +1,0 @@
-#
-public cla CompletionKeywordClass20

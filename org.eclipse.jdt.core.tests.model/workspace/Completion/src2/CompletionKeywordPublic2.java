@@ -1,3 +1,0 @@
-pub class CompletionKeywordPublic2 {
-	
-}

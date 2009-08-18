@@ -1,1 +1,0 @@
-Element x=foo(x,y);
