@@ -187,20 +187,28 @@ private void initializeKnownFileNames(String[] initialFileNames) {
 	}
 	this.knownFileNames = new HashSet(initialFileNames.length * 2);
 	for (int i = initialFileNames.length; --i >= 0;) {
-		char[] fileName = initialFileNames[i].toCharArray();
+		File compilationUnitFile = new File(initialFileNames[i]);
+		char[] fileName = null;
+		try {
+			fileName = compilationUnitFile.getCanonicalPath().toCharArray();
+		} catch (IOException e) {
+			// this should not happen as the file exists
+			continue;
+		}
 		char[] matchingPathName = null;
 		final int lastIndexOf = CharOperation.lastIndexOf('.', fileName);
 		if (lastIndexOf != -1) {
 			fileName = CharOperation.subarray(fileName, 0, lastIndexOf);
 		}
 		CharOperation.replace(fileName, '\\', '/');
-		for (int j = 0; j < this.classpaths.length; j++){
+		for (int j = 0, max = this.classpaths.length; j < max; j++) {
 			char[] matchCandidate = this.classpaths[j].normalizedPath();
 			if (this.classpaths[j] instanceof  ClasspathDirectory &&
 					CharOperation.prefixEquals(matchCandidate, fileName) &&
 					(matchingPathName == null ||
-							matchCandidate.length < matchingPathName.length))
+							matchCandidate.length < matchingPathName.length)) {
 				matchingPathName = matchCandidate;
+			}
 		}
 		if (matchingPathName == null) {
 			this.knownFileNames.add(new String(fileName)); // leave as is...
