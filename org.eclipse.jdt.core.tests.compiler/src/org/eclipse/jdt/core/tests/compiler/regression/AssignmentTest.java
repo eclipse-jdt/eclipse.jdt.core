@@ -1862,6 +1862,38 @@ public void test064() {
 		"2"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=282891
+public void test065() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	protected boolean foo = false;\n" +
+			"	public boolean test() {\n" +
+			"		return foo || (foo = foo());\n" +
+			"	}\n" +
+			"	public boolean test2() {\n" +
+			"		return foo && (foo = foo());\n" +
+			"	}\n" +
+			"	public boolean test3() {\n" +
+			"		return foo && (foo = foo);\n" +
+			"	}\n" +
+			"	boolean foo() { return true; }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	return foo && (foo = foo);\n" + 
+		"	              ^^^^^^^^^^^\n" + 
+		"The assignment to variable foo has no effect\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }
