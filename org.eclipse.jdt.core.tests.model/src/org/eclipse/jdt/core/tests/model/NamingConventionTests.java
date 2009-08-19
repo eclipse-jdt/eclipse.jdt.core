@@ -1356,4 +1356,43 @@ public void testSuggestLocalName002() {
 		this.project.setOptions(options);
 	}
 }
+public void testSuggestConstantFieldName001() {
+	String[] suggestions = NamingConventions.suggestVariableNames(
+		NamingConventions.VK_STATIC_FINAL_FIELD,
+		NamingConventions.BK_NAME,
+		"__", //$NON-NLS-1$
+		this.project,
+		0,
+		new String[]{},
+		true);
+	
+	assumeEquals(
+		"__", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
+ */
+public void testSuggestConstantFieldName002() {
+	Hashtable options = JavaCore.getOptions();
+	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"PRE"); //$NON-NLS-1$
+	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"SUF"); //$NON-NLS-1$
+	JavaCore.setOptions(options);
+	
+	String[] suggestions = NamingConventions.suggestVariableNames(
+		NamingConventions.VK_STATIC_FINAL_FIELD,
+		NamingConventions.BK_NAME,
+		"__", //$NON-NLS-1$
+		this.project,
+		0,
+		new String[]{},
+		true);
+
+	assumeEquals(
+		"PRE__SUF\n" + //$NON-NLS-1$
+		"PRE__\n" + //$NON-NLS-1$
+		"__SUF\n" + //$NON-NLS-1$
+		"__", //$NON-NLS-1$
+		toString(suggestions));
+}
 }
