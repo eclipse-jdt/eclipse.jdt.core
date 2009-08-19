@@ -1265,7 +1265,7 @@ public void testBug50644() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50695">50695</a>
  */
 public void testBug50695() {
-	runNegativeTest(
+	runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1275,19 +1275,7 @@ public void testBug50695() {
 			"	 */\n" +
 			"	void foo() {}\n" +
 			"}\n"
-		 },
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	* @see java\n" + 
-		"	       ^^^^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	* @see java.util\n" + 
-		"	       ^^^^^^^^^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n"
-	);
+		 });
 }
 public void testBug50695b() {
 	runNegativeTest(
@@ -7541,96 +7529,6 @@ public void testBug207765() {
 }
 
 /**
- * @bug 211054: [javadoc] @see package reference should raise a warning except for the package declaration
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=211054"
- */
-public void testBug211054a() {
-	runNegativeTest(
-		new String[] {
-			"pkg/X.java",
-			"package pkg;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	/**\n" +
-			"	 * @see java\n" +
-			"	 * @see java.lang\n" +
-			"	 * @see PKG\n" +
-			"	 * @see pkg\n" +
-			"	 */\n" +
-			"	public void foo() { \n" +
-			"	 \n" +
-			"	}\n" +
-			"}\n"
-		},
-		// warning - Tag @see: reference not found: java
-		// warning - Tag @see: reference not found: java.lang
-		// warning - Tag @see: reference not found: PKG
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 5)\n" + 
-		"	* @see java\n" + 
-		"	       ^^^^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n" + 
-		"2. ERROR in pkg\\X.java (at line 6)\n" + 
-		"	* @see java.lang\n" + 
-		"	       ^^^^^^^^^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n" + 
-		"3. ERROR in pkg\\X.java (at line 7)\n" + 
-		"	* @see PKG\n" + 
-		"	       ^^^\n" + 
-		"Javadoc: PKG cannot be resolved to a type\n" + 
-		"----------\n"
-	);
-}
-public void testBug211054b() {
-	runNegativeTest(
-		new String[] {
-			"x/y/z/X.java",
-			"package x.y.z;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	/**\n" +
-			"	 * @see java\n" +
-			"	 * @see java.lang\n" +
-			"	 * @see x\n" +
-			"	 * @see x.y\n" +
-			"	 * @see x.y.z\n" +
-			"	 */\n" +
-			"	public void foo() { \n" +
-			"	 \n" +
-			"	}\n" +
-			"}\n"
-		},
-		// warning - Tag @see: reference not found: java
-		// warning - Tag @see: reference not found: java.lang
-		// warning - Tag @see: reference not found: x
-		// warning - Tag @see: reference not found: x.y
-		"----------\n" + 
-		"1. ERROR in x\\y\\z\\X.java (at line 5)\n" + 
-		"	* @see java\n" + 
-		"	       ^^^^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n" + 
-		"2. ERROR in x\\y\\z\\X.java (at line 6)\n" + 
-		"	* @see java.lang\n" + 
-		"	       ^^^^^^^^^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n" + 
-		"3. ERROR in x\\y\\z\\X.java (at line 7)\n" + 
-		"	* @see x\n" + 
-		"	       ^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n" + 
-		"4. ERROR in x\\y\\z\\X.java (at line 8)\n" + 
-		"	* @see x.y\n" + 
-		"	       ^^^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n"
-	);
-}
-
-/**
  * @bug 222900: [Javadoc] Missing description is warned if valid description is on a new line
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222900"
  */
@@ -8635,6 +8533,58 @@ public void testBug267833_3() {
 			"	                                                             ^^^^^^^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
 			"----------\n");
+}
+
+/**
+ * @bug 281609: [javadoc] "Javadoc: Invalid reference" warning for @link to Java package
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=281609"
+ */
+public void testBug281609a() {
+	runNegativeTest(
+		new String[] {
+			"pkg/X.java",
+			"package pkg;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	/**\n" +
+			"	 * @see java\n" +
+			"	 * @see java.lang\n" +
+			"	 * @see PKG\n" +
+			"	 * @see pkg\n" +
+			"	 */\n" +
+			"	public void foo() { \n" +
+			"	 \n" +
+			"	}\n" +
+			"}\n"
+		},
+		// warning - Tag @see: reference not found: PKG
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 7)\n" + 
+		"	* @see PKG\n" + 
+		"	       ^^^\n" + 
+		"Javadoc: PKG cannot be resolved to a type\n" + 
+		"----------\n"
+	);
+}
+public void testBug281609b() {
+	runConformTest(
+		new String[] {
+			"x/y/z/X.java",
+			"package x.y.z;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	/**\n" +
+			"	 * @see java\n" +
+			"	 * @see java.lang\n" +
+			"	 * @see x\n" +
+			"	 * @see x.y\n" +
+			"	 * @see x.y.z\n" +
+			"	 */\n" +
+			"	public void foo() { \n" +
+			"	 \n" +
+			"	}\n" +
+			"}\n"
+		});
 }
 
 }
