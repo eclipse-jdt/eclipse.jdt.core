@@ -3930,4 +3930,217 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	/**
+	 * @bug 286918:[javadoc] Compiler should warn when @see and @link tag references in package-info.java don't have fully qualified names
+	 * @test that in a package-info.java file
+	 * 				1. References to valid packages are ACCEPTED without any warnings or errors
+	 * 				2. References to valid Java elements (including the ones in the same package) without qualified names are REPORTED as errors
+	 * 				3. References to valid Java elements with qualified names are ACCEPTED
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=286918"
+	 */
+	public void testBug284333() {
+		runNegativeTest(new String[]{
+				"goo/bar/package-info.java",
+				"/**\n" +
+				"*/\n" +
+				"package goo.bar;\n",
+				"foo/bar/ClassInSamePackage.java",
+				"package foo.bar;\n" +
+				"public class ClassInSamePackage {\n" +
+				"	public static int SOME_FIELD; \n" +
+				"}\n",
+				"foo/bar/goo/ClassInSubPackage.java",
+				"package foo.bar.goo;\n" +
+				"public class ClassInSubPackage {\n" +
+				"	public static void foo() { \n" +
+				"   }\n" +
+				"}\n",
+				"foo/ClassInEnclosingPackage.java",
+				"package foo;\n" +
+				"public class ClassInEnclosingPackage {\n" +
+				"	public static int SOME_FIELD; \n" +
+				"}\n",
+				"foo/bar/package-info.java",
+				"/**\n" +
+				" * @see ClassInSamePackage#SOME_FIELD\n" +
+				" * @see foo.bar.ClassInSamePackage#SOME_FIELD\n" +
+				" * @see ClassInSamePackage#SOME_FIELD\n" +
+				" * @see ClassInSubPackage#foo\n" +
+				" * @see foo.bar.goo.ClassInSubPackage#foo\n" +
+				" * @see ClassInSubPackage#foo\n" +
+				" * @see ClassInEnclosingPackage\n" +
+				" * @see foo.ClassInEnclosingPackage\n" +
+				" * @see ClassInEnclosingPackage\n" +
+				" * @see foo.bar\n" +
+				" * @see goo.bar\n" +
+				" * @see foo.bar.goo\n" +
+				" */\n" +
+				"package foo.bar;\n"	
+		},
+		"----------\n" + 
+		"1. ERROR in foo\\bar\\package-info.java (at line 2)\n" + 
+		"	* @see ClassInSamePackage#SOME_FIELD\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Invalid reference\n" + 
+		"----------\n" + 
+		"2. ERROR in foo\\bar\\package-info.java (at line 4)\n" + 
+		"	* @see ClassInSamePackage#SOME_FIELD\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Invalid reference\n" + 
+		"----------\n" + 
+		"3. ERROR in foo\\bar\\package-info.java (at line 5)\n" + 
+		"	* @see ClassInSubPackage#foo\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in foo\\bar\\package-info.java (at line 7)\n" + 
+		"	* @see ClassInSubPackage#foo\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"5. ERROR in foo\\bar\\package-info.java (at line 8)\n" + 
+		"	* @see ClassInEnclosingPackage\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"6. ERROR in foo\\bar\\package-info.java (at line 10)\n" + 
+		"	* @see ClassInEnclosingPackage\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" + 
+		"----------\n");
+	}	
+
+	/**
+	 * Additional tests for "https://bugs.eclipse.org/bugs/show_bug.cgi?id=286918" 
+	 * @test that in a non package-info.java file
+	 * 				2. References without qualified names to valid Java elements in the same package are ACCEPTED
+	 * 	 			2. References without qualified names to valid Java elements in other packages are REPORTED
+	 * 				3. References with qualified names to valid Java elements are accepted
+	 */	
+	public void testBug284333a() {
+		runNegativeTest(new String[]{
+				"goo/bar/package-info.java",
+				"/**\n" +
+				"*/\n" +
+				"package goo.bar;\n",
+				"foo/bar/ClassInSamePackage.java",
+				"package foo.bar;\n" +
+				"public class ClassInSamePackage {\n" +
+				"	public static int SOME_FIELD; \n" +
+				"}\n",
+				"foo/bar/goo/ClassInSubPackage.java",
+				"package foo.bar.goo;\n" +
+				"public class ClassInSubPackage {\n" +
+				"	public static void foo() { \n" +
+				"   }\n" +
+				"}\n",
+				"foo/ClassInEnclosingPackage.java",
+				"package foo;\n" +
+				"public class ClassInEnclosingPackage {\n" +
+				"	public static int SOME_FIELD; \n" +
+				"}\n",
+				"foo/bar/NotAPackageInfo.java",
+				"package foo.bar;\n" +
+				"/**\n" +
+				" * @see ClassInSamePackage#SOME_FIELD\n" +
+				" * @see foo.bar.ClassInSamePackage#SOME_FIELD\n" +
+				" * @see ClassInSamePackage#SOME_FIELD\n" +
+				" */\n" +
+				" public class NotAPackageInfo {\n" +
+				"/**\n" +
+				" * @see ClassInSubPackage#foo\n" +
+				" * @see foo.bar.goo.ClassInSubPackage#foo\n" +
+				" * @see ClassInSubPackage#foo\n" +
+				" */\n" +
+				"	public static int SOME_FIELD = 0;\n" +
+				"/**\n" +
+				" * @see ClassInEnclosingPackage\n" +
+				" * @see foo.ClassInEnclosingPackage\n" +
+				" * @see ClassInEnclosingPackage\n" +
+				" */\n" +
+				" 	public static void foo() {\n" +
+				"	}\n" +
+				"	" +
+				" }\n"	
+		},
+		"----------\n" + 
+		"1. ERROR in foo\\bar\\NotAPackageInfo.java (at line 9)\n" + 
+		"	* @see ClassInSubPackage#foo\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in foo\\bar\\NotAPackageInfo.java (at line 11)\n" + 
+		"	* @see ClassInSubPackage#foo\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in foo\\bar\\NotAPackageInfo.java (at line 15)\n" + 
+		"	* @see ClassInEnclosingPackage\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in foo\\bar\\NotAPackageInfo.java (at line 17)\n" + 
+		"	* @see ClassInEnclosingPackage\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" + 
+		"----------\n");
+	}
+	/**
+	 * Additional tests for "https://bugs.eclipse.org/bugs/show_bug.cgi?id=284333" 
+	 * @test that in a non package-info.java file
+	 * 	 			2. References without qualified names to imported Java elements in other packages are ACCEPTED
+	 * 				3. References with qualified names to valid Java elements are ACCEPTED
+	 */	
+	public void testBug284333b() {
+		runConformTest(new String[] {
+				"goo/bar/package-info.java",
+				"/**\n" +
+				"*/\n" +
+				"package goo.bar;\n",
+				"foo/bar/ClassInSamePackage.java",
+				"package foo.bar;\n" +
+				"public class ClassInSamePackage {\n" +
+				"	public static int SOME_FIELD; \n" +
+				"}\n",
+				"foo/bar/goo/ClassInSubPackage.java",
+				"package foo.bar.goo;\n" +
+				"public class ClassInSubPackage {\n" +
+				"	public static void foo() { \n" +
+				"   }\n" +
+				"}\n",
+				"foo/ClassInEnclosingPackage.java",
+				"package foo;\n" +
+				"public class ClassInEnclosingPackage {\n" +
+				"	public static int SOME_FIELD; \n" +
+				"}\n",
+				"foo/bar/NotAPackageInfo.java",
+				"package foo.bar;\n" +
+				"import foo.*;\n" +
+				"import foo.bar.goo.*;\n" +
+				"/**\n" +
+				" * @see ClassInSamePackage#SOME_FIELD\n" +
+				" * @see foo.bar.ClassInSamePackage#SOME_FIELD\n" +
+				" * @see ClassInSamePackage#SOME_FIELD\n" +
+				" * @see goo.bar\n" +
+				" */\n" +
+				" public class NotAPackageInfo {\n" +
+				"/**\n" +
+				" * @see ClassInSubPackage#foo\n" +
+				" * @see foo.bar.goo.ClassInSubPackage#foo\n" +
+				" * @see ClassInSubPackage#foo\n" +
+				" * @see goo.bar\n" +
+				" */\n" +
+				"	public static int SOME_FIELD = 0;\n" +
+				"/**\n" +
+				" * @see ClassInEnclosingPackage\n" +
+				" * @see foo.ClassInEnclosingPackage\n" +
+				" * @see ClassInEnclosingPackage\n" +
+				" * @see goo.bar\n" +
+				" */\n" +
+				" 	public static void foo() {\n" +
+				"	}\n" +
+				"	" +
+				" }\n"	
+		});
+	}	
 }
