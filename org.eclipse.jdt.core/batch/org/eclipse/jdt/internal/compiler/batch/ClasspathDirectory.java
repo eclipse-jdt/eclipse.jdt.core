@@ -34,7 +34,12 @@ ClasspathDirectory(File directory, String encoding, int mode,
 		AccessRuleSet accessRuleSet, String destinationPath) {
 	super(accessRuleSet, destinationPath);
 	this.mode = mode;
-	this.path = directory.getAbsolutePath();
+	try {
+		this.path = directory.getCanonicalPath();
+	} catch (IOException e) {
+		// should not happen as we know that the file exists
+		this.path = directory.getAbsolutePath();
+	}
 	if (!this.path.endsWith(File.separator))
 		this.path += File.separator;
 	this.directoryCache = new Hashtable(11);
