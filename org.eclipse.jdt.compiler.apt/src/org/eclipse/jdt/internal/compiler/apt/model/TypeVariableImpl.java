@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 IBM Corporation and others.
+ * Copyright (c) 2006, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import javax.lang.model.type.TypeVisitor;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
@@ -78,6 +79,10 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	@Override
 	public TypeKind getKind()
 	{
+		TypeVariableBinding variableBinding = (TypeVariableBinding) _binding;
+		if ((!variableBinding.isValidBinding() || ((variableBinding.tagBits & TagBits.HasMissingType) != 0))) {
+			return TypeKind.ERROR;
+		}
 		return TypeKind.TYPEVAR;
 	}
 	

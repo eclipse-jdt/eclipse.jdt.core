@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 IBM Corporation and others.
+ * Copyright (c) 2006, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import javax.lang.model.type.WildcardType;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
@@ -47,6 +48,10 @@ public class WildcardTypeImpl extends TypeMirrorImpl implements WildcardType {
 	 */
 	@Override
 	public TypeKind getKind() {
+		WildcardBinding wildcardBinding = (WildcardBinding) _binding;
+		if ((!wildcardBinding.isValidBinding() || ((wildcardBinding.tagBits & TagBits.HasMissingType) != 0))) {
+			return TypeKind.ERROR;
+		}
 		return TypeKind.WILDCARD;
 	}
 	/* (non-Javadoc)

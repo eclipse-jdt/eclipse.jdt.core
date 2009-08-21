@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2009 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,6 @@ import javax.lang.model.type.TypeVisitor;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
@@ -113,12 +112,12 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 		// or member type is unresolved.  So we need to be a little more sensitive, so that we
 		// can report Zork<Quux> or Zork[] as error types.
 		ReferenceBinding type = (ReferenceBinding)_binding;
-		if ((!type.isValidBinding() || ((type.tagBits & TagBits.HasMissingType) != 0))) {
+		if (!type.isValidBinding()) {
 			return TypeKind.ERROR;
 		}
 		return TypeKind.DECLARED;
 	}
-	
+
 	@Override
 	public String toString() {
 		return new String(_binding.readableName());

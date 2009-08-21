@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc.
+ * Copyright (c) 2007, 2009 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -313,7 +313,7 @@ public class NegativeModelProc extends AbstractProcessor
 		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
 		"  </superclass>\n" + 
 		"  <interfaces>\n" + 
-		"   <type-mirror kind=\"ERROR\" to-string=\"targets.negative.pa.Negative8f&lt;T&gt;\"/>\n" + 
+		"   <type-mirror kind=\"DECLARED\" to-string=\"targets.negative.pa.Negative8f&lt;T&gt;\"/>\n" + 
 		"  </interfaces>\n" + 
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8f\" sname=\"Negative8f\">\n" + 
@@ -323,6 +323,27 @@ public class NegativeModelProc extends AbstractProcessor
 		" </type-element>\n" + 
 		"</model>\n";
 	
+	/**
+	 * Reference model for types in Negative1 test
+	 */
+	private static final String NEGATIVE_9_MODEL = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
+		"<model>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9a\" sname=\"Negative9a\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		" </type-element>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9b\" sname=\"Negative9b\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <interfaces>\n" + 
+		"   <type-mirror kind=\"DECLARED\" to-string=\"targets.negative.pa.Negative9a&lt;T&gt;\"/>\n" + 
+		"  </interfaces>\n" + 
+		" </type-element>\n" + 
+		"</model>\n";
+
 	/**
 	 * Declare this option (-AignoreJavacBugs) to ignore failures of cases that are
 	 * known to fail under javac, i.e., known bugs in javac.
@@ -340,7 +361,8 @@ public class NegativeModelProc extends AbstractProcessor
 		"checkNegative6",
 		"checkNegative7",
 		"checkNegative8",
-		}; 
+		"checkNegative9",
+	}; 
 	
 	private static final Method[] testMethods = new Method[testMethodNames.length];
 
@@ -395,7 +417,6 @@ public class NegativeModelProc extends AbstractProcessor
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		_elementUtils = processingEnv.getElementUtils();
-		
 		// parse options
 		_oneTest = -1;
 		Map<String, String> options = processingEnv.getOptions();
@@ -700,7 +721,58 @@ public class NegativeModelProc extends AbstractProcessor
 		}
 		return result;
 	}
-	
+	/**
+	 * Check the model of resources/targets.negative.pa.Negative9
+	 * @return true if all tests passed
+	 */
+	public boolean checkNegative9() throws Exception {
+		// check that all expected elements are here
+		List<TypeElement> rootElements = new ArrayList<TypeElement>();
+		String[] suffixes = new String[] {"a", "b"};
+		for (int i = 0, l = suffixes.length; i < l; i++) {
+			TypeElement element = _elementUtils.getTypeElement("targets.negative.pa.Negative9" + suffixes[i]);
+			if (null == element) {
+				reportError("Element Negative9" + suffixes[i] + " was not found");
+				return false;
+			}
+			rootElements.add(element);
+		}
+		if (!checkModel(rootElements, NEGATIVE_9_MODEL, "Negative9")) {
+			return false;
+		}
+		// check that specific elements are not here
+		suffixes = new String[] { "b" };
+		boolean result = true;
+		String errorMessage = "";
+		for (int i = 0, l = suffixes.length; i < l; i++) {
+			TypeElement element = _elementUtils.getTypeElement("targets.negative.pa.Negative9" + suffixes[i]);
+			List<? extends TypeMirror> interfaces = element.getInterfaces();
+			if (interfaces.isEmpty()) {
+				errorMessage += "Element Negative9" + suffixes[i] + " has extraneous interfaces\n";
+				result = false;
+			}
+			for (TypeMirror typeMirror : interfaces) {
+				TypeKind kind = typeMirror.getKind();
+				if (kind != TypeKind.DECLARED) {
+					errorMessage += "Element Negative9" + suffixes[i] + " super interface is not a declared type: " + kind + " \n";
+					result = false;
+				}
+				DeclaredType type = (DeclaredType) typeMirror;
+				List<? extends TypeMirror> typeArguments = type.getTypeArguments();
+				for (TypeMirror typeMirror2 : typeArguments) {
+					kind = typeMirror2.getKind();
+					if (kind != TypeKind.ERROR) {
+						errorMessage += "Element Negative9" + suffixes[i] + " superinterface's type argument is not an error type: " + kind + " \n";
+						result = false;
+					}
+				}
+			}
+		}
+		if (!result) {
+			reportError(errorMessage);
+		}
+		return result;
+	}
 	/**
 	 * Compare a set of elements to a reference model, and output error information if there is a
 	 * mismatch.
