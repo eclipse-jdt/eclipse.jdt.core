@@ -5938,5 +5938,38 @@ public void testBug276373() throws Exception {
 		JavaCore.removeClasspathVariable("MyVar", null);
 	}		
 }
+/**
+ * @bug 248661:Axis2: Missing required libraries in Axis 2 WS Client Projects
+ * @test that a variable classpath entry that is mappped to a folder/jar with external path (but still
+ * inside the project folder) can be validated using both system absolute path and relative path. 
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=248661"
+ */
+public void testBug248661() throws Exception {
+	IFolder folder = null;
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
+		IPath folderPath = proj.getResource().getFullPath().append("classes");
+		folder = createFolder(folderPath);
+		assertNotNull(folder);
+		IClasspathEntry[] classpath = new IClasspathEntry[1];
+		classpath[0] = JavaCore.newVariableEntry(folderPath, null, null);
+		setClasspath(proj, classpath);
+		
+		IClasspathEntry cpe = JavaCore.newLibraryEntry(folder.getFullPath(), null, null);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, cpe, true);
+		assertEquals(IStatus.OK, status.getCode());
+		
+		cpe = JavaCore.newLibraryEntry(folder.getLocation(), null, null);
+		status = JavaConventions.validateClasspathEntry(proj, cpe, true);
+		assertEquals(IStatus.OK, status.getCode());
+	}
+	finally{
+		if (folder != null) {
+			org.eclipse.jdt.core.tests.util.Util.delete(folder);
+		}
+		this.deleteProject("P");
+	}
+}
 
 }

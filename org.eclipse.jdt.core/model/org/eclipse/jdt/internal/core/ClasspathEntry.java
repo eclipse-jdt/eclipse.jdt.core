@@ -143,6 +143,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	private final static char[][] UNINIT_PATTERNS = new char[][] { "Non-initialized yet".toCharArray() }; //$NON-NLS-1$
 	private final static ClasspathEntry[] NO_ENTRIES = new ClasspathEntry[0];
 	private final static IPath[] NO_PATHS = new IPath[0];
+	private final static IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
 	private boolean combineAccessRules;
 
@@ -956,14 +957,13 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public static IPath resolveDotDot(IPath path) {
 		IPath newPath = null;
-		IWorkspaceRoot root = null;
 		IPath workspaceLocation = null;
 		for (int i = 0, length = path.segmentCount(); i < length; i++) {
 			String segment = path.segment(i);
 			if (DOT_DOT.equals(segment)) {
 				if (newPath == null) {
 					if (i == 0) {
-						workspaceLocation = (root = ResourcesPlugin.getWorkspace().getRoot()).getLocation();
+						workspaceLocation = workspaceRoot.getLocation();
 						newPath = workspaceLocation;
 					} else {
 						newPath = path.removeFirstSegments(i);
@@ -972,12 +972,12 @@ public class ClasspathEntry implements IClasspathEntry {
 					if (newPath.segmentCount() > 0) {
 						newPath = newPath.removeLastSegments(1);
 					} else {
-						workspaceLocation = (root = ResourcesPlugin.getWorkspace().getRoot()).getLocation();
+						workspaceLocation = workspaceRoot.getLocation();
 						newPath = workspaceLocation;
 					}
 				}
 			} else if (newPath != null) {
-				if (newPath.equals(workspaceLocation) && root.getProject(segment).isAccessible()) {
+				if (newPath.equals(workspaceLocation) && workspaceRoot.getProject(segment).isAccessible()) {
 					newPath = new Path(segment).makeAbsolute();
 				} else {
 					newPath = newPath.append(segment);
@@ -1766,7 +1766,6 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 	private static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, IClasspathContainer entryContainer, boolean checkSourceAttachment, boolean referredByContainer){
 
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		IPath path = entry.getPath();
 
 		// Build some common strings for status message
@@ -1960,6 +1959,12 @@ public class ClasspathEntry implements IClasspathEntry {
 	private static IJavaModelStatus validateLibraryEntry(IPath path, IJavaProject project, String container, IPath sourceAttachment, String entryPathMsg) {
 		if (path.isAbsolute() && !path.isEmpty()) {
 			Object target = JavaModel.getTarget(path, true);
+			if (target == null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=248661
+				IPath workspaceLocation = workspaceRoot.getLocation(); 
+				if (workspaceLocation.isPrefixOf(path)) {
+					target = JavaModel.getTarget(path.makeRelativeTo(workspaceLocation).makeAbsolute(), true);
+				}
+			}
 			if (target != null && !JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true))) {
 				long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 				long libraryJDK = Util.getJdkLevel(target);
