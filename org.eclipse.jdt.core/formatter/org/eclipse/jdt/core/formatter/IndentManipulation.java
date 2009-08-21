@@ -109,8 +109,7 @@ public final class IndentManipulation {
 		for (int i= 0; i < max; i++) {
 			char ch= line.charAt(i);
 			if (ch == '\t') {
-				int reminder= length % tabWidth;
-				length += tabWidth - reminder;
+				length = calculateSpaceEquivalents(tabWidth, length);
 			} else if (isIndentChar(ch)) {
 				length++;
 			} else {
@@ -131,26 +130,25 @@ public final class IndentManipulation {
 	 * @return the indent part of <code>line</code>, but no odd spaces
 	 * @exception IllegalArgumentException if:
 	 * <ul>
-	 * <li>the given <code>indentWidth</code> is lower or equals to zero</li>
+	 * <li>the given <code>indentWidth</code> is lower than zero</li>
 	 * <li>the given <code>tabWidth</code> is lower than zero</li>
 	 * <li>the given <code>line</code> is null</li>
 	 * </ul>
 	 */
 	public static String extractIndentString(String line, int tabWidth, int indentWidth) {
-		if (tabWidth < 0 || indentWidth <= 0 || line == null) {
+		if (tabWidth < 0 || indentWidth < 0 || line == null) {
 			throw new IllegalArgumentException();
 		}
 
-		int size= line.length();
-		int end= 0;
+		int size = line.length();
+		int end = 0;
 
-		int spaceEquivs= 0;
-		int characters= 0;
-		for (int i= 0; i < size; i++) {
-			char c= line.charAt(i);
+		int spaceEquivs = 0;
+		int characters = 0;
+		for (int i = 0; i < size; i++) {
+			char c = line.charAt(i);
 			if (c == '\t') {
-				int remainder= spaceEquivs % tabWidth;
-				spaceEquivs += tabWidth - remainder;
+				spaceEquivs = calculateSpaceEquivalents(tabWidth, spaceEquivs);
 				characters++;
 			} else if (isIndentChar(c)) {
 				spaceEquivs++;
@@ -160,8 +158,12 @@ public final class IndentManipulation {
 			}
 			if (spaceEquivs >= indentWidth) {
 				end += characters;
-				characters= 0;
-				spaceEquivs= spaceEquivs % indentWidth;
+				characters = 0;
+				if(indentWidth == 0) {
+					spaceEquivs = 0;
+				} else {
+					spaceEquivs = spaceEquivs % indentWidth;
+				}
 			}
 		}
 		if (end == 0) {
@@ -176,8 +178,8 @@ public final class IndentManipulation {
 
 	/**
 	 * Removes the given number of indentation units from a given line. If the line
-	 * has less than the given indent, all the available indentation is removed.
-	 * If <code>indentsToRemove <= 0</code> the line is returned.
+	 * has less indent than the given indentUnitsToRemove, all the available indentation is removed.
+	 * If <code>indentsToRemove <= 0 or indent == 0</code> the line is returned.
 	 *
 	 * @param line the line to trim
 	 * @param tabWidth the width of one tab in space equivalents
@@ -185,19 +187,19 @@ public final class IndentManipulation {
 	 * @return the trimmed string
 	 * @exception IllegalArgumentException if:
 	 * <ul>
-	 * <li>the given <code>indentWidth</code> is lower or equals to zero</li>
+	 * <li>the given <code>indentWidth</code> is lower than zero</li>
 	 * <li>the given <code>tabWidth</code> is lower than zero</li>
 	 * <li>the given <code>line</code> is null</li>
 	 * </ul>
 	 */
 	public static String trimIndent(String line, int indentUnitsToRemove, int tabWidth, int indentWidth) {
-		if (tabWidth < 0 || indentWidth <= 0 || line == null) {
+		if (tabWidth < 0 || indentWidth < 0 || line == null) {
 			throw new IllegalArgumentException();
 		}
 
-		if (indentUnitsToRemove <= 0)
+		if (indentUnitsToRemove <= 0 || indentWidth == 0) {
 			return line;
-
+		}
 		final int spaceEquivalentsToRemove= indentUnitsToRemove * indentWidth;
 
 		int start= 0;
@@ -207,8 +209,7 @@ public final class IndentManipulation {
 		for (int i= 0; i < size; i++) {
 			char c= line.charAt(i);
 			if (c == '\t') {
-				int remainder= spaceEquivalents % tabWidth;
-				spaceEquivalents += tabWidth - remainder;
+				spaceEquivalents = calculateSpaceEquivalents(tabWidth, spaceEquivalents);
 			} else if (isIndentChar(c)) {
 				spaceEquivalents++;
 			} else {
@@ -257,7 +258,7 @@ public final class IndentManipulation {
 	 * @return the newly indent code, containing only the given line delimiters.
 	 * @exception IllegalArgumentException if:
 	 * <ul>
-	 * <li>the given <code>indentWidth</code> is lower or equals to zero</li>
+	 * <li>the given <code>indentWidth</code> is lower than zero</li>
 	 * <li>the given <code>tabWidth</code> is lower than zero</li>
 	 * <li>the given <code>code</code> is null</li>
 	 * <li>the given <code>indentUnitsToRemove</code> is lower than zero</li>
@@ -266,7 +267,7 @@ public final class IndentManipulation {
 	 * </ul>
 	 */
 	public static String changeIndent(String code, int indentUnitsToRemove, int tabWidth, int indentWidth, String newIndentString, String lineDelim) {
-		if (tabWidth < 0 || indentWidth <= 0 || code == null || indentUnitsToRemove < 0 || newIndentString == null || lineDelim == null) {
+		if (tabWidth < 0 || indentWidth < 0 || code == null || indentUnitsToRemove < 0 || newIndentString == null || lineDelim == null) {
 			throw new IllegalArgumentException();
 		}
 
@@ -291,7 +292,11 @@ public final class IndentManipulation {
 				} else { // no new line after last line
 					buf.append(lineDelim);
 					buf.append(newIndentString);
-					buf.append(trimIndent(line, indentUnitsToRemove, tabWidth, indentWidth));
+					if(indentWidth != 0) {
+						buf.append(trimIndent(line, indentUnitsToRemove, tabWidth, indentWidth));
+					} else {
+						buf.append(line);
+					}
 				}
 			}
 			return buf.toString();
@@ -316,7 +321,7 @@ public final class IndentManipulation {
 	 * @return returns the resulting text edits
 	 * @exception IllegalArgumentException if:
 	 * <ul>
-	 * <li>the given <code>indentWidth</code> is lower or equals to zero</li>
+	 * <li>the given <code>indentWidth</code> is lower than zero</li>
 	 * <li>the given <code>tabWidth</code> is lower than zero</li>
 	 * <li>the given <code>source</code> is null</li>
 	 * <li>the given <code>indentUnitsToRemove</code> is lower than zero</li>
@@ -324,7 +329,7 @@ public final class IndentManipulation {
 	 * </ul>
 	 */
 	public static ReplaceEdit[] getChangeIndentEdits(String source, int indentUnitsToRemove, int tabWidth, int indentWidth, String newIndentString) {
-		if (tabWidth < 0 || indentWidth <= 0 || source == null || indentUnitsToRemove < 0 || newIndentString == null) {
+		if (tabWidth < 0 || indentWidth < 0 || source == null || indentUnitsToRemove < 0 || newIndentString == null) {
 			throw new IllegalArgumentException();
 		}
 
@@ -368,8 +373,7 @@ public final class IndentManipulation {
 		for (int i= 0; i < size && blanks < spaceEquivalents; i++) {
 			char c= line.charAt(i);
 			if (c == '\t') {
-				int remainder= blanks % tabWidth;
-				blanks += tabWidth - remainder;
+				blanks = calculateSpaceEquivalents(tabWidth, blanks);
 			} else if (isIndentChar(c)) {
 				blanks++;
 			} else {
@@ -380,6 +384,18 @@ public final class IndentManipulation {
 		if (blanks < spaceEquivalents)
 			return -1;
 		return result + 1;
+	}
+
+	/*
+	 * Calculates space equivalents up to the next tab stop
+	 */
+	private static int calculateSpaceEquivalents(int tabWidth, int spaceEquivalents) {
+		if (tabWidth == 0){
+			return spaceEquivalents;
+		}
+		int remainder = spaceEquivalents % tabWidth;
+		spaceEquivalents += tabWidth - remainder;
+		return spaceEquivalents;
 	}
 
 	/**

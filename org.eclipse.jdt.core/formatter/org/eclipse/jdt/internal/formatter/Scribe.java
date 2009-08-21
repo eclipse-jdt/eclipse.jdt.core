@@ -957,6 +957,9 @@ public class Scribe implements IJavaDocTagConstants {
 			if (this.useTabsOnlyForLeadingIndents) {
 				return indent;
 			}
+			if (this.indentationSize == 0) {
+				return indent;
+			}
 			int rem = indent % this.indentationSize;
 			int addition = rem == 0 ? 0 : this.indentationSize - rem; // round to superior
 			return indent + addition;
@@ -2203,7 +2206,12 @@ public class Scribe implements IJavaDocTagConstants {
 		int indentLevel = this.indentationLevel;
 		int indentations = this.numberOfIndentations;
 		this.indentationLevel = getNextIndentationLevel(firstColumn);
-		this.numberOfIndentations = this.indentationLevel / this.indentationSize;
+		if (this.indentationSize != 0) {
+			this.numberOfIndentations = this.indentationLevel / this.indentationSize;
+		}
+		else{
+			this.numberOfIndentations = 0;
+		}
 
 		// Consume the comment prefix
 		this.scanner.resetTo(commentStart, commentEnd);
@@ -2382,13 +2390,19 @@ public class Scribe implements IJavaDocTagConstants {
 				boolean useTabsForLeadingIndents = this.useTabsOnlyForLeadingIndents;
 				int numberOfLeadingIndents = this.numberOfIndentations;
 				int indentationsAsTab = 0;
+				int complement = 0;
 				if (useTabsForLeadingIndents) {
 					while (this.column <= this.indentationLevel) {
 						if (indentationsAsTab < numberOfLeadingIndents) {
 							if (buffer != null) buffer.append('\t');
 							indentationsAsTab++;
-							int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
-							this.column += complement;
+							if(this.tabLength != 0) {
+								complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
+								this.column += complement;
+							}
+							else {
+								this.column++;
+							}
 							this.needSpace = false;
 						} else {
 							if (buffer != null) buffer.append(' ');
@@ -2399,8 +2413,13 @@ public class Scribe implements IJavaDocTagConstants {
 				} else {
 					while (this.column <= this.indentationLevel) {
 						if (buffer != null) buffer.append('\t');
-						int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
-						this.column += complement;
+						if(this.tabLength != 0) {
+							complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
+							this.column += complement;
+						}
+						else {
+							this.column++;
+						}
 						this.needSpace = false;
 					}
 				}

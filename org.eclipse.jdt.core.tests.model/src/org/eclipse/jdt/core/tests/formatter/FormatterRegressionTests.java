@@ -10932,6 +10932,101 @@ public void test723() {
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 	runTest(codeFormatter, "test723", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285565
+//Test to make sure that measureIndentInSpaces and extractIndentString do not throw illegalArgumentException with indentWidth set to zero.
+public void testBug285565a() {
+	try {
+		assertEquals("Should be 0", 0, IndentManipulation.measureIndentInSpaces("", 0));
+		assertEquals("Should be 0", 0, IndentManipulation.measureIndentInSpaces("\t", 0));
+		assertEquals("Should be 1", 1, IndentManipulation.measureIndentInSpaces("\t ", 0));
+		assertEquals("Should be blank", "\t", IndentManipulation.extractIndentString("\tabc", 0, 0));
+	} catch (IllegalArgumentException e) {
+		assertTrue("Should not happen", false);
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285565
+//Test to make sure that a divide by zero exception isn't thrown when formatting with indent width and tab width set to zero
+public void testBug285565b() {		
+	this.formatterPrefs.indentation_size = 0;
+	this.formatterPrefs.tab_size = 0;
+	String source = "public class test {\n"
+			+ "    public static void main(String[] args) {\n"
+			+ "        int B= 12;\n" 
+			+ "        int C= B - 1;\n"
+			+ "        int K= 99;\n" 
+			+ "        int f1= K - 1 - C;\n"
+			+ "        int f2= K - C - C - C;\n" 
+			+ "    }\n" + "}\n";
+	formatSource(source, "public class test {\n"
+			+ "public static void main(String[] args) {\n"
+			+ "int B = 12;\n" 
+			+ "int C = B - 1;\n" 
+			+ "int K = 99;\n"
+			+ "int f1 = K - 1 - C;\n" 
+			+ "int f2 = K - C - C - C;\n" 
+			+ "}\n"
+			+ "}\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285565
+//To make sure that changeIndent no longer throws an illegal argument exception with indentWidth set to 0.
+public void testBug285565c() {
+	String result = "int B = 12;\n" 
+		+ " int C = B - 1;\n" 
+		+ " int K = 99;\n"
+		+ " int f1 = K - 1 - C;\n" 
+		+ " int f2 = K - C - C - C;" ;
+		
+	try {
+		assertEquals("Should be as shown", result, IndentManipulation.changeIndent("int B = 12;\n" 
+			+ "int C = B - 1;\n" 
+			+ "int K = 99;\n"
+			+ "int f1 = K - 1 - C;\n" 
+			+ "int f2 = K - C - C - C;" ,0,0,0, " ","\n"));
+		
+	} catch (IllegalArgumentException e) {
+		assertTrue("Should not happen", false);
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285565
+//To make sure that trimIndent no longer throws an illegal argument exception with indentWidth set to 0.
+public void testBug285565d() {
+	String result = "int B = 12;\n" 
+		+ "int C = B - 1;\n" 
+		+ "int K = 99;\n"
+		+ "int f1 = K - 1 - C;\n" 
+		+ "int f2 = K - C - C - C;" ;
+		
+	try {
+		assertEquals("Should be as shown", result, IndentManipulation.trimIndent("int B = 12;\n" 
+			+ "int C = B - 1;\n" 
+			+ "int K = 99;\n"
+			+ "int f1 = K - 1 - C;\n" 
+			+ "int f2 = K - C - C - C;" , 0, 0, 0));
+		
+	} catch (IllegalArgumentException e) {
+		assertTrue("Should not happen", false);
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285565
+//To make sure that getChangeIndentEdits no longer throws an illegal argument exception with indentWidth set to 0.
+public void testBug285565e() {		
+	try {
+		IndentManipulation.getChangeIndentEdits("int B = 12;\n" 
+			+ "int C = B - 1;\n" 
+			+ "int K = 99;\n"
+			+ "int f1 = K - 1 - C;\n" 
+			+ "int f2 = K - C - C - C;", 0, 0, 0, " ");
+		
+	} catch (IllegalArgumentException e) {
+		assertTrue("Should not happen", false);
+	}
+}
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=286601
 public void testBug286601() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
