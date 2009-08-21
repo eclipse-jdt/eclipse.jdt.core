@@ -817,6 +817,34 @@ public class Scribe implements IJavaDocTagConstants {
 		return offset;
 	}
 
+	int getCurrentIndentation(int start) {
+		int linePtr = -Arrays.binarySearch(this.lineEnds, start);
+		int offset = 0;
+		int beginningOfLine = getLineEnd(linePtr - 1);
+		if (beginningOfLine == -1) {
+			beginningOfLine = 0;
+		}
+		char[] source = this.scanner.source;
+
+		for (int i=beginningOfLine; i<start; i++) {
+			char currentCharacter = source[i];
+			switch (currentCharacter) {
+				case '\t' :
+					offset += this.tabLength;
+					break;
+				case '\r' :
+				case '\n' :
+					break;
+				case ' ':
+					offset++;
+					break;
+				default:
+					return offset;
+			}
+		}
+		return offset;
+	}
+
 	public String getEmptyLines(int linesNumber) {
 		if (this.nlsTagCounter > 0) {
 			return Util.EMPTY_STRING;
@@ -947,10 +975,21 @@ public class Scribe implements IJavaDocTagConstants {
 				// insert a new line only if it has not been already done before
 				// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=283476
 				if (this.lastNumberOfNewLines == 0) {
+					// Reset indentation level to the location output
+					this.indentationLevel = this.currentAlignment.location.outputIndentationLevel;
+					this.numberOfIndentations = this.currentAlignment.location.numberOfIndentations;
+					this.formatter.lastLocalDeclarationSourceStart = this.currentAlignment.location.lastLocalDeclarationSourceStart;
+					// Create new line keeping the existing indentation
 					StringBuffer buffer = new StringBuffer(getNewLine());
-					if (this.currentAlignment.useBreakIndentation) {
+					int currentColumn = getCurrentIndentation(this.scanner.currentPosition);
+					Alignment rootAlignment = this.currentAlignment;
+					while (rootAlignment.enclosing != null) {
+						rootAlignment = rootAlignment.enclosing;
+					}
+					Location location = rootAlignment.location;
+					if (currentColumn > location.inputColumn) {
 						int savedIndentation = this.indentationLevel;
-						this.indentationLevel = this.currentAlignment.breakIndentationLevel;
+						this.indentationLevel += currentColumn - location.inputColumn;
 						printIndentationIfNecessary(buffer);
 						this.indentationLevel = savedIndentation;
 					} else {

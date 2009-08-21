@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.formatter;
 public class Location {
 
 	public int inputOffset;
+	public int inputColumn;
 	public int outputLine;
 	public int outputColumn;
 	public int outputIndentationLevel;
@@ -42,6 +43,7 @@ public class Location {
 		this.outputColumn = scribe.column;
 		this.outputLine = scribe.line;
 		this.inputOffset = sourceRestart;
+		this.inputColumn = scribe.getCurrentIndentation(sourceRestart);
 		this.outputIndentationLevel = scribe.indentationLevel;
 		this.lastNumberOfNewLines = scribe.lastNumberOfNewLines;
 		this.needSpace = scribe.needSpace;
