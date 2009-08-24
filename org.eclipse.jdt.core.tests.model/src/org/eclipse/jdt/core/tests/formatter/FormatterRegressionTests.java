@@ -10773,7 +10773,8 @@ public void testBug198074_comments() throws JavaModelException {
 	);
 }
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=201022
-public void testBug201022() throws JavaModelException {
+// TODO (frederic) Enable when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=287462 will be fixed
+public void _testBug201022() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
 	String source = 
 		"public class Test {\n" + 
