@@ -818,9 +818,12 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	int getCurrentIndentation(int start) {
-		int linePtr = -Arrays.binarySearch(this.lineEnds, start);
+		int linePtr = Arrays.binarySearch(this.lineEnds, start);
+		if (linePtr < 0) {
+			linePtr = -linePtr - 1;
+		}
 		int offset = 0;
-		int beginningOfLine = getLineEnd(linePtr - 1);
+		int beginningOfLine = getLineEnd(linePtr);
 		if (beginningOfLine == -1) {
 			beginningOfLine = 0;
 		}

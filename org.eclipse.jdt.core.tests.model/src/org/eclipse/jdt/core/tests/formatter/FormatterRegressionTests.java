@@ -10773,8 +10773,8 @@ public void testBug198074_comments() throws JavaModelException {
 	);
 }
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=201022
-// TODO (frederic) Enable when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=287462 will be fixed
-public void _testBug201022() throws JavaModelException {
+// see also bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=287462
+public void testBug201022() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
 	String source = 
 		"public class Test {\n" + 
@@ -10792,10 +10792,10 @@ public void _testBug201022() throws JavaModelException {
 		"\n" + 
 		"	void foo() {\n" + 
 		"		String sQuery =\n" + 
-		"				\"select * \" +\n" + 
-		"				\"from person p, address a \" +\n" + 
-		"				\"where p.person_id = a.person_id \" +\n" + 
-		"				\"and p.person_id = ?\";\n" + 
+		"			\"select * \" +\n" + 
+		"			\"from person p, address a \" +\n" + 
+		"			\"where p.person_id = a.person_id \" +\n" + 
+		"			\"and p.person_id = ?\";\n" + 
 		"	}\n" + 
 		"}\n"
 	);
