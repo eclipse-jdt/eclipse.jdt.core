@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 334 };
+//		TESTS_NUMBERS = new int[] { 337 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10801,5 +10801,46 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMemberValuePairBinding memberValuePair = allMemberValuePairs[0];
 		IVariableBinding variableBinding = (IVariableBinding) memberValuePair.getValue();
 		assertEquals("Wrong field", "CLASS", variableBinding.getName());
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=287701
+	 */
+	public void test0337() throws JavaModelException {
+		String contents =
+			"public class X {\n" + 
+			"        void m() {\n" + 
+			"                int x= 1      ;\n" + 
+			"                int y= - 1  , z=0   ;\n" + 
+			"                // Assignment nodes too long:\n" + 
+			"                int a= x = 2      ;\n" + 
+			"                System.out.print(    x=1     );\n" + 
+			"                java.util.Arrays.asList(    x = 1    /*bla*/  , x= 2\n" + 
+			"                        // comment      \n" + 
+			"                );\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		CompilationUnit unit= (CompilationUnit) buildAST(
+			contents,
+			this.workingCopy,
+			true,
+			true,
+			true);
+		ASTNode node = getASTNode(unit, 0, 0, 2);
+		checkSourceRange(node, "int a= x = 2      ;", contents);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) ((VariableDeclarationStatement) node).fragments().get(0);
+		checkSourceRange(fragment, "a= x = 2", contents);
+		node = getASTNode(unit, 0, 0, 3);
+		Expression expression = (Expression) ((MethodInvocation) ((ExpressionStatement) node).getExpression()).arguments().get(0);
+		checkSourceRange(expression, "x=1", contents);
+		node = getASTNode(unit, 0, 0, 4);
+		List arguments = ((MethodInvocation) ((ExpressionStatement) node).getExpression()).arguments();
+		ASTNode node2 = (ASTNode) arguments.get(0);
+		checkSourceRange(node2, "x = 1", contents);
+		checkSourceRange((ASTNode) arguments.get(1), "x= 2", contents);
+		int extendedLength = unit.getExtendedLength(node2);
+		int extendedStartPosition = unit.getExtendedStartPosition(node2);
+		checkSourceRange(extendedStartPosition, extendedLength, "x = 1    /*bla*/", contents);
 	}
 }

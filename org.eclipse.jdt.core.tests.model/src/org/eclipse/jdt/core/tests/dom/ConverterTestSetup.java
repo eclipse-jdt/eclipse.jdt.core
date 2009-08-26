@@ -541,6 +541,13 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		return (ASTNode) unit.types().get(typeIndex);
 	}
 
+	protected void checkSourceRange(int start, int length, String expectedContents, String source) {
+		assertTrue("length == 0", length != 0); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("start == -1", start != -1); //$NON-NLS-1$
+		String actualContentsString = source.substring(start, start + length);
+		assertSourceEquals("Unexpected source", Util.convertToIndependantLineDelimiter(expectedContents), Util.convertToIndependantLineDelimiter(actualContentsString));
+	}
+
 	protected void checkSourceRange(ASTNode node, String expectedContents, String source) {
 		assertNotNull("The node is null", node); //$NON-NLS-1$
 		assertTrue("The node(" + node.getClass() + ").getLength() == 0", node.getLength() != 0); //$NON-NLS-1$ //$NON-NLS-2$

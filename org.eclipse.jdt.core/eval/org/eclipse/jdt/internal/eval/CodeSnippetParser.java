@@ -325,10 +325,11 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 		finallyBlock.sourceEnd = end;
 		finallyBlock.statements = new Statement[varCount];
 		for (int i = 0; i < varCount; i++){
+			SingleNameReference nameRef = new SingleNameReference(this.evaluationContext.localVariableNames[i], position);
 			finallyBlock.statements[i] = new Assignment(
 				new SingleNameReference(CharOperation.concat(LOCAL_VAR_PREFIX, this.evaluationContext.localVariableNames[i]), position),
-				new SingleNameReference(this.evaluationContext.localVariableNames[i], position),
-				(int) position);
+				nameRef,
+				nameRef.sourceEnd);
 		}
 		tryStatement.finallyBlock = finallyBlock;
 

@@ -1657,17 +1657,18 @@ protected void consumeAssignment() {
 	int op = this.intStack[this.intPtr--] ; //<--the encoded operator
 
 	this.expressionPtr -- ; this.expressionLengthPtr -- ;
+	Expression expression = this.expressionStack[this.expressionPtr+1];
 	this.expressionStack[this.expressionPtr] =
 		(op != EQUAL ) ?
 			new CompoundAssignment(
 				this.expressionStack[this.expressionPtr] ,
-				this.expressionStack[this.expressionPtr+1],
+				expression,
 				op,
-				this.scanner.startPosition - 1)	:
+				expression.sourceEnd):
 			new Assignment(
 				this.expressionStack[this.expressionPtr] ,
-				this.expressionStack[this.expressionPtr+1],
-				this.scanner.startPosition - 1);
+				expression,
+				expression.sourceEnd);
 
 	if (this.pendingRecoveredType != null) {
 		// Used only in statements recovery.
