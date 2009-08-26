@@ -625,17 +625,24 @@ private IStatus validateClassFile() {
  * @see Openable
  */
 protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
-	SourceMapper mapper = getSourceMapper();
-	if (mapper != null) {
-		return mapSource(mapper, info instanceof IBinaryType ? (IBinaryType) info : null);
+	// Check the cache for the top-level type first
+	IType outerMostEnclosingType = getOuterMostEnclosingType();
+	IBuffer buffer = getBufferManager().getBuffer(outerMostEnclosingType.getClassFile());
+	if (buffer == null) {
+		SourceMapper mapper = getSourceMapper();
+		IBinaryType typeInfo = info instanceof IBinaryType ? (IBinaryType) info : null;
+		if (mapper != null) {
+			buffer = mapSource(mapper, typeInfo, outerMostEnclosingType.getClassFile());
+		}
 	}
-	return null;
+	return buffer;
 }
-private IBuffer mapSource(SourceMapper mapper, IBinaryType info) {
+/** Loads the buffer via SourceMapper, and maps it in SourceMapper */
+private IBuffer mapSource(SourceMapper mapper, IBinaryType info, IClassFile bufferOwner) {
 	char[] contents = mapper.findSource(getType(), info);
 	if (contents != null) {
 		// create buffer
-		IBuffer buffer = BufferManager.createBuffer(this);
+		IBuffer buffer = BufferManager.createBuffer(bufferOwner);
 		if (buffer == null) return null;
 		BufferManager bufManager = getBufferManager();
 		bufManager.addBuffer(buffer);
@@ -649,12 +656,12 @@ private IBuffer mapSource(SourceMapper mapper, IBinaryType info) {
 		buffer.addBufferChangedListener(this);
 
 		// do the source mapping
-		mapper.mapSource(getType(), contents, info);
+		mapper.mapSource(getOuterMostEnclosingType(), contents, info);
 
 		return buffer;
 	} else {
 		// create buffer
-		IBuffer buffer = BufferManager.createNullBuffer(this);
+		IBuffer buffer = BufferManager.createNullBuffer(bufferOwner);
 		if (buffer == null) return null;
 		BufferManager bufManager = getBufferManager();
 		bufManager.addBuffer(buffer);
@@ -674,6 +681,18 @@ private IBuffer mapSource(SourceMapper mapper, IBinaryType info) {
 	else
 		return simpleName;
 }
+
+/** Returns the type of the top-level declaring class used to find the source code */
+private IType getOuterMostEnclosingType() {
+	IType type = getType();
+	IType enclosingType = type.getDeclaringType();
+	while (enclosingType != null) {
+		type = enclosingType;
+		enclosingType = type.getDeclaringType();
+	}
+	return type;
+}
+
 /**
  * Returns the Java Model representation of the given name
  * which is provided in diet class file format, or <code>null</code>

@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 */
 public class AttachSourceTests extends ModifyingResourceTests {
 	static {
-//		TESTS_NAMES = new String[] { "testClassFileGetElementAt04" };
+		TESTS_NAMES = new String[] { "testClassFileBuffer" };
 //		TESTS_NUMBERS = new int[] { 5 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
@@ -312,7 +312,8 @@ public void testClassFileGetElementAt04() throws JavaModelException {
 		"Unexpected element",
 		"V(inner.X, java.lang.String) [in V [in X$V.class [in inner [in innerClasses.jar [in AttachSourceTests]]]]]",
 		element);
-}/*
+}
+/*
  * Ensures that the source of a .class file is implicetely attached when prj=src=bin
  * (regression test for bug 41444 [navigation] error dialog on opening class file)
  */
@@ -1483,5 +1484,16 @@ public void test88265 () {
 	assertTrue(SourceRange.isAvailable(one));
 	assertFalse(SourceRange.isAvailable(null));
 	assertFalse(SourceRange.isAvailable(new SourceRange(-1, 0)));
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=285230
+ */
+public void testClassFileBuffer() throws JavaModelException {
+	IClassFile classFile = this.innerClasses.getClassFile("X$V.class");
+	IBuffer buffer = classFile.getBuffer();
+	classFile = this.innerClasses.getClassFile("X.class");
+	IBuffer buffer2 = classFile.getBuffer();
+	assertTrue("Same buffer is not reused", buffer2 == buffer);
+	assertTrue("Not read only", buffer.isReadOnly());
 }
 }
