@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 */
 public class AttachSourceTests extends ModifyingResourceTests {
 	static {
-		TESTS_NAMES = new String[] { "testClassFileBuffer" };
+//		TESTS_NAMES = new String[] { "testClassFileBuffer" };
 //		TESTS_NUMBERS = new int[] { 5 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
@@ -1494,6 +1494,5 @@ public void testClassFileBuffer() throws JavaModelException {
 	classFile = this.innerClasses.getClassFile("X.class");
 	IBuffer buffer2 = classFile.getBuffer();
 	assertTrue("Same buffer is not reused", buffer2 == buffer);
-	assertTrue("Not read only", buffer.isReadOnly());
 }
 }

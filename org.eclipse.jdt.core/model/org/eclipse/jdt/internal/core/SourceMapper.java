@@ -1208,7 +1208,10 @@ public class SourceMapper
 		this.methodParameterNames = new char[1][][];
 		this.anonymousCounter = 0;
 
-		HashMap oldSourceRanges = (HashMap) this.sourceRanges.clone();
+		HashMap oldSourceRanges = null;
+		if (elementToFind != null) {
+			oldSourceRanges = (HashMap) this.sourceRanges.clone();
+		}
 		try {
 			IProblemFactory factory = new DefaultProblemFactory();
 			SourceElementParser parser = null;
