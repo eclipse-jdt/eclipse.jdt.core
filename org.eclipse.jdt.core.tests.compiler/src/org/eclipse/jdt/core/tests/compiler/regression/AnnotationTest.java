@@ -8850,4 +8850,23 @@ public void test269() {
 			null, null,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=287009
+public void test270() {
+	this.runNegativeTest(
+		new String[] {
+			"Test.java", 
+			"public class Test<T> {\n" + 
+			"	@interface Anno {\n" + 
+			"		Anno value();\n" + 
+			"	}\n" + 
+			"}\n", 
+		},
+		"----------\n" +
+		"1. ERROR in Test.java (at line 3)\n" +
+		"	Anno value();\n" +
+		"	^^^^\n" +
+		"Cycle detected: the annotation type Test<T>.Anno cannot contain attributes of the annotation type itself\n" +
+		"----------\n");
+}
 }

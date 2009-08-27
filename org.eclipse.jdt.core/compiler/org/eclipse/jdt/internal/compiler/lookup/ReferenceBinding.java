@@ -669,7 +669,7 @@ public boolean detectAnnotationCycle() {
 	MethodBinding[] currentMethods = methods();
 	boolean inCycle = false; // check each method before failing
 	for (int i = 0, l = currentMethods.length; i < l; i++) {
-		TypeBinding returnType = currentMethods[i].returnType.leafComponentType();
+		TypeBinding returnType = currentMethods[i].returnType.leafComponentType().erasure();
 		if (this == returnType) {
 			if (this instanceof SourceTypeBinding) {
 				MethodDeclaration decl = (MethodDeclaration) currentMethods[i].sourceMethod();
