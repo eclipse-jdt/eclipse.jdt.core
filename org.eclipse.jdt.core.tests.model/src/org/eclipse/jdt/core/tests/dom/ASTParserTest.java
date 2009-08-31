@@ -74,10 +74,10 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 	}
 
 	public void testKConstants() {
-		assertTrue(ASTParser.K_EXPRESSION == 1);
-		assertTrue(ASTParser.K_STATEMENTS == 2);
-		assertTrue(ASTParser.K_CLASS_BODY_DECLARATIONS == 4);
-		assertTrue(ASTParser.K_COMPILATION_UNIT == 8);
+		assertSame(ASTParser.K_EXPRESSION, 1);
+		assertSame(ASTParser.K_STATEMENTS, 2);
+		assertSame(ASTParser.K_CLASS_BODY_DECLARATIONS, 4);
+		assertSame(ASTParser.K_COMPILATION_UNIT, 8);
 	}
 
 	public void testSetting() {

@@ -877,4 +877,20 @@ protected void tearDown() throws Exception {
 		}
 	}
 }
+static public void assertSame(int expected, int actual) {
+	assertSame(null, expected, actual);
+}
+static public void assertSame(String message, int expected, int actual) {
+	if (expected == actual)
+		return;
+	failNotSame(message, expected, actual);
+}
+static public void failNotSame(String message, int expected, int actual) {
+	StringBuffer formatted= new StringBuffer();
+	if (message != null) {
+		formatted.append(message).append(' ');
+	}
+	formatted.append("expected same:<").append(expected).append("> was not:<").append(actual).append(">");
+	fail(String.valueOf(formatted));
+}
 }
