@@ -8,5 +8,6 @@
     <classpathentry kind="lib" path="test54043.jar"/>
     <classpathentry kind="lib" path="test58440.jar"/>
     <classpathentry kind="lib" path="test60365.jar"/>
+    <classpathentry kind="src" path="src288698.classbug"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

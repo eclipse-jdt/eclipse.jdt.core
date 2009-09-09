@@ -2404,4 +2404,21 @@ public void testBug254738() throws CoreException {
 		deleteProjects(new String[] {"P"});
 	}
 }
+/**
+ * @bug 288698: Can't create type hierarchy for abstract types when they have inline descendants and *.class* in project name 
+ * @test Ensure that ".class" as a substring of a path name is not interpreted as the ".class" suffix.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=288698"
+ */
+public void testBug288698() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy/src288698.classbug/p288698/AbstractBugTest.java").getType("AbstractBugTest");
+	assertTrue("Type should exist!", type.exists());
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null); // when bug occurred a StringIndexOutOfBoundsException was thrown here
+	assertHierarchyEquals(
+		"Focus: AbstractBugTest [in AbstractBugTest.java [in p288698 [in src288698.classbug [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+		"Sub types:\n" + 
+		"  <anonymous #1> [in testIt() [in BugTest2Buggy [in BugTest2Buggy.java [in p288698 [in src288698.classbug [in TypeHierarchy]]]]]]\n",
+		hierarchy);
+}
 }
