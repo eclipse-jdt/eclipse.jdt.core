@@ -1666,7 +1666,7 @@ public void test012b(){
         "      indirectStatic       indirect reference to static member\n" +
         "      intfAnnotation     + annotation type used as super interface\n" +
         "      intfNonInherited   + interface non-inherited method compatibility\n" +
-        "      intfRedundant      + find redundant superinterfaces\n" + 
+        "      intfRedundant        find redundant superinterfaces\n" + 
         "      javadoc              invalid javadoc\n" +
         "      localHiding          local variable hiding another variable\n" +
         "      maskedCatchBlock   + hidden catch block\n" +
