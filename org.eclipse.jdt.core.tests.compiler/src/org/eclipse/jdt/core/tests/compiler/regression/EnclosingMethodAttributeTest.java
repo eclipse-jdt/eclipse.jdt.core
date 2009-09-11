@@ -11,12 +11,17 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.Map;
 
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 	public EnclosingMethodAttributeTest(String name) {
@@ -27,7 +32,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 176 };
+//		TESTS_NUMBERS = new int[] { 4 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -159,6 +164,8 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			"enclosing class = class X\n" +
 			"enclosing method = public void X.test() throws java.lang.NoSuchMethodException,java.lang.IllegalAccessException,java.lang.reflect.InvocationTargetException");
 
+		INameEnvironment nameEnvironment = getNameEnvironment(new String[]{}, null);
+		nameEnvironment.findType(new char[][] {new char[0], "X$1LocalClass".toCharArray()});
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  + "X$1LocalClass.class"));
 		String actualOutput =
@@ -192,5 +199,58 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		if (index == -1) {
 			assertEquals("Wrong contents", expectedOutput, actualOutput);
 		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=288920
+	public void test004() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.*;\n" +
+				"interface I<E> {\n" +
+				"	public String run();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public Object test(String s, int i) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {\n" +
+				"		return (new I<String>() {" +
+				"			public String run() {\n" +
+				"				return \"SUCCESS\";\n" +
+				"			}\n" +
+				"		}).run();\n" +
+				"	}\n" +
+				"	public static void main(String args[]) {\n" +
+				"		X t = new X();\n" +
+				"		try {\n" +
+				"			System.out.println(t.test(\"\", 0));\n" +
+				"		} catch (Exception e) {\n" +
+				"			e.printStackTrace();\n" +
+				"		}\n" +
+				"	}\n" +
+				"}"
+			},
+			"SUCCESS");
+
+		Requestor requestor =
+					new Requestor(
+						true,
+						null,
+						false, /* show category */
+						false /* show warning token*/);
+		requestor.outputPath = OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator;
+				// WORK should not have to test a constant?
+
+		Map options = getCompilerOptions();
+		CompilerOptions compilerOptions = new CompilerOptions(options);
+		compilerOptions.performMethodsFullRecovery = true;
+		compilerOptions.performStatementsRecovery = true;
+		INameEnvironment nameEnvironment = getNameEnvironment(new String[]{}, null);
+		Compiler batchCompiler =
+			new Compiler(
+				nameEnvironment,
+				getErrorHandlingPolicy(),
+				compilerOptions,
+				requestor,
+				getProblemFactory());
+		ReferenceBinding binaryType = batchCompiler.lookupEnvironment.askForType(new char[][] {new char[0], "X$1".toCharArray()});
+		assertNotNull("Should not be null", binaryType);
 	}
 }
