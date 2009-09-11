@@ -387,4 +387,63 @@ public void test012() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=288749
+public void test013() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */,
+		new String[] { /* test files */
+			"X.java",
+			"import java.util.*;\n" +
+			"interface X<E> extends List<E>, Collection<E>, Iterable<E> {}\n" +
+			"interface Y<E> extends Collection<E>, List<E> {}\n" +
+			"interface XXX<E> extends Iterable<E>, List<E>, Collection<E> {}\n" +
+			"abstract class Z implements List<Object>, Collection<Object> {}\n" +
+			"abstract class ZZ implements Collection<Object>, List<Object> {}"
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	interface X<E> extends List<E>, Collection<E>, Iterable<E> {}\n" + 
+		"	                       ^^^^\n" + 
+		"Redundant superinterface List<E> for the type X<E>, already defined by Collection<E>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	interface X<E> extends List<E>, Collection<E>, Iterable<E> {}\n" + 
+		"	                                ^^^^^^^^^^\n" + 
+		"Redundant superinterface Collection<E> for the type X<E>, already defined by Iterable<E>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	interface Y<E> extends Collection<E>, List<E> {}\n" + 
+		"	                                      ^^^^\n" + 
+		"Redundant superinterface List<E> for the type Y<E>, already defined by Collection<E>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	interface XXX<E> extends Iterable<E>, List<E>, Collection<E> {}\n" + 
+		"	                                      ^^^^\n" + 
+		"Redundant superinterface List<E> for the type XXX<E>, already defined by Iterable<E>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 4)\n" + 
+		"	interface XXX<E> extends Iterable<E>, List<E>, Collection<E> {}\n" + 
+		"	                                               ^^^^^^^^^^\n" + 
+		"Redundant superinterface Collection<E> for the type XXX<E>, already defined by Iterable<E>\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 5)\n" + 
+		"	abstract class Z implements List<Object>, Collection<Object> {}\n" + 
+		"	                            ^^^^\n" + 
+		"Redundant superinterface List<Object> for the type Z, already defined by Collection<Object>\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 6)\n" + 
+		"	abstract class ZZ implements Collection<Object>, List<Object> {}\n" + 
+		"	                                                 ^^^^\n" + 
+		"Redundant superinterface List<Object> for the type ZZ, already defined by Collection<Object>\n" + 
+		"----------\n",
+		JavacTestOptions.SKIP);
+}
 }

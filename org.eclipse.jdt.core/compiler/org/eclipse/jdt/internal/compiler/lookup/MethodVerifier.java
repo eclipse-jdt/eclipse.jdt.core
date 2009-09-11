@@ -253,8 +253,22 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 	if (superInterfaces == Binding.NO_SUPERINTERFACES) return;
 
 	SimpleSet interfacesToCheck = new SimpleSet(superInterfaces.length);
-	for (int i = 0, l = superInterfaces.length; i < l; i++)
-		interfacesToCheck.add(superInterfaces[i]);
+	next : for (int i = 0, l = superInterfaces.length; i < l; i++) {
+		ReferenceBinding toCheck = superInterfaces[i];
+		for (int j = 0; j < l; j++) {
+			if (i != j && toCheck.implementsInterface(superInterfaces[j], true)) {
+				TypeReference[] refs = this.type.scope.referenceContext.superInterfaces;
+				for (int r = 0, rl = refs.length; r < rl; r++) {
+					if (refs[r].resolvedType == toCheck) {
+						problemReporter().redundantSuperInterface(this.type, refs[r], toCheck, superInterfaces[j]);
+						continue next;
+					}
+				}
+			}
+		}
+		interfacesToCheck.add(toCheck);
+	}
+
 	ReferenceBinding[] itsInterfaces = null;
 	SimpleSet inheritedInterfaces = new SimpleSet(5);
 	ReferenceBinding superType = superclass;
