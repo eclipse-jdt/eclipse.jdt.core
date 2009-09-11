@@ -17606,8 +17606,7 @@ public void test0500(){
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87956
 	public void test0561() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -17617,9 +17616,35 @@ public void test0500(){
 				"}\n" +
 				"class A<T> {}\n",
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	void foo(A<String> a) {}\n" + 
+			"	     ^^^^^^^^^^^^^^^^\n" + 
+			"Method foo(A<String>) has the same erasure foo(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	Object foo(A<Integer> a) { return null; }\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Method foo(A<Integer>) has the same erasure foo(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	void test(A<Integer> a) { foo(a); }\n" + 
+			"	                          ^^^\n" + 
+			"The method foo(A<String>) in the type X is not applicable for the arguments (A<Integer>)\n" + 
+			"----------\n"
 		);
-		this.runConformTest(
+/* javac 7
+X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
+        Object foo(A<Integer> a) { return null; }
+               ^
+X.java:4: method foo in class X cannot be applied to given types
+        void test(A<Integer> a) { foo(a); }
+                                  ^
+  required: A<String>
+  found: A<Integer>
+2 errors
+ */
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -17629,7 +17654,33 @@ public void test0500(){
 				"}\n" +
 				"class A<T> {}\n",
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Number foo(A<String> a) { return null; }\n" + 
+			"	       ^^^^^^^^^^^^^^^^\n" + 
+			"Method foo(A<String>) has the same erasure foo(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	Integer foo(A<Integer> a) { return null; }\n" + 
+			"	        ^^^^^^^^^^^^^^^^^\n" + 
+			"Method foo(A<Integer>) has the same erasure foo(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	void test(A<Integer> a) { foo(a); }\n" + 
+			"	                          ^^^\n" + 
+			"The method foo(A<String>) in the type X is not applicable for the arguments (A<Integer>)\n" + 
+			"----------\n"
+/* javac 7
+X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
+        Integer foo(A<Integer> a) { return null; }
+                ^
+X.java:4: method foo in class X cannot be applied to given types
+        void test(A<Integer> a) { foo(a); }
+                                  ^
+  required: A<String>
+  found: A<Integer>
+2 errors
+ */
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87550
@@ -17940,7 +17991,6 @@ public void test0500(){
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test0574() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17957,22 +18007,37 @@ public void test0500(){
 				"	}\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 6)\n" +
-			"	<T extends Integer> T foo(Object o) {  return null; } // ok\n" +
-			"	           ^^^^^^^\n" +
-			"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 7)\n" +
-			"	<T extends String> T foo(Object o) {  return null; } // ok\n" +
-			"	           ^^^^^^\n" +
-			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
-			"	new X().new C2().foo((List<String>) null);\n" +
-			"	                 ^^^\n" +
-			"The method foo(Object) is ambiguous for the type X.C2\n" +
-			"----------\n");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	<T extends Integer> T foo(Object o) {  return null; } // ok\n" + 
+			"	           ^^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	<T extends Integer> T foo(Object o) {  return null; } // ok\n" + 
+			"	                      ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C2\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
+			"	<T extends String> T foo(Object o) {  return null; } // ok\n" + 
+			"	           ^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	<T extends String> T foo(Object o) {  return null; } // ok\n" + 
+			"	                     ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C2\n" + 
+			"----------\n"
+		);
+/*
+X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasure
+                <T extends String> T foo(Object o) {  return null; } // ok
+                                     ^
+  where T#1,T#2 are type-variables:
+    T#1 extends String declared in method <T#1>foo(Object)
+    T#2 extends Integer declared in method <T#2>foo(Object)
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation with field ref
 	public void test0575() {
@@ -22338,54 +22403,56 @@ public void test0705() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
 public void test0706() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		BB bb = new BB();\n" +
-				"		bb.<Object>test();\n" +
-				"		((AA<CC>) bb).test();\n" +
-				"	}\n" +
-				"}\n" +
-				"class AA<T> { AA<Object> test() {return null;} }\n" +
-				"class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
-				"class CC {}\n",
-			},
-			"");
-		return;
-	}
 	this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		BB bb = new BB();\n" +
-				"		bb.<Object>test();\n" +
-				"		((AA<CC>) bb).test();\n" +
-				"	}\n" +
-				"}\n" +
-				"class AA<T> { AA<Object> test() {return null;} }\n" +
-				"class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
-				"class CC {}\n",
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\r\n" +
-			"	bb.<Object>test();\r\n" +
-			"	           ^^^^\n" +
-			"The method test() is ambiguous for the type BB\n" +
-			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
-			"	class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
-			"	                                 ^^^^^^\n" + 
-			"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" + 
-			"----------\n");
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		BB bb = new BB();\n" +
+			"		bb.<Object>test();\n" +
+			"		((AA<CC>) bb).test();\n" +
+			"	}\n" +
+			"}\n" +
+			"class AA<T> { AA<Object> test() {return null;} }\n" +
+			"class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
+			"class CC {}\n",
+		},
+		(this.complianceLevel < ClassFileConstants.JDK1_7)
+		? "----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
+		"	                                 ^^^^^^\n" + 
+		"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" + 
+		"----------\n"
+		: "----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	bb.<Object>test();\n" + 
+		"	           ^^^^\n" + 
+		"The method test() is ambiguous for the type BB\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
+		"	                                 ^^^^^^\n" + 
+		"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" + 
+		"----------\n"
+	);
+/*
+X.java:4: reference to test is ambiguous, both method test() in AA and method <U>test() in BB match
+                bb.<Object>test();
+                  ^
+  where U is a type-variable:
+    U extends Object declared in method <U>test()
+X.java:9: name clash: <U>test() in BB and test() in AA have the same erasure, yet neither overrides the other
+class BB extends AA<CC> { <U> BB test() {return null;} }
+                                 ^
+  where U is a type-variable:
+    U extends Object declared in method <U>test()
+2 errors
+ */
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
 public void test0706a() {
 	// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22400,30 +22467,50 @@ public void test0706a() {
 			"class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
 			"class CC {}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	AA<Object> res1 = bb.test();\n" +
-		"	                     ^^^^\n" +
-		"The method test() is ambiguous for the type BB\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	AA res3 = bb.test();\n" +
-		"	^^\n" +
-		"AA is a raw type. References to generic type AA<T> should be parameterized\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 5)\n" +
-		"	AA res3 = bb.test();\n" +
-		"	             ^^^^\n" +
-		"The method test() is ambiguous for the type BB\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	AA<Object> res1 = bb.test();\n" + 
+		"	                     ^^^^\n" + 
+		"The method test() is ambiguous for the type BB\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	AA res3 = bb.test();\n" + 
+		"	^^\n" + 
+		"AA is a raw type. References to generic type AA<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	AA res3 = bb.test();\n" + 
+		"	             ^^^^\n" + 
+		"The method test() is ambiguous for the type BB\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
+		"	                                 ^^^^^^\n" + 
+		"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" + 
 		"----------\n"
-		// 4: reference to test is ambiguous, both method test() in AA<CC> and method <U>test() in BB match
-		// 5: reference to test is ambiguous, both method test() in AA<CC> and method <U>test() in BB match
 	);
+/*
+X.java:4: reference to test is ambiguous, both method test() in AA and method <U>test() in BB match
+                AA<Object> res1 = bb.test();
+                                    ^
+  where U is a type-variable:
+    U extends Object declared in method <U>test()
+X.java:5: reference to test is ambiguous, both method test() in AA and method <U>test() in BB match
+                AA res3 = bb.test();
+                            ^
+  where U is a type-variable:
+    U extends Object declared in method <U>test()
+X.java:9: name clash: <U>test() in BB and test() in AA have the same erasure, yet neither overrides the other
+class BB extends AA<CC> { <U> BB test() {return null;} }
+                                 ^
+  where U is a type-variable:
+    U extends Object declared in method <U>test()
+3 errors
+ */
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
 public void test0706b() {
 	// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22438,22 +22525,51 @@ public void test0706b() {
 			"class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
 			"class CC {}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	AA<CC> res = bb.test();\n" +
-		"	                ^^^^\n" +
-		"The method test() is ambiguous for the type BB\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	BB res2 = bb.test();\n" +
-		"	             ^^^^\n" +
-		"The method test() is ambiguous for the type BB\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	AA<CC> res = bb.test();\n" + 
+		"	                ^^^^\n" + 
+		"The method test() is ambiguous for the type BB\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	BB res2 = bb.test();\n" + 
+		"	             ^^^^\n" + 
+		"The method test() is ambiguous for the type BB\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
+		"	                                 ^^^^^^\n" + 
+		"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" + 
 		"----------\n"
-		// 4: reference to test is ambiguous, both method test() in AA<CC> and method <U>test() in BB match
-		// 4: incompatible types on the assignment
-		// 5: reference to test is ambiguous, both method test() in AA<CC> and method <U>test() in BB match
-		// 5: incompatible types on the assignment
 	);
+/*
+X.java:4: reference to test is ambiguous, both method test() in AA and method <U>test() in BB match
+                AA<CC> res = bb.test();
+                               ^
+  where U is a type-variable:
+    U extends Object declared in method <U>test()
+X.java:4: incompatible types
+                AA<CC> res = bb.test();
+                                    ^
+  required: AA<CC>
+  found:    AA<Object>
+X.java:5: reference to test is ambiguous, both method test() in AA and method <U>test() in BB match
+                BB res2 = bb.test();
+                            ^
+  where U is a type-variable:
+    U extends Object declared in method <U>test()
+X.java:5: incompatible types
+                BB res2 = bb.test();
+                                 ^
+  required: BB
+  found:    AA<Object>
+X.java:9: name clash: <U>test() in BB and test() in AA have the same erasure, yet neither overrides the other
+class BB extends AA<CC> { <U> BB test() {return null;} }
+                                 ^
+  where U is a type-variable:
+    U extends Object declared in method <U>test()
+5 errors
+ */
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22479,8 +22595,20 @@ public void test0706b() {
 		"	          ^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from AA<Object> to BB\n" +
 		"----------\n"
-		// incompatible types on both assignments
 	);
+/*
+X.java:4: incompatible types
+                AA<CC> res = bb.test();
+                                    ^
+  required: AA<CC>
+  found:    AA<Object>
+X.java:5: incompatible types
+                BB res2 = bb.test();
+                                 ^
+  required: BB
+  found:    AA<Object>
+2 errors
+ */
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98079
 public void test0707() {
@@ -23610,28 +23738,24 @@ public void test0747() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100007
 public void test0748() {
 	// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static interface Factory<T> {\n" +
-			"		public <U extends T> U create(Class<U> cl);\n" +
-			"	}\n" +
-			"	\n" +
-			"	static class BytesFactory implements Factory<byte[]> {\n" +
-			"		public byte[] create(Class<byte[]> cl) {\n" +
-			"			return null;\n" +
-			"		}\n" +
-			"	}\n" +
+			"interface Factory<T> {\n" +
+			"	<U extends T> U create(Class<U> cl);\n" +
+			"}\n" +
+			"abstract class X implements Factory<byte[]> {\n" +
+			"	public byte[] create(Class<byte[]> cl) { return null; }\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\r\n" +
-		"	static class BytesFactory implements Factory<byte[]> {\r\n" +
-		"	             ^^^^^^^^^^^^\n" +
-		"The type X.BytesFactory must implement the inherited abstract method X.Factory<byte[]>.create(Class<U>)\n" +
-		"----------\n");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	public byte[] create(Class<byte[]> cl) { return null; }\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method create(Class<byte[]>) of type X has the same erasure as create(Class<U>) of type Factory<T> but does not override it\n" + 
+		"----------\n"
+	);
+// javac 7 reports the name clash when X subclasses another class or is a concrete type
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100149
 public void test0749() {
@@ -40021,7 +40145,6 @@ public void test1180() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=204534
 public void test1181() {
 	// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -40029,55 +40152,117 @@ public void test1181() {
 			"	public static <S, T extends Comparable<S>, R extends S & T> R max(T arg1, S arg2) {\n" +
 			"		return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" +
 			"	}\n" +
-			"\n" +
 			"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max(T arg1, S arg2) {\n" +
 			"		return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" +
 			"	}\n" +
-			"\n" +
 			"	public static <T extends Comparable<S>, S, R extends Comparable<S>> R max(T arg1, S arg2) {\n" +
 			"		return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" +
 			"	}\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"	}\n" +
+			"	public static void main(String[] args) {}\n" +
 			"}\n", // =================
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public static <S, T extends Comparable<S>, R extends S & T> R max(T arg1, S arg2) {\n" +
-		"	                                                         ^\n" +
-		"Cannot specify any additional bound T when first bound is a type parameter\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	public static <S, T extends Comparable<S>, R extends S & T> R max(T arg1, S arg2) {\n" +
-		"	                                                              ^^^^^^^^^^^^^^^^^^^\n" +
-		"Method max(T, S) has the same erasure max(Comparable<T>, Object) as another method in type X\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 3)\n" +
-		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Object to R\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 6)\n" +
-		"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max(T arg1, S arg2) {\n" +
-		"	                                                         ^^^^^^^^^^\n" +
-		"Cannot specify any additional bound Comparable<S> when first bound is a type parameter\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 6)\n" +
-		"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max(T arg1, S arg2) {\n" +
-		"	                                                                          ^^^^^^^^^^^^^^^^^^^\n" +
-		"Method max(T, S) has the same erasure max(Comparable<T>, Object) as another method in type X\n" +
-		"----------\n" +
-		"6. WARNING in X.java (at line 7)\n" +
-		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Object to R\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 11)\n" +
-		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Object to R\n" +
-		"----------\n");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public static <S, T extends Comparable<S>, R extends S & T> R max(T arg1, S arg2) {\n" + 
+		"	                                                         ^\n" + 
+		"Cannot specify any additional bound T when first bound is a type parameter\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	public static <S, T extends Comparable<S>, R extends S & T> R max(T arg1, S arg2) {\n" + 
+		"	                                                              ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method max(T, S) has the same erasure max(Comparable<T>, Object) as another method in type X\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 3)\n" + 
+		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to R\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max(T arg1, S arg2) {\n" + 
+		"	                                                         ^^^^^^^^^^\n" + 
+		"Cannot specify any additional bound Comparable<S> when first bound is a type parameter\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 5)\n" + 
+		"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max(T arg1, S arg2) {\n" + 
+		"	                                                                          ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method max(T, S) has the same erasure max(Comparable<T>, Object) as another method in type X\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 6)\n" + 
+		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to R\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 8)\n" + 
+		"	public static <T extends Comparable<S>, S, R extends Comparable<S>> R max(T arg1, S arg2) {\n" + 
+		"	                                                                      ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method max(T, S) has the same erasure max(Comparable<T>, Object) as another method in type X\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 9)\n" + 
+		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to R\n" + 
+		"----------\n"
+	);
+/*
+X.java:2: a type variable may not be followed by other bounds
+        public static <S, T extends Comparable<S>, R extends S & T> R max(T arg1, S arg2) {
+                                                                 ^
+X.java:5: a type variable may not be followed by other bounds
+        public static <T extends Comparable<S>, S, R extends S & Comparable<S>>
+R max(T arg1, S arg2) {
+                                                                           ^
+X.java:5: name clash: <T#1,S#2,R#3>max(T#1,S#2) and <S#4,T#5,R#6>max(T#5,S#4) have the same erasure
+        public static <T extends Comparable<S>, S, R extends S & Comparable<S>>
+R max(T arg1, S arg2) {
+
+  ^
+  where T#1,S#2,R#3,S#4,T#5,R#6 are type-variables:
+    T#1 extends Comparable<S#2> declared in method <T#1,S#2,R#3>max(T#1,S#2)
+    S#2 extends Object declared in method <T#1,S#2,R#3>max(T#1,S#2)
+    R#3 extends S#2 declared in method <T#1,S#2,R#3>max(T#1,S#2)
+    S#4 extends Object declared in method <S#4,T#5,R#6>max(T#5,S#4)
+    T#5 extends Comparable<S#4> declared in method <S#4,T#5,R#6>max(T#5,S#4)
+    R#6 extends S#4 declared in method <S#4,T#5,R#6>max(T#5,S#4)
+X.java:8: name clash: <T#1,S#2,R#3>max(T#1,S#2) and <S#4,T#5,R#6>max(T#5,S#4) have the same erasure
+        public static <T extends Comparable<S>, S, R extends Comparable<S>> R max(T arg1, S arg2) {
+                                                                              ^
+  where T#1,S#2,R#3,S#4,T#5,R#6 are type-variables:
+    T#1 extends Comparable<S#2> declared in method <T#1,S#2,R#3>max(T#1,S#2)
+    S#2 extends Object declared in method <T#1,S#2,R#3>max(T#1,S#2)
+    R#3 extends Comparable<S#2> declared in method <T#1,S#2,R#3>max(T#1,S#2)
+    S#4 extends Object declared in method <S#4,T#5,R#6>max(T#5,S#4)
+    T#5 extends Comparable<S#4> declared in method <S#4,T#5,R#6>max(T#5,S#4)
+    R#6 extends S#4 declared in method <S#4,T#5,R#6>max(T#5,S#4)
+X.java:3: warning: [unchecked] unchecked cast
+                return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);
+                           ^
+  required: R
+  found:    Object
+  where R,S,T are type-variables:
+    R extends S declared in method <S,T,R>max(T,S)
+    S extends Object declared in method <S,T,R>max(T,S)
+    T extends Comparable<S> declared in method <S,T,R>max(T,S)
+X.java:6: warning: [unchecked] unchecked cast
+                return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);
+                           ^
+  required: R
+  found:    Object
+  where R,T,S are type-variables:
+    R extends S declared in method <T,S,R>max(T,S)
+    T extends Comparable<S> declared in method <T,S,R>max(T,S)
+    S extends Object declared in method <T,S,R>max(T,S)
+X.java:9: warning: [unchecked] unchecked cast
+                return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);
+                           ^
+  required: R
+  found:    Object
+  where R,T,S are type-variables:
+    R extends Comparable<S> declared in method <T,S,R>max(T,S)
+    T extends Comparable<S> declared in method <T,S,R>max(T,S)
+    S extends Object declared in method <T,S,R>max(T,S)
+4 errors
+3 warnings
+ */
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=204536
 public void test1182() {

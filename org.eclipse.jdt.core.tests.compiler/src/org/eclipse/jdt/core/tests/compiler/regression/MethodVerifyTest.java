@@ -3223,8 +3223,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X1.java",
 				"import java.util.*;\n" +
@@ -3232,13 +3231,31 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"    public Object putAll(Map<String,String> a) { return null; }\n" +
 				"}\n"
 			},
-			""
+			"----------\n" + 
+			"1. WARNING in X1.java (at line 2)\n" + 
+			"	public class X1 extends LinkedHashMap<String, String> {\n" + 
+			"	             ^^\n" + 
+			"The serializable class X1 does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X1.java (at line 3)\n" + 
+			"	public Object putAll(Map<String,String> a) { return null; }\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method putAll(Map<String,String>) of type X1 has the same erasure as putAll(Map<? extends K,? extends V>) of type HashMap<K,V> but does not override it\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:4: name clash: putAll(Map<String,String>) in X1 and putAll(Map<? extends K,? extends V>) in HashMap have the same erasure, yet neither overrides the other
+        public Object putAll(Map<String,String> a) { return null; }
+                      ^
+  where K,V are type-variables:
+    K extends Object declared in class HashMap
+    V extends Object declared in class HashMap
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048a() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X2.java",
 				"public class X2 extends Y<String> {\n" +
@@ -3251,8 +3268,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"    public void foo(I<? extends T> a);\n" +
 				"}\n"
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X2.java (at line 2)\n" + 
+			"	public Object foo(I<String> z) { return null; }\n" + 
+			"	              ^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(I<String>) of type X2 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:2: name clash: foo(I<String>) in X2 and foo(I<? extends T>) in Y have the same erasure, yet neither overrides the other
+    public Object foo(I<String> z) { return null; }
+                  ^
+  where T is a type-variable:
+    T extends Object declared in class Y
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048b() {
@@ -3275,13 +3305,19 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	            ^^^^^^^^^^^^^^^^\n" +
 			"Name clash: The method foo(I<String>) of type X3 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 			"----------\n"
-			// name clash: foo(I<java.lang.String>) in X and foo(I<? extends T>) in Y<java.lang.String> have the same erasure, yet neither overrides the other
 		);
+/* javac 7
+X.java:2: name clash: foo(I<String>) in X3 and foo(I<? extends T>) in Y have the same erasure, yet neither overrides the other
+    public void foo(I<String> z) {}
+                ^
+  where T is a type-variable:
+    T extends Object declared in class Y
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048c() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X4.java",
 				"public class X4 extends Y<String> {\n" +
@@ -3294,13 +3330,25 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"    public Object foo(I<? extends T> a);\n" +
 				"}\n"
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X4.java (at line 2)\n" + 
+			"	public String foo(I<String> z) { return null; }\n" + 
+			"	              ^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(I<String>) of type X4 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:2: name clash: foo(I<String>) in X4 and foo(I<? extends T>) in Y have the same erasure, yet neither overrides the other
+    public String foo(I<String> z) { return null; }
+                  ^
+  where T is a type-variable:
+    T extends Object declared in class Y
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048d() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X5.java",
 				"public class X5 extends Y<String> {\n" +
@@ -3313,13 +3361,26 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"    public String foo(I<? extends T> a);\n" +
 				"}\n"
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X5.java (at line 2)\n" + 
+			"	public Object foo(I<String> z) { return null; }\n" + 
+			"	              ^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(I<String>) of type X5 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:2: name clash: foo(I<String>) in X5 and foo(I<? extends T>) in Y have the
+ same erasure, yet neither overrides the other
+    public Object foo(I<String> z) { return null; }
+                  ^
+  where T is a type-variable:
+    T extends Object declared in class Y
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048e() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X6.java",
 				"public class X6 extends Y<String> {\n" +
@@ -3332,13 +3393,25 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"    public Object foo(I<? extends T> a);\n" +
 				"}\n"
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X6.java (at line 2)\n" + 
+			"	public void foo(I<String> z) {}\n" + 
+			"	            ^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(I<String>) of type X6 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:2: name clash: foo(I<String>) in X6 and foo(I<? extends T>) in Y have the same erasure, yet neither overrides the other
+    public void foo(I<String> z) {}
+                ^
+  where T is a type-variable:
+    T extends Object declared in class Y
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048f() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X7.java",
 				"public class X7 extends Y<String> {\n" +
@@ -3351,8 +3424,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"    public T foo(I<? extends T> a);\n" +
 				"}\n"
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X7.java (at line 2)\n" + 
+			"	public String foo(I<String> z) { return null; }\n" + 
+			"	              ^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(I<String>) of type X7 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:2: name clash: foo(I<String>) in X7 and foo(I<? extends T>) in Y have the same erasure, yet neither overrides the other
+    public String foo(I<String> z) { return null; }
+                  ^
+  where T is a type-variable:
+    T extends Object declared in class Y
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048g() {
@@ -3375,8 +3461,15 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	              ^^^^^^^^^^^^^^^^\n" +
 			"Name clash: The method foo(I<String>) of type X8 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 			"----------\n"
-			// name clash: foo(I<java.lang.String>) in X7 and foo(I<? extends T>) in Y<java.lang.String> have the same erasure, yet neither overrides the other
 		);
+/* javac 7
+X.java:2: name clash: foo(I<String>) in X8 and foo(I<? extends T>) in Y have the  same erasure, yet neither overrides the other
+    public Object foo(I<String> z) { return null; }
+                  ^
+  where T is a type-variable:
+    T extends Object declared in class Y
+1 error
+ */
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88094
@@ -3439,60 +3532,104 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
 	public void test050() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"		 public static <S extends A> S foo() { System.out.print(\"A\"); return null; }\n" +
-				"		 public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" +
-				"		 public static void main(String[] args) {\n" +
-				"		 	X.<A>foo();\n" +
-				"		 	X.<B>foo();\n" +
-				"		 	new X().<B>foo();\n" +
-				"		 }\n" +
-				"}\n" +
-				"class A {}\n" +
-				"class B {}\n"
-			},
-			"ABB"
-		);
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
-	public void test050a() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"		 public static <S extends A> void foo() { System.out.print(\"A\"); }\n" +
-				"		 public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" +
-				"		 static void test () {\n" +
-				"		 	X.foo();\n" +
-				"		 	foo();\n" +
-				"		 }\n" +
+				"	public static <S extends A> S foo() { System.out.print(\"A\"); return null; }\n" +
+				"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" +
+				"	public static void main(String[] args) {\n" +
+				"		X.<A>foo();\n" +
+				"		X.<B>foo();\n" +
+				"		new X().<B>foo();\n" +
+				"	}\n" +
 				"}\n" +
 				"class A {}\n" +
-				"class B {}\n"
+				"class B {}"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\r\n" +
-			"	X.foo();\r\n" +
-			"	  ^^^\n" +
-			"The method foo() is ambiguous for the type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\r\n" +
-			"	foo();\r\n" +
-			"	^^^\n" +
-			"The method foo() is ambiguous for the type X\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public static <S extends A> S foo() { System.out.print(\"A\"); return null; }\n" + 
+			"	                              ^^^^^\n" + 
+			"Duplicate method foo() in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" + 
+			"	                              ^^^^^\n" + 
+			"Duplicate method foo() in type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	X.<B>foo();\n" + 
+			"	     ^^^\n" + 
+			"Bound mismatch: The generic method foo() of type X is not applicable for the arguments (). The inferred type B is not a valid substitute for the bounded parameter <S extends A>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	new X().<B>foo();\n" + 
+			"	           ^^^\n" + 
+			"Bound mismatch: The generic method foo() of type X is not applicable for the arguments (). The inferred type B is not a valid substitute for the bounded parameter <S extends A>\n" + 
 			"----------\n"
-			// both references are ambiguous
 		);
+/* javac 7
+X.java:3: name clash: <N>foo() and <S>foo() have the same erasure
+        public static <N extends B> N foo() { System.out.print("B"); return null; }
+                                      ^
+  where N,S are type-variables:
+    N extends B declared in method <N>foo()
+    S extends A declared in method <S>foo()
+X.java:6: method foo in class X cannot be applied to given types
+                X.<B>foo();
+                 ^
+  required: no arguments
+  found: no arguments
+X.java:7: method foo in class X cannot be applied to given types
+                new X().<B>foo();
+                       ^
+  required: no arguments
+  found: no arguments
+3 errors
+ */
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
+	public void test050a() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static <S extends A> void foo() { System.out.print(\"A\"); }\n" +
+				"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" +
+				"	static void test () {\n" +
+				"		X.foo();\n" +
+				"		foo();\n" +
+				"	}\n" +
+				"}\n" +
+				"class A {}\n" +
+				"class B {}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public static <S extends A> void foo() { System.out.print(\"A\"); }\n" + 
+			"	                                 ^^^^^\n" + 
+			"Duplicate method foo() in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" + 
+			"	                              ^^^^^\n" + 
+			"Duplicate method foo() in type X\n" + 
+			"----------\n"
+		);
+/* javac 7
+X.java:3: name clash: <N>foo() and <S>foo() have the same erasure
+        public static <N extends B> N foo() { System.out.print("B"); return null; }
+                                      ^
+  where N,S are type-variables:
+    N extends B declared in method <N>foo()
+    S extends A declared in method <S>foo()
+1 error
+ */
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test050b() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3502,8 +3639,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"		Z foo(Object o) {  return null; } // duplicate\n" +
 				"	}\n" +
 				"	class C2 {\n" +
-				"		<T extends Y> T foo(Object o) {  return null; } // ok\n" +
-				"		<T extends Z> T foo(Object o) {  return null; } // ok\n" +
+				"		<T extends Y> T foo(Object o) {  return null; } // duplicate\n" +
+				"		<T extends Z> T foo(Object o) {  return null; } // duplicate\n" +
 				"	}\n" +
 				"	class C3 {\n" +
 				"		A<Y> foo(Object o) {  return null; } // duplicate\n" +
@@ -3514,49 +3651,73 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"		<T extends Z> T foo(Object o) {  return null; } // duplicate\n" +
 				"	}\n" +
 				"}\n" +
-				"class A<T> {}" +
-				"class Y {}" +
+				"class A<T> {}\n" +
+				"class Y {}\n" +
 				"class Z {}"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	Y foo(Object o) {  return null; } // duplicate\n" +
-			"	  ^^^^^^^^^^^^^\n" +
-			"Duplicate method foo(Object) in type X.C1\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	Z foo(Object o) {  return null; } // duplicate\n" +
-			"	  ^^^^^^^^^^^^^\n" +
-			"Duplicate method foo(Object) in type X.C1\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 11)\n" +
-			"	A<Y> foo(Object o) {  return null; } // duplicate\n" +
-			"	     ^^^^^^^^^^^^^\n" +
-			"Duplicate method foo(Object) in type X.C3\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 12)\n" +
-			"	A<Z> foo(Object o) {  return null; } // duplicate\n" +
-			"	     ^^^^^^^^^^^^^\n" +
-			"Duplicate method foo(Object) in type X.C3\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 15)\n" +
-			"	Y foo(Object o) {  return null; } // duplicate\n" +
-			"	  ^^^^^^^^^^^^^\n" +
-			"Duplicate method foo(Object) in type X.C4\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 16)\n" +
-			"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" +
-			"	                ^^^^^^^^^^^^^\n" +
-			"Duplicate method foo(Object) in type X.C4\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Y foo(Object o) {  return null; } // duplicate\n" + 
+			"	  ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C1\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	Z foo(Object o) {  return null; } // duplicate\n" + 
+			"	  ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C1\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	<T extends Y> T foo(Object o) {  return null; } // duplicate\n" + 
+			"	                ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C2\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 8)\n" + 
+			"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" + 
+			"	                ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C2\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 11)\n" + 
+			"	A<Y> foo(Object o) {  return null; } // duplicate\n" + 
+			"	     ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C3\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 12)\n" + 
+			"	A<Z> foo(Object o) {  return null; } // duplicate\n" + 
+			"	     ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C3\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 15)\n" + 
+			"	Y foo(Object o) {  return null; } // duplicate\n" + 
+			"	  ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C4\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 16)\n" + 
+			"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" + 
+			"	                ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C4\n" + 
 			"----------\n"
-			// foo(java.lang.Object) is already defined in X.C1
-			// foo(java.lang.Object) is already defined in X.C3
-			// foo(java.lang.Object) is already defined in X.C4
 		);
+/* javac 7
+X.java:4: foo(Object) is already defined in X.C1
+                Z foo(Object o) {  return null; } // duplicate
+                  ^
+X.java:8: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasure
+                <T extends Z> T foo(Object o) {  return null; } // duplicate
+                                ^
+  where T#1,T#2 are type-variables:
+    T#1 extends Z declared in method <T#1>foo(Object)
+    T#2 extends Y declared in method <T#2>foo(Object)
+X.java:12: foo(Object) is already defined in X.C3
+                A<Z> foo(Object o) {  return null; } // duplicate
+                     ^
+X.java:16: foo(Object) is already defined in X.C4
+                <T extends Z> T foo(Object o) {  return null; } // duplicate
+                                ^
+4 errors
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test050c() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3570,28 +3731,48 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"		<T extends Z> T foo(A<Z> o) {  return null; } // ok\n" +
 				"	}\n" +
 				"}\n" +
-				"class A<T> {}" +
-				"class Y {}" +
+				"class A<T> {}\n" +
+				"class Y {}\n" +
 				"class Z {}"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	A<Y> foo(A<Y> o) {  return null; } // duplicate\n" +
-			"	     ^^^^^^^^^^^\n" +
-			"Method foo(A<Y>) has the same erasure foo(A<T>) as another method in type X.C5\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	A<Z> foo(A<Z> o) {  return null; } // duplicate\n" +
-			"	     ^^^^^^^^^^^\n" +
-			"Method foo(A<Z>) has the same erasure foo(A<T>) as another method in type X.C5\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	A<Y> foo(A<Y> o) {  return null; } // duplicate\n" + 
+			"	     ^^^^^^^^^^^\n" + 
+			"Method foo(A<Y>) has the same erasure foo(A<T>) as another method in type X.C5\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	A<Z> foo(A<Z> o) {  return null; } // duplicate\n" + 
+			"	     ^^^^^^^^^^^\n" + 
+			"Method foo(A<Z>) has the same erasure foo(A<T>) as another method in type X.C5\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	<T extends Y> T foo(A<Y> o) {  return null; } // ok\n" + 
+			"	                ^^^^^^^^^^^\n" + 
+			"Method foo(A<Y>) has the same erasure foo(A<T>) as another method in type X.C6\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 8)\n" + 
+			"	<T extends Z> T foo(A<Z> o) {  return null; } // ok\n" + 
+			"	                ^^^^^^^^^^^\n" + 
+			"Method foo(A<Z>) has the same erasure foo(A<T>) as another method in type X.C6\n" + 
 			"----------\n"
-			// name clash: foo(A<Y>) and foo(A<Z>) have the same erasure
 		);
+/* javac 7
+X.java:4: name clash: foo(A<Z>) and foo(A<Y>) have the same erasure
+                A<Z> foo(A<Z> o) {  return null; } // duplicate
+                     ^
+X.java:8: name clash: <T#1>foo(A<Z>) and <T#2>foo(A<Y>) have the same erasure
+                <T extends Z> T foo(A<Z> o) {  return null; } // ok
+                                ^
+  where T#1,T#2 are type-variables:
+    T#1 extends Z declared in method <T#1>foo(A<Z>)
+    T#2 extends Y declared in method <T#2>foo(A<Y>)
+2 errors
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test050d() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -3600,18 +3781,37 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"		<T extends Z> T foo(Object o) {  return null; } // ok\n" +
 				"	}\n" +
 				"}\n" +
-				"class A<T> {}" +
-				"class Y {}" +
+				"class A<T> {}\n" +
+				"class Y {}\n" +
 				"class Z {}"
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	<T extends Y, U> T foo(Object o) {  return null; } // ok\n" + 
+			"	                   ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C7\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	<T extends Z> T foo(Object o) {  return null; } // ok\n" + 
+			"	                ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C7\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:4: name clash: <T#1>foo(Object) and <T#2,U>foo(Object) have the same erasure
+                <T extends Z> T foo(Object o) {  return null; } // ok
+                                ^
+  where T#1,T#2,U are type-variables:
+    T#1 extends Z declared in method <T#1>foo(Object)
+    T#2 extends Y declared in method <T#2,U>foo(Object)
+    U extends Object declared in method <T#2,U>foo(Object)
+1 error
+ */
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050e() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -3625,8 +3825,56 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class A<T> {}\n" +
 				"class B {}\n"
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<N extends B> N a(A<String> s) { return null; }\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Method a(A<String>) has the same erasure a(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	<N> Object a(A<Number> n) { return null; }\n" + 
+			"	           ^^^^^^^^^^^^^^\n" + 
+			"Method a(A<Number>) has the same erasure a(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	<N extends B> void b(A<String> s) {}\n" + 
+			"	                   ^^^^^^^^^^^^^^\n" + 
+			"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	<N extends B> B b(A<Number> n) { return null; }\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 6)\n" + 
+			"	void c(A<String> s) {}\n" + 
+			"	     ^^^^^^^^^^^^^^\n" + 
+			"Method c(A<String>) has the same erasure c(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 7)\n" + 
+			"	B c(A<Number> n) { return null; }\n" + 
+			"	  ^^^^^^^^^^^^^^\n" + 
+			"Method c(A<Number>) has the same erasure c(A<T>) as another method in type X\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:3: name clash: <N#1>a(A<Number>) and <N#2>a(A<String>) have the same erasure
+        <N> Object a(A<Number> n) { return null; }
+                   ^
+  where N#1,N#2 are type-variables:
+    N#1 extends Object declared in method <N#1>a(A<Number>)
+    N#2 extends B declared in method <N#2>a(A<String>)
+X.java:5: name clash: <N#1>b(A<Number>) and <N#2>b(A<String>) have the same erasure
+        <N extends B> B b(A<Number> n) { return null; }
+                        ^
+  where N#1,N#2 are type-variables:
+    N#1 extends B declared in method <N#1>b(A<Number>)
+    N#2 extends B declared in method <N#2>b(A<String>)
+X.java:7: name clash: c(A<Number>) and c(A<String>) have the same erasure
+        B c(A<Number> n) { return null; }
+          ^
+3 errors
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050f() {
@@ -3651,8 +3899,16 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	      ^^^^^^^^^^^^^^\n" +
 			"Method a(A<Number>) has the same erasure a(A<T>) as another method in type X\n" +
 			"----------\n"
-			// name clash: <N>a(A<java.lang.String>) and <N>a(A<java.lang.Number>) have the same erasure
 		);
+/* javac 7
+X.java:3: name clash: <N#1>a(A<Number>) and <N#2>a(A<String>) have the same erasure
+        <N> B a(A<Number> n) { return null; }
+              ^
+  where N#1,N#2 are type-variables:
+    N#1 extends Object declared in method <N#1>a(A<Number>)
+    N#2 extends B declared in method <N#2>a(A<String>)
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050g() {
@@ -3677,8 +3933,16 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	                ^^^^^^^^^^^^^^\n" +
 			"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" +
 			"----------\n"
-			// name clash: <N>b(A<java.lang.String>) and <N>b(A<java.lang.Number>) have the same erasure
 		);
+/* javac 7
+X.java:3: name clash: <N#1>b(A<Number>) and <N#2>b(A<String>) have the same erasure
+        <N extends B> B b(A<Number> n) { return null; }
+                        ^
+  where N#1,N#2 are type-variables:
+    N#1 extends B declared in method <N#1>b(A<Number>)
+    N#2 extends B declared in method <N#2>b(A<String>)
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050h() {
@@ -3703,14 +3967,18 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	  ^^^^^^^^^^^^^^\n" +
 			"Method c(A<Number>) has the same erasure c(A<T>) as another method in type X\n" +
 			"----------\n"
-			// name clash: c(A<java.lang.String>) and c(A<java.lang.Number>) have the same erasure
 		);
+/* javac 7
+X.java:3: name clash: c(A<Number>) and c(A<String>) have the same erasure
+        B c(A<Number> n) { return null; }
+          ^
+1 error
+ */
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050i() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -3722,8 +3990,43 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class A<T> {}\n" +
 				"class B {}\n"
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<N extends B> N a(A<Number> s) { return null; }\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Duplicate method a(A<Number>) in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	<N> Object a(A<Number> n) { return null; }\n" + 
+			"	           ^^^^^^^^^^^^^^\n" + 
+			"Duplicate method a(A<Number>) in type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	<N extends B> N b(A<Number> s) { return null; }\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	<N> Object b(A<String> n) { return null; }\n" + 
+			"	           ^^^^^^^^^^^^^^\n" + 
+			"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:3: name clash: <N#1>a(A<Number>) and <N#2>a(A<Number>) have the same erasure
+        <N> Object a(A<Number> n) { return null; }
+                   ^
+  where N#1,N#2 are type-variables:
+    N#1 extends Object declared in method <N#1>a(A<Number>)
+    N#2 extends B declared in method <N#2>a(A<Number>)
+X.java:5: name clash: <N#1>b(A<String>) and <N#2>b(A<Number>) have the same erasure
+        <N> Object b(A<String> n) { return null; }
+                   ^
+  where N#1,N#2 are type-variables:
+    N#1 extends Object declared in method <N#1>b(A<String>)
+    N#2 extends B declared in method <N#2>b(A<Number>)
+2 errors
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050j() {
@@ -3760,9 +4063,22 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	      ^^^^^^^^^^^^^^\n" +
 			"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" +
 			"----------\n"
-			// name clash: <N>a(A<java.lang.Number>) and <N>a(A<java.lang.Number>) have the same erasure
-			// name clash: <N>b(A<java.lang.Number>) and <N>b(A<java.lang.String>) have the same erasure
 		);
+/* javac 7
+X.java:3: name clash: <N#1>a(A<Number>) and <N#2>a(A<Number>) have the same erasure
+        <N> B a(A<Number> n) { return null; }
+              ^
+  where N#1,N#2 are type-variables:
+    N#1 extends Object declared in method <N#1>a(A<Number>)
+    N#2 extends B declared in method <N#2>a(A<Number>)
+X.java:5: name clash: <N#1>b(A<String>) and <N#2>b(A<Number>) have the same erasure
+        <N> B b(A<String> n) { return null; }
+              ^
+  where N#1,N#2 are type-variables:
+    N#1 extends Object declared in method <N#1>b(A<String>)
+    N#2 extends B declared in method <N#2>b(A<Number>)
+2 errors
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050k() {
@@ -3799,9 +4115,20 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	                ^^^^^^^^^^^^^^\n" +
 			"Duplicate method b(A<Number>) in type X\n" +
 			"----------\n"
-			// <N>a(A<java.lang.Number>) is already defined in X
-			// <N>b(A<java.lang.Number>) is already defined in X
 		);
+/* javac 7
+X.java:3: <N>a(A<Number>) is already defined in X
+                <N extends B> B a(A<Number> n) { return null; }
+                                ^
+  where N is a type-variable:
+    N extends B declared in method <N>a(A<Number>)
+X.java:5: <N>b(A<Number>) is already defined in X
+                <N extends B> B b(A<Number> n) { return null; }
+                                ^
+  where N is a type-variable:
+    N extends B declared in method <N>b(A<Number>)
+2 errors
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050l() {
@@ -3838,9 +4165,16 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	  ^^^^^^^^^^^^^^\n" +
 			"Duplicate method b(A<Number>) in type X\n" +
 			"----------\n"
-			// a(A<java.lang.Number>) is already defined in X
-			// b(A<java.lang.Number>) is already defined in X
 		);
+/* javac 7
+X.java:3: a(A<Number>) is already defined in X
+                 B a(A<Number> n) { return null; }
+                   ^
+X.java:5: b(A<Number>) is already defined in X
+                 B b(A<Number> n) { return null; }
+                   ^
+2 errors
+ */
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89470
@@ -3861,8 +4195,15 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	             ^\n" +
 			"The type X must implement the inherited abstract method I.foo(T)\n" +
 			"----------\n"
-			// X is not abstract and does not override abstract method <T>foo(T) in I
 		);
+/* javac 7
+X.java:1: X is not abstract and does not override abstract method <T>foo(T) in I
+class X implements I {
+^
+  where T is a type-variable:
+    T extends Object declared in method <T>foo(T)
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89470
 	public void test051a() {
@@ -3886,13 +4227,17 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	     ^^^^^^^^^^^^^^^^^\n" +
 			"Method foo(A<Integer>) has the same erasure foo(A<T>) as another method in type X\n" +
 			"----------\n"
-			// name clash: foo(A<java.lang.String>) and foo(A<java.lang.Integer>) have the same erasure
 		);
+/* javac 7
+X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
+        void foo(A<Integer> a) {}
+             ^
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89470
 	public void test051b() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -3901,8 +4246,24 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n" +
 				"class A<T> {}\n",
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	void foo(A<String> a) {}\n" + 
+			"	     ^^^^^^^^^^^^^^^^\n" + 
+			"Method foo(A<String>) has the same erasure foo(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	Object foo(A<Integer> a) { return null; }\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Method foo(A<Integer>) has the same erasure foo(A<T>) as another method in type X\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
+        Object foo(A<Integer> a) { return null; }
+               ^
+1 error
+ */
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91728
@@ -4037,12 +4398,16 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	      ^^^^^^\n" +
 			"Method a(T) has the same erasure a(Object) as another method in type X\n" +
 			"----------\n"
-			// a(X) is already defined in X
 		);
+/* javac 7
+X.java:3: a(Object) is already defined in X
+        <T> T a(T x) {  return null; }
+              ^
+1 error
+ */
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054a() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4053,29 +4418,82 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	<T extends X> T aa(T x) {  return null; }\n" +
 				"	String a(X x) {  return null; }\n" + // dup
 				"	<T extends X> T a(T x) {  return null; }\n" +
-
 				"	<T> String z(X x) { return null; }\n" +
 				"	<T, S> Object z(X x) { return null; }\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	String a(X x) {  return null; }\n" +
-			"	       ^^^^^^\n" +
-			"Method a(X) has the same erasure a(X) as another method in type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	<T extends X> T a(T x) {  return null; }\n" +
-			"	                ^^^^^^\n" +
-			"Method a(T) has the same erasure a(X) as another method in type X\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<T1, T2> String aaa(X x) {  return null; }\n" + 
+			"	                ^^^^^^^^\n" + 
+			"Method aaa(X) has the same erasure aaa(X) as another method in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	<T extends X> T aaa(T x) {  return null; }\n" + 
+			"	                ^^^^^^^^\n" + 
+			"Method aaa(T) has the same erasure aaa(X) as another method in type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	<T> String aa(X x) {  return null; }\n" + 
+			"	           ^^^^^^^\n" + 
+			"Method aa(X) has the same erasure aa(X) as another method in type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	<T extends X> T aa(T x) {  return null; }\n" + 
+			"	                ^^^^^^^\n" + 
+			"Method aa(T) has the same erasure aa(X) as another method in type X\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 6)\n" + 
+			"	String a(X x) {  return null; }\n" + 
+			"	       ^^^^^^\n" + 
+			"Method a(X) has the same erasure a(X) as another method in type X\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 7)\n" + 
+			"	<T extends X> T a(T x) {  return null; }\n" + 
+			"	                ^^^^^^\n" + 
+			"Method a(T) has the same erasure a(X) as another method in type X\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 8)\n" + 
+			"	<T> String z(X x) { return null; }\n" + 
+			"	           ^^^^^^\n" + 
+			"Duplicate method z(X) in type X\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 9)\n" + 
+			"	<T, S> Object z(X x) { return null; }\n" + 
+			"	              ^^^^^^\n" + 
+			"Duplicate method z(X) in type X\n" + 
 			"----------\n"
-			// a(X) is already defined in X
 		);
+/* javac 7
+X.java:3: name clash: <T>aaa(T) and <T1,T2>aaa(X) have the same erasure
+        <T extends X> T aaa(T x) {  return null; }
+                        ^
+  where T,T1,T2 are type-variables:
+    T extends X declared in method <T>aaa(T)
+    T1 extends Object declared in method <T1,T2>aaa(X)
+    T2 extends Object declared in method <T1,T2>aaa(X)
+X.java:5: name clash: <T#1>aa(T#1) and <T#2>aa(X) have the same erasure
+        <T extends X> T aa(T x) {  return null; }
+                        ^
+  where T#1,T#2 are type-variables:
+    T#1 extends X declared in method <T#1>aa(T#1)
+    T#2 extends Object declared in method <T#2>aa(X)
+X.java:7: a(X) is already defined in X
+        <T extends X> T a(T x) {  return null; }
+                        ^
+X.java:9: name clash: <T#1,S>z(X) and <T#3>z(X) have the same erasure
+        <T, S> Object z(X x) { return null; }
+                      ^
+  where T#1,S,T#3 are type-variables:
+    T#1 extends Object declared in method <T#1,S>z(X)
+    S extends Object declared in method <T#1,S>z(X)
+    T#3 extends Object declared in method <T#3>z(X)
+4 errors
+ */
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054b() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X<T> {\n" +
@@ -4083,8 +4501,27 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"		 <S> String foo(X<T> s) { return null; }\n" +
 				"}\n"
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Object foo(X<T> t) { return null; }\n" + 
+			"	       ^^^^^^^^^^^\n" + 
+			"Duplicate method foo(X<T>) in type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	<S> String foo(X<T> s) { return null; }\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"Duplicate method foo(X<T>) in type X<T>\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:3: name clash: <S>foo(X<T>) and foo(X<T>) have the same erasure
+        <S> String foo(X<T> s) { return null; }
+                   ^
+  where S,T are type-variables:
+    S extends Object declared in method <S>foo(X<T>)
+    T extends Object declared in class X
+1 error
+ */
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054c() {
@@ -4107,13 +4544,19 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	                          ^^^^^^\n" +
 			"Duplicate method dupT() in type X<T>\n" +
 			"----------\n"
-			// <T1>dupT() is already defined in X
 		);
+/* javac 7
+X.java:3: <T1>dupT() is already defined in X
+        <T2 extends X<T2>> Object dupT() {return null;}
+                                  ^
+  where T1 is a type-variable:
+    T1 extends X<T1> declared in method <T1>dupT()
+1 error
+ */
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054d() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -4124,8 +4567,43 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n" +
 				"class A<T> {}\n",
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<T> T a(A<T> t) {return null;}\n" + 
+			"	      ^^^^^^^^^\n" + 
+			"Method a(A<T>) has the same erasure a(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	<T> String a(A<Object> o) {return null;}\n" + 
+			"	           ^^^^^^^^^^^^^^\n" + 
+			"Method a(A<Object>) has the same erasure a(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	<T> T aa(A<T> t) {return null;}\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"Method aa(A<T>) has the same erasure aa(A<T>) as another method in type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	String aa(A<Object> o) {return null;}\n" + 
+			"	       ^^^^^^^^^^^^^^^\n" + 
+			"Method aa(A<Object>) has the same erasure aa(A<T>) as another method in type X\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:3: name clash: <T#1>a(A<Object>) and <T#2>a(A<T#2>) have the same erasure
+
+        <T> String a(A<Object> o) {return null;}
+                   ^
+  where T#1,T#2 are type-variables:
+    T#1 extends Object declared in method <T#1>a(A<Object>)
+    T#2 extends Object declared in method <T#2>a(A<T#2>)
+X.java:5: name clash: aa(A<Object>) and <T>aa(A<T>) have the same erasure
+        String aa(A<Object> o) {return null;}
+               ^
+  where T is a type-variable:
+    T extends Object declared in method <T>aa(A<T>)
+2 errors
+ */
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95933
@@ -4233,46 +4711,69 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
 	public void test058a() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X<A> {\n" +
-				"   void test() {\n" +
-				"   	new X<Object>().foo(\"X\");\n" +
-				"   	new X<Object>().foo2(\"X\");\n" +
-				"   }\n" +
+				"	void test() {\n" +
+				"		new X<Object>().foo(\"X\");\n" +
+				"		new X<Object>().foo2(\"X\");\n" +
+				"	}\n" +
 				"	<T> T foo(T t) {return null;}\n" +
 				"	void foo(A a) {}\n" +
 				"	<T> T foo2(T t) {return null;}\n" +
 				"	<T> void foo2(A a) {}\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\r\n" +
-			"	new X<Object>().foo(\"X\");\r\n" +
-			"	                ^^^\n" +
-			"The method foo(String) is ambiguous for the type X<Object>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\r\n" +
-			"	new X<Object>().foo2(\"X\");\r\n" +
-			"	                ^^^^\n" +
-			"The method foo2(String) is ambiguous for the type X<Object>\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	<T> T foo(T t) {return null;}\n" + 
+			"	      ^^^^^^^^\n" + 
+			"Method foo(T) has the same erasure foo(Object) as another method in type X<A>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	void foo(A a) {}\n" + 
+			"	     ^^^^^^^^\n" + 
+			"Method foo(A) has the same erasure foo(Object) as another method in type X<A>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	<T> T foo2(T t) {return null;}\n" + 
+			"	      ^^^^^^^^^\n" + 
+			"Method foo2(T) has the same erasure foo2(Object) as another method in type X<A>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	<T> void foo2(A a) {}\n" + 
+			"	         ^^^^^^^^^\n" + 
+			"Method foo2(A) has the same erasure foo2(Object) as another method in type X<A>\n" + 
 			"----------\n"
-			// both references are ambiguous
 		);
+/* javac 7
+X.java:7: name clash: foo(A) and <T>foo(T) have the same erasure
+        void foo(A a) {}
+             ^
+  where A,T are type-variables:
+    A extends Object declared in class X
+    T extends Object declared in method <T>foo(T)
+X.java:9: name clash: <T#1>foo2(A) and <T#3>foo2(T#3) have the same erasure
+        <T> void foo2(A a) {}
+                 ^
+  where T#1,A,T#3 are type-variables:
+    T#1 extends Object declared in method <T#1>foo2(A)
+    A extends Object declared in class X
+    T#3 extends Object declared in method <T#3>foo2(T#3)
+2 errors
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
 	public void test058b() {
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X<A> extends Y<A> {\n" +
-				"   void test() {\n" +
-				"   	new X<Object>().foo(\"X\");\n" +
-				"   	new X<Object>().foo2(\"X\");\n" +
-				"   }\n" +
+				"	void test() {\n" +
+				"		new X<Object>().foo(\"X\");\n" +
+				"		new X<Object>().foo2(\"X\");\n" +
+				"	}\n" +
 				"	<T> T foo(T t) {return null;}\n" +
 				"	<T> T foo2(T t) {return null;}\n" +
 				"}\n" +
@@ -4282,18 +4783,56 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\r\n" +
-			"	new X<Object>().foo(\"X\");\r\n" +
-			"	                ^^^\n" +
-			"The method foo(String) is ambiguous for the type X<Object>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\r\n" +
-			"	new X<Object>().foo2(\"X\");\r\n" +
-			"	                ^^^^\n" +
-			"The method foo2(String) is ambiguous for the type X<Object>\n" +
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	new X<Object>().foo(\"X\");\n" + 
+			"	                ^^^\n" + 
+			"The method foo(String) is ambiguous for the type X<Object>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	new X<Object>().foo2(\"X\");\n" + 
+			"	                ^^^^\n" + 
+			"The method foo2(String) is ambiguous for the type X<Object>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	<T> T foo(T t) {return null;}\n" + 
+			"	      ^^^^^^^^\n" + 
+			"Name clash: The method foo(T) of type X<A> has the same erasure as foo(A) of type Y<A> but does not override it\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	<T> T foo2(T t) {return null;}\n" + 
+			"	      ^^^^^^^^^\n" + 
+			"Name clash: The method foo2(T) of type X<A> has the same erasure as foo2(A) of type Y<A> but does not override it\n" + 
 			"----------\n"
-			// both references are ambiguous
 		);
+/* javac 7
+X.java:3: reference to foo is ambiguous, both method foo(A) in Y and method <T>foo(T) in X match
+                new X<Object>().foo("X");
+                               ^
+  where A,T are type-variables:
+    A extends Object declared in class Y
+    T extends Object declared in method <T>foo(T)
+X.java:4: reference to foo2 is ambiguous, both method <T#1>foo2(A) in Y and method <T#3>foo2(T#3) in X match
+                new X<Object>().foo2("X");
+                               ^
+  where T#1,A,T#3 are type-variables:
+    T#1 extends Object declared in method <T#1>foo2(A)
+    A extends Object declared in class Y
+    T#3 extends Object declared in method <T#3>foo2(T#3)
+X.java:6: name clash: <T>foo(T) in X and foo(A) in Y have the same erasure, yet neither overrides the other
+        <T> T foo(T t) {return null;}
+              ^
+  where T,A are type-variables:
+    T extends Object declared in method <T>foo(T)
+    A extends Object declared in class Y
+X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same erasure, yet neither overrides the other
+        <T> T foo2(T t) {return null;}
+              ^
+  where T#1,T#2,A are type-variables:
+    T#1 extends Object declared in method <T#1>foo2(T#1)
+    T#2 extends Object declared in method <T#2>foo2(A)
+    A extends Object declared in class Y
+4 errors
+ */
 	}
 
 	public void test059() {
@@ -6228,7 +6767,6 @@ public void test100() {
 
 // name conflict
 public void test101() {
-	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6250,16 +6788,26 @@ public void test101() {
 			"    }\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	Integer getX(List<Integer> l) {\n" +
-		"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Duplicate method getX(List<Integer>) in type Y\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 14)\n" +
-		"	String getX(List<Integer> l) {\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Duplicate method getX(List<Integer>) in type Y\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Integer getX(List<Integer> l) {\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method getX(List<Integer>) has the same erasure getX(List<E>) as another method in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	String getX(List<String> l) {\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method getX(List<String>) has the same erasure getX(List<E>) as another method in type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	Integer getX(List<Integer> l) {\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method getX(List<Integer>) in type Y\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 14)\n" + 
+		"	String getX(List<Integer> l) {\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method getX(List<Integer>) in type Y\n" + 
 		"----------\n"
 	);
 }
@@ -7313,8 +7861,7 @@ public void test120() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202830
 public void test120a() {
-	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return; // see test187()
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"Bar.java",
 			"class Foo<V, E> {\n" +
@@ -7323,7 +7870,17 @@ public void test120a() {
 			"}\n" +
 			"public class Bar<V,E> extends Foo<V,E> {}"
 		},
-		""
+		"----------\n" + 
+		"1. ERROR in Bar.java (at line 2)\n" + 
+		"	int getThing(V v) { return 1; }\n" + 
+		"	    ^^^^^^^^^^^^^\n" + 
+		"Method getThing(V) has the same erasure getThing(Object) as another method in type Foo<V,E>\n" + 
+		"----------\n" + 
+		"2. ERROR in Bar.java (at line 3)\n" + 
+		"	boolean getThing(E e) { return true; }\n" + 
+		"	        ^^^^^^^^^^^^^\n" + 
+		"Method getThing(E) has the same erasure getThing(Object) as another method in type Foo<V,E>\n" + 
+		"----------\n"
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=173477
@@ -9013,7 +9570,7 @@ public void test176() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251091
 public void test177() {
-	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) { // see test187()
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_6) { // see test187()
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9058,21 +9615,6 @@ public void test177() {
 			"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" + 
 			"----------\n"
 		);
-	} else if (new CompilerOptions(getCompilerOptions()).sourceLevel == ClassFileConstants.JDK1_6) {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.*;\n" +
-				"interface I { I foo(Collection<?> c); }\n" +
-				"class A extends LinkedHashMap {\n" +
-				"	public A foo(Collection c) { return this; }\n" +
-				"}\n" +
-				"class X extends A implements I {\n" +
-				"	@Override public X foo(Collection<?> c) { return this; }\n" +
-				"}"
-			},
-			""
-		);
 	} else {
 		this.runNegativeTest(
 			new String[] {
@@ -9086,31 +9628,41 @@ public void test177() {
 				"	@Override public X foo(Collection<?> c) { return this; }\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	class A extends LinkedHashMap {\n" +
-			"	      ^\n" +
-			"The serializable class A does not declare a static final serialVersionUID field of type long\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 3)\n" +
-			"	class A extends LinkedHashMap {\n" +
-			"	                ^^^^^^^^^^^^^\n" +
-			"LinkedHashMap is a raw type. References to generic type LinkedHashMap<K,V> should be parameterized\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 4)\n" +
-			"	public A foo(Collection c) { return this; }\n" +
-			"	             ^^^^^^^^^^\n" +
-			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 6)\n" +
-			"	class X extends A implements I {\n" +
-			"	      ^\n" +
-			"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 7)\n" +
-			"	@Override public X foo(Collection<?> c) { return this; }\n" +
-			"	                   ^^^^^^^^^^^^^^^^^^^^\n" +
-			"The method foo(Collection<?>) of type X must override a superclass method\n" +
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class A extends LinkedHashMap {\n" + 
+			"	      ^\n" + 
+			"The serializable class A does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	class A extends LinkedHashMap {\n" + 
+			"	                ^^^^^^^^^^^^^\n" + 
+			"LinkedHashMap is a raw type. References to generic type LinkedHashMap<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	public A foo(Collection c) { return this; }\n" + 
+			"	             ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	class X extends A implements I {\n" + 
+			"	      ^\n" + 
+			"Name clash: The method foo(Collection<?>) of type I has the same erasure as foo(Collection) of type A but does not override it\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 6)\n" + 
+			"	class X extends A implements I {\n" + 
+			"	      ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 7)\n" + 
+			"	@Override public X foo(Collection<?> c) { return this; }\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 7)\n" + 
+			"	@Override public X foo(Collection<?> c) { return this; }\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method foo(Collection<?>) of type X must override a superclass method\n" + 
 			"----------\n"
 		);
 	}
@@ -9583,7 +10135,7 @@ public void test187() {
 			"    int f(List<String> l) {return 0;}\n" +
 			"}\n" +
 			"class Y extends X {\n" +
-			"    double f(List<Integer> l) {return 0;}\n" +
+			"    double f(List<Integer> l) {return 0;}\n" +// name clash in 7
 			"}\n" +
 			"interface I {\n" +
 			"	double f(List<Integer> l);\n" +
@@ -9591,32 +10143,30 @@ public void test187() {
 			"abstract class Z extends X implements I {}\n" +
 			"class XX {\n" +
 			"    int f(List<String> l) {return 0;}\n" +
-    			"double f(List<Integer> l) {return 0;}\n" +
+    			"double f(List<Integer> l) {return 0;}\n" +// name clash in 1.5 & 7
 			"}"
 		},
-		new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_7
-			? ""
-			: "----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	double f(List<Integer> l) {return 0;}\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method f(List<Integer>) of type Y has the same erasure as f(List<String>) of type X but does not override it\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
-			"	abstract class Z extends X implements I {}\n" + 
-			"	               ^\n" + 
-			"Name clash: The method f(List<String>) of type X has the same erasure as f(List<Integer>) of type I but does not override it\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 13)\n" + 
-			"	int f(List<String> l) {return 0;}\n" + 
-			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Method f(List<String>) has the same erasure f(List<E>) as another method in type XX\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 14)\n" + 
-			"	double f(List<Integer> l) {return 0;}\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^\n" + 
-			"Method f(List<Integer>) has the same erasure f(List<E>) as another method in type XX\n" + 
-			"----------\n"
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	double f(List<Integer> l) {return 0;}\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method f(List<Integer>) of type Y has the same erasure as f(List<String>) of type X but does not override it\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	abstract class Z extends X implements I {}\n" + 
+		"	               ^\n" + 
+		"Name clash: The method f(List<String>) of type X has the same erasure as f(List<Integer>) of type I but does not override it\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	int f(List<String> l) {return 0;}\n" + 
+		"	    ^^^^^^^^^^^^^^^^^\n" + 
+		"Method f(List<String>) has the same erasure f(List<E>) as another method in type XX\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 14)\n" + 
+		"	double f(List<Integer> l) {return 0;}\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Method f(List<Integer>) has the same erasure f(List<E>) as another method in type XX\n" + 
+		"----------\n"
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=279836
@@ -10035,5 +10585,40 @@ public void test199() {
 		"",
 		JavacTestOptions.SKIP
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285088
+public void test200() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" +
+			"class X {\n" +
+			"	int foo(Collection bar) { return 0; }\n" +
+			"	double foo(Collection<String> bar) {return 0; }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	int foo(Collection bar) { return 0; }\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method foo(Collection) has the same erasure foo(Collection<E>) as another method in type X\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	int foo(Collection bar) { return 0; }\n" + 
+		"	        ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	double foo(Collection<String> bar) {return 0; }\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method foo(Collection<String>) has the same erasure foo(Collection<E>) as another method in type X\n" + 
+		"----------\n"
+	);
+/* javac 7
+X.java:4: foo(Collection) is already defined in X
+        double foo(Collection<String> bar) {return 0; }
+               ^
+1 error
+ */
 }
 }

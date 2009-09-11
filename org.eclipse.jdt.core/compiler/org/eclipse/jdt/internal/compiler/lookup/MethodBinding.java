@@ -161,13 +161,22 @@ MethodBinding asRawMethod(LookupEnvironment env) {
 			arguments[i] = env.convertToRawType(var.upperBound(), false /*do not force conversion of enclosing types*/);
 		} else {
 			// use an intersection type to retain full bound information if more than 1 bound
-			TypeBinding rawSuperclass = env.convertToRawType(var.superclass(), false);
 			TypeBinding[] itsSuperinterfaces = var.superInterfaces();
 			int superLength = itsSuperinterfaces.length;
-			TypeBinding[] rawSuperinterfaces = new TypeBinding[superLength];
-			for (int s = 0; s < superLength; s++)
-				rawSuperinterfaces[s] = env.convertToRawType(itsSuperinterfaces[s], false);
-			arguments[i] = env.createWildcard(null, 0, rawSuperclass, rawSuperinterfaces, org.eclipse.jdt.internal.compiler.ast.Wildcard.EXTENDS);
+			TypeBinding rawFirstBound = null;
+			TypeBinding[] rawOtherBounds = null;
+			if (var.boundsCount() == superLength) {
+				rawFirstBound = env.convertToRawType(itsSuperinterfaces[0], false);
+				rawOtherBounds = new TypeBinding[superLength - 1];
+				for (int s = 1; s < superLength; s++)
+					rawOtherBounds[s - 1] = env.convertToRawType(itsSuperinterfaces[s], false);
+			} else {
+				rawFirstBound = env.convertToRawType(var.superclass(), false);
+				rawOtherBounds = new TypeBinding[superLength];
+				for (int s = 0; s < superLength; s++)
+					rawOtherBounds[s] = env.convertToRawType(itsSuperinterfaces[s], false);
+			}
+			arguments[i] = env.createWildcard(null, 0, rawFirstBound, rawOtherBounds, org.eclipse.jdt.internal.compiler.ast.Wildcard.EXTENDS);
 		}
 	}
 	return env.createParameterizedGenericMethod(this, arguments);

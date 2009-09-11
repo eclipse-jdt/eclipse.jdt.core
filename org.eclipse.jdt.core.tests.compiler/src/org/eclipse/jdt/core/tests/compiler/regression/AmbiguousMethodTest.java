@@ -11,8 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.*;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AmbiguousMethodTest extends AbstractComparableTest {
 
@@ -231,7 +229,6 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 	}
 	public void test005() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -245,17 +242,30 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 				"class A {}\n" +
 				"class B {}\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	new X().foo();\n" +
-			"	        ^^^\n" +
-			"The method foo() is ambiguous for the type X\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<S extends A> void foo() { }\n" + 
+			"	                   ^^^^^\n" + 
+			"Duplicate method foo() in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	<N extends B> N foo() { return null; }\n" + 
+			"	                ^^^^^\n" + 
+			"Duplicate method foo() in type X\n" + 
 			"----------\n"
 		);
+/* javac 7
+X.java:3: name clash: <N>foo() and <S>foo() have the same erasure
+                 <N extends B> N foo() { return null; }
+                                 ^
+  where N,S are type-variables:
+    N extends B declared in method <N>foo()
+    S extends A declared in method <S>foo()
+1 error
+ */
 	}
 	public void test006() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -273,17 +283,60 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	new Y<Object>().foo(\"X\");\n" +
-			"	                ^^^\n" +
-			"The method foo(Object) is ambiguous for the type Y<Object>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	new Y<Object>().foo2(\"X\");\n" +
-			"	                ^^^^\n" +
-			"The method foo2(Object) is ambiguous for the type Y<Object>\n" +
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	new Y<Object>().foo(\"X\");\n" + 
+			"	                ^^^\n" + 
+			"The method foo(Object) is ambiguous for the type Y<Object>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	new Y<Object>().foo2(\"X\");\n" + 
+			"	                ^^^^\n" + 
+			"The method foo2(Object) is ambiguous for the type Y<Object>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	void foo(T2 t) {}\n" + 
+			"	     ^^^^^^^^^\n" + 
+			"Name clash: The method foo(T2) of type Y<T2> has the same erasure as foo(U1) of type X<T> but does not override it\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 11)\n" + 
+			"	<U3> void foo2(T2 t) {}\n" + 
+			"	          ^^^^^^^^^^\n" + 
+			"Name clash: The method foo2(T2) of type Y<T2> has the same erasure as foo2(U2) of type X<T> but does not override it\n" + 
 			"----------\n"
 		);
+/* javac 7
+X.java:3: reference to foo is ambiguous, both method <U1>foo(U1) in X and method
+ foo(T2) in Y match
+        new Y<Object>().foo("X");
+                       ^
+  where U1,T2 are type-variables:
+    U1 extends Object declared in method <U1>foo(U1)
+    T2 extends Object declared in class Y
+X.java:4: reference to foo2 is ambiguous, both method <U2>foo2(U2) in X and meth
+od <U3>foo2(T2) in Y match
+        new Y<Object>().foo2("X");
+                       ^
+  where U2,U3,T2 are type-variables:
+    U2 extends Object declared in method <U2>foo2(U2)
+    U3 extends Object declared in method <U3>foo2(T2)
+    T2 extends Object declared in class Y
+X.java:10: name clash: foo(T2) in Y and <U1>foo(U1) in X have the same erasure,
+yet neither overrides the other
+        void foo(T2 t) {}
+             ^
+  where T2,U1 are type-variables:
+    T2 extends Object declared in class Y
+    U1 extends Object declared in method <U1>foo(U1)
+X.java:11: name clash: <U3>foo2(T2) in Y and <U2>foo2(U2) in X have the same era
+sure, yet neither overrides the other
+        <U3> void foo2(T2 t) {}
+                  ^
+  where U3,T2,U2 are type-variables:
+    U3 extends Object declared in method <U3>foo2(T2)
+    T2 extends Object declared in class Y
+    U2 extends Object declared in method <U2>foo2(U2)
+4 errors
+ */
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129056
 	public void test007() {
@@ -396,18 +449,14 @@ public void test010a() {
 			"   }\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	static <L1 extends Listener & ErrorListener> Object createParser(L1 l) { return null; }\n" +
-		"	                                                    ^^^^^^^^^^^^^^^^^^\n" +
-		"Method createParser(L1) has the same erasure createParser(X.Listener) as another method in type X\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	static <L2 extends ErrorListener & Listener> Object createParser(L2 l) { return null; }\n" +
-		"	                                                    ^^^^^^^^^^^^^^^^^^\n" +
-		"Method createParser(L2) has the same erasure createParser(X.ErrorListener) as another method in type X\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	createParser(new A());\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"The method createParser(A) is ambiguous for the type X\n" + 
 		"----------\n"
 	);
+// javac 7 randomly picks which ever method is second
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
 public void test010b() {
@@ -480,8 +529,7 @@ public void test010c() {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
 	public void test011a() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"Combined.java",
 				"public class Combined<A, B> {\n" +
@@ -495,13 +543,31 @@ public void test010c() {
 				"class ExOne extends Exception {static final long serialVersionUID = 1;}\n" +
 				"class ExTwo extends Exception {static final long serialVersionUID = 2;}"
 			},
-			""
+			"----------\n" + 
+			"1. ERROR in Combined.java (at line 2)\n" + 
+			"	<T extends Comparable<T>> void pickOne(T value) throws ExOne {}\n" + 
+			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Method pickOne(T) has the same erasure pickOne(Comparable<T>) as another method in type Combined<A,B>\n" + 
+			"----------\n" + 
+			"2. ERROR in Combined.java (at line 3)\n" + 
+			"	<T> T pickOne(Comparable<T> value) throws ExTwo { return null;}\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Method pickOne(Comparable<T>) has the same erasure pickOne(Comparable<T>) as another method in type Combined<A,B>\n" + 
+			"----------\n"
 		);
+/* javac 7
+X.java:3: name clash: <T#1>pickOne(Comparable<T#1>) and <T#2>pickOne(T#2) have the same erasure
+        <T> T pickOne(Comparable<T> value) throws ExTwo { return null;}
+              ^
+  where T#1,T#2 are type-variables:
+    T#1 extends Object declared in method <T#1>pickOne(Comparable<T#1>)
+    T#2 extends Comparable<T#2> declared in method <T#2>pickOne(T#2)
+1 error
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
 	public void test011b() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runNegativeTest(
 			new String[] {
 				"Test1.java",
@@ -513,18 +579,45 @@ public void test010c() {
 				"class ExOne extends Exception {static final long serialVersionUID = 1;}\n" +
 				"class ExTwo extends Exception {static final long serialVersionUID = 2;}"
 			},
-			"----------\n" +
-			"1. WARNING in Test1.java (at line 4)\n" +
-			"	void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) \"test\"); }\n" +
-			"	                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety: Unchecked invocation pickOne(Comparable) of the generic method pickOne(T) of type Test1<Integer,Integer>\n" +
-			"----------\n" +
-			"2. WARNING in Test1.java (at line 4)\n" +
-			"	void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) \"test\"); }\n" +
-			"	                                                                  ^^^^^^^^^^\n" +
-			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" +
+			"----------\n" + 
+			"1. ERROR in Test1.java (at line 2)\n" + 
+			"	<T extends Comparable<T>> void pickOne(T value) throws ExOne {}\n" + 
+			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Method pickOne(T) has the same erasure pickOne(Comparable<T>) as another method in type Test1<AA,BB>\n" + 
+			"----------\n" + 
+			"2. ERROR in Test1.java (at line 3)\n" + 
+			"	<T> T pickOne(Comparable<T> value) throws ExTwo { return null;}\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Method pickOne(Comparable<T>) has the same erasure pickOne(Comparable<T>) as another method in type Test1<AA,BB>\n" + 
+			"----------\n" + 
+			"3. WARNING in Test1.java (at line 4)\n" + 
+			"	void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) \"test\"); }\n" + 
+			"	                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation pickOne(Comparable) of the generic method pickOne(T) of type Test1<Integer,Integer>\n" + 
+			"----------\n" + 
+			"4. WARNING in Test1.java (at line 4)\n" + 
+			"	void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) \"test\"); }\n" + 
+			"	                                                                  ^^^^^^^^^^\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n"
 		);
+/* javac 7
+X.java:3: name clash: <T#1>pickOne(Comparable<T#1>) and <T#2>pickOne(T#2) have the same erasure
+        <T> T pickOne(Comparable<T> value) throws ExTwo { return null;}
+              ^
+  where T#1,T#2 are type-variables:
+    T#1 extends Object declared in method <T#1>pickOne(Comparable<T#1>)
+    T#2 extends Comparable<T#2> declared in method <T#2>pickOne(T#2)
+X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in class Test1 is applied to given types
+        void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) "test"); }
+                                                                        ^
+  required: T
+  found: Comparable
+  where T is a type-variable:
+    T extends Comparable<T> declared in method <T>pickOne(T)
+1 error
+1 warning
+ */
 	}
 	public void test012() {
 		this.runConformTest(
@@ -1465,8 +1558,7 @@ public void test010c() {
 	// variant: having both methods in the same class should not change anything
 	public void test021() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"Y.java",
 				"class X<T extends Object> {\n" +
@@ -1488,77 +1580,173 @@ public void test010c() {
 				"  }\n" +
 				"}"
 			},
-			"true");
+			"----------\n" + 
+			"1. WARNING in Y.java (at line 3)\n" + 
+			"	public class Y<V extends String> extends X<V> {\n" + 
+			"	                         ^^^^^^\n" + 
+			"The type parameter V should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"2. WARNING in Y.java (at line 4)\n" + 
+			"	public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"	                         ^^^^^^\n" + 
+			"The type parameter W should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"3. ERROR in Y.java (at line 4)\n" + 
+			"	public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"	                                      ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Method make(Class<W>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+			"----------\n" + 
+			"4. ERROR in Y.java (at line 8)\n" + 
+			"	public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"	                                      ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Method make(Class<U>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+			"----------\n" + 
+			"5. WARNING in Y.java (at line 13)\n" + 
+			"	Y.make(getClazz());\n" + 
+			"	^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation make(Class) of the generic method make(Class<W>) of type Y\n" + 
+			"----------\n" + 
+			"6. WARNING in Y.java (at line 13)\n" + 
+			"	Y.make(getClazz());\n" + 
+			"	       ^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<String>\n" + 
+			"----------\n" + 
+			"7. WARNING in Y.java (at line 15)\n" + 
+			"	public static Class getClazz() {\n" + 
+			"	              ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n"
+		);
+/* javac 7
+X.java:8: name clash: <U>make(Class<U>) and <W>make(Class<W>) have the same erasure
+  public static <U extends Object> X<U> make(Class<U> clazz) {
+                                        ^
+  where U,W are type-variables:
+    U extends Object declared in method <U>make(Class<U>)
+    W extends String declared in method <W>make(Class<W>)
+X.java:13: warning: [unchecked] unchecked conversion
+    Y.make(getClazz());
+                   ^
+  required: Class<W#1>
+  found:    Class
+  where W#1,W#2 are type-variables:
+    W#1 extends String declared in method <W#2>make(Class<W#2>)
+    W#2 extends String declared in method <W#2>make(Class<W#2>)
+X.java:13: warning: [unchecked] unchecked method invocation: method make in class Y is applied to given types
+    Y.make(getClazz());
+          ^
+  required: Class<W>
+  found: Class
+  where W is a type-variable:
+    W extends String declared in method <W>make(Class<W>)
+1 error
+2 warnings
+ */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	// variant: using instances triggers raw methods, which are ambiguous
 	public void test022() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-		if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_7) return;
 		this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X<T extends Object> {\n" +
-			"}\n" +
-			"class Y<V extends String> extends X<V> {\n" +
-			"  public <W extends String> Y<W> make(Class<W> clazz) {\n" +
-			"    return new Y<W>();\n" +
-			"  }\n" +
-			"  public <U extends Object> X<U> make(Class<U> clazz) {\n" +
-			"    return new X<U>();\n" +
-			"  }\n" +
-			"  public static void main(String[] args) throws Exception {\n" +
-			"    Y y = new Y();\n" +
-			"    y.make(String.class);\n" +
-			"    y.make(getClazz());\n" +
-			"    y.make(getClazz().newInstance().getClass());\n" +
-			"  }\n" +
-			"  public static Class getClazz() {\n" +
-			"    return String.class;\n" +
-			"  }\n" +
-			"}"
-		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	class Y<V extends String> extends X<V> {\n" +
-		"	                  ^^^^^^\n" +
-		"The type parameter V should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	public <W extends String> Y<W> make(Class<W> clazz) {\n" +
-		"	                  ^^^^^^\n" +
-		"The type parameter W should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 11)\n" +
-		"	Y y = new Y();\n" +
-		"	^\n" +
-		"Y is a raw type. References to generic type Y<V> should be parameterized\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 11)\n" +
-		"	Y y = new Y();\n" +
-		"	          ^\n" +
-		"Y is a raw type. References to generic type Y<V> should be parameterized\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 12)\n" +
-		"	y.make(String.class);\n" +
-		"	  ^^^^\n" +
-		"The method make(Class) is ambiguous for the type Y\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 13)\n" +
-		"	y.make(getClazz());\n" +
-		"	  ^^^^\n" +
-		"The method make(Class) is ambiguous for the type Y\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 14)\n" +
-		"	y.make(getClazz().newInstance().getClass());\n" +
-		"	  ^^^^\n" +
-		"The method make(Class) is ambiguous for the type Y\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 16)\n" +
-		"	public static Class getClazz() {\n" +
-		"	              ^^^^^\n" +
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-		"----------\n");
+			new String[] {
+				"X.java",
+				"public class X<T extends Object> {\n" +
+				"}\n" +
+				"class Y<V extends String> extends X<V> {\n" +
+				"  public <W extends String> Y<W> make(Class<W> clazz) {\n" +
+				"    return new Y<W>();\n" +
+				"  }\n" +
+				"  public <U extends Object> X<U> make(Class<U> clazz) {\n" +
+				"    return new X<U>();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) throws Exception {\n" +
+				"    Y y = new Y();\n" +
+				"    y.make(String.class);\n" +
+				"    y.make(getClazz());\n" +
+				"    y.make(getClazz().newInstance().getClass());\n" +
+				"  }\n" +
+				"  public static Class getClazz() {\n" +
+				"    return String.class;\n" +
+				"  }\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class Y<V extends String> extends X<V> {\n" + 
+			"	                  ^^^^^^\n" + 
+			"The type parameter V should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	public <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"	                  ^^^^^^\n" + 
+			"The type parameter W should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	public <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"	                               ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Method make(Class<W>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	public <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"	                               ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Method make(Class<U>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 11)\n" + 
+			"	Y y = new Y();\n" + 
+			"	^\n" + 
+			"Y is a raw type. References to generic type Y<V> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 11)\n" + 
+			"	Y y = new Y();\n" + 
+			"	          ^\n" + 
+			"Y is a raw type. References to generic type Y<V> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 12)\n" + 
+			"	y.make(String.class);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method make(Class) belongs to the raw type Y. References to generic type Y<V> should be parameterized\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 13)\n" + 
+			"	y.make(getClazz());\n" + 
+			"	^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method make(Class) belongs to the raw type Y. References to generic type Y<V> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 14)\n" + 
+			"	y.make(getClazz().newInstance().getClass());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method make(Class) belongs to the raw type Y. References to generic type Y<V> should be parameterized\n" + 
+			"----------\n" + 
+			"10. WARNING in X.java (at line 16)\n" + 
+			"	public static Class getClazz() {\n" + 
+			"	              ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n"
+		);
+/* javac 7
+X.java:7: name clash: <U>make(Class<U>) and <W>make(Class<W>) have the same erasure
+  public <U extends Object> X<U> make(Class<U> clazz) {
+                                 ^
+  where U,W are type-variables:
+    U extends Object declared in method <U>make(Class<U>)
+    W extends String declared in method <W>make(Class<W>)
+X.java:12: warning: [unchecked] unchecked call to <W>make(Class<W>) as a member of the raw type Y
+    y.make(String.class);
+          ^
+  where W is a type-variable:
+    W extends String declared in method <W>make(Class<W>)
+X.java:13: warning: [unchecked] unchecked call to <W>make(Class<W>) as a member of the raw type Y
+    y.make(getClazz());
+          ^
+  where W is a type-variable:
+    W extends String declared in method <W>make(Class<W>)
+X.java:14: warning: [unchecked] unchecked call to <W>make(Class<W>) as a member of the raw type Y
+    y.make(getClazz().newInstance().getClass());
+          ^
+  where W is a type-variable:
+    W extends String declared in method <W>make(Class<W>)
+1 error
+3 warnings
+ */
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
 public void test023() {

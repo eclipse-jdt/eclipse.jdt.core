@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
@@ -549,13 +548,6 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 boolean detectInheritedNameClash(MethodBinding inherited, MethodBinding otherInherited) {
 	if (!inherited.areParameterErasuresEqual(otherInherited))
 		return false;
-	if (this.environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_7) {
-		// with fix for http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-		// we now ignore return types when detecting name clashes
-		// FYI for now we will only make this change when compliance is set to 1.7 or higher
-		if (inherited.returnType.erasure() != otherInherited.returnType.erasure())
-			return false;
-	}
 	// skip it if otherInherited is defined by a subtype of inherited's declaringClass
 	if (inherited.declaringClass.erasure() != otherInherited.declaringClass.erasure())
 		if (inherited.declaringClass.findSuperTypeOriginatingFrom(otherInherited.declaringClass) != null)
@@ -568,13 +560,6 @@ boolean detectNameClash(MethodBinding current, MethodBinding inherited) {
 	MethodBinding original = inherited.original(); // can be the same as inherited
 	if (!current.areParameterErasuresEqual(original))
 		return false;
-	if (this.environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_7) {
-		// with fix for http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
-		// we now ignore return types when detecting name clashes
-		// FYI for now we will only make this change when compliance is set to 1.7 or higher
-		if (current.returnType.erasure() != original.returnType.erasure())
-			return false;
-	}
 
 	problemReporter(current).methodNameClash(current, inherited.declaringClass.isRawType() ? inherited : original);
 	return true;

@@ -5994,7 +5994,7 @@ public void testBug163659() {
  * @test Ensure that no warning are raised when ambiguous parameterized methods are present in javadoc comments
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=165794"
  */
-public void testBug165794() {
+public void _testBug165794() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"/**\n" +
