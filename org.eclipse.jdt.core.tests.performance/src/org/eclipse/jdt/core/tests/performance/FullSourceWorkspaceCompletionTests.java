@@ -16,7 +16,6 @@ import junit.framework.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
-import org.eclipse.test.performance.Performance;
 
 /**
  */
@@ -176,7 +175,6 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	}
 	public void testPerfCompleteMemberAccess() throws JavaModelException {
 		tagAsGlobalSummary("Codeassist in expression", true); // put in global fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Regression introduced to fix bug 250454");
 		complete(
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",

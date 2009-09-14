@@ -1123,7 +1123,6 @@ public void testCreateJavaElement() throws CoreException {
 
 public void testInitJDTPlugin() throws JavaModelException, CoreException {
 	tagAsSummary("JDT/Core plugin initialization", true); // put in fingerprint
-	setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Added clean-up of internal thread local which imply additional garbage collect during the restart. It concerns only the performance test itself and has no impact in standard Eclipse usage...");
 
 	// Warm-up
 	int wmax = WARMUP_COUNT / 5;
