@@ -6373,7 +6373,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			// pre 1.5, varargs is an attribute, not a modifier (-target jsr14 mode)
 			accessFlags &= ~(ClassFileConstants.AccSynthetic | ClassFileConstants.AccVarargs);
 		}
-		if ((methodBinding.tagBits & TagBits.ClearPrivateModifier) != 0) {
+		if (methodBinding.isConstructor() && (methodBinding.tagBits & TagBits.ClearPrivateModifier) != 0) {
 			accessFlags &= ~ClassFileConstants.AccPrivate;
 		}
 		this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
