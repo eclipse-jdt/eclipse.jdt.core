@@ -44,7 +44,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 271 };
+//		TESTS_NUMBERS = new int[] { 272 };
 //		TESTS_RANGE = new int[] { 249, -1 };
 	}
 
@@ -8881,6 +8881,39 @@ public void test271() throws Exception {
 			"}"
 		},
 	"");
+
+	String expectedOutput =
+		"  // Method descriptor #15 (Ljava/lang/Object;)V\n" + 
+		"  // Stack: 0, Locals: 2\n" + 
+		"  private void foo(@A java.lang.Object o);\n";
+
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=289576
+public void test272() throws Exception {
+	if (this.complianceLevel != ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"@interface A {}\n" + 
+			"public class X {\n" + 
+			"	@SuppressWarnings(\"unused\")\n" + 
+			"	private void foo(@A Object o) {}\n" + 
+			"}"
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null,
+		true);
 
 	String expectedOutput =
 		"  // Method descriptor #15 (Ljava/lang/Object;)V\n" + 

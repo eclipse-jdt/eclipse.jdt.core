@@ -401,13 +401,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[this.contentsOffset++] = methodIndexByte2;
 			attributesNumber++;
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
-			TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
-			if (typeDeclaration != null) {
-				final Annotation[] annotations = typeDeclaration.annotations;
-				if (annotations != null) {
-					attributesNumber += generateRuntimeAnnotations(annotations);
-				}
+		TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
+		if (typeDeclaration != null) {
+			final Annotation[] annotations = typeDeclaration.annotations;
+			if (annotations != null) {
+				attributesNumber += generateRuntimeAnnotations(annotations);
 			}
 		}
 
@@ -673,13 +671,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[this.contentsOffset++] = (byte) signatureIndex;
 			attributesNumber++;
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
-			FieldDeclaration fieldDeclaration = fieldBinding.sourceField();
-			if (fieldDeclaration != null) {
-				Annotation[] annotations = fieldDeclaration.annotations;
-				if (annotations != null) {
-					attributesNumber += generateRuntimeAnnotations(annotations);
-				}
+		FieldDeclaration fieldDeclaration = fieldBinding.sourceField();
+		if (fieldDeclaration != null) {
+			Annotation[] annotations = fieldDeclaration.annotations;
+			if (annotations != null) {
+				attributesNumber += generateRuntimeAnnotations(annotations);
 			}
 		}
 		if ((fieldBinding.tagBits & TagBits.HasMissingType) != 0) {
@@ -6290,18 +6286,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[this.contentsOffset++] = (byte) signatureIndex;
 			attributeNumber++;
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
-			AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
-			if (methodDeclaration != null) {
-				Annotation[] annotations = methodDeclaration.annotations;
-				if (annotations != null) {
-					attributeNumber += generateRuntimeAnnotations(annotations);
-				}
-				if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
-					Argument[] arguments = methodDeclaration.arguments;
-					if (arguments != null) {
-						attributeNumber += generateRuntimeAnnotationsForParameters(arguments);
-					}
+		AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
+		if (methodDeclaration != null) {
+			Annotation[] annotations = methodDeclaration.annotations;
+			if (annotations != null) {
+				attributeNumber += generateRuntimeAnnotations(annotations);
+			}
+			if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
+				Argument[] arguments = methodDeclaration.arguments;
+				if (arguments != null) {
+					attributeNumber += generateRuntimeAnnotationsForParameters(arguments);
 				}
 			}
 		}
