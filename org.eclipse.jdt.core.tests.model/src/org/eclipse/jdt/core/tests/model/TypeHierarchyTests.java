@@ -666,7 +666,7 @@ public void testEfficiencyMultipleProjects() throws CoreException {
 		}
 		ProgressCounter counter = new ProgressCounter();
 		type.newTypeHierarchy(counter);
-		assertEquals("Unexpected work count", 77, counter.count);
+		assertEquals("Unexpected work count", 76, counter.count);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
 	}

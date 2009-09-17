@@ -256,6 +256,39 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean 
 		parsedUnit.scope.buildFieldsAndMethods();
 	this.unitBeingCompleted = null;
 }
+
+/*
+* Used by other compiler tools which do not start by calling completeTypeBindings()
+* and have more than 1 unit to complete.
+*
+* 1. Connect the type hierarchy for the type bindings created for parsedUnits.
+* 2. Create the field bindings
+* 3. Create the method bindings
+*/
+public void completeTypeBindings(CompilationUnitDeclaration[] parsedUnits, boolean[] buildFieldsAndMethods, int unitCount) {
+	for (int i = 0; i < unitCount; i++) {
+		CompilationUnitDeclaration parsedUnit = parsedUnits[i];
+		if (parsedUnit.scope != null)
+			(this.unitBeingCompleted = parsedUnit).scope.checkAndSetImports();
+	}
+
+	for (int i = 0; i < unitCount; i++) {
+		CompilationUnitDeclaration parsedUnit = parsedUnits[i];
+		if (parsedUnit.scope != null)
+			(this.unitBeingCompleted = parsedUnit).scope.connectTypeHierarchy();
+	}
+
+	for (int i = 0; i < unitCount; i++) {
+		CompilationUnitDeclaration parsedUnit = parsedUnits[i];
+		if (parsedUnit.scope != null) {
+			(this.unitBeingCompleted = parsedUnit).scope.checkParameterizedTypes();
+			if (buildFieldsAndMethods[i])
+				parsedUnit.scope.buildFieldsAndMethods();
+		}
+	}
+
+	this.unitBeingCompleted = null;
+}
 public MethodBinding computeArrayClone(MethodBinding objectClone) {
 	if (this.arrayClone == null) {
 		this.arrayClone = new MethodBinding(
