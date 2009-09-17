@@ -1024,6 +1024,9 @@ public final int sourceEnd() {
 	return method.sourceEnd;
 }
 public AbstractMethodDeclaration sourceMethod() {
+	if (isSynthetic()) {
+		return null;
+	}
 	SourceTypeBinding sourceType;
 	try {
 		sourceType = (SourceTypeBinding) this.declaringClass;
@@ -1032,9 +1035,11 @@ public AbstractMethodDeclaration sourceMethod() {
 	}
 
 	AbstractMethodDeclaration[] methods = sourceType.scope.referenceContext.methods;
-	for (int i = methods.length; --i >= 0;)
-		if (this == methods[i].binding)
-			return methods[i];
+	if (methods != null) {
+		for (int i = methods.length; --i >= 0;)
+			if (this == methods[i].binding)
+				return methods[i];
+	}
 	return null;
 }
 public final int sourceStart() {
