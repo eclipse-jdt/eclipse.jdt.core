@@ -49790,4 +49790,29 @@ public void test1453() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=289538
+public void test1454() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	Node first;\n" +
+			"	public void add(T e) {\n" +
+			"		first = new Node(e);\n" +
+			"		System.out.print(true);\n" +
+			"	}\n" +
+			"	private class Node {\n" +
+			"		private Node next;\n" +
+			"		private Node(T d) {}\n" +
+			"		private Node(T d, Node n) { next = n; }\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X<String> x = new X<String>();\n" +
+			"		x.add(\"\");\n" +
+			"	}\n" +
+			"}"
+		},
+   		"true"
+	);
+}
 }
