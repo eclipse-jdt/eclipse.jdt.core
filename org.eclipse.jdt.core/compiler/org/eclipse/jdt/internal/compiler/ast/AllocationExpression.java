@@ -196,7 +196,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	if (codegenBinding.isPrivate() && currentScope.enclosingSourceType() != (declaringClass = codegenBinding.declaringClass)) {
 
 		// from 1.4 on, local type constructor can lose their private flag to ease emulation
-		if ((declaringClass.tagBits & TagBits.IsLocalType) != 0 	&& currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
+		if ((declaringClass.tagBits & TagBits.IsLocalType) != 0 && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 			// constructor will not be dumped as private, no emulation required thus
 			codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
 		} else {
