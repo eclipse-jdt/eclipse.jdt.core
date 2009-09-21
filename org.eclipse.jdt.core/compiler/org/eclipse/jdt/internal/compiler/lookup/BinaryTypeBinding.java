@@ -327,6 +327,21 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		if (needFieldsAndMethods) {
 			createFields(binaryType.getFields(), sourceLevel, missingTypeNames);
 			createMethods(binaryType.getMethods(), sourceLevel, missingTypeNames);
+			boolean isViewedAsDeprecated = isViewedAsDeprecated();
+			if (isViewedAsDeprecated) {
+				for (int i = 0, max = this.fields.length; i < max; i++) {
+					FieldBinding field = this.fields[i];
+					if (!field.isDeprecated()) {
+						field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+					}
+				}
+				for (int i = 0, max = this.methods.length; i < max; i++) {
+					MethodBinding method = this.methods[i];
+					if (!method.isDeprecated()) {
+						method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+					}
+				}
+			}
 		}
 		if (this.environment.globalOptions.storeAnnotations)
 			setAnnotations(createAnnotations(binaryType.getAnnotations(), this.environment, missingTypeNames));
@@ -346,7 +361,6 @@ private void createFields(IBinaryField[] iFields, long sourceLevel, char[][][] m
 		if (size > 0) {
 			this.fields = new FieldBinding[size];
 			boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
-			boolean isViewedAsDeprecated = isViewedAsDeprecated();
 			boolean hasRestrictedAccess = hasRestrictedAccess();
 			int firstAnnotatedFieldIndex = -1;
 			for (int i = 0; i < size; i++) {
@@ -370,8 +384,6 @@ private void createFields(IBinaryField[] iFields, long sourceLevel, char[][][] m
 				field.id = i; // ordinal
 				if (use15specifics)
 					field.tagBits |= binaryField.getTagBits();
-				if (isViewedAsDeprecated && !field.isDeprecated())
-					field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 				if (hasRestrictedAccess)
 					field.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 				if (fieldSignature != null)
@@ -571,14 +583,11 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel, char[][][
 		return;
 	}
 
-	boolean isViewedAsDeprecated = isViewedAsDeprecated();
 	boolean hasRestrictedAccess = hasRestrictedAccess();
 	this.methods = new MethodBinding[total];
 	if (total == initialTotal) {
 		for (int i = 0; i < initialTotal; i++) {
 			MethodBinding method = createMethod(iMethods[i], sourceLevel, missingTypeNames);
-			if (isViewedAsDeprecated && !method.isDeprecated())
-				method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 			if (hasRestrictedAccess)
 				method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 			this.methods[i] = method;
@@ -587,8 +596,6 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel, char[][][
 		for (int i = 0, index = 0; i < initialTotal; i++) {
 			if (iClinit != i && (toSkip == null || toSkip[i] != -1)) {
 				MethodBinding method = createMethod(iMethods[i], sourceLevel, missingTypeNames);
-				if (isViewedAsDeprecated && !method.isDeprecated())
-					method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 				if (hasRestrictedAccess)
 					method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 				this.methods[index++] = method;

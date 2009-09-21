@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 176, 177, 178, 179 };
+//		TESTS_NUMBERS = new int[] { 180 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -5035,17 +5035,17 @@ public void test145() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"EnumA.java",
-			"public enum EnumA {\r\n" +
-			"  B1,\r\n" +
-			"  B2;\r\n" +
-			"  public void foo(){}\r\n" +
+			"public enum EnumA {\n" +
+			"  B1,\n" +
+			"  B2;\n" +
+			"  public void foo(){}\n" +
 			"}",
 			"ClassC.java",
-			"public class ClassC {\r\n" +
-			"  void bar() {\r\n" +
-			"    EnumA.B1.B1.foo();\r\n" +
-			"    EnumA.B1.B2.foo();\r\n" +
-			"  }\r\n" +
+			"public class ClassC {\n" +
+			"  void bar() {\n" +
+			"    EnumA.B1.B1.foo();\n" +
+			"    EnumA.B1.B2.foo();\n" +
+			"  }\n" +
 			"}"
 		},
 		// compiler options
@@ -6469,6 +6469,57 @@ public void test179() {
 		options,
 		"",
 		"SUCCESSB",
+		"",
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=289892
+public void test180() {
+	this.runConformTest(
+		new String[] {
+			"p/package-info.java",
+			"@p.Annot(state=p.MyEnum.BROKEN)\n" + 
+			"package p;",
+			"p/Annot.java",
+			"package p;\n" + 
+			"@Annot(state=MyEnum.KO)\n" + 
+			"public @interface Annot {\n" + 
+			"	MyEnum state() default MyEnum.KO;\n" + 
+			"}",
+			"p/MyEnum.java",
+			"package p;\n" + 
+			"@Annot(state=MyEnum.KO)\n" + 
+			"public enum MyEnum {\n" + 
+			"	WORKS, OK, KO, BROKEN, ;\n" + 
+			"}",
+			"test180/package-info.java",
+			"@p.Annot(state=p.MyEnum.OK)\n" + 
+			"package test180;",
+			"test180/Test.java",
+			"package test180;\n" +
+			"import p.MyEnum;\n" + 
+			"import p.Annot;\n" + 
+			"@Annot(state=MyEnum.OK)\n" + 
+			"public class Test {}",
+		},
+		""
+	);
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+		false,
+		new String[] {
+			"X.java",
+			"import test180.Test;\n" +
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(Test.class);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		null,
+		options,
+		"",
+		"class test180.Test",
 		"",
 		null);
 }
