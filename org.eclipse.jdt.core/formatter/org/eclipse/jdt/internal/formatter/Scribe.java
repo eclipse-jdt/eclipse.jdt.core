@@ -1897,9 +1897,27 @@ public class Scribe implements IJavaDocTagConstants {
 				CommentFormatterUtil.log(e);
 				return;
 			}
-			int prefixOffset= inputBuffer.indexOf(contentPrefix, lineOffset);
-			if (prefixOffset >= 0 && inputBuffer.substring(lineOffset, prefixOffset).trim().length() == 0)
-				inputBuffer.delete(lineOffset, prefixOffset + 1 + 1);
+			int prefixOffset = inputBuffer.indexOf(contentPrefix, lineOffset);
+			if (prefixOffset >= 0 && inputBuffer.substring(lineOffset, prefixOffset).trim().length() == 0) {
+				int offsetEnd = prefixOffset + 1;
+				char ch = inputBuffer.charAt(offsetEnd);
+				switch (ch) {
+					case '\n':
+					case '\r':
+						break;
+					case ' ':
+					case '\t':
+					case '\u000c' :    /* FORM FEED               */
+						offsetEnd++;
+						break;
+					default:
+						if (ScannerHelper.isWhitespace(ch)) {
+							offsetEnd++;
+						}
+						break;
+				}
+				inputBuffer.delete(lineOffset, offsetEnd);
+			}
 		}
 
 		// 2 - convert HTML to Java (@see JavaDocRegion#convertHtml2Java)
@@ -3332,34 +3350,47 @@ public class Scribe implements IJavaDocTagConstants {
     			if (codeEnd > end) {
     				if (this.formatter.preferences.comment_format_source) {
 						if (textStart < end) addReplaceEdit(textStart, end, buffer.toString());
-						// Count the lines until the exact start position of the code
-						this.scanner.resetTo(end+1, nextStart-1);
-						int newLines = 0;
-						try {
-							int token = this.scanner.getNextToken();
-							loop: while (true) {
-								switch (token) {
-									case TerminalTokens.TokenNameWHITESPACE:
-										if (CharOperation.indexOf('\n', this.scanner.source, this.scanner.startPosition, this.scanner.currentPosition) < 0) {
-											break loop;
-										}
-										newLines++;
-										break;
-									case TerminalTokens.TokenNameMULTIPLY:
-										nextStart = this.scanner.currentPosition + 1;
-										break;
-									default:
-										break loop;
+						// See whether there's a space before the code
+						boolean needLeadingSpace = false;
+						if (linesGap > 0) {
+							int lineStart = this.scanner.getLineStart(startLine);
+							if (nextStart > lineStart) { // if code starts at the line, then no leading space is needed
+								this.scanner.resetTo(lineStart, nextStart-1);
+								try {
+									int token = this.scanner.getNextToken();
+									if (token == TerminalTokens.TokenNameWHITESPACE) {
+										// skip indentation
+										token = this.scanner.getNextToken();
+										needLeadingSpace = false; // there may be no star after
+									} else {
+										needLeadingSpace = true;
+									}
+									if (token == TerminalTokens.TokenNameMULTIPLY) {
+										nextStart = this.scanner.currentPosition;
+										// skip javadoc comment star
+										token = this.scanner.getNextToken();
+										needLeadingSpace = true;
+									}
+									if (token == TerminalTokens.TokenNameWHITESPACE) {
+										needLeadingSpace = false;
+										nextStart++;
+									}
 								}
-								token = this.scanner.getNextToken();
+								catch (InvalidInputException iie) {
+									// skip
+								}
 							}
 						}
-						catch (InvalidInputException iie) {
-							// skip
-						}
+						// Format gap lines before code
+						int newLines = linesGap;
 						if (newLines == 0) newLines=1;
-		    			printJavadocGapLines(end+1, nextStart-1, newLines, false/* clear first blank lines inside <pre> tag as done by old formatter */, false, null);
+						printJavadocGapLines(end+1, nextStart-1, newLines, false/* clear first blank lines inside <pre> tag as done by old formatter */, false, null);
+						if (needLeadingSpace) {
+							addInsertEdit(nextStart, " "); //$NON-NLS-1$
+						}
+						// Format the code
 						printCodeSnippet(nextStart, codeEnd);
+						// Format the gap lines after the code
 						nextStart = (int) text.separators[max];
 	    				printJavadocGapLines(codeEnd+1, nextStart-1, 1, false/* clear blank lines inside <pre> tag as done by old formatter */, false, null);
 	    				return 2;
