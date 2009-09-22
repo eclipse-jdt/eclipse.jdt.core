@@ -45,7 +45,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 	private static final Main MAIN = new Main(null/*outWriter*/, null/*errWriter*/, false/*systemExit*/, null/*options*/, null/*progress*/);
 
 	static {
-//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NAMES = new String[] { "test292_warn_options" };
 //	TESTS_NUMBERS = new int[] { 288 };
 //	TESTS_RANGE = new int[] { 107, -1 };
 	}
@@ -1675,7 +1675,7 @@ public void test012b(){
         "      noEffectAssign     + assignment without effect\n" +
         "      null                 potential missing or redundant null check\n" +
         "      nullDereference    + missing null check\n" +
-        "      over-ann             missing @Override annotation\n" +
+        "      over-ann             missing @Override annotation (superclass)\n" +
         "      paramAssign          assignment to a parameter\n" +
         "      pkgDefaultMethod   + attempt to override package-default method\n" +
         "      raw                + usage of raw type\n" +
@@ -11075,7 +11075,7 @@ public void test292_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -warn:allOver-ann -1.6 -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:allOver-ann -1.6 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
