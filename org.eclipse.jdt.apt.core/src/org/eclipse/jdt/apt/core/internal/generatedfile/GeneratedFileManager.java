@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2009 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -532,7 +532,7 @@ public class GeneratedFileManager
 				// Mark all newly created folders (but not pre-existing ones) as derived.  
 				for (IContainer folder : newFolders) {
 					try {
-						folder.setDerived(true);
+						folder.setDerived(true, progressMonitor);
 					} catch (CoreException e) {
 						AptPlugin.logWarning(e, "Unable to mark generated type folder as derived: " + folder.getName()); //$NON-NLS-1$
 						break;
@@ -553,7 +553,7 @@ public class GeneratedFileManager
 			// deleted this file before we get here, so if the file doesn't
 			// exist, marking it derived throws a ResourceException.
 			if (file.exists()) {
-				file.setDerived(true);
+				file.setDerived(true, progressMonitor);
 			}
 			// We used to also make the file read-only. This is a bad idea,
 			// as refactorings then fail in the future, which is worse

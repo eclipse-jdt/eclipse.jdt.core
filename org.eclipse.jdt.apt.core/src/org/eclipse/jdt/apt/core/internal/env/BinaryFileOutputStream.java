@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2009 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.Collections;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
@@ -98,10 +99,8 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 		try {
 			FileSystemUtil.makeDerivedParentFolders(_file.getParent());
 			if (create) {
-				_file.create(toSave, true, null);
-				_file.setDerived(true);
-			}
-			else {
+				_file.create(toSave, IResource.FORCE | IResource.DERIVED, null);
+			} else {
 				_file.setContents(toSave, true, false, null);
 			}
 		}
