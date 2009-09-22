@@ -8942,4 +8942,181 @@ public void test273() throws Exception {
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
+// To check Missing override annotation error when a method implements
+// and also overrides a method in a superclass
+public void test274a() {
+	String testString [] = new String[] {
+			"T.java",
+			"public interface T {\n" +
+			"        void m();\n" +
+			"}\n" + 
+			"abstract class A implements T {\n" +
+			"}\n" +
+			"class B extends A {\n" +
+			"        public void m() {}\n" +
+			"}\n"
+			};
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.ENABLED);
+	if (new CompilerOptions(customOptions).sourceLevel >= ClassFileConstants.JDK1_6) {
+		String expectedOutput =
+				"----------\n" +
+				"1. ERROR in T.java (at line 7)\n" +
+				"	public void m() {}\n" +
+				"	            ^^^\n" +
+				"The method m() of type B should be tagged with @Override since it actually overrides a superinterface method\n" +
+				"----------\n";
+		this.runNegativeTest(
+				true,
+				testString,
+				null, customOptions,
+				expectedOutput, 
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	} else {
+		this.runConformTest(
+				true, testString,
+				null,
+				customOptions,
+				null,
+				null, null, 
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
+// To check Missing override annotation error when a method implements but
+// doesn't overrides
+public void test274b() {
+	String testString [] = new String[] {
+			"Over.java",
+			"interface I {\n" +
+			"        void m();\n" +
+			"}\n" +
+			"public class Over implements I {\n" +
+			"        public void m() {}\n" +
+			"}\n"
+			};
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.ENABLED);
+	if (new CompilerOptions(customOptions).sourceLevel >= ClassFileConstants.JDK1_6) {
+		String expectedOutput =
+			"----------\n" +
+			"1. ERROR in Over.java (at line 5)\n" +
+			"	public void m() {}\n" +
+			"	            ^^^\n" +
+			"The method m() of type Over should be tagged with @Override since it actually overrides a superinterface method\n" +
+			"----------\n";
+		this.runNegativeTest(
+				true,
+				testString,
+				null, customOptions,
+				expectedOutput,
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	} else {
+		this.runConformTest(
+				true, testString,
+				null,
+				customOptions,
+				null,
+				null, null,
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
+// To check Missing override annotation error when a method simply overrides
+public void test274c() {
+	String testString [] = new String[] {
+			"B.java",
+			"interface A {\n" +
+			"        void m();\n" +
+			"}\n" +
+			"public interface B extends A {\n" +
+			"        void m();\n" +
+			"}\n"
+			};
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.ENABLED);
+	if (new CompilerOptions(customOptions).sourceLevel >= ClassFileConstants.JDK1_6) {
+		String expectedOutput =
+				"----------\n" +
+				"1. ERROR in B.java (at line 5)\n" +
+				"	void m();\n" +
+				"	     ^^^\n" +
+				"The method m() of type B should be tagged with @Override since it actually overrides a superinterface method\n" +
+				"----------\n";
+		this.runNegativeTest(
+				true,
+				testString,
+				null, customOptions,
+				expectedOutput,
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	} else {
+		this.runConformTest(
+				true, testString,
+				null,
+				customOptions,
+				null,
+				null, null,
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
+// To check missing override annotation if the method has a signature
+// that is override-equivalent to that of any public method declared in Object.
+public void test274d() {
+	String testString [] = new String[] {
+			"A.java",
+			"public interface A {\n" +
+			"        String toString();\n" +
+			"}\n"
+			};
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.ENABLED);
+	if (new CompilerOptions(customOptions).sourceLevel >= ClassFileConstants.JDK1_6) {
+		String expectedOutput =
+			"----------\n" +
+			"1. ERROR in A.java (at line 2)\n" +
+			"	String toString();\n" +
+			"	       ^^^^^^^^^^\n" +
+			"The method toString() of type A should be tagged with @Override since it actually overrides a superinterface method\n" +
+			"----------\n";
+		this.runNegativeTest(
+				true,
+				testString,
+				null, customOptions,
+				expectedOutput,
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	} else {
+		this.runConformTest(
+				true, testString,
+				null,
+				customOptions,
+				null,
+				null, null,
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+}
 }

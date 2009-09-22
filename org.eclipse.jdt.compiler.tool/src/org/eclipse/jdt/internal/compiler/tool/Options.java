@@ -145,6 +145,7 @@ public final class Options {
 				if (token.equals("allDeadCode")//$NON-NLS-1$
 						|| token.equals("allDeprecation")//$NON-NLS-1$
 						|| token.equals("allJavadoc")//$NON-NLS-1$
+						|| token.equals("allOver-ann")//$NON-NLS-1$
 						|| token.equals("assertIdentifier")//$NON-NLS-1$
 						|| token.equals("boxing")//$NON-NLS-1$
 						|| token.equals("charConcat")//$NON-NLS-1$

@@ -976,6 +976,21 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_MISSING_OVERRIDE_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingOverrideAnnotation"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Reporting Missing <code>@Override</code> Annotation for interface method implementation.
+	 * <p>When enabled, the compiler will issue an error or a warning whenever encountering a method
+	 *    declaration which overrides or implements a superinterface method but has no <code>@Override</code> annotation.</p>
+	 * <p>This option should be available only if the compliance is greater or equals to 1.6.</p>
+	 * <p>The severity of the problem is controlled with option {@link #COMPILER_PB_MISSING_OVERRIDE_ANNOTATION}.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * </dl>
+	 * @since 3.6
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_MISSING_OVERRIDE_ANNOTATION_FOR_INTERFACE_METHOD_IMPLEMENTATION = PLUGIN_ID + ".compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Reporting Missing <code>@Deprecated</code> Annotation.
 	 * <p>When enabled, the compiler will issue an error or a warning whenever encountering a declaration
 	 *    carrying a <code>@deprecated</code> doc tag but having no corresponding <code>@Deprecated</code> annotation.

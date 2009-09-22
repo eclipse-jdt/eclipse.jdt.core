@@ -1641,6 +1641,7 @@ public void test012b(){
         "      allDeadCode          dead code including trivial if(DEBUG) check\n" +
         "      allDeprecation       deprecation including inside deprecated code\n" +
         "      allJavadoc           invalid or missing javadoc\n" +
+        "	   allOver-ann			all missing @Override annotations\n" +
         "      assertIdentifier   + ''assert'' used as identifier\n" +
         "      boxing               autoboxing conversion\n" +
         "      charConcat         + char[] in String concat\n" +
@@ -1813,6 +1814,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility\" value=\"public\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSerialVersion\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" +
@@ -11053,5 +11055,45 @@ public void test291_jar_ref_in_jar() throws Exception {
 		"<null>", 
 		actual, 
 		true/*show line serators*/);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
+// -warn option - regression tests to check option allOver-ann
+public void test292_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface A {\n" +
+			"  void m();\n" +
+			"}" +
+			"interface B extends A{\n" +
+			"  void m();\n" +
+			"}" +
+			"public class X implements A{\n" +
+			"  public void m(){}\n" +
+			"  public String toString(){return \"HelloWorld\";}\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:allOver-ann -1.6 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
+		"	void m();\n" +
+		"	     ^^^\n" +
+		"The method m() of type B should be tagged with @Override since it actually overrides a superinterface method\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+		"	public void m(){}\n" +
+		"	            ^^^\n"+
+		"The method m() of type X should be tagged with @Override since it actually overrides a superinterface method\n" +
+		"----------\n" +
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+		"	public String toString(){return \"HelloWorld\";}\n" +
+		"	              ^^^^^^^^^^\n" +
+		"The method toString() of type X should be tagged with @Override since it actually overrides a superclass method\n" +
+		"----------\n" +
+		"3 problems (3 warnings)",
+		true);
 }
 }

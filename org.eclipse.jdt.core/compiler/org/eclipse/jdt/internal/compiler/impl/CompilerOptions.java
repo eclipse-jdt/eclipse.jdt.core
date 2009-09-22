@@ -105,6 +105,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportAutoboxing = "org.eclipse.jdt.core.compiler.problem.autoboxing"; //$NON-NLS-1$
 	public static final String OPTION_ReportAnnotationSuperInterface = "org.eclipse.jdt.core.compiler.problem.annotationSuperInterface"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingOverrideAnnotation = "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"; //$NON-NLS-1$
+	public static final String OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation = "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingDeprecatedAnnotation = "org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation"; //$NON-NLS-1$
 	public static final String OPTION_ReportIncompleteEnumSwitch = "org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
 	public static final String OPTION_ReportForbiddenReference =  "org.eclipse.jdt.core.compiler.problem.forbiddenReference"; //$NON-NLS-1$
@@ -326,6 +327,8 @@ public class CompilerOptions {
 	public boolean processAnnotations;
 	/** Store annotations */
 	public boolean storeAnnotations;
+	/** Specify if need to report missing override annotation for a method implementing an interface method (java 1.6 and above)*/
+	public boolean reportMissingOverrideAnnotationForInterfaceMethodImplementation;
 	/** Indicate if annotation processing generates classfiles */
 	public boolean generateClassFiles;
 
@@ -843,6 +846,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportDiscouragedReference, getSeverityString(DiscouragedReference));
 		optionsMap.put(OPTION_ReportVarargsArgumentNeedCast, getSeverityString(VarargsArgumentNeedCast));
 		optionsMap.put(OPTION_ReportMissingOverrideAnnotation, getSeverityString(MissingOverrideAnnotation));
+		optionsMap.put(OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, this.reportMissingOverrideAnnotationForInterfaceMethodImplementation ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportMissingDeprecatedAnnotation, getSeverityString(MissingDeprecatedAnnotation));
 		optionsMap.put(OPTION_ReportIncompleteEnumSwitch, getSeverityString(IncompleteEnumSwitch));
 		optionsMap.put(OPTION_ReportUnusedLabel, getSeverityString(UnusedLabel));
@@ -1012,6 +1016,9 @@ public class CompilerOptions {
 
 		// enable annotation processing by default only in batch mode
 		this.processAnnotations = false;
+		
+		// disable missing override annotation reporting for interface method implementation
+		this.reportMissingOverrideAnnotationForInterfaceMethodImplementation = false;
 		
 		// dead code detection
 		this.reportDeadCodeInTrivialIfStatement = false;
@@ -1206,6 +1213,13 @@ public class CompilerOptions {
 				this.treatOptionalErrorAsFatal = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.treatOptionalErrorAsFatal = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportMissingOverrideAnnotationForInterfaceMethodImplementation = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportMissingOverrideAnnotationForInterfaceMethodImplementation = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
@@ -1445,6 +1459,7 @@ public class CompilerOptions {
 		buf.append("\n\t- autoboxing: ").append(getSeverityString(AutoBoxing)); //$NON-NLS-1$
 		buf.append("\n\t- annotation super interface: ").append(getSeverityString(AnnotationSuperInterface)); //$NON-NLS-1$
 		buf.append("\n\t- missing @Override annotation: ").append(getSeverityString(MissingOverrideAnnotation)); //$NON-NLS-1$
+		buf.append("\n\t- missing @Override annotation for interface method implementation: ").append(this.reportMissingOverrideAnnotationForInterfaceMethodImplementation ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$
 		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$
 		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$

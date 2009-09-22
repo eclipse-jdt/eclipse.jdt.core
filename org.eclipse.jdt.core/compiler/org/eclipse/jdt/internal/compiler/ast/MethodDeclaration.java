@@ -160,10 +160,32 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					break checkOverride;
 				// claims to override, and doesn't actually do so
 				this.scope.problemReporter().methodMustOverride(this, complianceLevel);
-			} else if (!this.binding.declaringClass.isInterface()
-						&& (bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
-				// actually overrides, but did not claim to do so
-				this.scope.problemReporter().missingOverrideAnnotation(this);
+			} else {
+				//In case of  a concrete class method, we have to check if it overrides(in 1.5 and above) OR implements a method(1.6 and above).
+				//Also check if the method has a signature that is override-equivalent to that of any public method declared in Object.
+				if (!this.binding.declaringClass.isInterface()){
+						if((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
+							this.scope.problemReporter().missingOverrideAnnotation(this);
+						} else {
+							if(complianceLevel >= ClassFileConstants.JDK1_6
+								&& compilerOptions.reportMissingOverrideAnnotationForInterfaceMethodImplementation
+								&& this.binding.isImplementing()) {
+									// actually overrides, but did not claim to do so
+									this.scope.problemReporter().missingOverrideAnnotationForInterfaceMethodImplementation(this);
+							}
+							
+						}
+				}
+				else {	//For 1.6 and above only
+					//In case of a interface class method, we have to check if it overrides a method (isImplementing returns true in case it overrides)
+					//Also check if the method has a signature that is override-equivalent to that of any public method declared in Object.
+					if(complianceLevel >= ClassFileConstants.JDK1_6
+							&& compilerOptions.reportMissingOverrideAnnotationForInterfaceMethodImplementation
+							&& (((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) || this.binding.isImplementing())){
+						// actually overrides, but did not claim to do so
+						this.scope.problemReporter().missingOverrideAnnotationForInterfaceMethodImplementation(this);
+					}
+				}
 			}
 		}
 

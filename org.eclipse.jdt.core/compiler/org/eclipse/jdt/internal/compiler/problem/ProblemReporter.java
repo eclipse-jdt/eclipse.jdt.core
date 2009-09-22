@@ -254,6 +254,7 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.RawTypeReference;
 
 		case IProblem.MissingOverrideAnnotation:
+		case IProblem.MissingOverrideAnnotationForInterfaceMethodImplementation:
 			return CompilerOptions.MissingOverrideAnnotation;
 
 		case IProblem.FieldMissingDeprecatedAnnotation:
@@ -4995,6 +4996,18 @@ public void missingOverrideAnnotation(AbstractMethodDeclaration method) {
 	MethodBinding binding = method.binding;
 	this.handle(
 		IProblem.MissingOverrideAnnotation,
+		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, false), new String(binding.declaringClass.readableName()), },
+		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, true), new String(binding.declaringClass.shortReadableName()),},
+		severity,
+		method.sourceStart,
+		method.sourceEnd);
+}
+public void missingOverrideAnnotationForInterfaceMethodImplementation(AbstractMethodDeclaration method) {
+	int severity = computeSeverity(IProblem.MissingOverrideAnnotationForInterfaceMethodImplementation);
+	if (severity == ProblemSeverities.Ignore) return;
+	MethodBinding binding = method.binding;
+	this.handle(
+		IProblem.MissingOverrideAnnotationForInterfaceMethodImplementation,
 		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, false), new String(binding.declaringClass.readableName()), },
 		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, true), new String(binding.declaringClass.shortReadableName()),},
 		severity,

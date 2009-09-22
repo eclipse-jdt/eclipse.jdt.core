@@ -1225,6 +1225,8 @@ void setSourceStart(int sourceStart);
 	int MethodMustOverrideOrImplement = MethodRelated + 634;
 	/** @since 3.4 */
 	int UnusedWarningToken = Internal + 635;
+	/** @since 3.6 */
+	int MissingOverrideAnnotationForInterfaceMethodImplementation = MethodRelated + 636;
 
 	/**
 	 * More problems in generics
