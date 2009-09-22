@@ -1641,7 +1641,7 @@ public void test012b(){
         "      allDeadCode          dead code including trivial if(DEBUG) check\n" +
         "      allDeprecation       deprecation including inside deprecated code\n" +
         "      allJavadoc           invalid or missing javadoc\n" +
-        "	   allOver-ann			all missing @Override annotations\n" +
+        "      allOver-ann          all missing @Override annotations\n" +
         "      assertIdentifier   + ''assert'' used as identifier\n" +
         "      boxing               autoboxing conversion\n" +
         "      charConcat         + char[] in String concat\n" +
