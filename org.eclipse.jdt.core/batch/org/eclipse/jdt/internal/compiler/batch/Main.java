@@ -3088,6 +3088,14 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 						CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement,
 						isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 					return;
+			} else if (token.equals("allOver-ann")) { //$NON-NLS-1$
+				this.options.put(
+						CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				this.options.put(
+						CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+						isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+				return;
 			}
 			break;
 		case 'b' :
@@ -3319,6 +3327,9 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 				this.options.put(
 					CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
 					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				this.options.put(
+					CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+					CompilerOptions.DISABLED);
 				return;
 			}
 			break;
