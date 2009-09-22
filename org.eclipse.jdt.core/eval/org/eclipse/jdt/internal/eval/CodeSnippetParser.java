@@ -295,9 +295,14 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 			if (nameEnd >= 0) {
 				trimmedTypeName = CharOperation.subarray(trimmedTypeName, 0, nameEnd);
 			}
-			TypeReference typeReference = new QualifiedTypeReference(
-				CharOperation.splitOn('.', trimmedTypeName),
-				positions);
+			TypeReference typeReference;
+			if (CharOperation.indexOf('.', trimmedTypeName) == -1) {
+				typeReference = new SingleTypeReference(trimmedTypeName, position);
+			} else {
+				typeReference = new QualifiedTypeReference(
+						CharOperation.splitOn('.', trimmedTypeName),
+						positions);
+			}
 			int dimCount = CharOperation.occurencesOf('[', this.evaluationContext.localVariableTypeNames[i]);
 			if (dimCount > 0) {
 				typeReference = copyDims(typeReference, dimCount);
