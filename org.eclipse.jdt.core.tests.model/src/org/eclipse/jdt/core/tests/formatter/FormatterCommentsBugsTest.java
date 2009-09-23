@@ -26,7 +26,9 @@ public class FormatterCommentsBugsTest extends FormatterCommentsTests {
 public static Test suite() {
 	return buildModelTestSuite(FormatterCommentsBugsTest.class);
 }
-
+static {
+	//TESTS_NAMES = new String[] { "testBug287833b" } ;
+	}
 public FormatterCommentsBugsTest(String name) {
     super(name);
 }
@@ -4807,5 +4809,101 @@ public void testBug281533() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * [formatter] Formatter removes the first character after the * in the <pre> tag 
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=287833
+ */
+public void testBug287833a() {
+	String source = 
+		"public class test1 {\n" + 
+	    "/**\n"+
+	    "* <pre>\n"+
+	    "*void foo() {\n"+
+	    "*}\n"+
+	    "* </pre>\n"+
+	    "*/\n"+
+	    "void foo() {\n"+
+	    "}\n"+
+	    "}\n";
+	    
+	formatSource(source, 
+		"public class test1 {\n"+
+	    "	/**\n"+
+	    "	 * <pre>\n"+
+	    "	 * void foo() {\n"+
+	    "	 * }\n"+
+	    "	 * </pre>\n"+
+	    "	 */\n"+
+	    "	void foo() {\n"+
+	    "	}\n" +
+	    "}\n");
+}
+
+/**
+ * [formatter] Formatter removes the first character after the * in the <pre> tag 
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=287833
+ */
+public void testBug287833b() {
+	String source = 
+		"public class test1 {\n" + 
+	    "/**\n"+
+	    "* <pre>\n"+
+	    "* void foo() {\n"+
+	    "*\r\n"+
+	    "* }\n"+
+	    "* </pre>\n"+
+	    "*/ \n"+
+	    "void foo() {\n"+
+	    "}\n"+
+	    "}\n";
+	    
+	formatSource(source, 
+		"public class test1 {\n"+
+	    "	/**\n"+
+	    "	 * <pre>\n"+
+	    "	 * void foo() {\n"+
+	    "	 * \r\n" +
+	    "	 * }\n"+
+	    "	 * </pre>\n"+
+	    "	 */\n"+
+	    "	void foo() {\n"+
+	    "	}\n" +
+	    "}\n");
+}
+
+/**
+ * [formatter] Formatter removes the first character after the * in the <pre> tag 
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=287833
+ */
+public void testBug287833c() {
+	String source = 
+		"public class test1 {\n" + 
+	    "/**\n"+
+	    "* <pre>\n"+
+	    "* void foo() {\n"+
+	    "*\n"+
+	    "* }\n"+
+	    "* </pre>\n"+
+	    "*/ \n"+
+	    "void foo() {\n"+
+	    "}\n"+
+	    "}\n";
+	    
+	formatSource(source, 
+		"public class test1 {\n"+
+	    "	/**\n"+
+	    "	 * <pre>\n"+
+	    "	 * void foo() {\n"+
+	    "	 * \n" +
+	    "	 * }\n"+
+	    "	 * </pre>\n"+
+	    "	 */\n"+
+	    "	void foo() {\n"+
+	    "	}\n" +
+	    "}\n");
+}
+
+
 
 }
