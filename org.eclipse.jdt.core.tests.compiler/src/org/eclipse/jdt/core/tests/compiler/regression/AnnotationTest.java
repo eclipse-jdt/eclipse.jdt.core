@@ -3900,7 +3900,7 @@ public class AnnotationTest extends AbstractComparableTest {
                 "    void foo(List list) {\n" +
                 "        List<String> ls1 = list;\n" +
                 "    }\n" +
-                "    @SuppressWarnings(\"unchecked\")\n" +
+                "    @SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" +
                 "    void bar(List list) {\n" +
                 "        List<String> ls2 = list;\n" +
                 "    }\n" +
@@ -4078,6 +4078,7 @@ public class AnnotationTest extends AbstractComparableTest {
     			"\n" +
     			"@SuppressWarnings( { \"deprecation\",//$NON-NLS-1$\n" +
     			"		\"finally\",//$NON-NLS-1$\n" +
+    			"		\"rawtypes\",//$NON-NLS-1$\n" +
     			"		\"serial\",//$NON-NLS-1$\n" +
     			"		\"unchecked\"//$NON-NLS-1$\n" +
     			"})\n" +
@@ -4107,7 +4108,7 @@ public class AnnotationTest extends AbstractComparableTest {
     			"}\n"
             },
     		"----------\n" +
-    		"1. ERROR in X.java (at line 23)\n" +
+    		"1. ERROR in X.java (at line 24)\n" +
     		"	Zork dummy;\n" +
     		"	^^^^\n" +
     		"Zork cannot be resolved to a type\n" +
@@ -4125,6 +4126,7 @@ public class AnnotationTest extends AbstractComparableTest {
     			"public class X {\n" +
     			"	@SuppressWarnings( { \"deprecation\",//$NON-NLS-1$\n" +
     			"			\"finally\",//$NON-NLS-1$\n" +
+    			"			\"rawtypes\",//$NON-NLS-1$\n" +
     			"			\"unchecked\"//$NON-NLS-1$\n" +
     			"	})\n" +
     			"	public static void main(String[] args) {\n" +
@@ -4138,7 +4140,7 @@ public class AnnotationTest extends AbstractComparableTest {
     			"		}\n" +
     			"	}\n" +
     			"\n" +
-    			"	@SuppressWarnings(\"unchecked\"//$NON-NLS-1$\n" +
+    			"	@SuppressWarnings({\"unchecked\", \"rawtypes\"}//$NON-NLS-1$//$NON-NLS-2$\n" +
     			"	)\n" +
     			"	List<X> l = new Vector();\n" +
     			"\n" +
@@ -4158,7 +4160,7 @@ public class AnnotationTest extends AbstractComparableTest {
     			"}\n"
             },
     		"----------\n" +
-    		"1. ERROR in X.java (at line 28)\n" +
+    		"1. ERROR in X.java (at line 29)\n" +
     		"	Zork dummy;\n" +
     		"	^^^^\n" +
     		"Zork cannot be resolved to a type\n" +
@@ -5068,7 +5070,7 @@ public void test143() {
         this.runNegativeTest(
             new String[] {
                 "X.java",
-                "@SuppressWarnings(\"unchecked\")\n" +
+                "@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" +
 				"public class X<T> {\n" +
 				"    \n" +
 				"    public static void main(String[] args) {\n" +

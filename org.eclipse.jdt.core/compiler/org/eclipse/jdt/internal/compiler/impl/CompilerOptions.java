@@ -347,6 +347,7 @@ public class CompilerOptions {
 		"nls", //$NON-NLS-1$
 		"null", //$NON-NLS-1$
 		"restriction", //$NON-NLS-1$
+		"rawtypes", //$NON-NLS-1$
 		"serial", //$NON-NLS-1$
 		"static-access", //$NON-NLS-1$
 		"super", //$NON-NLS-1$
@@ -693,7 +694,7 @@ public class CompilerOptions {
 			case MissingDeprecatedAnnotation :
 				return "dep-ann"; //$NON-NLS-1$
 			case RawTypeReference :
-				return "unchecked"; //$NON-NLS-1$
+				return "rawtypes"; //$NON-NLS-1$
 			case UnusedLabel :
 			case UnusedTypeArguments :
 			case RedundantSuperinterface :
@@ -756,6 +757,8 @@ public class CompilerOptions {
 					return IrritantSet.NULL;
 				break;
 			case 'r' :
+				if ("rawtypes".equals(warningToken)) //$NON-NLS-1$
+					return IrritantSet.RAW;
 				if ("restriction".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.RESTRICTION;
 				break;

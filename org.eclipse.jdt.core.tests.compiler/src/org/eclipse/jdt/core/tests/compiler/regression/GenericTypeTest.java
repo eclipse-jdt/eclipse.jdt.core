@@ -7225,7 +7225,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"import java.util.HashMap;\n" +
 				"import java.util.Map;\n" +
 				"public class X {\n" +
-				"    @SuppressWarnings(\"unchecked\")\n" +
+				"    @SuppressWarnings(\"rawtypes\")\n" +
 				"    private static final Map<String, Class> classes = new HashMap<String, Class>();\n" +
 				"    public static void main(String[] args) throws Exception {\n" +
 				"    	classes.put(\"test\", X.class);\n" +
@@ -34056,7 +34056,7 @@ public void test1035() {
 			"ComparableComparator.java",
 			"import java.util.Comparator;\n" +
 			"\n" +
-			"@SuppressWarnings(\"unchecked\")\n" +
+			"@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" +
 			"class ComparableComparator<T extends Comparable<? super T>> implements Comparator<T> {\n" +
 			"\n" +
 			"	static ComparableComparator instance = new ComparableComparator();\n" +
@@ -34075,7 +34075,7 @@ public void test1035() {
 			"}\n" +
 			"}\n" +
 			"\n" +
-			"@SuppressWarnings(\"unchecked\")\n" +
+			"@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" +
 			"class ComparatorUtils {\n" +
 			"\n" +
 			"	static Comparator BAR = ComparableComparator.bar();//0\n" +
@@ -42751,7 +42751,7 @@ public void test1252() {
 				"X.java",
 				"public class X {\n" +
 				"	Zork z;\n" +
-				"	@SuppressWarnings(\"unchecked\")\n" +
+				"	@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" +
 				"	public B getB() {\n" +
 				"		return new B<Object>();\n" +
 				"	}\n" +
