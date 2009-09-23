@@ -979,12 +979,12 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Reporting Missing <code>@Override</code> Annotation for interface method implementation.
 	 * <p>When enabled, the compiler will issue an error or a warning whenever encountering a method
 	 *    declaration which overrides or implements a superinterface method but has no <code>@Override</code> annotation.</p>
-	 * <p>This option should be available only if the compliance is greater or equals to 1.6.</p>
+	 * <p>This option only has an effect if the compiler compliance is 1.6 or greater.</p>
 	 * <p>The severity of the problem is controlled with option {@link #COMPILER_PB_MISSING_OVERRIDE_ANNOTATION}.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * <dt>Default:</dt><dd><code>"enabled"</code></dd>
 	 * </dl>
 	 * @since 3.6
 	 * @category CompilerOptionID

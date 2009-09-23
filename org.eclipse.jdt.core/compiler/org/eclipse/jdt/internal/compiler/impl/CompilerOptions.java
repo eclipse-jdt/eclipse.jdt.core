@@ -1018,7 +1018,7 @@ public class CompilerOptions {
 		this.processAnnotations = false;
 		
 		// disable missing override annotation reporting for interface method implementation
-		this.reportMissingOverrideAnnotationForInterfaceMethodImplementation = false;
+		this.reportMissingOverrideAnnotationForInterfaceMethodImplementation = true;
 		
 		// dead code detection
 		this.reportDeadCodeInTrivialIfStatement = false;

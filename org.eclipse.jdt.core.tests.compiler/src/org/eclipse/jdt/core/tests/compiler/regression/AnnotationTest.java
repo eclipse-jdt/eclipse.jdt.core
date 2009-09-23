@@ -3304,102 +3304,116 @@ public class AnnotationTest extends AbstractComparableTest {
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84791 - variation
     public void test111() {
-        this.runNegativeTest(
-            new String[] {
-                "X.java",
-				"import java.lang.annotation.Annotation;\n" +
-				"import java.util.Arrays;\n" +
-				"\n" +
-				"@interface Ann {\n" +
-				"	int foo();\n" +
-				"}\n" +
-				"\n" +
-				"interface Iface extends Ann {\n" +
-				"}\n" +
-				"\n" +
-				"abstract class Klass implements Ann {\n" +
-				"}\n" +
-				"\n" +
-				"class SubKlass extends Klass {\n" +
-				"	public Class<? extends Annotation> annotationType() {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}\n" +
-				"\n" +
-				"class AnnImpl implements Ann {\n" +
-				"    public boolean equals(Object obj) { return false; }\n" +
-				"    public int hashCode() { return 0; }\n" +
-				"    public String toString() { return null; }\n" +
-				"    public Class<? extends Annotation> annotationType() { return null; }\n" +
-				"    public int foo() { return 0; }\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Class c = SubKlass.class;\n" +
-				"		System.out.println(\"Classes:\");\n" +
-				"		while (c != Object.class) {\n" +
-				"			System.out.println(\"-> \" + c.getName());\n" +
-				"			c = c.getSuperclass();\n" +
-				"		}\n" +
-				"\n" +
-				"		System.out.println();\n" +
-				"		System.out.println(\"Interfaces:\");\n" +
-				"		c = SubKlass.class;\n" +
-				"		while (c != Object.class) {\n" +
-				"			Class[] i = c.getInterfaces();\n" +
-				"			System.out.println(\"-> \" + Arrays.asList(i));\n" +
-				"			c = c.getSuperclass();\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
-            },
-    		"----------\n" +
-    		"1. WARNING in X.java (at line 8)\n" +
-    		"	interface Iface extends Ann {\n" +
-    		"	                        ^^^\n" +
-    		"The annotation type Ann should not be used as a superinterface for Iface\n" +
-    		"----------\n" +
-    		"2. WARNING in X.java (at line 11)\n" +
-    		"	abstract class Klass implements Ann {\n" +
-    		"	                                ^^^\n" +
-    		"The annotation type Ann should not be used as a superinterface for Klass\n" +
-    		"----------\n" +
-    		"3. ERROR in X.java (at line 14)\n" +
-    		"	class SubKlass extends Klass {\n" +
-    		"	      ^^^^^^^^\n" +
-    		"The type SubKlass must implement the inherited abstract method Ann.foo()\n" +
-    		"----------\n" +
-    		"4. WARNING in X.java (at line 20)\n" +
-    		"	class AnnImpl implements Ann {\n" +
-    		"	                         ^^^\n" +
-    		"The annotation type Ann should not be used as a superinterface for AnnImpl\n" +
-    		"----------\n" +
-    		"5. WARNING in X.java (at line 21)\n" +
-    		"	public boolean equals(Object obj) { return false; }\n" +
-    		"	               ^^^^^^^^^^^^^^^^^^\n" +
-    		"The method equals(Object) of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" +
-    		"----------\n" +
-    		"6. WARNING in X.java (at line 22)\n" +
-    		"	public int hashCode() { return 0; }\n" +
-    		"	           ^^^^^^^^^^\n" +
-    		"The method hashCode() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" +
-    		"----------\n" +
-    		"7. WARNING in X.java (at line 23)\n" +
-    		"	public String toString() { return null; }\n" +
-    		"	              ^^^^^^^^^^\n" +
-    		"The method toString() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" +
-    		"----------\n" +
-    		"8. WARNING in X.java (at line 30)\n" +
-    		"	Class c = SubKlass.class;\n" +
-    		"	^^^^^\n" +
-    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-    		"----------\n" +
-    		"9. WARNING in X.java (at line 41)\n" +
-    		"	Class[] i = c.getInterfaces();\n" +
-    		"	^^^^^\n" +
-    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-    		"----------\n");
+    	Map customOptions = getCompilerOptions();
+    	customOptions.put(
+    			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+    			CompilerOptions.ERROR);
+    	customOptions.put(
+    			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+    			CompilerOptions.DISABLED);
+
+    	String expectedOutput =
+    		"----------\n" + 
+    		"1. WARNING in X.java (at line 8)\n" + 
+    		"	interface Iface extends Ann {\n" + 
+    		"	                        ^^^\n" + 
+    		"The annotation type Ann should not be used as a superinterface for Iface\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 11)\n" + 
+    		"	abstract class Klass implements Ann {\n" + 
+    		"	                                ^^^\n" + 
+    		"The annotation type Ann should not be used as a superinterface for Klass\n" + 
+    		"----------\n" + 
+    		"3. ERROR in X.java (at line 14)\n" + 
+    		"	class SubKlass extends Klass {\n" + 
+    		"	      ^^^^^^^^\n" + 
+    		"The type SubKlass must implement the inherited abstract method Ann.foo()\n" + 
+    		"----------\n" + 
+    		"4. WARNING in X.java (at line 20)\n" + 
+    		"	class AnnImpl implements Ann {\n" + 
+    		"	                         ^^^\n" + 
+    		"The annotation type Ann should not be used as a superinterface for AnnImpl\n" + 
+    		"----------\n" + 
+    		"5. ERROR in X.java (at line 21)\n" + 
+    		"	public boolean equals(Object obj) { return false; }\n" + 
+    		"	               ^^^^^^^^^^^^^^^^^^\n" + 
+    		"The method equals(Object) of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
+    		"----------\n" + 
+    		"6. ERROR in X.java (at line 22)\n" + 
+    		"	public int hashCode() { return 0; }\n" + 
+    		"	           ^^^^^^^^^^\n" + 
+    		"The method hashCode() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
+    		"----------\n" + 
+    		"7. ERROR in X.java (at line 23)\n" + 
+    		"	public String toString() { return null; }\n" + 
+    		"	              ^^^^^^^^^^\n" + 
+    		"The method toString() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
+    		"----------\n" + 
+    		"8. WARNING in X.java (at line 30)\n" + 
+    		"	Class c = SubKlass.class;\n" + 
+    		"	^^^^^\n" + 
+    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"----------\n" + 
+    		"9. WARNING in X.java (at line 41)\n" + 
+    		"	Class[] i = c.getInterfaces();\n" + 
+    		"	^^^^^\n" + 
+    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"----------\n";
+
+		this.runNegativeTest(
+				true,
+	    		new String[] {
+						"X.java",
+						"import java.lang.annotation.Annotation;\n" +
+						"import java.util.Arrays;\n" +
+						"\n" +
+						"@interface Ann {\n" +
+						"	int foo();\n" +
+						"}\n" +
+						"\n" +
+						"interface Iface extends Ann {\n" +
+						"}\n" +
+						"\n" +
+						"abstract class Klass implements Ann {\n" +
+						"}\n" +
+						"\n" +
+						"class SubKlass extends Klass {\n" +
+						"	public Class<? extends Annotation> annotationType() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}\n" +
+						"\n" +
+						"class AnnImpl implements Ann {\n" +
+						"    public boolean equals(Object obj) { return false; }\n" +
+						"    public int hashCode() { return 0; }\n" +
+						"    public String toString() { return null; }\n" +
+						"    public Class<? extends Annotation> annotationType() { return null; }\n" +
+						"    public int foo() { return 0; }\n" +
+						"}\n" +
+						"\n" +
+						"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		Class c = SubKlass.class;\n" +
+						"		System.out.println(\"Classes:\");\n" +
+						"		while (c != Object.class) {\n" +
+						"			System.out.println(\"-> \" + c.getName());\n" +
+						"			c = c.getSuperclass();\n" +
+						"		}\n" +
+						"\n" +
+						"		System.out.println();\n" +
+						"		System.out.println(\"Interfaces:\");\n" +
+						"		c = SubKlass.class;\n" +
+						"		while (c != Object.class) {\n" +
+						"			Class[] i = c.getInterfaces();\n" +
+						"			System.out.println(\"-> \" + Arrays.asList(i));\n" +
+						"			c = c.getSuperclass();\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n",
+		            },
+		null, customOptions,
+		expectedOutput,
+		JavacTestOptions.SKIP);
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291
@@ -7001,6 +7015,14 @@ public void test213() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141931
 public void test214() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
+
 	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
 		?	"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
@@ -7025,6 +7047,7 @@ public void test214() {
 			"The method foo() of type I must override or implement a supertype method\n" +
 			"----------\n";
     this.runNegativeTest(
+    	true,
         new String[] {
             "X.java",
 			"interface I {\n" +
@@ -7042,7 +7065,10 @@ public void test214() {
 			"	void foo();\n" +
 			"}\n",
         },
-        expectedOutput);
+        null,
+        customOptions,
+        expectedOutput,
+        JavacTestOptions.SKIP);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=141931
 // variant
@@ -7110,7 +7136,32 @@ public void test216() {
 }
 // extending java.lang.annotation.Annotation
 public void test217() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
+	String expectedOutput =
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	void bar(MyConstructor constructor, Class<Ann> ann) {\n" +
+		"	         ^^^^^^^^^^^^^\n" +
+		"MyConstructor is a raw type. References to generic type MyConstructor<V> should be parameterized\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" +
+		"	constructor.getAnnotation(ann).message();\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Type safety: The method getAnnotation(Class) belongs to the raw type MyConstructor. References to generic type MyConstructor<V> should be parameterized\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 4)\n" +
+		"	constructor.getAnnotation(ann).message();\n" +
+		"	                               ^^^^^^^\n" +
+		"The method message() is undefined for the type Annotation\n" +
+		"----------\n";
     this.runNegativeTest(
+    	true,
         new String[] {
             "X.java",
 			"import java.lang.annotation.Annotation;\n" +
@@ -7132,22 +7183,10 @@ public void test217() {
 			"  public <T extends Annotation> T getAnnotation(Class<T> c) { return null; }\n" +
 			"}\n",
         },
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	void bar(MyConstructor constructor, Class<Ann> ann) {\n" +
-		"	         ^^^^^^^^^^^^^\n" +
-		"MyConstructor is a raw type. References to generic type MyConstructor<V> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	constructor.getAnnotation(ann).message();\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The method getAnnotation(Class) belongs to the raw type MyConstructor. References to generic type MyConstructor<V> should be parameterized\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	constructor.getAnnotation(ann).message();\n" +
-		"	                               ^^^^^^^\n" +
-		"The method message() is undefined for the type Annotation\n" +
-		"----------\n");
+        null,
+        customOptions,
+        expectedOutput,
+        JavacTestOptions.SKIP);
 }
 // extending java.lang.annotation.Annotation
 public void test218() {
