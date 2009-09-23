@@ -568,10 +568,10 @@ boolean isWorkingCopy();
  * </p>
  * <p>
  * If requested, a DOM AST representing the compilation unit is returned.
- * Its bindings are computed only if the problem requestor is active, or if the
- * problem detection is forced. This method returns <code>null</code> if the
- * creation of the DOM AST was not requested, or if the requested level of AST
- * API is not supported, or if the working copy was already consistent.
+ * Its bindings are computed only if the problem requestor is active.
+ * This method returns <code>null</code> if the creation of the DOM AST was not requested,
+ * or if the requested level of AST API is not supported, or if the working copy was
+ * already consistent.
  * </p>
  *
  * <p>
@@ -631,10 +631,10 @@ CompilationUnit reconcile(int astLevel, boolean forceProblemDetection, WorkingCo
  * </p>
  * <p>
  * If requested, a DOM AST representing the compilation unit is returned.
- * Its bindings are computed only if the problem requestor is active, or if the
- * problem detection is forced. This method returns <code>null</code> if the
- * creation of the DOM AST was not requested, or if the requested level of AST
- * API is not supported, or if the working copy was already consistent.
+ * Its bindings are computed only if the problem requestor is active.
+ * This method returns <code>null</code> if the creation of the DOM AST was not requested,
+ * or if the requested level of AST API is not supported, or if the working copy was
+ * already consistent.
  * </p>
  *
  * <p>
@@ -699,10 +699,10 @@ CompilationUnit reconcile(int astLevel, boolean forceProblemDetection, boolean e
  * </p>
  * <p>
  * If requested, a DOM AST representing the compilation unit is returned.
- * Its bindings are computed only if the problem requestor is active, or if the
- * problem detection is forced. This method returns <code>null</code> if the
- * creation of the DOM AST was not requested, or if the requested level of AST
- * API is not supported, or if the working copy was already consistent.
+ * Its bindings are computed only if the problem requestor is active.
+ * This method returns <code>null</code> if the creation of the DOM AST was not requested,
+ * or if the requested level of AST API is not supported, or if the working copy was
+ * already consistent.
  * </p>
  *
  * <p>
