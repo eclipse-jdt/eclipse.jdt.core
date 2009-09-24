@@ -33,7 +33,7 @@ protected Map getCompilerOptions() {
 // All specified tests which does not belong to the class are skipped...
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 64 };
+//	TESTS_NUMBERS = new int[] { 67 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public static Test suite() {
@@ -1520,7 +1520,7 @@ public void test060_definite_unassignment_assign_in_for_condition() {
 		"SUCCESS" /* expected output string */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=241841
-public void test61() {
+public void test061() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1537,7 +1537,7 @@ public void test61() {
 }
 
 // challenge widening conversion
-public void test62() {
+public void test062() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1750,7 +1750,7 @@ public void test62() {
 		"----------\n");
 }
 //challenge narrowing conversion
-public void test63() {
+public void test063() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1888,6 +1888,66 @@ public void test065() {
 		"	return foo && (foo = foo);\n" + 
 		"	              ^^^^^^^^^^^\n" + 
 		"The assignment to variable foo has no effect\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282891
+public void test066() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public boolean test() {\n" +
+			"		int i = 1;\n" + 
+			"		if (i != (i = 2)) {\n" + 
+			"			System.out.println(\"The first warning is unjust.\");\n" + 
+			"		}\n" + 
+			"		if ((i = 3) != i) {\n" + 
+			"			System.out.println(\"The second warning is just.\");\n" + 
+			"		}\n" + 
+			"	}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if ((i = 3) != i) {\n" + 
+		"	    ^^^^^^^^^^^^\n" + 
+		"Comparing identical expressions\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282891
+public void test067() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public boolean test() {\n" +
+			"		String s = \"Hello World\";\n" + 
+			"		if (s != (s = \"\")) {\n" + 
+			"			System.out.println(\"The first warning is unjust.\");\n" + 
+			"		}\n" + 
+			"		if ((s = \"\") != s) {\n" + 
+			"			System.out.println(\"The second warning is just.\");\n" + 
+			"		}\n" + 
+			"	}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if ((s = \"\") != s) {\n" + 
+		"	    ^^^^^^^^^^^^^\n" + 
+		"Comparing identical expressions\n" + 
 		"----------\n",
 		null,
 		true,

@@ -812,7 +812,8 @@ public class EqualExpression extends BinaryExpression {
 			// check whether comparing identical expressions
 			Binding leftDirect = Expression.getDirectBinding(this.left);
 			if (leftDirect != null && leftDirect == Expression.getDirectBinding(this.right)) {
-				if (leftTypeID != TypeIds.T_double && leftTypeID != TypeIds.T_float) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=281776
+				if (leftTypeID != TypeIds.T_double && leftTypeID != TypeIds.T_float
+						&&(!(this.right instanceof Assignment))) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=281776
 					scope.problemReporter().comparingIdenticalExpressions(this);
 			} else if (this.constant != Constant.NotAConstant) {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=276740
@@ -855,7 +856,9 @@ public class EqualExpression extends BinaryExpression {
 			// check whether comparing identical expressions
 			Binding leftDirect = Expression.getDirectBinding(this.left);
 			if (leftDirect != null && leftDirect == Expression.getDirectBinding(this.right)) {
-				scope.problemReporter().comparingIdenticalExpressions(this);
+				if (!(this.right instanceof Assignment)) {
+					scope.problemReporter().comparingIdenticalExpressions(this);
+				}
 			}
 			return this.resolvedType = TypeBinding.BOOLEAN;
 		}
