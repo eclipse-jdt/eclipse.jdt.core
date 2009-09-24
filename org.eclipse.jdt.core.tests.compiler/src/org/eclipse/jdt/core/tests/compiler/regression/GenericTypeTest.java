@@ -30,7 +30,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test0788" };
+//		TESTS_NAMES = new String[] { "test0149" };
 //		TESTS_NUMBERS = new int[] { 1367, 1368, 1369 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -3965,7 +3965,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// 58979
 	public void test0131() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		this.runNegativeTest(
+			true,
 			new String[] {
 				"ArrayList.java",
 				" interface List<T> {\n" +
@@ -3980,12 +3985,14 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n",
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in ArrayList.java (at line 8)\n" +
 			"	lt.bar();\n" +
 			"	   ^^^\n" +
 			"The method bar() is undefined for the type List<T>\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 	}
 	public void test0132() {
 		this.runNegativeTest(
@@ -4465,6 +4472,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// method compatibility
 	public void test0149() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4487,12 +4498,24 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n"
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_6 ?
 			"----------\n" +
 			"1. WARNING in X.java (at line 2)\n" +
 			"	public Object[] toArray(Object[] a) {\n" +
 			"	       ^^^^^^^^\n" +
 			"Type safety: The return type Object[] for toArray(Object[]) from the type X needs unchecked conversion to conform to T[] from the type Collection<E>\n" +
-			"----------\n");
+			"----------\n":
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	public Object[] toArray(Object[] a) {\n" +
+				"	       ^^^^^^^^\n" +
+				"Type safety: The return type Object[] for toArray(Object[]) from the type X needs unchecked conversion to conform to T[] from the type Collection<E>\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 2)\n" +
+				"	public Object[] toArray(Object[] a) {\n" +
+				"	                ^^^^^^^^^^^^^^^^^^^\n" +
+				"The method toArray(Object[]) of type X should be tagged with @Override since it actually overrides a superinterface method\n" +
+				"----------\n"	);
 	}
 	public void test0150() {
 		this.runNegativeTest(
@@ -8295,6 +8318,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    public Class<? extends Y> getSomething();\n" +
 				"}\n"
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_6 ?
 			"----------\n" +
 			"1. WARNING in X.java (at line 2)\n" +
 			"	public Class getSomething() { return null; }\n" +
@@ -8305,7 +8329,23 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	public Class getSomething() { return null; }\n" +
 			"	       ^^^^^\n" +
 			"Type safety: The return type Class for getSomething() from the type X needs unchecked conversion to conform to Class<? extends Y> from the type ISomething\n" +
-			"----------\n");
+			"----------\n" :
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	public Class getSomething() { return null; }\n" +
+				"	       ^^^^^\n" +
+				"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 2)\n" +
+				"	public Class getSomething() { return null; }\n" +
+				"	       ^^^^^\n" +
+				"Type safety: The return type Class for getSomething() from the type X needs unchecked conversion to conform to Class<? extends Y> from the type ISomething\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 2)\n" +
+				"	public Class getSomething() { return null; }\n" +
+				"	             ^^^^^^^^^^^^^^\n" +
+				"The method getSomething() of type X should be tagged with @Override since it actually overrides a superinterface method\n" +
+				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62822
 	public void test0280() {
@@ -8806,7 +8846,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72644
 	public void test0298() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java", //---------------------------
 				"import java.util.Collection;\n" +
@@ -8831,6 +8876,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   }\n" +
 				"}\n",
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	public class X<V> implements Map<String, V> {\n" +
@@ -8841,7 +8887,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	public void putAll(Map<String, ? extends V> t) { }\n" +
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Name clash: The method putAll(Map<String,? extends V>) of type X<V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<K,V> but does not override it\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -9674,7 +9721,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// wildcard captures bound and variable superinterfaces
 	public void test0328() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X<T extends IFoo> {\n" +
@@ -9717,6 +9769,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n"
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 12)\n" +
 			"	baz(x1);\n" +
@@ -9732,7 +9785,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	X<Bar> x2 = new X<Bar>(new Bar());\n" +
 			"	                  ^^^\n" +
 			"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <T extends IFoo> of the type X<T>\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 	}
 	// wildcard captures bound and variable superinterfaces
 	public void test0329() {
@@ -9858,7 +9912,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// wildcard considers bound superclass or variable superclass
 	public void test0332() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X<T extends Foo> {\n" +
@@ -9897,12 +9956,14 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n"	,
 			},
+			null, customOptions,
 		"----------\n" +
 		"1. ERROR in X.java (at line 12)\n" +
 		"	baz(new X<Bar>(new Bar()));\n" +
 		"	          ^^^\n" +
 		"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <T extends Foo> of the type X<T>\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 	}
 	// receveir generic cast matches receiver type (not declaring class)
 	public void test0333() {
@@ -10223,8 +10284,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// checking scenario where generic type and method share the same type parameter name
 	public void test0344() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
 			this.runNegativeTest(
+				true,
 				new String[] {
 					"X.java",
 					"import java.io.IOException;\n" +
@@ -10249,6 +10315,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"	}\n" +
 					"}\n"
 				},
+				null, customOptions,
 				"----------\n" + 
 				"1. WARNING in X.java (at line 5)\n" + 
 				"	public abstract <T extends Exception> T bar(T t);\n" + 
@@ -10269,10 +10336,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	X<R> xr = new X<R>(){  \n" + 
 				"	              ^^^^^^\n" + 
 				"The type new X<R>(){} must implement the inherited abstract method X<R>.bar(T)\n" + 
-				"----------\n");
+				"----------\n",
+				JavacTestOptions.SKIP);
 			return;
 		}
 		this.runNegativeTest(
+				true,
 				new String[] {
 					"X.java",
 					"import java.io.IOException;\n" +
@@ -10297,6 +10366,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"	}\n" +
 					"}\n"
 				},
+				null, customOptions,
 				"----------\n" + 
 				"1. WARNING in X.java (at line 5)\n" + 
 				"	public abstract <T extends Exception> T bar(T t);\n" + 
@@ -10317,7 +10387,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	X<R> xr = new X<R>(){  \n" + 
 				"	              ^^^^^^\n" + 
 				"The type new X<R>(){} must implement the inherited abstract method X<R>.bar(T)\n" + 
-				"----------\n");		
+				"----------\n",
+				JavacTestOptions.SKIP);		
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74594
 	public void test0345() {
@@ -10422,8 +10493,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// checking scenario where generic type and method share the same type parameter name
 	public void test0348() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
 			this.runNegativeTest(
+				true,
 				new String[] {
 					"X.java",
 					"import java.io.IOException;\n" +
@@ -10441,6 +10517,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"	}\n" +
 					"}\n"
 				},
+				null, customOptions,
 				"----------\n" +
 				"1. WARNING in X.java (at line 3)\n" +
 				"	public abstract <T extends Exception> T bar(T t);\n" +
@@ -10466,6 +10543,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			return;
 		}
 		this.runNegativeTest(
+				true,
 				new String[] {
 					"X.java",
 					"import java.io.IOException;\n" +
@@ -10483,6 +10561,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"	}\n" +
 					"}\n"
 				},
+				null, customOptions,
 				"----------\n" + 
 				"1. WARNING in X.java (at line 3)\n" + 
 				"	public abstract <T extends Exception> T bar(T t);\n" + 
@@ -11538,7 +11617,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77496
 	public void test0385() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java",
 				"import java.util.List;\n" +
@@ -11553,6 +11637,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	void use() { List<String> l= getList(); }\n" +
 				"}\n"
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	public List<String> getList() { return null; }\n" +
@@ -11563,7 +11648,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	class C extends B implements IDoubles {\n" +
 			"	      ^\n" +
 			"The return types are incompatible for the inherited methods IDoubles.getList(), B.getList()\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 			/*
 			X.java:3: A is not abstract and does not override abstract method getList() in IDoubles
 			class A implements IDoubles {
@@ -11900,7 +11986,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76132
 	public void test0397() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java",
 				"interface K1<A> { \n" +
@@ -11978,6 +12069,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"        } \n" +
 				"}"
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 33)\n" +
 			"	class M2<I> implements M1<I> { \n" +
@@ -12003,7 +12095,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	class ZZ extends YY { public String toString() { return \"ZZ\"; } } \n" +
 			"	                                    ^^^^^^^^^^\n" +
 			"The method toString() of type ZZ should be tagged with @Override since it actually overrides a superclass method\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 	}
 	// cannot allocate parameterized type with wildcards
 	public void test0398() {
@@ -13120,7 +13213,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80765
 	public void test0435() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		this.runNegativeTest(
+			true,
 			new String[] {
 				"Test.java",//===============================
 				"import java.lang.reflect.InvocationTargetException;\n" +
@@ -13219,6 +13317,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"\n" +
 				"}\n",
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. WARNING in orders\\impl\\IntegerOrder2.java (at line 10)\n" +
 			"	public Comparable previous(Comparable arg0) {\n" +
@@ -13249,10 +13348,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	public Comparable next(Comparable arg0) {\n" +
 			"	                       ^^^^^^^^^^\n" +
 			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" +
-			"----------\n"
+			"----------\n",
 			// "*** public void Test.test01(): success*** public void Test.test02(): success*** public void Test.test03(): success*** public void Test.test04(): success"
 			// name clash: next(java.lang.Comparable) in orders.impl.IntegerOrder2 and next(E) in orders.DiscreteOrder<java.lang.Integer> have the same erasure, yet neither overrides the other
-		);
+			JavacTestOptions.SKIP);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80028
 	public void test0436() {
@@ -15148,6 +15247,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 public void test0498(){
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	runNegativeTest(
 		// test directory preparation
 		true /* flush output directory */,
@@ -16192,7 +16294,12 @@ public void test0500(){
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85930 - check no warning for using raw member
 	public void test0518(){
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		runNegativeTest(
+			true,
 			new String[] {
 				"X.java",
 				"interface Callable<T> {\n" +
@@ -16209,12 +16316,14 @@ public void test0500(){
 				"  Zork z;\n" +
 				"}\n"
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 12)\n" +
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85262
 	public void test0519(){
@@ -17733,7 +17842,12 @@ X.java:4: method foo in class X cannot be applied to given types
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87995	- check no warning
 	public void test0565() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -17749,12 +17863,14 @@ X.java:4: method foo in class X cannot be applied to given types
 				"}\n" +
 				"}\n",
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 	}
 	public void test0566() {
 		this.runNegativeTest(
@@ -17865,7 +17981,12 @@ X.java:4: method foo in class X cannot be applied to given types
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90147
 	public void test0570() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 		this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X<T extends Object> {\n" +
@@ -17883,12 +18004,14 @@ X.java:4: method foo in class X cannot be applied to given types
 				"  }\n" +
 				"}\n",
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 12)\n" +
 			"	a.compareTo(b);\n" +
 			"	  ^^^^^^^^^\n" +
 			"The method compareTo(T) in the type X<T>.InnerClass is not applicable for the arguments (X<T>.InnerClass)\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 	}
 	public void test0571() {
 		runConformTest(
@@ -18645,7 +18768,12 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90879 - variation
 	public void test0599() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 	    this.runNegativeTest(
+	    	true,
             new String[] {
                 "X.java",
 				"import java.util.*;\n" +
@@ -18671,6 +18799,7 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 				"	static <T extends Comparable> void sort5(List<T> list) {}\n" +
 				"}\n",
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. WARNING in X.java (at line 3)\n" +
 			"	public class X implements Comparable {\n" +
@@ -18701,11 +18830,17 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 			"	static <T extends Comparable> void sort5(List<T> list) {}\n" +
 			"	                  ^^^^^^^^^^\n" +
 			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90879 - variation
 	public void test0600() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 	    this.runNegativeTest(
+	    	true,
             new String[] {
                 "X.java",
 				"import java.util.*;\n" +
@@ -18732,6 +18867,7 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 				"}\n" +
 				"class MyEnum<E extends MyEnum<E>> {}\n",
             },
+            null, customOptions,
             "----------\n" +
     		"1. WARNING in X.java (at line 3)\n" +
     		"	public class X implements Comparable {\n" +
@@ -18767,7 +18903,8 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
     		"	static <T extends MyEnum> void sort10(List<T> list) {}\n" +
     		"	                  ^^^^^^\n" +
     		"MyEnum is a raw type. References to generic type MyEnum<E> should be parameterized\n" +
-    		"----------\n");
+    		"----------\n",
+    		JavacTestOptions.SKIP);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281 - variation
 	public void test0601() {
@@ -18957,7 +19094,12 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84284 - check warnings
 	public void test0608() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(
+				CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+				CompilerOptions.DISABLED);
 	    this.runNegativeTest(
+	    	true,
             new String[] {
                 "Ball.java",
 				"import java.util.*;\n" +
@@ -18974,6 +19116,7 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 				"	Zork z;\n" +
 				"}\n",
             },
+            null, customOptions,
     		"----------\n" + 
     		"1. WARNING in Ball.java (at line 2)\n" + 
     		"	class Ball implements Comparable {\n" + 
@@ -18989,7 +19132,8 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
     		"	Zork z;\n" + 
     		"	^^^^\n" + 
     		"Zork cannot be resolved to a type\n" + 
-    		"----------\n");
+    		"----------\n",
+    		JavacTestOptions.SKIP);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81831
 	public void test0609() {
@@ -20843,7 +20987,12 @@ public void test0664() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
 public void test0665() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"Test.java",
 			"public class Test<S> {\n" +
@@ -20861,6 +21010,7 @@ public void test0665() {
 			"	}\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. ERROR in Test.java (at line 4)\n" +
 		"	Comparable<Object> c = (Comparable<Object>) a; // Fails as expected\n" +
@@ -20871,7 +21021,8 @@ public void test0665() {
 		"	Comparable<S> c2 = (Comparable<S>) a; // Should fail?\n" +
 		"	                   ^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from A to Comparable<S>\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89940
 public void test0666() {
@@ -21398,6 +21549,10 @@ public void test0669() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 (ensure not even a warning)
 public void test0670() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	runConformTest(
 		true,
 		new String[] {
@@ -21445,6 +21600,7 @@ public void test0670() {
 			"	\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"",
 		null,
 		null,
@@ -21452,7 +21608,12 @@ public void test0670() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 - variation: ensure not even a warning
 public void test0671() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"import java.util.Map;\n" +
@@ -21499,12 +21660,14 @@ public void test0671() {
 			"	\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. ERROR in X.java (at line 26)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 - variation: ensure not even a warning
 public void test0672() {
@@ -22258,7 +22421,12 @@ public void test0701() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303 - variation
 public void test0702() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X<T extends Runnable> implements Runnable {\n" +
@@ -22288,6 +22456,7 @@ public void test0702() {
 			"	}\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
 		"	lhs = rhs; // 1\n" +
@@ -22308,7 +22477,8 @@ public void test0702() {
 		"	lhs = rhs; // 5\n" +
 		"	      ^^^\n" +
 		"Type mismatch: cannot convert from X<X<? extends Cloneable>> to X<X<?>>\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 public void test0703() {
 	this.runConformTest(
@@ -22895,7 +23065,12 @@ public void test0717() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98478
 public void test0718() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"import java.util.Collections;\n" +
@@ -22923,6 +23098,7 @@ public void test0718() {
 			"   Zork z;\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" + 
 		"1. WARNING in X.java (at line 13)\n" + 
 		"	public class ActionImpl<T extends Base> extends Action<T> implements Comparable<ActionImpl> {\n" + 
@@ -22953,7 +23129,8 @@ public void test0718() {
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98364
 public void test0719() {
@@ -23608,7 +23785,12 @@ public void test0742() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99553
 public void test0743() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"interface TestGeneric2<A> {\n" +
@@ -23631,12 +23813,14 @@ public void test0743() {
 			"	}\n" +
 			"}\n"
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. ERROR in X.java (at line 16)\n" +
 		"	return this;//3\n" +
 		"	       ^^^^\n" +
 		"Type mismatch: cannot convert from TestGeneric3<A>.Nested<B> to TestGeneric3<B>.Nested<B>\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 public void test0744() {
 	this.runNegativeTest(
@@ -24605,7 +24789,12 @@ public void test0776() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103472
 public void test0777() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -24657,6 +24846,7 @@ public void test0777() {
 			"	}\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. WARNING in X.java (at line 6)\n" +
 		"	public interface C extends B {\n" +
@@ -24692,7 +24882,8 @@ public void test0777() {
 		"	public class J extends I implements G {\n" +
 		"	                                    ^\n" +
 		"X.G is a raw type. References to generic type X.G<T> should be parameterized\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103472 - variation
 public void test0778() {
@@ -25676,7 +25867,12 @@ public void test0808() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106946
 public void test0809() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"import java.util.Iterator;\n" +
@@ -25724,6 +25920,7 @@ public void test0809() {
 			"	}\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. WARNING in X.java (at line 21)\n" +
 		"	void f1(Set1 s) {\n" +
@@ -25749,7 +25946,8 @@ public void test0809() {
 		"	for (Node n : s) {\n" +
 		"	              ^\n" +
 		"Type mismatch: cannot convert from element type Object to Node\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 public void test0810() {
 	runConformTest(
@@ -27679,7 +27877,12 @@ public void test0863() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
 public void test0864() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"A.java",
 			"interface A {\n" +
@@ -27697,12 +27900,14 @@ public void test0864() {
 			"    B<Object>.J<Object> bar();\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. ERROR in A.java (at line 13)\n" +
 		"	B<Object>.J<Object> bar();\n" +
 		"	^^^^^^^^^^^\n" +
 		"The member type B<Object>.J cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type B<Object>\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
 public void test0865() {
@@ -28608,7 +28813,12 @@ public void test0890() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
 public void test0891() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"Test.java", // =================
 			"interface Function<A, B> {\n" +
@@ -28632,12 +28842,14 @@ public void test0891() {
 			"	}\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. ERROR in Test.java (at line 18)\n" +
 		"	String s = applyToString(identity());\n" +
 		"	           ^^^^^^^^^^^^^\n" +
 		"The method applyToString(Function<String,B>) in the type Test is not applicable for the arguments (Id<Object>)\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126180
 public void test0892() {
@@ -28671,7 +28883,12 @@ public void test0892() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126177
 public void test0893() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java", // =================
 			"public class X {\n" +
@@ -28733,6 +28950,7 @@ public void test0893() {
 			"	}\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. WARNING in X.java (at line 14)\n" +
 		"	int ii1 = m1(c2, c3).i1f1;\n" +
@@ -28753,7 +28971,8 @@ public void test0893() {
 		"	Object oi2 = m1(c2, c3).new I2Member();\n" +
 		"	             ^^^^^^^^^^\n" +
 		"Illegal enclosing instance specification for type X.I2.I2Member\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126177 - variation
 public void test0894() {
@@ -28839,6 +29058,10 @@ public void test0895() {
 			"----------\n");
 }
 public void test0896() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	runConformTest(
 		// test directory preparation
 		true /* flush output directory */,
@@ -28870,6 +29093,8 @@ public void test0896() {
 			"	}\n" +
 			"}\n",
 		},
+		// compiler options
+		null, customOptions,
 		// compiler results
 		"" /* expected compiler log */,
 		// runtime results
@@ -28974,7 +29199,12 @@ public void test0899() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97693
 public void test0900() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java", // =================
 			"public class X<R> {\n" +
@@ -28996,6 +29226,7 @@ public void test0900() {
 			"	}\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. WARNING in X.java (at line 11)\n" +
 		"	((Comparable<R>) new Implements()).toString();\n" +
@@ -29011,7 +29242,8 @@ public void test0900() {
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 // Object array vs Object into generic method
 public void test0901() {
@@ -32079,7 +32311,12 @@ public void test0983() {
 }
 // generic inner class within a non generic one
 public void test0984() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	runConformTest(
+		true /* flush output directory */,
 		// test directory preparation
 		new String[] { /* test files */
 			"X.java",
@@ -32097,8 +32334,15 @@ public void test0984() {
 			"  }\n" +
 			"}",
 		},
+		// compiler options
+		null, customOptions, 
+		// compiler results
+		null /* expected compiler log */,
 		// runtime results
-		"" /* expected output string */);
+		"" /* expected output string */,
+		null /* expected error  string */,
+		//javac options
+		JavacTestOptions.SKIP);
 	runConformTest(
 		// test directory preparation
 		false /* do not flush output directory */,
@@ -32110,6 +32354,7 @@ public void test0984() {
 			"  }\n" +
 			"}",
 			},
+		null, customOptions,
 		// compiler results
 		"" /* expected compiler log */,
 		// runtime results
@@ -32212,6 +32457,10 @@ public void test0986() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643
 public void test0987() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
 	?	"----------\n" +
 		"1. ERROR in X.java (at line 11)\n" +
@@ -32231,6 +32480,7 @@ public void test0987() {
 		"The return type is incompatible with EditPart.getViewer()\n" +
 		"----------\n";
 	this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java",//===================
 				"public class X {\n" +
@@ -32264,11 +32514,18 @@ public void test0987() {
 				"\n" +
 				"interface EditPartViewer {}\n", // =================
 			},
-			expectedOutput);
+			null, customOptions,
+			expectedOutput,
+			JavacTestOptions.SKIP);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643 - variation
 public void test0988() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java",//===================
 				"public class X {\n" +
@@ -32313,12 +32570,14 @@ public void test0988() {
 				"	public ISheetViewer getViewer();\n" +
 				"}", // =================
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 11)\n" +
 			"	public SheetViewer getViewer() { return null; }	\n" +
 			"	       ^^^^^^^^^^^\n" +
 			"The return type is incompatible with AbstractEditPart.getViewer()\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653
 public void test0989() {
@@ -34001,7 +34260,12 @@ public void test1033() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158519
 public void test1034() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"ChainedClosure.java",
 			"interface Closure<I> {\n" +
@@ -34041,6 +34305,7 @@ public void test1034() {
 			"}", // =================
 
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. ERROR in ChainedClosure.java (at line 33)\n" +
 		"	return ChainedClosure.getInstance(closure1, closure2);\n" +
@@ -34051,7 +34316,12 @@ public void test1034() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158531
 public void test1035() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"ComparableComparator.java",
 			"import java.util.Comparator;\n" +
@@ -34126,6 +34396,7 @@ public void test1035() {
 			"}", // =================
 
 		},
+		null, customOptions,
 		"----------\n" + 
 		"1. WARNING in ComparableComparator.java (at line 14)\n" + 
 		"	static <M extends String> Comparator<M> baz() {\n" + 
@@ -34141,7 +34412,8 @@ public void test1035() {
 		"	static Object BAR2 = ComparableComparator.bar();//1a\n" + 
 		"	                                          ^^^\n" + 
 		"Bound mismatch: The generic method bar() of type ComparableComparator<T> is not applicable for the arguments (). The inferred type Comparable<Comparable<M>> is not a valid substitute for the bounded parameter <M extends Comparable<M>>\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158548
 public void test1036() {
@@ -35217,7 +35489,12 @@ public void test1060() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159752
 public void test1061() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	runConformTest(
+		true, /* flush output directory */
 		// test directory preparation
 		new String[] { /* test files */
 			"predicate/Predicate.java", // =================
@@ -35253,7 +35530,14 @@ public void test1061() {
 			"	}\n" +
 			"}", // =================
 		},
-		// javac options
+		// compiler options
+		null, customOptions, 
+		// compiler results
+		null /* expected compiler log */,
+		// runtime results
+		null /* expected output string */,
+		null /* expected error  string */,
+		//javac options
 		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148041
@@ -35350,6 +35634,10 @@ public void test1064() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141289 - variation
 public void test1065() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	runConformTest(
 		// test directory preparation
 		true /* flush output directory */,
@@ -35383,6 +35671,8 @@ public void test1065() throws Exception {
 			"	public String bar() { return \"[B#bar()]\"; }\n" +
 			"}\n", // =================
 		},
+		// compiler options
+		null, customOptions,
 		// compiler results
 		"" /* expected compiler log */,
 		// runtime results
@@ -36693,7 +36983,12 @@ public void test1085() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165645
 public void test1086() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"interface IFoo { void foo(); }\n" +
@@ -36706,12 +37001,14 @@ public void test1086() {
 			"	}\n" +
 			"}\n", // =================,
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. ERROR in X.java (at line 6)\n" +
 		"	b.foo(); // unbound (Bar is member type)\n" +
 		"	  ^^^\n" +
 		"The method foo() is undefined for the type X<Bar>.Bar\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165645 - variation
@@ -41114,6 +41411,10 @@ public void test1203c() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
 public void test1203d() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	String[] sources =
 		new String[] {
 			"X.java",
@@ -41141,7 +41442,9 @@ public void test1203d() {
 		};
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
 		runNegativeTest(
+			true,
 			sources,
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	new X().<String> a(s);\n" + 
@@ -41162,11 +41465,13 @@ public void test1203d() {
 			"	new X().<String> d(s, s);\n" + 
 			"	                 ^\n" + 
 			"The method d(String, Object) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 	} else {
 		runConformTest(
 			true,
 			sources,
+			null, customOptions,
 			"----------\n" +
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	new X().<String> a(s);\n" + 
@@ -42298,7 +42603,12 @@ public void test1236() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
 public void test1237() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -42316,6 +42626,7 @@ public void test1237() {
 			"	}\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. WARNING in X.java (at line 3)\n" +
 		"	SubInterface sub3 = sub1.and(sub2);\n" +
@@ -42336,11 +42647,17 @@ public void test1237() {
 		"	public interface SubInterface extends SuperInterface, OtherSubInterface {\n" +
 		"	                                                      ^^^^^^^^^^^^^^^^^\n" +
 		"X.OtherSubInterface is a raw type. References to generic type X.OtherSubInterface<U> should be parameterized\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
 public void test1238() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -42358,6 +42675,7 @@ public void test1238() {
 			"	}\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. ERROR in X.java (at line 3)\n" +
 		"	SubInterface sub3 = sub1.and(sub2);\n" +
@@ -42378,11 +42696,17 @@ public void test1238() {
 		"	public OtherSubInterface and(SuperInterface a);\n" +
 		"	                             ^^^^^^^^^^^^^^\n" +
 		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<E> should be parameterized\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
 public void test1239() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -42404,6 +42728,7 @@ public void test1239() {
 			"	}\n" +
 			"}\n",
 		},
+		null, customOptions,
 		"----------\n" +
 		"1. ERROR in X.java (at line 3)\n" +
 		"	SubInterface sub3 = sub1.and(sub2);\n" +
@@ -42434,7 +42759,8 @@ public void test1239() {
 		"	public OtherSubInterface and(SuperInterface a);\n" +
 		"	                             ^^^^^^^^^^^^^^\n" +
 		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<E> should be parameterized\n" +
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
 public void test1240() {
@@ -42485,7 +42811,12 @@ public void test1241() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=164665
 public void test1242() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	runConformTest(
+		true /*flush output directory */,
 		// test directory preparation
 		new String[] { /* test files */
 			"X.java",
@@ -42529,6 +42860,13 @@ public void test1242() {
 			"	}\n" +
 			"}\n", // =================
 		},
+		// compiler options
+		null, customOptions,
+		// compiler results
+		null /* expected compiler log */,
+		// runtime results
+		"" /* expected output string */,
+		"" /* expected error string */,
 		// javac options
 		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
@@ -43248,7 +43586,12 @@ public void test1270() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
 public void test1271() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+			true,
 			new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -43278,12 +43621,14 @@ public void test1271() {
 					"	}\n" +
 					"}\n", // =================
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 24)\n" +
 			"	put(Integer.class, combine(FUNC2, FUNC1));\n" +
 			"	^^^\n" +
 			"The method put(Class<E>, X.TO<? super E>) in the type X is not applicable for the arguments (Class<Integer>, X.OO<String,Object>)\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
 public void test1272() {
@@ -43681,7 +44026,12 @@ public void test1283() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425
 public void test1284() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+			true,
 			new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -43715,6 +44065,7 @@ public void test1284() {
 					"	}\n" +
 					"}\n", // =================
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
 			"	Zork z;\n" +
@@ -43725,11 +44076,17 @@ public void test1284() {
 			"	return (I2<T, U>) i;\n" +
 			"	       ^^^^^^^^^^^^\n" +
 			"Type safety: Unchecked cast from I1<T> to I2<T,U>\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
 public void test1285() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+			true,
 			new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -43762,16 +44119,23 @@ public void test1285() {
 					"	}\n" +
 					"}\n", // =================
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 8)\n" +
 			"	y.foo(z2).get().getThreadGroup();\n" +
 			"	  ^^^\n" +
 			"The method foo(I1<String,Thread>) in the type Y<String,Thread> is not applicable for the arguments (Z<String,Exception>)\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
 public void test1286() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+			true,
 			new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -43804,6 +44168,7 @@ public void test1286() {
 					"	}\n" +
 					"}\n", // =================
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
 			"	Zork z;\n" +
@@ -43814,11 +44179,17 @@ public void test1286() {
 			"	return (I2<U>) i;\n" +
 			"	       ^^^^^^^^^\n" +
 			"Type safety: Unchecked cast from I1 to I2<U>\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
 public void test1287() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+			true,
 			new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -43851,6 +44222,7 @@ public void test1287() {
 					"	}\n" +
 					"}\n", // =================
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
 			"	Zork z;\n" +
@@ -43861,11 +44233,17 @@ public void test1287() {
 			"	return (I2<T,U>) i;\n" +
 			"	       ^^^^^^^^^^^\n" +
 			"Type safety: Unchecked cast from I1<T,T> to I2<T,U>\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
 public void test1288() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+			true,
 			new String[] {
 					"X.java",
 					"import java.util.Map;\n" +
@@ -43899,6 +44277,7 @@ public void test1288() {
 					"	}\n" +
 					"}", // =================
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 10)\n" +
 			"	Zork z;\n" +
@@ -43909,11 +44288,17 @@ public void test1288() {
 			"	return (I2<T,U>) i;\n" +
 			"	       ^^^^^^^^^^^\n" +
 			"Type safety: Unchecked cast from I1<Map<T,T>> to I2<T,U>\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
 public void test1289() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+			true,
 			new String[] {
 					"X.java",
 					"import java.util.Map;\n" +
@@ -43947,6 +44332,7 @@ public void test1289() {
 					"	}\n" +
 					"}", // =================
 			},
+			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 8)\n" +
 			"	y.foo(z1).get().getThreadGroup();\n" +
@@ -43967,7 +44353,8 @@ public void test1289() {
 			"	return (I2<T,U>) i;\n" +
 			"	       ^^^^^^^^^^^\n" +
 			"Cannot cast from I1<Map<T,T>> to I2<T,U>\n" +
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
 public void test1290() {
@@ -46205,7 +46592,12 @@ public void test1352() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=238484 - variation
 public void test1353() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+			CompilerOptions.DISABLED);
 	this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java", // =================
 				"import java.io.IOException;\n" + 
@@ -46236,12 +46628,14 @@ public void test1353() {
 				"	}\n" + 
 				"}\n", // =================
 			},
+			null, customOptions,
 			"----------\n" + 
 			"1. ERROR in X.java (at line 16)\n" + 
 			"	} catch(IOException e) {\n" + 
 			"	        ^^^^^^^^^^^\n" + 
 			"Unreachable catch block for IOException. This exception is never thrown from the try statement body\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=237912
 public void test1354() {
