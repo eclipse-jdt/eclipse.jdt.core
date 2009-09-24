@@ -1083,12 +1083,7 @@ public void test022() throws Exception {
  * Type mismatch, using non parameterized collection type (indirectly implementing parameterized type)
  */
 public void test023() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
 	this.runNegativeTest(
-			true,
 			new String[] {
 				"X.java",
 				"import java.util.Iterator;\n" +
@@ -1107,14 +1102,12 @@ public void test023() {
 				"    }\n" +
 				"}\n",
 			},
-			null, customOptions,
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	for (Thread s : new AX()) {\n" +
 			"	                ^^^^^^^^\n" +
 			"Type mismatch: cannot convert from element type String to Thread\n" +
-			"----------\n",
-			JavacTestOptions.SKIP);
+			"----------\n");
 }
 public void test024() throws Exception {
 	this.runConformTest(

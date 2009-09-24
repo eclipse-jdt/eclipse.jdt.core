@@ -2161,26 +2161,14 @@ public void test073() {
 			"}\n" +
 			"interface I { void test(); }\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK1_6 ?
 		"----------\n" +
 		"1. ERROR in X3.java (at line 3)\n" +
 		"	public abstract void test();\n" +
 		"	                     ^^^^^^\n" +
 		"The enum X3 can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" +
-		"----------\n" :
-			"----------\n" +
-			"1. ERROR in X3.java (at line 3)\n" +
-			"	public abstract void test();\n" +
-			"	                     ^^^^^^\n" +
-			"The enum X3 can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" +
-			"----------\n"	+
-			"2. WARNING in X3.java (at line 3)\n" +
-			"	public abstract void test();\n" +
-			"	                     ^^^^^^\n" +
-			"The method test() of type X3 should be tagged with @Override since it actually overrides a superinterface method\n" +
-			"----------\n"
+		"----------\n"
 		// X3 is not abstract and does not override abstract method test() in X3
-		);
+	);
 	this.runNegativeTest( // implement inherited method as abstract with constant
 		new String[] {
 			"X3a.java",
@@ -2190,25 +2178,12 @@ public void test073() {
 			"}\n" +
 			"interface I { void test(); }\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK1_6 ?
 		"----------\n" +
 		"1. ERROR in X3a.java (at line 2)\n" +
 		"	A;\n" +
 		"	^\n" +
 		"The enum constant A must implement the abstract method test()\n" +
-		"----------\n":
-			"----------\n" +
-			"1. ERROR in X3a.java (at line 2)\n" +
-			"	A;\n" +
-			"	^\n" +
-			"The enum constant A must implement the abstract method test()\n" +
-			"----------\n" +
-			"2. WARNING in X3a.java (at line 3)\n" +
-			"	public abstract void test();\n" +
-			"	                     ^^^^^^\n" +
-			"The method test() of type X3a should be tagged with @Override since it actually overrides a superinterface method\n" +
-			"----------\n"
-
+		"----------\n"
 		// X3a is not abstract and does not override abstract method test() in X3a
 	);
 	this.runConformTest( // implement inherited method as abstract with constant body
@@ -2231,25 +2206,12 @@ public void test073() {
 			"}\n" +
 			"interface I { void test(); }\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK1_6 ?
 		"----------\n" +
 		"1. ERROR in X3c.java (at line 2)\n" +
 		"	A() { void random() {} };\n" +
 		"	^\n" +
 		"The enum constant A must implement the abstract method test()\n" +
-		"----------\n" :
-			"----------\n" +
-			"1. ERROR in X3c.java (at line 2)\n" +
-			"	A() { void random() {} };\n" +
-			"	^\n" +
-			"The enum constant A must implement the abstract method test()\n" +
-			"----------\n" +
-			"2. WARNING in X3c.java (at line 3)\n" +
-			"	public abstract void test();\n" +
-			"	                     ^^^^^^\n" +
-			"The method test() of type X3c should be tagged with @Override since it actually overrides a superinterface method\n" +
-			"----------\n"
-
+		"----------\n"
 		// <anonymous X3c$1> is not abstract and does not override abstract method test() in X3c
 	);
 }
@@ -3026,24 +2988,12 @@ public void test095() { // check missing abstract cases from multiple interfaces
 			"interface I { void foo(int i); }\n" +
 			"interface J { void foo(); }\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK1_6 ?
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public enum X implements I, J { \n" +
 		"	            ^\n" +
 		"The type X must implement the inherited abstract method I.foo(int)\n" +
-		"----------\n" : 		
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public enum X implements I, J { \n" +
-			"	            ^\n" +
-			"The type X must implement the inherited abstract method I.foo(int)\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 3)\n" +
-			"	public void foo() {}\n" +
-			"	            ^^^^^\n" +
-			"The method foo() of type X should be tagged with @Override since it actually overrides a superinterface method\n" +
-			"----------\n");
+		"----------\n");
 }
 public void test096() { // check for raw vs. parameterized parameter types
 	this.runConformTest(
@@ -3260,25 +3210,12 @@ public void test101() {
 			"  }\n" +
 			"}\n",
 		},
-		this.complianceLevel < ClassFileConstants.JDK1_6 ?
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
-		"----------\n" :
-		"----------\n" +
-		"1. WARNING in X.java (at line 6)\n" +
-		"	public boolean bar() {\n" +
-		"	               ^^^^^\n" +
-		"The method bar() of type new Foo(){} should be tagged with @Override since it actually overrides a superinterface method\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n"
-		);
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=90775
 public void test102() {
@@ -3334,25 +3271,8 @@ public void test103() {
             "}\n" +
             "}\n",
         },
-        this.complianceLevel < ClassFileConstants.JDK1_6 ?
         "----------\n" +
         "1. ERROR in BadEnum.java (at line 10)\n" +
-        "	}\n" +
-        "	^\n" +
-        "Syntax error on token \"}\", delete this token\n" +
-        "----------\n" :
-        "----------\n" +
-        "1. WARNING in BadEnum.java (at line 6)\n" +
-        "	ENUM1 { public String getMethod() { return \"ENUM1\";} },\n" +
-        "	                      ^^^^^^^^^^^\n" +
-        "The method getMethod() of type new BadEnum.EnumClass(){} should be tagged with @Override since it actually overrides a superinterface method\n" +
-        "----------\n" +
-        "2. WARNING in BadEnum.java (at line 7)\n" +
-        "	ENUM2 { public String getMethod() { return \"ENUM2\";} };\n" +
-        "	                      ^^^^^^^^^^^\n" +
-        "The method getMethod() of type new BadEnum.EnumClass(){} should be tagged with @Override since it actually overrides a superinterface method\n" +
-        "----------\n" +
-        "3. ERROR in BadEnum.java (at line 10)\n" +
         "	}\n" +
         "	^\n" +
         "Syntax error on token \"}\", delete this token\n" +

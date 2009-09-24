@@ -1518,12 +1518,7 @@ public void test045() {
  * should diagnose missing abstract method implementation
  */
 public void test046() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
 	this.runNegativeTest(
-		true,
 		new String[] {
 			"X.java",
 			"public class X extends Y {\n" +
@@ -1540,7 +1535,6 @@ public void test046() {
 			"    public void foo ();\n" +
 			"}\n"
 		},
-		null, customOptions,
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public class X extends Y {\n" +
@@ -1551,8 +1545,7 @@ public void test046() {
 		"	public abstract void foo();\n" +
 		"	                     ^^^^^\n" +
 		"The method foo() of type Y should be tagged with @Override since it actually overrides a superclass method\n" +
-		"----------\n",
-		JavacTestOptions.SKIP
+		"----------\n"
 	);
 }
 /**
@@ -1831,10 +1824,6 @@ public void test054() {
 	);
 }
 public void test055() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
 	runConformTest(
 		// test directory preparation
 		true /* flush output directory */,
@@ -1867,7 +1856,6 @@ public void test055() {
 			"}\n" +
 			"}",
 		},
-		null, customOptions,
 		// compiler results
 		"----------\n" +  /* expected compiler log */
 		"1. WARNING in p\\X.java (at line 11)\n" +
@@ -2088,12 +2076,8 @@ public void test061() {
  * variant - must still complain when targeting super abstract method
  */
 public void test062() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
+
 	this.runNegativeTest(
-		true,
 		new String[] {
 			"p1/Y.java",
 			"package p1;	\n"+
@@ -2108,14 +2092,12 @@ public void test062() {
 			"	void init();	\n"+
 			"}	\n"
 		},
-		null, customOptions,
 		"----------\n" +
 		"1. ERROR in p1\\Y.java (at line 4)\n" +
 		"	super.init();	\n" +
 		"	^^^^^^^^^^^^\n" +
 		"Cannot directly invoke the abstract method init() for the type J\n" +
-		"----------\n",		// expected log
-		JavacTestOptions.SKIP); 
+		"----------\n"); // expected log
 }
 
 public void test063() {
@@ -2947,10 +2929,6 @@ public void test087() {
 		);
 }
 public void test088() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
 	String errorMessage =
 		"----------\n" +
 		"1. WARNING in p\\X.java (at line 4)\n" +
@@ -3033,7 +3011,6 @@ public void test088() {
 			"----------\n";
 	}
 	this.runNegativeTest(
-		true,
 		new String[] {
 			"p/X.java",
 			"package p;\n" +
@@ -3084,9 +3061,7 @@ public void test088() {
 			" public void run() {System.out.println(\"RUN\");} \n" +
 			"}",
 		},
-		null, customOptions,
-		errorMessage,
-		JavacTestOptions.SKIP);
+		errorMessage);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78089
@@ -3518,12 +3493,7 @@ public void test104() {
 
 // enclosing instance - note that the behavior is different in 1.3 and 1.4
 public void test105() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
 	this.runConformTest(
-		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -3546,8 +3516,6 @@ public void test105() {
 			"    void foo(Y p) { }\n" +
 			"}\n"
 		},
-		null, customOptions,
-		null, null, null,
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798

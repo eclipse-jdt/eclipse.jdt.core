@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.util.Map;
-
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 import junit.framework.*;
 
 public class AmbiguousMethodTest extends AbstractComparableTest {
@@ -344,12 +340,7 @@ sure, yet neither overrides the other
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129056
 	public void test007() {
-		Map customOptions = getCompilerOptions();
-    	customOptions.put(
-    			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-    			CompilerOptions.DISABLED);
 		this.runNegativeTest(
-			true,
 			new String[] {
 				"B.java",
 				"public class B {\n" +
@@ -368,7 +359,6 @@ sure, yet neither overrides the other
 				"	public void foo(Number arg1, Number arg2) {}\n" +
 				"}\n"
 			},
-			null, customOptions,
 			"----------\n" +
 			"1. ERROR in B.java (at line 3)\r\n" +
 			"	new M().foo(new Integer(1), 2);\r\n" +
@@ -379,10 +369,9 @@ sure, yet neither overrides the other
 			"	new N().foo(new Integer(1), 2);\r\n" +
 			"	        ^^^\n" +
 			"The method foo(int, int) is ambiguous for the type N\n" +
-			"----------\n",
+			"----------\n"
 			// reference to foo is ambiguous, both method foo(int,int) in M and method foo(java.lang.Number,java.lang.Number) in M match
 			// reference to foo is ambiguous, both method foo(int,int) in N and method foo(java.lang.Number,java.lang.Number) in N match
-			JavacTestOptions.SKIP
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 - case 1
@@ -1905,12 +1894,7 @@ public void test027() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 public void test028() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
 	this.runConformTest(
-		true,	
 		new String[] { /* test files */
 			"X.java",
 			"interface Irrelevant {}\n" +
@@ -1927,10 +1911,8 @@ public void test028() {
 			"  void foo() {\n" +
 			"    foo(0.0f);\n" +
 			"  }\n" +
-			"}",
+			"}"
 		},
-		null, customOptions,
-		null, null, null,
 	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
@@ -1976,12 +1958,7 @@ public void test030() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant
 public void test031() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
 	this.runConformTest(
-		true,
 		new String[] { /* test files */
 			"X.java",
 			"interface Irrelevant {}\n" +
@@ -2000,8 +1977,6 @@ public void test031() {
 			"  }\n" +
 			"}"
 		},
-		null, customOptions,
-		null, null, null,
 	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */);
 }
 // tests 32-34 were moved to MethodVerifyTest 134-140
@@ -2347,12 +2322,7 @@ public void test048() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
 // can't implement both interfaces though
 public void test049() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
 	this.runNegativeTest(
-		true,
 		new String[] {
 			"X.java",
 			"interface I {\n" +
@@ -2367,14 +2337,12 @@ public void test049() {
 			"  }\n" +
 			"}"
 		},
-		null, customOptions,
 		"----------\n" +
 		"1. ERROR in X.java (at line 8)\n" +
 		"	public int method() {\n" +
 		"	       ^^^\n" +
 		"The return type is incompatible with J.method()\n" +
-		"----------\n",
-		JavacTestOptions.SKIP);
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
 // variant: secure the legal case
@@ -2950,12 +2918,7 @@ public void test068() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
 public void test069() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
 	this.runNegativeTest(
-		true,	
 		new String[] {
 			"X.java",
 			"interface A { X<? extends B> foo(); }\n" +
@@ -2969,14 +2932,12 @@ public void test069() {
 			"	}\n" +
 			"}"
 		},
-		null, customOptions,
 		"----------\n" +
 		"1. ERROR in X.java (at line 2)\n" +
 		"	interface B extends A { X<? extends A> foo(); }\n" +
 		"	                        ^^^^^^^^^^^^^^\n" +
 		"The return type is incompatible with A.foo()\n" +
-		"----------\n",
-		JavacTestOptions.SKIP
+		"----------\n"
 	);
 }
 
@@ -3300,12 +3261,7 @@ public void test075() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=268837
 public void test076() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(
-			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-			CompilerOptions.DISABLED);
 	this.runNegativeTest(
-		true,
 		new String[] {
 			"X.java",
 			"interface I<E> {\n" +
@@ -3354,7 +3310,6 @@ public void test076() {
 			"	}\n" +
 			"}"
 		},
-		null, customOptions,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 15)\n" + 
 		"	J<Integer> b = ints.a();\n" + 
@@ -3450,8 +3405,7 @@ public void test076() {
 		"	I h = ints.c();\n" + 
 		"	^\n" + 
 		"I is a raw type. References to generic type I<E> should be parameterized\n" + 
-		"----------\n",
-		JavacTestOptions.SKIP
+		"----------\n"
 	);
 }
 
