@@ -42,6 +42,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 		return GenericTypeTest.class;
 	}
 
+	protected Map getCompilerOptions() {
+		Map compilerOptions = super.getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
+		return compilerOptions;
+	}
+
 	public void test0001() {
 		this.runConformTest(
 			new String[] {

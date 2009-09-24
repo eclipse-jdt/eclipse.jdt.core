@@ -43,6 +43,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		return MethodVerifyTest.class;
 	}
 
+	protected Map getCompilerOptions() {
+		Map compilerOptions = super.getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
+		return compilerOptions;
+	}
+
 	String mustOverrideMessage(String method, String type) {
 		return "The method " + method + " of type " + type +
 			(new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6

@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.*;
 
 public class AmbiguousMethodTest extends AbstractComparableTest {
@@ -26,6 +30,11 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		return AmbiguousMethodTest.class;
 	}
 
+	protected Map getCompilerOptions() {
+		Map compilerOptions = super.getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
+		return compilerOptions;
+	}
 	public void test000() {
 		this.runConformTest(
 			new String[] {

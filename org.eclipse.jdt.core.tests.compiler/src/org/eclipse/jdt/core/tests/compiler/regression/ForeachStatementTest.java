@@ -32,6 +32,7 @@ public ForeachStatementTest(String name) {
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
 	return options;
 }
 // Static initializer to specify tests subset using TESTS_* static variables
