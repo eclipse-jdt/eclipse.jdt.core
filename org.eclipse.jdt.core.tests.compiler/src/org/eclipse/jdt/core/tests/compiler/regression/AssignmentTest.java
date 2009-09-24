@@ -1894,7 +1894,7 @@ public void test065() {
 		options
 	);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282891
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=290376
 public void test066() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
@@ -1924,7 +1924,7 @@ public void test066() {
 		options
 	);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282891
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=290376
 public void test067() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
