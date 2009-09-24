@@ -7428,7 +7428,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
      		"import java.util.Collection;\n" +
      		"public class X {\n" +
      		"	public static List<String> bar;\n" +
-     		"   @SuppressWarnings(\"unchecked\")\n" +
+     		"   @SuppressWarnings(\"rawtypes\")\n" +
      		"	public static Collection bar2;\n" +
     		"}";
     	this.workingCopy.getBuffer().setContents(contents);
