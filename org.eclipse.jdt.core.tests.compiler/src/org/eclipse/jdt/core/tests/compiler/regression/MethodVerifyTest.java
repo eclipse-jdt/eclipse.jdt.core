@@ -7993,27 +7993,23 @@ public void _test124() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
 // variant
 public void test125() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public static <T> String choose(String one, String two) {\n" +
-			"    return one + X.<String>choose(one, two);\n" +
+			"    return one;\n" +
 			"  }\n" +
 			"  public static <T> T choose(T one, T two) {\n" +
 			"    return two;\n" +
 			"  }\n" +
 			"  public static void main(String args[]) {\n" +
-			"    System.out.println(choose(\"a\", \"b\"));\n" +
+			"    System.out.println(choose(\"a\", \"b\") + X.<String>choose(\"a\", \"b\"));\n" +
 			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	return one + X.<String>choose(one, two);\n" +
-		"	                       ^^^^^^\n" +
-		"The method choose(String, String) is ambiguous for the type X\n" +
-		"----------\n",
-		JavacTestOptions.EclipseHasABug.EclipseBug207935);
+			"}"
+		},
+		"aa"
+	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
 // variant

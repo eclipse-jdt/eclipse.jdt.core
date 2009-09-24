@@ -3593,12 +3593,21 @@ public abstract class Scope {
 	}
 
 	// caveat: this is not a direct implementation of JLS
-	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, InvocationSite invocationSite, ReferenceBinding receiverType) {
+	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, final InvocationSite invocationSite, ReferenceBinding receiverType) {
 		int[] compatibilityLevels = new int[visibleSize];
 		for (int i = 0; i < visibleSize; i++)
 			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes);
 
-		boolean useTiebreakMethod = invocationSite.genericTypeArguments() == null;
+		InvocationSite tieBreakInvocationSite = new InvocationSite() {
+			public TypeBinding[] genericTypeArguments() { return null; } // ignore genericTypeArgs
+			public boolean isSuperAccess() { return invocationSite.isSuperAccess(); }
+			public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
+			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
+			public void setDepth(int depth) { /* ignore */}
+			public void setFieldIndex(int depth) { /* ignore */}
+			public int sourceStart() { return invocationSite.sourceStart(); }
+			public int sourceEnd() { return invocationSite.sourceStart(); }
+		};
 		MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
 		int count = 0;
 		for (int level = 0, max = VARARGS_COMPATIBLE; level <= max; level++) {
@@ -3607,7 +3616,7 @@ public abstract class Scope {
 				max = level; // do not examine further categories, will either return mostSpecific or report ambiguous case
 				MethodBinding current = visible[i];
 				MethodBinding original = current.original();
-				MethodBinding tiebreakMethod = useTiebreakMethod ? current.tiebreakMethod() : current;
+				MethodBinding tiebreakMethod = current.tiebreakMethod();
 				for (int j = 0; j < visibleSize; j++) {
 					if (i == j || compatibilityLevels[j] != level) continue;
 					MethodBinding next = visible[j];
@@ -3626,7 +3635,7 @@ public abstract class Scope {
 							methodToTest = pNext.originalMethod;
 						}
 					}
-					MethodBinding acceptable = computeCompatibleMethod(methodToTest, tiebreakMethod.parameters, invocationSite);
+					MethodBinding acceptable = computeCompatibleMethod(methodToTest, tiebreakMethod.parameters, tieBreakInvocationSite);
 					/* There are 4 choices to consider with current & next :
 					 foo(B) & foo(A) where B extends A
 					 1. the 2 methods are equal (both accept each others parameters) -> want to continue

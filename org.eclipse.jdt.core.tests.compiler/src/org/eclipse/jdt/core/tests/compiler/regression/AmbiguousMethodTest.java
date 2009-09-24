@@ -3436,4 +3436,45 @@ public void test077() {
 		""
 	);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=287592
+public void test078() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" +
+			"	class Field<T> { T value; }\n" +
+			"	<T> void a(T value) {}\n" +
+			"	<T> void a(Field<T> field) {}\n" +
+			"	<T extends Number> void b(T value) {}\n" +
+			"	<T> void b(Field<T> field) {}\n" +
+			"	void c(String value) {}\n" +
+			"	void c(Field<String> field) {}\n" +
+			"	void test(X x) {\n" +
+			"		x.a(null);\n" +
+			"		x.<String>a(null);\n" +
+			"		x.b(null);\n" +
+			"		x.<Integer>b(null);\n" +
+			"		x.c(null);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	x.b(null);\n" + 
+		"	  ^\n" + 
+		"The method b(Number) is ambiguous for the type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	x.<Integer>b(null);\n" + 
+		"	           ^\n" + 
+		"The method b(Integer) is ambiguous for the type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	x.c(null);\n" + 
+		"	  ^\n" + 
+		"The method c(String) is ambiguous for the type X\n" + 
+		"----------\n"
+	);
+}
 }
