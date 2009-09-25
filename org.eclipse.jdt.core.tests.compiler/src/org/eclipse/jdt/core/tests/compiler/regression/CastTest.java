@@ -1744,6 +1744,44 @@ public void test046() {
 		"",
 		JavacTestOptions.SKIP);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=287676
+// Test to make sure that an unnecessary cast warning is produced in case of
+// wrapper types like Integer, Character, Short, Byte, etc.
+public void test047() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	if (options.sourceLevel < ClassFileConstants.JDK1_5) return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"public class X{\n" +
+			"	void test() {" +
+			"		Integer a = 1;\n" +
+			"		ArrayList<Character> aList = new ArrayList<Character>(1);\n" +
+			"		a = (Integer)a + (Integer)2;\n" +
+			"		if ((Character)aList.get(0) == 'c')\n" +
+			"			System.out.println();\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 5)\n" +
+		"	a = (Integer)a + (Integer)2;\n" +
+		"	    ^^^^^^^^^^\n" +
+		"Unnecessary cast from Integer to Integer\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 5)\n" +
+		"	a = (Integer)a + (Integer)2;\n" +
+		"	                 ^^^^^^^^^^\n" +
+		"Unnecessary cast from int to Integer\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 6)\n" +
+		"	if ((Character)aList.get(0) == 'c')\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Unnecessary cast from Character to Character\n" +
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return CastTest.class;
 }

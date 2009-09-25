@@ -199,7 +199,7 @@ public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int
 		} else  {
 			TypeBinding alternateLeftType = ((CastExpression)left).expression.resolvedType;
 			if (alternateLeftType == null) return; // cannot do better
-			if ((alternateLeftTypeId = alternateLeftType.id) == leftTypeId) { // obvious identity cast
+			if ((alternateLeftTypeId = alternateLeftType.id) == leftTypeId || scope.environment().computeBoxingType(alternateLeftType).id == leftTypeId) { // obvious identity cast
 				scope.problemReporter().unnecessaryCast((CastExpression)left);
 				leftIsCast = false;
 			} else if (alternateLeftTypeId == TypeIds.T_null) {
@@ -217,7 +217,7 @@ public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int
 		} else {
 			TypeBinding alternateRightType = ((CastExpression)right).expression.resolvedType;
 			if (alternateRightType == null) return; // cannot do better
-			if ((alternateRightTypeId = alternateRightType.id) == rightTypeId) { // obvious identity cast
+			if ((alternateRightTypeId = alternateRightType.id) == rightTypeId || scope.environment().computeBoxingType(alternateRightType).id == rightTypeId) { // obvious identity cast
 				scope.problemReporter().unnecessaryCast((CastExpression)right);
 				rightIsCast = false;
 			} else if (alternateRightTypeId == TypeIds.T_null) {
