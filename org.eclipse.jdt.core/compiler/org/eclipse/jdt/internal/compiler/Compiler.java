@@ -586,16 +586,16 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			result
 				.record(
 					this.problemReporter
-					.createProblem(
-						result.getFileName(),
-						IProblem.Unclassified,
-						pbArguments,
-						pbArguments,
-						Error, // severity
-						0, // source start
-						0, // source end
-						0, // line number
-						0),// column number
+						.createProblem(
+							result.getFileName(),
+							IProblem.Unclassified,
+							pbArguments,
+							pbArguments,
+							Error, // severity
+							0, // source start
+							0, // source end
+							0, // line number
+							0),// column number
 					unit);
 
 			/* hand back the compilation result */
