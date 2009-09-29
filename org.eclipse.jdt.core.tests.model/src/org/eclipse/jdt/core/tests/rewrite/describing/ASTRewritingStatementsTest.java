@@ -20,6 +20,8 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.TextEdit;
 
 public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
@@ -4242,6 +4244,63 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("    public void foo(int i) {\n");
 			buf.append("        switch(4){\n");
 			buf.append("        	case 4:break;default:System.out.println(\"Not 4\");\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (previousValue != null) {
+				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, previousValue);
+			}
+		}
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=290730
+	public void testSwitchStatement13() throws Exception {
+		String previousValue = null;
+		try {
+			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, false);
+			
+			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.FALSE);
+			
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch(4){\n");
+			buf.append("            case 4:break;default:System.out.println(\"Not 4\");\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+			CompilationUnit astRoot= createAST(cu);
+
+			ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
+			List types = astRoot.types();
+			List bodyDeclarations = ((AbstractTypeDeclaration)types.get(0)).bodyDeclarations();
+			MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclarations.get(0);
+			List statements = methodDeclaration.getBody().statements();
+			SwitchStatement swtch = (SwitchStatement) statements.get(0);
+			String toAppend = "case 5:\nSystem.out.println(\"This is 5\");break;";
+			ListRewrite lrw = rewrite.getListRewrite(swtch, SwitchStatement.STATEMENTS_PROPERTY);
+			ASTNode placeHolder = rewrite.createStringPlaceholder(toAppend, ASTNode.BLOCK);
+			lrw.insertLast(placeHolder, null);
+
+			Document document1= new Document(cu.getSource());
+			TextEdit res= rewrite.rewriteAST(document1, null);
+			res.apply(document1);
+			String preview = document1.get();
+			
+			buf= new StringBuffer();
+			buf.append("package test1;\n"); 
+			buf.append("public class E {\n"); 
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        switch(4){\n"); 
+			buf.append("            case 4:break;default:System.out.println(\"Not 4\");\n"); 
+			buf.append("			case 5:\n");
+			buf.append("			System.out.println(\"This is 5\");break;\n");
 			buf.append("        }\n");
 			buf.append("    }\n");
 			buf.append("}\n");
