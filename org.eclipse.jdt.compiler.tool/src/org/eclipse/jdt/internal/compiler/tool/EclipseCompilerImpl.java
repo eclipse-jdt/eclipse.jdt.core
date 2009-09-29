@@ -215,6 +215,73 @@ public class EclipseCompilerImpl extends Main {
 				}
 				return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
 			}
+			@Override
+			public CategorizedProblem createProblem(
+					final char[] originatingFileName,
+					final int problemId,
+					final String[] problemArguments,
+					final int elaborationID,
+					final String[] messageArguments,
+					final int severity,
+					final int startPosition,
+					final int endPosition,
+					final int lineNumber,
+					final int columnNumber) {
+
+				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
+				if (diagListener != null) {
+					diagListener.report(new Diagnostic<JavaFileObject>() {
+						public String getCode() {
+							return Integer.toString(problemId);
+						}
+						public long getColumnNumber() {
+							return columnNumber;
+						}
+						public long getEndPosition() {
+							return endPosition;
+						}
+						public Kind getKind() {
+							if ((severity & ProblemSeverities.Error) != 0) {
+								return Diagnostic.Kind.ERROR;
+							}
+							if ((severity & ProblemSeverities.Optional) != 0) {
+								return Diagnostic.Kind.WARNING;
+							}
+							if ((severity & ProblemSeverities.Warning) != 0) {
+								return Diagnostic.Kind.MANDATORY_WARNING;
+							}
+							return Diagnostic.Kind.OTHER;
+						}
+						public long getLineNumber() {
+							return lineNumber;
+						}
+						public String getMessage(Locale locale) {
+							setLocale(locale);
+							return getLocalizedMessage(problemId, problemArguments);
+						}
+						public long getPosition() {
+							return startPosition;
+						}
+						public JavaFileObject getSource() {
+							try {
+								if (EclipseCompilerImpl.this.fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
+									return EclipseCompilerImpl.this.fileManager.getJavaFileForInput(
+											StandardLocation.SOURCE_PATH,
+											new String(originatingFileName),
+											JavaFileObject.Kind.SOURCE);
+								}
+							} catch (IOException e) {
+								// ignore
+							}
+							return null;
+						}
+						public long getStartPosition() {
+							return startPosition;
+						}
+					});
+				}
+				return super.createProblem(originatingFileName, problemId, problemArguments, elaborationID, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
+			}
 		};
 	}
 

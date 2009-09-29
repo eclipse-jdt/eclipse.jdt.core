@@ -53,14 +53,35 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 		}
 	}
 	static class CompilerInvocationDiagnosticListener implements DiagnosticListener<JavaFileObject> {
-		PrintWriter err;
+		public static final int NONE = 0;
+		public static final int ERROR = 1;
+		public static final int INFO = 2;
+		public static final int WARNING = 4;
+		
+		private PrintWriter err;
+		public int kind;
+		
 		public CompilerInvocationDiagnosticListener(PrintWriter err) {
 			this.err = err;
+			this.kind = NONE;
 		}
 		@Override
 		public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
-			// TODO Auto-generated method stub
-			
+			err.println(diagnostic);
+			if (this.kind == NONE) {
+				switch(diagnostic.getKind()) {
+					case ERROR :
+						this.kind = ERROR;
+						break;
+					case WARNING :
+					case MANDATORY_WARNING :
+						this.kind = WARNING;
+						break;
+					case NOTE :
+					case OTHER :
+						this.kind = INFO;
+				}
+			}
 		}
 	}
 	static EclipseCompiler COMPILER = new EclipseCompiler();

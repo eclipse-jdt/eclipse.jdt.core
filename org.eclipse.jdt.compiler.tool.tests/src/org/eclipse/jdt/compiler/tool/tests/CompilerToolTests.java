@@ -11,6 +11,7 @@
 package org.eclipse.jdt.compiler.tool.tests;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,7 +29,6 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-//import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject.Kind;
@@ -36,6 +36,7 @@ import javax.tools.JavaFileObject.Kind;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.compiler.tool.tests.AbstractCompilerToolTest.CompilerInvocationDiagnosticListener;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -57,6 +58,7 @@ public class CompilerToolTests extends TestCase {
 		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler2"));
 		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler3"));
 		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler4"));
+		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler5"));
 		suite.addTest(new CompilerToolTests("testCleanUp"));
 		return suite;
 	}
@@ -618,15 +620,63 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
- 		CompilationTask task = Compiler.getTask(null, null, null, options, null, units);
- 		// check the classpath location
+		CompilationTask task = Compiler.getTask(null, null, null, options, null, units);
+		// check the classpath location
 		Boolean result = task.call();
 		printWriter.flush();
 		printWriter.close();
- 		if (!result.booleanValue()) {
- 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
- 		}
+		if (!result.booleanValue()) {
+			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+			assertTrue("Compilation failed ", false);
+		}
+		// check that the .class file exist for X
+		assertTrue("delete failed", inputFile.delete());
+	}
+
+	public void testCompilerOneClassWithEclipseCompiler5() {
+		String tmpFolder = System.getProperty("java.io.tmpdir");
+		File inputFile = new File(tmpFolder, "X.java");
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile));
+			writer.write(
+				"package p;\n" +
+				"public class X extends File {}");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		// System compiler
+		StandardJavaFileManager manager = Compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener compilerInvocationDiagnosticListener = new CompilerInvocationDiagnosticListener(err);
+		CompilationTask task = Compiler.getTask(null, manager, compilerInvocationDiagnosticListener, options, null, units);
+		// check the classpath location
+		Boolean result = task.call();
+		err.flush();
+		err.close();
+		assertFalse(errBuffer.toString().isEmpty());
+		assertTrue(compilerInvocationDiagnosticListener.kind != CompilerInvocationDiagnosticListener.NONE);
+		if (!result.booleanValue()) {
+			assertFalse("Compilation did not fail", false);
+		}
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 	}
