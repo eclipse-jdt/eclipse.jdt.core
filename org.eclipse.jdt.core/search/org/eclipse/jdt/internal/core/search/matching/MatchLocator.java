@@ -1120,7 +1120,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 	this.bindings = new SimpleLookupTable();
 	try {
 		// optimize access to zip files during search operation
-		manager.cacheZipFiles(this);
+		manager.cacheZipFiles();
 
 		// initialize handle factory (used as a cache of handles so as to optimize space)
 		if (this.handleFactory == null)
@@ -1222,7 +1222,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			this.progressMonitor.done();
 		if (this.nameEnvironment != null)
 			this.nameEnvironment.cleanup();
-		manager.flushZipFiles(this);
+		manager.flushZipFiles();
 		this.bindings = null;
 	}
 }

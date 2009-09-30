@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Kelly Campbell <kellyc@google.com> - Hangs in SourceMapper during java proposals - https://bugs.eclipse.org/bugs/show_bug.cgi?id=281575
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -861,32 +862,25 @@ public class SourceMapper
 
 		char[] source = null;
 
-		JavaModelManager javaModelManager = JavaModelManager.getJavaModelManager();
-		try {
-			javaModelManager.cacheZipFiles(this); // Cache any zip files we open during this operation
+		if (this.rootPath != null) {
+			source = getSourceForRootPath(this.rootPath, name);
+		}
 
-			if (this.rootPath != null) {
-				source = getSourceForRootPath(this.rootPath, name);
-			}
-	
-			if (source == null) {
-				computeAllRootPaths(type);
-				if (this.rootPaths != null) {
-					loop: for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext(); ) {
-						String currentRootPath = (String) iterator.next();
-						if (!currentRootPath.equals(this.rootPath)) {
-							source = getSourceForRootPath(currentRootPath, name);
-							if (source != null) {
-								// remember right root path
-								this.rootPath = currentRootPath;
-								break loop;
-							}
+		if (source == null) {
+			computeAllRootPaths(type);
+			if (this.rootPaths != null) {
+				loop: for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext(); ) {
+					String currentRootPath = (String) iterator.next();
+					if (!currentRootPath.equals(this.rootPath)) {
+						source = getSourceForRootPath(currentRootPath, name);
+						if (source != null) {
+							// remember right root path
+							this.rootPath = currentRootPath;
+							break loop;
 						}
 					}
 				}
 			}
-		} finally {
-			javaModelManager.flushZipFiles(this); // clean up cached zip files.
 		}
 		if (VERBOSE) {
 			System.out.println("spent " + (System.currentTimeMillis() - time) + "ms for " + type.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$

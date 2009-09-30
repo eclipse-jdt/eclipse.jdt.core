@@ -1238,10 +1238,10 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, astLevel, reconcileFlags, workingCopyOwner);
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	try {
-		manager.cacheZipFiles(this); // cache zip files for performance (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=134172)
+		manager.cacheZipFiles(); // cache zip files for performance (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=134172)
 		op.runOperation(monitor);
 	} finally {
-		manager.flushZipFiles(this);
+		manager.flushZipFiles();
 	}
 	if(ReconcileWorkingCopyOperation.PERF) {
 		stats.endRun();
