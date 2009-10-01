@@ -21,7 +21,7 @@ public abstract class Statement extends ASTNode {
 	 * Answers true if the if is identified as a known coding pattern which
 	 * should be tolerated by dead code analysis.
 	 * e.g. if (DEBUG) print(); // no complaint
-	 * Only invoked when overall condition is known to be optimizeable into false.
+	 * Only invoked when overall condition is known to be optimizeable into false/true.
 	 */
 	protected static boolean isKnowDeadCodePattern(Expression expression) {
 		// if (!DEBUG) print(); - tolerated
