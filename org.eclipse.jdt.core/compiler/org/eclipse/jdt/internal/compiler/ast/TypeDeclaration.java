@@ -1088,13 +1088,15 @@ public void resolve() {
 		if (needSerialVersion) {
 			//check that the current type doesn't extend javax.rmi.CORBA.Stub
 			TypeBinding javaxRmiCorbaStub = this.scope.getType(TypeConstants.JAVAX_RMI_CORBA_STUB, 4);
-			ReferenceBinding superclassBinding = this.binding.superclass;
-			loop: while (superclassBinding != null) {
-				if (superclassBinding == javaxRmiCorbaStub) {
-					needSerialVersion = false;
-					break loop;
+			if (javaxRmiCorbaStub.isValidBinding()) {
+				ReferenceBinding superclassBinding = this.binding.superclass;
+				loop: while (superclassBinding != null) {
+					if (superclassBinding == javaxRmiCorbaStub) {
+						needSerialVersion = false;
+						break loop;
+					}
+					superclassBinding = superclassBinding.superclass();
 				}
-				superclassBinding = superclassBinding.superclass();
 			}
 			if (needSerialVersion) {
 				this.scope.problemReporter().missingSerialVersion(this);
