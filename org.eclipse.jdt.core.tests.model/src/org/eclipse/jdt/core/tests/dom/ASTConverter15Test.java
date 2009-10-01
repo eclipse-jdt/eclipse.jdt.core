@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 337 };
+//		TESTS_NUMBERS = new int[] { 340 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10842,5 +10842,77 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		int extendedLength = unit.getExtendedLength(node2);
 		int extendedStartPosition = unit.getExtendedStartPosition(node2);
 		checkSourceRange(extendedStartPosition, extendedLength, "x = 1    /*bla*/", contents);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=290877
+	 */
+	public void test0338() throws JavaModelException {
+		String contents =
+			"/**\n" + 
+			" * The first enum value for my enum.\n" + 
+			" *\n" + 
+			" * @enum myEnum\n" + 
+			" */\n" + 
+			"public class X {}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		CompilationUnit unit= (CompilationUnit) buildAST(
+			contents,
+			this.workingCopy,
+			true,
+			true,
+			true);
+		TypeDeclaration node = (TypeDeclaration) getASTNode(unit, 0);
+		Javadoc javadoc = node.getJavadoc();
+		List tags = javadoc.tags();
+		assertEquals("Wrong size", "@enum", ((TagElement) tags.get(1)).getTagName());
+		checkSourceRange((TagElement) tags.get(1), "@enum myEnum", contents);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=290877
+	 */
+	public void test0339() throws JavaModelException {
+		String contents =
+			"/**\n" + 
+			" * Use const as a tag element name.\n" + 
+			" *\n" + 
+			" * @const new constant\n" + 
+			" */\n" + 
+			"public class X {}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		CompilationUnit unit= (CompilationUnit) buildAST(
+			contents,
+			this.workingCopy,
+			true,
+			true,
+			true);
+		TypeDeclaration node = (TypeDeclaration) getASTNode(unit, 0);
+		Javadoc javadoc = node.getJavadoc();
+		List tags = javadoc.tags();
+		assertEquals("Wrong size", "@const", ((TagElement) tags.get(1)).getTagName());
+		checkSourceRange((TagElement) tags.get(1), "@const new constant", contents);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=290877
+	 */
+	public void test0340() throws JavaModelException {
+		String contents =
+			"/**\n" + 
+			" * Use the goto as a tag element name.\n" + 
+			" *\n" + 
+			" * @goto new position\n" + 
+			" */\n" + 
+			"public class X {}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		CompilationUnit unit= (CompilationUnit) buildAST(
+			contents,
+			this.workingCopy,
+			true,
+			true,
+			true);
+		TypeDeclaration node = (TypeDeclaration) getASTNode(unit, 0);
+		Javadoc javadoc = node.getJavadoc();
+		List tags = javadoc.tags();
+		assertEquals("Wrong size", "@goto", ((TagElement) tags.get(1)).getTagName());
+		checkSourceRange((TagElement) tags.get(1), "@goto new position", contents);
 	}
 }
