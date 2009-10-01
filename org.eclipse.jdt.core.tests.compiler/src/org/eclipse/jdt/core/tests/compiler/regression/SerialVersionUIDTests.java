@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 IBM Corporation and others.
+ * Copyright (c) 2006, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -161,5 +161,50 @@ public void test007() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285124
+public void test008() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends javax.rmi.CORBA.Stub {\n" +
+				"	public String[] _ids() { return null; }\n" +
+				"}"
+			},
+			""
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285124
+public void test009() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" +
+				"	public String[] _ids() { return null; }\n" +
+				"}",
+				"Y.java",
+				"public abstract class Y extends javax.rmi.CORBA.Stub {\n" +
+				"}"
+			},
+			""
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=285124
+public void test010() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" +
+				"	public String[] _ids() { return null; }\n" +
+				"}",
+				"Y.java",
+				"public abstract class Y extends Z {\n" +
+				"}",
+				"Z.java",
+				"public abstract class Z extends javax.rmi.CORBA.Stub {\n" +
+				"}"
+			},
+			""
+		);
 }
 }
