@@ -260,7 +260,7 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 				TypeReference[] refs = this.type.scope.referenceContext.superInterfaces;
 				for (int r = 0, rl = refs.length; r < rl; r++) {
 					if (refs[r].resolvedType == toCheck) {
-						problemReporter().redundantSuperInterface(this.type, refs[r], toCheck, superInterfaces[j]);
+						problemReporter().redundantSuperInterface(this.type, refs[j], superInterfaces[j], toCheck);
 						continue next;
 					}
 				}
