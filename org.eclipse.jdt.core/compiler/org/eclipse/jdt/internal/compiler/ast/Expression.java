@@ -521,7 +521,7 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 		if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
 		return true;
 	}
-	if (match != null && (castType.isBoundParameterizedType() || expressionType.isBoundParameterizedType())) {
+	if (match != null && (castType.isEnclosingTypeBoundParameterizedType() || expressionType.isEnclosingTypeBoundParameterizedType())) {
 		if(isNarrowing
 				? match.isProvablyDistinct(expressionType)
 				: castType.isProvablyDistinct(match)) {

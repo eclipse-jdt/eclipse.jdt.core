@@ -26744,11 +26744,16 @@ public void test0832() {
 			"	Zork z;\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	C1<T>.C11[] ts = (C1<T>.C11[]) new C1<?>.C11[5];\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from C1<?>.C11[] to C1<T>.C11[]\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111014
@@ -49819,6 +49824,41 @@ public void test1454() {
 			"}"
 		},
    		"true"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=287607
+public void test1455() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Outer<E> {\n" +
+			"  Inner inner;\n" +
+			"  class Inner {\n" +
+			"    E e;\n" +
+			"    E getOtherElement(Object other) {\n" +
+			"      if (!(other instanceof Outer<?>.Inner))\n" +
+			"       throw new IllegalArgumentException(String.valueOf(other));\n" +
+			"      Inner that = (Inner) other;\n" +
+			"      return that.e;\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    Outer<String> s = new Outer<String>();\n" +
+			"    s.inner = s.new Inner();\n" +
+ 			"   s.inner.e = \"hello\";\n" +
+ 			"   Outer<Integer> i = new Outer<Integer>();\n" +
+ 			"   i.inner = i.new Inner();\n" +
+ 			"   i.inner.e = 1234;\n" +
+ 			"   s.inner.getOtherElement(i.inner);\n" +
+ 			" }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	Inner that = (Inner) other;\n" + 
+		"	             ^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to Outer<E>.Inner\n" + 
+		"----------\n"
 	);
 }
 }

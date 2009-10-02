@@ -437,6 +437,17 @@ public boolean isBoundParameterizedType() {
 }
 
 /**
+ *  Returns true if its a nested parameterized type AND its not of the form List<?> or
+ *  an enclosing type is not
+ */
+public boolean isEnclosingTypeBoundParameterizedType() {
+	if ((this.tagBits & TagBits.IsBoundParameterizedType) != 0) return true;
+
+	TypeBinding enclosing = this.enclosingType();
+	return enclosing != null && enclosing.isBoundParameterizedType();
+}
+
+/**
  * Returns true if the type is the capture of some wildcard
  */
 public boolean isCapture() {

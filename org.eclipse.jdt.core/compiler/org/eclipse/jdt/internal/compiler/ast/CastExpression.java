@@ -311,7 +311,7 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 	}
 	switch (castType.kind()) {
 		case Binding.PARAMETERIZED_TYPE :
-			if (castType.isBoundParameterizedType()) {
+			if (castType.isEnclosingTypeBoundParameterizedType()) {
 				if (match == null) { // unrelated types
 					this.bits |= ASTNode.UnsafeCast;
 					return true;
@@ -379,7 +379,7 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 			break;
 		case Binding.ARRAY_TYPE :
 			TypeBinding leafType = castType.leafComponentType();
-			if (isNarrowing && (leafType.isBoundParameterizedType() || leafType.isTypeVariable())) {
+			if (isNarrowing && (leafType.isEnclosingTypeBoundParameterizedType() || leafType.isTypeVariable())) {
 				this.bits |= ASTNode.UnsafeCast;
 				return true;
 			}
