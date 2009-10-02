@@ -591,6 +591,8 @@ void setSourceStart(int sourceStart);
 	int InvalidHighSurrogate = Syntax + Internal + 264;
 	/** @since 3.2 */
 	int UnnecessaryNLSTag = Internal + 265;
+	/** @since 3.6 */
+	int UnnecessaryOperator = Internal + 266;
 
 	// type related problems
 	/** @since 3.1 */

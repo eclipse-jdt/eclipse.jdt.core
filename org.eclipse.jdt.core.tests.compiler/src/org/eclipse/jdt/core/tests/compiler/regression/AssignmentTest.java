@@ -33,7 +33,7 @@ protected Map getCompilerOptions() {
 // All specified tests which does not belong to the class are skipped...
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 67 };
+//	TESTS_NUMBERS = new int[] { 69 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public static Test suite() {
@@ -45,8 +45,7 @@ public static Test suite() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=27235
  */
 public void test001() {
-	this.runConformTest(
-		new String[] {
+	this.runConformTest(		new String[] {
 			"X.java",
 			"public class X {	\n" +
 			"    int i;	\n" +
@@ -1948,6 +1947,58 @@ public void test067() {
 		"	if ((s = \"\") != s) {\n" + 
 		"	    ^^^^^^^^^^^^^\n" + 
 		"Comparing identical expressions\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106478
+public void test068() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnnecessaryOperator, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public boolean test() {\n" +
+			"		int i = 0;\n" + 
+			"		i =+ 1;\n" + 
+			"		System.out.println(i);\n" + 
+			"	}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	i =+ 1;\n" + 
+		"	   ^^^\n" + 
+		"Unnecessary operator\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106478
+public void test069() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnnecessaryOperator, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public boolean test() {\n" +
+			"		int i = 0;\n" + 
+			"		i = +1;\n" + 
+			"		System.out.println(i);\n" + 
+			"	}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	i = +1;\n" + 
+		"	    ^^\n" + 
+		"Unnecessary operator\n" + 
 		"----------\n",
 		null,
 		true,

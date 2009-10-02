@@ -411,6 +411,9 @@ public static int getIrritant(int problemID) {
 			
 		case IProblem.DeadCode:
 			return CompilerOptions.DeadCode;
+			
+		case IProblem.UnnecessaryOperator :
+			return CompilerOptions.UnnecessaryOperator;
 	}
 	return 0;
 }
@@ -481,6 +484,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnusedWarningToken :
 			case CompilerOptions.UnusedLabel :
 			case CompilerOptions.RedundantSuperinterface :	
+			case CompilerOptions.UnnecessaryOperator :
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;
 
 			case CompilerOptions.UsingDeprecatedAPI :
@@ -6730,6 +6734,16 @@ public void unnecessaryNLSTags(int sourceStart, int sourceEnd) {
 		NoArgument,
 		sourceStart,
 		sourceEnd);
+}
+public void unnecessaryOperator(UnaryExpression expression) {
+	int severity = computeSeverity(IProblem.UnnecessaryOperator);
+	if (severity == ProblemSeverities.Ignore) return;
+	this.handle(
+			IProblem.UnnecessaryOperator,
+			NoArgument,
+			NoArgument,
+			expression.sourceStart,
+			expression.sourceEnd);
 }
 public void unnecessaryTypeArgumentsForMethodInvocation(MethodBinding method, TypeBinding[] genericTypeArguments, TypeReference[] typeArguments) {
 	String methodName = method.isConstructor()

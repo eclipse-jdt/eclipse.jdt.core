@@ -822,6 +822,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UnnecessaryCast", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnnecessaryElse", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnnecessaryInstanceof", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
+		expectedProblemAttributes.put("UnnecessaryOperator", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnnecessaryNLSTag", new ProblemAttributes(CategorizedProblem.CAT_NLS));
 		expectedProblemAttributes.put("UnqualifiedFieldAccess", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("UnreachableCatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1453,6 +1454,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UnnecessaryCast", new ProblemAttributes(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK));
 		expectedProblemAttributes.put("UnnecessaryElse", new ProblemAttributes(JavaCore.COMPILER_PB_UNNECESSARY_ELSE));
 		expectedProblemAttributes.put("UnnecessaryInstanceof", new ProblemAttributes(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK));
+		expectedProblemAttributes.put("UnnecessaryOperator", new ProblemAttributes(JavaCore.COMPILER_PB_UNNECESSARY_OPERATOR));
 		expectedProblemAttributes.put("UnnecessaryNLSTag", new ProblemAttributes(JavaCore.COMPILER_PB_NON_NLS_STRING_LITERAL));
 		expectedProblemAttributes.put("UnqualifiedFieldAccess", new ProblemAttributes(JavaCore.COMPILER_PB_UNQUALIFIED_FIELD_ACCESS));
 		expectedProblemAttributes.put("UnreachableCatch", SKIP);
