@@ -199,6 +199,7 @@ public final class Options {
 						|| token.equals("typeHiding")//$NON-NLS-1$
 						|| token.equals("unchecked")//$NON-NLS-1$
 						|| token.equals("unnecessaryElse")//$NON-NLS-1$
+						|| token.equals("unnecessaryOperator")//$NON-NLS-1$
 						|| token.equals("unqualified-field-access")//$NON-NLS-1$
 						|| token.equals("unqualifiedField")//$NON-NLS-1$
 						|| token.equals("unsafe")//$NON-NLS-1$
