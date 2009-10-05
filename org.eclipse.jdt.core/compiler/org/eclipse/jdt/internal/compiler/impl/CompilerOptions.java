@@ -673,12 +673,6 @@ public class CompilerOptions {
 				return "nls"; //$NON-NLS-1$
 			case UnnecessaryTypeCheck :
 				return "cast"; //$NON-NLS-1$
-			case UnusedLocalVariable :
-			case UnusedArgument :
-			case UnusedImport :
-			case UnusedPrivateMember :
-			case UnusedDeclaredThrownException :
-				return "unused"; //$NON-NLS-1$
 			case IndirectStaticAccess :
 			case NonStaticAccessToStatic :
 				return "static-access"; //$NON-NLS-1$
@@ -703,6 +697,12 @@ public class CompilerOptions {
 			case UnusedLabel :
 			case UnusedTypeArguments :
 			case RedundantSuperinterface :
+			case UnusedLocalVariable :
+			case UnusedArgument :
+			case UnusedImport :
+			case UnusedPrivateMember :
+			case UnusedDeclaredThrownException :
+			case DeadCode :
 				return "unused"; //$NON-NLS-1$
 			case DiscouragedReference :
 			case ForbiddenReference :

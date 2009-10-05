@@ -44,7 +44,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 271, 273 };
+//		TESTS_NUMBERS = new int[] { 275, 276, 277 };
 //		TESTS_RANGE = new int[] { 249, -1 };
 	}
 
@@ -9159,5 +9159,94 @@ public void test274d() {
 				null, null,
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282770.
+public void test275() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.ENABLED);
+
+	runConformTest(
+		true,
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static final boolean DEBUG = false;\n" + 
+				"//	@SuppressWarnings(\"unused\")\n" + 
+				"	public void foo() {\n" + 
+				"		if (DEBUG)\n" +
+				"			System.out.println(\"true\");\n" +
+				"		else\n" +
+				"			System.out.println(\"false\");\n" +
+				"		\n" +
+				"	}\n" + 
+				"}\n"
+		},
+		null,
+		customOptions,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	System.out.println(\"true\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n",
+		"",
+		"",
+		JavacTestOptions.SKIP);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282770.
+public void test276() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.ENABLED);
+
+	runConformTest(
+		true,
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static final boolean DEBUG = false;\n" + 
+				"	@SuppressWarnings(\"unused\")\n" + 
+				"	public void foo() {\n" + 
+				"		if (DEBUG)\n" +
+				"			System.out.println(\"true\");\n" +
+				"		else\n" +
+				"			System.out.println(\"false\");\n" +
+				"		\n" +
+				"	}\n" + 
+				"}\n"
+		},
+		null,
+		customOptions,
+		"",
+		"",
+		"",
+		JavacTestOptions.SKIP);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282770.
+public void test277() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.DISABLED);
+
+	runConformTest(
+		true,
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static final boolean DEBUG = false;\n" + 
+				"	@SuppressWarnings(\"unused\")\n" + 
+				"	public void foo() {\n" + 
+				"		if (0 < 1)\n" +
+				"			System.out.println(\"true\");\n" +
+				"		else\n" +
+				"			System.out.println(\"false\");\n" +
+				"		\n" +
+				"	}\n" + 
+				"}\n"
+		},
+		null,
+		customOptions,
+		"",
+		"",
+		"",
+		JavacTestOptions.SKIP);
 }
 }

@@ -114,7 +114,8 @@ public class IrritantSet {
 			.set(CompilerOptions.UnusedLabel)
 			.set(CompilerOptions.UnusedImport)
 			.set(CompilerOptions.UnusedTypeArguments)
-			.set(CompilerOptions.RedundantSuperinterface);
+			.set(CompilerOptions.RedundantSuperinterface)
+			.set(CompilerOptions.DeadCode);
 		String suppressRawWhenUnchecked = System.getProperty("suppressRawWhenUnchecked"); //$NON-NLS-1$
 		if (suppressRawWhenUnchecked != null && "true".equalsIgnoreCase(suppressRawWhenUnchecked)) { //$NON-NLS-1$
 			UNCHECKED.set(CompilerOptions.RawTypeReference);
