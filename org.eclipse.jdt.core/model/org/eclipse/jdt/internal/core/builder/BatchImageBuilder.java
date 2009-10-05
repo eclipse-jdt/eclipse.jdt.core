@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -105,7 +105,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 							member.accept(
 								new IResourceVisitor() {
 									public boolean visit(IResource resource) throws CoreException {
-										resource.setDerived(true);
+										resource.setDerived(true, null);
 										return resource.getType() != IResource.FILE;
 									}
 								}
@@ -137,7 +137,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 										if (Util.isExcluded(resource.getFullPath(), inclusionPatterns, exclusionPatterns, false))
 											return false;
 									if (!resource.isDerived())
-										resource.setDerived(true);
+										resource.setDerived(true, null);
 									resource.delete(IResource.FORCE, null);
 								}
 								return false;

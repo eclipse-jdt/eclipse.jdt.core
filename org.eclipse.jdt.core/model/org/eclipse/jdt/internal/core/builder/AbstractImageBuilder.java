@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -835,7 +835,7 @@ protected void writeClassFileContents(ClassFile classFile, IFile file, String qu
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
 		if (!file.isDerived())
-			file.setDerived(true);
+			file.setDerived(true, null);
 		file.setContents(input, true, false, null);
 	} else {
 		// Default implementation just writes out the bytes for the new class file...
