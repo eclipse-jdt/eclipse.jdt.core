@@ -1972,7 +1972,7 @@ public void test068() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	i =+ 1;\n" + 
 		"	   ^^^\n" + 
-		"Unnecessary operator\n" + 
+		"Unnecessary \'+\' operator for unary expression\n" + 
 		"----------\n",
 		null,
 		true,
@@ -1998,7 +1998,7 @@ public void test069() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	i = +1;\n" + 
 		"	    ^^\n" + 
-		"Unnecessary operator\n" + 
+		"Unnecessary \'+\' operator for unary expression\n" + 
 		"----------\n",
 		null,
 		true,
