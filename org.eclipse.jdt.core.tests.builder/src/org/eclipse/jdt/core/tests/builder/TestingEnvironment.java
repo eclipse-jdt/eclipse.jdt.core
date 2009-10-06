@@ -429,6 +429,22 @@ public void cleanBuild() {
 		}
 		return project;
 	}
+	
+	/**
+	 * Safely delete the given resource.
+	 */
+	void deleteResource(IResource resource) {
+		int retryCount = 0; // wait 1 minute at most
+		IStatus status = null;
+		while (++retryCount <= 6) {
+			status = Util.delete(resource);
+			if (status.isOK()) {
+				return;
+			}
+			System.gc();
+		}
+		handleCoreException(new CoreException(status));
+	}
 
 	/** Batch builds the workspace.  A workspace must be
 	 * open.
@@ -816,11 +832,7 @@ public void cleanBuild() {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		className += ".class"; //$NON-NLS-1$
 		IFolder packageFolder = fWorkspace.getRoot().getFolder(packagePath);
-		try {
-			packageFolder.getFile(className).delete(true, null);
-		} catch (CoreException e) {
-			handle(e);
-		}
+		deleteResource(packageFolder.getFile(className));
 	}
 
 	/** Removes a class from the given package in the workspace.
@@ -831,11 +843,7 @@ public void cleanBuild() {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		className += ".java"; //$NON-NLS-1$
 		IFolder packageFolder = fWorkspace.getRoot().getFolder(packagePath);
-		try {
-			packageFolder.getFile(className).delete(true, null);
-		} catch (CoreException e) {
-			handle(e);
-		}
+		deleteResource(packageFolder.getFile(className));
 	}
 
 	/** Removes a package from the given package fragment root
@@ -846,11 +854,7 @@ public void cleanBuild() {
 		IPath path =
 			packageFragmentRootPath.append(packageName.replace('.', IPath.SEPARATOR));
 		IFolder folder = fWorkspace.getRoot().getFolder(path);
-		try {
-			folder.delete(false, null);
-		} catch (CoreException e) {
-			handle(e);
-		}
+		deleteResource(folder);
 	}
 
 	/** Removes the given package fragment root from the
@@ -861,11 +865,7 @@ public void cleanBuild() {
 		if (packageFragmentRootName.length() > 0) {
 			IFolder folder = getProject(projectPath).getFolder(packageFragmentRootName);
 			if (folder.exists()) {
-				try {
-					folder.delete(false, null);
-				} catch (CoreException e) {
-					handle(e);
-				}
+				deleteResource(folder);
 			}
 		}
 		IPath rootPath = getPackageFragmentRootPath(projectPath, packageFragmentRootName);
@@ -882,11 +882,7 @@ public void cleanBuild() {
 			e.printStackTrace();
 		}
 		IProject project = getProject(projectPath);
-		try {
-			project.delete(true, null);
-		} catch (CoreException e) {
-			handle(e);
-		}
+		deleteResource(project);
 		
 	}
 	
@@ -927,11 +923,7 @@ public void cleanBuild() {
 		removePackageFragmentRoot(projectPath, zipName);
 
 		IFile file = getProject(projectPath).getFile(zipName);
-		try {
-			file.delete(false, null);
-		} catch (CoreException e) {
-			handle(e);
-		}
+		deleteResource(file);
 	}
 	
 	/**
@@ -959,11 +951,7 @@ public void cleanBuild() {
 	 */
 	public void removeFile(IPath filePath) {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
-		try {
-			fWorkspace.getRoot().getFile(filePath).delete(true, null);
-		} catch (CoreException e) {
-			handle(e);
-		}
+		deleteResource(fWorkspace.getRoot().getFile(filePath));
 	}
 	
 	/** Remove a folder
@@ -971,11 +959,7 @@ public void cleanBuild() {
 	public void removeFolder(IPath folderPath) {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IFolder folder = fWorkspace.getRoot().getFolder(folderPath);
-		try {
-			folder.delete(true, null);
-		} catch (CoreException e) {
-			handle(e);
-		}
+		deleteResource(folder);
 	}
 	
 	/** Sets the classpath to the given package fragment

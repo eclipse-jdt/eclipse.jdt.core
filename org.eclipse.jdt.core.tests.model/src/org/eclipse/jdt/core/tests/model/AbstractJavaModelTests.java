@@ -1557,11 +1557,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	public void deleteResource(IResource resource) throws CoreException {
 		int retryCount = 0; // wait 1 minute at most
-		while (++retryCount <= 60) {
-			if (!org.eclipse.jdt.core.tests.util.Util.delete(resource)) {
-				System.gc();
+		IStatus status = null;
+		while (++retryCount <= 6) {
+			status = org.eclipse.jdt.core.tests.util.Util.delete(resource);
+			if (status.isOK()) {
+				return;
 			}
+			System.gc();
 		}
+		throw new CoreException(status);
 	}
 	/**
 	 * Returns true if this delta is flagged as having changed children.
