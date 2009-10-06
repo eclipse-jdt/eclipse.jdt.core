@@ -936,7 +936,7 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 
 	// create lookup environment
 	Map map = project.getOptions(true);
-	map.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
+	map.put(CompilerOptions.OPTION_TaskTags, org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING);
 	this.options = new CompilerOptions(map);
 	ProblemReporter problemReporter =
 		new ProblemReporter(
