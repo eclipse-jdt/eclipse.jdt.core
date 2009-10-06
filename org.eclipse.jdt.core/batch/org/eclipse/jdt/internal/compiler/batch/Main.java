@@ -2169,7 +2169,7 @@ public void configure(String[] argv) {
 							break;
 						case '-' :
 							warnTokenStart = 7;
-							isEnabling = false; // mentionned warnings are disabled
+							isEnabling = false; // specified warnings are disabled
 							allowPlusOrMinus = true;
 							break;
 						default:
@@ -2187,7 +2187,7 @@ public void configure(String[] argv) {
 						this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 					}
 
-					nextToken: while (tokenizer.hasMoreTokens()) {
+					while (tokenizer.hasMoreTokens()) {
 						String token = tokenizer.nextToken();
 						tokenCounter++;
 						switch(token.charAt(0)) {
@@ -2196,8 +2196,8 @@ public void configure(String[] argv) {
 									isEnabling = true;
 									token = token.substring(1);
 								} else {
-									tokenCounter = 0;
-									break nextToken;
+									throw new IllegalArgumentException(
+											this.bind("configure.invalidUsageOfPlusOption", token)); //$NON-NLS-1$
 								}
 								break;
 							case '-' :
@@ -2205,16 +2205,78 @@ public void configure(String[] argv) {
 									isEnabling = false;
 									token = token.substring(1);
 								} else {
-									tokenCounter = 0;
-									break nextToken;
+									throw new IllegalArgumentException(
+											this.bind("configure.invalidUsageOfMinusOption", token)); //$NON-NLS-1$
 								}
-								break;
 						}
 						handleWarningToken(token, isEnabling);
 					}
 					if (tokenCounter == 0) {
 						throw new IllegalArgumentException(
 							this.bind("configure.invalidWarningOption", currentArg)); //$NON-NLS-1$
+					}
+					continue;
+				}
+				if (currentArg.startsWith("-error")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					String errorOption = currentArg;
+					int length = currentArg.length();
+					if (length <= 7) {
+						throw new IllegalArgumentException(
+							this.bind("configure.invalidErrorConfiguration", errorOption)); //$NON-NLS-1$
+					}
+					int errorTokenStart;
+					boolean isEnabling, allowPlusOrMinus;
+					switch (errorOption.charAt(7)) {
+						case '+' :
+							errorTokenStart = 8;
+							isEnabling = true;
+							allowPlusOrMinus = true;
+							break;
+						case '-' :
+							errorTokenStart = 8;
+							isEnabling = false; // specified errors are disabled
+							allowPlusOrMinus = true;
+							break;
+						default:
+							disableErrors();
+							errorTokenStart = 7;
+							isEnabling = true;
+							allowPlusOrMinus = false;
+					}
+
+					StringTokenizer tokenizer =
+						new StringTokenizer(errorOption.substring(errorTokenStart, errorOption.length()), ","); //$NON-NLS-1$
+					int tokenCounter = 0;
+
+					while (tokenizer.hasMoreTokens()) {
+						String token = tokenizer.nextToken();
+						tokenCounter++;
+						switch(token.charAt(0)) {
+							case '+' :
+								if (allowPlusOrMinus) {
+									isEnabling = true;
+									token = token.substring(1);
+								} else {
+									throw new IllegalArgumentException(
+											this.bind("configure.invalidUsageOfPlusOption", token)); //$NON-NLS-1$
+								}
+								break;
+							case '-' :
+								if (allowPlusOrMinus) {
+									isEnabling = false;
+									token = token.substring(1);
+								} else {
+									throw new IllegalArgumentException(
+											this.bind("configure.invalidUsageOfMinusOption", token)); //$NON-NLS-1$
+								}
+								break;
+						}
+						handleErrorToken(token, isEnabling);
+					}
+					if (tokenCounter == 0) {
+						throw new IllegalArgumentException(
+							this.bind("configure.invalidErrorOption", currentArg)); //$NON-NLS-1$
 					}
 					continue;
 				}
@@ -2226,11 +2288,11 @@ public void configure(String[] argv) {
 					this.options.put(
 						CompilerOptions.OPTION_PreserveUnusedLocal,
 						CompilerOptions.PRESERVE);
-				    mode = DEFAULT;
+					mode = DEFAULT;
 					continue;
 				}
 				if (currentArg.equals("-enableJavadoc")) {//$NON-NLS-1$
-				    mode = DEFAULT;
+					mode = DEFAULT;
 					this.enableJavadocOn = true;
 					continue;
 				}
@@ -2562,9 +2624,6 @@ public void configure(String[] argv) {
 	// configure warnings for javadoc contents
 	if (this.warnJavadocOn) {
 		this.options.put(
-			CompilerOptions.OPTION_ReportInvalidJavadoc,
-			CompilerOptions.WARNING);
-		this.options.put(
 			CompilerOptions.OPTION_ReportInvalidJavadocTags,
 			CompilerOptions.ENABLED);
 		this.options.put(
@@ -2574,16 +2633,8 @@ public void configure(String[] argv) {
 			CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef,
 			CompilerOptions.ENABLED);
 		this.options.put(
-			CompilerOptions.OPTION_ReportMissingJavadocTags,
-			CompilerOptions.WARNING);
-		this.options.put(
 			CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
 			CompilerOptions.PRIVATE);
-	}
-	if (this.warnAllJavadocOn) {
-		this.options.put(
-			CompilerOptions.OPTION_ReportMissingJavadocComments,
-			CompilerOptions.WARNING);
 	}
 
 	if (printUsageRequired || (filesCount == 0 && classCount == 0)) {
@@ -2669,6 +2720,19 @@ protected void disableWarnings() {
 		}
 	}
 	this.options.put(CompilerOptions.OPTION_TaskTags, Util.EMPTY_STRING);
+}
+protected void disableErrors() {
+	Object[] entries = this.options.entrySet().toArray();
+	for (int i = 0, max = entries.length; i < max; i++) {
+		Map.Entry entry = (Map.Entry) entries[i];
+		if (!(entry.getKey() instanceof String))
+			continue;
+		if (!(entry.getValue() instanceof String))
+			continue;
+		if (((String) entry.getValue()).equals(CompilerOptions.ERROR)) {
+			this.options.put(entry.getKey(), CompilerOptions.IGNORE);
+		}
+	}
 }
 public String extractDestinationPathFromSourceFile(CompilationResult result) {
 	ICompilationUnit compilationUnit = result.compilationUnit;
@@ -3058,13 +3122,48 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
  * Handle a single warning token.
 */
 protected void handleWarningToken(String token, boolean isEnabling) {
+	handleErrorOrWarningToken(token, isEnabling, ProblemSeverities.Warning);
+}
+protected void handleErrorToken(String token, boolean isEnabling) {
+	handleErrorOrWarningToken(token, isEnabling, ProblemSeverities.Error);
+}
+private void setSeverity(String compilerOptions, int severity, boolean isEnabling) {
+	if (isEnabling) {
+		switch(severity) {
+			case ProblemSeverities.Error :
+				this.options.put(compilerOptions, CompilerOptions.ERROR);
+				break;
+			case ProblemSeverities.Warning :
+				this.options.put(compilerOptions, CompilerOptions.WARNING);
+				break;
+			default:
+				this.options.put(compilerOptions, CompilerOptions.IGNORE);
+		}
+	} else {
+		switch(severity) {
+			case ProblemSeverities.Error :
+				String currentValue = (String) this.options.get(compilerOptions);
+				if (CompilerOptions.ERROR.equals(currentValue)) {
+					this.options.put(compilerOptions, CompilerOptions.IGNORE);
+				}
+				break;
+			case ProblemSeverities.Warning :
+				currentValue = (String) this.options.get(compilerOptions);
+				if (CompilerOptions.WARNING.equals(currentValue)) {
+					this.options.put(compilerOptions, CompilerOptions.IGNORE);
+				}
+				break;
+			default:
+				this.options.put(compilerOptions, CompilerOptions.IGNORE);
+		}
+	}
+}
+private void handleErrorOrWarningToken(String token, boolean isEnabling, int severity) {
 	if (token.length() == 0) return;
 	switch(token.charAt(0)) {
 		case 'a' :
 			if (token.equals("allDeprecation")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportDeprecation,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportDeprecation, severity, isEnabling);
 				this.options.put(
 					CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode,
 					isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
@@ -3074,66 +3173,51 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 				return;
 			} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
 				this.warnAllJavadocOn = this.warnJavadocOn = isEnabling;
+				setSeverity(CompilerOptions.OPTION_ReportInvalidJavadoc, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportMissingJavadocTags, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportMissingJavadocComments, severity, isEnabling);
 				return;
 			} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportAssertIdentifier,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportAssertIdentifier, severity, isEnabling);
 				return;
 			} else if (token.equals("allDeadCode")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportDeadCode, severity, isEnabling);
 				this.options.put(
-						CompilerOptions.OPTION_ReportDeadCode,
-						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					this.options.put(
-						CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement,
-						isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-					return;
+					CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement,
+					isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+				return;
 			} else if (token.equals("allOver-ann")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, severity, isEnabling);
 				this.options.put(
-						CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
-						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-						CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
-						isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+					CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
+					isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 				return;
 			}
 			break;
 		case 'b' :
 			if (token.equals("boxing")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportAutoboxing,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportAutoboxing, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'c' :
 			if (token.equals("constructorName")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportMethodWithConstructorName,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportMethodWithConstructorName, severity, isEnabling);
 				return;
 			} else if (token.equals("conditionAssign")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, severity, isEnabling);
 				return;
 			} else if (token.equals("compareIdentical")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportComparingIdentical,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportComparingIdentical, severity, isEnabling);
 				return;
 			} else if (token.equals("charConcat") /*|| token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportNoImplicitStringConversion,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportNoImplicitStringConversion, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'd' :
 			if (token.equals("deprecation")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportDeprecation,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportDeprecation, severity, isEnabling);
 				this.options.put(
 					CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode,
 					CompilerOptions.DISABLED);
@@ -3142,19 +3226,13 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 					CompilerOptions.DISABLED);
 				return;
 			} else if (token.equals("dep-ann")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation, severity, isEnabling);
 				return;
 			} else if (token.equals("discouraged")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportDiscouragedReference,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportDiscouragedReference, severity, isEnabling);
 				return;
 			} else if (token.equals("deadCode")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportDeadCode,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportDeadCode, severity, isEnabling);
 				this.options.put(
 					CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement,
 					CompilerOptions.DISABLED);
@@ -3164,169 +3242,111 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 		case 'e' :
 			if (token.equals("enumSwitch") //$NON-NLS-1$
 					|| token.equals("incomplete-switch")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportIncompleteEnumSwitch,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, severity, isEnabling);
 				return;
 			} else if (token.equals("emptyBlock")) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUndocumentedEmptyBlock,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, severity, isEnabling);
 				return;
 			} else if (token.equals("enumIdentifier")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportEnumIdentifier,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportEnumIdentifier, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'f' :
 			if (token.equals("fieldHiding")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportFieldHiding,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportFieldHiding, severity, isEnabling);
 				return;
 			} else if (token.equals("finalBound")) {//$NON-NLS-1$
-				this.options.put(
-						CompilerOptions.OPTION_ReportFinalParameterBound,
-						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportFinalParameterBound, severity, isEnabling);
 				return;
 			} else if (token.equals("finally")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, severity, isEnabling);
 				return;
 			} else if (token.equals("forbidden")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportForbiddenReference,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportForbiddenReference, severity, isEnabling);
 				return;
 			} else if (token.equals("fallthrough")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportFallthroughCase,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportFallthroughCase, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'h' :
 			if (token.equals("hiding")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportHiddenCatchBlock,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-					CompilerOptions.OPTION_ReportLocalVariableHiding,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-					CompilerOptions.OPTION_ReportFieldHiding,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-					CompilerOptions.OPTION_ReportTypeParameterHiding,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportHiddenCatchBlock, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportLocalVariableHiding, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportFieldHiding, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportTypeParameterHiding, severity, isEnabling);
 				return;
 			} else if (token.equals("hashCode")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportMissingHashCodeMethod,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportMissingHashCodeMethod, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'i' :
 			if (token.equals("indirectStatic")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportIndirectStaticAccess,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportIndirectStaticAccess, severity, isEnabling);
 				return;
 			} else if (token.equals("intfNonInherited") || token.equals("interfaceNonInherited")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-				this.options.put(
-					CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, severity, isEnabling);
 				return;
 			} else if (token.equals("intfAnnotation")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportAnnotationSuperInterface,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportAnnotationSuperInterface, severity, isEnabling);
 				return;
 			} else if (token.equals("intfRedundant") /*|| token.equals("redundantSuperinterface")*/) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportRedundantSuperinterface,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);	
+				setSeverity(CompilerOptions.OPTION_ReportRedundantSuperinterface, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'j' :
 			if (token.equals("javadoc")) {//$NON-NLS-1$
 				this.warnJavadocOn = isEnabling;
+				setSeverity(CompilerOptions.OPTION_ReportInvalidJavadoc, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportMissingJavadocTags, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'l' :
 			if (token.equals("localHiding")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportLocalVariableHiding,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportLocalVariableHiding, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'm' :
 			if (token.equals("maskedCatchBlock") || token.equals("maskedCatchBlocks")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-				this.options.put(
-					CompilerOptions.OPTION_ReportHiddenCatchBlock,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportHiddenCatchBlock, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'n' :
 			if (token.equals("nls")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, severity, isEnabling);
 				return;
 			} else if (token.equals("noEffectAssign")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportNoEffectAssignment,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportNoEffectAssignment, severity, isEnabling);
 				return;
 			} else if (/*token.equals("charConcat") ||*/ token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportNoImplicitStringConversion,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportNoImplicitStringConversion, severity, isEnabling);
 				return;
 			} else if (token.equals("null")) { //$NON-NLS-1$
-				this.options.put(
-						CompilerOptions.OPTION_ReportNullReference,
-						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-						CompilerOptions.OPTION_ReportPotentialNullReference,
-						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-						CompilerOptions.OPTION_ReportRedundantNullCheck,
-						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportNullReference, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportPotentialNullReference, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportRedundantNullCheck, severity, isEnabling);
 				return;
 			} else if (token.equals("nullDereference")) { //$NON-NLS-1$
-				this.options.put(
-						CompilerOptions.OPTION_ReportNullReference,
-						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportNullReference, severity, isEnabling);
 				if (!isEnabling) {
-					this.options.put(
-							CompilerOptions.OPTION_ReportPotentialNullReference,
-							CompilerOptions.IGNORE);
-					this.options.put(
-							CompilerOptions.OPTION_ReportRedundantNullCheck,
-							CompilerOptions.IGNORE);
+					setSeverity(CompilerOptions.OPTION_ReportPotentialNullReference, ProblemSeverities.Ignore, isEnabling);
+					setSeverity(CompilerOptions.OPTION_ReportRedundantNullCheck, ProblemSeverities.Ignore, isEnabling);
 				}
 				return;
 			}
 			break;
 		case 'o' :
 			if (token.equals("over-sync") /*|| token.equals("syncOverride")*/) { //$NON-NLS-1$ 
-				this.options.put(
-					CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod,
-					isEnabling ? CompilerOptions.ERROR : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, severity, isEnabling);
 				return;
 			} else if (token.equals("over-ann")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, severity, isEnabling);
 				this.options.put(
 					CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
 					CompilerOptions.DISABLED);
@@ -3335,27 +3355,19 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 			break;
 		case 'p' :
 			if (token.equals("pkgDefaultMethod") || token.equals("packageDefaultMethod")/*backward compatible*/ ) { //$NON-NLS-1$ //$NON-NLS-2$
-				this.options.put(
-					CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);	
+				setSeverity(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, severity, isEnabling);
 				return;
 			} else if (token.equals("paramAssign")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportParameterAssignment,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportParameterAssignment, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'r' :
 			if (token.equals("raw")) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportRawTypeReference,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportRawTypeReference, severity, isEnabling);
 				return;
 			} else if (/*token.equals("intfRedundant") ||*/ token.equals("redundantSuperinterface")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportRedundantSuperinterface,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);	
+				setSeverity(CompilerOptions.OPTION_ReportRedundantSuperinterface, severity, isEnabling);
 				return;
 			}
 			break;
@@ -3366,29 +3378,19 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 					isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 				return;
 			} else if (token.equals("syntheticAccess") || token.equals("synthetic-access")) { //$NON-NLS-1$ //$NON-NLS-2$
-				this.options.put(
-					CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, severity, isEnabling);
 				return;
 			} else if (token.equals("staticReceiver")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, severity, isEnabling);
 				return;
 			} else 	if (/*token.equals("over-sync") ||*/ token.equals("syncOverride")) { //$NON-NLS-1$ 
-				this.options.put(
-					CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod,
-					isEnabling ? CompilerOptions.ERROR : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, severity, isEnabling);
 				return;
 			} else if (token.equals("semicolon")) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportEmptyStatement,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportEmptyStatement, severity, isEnabling);
 				return;
 			} else if (token.equals("serial")) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportMissingSerialVersion,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportMissingSerialVersion, severity, isEnabling);
 				return;
 			} else if (token.equals("suppress")) {//$NON-NLS-1$
 				this.options.put(
@@ -3396,17 +3398,11 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 					isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 				return;
 			} else if (token.equals("static-access")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-					CompilerOptions.OPTION_ReportIndirectStaticAccess,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportIndirectStaticAccess, severity, isEnabling);
 				return;
 			} else if (token.equals("super")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, severity, isEnabling);
 				return;
 			}
 			break;
@@ -3425,116 +3421,82 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 				this.options.put(
 					CompilerOptions.OPTION_TaskTags,
 					isEnabling ? taskTags : Util.EMPTY_STRING);
+				
+				setSeverity(CompilerOptions.OPTION_ReportTasks, severity, isEnabling);
 				return;
 			} else if (token.equals("typeHiding")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportTypeParameterHiding,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportTypeParameterHiding, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'u' :
 			if (token.equals("unusedLocal") || token.equals("unusedLocals")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedLocal,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedLocal, severity, isEnabling);
 				return;
 			} else if (token.equals("unusedArgument") || token.equals("unusedArguments")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedParameter,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedParameter, severity, isEnabling);
 				return;
 			} else if (token.equals("unusedImport") || token.equals("unusedImports")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedImport,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedImport, severity, isEnabling);
 				return;
 			} else if (token.equals("unusedPrivate")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedPrivateMember,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedPrivateMember, severity, isEnabling);
 				return;
 			} else if (token.equals("unusedLabel")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedLabel,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedLabel, severity, isEnabling);
 				return;
 			} else if (token.equals("uselessTypeCheck")) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnnecessaryTypeCheck,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, severity, isEnabling);
 				return;
 			} else if (token.equals("unchecked") || token.equals("unsafe")) {//$NON-NLS-1$ //$NON-NLS-2$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUncheckedTypeOperation,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUncheckedTypeOperation, severity, isEnabling);
 				return;
 			} else if (token.equals("unnecessaryElse")) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnnecessaryElse,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnnecessaryElse, severity, isEnabling);
 				return;
 			} else if (token.equals("unusedThrown")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, severity, isEnabling);
 				return;
 			} else if (token.equals("unqualifiedField") || token.equals("unqualified-field-access")) { //$NON-NLS-1$ //$NON-NLS-2$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnqualifiedFieldAccess,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, severity, isEnabling);
 				return;
 			} else if (token.equals("unused")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedLocal,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedParameter,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedImport,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedPrivateMember,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-						CompilerOptions.OPTION_ReportUnusedLabel,
-						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-						CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation,
-						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedLocal, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedParameter, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedImport, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedPrivateMember, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedLabel, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, severity, isEnabling);
 				return;
 			} else if (token.equals("unusedTypeArgs")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'v' :
 			if (token.equals("varargsCast")) { //$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportVarargsArgumentNeedCast,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportVarargsArgumentNeedCast, severity, isEnabling);
 				return;
 			}
 			break;
 		case 'w' :
 			if (token.equals("warningToken")) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnhandledWarningToken,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-				this.options.put(
-					CompilerOptions.OPTION_ReportUnusedWarningToken,
-					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+				setSeverity(CompilerOptions.OPTION_ReportUnhandledWarningToken, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedWarningToken, severity, isEnabling);
 				return;
 			}
 			break;
 	}
-	addPendingErrors(this.bind("configure.invalidWarning", token)); //$NON-NLS-1$
+	String message = null;
+	switch(severity) {
+		case ProblemSeverities.Warning :
+			message = this.bind("configure.invalidWarning", token); //$NON-NLS-1$
+			break;
+		case ProblemSeverities.Error :
+			message = this.bind("configure.invalidError", token); //$NON-NLS-1$
+	}
+	addPendingErrors(message);
 }
 /**
  * @deprecated - use {@link #initialize(PrintWriter, PrintWriter, boolean, Map, CompilationProgress)} instead
@@ -3557,6 +3519,7 @@ protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean 
 	this.err = errWriter;
 	this.systemExitWhenFinished = systemExit;
 	this.options = new CompilerOptions().getMap();
+
 	this.progress = compilationProgress;
 	if (customDefaultOptions != null) {
 		this.didSpecifySource = customDefaultOptions.get(CompilerOptions.OPTION_Source) != null;

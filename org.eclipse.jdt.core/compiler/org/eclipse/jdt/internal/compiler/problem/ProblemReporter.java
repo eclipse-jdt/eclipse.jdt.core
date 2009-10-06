@@ -411,6 +411,9 @@ public static int getIrritant(int problemID) {
 			
 		case IProblem.DeadCode:
 			return CompilerOptions.DeadCode;
+			
+		case IProblem.Task :
+			return CompilerOptions.Tasks;
 	}
 	return 0;
 }
@@ -1203,9 +1206,7 @@ public void comparingIdenticalExpressions(Expression comparison){
 public int computeSeverity(int problemID){
 
 	switch (problemID) {
-		case IProblem.Task :
-			return ProblemSeverities.Warning;
- 		case IProblem.VarargsConflict :
+		case IProblem.VarargsConflict :
 			return ProblemSeverities.Warning;
  		case IProblem.TypeCollidesWithPackage :
 			return ProblemSeverities.Warning;

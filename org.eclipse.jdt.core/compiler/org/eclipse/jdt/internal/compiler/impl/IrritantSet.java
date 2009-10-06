@@ -95,7 +95,9 @@ public class IrritantSet {
 				| CompilerOptions.UnusedWarningToken
 				| CompilerOptions.ComparingIdentical)
 			// group-2 warnings enabled by default
-			.set(CompilerOptions.DeadCode);
+			.set(
+				CompilerOptions.DeadCode
+				|CompilerOptions.Tasks);
 			
 		ALL.setAll();
 		HIDING

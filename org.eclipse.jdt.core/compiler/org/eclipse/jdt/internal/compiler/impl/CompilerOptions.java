@@ -126,6 +126,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportMissingHashCodeMethod =  "org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeadCode =  "org.eclipse.jdt.core.compiler.problem.deadCode"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeadCodeInTrivialIfStatement =  "org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement"; //$NON-NLS-1$
+	public static final String OPTION_ReportTasks = "org.eclipse.jdt.core.compiler.problem.tasks"; //$NON-NLS-1$
 
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -230,6 +231,7 @@ public class CompilerOptions {
 	// group 2
 	public static final int ShouldImplementHashcode = IrritantSet.GROUP2 | ASTNode.Bit1;
 	public static final int DeadCode = IrritantSet.GROUP2 | ASTNode.Bit2;
+	public static final int Tasks = IrritantSet.GROUP2 | ASTNode.Bit3;
 
 	// Severity level for handlers
 	/** 
@@ -270,7 +272,7 @@ public class CompilerOptions {
 	/** Tags used to recognize tasks in comments */
 	public char[][] taskTags;
 	/** Respective priorities of recognized task tags */
-	public char[][] taskPriorites;
+	public char[][] taskPriorities;
 	/** Indicate whether tag detection is case sensitive or not */
 	public boolean isTaskCaseSensitive;
 	/** Specify whether deprecation inside deprecated code is to be reported */
@@ -862,7 +864,7 @@ public class CompilerOptions {
 			optionsMap.put(OPTION_Encoding, this.defaultEncoding);
 		}
 		optionsMap.put(OPTION_TaskTags, this.taskTags == null ? Util.EMPTY_STRING : new String(CharOperation.concatWith(this.taskTags,',')));
-		optionsMap.put(OPTION_TaskPriorities, this.taskPriorites == null ? Util.EMPTY_STRING : new String(CharOperation.concatWith(this.taskPriorites,',')));
+		optionsMap.put(OPTION_TaskPriorities, this.taskPriorities == null ? Util.EMPTY_STRING : new String(CharOperation.concatWith(this.taskPriorities,',')));
 		optionsMap.put(OPTION_TaskCaseSensitive, this.isTaskCaseSensitive ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnusedParameterWhenImplementingAbstract, this.reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnusedParameterWhenOverridingConcrete, this.reportUnusedParameterWhenOverridingConcrete ? ENABLED : DISABLED);
@@ -887,6 +889,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportMissingHashCodeMethod, getSeverityString(ShouldImplementHashcode));
 		optionsMap.put(OPTION_ReportDeadCode, getSeverityString(DeadCode));
 		optionsMap.put(OPTION_ReportDeadCodeInTrivialIfStatement, this.reportDeadCodeInTrivialIfStatement ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportTasks, getSeverityString(Tasks));
 		return optionsMap;
 	}
 
@@ -958,7 +961,7 @@ public class CompilerOptions {
 
 		// tags used to recognize tasks in comments
 		this.taskTags = null;
-		this.taskPriorites = null;
+		this.taskPriorities = null;
 		this.isTaskCaseSensitive = true;
 
 		// deprecation report
@@ -1182,9 +1185,9 @@ public class CompilerOptions {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
 				if (stringValue.length() == 0) {
-					this.taskPriorites = null;
+					this.taskPriorities = null;
 				} else {
-					this.taskPriorites = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+					this.taskPriorities = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
 				}
 			}
 		}
@@ -1280,6 +1283,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingSynchronizedOnInheritedMethod)) != null) updateSeverity(MissingSynchronizedModifierInInheritedMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingHashCodeMethod)) != null) updateSeverity(ShouldImplementHashcode, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeadCode)) != null) updateSeverity(DeadCode, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportTasks)) != null) updateSeverity(Tasks, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -1441,7 +1445,7 @@ public class CompilerOptions {
 		buf.append("\n\t- parse literal expressions as constants : ").append(this.parseLiteralExpressionsAsConstants ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- encoding : ").append(this.defaultEncoding == null ? "<default>" : this.defaultEncoding); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n\t- task tags: ").append(this.taskTags == null ? Util.EMPTY_STRING : new String(CharOperation.concatWith(this.taskTags,',')));  //$NON-NLS-1$
-		buf.append("\n\t- task priorities : ").append(this.taskPriorites == null ? Util.EMPTY_STRING : new String(CharOperation.concatWith(this.taskPriorites,','))); //$NON-NLS-1$
+		buf.append("\n\t- task priorities : ").append(this.taskPriorities == null ? Util.EMPTY_STRING : new String(CharOperation.concatWith(this.taskPriorities,','))); //$NON-NLS-1$
 		buf.append("\n\t- report deprecation inside deprecated code : ").append(this.reportDeprecationInsideDeprecatedCode ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report deprecation when overriding deprecated method : ").append(this.reportDeprecationWhenOverridingDeprecatedMethod ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report unused parameter when implementing abstract method : ").append(this.reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED); //$NON-NLS-1$
@@ -1480,6 +1484,7 @@ public class CompilerOptions {
 		buf.append("\n\t- should implement hashCode() method: ").append(getSeverityString(ShouldImplementHashcode)); //$NON-NLS-1$
 		buf.append("\n\t- dead code: ").append(getSeverityString(DeadCode)); //$NON-NLS-1$
 		buf.append("\n\t- dead code in trivial if statement: ").append(this.reportDeadCodeInTrivialIfStatement ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- tasks severity: ").append(getSeverityString(Tasks)); //$NON-NLS-1$
 		return buf.toString();
 	}
 	

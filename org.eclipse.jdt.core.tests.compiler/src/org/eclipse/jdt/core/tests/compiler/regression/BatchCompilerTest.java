@@ -45,9 +45,9 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 	private static final Main MAIN = new Main(null/*outWriter*/, null/*errWriter*/, false/*systemExit*/, null/*options*/, null/*progress*/);
 
 	static {
-//	TESTS_NAMES = new String[] { "test292_warn_options" };
-//	TESTS_NUMBERS = new int[] { 288 };
-//	TESTS_RANGE = new int[] { 107, -1 };
+//		TESTS_NAMES = new String[] { "test292_warn_options" };
+//		TESTS_NUMBERS = new int[] { 295 };
+//		TESTS_RANGE = new int[] { 107, -1 };
 	}
 public BatchCompilerTest(String name) {
 	super(name);
@@ -1543,6 +1543,14 @@ public void test012(){
         "    -nowarn -warn:none disable all warnings\n" +
         "    -?:warn -help:warn display advanced warning options\n" +
         " \n" +
+        " Error options:\n" + 
+        "    -error:<warnings separated by ,>    convert exactly the listed warnings\n" + 
+        "                                        to be reported as errors\n" + 
+        "    -error:+<warnings separated by ,>   enable additional warnings to be\n" + 
+        "                                        reported as errors\n" + 
+        "    -error:-<warnings separated by ,>   disable specific warnings to be\n" + 
+        "                                        reported as errors\n" + 
+        " \n" + 
         " Debug options:\n" +
         "    -g[:lines,vars,source] custom debug info\n" +
         "    -g:lines,source  + both lines table and source debug info\n" +
@@ -1833,6 +1841,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.tasks\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.typeParameterHiding\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock\" value=\"ignore\"/>\n" +
@@ -6159,7 +6168,7 @@ public void test152() {
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:-nullDereferences -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"invalid warning: nullDereferences. Ignoring warning and compiling\n" +
+		"invalid warning token: 'nullDereferences'. Ignoring warning and compiling\n" +
 		"----------\n" +
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
 		"	s.toString();\n" +
@@ -8488,7 +8497,7 @@ public void test214_warn_options() {
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:null,-unused -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"invalid warning option: -warn:null,-unused. Must specify a warning token\n",
+		"usage of \'-\' for \'-unused\' is illegal there\n",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
@@ -8509,7 +8518,7 @@ public void test215_warn_options() {
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:null,+unused -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"invalid warning option: -warn:null,+unused. Must specify a warning token\n",
+		"usage of \'+\' for \'+unused\' is illegal there\n",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
@@ -11094,6 +11103,70 @@ public void test292_warn_options() {
 		"The method toString() of type X should be tagged with @Override since it actually overrides a superclass method\n" +
 		"----------\n" +
 		"3 problems (3 warnings)",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
+public void test293(){
+	createCascadedJars();
+	this.runNegativeTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo -error:+discouraged"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
+		"	A a;\n" +
+		"	^\n" +
+		"Discouraged access: The type A is not accessible due to restriction on classpath entry ---LIB_DIR_PLACEHOLDER---/lib3.jar\n" +
+		"----------\n" +
+		"1 problem (1 error)",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
+public void test294(){
+	this.runConformTest(
+		new String[] {
+			"src/X.java",
+			"public class X {\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+		+ " -cp \"" + LIB_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo -error:+discouraged2"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"invalid error token: \'discouraged2\'. Ignoring this error token and compiling\n",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
+public void test295(){
+	this.runNegativeTest(
+		new String[] {
+			"src/X.java",
+			"public class X {\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+		+ " -cp \"" + LIB_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo -error:raw,+discouraged"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"usage of \'+\' for \'+discouraged\' is illegal there\n",
 		true);
 }
 }
