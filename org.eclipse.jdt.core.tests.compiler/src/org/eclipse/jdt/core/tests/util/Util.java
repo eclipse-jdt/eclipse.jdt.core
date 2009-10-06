@@ -21,6 +21,9 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.compiler.regression.Requestor;
@@ -388,16 +391,16 @@ public static void createSourceDir(String[] pathsAndContents, String sourcesPath
  * @return true iff the file was really delete, false otherwise
  */
 public static boolean delete(File file) {
-    // flush all directory content
-    if (file.isDirectory()) {
-        flushDirectoryContent(file);
-    }
-    // remove file
-    file.delete();
-    if (isFileDeleted(file)) {
-        return true;
-    }
-    return waitUntilFileDeleted(file);
+	// flush all directory content
+	if (file.isDirectory()) {
+		flushDirectoryContent(file);
+	}
+	// remove file
+	file.delete();
+	if (isFileDeleted(file)) {
+		return true;
+	}
+	return waitUntilFileDeleted(file);
 }
 /**
  * Delete a file or directory and insure that the file is no longer present
@@ -406,17 +409,24 @@ public static boolean delete(File file) {
  * @param resource The resource to delete
  * @return true iff the file was really delete, false otherwise
  */
-public static boolean delete(IResource resource) {
-    try {
-        resource.delete(true, null);
-        if (isResourceDeleted(resource)) {
-            return true;
-        }
-    }
-    catch (CoreException e) {
-        //	skip
-    }
-    return waitUntilResourceDeleted(resource);
+public static IStatus delete(IResource resource) {
+	IStatus status = null;
+	try {
+		resource.delete(true, null);
+		if (isResourceDeleted(resource)) {
+			return Status.OK_STATUS;
+		}
+	} catch (CoreException e) {
+		status = e.getStatus();
+	}
+	boolean deleted = waitUntilResourceDeleted(resource);
+	if (deleted) {
+		return Status.OK_STATUS;
+	}
+	if (status != null) {
+		return status;
+	}
+	return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Cannot delete resource "+resource);
 }
 /**
  * Delete a file or directory and insure that the file is no longer present
