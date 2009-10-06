@@ -48,29 +48,12 @@ Eclipse SDK 3.6M3 - October 6, 2009 - 3.6M3
 <br>Project org.eclipse.jdt.core v_A13
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A13">cvs</a>).
 <h2>What's new in this drop</h2>
-<ul><li>To fix bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106478">106478</a>, a new API has been added in <code>org.eclipse.jdt.core.JavaCore</code>:<br>
-<pre>
-	/**
-	 * Compiler option ID: Reporting Unnecessary Operator.
-	 * When enabled, the compiler will issue an error or a warning when an unary expression is using a '+' operator.
-	 * 
-	 * Option id: "org.eclipse.jdt.core.compiler.problem.unnecessaryOperator"
-	 * Possible values: { "error", "warning", "ignore" }
-	 * Default: "ignore"
-	 * 
-	 * @since 3.6
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_PB_UNNECESSARY_OPERATOR = PLUGIN_ID + ".compiler.problem.unnecessaryOperator"; //$NON-NLS-1$
-</pre>
-</li></ul>
+
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=282770">282770</a>
 [compiler] Dead code detection should have specific @SuppressWarnings
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=290028">290028</a>
 Use IResource#setDerived(boolean, IProgressMonitor) instead of IResource#setDerived(boolean)
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106478">106478</a>
-[compiler] warning on unary + operator
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=287607">287607</a>
 [1.5][compiler] cast of inner of generic enclosing type are not reported as unsafe
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=288749">288749</a>

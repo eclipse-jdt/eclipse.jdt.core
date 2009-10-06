@@ -742,18 +742,6 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_UNNECESSARY_ELSE = PLUGIN_ID + ".compiler.problem.unnecessaryElse"; //$NON-NLS-1$
 	/**
-	 * Compiler option ID: Reporting Unnecessary Operator.
-	 * <p>When enabled, the compiler will issue an error or a warning when an unary expression is using a '+' operator.</p>
-	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unnecessaryOperator"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
-	 * </dl>
-	 * @since 3.6
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_PB_UNNECESSARY_OPERATOR = PLUGIN_ID + ".compiler.problem.unnecessaryOperator"; //$NON-NLS-1$
-	/**
 	 * Compiler option ID: Reporting Undocumented Empty Block.
 	 * <p>When enabled, the compiler will issue an error or a warning when an empty block is detected and it is not
 	 *    documented with any comment.

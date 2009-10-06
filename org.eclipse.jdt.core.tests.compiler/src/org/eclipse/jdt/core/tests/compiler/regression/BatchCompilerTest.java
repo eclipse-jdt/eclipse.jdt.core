@@ -1692,7 +1692,6 @@ public void test012b(){
         "      typeHiding         + type parameter hiding another type\n" +
         "      unchecked          + unchecked type operation\n" +
         "      unnecessaryElse      unnecessary else clause\n" +
-        "      unnecessaryOperator  unnecessary ''+'' operator for unary expression\n" + 
         "      unqualifiedField     unqualified reference to field\n" +
         "      unused               macro for unusedArgument, unusedImport, unusedLabel,\n" +
         "                               unusedLocal, unusedPrivate, unusedThrown,\n" +
@@ -1839,7 +1838,6 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unhandledWarningToken\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryElse\" value=\"ignore\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryOperator\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException\" value=\"ignore\"/>\n" +

@@ -125,8 +125,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportMissingSynchronizedOnInheritedMethod =  "org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingHashCodeMethod =  "org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeadCode =  "org.eclipse.jdt.core.compiler.problem.deadCode"; //$NON-NLS-1$
-	public static final String OPTION_ReportDeadCodeInTrivialIfStatement = "org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement"; //$NON-NLS-1$
-	public static final String OPTION_ReportUnnecessaryOperator = "org.eclipse.jdt.core.compiler.problem.unnecessaryOperator"; //$NON-NLS-1$
+	public static final String OPTION_ReportDeadCodeInTrivialIfStatement =  "org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement"; //$NON-NLS-1$
 
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -231,7 +230,6 @@ public class CompilerOptions {
 	// group 2
 	public static final int ShouldImplementHashcode = IrritantSet.GROUP2 | ASTNode.Bit1;
 	public static final int DeadCode = IrritantSet.GROUP2 | ASTNode.Bit2;
-	public static final int UnnecessaryOperator = IrritantSet.GROUP2 | ASTNode.Bit3;
 
 	// Severity level for handlers
 	/** 
@@ -514,8 +512,6 @@ public class CompilerOptions {
 				return OPTION_ReportMissingHashCodeMethod;
 			case DeadCode :
 				return OPTION_ReportDeadCode;
-			case UnnecessaryOperator :
-				return OPTION_ReportUnnecessaryOperator;
 		}
 		return null;
 	}
@@ -599,7 +595,6 @@ public class CompilerOptions {
 			OPTION_ReportAssertIdentifier,
 			OPTION_ReportAutoboxing,
 			OPTION_ReportDeadCode,
-			OPTION_ReportUnnecessaryOperator,
 			OPTION_ReportDeprecation,
 			OPTION_ReportDiscouragedReference,
 			OPTION_ReportEmptyStatement,
@@ -892,7 +887,6 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportMissingHashCodeMethod, getSeverityString(ShouldImplementHashcode));
 		optionsMap.put(OPTION_ReportDeadCode, getSeverityString(DeadCode));
 		optionsMap.put(OPTION_ReportDeadCodeInTrivialIfStatement, this.reportDeadCodeInTrivialIfStatement ? ENABLED : DISABLED);
-		optionsMap.put(OPTION_ReportUnnecessaryOperator, getSeverityString(UnnecessaryOperator));
 		return optionsMap;
 	}
 
@@ -1286,7 +1280,6 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingSynchronizedOnInheritedMethod)) != null) updateSeverity(MissingSynchronizedModifierInInheritedMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingHashCodeMethod)) != null) updateSeverity(ShouldImplementHashcode, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeadCode)) != null) updateSeverity(DeadCode, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportUnnecessaryOperator)) != null) updateSeverity(UnnecessaryOperator, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {

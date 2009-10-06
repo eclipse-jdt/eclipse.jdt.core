@@ -1953,58 +1953,6 @@ public void test067() {
 		options
 	);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106478
-public void test068() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnnecessaryOperator, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"	public boolean test() {\n" +
-			"		int i = 0;\n" + 
-			"		i =+ 1;\n" + 
-			"		System.out.println(i);\n" + 
-			"	}\n" +
-			"}"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	i =+ 1;\n" + 
-		"	   ^^^\n" + 
-		"Unnecessary \'+\' operator for unary expression\n" + 
-		"----------\n",
-		null,
-		true,
-		options
-	);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106478
-public void test069() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnnecessaryOperator, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"	public boolean test() {\n" +
-			"		int i = 0;\n" + 
-			"		i = +1;\n" + 
-			"		System.out.println(i);\n" + 
-			"	}\n" +
-			"}"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	i = +1;\n" + 
-		"	    ^^\n" + 
-		"Unnecessary \'+\' operator for unary expression\n" + 
-		"----------\n",
-		null,
-		true,
-		options
-	);
-}
 public static Class testClass() {
 	return AssignmentTest.class;
 }

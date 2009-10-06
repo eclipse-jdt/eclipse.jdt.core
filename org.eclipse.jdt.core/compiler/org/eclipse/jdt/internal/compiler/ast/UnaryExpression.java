@@ -235,14 +235,9 @@ public FlowInfo analyseCode(
 			case TWIDDLE :
 				tableId = LEFT_SHIFT;
 				break;
-			case PLUS :
-				tableId = PLUS;
-				scope.problemReporter().unnecessaryOperator(this);
-				break;
 			default :
-				// minus case
 				tableId = MINUS;
-		}
+		} //+ and - cases
 
 		// the code is an int
 		// (cast)  left   Op (cast)  rigth --> result

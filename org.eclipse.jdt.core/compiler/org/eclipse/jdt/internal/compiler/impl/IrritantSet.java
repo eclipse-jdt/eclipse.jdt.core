@@ -96,7 +96,7 @@ public class IrritantSet {
 				| CompilerOptions.ComparingIdentical)
 			// group-2 warnings enabled by default
 			.set(CompilerOptions.DeadCode);
-
+			
 		ALL.setAll();
 		HIDING
 			.set(CompilerOptions.FieldHiding)
@@ -213,7 +213,9 @@ public class IrritantSet {
 			return this;
 		boolean wasNoOp = true;
 		for (int i = 0; i < GROUP_MAX; i++) {
-			int otherIrritant = other.bits[i] & ~GROUP_MASK; // erase the group bits
+			int otherIrritant = other.bits[i] & ~GROUP_MASK; // erase the
+																	// group
+																	// bits
 			if ((this.bits[i] & otherIrritant) != otherIrritant) {
 				wasNoOp = false;
 				this.bits[i] |= otherIrritant;
@@ -224,7 +226,8 @@ public class IrritantSet {
 	
 	public IrritantSet setAll() {
 		for (int i = 0; i < GROUP_MAX; i++) {
-			this.bits[i] |= 0xFFFFFFFF & ~GROUP_MASK; // erase the group bits;
+			this.bits[i] |= 0xFFFFFFFF & ~GROUP_MASK; // erase the group
+															// bits;
 		}
 		return this;
 	}

@@ -3474,11 +3474,6 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 					CompilerOptions.OPTION_ReportUnnecessaryElse,
 					isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 				return;
-			} else if (token.equals("unnecessaryOperator")) {//$NON-NLS-1$
-				this.options.put(
-						CompilerOptions.OPTION_ReportUnnecessaryOperator,
-						isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					return;
 			} else if (token.equals("unusedThrown")) { //$NON-NLS-1$
 				this.options.put(
 					CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
