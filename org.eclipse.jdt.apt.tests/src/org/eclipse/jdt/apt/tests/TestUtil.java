@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 BEA Systems, Inc, IBM Corporation, and others
+ * Copyright (c) 2000, 2009 BEA Systems, Inc, IBM Corporation, and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -39,6 +39,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
@@ -163,9 +164,9 @@ public class TestUtil
 	 * org.eclipse.jdt.core.tests.util.Util work around this by catching
 	 * and retrying until success.  This is a convenience method to fill a
 	 * hole in the Util API.
-	 * @return true if the file was deleted; false if there was an error or timeout
+	 * @return an IStatus that describes if the deletion was successful
 	 */
-	public static boolean deleteFile(IPath path) {
+	public static IStatus deleteFile(IPath path) {
 		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
 		return Util.delete(file);
 	}
