@@ -728,9 +728,9 @@ public void testSuggestFieldName033() {
 			true);
 
 	assumeEquals(
-		"myFirstType\n" +  //$NON-NLS-1$
-		"firstType\n" +  //$NON-NLS-1$
-		"type", //$NON-NLS-1$
+			"my_First_Type\n" + 
+			"first_Type\n" + 
+			"type", //$NON-NLS-1$
 		toString(suggestions));
 }
 /*
@@ -747,9 +747,9 @@ public void testSuggestFieldName034() {
 			true);
 
 	assumeEquals(
-		"myFIRSTType\n" +  //$NON-NLS-1$
-		"firstType\n" +  //$NON-NLS-1$
-		"type", //$NON-NLS-1$
+			"my_FIRST_Type\n" + 
+			"first_Type\n" + 
+			"type", //$NON-NLS-1$
 		toString(suggestions));
 }
 /*
@@ -766,9 +766,9 @@ public void testSuggestFieldName035() {
 			true);
 
 	assumeEquals(
-		"myFirstType\n" + //$NON-NLS-1$
-		"firstType\n" + //$NON-NLS-1$
-		"type", //$NON-NLS-1$
+			"my_first_Type\n" + 
+			"first_Type\n" + 
+			"type", //$NON-NLS-1$
 		toString(suggestions));
 }
 /*
@@ -785,9 +785,9 @@ public void testSuggestFieldName036() {
 			true);
 
 	assumeEquals(
-		"myFirst_9Type\n" + //$NON-NLS-1$
-		"first_9Type\n" + //$NON-NLS-1$
-		"type", //$NON-NLS-1$
+			"myFirst_9_Type\n" + 
+			"first_9_Type\n" + 
+			"type", //$NON-NLS-1$
 		toString(suggestions));
 }
 /*
@@ -1394,5 +1394,35 @@ public void testSuggestConstantFieldName002() {
 		"__SUF\n" + //$NON-NLS-1$
 		"__", //$NON-NLS-1$
 		toString(suggestions));
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=283539
+ * Test that suggestions for parameters include the underscores as supplied 
+ */
+public void testSuggestParamWithUnderscore() {
+	Map options = this.project.getOptions(true);
+	try {
+		Map newOptions = new HashMap(options);
+		this.project.setOptions(newOptions);
+
+		String[] suggestions = NamingConventions.suggestVariableNames(
+			NamingConventions.VK_PARAMETER,
+			NamingConventions.BK_TYPE_NAME,
+			"lMin___Trigger__Period_usec",
+			this.project,
+			0,
+			new String[]{}, //$NON-NLS-1$
+			true);
+
+		assumeEquals(
+				"lMin___Trigger__Period_usec\n" + 
+				"min___Trigger__Period_usec\n" + 
+				"trigger__Period_usec\n" + 
+				"period_usec\n" + 
+				"usec", //$NON-NLS-1$
+			toString(suggestions));
+	} finally {
+		this.project.setOptions(options);
+	}
 }
 }

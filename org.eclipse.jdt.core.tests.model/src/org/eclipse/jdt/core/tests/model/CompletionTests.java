@@ -14236,9 +14236,9 @@ public void testCompletionVariableName1() throws JavaModelException {
 
 	assertEquals(
 		"element:class1    completion:class1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
-		"element:fooMyClass    completion:fooMyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
+		"element:foo_MyClass    completion:foo_MyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
 		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
-		"element:testFOOMyClass    completion:testFOOMyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+		"element:test_FOO_MyClass    completion:test_FOO_MyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void testCompletionVariableName10() throws JavaModelException {
@@ -14628,10 +14628,10 @@ public void testCompletionVariableName2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:barMyClass    completion:barMyClass    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
+		"element:bar_MyClass    completion:bar_MyClass    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
 		"element:class1    completion:class1    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
 		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
-		"element:testBarMyClass    completion:testBarMyClass    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+		"element:test_Bar_MyClass    completion:test_Bar_MyClass    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
