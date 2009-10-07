@@ -39,7 +39,7 @@ protected Map getCompilerOptions() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 48, 49 };
+//	TESTS_NUMBERS = new int[] { 50, 51, 52, 53 };
 //	TESTS_RANGE = new int[] { 34, 38 };
 }
 public static Test suite() {
@@ -2686,6 +2686,98 @@ public void test049() throws Exception {
 	if (index == -1) {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=291472
+public void test050() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	private T values;\n" + 
+			"	public X(T values) {\n" + 
+			"		this.values = values;\n" + 
+			"	}\n" + 
+			"	public T getValues() {\n" + 
+			"		return values;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		X<short[]> x = new X<short[]>(new short[] { 1, 2, 3, 4, 5 });\n" + 
+			"		for (int i : x.getValues()) {\n" + 
+			"			System.out.print(i);\n" + 
+			"		}\n" + 
+			"	}\n" +
+			"}",
+		},
+		"12345");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=291472
+public void test051() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	private T values;\n" + 
+			"	public X(T values) {\n" + 
+			"		this.values = values;\n" + 
+			"	}\n" + 
+			"	public T getValues() {\n" + 
+			"		return values;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		X<short[]> x = new X<short[]>(new short[] { 1, 2, 3, 4, 5 });\n" + 
+			"		for (long l : x.getValues()) {\n" + 
+			"			System.out.print(l);\n" + 
+			"		}\n" + 
+			"	}\n" +
+			"}",
+		},
+		"12345");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=291472
+public void test052() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	private T values;\n" + 
+			"	public X(T values) {\n" + 
+			"		this.values = values;\n" + 
+			"	}\n" + 
+			"	public T getValues() {\n" + 
+			"		return values;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		X<Short[]> x = new X<Short[]>(new Short[] { 1, 2, 3, 4, 5 });\n" + 
+			"		for (int i : x.getValues()) {\n" + 
+			"			System.out.print(i);\n" + 
+			"		}\n" + 
+			"	}\n" +
+			"}",
+		},
+		"12345");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=291472
+public void test053() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	private T values;\n" + 
+			"	public X(T values) {\n" + 
+			"		this.values = values;\n" + 
+			"	}\n" + 
+			"	public T getValues() {\n" + 
+			"		return values;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		X<Short[]> x = new X<Short[]>(new Short[] { 1, 2, 3, 4, 5 });\n" + 
+			"		for (long i : x.getValues()) {\n" + 
+			"			System.out.print(i);\n" + 
+			"		}\n" + 
+			"	}\n" +
+			"}",
+		},
+		"12345");
 }
 public static Class testClass() {
 	return ForeachStatementTest.class;
