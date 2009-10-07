@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 215139
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -1355,8 +1356,27 @@ public void testMethodDeclaration03() throws CoreException { // was testInnerMet
 }
 /**
  * Method declaration in hierarchy test.
+ * Explicitly request behavior pre https://bugs.eclipse.org/bugs/show_bug.cgi?id=215139
  */
 public void testMethodDeclaration04() throws CoreException { // was testMethodDeclarationInHierarchyScope1
+	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
+
+	search(
+		"foo",
+		METHOD,
+		DECLARATIONS,
+		SearchEngine.createHierarchyScope(null, type, false, true, null),
+		this.resultCollector);
+	assertSearchResults(
+		"src/p/X.java void p.X.foo(int, String, X) [foo]\n" +
+		"src/p/Z.java void p.Z.foo(int, String, X) [foo]",
+		this.resultCollector);
+}
+/**
+ * Method declaration in hierarchy test.
+ * After https://bugs.eclipse.org/bugs/show_bug.cgi?id=215139 result contains more types.
+ */
+public void testMethodDeclaration04a() throws CoreException { // was testMethodDeclarationInHierarchyScope1
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 
 	search(
@@ -1367,6 +1387,7 @@ public void testMethodDeclaration04() throws CoreException { // was testMethodDe
 		this.resultCollector);
 	assertSearchResults(
 		"src/p/X.java void p.X.foo(int, String, X) [foo]\n" +
+		"src/p/X.java String p.X$Inner.foo() [foo]\n" +
 		"src/p/Z.java void p.Z.foo(int, String, X) [foo]",
 		this.resultCollector);
 }
@@ -2420,6 +2441,227 @@ public void testSearchScope05() throws CoreException, IOException { // was testE
 		project.setRawClasspath(classpath, null);
 	}
 
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 encloses(): find only subtypes).
+ */
+public void testSearchScope06() throws CoreException {
+    	ICompilationUnit cuB = this. getCompilationUnit("JavaSearch", "src", "a10", "B.java");
+        ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, true, null);
+        
+        // don't include super-classes:
+        assertFalse("a10.A should not be included in hierarchy scope", scope.encloses(cuB.getType("A")));
+        assertFalse("a10.B should not be included in hierarchy scope", scope.encloses(cuB.getType("B")));
+        assertFalse("a10/B.java should not be included in hierarchy scope", scope.encloses(cuB.getUnderlyingResource().getFullPath().toString()));
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 encloses(): find only subtypes).
+ */
+public void testSearchScope07() throws CoreException {
+    	ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, true, null);
+        
+        // don't include focus type:
+        assertFalse("a10.C should be not included in hierarchy scope", scope.encloses(type));
+        assertFalse("a10/C.java should be included in hierarchy scope", scope.encloses(cuC.getUnderlyingResource().getFullPath().toString()));       
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 encloses(): find only subtypes).
+ */
+public void testSearchScope08() throws CoreException {
+    	ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        ICompilationUnit cuD = this. getCompilationUnit("JavaSearch", "src", "a10", "D.java");
+        ICompilationUnit cuE = this. getCompilationUnit("JavaSearch", "src", "a10", "E.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, true, null);
+        
+        // regular sub-types:
+        assertTrue("a10.D should be included in hierarchy scope", scope.encloses(cuD.getType("D")));
+        assertTrue("a10/D.java should be included in hierarchy scope", scope.encloses(cuD.getUnderlyingResource().getFullPath().toString()));
+        
+        assertTrue("a10.E should be included in hierarchy scope", scope.encloses(cuE.getType("E")));
+        assertTrue("a10.F should be included in hierarchy scope", scope.encloses(cuE.getType("F")));
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 encloses(): find only subtypes).
+ */
+public void testSearchScope09() throws CoreException {
+    	ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        ICompilationUnit cuE = this. getCompilationUnit("JavaSearch", "src", "a10", "E.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, true, null);
+        
+        // sub-type is a nested type:
+        assertTrue("a10.H$I should be included in hierarchy scope", scope.encloses(cuE.getType("H").getType("I")));
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 encloses(): find only subtypes).
+ */
+public void testSearchScope10() throws CoreException {
+    	ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        ICompilationUnit cuE = this. getCompilationUnit("JavaSearch", "src", "a10", "E.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, true, null);
+        
+        // member of a sub-type:
+        assertFalse("a10.F$G should not be included in hierarchy scope", scope.encloses(cuE.getType("F").getType("G")));
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 encloses(): find only subtypes and their member types).
+ */
+public void testSearchScope11() throws CoreException {
+    	ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        ICompilationUnit cuE = this. getCompilationUnit("JavaSearch", "src", "a10", "E.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, false, null);
+        
+        // member of a sub-type:
+        assertTrue("a10.F$G should be included in hierarchy scope", scope.encloses(cuE.getType("F").getType("G")));
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 encloses(): find only subtypes).
+ */
+public void testSearchScope12() throws CoreException {
+    	ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        ICompilationUnit cuE = this. getCompilationUnit("JavaSearch", "src", "a10", "E.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, true, null);
+        
+        // enclosing of a sub-type:
+        assertFalse("a10.H should not be included in hierarchy scope", scope.encloses(cuE.getType("H")));
+        assertTrue("a10/E.java should be included in hierarchy scope", scope.encloses(cuE.getUnderlyingResource().getFullPath().toString()));
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 search: find only subtypes).
+ */
+public void testSearchScope13() throws CoreException {
+        ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, true, null);
+        
+        search("**", TYPE, DECLARATIONS, scope);
+        assertSearchResults(
+        		"src/a10/D.java a10.D [D]\n" + 
+        		"src/a10/E.java a10.E [E]\n" + 
+        		"src/a10/E.java a10.F [F]\n" + 
+        		"src/a10/E.java a10.H$I [I]"
+        		);
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 search: find only subtypes - disabled).
+ */
+public void testSearchScope14() throws CoreException {
+        ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, /*onlySubTypes*/false, true, null);
+        
+        search("**", TYPE, DECLARATIONS, scope);
+        assertSearchResults(
+        		"src/a10/B.java a10.A [A]\n" + 
+        		"src/a10/B.java a10.B [B]\n" + 
+        		"src/a10/C.java a10.C [C]\n" + 
+        		"src/a10/D.java a10.D [D]\n" + 
+        		"src/a10/E.java a10.E [E]\n" + 
+        		"src/a10/E.java a10.F [F]\n" + 
+        		"src/a10/E.java a10.H$I [I]\n" + 
+        		getExternalJCLPathString() + " java.lang.Object"
+        		);
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 search: find only subtypes - different call chain).
+ */
+public void testSearchScope15() throws CoreException {
+        ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, true, null);
+    	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+    		public String toString(){
+    			return toFullyQualifiedNamesString();
+    		}
+    	};
+    	new SearchEngine().searchAllTypeNames(
+    		null,
+    		null,
+    		scope,
+    		collector,
+    		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+    		null);
+    	String expected = 
+    			"a10.D\n" +
+    			"a10.E\n" +
+    			"a10.F\n" +
+    			"a10.H$I";
+    	assertTrue("We should get some types!", collector.size() > 0);
+    	assertEquals("Found types sound not to be correct", expected, collector.toString());
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 search: find only subtypes plus member & enclosing types - different call chain).
+ */
+public void testSearchScope16() throws CoreException {
+        ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, false, null);
+    	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+    		public String toString(){
+    			return toFullyQualifiedNamesString();
+    		}
+    	};
+    	new SearchEngine().searchAllTypeNames(
+    		null,
+    		null,
+    		scope,
+    		collector,
+    		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+    		null);
+    	String expected = 
+    			"a10.D\n" +
+    			"a10.E\n" +
+    			"a10.F\n" +
+    			"a10.F$G\n" +
+    			"a10.H\n" +
+    			"a10.H$I";
+    	assertTrue("We should get some types!", collector.size() > 0);
+    	assertEquals("Found types sound not to be correct", expected, collector.toString());
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 encloses(method): find only subtypes).
+ */
+public void testSearchScope17() throws CoreException {
+    	ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        ICompilationUnit cuE = this. getCompilationUnit("JavaSearch", "src", "a10", "E.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, true, null);
+        
+        // method of a member of a sub-type:
+        assertFalse("a10.F$G.m() should not be included in hierarchy scope", scope.encloses(cuE.getType("F").getType("G").getMethod("m", new String[0])));
+}
+/**
+ * Hierarchy scope test.
+ * (test for enhancement bug 215139 encloses(method): find only subtypes but also member types).
+ */
+public void testSearchScope18() throws CoreException {
+    	ICompilationUnit cuC = this. getCompilationUnit("JavaSearch", "src", "a10", "C.java");
+        ICompilationUnit cuE = this. getCompilationUnit("JavaSearch", "src", "a10", "E.java");
+        IType type = cuC.getType("C");
+        IJavaSearchScope scope = SearchEngine.createHierarchyScope(null, type, true, false, null);
+        
+        // method of a member of a sub-type:
+        assertTrue("a10.F$G.m() should be included in hierarchy scope", scope.encloses(cuE.getType("F").getType("G").getMethod("m", new String[0])));
 }
 /**
  * Simple type declaration test.

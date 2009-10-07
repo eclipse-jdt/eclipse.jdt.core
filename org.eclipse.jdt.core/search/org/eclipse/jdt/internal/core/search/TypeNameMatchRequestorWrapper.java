@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 215139
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
@@ -108,7 +109,10 @@ public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName,
 				: createTypeFromJar(path, separatorIndex);
 		}
 		if (type != null) {
-			this.requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, modifiers));
+			// hierarchy scopes require one more check:
+			if (!(this.scope instanceof HierarchyScope) || ((HierarchyScope)this.scope).enclosesFineGrained(type)) {
+				this.requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, modifiers));
+			}
 		}
 	} catch (JavaModelException e) {
 		// skip

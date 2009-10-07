@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 215139
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
@@ -105,6 +106,13 @@ public class BasicSearchEngine {
 	 */
 	public static IJavaSearchScope createHierarchyScope(IType type, WorkingCopyOwner owner) throws JavaModelException {
 		return new HierarchyScope(type, owner);
+	}
+
+	/**
+	 * @see SearchEngine#createHierarchyScope(IJavaProject,IType,boolean,boolean,WorkingCopyOwner) for detailed comment.
+	 */
+	public static IJavaSearchScope createHierarchyScope(IJavaProject project, IType type, boolean onlySubtypes, boolean noMemberTypes, WorkingCopyOwner owner) throws JavaModelException {
+		return new HierarchyScope(project, type, owner, onlySubtypes, noMemberTypes);
 	}
 
 	/**

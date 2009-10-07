@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 215139
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
@@ -20,9 +21,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
-import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 
 /**
@@ -35,7 +33,6 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	private WorkingCopyOwner owner;
 
 	private ITypeHierarchy hierarchy;
-	private IType[] types;
 	private HashSet resourcePaths;
 	private IPath[] enclosingProjectsAndJars;
 
@@ -43,6 +40,10 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	protected int elementCount;
 
 	public boolean needsRefresh;
+
+	private HashSet subTypes = null; // null means: don't filter for subTypes
+	private IJavaProject javaProject = null; // null means: don't constrain the search to a project
+	private boolean allowMemberTypes = true;
 
 	/* (non-Javadoc)
 	 * Adds the given resource to this search scope.
@@ -57,6 +58,25 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 				this.elementCount);
 		}
 		this.elements[this.elementCount++] = element;
+	}
+
+	/**
+	 * Creates a new hierarchy scope for the given type.
+	 * @param project      constrain the search result to this project, 
+	 *                     or <code>null</code> if search should consider all types in the workspace 
+	 * @param type         the focus type of the hierarchy
+	 * @param owner 	   the owner of working copies that take precedence over original compilation units, 
+	 *                     or <code>null</code> if the primary working copy owner should be used
+	 * @param onlySubtypes if true search only subtypes of 'type' (not including 'type')
+	 * @param noMemberTypes if true do not consider member or enclosing types of types in the given type hierarchy.
+	 */
+	public HierarchyScope(IJavaProject project, IType type, WorkingCopyOwner owner, boolean onlySubtypes, boolean noMemberTypes) throws JavaModelException {
+		this(type, owner);
+		this.javaProject = project;
+		if (onlySubtypes) {
+			this.subTypes = new HashSet();
+		}
+		this.allowMemberTypes = !noMemberTypes;
 	}
 
 	/* (non-Javadoc)
@@ -100,10 +120,19 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	private void buildResourceVector() {
 		HashMap resources = new HashMap();
 		HashMap paths = new HashMap();
-		this.types = this.hierarchy.getAllTypes();
-		for (int i = 0; i < this.types.length; i++) {
-			IType type = this.types[i];
-			IResource resource = ((JavaElement) type).resource();
+		IType[] types = null;
+		if (this.subTypes != null) {
+			types = this.hierarchy.getAllSubtypes(this.focusType);
+		} else {
+			types = this.hierarchy.getAllTypes();
+		}
+		for (int i = 0; i < types.length; i++) {
+			IType type = types[i];
+			if (this.subTypes != null) {
+				// remember subtypes for later use in encloses()
+				this.subTypes.add(type);
+			}
+			IResource resource = ((JavaElement)type).resource();
 			if (resource != null && resources.get(resource) == null) {
 				resources.put(resource, resource);
 				add(resource);
@@ -256,12 +285,24 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		}
 		return false;
 	}
+	/** 
+	 * Optionally perform additional checks after element has already passed matching based on index/documents.
+	 * 
+	 * @param element the given element
+	 * @return <code>true</code> if the element is enclosed or if no fine grained checking 
+	 *         (regarding subtypes and members) is requested
+	 */
+	public boolean enclosesFineGrained(IJavaElement element) {
+		if ((this.subTypes == null) && this.allowMemberTypes) 
+			return true; // no fine grained checking requested
+		return encloses(element);
+	}
 	/* (non-Javadoc)
 	 * @see IJavaSearchScope#encloses(IJavaElement)
 	 */
 	public boolean encloses(IJavaElement element) {
 		if (this.hierarchy == null) {
-			if (this.focusType.equals(element.getAncestor(IJavaElement.TYPE))) {
+			if (this.subTypes == null && this.focusType.equals(element.getAncestor(IJavaElement.TYPE))) {
 				return true;
 			} else {
 				if (this.needsRefresh) {
@@ -291,6 +332,36 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 			type = ((IMember) element).getDeclaringType();
 		}
 		if (type != null) {
+			// potentially allow travelling in:
+			if (enclosesType(type, this.allowMemberTypes)) {
+				return true;
+			}
+			if (this.allowMemberTypes) {
+				// travel out: queried type is enclosed in this scope if its (indirect) declaring type is:
+				IType enclosing = type.getDeclaringType();
+				while (enclosing != null) {
+					// don't allow travelling in again:
+					if (enclosesType(enclosing, false)) {
+						return true;
+					}
+					enclosing = enclosing.getDeclaringType();
+				}
+			}
+		}
+		return false;
+	}
+	private boolean enclosesType(IType type, boolean recurse) {
+		if (this.subTypes != null) {
+			// searching subtypes
+			if (this.subTypes.contains(type)) {
+				return true;
+			}
+			// be flexible: look at original element (see bug 14106 and below)
+			IType original = type.isBinary() ? null : (IType)type.getPrimaryElement();
+			if (original != type && this.subTypes.contains(original)) {
+				return true;
+			}
+		} else {
 			if (this.hierarchy.contains(type)) {
 				return true;
 			} else {
@@ -298,8 +369,23 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 				IType original;
 				if (!type.isBinary()
 						&& (original = (IType)type.getPrimaryElement()) != null) {
-					return this.hierarchy.contains(original);
+					if (this.hierarchy.contains(original)) {
+						return true;
+					}
 				}
+			}
+		}
+		if (recurse) {
+			// queried type is enclosed in this scope if one of its members is:
+			try {
+				IType[] memberTypes = type.getTypes();
+				for (int i = 0; i < memberTypes.length; i++) {
+					if (enclosesType(memberTypes[i], recurse)) {
+						return true;
+					}
+				}
+			} catch (JavaModelException e) {
+				return false;
 			}
 		}
 		return false;
@@ -324,7 +410,11 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		this.elementCount = 0;
 		this.needsRefresh = false;
 		if (this.hierarchy == null) {
-			this.hierarchy = this.focusType.newTypeHierarchy(this.owner, null);
+			if (this.javaProject != null) {
+				this.hierarchy = this.focusType.newTypeHierarchy(this.javaProject, this.owner, null);
+			} else {
+				this.hierarchy = this.focusType.newTypeHierarchy(this.owner, null);
+			}
 		} else {
 			this.hierarchy.refresh(null);
 		}
