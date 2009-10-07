@@ -2217,30 +2217,30 @@ public void configure(String[] argv) {
 					}
 					continue;
 				}
-				if (currentArg.startsWith("-error")) { //$NON-NLS-1$
+				if (currentArg.startsWith("-err")) { //$NON-NLS-1$
 					mode = DEFAULT;
 					String errorOption = currentArg;
 					int length = currentArg.length();
-					if (length <= 7) {
+					if (length <= 5) {
 						throw new IllegalArgumentException(
 							this.bind("configure.invalidErrorConfiguration", errorOption)); //$NON-NLS-1$
 					}
 					int errorTokenStart;
 					boolean isEnabling, allowPlusOrMinus;
-					switch (errorOption.charAt(7)) {
+					switch (errorOption.charAt(5)) {
 						case '+' :
-							errorTokenStart = 8;
+							errorTokenStart = 6;
 							isEnabling = true;
 							allowPlusOrMinus = true;
 							break;
 						case '-' :
-							errorTokenStart = 8;
+							errorTokenStart = 6;
 							isEnabling = false; // specified errors are disabled
 							allowPlusOrMinus = true;
 							break;
 						default:
 							disableErrors();
-							errorTokenStart = 7;
+							errorTokenStart = 5;
 							isEnabling = true;
 							allowPlusOrMinus = false;
 					}

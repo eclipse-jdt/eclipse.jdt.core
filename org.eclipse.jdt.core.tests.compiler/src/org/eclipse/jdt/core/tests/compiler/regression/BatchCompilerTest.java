@@ -1544,12 +1544,12 @@ public void test012(){
         "    -?:warn -help:warn display advanced warning options\n" +
         " \n" +
         " Error options:\n" + 
-        "    -error:<warnings separated by ,>    convert exactly the listed warnings\n" + 
-        "                                        to be reported as errors\n" + 
-        "    -error:+<warnings separated by ,>   enable additional warnings to be\n" + 
-        "                                        reported as errors\n" + 
-        "    -error:-<warnings separated by ,>   disable specific warnings to be\n" + 
-        "                                        reported as errors\n" + 
+        "    -err:<warnings separated by ,>    convert exactly the listed warnings\n" + 
+        "                                      to be reported as errors\n" + 
+        "    -err:+<warnings separated by ,>   enable additional warnings to be\n" + 
+        "                                      reported as errors\n" + 
+        "    -err:-<warnings separated by ,>   disable specific warnings to be\n" + 
+        "                                      reported as errors\n" + 
         " \n" + 
         " Debug options:\n" +
         "    -g[:lines,vars,source] custom debug info\n" +
@@ -11121,7 +11121,7 @@ public void test293(){
 		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
 		+ " -1.5 -g -preserveAllLocals"
-		+ " -proceedOnError -referenceInfo -error:+discouraged"
+		+ " -proceedOnError -referenceInfo -err:+discouraged"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
 		"----------\n" +
@@ -11145,7 +11145,7 @@ public void test294(){
 		+ " -cp \"" + LIB_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
 		+ " -1.5 -g -preserveAllLocals"
-		+ " -proceedOnError -referenceInfo -error:+discouraged2"
+		+ " -proceedOnError -referenceInfo -err:+discouraged2"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
 		"invalid error token: \'discouraged2\'. Ignoring this error token and compiling\n",
@@ -11163,10 +11163,46 @@ public void test295(){
 		+ " -cp \"" + LIB_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
 		+ " -1.5 -g -preserveAllLocals"
-		+ " -proceedOnError -referenceInfo -error:raw,+discouraged"
+		+ " -proceedOnError -referenceInfo -err:raw,+discouraged"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
 		"usage of \'+\' for \'+discouraged\' is illegal there\n",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
+public void test296(){
+	this.runNegativeTest(
+		new String[] {
+			"src/X.java",
+			"public class X {\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+		+ " -cp \"" + LIB_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo -err:"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"invalid error configuration: \'-err:\'\n",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
+public void test297(){
+	this.runNegativeTest(
+		new String[] {
+			"src/X.java",
+			"public class X {\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+		+ " -cp \"" + LIB_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo -err"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"invalid error configuration: \'-err\'\n",
 		true);
 }
 }
