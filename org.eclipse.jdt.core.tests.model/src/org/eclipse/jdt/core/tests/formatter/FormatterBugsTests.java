@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.formatter;
 
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
@@ -506,6 +507,31 @@ public void testBug286601b() throws JavaModelException {
 		"				+ 300000000\n" + 
 		"				+ 400000000\n" + 
 		"				+ 500000000;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug286601c() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.brace_position_for_anonymous_type_declaration= DefaultCodeFormatterConstants.NEXT_LINE;
+	String source = 
+		"public class Test\n" + 
+		"{\n" + 
+		"    public void aMethod()\n" + 
+		"    {\n" + 
+		"        Object anObject = new Object()\n" + 
+		"        {\n" + 
+		"            boolean aVariable;\n" + 
+		"        };\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	public void aMethod() {\n" + 
+		"		Object anObject = new Object()\n" + 
+		"		{\n" + 
+		"			boolean aVariable;\n" + 
+		"		};\n" + 
 		"	}\n" + 
 		"}\n"
 	);
