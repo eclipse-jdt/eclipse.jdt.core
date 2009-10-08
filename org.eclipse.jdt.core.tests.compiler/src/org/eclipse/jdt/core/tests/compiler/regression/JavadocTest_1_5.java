@@ -1259,9 +1259,9 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"/** \n" +
 				" * @see Sub#add(T)\n" +
 				" * @see Sub#Sub(T)\n" +
-				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" +
+				" *   - warning = \"The method add(Number) in the type Sub is not applicable for\n" +
 				" *                the arguments (T)\"\n" +
-				" *   - method binding = Test.add(Object)\n" +
+				" *   - method binding = Sub.add(Number)\n" +
 				" *   - parameter binding = T of A\n" +
 				" *     -> Do we need to change this as T natually resolved to TypeVariable?\n" +
 				" *        As compiler raises a warning, it\'s perhaps not a problem now...\n" +
@@ -1286,7 +1286,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"1. ERROR in Test.java (at line 2)\n" +
 			"	* @see Sub#add(T)\n" +
 			"	           ^^^\n" +
-			"Javadoc: The method add(Object) in the type Test is not applicable for the arguments (T)\n" +
+			"Javadoc: The method add(Number) in the type Sub is not applicable for the arguments (T)\n" +
 			"----------\n" +
 			"2. ERROR in Test.java (at line 3)\n" +
 			"	* @see Sub#Sub(T)\n" +

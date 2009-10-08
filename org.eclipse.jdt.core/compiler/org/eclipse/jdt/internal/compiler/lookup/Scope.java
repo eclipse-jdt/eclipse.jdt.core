@@ -835,9 +835,8 @@ public abstract class Scope {
 				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
-						if (concreteMatch != null && concreteMatch.declaringClass.findSuperTypeOriginatingFrom(compatibleMethod.declaringClass) != null)
-							if (environment().methodVerifier().isParameterSubsignature(concreteMatch.original(), compatibleMethod.original()))
-								continue; // can skip this method since concreteMatch overrides it
+						if (concreteMatch != null && environment().methodVerifier().doesMethodOverride(concreteMatch, compatibleMethod))
+							continue; // can skip this method since concreteMatch overrides it
 						if (candidatesCount == 0) {
 							candidates = new MethodBinding[foundSize - startFoundSize + 1];
 							if (concreteMatch != null)
@@ -1227,7 +1226,9 @@ public abstract class Scope {
 						// BUT we can also ignore any overridden method since we already know the better match (fixes 80028)
 						for (int j = 0, max = found.size; j < max; j++) {
 							MethodBinding matchingMethod = (MethodBinding) found.elementAt(j);
-							if (verifier.isParameterSubsignature(matchingMethod.original(), currentMethod.original())) {
+							MethodBinding matchingOriginal = matchingMethod.original();
+							MethodBinding currentOriginal = matchingOriginal.findOriginalInheritedMethod(currentMethod);
+							if (currentOriginal != null && verifier.isParameterSubsignature(matchingOriginal, currentOriginal)) {
 								if (isCompliant15) {
 									if (matchingMethod.isBridge() && !currentMethod.isBridge())
 										continue nextMethod; // keep inherited methods to find concrete method over a bridge method
@@ -3688,20 +3689,11 @@ public abstract class Scope {
 					if (!original.isAbstract()) {
 						if (original2.isAbstract())
 							continue; // only compare current against other concrete methods
-						TypeBinding superType = original.declaringClass.findSuperTypeOriginatingFrom(original2.declaringClass.erasure());
-						if (superType == null)
+
+						original2 = original.findOriginalInheritedMethod(original2);
+						if (original2 == null)
 							continue nextSpecific; // current's declaringClass is not a subtype of next's declaringClass
 						if (current.hasSubstitutedParameters() || original.typeVariables != Binding.NO_TYPE_VARIABLES) {
-							if (original2.declaringClass != superType) {
-								// must find inherited method with the same substituted variables
-								MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector, argumentTypes.length);
-								for (int m = 0, l = superMethods.length; m < l; m++) {
-									if (superMethods[m].original() == original2) {
-										original2 = superMethods[m];
-										break;
-									}
-								}
-							}
 							if (!environment().methodVerifier().isParameterSubsignature(original, original2))
 								continue nextSpecific; // current does not override next
 						}

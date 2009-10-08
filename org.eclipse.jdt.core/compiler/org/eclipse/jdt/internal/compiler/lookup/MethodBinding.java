@@ -435,6 +435,21 @@ public final char[] constantPoolName() {
 	return this.selector;
 }
 
+public MethodBinding findOriginalInheritedMethod(MethodBinding inheritedMethod) {
+	MethodBinding inheritedOriginal = inheritedMethod.original();
+	TypeBinding superType = this.declaringClass.findSuperTypeOriginatingFrom(inheritedOriginal.declaringClass);
+	if (superType == null || !(superType instanceof ReferenceBinding)) return null;
+
+	if (inheritedOriginal.declaringClass != superType) {
+		// must find inherited method with the same substituted variables
+		MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(inheritedOriginal.selector, inheritedOriginal.parameters.length);
+		for (int m = 0, l = superMethods.length; m < l; m++)
+			if (superMethods[m].original() == inheritedOriginal)
+				return superMethods[m];
+	}
+	return inheritedOriginal;
+}
+
 /**
  * <pre>
  *<typeParam1 ... typeParamM>(param1 ... paramN)returnType thrownException1 ... thrownExceptionP

@@ -10645,4 +10645,24 @@ public void test201() {
 		""
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=284280
+public void test202() {
+	this.runConformTest(
+		new String[] {
+			"SubClass.java",
+			"interface MyInterface <T0 extends Object> {\n" +
+			"	String testMe(T0 t);\n" +
+			"}\n" +
+			"abstract class AbstractSuperClass<T1 extends AbstractSuperClass> implements MyInterface<T1> {\n" +
+			"	public String testMe(T1 o) { return null; }\n" +
+			"}\n" +
+			"class SubClass extends AbstractSuperClass<SubClass> {\n" +
+			"   @Override public String testMe(SubClass o) {\n" +
+			"      return super.testMe(o);\n" +
+			"   }\n" +
+			"}"
+		},
+		""
+	);
+}
 }

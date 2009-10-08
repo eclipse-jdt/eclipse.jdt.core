@@ -22,18 +22,10 @@ MethodVerifier15(LookupEnvironment environment) {
 boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
 	// use the original methods to test compatibility, but do not check visibility, etc
 	one = one.original();
-	two = two.original();
+	two = one.findOriginalInheritedMethod(two);
 
-	TypeBinding match = one.declaringClass.findSuperTypeOriginatingFrom(two.declaringClass);
-	if (!(match instanceof ReferenceBinding))
+	if (two == null)
 		return false; // method's declaringClass does not inherit from inheritedMethod's
-
-	if (match != two.declaringClass) {
-		MethodBinding[] superMethods = ((ReferenceBinding) match).getMethods(two.selector);
-		for (int i = 0, length = superMethods.length; i < length; i++)
-			if (superMethods[i].original() == two)
-				return isParameterSubsignature(one, superMethods[i]);
-	}
 
 	return isParameterSubsignature(one, two);
 }
@@ -704,16 +696,8 @@ public boolean isMethodSubsignature(MethodBinding method, MethodBinding inherite
 	if (method.declaringClass.isParameterizedType())
 		method = method.original();
 
-	inheritedMethod = inheritedMethod.original();
-	TypeBinding match = method.declaringClass.findSuperTypeOriginatingFrom(inheritedMethod.declaringClass);
-	if ((match instanceof ReferenceBinding) && match != inheritedMethod.declaringClass) {
-		MethodBinding[] superMethods = ((ReferenceBinding) match).getMethods(inheritedMethod.selector);
-		for (int i = 0, length = superMethods.length; i < length; i++)
-			if (superMethods[i].original() == inheritedMethod.original())
-				return isParameterSubsignature(method, superMethods[i]);
-	}
-
-	return isParameterSubsignature(method, inheritedMethod);
+	MethodBinding inheritedOriginal = method.findOriginalInheritedMethod(inheritedMethod);
+	return isParameterSubsignature(method, inheritedOriginal == null ? inheritedMethod : inheritedOriginal);
 }
 boolean isParameterSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
 	MethodBinding substitute = computeSubstituteMethod(inheritedMethod, method);
