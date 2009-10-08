@@ -2041,14 +2041,22 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			new String[] {
 				"X.java",
 				"interface I { String foo(); }\n" +
-				"class A { public Object foo() { return null; } }" +
-				"public class X<T extends A&I> {}\n"
+				"class A { public Object foo() { return null; } }\n" +
+				"public class X<T extends A&I> {}\n" +
+				"interface J extends I { Object foo(); }\n" +
+				"class Y<T extends I&J> {}\n" +
+				"class Z<T extends J&I> {}"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\r\n" +
-			"	class A { public Object foo() { return null; } }public class X<T extends A&I> {}\r\n" +
-			"	                                                               ^\n" +
-			"The return types are incompatible for the inherited methods I.foo(), A.foo()\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	public class X<T extends A&I> {}\n" + 
+			"	               ^\n" + 
+			"The return types are incompatible for the inherited methods I.foo(), A.foo()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	interface J extends I { Object foo(); }\n" + 
+			"	                        ^^^^^^\n" + 
+			"The return type is incompatible with I.foo()\n" + 
 			"----------\n"
 			// foo() in A cannot implement foo() in I; attempting to use incompatible return type
 		);
@@ -10622,5 +10630,19 @@ X.java:4: foo(Collection) is already defined in X
                ^
 1 error
  */
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=286228
+public void test201() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface I {}\n" +
+			"interface J<T1> { J<T1> get(); }\n" +
+			"interface K<T2 extends J<? extends I>> { T2 get(); }\n" +
+			"interface A<T3 extends K<T3> & J<? extends I>> extends J<I> {}\n" +
+			"interface B<T4 extends J<? extends I> & K<T4>> extends J<I> {}"
+		},
+		""
+	);
 }
 }

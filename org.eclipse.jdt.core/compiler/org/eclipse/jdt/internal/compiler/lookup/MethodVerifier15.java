@@ -477,7 +477,14 @@ void checkTypeVariableMethods(TypeParameter typeParameter) {
 			if (index > 0) {
 				MethodBinding first = matchingInherited[0];
 				int count = index + 1;
-				while (--count > 0 && areReturnTypesCompatible(first, matchingInherited[count])){/*empty*/}
+				while (--count > 0) {
+					MethodBinding match = matchingInherited[count];
+					if (areReturnTypesCompatible(first, match)) continue;
+					// unrelated interfaces - check to see if return types are compatible
+					if (first.declaringClass.isInterface() && match.declaringClass.isInterface() && areReturnTypesCompatible(match, first))
+						continue;
+					break;
+				}
 				if (count > 0) {  // All inherited methods do NOT have the same vmSignature
 					problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(typeParameter, matchingInherited, index + 1);
 					continue nextSelector;
