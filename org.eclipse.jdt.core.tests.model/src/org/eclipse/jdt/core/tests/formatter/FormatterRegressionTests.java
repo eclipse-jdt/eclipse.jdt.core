@@ -10580,254 +10580,27 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test719", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
-
-/**
- * @bug 198074: [formatter] the code formatter doesn't respect my new lines
- * @test Ensure that the formatter keep line breaks wrapping set by users in the code
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=198074"
- */
-public void testBug198074() throws JavaModelException {
-	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"String x = \"select x \"\n" + 
-		"         + \"from y \"\n" + 
-		"         + \"where z=a\";\n" + 
-		"	}\n" + 
-		"}\n";
-	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"		String x = \"select x \"\n" + 
-		"				+ \"from y \"\n" + 
-		"				+ \"where z=a\";\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-}
-// another test case put in bug's comment 1
-public void testBug198074_c1() throws JavaModelException {
-	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"	String foo(boolean enabled) {\n" + 
-		"if (enabled)\n" + 
-		"{\n" + 
-		"   // we need x\n" + 
-		"   // we need a select\n" + 
-		"   return \"select x \"\n" + 
-		"   + \"from X\";}\n" + 
-		"	return null;}\n" + 
-		"}\n";
-	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	String foo(boolean enabled) {\n" + 
-		"		if (enabled) {\n" + 
-		"			// we need x\n" + 
-		"			// we need a select\n" + 
-		"			return \"select x \"\n" + 
-		"					+ \"from X\";\n" + 
-		"		}\n" + 
-		"		return null;\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-}
-// another test case put in bug's comment 3
-public void testBug198074_c3() throws JavaModelException {
-	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"public String toString() {\n" + 
-		"        return \"YAD01: \"\n" + 
-		"        + \" nommbr=\'\"+getName()+\"\'\"\n" + 
-		"        + \" nomgrp=\'\"+getService().getArgtbl()+\"\'\"\n" + 
-		"        + \" typmbr=\'\"+getMemberType().getArgument()+\"\'\"\n" + 
-		"        + \" srcpat=\'\"+getPhysicalPath()+\"\'\"\n" + 
-		"        + \" nommdl=\'\"+getModel()+\"\'\"\n" + 
-		"        ;\n" + 
-		"}\n" + 
-		"}\n";
-	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	public String toString() {\n" + 
-		"		return \"YAD01: \"\n" + 
-		"				+ \" nommbr=\'\" + getName() + \"\'\"\n" + 
-		"				+ \" nomgrp=\'\" + getService().getArgtbl() + \"\'\"\n" + 
-		"				+ \" typmbr=\'\" + getMemberType().getArgument() + \"\'\"\n" + 
-		"				+ \" srcpat=\'\" + getPhysicalPath() + \"\'\"\n" + 
-		"				+ \" nommdl=\'\" + getModel() + \"\'\";\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-}
-public void testBug198074_comments() throws JavaModelException {
-	this.formatterPrefs.join_lines_in_comments = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"String x = \"select x \"\n" + 
-		"         + \"from y \"\n" + 
-		"         + \"where z=a\";\n" + 
-		"	}\n" + 
-		"}\n";
-	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"		String x = \"select x \" + \"from y \" + \"where z=a\";\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-}
-// duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=201022
-public void testBug201022() throws JavaModelException {
-	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"    String sQuery =\n" + 
-		"        \"select * \" +\n" + 
-		"        \"from person p, address a \" +\n" + 
-		"        \"where p.person_id = a.person_id \" +\n" + 
-		"        \"and p.person_id = ?\";\n" + 
-		"	}\n" + 
-		"}\n";
-	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"		String sQuery =\n" + 
-		"				\"select * \" +\n" + 
-		"				\"from person p, address a \" +\n" + 
-		"				\"where p.person_id = a.person_id \" +\n" + 
-		"				\"and p.person_id = ?\";\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-}
-// duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
-public void testBug208541() throws JavaModelException {
-	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class MyTest {\n" + 
-		"\n" + 
-		"    public void testname() throws Exception {\n" + 
-		"        int i = 5, j = 6, k = 7;\n" + 
-		"        if (new String().length() != 0 &&\n" + 
-		"                (i < j && j < k)) {\n" + 
-		"\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"}\n";
-	formatSource(source,
-		"public class MyTest {\n" + 
-		"\n" + 
-		"	public void testname() throws Exception {\n" + 
-		"		int i = 5, j = 6, k = 7;\n" + 
-		"		if (new String().length() != 0 &&\n" + 
-		"				(i < j && j < k)) {\n" + 
-		"\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-}
-// duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=213700
-public void testBug213700() throws JavaModelException {
-	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"		int a=0, b=0, c=0, d=0, e=0, f=0, g=0, h=0, i=0;\n" + 
-		"if( (a == b && b == c) &&\n" + 
-		"    (d == e) &&\n" + 
-		"    (f == g && h == i) \n" + 
-		"    ){\n" + 
-		"}\n" + 
-		"	}\n" + 
-		"}\n";
-	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"		int a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0, i = 0;\n" + 
-		"		if ((a == b && b == c) &&\n" + 
-		"				(d == e) &&\n" + 
-		"				(f == g && h == i)) {\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270983
-public void test720() {
-	final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-	DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-	Map compilerOptions = new HashMap();
-	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
-	runTest(codeFormatter, "test720", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=270983
-public void test721() {
-	final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-	DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-	Map compilerOptions = new HashMap();
-	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
-	runTest(codeFormatter, "test721", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=283467
-public void testBug283467() throws JavaModelException {
-	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class TestFormatter {\n" + 
-		"\n" + 
-		"        public static void main(String[] args) {\n" + 
-		"                int variable = TestFormatter.doInCallback(new Runnable() {\n" + 
-		"                        public void run() {\n" + 
-		"                                // Some comments or code here\n" + 
-		"                        }\n" + 
-		"                });\n" + 
-		"                System.out.println(variable);\n" + 
-		"        }\n" + 
-		"\n" + 
-		"        public static int doInCallback(Runnable r) {\n" + 
-		"                return 0;\n" + 
-		"        }\n" + 
-		"}\n";
-	formatSource(source,
-		"public class TestFormatter {\n" + 
-		"\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		int variable = TestFormatter.doInCallback(new Runnable() {\n" + 
-		"			public void run() {\n" + 
-		"				// Some comments or code here\n" + 
-		"			}\n" + 
-		"		});\n" + 
-		"		System.out.println(variable);\n" + 
-		"	}\n" + 
-		"\n" + 
-		"	public static int doInCallback(Runnable r) {\n" + 
-		"		return 0;\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270983
+	public void test720() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		Map compilerOptions = new HashMap();
+		compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+		compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+		compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+		runTest(codeFormatter, "test720", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=270983
+	public void test721() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		Map compilerOptions = new HashMap();
+		compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+		compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+		compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+		runTest(codeFormatter, "test721", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
 
 }

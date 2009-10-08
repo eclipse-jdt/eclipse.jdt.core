@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,6 +51,7 @@ public class RunFormatterTests extends junit.framework.TestCase {
 		String type = System.getProperty("type");
 		if (type == null || !type.equals("javadoc")) {
 			allClasses.add(FormatterRegressionTests.class);
+			allClasses.add(FormatterBugsTests.class);
 		}
 		allClasses.add(CommentsTestSuite.class);
 		allClasses.addAll(TEST_SUITES);

@@ -926,7 +926,7 @@ public class Scribe implements IJavaDocTagConstants {
 		if (indent == 0)
 			return this.indentationLevel;
 		if (this.tabChar == DefaultCodeFormatterOptions.TAB) {
-			if (this.useTabsOnlyForLeadingIndents) {
+			if (this.indentationSize == 0 || this.useTabsOnlyForLeadingIndents) {
 				return indent;
 			}
 			int rem = indent % this.indentationSize;
@@ -2359,7 +2359,7 @@ public class Scribe implements IJavaDocTagConstants {
 				int indentationsAsTab = 0;
 				if (useTabsForLeadingIndents) {
 					while (this.column <= this.indentationLevel) {
-						if (indentationsAsTab < numberOfLeadingIndents) {
+						if (this.tabLength > 0 && indentationsAsTab < numberOfLeadingIndents) {
 							if (buffer != null) buffer.append('\t');
 							indentationsAsTab++;
 							int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
@@ -2371,7 +2371,7 @@ public class Scribe implements IJavaDocTagConstants {
 							this.needSpace = false;
 						}
 					}
-				} else {
+				} else if (this.tabLength > 0) {
 					while (this.column <= this.indentationLevel) {
 						if (buffer != null) buffer.append('\t');
 						int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
@@ -2395,11 +2395,13 @@ public class Scribe implements IJavaDocTagConstants {
 					final int columnForLeadingIndents = numberOfLeadingIndents * this.indentationSize;
 					while (this.column <= this.indentationLevel) {
 						if (this.column <= columnForLeadingIndents) {
-							if ((this.column - 1 + this.tabLength) <= this.indentationLevel) {
+							if (this.tabLength > 0 && (this.column - 1 + this.tabLength) <= this.indentationLevel) {
 								if (buffer != null) buffer.append('\t');
 								this.column += this.tabLength;
 							} else if ((this.column - 1 + this.indentationSize) <= this.indentationLevel) {
 								// print one indentation
+								// note that this.indentationSize > 0 when entering in the following loop
+								// hence this.column will be incremented and then avoid endless loop (see bug 290905)
 								for (int i = 0, max = this.indentationSize; i < max; i++) {
 									if (buffer != null) buffer.append(' ');
 									this.column++;
@@ -2418,10 +2420,10 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 				} else {
 					while (this.column <= this.indentationLevel) {
-						if ((this.column - 1 + this.tabLength) <= this.indentationLevel) {
+						if (this.tabLength > 0 && (this.column - 1 + this.tabLength) <= this.indentationLevel) {
 							if (buffer != null) buffer.append('\t');
 							this.column += this.tabLength;
-						} else if ((this.column - 1 + this.indentationSize) <= this.indentationLevel) {
+						} else if (this.indentationSize > 0 && (this.column - 1 + this.indentationSize) <= this.indentationLevel) {
 							// print one indentation
 							for (int i = 0, max = this.indentationSize; i < max; i++) {
 								if (buffer != null) buffer.append(' ');
@@ -4141,7 +4143,9 @@ public class Scribe implements IJavaDocTagConstants {
 			.append(this.lineSeparator)
 			.append("==================================================================================")	//$NON-NLS-1$
 			.append(this.lineSeparator);
-		printRule(stringBuffer);
+		if (this.tabLength >= 0) {
+			printRule(stringBuffer);
+		}
 		return stringBuffer.toString();
 	}
 
