@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.LogRecord;
 
@@ -37,6 +38,7 @@ import javax.tools.JavaFileObject.Kind;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -926,7 +928,17 @@ public void test021_output_streams() throws IOException {
 		new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)), 
 		Arrays.asList("-v"), null, null);
 	assertTrue(task.call());
-	assertTrue(outBuffer.toString().startsWith("Eclipse Compiler for Java"));
+	Properties properties = new Properties();
+	InputStream resourceAsStream = null;
+	try {
+		resourceAsStream = Main.class.getResourceAsStream("messages.properties");
+		properties.load(resourceAsStream);
+	} finally {
+		if (resourceAsStream != null) {
+			resourceAsStream.close();
+		}
+	}
+	assertTrue(outBuffer.toString().startsWith(properties.getProperty("compiler.name")));
 	assertTrue(errBuffer.toString().isEmpty());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236814
