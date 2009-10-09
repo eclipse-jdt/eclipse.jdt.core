@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Main-Class: org.eclipse.jdt.internal.compiler.batch.Main
 Bundle-ManifestVersion: 2
-Bundle-Name: Eclipse Compiler for Java
+Bundle-Name: Eclipse Compiler for Java(TM)
 Bundle-SymbolicName: org.eclipse.jdt.core.compiler.batch
 Bundle-Version: 3.6.0.qualifier
 Bundle-ClassPath: .
