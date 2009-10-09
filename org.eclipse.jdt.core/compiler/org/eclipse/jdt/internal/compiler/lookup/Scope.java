@@ -835,7 +835,7 @@ public abstract class Scope {
 				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
-						if (concreteMatch != null && environment().methodVerifier().doesMethodOverride(concreteMatch, compatibleMethod))
+						if (concreteMatch != null && environment().methodVerifier().areMethodsCompatible(concreteMatch, compatibleMethod))
 							continue; // can skip this method since concreteMatch overrides it
 						if (candidatesCount == 0) {
 							candidates = new MethodBinding[foundSize - startFoundSize + 1];
