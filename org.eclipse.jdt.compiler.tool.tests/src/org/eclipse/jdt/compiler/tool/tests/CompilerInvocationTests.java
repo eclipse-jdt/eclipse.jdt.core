@@ -926,7 +926,7 @@ public void test021_output_streams() throws IOException {
 		new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)), 
 		Arrays.asList("-v"), null, null);
 	assertTrue(task.call());
-	assertTrue(outBuffer.toString().startsWith("Eclipse Java Compiler"));
+	assertTrue(outBuffer.toString().startsWith("Eclipse Compiler for Java"));
 	assertTrue(errBuffer.toString().isEmpty());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236814
