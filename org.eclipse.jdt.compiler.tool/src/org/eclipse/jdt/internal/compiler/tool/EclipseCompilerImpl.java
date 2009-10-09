@@ -137,9 +137,11 @@ public class EclipseCompilerImpl extends Main {
 	public IErrorHandlingPolicy getHandlingPolicy() {
 		// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)
 		return new IErrorHandlingPolicy() {
+			@Override
 			public boolean proceedOnErrors() {
 				return false; // stop if there are some errors
 			}
+			@Override
 			public boolean stopOnFirstError() {
 				return false;
 			}
@@ -164,15 +166,19 @@ public class EclipseCompilerImpl extends Main {
 				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
 				if (diagListener != null) {
 					diagListener.report(new Diagnostic<JavaFileObject>() {
+						@Override
 						public String getCode() {
 							return Integer.toString(problemId);
 						}
+						@Override
 						public long getColumnNumber() {
 							return columnNumber;
 						}
+						@Override
 						public long getEndPosition() {
 							return endPosition;
 						}
+						@Override
 						public Kind getKind() {
 							if ((severity & ProblemSeverities.Error) != 0) {
 								return Diagnostic.Kind.ERROR;
@@ -185,16 +191,20 @@ public class EclipseCompilerImpl extends Main {
 							}
 							return Diagnostic.Kind.OTHER;
 						}
+						@Override
 						public long getLineNumber() {
 							return lineNumber;
 						}
+						@Override
 						public String getMessage(Locale locale) {
 							setLocale(locale);
 							return getLocalizedMessage(problemId, problemArguments);
 						}
+						@Override
 						public long getPosition() {
 							return startPosition;
 						}
+						@Override
 						public JavaFileObject getSource() {
 							try {
 								if (EclipseCompilerImpl.this.fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
@@ -208,6 +218,7 @@ public class EclipseCompilerImpl extends Main {
 							}
 							return null;
 						}
+						@Override
 						public long getStartPosition() {
 							return startPosition;
 						}
@@ -231,15 +242,19 @@ public class EclipseCompilerImpl extends Main {
 				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
 				if (diagListener != null) {
 					diagListener.report(new Diagnostic<JavaFileObject>() {
+						@Override
 						public String getCode() {
 							return Integer.toString(problemId);
 						}
+						@Override
 						public long getColumnNumber() {
 							return columnNumber;
 						}
+						@Override
 						public long getEndPosition() {
 							return endPosition;
 						}
+						@Override
 						public Kind getKind() {
 							if ((severity & ProblemSeverities.Error) != 0) {
 								return Diagnostic.Kind.ERROR;
@@ -252,16 +267,20 @@ public class EclipseCompilerImpl extends Main {
 							}
 							return Diagnostic.Kind.OTHER;
 						}
+						@Override
 						public long getLineNumber() {
 							return lineNumber;
 						}
+						@Override
 						public String getMessage(Locale locale) {
 							setLocale(locale);
 							return getLocalizedMessage(problemId, problemArguments);
 						}
+						@Override
 						public long getPosition() {
 							return startPosition;
 						}
+						@Override
 						public JavaFileObject getSource() {
 							try {
 								if (EclipseCompilerImpl.this.fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
@@ -275,6 +294,7 @@ public class EclipseCompilerImpl extends Main {
 							}
 							return null;
 						}
+						@Override
 						public long getStartPosition() {
 							return startPosition;
 						}
@@ -286,7 +306,7 @@ public class EclipseCompilerImpl extends Main {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions, CompilationProgress compilationProgress) {
 		super.initialize(outWriter, errWriter, systemExit, customDefaultOptions, compilationProgress);
 		this.javaFileObjectMap = new HashMap<CompilationUnit, JavaFileObject>();
@@ -381,7 +401,7 @@ public class EclipseCompilerImpl extends Main {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked","rawtypes"})
 	protected void setPaths(ArrayList bootclasspaths,
 			String sourcepathClasspathArg,
 			ArrayList sourcepathClasspaths,

@@ -126,6 +126,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#close()
 	 */
+	@Override
 	public void close() throws IOException {
 		this.locations = null;
 		for (Archive archive : this.archivesCache.values()) {
@@ -217,6 +218,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#flush()
 	 */
+	@Override
 	public void flush() throws IOException {
 		for (Archive archive : this.archivesCache.values()) {
 			archive.flush();
@@ -251,6 +253,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getClassLoader(javax.tools.JavaFileManager.Location)
 	 */
+	@Override
 	public ClassLoader getClassLoader(Location location) {
 		Iterable<? extends File> files = getLocation(location);
 		if (files == null) {
@@ -383,6 +386,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getFileForInput(javax.tools.JavaFileManager.Location, java.lang.String, java.lang.String)
 	 */
+	@Override
 	public FileObject getFileForInput(Location location, String packageName, String relativeName) throws IOException {
 		Iterable<? extends File> files = getLocation(location);
 		if (files == null) {
@@ -414,6 +418,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getFileForOutput(javax.tools.JavaFileManager.Location, java.lang.String, java.lang.String, javax.tools.FileObject)
 	 */
+	@Override
 	public FileObject getFileForOutput(Location location, String packageName, String relativeName, FileObject sibling)
 			throws IOException {
 		Iterable<? extends File> files = getLocation(location);
@@ -434,6 +439,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getJavaFileForInput(javax.tools.JavaFileManager.Location, java.lang.String, javax.tools.JavaFileObject.Kind)
 	 */
+	@Override
 	public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind) throws IOException {
 		if (kind != Kind.CLASS && kind != Kind.SOURCE) {
 			throw new IllegalArgumentException("Invalid kind : " + kind);//$NON-NLS-1$
@@ -469,6 +475,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getJavaFileForOutput(javax.tools.JavaFileManager.Location, java.lang.String, javax.tools.JavaFileObject.Kind, javax.tools.FileObject)
 	 */
+	@Override
 	public JavaFileObject getJavaFileForOutput(Location location, String className, Kind kind, FileObject sibling)
 			throws IOException {
 		if (kind != Kind.CLASS && kind != Kind.SOURCE) {
@@ -523,6 +530,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#getJavaFileObjects(java.io.File[])
 	 */
+	@Override
 	public Iterable<? extends JavaFileObject> getJavaFileObjects(File... files) {
 		return getJavaFileObjectsFromFiles(Arrays.asList(files));
 	}
@@ -530,6 +538,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#getJavaFileObjects(java.lang.String[])
 	 */
+	@Override
 	public Iterable<? extends JavaFileObject> getJavaFileObjects(String... names) {
 		return getJavaFileObjectsFromStrings(Arrays.asList(names));
 	}
@@ -537,6 +546,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#getJavaFileObjectsFromFiles(java.lang.Iterable)
 	 */
+	@Override
 	public Iterable<? extends JavaFileObject> getJavaFileObjectsFromFiles(Iterable<? extends File> files) {
 		ArrayList<JavaFileObject> javaFileArrayList = new ArrayList<JavaFileObject>();
 		for (File f : files) {
@@ -548,6 +558,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#getJavaFileObjectsFromStrings(java.lang.Iterable)
 	 */
+	@Override
 	public Iterable<? extends JavaFileObject> getJavaFileObjectsFromStrings(Iterable<String> names) {
 		ArrayList<File> files = new ArrayList<File>();
 		for (String name : names) {
@@ -574,6 +585,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#getLocation(javax.tools.JavaFileManager.Location)
 	 */
+	@Override
 	public Iterable<? extends File> getLocation(Location location) {
 		if (this.locations == null) return null;
 		return this.locations.get(location.getName());
@@ -595,6 +607,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#handleOption(java.lang.String, java.util.Iterator)
 	 */
+	@Override
 	public boolean handleOption(String current, Iterator<String> remaining) {
 		try {
 			if ("-bootclasspath".equals(current)) {//$NON-NLS-1$
@@ -724,6 +737,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#hasLocation(javax.tools.JavaFileManager.Location)
 	 */
+	@Override
 	public boolean hasLocation(Location location) {
 		return this.locations != null && this.locations.containsKey(location.getName());
 	}
@@ -731,6 +745,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#inferBinaryName(javax.tools.JavaFileManager.Location, javax.tools.JavaFileObject)
 	 */
+	@Override
 	public String inferBinaryName(Location location, JavaFileObject file) {
 		String name = file.getName();
 		JavaFileObject javaFileObject = null;
@@ -757,6 +772,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#isSameFile(javax.tools.FileObject, javax.tools.FileObject)
 	 */
+	@Override
 	public boolean isSameFile(FileObject fileObject1, FileObject fileObject2) {
 		// EclipseFileManager creates only EcliseFileObject
 		if (!(fileObject1 instanceof EclipseFileObject)) throw new IllegalArgumentException("Unsupported file object class : " + fileObject1.getClass());//$NON-NLS-1$
@@ -766,6 +782,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.OptionChecker#isSupportedOption(java.lang.String)
 	 */
+	@Override
 	public int isSupportedOption(String option) {
 		return Options.processOptionsFileManager(option);
 	}
@@ -773,6 +790,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#list(javax.tools.JavaFileManager.Location, java.lang.String, java.util.Set, boolean)
 	 */
+	@Override
 	public Iterable<JavaFileObject> list(Location location, String packageName, Set<Kind> kinds, boolean recurse)
 			throws IOException {
 		
@@ -819,6 +837,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#setLocation(javax.tools.JavaFileManager.Location, java.lang.Iterable)
 	 */
+	@Override
 	public void setLocation(Location location, Iterable<? extends File> path) throws IOException {
 		if (path != null) {
 			if (location.isOutputLocation()) {
@@ -846,7 +865,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void processPathEntries(final int defaultSize, final ArrayList paths,
 			final String currentPath, String customEncoding, boolean isSourceOnly,
 			boolean rejectDestinationPathOnJars) {
@@ -1026,7 +1045,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				// we go on anyway
 		}
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	protected void addNewEntry(ArrayList paths, String currentClasspathName,
 			ArrayList currentRuleSpecs, String customEncoding,
 			String destPath, boolean isSourceOnly,

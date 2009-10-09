@@ -864,7 +864,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void processPathEntries(final int defaultSize, final ArrayList paths,
 			final String currentPath, String customEncoding, boolean isSourceOnly,
 			boolean rejectDestinationPathOnJars) {
@@ -1044,7 +1044,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				// we go on anyway
 		}
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	protected void addNewEntry(ArrayList paths, String currentClasspathName,
 			ArrayList currentRuleSpecs, String customEncoding,
 			String destPath, boolean isSourceOnly,

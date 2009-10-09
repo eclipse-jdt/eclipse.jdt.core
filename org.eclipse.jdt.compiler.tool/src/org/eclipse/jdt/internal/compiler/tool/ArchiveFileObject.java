@@ -51,6 +51,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileObject#getAccessLevel()
 	 */
+	@Override
 	public Modifier getAccessLevel() {
 		// cannot express multiple modifier
 		if (getKind() != Kind.CLASS) {
@@ -83,6 +84,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileObject#getKind()
 	 */
+	@Override
 	public Kind getKind() {
 		String name = this.entryName.toLowerCase();
 		if (name.endsWith(Kind.CLASS.extension)) {
@@ -98,6 +100,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileObject#getNestingKind()
 	 */
+	@Override
 	public NestingKind getNestingKind() {
 		switch(getKind()) {
 			case SOURCE :
@@ -132,6 +135,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileObject#isNameCompatible(java.lang.String, javax.tools.JavaFileObject.Kind)
 	 */
+	@Override
 	public boolean isNameCompatible(String simpleName, Kind kind) {
 		return this.zipEntry.getName().endsWith(simpleName + kind.extension);
 	}
@@ -139,6 +143,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#delete()
 	 */
+	@Override
 	public boolean delete() {
 		throw new UnsupportedOperationException();
 	}
@@ -155,6 +160,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#getCharContent(boolean)
 	 */
+	@Override
 	public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
 		if (getKind() == Kind.SOURCE) {
 			return Util.getCharContents(this, ignoreEncodingErrors, org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(this.zipEntry, this.zipFile), this.charset.toString());
@@ -165,6 +171,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#getLastModified()
 	 */
+	@Override
 	public long getLastModified() {
 		return this.zipEntry.getTime(); // looks the closest from the last modification
 	}
@@ -172,6 +179,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#getName()
 	 */
+	@Override
 	public String getName() {
 		return this.zipEntry.getName();
 	}
@@ -179,6 +187,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#openInputStream()
 	 */
+	@Override
 	public InputStream openInputStream() throws IOException {
 		return this.zipFile.getInputStream(this.zipEntry);
 	}
@@ -186,6 +195,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#openOutputStream()
 	 */
+	@Override
 	public OutputStream openOutputStream() throws IOException {
 		throw new UnsupportedOperationException();
 	}
@@ -193,6 +203,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#openReader(boolean)
 	 */
+	@Override
 	public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
 		throw new UnsupportedOperationException();
 	}
@@ -200,6 +211,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#openWriter()
 	 */
+	@Override
 	public Writer openWriter() throws IOException {
 		throw new UnsupportedOperationException();
 	}
@@ -207,6 +219,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#toUri()
 	 */
+	@Override
 	public URI toUri() {
 		try {
 			return new URI("jar:" + this.file.toURI().getPath() + "!" + this.zipEntry.getName()); //$NON-NLS-1$//$NON-NLS-2$

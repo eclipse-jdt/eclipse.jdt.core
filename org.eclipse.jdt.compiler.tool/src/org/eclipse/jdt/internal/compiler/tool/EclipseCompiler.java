@@ -64,6 +64,7 @@ public class EclipseCompiler implements JavaCompiler {
 	 *
 	 * @see javax.tools.Tool#getSourceVersions()
 	 */
+	@Override
 	public Set<SourceVersion> getSourceVersions() {
 		return EclipseCompiler.SupportedSourceVersions;
 	}
@@ -73,6 +74,7 @@ public class EclipseCompiler implements JavaCompiler {
 	 * @see javax.tools.JavaCompiler#getStandardFileManager(javax.tools.DiagnosticListener,
 	 *      java.util.Locale, java.nio.charset.Charset)
 	 */
+	@Override
 	public StandardJavaFileManager getStandardFileManager(DiagnosticListener<? super JavaFileObject> someDiagnosticListener, Locale locale, Charset charset) {
 		this.diagnosticListener = someDiagnosticListener;
 		return new EclipseFileManager(locale, charset);
@@ -84,6 +86,7 @@ public class EclipseCompiler implements JavaCompiler {
 	 *      javax.tools.JavaFileManager, javax.tools.DiagnosticListener,
 	 *      java.lang.Iterable, java.lang.Iterable, java.lang.Iterable)
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public CompilationTask getTask(Writer out, JavaFileManager fileManager, DiagnosticListener<? super JavaFileObject> someDiagnosticListener, Iterable<String> options, Iterable<String> classes, Iterable<? extends JavaFileObject> compilationUnits) {
 		PrintWriter writerOut = null;
@@ -173,6 +176,7 @@ public class EclipseCompiler implements JavaCompiler {
 
 		return new CompilationTask() {
 			private boolean hasRun = false;
+			@Override
 			public Boolean call() {
 				// set up compiler with passed options
 				if (this.hasRun) {
@@ -182,9 +186,11 @@ public class EclipseCompiler implements JavaCompiler {
 				this.hasRun = true;
 				return value;
 			}
+			@Override
 			public void setLocale(Locale locale) {
 				eclipseCompiler2.setLocale(locale);
 			}
+			@Override
 			public void setProcessors(Iterable<? extends Processor> processors) {
 				ArrayList<Processor> temp = new ArrayList<Processor>();
 				for (Processor processor : processors) {
@@ -201,6 +207,7 @@ public class EclipseCompiler implements JavaCompiler {
 	 *
 	 * @see javax.tools.OptionChecker#isSupportedOption(java.lang.String)
 	 */
+	@Override
 	public int isSupportedOption(String option) {
 		return Options.processOptions(option);
 	}
@@ -211,6 +218,7 @@ public class EclipseCompiler implements JavaCompiler {
 	 * @see javax.tools.Tool#run(java.io.InputStream, java.io.OutputStream,
 	 *      java.io.OutputStream, java.lang.String[])
 	 */
+	@Override
 	public int run(InputStream in, OutputStream out, OutputStream err, String... arguments) {
 		boolean succeed = new Main(new PrintWriter(new OutputStreamWriter(out)), new PrintWriter(new OutputStreamWriter(err)), true/*systemExit*/, null/*options*/, null/*progress*/).compile(arguments);
 		return succeed ? 0 : -1;
