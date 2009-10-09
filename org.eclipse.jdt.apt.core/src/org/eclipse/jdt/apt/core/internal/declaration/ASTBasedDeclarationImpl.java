@@ -121,7 +121,7 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 		return _getAnnotationMirrors(instances);		
     }
 	
-	@SuppressWarnings("unchecked") // DOM AST API returns raw collections
+	@SuppressWarnings("rawtypes") // DOM AST API returns raw collections
 	private IAnnotationBinding[] getAnnotationInstancesFromAST()
 	{	
 		IAnnotationBinding[] instances = null;

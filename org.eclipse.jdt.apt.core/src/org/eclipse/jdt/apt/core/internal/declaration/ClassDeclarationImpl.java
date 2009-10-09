@@ -46,7 +46,7 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
         visitor.visitClassDeclaration(this);
     }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
 	private void getASTConstructor(
     		final AbstractTypeDeclaration typeDecl,
     		final List<ConstructorDeclaration> results){

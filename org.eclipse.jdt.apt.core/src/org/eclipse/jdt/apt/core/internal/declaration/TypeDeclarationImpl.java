@@ -77,7 +77,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 
     public ITypeBinding getTypeBinding(){ return (ITypeBinding)_binding; }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawtypes", "unchecked"})
 	private void getASTFields(
     		final AbstractTypeDeclaration typeDecl, 
     		final List<FieldDeclaration> results){
@@ -237,7 +237,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     /**
      * create mirror methods that does not have a binding represention.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
 	protected void getASTMethods(
     		final AbstractTypeDeclaration typeDecl, 
     		final List<MethodDeclaration> results){
