@@ -159,7 +159,7 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	// Formatting behavior
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2"));
 	private final static boolean NO_COMMENTS = System.getProperty("no_comments", "false").equals("true");
-	private final static boolean JOIN_LINES = System.getProperty("join_lines", "true").equals("true");
+	private static String JOIN_LINES = System.getProperty("join_lines", null);
 	private static String BRACES = System.getProperty("braces", null);
 
 	// Failures management
@@ -260,6 +260,7 @@ public static Test suite() {
 		boolean clean = initDirectories();
 		System.out.println("Comparison: "+CAN_COMPARE);
 		if (clean) {
+			suite.addTest(new FormatterMassiveRegressionTests(null));
 			suite.addTest(new FormatterMassiveRegressionTests(allFiles));
 		}
 		for (int i=0; i<length; i++) {
@@ -272,6 +273,13 @@ public static Test suite() {
 }
 
 private static void initProfiles() {
+	if (JOIN_LINES != null) {
+	 	if (!JOIN_LINES.equals("never") &&
+	 		!JOIN_LINES.equals("only_comments") &&
+	 		!JOIN_LINES.equals("only_code")) {
+	 		JOIN_LINES = null;
+	 	}
+	}
 	if (BRACES != null) {
 	 	if (!BRACES.equals(DefaultCodeFormatterConstants.NEXT_LINE) &&
 	 		!BRACES.equals(DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP) &&
@@ -340,10 +348,10 @@ private static void setOutputDir(String dir) {
 	}
 
 	// Compute output sub-directories depending on profiles
-	if (NO_COMMENTS || BRACES != null || !JOIN_LINES) {
+	if (NO_COMMENTS || BRACES != null || JOIN_LINES != null) {
 		OUTPUT_DIR = new File(OUTPUT_DIR, "profiles");
-		if (!JOIN_LINES) {
-			OUTPUT_DIR = new File(OUTPUT_DIR, "never_join_lines");
+		if (JOIN_LINES != null) {
+			OUTPUT_DIR = new File(new File(OUTPUT_DIR, "join_lines"), JOIN_LINES);
 		}
 		if (NO_COMMENTS) {
 			OUTPUT_DIR = new File(OUTPUT_DIR, "no_comments");
@@ -425,7 +433,7 @@ private static void initVersion() {
  * Constructor used to clean the output directory.
  */
 public FormatterMassiveRegressionTests(File[] files) {
-	super("testClean");
+	super(files == null ? "testDeleteOutputDir" : "testMakeReferences");
 	this.canCompare = false;
 	this.file = null;
 	this.inputFiles = files;
@@ -465,8 +473,14 @@ public void setUp() throws Exception {
 		this.preferences.comment_format_block_comment = false;
 		this.preferences.comment_format_line_comment = false;
 	}
-	this.preferences.join_lines_in_comments = JOIN_LINES;
-	this.preferences.join_wrapped_lines = JOIN_LINES;
+	if (JOIN_LINES != null) {
+		if (!JOIN_LINES.equals("only_comments")) {
+			this.preferences.join_lines_in_comments = false;
+		}
+		if (!JOIN_LINES.equals("only_code")) {
+			this.preferences.join_wrapped_lines = false;
+		}
+	}
 	if (BRACES != null) {
 		this.preferences.brace_position_for_annotation_type_declaration = BRACES;
 		this.preferences.brace_position_for_anonymous_type_declaration = BRACES;
@@ -790,12 +804,17 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 }
 
 /*
- * Test to clean the output directory.
+ * Test to delete the output directory.
  */
-public void testClean() throws IOException, Exception {
-
-	// Delete the output directory
+public void testDeleteOutputDir() throws IOException, Exception {
 	Util.delete(OUTPUT_DIR);
+}
+
+
+/*
+ * Test to fill the output directory with reference.
+ */
+public void testMakeReferences() throws IOException, Exception {
 
 	// Format each file of the input dir and write the result to the output directory
 	assertNotNull("We should have got input files from "+INPUT_DIR, this.inputFiles);
