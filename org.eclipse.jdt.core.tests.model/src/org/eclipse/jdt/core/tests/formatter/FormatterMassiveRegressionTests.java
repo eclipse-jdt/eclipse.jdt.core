@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.ModelTestsUtil;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -158,6 +159,8 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	// Formatting behavior
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2"));
 	private final static boolean NO_COMMENTS = System.getProperty("no_comments", "false").equals("true");
+	private final static boolean JOIN_LINES = System.getProperty("join_lines", "true").equals("true");
+	private static String BRACES = System.getProperty("braces", null);
 
 	// Failures management
 	int failureIndex;
@@ -196,6 +199,7 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	static FormattingFailure[] FAILURES;
 	private static final int MAX_FAILURES = Integer.parseInt(System.getProperty("maxFailures", "100")); // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = MAX_FAILURES > 0;
+	private static String ECLIPSE_VERSION;
 	private final static IPath[] EXPECTED_FAILURES = INPUT_DIR.getPath().indexOf("v34") < 0
 		? new IPath[] {
 			new Path("org/eclipse/jdt/internal/compiler/ast/QualifiedNameReference.java"),
@@ -239,6 +243,7 @@ public static Test suite() {
 	TestSuite suite = new Suite(FormatterMassiveRegressionTests.class.getName());
 	try {
 		initVersion();
+		initProfiles();
 		FileFilter filter = new FileFilter() {
 			public boolean accept(File pathname) {
 	            return pathname.isDirectory() || pathname.getPath().endsWith(".java");
@@ -266,7 +271,22 @@ public static Test suite() {
 	return suite;
 }
 
+private static void initProfiles() {
+	if (BRACES != null) {
+	 	if (!BRACES.equals(DefaultCodeFormatterConstants.NEXT_LINE) &&
+	 		!BRACES.equals(DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP) &&
+	 		!BRACES.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
+	 		BRACES = null;
+	 	}
+	}
+}
+
 private static boolean initDirectories() {
+
+	// Verify input directory
+	if (!INPUT_DIR.exists() && !INPUT_DIR.isDirectory()) {
+		throw new RuntimeException(INPUT_DIR+" does not exist or is not a directory!");
+	}
 
 	// Get output dir and clean it if specified
 	boolean clean = false;
@@ -274,11 +294,9 @@ private static boolean initDirectories() {
 	if (dir != null) {
 		int idx = dir.indexOf(',');
 		if (idx < 0) {
-			OUTPUT_DIR = new File(dir);
-			System.out.println("Output dir: "+OUTPUT_DIR);
+			setOutputDir(dir);
 		} else {
-			OUTPUT_DIR = new File(dir.substring(0, idx));
-			System.out.println("Output dir: "+OUTPUT_DIR);
+			setOutputDir(dir.substring(0, idx));
 			if (dir.substring(idx+1).equals("clean")) {
 				clean = true;
 			}
@@ -308,6 +326,36 @@ private static boolean initDirectories() {
 
 	// Return
 	return clean;
+}
+
+private static void setOutputDir(String dir) {
+
+	// Find the root of the output directory
+	OUTPUT_DIR = new File(dir);
+	if (OUTPUT_DIR.getName().equals(INPUT_DIR.getName())) {
+		OUTPUT_DIR = OUTPUT_DIR.getParentFile();
+	}
+	if (OUTPUT_DIR.getName().equals(ECLIPSE_VERSION)) {
+		OUTPUT_DIR = OUTPUT_DIR.getParentFile();
+	}
+
+	// Compute output sub-directories depending on profiles
+	if (NO_COMMENTS || BRACES != null || !JOIN_LINES) {
+		OUTPUT_DIR = new File(OUTPUT_DIR, "profiles");
+		if (!JOIN_LINES) {
+			OUTPUT_DIR = new File(OUTPUT_DIR, "never_join_lines");
+		}
+		if (NO_COMMENTS) {
+			OUTPUT_DIR = new File(OUTPUT_DIR, "no_comments");
+		}
+		if (BRACES != null) {
+			OUTPUT_DIR = new File(new File(OUTPUT_DIR, "braces"), BRACES);
+		}
+	}
+
+	// Compute the final output dir
+	OUTPUT_DIR = new File(new File(OUTPUT_DIR, ECLIPSE_VERSION), INPUT_DIR.getName());
+	System.out.println("Output dir: "+OUTPUT_DIR);
 }
 
 private static void initFailures() {
@@ -344,8 +392,9 @@ private static void initVersion() {
 				boolean first = version == null;
 				version = line.substring(line.indexOf('"')+1, line.lastIndexOf('"'));
 				if (!first) break;
-			} else if (line.startsWith("Eclipse SDK")) {
+			} else if (line.startsWith("Eclipse SDK ")) {
 				closed = line.indexOf("%date%") < 0;
+				ECLIPSE_VERSION = "v"+line.substring(12, 13)+line.substring(14, 15);
 			} else if (line.startsWith("<h2>What's new")) {
 				line = buildnotesReader.readLine();
 				if (line.startsWith("Patch")) {
@@ -415,6 +464,21 @@ public void setUp() throws Exception {
 		this.preferences.comment_format_javadoc_comment = false;
 		this.preferences.comment_format_block_comment = false;
 		this.preferences.comment_format_line_comment = false;
+	}
+	this.preferences.join_lines_in_comments = JOIN_LINES;
+	this.preferences.join_wrapped_lines = JOIN_LINES;
+	if (BRACES != null) {
+		this.preferences.brace_position_for_annotation_type_declaration = BRACES;
+		this.preferences.brace_position_for_anonymous_type_declaration = BRACES;
+		this.preferences.brace_position_for_array_initializer = BRACES;
+		this.preferences.brace_position_for_block = BRACES;
+		this.preferences.brace_position_for_block_in_case = BRACES;
+		this.preferences.brace_position_for_constructor_declaration = BRACES;
+		this.preferences.brace_position_for_enum_constant = BRACES;
+		this.preferences.brace_position_for_enum_declaration = BRACES;
+		this.preferences.brace_position_for_method_declaration = BRACES;
+		this.preferences.brace_position_for_switch = BRACES;
+		this.preferences.brace_position_for_type_declaration = BRACES;
 	}
 }
 
@@ -742,16 +806,21 @@ public void testClean() throws IOException, Exception {
 		// Get the source from file
 		String source = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.inputFiles[i], null));
 
-		// Format the source
-		TextEdit edit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, source, 0, source.length(), 0, null);
+		try {
+			// Format the source
+			TextEdit edit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, source, 0, source.length(), 0, null);
 
-		// Write the result
-		if (edit != null) {
-			String formatResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
-			String inputPath = this.inputFiles[i].getPath().substring(INPUT_DIR.getPath().length()+1);
-			File writtenFile = new Path(OUTPUT_DIR.getPath()).append(inputPath).toFile();
-			writtenFile.getParentFile().mkdirs();
-			Util.writeToFile(formatResult, writtenFile.getAbsolutePath());
+			// Write the result
+			if (edit != null) {
+				String formatResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
+				String inputPath = this.inputFiles[i].getPath().substring(INPUT_DIR.getPath().length()+1);
+				File writtenFile = new Path(OUTPUT_DIR.getPath()).append(inputPath).toFile();
+				writtenFile.getParentFile().mkdirs();
+				Util.writeToFile(formatResult, writtenFile.getAbsolutePath());
+			}
+		}
+		catch (Exception ex) {
+			// skip silently
 		}
 	}
 }
