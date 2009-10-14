@@ -160,6 +160,8 @@ public static Test suite() {
 		tests_1_7.addAll(since_1_5);
 		tests_1_7.addAll(since_1_6);
 		tests_1_7.add(AssignmentTest_1_7.class);
+		tests_1_7.add(BinaryLiteralTest.class);
+		tests_1_7.add(UnderscoresInLiteralsTest.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

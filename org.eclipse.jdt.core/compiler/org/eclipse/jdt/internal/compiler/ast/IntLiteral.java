@@ -47,45 +47,54 @@ public void computeConstant() {
 	//which is legal if used with a - as prefix....cool....
 	//notice that Integer.MIN_VALUE  == -2147483648
 	long MAX = Integer.MAX_VALUE;
-	if (this == One) {	
+	if (this == One) {
 		this.constant = IntConstant.fromValue(1); 
 		return ;
 	}
 	int length = this.source.length;
 	long computedValue = 0L;
-	if (this.source[0] == '0') {	
+	if (this.source[0] == '0') {
 		MAX = 0xFFFFFFFFL ; //a long in order to be positive !
 		if (length == 1) {
-			this.constant = IntConstant.fromValue(0); return ;
+			this.constant = IntConstant.fromValue(0);
+			return ;
 		}
 		final int shift,radix;
 		int j ;
-		if ((this.source[1] == 'x') || (this.source[1] == 'X')) {	
-			shift = 4 ; j = 2; radix = 16;
-		} else {	
-			shift = 3 ; j = 1; radix = 8;
+		if ((this.source[1] == 'x') || (this.source[1] == 'X')) {
+			shift = 4; j = 2; radix = 16;
+		} else if ((this.source[1] == 'b') || (this.source[1] == 'B')) {
+			shift = 1; j = 2; radix = 2;
+		} else {
+			shift = 3; j = 1; radix = 8;
 		}
-		while (this.source[j]=='0')	 {	
-			j++; //jump over redondant zero
-			if (j == length) {
-				//watch for 000000000000000000
-				this.constant = IntConstant.fromValue(this.value = (int)computedValue);
-				return;
+		if (j < length) {
+			while (this.source[j]=='0') {
+				j++; //jump over redundant zero
+				if (j == length) {
+					//watch for 000000000000000000
+					this.constant = IntConstant.fromValue(this.value = (int)computedValue);
+					return;
+				}
 			}
 		}
-		while (j<length) {	
-			int digitValue ;
-			if ((digitValue = ScannerHelper.digit(this.source[j++],radix))	< 0 ) {
+		while (j < length) {
+			int digitValue;
+			char currentChar = this.source[j++];
+			if (currentChar == '_') continue;
+			if ((digitValue = ScannerHelper.digit(currentChar,radix)) < 0 ) {
 				return; /*constant stays null*/
 			}
 			computedValue = (computedValue<<shift) | digitValue ;
 			if (computedValue > MAX) return; /*constant stays null*/
 		}
-	} else {	
+	} else {
 		//-----------regular case : radix = 10-----------
-		for (int i = 0 ; i < length;i++) {	
+		loop: for (int i = 0 ; i < length;i++) {	
+			char currentChar = this.source[i];
+			if (currentChar == '_') continue loop;
 			int digitValue ;
-			if ((digitValue = ScannerHelper.digit(this.source[i],10))	< 0 ) {
+			if ((digitValue = ScannerHelper.digit(this.source[i],10)) < 0 ) {
 				return; /*constant stays null*/
 			}
 			computedValue = 10*computedValue + digitValue;

@@ -455,6 +455,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("HierarchyHasProblems", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalAbstractModifierCombinationForMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalAccessFromTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("IllegalBinaryLiteral", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalCast", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalClassLiteralForTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalDimension", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -462,6 +463,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalExtendedDimensions", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalExtendedDimensionsForVarArgs", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalGenericArray", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("IllegalHexaLiteral", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalInstanceofParameterizedType", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalInstanceofTypeParameter", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalModifierCombinationFinalAbstractForClass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -492,7 +494,9 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalQualifiedParameterizedTypeAllocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalStaticModifierForMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalTypeVariableSuperReference", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("IllegalUnderscorePosition", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalUsageOfQualifiedTypeReference", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("IllegalUsageOfUnderscore", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalVararg", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -536,6 +540,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InterfaceNotVisible", DEPRECATED);
 		expectedProblemAttributes.put("InternalTypeNameProvided", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidAnnotationMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("InvalidBinary", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidBreak", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidCatchBlockSequence", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidCharacterConstant", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -1087,6 +1092,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("HierarchyHasProblems", SKIP);
 		expectedProblemAttributes.put("IllegalAbstractModifierCombinationForMethod", SKIP);
 		expectedProblemAttributes.put("IllegalAccessFromTypeVariable", SKIP);
+		expectedProblemAttributes.put("IllegalBinaryLiteral", SKIP);
 		expectedProblemAttributes.put("IllegalCast", SKIP);
 		expectedProblemAttributes.put("IllegalClassLiteralForTypeVariable", SKIP);
 		expectedProblemAttributes.put("IllegalDimension", SKIP);
@@ -1094,6 +1100,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalExtendedDimensions", SKIP);
 		expectedProblemAttributes.put("IllegalExtendedDimensionsForVarArgs", SKIP);
 		expectedProblemAttributes.put("IllegalGenericArray", SKIP);
+		expectedProblemAttributes.put("IllegalHexaLiteral", SKIP);
 		expectedProblemAttributes.put("IllegalInstanceofParameterizedType", SKIP);
 		expectedProblemAttributes.put("IllegalInstanceofTypeParameter", SKIP);
 		expectedProblemAttributes.put("IllegalModifierCombinationFinalAbstractForClass", SKIP);
@@ -1124,7 +1131,9 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalQualifiedParameterizedTypeAllocation", SKIP);
 		expectedProblemAttributes.put("IllegalStaticModifierForMemberType", SKIP);
 		expectedProblemAttributes.put("IllegalTypeVariableSuperReference", SKIP);
+		expectedProblemAttributes.put("IllegalUnderscorePosition", SKIP);
 		expectedProblemAttributes.put("IllegalUsageOfQualifiedTypeReference", SKIP);
+		expectedProblemAttributes.put("IllegalUsageOfUnderscore", SKIP);
 		expectedProblemAttributes.put("IllegalVararg", SKIP);
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForField", SKIP);
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForMemberType", SKIP);
@@ -1168,6 +1177,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InterfaceNotVisible", SKIP);
 		expectedProblemAttributes.put("InternalTypeNameProvided", SKIP);
 		expectedProblemAttributes.put("InvalidAnnotationMemberType", SKIP);
+		expectedProblemAttributes.put("InvalidBinary", SKIP);
 		expectedProblemAttributes.put("InvalidBreak", SKIP);
 		expectedProblemAttributes.put("InvalidCatchBlockSequence", SKIP);
 		expectedProblemAttributes.put("InvalidCharacterConstant", SKIP);
