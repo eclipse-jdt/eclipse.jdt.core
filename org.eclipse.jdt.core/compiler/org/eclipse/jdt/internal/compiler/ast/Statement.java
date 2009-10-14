@@ -163,14 +163,14 @@ public boolean isEmptyBlock() {
 public boolean isValidJavaStatement() {
 	//the use of this method should be avoid in most cases
 	//and is here mostly for documentation purpose.....
-	//while the parser is responsable for creating
+	//while the parser is responsible for creating
 	//welled formed expression statement, which results
 	//in the fact that java-non-semantic-expression-used-as-statement
-	//should not be parsable...thus not being built.
+	//should not be parsed...thus not being built.
 	//It sounds like the java grammar as help the compiler job in removing
 	//-by construction- some statement that would have no effect....
 	//(for example all expression that may do side-effects are valid statement
-	// -this is an appromative idea.....-)
+	// -this is an approximative idea.....-)
 
 	return true;
 }
