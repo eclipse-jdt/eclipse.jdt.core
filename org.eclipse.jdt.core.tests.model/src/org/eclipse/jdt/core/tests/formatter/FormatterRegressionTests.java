@@ -52,7 +52,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static final String IN = "_in";
 	public static final String OUT = "_out";
 	public static final boolean DEBUG = false;
-	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	private long time;
 
 	DefaultCodeFormatterOptions formatterPrefs;

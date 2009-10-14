@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,6 +45,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.text.edits.TextEdit;
+
+import com.ibm.icu.util.StringTokenizer;
 
 /**
  * Comment formatter test suite for massive tests at a given location.
@@ -148,6 +154,8 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private final static File INPUT_DIR = new File(System.getProperty("inputDir"));
 	private static File OUTPUT_DIR; // use static to minimize data consumption
 	private static File WRITE_DIR;
+	private static File LOG_FILE;
+	private static PrintStream LOG_STREAM;
 
 	// Comparison
 	private static boolean CAN_COMPARE = true;
@@ -200,6 +208,11 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private static final int MAX_FAILURES = Integer.parseInt(System.getProperty("maxFailures", "100")); // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = MAX_FAILURES > 0;
 	private static String ECLIPSE_VERSION;
+	private static String ECLIPSE_MILESTONE;
+	private static String JDT_CORE_VERSION;
+	private static String PATCH_BUG;
+	private static String PATCH_VERSION;
+	private static boolean JDT_CORE_HEAD;
 	private final static IPath[] EXPECTED_FAILURES = INPUT_DIR.getPath().indexOf("v34") < 0
 		? new IPath[] {
 			new Path("org/eclipse/jdt/internal/compiler/ast/QualifiedNameReference.java"),
@@ -240,29 +253,67 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	};
 
 public static Test suite() {
+
 	TestSuite suite = new Suite(FormatterMassiveRegressionTests.class.getName());
 	try {
-		initVersion();
-		initProfiles();
+		// Init version
+		StringBuffer buffer = new StringBuffer();
+		initVersion(buffer);
+		
+		// Init profiles
+		initProfiles(buffer);
+
+		// Log date of test
+		long start = System.currentTimeMillis();
+		SimpleDateFormat format = new SimpleDateFormat();
+		Date now = new Date(start);
+		buffer.append("Test date : ");
+		buffer.append(format.format(now));
+		buffer.append(LINE_SEPARATOR);
+
+		// Get input dir
+		buffer.append("Input dir : ");
+		buffer.append(INPUT_DIR);
+		buffer.append(LINE_SEPARATOR);
+
+		// Output to console to show startup
+		String firstBuffer = buffer.toString();
+		System.out.println(firstBuffer);
+		buffer.setLength(0);
+
+		// Get files from input dir
 		FileFilter filter = new FileFilter() {
 			public boolean accept(File pathname) {
 	            return pathname.isDirectory() || pathname.getPath().endsWith(".java");
             }
 		};
-		long start = System.currentTimeMillis();
-		SimpleDateFormat format = new SimpleDateFormat();
-		Date now = new Date(start);
-		System.out.println("Test date : "+format.format(now));
-		System.out.println("Input dir : "+INPUT_DIR);
 		File[] allFiles = ModelTestsUtil.getAllFiles(INPUT_DIR, filter);
 		int length = allFiles.length;
-		System.out.println("            "+length+" java files found");
-		boolean clean = initDirectories();
-		System.out.println("Comparison: "+CAN_COMPARE);
+		buffer.append("            ");
+		buffer.append(length);
+		buffer.append(" java files found");
+		buffer.append(LINE_SEPARATOR);
+
+		// Init directories
+		boolean clean = initDirectories(buffer);
+		buffer.append("Comparison: "+CAN_COMPARE);
+		buffer.append(LINE_SEPARATOR);
+
+		// Write logs
+		System.out.println(buffer.toString());
+		if (LOG_STREAM != null) {
+			LOG_STREAM.println(firstBuffer);
+			LOG_STREAM.println(buffer.toString());
+			LOG_STREAM.flush();
+		}
+		
+		// Add tests to clean the output directory and rebuild the references
 		if (clean) {
 			suite.addTest(new FormatterMassiveRegressionTests(null));
 			suite.addTest(new FormatterMassiveRegressionTests(allFiles));
 		}
+		
+		// Add one test per found file
 		for (int i=0; i<length; i++) {
 			suite.addTest(new FormatterMassiveRegressionTests(allFiles[i], CAN_COMPARE));
 		}
@@ -272,12 +323,15 @@ public static Test suite() {
 	return suite;
 }
 
-private static void initProfiles() {
+private static void initProfiles(StringBuffer buffer) {
+	boolean profile = NO_COMMENTS;
 	if (JOIN_LINES != null) {
 	 	if (!JOIN_LINES.equals("never") &&
 	 		!JOIN_LINES.equals("only_comments") &&
 	 		!JOIN_LINES.equals("only_code")) {
 	 		JOIN_LINES = null;
+	 	} else {
+	 		profile = true;
 	 	}
 	}
 	if (BRACES != null) {
@@ -285,11 +339,29 @@ private static void initProfiles() {
 	 		!BRACES.equals(DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP) &&
 	 		!BRACES.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 	 		BRACES = null;
+	 	} else {
+	 		profile = true;
 	 	}
+	}
+	if (profile) {
+		buffer.append("Profiles  : ");
+		String separator = "";
+		if (JOIN_LINES != null) {
+			buffer.append("join_lines="+JOIN_LINES);
+			separator = ", ";
+		}
+		if (NO_COMMENTS) {
+			buffer.append(separator+"no_comments");
+			separator = ", ";
+		}
+		if (BRACES != null) {
+			buffer.append(separator+"braces="+BRACES);
+		}
+		buffer.append(LINE_SEPARATOR);
 	}
 }
 
-private static boolean initDirectories() {
+private static boolean initDirectories(StringBuffer buffer) {
 
 	// Verify input directory
 	if (!INPUT_DIR.exists() && !INPUT_DIR.isDirectory()) {
@@ -302,9 +374,9 @@ private static boolean initDirectories() {
 	if (dir != null) {
 		int idx = dir.indexOf(',');
 		if (idx < 0) {
-			setOutputDir(dir);
+			setOutputDir(dir, buffer);
 		} else {
-			setOutputDir(dir.substring(0, idx));
+			setOutputDir(dir.substring(0, idx), buffer);
 			if (dir.substring(idx+1).equals("clean")) {
 				clean = true;
 			}
@@ -321,6 +393,9 @@ private static boolean initDirectories() {
         }
 	}
 
+	// Get log dir
+	setLogDir(buffer);
+
 	// Get write dir
 	String wdir = System.getProperty("writeDir"); //$NON-NLS-1$
 	if (wdir != null) {
@@ -329,14 +404,65 @@ private static boolean initDirectories() {
 			Util.delete(WRITE_DIR);
 		}
 		WRITE_DIR.mkdirs();
-		System.out.println("Write dir : "+WRITE_DIR);
+		buffer.append("Write dir : ");
+		buffer.append(WRITE_DIR);
+		buffer.append(LINE_SEPARATOR);
 	}
 
 	// Return
 	return clean;
 }
 
-private static void setOutputDir(String dir) {
+private static void setLogDir(StringBuffer buffer) {
+
+	// Compute log dir
+	File logDir = new File(System.getProperty("logDir"));
+	if (!logDir.exists()) {
+		return;
+	}
+
+	// Compute log sub-directories depending on profiles
+	logDir = new File(logDir, ECLIPSE_VERSION);
+	if (PATCH_BUG != null) {
+		logDir = new File(logDir, "tests");
+		logDir = new File(logDir, PATCH_BUG);
+	} else if (JDT_CORE_HEAD) {
+		logDir = new File(logDir, "HEAD");
+	} else {
+		logDir = new File(logDir, ECLIPSE_MILESTONE);
+		logDir = new File(logDir, JDT_CORE_VERSION);
+	}
+	if (NO_COMMENTS || BRACES != null || JOIN_LINES != null) {
+		logDir = new File(logDir, "profiles");
+		if (JOIN_LINES != null) {
+			logDir = new File(new File(logDir, "join_lines"), JOIN_LINES);
+		}
+		if (NO_COMMENTS) {
+			logDir = new File(logDir, "no_comments");
+		}
+		if (BRACES != null) {
+			logDir = new File(new File(logDir, "braces"), BRACES);
+		}
+	}
+	
+	// Create log stream
+	logDir.mkdirs();
+	String logFileName = INPUT_DIR.getName().replaceAll("\\.", "")+".txt";
+	LOG_FILE = new File(logDir, logFileName);
+	buffer.append("Log file  : ");
+	buffer.append(LOG_FILE);
+	buffer.append(LINE_SEPARATOR);
+	try {
+		if (LOG_FILE.exists()) {
+			Util.delete(LOG_FILE);
+		}
+		LOG_STREAM = new PrintStream(new BufferedOutputStream(new FileOutputStream(LOG_FILE)));
+	}
+	catch (FileNotFoundException fnfe) {
+		System.err.println("Can't create log file"+LOG_FILE); //$NON-NLS-1$
+	}
+}
+private static void setOutputDir(String dir, StringBuffer buffer) {
 
 	// Find the root of the output directory
 	OUTPUT_DIR = new File(dir);
@@ -363,7 +489,9 @@ private static void setOutputDir(String dir) {
 
 	// Compute the final output dir
 	OUTPUT_DIR = new File(new File(OUTPUT_DIR, ECLIPSE_VERSION), INPUT_DIR.getName());
-	System.out.println("Output dir: "+OUTPUT_DIR);
+	buffer.append("Output dir: ");
+	buffer.append(OUTPUT_DIR);
+	buffer.append(LINE_SEPARATOR);
 }
 
 private static void initFailures() {
@@ -380,7 +508,7 @@ private static void initFailures() {
 /*
  * Read JDT/Core build notes file to see what version is currently running.
  */
-private static void initVersion() {
+private static void initVersion(StringBuffer buffer) {
 	BufferedReader buildnotesReader;
     try {
 		URL platformURL = Platform.getBundle("org.eclipse.jdt.core").getEntry("/");
@@ -391,24 +519,42 @@ private static void initVersion() {
 	    return;
     }
 	String line;
-	String version = null;
-	String patch = null;
-	boolean closed = false;
+	JDT_CORE_HEAD = true;
 	try {
 		while ((line = buildnotesReader.readLine()) != null) {
 			if (line.startsWith("<a name=\"")) {
-				boolean first = version == null;
-				version = line.substring(line.indexOf('"')+1, line.lastIndexOf('"'));
+				boolean first = JDT_CORE_VERSION == null;
+				JDT_CORE_VERSION = line.substring(line.indexOf('"')+1, line.lastIndexOf('"'));
 				if (!first) break;
 			} else if (line.startsWith("Eclipse SDK ")) {
-				closed = line.indexOf("%date%") < 0;
-				ECLIPSE_VERSION = "v"+line.substring(12, 13)+line.substring(14, 15);
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				tokenizer.nextToken(); // 'Eclipse'
+				tokenizer.nextToken(); // 'SDK'
+				String milestone = tokenizer.nextToken();
+				ECLIPSE_VERSION = "v"+milestone.charAt(0)+milestone.charAt(2);
+				ECLIPSE_MILESTONE = milestone.substring(3);
+				tokenizer.nextToken(); // '-'
+				JDT_CORE_HEAD = tokenizer.nextToken().equals("%date%");
 			} else if (line.startsWith("<h2>What's new")) {
 				line = buildnotesReader.readLine();
 				if (line.startsWith("Patch")) {
-					patch = line;
+					StringTokenizer tokenizer = new StringTokenizer(line);
+					tokenizer.nextToken(); // 'Patch'
+					String version = tokenizer.nextToken();
+					if (version.length() == 3 && version.charAt(0) == 'v') {
+						PATCH_VERSION = version;
+					}
+					while (tokenizer.hasMoreTokens()) {
+						PATCH_BUG = tokenizer.nextToken();
+					}
+					try {
+						Integer.parseInt(PATCH_BUG);
+					}
+					catch (NumberFormatException nfe) {
+						System.err.println("Invalid patch bug number noticed in JDT/Core buildnotes:"+PATCH_BUG);
+					}
 				}
-				if (closed) break;
+				if (!JDT_CORE_HEAD) break;
 			}
 		}
 	} catch (Exception e) {
@@ -418,15 +564,20 @@ private static void initVersion() {
 	        ioe.printStackTrace();
         }
 	}
-	System.out.print("Version   : ");
-	if (patch != null) {
-		System.out.print(patch);
-		System.out.print(" applied on ");
+
+	// Log version info
+	buffer.append("Version   : ");
+	if (PATCH_BUG != null) {
+		buffer.append(PATCH_BUG);
+		buffer.append(' ');
+		buffer.append(PATCH_VERSION);
+		buffer.append(" applied on ");
 	}
-	if (!closed) {
-		System.out.print("HEAD on top of ");
+	if (JDT_CORE_HEAD) {
+		buffer.append("HEAD on top of ");
 	}
-	System.out.println(version);
+	buffer.append(JDT_CORE_VERSION);
+	buffer.append(LINE_SEPARATOR);
 }
 
 /*
@@ -516,33 +667,47 @@ public void tearDown() throws Exception {
 public void tearDownSuite() throws Exception {
 
 	// Display stored failures
-	System.out.println();
+	StringBuffer buffer = new StringBuffer(LINE_SEPARATOR);
 	int max = FAILURES.length;
 	for (int i=0; i<max; i++) {
 		List failures = FAILURES[i].failures;
 		int size = failures.size();
 		if (size > 0) {
-			System.out.print(size);
-			System.out.print(" file");
+			buffer.append(size);
+			buffer.append(" file");
 			if (size == 1) {
-				System.out.print(" has ");
+				buffer.append(" has ");
 			} else {
-				System.out.print("s have ");
+				buffer.append("s have ");
 			}
-			System.out.print(FAILURES[i]);
-			System.out.println('!');
+			buffer.append(FAILURES[i]);
+			buffer.append('!');
+			buffer.append(LINE_SEPARATOR);
 		}
 	}
-	System.out.println();
+	buffer.append(LINE_SEPARATOR);
 	for (int i=0; i<max; i++) {
 		List failures = FAILURES[i].failures;
 		int size = failures.size();
 		if (size > 0) {
-			System.out.println("List of file(s) with "+FAILURES[i]+":");
+			buffer.append("List of file(s) with ");
+			buffer.append(FAILURES[i]);
+			buffer.append(':');
+			buffer.append(LINE_SEPARATOR);
 			for (int j=0; j<size; j++) {
-				System.out.println("	- "+failures.get(j));
+				buffer.append("	- ");
+				buffer.append(failures.get(j));
+				buffer.append(LINE_SEPARATOR);
 			}
 		}
+	}
+
+	// Log failures
+	if (LOG_STREAM == null) {
+		System.out.println(buffer.toString());
+	} else {
+		LOG_STREAM.print(buffer.toString());
+		LOG_STREAM.close();
 	}
 }
 
