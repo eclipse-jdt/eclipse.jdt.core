@@ -10665,4 +10665,23 @@ public void test202() {
 		""
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=292240
+public void test203() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {}\n" +
+			"interface Y<T extends I> extends java.util.Comparator<T> {\n" +
+			"	public int compare(T o1, T o2);\n" +
+			"}\n" +
+			"class X implements Y {\n" +
+			"	public int compare(Object o1, Object o2) {\n" +
+			"		return compare((I) o1, (I) o2);\n" +
+			"	}\n" +
+			"	public int compare(I o1, I o2) { return 0; }\n" +
+			"}"
+		},
+		""
+	);
+}
 }
