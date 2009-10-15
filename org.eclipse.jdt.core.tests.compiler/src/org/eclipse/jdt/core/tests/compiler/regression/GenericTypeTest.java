@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1367, 1368, 1369 };
+//		TESTS_NUMBERS = new int[] { 1456 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -35007,24 +35007,24 @@ public void test1054() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.lang.annotation.Retention;\r\n" +
-			"import java.lang.annotation.RetentionPolicy;\r\n" +
-			"import java.lang.reflect.Method;\r\n" +
-			"\r\n" +
-			"@Bar\r\n" +
-			"public class X {\r\n" +
-			"\r\n" +
-			"        @Bar\r\n" +
-			"        public void bar() throws Exception {\r\n" +
-			"                Class clazz= X.class;\r\n" +
+			"import java.lang.annotation.Retention;\n" +
+			"import java.lang.annotation.RetentionPolicy;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"\n" +
+			"@Bar\n" +
+			"public class X {\n" +
+			"\n" +
+			"        @Bar\n" +
+			"        public void bar() throws Exception {\n" +
+			"                Class clazz= X.class;\n" +
 			"                Bar bar= clazz.getAnnotation(Bar.class);\n" +
-			"                Method method= clazz.getMethod(\"bar\");\r\n" +
-			"                Bar bar2= method.getAnnotation(Bar.class);\r\n" +
-			"        }\r\n" +
-			"}\r\n" +
-			"\r\n" +
-			"@Retention(RetentionPolicy.RUNTIME)\r\n" +
-			"@interface Bar {\r\n" +
+			"                Method method= clazz.getMethod(\"bar\");\n" +
+			"                Bar bar2= method.getAnnotation(Bar.class);\n" +
+			"        }\n" +
+			"}\n" +
+			"\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"@interface Bar {\n" +
 			"}",
 		},
 		expectedOutput,
@@ -35037,24 +35037,24 @@ public void test1055() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.lang.annotation.Retention;\r\n" +
-			"import java.lang.annotation.RetentionPolicy;\r\n" +
-			"import java.lang.reflect.Method;\r\n" +
-			"\r\n" +
-			"@Bar\r\n" +
-			"public class X {\r\n" +
-			"\r\n" +
-			"        @Bar\r\n" +
-			"        public void bar() throws Exception {\r\n" +
-			"                Class<X> clazz= X.class;\r\n" +
+			"import java.lang.annotation.Retention;\n" +
+			"import java.lang.annotation.RetentionPolicy;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"\n" +
+			"@Bar\n" +
+			"public class X {\n" +
+			"\n" +
+			"        @Bar\n" +
+			"        public void bar() throws Exception {\n" +
+			"                Class<X> clazz= X.class;\n" +
 			"                Bar bar= clazz.getAnnotation(Bar.class);\n" +
-			"                Method method= clazz.getMethod(\"bar\");\r\n" +
-			"                Bar bar2= method.getAnnotation(Bar.class);\r\n" +
-			"        }\r\n" +
-			"}\r\n" +
-			"\r\n" +
-			"@Retention(RetentionPolicy.RUNTIME)\r\n" +
-			"@interface Bar {\r\n" +
+			"                Method method= clazz.getMethod(\"bar\");\n" +
+			"                Bar bar2= method.getAnnotation(Bar.class);\n" +
+			"        }\n" +
+			"}\n" +
+			"\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"@interface Bar {\n" +
 			"}",
 		},
 		"");
@@ -36915,75 +36915,75 @@ public void test1092() {
 	this.runConformTest(
 		new String[] {
 			"Class_01.java",
-			"public interface Class_01<H extends Class_02<? extends Class_01>> extends\r\n" +
-			"		Class_09<H> {\r\n" +
+			"public interface Class_01<H extends Class_02<? extends Class_01>> extends\n" +
+			"		Class_09<H> {\n" +
 			"}",
 			"Class_02.java",
-			"public interface Class_02<E extends Class_01<? extends Class_02>> extends\r\n" +
-			"		Class_10<E> {\r\n" +
+			"public interface Class_02<E extends Class_01<? extends Class_02>> extends\n" +
+			"		Class_10<E> {\n" +
 			"}",
 			"Class_03.java",
-			"public abstract class Class_03<E extends Class_01<? super H>, H extends Class_02<? super E>, P extends Class_06<? extends Class_07>>\r\n" +
-			"		extends Class_08<E, H, P> implements Class_05 {\r\n" +
+			"public abstract class Class_03<E extends Class_01<? super H>, H extends Class_02<? super E>, P extends Class_06<? extends Class_07>>\n" +
+			"		extends Class_08<E, H, P> implements Class_05 {\n" +
 			"}",
 			"Class_04.java",
-			"public interface Class_04 extends Class_06<Class_18>, Class_19{\r\n" +
+			"public interface Class_04 extends Class_06<Class_18>, Class_19{\n" +
 			"}",
 			"Class_05.java",
-			"public interface Class_05{\r\n" +
+			"public interface Class_05{\n" +
 			"}",
 			"Class_06.java",
-			"public interface Class_06<H extends Class_07<? extends Class_06>> extends\r\n" +
-			"		Class_13<H, Class_12>, Class_17 {\r\n" +
+			"public interface Class_06<H extends Class_07<? extends Class_06>> extends\n" +
+			"		Class_13<H, Class_12>, Class_17 {\n" +
 			"}",
 			"Class_07.java",
-			"public interface Class_07<P extends Class_06<? extends Class_07>> extends\r\n" +
-			"		Class_14<P, Class_12> {\r\n" +
+			"public interface Class_07<P extends Class_06<? extends Class_07>> extends\n" +
+			"		Class_14<P, Class_12> {\n" +
 			"}",
 			"Class_08.java",
-			"public abstract class Class_08<E extends Class_09<? super H>, H extends Class_10<? super E>, P extends Class_06<? extends Class_07>>\r\n" +
-			"		extends Class_11<E, H, Class_12> implements Class_05 {\r\n" +
+			"public abstract class Class_08<E extends Class_09<? super H>, H extends Class_10<? super E>, P extends Class_06<? extends Class_07>>\n" +
+			"		extends Class_11<E, H, Class_12> implements Class_05 {\n" +
 			"}",
 			"Class_09.java",
-			"public interface Class_09<H extends Class_10<? extends Class_09>> extends\r\n" +
-			"		Class_13<H, Class_12>, Class_17 {\r\n" +
+			"public interface Class_09<H extends Class_10<? extends Class_09>> extends\n" +
+			"		Class_13<H, Class_12>, Class_17 {\n" +
 			"}",
 			"Class_10.java",
-			"public interface Class_10<E extends Class_09<? extends Class_10>> extends\r\n" +
-			"		Class_14<E, Class_12> {\r\n" +
+			"public interface Class_10<E extends Class_09<? extends Class_10>> extends\n" +
+			"		Class_14<E, Class_12> {\n" +
 			"}",
 			"Class_11.java",
-			"public abstract class Class_11<E extends Class_13<? super H, O>, H extends Class_14<? super E, O>, O>\r\n" +
-			"		extends Class_15<E, H, O> implements Class_05 {\r\n" +
+			"public abstract class Class_11<E extends Class_13<? super H, O>, H extends Class_14<? super E, O>, O>\n" +
+			"		extends Class_15<E, H, O> implements Class_05 {\n" +
 			"}",
 			"Class_12.java",
-			"public final class Class_12 {\r\n" +
+			"public final class Class_12 {\n" +
 			"}",
 			"Class_13.java",
-			"public interface Class_13<H extends Class_14<?, O>, O>{\r\n" +
+			"public interface Class_13<H extends Class_14<?, O>, O>{\n" +
 			"}",
 			"Class_14.java",
-			"public interface Class_14<E extends Class_13<?, O>, O>{\r\n" +
+			"public interface Class_14<E extends Class_13<?, O>, O>{\n" +
 			"}",
 			"Class_15.java",
-			"public abstract class Class_15<E extends Class_13<? super H, O>, H extends Class_14<? super E, O>, O>\r\n" +
-			"		extends Class_16 {\r\n" +
+			"public abstract class Class_15<E extends Class_13<? super H, O>, H extends Class_14<? super E, O>, O>\n" +
+			"		extends Class_16 {\n" +
 			"}",
 			"Class_16.java",
-			"public abstract class Class_16{\r\n" +
+			"public abstract class Class_16{\n" +
 			"}",
 			"Class_17.java",
-			"public interface Class_17{\r\n" +
+			"public interface Class_17{\n" +
 			"}",
 			"Class_18.java",
-			"public interface Class_18 extends Class_07<Class_04>{\r\n" +
+			"public interface Class_18 extends Class_07<Class_04>{\n" +
 			"}",
 			"Class_19.java",
-			"public interface Class_19{\r\n" +
+			"public interface Class_19{\n" +
 			"}",
 			"MyClass.java",
-			"abstract class MyClass<E extends Class_01<? super H>, H extends Class_02<? super E>>\r\n" +
-			"		extends Class_03<E, H, Class_04> implements Class_05 {\r\n" +
+			"abstract class MyClass<E extends Class_01<? super H>, H extends Class_02<? super E>>\n" +
+			"		extends Class_03<E, H, Class_04> implements Class_05 {\n" +
 			"}"
 		},
 		"",
@@ -36997,8 +36997,8 @@ public void test1092() {
 	this.runConformTest(
 			new String[] {
 					"Class_01.java",
-					"public interface Class_01<H extends Class_02<? extends Class_01>> extends\r\n" +
-					"		Class_09<H> {\r\n" +
+					"public interface Class_01<H extends Class_02<? extends Class_01>> extends\n" +
+					"		Class_09<H> {\n" +
 					"}",
 			},
 			"",
@@ -38020,7 +38020,7 @@ public void test1121() {
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
-			"	void foo() {\r\n" +
+			"	void foo() {\n" +
 			"		System.out.println(T[].class);\n" +
 			"	}\n" +
 			"}", // =================
@@ -38038,7 +38038,7 @@ public void test1122() {
 		new String[] {
 			"X.java",
 			"public class X {\n" +
-			"	<T> void foo() {\r\n" +
+			"	<T> void foo() {\n" +
 			"		System.out.println(T[].class);\n" +
 			"	}\n" +
 			"}", // =================
@@ -38766,8 +38766,8 @@ public void test1139() {
 			"}", // =================
 		},
 		"----------\n" +
-		"1. ERROR in p\\X.java (at line 9)\r\n" +
-		"	public class X extends Super<A<X>> {\r\n" +
+		"1. ERROR in p\\X.java (at line 9)\n" +
+		"	public class X extends Super<A<X>> {\n" +
 		"	                       ^^^^^\n" +
 		"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" +
 		"----------\n"
@@ -38792,13 +38792,13 @@ public void test1140() {
 			"}", // =================
 		},
 		"----------\n" +
-		"1. ERROR in p\\X.java (at line 2)\r\n" +
-		"	import static p.X.Super;\r\n" +
+		"1. ERROR in p\\X.java (at line 2)\n" +
+		"	import static p.X.Super;\n" +
 		"	              ^^^^^^^^^\n" +
 		"The import p.X.Super cannot be resolved\n" +
 		"----------\n" +
-		"2. ERROR in p\\X.java (at line 9)\r\n" +
-		"	public class X extends Super<A<X>> {\r\n" +
+		"2. ERROR in p\\X.java (at line 9)\n" +
+		"	public class X extends Super<A<X>> {\n" +
 		"	                       ^^^^^\n" +
 		"Super cannot be resolved to a type\n" +
 		"----------\n");
@@ -38821,8 +38821,8 @@ public void test1141() {
 			"}", // =================
 		},
 		"----------\n" +
-		"1. ERROR in p\\X.java (at line 8)\r\n" +
-		"	public class X extends p.X.Super<A<X>> {\r\n" +
+		"1. ERROR in p\\X.java (at line 8)\n" +
+		"	public class X extends p.X.Super<A<X>> {\n" +
 		"	                       ^^^^^^^^^\n" +
 		"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" +
 		"----------\n");
@@ -39527,13 +39527,13 @@ public void test1160() {
 			"}\n", // =================
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 3)\r\n" +
-		"	public class X<V extends Z<V>> extends Z<V>{\r\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public class X<V extends Z<V>> extends Z<V>{\n" +
 		"	                           ^\n" +
 		"Bound mismatch: The type V is not a valid substitute for the bounded parameter <U extends Y<U>> of the type Z<U>\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 3)\r\n" +
-		"	public class X<V extends Z<V>> extends Z<V>{\r\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	public class X<V extends Z<V>> extends Z<V>{\n" +
 		"	                                         ^\n" +
 		"Bound mismatch: The type V is not a valid substitute for the bounded parameter <U extends Y<U>> of the type Z<U>\n" +
 		"----------\n");
@@ -40841,23 +40841,23 @@ public void test1200() {
 			"}\n", // =================
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 12)\r\n" +
-		"	return make(type, value);//1\r\n" +
+		"1. ERROR in X.java (at line 12)\n" +
+		"	return make(type, value);//1\n" +
 		"	       ^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from X.Map<Class<capture#1-of ?>,X> to X.Map<Class<?>,X>\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 17)\r\n" +
-		"	return (Map<Class<?>, X>) make(type, value);//2\r\n" +
+		"2. ERROR in X.java (at line 17)\n" +
+		"	return (Map<Class<?>, X>) make(type, value);//2\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Cannot cast from X.Map<Class<capture#2-of ?>,X> to X.Map<Class<?>,X>\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 21)\r\n" +
-		"	return make(X.class, value);//3\r\n" +
+		"3. ERROR in X.java (at line 21)\n" +
+		"	return make(X.class, value);//3\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from X.Map<Class<X>,X> to X.Map<Class<?>,X>\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 25)\r\n" +
-		"	return (Map<Class<?>, X>) make(X.class, value);//4\r\n" +
+		"4. ERROR in X.java (at line 25)\n" +
+		"	return (Map<Class<?>, X>) make(X.class, value);//4\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Cannot cast from X.Map<Class<X>,X> to X.Map<Class<?>,X>\n" +
 		"----------\n");
@@ -41289,8 +41289,8 @@ public void test1207() {
 			"}\n", // =================
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 6)\r\n" +
-		"	throwE(objs);\r\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	throwE(objs);\n" +
 		"	^^^^^^\n" +
 		"Bound mismatch: The generic method throwE(E) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" +
 		"----------\n");
@@ -41328,8 +41328,8 @@ public void test1209() {
 			"}", // =================
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 6)\r\n" +
-		"	throwE(objs);\r\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	throwE(objs);\n" +
 		"	^^^^^^\n" +
 		"Bound mismatch: The generic method throwE(E, Object...) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" +
 		"----------\n");
@@ -41955,8 +41955,8 @@ public void test1226() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 7)\r\n" +
-		"	Zork z;\r\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
 		"----------\n");
@@ -42782,13 +42782,13 @@ public void test1252() {
 				"}\n", // =================
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\r\n" +
-		"	Zork z;\r\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
 		"----------\n" +
-		"2. WARNING in X.java (at line 10)\r\n" +
-		"	C<String> c = getB().getC();\r\n" +
+		"2. WARNING in X.java (at line 10)\n" +
+		"	C<String> c = getB().getC();\n" +
 		"	              ^^^^^^^^^^^^^\n" +
 		"Type safety: The expression of type C needs unchecked conversion to conform to C<String>\n" +
 		"----------\n");
@@ -42820,8 +42820,8 @@ public void test1253() {
 				"}\n", // =================
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\r\n" +
-		"	Zork z;\r\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
 		"----------\n");
@@ -43020,13 +43020,13 @@ public void test1261() {
 				"}\n", // =================
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 5)\r\n" +
-		"	static XList<Sub<?>> LIST = asList(ARRAY); \r\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	static XList<Sub<?>> LIST = asList(ARRAY); \n" +
 		"	                            ^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from XList<X.Foo.Sub<? super Number>> to XList<X.Foo.Sub<?>>\n" +
 		"----------\n" +
-		"2. WARNING in X.java (at line 7)\r\n" +
-		"	static Sub<? super Number>[] ARRAY = new Sub[] { };\r\n" +
+		"2. WARNING in X.java (at line 7)\n" +
+		"	static Sub<? super Number>[] ARRAY = new Sub[] { };\n" +
 		"	                                     ^^^^^^^^^^^^^\n" +
 		"Type safety: The expression of type X.Foo.Sub[] needs unchecked conversion to conform to X.Foo.Sub<? super Number>[]\n" +
 		"----------\n");
@@ -43050,8 +43050,8 @@ public void test1262() {
 				"}\n", // =================
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 5)\r\n" +
-		"	static XList<Sub<? super Number>> LIST = asList(ARRAY); \r\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	static XList<Sub<? super Number>> LIST = asList(ARRAY); \n" +
 		"	                                         ^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from XList<X.Foo.Sub<?>> to XList<X.Foo.Sub<? super Number>>\n" +
 		"----------\n");
@@ -43661,8 +43661,8 @@ public void test1282() {
 					"}", // =================
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\r\n" +
-			"	combine(too, oo);\r\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	combine(too, oo);\n" +
 			"	^^^^^^^\n" +
 			"The method combine(X.TT, X.TO<? super E>) in the type X is not applicable for the arguments (X.TO<capture#1-of ? super String>, X.OO<String,Object>)\n" +
 			"----------\n");
@@ -43684,8 +43684,8 @@ public void test1283() {
 					"}", // =================
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\r\n" +
-			"	combine(too, oo);\r\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	combine(too, oo);\n" +
 			"	^^^^^^^\n" +
 			"The method combine(X.TT[], X.TO<? super E>[]) in the type X is not applicable for the arguments (X.TO<? super String>[], X.OO<String,Object>[])\n" +
 			"----------\n");
@@ -44128,23 +44128,23 @@ public void test1295() {
 					"class Song {}\n", // =================
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 7)\r\n" +
-			"	java.util.List<Counter<?>> list1 = java.util.Arrays.asList(songCounter, genreCounter);\r\n" +
+			"1. WARNING in X.java (at line 7)\n" +
+			"	java.util.List<Counter<?>> list1 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
 			"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
 			"----------\n" +
-			"2. WARNING in X.java (at line 8)\r\n" +
-			"	java.util.List<Counter<? extends Object>> list2 = java.util.Arrays.asList(songCounter, genreCounter);\r\n" +
+			"2. WARNING in X.java (at line 8)\n" +
+			"	java.util.List<Counter<? extends Object>> list2 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
 			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
 			"----------\n" +
-			"3. WARNING in X.java (at line 11)\r\n" +
-			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\r\n" +
+			"3. WARNING in X.java (at line 11)\n" +
+			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
 			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 11)\r\n" +
-			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\r\n" +
+			"4. ERROR in X.java (at line 11)\n" +
+			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
 			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" +
 			"----------\n");
@@ -45588,8 +45588,8 @@ public void test1336() {
 				"}\n", // =================
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\r\n" +
-			"	Other<String>.Member m = (Other<String>.Member) om2;\r\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	Other<String>.Member m = (Other<String>.Member) om2;\n" +
 			"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Cannot cast from Other2<?>.Member2<capture#1-of ?> to Other<String>.Member\n" +
 			"----------\n");
@@ -45613,8 +45613,8 @@ public void test1337() {
 				"}\n", // =================
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\r\n" +
-			"	Other<String>.Member m = (Other<String>.Member) om2;\r\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	Other<String>.Member m = (Other<String>.Member) om2;\n" +
 			"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Cannot cast from Other2.Member2<capture#1-of ?> to Other<String>.Member\n" +
 			"----------\n");
@@ -49859,6 +49859,29 @@ public void test1455() {
 		"	             ^^^^^^^^^^^^^\n" + 
 		"Type safety: Unchecked cast from Object to Outer<E>.Inner\n" + 
 		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=292428
+public void test1456() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"public class X<K,V> {\n" + 
+			"	interface E<V> {}\n" + 
+			"	class S implements E<V> {\n" + 
+			"		V value;\n" + 
+			"	}\n" + 
+			"	class M implements E<V>  {\n" + 
+			"		ArrayList<V> list = new ArrayList<V>();\n" + 
+			"		M(E<V> se) {\n" + 
+			"			list.add(((S)se).value);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		""
 	);
 }
 }

@@ -330,7 +330,7 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 							ParameterizedTypeBinding paramMatch = (ParameterizedTypeBinding) match;
 							// easy case if less parameters on match
 							TypeBinding[] castArguments = paramCastType.arguments;
-							int length = castArguments.length;
+							int length = castArguments == null ? 0 : castArguments.length;
 							if (paramMatch.arguments == null || length > paramMatch.arguments.length) {
 								this.bits |= ASTNode.UnsafeCast;
 							} else if ((paramCastType.tagBits & (TagBits.HasDirectWildcard|TagBits.HasTypeVariable)) != 0) {
