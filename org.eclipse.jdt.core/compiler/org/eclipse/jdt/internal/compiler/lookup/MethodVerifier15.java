@@ -435,7 +435,7 @@ void checkMethods() {
 
 			if (index > 0)
 				checkInheritedMethods(matchingInherited, index + 1); // pass in the length of matching
-			else if (mustImplementAbstractMethods && matchingInherited[0].isAbstract() && foundMatch[i] == null)
+			else if (mustImplementAbstractMethods && matchingInherited[0].isAbstract() && matchMethod == null)
 				checkAbstractMethod(matchingInherited[0]);
 			while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
 		}
