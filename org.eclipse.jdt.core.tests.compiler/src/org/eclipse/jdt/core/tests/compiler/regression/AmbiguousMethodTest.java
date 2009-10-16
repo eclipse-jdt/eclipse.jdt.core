@@ -3477,4 +3477,29 @@ public void test078() {
 		"----------\n"
 	);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=292350
+public void test079() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {}\n" +
+			"class A {}\n" +
+			"class B extends A {}\n" +
+			"interface One {\n" +
+			"    I<B> x() throws IllegalAccessError;\n" +
+			"    <T extends A> I<T> y() throws IllegalAccessError;\n" +
+			"}\n" +
+			"interface Two extends One {\n" +
+			"    <T extends A> I<T> x() throws IllegalAccessError;\n" +
+			"    I<B> y() throws IllegalAccessError;\n" +
+			"}\n" +
+			"class X {\n" +
+			"    void x(Two t) { t.x(); }\n" +
+			"    void y(Two t) { t.y(); }\n" +
+			"}"
+		},
+		""
+	);
+}
 }
