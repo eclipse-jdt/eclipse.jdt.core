@@ -2027,7 +2027,7 @@ protected void consumeCastExpressionLL1() {
 	this.expressionStack[this.expressionPtr] =
 		cast = new CastExpression(
 			exp=this.expressionStack[this.expressionPtr+1] ,
-			getTypeReference(this.expressionStack[this.expressionPtr]));
+			this.expressionStack[this.expressionPtr]);
 	this.expressionLengthPtr -- ;
 	updateSourcePosition(cast);
 	cast.sourceEnd=exp.sourceEnd;
@@ -3865,7 +3865,9 @@ protected void consumeInsideCastExpression() {
 }
 protected void consumeInsideCastExpressionLL1() {
 	// InsideCastExpressionLL1 ::= $empty
-	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+	pushOnGenericsLengthStack(0); // handle type arguments
+	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
+	pushOnExpressionStack(getTypeReference(0));
 }
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	// InsideCastExpressionWithQualifiedGenerics ::= $empty

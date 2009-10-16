@@ -787,14 +787,14 @@ public void test19() {
 	String selectionStartBehind = "return (";
 	String selectionEndBehind = "return (Object";
 
-	String expectedCompletionNodeToString = "<SelectOnName:Object>";
+	String expectedCompletionNodeToString = "<SelectOnType:Object>";
 	String completionIdentifier = "Object";
 	String expectedUnitDisplayString =
 		"public class X {\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"  Object foo() {\n" +
-		"    <SelectOnName:Object>;\n" +
+		"    return (<SelectOnType:Object>) this;\n" +
 		"  }\n" +
 		"}\n";
 

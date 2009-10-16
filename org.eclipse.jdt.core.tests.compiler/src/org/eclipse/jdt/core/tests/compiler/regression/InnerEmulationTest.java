@@ -5500,12 +5500,12 @@ public void test135() {
 		"----------\n" +
 		"5. WARNING in p\\X.java (at line 6)\n" +
 		"	A.M2.MM1 mm1 = (A.M2.MM1) o;\n" +
-		"	                ^\n" +
+		"	                ^^^^^^^^\n" +
 		"The type A is deprecated\n" +
 		"----------\n" +
 		"6. WARNING in p\\X.java (at line 6)\n" +
 		"	A.M2.MM1 mm1 = (A.M2.MM1) o;\n" +
-		"	                ^^^^\n" +
+		"	                ^^^^^^^^\n" +
 		"The type A.M2 is deprecated\n" +
 		"----------\n" +
 		"7. WARNING in p\\X.java (at line 6)\n" +

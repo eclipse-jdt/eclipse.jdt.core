@@ -133,9 +133,8 @@ private void buildMoreCompletionContext(Expression expression) {
 			case K_CAST_STATEMENT :
 				Expression castType;
 				if(this.expressionPtr > 0
-					&& ((castType = this.expressionStack[this.expressionPtr-1]) instanceof TypeReference
-						|| castType instanceof NameReference)) {
-					CastExpression cast = new CastExpression(expression, getTypeReference(castType));
+					&& ((castType = this.expressionStack[this.expressionPtr-1]) instanceof TypeReference)) {
+					CastExpression cast = new CastExpression(expression, castType);
 					cast.sourceStart = castType.sourceStart;
 					cast.sourceEnd= expression.sourceEnd;
 					parentNode = cast;
