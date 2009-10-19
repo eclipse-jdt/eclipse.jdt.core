@@ -3729,7 +3729,7 @@ public abstract class Scope {
 						if (original2 == null || !original.areParameterErasuresEqual(original2))
 							continue nextSpecific; // current does not override next
 						if (original.returnType != original2.returnType) {
-							if (current instanceof ParameterizedGenericMethodBinding) {
+							if (next.original().typeVariables != Binding.NO_TYPE_VARIABLES) {
 								if (original.returnType.erasure().findSuperTypeOriginatingFrom(original2.returnType.erasure()) == null)
 									continue nextSpecific;
 							} else if (!current.returnType.isCompatibleWith(next.returnType)) { 
