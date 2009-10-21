@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.FloatConstant;
@@ -28,11 +27,6 @@ public FloatLiteral(char[] token, int s, int e) {
 
 public void computeConstant() {
 	Float computedValue;
-	boolean containsUnderscores = CharOperation.indexOf('_', this.source) > 0;
-	if (containsUnderscores) {
-		// remove all underscores from source
-		this.source = CharOperation.remove(this.source, '_');
-	}
 	try {
 		computedValue = Float.valueOf(String.valueOf(this.source));
 	} catch (NumberFormatException e) {

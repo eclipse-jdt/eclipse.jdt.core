@@ -196,10 +196,10 @@ public class ScannerTest extends AbstractRegressionTest {
 			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
 				counter++;
 			}
-			assertTrue(false);
 		} catch (InvalidInputException e) {
+			assertTrue(false);
 		}
-		assertEquals("Wrong number of tokens", 0, counter);
+		assertEquals("Wrong number of tokens", 5, counter);
 	}
 
 	/*

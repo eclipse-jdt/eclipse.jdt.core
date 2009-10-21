@@ -13,11 +13,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.FloatUtil;
 
 public class InternalHexFloatTest extends AbstractRegressionTest {
@@ -407,32 +405,5 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 			"	                   ^^^^^^^^^^^^^\n" +
 			"The literal 0X000.eP5000F of type float is out of range \n" +
 			"----------\n");
-	}
-	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
-	 */
-	public void test008() {
-		Map customedOptions = getCompilerOptions();
-		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-		customedOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-		customedOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {	\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(-0X000.0000P5000F);\n" +
-				"	}\n" +
-				"}"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	System.out.println(-0X000.0000P5000F);\n" + 
-			"	                    ^^^^^^^^^^^^^^^^\n" + 
-			"Hexadecimal floating point literals can only be used with source level greater or equals to 1.5\n" + 
-			"----------\n",
-			null,
-			true,
-			customedOptions);
 	}
 }

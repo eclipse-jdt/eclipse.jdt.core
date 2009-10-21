@@ -591,16 +591,6 @@ void setSourceStart(int sourceStart);
 	int InvalidHighSurrogate = Syntax + Internal + 264;
 	/** @since 3.2 */
 	int UnnecessaryNLSTag = Internal + 265;
-	/** @since 3.6 */
-	int InvalidBinary = Syntax + Internal + 266;
-	/** @since 3.6 */
-	int IllegalBinaryLiteral = Syntax + Internal + 267;
-	/** @since 3.6 */
-	int IllegalUnderscorePosition = Syntax + Internal + 268;
-	/** @since 3.6 */
-	int IllegalUsageOfUnderscore = Syntax + Internal + 269;
-	/** @since 3.6 */
-	int IllegalHexaLiteral = Syntax + Internal + 270;
 
 	// type related problems
 	/** @since 3.1 */

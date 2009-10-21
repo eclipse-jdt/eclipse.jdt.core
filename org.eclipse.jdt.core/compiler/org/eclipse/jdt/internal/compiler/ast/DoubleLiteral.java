@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -27,11 +26,6 @@ public DoubleLiteral(char[] token, int s, int e) {
 
 public void computeConstant() {
 	Double computedValue;
-	boolean containsUnderscores = CharOperation.indexOf('_', this.source) > 0;
-	if (containsUnderscores) {
-		// remove all underscores from source
-		this.source = CharOperation.remove(this.source, '_');
-	}
 	try {
 		computedValue = Double.valueOf(String.valueOf(this.source));
 	} catch (NumberFormatException e) {
