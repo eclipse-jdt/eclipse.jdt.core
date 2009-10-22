@@ -191,9 +191,10 @@ private IType createTypeFromPath(String resourcePath, String simpleTypeName, cha
 			type = type.getType(simpleTypeName);
 		}
 		return type;
-	} else {
+	} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(simpleName)){
 		IClassFile classFile= pkgFragment.getClassFile(simpleName);
 		return classFile.getType();
 	}
+	return null;
 }
 }
