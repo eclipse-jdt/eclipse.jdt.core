@@ -48,7 +48,33 @@ Eclipse SDK 3.6M3 - %date% - 3.6M3
 <br>Project org.eclipse.jdt.core v_A16
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A16">cvs</a>).
 <h2>What's new in this drop</h2>
-
+<ul>
+<li>New API added in <code>org.eclipse.jdt.core.JavaCore</code> in order to fix bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=263564">263564</a>:
+<pre>
+	/**
+	 * Returns an immutable map of all known configurable options with their original default values
+	 * as defined by JDT/Core.
+	 * 
+	 * The values of these options might be different from the values returned by getDefaultOptions()
+	 * as getDefaultOptions() returned the default options defined by an installation/product/configuration
+	 * (i.e. modified by the usage of a plugin_customization.ini file for example).
+	 * 
+	 * These options allow to configure the behaviour of the underlying components.
+	 * If the map is being modified, an UnsupportedOperationException> exception is thrown.
+	 * Helper constants have been defined on JavaCore for each of the option IDs
+	 * (categorized in Code assist option ID, Compiler option ID and Core option ID)
+	 * and some of their acceptable values (categorized in Option value). Some
+	 * options accept open value sets beyond the documented constant values.
+	 * Note: each release may add new options.
+	 *
+	 * @return an immutable map of all known configurable options with their original default values
+	 * as defined by JDT/Core
+	 * @since 3.6
+	 */
+	public static Map getOriginalDefaultOptions();
+</pre>
+</li>
+</ul>
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=263564">263564</a>
 API to know when default compiler preference settings have been altered
