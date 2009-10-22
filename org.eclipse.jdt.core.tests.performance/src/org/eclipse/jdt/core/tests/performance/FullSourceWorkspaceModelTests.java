@@ -1007,7 +1007,6 @@ public void testPopulateTwoBigJars() throws CoreException {
  */
 public void testSeekPackageFragments() throws CoreException {
 	assertNotNull("We should have the 'BigProject' in workspace!", BIG_PROJECT);
-	setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Test has been rewritten and is not stabilized yet...");
 	class PackageRequestor implements IJavaElementRequestor {
 		ArrayList pkgs = new ArrayList();
 		public void acceptField(IField field) {}

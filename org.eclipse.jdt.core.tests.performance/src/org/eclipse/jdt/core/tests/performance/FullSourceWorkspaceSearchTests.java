@@ -518,8 +518,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 */
 	public void testSearchMethod() throws CoreException {
 		tagAsSummary("Search method occurences (no resolution)", false); // do NOT put in fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Test is not enough stable and will be replaced by another one...");
-
+		
 		// Wait for indexing end
 		AbstractJavaModelTests.waitUntilIndexesReady();
 
