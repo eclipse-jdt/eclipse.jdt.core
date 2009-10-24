@@ -160,9 +160,11 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	// Comparison
 	private static boolean CAN_COMPARE = true;
 	private final boolean canCompare;
+	private final int testIndex;
 
 	// Cleaning
 	private final File[] inputFiles;
+	private static int MAX_FILES, MAX_DIGITS;
 
 	// Formatting behavior
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2"));
@@ -190,6 +192,9 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 			this(kind);
 	        this.msg = msg;
         }
+		int size() {
+			return this.failures.size();
+		}
 		public String toString() {
 			switch (this.kind) {
 				case  UNEXPECTED_FAILURE:
@@ -211,7 +216,6 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private static String ECLIPSE_MILESTONE;
 	private static String JDT_CORE_VERSION;
 	private static String PATCH_BUG;
-	private static String PATCH_VERSION;
 	private static boolean JDT_CORE_HEAD;
 	private final static IPath[] EXPECTED_FAILURES = INPUT_DIR.getPath().indexOf("v34") < 0
 		? new IPath[] {
@@ -274,7 +278,6 @@ public static Test suite() {
 		// Get input dir
 		buffer.append("Input dir : ");
 		buffer.append(INPUT_DIR);
-		buffer.append(LINE_SEPARATOR);
 
 		// Output to console to show startup
 		String firstBuffer = buffer.toString();
@@ -288,9 +291,10 @@ public static Test suite() {
             }
 		};
 		File[] allFiles = ModelTestsUtil.getAllFiles(INPUT_DIR, filter);
-		int length = allFiles.length;
+		MAX_FILES = allFiles.length;
+		MAX_DIGITS = (int) (Math.log(MAX_FILES)/Math.log(10));
 		buffer.append("            ");
-		buffer.append(length);
+		buffer.append(MAX_FILES);
 		buffer.append(" java files found");
 		buffer.append(LINE_SEPARATOR);
 
@@ -309,13 +313,13 @@ public static Test suite() {
 		
 		// Add tests to clean the output directory and rebuild the references
 		if (clean) {
-			suite.addTest(new FormatterMassiveRegressionTests(null));
+			suite.addTest(new FormatterMassiveRegressionTests());
 			suite.addTest(new FormatterMassiveRegressionTests(allFiles));
 		}
 		
 		// Add one test per found file
-		for (int i=0; i<length; i++) {
-			suite.addTest(new FormatterMassiveRegressionTests(allFiles[i], CAN_COMPARE));
+		for (int i=0; i<MAX_FILES; i++) {
+			suite.addTest(new FormatterMassiveRegressionTests(allFiles[i], i, CAN_COMPARE));
 		}
     } catch (Exception e) {
     	// skip
@@ -519,6 +523,7 @@ private static void initVersion(StringBuffer buffer) {
 	    return;
     }
 	String line;
+	String patch_line = null;
 	JDT_CORE_HEAD = true;
 	try {
 		while ((line = buildnotesReader.readLine()) != null) {
@@ -538,12 +543,9 @@ private static void initVersion(StringBuffer buffer) {
 			} else if (line.startsWith("<h2>What's new")) {
 				line = buildnotesReader.readLine();
 				if (line.startsWith("Patch")) {
+					patch_line = line;
 					StringTokenizer tokenizer = new StringTokenizer(line);
 					tokenizer.nextToken(); // 'Patch'
-					String version = tokenizer.nextToken();
-					if (version.length() == 3 && version.charAt(0) == 'v') {
-						PATCH_VERSION = version;
-					}
 					while (tokenizer.hasMoreTokens()) {
 						PATCH_BUG = tokenizer.nextToken();
 					}
@@ -568,10 +570,9 @@ private static void initVersion(StringBuffer buffer) {
 	// Log version info
 	buffer.append("Version   : ");
 	if (PATCH_BUG != null) {
-		buffer.append(PATCH_BUG);
-		buffer.append(' ');
-		buffer.append(PATCH_VERSION);
-		buffer.append(" applied on ");
+		buffer.append('\'');
+		buffer.append(patch_line);
+		buffer.append("' applied on ");
 	}
 	if (JDT_CORE_HEAD) {
 		buffer.append("HEAD on top of ");
@@ -583,22 +584,37 @@ private static void initVersion(StringBuffer buffer) {
 /*
  * Constructor used to clean the output directory.
  */
+public FormatterMassiveRegressionTests() {
+	super("testDeleteOutputDir");
+	this.canCompare = false;
+	this.file = null;
+	this.inputFiles = null;
+	this.testIndex = -1;
+	this.path = new Path(OUTPUT_DIR.getPath());
+}
+
+/*
+ * Constructor used to dump references in the output directory.
+ */
 public FormatterMassiveRegressionTests(File[] files) {
-	super(files == null ? "testDeleteOutputDir" : "testMakeReferences");
+	super("testMakeReferences");
+	assertNotNull("This test needs some files to proceed!", files);
 	this.canCompare = false;
 	this.file = null;
 	this.inputFiles = files;
+	this.testIndex = -1;
 	this.path = new Path(OUTPUT_DIR.getPath());
 }
 
 /*
  * Contructor used to compare outputs.
  */
-public FormatterMassiveRegressionTests(File file, boolean compare) {
+public FormatterMassiveRegressionTests(File file, int index, boolean compare) {
 	super("testCompare");
 	this.canCompare = compare;
 	this.file = file;
 	this.inputFiles = null;
+	this.testIndex = index;
 	this.path = new Path(file.getPath().substring(INPUT_DIR.getPath().length()+1));
 }
 
@@ -607,6 +623,13 @@ public FormatterMassiveRegressionTests(File file, boolean compare) {
  */
 public String getName() {
 	StringBuffer name = new StringBuffer(super.getName());
+	if (this.testIndex >= 0) {
+		int n = this.testIndex == 0 ? 0 : (int) (Math.log(this.testIndex)/Math.log(10));
+		for (int i=n; i<MAX_DIGITS-1; i++) {
+			name.append('0');
+		}
+		name.append(this.testIndex);
+	}
 	name.append(" - ");
 	name.append(this.path);
 	return name.toString();
@@ -658,7 +681,10 @@ public void setUpSuite() throws Exception {
  * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#tearDown()
  */
 public void tearDown() throws Exception {
-	// skip standard model tear down
+	// verify whether the max failures has been reached or not
+	if (ASSERT_EQUALS_STRINGS && FAILURES != null) {
+		ASSERT_EQUALS_STRINGS = FAILURES[COMPARISON_FAILURE].size() < MAX_FAILURES;
+	}
 }
 
 /* (non-Javadoc)
