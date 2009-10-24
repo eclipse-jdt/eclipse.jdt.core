@@ -901,4 +901,42 @@ public void testBug290905f() throws JavaModelException {
 	);
 }
 
+/**
+ * @bug 293240:  [formatter] 'insert_space_before_opening_brace_in_array_initializer' preference may be reset in certain circumstances
+ * @test Verify that a realigned annotation keep the 'insert_space_before_opening_brace_in_array_initializer'
+ * 		preference initial value.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=293240"
+ */
+public void testBug293240() throws JavaModelException {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source = 
+		"public class Test {\n" + 
+		"  public static <A, B> Function<A, B> forMap(\n" + 
+		"      Map<? super A, ? extends B> map, @Nullable final B defaultValue) {\n" + 
+		"    if (defaultValue == null) {\n" + 
+		"      return forMap(map);\n" + 
+		"    }\n" + 
+		"    return new ForMapWithDefault<A, B>(map, defaultValue);\n" + 
+		"  }\n" + 
+		"  public Object[] bar() {\n" + 
+		"	  return new Object[] { null };\n" + 
+		"  }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"    public static <A, B> Function<A, B> forMap(Map<? super A, ? extends B> map,\n" + 
+		"            @Nullable final B defaultValue) {\n" + 
+		"        if (defaultValue == null) {\n" + 
+		"            return forMap(map);\n" + 
+		"        }\n" + 
+		"        return new ForMapWithDefault<A, B>(map, defaultValue);\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    public Object[] bar() {\n" + 
+		"        return new Object[] { null };\n" + 
+		"    }\n" + 
+		"}\n"
+	);
+}
+
 }
