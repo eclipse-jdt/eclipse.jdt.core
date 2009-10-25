@@ -27,6 +27,30 @@ public FormatterBugsTests(String name) {
 	super(name);
 }
 
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#setUp()
+ */
+private void setUpBracesPreferences(String braces) {
+	if (braces != null) {
+	 	assertTrue("Invalid value for braces preferences: "+braces, 
+			braces.equals(DefaultCodeFormatterConstants.END_OF_LINE) ||
+	 		braces.equals(DefaultCodeFormatterConstants.NEXT_LINE) ||
+	 		braces.equals(DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP) ||
+	 		braces.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED));
+		this.formatterPrefs.brace_position_for_annotation_type_declaration = braces;
+		this.formatterPrefs.brace_position_for_anonymous_type_declaration = braces;
+		this.formatterPrefs.brace_position_for_array_initializer = braces;
+		this.formatterPrefs.brace_position_for_block = braces;
+		this.formatterPrefs.brace_position_for_block_in_case = braces;
+		this.formatterPrefs.brace_position_for_constructor_declaration = braces;
+		this.formatterPrefs.brace_position_for_enum_constant = braces;
+		this.formatterPrefs.brace_position_for_enum_declaration = braces;
+		this.formatterPrefs.brace_position_for_method_declaration = braces;
+		this.formatterPrefs.brace_position_for_switch = braces;
+		this.formatterPrefs.brace_position_for_type_declaration = braces;
+	}
+}
+
 /**
  * Create project and set the jar placeholder.
  */
@@ -58,8 +82,8 @@ public void testBug198074() throws JavaModelException {
 		"\n" + 
 		"	void foo() {\n" + 
 		"		String x = \"select x \"\n" + 
-		"					+ \"from y \"\n" + 
-		"					+ \"where z=a\";\n" + 
+		"				+ \"from y \"\n" + 
+		"				+ \"where z=a\";\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -81,8 +105,8 @@ public void testBug198074b() throws JavaModelException {
 		"\n" + 
 		"    void foo() {\n" + 
 		"        String x = \"select x \"\n" + 
-		"                 + \"from y \"\n" + 
-		"                 + \"where z=a\";\n" + 
+		"                + \"from y \"\n" + 
+		"                + \"where z=a\";\n" + 
 		"    }\n" + 
 		"}\n"
 	);
@@ -110,7 +134,7 @@ public void testBug198074_c1() throws JavaModelException {
 		"			// we need x\n" + 
 		"			// we need a select\n" + 
 		"			return \"select x \"\n" + 
-		"			+ \"from X\";\n" + 
+		"					+ \"from X\";\n" + 
 		"		}\n" + 
 		"		return null;\n" + 
 		"	}\n" + 
@@ -140,7 +164,7 @@ public void testBug198074_c1b() throws JavaModelException {
 		"            // we need x\n" + 
 		"            // we need a select\n" + 
 		"            return \"select x \"\n" + 
-		"                 + \"from X\";\n" + 
+		"                    + \"from X\";\n" + 
 		"        }\n" + 
 		"        return null;\n" + 
 		"    }\n" + 
@@ -168,11 +192,11 @@ public void testBug198074_c3() throws JavaModelException {
 		"\n" + 
 		"	public String toString() {\n" + 
 		"		return \"YAD01: \"\n" + 
-		"		+ \" nommbr=\'\" + getName() + \"\'\"\n" + 
-		"		+ \" nomgrp=\'\" + getService().getArgtbl() + \"\'\"\n" + 
-		"		+ \" typmbr=\'\" + getMemberType().getArgument() + \"\'\"\n" + 
-		"		+ \" srcpat=\'\" + getPhysicalPath() + \"\'\"\n" + 
-		"		+ \" nommdl=\'\" + getModel() + \"\'\";\n" + 
+		"				+ \" nommbr=\'\" + getName() + \"\'\"\n" + 
+		"				+ \" nomgrp=\'\" + getService().getArgtbl() + \"\'\"\n" + 
+		"				+ \" typmbr=\'\" + getMemberType().getArgument() + \"\'\"\n" + 
+		"				+ \" srcpat=\'\" + getPhysicalPath() + \"\'\"\n" + 
+		"				+ \" nommdl=\'\" + getModel() + \"\'\";\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -185,11 +209,11 @@ public void testBug198074_c3b() throws JavaModelException {
 		"\n" + 
 		"public String toString() {\n" + 
 		"        return \"YAD01: \"\n" + 
-		"             + \" nommbr=\'\"+getName()+\"\'\"\n" + 
-		"             + \" nomgrp=\'\"+getService().getArgtbl()+\"\'\"\n" + 
-		"             + \" typmbr=\'\"+getMemberType().getArgument()+\"\'\"\n" + 
-		"             + \" srcpat=\'\"+getPhysicalPath()+\"\'\"\n" + 
-		"             + \" nommdl=\'\"+getModel()+\"\'\"\n" + 
+		"                + \" nommbr=\'\"+getName()+\"\'\"\n" + 
+		"                + \" nomgrp=\'\"+getService().getArgtbl()+\"\'\"\n" + 
+		"                + \" typmbr=\'\"+getMemberType().getArgument()+\"\'\"\n" + 
+		"                + \" srcpat=\'\"+getPhysicalPath()+\"\'\"\n" + 
+		"                + \" nommdl=\'\"+getModel()+\"\'\"\n" + 
 		"        ;\n" + 
 		"}\n" + 
 		"}\n";
@@ -198,11 +222,11 @@ public void testBug198074_c3b() throws JavaModelException {
 		"\n" + 
 		"    public String toString() {\n" + 
 		"        return \"YAD01: \"\n" + 
-		"             + \" nommbr=\'\" + getName() + \"\'\"\n" + 
-		"             + \" nomgrp=\'\" + getService().getArgtbl() + \"\'\"\n" + 
-		"             + \" typmbr=\'\" + getMemberType().getArgument() + \"\'\"\n" + 
-		"             + \" srcpat=\'\" + getPhysicalPath() + \"\'\"\n" + 
-		"             + \" nommdl=\'\" + getModel() + \"\'\";\n" + 
+		"                + \" nommbr=\'\" + getName() + \"\'\"\n" + 
+		"                + \" nomgrp=\'\" + getService().getArgtbl() + \"\'\"\n" + 
+		"                + \" typmbr=\'\" + getMemberType().getArgument() + \"\'\"\n" + 
+		"                + \" srcpat=\'\" + getPhysicalPath() + \"\'\"\n" + 
+		"                + \" nommdl=\'\" + getModel() + \"\'\";\n" + 
 		"    }\n" + 
 		"}\n"
 	);
@@ -247,10 +271,10 @@ public void testBug198074_dup201022() throws JavaModelException {
 		"\n" + 
 		"	void foo() {\n" + 
 		"		String sQuery =\n" + 
-		"			\"select * \" +\n" + 
-		"			\"from person p, address a \" +\n" + 
-		"			\"where p.person_id = a.person_id \" +\n" + 
-		"			\"and p.person_id = ?\";\n" + 
+		"				\"select * \" +\n" + 
+		"						\"from person p, address a \" +\n" + 
+		"						\"where p.person_id = a.person_id \" +\n" + 
+		"						\"and p.person_id = ?\";\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -276,8 +300,8 @@ public void testBug198074_dup213700() throws JavaModelException {
 		"	void foo() {\n" + 
 		"		int a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0, i = 0;\n" + 
 		"		if ((a == b && b == c) &&\n" + 
-		"			(d == e) &&\n" + 
-		"			(f == g && h == i)) {\n" + 
+		"				(d == e) &&\n" + 
+		"				(f == g && h == i)) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -514,25 +538,445 @@ public void testBug286601b() throws JavaModelException {
 public void testBug286601c() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	this.formatterPrefs.brace_position_for_anonymous_type_declaration= DefaultCodeFormatterConstants.NEXT_LINE;
-	String source = 
-		"public class Test\n" + 
+	String source =
+		"public class Test\n" +
+		"{\n" +
+		"    public void aMethod()\n" +
+		"    {\n" +
+		"        Object anObject = new Object()\n" +
+		"        {\n" +
+		"            boolean aVariable;\n" +
+		"            void foo()\n" +
+		"            {\n" +
+		"            }\n" +
+		"        };\n" +
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"	public void aMethod() {\n" +
+		"		Object anObject = new Object()\n" +
+		"		{\n" +
+		"			boolean aVariable;\n" +
+		"\n" +
+		"			void foo()\n" +
+		"			{\n" +
+		"			}\n" + 
+		"		};\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286601d() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.brace_position_for_anonymous_type_declaration= DefaultCodeFormatterConstants.NEXT_LINE;
+	String source =
+		"public class Test\n" +
+		"{\n" +
+		"    public void aMethod()\n" +
+		"    {\n" +
+		"        Object anObject = new Object() /* comment */\n" +
+		"        {\n" +
+		"            boolean aVariable;\n" +
+		"            void foo() /* comment */ \n" +
+		"            {\n" +
+		"            }\n" +
+		"        };\n" +
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"	public void aMethod() {\n" +
+		"		Object anObject = new Object() /* comment */\n" +
+		"		{\n" +
+		"			boolean aVariable;\n" +
+		"\n" +
+		"			void foo() /* comment */\n" +
+		"			{\n" +
+		"			}\n" +
+		"		};\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286601e() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"public class Test\n" +
 		"{\n" + 
-		"    public void aMethod()\n" + 
-		"    {\n" + 
-		"        Object anObject = new Object()\n" + 
-		"        {\n" + 
-		"            boolean aVariable;\n" + 
-		"        };\n" + 
+		"    public void build(String href) {\n" + 
+		"        // set the href on the related topic\n" + 
+		"        if (href == null)\n" + 
+		"            setHref(\"\"); //$NON-NLS-1$\n" + 
+		"        else {\n" + 
+		"            if (!href.equals(\"\") // no empty link //$NON-NLS-1$\n" + 
+		"                    && !href.startsWith(\"/\") // no help url //$NON-NLS-1$\n" + 
+		"                    && href.indexOf(\':\') == -1) // no other protocols\n" + 
+		"            {\n" + 
+		"                setHref(\"/test/\" + href); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"            }\n" + 
+		"        }\n" + 
 		"    }\n" + 
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" + 
-		"	public void aMethod() {\n" + 
-		"		Object anObject = new Object()\n" + 
+		"public class Test\n" + 
+		"{\n" + 
+		"	public void build(String href)\n" + 
+		"	{\n" + 
+		"		// set the href on the related topic\n" + 
+		"		if (href == null)\n" + 
+		"			setHref(\"\"); //$NON-NLS-1$\n" + 
+		"		else\n" + 
 		"		{\n" + 
-		"			boolean aVariable;\n" + 
+		"			if (!href.equals(\"\") // no empty link //$NON-NLS-1$\n" + 
+		"					&& !href.startsWith(\"/\") // no help url //$NON-NLS-1$\n" + 
+		"					&& href.indexOf(\':\') == -1) // no other protocols\n" + 
+		"			{\n" + 
+		"				setHref(\"/test/\" + href); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug286601f() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"public class Test\n" +
+		"{\n" + 
+		"    \n" + 
+		"    private AntModel getAntModel(final File buildFile) {\n" + 
+		"        AntModel model= new AntModel(XMLCore.getDefault(), doc, null, new LocationProvider(null) {\n" + 
+		"            /* (non-Javadoc)\n" + 
+		"             * @see org.eclipse.ant.internal.ui.editor.outline.ILocationProvider#getLocation()\n" + 
+		"             */\n" + 
+		"            public IPath getLocation() {\n" + 
+		"                return new Path(buildFile.getAbsolutePath());\n" + 
+		"            }\n" + 
+		"        });\n" + 
+		"        model.reconcile(null);\n" + 
+		"        return model;\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test\n" + 
+		"{\n" + 
+		"\n" + 
+		"	private AntModel getAntModel(final File buildFile)\n" + 
+		"	{\n" + 
+		"		AntModel model = new AntModel(XMLCore.getDefault(), doc, null,\n" + 
+		"				new LocationProvider(null)\n" + 
+		"				{\n" + 
+		"					/*\n" + 
+		"					 * (non-Javadoc)\n" + 
+		"					 * \n" + 
+		"					 * @see\n" + 
+		"					 * org.eclipse.ant.internal.ui.editor.outline.ILocationProvider\n" + 
+		"					 * #getLocation()\n" + 
+		"					 */\n" + 
+		"					public IPath getLocation()\n" + 
+		"					{\n" + 
+		"						return new Path(buildFile.getAbsolutePath());\n" + 
+		"					}\n" + 
+		"				});\n" + 
+		"		model.reconcile(null);\n" + 
+		"		return model;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug286601g() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package massive;\n" + 
+		"\n" + 
+		"public class X05b\n" + 
+		"{\n" + 
+		"\n" + 
+		"    public void foo() throws NullPointerException {\n" + 
+		"\n" + 
+		"        Object body = new Object() {\n" + 
+		"            public void run(StringBuffer monitor) throws IllegalArgumentException {\n" + 
+		"                IResourceVisitor visitor = new IResourceVisitor() {\n" + 
+		"                    public boolean visit(String resource) throws IllegalArgumentException {\n" + 
+		"                        return true;\n" + 
+		"                    }\n" + 
+		"                };\n" + 
+		"            }\n" + 
+		"        };\n" + 
+		"    }\n" + 
+		"\n" + 
+		"}\n" + 
+		"interface IResourceVisitor {\n" + 
+		"}\n";
+	formatSource(source,
+		"package massive;\n" + 
+		"\n" + 
+		"public class X05b {\n" + 
+		"\n" + 
+		"	public void foo() throws NullPointerException {\n" + 
+		"\n" + 
+		"		Object body = new Object() {\n" + 
+		"			public void run(StringBuffer monitor)\n" + 
+		"					throws IllegalArgumentException {\n" + 
+		"				IResourceVisitor visitor = new IResourceVisitor() {\n" + 
+		"					public boolean visit(String resource)\n" + 
+		"							throws IllegalArgumentException {\n" + 
+		"						return true;\n" + 
+		"					}\n" + 
+		"				};\n" + 
+		"			}\n" + 
 		"		};\n" + 
 		"	}\n" + 
+		"\n" + 
+		"}\n" + 
+		"\n" + 
+		"interface IResourceVisitor {\n" + 
+		"}\n"
+	);
+}
+public void testBug286601h() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" + 
+		"\n" + 
+		"public class X05b\n" + 
+		"{\n" + 
+		"\n" + 
+		"    public void foo() throws NullPointerException {\n" + 
+		"\n" + 
+		"        Object body = new Object() {\n" + 
+		"            public void run(StringBuffer monitor) throws IllegalArgumentException {\n" + 
+		"                IResourceVisitor visitor = new IResourceVisitor() {\n" + 
+		"                    public boolean visit(String resource) throws IllegalArgumentException {\n" + 
+		"                        return true;\n" + 
+		"                    }\n" + 
+		"                };\n" + 
+		"            }\n" + 
+		"        };\n" + 
+		"    }\n" + 
+		"\n" + 
+		"}\n" + 
+		"interface IResourceVisitor {\n" + 
+		"}\n";
+	formatSource(source,
+		"package massive;\n" + 
+		"\n" + 
+		"public class X05b\n" + 
+		"{\n" + 
+		"\n" + 
+		"	public void foo() throws NullPointerException\n" + 
+		"	{\n" + 
+		"\n" + 
+		"		Object body = new Object()\n" + 
+		"		{\n" + 
+		"			public void run(StringBuffer monitor)\n" + 
+		"					throws IllegalArgumentException\n" + 
+		"			{\n" + 
+		"				IResourceVisitor visitor = new IResourceVisitor()\n" + 
+		"				{\n" + 
+		"					public boolean visit(String resource)\n" + 
+		"							throws IllegalArgumentException\n" + 
+		"					{\n" + 
+		"						return true;\n" + 
+		"					}\n" + 
+		"				};\n" + 
+		"			}\n" + 
+		"		};\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n" + 
+		"\n" + 
+		"interface IResourceVisitor\n" + 
+		"{\n" + 
+		"}\n"
+	);
+}
+public void testBug286601i1() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" + 
+		"\n" + 
+		"public class X06a {\n" + 
+		"\n" + 
+		"    \n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" + 
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" + 
+		"    /* Comment 1 */\n" + 
+		"    /* Comment 2 */ { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" + 
+		"    /* Comment 3 */ { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package massive;\n" + 
+		"\n" + 
+		"public class X06a\n" + 
+		"{\n" + 
+		"\n" + 
+		"	// Table to merge access modes for condition statements (e.g branch[x] ||\n" + 
+		"	// branch[y]).\n" + 
+		"	private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
+		"	{\n" + 
+		"		/* Comment 1 */\n" + 
+		"		/* Comment 2 */{ \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" + 
+		"		/* Comment 3 */{ \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"	};\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug286601i2() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" + 
+		"\n" + 
+		"public class X06a {\n" + 
+		"\n" + 
+		"    \n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" + 
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" + 
+		"    /* Comment 1 */\n" + 
+		"    /* Comment 2 */ { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" + 
+		"    /* Comment 3 */ { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package massive;\n" + 
+		"\n" + 
+		"public class X06a\n" + 
+		"{\n" + 
+		"\n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] ||\n" + 
+		"    // branch[y]).\n" + 
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
+		"    {\n" + 
+		"     /* Comment 1 */\n" + 
+		"     /* Comment 2 */{ \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" + 
+		"     /* Comment 3 */{ \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug286601j1() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" + 
+		"\n" + 
+		"public class X06b {\n" + 
+		"\n" + 
+		"    \n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" + 
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" + 
+		"    { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" + 
+		"    { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package massive;\n" + 
+		"\n" + 
+		"public class X06b\n" + 
+		"{\n" + 
+		"\n" + 
+		"	// Table to merge access modes for condition statements (e.g branch[x] ||\n" + 
+		"	// branch[y]).\n" + 
+		"	private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
+		"	{\n" + 
+		"		{ \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" + 
+		"		{ \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"	};\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug286601j2() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" + 
+		"\n" + 
+		"public class X06b {\n" + 
+		"\n" + 
+		"    \n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" + 
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" + 
+		"    { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" + 
+		"    { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package massive;\n" + 
+		"\n" + 
+		"public class X06b\n" + 
+		"{\n" + 
+		"\n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] ||\n" + 
+		"    // branch[y]).\n" + 
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
+		"    {\n" + 
+		"     { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" + 
+		"     { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug286601k() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" + 
+		"\n" + 
+		"public class X07 {\n" + 
+		"    private MinimizedFileSystemElement selectFiles(final Object rootFileSystemObject, final IImportStructureProvider structureProvider) {\n" + 
+		"\n" + 
+		"        BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {\n" + 
+		"            public void run() {\n" + 
+		"                //Create the root element from the supplied file system object\n" + 
+		"            }\n" + 
+		"        });\n" + 
+		"\n" + 
+		"        return null;\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"package massive;\n" + 
+		"\n" + 
+		"public class X07\n" + 
+		"{\n" + 
+		"    private MinimizedFileSystemElement selectFiles(\n" + 
+		"            final Object rootFileSystemObject,\n" + 
+		"            final IImportStructureProvider structureProvider)\n" + 
+		"    {\n" + 
+		"\n" + 
+		"        BusyIndicator.showWhile(getShell().getDisplay(), new Runnable()\n" + 
+		"        {\n" + 
+		"            public void run()\n" + 
+		"            {\n" + 
+		"                // Create the root element from the supplied file system object\n" + 
+		"            }\n" + 
+		"        });\n" + 
+		"\n" + 
+		"        return null;\n" + 
+		"    }\n" + 
 		"}\n"
 	);
 }
@@ -560,7 +1004,7 @@ public void testBug286668() throws JavaModelException {
 		"		StringBuilder builder = new StringBuilder();\n" + 
 		"		builder.append(\"abc\").append(\"def\").append(\"ghi\").append(\"jkl\").append(\n" + 
 		"				\"mno\")\n" + 
-		"		.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" + 
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -577,7 +1021,17 @@ public void testBug286668b() throws JavaModelException {
 		"		.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" + 
 		"	}\n" + 
 		"}\n";
-	formatSource(source);
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		StringBuilder builder = new StringBuilder();\n" + 
+		"		builder.append(\"abc\").append(\"def\")\n" + 
+		"				.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" + 
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" + 
+		"	}\n" + 
+		"}\n"
+	);
 }
 public void testBug286668c() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
@@ -592,7 +1046,18 @@ public void testBug286668c() throws JavaModelException {
 		"		.append(\"yz\");\n" + 
 		"	}\n" + 
 		"}\n";
-	formatSource(source);
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		StringBuilder builder = new StringBuilder();\n" + 
+		"		builder.append(\"abc\").append(\"def\")\n" + 
+		"				.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" + 
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" + 
+		"				.append(\"yz\");\n" + 
+		"	}\n" + 
+		"}\n"
+	);
 }
 public void testBug286668_40w() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
@@ -615,8 +1080,9 @@ public void testBug286668_40w() throws JavaModelException {
 		"				\"def\").append(\"ghi\")\n" + 
 		"				.append(\"jkl\").append(\n" + 
 		"						\"mno\")\n" + 
-		"		.append(\"pqr\").append(\"stu\")\n" + 
-		"				.append(\"vwx\").append(\n" + 
+		"				.append(\"pqr\").append(\n" + 
+		"						\"stu\").append(\n" + 
+		"						\"vwx\").append(\n" + 
 		"						\"yz\");\n" + 
 		"	}\n" + 
 		"}\n"
@@ -642,10 +1108,12 @@ public void testBug286668b_40w() throws JavaModelException {
 		"		StringBuilder builder = new StringBuilder();\n" + 
 		"		builder.append(\"abc\").append(\n" + 
 		"				\"def\")\n" + 
-		"		.append(\"ghi\").append(\"jkl\")\n" + 
-		"				.append(\"mno\")\n" + 
-		"		.append(\"pqr\").append(\"stu\")\n" + 
-		"				.append(\"vwx\").append(\n" + 
+		"				.append(\"ghi\").append(\n" + 
+		"						\"jkl\").append(\n" + 
+		"						\"mno\")\n" + 
+		"				.append(\"pqr\").append(\n" + 
+		"						\"stu\").append(\n" + 
+		"						\"vwx\").append(\n" + 
 		"						\"yz\");\n" + 
 		"	}\n" + 
 		"}\n"
@@ -672,11 +1140,13 @@ public void testBug286668c_40w() throws JavaModelException {
 		"		StringBuilder builder = new StringBuilder();\n" + 
 		"		builder.append(\"abc\").append(\n" + 
 		"				\"def\")\n" + 
-		"		.append(\"ghi\").append(\"jkl\")\n" + 
-		"				.append(\"mno\")\n" + 
-		"		.append(\"pqr\").append(\"stu\")\n" + 
-		"				.append(\"vwx\")\n" + 
-		"		.append(\"yz\");\n" + 
+		"				.append(\"ghi\").append(\n" + 
+		"						\"jkl\").append(\n" + 
+		"						\"mno\")\n" + 
+		"				.append(\"pqr\").append(\n" + 
+		"						\"stu\").append(\n" + 
+		"						\"vwx\")\n" + 
+		"				.append(\"yz\");\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -700,8 +1170,8 @@ public void testBug286668_60w() throws JavaModelException {
 		"		StringBuilder builder = new StringBuilder();\n" + 
 		"		builder.append(\"abc\").append(\"def\").append(\"ghi\")\n" + 
 		"				.append(\"jkl\").append(\"mno\")\n" + 
-		"		.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\n" + 
-		"				\"yz\");\n" + 
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" + 
+		"				.append(\"yz\");\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -725,9 +1195,9 @@ public void testBug286668b_60w() throws JavaModelException {
 		"	void foo() {\n" + 
 		"		StringBuilder builder = new StringBuilder();\n" + 
 		"		builder.append(\"abc\").append(\"def\")\n" + 
-		"		.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" + 
-		"		.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\n" + 
-		"				\"yz\");\n" + 
+		"				.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" + 
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" + 
+		"				.append(\"yz\");\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -741,9 +1211,9 @@ public void testBug286668c_60w() throws JavaModelException {
 		"	void foo() {\n" + 
 		"		StringBuilder builder = new StringBuilder();\n" + 
 		"		builder.append(\"abc\").append(\"def\")\n" + 
-		"		.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" + 
-		"		.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" + 
-		"		.append(\"yz\");\n" + 
+		"				.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" + 
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" + 
+		"				.append(\"yz\");\n" + 
 		"	}\n" + 
 		"}\n";
 	formatSource(source);

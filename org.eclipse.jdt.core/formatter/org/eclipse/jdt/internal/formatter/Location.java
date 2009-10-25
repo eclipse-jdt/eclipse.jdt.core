@@ -53,4 +53,15 @@ public class Location {
 		this.numberOfIndentations = scribe.numberOfIndentations;
 		this.textEdit = scribe.getLastEdit();
 	}
+
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("output (column="+this.outputColumn); //$NON-NLS-1$
+		buffer.append(", line="+this.outputLine); //$NON-NLS-1$
+		buffer.append(", indentation level="+this.outputIndentationLevel); //$NON-NLS-1$
+		buffer.append(") input (offset="+this.inputOffset); //$NON-NLS-1$
+		buffer.append(", column="+this.inputColumn); //$NON-NLS-1$
+		buffer.append(')');
+		return buffer.toString();
+	}
 }

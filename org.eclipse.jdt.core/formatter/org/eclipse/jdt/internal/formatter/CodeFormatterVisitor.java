@@ -597,7 +597,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (this.preferences.insert_space_after_assignment_operator) {
 				this.scribe.space();
 			}
-			Alignment assignmentAlignment = this.scribe.createAlignment("fieldDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, Alignment.R_OUTERMOST, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+			Alignment assignmentAlignment = this.scribe.createAlignment("fieldDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, Alignment.R_INNERMOST, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 			this.scribe.enterAlignment(assignmentAlignment);
 			boolean ok = false;
 			do {
@@ -1088,7 +1088,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				space_before_opening_brace = this.preferences.insert_space_before_opening_brace_in_type_declaration;
 				break;
 		}
-		formatLeftCurlyBrace(line, class_declaration_brace, true /* print comment */);
+		formatLeftCurlyBrace(line, class_declaration_brace);
 		formatTypeOpeningBrace(class_declaration_brace, space_before_opening_brace, typeDeclaration);
 
 		boolean indent_body_declarations_compare_to_header;
@@ -1574,19 +1574,21 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printTrailingComment();
 	}
 
-	private void formatLeftCurlyBrace(final int line, final String bracePosition, boolean printComment) {
-		
-		if (printComment) {
-	        this.scribe.printComment();
-		}
-
+	private void formatLeftCurlyBrace(final int line, final String bracePosition) {
+		this.scribe.formatBrace = true;
 		/*
 		 * deal with (quite unexpected) comments right before lcurly
 		 */
-		if (DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP.equals(bracePosition)
-				&& (this.scribe.line > line || this.scribe.column >= this.preferences.page_width))
-		{
-			this.scribe.printNewLine();
+		try {
+			this.scribe.printComment();
+			if (DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP.equals(bracePosition)
+					&& (this.scribe.line > line || this.scribe.column >= this.preferences.page_width))
+			{
+				this.scribe.printNewLine();
+			}
+		}
+		finally {
+			this.scribe.formatBrace = false;
 		}
 	}
 
@@ -1864,15 +1866,14 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 	private void formatOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace) {
 
-		if (DefaultCodeFormatterConstants.NEXT_LINE.equals(bracePosition)) {
-			this.scribe.printNewLine();
-		} else if (DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED.equals(bracePosition)) {
-			this.scribe.printNewLine();
-			this.scribe.indent();
-		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameLBRACE, insertSpaceBeforeBrace);
-
-		this.scribe.printTrailingComment();
+			if (DefaultCodeFormatterConstants.NEXT_LINE.equals(bracePosition)) {
+				this.scribe.printNewLine();
+			} else if (DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED.equals(bracePosition)) {
+				this.scribe.printNewLine();
+				this.scribe.indent();
+			}
+			this.scribe.printNextToken(TerminalTokens.TokenNameLBRACE, insertSpaceBeforeBrace);
+			this.scribe.printTrailingComment();
 	}
 	private void formatStatements(BlockScope scope, final Statement[] statements, boolean insertNewLineAfterLastStatement) {
 		int statementsLength = statements.length;
@@ -3317,7 +3318,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			 * Method body
 			 */
 			String constructor_declaration_brace = this.preferences.brace_position_for_constructor_declaration;
-			formatLeftCurlyBrace(line, constructor_declaration_brace, false /* do not print comment yet, it will be done on formatOpeningBrace */);
+			formatLeftCurlyBrace(line, constructor_declaration_brace);
 			formatOpeningBrace(constructor_declaration_brace, this.preferences.insert_space_before_opening_brace_in_constructor_declaration);
 			final int numberOfBlankLinesAtBeginningOfMethodBody = this.preferences.blank_lines_at_beginning_of_method_body;
 			if (numberOfBlankLinesAtBeginningOfMethodBody > 0) {
@@ -3393,7 +3394,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final Statement action = doStatement.action;
 		if (action != null) {
 			if (action instanceof Block) {
-				formatLeftCurlyBrace(line, this.preferences.brace_position_for_block, true /* print comment */);
+				formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
 				action.traverse(this, scope);
 			} else if (action instanceof EmptyStatement) {
 				/*
@@ -3499,7 +3500,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			 */
 			String enum_constant_brace = this.preferences.brace_position_for_enum_constant;
 
-	        formatLeftCurlyBrace(line, enum_constant_brace, false /* do not print comment yet, it will be done on formatTypeOpeningBraceForEnumConstant */);
+			formatLeftCurlyBrace(line, enum_constant_brace);
 			formatTypeOpeningBraceForEnumConstant(enum_constant_brace, this.preferences.insert_space_before_opening_brace_in_enum_constant, typeDeclaration);
 
 			if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
@@ -3702,7 +3703,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final Statement action = forStatement.action;
 		if (action != null) {
 			if (action instanceof Block) {
-	            formatLeftCurlyBrace(line, this.preferences.brace_position_for_block, true /* print comment */);
+				formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
 				action.traverse(this, scope);
 			} else if (action instanceof EmptyStatement) {
 				/*
@@ -3788,7 +3789,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final Statement action = forStatement.action;
 		if (action != null) {
 			if (action instanceof Block) {
-	            formatLeftCurlyBrace(line, this.preferences.brace_position_for_block, true /* print comment */);
+				formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
 				action.traverse(this, scope);
 			} else if (action instanceof EmptyStatement) {
 				/*
@@ -3844,7 +3845,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					 */
 					 formatGuardClauseBlock((Block) thenStatement, scope);
 				} else {
-					formatLeftCurlyBrace(line, this.preferences.brace_position_for_block, true /* print comment */);
+					formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
 					thenStatement.traverse(this, scope);
 					if (elseStatement != null && (this.preferences.insert_new_line_before_else_in_if_statement)) {
 						this.scribe.printNewLine();
@@ -4226,7 +4227,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			 * Method body
 			 */
 			String method_declaration_brace = this.preferences.brace_position_for_method_declaration;
-            formatLeftCurlyBrace(line, method_declaration_brace, false /* do not print comment yet, it will be done on formatOpeningBrace */);
+			formatLeftCurlyBrace(line, method_declaration_brace);
 			formatOpeningBrace(method_declaration_brace, this.preferences.insert_space_before_opening_brace_in_method_declaration);
 			final int numberOfBlankLinesAtBeginningOfMethodBody = this.preferences.blank_lines_at_beginning_of_method_body;
 			if (numberOfBlankLinesAtBeginningOfMethodBody > 0) {
@@ -4640,7 +4641,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		final TypeDeclaration anonymousType = qualifiedAllocationExpression.anonymousType;
 		if (anonymousType != null) {
-			formatLeftCurlyBrace(line, this.preferences.brace_position_for_anonymous_type_declaration, false /* do not print comment yet, it will be done on formatAnonymousTypeDeclaration */);
+			formatLeftCurlyBrace(line, this.preferences.brace_position_for_anonymous_type_declaration);
 			formatAnonymousTypeDeclaration(anonymousType);
 		}
 		if (numberOfParens > 0) {
@@ -5092,7 +5093,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_synchronized);
 
-		formatLeftCurlyBrace(line, this.preferences.brace_position_for_block, true /* print comment */);
+		formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
 		synchronizedStatement.block.traverse(this, scope);
 		return false;
 	}
@@ -5177,7 +5178,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_catch);
 
-				formatLeftCurlyBrace(line, this.preferences.brace_position_for_block, true /* print comment */);
+				formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
 				tryStatement.catchBlocks[i].traverse(this, scope);
 			}
 		}
@@ -5371,7 +5372,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final Statement action = whileStatement.action;
 		if (action != null) {
 			if (action instanceof Block) {
-                formatLeftCurlyBrace(line, this.preferences.brace_position_for_block, true /* print comment */);
+				formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
 				action.traverse(this, scope);
 			} else if (action instanceof EmptyStatement) {
 				/*
