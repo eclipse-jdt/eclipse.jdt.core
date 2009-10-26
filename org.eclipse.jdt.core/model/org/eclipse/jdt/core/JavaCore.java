@@ -85,7 +85,6 @@
 package org.eclipse.jdt.core;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -2985,33 +2984,8 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @return a table of all known configurable options with their default values
 	 */
-	public static Hashtable getDefaultOptions(){
-		return JavaModelManager.getJavaModelManager().getDefaultOptions();
-	}
-	
-
-	/**
-	 * Returns an immutable map of all known configurable options with their original default values
-	 * as defined by JDT/Core.
-	 * 
-	 * <p>The values of these options might be different from the values returned by {@link #getDefaultOptions()}
-	 * as {@link #getDefaultOptions()} returned the default options defined by an installation/product/configuration
-	 * (i.e. modified by the usage of a plugin_customization.ini file for example).
-	 * </p>
-	 * <p>These options allow to configure the behaviour of the underlying components.</p>
-	 * <p>If the map is being modified, an <tt>UnsupportedOperationException</tt> exception is thrown.</p>
-	 * <p>Helper constants have been defined on JavaCore for each of the option IDs
-	 * (categorized in Code assist option ID, Compiler option ID and Core option ID)
-	 * and some of their acceptable values (categorized in Option value). Some
-	 * options accept open value sets beyond the documented constant values.</p>
-	 * <p>Note: each release may add new options.</p>
-	 *
-	 * @return an immutable map of all known configurable options with their original default values
-	 * as defined by JDT/Core
-	 * @since 3.6
-	 */
-	public static Map getOriginalDefaultOptions(){
-		return Collections.unmodifiableMap(Util.getOriginalDefaultOptions(null));
+ 	public static Hashtable getDefaultOptions(){
+ 		return JavaModelManager.getJavaModelManager().getDefaultOptions();
 	}
 
 	/**
