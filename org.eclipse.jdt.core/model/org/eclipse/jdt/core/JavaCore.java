@@ -2984,8 +2984,8 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @return a table of all known configurable options with their default values
 	 */
- 	public static Hashtable getDefaultOptions(){
- 		return JavaModelManager.getJavaModelManager().getDefaultOptions();
+	public static Hashtable getDefaultOptions(){
+		return JavaModelManager.getJavaModelManager().getDefaultOptions();
 	}
 
 	/**
