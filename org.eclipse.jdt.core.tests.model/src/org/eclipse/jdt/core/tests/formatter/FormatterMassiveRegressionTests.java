@@ -41,7 +41,13 @@ import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.ModelTestsUtil;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
+import org.eclipse.jdt.internal.core.util.SimpleDocument;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.text.edits.TextEdit;
@@ -818,6 +824,7 @@ private String counterToString(int count) {
 	return buffer.toString();
 }
 
+/** @deprecated */
 private Map getDefaultCompilerOptions() {
 	Map optionsMap = new HashMap(30);
 	optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
@@ -877,6 +884,7 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_MaxProblemPerUnit, String.valueOf(100));
 	optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+	optionsMap.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT, NO_COMMENTS ? DefaultCodeFormatterConstants.FALSE : DefaultCodeFormatterConstants.TRUE);
 	return optionsMap;
 }
 
@@ -919,13 +927,19 @@ private boolean runFormatterWithoutComments(CodeFormatter codeFormatter, String 
 */
 
 String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator, boolean repeat) {
+	
+	// First pass of formatting
 	TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);
 	if (edit == null) {
 		this.failureIndex = NO_OUTPUT_FAILURE;
 		throw new AssertionFailedError("Formatted source should not be null!");
 	}
 	String initialResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
+	if (NO_COMMENTS == false) {
+		initialResult = formatComments(codeFormatter, initialResult, false);
+	}
 
+	// Repeat formatting if specified
 	int count = 1;
 	String result = initialResult;
 	String previousResult = result;
@@ -934,7 +948,12 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 		if (edit == null) return null;
 		previousResult = result;
 		result = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
+		if (NO_COMMENTS == false) {
+			result = formatComments(codeFormatter, result, false);
+		}
 	}
+	
+	// Compare results after having repeated
 	if (!previousResult.equals(result)) {
 
 		if (FAILURES != null) {
@@ -985,6 +1004,108 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 	return initialResult;
 }
 
+private String formatComments(CodeFormatter codeFormatter, String formattedSource, boolean reference) {
+	// First format the code
+//	DefaultCodeFormatter codeFormatter = codeFormatter();
+//	String formattedSource = runFormatter(codeFormatter, source, CodeFormatter.K_COMPILATION_UNIT, 0, 0, source.length(), null);
+	
+	// Second format the comments
+	Scanner scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_4/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+	CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
+	char[] formattedArray = formattedSource.toCharArray();
+	CompilationUnitDeclaration compilationUnitDeclaration = codeSnippetParsingUtil.parseCompilationUnit(formattedArray, getDefaultCompilerOptions(), true);
+	final TypeDeclaration[] types = compilationUnitDeclaration.types;
+	int headerEndPosition = types == null ? compilationUnitDeclaration.sourceEnd : types[0].declarationSourceStart;
+	scanner.setSource(formattedArray);
+	scanner.lineEnds = codeSnippetParsingUtil.recordedParsingInformation.lineEnds;
+	int[][] commentsPositions = compilationUnitDeclaration.comments;
+	int length = commentsPositions == null ? 0 : commentsPositions.length;
+	String[] formattedComments = new String[length];
+//	TextEdit[] commentsEdit = new TextEdit[length];
+	for (int i=0; i<length; i++) {
+		int[] positions = commentsPositions[i];
+		int commentKind = CodeFormatter.K_JAVA_DOC;
+		int commentStart = positions [0];
+		int commentEnd = positions [1];
+		if (commentEnd < 0) { // line or block comments have negative end position
+			commentEnd = -commentEnd;
+			if (commentStart > 0) { // block comments have positive start position
+				commentKind = CodeFormatter.K_MULTI_LINE_COMMENT;
+			} else {
+				commentStart = -commentStart;
+				commentKind = CodeFormatter.K_SINGLE_LINE_COMMENT;
+			}
+		}
+		if (commentStart >= headerEndPosition) {
+			int indentationLevel = getIndentationLevel(scanner, commentStart);
+			String comment = formattedSource.substring(commentStart, commentEnd);
+			int commentLength = commentEnd - commentStart;
+			if (reference) {
+				TextEdit edit = codeFormatter.format(commentKind, comment, 0, commentLength, indentationLevel, LINE_SEPARATOR);
+				formattedComments[i] = org.eclipse.jdt.internal.core.util.Util.editedString(comment, edit);
+			} else {
+				formattedComments[i] = runFormatter(codeFormatter, comment, commentKind, indentationLevel, 0, commentLength, LINE_SEPARATOR);
+			}
+		}
+	}
+	
+	// Rebuilt document including changes on comments
+	SimpleDocument document = new SimpleDocument(formattedSource);
+	for (int i=length-1; i>=0; i--) {
+		if (formattedComments[i] != null) {
+			int[] positions = commentsPositions[i];
+			int commentStart = positions [0];
+			int commentEnd = positions [1];
+			if (commentEnd < 0) { // line or block comments have negative end position
+				commentEnd = -commentEnd;
+				if (commentStart < 0) { // line comments have negative start position
+					commentStart = -commentStart;
+				}
+			}
+			document.replace(commentStart, commentEnd - commentStart, formattedComments[i]);
+		}
+	}
+	return document.get();
+}
+
+private int getIndentationLevel(Scanner scanner, int position) {
+	int indentationLevel = 0;
+	int numberOfIndentations = 0;
+	int indentationSize;
+	try {
+		indentationSize = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE);
+	} catch (NumberFormatException nfe) {
+		indentationSize = 4;
+	}
+	int lineNumber = scanner.getLineNumber(position);
+	int lineStart = scanner.getLineStart(lineNumber);
+	scanner.resetTo(lineStart, position-1);
+	while (!scanner.atEnd()) {
+		int ch = scanner.getNextChar();
+		switch (ch) {
+			case '\n':
+				indentationLevel = 0;
+				numberOfIndentations = 0;
+				break;
+			case '\t':
+				numberOfIndentations++;
+				indentationLevel = numberOfIndentations * indentationSize;
+				break;
+			default:
+				indentationLevel++;
+				if ((indentationLevel%indentationSize) == 0) {
+					numberOfIndentations++;
+				}
+				break;
+		}
+	}
+	if ((indentationLevel%indentationSize) != 0) {
+		numberOfIndentations++;
+		indentationLevel = numberOfIndentations * indentationSize;
+	}
+	return numberOfIndentations;
+}
+
 /*
  * Test to delete the output directory.
  */
@@ -1014,6 +1135,9 @@ public void testMakeReferences() throws IOException, Exception {
 			// Write the result
 			if (edit != null) {
 				String formatResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
+				if (NO_COMMENTS == false) {
+					formatResult = formatComments(codeFormatter, formatResult, true);
+				}
 				String inputPath = this.inputFiles[i].getPath().substring(INPUT_DIR.getPath().length()+1);
 				File writtenFile = new Path(OUTPUT_DIR.getPath()).append(inputPath).toFile();
 				writtenFile.getParentFile().mkdirs();

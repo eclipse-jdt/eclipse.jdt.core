@@ -50,7 +50,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static final String IN = "_in";
 	public static final String OUT = "_out";
 	public static final boolean DEBUG = false;
-	protected static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	private long time;
 	
 	static {
@@ -113,7 +113,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		return getPluginDirectoryPath() +  java.io.File.separator + "workspace";
 	}
 	
-	private String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
+	String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
 //		long time = System.currentTimeMillis();
 		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
 //		System.out.println((System.currentTimeMillis() - time) + " ms");
