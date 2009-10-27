@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,6 +51,7 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private char[] enclosingTypeName;
 	private char[][][] missingTypeNames;
 	private int enclosingNameAndTypeIndex;
+	private char[] enclosingMethod;
 	
 private static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -451,17 +452,20 @@ public char[] getEnclosingMethod() {
 	if (this.enclosingNameAndTypeIndex <= 0) {
 		return null;
 	}
-	// read the name
-	StringBuffer buffer = new StringBuffer();
-	
-	int nameAndTypeOffset = this.constantPoolOffsets[this.enclosingNameAndTypeIndex];
-	int utf8Offset = this.constantPoolOffsets[u2At(nameAndTypeOffset + 1)];
-	buffer.append(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
+	if (this.enclosingMethod == null) {
+		// read the name
+		StringBuffer buffer = new StringBuffer();
+		
+		int nameAndTypeOffset = this.constantPoolOffsets[this.enclosingNameAndTypeIndex];
+		int utf8Offset = this.constantPoolOffsets[u2At(nameAndTypeOffset + 1)];
+		buffer.append(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
 
-	utf8Offset = this.constantPoolOffsets[u2At(nameAndTypeOffset + 3)];
-	buffer.append(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
+		utf8Offset = this.constantPoolOffsets[u2At(nameAndTypeOffset + 3)];
+		buffer.append(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
 
-	return String.valueOf(buffer).toCharArray();
+		this.enclosingMethod = String.valueOf(buffer).toCharArray();
+	}
+	return this.enclosingMethod;
 }
 
 /*
@@ -1038,6 +1042,7 @@ private void initialize() throws ClassFormatException {
 				annotations[i].initialize();
 			}
 		}
+		this.getEnclosingMethod();
 		this.reset();
 	} catch(RuntimeException e) {
 		ClassFormatException exception = new ClassFormatException(e, this.classFileName);
