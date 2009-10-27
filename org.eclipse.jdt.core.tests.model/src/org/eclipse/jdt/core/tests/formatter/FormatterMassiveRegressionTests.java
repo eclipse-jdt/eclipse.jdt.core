@@ -169,7 +169,7 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private final int testIndex;
 
 	// Cleaning
-	private final File[] inputFiles;
+	private static File[] INPUT_FILES;
 	private static int MAX_FILES, MAX_DIGITS;
 
 	// Formatting behavior
@@ -594,7 +594,6 @@ public FormatterMassiveRegressionTests() {
 	super("testDeleteOutputDir");
 	this.canCompare = false;
 	this.file = null;
-	this.inputFiles = null;
 	this.testIndex = -1;
 	this.path = new Path(OUTPUT_DIR.getPath());
 }
@@ -607,7 +606,7 @@ public FormatterMassiveRegressionTests(File[] files) {
 	assertNotNull("This test needs some files to proceed!", files);
 	this.canCompare = false;
 	this.file = null;
-	this.inputFiles = files;
+	INPUT_FILES = files;
 	this.testIndex = -1;
 	this.path = new Path(OUTPUT_DIR.getPath());
 }
@@ -619,7 +618,6 @@ public FormatterMassiveRegressionTests(File file, int index, boolean compare) {
 	super("testCompare");
 	this.canCompare = compare;
 	this.file = file;
-	this.inputFiles = null;
 	this.testIndex = index;
 	this.path = new Path(file.getPath().substring(INPUT_DIR.getPath().length()+1));
 }
@@ -936,7 +934,7 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 	}
 	String initialResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 	if (NO_COMMENTS == false) {
-		initialResult = formatComments(codeFormatter, initialResult, false);
+		initialResult = formatComments(codeFormatter, initialResult);
 	}
 
 	// Repeat formatting if specified
@@ -949,7 +947,7 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 		previousResult = result;
 		result = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
 		if (NO_COMMENTS == false) {
-			result = formatComments(codeFormatter, result, false);
+			result = formatComments(codeFormatter, result);
 		}
 	}
 	
@@ -1004,7 +1002,7 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 	return initialResult;
 }
 
-private String formatComments(CodeFormatter codeFormatter, String formattedSource, boolean reference) {
+private String formatComments(CodeFormatter codeFormatter, String formattedSource) {
 	// First format the code
 //	DefaultCodeFormatter codeFormatter = codeFormatter();
 //	String formattedSource = runFormatter(codeFormatter, source, CodeFormatter.K_COMPILATION_UNIT, 0, 0, source.length(), null);
@@ -1040,12 +1038,8 @@ private String formatComments(CodeFormatter codeFormatter, String formattedSourc
 			int indentationLevel = getIndentationLevel(scanner, commentStart);
 			String comment = formattedSource.substring(commentStart, commentEnd);
 			int commentLength = commentEnd - commentStart;
-			if (reference) {
-				TextEdit edit = codeFormatter.format(commentKind, comment, 0, commentLength, indentationLevel, LINE_SEPARATOR);
-				formattedComments[i] = org.eclipse.jdt.internal.core.util.Util.editedString(comment, edit);
-			} else {
-				formattedComments[i] = runFormatter(codeFormatter, comment, commentKind, indentationLevel, 0, commentLength, LINE_SEPARATOR);
-			}
+			TextEdit edit = codeFormatter.format(commentKind, comment, 0, commentLength, indentationLevel, LINE_SEPARATOR);
+			formattedComments[i] = org.eclipse.jdt.internal.core.util.Util.editedString(comment, edit);
 		}
 	}
 	
@@ -1068,15 +1062,19 @@ private String formatComments(CodeFormatter codeFormatter, String formattedSourc
 	return document.get();
 }
 
-private int getIndentationLevel(Scanner scanner, int position) {
-	int indentationLevel = 0;
-	int numberOfIndentations = 0;
+static final int INDENTATION_SIZE;
+static {
 	int indentationSize;
 	try {
 		indentationSize = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE);
 	} catch (NumberFormatException nfe) {
 		indentationSize = 4;
 	}
+	INDENTATION_SIZE = indentationSize;
+}
+private int getIndentationLevel(Scanner scanner, int position) {
+	int indentationLevel = 0;
+	int numberOfIndentations = 0;
 	int lineNumber = scanner.getLineNumber(position);
 	int lineStart = scanner.getLineStart(lineNumber);
 	scanner.resetTo(lineStart, position-1);
@@ -1089,19 +1087,19 @@ private int getIndentationLevel(Scanner scanner, int position) {
 				break;
 			case '\t':
 				numberOfIndentations++;
-				indentationLevel = numberOfIndentations * indentationSize;
+				indentationLevel = numberOfIndentations * INDENTATION_SIZE;
 				break;
 			default:
 				indentationLevel++;
-				if ((indentationLevel%indentationSize) == 0) {
+				if ((indentationLevel%INDENTATION_SIZE) == 0) {
 					numberOfIndentations++;
 				}
 				break;
 		}
 	}
-	if ((indentationLevel%indentationSize) != 0) {
+	if ((indentationLevel%INDENTATION_SIZE) != 0) {
 		numberOfIndentations++;
-		indentationLevel = numberOfIndentations * indentationSize;
+		indentationLevel = numberOfIndentations * INDENTATION_SIZE;
 	}
 	return numberOfIndentations;
 }
@@ -1120,13 +1118,13 @@ public void testDeleteOutputDir() throws IOException, Exception {
 public void testMakeReferences() throws IOException, Exception {
 
 	// Format each file of the input dir and write the result to the output directory
-	assertNotNull("We should have got input files from "+INPUT_DIR, this.inputFiles);
+	assertNotNull("We should have got input files from "+INPUT_DIR, INPUT_FILES);
 	DefaultCodeFormatter codeFormatter = codeFormatter();
-	int length = this.inputFiles.length;
+	int length = INPUT_FILES.length;
 	for (int i=0; i<length; i++) {
 
 		// Get the source from file
-		String source = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.inputFiles[i], null));
+		String source = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(INPUT_FILES[i], null));
 
 		try {
 			// Format the source
@@ -1136,9 +1134,18 @@ public void testMakeReferences() throws IOException, Exception {
 			if (edit != null) {
 				String formatResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 				if (NO_COMMENTS == false) {
-					formatResult = formatComments(codeFormatter, formatResult, true);
+					try {
+						formatResult = formatComments(codeFormatter, formatResult);
+					}
+					catch (OutOfMemoryError oome) {
+						System.err.println("OOME occurred in formatComment(CodeFormatter, String) for file "+INPUT_FILES[i].getPath());
+//						System.err.println("------------------------------------------------------------------------------------------");
+//						System.err.println("Source:\n"+source);
+//						System.err.println("------------------------------------------------------------------------------------------");
+//						System.err.println("Format result:\n"+formatResult);
+					}
 				}
-				String inputPath = this.inputFiles[i].getPath().substring(INPUT_DIR.getPath().length()+1);
+				String inputPath = INPUT_FILES[i].getPath().substring(INPUT_DIR.getPath().length()+1);
 				File writtenFile = new Path(OUTPUT_DIR.getPath()).append(inputPath).toFile();
 				writtenFile.getParentFile().mkdirs();
 				Util.writeToFile(formatResult, writtenFile.getAbsolutePath());
@@ -1147,7 +1154,9 @@ public void testMakeReferences() throws IOException, Exception {
 		catch (Exception ex) {
 			// skip silently
 		}
+		INPUT_FILES[i] = null; // free memory
 	}
+	INPUT_FILES = null; // free memory
 }
 
 /*
