@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
-import org.eclipse.test.performance.Performance;
 
 /**
  */
