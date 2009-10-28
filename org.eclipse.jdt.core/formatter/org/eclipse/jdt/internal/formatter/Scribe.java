@@ -4032,6 +4032,7 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	private void printRule(StringBuffer stringBuffer) {
+		// only called if this.tabLength > 0
 		for (int i = 0; i < this.pageWidth; i++){
 			if ((i % this.tabLength) == 0) {
 				stringBuffer.append('+');
@@ -4284,7 +4285,7 @@ public class Scribe implements IJavaDocTagConstants {
 			.append(this.lineSeparator)
 			.append("==================================================================================")	//$NON-NLS-1$
 			.append(this.lineSeparator);
-		if (this.tabLength >= 0) {
+		if (this.tabLength > 0) {
 			printRule(stringBuffer);
 		}
 		return stringBuffer.toString();

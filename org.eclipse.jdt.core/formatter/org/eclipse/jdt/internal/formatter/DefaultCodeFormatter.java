@@ -140,9 +140,11 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				break;
 			case DefaultCodeFormatterOptions.MIXED :
 				int tabSize = this.preferences.tab_size;
-				int spaceEquivalents = indentationLevel * this.preferences.indentation_size;
-				tabs = spaceEquivalents / tabSize;
-				spaces = spaceEquivalents % tabSize;
+				if (tabSize != 0) {
+					int spaceEquivalents = indentationLevel * this.preferences.indentation_size;
+					tabs = spaceEquivalents / tabSize;
+					spaces = spaceEquivalents % tabSize;
+				}
 				break;
 			default:
 				return Util.EMPTY_STRING;
