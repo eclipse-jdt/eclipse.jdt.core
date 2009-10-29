@@ -10918,9 +10918,9 @@ public void testBug286379b() throws CoreException {
  * If any javaLikeNames are added, this ensures that such files can get searched 
  * atleast on the restart of the workspace. 
  * If any javaLikeNames are deleted, this ensures that the index file is regenerated.
- * 
- */	
-public void testBug286379c() throws CoreException {
+ */
+// TODO (Satyam) Enable when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=293697 is fixed
+public void _testBug286379c() throws CoreException {
 	IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
 	try {
 		IJavaProject proj = createJavaProject("P");
