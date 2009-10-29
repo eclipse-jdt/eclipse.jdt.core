@@ -10919,10 +10919,12 @@ public void testBug286379b() throws CoreException {
  * atleast on the restart of the workspace. 
  * If any javaLikeNames are deleted, this ensures that the index file is regenerated.
  */
-// TODO (Satyam) Enable when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=293697 is fixed
-public void _testBug286379c() throws CoreException {
+public void testBug286379c() throws CoreException {
 	IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
 	try {
+		// Create resource and wait for the refresh as we do not want the
+		// indexing to be triggered by the resource change event after the
+		// Java Source content type will be added
 		IJavaProject proj = createJavaProject("P");
 		IPath projPath = proj.getPath();
 		createFolder("/P/p");			
@@ -10932,6 +10934,10 @@ public void _testBug286379c() throws CoreException {
 			"public class Xtorem {\n" +
 			"}"
 		);
+		refresh(proj);
+		
+		// Wait to be sure that indexes are ready as we want to see whether
+		// they'll be updated or not while adding a Java Source content type
 		waitUntilIndexesReady();
 		
 		assertNotNull("We should have got a Java Source a content type!", javaContentType);
@@ -10973,6 +10979,12 @@ public void _testBug286379c() throws CoreException {
 		
 		// Restarting should update the index file to remove the references of any .torem files
 		simulateExit();		
+		try {
+			Thread.sleep(1500); // wait more than one second to be sure that modified time will be different
+		}
+		catch (InterruptedException ie) {
+			// skip
+		}
 		simulateRestart();		
 		
 		waitUntilIndexesReady();
