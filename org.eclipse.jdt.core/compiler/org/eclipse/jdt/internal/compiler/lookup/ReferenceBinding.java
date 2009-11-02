@@ -258,7 +258,7 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 	// isDefault()
 	if (invocationType.fPackage != this.fPackage) return false;
 
-	ReferenceBinding currentType = receiverType;
+	ReferenceBinding currentType = (ReferenceBinding) (receiverType.isCapture() ? receiverType.erasure() : receiverType);  // https://bugs.eclipse.org/bugs/show_bug.cgi?id=285002
 	TypeBinding originalDeclaringClass = (enclosingType() == null ? this : enclosingType()).original();
 	do {
 		if (originalDeclaringClass == currentType.original()) return true;

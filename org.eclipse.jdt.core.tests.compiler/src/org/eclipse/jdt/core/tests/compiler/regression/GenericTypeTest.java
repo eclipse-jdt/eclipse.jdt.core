@@ -49884,4 +49884,36 @@ public void test1456() {
 		""
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=285002 (visibility error for package private method)
+public void test1457() {
+	this.runConformTest(
+			new String[] {
+					"CompilerBug.java",
+					"public class CompilerBug {\n" +
+					"	public <T> T newInstance( Class<T> c ) throws InstantiationException, IllegalAccessException {\n" +
+					"	      return c.newInstance();\n" +
+					"		   }\n" +
+					"		   protected void protectedMethod() {}\n" +
+					"		   void packagePrivateMethod() {}\n" +
+					"		   private void privateMethod() {}\n" +
+					"		   private int privateInt = 0;\n" +
+					"		   int packagePrivateInt = 0;\n" +
+					"		   protected int protectedInt = 0;\n" +
+					"		   private void isThisBuggy() throws InstantiationException, IllegalAccessException {\n" +
+					"		      CompilerBug c = getClass().newInstance();\n" +
+					"		      c.privateMethod();\n" +
+					"		      c.packagePrivateMethod();\n" +
+					"		      c.protectedMethod();\n" +
+					"		      getClass().newInstance().packagePrivateMethod();\n" +
+					"		      getClass().newInstance().privateMethod();\n" +
+					"		      getClass().newInstance().protectedMethod();\n" +
+					"		      getClass().newInstance().privateInt = 10;\n" +
+					"		      getClass().newInstance().packagePrivateInt = 10;\n" +
+					"		      getClass().newInstance().protectedInt = 10;\n" +
+					"		   }\n" +
+					"	}\n"
+			},
+			null,
+			null); // no specific success output string
+}
 }

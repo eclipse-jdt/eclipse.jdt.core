@@ -139,7 +139,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	if (receiverType instanceof ArrayBinding)
 		return false;
 	TypeBinding originalDeclaringClass = this.declaringClass.original();
-	ReferenceBinding currentType = (ReferenceBinding) receiverType;
+	ReferenceBinding currentType = (ReferenceBinding) (receiverType.isCapture() ? receiverType.erasure() : receiverType); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=285002
 	do {
 		if (originalDeclaringClass == currentType.original()) return true;
 		PackageBinding currentPackage = currentType.fPackage;

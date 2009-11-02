@@ -121,7 +121,7 @@ public final boolean canBeSeenByForCodeSnippet(FieldBinding fieldBinding, TypeBi
 	// receiverType can be an array binding in one case... see if you can change it
 	if (receiverType instanceof ArrayBinding)
 		return false;
-	ReferenceBinding type = (ReferenceBinding) receiverType;
+	ReferenceBinding type = (ReferenceBinding) (receiverType.isCapture() ? receiverType.erasure() : receiverType); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=285002
 	PackageBinding declaringPackage = fieldBinding.declaringClass.fPackage;
 	TypeBinding originalDeclaringClass = fieldBinding.declaringClass .original();
 	do {
@@ -192,7 +192,7 @@ public final boolean canBeSeenByForCodeSnippet(MethodBinding methodBinding, Type
 	// receiverType can be an array binding in one case... see if you can change it
 	if (receiverType instanceof ArrayBinding)
 		return false;
-	ReferenceBinding type = (ReferenceBinding) receiverType;
+	ReferenceBinding type = (ReferenceBinding) (receiverType.isCapture() ? receiverType.erasure() : receiverType); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=285002
 	PackageBinding declaringPackage = methodBinding.declaringClass.fPackage;
 	TypeBinding originalDeclaringClass = methodBinding.declaringClass .original();
 	do {
