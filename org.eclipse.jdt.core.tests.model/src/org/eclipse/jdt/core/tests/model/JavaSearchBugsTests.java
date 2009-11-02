@@ -20,6 +20,8 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -10920,13 +10922,21 @@ public void testBug286379b() throws CoreException {
  * If any javaLikeNames are deleted, this ensures that the index file is regenerated.
  */
 public void testBug286379c() throws CoreException {
+	class TestResourceChangeListener implements IResourceChangeListener {
+		boolean valid = false;
+		public void resourceChanged(IResourceChangeEvent event) {
+			System.out.println("ResourceChangeEvent event:");
+			System.out.println("	- event type: "+event.getType());
+			System.out.println("	- resource: "+event.getResource());
+			this.valid = true;
+		}
+	}
+
 	IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
+	TestResourceChangeListener changeListener = new TestResourceChangeListener();
 	try {
-		// Create resource and wait for the refresh as we do not want the
-		// indexing to be triggered by the resource change event after the
-		// Java Source content type will be added
-		IJavaProject proj = createJavaProject("P");
-		IPath projPath = proj.getPath();
+		// Create resource
+		createJavaProject("P");
 		createFolder("/P/p");			
 		createFile(
 			"/P/p/Xtorem.torem",
@@ -10934,14 +10944,33 @@ public void testBug286379c() throws CoreException {
 			"public class Xtorem {\n" +
 			"}"
 		);
-		refresh(proj);
 		
-		// Wait to be sure that indexes are ready as we want to see whether
-		// they'll be updated or not while adding a Java Source content type
+		// Wait to be sure that indexes are ready after the resource creation
 		waitUntilIndexesReady();
-		
+
+		// Add the resource listener
+		getWorkspace().addResourceChangeListener(changeListener, IResourceChangeEvent.POST_CHANGE);
+
+		// Change the file extension
 		assertNotNull("We should have got a Java Source a content type!", javaContentType);
 		javaContentType.addFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
+		
+		// Wait for all the resource event before continuing
+		// Note that if we are not waiting for this event occurring then the search may
+		// fail as we don't get any specific event from the platform to refresh the indexes.
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=118619
+		int counter = 0;
+		while (!changeListener.valid) {
+			try {
+				Thread.sleep(100);
+			}
+			catch (InterruptedException ie) {
+				// skip
+			}
+			assertTrue("We should have got a resource event within a 10s delay!", counter++ < 100);
+		}
+
+		// Search for the new type with new extension
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
 				null,
@@ -10950,15 +10979,19 @@ public void testBug286379c() throws CoreException {
 				collector,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
-		// Actually it would be great if we could get the file in the search result, 
-		// but currently this doesn't happen as we don't get the appropriate delta
-		// events from the platform. We should change the test if this is fixed.
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=118619
-		assertSearchResults("No search results expected", "", collector, false /*do not fail if not equals (debug bug 293697)*/);
+		assertSearchResults("Unexpected search results!",
+			"Xtorem (not open) [in Xtorem.torem [in p [in <project root> [in P]]]]",
+			collector);
 		
-		// Restarting should make the search to succeed. 
+		// Delete the file specification
+		javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
+		
+		// Restarting should update the index file to remove the references of any .torem files
 		simulateExit();
 		simulateRestart();		
+		waitUntilIndexesReady();
+
+		// Search for the new type with new extension
 		collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
 				null,
@@ -10967,31 +11000,9 @@ public void testBug286379c() throws CoreException {
 				collector,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
-		String expected = "Xtorem (not open) [in Xtorem.torem [in p [in <project root> [in P]]]]";
-		assertSearchResults(expected, collector);
-		javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
-		
-		// Get the time stamp of the index file
-		IndexManager manager = JavaModelManager.getIndexManager();
-		Index index = manager.getIndex(projPath, true, false);
-		File indexFile = index.getIndexFile();
-		long lastModified = indexFile.lastModified();
-		
-		// Restarting should update the index file to remove the references of any .torem files
-		simulateExit();		
-		try {
-			Thread.sleep(1500); // wait more than one second to be sure that modified time will be different
-		}
-		catch (InterruptedException ie) {
-			// skip
-		}
-		simulateRestart();		
-		
-		waitUntilIndexesReady();
-		Index newIndex = manager.getIndex(projPath , true, false);
-		assertTrue("Index file should be changed!!!", newIndex.getIndexFile().lastModified() - lastModified != 0);
-		
+		assertSearchResults("No search results expected", "", collector);
 	} finally {
+		getWorkspace().removeResourceChangeListener(changeListener);
 		if (javaContentType != null)
 			javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
 		deleteProject("P");
