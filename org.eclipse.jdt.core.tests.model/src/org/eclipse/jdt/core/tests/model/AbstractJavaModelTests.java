@@ -349,17 +349,20 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertSearchResults("Unexpected search results", expected, collector);
 	}
 	protected void assertSearchResults(String message, String expected, Object collector) {
+		assertSearchResults(message, expected, collector, true /* assertion */);
+	}
+	protected void assertSearchResults(String message, String expected, Object collector, boolean assertion) {
 		String actual = collector.toString();
 		if (!expected.equals(actual)) {
 			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.print(displayString(actual, this.tabs));
 			System.out.println(",");
 		}
-		assertEquals(
-			message,
-			expected,
-			actual
-		);
+		if (assertion) {
+			assertEquals(message, expected, actual);
+		} else {
+			assumeEquals(message, expected, actual);
+		}
 	}
 	protected void assertScopeEquals(String expected, IJavaSearchScope scope) {
 		String actual = scope.toString();
