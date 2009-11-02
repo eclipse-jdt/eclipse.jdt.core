@@ -1393,17 +1393,19 @@ public abstract class Scope {
 				MethodBinding candidate = candidates[i];
 				if (candidate instanceof ParameterizedGenericMethodBinding)
 					candidate = ((ParameterizedGenericMethodBinding) candidate).originalMethod;
-				if (candidate instanceof ParameterizedMethodBinding)
+				if (candidate.hasSubstitutedParameters()) {
 					for (int j = i + 1; j < visiblesCount; j++) {
 						MethodBinding otherCandidate = candidates[j];
-						if (otherCandidate == candidate
-								|| (candidate.declaringClass == otherCandidate.declaringClass && candidate.areParametersEqual(otherCandidate))) {
-							return new ProblemMethodBinding(candidates[i], candidates[i].selector, candidates[i].parameters, ProblemReasons.Ambiguous);
+						if (otherCandidate.hasSubstitutedParameters()) {
+							if (otherCandidate == candidate
+									|| (candidate.declaringClass == otherCandidate.declaringClass && candidate.areParametersEqual(otherCandidate))) {
+								return new ProblemMethodBinding(candidates[i], candidates[i].selector, candidates[i].parameters, ProblemReasons.Ambiguous);
+							}
 						}
 					}
+				}
 			}
 		}
-
 		if (inStaticContext) {
 			MethodBinding[] staticCandidates = new MethodBinding[visiblesCount];
 			int staticCount = 0;

@@ -3502,4 +3502,30 @@ public void test079() {
 		""
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=293384
+public void test080() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<Tout extends Object> {\n" +
+			"   static public abstract class BaseA {};\n" +
+			"	static public abstract class BaseB extends BaseA {};\n" +
+			"	static public class Real extends BaseB {};\n" +
+			"	static BaseA ask(String prompt) {\n" +
+			"	    Real impl = new Real();\n" +
+			"	    return (BaseA) ask(prompt, impl);\n" +
+			"	}\n" +
+			"	static BaseA ask(String prompt, Real impl) {\n" +
+			"	    return null;\n" +
+			"	}\n" +
+			"	static <T extends BaseA> T ask(String prompt, T impl) {\n" +
+			"	    return null;\n" +
+			"	}\n" +
+			"	static public void main(String[] args) {\n" +
+			"        System.out.println(\"SUCCESS\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"SUCCESS");
+}
 }
