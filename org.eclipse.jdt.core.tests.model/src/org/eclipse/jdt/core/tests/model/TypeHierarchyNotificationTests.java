@@ -1244,6 +1244,95 @@ public void testRenameExternalCompilationUnit() throws CoreException {
 		h.removeTypeHierarchyChangedListener(this);
 	}
 }
+
+/*
+ * Ensures that getting a non-primary working copy does NOT trigger
+ * a type hierarchy notification for the concerned hierarchy. 
+ * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=275805
+ */
+public void testGetWorkingCopy() throws CoreException {
+	ITypeHierarchy h = null;
+	ICompilationUnit superCopy = null;
+	ICompilationUnit aWorkingCopy = null;
+	try {
+		
+		createJavaProject("P");
+		createFolder("/P/p");
+		createFile(
+			"/P/p/IX.java",
+			"package p;\n" +
+			"public interface IX {\n" +
+			"}"
+		);
+		
+		createFile(
+				"/P/p/X.java",
+				"package p;\n" +
+				"public class X implements IX{\n" +
+				"}"
+			);
+
+		superCopy = getCompilationUnit("/P/p/IX.java");
+		superCopy.becomeWorkingCopy(null/*no progress*/);
+		h = superCopy.getType("IX").newTypeHierarchy(null);		
+		h.addTypeHierarchyChangedListener(this);
+		
+		aWorkingCopy = getCompilationUnit("P/p/X.java").getWorkingCopy(null);
+		
+		assertTrue("Should receive NO change", !this.changeReceived);
+	} finally {
+		if (h != null)
+			h.removeTypeHierarchyChangedListener(this);
+		if (aWorkingCopy != null)
+			aWorkingCopy.discardWorkingCopy();
+		if (superCopy!= null)
+			superCopy.discardWorkingCopy();
+		
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that working copies with different owner than that of the
+ * type hierarchy listener are ignored. 
+ * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=275805
+ */
+public void testOwner() throws CoreException {
+	ITypeHierarchy h = null;
+	ICompilationUnit aWorkingCopy = null;
+	ICompilationUnit anotherWorkingCopy = null;
+	try {
+		createJavaProject("P");
+		createFolder("/P/p");
+		createFile(
+			"/P/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		
+		aWorkingCopy = getCompilationUnit("/P/p/X.java").getWorkingCopy(null);
+		h = aWorkingCopy.getType("X").newTypeHierarchy(null);
+		h.addTypeHierarchyChangedListener(this);
+
+		anotherWorkingCopy = getCompilationUnit("/P/p/X.java").getWorkingCopy(null);
+		anotherWorkingCopy.getBuffer().setContents(
+			"package p;\n" +
+			"public class X extends Throwable {\n" +
+			"}"
+		);
+		anotherWorkingCopy.commitWorkingCopy(false/*don't force*/, null/*no progress*/);
+		assertTrue("Should receive NO change", !this.changeReceived);
+	} finally {
+		if (h != null)
+			h.removeTypeHierarchyChangedListener(this);
+		if (aWorkingCopy != null)
+			aWorkingCopy.discardWorkingCopy();
+		if (anotherWorkingCopy != null)
+			anotherWorkingCopy.discardWorkingCopy();
+		deleteProject("P");
+	}
+}
 /**
  * Make a note of the change
  */
