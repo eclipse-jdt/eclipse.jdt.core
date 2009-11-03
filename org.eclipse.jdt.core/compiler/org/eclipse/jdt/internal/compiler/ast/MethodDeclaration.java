@@ -149,7 +149,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (complianceLevel < ClassFileConstants.JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;
 			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
-			if (hasOverrideAnnotation) {
+			boolean hasUnresolvedArguments = (this.binding.tagBits & TagBits.HasUnresolvedArguments) != 0;
+			if (hasOverrideAnnotation  && !hasUnresolvedArguments) {
 				// no static method is considered overriding
 				if ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding)
 					break checkOverride;

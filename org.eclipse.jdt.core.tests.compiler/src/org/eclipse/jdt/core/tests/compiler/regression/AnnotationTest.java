@@ -44,7 +44,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 275, 276, 277 };
+		TESTS_NUMBERS = new int[] { 278 };
 //		TESTS_RANGE = new int[] { 249, -1 };
 	}
 
@@ -9248,5 +9248,35 @@ public void test277() {
 		"",
 		"",
 		JavacTestOptions.SKIP);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=293777
+// To verify that a misleading warning against @Override annotation is not
+// issued in case the method signature has not been resolved properly.
+public void test278() {
+	String testString [] = new String[] {
+			"A.java",
+			"import javax.swing.JComponent;\n" +
+			"public class A extends JComponent {\n" +
+			"   @Override\n" +
+			"	protected void paintComponent(Graphics g) {" +
+			"   }\n" +
+			"}\n"
+			};
+	String expectedOutput =
+		"----------\n" +
+		"1. WARNING in A.java (at line 2)\n" +
+		"	public class A extends JComponent {\n" +
+		"	             ^\n" +
+		"The serializable class A does not declare a static final serialVersionUID field of type long\n" +
+		"----------\n" +
+		"2. ERROR in A.java (at line 4)\n" +
+		"	protected void paintComponent(Graphics g) {   }\n" +
+		"	                              ^^^^^^^^\n" +
+		"Graphics cannot be resolved to a type\n" +
+		"----------\n";
+	this.runNegativeTest(
+			testString,
+			expectedOutput,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 }
