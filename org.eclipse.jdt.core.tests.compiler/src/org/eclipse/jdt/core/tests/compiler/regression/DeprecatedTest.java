@@ -593,7 +593,7 @@ public void test015() {
 		"----------\n" + /* expected compiler log */
 		"1. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^^^^\n" +
+		"	^^^^^^^\n" +
 		"The type N1.N2 is deprecated\n" +
 		"----------\n" +
 		"2. ERROR in p\\M1.java (at line 4)\n" +
@@ -644,7 +644,7 @@ public void test016() {
 		"----------\n" + /* expected compiler log */
 		"1. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^^^^\n" +
+		"	^^^^^^^\n" +
 		"The type N1.N2 is deprecated\n" +
 		"----------\n" +
 		"2. ERROR in p\\M1.java (at line 4)\n" +
@@ -739,7 +739,7 @@ public void test018() {
 		"----------\n" + /* expected compiler log */
 		"1. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^^^^\n" +
+		"	^^^^^^^\n" +
 		"The type N1.N2 is deprecated\n" +
 		"----------\n" +
 		"2. ERROR in p\\M1.java (at line 4)\n" +

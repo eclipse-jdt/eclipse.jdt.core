@@ -8586,5 +8586,49 @@ public void testBug281609b() {
 			"}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292510
+// Test to verify that partial types are demarcated correctly while
+// annotating a deprecated type error in javadoc.
+public void testBug292510() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
+	runNegativeTest(
+		true,
+		new String[] {
+			"X.java",
+			"/**  @deprecated */\n" +
+				"public class X {\n" +
+				"    public class XX {\n" +
+				"        public class XXX {\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n",
+			"Y.java",
+			"/**\n" +
+				" * @see X.XX.XXX\n" +
+				" */\n" +
+				"public class Y {\n" +
+				"}\n"},
+		null,
+		options,
+		"----------\n" +
+		"1. ERROR in Y.java (at line 2)\n" +
+		"	* @see X.XX.XXX\n" +
+		"	       ^\n" +
+		"Javadoc: The type X is deprecated\n" +
+		"----------\n" +
+		"2. ERROR in Y.java (at line 2)\n" +
+		"	* @see X.XX.XXX\n" +
+		"	       ^^^^\n" +
+		"Javadoc: The type X.XX is deprecated\n" +
+		"----------\n" +
+		"3. ERROR in Y.java (at line 2)\n" +
+		"	* @see X.XX.XXX\n" +
+		"	       ^^^^^^^^\n" +
+		"Javadoc: The type X.XX.XXX is deprecated\n" +
+		"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
 
 }

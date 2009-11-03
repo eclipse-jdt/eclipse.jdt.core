@@ -1369,6 +1369,11 @@ public void deprecatedMethod(MethodBinding method, ASTNode location) {
 	}
 }
 public void deprecatedType(TypeBinding type, ASTNode location) {
+	deprecatedType(type, location, Integer.MAX_VALUE);
+}
+// The argument 'index' makes sure that we demarcate partial types correctly while marking off
+// a deprecated type in a qualified reference (see bug 292510)
+public void deprecatedType(TypeBinding type, ASTNode location, int index) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
 	int severity = computeSeverity(IProblem.UsingDeprecatedType);
 	if (severity == ProblemSeverities.Ignore) return;
@@ -1379,7 +1384,7 @@ public void deprecatedType(TypeBinding type, ASTNode location) {
 		new String[] {new String(type.shortReadableName())},
 		severity,
 		location.sourceStart,
-		nodeSourceEnd(null, location));
+		nodeSourceEnd(null, location, index));
 }
 public void disallowedTargetForAnnotation(Annotation annotation) {
 	this.handle(
@@ -2651,6 +2656,9 @@ public void incompatibleReturnType(MethodBinding currentMethod, MethodBinding in
 		sourceEnd);
 }
 public void incorrectArityForParameterizedType(ASTNode location, TypeBinding type, TypeBinding[] argumentTypes) {
+	incorrectArityForParameterizedType(location, type, argumentTypes, Integer.MAX_VALUE);
+}
+public void incorrectArityForParameterizedType(ASTNode location, TypeBinding type, TypeBinding[] argumentTypes, int index) {
     if (location == null) {
 		this.handle(
 			IProblem.IncorrectArityForParameterizedType,
@@ -2666,7 +2674,7 @@ public void incorrectArityForParameterizedType(ASTNode location, TypeBinding typ
 		new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false)},
 		new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true)},
 		location.sourceStart,
-		location.sourceEnd);
+		nodeSourceEnd(null, location, index));
 }
 public void incorrectLocationForNonEmptyDimension(ArrayAllocationExpression expression, int index) {
 	this.handle(
@@ -3982,6 +3990,9 @@ public void javadocDeprecatedMethod(MethodBinding method, ASTNode location, int 
 	}
 }
 public void javadocDeprecatedType(TypeBinding type, ASTNode location, int modifiers) {
+	javadocDeprecatedType(type, location, modifiers, Integer.MAX_VALUE);
+}
+public void javadocDeprecatedType(TypeBinding type, ASTNode location, int modifiers, int index) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
 	int severity = computeSeverity(IProblem.JavadocUsingDeprecatedType);
 	if (severity == ProblemSeverities.Ignore) return;
@@ -3995,7 +4006,7 @@ public void javadocDeprecatedType(TypeBinding type, ASTNode location, int modifi
 				new String[] {new String(type.shortReadableName())},
 				severity,
 				location.sourceStart,
-				location.sourceEnd);
+				nodeSourceEnd(null, location, index));
 		}
 	}
 }
@@ -5227,7 +5238,11 @@ private int nodeSourceEnd(Binding field, ASTNode node, int index) {
 			if (index == 0) {
 				return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1]);
 			} else {
-				return (int) (ref.sourcePositions[index]);
+				int length = ref.sourcePositions.length;
+				if (index < length) {
+					return (int) (ref.sourcePositions[index]);
+				}
+				return (int) (ref.sourcePositions[0]);
 			}
 		}
 		FieldBinding[] otherFields = ref.otherBindings;
@@ -5254,7 +5269,16 @@ private int nodeSourceEnd(Binding field, ASTNode node, int index) {
 	} else if (node instanceof ArrayQualifiedTypeReference) {
 		ArrayQualifiedTypeReference reference = (ArrayQualifiedTypeReference) node;
 		int length = reference.sourcePositions.length;
+		if (index < length) {
+			return (int) reference.sourcePositions[index];
+		}
 		return (int) reference.sourcePositions[length - 1];
+	} else if (node instanceof QualifiedTypeReference) {
+		QualifiedTypeReference reference = (QualifiedTypeReference) node;
+		int length = reference.sourcePositions.length;
+		if (index < length) {
+			return (int) reference.sourcePositions[index];
+		}
 	}
 	return node.sourceEnd;
 }
@@ -5621,7 +5645,7 @@ private String parameterBoundAsString(TypeVariableBinding typeVariable, boolean 
 	}
 	return nameBuffer.toString();
 }
-public void parameterizedMemberTypeMissingArguments(ASTNode location, TypeBinding type) {
+public void parameterizedMemberTypeMissingArguments(ASTNode location, TypeBinding type, int index) {
 	if (location == null) { // binary case
 	    this.handle(
 			IProblem.MissingArgumentsForParameterizedMemberType,
@@ -5637,7 +5661,7 @@ public void parameterizedMemberTypeMissingArguments(ASTNode location, TypeBindin
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
 		location.sourceStart,
-		location.sourceEnd);
+		nodeSourceEnd(null, location, index));
 }
 public void parseError(
 	int startPosition,
@@ -5968,7 +5992,7 @@ public void rawTypeReference(ASTNode location, TypeBinding type) {
 		new String[] {new String(type.readableName()), new String(type.erasure().readableName()), },
 		new String[] {new String(type.shortReadableName()),new String(type.erasure().shortReadableName()),},
 		location.sourceStart,
-		nodeSourceEnd(null, location));
+		nodeSourceEnd(null, location, Integer.MAX_VALUE));
 }
 public void recursiveConstructorInvocation(ExplicitConstructorCall constructorCall) {
 	this.handle(
@@ -6270,7 +6294,7 @@ public void staticInheritedMethodConflicts(SourceTypeBinding type, MethodBinding
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding type) {
+public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding type, int index) {
 	if (location == null) { // binary case
 	    this.handle(
 			IProblem.StaticMemberOfParameterizedType,
@@ -6281,7 +6305,6 @@ public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding t
 			0);
 	    return;
 	}
-	int end = location.sourceEnd;
 	/*if (location instanceof ArrayTypeReference) {
 		ArrayTypeReference arrayTypeReference = (ArrayTypeReference) location;
 		if (arrayTypeReference.token != null && arrayTypeReference.token.length == 0) return;
@@ -6292,7 +6315,7 @@ public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding t
 		new String[] {new String(type.readableName()), new String(type.enclosingType().readableName()), },
 		new String[] {new String(type.shortReadableName()), new String(type.enclosingType().shortReadableName()), },
 		location.sourceStart,
-		end);
+		nodeSourceEnd(null, location, index));
 }
 public void stringConstantIsExceedingUtf8Limit(ASTNode location) {
 	this.handle(

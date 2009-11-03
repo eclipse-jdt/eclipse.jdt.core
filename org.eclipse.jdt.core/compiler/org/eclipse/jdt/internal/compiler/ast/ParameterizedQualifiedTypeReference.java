@@ -188,7 +188,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			} else {
 				if (typeIsConsistent && currentType.isStatic()
 						&& (qualifyingType.isParameterizedTypeWithActualArguments() || qualifyingType.isGenericType())) {
-					scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifyingType));
+					scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifyingType), i);
 					typeIsConsistent = false;
 				}
 				ReferenceBinding enclosingType = currentType.enclosingType();
@@ -245,7 +245,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					}
 					return this.resolvedType;
 				} else if (argLength != typeVariables.length) { // check arity
-					scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
+					scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes, i);
 					return null;
 				}
 				// check parameterizing non-static member type of raw type
@@ -271,7 +271,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						return null;
 				if (currentOriginal.isGenericType()) {
 	   			    if (typeIsConsistent && qualifyingType != null && qualifyingType.isParameterizedType()) {
-						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.environment().createParameterizedType(currentOriginal, null, qualifyingType));
+						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.environment().createParameterizedType(currentOriginal, null, qualifyingType), i);
 						typeIsConsistent = false;
 					}
 	   			    qualifyingType = scope.environment().createRawType(currentOriginal, qualifyingType); // raw type
@@ -282,7 +282,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 			}
 			if (isTypeUseDeprecated(qualifyingType, scope))
-				reportDeprecatedType(qualifyingType, scope);
+				reportDeprecatedType(qualifyingType, scope, i);
 			this.resolvedType = qualifyingType;
 		}
 		// array type ?

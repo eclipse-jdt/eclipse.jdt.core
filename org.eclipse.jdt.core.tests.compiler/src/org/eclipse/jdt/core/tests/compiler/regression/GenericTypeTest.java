@@ -8520,7 +8520,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" +
 			"1. ERROR in X.java (at line 11)\n" +
 			"	X<String>.A.B<String> bs;\n" +
-			"	^^^^^^^^^^^^^\n" +
+			"	^^^^^^^^^^^\n" +
 			"The member type X<String>.A must be parameterized, since it is qualified with a parameterized type\n" +
 			"----------\n");
 	}
@@ -8545,7 +8545,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" +
 			"1. ERROR in X.java (at line 11)\n" +
 			"	X<String>.A.B<String> bs;\n" +
-			"	^^^^^^^^^^^^^\n" +
+			"	^^^^^^^^^^^\n" +
 			"The member type X<String>.A cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" +
 			"----------\n");
 	}
@@ -23948,7 +23948,7 @@ public void test0755() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	X<?>.B[] b = new X<?>.B[1];\n" +
-		"	^^^^^^^^\n" +
+		"	^^^^^^\n" +
 		"The member type X<?>.B cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<?>\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
@@ -45991,7 +45991,7 @@ public void test1347() throws Exception {
 			"----------\n" +
 			"1. WARNING in X.java (at line 2)\n" +
 			"	DeprecatedType.Member m1; // DeprecatedType and Member are raw + indirect access to Member\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	^^^^^^^^^^^^^^\n" +
 			"The type DeprecatedType<T> is deprecated\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 2)\n" +
@@ -49884,8 +49884,36 @@ public void test1456() {
 		""
 	);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=285002 (visibility error for package private method)
+// Test to verify that partial types in a parameterized qualified reference are
+// demarcated correctly while annotating an arity problem in case of wrong number of arguments.
+// Related to https://bugs.eclipse.org/bugs/show_bug.cgi?id=292510
 public void test1457() {
+	this.runNegativeTest(
+		new String[] {
+			"test/X.java",
+			"package test;\n" +
+				"// Valid Parameterized Type Declaration\n" +
+				"public class X<A1, A2> {\n" +
+				"	public class Y<A3,A4,A5> {\n" +
+				"		public class Z<A6> {\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n" +
+				"// Invalid Valid Type Syntax (too many parameters)\n" +
+				"class Y {\n" +
+				"	X<String, Number>.Y<String,Integer>.Z<String> x;\n" +
+				"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in test\\X.java (at line 11)\n" +
+		"	X<String, Number>.Y<String,Integer>.Z<String> x;\n" +
+		"	^^^^^^^^^^^^^^^^^^^\n" +
+		"Incorrect number of arguments for type X<String,Number>.Y; it cannot be parameterized with arguments <String, Integer>\n" +
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=285002 (visibility error for package private method)
+public void test1458() {
 	this.runConformTest(
 			new String[] {
 					"CompilerBug.java",

@@ -166,8 +166,12 @@ public boolean isTypeReference() {
 	return true;
 }
 
+protected void reportDeprecatedType(TypeBinding type, Scope scope, int index) {
+	scope.problemReporter().deprecatedType(type, this, index);
+}
+
 protected void reportDeprecatedType(TypeBinding type, Scope scope) {
-	scope.problemReporter().deprecatedType(type, this);
+	scope.problemReporter().deprecatedType(type, this, Integer.MAX_VALUE);
 }
 
 protected void reportInvalidType(Scope scope) {
