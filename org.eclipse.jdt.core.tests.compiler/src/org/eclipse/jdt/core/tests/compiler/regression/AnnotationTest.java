@@ -44,7 +44,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-		TESTS_NUMBERS = new int[] { 278 };
+//		TESTS_NUMBERS = new int[] { 278 };
 //		TESTS_RANGE = new int[] { 249, -1 };
 	}
 

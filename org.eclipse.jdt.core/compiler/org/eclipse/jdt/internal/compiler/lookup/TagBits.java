@@ -33,6 +33,9 @@ public interface TagBits {
 	// for method
 	long HasUncheckedTypeArgumentForBoundCheck = ASTNode.Bit9;
 	
+	// set when method has argument(s) that couldn't be resolved
+	long HasUnresolvedArguments = ASTNode.Bit10;
+	
 	// for the type cycle hierarchy check used by ClassScope
 	long BeginHierarchyCheck = ASTNode.Bit9;  // type
 	long EndHierarchyCheck = ASTNode.Bit10; // type
