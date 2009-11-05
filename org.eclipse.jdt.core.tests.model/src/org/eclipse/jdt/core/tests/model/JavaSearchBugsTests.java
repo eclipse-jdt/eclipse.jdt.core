@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -10925,11 +10926,28 @@ public void testBug286379c() throws CoreException {
 	class TestResourceChangeListener implements IResourceChangeListener {
 		boolean valid = false;
 		public void resourceChanged(IResourceChangeEvent event) {
-			System.out.println("ResourceChangeEvent event:");
-			System.out.println("	- event type: "+event.getType());
-			System.out.println("	- resource: "+event.getResource());
-			this.valid = true;
+			this.valid = validate(event.getDelta());
 		}
+		/*
+		 * Ensure that the listener receives a delta concerning the resource
+		 * with the new extension...
+		 */
+		private boolean validate(IResourceDelta delta) {
+	        IResourceDelta[] children = delta.getAffectedChildren();
+	        int length = children.length;
+	        if (length == 0) {
+	        	IResource resource = delta.getResource();
+	        	if (resource.getType() == IResource.FILE &&
+	        		resource.getName().equals("Xtorem.torem")) {
+	        		return true;
+	        	}
+	        } else {
+		        for (int i=0; i<length; i++) {
+		        	if (validate(children[i])) return true;
+		        }
+	        }
+	        return false;
+        }
 	}
 
 	IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
