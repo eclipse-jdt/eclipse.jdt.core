@@ -4655,7 +4655,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						workspace.run(
 							new IWorkspaceRunnable() {
 								public void run(IProgressMonitor progress) throws CoreException {
-									ISavedState savedState = workspace.addSaveParticipant(JavaCore.getJavaCore(), JavaModelManager.this);
+									ISavedState savedState = workspace.addSaveParticipant(JavaCore.PLUGIN_ID, JavaModelManager.this);
 									if (savedState != null) {
 										// the event type coming from the saved state is always POST_AUTO_BUILD
 										// force it to be POST_CHANGE so that the delta processor can handle it
@@ -4697,7 +4697,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.removeResourceChangeListener(this.deltaState);
-		workspace.removeSaveParticipant(JavaCore.getJavaCore());
+		workspace.removeSaveParticipant(JavaCore.PLUGIN_ID);
 
 		// Stop listening to content-type changes
 		Platform.getContentTypeManager().removeContentTypeChangeListener(this);
