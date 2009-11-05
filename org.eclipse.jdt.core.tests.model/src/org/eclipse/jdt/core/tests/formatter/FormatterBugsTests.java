@@ -312,6 +312,148 @@ public void testBug198074_dup213700() throws JavaModelException {
 }
 
 /**
+ * @bug 199265: [formatter] 3.3 Code Formatter mis-places commented-out import statements
+ * @test Ensure that the formatter keep commented import declarations on their lines
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=199265"
+ */
+public void testBug199265a() throws JavaModelException {
+	String source =
+		"import java.util.List;\n" + 
+		"//import java.util.HashMap;\n" + 
+		"import java.util.Set;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug199265b() throws JavaModelException {
+	String source =
+		"import java.util.List;\n" + 
+		"import java.util.Set;\n" + 
+		"//import java.util.HashMap;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug199265c1() throws JavaModelException {
+	String source =
+		"import java.util.List;\n" + 
+		"//            CU         snippet\n" + 
+		"public class X03 {\n" + 
+		"	List field;\n" + 
+		"}\n";
+	formatSource(source,
+		"import java.util.List;\n" + 
+		"\n" + 
+		"//            CU         snippet\n" + 
+		"public class X03 {\n" + 
+		"	List field;\n" + 
+		"}\n"
+	);
+}
+public void testBug199265c2() throws JavaModelException {
+	this.formatterPrefs.comment_format_header = true;
+	String source =
+		"import java.util.List;\n" + 
+		"//            CU         snippet\n" + 
+		"public class X03 {\n" + 
+		"	List field;\n" + 
+		"}\n";
+	formatSource(source,
+		"import java.util.List;\n" + 
+		"\n" + 
+		"// CU snippet\n" + 
+		"public class X03 {\n" + 
+		"	List field;\n" + 
+		"}\n"
+	);
+}
+public void testBug199265c3() throws JavaModelException {
+	String source =
+		"import java.util.List;\n" + 
+		"\n" + 
+		"// line comment\n" + 
+		"public class X03 {\n" + 
+		"	List field;\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug199265_wksp1a() throws JavaModelException {
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"import java.util.*;\n" + 
+		"import java.util.List; // line comment\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * Javadoc comment\n" + 
+		" */\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug199265_wksp1b() throws JavaModelException {
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"import java.util.Map;\n" + 
+		"\n" + 
+		"//==========================\n" + 
+		"// Line comment\n" + 
+		"//==========================\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * Javadoc comment\n" + 
+		" */\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug199265_wksp2a() throws JavaModelException {
+	String source =
+		"package wksp2;\n" + 
+		"\n" + 
+		"import java.util.Map;\n" + 
+		"\n" + 
+		"//#if defined(TEST)\n" + 
+		"import java.util.Vector;\n" + 
+		"//#else\n" + 
+		"//##import java.util.Set;\n" + 
+		"//#endif\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug199265_wksp3a() throws JavaModelException {
+	String source =
+		"package wksp3;\n" + 
+		"\n" + 
+		"import java.util.Set;	// comment 1\n" + 
+		"import java.util.Map;	// comment 2\n" + 
+		"import java.util.List;	// comment 3\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp3;\n" + 
+		"\n" + 
+		"import java.util.Set; // comment 1\n" + 
+		"import java.util.Map; // comment 2\n" + 
+		"import java.util.List; // comment 3\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 208541: [formatter] Formatter does not format whole region/selection
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541"
  */

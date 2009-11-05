@@ -96,8 +96,9 @@ public class Scribe implements IJavaDocTagConstants {
 	public int numberOfIndentations;
 	private boolean useTabsOnlyForLeadingIndents;
 
-	/** indent empty lines*/
+	/** empty lines*/
 	private final boolean indentEmptyLines;
+	int blank_lines_between_import_groups = -1;
 
 	/* Comments formatting */
 	private static final int INCLUDE_BLOCK_COMMENTS = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_MULTI_LINE_COMMENT;
@@ -105,6 +106,9 @@ public class Scribe implements IJavaDocTagConstants {
 	private static final int INCLUDE_LINE_COMMENTS = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_SINGLE_LINE_COMMENT;
 	private static final int SKIP_FIRST_WHITESPACE_TOKEN = -2;
 	private static final int INVALID_TOKEN = 2000;
+	static final int NO_TRAILING_COMMENT = 0;
+	static final int BASIC_TRAILING_COMMENT = 1;
+	static final int IMPORT_TRAILING_COMMENT = 2;
 	private int formatComments = 0;
 	private int headerEndPosition = -1;
 	String commentIndentation; // indentation requested in comments (usually in javadoc root tags description)
@@ -1065,6 +1069,9 @@ public class Scribe implements IJavaDocTagConstants {
 			}
 			return Util.EMPTY_STRING;
 		}
+		if (this.blank_lines_between_import_groups >= 0) {
+			return getEmptyLines(this.blank_lines_between_import_groups);
+		}
 		if (this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
 			int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve);
 			return getEmptyLines(linesToPreserve);
@@ -1310,9 +1317,11 @@ public class Scribe implements IJavaDocTagConstants {
 
 	private void preserveEmptyLines(int count, int insertPosition) {
 		if (count > 0) {
-			if (this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
+			if (this.blank_lines_between_import_groups >= 0) {
+				printEmptyLines(this.blank_lines_between_import_groups, insertPosition);
+			} else if (this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
 				int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve);
-				this.printEmptyLines(linesToPreserve, insertPosition);
+				printEmptyLines(linesToPreserve, insertPosition);
 			} else {
 				printNewLine(insertPosition);
 			}
@@ -2052,13 +2061,13 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	void printComment() {
-		printComment(CodeFormatter.K_UNKNOWN);
+		printComment(CodeFormatter.K_UNKNOWN, NO_TRAILING_COMMENT);
 	}
 
 	/*
 	 * Main method to print and format comments (javadoc, block and single line comments)
 	 */
-	void printComment(int kind) {
+	void printComment(int kind, int trailing) {
 		final boolean rejectLineComment = kind  == CodeFormatter.K_MULTI_LINE_COMMENT || kind == CodeFormatter.K_JAVA_DOC;
 		final boolean rejectBlockComment = kind  == CodeFormatter.K_SINGLE_LINE_COMMENT || kind  == CodeFormatter.K_JAVA_DOC;
 		final boolean rejectJavadocComment = kind  == CodeFormatter.K_SINGLE_LINE_COMMENT || kind  == CodeFormatter.K_MULTI_LINE_COMMENT;
@@ -2067,13 +2076,15 @@ public class Scribe implements IJavaDocTagConstants {
 			int currentTokenStartPosition = this.scanner.currentPosition;
 			boolean hasComment = false;
 			boolean hasLineComment = false;
-			boolean hasWhitespace = false;
-			int count = 0;
+			boolean hasWhitespaces = false;
+			int lines = 0;
 			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(this.currentToken) {
 					case TerminalTokens.TokenNameWHITESPACE :
 						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
-						count = 0;
+						int whitespacesStartPosition = this.scanner.getCurrentTokenStartPosition();
+						int whitespacesEndPosition = this.scanner.getCurrentTokenEndPosition();
+						lines = 0;
 						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
 							switch(whiteSpaces[i]) {
 								case '\r' :
@@ -2082,79 +2093,141 @@ public class Scribe implements IJavaDocTagConstants {
 											i++;
 										}
 									}
-									count++;
+									lines++;
 									break;
 								case '\n' :
-									count++;
+									lines++;
 							}
 						}
-						if (count == 0) {
-							hasWhitespace = true;
-							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-						} else if (hasLineComment) {
-							preserveEmptyLines(count, this.scanner.getCurrentTokenStartPosition());
-							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-						} else if (hasComment) {
-							if (count == 1) {
-								this.printNewLine(this.scanner.getCurrentTokenStartPosition());
-							} else {
-								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
+						// If following token is a line comment on the same line or the line just after,
+						// then it might be not really formatted as a trailing comment
+						boolean realTrailing = trailing > NO_TRAILING_COMMENT;
+						if (trailing == IMPORT_TRAILING_COMMENT && this.scanner.currentCharacter == '/' && lines <= 1) {
+							int currentPosition = this.scanner.currentPosition;
+							if (this.scanner.getNextToken() == TerminalTokens.TokenNameCOMMENT_LINE) {
+								int token = this.scanner.getNextToken();
+								while (token == TerminalTokens.TokenNameCOMMENT_LINE) {
+									token = this.scanner.getNextToken();
+								}
+								if (token == TerminalTokens.TokenNameWHITESPACE) {
+									char[] secondWhiteSpaces = this.scanner.getCurrentTokenSource();
+									loop: for (int i = 0, max = secondWhiteSpaces.length; i < max; i++) {
+										switch(secondWhiteSpaces[i]) {
+											case '\r' :
+											case '\n' :
+												realTrailing = false;
+												break loop;
+										}
+									}
+								}
 							}
-							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-						} else if (count != 0 && (!this.formatter.preferences.join_wrapped_lines || this.formatter.preferences.number_of_empty_lines_to_preserve != 0)) {
-							addReplaceEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), getPreserveEmptyLines(count-1));
+							this.scanner.resetTo(currentPosition, this.scanner.eofPosition - 1);
+						}
+						if (realTrailing) {
+							// if a line comment is consumed, no other comment can be on the same line after
+							if (hasLineComment) {
+								if (lines >= 1) {
+									currentTokenStartPosition = whitespacesStartPosition;
+									preserveEmptyLines(lines, currentTokenStartPosition);
+									addDeleteEdit(currentTokenStartPosition, whitespacesEndPosition);
+									this.scanner.resetTo(this.scanner.currentPosition, this.scannerEndPosition - 1);
+									return;
+								}
+								this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+								return;
+							} 
+							// if one or several new lines are consumed, following comments cannot be considered as trailing ones
+							if (lines >= 1) {
+								if (hasComment) {
+									this.printNewLine(whitespacesStartPosition);
+								}
+								this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+								return;
+							}
+							// delete consumed white spaces
+							hasWhitespaces = true;
+							currentTokenStartPosition = this.scanner.currentPosition;
+							addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
 						} else {
-							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+							if (lines == 0) {
+								hasWhitespaces = true;
+								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
+							} else if (hasLineComment) {
+								currentTokenStartPosition = whitespacesStartPosition;
+								preserveEmptyLines(lines, currentTokenStartPosition);
+								addDeleteEdit(currentTokenStartPosition, whitespacesEndPosition);
+							} else if (hasComment) {
+								if (lines == 1) {
+									this.printNewLine(whitespacesStartPosition);
+								} else {
+									preserveEmptyLines(lines - 1, whitespacesStartPosition);
+								}
+								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
+							} else if (lines != 0 && (!this.formatter.preferences.join_wrapped_lines || this.formatter.preferences.number_of_empty_lines_to_preserve != 0)) {
+								addReplaceEdit(whitespacesStartPosition, whitespacesEndPosition, getPreserveEmptyLines(lines-1));
+							} else {
+								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
+							}
 						}
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_LINE :
 						if (rejectLineComment) break;
-						if (count >= 1) {
-							if (count > 1) {
-								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
-							} else if (count == 1) {
+						if (lines >= 1) {
+							if (lines > 1) {
+								preserveEmptyLines(lines - 1, this.scanner.getCurrentTokenStartPosition());
+							} else if (lines == 1) {
 								printNewLine(this.scanner.getCurrentTokenStartPosition());
 							}
-						} else if (hasWhitespace) {
+						} else if (hasWhitespaces) {
 							space();
 						}
-						hasWhitespace = false;
+						hasWhitespaces = false;
 						printLineComment();
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = true;
-						count = 0;
+						lines = 0;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+						if (trailing > NO_TRAILING_COMMENT && lines >= 1) {
+							// a block comment on next line means that there's no trailing comment
+							this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
+							return;
+						}
 						if (rejectBlockComment) break;
-						if (count >= 1) {
-							if (count > 1) {
-								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
-							} else if (count == 1) {
+						if (lines >= 1) {
+							if (lines > 1) {
+								preserveEmptyLines(lines - 1, this.scanner.getCurrentTokenStartPosition());
+							} else if (lines == 1) {
 								printNewLine(this.scanner.getCurrentTokenStartPosition());
 							}
-						} else if (hasWhitespace) {
+						} else if (hasWhitespaces) {
 							space();
 						}
-						hasWhitespace = false;
+						hasWhitespaces = false;
 						printBlockComment(false);
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = false;
 						hasComment = true;
-						count = 0;
+						lines = 0;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+						if (trailing > NO_TRAILING_COMMENT) {
+							// a javadoc comment should not be considered as a trailing comment
+							this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
+							return;
+						}
 						if (rejectJavadocComment) break;
-						if (count >= 1) {
-							if (count > 1) {
-								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
-							} else if (count == 1) {
+						if (lines >= 1) {
+							if (lines > 1) {
+								preserveEmptyLines(lines - 1, this.scanner.getCurrentTokenStartPosition());
+							} else if (lines == 1) {
 								printNewLine(this.scanner.getCurrentTokenStartPosition());
 							}
-						} else if (hasWhitespace) {
+						} else if (hasWhitespaces) {
 							space();
 						}
-						hasWhitespace = false;
+						hasWhitespaces = false;
 						if (includesJavadocComments()) {
 							printJavadocComment(this.scanner.startPosition, this.scanner.currentPosition);
 						} else {
@@ -2164,7 +2237,7 @@ public class Scribe implements IJavaDocTagConstants {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = false;
 						hasComment = true;
-						count = 0;
+						lines = 0;
 						break;
 					default :
 						// step back one token
@@ -2196,10 +2269,10 @@ public class Scribe implements IJavaDocTagConstants {
 	    // Print corresponding comment
 	    switch (kind) {
 	    	case CodeFormatter.K_SINGLE_LINE_COMMENT:
-			    printComment(kind);
+			    printComment(kind, NO_TRAILING_COMMENT);
 	    		break;
 	    	case CodeFormatter.K_MULTI_LINE_COMMENT:
-			    printComment(kind);
+			    printComment(kind, NO_TRAILING_COMMENT);
 	    		break;
 	    	case CodeFormatter.K_JAVA_DOC:
 	    		printJavadocComment(start, end);
@@ -3898,7 +3971,7 @@ public class Scribe implements IJavaDocTagConstants {
 				this.formatBrace = true;
 		}
 		try {
-			printComment(CodeFormatter.K_UNKNOWN);
+			printComment(CodeFormatter.K_UNKNOWN, NO_TRAILING_COMMENT);
 			try {
 				this.currentToken = this.scanner.getNextToken();
 				if (expectedTokenType != this.currentToken) {
@@ -3924,7 +3997,7 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	public void printNextToken(int[] expectedTokenTypes, boolean considerSpaceIfAny){
-		printComment(CodeFormatter.K_UNKNOWN);
+		printComment(CodeFormatter.K_UNKNOWN, NO_TRAILING_COMMENT);
 		try {
 			this.currentToken = this.scanner.getNextToken();
 			if (Arrays.binarySearch(expectedTokenTypes, this.currentToken) < 0) {
@@ -3948,7 +4021,7 @@ public class Scribe implements IJavaDocTagConstants {
 		int numberOfIdentifiers = 0;
 		try {
 			do {
-				printComment(CodeFormatter.K_UNKNOWN);
+				printComment(CodeFormatter.K_UNKNOWN, NO_TRAILING_COMMENT);
 				switch(this.currentToken = this.scanner.getNextToken()) {
 					case TerminalTokens.TokenNameEOF :
 						return;
@@ -3994,7 +4067,7 @@ public class Scribe implements IJavaDocTagConstants {
 		int currentTokenStartPosition = this.scanner.currentPosition;
 		try {
 			do {
-				printComment(CodeFormatter.K_UNKNOWN);
+				printComment(CodeFormatter.K_UNKNOWN, NO_TRAILING_COMMENT);
 				switch(this.currentToken = this.scanner.getNextToken()) {
 					case TerminalTokens.TokenNameEOF :
 						return;
@@ -4045,151 +4118,6 @@ public class Scribe implements IJavaDocTagConstants {
 		for (int i = 0; i < (this.pageWidth / this.tabLength); i++) {
 			stringBuffer.append(i);
 			stringBuffer.append('\t');
-		}
-	}
-
-	public void printTrailingComment(int numberOfNewLinesToInsert) {
-		try {
-			// if we have a space between two tokens we ensure it will be dumped in the formatted string
-			int currentTokenStartPosition = this.scanner.currentPosition;
-			boolean hasWhitespaces = false;
-			boolean hasLineComment = false;
-			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				switch(this.currentToken) {
-					case TerminalTokens.TokenNameWHITESPACE :
-						int count = 0;
-						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
-						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
-							switch(whiteSpaces[i]) {
-								case '\r' :
-									if ((i + 1) < max) {
-										if (whiteSpaces[i + 1] == '\n') {
-											i++;
-										}
-									}
-									count++;
-									break;
-								case '\n' :
-									count++;
-							}
-						}
-						if (hasLineComment) {
-							if (count >= 1) {
-								currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
-								preserveEmptyLines(numberOfNewLinesToInsert, currentTokenStartPosition);
-								addDeleteEdit(currentTokenStartPosition, this.scanner.getCurrentTokenEndPosition());
-								this.scanner.resetTo(this.scanner.currentPosition, this.scannerEndPosition - 1);
-								return;
-							}
-							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-							return;
-						} else if (count > 1) {
-							this.printEmptyLines(numberOfNewLinesToInsert, this.scanner.getCurrentTokenStartPosition());
-							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-							return;
-						} else {
-							hasWhitespaces = true;
-							currentTokenStartPosition = this.scanner.currentPosition;
-							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-						}
-						break;
-					case TerminalTokens.TokenNameCOMMENT_LINE :
-						if (hasWhitespaces) {
-							space();
-						}
-						printLineComment();
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasLineComment = true;
-						break;
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-						if (hasWhitespaces) {
-							space();
-						}
-						printBlockComment(false);
-						currentTokenStartPosition = this.scanner.currentPosition;
-						break;
-					default :
-						// step back one token
-						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-						return;
-				}
-			}
-		} catch (InvalidInputException e) {
-			throw new AbortFormatting(e);
-		}
-	}
-	public void printTrailingComment() {
-		try {
-			// if we have a space between two tokens we ensure it will be dumped in the formatted string
-			int currentTokenStartPosition = this.scanner.currentPosition;
-			boolean hasWhitespaces = false;
-			boolean hasComment = false;
-			boolean hasLineComment = false;
-			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				switch(this.currentToken) {
-					case TerminalTokens.TokenNameWHITESPACE :
-						int count = 0;
-						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
-						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
-							switch(whiteSpaces[i]) {
-								case '\r' :
-									if ((i + 1) < max) {
-										if (whiteSpaces[i + 1] == '\n') {
-											i++;
-										}
-									}
-									count++;
-									break;
-								case '\n' :
-									count++;
-							}
-						}
-						if (hasLineComment) {
-							if (count >= 1) {
-								currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
-								preserveEmptyLines(count, currentTokenStartPosition);
-								addDeleteEdit(currentTokenStartPosition, this.scanner.getCurrentTokenEndPosition());
-								this.scanner.resetTo(this.scanner.currentPosition, this.scannerEndPosition - 1);
-								return;
-							}
-							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-							return;
-						} else if (count >= 1) {
-							if (hasComment) {
-								this.printNewLine(this.scanner.getCurrentTokenStartPosition());
-							}
-							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-							return;
-						} else {
-							hasWhitespaces = true;
-							currentTokenStartPosition = this.scanner.currentPosition;
-							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-						}
-						break;
-					case TerminalTokens.TokenNameCOMMENT_LINE :
-						if (hasWhitespaces) {
-							space();
-						}
-						printLineComment();
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasLineComment = true;
-						break;
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-						if (hasWhitespaces) {
-							space();
-						}
-						printBlockComment(false);
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasComment = true;
-						break;
-					default :
-						// step back one token
-						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-						return;
-				}
-			}
-		} catch (InvalidInputException e) {
-			throw new AbortFormatting(e);
 		}
 	}
 
