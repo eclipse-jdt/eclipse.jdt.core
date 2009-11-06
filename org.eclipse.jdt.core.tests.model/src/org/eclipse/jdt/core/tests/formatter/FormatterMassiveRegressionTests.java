@@ -197,6 +197,7 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private static PrintStream LOG_STREAM;
 
 	// Comparison
+	private static boolean CLEAN = false;
 	private static boolean CAN_COMPARE = true;
 	private final boolean canCompare;
 	private final int testIndex;
@@ -366,10 +367,10 @@ public static Test suite() {
 		buffer.append(LINE_SEPARATOR);
 
 		// Init directories
-		boolean clean = initDirectories(buffer);
+		initDirectories(buffer);
 		buffer.append("Compare vs: ");
 		if (CAN_COMPARE) {
-			if (clean) {
+			if (CLEAN) {
 				buffer.append(JDT_CORE_VERSION);
 			} else {
 				File versionFile = new File(OUTPUT_DIR, "version.txt");
@@ -382,7 +383,6 @@ public static Test suite() {
 		} else {
 			buffer.append("none");
 		}
-//		buffer.append(LINE_SEPARATOR);
 
 		// Write logs
 		System.out.println(buffer.toString());
@@ -393,7 +393,7 @@ public static Test suite() {
 		}
 		
 		// Add tests to clean the output directory and rebuild the references
-		if (clean) {
+		if (CLEAN) {
 			suite.addTest(new FormatterMassiveRegressionTests());
 			suite.addTest(new FormatterMassiveRegressionTests(allFiles));
 		}
@@ -446,7 +446,7 @@ private static void initProfiles(StringBuffer buffer) {
 	}
 }
 
-private static boolean initDirectories(StringBuffer buffer) {
+private static void initDirectories(StringBuffer buffer) {
 
 	// Verify input directory
 	if (!INPUT_DIR.exists() && !INPUT_DIR.isDirectory()) {
@@ -454,7 +454,6 @@ private static boolean initDirectories(StringBuffer buffer) {
 	}
 
 	// Get output dir and clean it if specified
-	boolean clean = false;
 	String dir = System.getProperty("outputDir"); //$NON-NLS-1$
 	if (dir != null) {
 		int idx = dir.indexOf(',');
@@ -463,10 +462,10 @@ private static boolean initDirectories(StringBuffer buffer) {
 		} else {
 			setOutputDir(dir.substring(0, idx), buffer);
 			if (dir.substring(idx+1).equals("clean")) {
-				clean = true;
+				CLEAN = true;
 			}
 		}
-		if (clean) {
+		if (CLEAN) {
 			if (PATCH_BUG != null || JDT_CORE_HEAD) {
 				throw new RuntimeException("Reference can only be updated using a version (i.e. with a closed buildnotes_jdt-core.html)!");
 			}
@@ -501,9 +500,6 @@ private static boolean initDirectories(StringBuffer buffer) {
 		buffer.append(WRITE_DIR);
 		buffer.append(LINE_SEPARATOR);
 	}
-
-	// Return
-	return clean;
 }
 
 private static void setLogDir(StringBuffer buffer) throws CoreException {
@@ -832,17 +828,18 @@ public void tearDownSuite() throws Exception {
 
 	// Display time measures
 	StringBuffer buffer1 = new StringBuffer();
-	buffer1.append("Time measures:").append(LINE_SEPARATOR);
-	buffer1.append("	- first format:").append(LINE_SEPARATOR);
-	buffer1.append("		+ elapsed = "+timeString(TIME_MEASURES.formatting[0])).append(LINE_SEPARATOR);
-	buffer1.append("		+ occurrences = "+TIME_MEASURES.occurences[0]).append(LINE_SEPARATOR);
-	buffer1.append("		+ null output = "+TIME_MEASURES.null_output[0]).append(LINE_SEPARATOR);
-	buffer1.append("	- repeated format:").append(LINE_SEPARATOR);
-	for (int i=1; i<FORMAT_REPEAT; i++) {
-		buffer1.append("	   n° "+(i+1)).append(LINE_SEPARATOR);
-		buffer1.append("		+ elapsed = "+timeString(TIME_MEASURES.formatting[i])).append(LINE_SEPARATOR);
-		buffer1.append("		+ occurrences = "+TIME_MEASURES.occurences[i]).append(LINE_SEPARATOR);
-		buffer1.append("		+ null output = "+TIME_MEASURES.null_output[i]).append(LINE_SEPARATOR);
+	buffer1.append("Time measures:");
+	if (CLEAN) {
+		buffer1.append(" cannot be done as the directory was cleaned!");
+		buffer1.append(LINE_SEPARATOR);
+	} else {
+		buffer1.append(LINE_SEPARATOR);
+		for (int i=0; i<FORMAT_REPEAT; i++) {
+			buffer1.append("	- "+counterToString(i+1)).append(" format:").append(LINE_SEPARATOR);
+			buffer1.append("		+ elapsed = "+timeString(TIME_MEASURES.formatting[i])).append(LINE_SEPARATOR);
+			buffer1.append("		+ occurrences = "+TIME_MEASURES.occurences[i]).append(LINE_SEPARATOR);
+			buffer1.append("		+ null output = "+TIME_MEASURES.null_output[i]).append(LINE_SEPARATOR);
+		}
 	}
 	buffer1.append(LINE_SEPARATOR);
 
