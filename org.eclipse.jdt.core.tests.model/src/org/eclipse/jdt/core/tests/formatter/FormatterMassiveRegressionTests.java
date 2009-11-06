@@ -39,11 +39,14 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.ModelTestsUtil;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
+import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.text.edits.TextEdit;
@@ -148,7 +151,6 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 
 	final File file;
 	final IPath path;
-	boolean hasSpaceFailure;
 	private DefaultCodeFormatterOptions preferences;
 
 	// Directories
@@ -226,11 +228,12 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	int failureIndex;
 	final static int UNEXPECTED_FAILURE = 0;
 	final static int NO_OUTPUT_FAILURE = 1;
-	final static int COMPARISON_FAILURE = 2;
-	final static int REFORMATTING_FAILURE = 3;
-	final static int REFORMATTING_LEADING_FAILURE = 5;
-	final static int REFORMATTING_WHITESPACES_FAILURE = 6;
-	final static int REFORMATTING_EXPECTED_FAILURE = 4;
+	final static int COMPILATION_ERRORS_FAILURE = 2;
+	final static int COMPARISON_FAILURE = 3;
+	final static int REFORMATTING_FAILURE = 4;
+	final static int REFORMATTING_EXPECTED_FAILURE = 5;
+	final static int REFORMATTING_LEADING_FAILURE = 6;
+	final static int REFORMATTING_WHITESPACES_FAILURE = 7;
 	static class FormattingFailure {
 		String msg;
 		int kind;
@@ -251,6 +254,8 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 					return "unexpected failure while formatting";
 				case  NO_OUTPUT_FAILURE:
 					return "no output while formatting";
+				case  COMPILATION_ERRORS_FAILURE:
+					return "compilation errors which prevent the formatter to proceed";
 				case  COMPARISON_FAILURE:
 					return "different output while comparing with previous version";
 				default:
@@ -338,24 +343,28 @@ public static Test suite() {
 		FileFilter filter = new FileFilter() {
 			public boolean accept(File pathname) {
 				String path = pathname.getPath();
-				boolean accept = pathname.isDirectory() || path.endsWith(".java");
-				if (accept) {
-					switch (FILES_FILTER_KIND) {
-						case 1: // Equals
-							accept = path.equals(FILES_FILTER);
-							break;
-						case 2: // Starts with
-							accept = path.startsWith(FILES_FILTER);
-							break;
-						case 3: // Starts with + same length
-							accept = path.startsWith(FILES_FILTER) && path.length() == FILES_FILTER.length();
-							break;
-						case 4: // Pattern
-							accept = path.matches(FILES_FILTER);
-							break;
+				if (pathname.isDirectory()) {
+					String dirName = path.substring(path.lastIndexOf(File.separatorChar)+1);
+					return !dirName.equals("bin");
+				}
+				if (path.endsWith(".java")) {
+					if (FILES_FILTER_KIND > 0) {
+						String fileName = path.substring(path.lastIndexOf(File.separatorChar)+1);
+						switch (FILES_FILTER_KIND) {
+							case 1: // Equals
+								return fileName.equals(FILES_FILTER);
+							case 2: // Starts with
+								return fileName.startsWith(FILES_FILTER);
+							case 3: // Starts with + same length
+								return fileName.startsWith(FILES_FILTER) && fileName.length() == FILES_FILTER.length();
+							case 4: // Pattern
+								return fileName.matches(FILES_FILTER);
+						}
+					} else {
+						return true;
 					}
 				}
-				return accept;
+				return false;
             }
 		};
 		File[] allFiles = ModelTestsUtil.getAllFiles(INPUT_DIR, filter);
@@ -564,6 +573,10 @@ private static void setLogDir(StringBuffer buffer) throws CoreException {
 		}
 	}
 	
+	if (FILES_FILTER_KIND > 0) {
+		logDir = new File(new File(logDir, "filter"), FILES_FILTER.replace('?', '_').replace('*', '%'));
+	}
+
 	// Create log stream
 	logDir.mkdirs();
 	String filePrefix = INPUT_DIR.getName().replaceAll("\\.", "");
@@ -774,7 +787,6 @@ public String getName() {
  */
 public void setUp() throws Exception {
 	super.setUp();
-	this.hasSpaceFailure = false;
 	this.preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
 	if (NO_COMMENTS) {
 		this.preferences.comment_format_javadoc_comment = false;
@@ -943,7 +955,7 @@ void compareFormattedSource() throws IOException, Exception {
 
 		// Look for output to compare with
 		File outputFile = new Path(OUTPUT_DIR.getPath()).append(this.path).toFile();
-		if (FAILURES != null && this.canCompare) {
+		if (actualResult != null && FAILURES != null && this.canCompare) {
 			String expectedResult = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(outputFile, null));
 			try {
 				assertSourceEquals("Unexpected format output!", expectedResult, actualResult);
@@ -1096,6 +1108,21 @@ private boolean runFormatterWithoutComments(CodeFormatter codeFormatter, String 
 }
 */
 
+private boolean sourceHasCompilationErrors(String source) {
+	CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
+	codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
+	if (codeSnippetParsingUtil.recordedParsingInformation != null) {
+		CategorizedProblem[] problems = codeSnippetParsingUtil.recordedParsingInformation.problems;
+		int length = problems == null ? 0 : problems.length;
+		for (int i=0; i<length; i++) {
+			if (((DefaultProblem)problems[i]).isError()) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator, boolean repeat) {
 	long timeStart = System.currentTimeMillis();
 	TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);
@@ -1105,6 +1132,11 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 		if (edit == null) TIME_MEASURES.null_output[0]++;
 	}
 	if (edit == null) {
+		if (sourceHasCompilationErrors(source)) {
+			this.failureIndex = COMPILATION_ERRORS_FAILURE;
+			FAILURES[COMPILATION_ERRORS_FAILURE].failures.add(this.path);
+			return null;
+		}
 		this.failureIndex = NO_OUTPUT_FAILURE;
 		throw new AssertionFailedError("Formatted source should not be null!");
 	}
@@ -1134,7 +1166,6 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 			if (trimmedExpected.equals(trimmedActual)) {
 				this.failureIndex = REFORMATTING_LEADING_FAILURE;
 				FAILURES[REFORMATTING_LEADING_FAILURE].failures.add(this.path);
-				this.hasSpaceFailure = true;
 				return initialResult;
 			}
 
@@ -1142,7 +1173,6 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 			if (ModelTestsUtil.removeWhiteSpace(previousResult).equals(ModelTestsUtil.removeWhiteSpace(result))) {
 				this.failureIndex = REFORMATTING_WHITESPACES_FAILURE;
 				FAILURES[REFORMATTING_WHITESPACES_FAILURE].failures.add(this.path);
-				this.hasSpaceFailure = true;
 				return initialResult;
 			}
 		}
