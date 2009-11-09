@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.formatter.comment.IJavaDocTagConstants;
 public class FormatterCommentParser extends JavadocParser implements IJavaDocTagConstants {
 	char[][] htmlTags;
 	int htmlTagsPtr = -1;
+	int inlineHtmlTagsPtr = -1;
 	private boolean invalidTagName;
 	public boolean parseHtmlTags;
 
@@ -743,6 +744,23 @@ protected void refreshInlineTagPosition(int previousPosition) {
 				lastNode.sourceEnd = previousPosition;
 				lastNode = lastNode.getLastNode();
 			}
+		}
+	}
+}
+
+/*
+ * Store the html tags level when entering an inline tag in case a wrong sequence
+ * of opening/closing tags is defined inside it. Then, when leaving the inline tag
+ * the level is reset to the entering value and avoid to wrongly attach subsequent
+ * html tags to node inside the inline tag last node...
+ */
+protected void setInlineTagStarted(boolean started) {
+	super.setInlineTagStarted(started);
+	if (started) {
+		this.inlineHtmlTagsPtr = this.htmlTagsPtr;
+	} else {
+		if (this.htmlTagsPtr > this.inlineHtmlTagsPtr) {
+			this.htmlTagsPtr = this.inlineHtmlTagsPtr;
 		}
 	}
 }

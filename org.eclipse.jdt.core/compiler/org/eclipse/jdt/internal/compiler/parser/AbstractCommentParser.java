@@ -130,7 +130,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.astPtr = -1;
 			this.identifierPtr = -1;
 			this.currentTokenType = -1;
-			this.inlineTagStarted = false;
+			setInlineTagStarted(false);
 			this.inlineTagStart = -1;
 			this.lineStarted = false;
 			this.returnStatement = null;
@@ -207,7 +207,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// Start tag parsing only if we are on line beginning or at inline tag beginning
 						if ((!this.lineStarted || previousChar == '{')) {
 							if (this.inlineTagStarted) {
-								this.inlineTagStarted = false;
+								setInlineTagStarted(false);
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
 								// Cannot have @ inside inline comment
 								if (this.reportProblems) {
@@ -228,7 +228,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 										pushText(this.textStart, textEndPosition);
 									}
 								}
-								this.inlineTagStarted = true;
+								setInlineTagStarted(true);
 								invalidInlineTagLineEnd = this.lineEnd;
 							} else if (this.textStart != -1 && this.textStart < invalidTagLineEnd) {
 								pushText(this.textStart, invalidTagLineEnd);
@@ -287,7 +287,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 							refreshInlineTagPosition(previousPosition);
 							if (!isFormatterParser) this.textStart = this.index;
-							this.inlineTagStarted = false;
+							setInlineTagStarted(false);
 						} else {
 							if (!this.lineStarted) {
 								this.textStart = previousPosition;
@@ -301,7 +301,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							refreshReturnStatement();
 						}
 						if (this.inlineTagStarted) {
-							this.inlineTagStarted = false;
+							setInlineTagStarted(false);
 							// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
 							// Cannot have opening brace in inline comment
 							if (this.reportProblems) {
@@ -400,7 +400,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					pushText(this.textStart, textEndPosition);
 				}
 				refreshInlineTagPosition(textEndPosition);
-				this.inlineTagStarted = false;
+				setInlineTagStarted(false);
 			} else if (this.lineStarted && this.textStart != -1 && this.textStart <= textEndPosition) {
 				pushText(this.textStart, textEndPosition);
 			}
@@ -1542,6 +1542,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 */
 	protected void refreshReturnStatement() {
 		// do nothing by default
+	}
+
+	/**
+	 * @param started the inlineTagStarted to set
+	 */
+	protected void setInlineTagStarted(boolean started) {
+		this.inlineTagStarted = started;
 	}
 
 	/*
