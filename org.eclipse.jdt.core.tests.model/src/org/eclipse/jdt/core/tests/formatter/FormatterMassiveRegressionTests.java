@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.ComparisonFailure;
@@ -50,7 +51,6 @@ import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.text.edits.TextEdit;
-import com.ibm.icu.util.StringTokenizer;
 
 /**
  * Comment formatter test suite for massive tests at a given location.
@@ -229,11 +229,12 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	final static int UNEXPECTED_FAILURE = 0;
 	final static int NO_OUTPUT_FAILURE = 1;
 	final static int COMPILATION_ERRORS_FAILURE = 2;
-	final static int COMPARISON_FAILURE = 3;
-	final static int REFORMATTING_FAILURE = 4;
-	final static int REFORMATTING_EXPECTED_FAILURE = 5;
-	final static int REFORMATTING_LEADING_FAILURE = 6;
-	final static int REFORMATTING_WHITESPACES_FAILURE = 7;
+	final static int FILE_NOT_FOUND_FAILURE = 3;
+	final static int COMPARISON_FAILURE = 4;
+	final static int REFORMATTING_FAILURE = 5;
+	final static int REFORMATTING_EXPECTED_FAILURE = 6;
+	final static int REFORMATTING_LEADING_FAILURE = 7;
+	final static int REFORMATTING_WHITESPACES_FAILURE = 8;
 	static class FormattingFailure {
 		String msg;
 		int kind;
@@ -256,6 +257,8 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 					return "no output while formatting";
 				case  COMPILATION_ERRORS_FAILURE:
 					return "compilation errors which prevent the formatter to proceed";
+				case  FILE_NOT_FOUND_FAILURE:
+					return "no formatted output to compare with";
 				case  COMPARISON_FAILURE:
 					return "different output while comparing with previous version";
 				default:
@@ -700,7 +703,16 @@ private static void initVersion(StringBuffer buffer) {
 						Integer.parseInt(PATCH_BUG);
 					}
 					catch (NumberFormatException nfe) {
-						System.err.println("Invalid patch bug number noticed in JDT/Core buildnotes: "+PATCH_BUG);
+						// try to split
+						StringTokenizer bugTokenizer = new StringTokenizer(PATCH_BUG, "+");
+						try {
+							while (bugTokenizer.hasMoreTokens()) {
+								Integer.parseInt(bugTokenizer.nextToken());
+							}
+						}
+						catch (NumberFormatException nfe2) {
+							System.err.println("Invalid patch bug number noticed in JDT/Core buildnotes: "+PATCH_BUG);
+						}
 					}
 				}
 				if (!JDT_CORE_HEAD) break;
@@ -956,9 +968,14 @@ void compareFormattedSource() throws IOException, Exception {
 		// Look for output to compare with
 		File outputFile = new Path(OUTPUT_DIR.getPath()).append(this.path).toFile();
 		if (actualResult != null && FAILURES != null && this.canCompare) {
-			String expectedResult = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(outputFile, null));
 			try {
+				String expectedResult = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(outputFile, null));
 				assertSourceEquals("Unexpected format output!", expectedResult, actualResult);
+			}
+			catch (FileNotFoundException fnfe) {
+				this.failureIndex = FILE_NOT_FOUND_FAILURE;
+				FAILURES[FILE_NOT_FOUND_FAILURE].failures.add(this.path);
+				return;
 			}
 			catch (ComparisonFailure cf) {
 				this.failureIndex = COMPARISON_FAILURE;

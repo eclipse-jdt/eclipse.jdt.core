@@ -1568,4 +1568,116 @@ public void testBug293496() {
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 	assertEquals("wrong indentation string", org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING, codeFormatter.createIndentationString(0));
 }
+
+/**
+ * @bug 294500: [formatter] MalformedTreeException when formatting an invalid sequence of <code> tags in a javadoc comment
+ * @test Verify that no MalformedTreeException occurs while formatting bug test cases
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=294500"
+ */
+public void testBug294500a() {
+	String source =
+		"package wkps3;\n" + 
+		"/**\n" + 
+		" * This sample produce an MalformedTreeException\n" + 
+		" * when formatted.\n" + 
+		" *\n" + 
+		" * <p> First paragraph\n" + 
+		" * {@link java.lang.String </code>a simple\n" + 
+		" * string<code>}.\n" + 
+		" *\n" + 
+		" * <p> Second paragraph.\n" + 
+		" *\n" + 
+		" * <p> Third paragraph. </p>\n" + 
+		" *\n" + 
+		" */\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wkps3;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * This sample produce an MalformedTreeException when formatted.\n" + 
+		" * \n" + 
+		" * <p>\n" + 
+		" * First paragraph {@link java.lang.String </code>a simple string<code>}.\n" + 
+		" * \n" + 
+		" * <p>\n" + 
+		" * Second paragraph.\n" + 
+		" * \n" + 
+		" * <p>\n" + 
+		" * Third paragraph.\n" + 
+		" * </p>\n" + 
+		" * \n" + 
+		" */\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug294500b() {
+	String source =
+		"package wkps3;\n" + 
+		"/**\n" + 
+		" * This sample produce an AIIOBE when formatting.\n" + 
+		" *\n" + 
+		" * <p> First paragraph\n" + 
+		" * {@link java.lang.String </code>a simple\n" + 
+		" * string<code>}.\n" + 
+		" */\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wkps3;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * This sample produce an AIIOBE when formatting.\n" + 
+		" * \n" + 
+		" * <p>\n" + 
+		" * First paragraph {@link java.lang.String </code>a simple string<code>}.\n" + 
+		" */\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 294631: [formatter] The formatter takes two passes to format a common sequence of html tags
+ * @test Verify that the specific sequence of html tags is well formatted in one pass
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=294631"
+ */
+public void testBug294631() {
+	String source =
+		"package wkps3;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * This comment makes the formatter unstable:\n" + 
+		" * \n" + 
+		" * <ol>\n" + 
+		" *   <li><p> first line\n" + 
+		" *   second line</li>\n" + 
+		" * </ol>\n" + 
+		" */\n" + 
+		"public class X {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wkps3;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * This comment makes the formatter unstable:\n" + 
+		" * \n" + 
+		" * <ol>\n" + 
+		" * <li>\n" + 
+		" * <p>\n" + 
+		" * first line second line</li>\n" + 
+		" * </ol>\n" + 
+		" */\n" + 
+		"public class X {\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
 }
