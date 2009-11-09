@@ -3536,8 +3536,9 @@ public class Scribe implements IJavaDocTagConstants {
 
 		// Insert last gap
 	    boolean closingTag = isHtmlBreakTag || (text.htmlIndexes != null && (text.htmlIndexes[max] & JAVADOC_TAGS_ID_MASK) == htmlTagID);
+		boolean isValidHtmlSeparatorTag = max > 0 && isHtmlSeparatorTag && closingTag;
 		if (previousEnd != -1) {
-		    if (max > 0 && isHtmlSeparatorTag && closingTag) {
+		    if (isValidHtmlSeparatorTag) {
 				if (linesAfter == 0) linesAfter = 1;
 			}
 			if (linesAfter > 0) {
@@ -3563,10 +3564,7 @@ public class Scribe implements IJavaDocTagConstants {
 		this.scanner.resetTo(text.sourceEnd+1, this.scannerEndPosition - 1);
 
 		// Return the new lines to insert after
-	    if (max > 0 && isHtmlSeparatorTag) {
-			return 1;
-		}
-	    return 0;
+	    return isValidHtmlSeparatorTag ? 1 : 0;
     }
 
 	private void printJavadocNewLine(StringBuffer buffer) {
