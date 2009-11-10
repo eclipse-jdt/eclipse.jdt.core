@@ -124,6 +124,14 @@ public void setUpSuite() throws Exception {
 		"  void foo12() {}\n" +
 		"  @MyAnnot(_array={1, 2, 3})\n" +
 		"  void foo13() {}\n" +
+		"  @MyAnnot(_neg_int = -2)\n" +
+		"  void foo14() {}\n" +
+		"  @MyAnnot(_neg_float=-2.0f)\n" +
+		"  void foo15() {}\n" +
+		"  @MyAnnot(_neg_double=-2.0)\n" +
+		"  void foo16() {}\n" +
+		"  @MyAnnot(_neg_long=-2L)\n" +
+		"  void foo17() {}\n" +
 		"}\n" +
 		"@interface MyAnnot {\n" +
 		"  int _int() default 0;\n" +
@@ -139,6 +147,10 @@ public void setUpSuite() throws Exception {
 		"  Class _class() default Object.class;\n" +
 		"  MyEnum _enum() default MyEnum.FIRST;\n" +
 		"  int[] _array() default {};\n" +
+		"  int _neg_int() default -1;\n" +
+		"  float _neg_float() default -1.0f;\n" +
+		"  double _neg_double() default -1.0;\n" +
+		"  long _neg_long() default -1L;\n" +
 		"}\n" +
 		"@interface MyOtherAnnot {\n" +
 		"}\n" +
@@ -452,6 +464,54 @@ public void testAnnotations21() throws JavaModelException {
 	assertAnnotationsEqual(
 		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS)\n",
 		type.getAnnotations());
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248312
+ * Ensures that an annotation with a negative int value is correct
+ */
+public void testAnnotations22() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo14", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_neg_int=(int)-2)\n",
+		method.getAnnotations());
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248312
+ * Ensures that an annotation with a negative float value is correct
+ */
+public void testAnnotations23() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo15", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_neg_float=-2.0f)\n",
+		method.getAnnotations());
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248312
+ * Ensures that an annotation with a negative double value is correct
+ */
+public void testAnnotations24() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo16", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_neg_double=(double)-2.0)\n",
+		method.getAnnotations());
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248312
+ * Ensures that an annotation with a negative long value is correct
+ */
+public void testAnnotations25() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo17", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_neg_long=-2L)\n",
+		method.getAnnotations());
 }
 
 /*

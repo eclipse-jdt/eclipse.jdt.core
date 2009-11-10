@@ -3160,6 +3160,34 @@ public class Util {
 				return null;
 		}
 	}
+	
+	/*
+	 * Creates a member value from the given constant in case of negative numerals,
+	 * and sets the valueKind on the given memberValuePair
+	 */
+	public static Object getNegativeAnnotationMemberValue(MemberValuePair memberValuePair, Constant constant) {
+		if (constant == null) {
+			memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+			return null;
+		}
+		switch (constant.typeID()) {
+			case TypeIds.T_int :
+				memberValuePair.valueKind = IMemberValuePair.K_INT;
+				return new Integer(constant.intValue() * -1);
+			case TypeIds.T_float :
+				memberValuePair.valueKind = IMemberValuePair.K_FLOAT;
+				return new Float(constant.floatValue() * -1.0f);
+			case TypeIds.T_double :
+				memberValuePair.valueKind = IMemberValuePair.K_DOUBLE;
+				return new Double(constant.doubleValue() * -1.0);
+			case TypeIds.T_long :
+				memberValuePair.valueKind = IMemberValuePair.K_LONG;
+				return new Long(constant.longValue() * -1L);
+			default:
+				memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+				return null;
+		}
+	}
 	/**
 	 * Split signatures of all levels  from a type unique key.
 	 *

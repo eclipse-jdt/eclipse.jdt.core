@@ -285,6 +285,115 @@ public void testDefaultValue6() throws CoreException {
 }
 
 /*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248312
+ * Ensures that the default value (a negative int) for an annotation method is correct.
+ */
+public void testDefaultValue7() throws CoreException {
+	try {
+		String cuSource =
+			"package p;\n" +
+			"public @interface Y {\n" +
+			"  public int member() default -1;\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
+		assertMemberValuePairEquals(
+			"member=(int)-1",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248312
+ * Ensures that the default value (a negative float) for an annotation method is correct.
+ */
+public void testDefaultValue8() throws CoreException {
+	try {
+		String cuSource =
+			"package p;\n" +
+			"public @interface Y {\n" +
+			"  public float member() default -1.0f;\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
+		assertMemberValuePairEquals(
+			"member=-1.0f",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248312
+ * Ensures that the default value (a negative double) for an annotation method is correct.
+ */
+public void testDefaultValue9() throws CoreException {
+	try {
+		String cuSource =
+			"package p;\n" +
+			"public @interface Y {\n" +
+			"  public double member() default -1.0;\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
+		assertMemberValuePairEquals(
+			"member=(double)-1.0",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248312
+ * Ensures that the default value (a negative long) for an annotation method is correct.
+ */
+public void testDefaultValue10() throws CoreException {
+	try {
+		String cuSource =
+			"package p;\n" +
+			"public @interface Y {\n" +
+			"  public long member() default -1L;\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
+		assertMemberValuePairEquals(
+			"member=-1L",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248312
+ * Ensures that the default value (a sign appended Qualified Name Reference) for an annotation method
+ * doesn't throw an exception
+ */
+public void testDefaultValue11() throws CoreException {
+	try {
+		String cuSource =
+			"package p;\n" +
+			"interface A {\n" +
+			"	static int VAL = 1;\n" +
+			"}\n" +
+			"public @interface Y {\n" +
+			"  public int member() default -A.VAL;\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
+		assertMemberValuePairEquals(
+			"member=<null>",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
  * Ensure that the deprecated flag is correctly reported
  * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
  */
@@ -2290,5 +2399,41 @@ public void testApplyEdit3() throws CoreException {
 		this.workingCopy.getSource());
 }
 
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=248312
+ * Ensures that negative values work while annotating local variables.
+ */
+public void testBug248312() throws CoreException{
+	createWorkingCopy(
+			"package p;\n" +
+			"interface A {\n" +
+			"	static int VAL = 2;\n" +
+			"}\n" +
+			"public @interface Y {\n" +
+			"  public int member_int() default -1;\n" +
+			"  public int member_int2() default -1;\n" +
+			"  public float member_float() default -1.0f\n" +
+			"  public double member_double=-1.0\n" +
+			"  public long member_long=-1L\n" +
+			"}\n" +
+			"public class Test{\n" +
+			"	void testMethod(){\n" +
+			"		@Y(member_int=-2) @Y(member_float=-2.0f)\n" +
+			"		@Y(member_double=-2.0) @Y(member_long=-2L)\n" +
+			"		@Y(member_int2=-A.VAL)\n" +
+			"		Object testField1\n" +
+			"	}\n" +
+			"}"
+			);
+	ILocalVariable variable1 = selectLocalVariable(this.workingCopy, "testField1");
+	IAnnotation[] annotations = variable1.getAnnotations();
+	assertAnnotationsEqual(
+	"@Y(member_int=(int)-2)\n" +
+	"@Y(member_float=-2.0f)\n" +
+	"@Y(member_double=(double)-2.0)\n" +
+	"@Y(member_long=-2L)\n" +
+	"@Y(member_int2=<null>)\n",
+	annotations);
+}
 
 }
