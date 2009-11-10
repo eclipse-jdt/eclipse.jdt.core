@@ -205,7 +205,6 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private final int testIndex;
 
 	// Cleaning
-	private final File[] inputFiles;
 	private static int MAX_FILES, MAX_DIGITS;
 
 	// Formatting behavior
@@ -380,11 +379,12 @@ public static Test suite() {
 
 		// Init directories
 		initDirectories(buffer);
-		buffer.append("Compare vs: ");
+//		buffer.append("Compare vs: ");
 		if (CAN_COMPARE) {
 			if (CLEAN) {
-				buffer.append(JDT_CORE_VERSION);
+//				buffer.append(JDT_CORE_VERSION);
 			} else {
+				buffer.append("Compare vs: ");
 				File versionFile = new File(OUTPUT_DIR, "version.txt");
 				if (versionFile.exists()) {
 					buffer.append(Util.fileContent(versionFile.getAbsolutePath()));
@@ -393,7 +393,7 @@ public static Test suite() {
 				}
 			}
 		} else {
-			buffer.append("none");
+			buffer.append("Compare vs: none");
 		}
 
 		// Write logs
@@ -407,12 +407,16 @@ public static Test suite() {
 		// Add tests to clean the output directory and rebuild the references
 		if (CLEAN) {
 			suite.addTest(new FormatterMassiveRegressionTests());
-			suite.addTest(new FormatterMassiveRegressionTests(allFiles));
+//			suite.addTest(new FormatterMassiveRegressionTests(allFiles));
 		}
 		
 		// Add one test per found file
 		for (int i=0; i<MAX_FILES; i++) {
-			suite.addTest(new FormatterMassiveRegressionTests(allFiles[i], i, CAN_COMPARE));
+			if (CLEAN) {
+				suite.addTest(new FormatterMassiveRegressionTests(allFiles[i], i, false/*do not compare while cleaning*/));
+			} else {
+				suite.addTest(new FormatterMassiveRegressionTests(allFiles[i], i, CAN_COMPARE));
+			}
 		}
     } catch (Exception e) {
     	// skip
@@ -469,18 +473,21 @@ private static void initDirectories(StringBuffer buffer) {
 	String dir = System.getProperty("outputDir"); //$NON-NLS-1$
 	if (dir != null) {
 		int idx = dir.indexOf(',');
+		String outputDir;
 		if (idx < 0) {
-			setOutputDir(dir, buffer);
+			outputDir = dir;
 		} else {
-			setOutputDir(dir.substring(0, idx), buffer);
+			outputDir = dir.substring(0, idx);
 			if (dir.substring(idx+1).equals("clean")) {
 				CLEAN = true;
 			}
 		}
+		setOutputDir(outputDir, buffer);
 		if (CLEAN) {
 			if (PATCH_BUG != null || JDT_CORE_HEAD) {
 				throw new RuntimeException("Reference can only be updated using a version (i.e. with a closed buildnotes_jdt-core.html)!");
 			}
+			return;
 		} else if (!OUTPUT_DIR.exists()) {
 			System.err.println("            WARNING: The output directory "+OUTPUT_DIR+" does not exist...");
 			System.err.println("            => NO comparison could be done!");
@@ -522,7 +529,10 @@ private static void setLogDir(StringBuffer buffer) throws CoreException {
 //	IFolder rootFolder = project.getFolder("Formatter");
 	File logDir = new File(System.getProperty("logDir"));
 	if (!logDir.exists()) {
-		return;
+		if (!logDir.mkdirs()) {
+			System.err.println("Cannot create specified log directory: "+logDir+"!!!");
+			return;
+		}
 	}
 
 	// Compute log sub-directories depending on profiles
@@ -645,6 +655,10 @@ private static void setOutputDir(String dir, StringBuffer buffer) {
 	buffer.append("Output dir: ");
 	buffer.append(OUTPUT_DIR);
 	buffer.append(LINE_SEPARATOR);
+	if (CLEAN) {
+		buffer.append("            CLEANED");
+		buffer.append(LINE_SEPARATOR);
+	}
 }
 
 private static void initFailures() {
@@ -747,14 +761,14 @@ public FormatterMassiveRegressionTests() {
 	super("testDeleteOutputDir");
 	this.canCompare = false;
 	this.file = null;
-	this.inputFiles = null;
+//	this.inputFiles = null;
 	this.testIndex = -1;
 	this.path = new Path(OUTPUT_DIR.getPath());
 }
 
 /*
  * Constructor used to dump references in the output directory.
- */
+ *
 public FormatterMassiveRegressionTests(File[] files) {
 	super("testMakeReferences");
 	assertNotNull("This test needs some files to proceed!", files);
@@ -769,10 +783,10 @@ public FormatterMassiveRegressionTests(File[] files) {
  * Contructor used to compare outputs.
  */
 public FormatterMassiveRegressionTests(File file, int index, boolean compare) {
-	super("testCompare");
+	super(CLEAN ? "testReference" : "testCompare");
 	this.canCompare = compare;
 	this.file = file;
-	this.inputFiles = null;
+//	this.inputFiles = null;
 	this.testIndex = index;
 	this.path = new Path(file.getPath().substring(INPUT_DIR.getPath().length()+1));
 }
@@ -852,11 +866,12 @@ public void tearDownSuite() throws Exception {
 
 	// Display time measures
 	StringBuffer buffer1 = new StringBuffer();
-	buffer1.append("Time measures:");
 	if (CLEAN) {
-		buffer1.append(" cannot be done as the directory was cleaned!");
-		buffer1.append(LINE_SEPARATOR);
+//		buffer1.append(" cannot be done as the directory was cleaned!");
+//		buffer1.append(LINE_SEPARATOR);
+		return;
 	} else {
+		buffer1.append("Time measures:");
 		buffer1.append(LINE_SEPARATOR);
 		for (int i=0; i<FORMAT_REPEAT; i++) {
 			buffer1.append("	- "+counterToString(i+1)).append(" format:").append(LINE_SEPARATOR);
@@ -1269,38 +1284,32 @@ public void testDeleteOutputDir() throws IOException, Exception {
 /*
  * Test to fill the output directory with reference.
  */
-public void testMakeReferences() throws IOException, Exception {
+public void testReference() throws IOException, Exception {
 
 	// Dump the version
-	File versionFile = new Path(OUTPUT_DIR.getPath()).append("version.txt").toFile();
-	OUTPUT_DIR.mkdirs();
-	Util.writeToFile(JDT_CORE_VERSION, versionFile.getAbsolutePath());
+	if (this.testIndex == 0) {
+		File versionFile = new Path(OUTPUT_DIR.getPath()).append("version.txt").toFile();
+		OUTPUT_DIR.mkdirs();
+		Util.writeToFile(JDT_CORE_VERSION, versionFile.getAbsolutePath());
+	}
 
-	// Format each file of the input dir and write the result to the output directory
-	assertNotNull("We should have got input files from "+INPUT_DIR, this.inputFiles);
-	DefaultCodeFormatter codeFormatter = codeFormatter();
-	int length = this.inputFiles.length;
-	for (int i=0; i<length; i++) {
+	// Get the source from file
+	String source = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.file, null));
+	try {
+		// Format the source
+		TextEdit edit = codeFormatter().format(CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, source, 0, source.length(), 0, null);
 
-		// Get the source from file
-		String source = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.inputFiles[i], null));
-
-		try {
-			// Format the source
-			TextEdit edit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, source, 0, source.length(), 0, null);
-
-			// Write the result
-			if (edit != null) {
-				String formatResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
-				String inputPath = this.inputFiles[i].getPath().substring(INPUT_DIR.getPath().length()+1);
-				File writtenFile = new Path(OUTPUT_DIR.getPath()).append(inputPath).toFile();
-				writtenFile.getParentFile().mkdirs();
-				Util.writeToFile(formatResult, writtenFile.getAbsolutePath());
-			}
+		// Write the result
+		if (edit != null) {
+			String formatResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
+			String inputPath = this.file.getPath().substring(INPUT_DIR.getPath().length()+1);
+			File writtenFile = new Path(OUTPUT_DIR.getPath()).append(inputPath).toFile();
+			writtenFile.getParentFile().mkdirs();
+			Util.writeToFile(formatResult, writtenFile.getAbsolutePath());
 		}
-		catch (Exception ex) {
-			// skip silently
-		}
+	}
+	catch (Exception ex) {
+		// skip silently
 	}
 }
 
