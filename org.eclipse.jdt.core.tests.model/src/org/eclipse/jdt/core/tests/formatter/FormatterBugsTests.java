@@ -1644,6 +1644,125 @@ public void testBug294500b() {
 }
 
 /**
+ * @bug 294618: [formatter] The formatter takes two passes to format a common sequence of html tags
+ * @test Verify that the specific sequence of html tags is well formatted in one pass
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=294618"
+ */
+public void testBug294618a() {
+	String source =
+		"package wkps3;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * The formatter was not able to format the current comment:\n" + 
+		" * \n" + 
+		" * <ol>\n" + 
+		" *   <li><p> First item\n" + 
+		" *\n" + 
+		" *   <li><p> Second item\n" + 
+		" *\n" + 
+		" *   <li><p> First paragraph of third item\n" + 
+		" *\n" + 
+		" *   <p> Second paragraph of third item\n" + 
+		" *\n" + 
+		" *   <blockquote><table cellpadding=0 cellspacing=0 summary=\"layout\">\n" + 
+		" *   <tr><td><tt>::255.255.0.d</tt><td></tr>\n" + 
+		" *   </table></blockquote>\n" + 
+		" *   </li>\n" + 
+		" * </ol>\n" + 
+		" */\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wkps3;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * The formatter was not able to format the current comment:\n" + 
+		" * \n" + 
+		" * <ol>\n" + 
+		" * <li>\n" + 
+		" * <p>\n" + 
+		" * First item\n" + 
+		" * \n" + 
+		" * <li>\n" + 
+		" * <p>\n" + 
+		" * Second item\n" + 
+		" * \n" + 
+		" * <li>\n" + 
+		" * <p>\n" + 
+		" * First paragraph of third item\n" + 
+		" * \n" + 
+		" * <p>\n" + 
+		" * Second paragraph of third item\n" + 
+		" * \n" + 
+		" * <blockquote>\n" + 
+		" * <table cellpadding=0 cellspacing=0 summary=\"layout\">\n" + 
+		" * <tr>\n" + 
+		" * <td><tt>::255.255.0.d</tt>\n" + 
+		" * <td>\n" + 
+		" * </tr>\n" + 
+		" * </table>\n" + 
+		" * </blockquote></li>\n" + 
+		" * </ol>\n" + 
+		" */\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug294618b() {
+	String source =
+		"/**\n" + 
+		" * Verify deep html tag nesting:\n" + 
+		" * \n" + 
+		" * <ol>\n" + 
+		" *   <li><p> First item\n" + 
+		" *   <li><p> Second item\n" + 
+		" *   <ul>\n" + 
+		" *     <li><p> First item of second item\n" + 
+		" *       <blockquote><table cellpadding=0 cellspacing=0 summary=\"layout\">\n" + 
+		" *       <tr><td><tt><i><b>::255.255.0.d</b></i></tt></td></tr>\n" + 
+		" *       </table></blockquote>\n" + 
+		" *     </li>\n" + 
+		" *   </ul>\n" + 
+		" *   </li>\n" + 
+		" * </ol>\n" + 
+		" */\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Verify deep html tag nesting:\n" + 
+		" * \n" + 
+		" * <ol>\n" + 
+		" * <li>\n" + 
+		" * <p>\n" + 
+		" * First item\n" + 
+		" * <li>\n" + 
+		" * <p>\n" + 
+		" * Second item\n" + 
+		" * <ul>\n" + 
+		" * <li>\n" + 
+		" * <p>\n" + 
+		" * First item of second item <blockquote>\n" + 
+		" * <table cellpadding=0 cellspacing=0 summary=\"layout\">\n" + 
+		" * <tr>\n" + 
+		" * <td><tt><i><b>::255.255.0.d</b></i></tt></td>\n" + 
+		" * </tr>\n" + 
+		" * </table>\n" + 
+		" * </blockquote></li>\n" + 
+		" * </ul>\n" + 
+		" * </li>\n" + 
+		" * </ol>\n" + 
+		" */\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 294631: [formatter] The formatter takes two passes to format a common sequence of html tags
  * @test Verify that the specific sequence of html tags is well formatted in one pass
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=294631"

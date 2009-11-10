@@ -211,14 +211,14 @@ FormatJavadocText[] getTextHierarchy(FormatJavadocNode node, int htmlDepth) {
 			}
 			// If we have a text after another text, keep the same level to append
 			if (lastTextCanHaveChildren || (htmlDepth == 0 && !lastText.isHtmlTag() && text != null && !text.isHtmlTag())) {
-				if (textHierarchy == null) textHierarchy = new FormatJavadocText[MAX_TAG_HIERARCHY];
+				if (textHierarchy == null) textHierarchy = new FormatJavadocText[htmlDepth+1];
 				textHierarchy[ptr] = lastText;
 				return textHierarchy;
 			}
 			// Last text cannot have children, so return the built hierarchy
 			return textHierarchy;
 		}
-		if (textHierarchy == null) textHierarchy = new FormatJavadocText[MAX_TAG_HIERARCHY];
+		if (textHierarchy == null) textHierarchy = new FormatJavadocText[htmlDepth+1];
 		textHierarchy[ptr++] = lastText;
 		lastNode = lastText.htmlNodes[lastText.htmlNodesPtr];
 	}
