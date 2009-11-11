@@ -401,10 +401,13 @@ IImportDeclaration[] getImports() throws JavaModelException;
  */
 ICompilationUnit getPrimary();
 /**
- * Returns the working copy owner of this working copy.
- * Returns null if it is not a working copy or if it has no owner.
- *
- * @return WorkingCopyOwner the owner of this working copy or <code>null</code>
+ * Returns <tt>null</tt> if this <code>ICompilationUnit</code> is the primary
+ * working copy, or this <code>ICompilationUnit</code> is not a working copy,
+ * otherwise the <code>WorkingCopyOwner</code>
+ * 
+ * @return <tt>null</tt> if this <code>ICompilationUnit</code> is the primary
+ * working copy, or this <code>ICompilationUnit</code> is not a working copy,
+ * otherwise the <code>WorkingCopyOwner</code>
  * @since 3.0
  */
 WorkingCopyOwner getOwner();
