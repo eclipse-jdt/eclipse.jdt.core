@@ -1,0 +1,8 @@
+To be done:
+- check that all wrong usages of modifiers are properly reported
+- implement recovery, code assist and selection parsers
+- code generation
+- disassembler
+- formatter
+- search (indexer)
+- DOM/AST
