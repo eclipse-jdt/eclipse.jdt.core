@@ -138,10 +138,24 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 		if (!isAcceptableReturnTypeOverride(currentMethod, inheritedMethod))
 			problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);
 
-	if (this.type.addSyntheticBridgeMethod(originalInherited, currentMethod.original()) != null) {
+	MethodBinding bridge = this.type.addSyntheticBridgeMethod(originalInherited, currentMethod.original());
+	if (bridge != null) {
 		for (int i = 0, l = allInheritedMethods == null ? 0 : allInheritedMethods.length; i < l; i++) {
 			if (allInheritedMethods[i] != null && detectInheritedNameClash(originalInherited, allInheritedMethods[i].original()))
 				return;
+		}
+		// See if the new bridge clashes with any of the user methods of the class. For this check
+		// we should check for "method descriptor clash" and not just "method signature clash". Really
+		// what we are checking is whether there is a contention for the method dispatch table slot.
+		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=293615.
+		MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(bridge.selector);
+		for (int i = current.length - 1; i >= 0; --i) {
+			final MethodBinding thisMethod = current[i];
+			if (thisMethod.areParameterErasuresEqual(bridge) && thisMethod.returnType.erasure() == bridge.returnType.erasure()) {
+				// use inherited method for problem reporting.
+				problemReporter(thisMethod).methodNameClash(thisMethod, inheritedMethod.declaringClass.isRawType() ? inheritedMethod : inheritedMethod.original());
+				return;	
+			}
 		}
 	}
 }
@@ -180,7 +194,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 
 	if (currentMethod.declaringClass.isInterface() || inheritedMethod.isStatic()) return;
 
-	if (!detectNameClash(currentMethod, inheritedMethod)) { // check up the hierarchy for skipped inherited methods
+	if (!detectNameClash(currentMethod, inheritedMethod, false)) { // check up the hierarchy for skipped inherited methods
 		TypeBinding[] currentParams = currentMethod.parameters;
 		TypeBinding[] inheritedParams = inheritedMethod.parameters;
 		int length = currentParams.length;
@@ -204,7 +218,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 			MethodBinding[] methods = superType.getMethods(currentMethod.selector);
 			for (int m = 0, n = methods.length; m < n; m++) {
 				MethodBinding substitute = computeSubstituteMethod(methods[m], currentMethod);
-				if (substitute != null && !isSubstituteParameterSubsignature(currentMethod, substitute) && detectNameClash(currentMethod, substitute))
+				if (substitute != null && !isSubstituteParameterSubsignature(currentMethod, substitute) && detectNameClash(currentMethod, substitute, true))
 					return;
 			}
 			if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
@@ -232,7 +246,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 				MethodBinding[] methods = superType.getMethods(currentMethod.selector);
 				for (int m = 0, n = methods.length; m < n; m++){
 					MethodBinding substitute = computeSubstituteMethod(methods[m], currentMethod);
-					if (substitute != null && !isSubstituteParameterSubsignature(currentMethod, substitute) && detectNameClash(currentMethod, substitute))
+					if (substitute != null && !isSubstituteParameterSubsignature(currentMethod, substitute) && detectNameClash(currentMethod, substitute, true))
 						return;
 				}
 				if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
@@ -555,11 +569,27 @@ boolean detectInheritedNameClash(MethodBinding inherited, MethodBinding otherInh
 	problemReporter().inheritedMethodsHaveNameClash(this.type, inherited, otherInherited);
 	return true;
 }
-boolean detectNameClash(MethodBinding current, MethodBinding inherited) {
-	MethodBinding original = inherited.original(); // can be the same as inherited
+boolean detectNameClash(MethodBinding current, MethodBinding inherited, boolean treatAsSynthetic) {
+	MethodBinding methodToCheck = inherited;
+	if (!treatAsSynthetic) {
+		// For a user method, see if current class overrides the inherited method. If it does,
+		// then any grievance we may have ought to be against the current class's method and
+		// NOT against any super implementations. https://bugs.eclipse.org/bugs/show_bug.cgi?id=293615
+		MethodBinding[] currentNamesakes = (MethodBinding[]) this.currentMethods.get(inherited.selector);
+		if (currentNamesakes.length > 1) { // we know it ought to at least one and that current is NOT the override
+			for (int i = 0, length = currentNamesakes.length; i < length; i++) {
+				MethodBinding currentMethod = currentNamesakes[i];
+				if (currentMethod != current && doesMethodOverride(currentMethod, inherited)) {
+					methodToCheck = currentMethod;
+					break;
+				}
+			}
+		}
+	}
+	MethodBinding original = methodToCheck.original(); // can be the same as inherited
 	if (!current.areParameterErasuresEqual(original))
 		return false;
-
+	original = inherited.original();  // For error reporting use, inherited.original()
 	problemReporter(current).methodNameClash(current, inherited.declaringClass.isRawType() ? inherited : original);
 	return true;
 }

@@ -10684,4 +10684,51 @@ public void test203() {
 		""
 	);
 }
+// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=293615 (bad name clash error)
+// No user vs user clash or user vs synthetic clash in this test
+public void test204() {
+	this.runConformTest(
+		new String[] {
+			"OverrideBug.java",
+			"import java.util.List;\n" +
+			"interface Map<K, V> {\n" + 
+			"	public V put(K key, V value);\n" +
+			"}\n" +
+			"public class OverrideBug<K, V> implements Map<K, List<V>> {\n" +
+			"public List<V> put(final K arg0, final List<V> arg1) {\n" +
+			"    return null;\n" +
+			"}\n" +
+			"public List<V> put(final K arg0, final V arg1) {\n" +
+			"    return null;\n" +
+			"}\n" +
+			"}"
+		},
+		"");
+}
+// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=293615 (bad name clash error)
+// verify that we report user vs bridge clash properly.
+public void test204a() {
+	this.runNegativeTest(
+		new String[] {
+			"OverrideBug.java",
+			"import java.util.List;\n" +
+			"interface Map<K, V> {\n" + 
+			"	public V put(K key, V value);\n" +
+			"}\n" +
+			"public class OverrideBug<K, V> implements Map<K, List<V>> {\n" +
+			"public List<V> put(final K arg0, final List<V> arg1) {\n" +
+			"    return null;\n" +
+			"}\n" +
+			"public V put(final K arg0, final V arg1) {\n" +
+			"    return null;\n" +
+			"}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in OverrideBug.java (at line 9)\n" + 
+		"	public V put(final K arg0, final V arg1) {\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method put(K, V) of type OverrideBug<K,V> has the same erasure as put(K, V) of type Map<K,V> but does not override it\n" + 
+		"----------\n");
+}
 }
