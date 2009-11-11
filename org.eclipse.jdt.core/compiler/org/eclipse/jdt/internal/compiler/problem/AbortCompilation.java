@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,27 @@ public class AbortCompilation extends RuntimeException {
 		this.isSilent = isSilent;
 		this.silentException = silentException;
 	}
-	
+	public String getKey() {
+		StringBuffer buffer = new StringBuffer();
+		if (this.problem != null) {
+			buffer.append(this.problem);
+		}
+		return String.valueOf(buffer);
+	}
+	public String getMessage() {
+		String message = super.getMessage();
+		StringBuffer buffer = new StringBuffer(message == null ? Util.EMPTY_STRING : message);
+		if (this.problem != null) {
+			buffer.append(this.problem);
+		} else if (this.exception != null) {
+			message = this.exception.getMessage();
+			buffer.append(message == null ? Util.EMPTY_STRING : message);
+		} else if (this.silentException != null) {
+			message = this.silentException.getMessage();
+			buffer.append(message == null ? Util.EMPTY_STRING : message);
+		}
+		return String.valueOf(buffer);
+	}
 	public void updateContext(InvocationSite invocationSite, CompilationResult unitResult) {
 		if (this.problem == null) return;
 		if (this.problem.getSourceStart() != 0 || this.problem.getSourceEnd() != 0) return;
