@@ -1125,6 +1125,8 @@ void setSourceStart(int sourceStart);
 	int IncompatibleTypesInForeach = TypeRelated + 580;
 	/** @since 3.1 */
 	int InvalidTypeForCollection = Internal + 581;
+	/** @since 3.6*/
+	int InvalidTypeForCollectionTarget14 = Internal + 582;
 
 	/**
 	 * 1.5 Syntax errors (when source level < 1.5)

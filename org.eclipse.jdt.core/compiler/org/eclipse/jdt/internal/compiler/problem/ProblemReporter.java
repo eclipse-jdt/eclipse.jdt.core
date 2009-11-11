@@ -3712,6 +3712,14 @@ public void invalidTypeForCollection(Expression expression) {
 			expression.sourceStart,
 			expression.sourceEnd);
 }
+public void invalidTypeForCollectionTarget14(Expression expression) {
+	this.handle(
+			IProblem.InvalidTypeForCollectionTarget14,
+			NoArgument,
+			NoArgument,
+			expression.sourceStart,
+			expression.sourceEnd);
+}
 public void invalidTypeReference(Expression expression) {
 	this.handle(
 		IProblem.InvalidTypeExpression,
