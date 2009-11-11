@@ -133,8 +133,8 @@ private void buildMoreCompletionContext(Expression expression) {
 			case K_CAST_STATEMENT :
 				Expression castType;
 				if(this.expressionPtr > 0
-					&& ((castType = this.expressionStack[this.expressionPtr-1]) instanceof TypeReference)) {
-					CastExpression cast = new CastExpression(expression, castType);
+						&& ((castType = this.expressionStack[this.expressionPtr-1]) instanceof TypeReference)) {
+					CastExpression cast = new CastExpression(expression, (TypeReference) castType);
 					cast.sourceStart = castType.sourceStart;
 					cast.sourceEnd= expression.sourceEnd;
 					parentNode = cast;
@@ -548,10 +548,31 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			endOfEllipsis = this.intStack[this.intPtr--];
 		}
 		int firstDimensions = this.intStack[this.intPtr--];
-		final int typeDimensions = firstDimensions + extendedDimensions;
-		TypeReference type = getTypeReference(typeDimensions);
+		TypeReference type = getUnannotatedTypeReference(extendedDimensions);
+		Annotation [] varArgsAnnotations = null;
+		int length;
+		if ((length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.typeAnnotationStack,
+				(this.typeAnnotationPtr -= length) + 1,
+				varArgsAnnotations = new Annotation[length],
+				0,
+				length);
+		} 
+		final int typeDimensions = firstDimensions + extendedDimensions + (isVarArgs ? 1 : 0);
+		if (typeDimensions != extendedDimensions) {
+			// jsr308 type annotations management
+			Annotation [][] annotationsOnFirstDimensions = firstDimensions == 0 ? null : getAnnotationsOnDimensions(firstDimensions);
+			Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : type.getAnnotationsOnDimensions();
+			Annotation [][] annotationsOnAllDimensions = null;
+			if (annotationsOnFirstDimensions != null || annotationsOnExtendedDimensions != null || varArgsAnnotations != null) {
+				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions, annotationsOnFirstDimensions, extendedDimensions, annotationsOnExtendedDimensions); 
+				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions + extendedDimensions, annotationsOnAllDimensions, isVarArgs ? 1 : 0, isVarArgs ? new Annotation[][]{varArgsAnnotations} : null);
+			}
+			type = copyDims(type, typeDimensions, annotationsOnAllDimensions);
+			type.sourceEnd = type.isParametrizedTypeReference() ? this.endStatementPosition : this.endPosition;
+		}
 		if (isVarArgs) {
-			type = copyDims(type, typeDimensions + 1);
 			if (extendedDimensions == 0) {
 				type.sourceEnd = endOfEllipsis;
 			}
@@ -568,7 +589,6 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		arg.declarationSourceStart = modifierPositions;
 
 		// consume annotations
-		int length;
 		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
 			System.arraycopy(
 				this.expressionStack,

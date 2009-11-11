@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypeParameter extends AbstractVariableDeclaration {
 
-    public TypeVariableBinding binding;
+	public TypeVariableBinding binding;
 	public TypeReference[] bounds;
 
 	/**
@@ -67,6 +67,9 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#print(int, java.lang.StringBuffer)
 	 */
 	public StringBuffer printStatement(int indent, StringBuffer output) {
+		if (this.annotations != null) {
+			printAnnotations(this.annotations, output);
+		}
 		output.append(this.name);
 		if (this.type != null) {
 			output.append(" extends "); //$NON-NLS-1$

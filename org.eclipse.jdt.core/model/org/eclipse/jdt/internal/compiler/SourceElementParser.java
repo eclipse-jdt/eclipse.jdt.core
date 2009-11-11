@@ -717,13 +717,16 @@ protected CompilationUnitDeclaration endParse(int act) {
 		return null;
 	}
 }
-public TypeReference getTypeReference(int dim) {
+public TypeReference getUnannotatedTypeReference(int dim) {
 	/* build a Reference on a variable that may be qualified or not
 	 * This variable is a type reference and dim will be its dimensions
 	 */
+	Annotation [][] annotationsOnDimensions = null;
+	TypeReference ref;
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];
 	if (length < 0) { //flag for precompiled type reference on base types
-		TypeReference ref = TypeReference.baseTypeReference(-length, dim);
+		annotationsOnDimensions = getAnnotationsOnDimensions(dim);
+		ref = TypeReference.baseTypeReference(-length, dim, annotationsOnDimensions);
 		ref.sourceStart = this.intStack[this.intPtr--];
 		if (dim == 0) {
 			ref.sourceEnd = this.intStack[this.intPtr--];
@@ -734,12 +737,11 @@ public TypeReference getTypeReference(int dim) {
 		if (this.reportReferenceInfo){
 				this.requestor.acceptTypeReference(ref.getParameterizedTypeName(), ref.sourceStart, ref.sourceEnd);
 		}
-		return ref;
 	} else {
 		int numberOfIdentifiers = this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr--];
 		if (length != numberOfIdentifiers || this.genericsLengthStack[this.genericsLengthPtr] != 0) {
 			// generic type
-			TypeReference ref = getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
+			ref = getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
 			if (this.reportReferenceInfo) {
 				if (length == 1 && numberOfIdentifiers == 1) {
 					ParameterizedSingleTypeReference parameterizedSingleTypeReference = (ParameterizedSingleTypeReference) ref;
@@ -749,30 +751,29 @@ public TypeReference getTypeReference(int dim) {
 					this.requestor.acceptTypeReference(parameterizedQualifiedTypeReference.tokens, parameterizedQualifiedTypeReference.sourceStart, parameterizedQualifiedTypeReference.sourceEnd);
 				}
 			}
-			return ref;
 		} else if (length == 1) {
 			// single variable reference
 			this.genericsLengthPtr--; // pop the 0
 			if (dim == 0) {
-				SingleTypeReference ref =
+				ref =
 					new SingleTypeReference(
 						this.identifierStack[this.identifierPtr],
 						this.identifierPositionStack[this.identifierPtr--]);
 				if (this.reportReferenceInfo) {
-					this.requestor.acceptTypeReference(ref.token, ref.sourceStart);
+					this.requestor.acceptTypeReference(((SingleTypeReference)ref).token, ref.sourceStart);
 				}
-				return ref;
 			} else {
-				ArrayTypeReference ref =
+				annotationsOnDimensions = getAnnotationsOnDimensions(dim);
+				ref =
 					new ArrayTypeReference(
 						this.identifierStack[this.identifierPtr],
 						dim,
+						annotationsOnDimensions,
 						this.identifierPositionStack[this.identifierPtr--]);
 				ref.sourceEnd = this.endPosition;
 				if (this.reportReferenceInfo) {
-					this.requestor.acceptTypeReference(ref.token, ref.sourceStart);
+					this.requestor.acceptTypeReference(((ArrayTypeReference)ref).token, ref.sourceStart);
 				}
-				return ref;
 			}
 		} else {//Qualified variable reference
 			this.genericsLengthPtr--;
@@ -787,22 +788,22 @@ public TypeReference getTypeReference(int dim) {
 				0,
 				length);
 			if (dim == 0) {
-				QualifiedTypeReference ref = new QualifiedTypeReference(tokens, positions);
+				ref = new QualifiedTypeReference(tokens, positions);
 				if (this.reportReferenceInfo) {
-					this.requestor.acceptTypeReference(ref.tokens, ref.sourceStart, ref.sourceEnd);
+					this.requestor.acceptTypeReference(((QualifiedTypeReference)ref).tokens, ref.sourceStart, ref.sourceEnd);
 				}
-				return ref;
 			} else {
-				ArrayQualifiedTypeReference ref =
-					new ArrayQualifiedTypeReference(tokens, dim, positions);
+				annotationsOnDimensions = getAnnotationsOnDimensions(dim);
+				ref =
+					new ArrayQualifiedTypeReference(tokens, dim, annotationsOnDimensions, positions);
 				ref.sourceEnd = this.endPosition;
 				if (this.reportReferenceInfo) {
-					this.requestor.acceptTypeReference(ref.tokens, ref.sourceStart, ref.sourceEnd);
+					this.requestor.acceptTypeReference(((ArrayQualifiedTypeReference)ref).tokens, ref.sourceStart, ref.sourceEnd);
 				}
-				return ref;
 			}
 		}
 	}
+	return ref;
 }
 public NameReference getUnspecifiedReference() {
 	/* build a (unspecified) NameReference which may be qualified*/

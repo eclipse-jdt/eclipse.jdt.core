@@ -1456,21 +1456,21 @@ public void test0032() {
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. WARNING in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2 extends Y {\n" +
-		"	                           ^^^^^^\n" +
-		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2 extends Y {\n" +
-		"	                                              ^\n" +
-		"Syntax error, insert \">\" to complete ReferenceType1\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extends String, T2 extends Y {\n" +
-		"	                                              ^\n" +
-		"Y cannot be resolved to a type\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	public class X <T1 extends String, T2 extends Y {\n" + 
+		"	                           ^^^^^^\n" + 
+		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
+		"	public class X <T1 extends String, T2 extends Y {\n" + 
+		"	                                              ^\n" + 
+		"Syntax error, insert \"AdditionalBoundList1\" to complete TypeParameter1\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 1)\n" + 
+		"	public class X <T1 extends String, T2 extends Y {\n" + 
+		"	                                              ^\n" + 
+		"Y cannot be resolved to a type\n" + 
 		"----------\n";
 
 	runComplianceParserTest(
@@ -1796,7 +1796,7 @@ public void test0040() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 2)\n" +
 		"	Z <Y1, Y2 var;\n" +
-		"	  ^^^^^^^\n" +
+		"	^^^^^^\n" +
 		"Syntax error on token(s), misplaced construct(s)\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 2)\n" +
@@ -1839,8 +1839,8 @@ public void test0041() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 2)\n" +
 		"	Z <Y1, for Y2> var;\n" +
-		"	  ^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
+		"	^^^^^^^^^^^^^^\n" +
+		"Syntax error on tokens, Type expected instead\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;

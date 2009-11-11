@@ -721,6 +721,9 @@ protected boolean resumeOnSyntaxError() {
 
 	// reset stacks in consistent state
 	this.expressionPtr = -1;
+	this.unattachedAnnotationPtr = -1;
+	this.typeAnnotationLengthPtr = -1;
+	this.typeAnnotationPtr = -1;
 	this.identifierPtr = -1;
 	this.identifierLengthPtr = -1;
 

@@ -2366,6 +2366,14 @@ public void illegalModifierForMethod(AbstractMethodDeclaration methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+public void invalidLocationForModifiers(ASTNode location) {
+	this.handle(
+			IProblem.InvalidLocationForModifiers,
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void illegalModifierForVariable(LocalDeclaration localDecl, boolean complainAsArgument) {
 	String[] arguments = new String[] {new String(localDecl.name)};
 	this.handle(
@@ -3719,14 +3727,6 @@ public void invalidTypeForCollectionTarget14(Expression expression) {
 			NoArgument,
 			expression.sourceStart,
 			expression.sourceEnd);
-}
-public void invalidTypeReference(Expression expression) {
-	this.handle(
-		IProblem.InvalidTypeExpression,
-		NoArgument,
-		NoArgument,
-		expression.sourceStart,
-		expression.sourceEnd);
 }
 public void invalidTypeToSynchronize(Expression expression, TypeBinding type) {
 	this.handle(
@@ -7453,5 +7453,32 @@ public void wrongSequenceOfExceptionTypesError(TryStatement statement, TypeBindi
 		 },
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
+}
+
+public void invalidUsageOfTypeAnnotations(Annotation annotation) {
+	this.handle(
+			IProblem.InvalidUsageOfTypeAnnotations,
+			NoArgument,
+			NoArgument,
+			annotation.sourceStart,
+			annotation.sourceEnd);
+}
+
+public void illegalReceiverAnnotations(Annotation first, Annotation last) {
+	this.handle(
+			IProblem.InvalidUsageOfReceiverAnnotations,
+			NoArgument,
+			NoArgument,
+			first.sourceStart,
+			last.sourceEnd);	
+}
+
+public void misplacedTypeAnnotations(Annotation first, Annotation last) {
+	this.handle(
+			IProblem.misplacedTypeAnnotations,
+			NoArgument,
+			NoArgument,
+			first.sourceStart,
+			last.sourceEnd);	
 }
 }

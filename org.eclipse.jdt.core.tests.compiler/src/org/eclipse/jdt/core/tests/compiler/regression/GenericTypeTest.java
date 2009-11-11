@@ -1876,23 +1876,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	A2 a2;\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in test\\X1.java (at line 3)\n" +
-			"	public class X1<A1 extends X2<A2> {\n" +
-			"	                              ^^\n" +
-			"A2 cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in test\\X1.java (at line 3)\n" +
-			"	public class X1<A1 extends X2<A2> {\n" +
-			"	                                ^\n" +
-			"Syntax error, insert \">\" to complete ReferenceType1\n" +
-			"----------\n" +
-			"3. ERROR in test\\X1.java (at line 7)\n" +
-			"	class X2<A2 {\n" +
-			"	         ^^\n" +
-			"Syntax error on token \"A2\", > expected after this token\n" +
-			"----------\n"
-		);
+			"----------\n" + 
+			"1. ERROR in test\\X1.java (at line 3)\n" + 
+			"	public class X1<A1 extends X2<A2> {\n" + 
+			"	                              ^^\n" + 
+			"A2 cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X1.java (at line 3)\n" + 
+			"	public class X1<A1 extends X2<A2> {\n" + 
+			"	                                ^\n" + 
+			"Syntax error, insert \"AdditionalBoundList1\" to complete TypeParameter1\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X1.java (at line 7)\n" + 
+			"	class X2<A2 {\n" + 
+			"	         ^^\n" + 
+			"Syntax error, insert \">\" to complete TypeParameter1\n" + 
+			"----------\n"		);
 	}
 
 	// JSR14-V10[2.4]: Not terminated consecutive declaration
@@ -2317,26 +2316,26 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"class X2<A extends X3<String> {}\n" +
 					"class X3<A {}\n"
 			},
-			"----------\n" +
-			"1. ERROR in test\\X.java (at line 2)\n" +
-			"	public class X<A extends X1<X2<X3<String>>> {}\n" +
-			"	                                        ^^^\n" +
-			"Syntax error, insert \">\" to complete ReferenceType1\n" +
-			"----------\n" +
-			"2. ERROR in test\\X.java (at line 3)\n" +
-			"	class X1<A extends X2<X3<String>> {}\n" +
-			"	                               ^^\n" +
-			"Syntax error, insert \">\" to complete ReferenceType1\n" +
-			"----------\n" +
-			"3. ERROR in test\\X.java (at line 4)\n" +
-			"	class X2<A extends X3<String> {}\n" +
-			"	                            ^\n" +
-			"Syntax error, insert \">\" to complete ReferenceType1\n" +
-			"----------\n" +
-			"4. ERROR in test\\X.java (at line 5)\n" +
-			"	class X3<A {}\n" +
-			"	         ^\n" +
-			"Syntax error on token \"A\", > expected after this token\n" +
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 2)\n" + 
+			"	public class X<A extends X1<X2<X3<String>>> {}\n" + 
+			"	                                        ^^^\n" + 
+			"Syntax error, insert \"AdditionalBoundList1\" to complete TypeParameter1\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 3)\n" + 
+			"	class X1<A extends X2<X3<String>> {}\n" + 
+			"	                               ^^\n" + 
+			"Syntax error, insert \"AdditionalBoundList1\" to complete TypeParameter1\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X.java (at line 4)\n" + 
+			"	class X2<A extends X3<String> {}\n" + 
+			"	                            ^\n" + 
+			"Syntax error, insert \"AdditionalBoundList1\" to complete TypeParameter1\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\X.java (at line 5)\n" + 
+			"	class X3<A {}\n" + 
+			"	         ^\n" + 
+			"Syntax error, insert \">\" to complete TypeParameter1\n" + 
 			"----------\n"
 		);
 	}
@@ -2404,16 +2403,16 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"class X2<A extends X3<String>> {}\n" +
 					"class X3<A> {}\n"
 			},
-			"----------\n" +
-			"1. ERROR in test\\X.java (at line 2)\n" +
-			"	public class X<A extends X1<X2<X3<String {}\n" +
-			"	                                  ^^^^^^\n" +
-			"Syntax error, insert \">>>\" to complete ReferenceType3\n" +
-			"----------\n" +
-			"2. ERROR in test\\X.java (at line 2)\n" +
-			"	public class X<A extends X1<X2<X3<String {}\n" +
-			"	                                  ^^^^^^\n" +
-			"Syntax error, insert \">\" to complete ReferenceType1\n" +
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 2)\n" + 
+			"	public class X<A extends X1<X2<X3<String {}\n" + 
+			"	                                  ^^^^^^\n" + 
+			"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 2)\n" + 
+			"	public class X<A extends X1<X2<X3<String {}\n" + 
+			"	                                  ^^^^^^\n" + 
+			"Syntax error, insert \"AdditionalBoundList1\" to complete TypeParameter1\n" + 
 			"----------\n");
 	}
 	public void test0084() {
@@ -37168,16 +37167,26 @@ public void test1097() {
 			"}"
 		},
 		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 2)\n" +
-		"	String[] foo = new <Zork>String[] {};\n" +
-		"	               ^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on token(s), misplaced construct(s)\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	String[] foo = new <Zork>String[] {};\n" +
-		"	                        ^\n" +
-		"Syntax error on token \">\", , expected\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	String[] foo = new <Zork>String[] {};\n" + 
+		"	                        ^\n" + 
+		"Syntax error, insert \"ClassType ( )\" to complete ClassInstanceCreationExpression\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	String[] foo = new <Zork>String[] {};\n" + 
+		"	                        ^\n" + 
+		"Syntax error, insert \";\" to complete ClassBodyDeclarations\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	String[] foo = new <Zork>String[] {};\n" + 
+		"	                                ^\n" + 
+		"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 2)\n" + 
+		"	String[] foo = new <Zork>String[] {};\n" + 
+		"	                                ^\n" + 
+		"Syntax error, insert \")\" to complete MethodDeclaration\n" + 
 		"----------\n",
 		// javac options
 		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);

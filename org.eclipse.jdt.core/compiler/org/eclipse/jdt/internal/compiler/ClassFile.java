@@ -5103,7 +5103,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 						if (addStackMaps) {
 							StackMapFrameCodeStream stackMapFrameCodeStream = (StackMapFrameCodeStream) this.codeStream;
 							stackMapFrameCodeStream.addFramePosition(handlerPC);
-//							stackMapFrameCodeStream.addExceptionMarker(handlerPC, exceptionLabel.exceptionType);
 						}
 						this.contents[localContentsOffset++] = (byte) (handlerPC >> 8);
 						this.contents[localContentsOffset++] = (byte) handlerPC;

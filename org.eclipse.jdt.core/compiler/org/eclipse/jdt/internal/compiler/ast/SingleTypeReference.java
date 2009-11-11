@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,13 @@ public class SingleTypeReference extends TypeReference {
 
 		return new ArrayTypeReference(this.token, dim,(((long)this.sourceStart)<<32)+this.sourceEnd);
 	}
+	
+	public TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions){
+		//return a type reference copy of me with some dimensions
+		//warning : the new type ref has a null binding
+
+		return new ArrayTypeReference(this.token, dim, annotationsOnDimensions, (((long)this.sourceStart)<<32)+this.sourceEnd);
+	}
 
 	public char[] getLastToken() {
 		return this.token;
@@ -54,7 +61,9 @@ public class SingleTypeReference extends TypeReference {
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){
-
+		if (this.annotations != null) {
+			printAnnotations(this.annotations, output);
+		}
 		return output.append(this.token);
 	}
 

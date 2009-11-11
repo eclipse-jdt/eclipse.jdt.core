@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ArrayTypeReference extends SingleTypeReference {
 	public int dimensions;
+	public Annotation[][] annotationsOnDimensions; // jsr308 style type annotations on dimensions.
 	public int originalSourceEnd;
 
 	/**
@@ -32,11 +33,21 @@ public class ArrayTypeReference extends SingleTypeReference {
 		super(source, pos);
 		this.originalSourceEnd = this.sourceEnd;
 		this.dimensions = dimensions ;
+		this.annotationsOnDimensions = null;
+	}
+
+	public ArrayTypeReference(char[] source, int dimensions, Annotation[][] annotationsOnDimensions, long pos) {
+		this(source, dimensions, pos);
+		this.annotationsOnDimensions = annotationsOnDimensions;
 	}
 
 	public int dimensions() {
 
 		return this.dimensions;
+	}
+	
+	public Annotation[][] getAnnotationsOnDimensions() {
+		return this.annotationsOnDimensions;
 	}
 	/**
 	 * @return char[][]
@@ -69,11 +80,23 @@ public class ArrayTypeReference extends SingleTypeReference {
 		super.printExpression(indent, output);
 		if ((this.bits & IsVarArgs) != 0) {
 			for (int i= 0 ; i < this.dimensions - 1; i++) {
+				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
+					output.append(" "); //$NON-NLS-1$
+					printAnnotations(this.annotationsOnDimensions[i], output);
+				}
 				output.append("[]"); //$NON-NLS-1$
+			}
+			if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[this.dimensions - 1] != null) {
+				output.append(" "); //$NON-NLS-1$
+				printAnnotations(this.annotationsOnDimensions[this.dimensions - 1], output);
 			}
 			output.append("..."); //$NON-NLS-1$
 		} else {
 			for (int i= 0 ; i < this.dimensions; i++) {
+				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
+					output.append(" "); //$NON-NLS-1$
+					printAnnotations(this.annotationsOnDimensions[i], output);
+				}
 				output.append("[]"); //$NON-NLS-1$
 			}
 		}

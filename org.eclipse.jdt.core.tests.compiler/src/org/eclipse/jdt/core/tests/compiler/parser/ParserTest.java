@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,16 +71,21 @@ public void test003() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	throws new X\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"throws\", throw expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	throws new X\n" +
-		"	           ^\n" +
-		"Syntax error, unexpected end of method\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	throws new X\n" + 
+		"	^^^^^^\n" + 
+		"Syntax error on token \"throws\", throw expected\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	throws new X\n" + 
+		"	           ^\n" + 
+		"Syntax error, insert \"Dimensions\" to complete Expression\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	throws new X\n" + 
+		"	           ^\n" + 
+		"Syntax error, insert \";\" to complete BlockStatements\n" + 
 		"----------\n"
 	);
 }
@@ -130,16 +135,21 @@ public void test006() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	throws new X\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"throws\", throw expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	throws new X\n" +
-		"	           ^\n" +
-		"Syntax error, unexpected end of initializer\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	throws new X\n" + 
+		"	^^^^^^\n" + 
+		"Syntax error on token \"throws\", throw expected\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	throws new X\n" + 
+		"	           ^\n" + 
+		"Syntax error, insert \"Dimensions\" to complete Expression\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	throws new X\n" + 
+		"	           ^\n" + 
+		"Syntax error, insert \";\" to complete BlockStatements\n" + 
 		"----------\n"
 	);
 }
@@ -238,11 +248,11 @@ public void test011() {
 			"   public void bar(){}\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public void foo(X, Object o, String s) {\n" +
-		"	                 ^\n" +
-		"Syntax error on token \",\", . expected\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(X, Object o, String s) {\n" + 
+		"	                ^\n" + 
+		"Syntax error, insert \"VariableDeclaratorId\" to complete FormalParameterList\n" + 
 		"----------\n"
 	);
 }

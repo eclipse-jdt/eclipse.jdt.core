@@ -177,9 +177,8 @@ Goal ::= '--' MethodBody
 Goal ::= '>>' StaticInitializer
 Goal ::= '>>' Initializer
 -- error recovery
--- Modifiersopt is used to properly consume a header and exit the rule reduction at the end of the parse() method
-Goal ::= '>>>' Header1 Modifiersopt
-Goal ::= '!' Header2 Modifiersopt
+Goal ::= '>>>' Header1
+Goal ::= '!' Header2
 Goal ::= '*' BlockStatements
 Goal ::= '*' CatchHeader
 -- JDOM
@@ -213,9 +212,37 @@ BooleanLiteral -> true
 BooleanLiteral -> false
 /:$readableName BooleanLiteral:/
 
-Type ::= PrimitiveType
+-- Type is a wrapper that automatically allows for jsr308 style
+-- annotations to prefix a (Java5/6) Type. If type annotations
+-- are illegal in a certain place, use TypeInternal instead.
+-- If type annotations are legal, but so are java5/6 style
+-- declaration annotations, use Type0 instead.
+
+Type ::= TypeInternal
+-- consumeUnannotatedType inserts 0 at the suitable place in the type
+-- annotation stacks, so that the TOS(typeAnnotationsLengthStack) is the right
+-- length of the type annotations 0 or otherwise.
+/.$putCase consumeUnannotatedType();  $break ./
+Type ::= TypeAnnotations TypeInternal
+/:$compliance 1.7:/
+/:$readableName Type:/
+
+-- Type0 is to be used in places where type annotations are legal
+-- but are not consumed as TypeAnnotations, but as modifiers. This
+-- is because from the parser's point of view there are places where
+-- java5/6 style declarations annotations can occur in the same place
+-- and it is too early to tell which is which.
+Type0 ::= TypeInternal
+-- consumeUnannotatedType inserts 0 at the suitable place in the type
+-- annotation stacks, so that the TOS(typeAnnotationsLengthStack) is the right
+-- length of the type annotations 0 or otherwise.
+/.$putCase consumeUnannotatedType();  $break ./
+/:$readableName Type:/
+
+-- TypeInternal is the Java5/6 Type
+TypeInternal ::= PrimitiveType
 /.$putCase consumePrimitiveType(); $break ./
-Type -> ReferenceType
+TypeInternal -> ReferenceType0
 /:$readableName Type:/
 
 PrimitiveType -> NumericType
@@ -236,27 +263,72 @@ FloatingPointType -> 'float'
 FloatingPointType -> 'double'
 /:$readableName FloatingPointType:/
 
-ReferenceType ::= ClassOrInterfaceType
-/.$putCase consumeReferenceType();  $break ./
-ReferenceType -> ArrayType
+---------------------------- JSR308-------------------------------------------
+-- ReferenceType has been wrapped now, so that it can be used by itself without
+-- having to spell out the rule once with Modifiers & once without.
+-- If type annotations are not legal prefixes to ReferenceType at some point, use 
+-- ReferenceType0 instead. Otherwise reject the annotations in the parser.
+
+ReferenceType ::= ReferenceType0
+-- consumeUnannotatedType inserts 0 at the suitable place in the type
+-- annotation stacks, so that the TOS(typeAnnotationsLengthStack) is the right
+-- length of the type annotations 0 or otherwise.
+/.$putCase consumeUnannotatedType();  $break ./
+ReferenceType ::= Modifiers ReferenceType0
+/.$putCase consumeAnnotatedType();  $break ./
+/:$compliance 1.7:/
 /:$readableName ReferenceType:/
 
----------------------------------------------------------------
--- 1.5 feature
----------------------------------------------------------------
-ClassOrInterfaceType -> ClassOrInterface
-ClassOrInterfaceType -> GenericType
+ReferenceType0 ::= ClassOrInterfaceType0
+/.$putCase consumeReferenceType();  $break ./
+ReferenceType0 -> ArrayType
+/:$readableName ReferenceType:/
+
+Annotationsopt ::= $empty
+/.$putCase consumeZeroTypeAnnotations(true); $break ./
+Annotationsopt -> TypeAnnotations
+/:$compliance 1.7:/
+/:$readableName Annotationsopt:/
+
+-- ClassOrInterfaceType has now been wrapped so that it automatically includes
+-- JSR308 style optional annotations. Use ClassOrInterfaceType0 if annotations
+-- are illegal in some place - otherwise reject the annotations in the parser.
+ClassOrInterfaceType ::= Annotationsopt ClassOrInterfaceType0
 /:$readableName Type:/
 
-ClassOrInterface ::= Name
+ClassOrInterfaceType0 -> ClassOrInterface0
+ClassOrInterfaceType0 -> GenericType
+/:$readableName Type:/
+---------------------------- JSR308-------------------------------------------
+
+-- ClassOrInterface has been wrapped now so that it ALWAYS PUSHES
+-- A 0 IN THE TYPE ANNOTATIONS LENGTH STACK. If this behavior is
+-- not desirable, then (a) use ClassOrInterface0 if possible or (b)
+-- if that is not possible due to conflicts, then this 0 will have
+-- to be popped suitably when erroneous/extraneous. See the use of
+-- the production PopZeroTypeAnnotations for examples.
+
+ClassOrInterface ::= ClassOrInterface0
+/.$putCase consumeZeroTypeAnnotations(true); $break ./
+/:$readableName Type:/
+
+ClassOrInterface0 ::= Name
 /.$putCase consumeClassOrInterfaceName();  $break ./
-ClassOrInterface ::= GenericType '.' Name
-/.$putCase consumeClassOrInterface();  $break ./
+ClassOrInterface0 ::= GenericTypeDotName
 /:$readableName Type:/
 
-GenericType ::= ClassOrInterface TypeArguments
+PopZeroTypeAnnotations ::= $empty
+/.$putCase consumeZeroTypeAnnotations(false); $break ./
+/:$readableName PopZeroTypeAnnotations:/
+
+GenericType ::= ClassOrInterface TypeArguments PopZeroTypeAnnotations
 /.$putCase consumeGenericType();  $break ./
+/:$compliance 1.5:/
 /:$readableName GenericType:/
+
+GenericTypeDotName ::= GenericType '.' Name
+/.$putCase consumeClassOrInterface();  $break ./
+/:$readableName GenericTypeDotName:/
 
 --
 -- These rules have been rewritten to avoid some conflicts introduced
@@ -267,8 +339,7 @@ GenericType ::= ClassOrInterface TypeArguments
 -- ArrayType ::= ArrayType '[' ']'
 --
 
-ArrayTypeWithTypeArgumentsName ::= GenericType '.' Name
-/.$putCase consumeArrayTypeWithTypeArgumentsName();  $break ./
+ArrayTypeWithTypeArgumentsName ::= GenericTypeDotName
 /:$readableName ArrayTypeWithTypeArgumentsName:/
 
 ArrayType ::= PrimitiveType Dims
@@ -548,7 +619,7 @@ GenericMethodDeclaration -> ConstructorDeclaration
 --    | 'transient'
 --    | 'volatile'
 
-FieldDeclaration ::= Modifiersopt Type VariableDeclarators ';'
+FieldDeclaration ::= Modifiersopt Type0 VariableDeclarators ';'
 /.$putCase consumeFieldDeclaration(); $break ./
 /:$readableName FieldDeclaration:/
 
@@ -619,7 +690,7 @@ MethodHeader ::= MethodHeaderName FormalParameterListopt MethodHeaderRightParen 
 
 MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
 /.$putCase consumeMethodHeaderNameWithTypeParameters(false); $break ./
-MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
+MethodHeaderName ::= Modifiersopt Type0 'Identifier' '('
 /.$putCase consumeMethodHeaderName(false); $break ./
 /:$readableName MethodHeaderName:/
 
@@ -628,7 +699,7 @@ MethodHeaderRightParen ::= ')'
 /:$readableName ):/
 /:$recovery_template ):/
 
-MethodHeaderExtendedDims ::= Dimsopt
+MethodHeaderExtendedDims ::= DimsoptAnnotsopt
 /.$putCase consumeMethodHeaderExtendedDims(); $break ./
 /:$readableName MethodHeaderExtendedDims:/
 
@@ -636,7 +707,7 @@ MethodHeaderThrowsClause ::= 'throws' ClassTypeList
 /.$putCase consumeMethodHeaderThrowsClause(); $break ./
 /:$readableName MethodHeaderThrowsClause:/
 
-ConstructorHeader ::= ConstructorHeaderName FormalParameterListopt MethodHeaderRightParen MethodHeaderThrowsClauseopt
+ConstructorHeader ::= ConstructorHeaderName FormalParameterListopt MethodHeaderRightParen Annotationsopt MethodHeaderThrowsClauseopt
 /.$putCase consumeConstructorHeader(); $break ./
 /:$readableName ConstructorDeclaration:/
 
@@ -651,10 +722,33 @@ FormalParameterList ::= FormalParameterList ',' FormalParameter
 /.$putCase consumeFormalParameterList(); $break ./
 /:$readableName FormalParameterList:/
 
+PotentialNameArray -> $empty
+/.$putCase consumePotentialNameArrayType(); $break ./
+/:$readableName PotentialNameArray:/
+
 --1.1 feature
-FormalParameter ::= Modifiersopt Type VariableDeclaratorId
+--FormalParameter ::= Modifiersopt Type VariableDeclaratorId
+--FormalParameter ::= Modifiersopt Type '...' VariableDeclaratorId
+--The above rules have been rewritten by inlinng the type subgrammar
+--to avoid the conflicts resulting from jsr308 changes.
+FormalParameter ::= Modifiersopt PrimitiveType DimsoptAnnotsopt VariableDeclaratorId
 /.$putCase consumeFormalParameter(false); $break ./
-FormalParameter ::= Modifiersopt Type '...' VariableDeclaratorId
+FormalParameter ::= Modifiersopt PrimitiveType DimsoptAnnotsopt '...' VariableDeclaratorId
+/.$putCase consumeFormalParameter(true); $break ./
+/:$compliance 1.5:/
+FormalParameter ::= Modifiersopt Name DimsoptAnnotsopt PotentialNameArray VariableDeclaratorId
+/.$putCase consumeFormalParameter(false); $break ./
+FormalParameter ::= Modifiersopt Name DimsoptAnnotsopt PotentialNameArray '...' VariableDeclaratorId
+/.$putCase consumeFormalParameter(true); $break ./
+/:$compliance 1.5:/
+FormalParameter ::= Modifiersopt GenericType DimsoptAnnotsopt VariableDeclaratorId
+/.$putCase consumeFormalParameter(false); $break ./
+FormalParameter ::= Modifiersopt GenericType DimsoptAnnotsopt '...' VariableDeclaratorId
+/.$putCase consumeFormalParameter(true); $break ./
+/:$compliance 1.5:/
+FormalParameter ::= Modifiersopt GenericTypeDotName DimsoptAnnotsopt VariableDeclaratorId
+/.$putCase consumeFormalParameter(false); $break ./
+FormalParameter ::= Modifiersopt GenericTypeDotName DimsoptAnnotsopt '...' VariableDeclaratorId
 /.$putCase consumeFormalParameter(true); $break ./
 /:$readableName FormalParameter:/
 /:$compliance 1.5:/
@@ -865,13 +959,13 @@ LocalVariableDeclarationStatement ::= LocalVariableDeclaration ';'
 /.$putCase consumeLocalVariableDeclarationStatement(); $break ./
 /:$readableName LocalVariableDeclarationStatement:/
 
-LocalVariableDeclaration ::= Type PushModifiers VariableDeclarators
+LocalVariableDeclaration ::= Type0 PushModifiers VariableDeclarators
 /.$putCase consumeLocalVariableDeclaration(); $break ./
 -- 1.1 feature
 -- The modifiers part of this rule makes the grammar more permissive. 
 -- The only modifier here is final. We put Modifiers to allow multiple modifiers
 -- This will require to check the validity of the modifier
-LocalVariableDeclaration ::= Modifiers Type PushRealModifiers VariableDeclarators
+LocalVariableDeclaration ::= Modifiers Type0 PushRealModifiers VariableDeclarators
 /.$putCase consumeLocalVariableDeclaration(); $break ./
 /:$readableName LocalVariableDeclaration:/
 
@@ -1108,8 +1202,25 @@ PushLPAREN ::= '('
 /.$putCase consumeLeftParen(); $break ./
 /:$readableName (:/
 /:$recovery_template (:/
+PushRPARENForUnannotatedTypeCast ::= ')'
+/.$putCase consumeRightParenForUnannotatedTypeCast(); $break ./
+/:$readableName ):/
+/:$recovery_template ):/
+PushRPARENForNameUnannotatedTypeCast ::=  ')'
+/.$putCase consumeRightParenForNameUnannotatedTypeCast(); $break ./
+/:$readableName ):/
+/:$recovery_template ):/
 PushRPAREN ::= ')'
 /.$putCase consumeRightParen(); $break ./
+/:$readableName ):/
+/:$recovery_template ):/
+PushRPARENForAnnotatedTypeCast ::= ')'
+/.$putCase consumeRightParenForAnnotatedTypeCast(); $break ./
+/:$readableName ):/
+/:$recovery_template ):/
+
+PushRPARENForNameAndAnnotatedTypeCast ::= ')'
+/.$putCase consumeRightParenForNameAndAnnotatedTypeCast(); $break ./
 /:$readableName ):/
 /:$recovery_template ):/
 
@@ -1131,6 +1242,7 @@ PrimaryNoNewArray ::=  PushLPAREN Name PushRPAREN
 PrimaryNoNewArray -> ClassInstanceCreationExpression
 PrimaryNoNewArray -> FieldAccess
 --1.1 feature
+-- javac doesn't permit type annotations here.
 PrimaryNoNewArray ::= Name '.' 'this'
 /.$putCase consumePrimaryNoNewArrayNameThis(); $break ./
 PrimaryNoNewArray ::= Name '.' 'super'
@@ -1140,6 +1252,22 @@ PrimaryNoNewArray ::= Name '.' 'super'
 --PrimaryNoNewArray ::= Type '.' 'class'   
 --inline Type in the previous rule in order to make the grammar LL1 instead 
 -- of LL2. The result is the 3 next rules.
+
+PrimaryNoNewArray ::= Modifiers Name '.' 'class'
+/.$putCase consumePrimaryNoNewArrayNameWithTypeAnnotations(); $break ./
+/:$compliance 1.7:/
+
+PrimaryNoNewArray ::= Modifiers Name Dims '.' 'class'
+/.$putCase consumePrimaryNoNewArrayArrayTypeWithTypeAnnotations(); $break ./
+/:$compliance 1.7:/
+
+PrimaryNoNewArray ::= Modifiers PrimitiveType Dims '.' 'class'
+/.$putCase consumePrimaryNoNewArrayPrimitiveArrayTypeWithTypeAnnotations(); $break ./
+/:$compliance 1.7:/
+
+PrimaryNoNewArray ::= Modifiers PrimitiveType '.' 'class'
+/.$putCase consumePrimaryNoNewArrayPrimitiveTypeWithTypeAnnotations(); $break ./
+/:$compliance 1.7:/
 
 PrimaryNoNewArray ::= Name '.' 'class'
 /.$putCase consumePrimaryNoNewArrayName(); $break ./
@@ -1217,18 +1345,18 @@ ArgumentList ::= ArgumentList ',' Expression
 /.$putCase consumeArgumentList(); $break ./
 /:$readableName ArgumentList:/
 
-ArrayCreationHeader ::= 'new' PrimitiveType DimWithOrWithOutExprs
+-- ArrayCreationHeader is used only in recovery and the consume* method is a NOP.
+ArrayCreationHeader ::= 'new' Annotationsopt PrimitiveType DimWithOrWithOutExprs
 /.$putCase consumeArrayCreationHeader(); $break ./
-
 ArrayCreationHeader ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
 /.$putCase consumeArrayCreationHeader(); $break ./
 /:$readableName ArrayCreationHeader:/
 
-ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
+ArrayCreationWithoutArrayInitializer ::= 'new' Annotationsopt PrimitiveType DimWithOrWithOutExprs
 /.$putCase consumeArrayCreationExpressionWithoutInitializer(); $break ./
 /:$readableName ArrayCreationWithoutArrayInitializer:/
 
-ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
+ArrayCreationWithArrayInitializer ::= 'new' Annotationsopt PrimitiveType DimWithOrWithOutExprs ArrayInitializer
 /.$putCase consumeArrayCreationExpressionWithInitializer(); $break ./
 /:$readableName ArrayCreationWithArrayInitializer:/
 
@@ -1243,11 +1371,45 @@ DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr
 /.$putCase consumeDimWithOrWithOutExprs(); $break ./
 /:$readableName Dimensions:/
 
-DimWithOrWithOutExpr ::= '[' Expression ']'
-DimWithOrWithOutExpr ::= '[' ']'
+DimWithOrWithOutExpr ::= '[' PushZeroTypeAnnotations Expression ']'
+DimWithOrWithOutExpr ::= TypeAnnotations '[' Expression ']'
+/:$compliance 1.7:/
+DimWithOrWithOutExpr ::= '[' PushZeroTypeAnnotations ']'
 /. $putCase consumeDimWithOrWithOutExpr(); $break ./
+DimWithOrWithOutExpr ::= TypeAnnotations '[' ']'
+/. $putCase consumeDimWithOrWithOutExpr(); $break ./
+/:$compliance 1.7:/
 /:$readableName Dimension:/
 -- -----------------------------------------------
+
+-- jsr 308
+
+DimsoptAnnotsopt -> $empty
+/. $putCase consumeEmptyDimsoptAnnotsopt(); $break ./
+/:$readableName AnnotationsDimensionsSequence:/
+DimsoptAnnotsopt -> DimsAnnotLoop
+/. $putCase consumeDimsWithTrailingAnnotsopt(); $break ./
+/:$readableName Dimensionsoptannotsopt:/
+DimsAnnotLoop ::= OneDimOrAnnot
+DimsAnnotLoop ::= DimsAnnotLoop OneDimOrAnnot
+/:$readableName DimsAnnotLoop:/
+
+OneDimOrAnnot ::= Annotation
+/. $putCase consumeTypeAnnotation(true); $break ./
+-- Complain if source level < 1.7
+/:$compliance 1.7:/
+OneDimOrAnnot -> '[' ']'
+/. $putCase consumeOneDimLoop(true); $break ./
+-- Bump up dimensions && mark zero annotations.
+/:$readableName OneDimensionOrAnnotation:/
+
+TypeAnnotations ::= Annotation
+/. $putCase consumeTypeAnnotation(false); $break ./
+/:$compliance 1.7:/
+TypeAnnotations ::= TypeAnnotations Annotation
+/. $putCase consumeOneMoreTypeAnnotation(); $break ./
+/:$compliance 1.7:/
+/:$readableName TypeAnnotations:/
 
 Dims ::= DimsLoop
 /. $putCase consumeDims(); $break ./
@@ -1256,8 +1418,14 @@ DimsLoop -> OneDimLoop
 DimsLoop ::= DimsLoop OneDimLoop
 /:$readableName Dimensions:/
 OneDimLoop ::= '[' ']'
-/. $putCase consumeOneDimLoop(); $break ./
+/. $putCase consumeOneDimLoop(false); $break ./
+-- Bump up dimensions && mark zero annotations.
 /:$readableName Dimension:/
+OneDimLoop ::= TypeAnnotations '[' ']'
+/:$compliance 1.7:/
+/. $putCase consumeOneDimLoopWithAnnotations(); $break ./
+-- Bump up dimensions
+/:$readableName DimensionWithAnnotations:/
 
 FieldAccess ::= Primary '.' 'Identifier'
 /.$putCase consumeFieldAccess(false); $break ./
@@ -1338,16 +1506,31 @@ UnaryExpressionNotPlusMinus ::= '!' PushPosition UnaryExpression
 UnaryExpressionNotPlusMinus -> CastExpression
 /:$readableName Expression:/
 
-CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
+CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPARENForUnannotatedTypeCast InsideCastExpression UnaryExpression
 /.$putCase consumeCastExpressionWithPrimitiveType(); $break ./
-CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Modifiers PrimitiveType Dimsopt PushRPARENForAnnotatedTypeCast InsideCastExpression UnaryExpression
+/:$compliance 1.7:/
+/.$putCase consumeCastExpressionWithPrimitiveTypeWithTypeAnnotations(); $break ./
+CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt PushRPARENForUnannotatedTypeCast InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithGenericsArray(); $break ./
-CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt PushRPAREN InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Modifiers Name OnlyTypeArgumentsForCastExpression Dimsopt PushRPARENForAnnotatedTypeCast InsideCastExpression UnaryExpressionNotPlusMinus
+/:$compliance 1.7:/
+/.$putCase consumeCastExpressionWithGenericsArrayWithTypeAnnotations(); $break ./
+CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType0 Dimsopt PushRPARENForUnannotatedTypeCast InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithQualifiedGenericsArray(); $break ./
-CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Modifiers Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType0 Dimsopt PushRPARENForAnnotatedTypeCast InsideCastExpressionWithAnnotatedQualifiedGenerics UnaryExpressionNotPlusMinus
+/:$compliance 1.7:/
+/.$putCase consumeCastExpressionWithQualifiedGenericsArrayWithTypeAnnotations(); $break ./
+CastExpression ::= PushLPAREN Name PushRPARENForNameUnannotatedTypeCast InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionLL1(); $break ./
-CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Modifiers Name PushRPARENForNameAndAnnotatedTypeCast InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
+/:$compliance 1.7:/
+/.$putCase consumeCastExpressionLL1WithTypeAnnotations(); $break ./
+CastExpression ::= PushLPAREN Name Dims PushRPARENForUnannotatedTypeCast InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithNameArray(); $break ./
+CastExpression ::= PushLPAREN Modifiers Name Dims PushRPARENForAnnotatedTypeCast InsideCastExpression UnaryExpressionNotPlusMinus
+/:$compliance 1.7:/
+/.$putCase consumeCastExpressionWithNameArrayWithTypeAnnotations(); $break ./
 /:$readableName CastExpression:/
 
 OnlyTypeArgumentsForCastExpression ::= OnlyTypeArguments
@@ -1362,6 +1545,10 @@ InsideCastExpressionLL1 ::= $empty
 /:$readableName InsideCastExpression:/
 InsideCastExpressionWithQualifiedGenerics ::= $empty
 /.$putCase consumeInsideCastExpressionWithQualifiedGenerics(); $break ./
+/:$readableName InsideCastExpression:/
+
+InsideCastExpressionWithAnnotatedQualifiedGenerics ::= $empty
+/.$putCase consumeInsideCastExpressionWithAnnotatedQualifiedGenerics(); $break ./
 /:$readableName InsideCastExpression:/
 
 MultiplicativeExpression -> UnaryExpression
@@ -1666,11 +1853,11 @@ EnhancedForStatementNoShortIf ::= EnhancedForStatementHeader StatementNoShortIf
 /.$putCase consumeEnhancedForStatement(); $break ./
 /:$readableName EnhancedForStatementNoShortIf:/
 
-EnhancedForStatementHeaderInit ::= 'for' '(' Type PushModifiers Identifier Dimsopt
+EnhancedForStatementHeaderInit ::= 'for' '(' Type0 PushModifiers Identifier Dimsopt
 /.$putCase consumeEnhancedForStatementHeaderInit(false); $break ./
 /:$readableName EnhancedForStatementHeaderInit:/
 
-EnhancedForStatementHeaderInit ::= 'for' '(' Modifiers Type PushRealModifiers Identifier Dimsopt
+EnhancedForStatementHeaderInit ::= 'for' '(' Modifiers Type0 PushRealModifiers Identifier Dimsopt
 /.$putCase consumeEnhancedForStatementHeaderInit(true); $break ./
 /:$readableName EnhancedForStatementHeaderInit:/
 
@@ -1745,8 +1932,11 @@ ReferenceType1 ::= ReferenceType '>'
 /:$compliance 1.5:/
 ReferenceType1 ::= ClassOrInterface '<' TypeArgumentList2
 /.$putCase consumeTypeArgumentReferenceType1(); $break ./
-/:$readableName ReferenceType1:/
 /:$compliance 1.5:/
+ReferenceType1 ::= Modifiers ClassOrInterface '<' TypeArgumentList2
+/:$compliance 1.7:/
+/.$putCase consumeTypeArgumentReferenceType1WithTypeAnnotations(); $break ./
+/:$readableName ReferenceType1:/
 
 TypeArgumentList2 -> TypeArgument2
 /:$compliance 1.5:/
@@ -1766,8 +1956,11 @@ ReferenceType2 ::= ReferenceType '>>'
 /:$compliance 1.5:/
 ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
 /.$putCase consumeTypeArgumentReferenceType2(); $break ./
-/:$readableName ReferenceType2:/
 /:$compliance 1.5:/
+ReferenceType2 ::= Modifiers ClassOrInterface '<' TypeArgumentList3
+/:$compliance 1.7:/
+/.$putCase consumeTypeArgumentReferenceType2WithTypeAnnotations(); $break ./
+/:$readableName ReferenceType2:/
 
 TypeArgumentList3 -> TypeArgument3
 TypeArgumentList3 ::= TypeArgumentList ',' TypeArgument3
@@ -1849,10 +2042,17 @@ WildcardBounds3 ::= 'super' ReferenceType3
 /:$readableName WildcardBound3:/
 /:$compliance 1.5:/
 
-TypeParameterHeader ::= Identifier
+PushZeroTypeAnnotations ::= $empty
+/.$putCase consumeZeroTypeAnnotations(true); $break ./
+/:$readableName ZeroTypeAnnotations:/
+
+TypeParameterHeader ::= PushZeroTypeAnnotations Identifier
+/.$putCase consumeTypeParameterHeader(); $break ./
+/:$compliance 1.5:/
+TypeParameterHeader ::= TypeAnnotations Identifier
+/:$compliance 1.7:/
 /.$putCase consumeTypeParameterHeader(); $break ./
 /:$readableName TypeParameter:/
-/:$compliance 1.5:/
 
 TypeParameters ::= '<' TypeParameterList1
 /.$putCase consumeTypeParameters(); $break ./
@@ -2119,7 +2319,7 @@ AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclarations Annotation
 
 AnnotationMethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
 /.$putCase consumeMethodHeaderNameWithTypeParameters(true); $break ./
-AnnotationMethodHeaderName ::= Modifiersopt Type 'Identifier' '('
+AnnotationMethodHeaderName ::= Modifiersopt Type0 'Identifier' '('
 /.$putCase consumeMethodHeaderName(true); $break ./
 /:$readableName MethodHeaderName:/
 /:$compliance 1.5:/
@@ -2262,7 +2462,7 @@ SingleMemberAnnotation ::= AnnotationName '(' SingleMemberAnnotationMemberValue 
 RecoveryMethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
 /.$putCase consumeRecoveryMethodHeaderNameWithTypeParameters(); $break ./
 /:$compliance 1.5:/
-RecoveryMethodHeaderName ::= Modifiersopt Type 'Identifier' '('
+RecoveryMethodHeaderName ::= Modifiersopt Type0 'Identifier' '('
 /.$putCase consumeRecoveryMethodHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 
@@ -2331,3 +2531,4 @@ ELLIPSIS ::=    '...'
 
 $end
 -- need a carriage return after the $end
+

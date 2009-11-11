@@ -55,6 +55,9 @@ public void aboutToResolve(Scope scope) {
 public TypeReference copyDims(int dim){
 	return this;
 }
+public TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions){
+	return this;
+}
 protected TypeBinding getTypeBinding(Scope scope) {
 	// it can be a package, type or member type
 	Binding binding = scope.parent.getTypeOrPackage(this.tokens); // step up from the ClassScope

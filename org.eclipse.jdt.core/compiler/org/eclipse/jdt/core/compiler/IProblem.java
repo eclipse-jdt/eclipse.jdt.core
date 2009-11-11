@@ -459,7 +459,7 @@ void setSourceStart(int sourceStart);
 	int IncorrectSwitchType = TypeRelated + 169;
 	int DuplicateCase = FieldRelated + 170;
 
-	// labelled
+	// labeled
 	int DuplicateLabel = Internal + 171;
 	int InvalidBreak = Internal + 172;
 	int InvalidContinue = Internal + 173;
@@ -519,6 +519,7 @@ void setSourceStart(int sourceStart);
 	int ThisInStaticContext = Internal + 200;
 	int StaticMethodRequested = Internal + MethodRelated + 201;
 	int IllegalDimension = Internal + 202;
+	/** @deprecated This is no longer used */
 	int InvalidTypeExpression = Internal + 203;
 	int ParsingError = Syntax + Internal + 204;
 	int ParsingErrorNoSuggestion = Syntax + Internal + 205;
@@ -1229,7 +1230,14 @@ void setSourceStart(int sourceStart);
 	int UnusedWarningToken = Internal + 635;
 	/** @since 3.6 */
 	int MissingOverrideAnnotationForInterfaceMethodImplementation = MethodRelated + 636;
-
+	/** @since 3.6 */
+    int InvalidUsageOfTypeAnnotations = Syntax + Internal + 637;
+    /** @since 3.6 */
+    int InvalidUsageOfReceiverAnnotations = Syntax + Internal + 638;
+    /** @since 3.6 */
+    int misplacedTypeAnnotations = Syntax + Internal + 639;
+    /** @since 3.6 */
+    int InvalidLocationForModifiers = Syntax + Internal + 640;
 	/**
 	 * More problems in generics
 	 */

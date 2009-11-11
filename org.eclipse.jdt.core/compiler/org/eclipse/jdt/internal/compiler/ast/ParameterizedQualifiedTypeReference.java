@@ -34,6 +34,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		super(tokens, dim, positions);
 		this.typeArguments = typeArguments;
 	}
+	public ParameterizedQualifiedTypeReference(char[][] tokens, TypeReference[][] typeArguments, int dim, Annotation[][] annotationsOnDimensions, long[] positions) {
+		this(tokens, typeArguments, dim, positions);
+		this.annotationsOnDimensions = annotationsOnDimensions;
+	}
 	public void checkBounds(Scope scope) {
 		if (this.resolvedType == null) return;
 
@@ -59,6 +63,12 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	public TypeReference copyDims(int dim){
 		return new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, dim, this.sourcePositions);
 	}
+	public TypeReference copyDims(int dim, Annotation[][] dimensionAnnotations){
+		return new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, dim, dimensionAnnotations, this.sourcePositions);
+	}
+    public boolean isParametrizedTypeReference() {
+    	return true;
+    }
 
 	/**
 	 * @return char[][]
@@ -295,6 +305,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
+		if (this.annotations != null) {
+			output.append(" "); //$NON-NLS-1$
+			printAnnotations(this.annotations, output);
+		}
 		int length = this.tokens.length;
 		for (int i = 0; i < length - 1; i++) {
 			output.append(this.tokens[i]);
@@ -325,11 +339,23 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		}
 		if ((this.bits & IsVarArgs) != 0) {
 			for (int i= 0 ; i < this.dimensions - 1; i++) {
+				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
+					output.append(" "); //$NON-NLS-1$
+					printAnnotations(this.annotationsOnDimensions[i], output);
+				}
 				output.append("[]"); //$NON-NLS-1$
+			}
+			if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[this.dimensions - 1] != null) {
+				output.append(" "); //$NON-NLS-1$
+				printAnnotations(this.annotationsOnDimensions[this.dimensions - 1], output);
 			}
 			output.append("..."); //$NON-NLS-1$
 		} else {
 			for (int i= 0 ; i < this.dimensions; i++) {
+				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
+					output.append(" "); //$NON-NLS-1$
+					printAnnotations(this.annotationsOnDimensions[i], output);
+				}
 				output.append("[]"); //$NON-NLS-1$
 			}
 		}

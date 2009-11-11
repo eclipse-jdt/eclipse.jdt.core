@@ -96,11 +96,14 @@ public interface TagBits {
 	long AnnotationForLocalVariable = ASTNode.Bit42L;
 	long AnnotationForAnnotationType = ASTNode.Bit43L;
 	long AnnotationForPackage = ASTNode.Bit44L;
+	long AnnotationForTypeUse = ASTNode.Bit54L;
+	long AnnotationForTypeParameter = ASTNode.Bit55L;
 	long AnnotationTargetMASK = AnnotationTarget
 				| AnnotationForType | AnnotationForField
 				| AnnotationForMethod | AnnotationForParameter
 				| AnnotationForConstructor | AnnotationForLocalVariable
-				| AnnotationForAnnotationType | AnnotationForPackage;
+				| AnnotationForAnnotationType | AnnotationForPackage
+				| AnnotationForTypeUse | AnnotationForTypeParameter;
 	// 2-bits for retention (should check (tagBits & RetentionMask) == RuntimeRetention
 	long AnnotationSourceRetention = ASTNode.Bit45L;
 	long AnnotationClassRetention = ASTNode.Bit46L;

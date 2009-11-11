@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ public abstract class TypeReference extends Expression {
 /*
  * Answer a base type reference (can be an array of base type).
  */
-public static final TypeReference baseTypeReference(int baseType, int dim) {
+public static final TypeReference baseTypeReference(int baseType, int dim, Annotation [][] dimAnnotations) {
 
 	if (dim == 0) {
 		switch (baseType) {
@@ -57,25 +57,28 @@ public static final TypeReference baseTypeReference(int baseType, int dim) {
 	}
 	switch (baseType) {
 		case (TypeIds.T_void) :
-			return new ArrayTypeReference(TypeBinding.VOID.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.VOID.simpleName, dim, dimAnnotations, 0);
 		case (TypeIds.T_boolean) :
-			return new ArrayTypeReference(TypeBinding.BOOLEAN.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.BOOLEAN.simpleName, dim, dimAnnotations, 0);
 		case (TypeIds.T_char) :
-			return new ArrayTypeReference(TypeBinding.CHAR.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.CHAR.simpleName, dim, dimAnnotations, 0);
 		case (TypeIds.T_float) :
-			return new ArrayTypeReference(TypeBinding.FLOAT.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.FLOAT.simpleName, dim, dimAnnotations, 0);
 		case (TypeIds.T_double) :
-			return new ArrayTypeReference(TypeBinding.DOUBLE.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.DOUBLE.simpleName, dim, dimAnnotations, 0);
 		case (TypeIds.T_byte) :
-			return new ArrayTypeReference(TypeBinding.BYTE.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.BYTE.simpleName, dim, dimAnnotations, 0);
 		case (TypeIds.T_short) :
-			return new ArrayTypeReference(TypeBinding.SHORT.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.SHORT.simpleName, dim, dimAnnotations, 0);
 		case (TypeIds.T_int) :
-			return new ArrayTypeReference(TypeBinding.INT.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.INT.simpleName, dim, dimAnnotations, 0);
 		default : //T_long
-			return new ArrayTypeReference(TypeBinding.LONG.simpleName, dim, 0);
+			return new ArrayTypeReference(TypeBinding.LONG.simpleName, dim, dimAnnotations, 0);
 	}
 }
+
+// JSR308 type annotations...
+public Annotation[] annotations = null;
 
 // allows us to trap completion & selection nodes
 public void aboutToResolve(Scope scope) {
@@ -88,8 +91,12 @@ public void checkBounds(Scope scope) {
 	// only parameterized type references have bounds
 }
 public abstract TypeReference copyDims(int dim);
+public abstract TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions);
 public int dimensions() {
 	return 0;
+}
+public Annotation[][] getAnnotationsOnDimensions() {
+	return null;
 }
 
 public abstract char[] getLastToken();
@@ -156,6 +163,16 @@ protected TypeBinding internalResolveType(Scope scope) {
 			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 		scope.problemReporter().rawTypeReference(this, type);
 	}
+	if (this.annotations != null) {
+		switch(scope.kind) {
+			case Scope.BLOCK_SCOPE :
+				resolveAnnotations((BlockScope) scope, this.annotations, null);
+				break;
+			case Scope.CLASS_SCOPE :
+				resolveAnnotations((ClassScope) scope, this.annotations, null);
+		}
+	}
+
 	if (hasError) {
 		// do not store the computed type, keep the problem type instead
 		return type;
@@ -166,6 +183,9 @@ public boolean isTypeReference() {
 	return true;
 }
 
+public boolean isParametrizedTypeReference() {
+	return false;
+}
 protected void reportDeprecatedType(TypeBinding type, Scope scope, int index) {
 	scope.problemReporter().deprecatedType(type, this, index);
 }
@@ -206,11 +226,11 @@ public TypeBinding resolveType(ClassScope scope) {
 }
 
 public TypeBinding resolveTypeArgument(BlockScope blockScope, ReferenceBinding genericType, int rank) {
-    return resolveType(blockScope, true /* check bounds*/);
+	return resolveType(blockScope, true /* check bounds*/);
 }
 
 public TypeBinding resolveTypeArgument(ClassScope classScope, ReferenceBinding genericType, int rank) {
-    return resolveType(classScope);
+	return resolveType(classScope);
 }
 
 public abstract void traverse(ASTVisitor visitor, BlockScope scope);

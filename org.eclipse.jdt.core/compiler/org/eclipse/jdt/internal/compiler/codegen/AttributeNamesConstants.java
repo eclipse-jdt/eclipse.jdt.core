@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,4 +33,7 @@ public interface AttributeNamesConstants {
 	final char[] VarargsName = "Varargs".toCharArray(); //$NON-NLS-1$
 	final char[] StackMapName = "StackMap".toCharArray(); //$NON-NLS-1$
 	final char[] MissingTypesName = "MissingTypes".toCharArray(); //$NON-NLS-1$
+	// jsr308
+	final char[] RuntimeVisibleTypeAnnotations = "RuntimeVisibleTypeAnnotations".toCharArray(); //$NON-NLS-1$
+	final char[] RuntimeInvisibleTypeAnnotations = "RuntimeInvisibleTypeAnnotations".toCharArray(); //$NON-NLS-1$
 }

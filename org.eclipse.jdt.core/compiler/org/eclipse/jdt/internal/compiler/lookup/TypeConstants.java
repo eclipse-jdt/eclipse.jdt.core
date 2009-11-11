@@ -40,14 +40,14 @@ public interface TypeConstants {
 	char[] CharArray_JAVA_IO_OBJECTSTREAMFIELD = "java.io.ObjectStreamField".toCharArray(); //$NON-NLS-1$
 	char[] ANONYM_PREFIX = "new ".toCharArray(); //$NON-NLS-1$
 	char[] ANONYM_SUFFIX = "(){}".toCharArray(); //$NON-NLS-1$
-    char[] WILDCARD_NAME = { '?' };
-    char[] WILDCARD_SUPER = " super ".toCharArray(); //$NON-NLS-1$
-    char[] WILDCARD_EXTENDS = " extends ".toCharArray(); //$NON-NLS-1$
-    char[] WILDCARD_MINUS = { '-' };
-    char[] WILDCARD_STAR = { '*' };
-    char[] WILDCARD_PLUS = { '+' };
-    char[] WILDCARD_CAPTURE_NAME_PREFIX = "capture#".toCharArray(); //$NON-NLS-1$
-    char[] WILDCARD_CAPTURE_NAME_SUFFIX = "-of ".toCharArray(); //$NON-NLS-1$
+	char[] WILDCARD_NAME = { '?' };
+	char[] WILDCARD_SUPER = " super ".toCharArray(); //$NON-NLS-1$
+	char[] WILDCARD_EXTENDS = " extends ".toCharArray(); //$NON-NLS-1$
+	char[] WILDCARD_MINUS = { '-' };
+	char[] WILDCARD_STAR = { '*' };
+	char[] WILDCARD_PLUS = { '+' };
+	char[] WILDCARD_CAPTURE_NAME_PREFIX = "capture#".toCharArray(); //$NON-NLS-1$
+	char[] WILDCARD_CAPTURE_NAME_SUFFIX = "-of ".toCharArray(); //$NON-NLS-1$
 	char[] WILDCARD_CAPTURE = { '!' };
 	char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
 	char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
@@ -59,22 +59,25 @@ public interface TypeConstants {
 	char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	char[] NULL = "null".toCharArray(); //$NON-NLS-1$
 	char[] VOID = "void".toCharArray(); //$NON-NLS-1$
-    char[] VALUE = "value".toCharArray(); //$NON-NLS-1$
-    char[] VALUES = "values".toCharArray(); //$NON-NLS-1$
-    char[] VALUEOF = "valueOf".toCharArray(); //$NON-NLS-1$
-    char[] UPPER_SOURCE = "SOURCE".toCharArray(); //$NON-NLS-1$
-    char[] UPPER_CLASS = "CLASS".toCharArray(); //$NON-NLS-1$
-    char[] UPPER_RUNTIME = "RUNTIME".toCharArray(); //$NON-NLS-1$
+	char[] VALUE = "value".toCharArray(); //$NON-NLS-1$
+	char[] VALUES = "values".toCharArray(); //$NON-NLS-1$
+	char[] VALUEOF = "valueOf".toCharArray(); //$NON-NLS-1$
+	char[] UPPER_SOURCE = "SOURCE".toCharArray(); //$NON-NLS-1$
+	char[] UPPER_CLASS = "CLASS".toCharArray(); //$NON-NLS-1$
+	char[] UPPER_RUNTIME = "RUNTIME".toCharArray(); //$NON-NLS-1$
 	char[] ANNOTATION_PREFIX = "@".toCharArray(); //$NON-NLS-1$
 	char[] ANNOTATION_SUFFIX = "()".toCharArray(); //$NON-NLS-1$
-    char[] TYPE = "TYPE".toCharArray(); //$NON-NLS-1$
-    char[] UPPER_FIELD = "FIELD".toCharArray(); //$NON-NLS-1$
-    char[] UPPER_METHOD = "METHOD".toCharArray(); //$NON-NLS-1$
-    char[] UPPER_PARAMETER = "PARAMETER".toCharArray(); //$NON-NLS-1$
-    char[] UPPER_CONSTRUCTOR = "CONSTRUCTOR".toCharArray(); //$NON-NLS-1$
-    char[] UPPER_LOCAL_VARIABLE = "LOCAL_VARIABLE".toCharArray(); //$NON-NLS-1$
-    char[] UPPER_ANNOTATION_TYPE = "ANNOTATION_TYPE".toCharArray(); //$NON-NLS-1$
-    char[] UPPER_PACKAGE = "PACKAGE".toCharArray(); //$NON-NLS-1$
+	char[] TYPE = "TYPE".toCharArray(); //$NON-NLS-1$
+	char[] UPPER_FIELD = "FIELD".toCharArray(); //$NON-NLS-1$
+	char[] UPPER_METHOD = "METHOD".toCharArray(); //$NON-NLS-1$
+	char[] UPPER_PARAMETER = "PARAMETER".toCharArray(); //$NON-NLS-1$
+	char[] UPPER_CONSTRUCTOR = "CONSTRUCTOR".toCharArray(); //$NON-NLS-1$
+	char[] UPPER_LOCAL_VARIABLE = "LOCAL_VARIABLE".toCharArray(); //$NON-NLS-1$
+	char[] UPPER_ANNOTATION_TYPE = "ANNOTATION_TYPE".toCharArray(); //$NON-NLS-1$
+	char[] UPPER_PACKAGE = "PACKAGE".toCharArray(); //$NON-NLS-1$
+	// jsr308
+	char[] TYPE_USE = "TYPE_USE".toCharArray(); //$NON-NLS-1$
+	char[] TYPE_PARAMETER= "TYPE_PARAMETER".toCharArray(); //$NON-NLS-1$
 
 	// Constant compound names
 	char[][] JAVA_LANG = {JAVA, LANG};
@@ -136,9 +139,9 @@ public interface TypeConstants {
 	};
 
 	// Constraints for generic type argument inference
-    int CONSTRAINT_EQUAL = 0;		// Actual = Formal
-    int CONSTRAINT_EXTENDS = 1;	// Actual << Formal
-    int CONSTRAINT_SUPER = 2;		// Actual >> Formal
+	int CONSTRAINT_EQUAL = 0;	// Actual = Formal
+	int CONSTRAINT_EXTENDS = 1;	// Actual << Formal
+	int CONSTRAINT_SUPER = 2;	// Actual >> Formal
 
 	// Constants used to perform bound checks
 	int OK = 0;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@ import java.util.Map;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestMixed extends JavadocTest {
@@ -779,49 +778,27 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "		return \"\";\n"
 					+ "	}\n"
 					+ "}\n" },
-					this.complianceLevel < ClassFileConstants.JDK1_5
-					? "----------\n"
-						+ "1. ERROR in test\\X.java (at line 23)\n"
-						+ "	}\n"
-						+ "	^\n"
-						+ "Syntax error, insert \"}\" to complete ClassBody\n"
-						+ "----------\n"
-						+ "2. ERROR in test\\X.java (at line 26)\n"
-						+ "	* @param list Valid param tag\n"
-						+ "	         ^^^^\n"
-						+ "Javadoc: Parameter list is not declared\n"
-						+ "----------\n"
-						+ "3. ERROR in test\\X.java (at line 33)\n"
-						+ "	public String foo(java.util.Vector ) {\n"
-						+ "	                            ^^^^^^\n"
-						+ "Syntax error on token \"Vector\", VariableDeclaratorId expected after this token\n"
-						+ "----------\n"
-						+ "4. ERROR in test\\X.java (at line 36)\n"
-						+ "	}\n"
-						+ "	^\n"
-						+ "Syntax error on token \"}\", delete this token\n"
-						+ "----------\n"
-					: "----------\n"
-						+ "1. ERROR in test\\X.java (at line 23)\n"
-						+ "	}\n"
-						+ "	^\n"
-						+ "Syntax error, insert \"}\" to complete ClassBody\n"
-						+ "----------\n"
-						+ "2. ERROR in test\\X.java (at line 26)\n"
-						+ "	* @param list Valid param tag\n"
-						+ "	         ^^^^\n"
-						+ "Javadoc: Parameter list is not declared\n"
-						+ "----------\n"
-						+ "3. ERROR in test\\X.java (at line 33)\n"
-						+ "	public String foo(java.util.Vector ) {\n"
-						+ "	                           ^\n"
-						+ "Syntax error on token \".\", ... expected\n"
-						+ "----------\n"
-						+ "4. ERROR in test\\X.java (at line 36)\n"
-						+ "	}\n"
-						+ "	^\n"
-						+ "Syntax error on token \"}\", delete this token\n"
-						+ "----------\n");
+					"----------\n" + 
+					"1. ERROR in test\\X.java (at line 23)\n" + 
+					"	}\n" + 
+					"	^\n" + 
+					"Syntax error, insert \"}\" to complete ClassBody\n" + 
+					"----------\n" + 
+					"2. ERROR in test\\X.java (at line 26)\n" + 
+					"	* @param list Valid param tag\n" + 
+					"	         ^^^^\n" + 
+					"Javadoc: Parameter list is not declared\n" + 
+					"----------\n" + 
+					"3. ERROR in test\\X.java (at line 33)\n" + 
+					"	public String foo(java.util.Vector ) {\n" + 
+					"	                            ^^^^^^\n" + 
+					"Syntax error, insert \"VariableDeclaratorId\" to complete FormalParameterList\n" + 
+					"----------\n" + 
+					"4. ERROR in test\\X.java (at line 36)\n" + 
+					"	}\n" + 
+					"	^\n" + 
+					"Syntax error on token \"}\", delete this token\n" + 
+					"----------\n");						
 	}
 
 	public void test040() {

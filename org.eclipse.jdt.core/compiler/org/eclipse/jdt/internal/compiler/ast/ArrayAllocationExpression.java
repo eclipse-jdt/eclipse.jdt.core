@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ public class ArrayAllocationExpression extends Expression {
 	//dimensions.length gives the number of dimensions, but the
 	// last ones may be nulled as in new int[4][5][][]
 	public Expression[] dimensions;
+	public Annotation [][] annotationsOnDimensions; // jsr308 style annotations.
 	public ArrayInitializer initializer;
 
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -79,6 +80,10 @@ public class ArrayAllocationExpression extends Expression {
 		output.append("new "); //$NON-NLS-1$
 		this.type.print(0, output);
 		for (int i = 0; i < this.dimensions.length; i++) {
+			if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
+				output.append(" "); //$NON-NLS-1$
+				printAnnotations(this.annotationsOnDimensions[i], output);
+			}
 			if (this.dimensions[i] == null)
 				output.append("[]"); //$NON-NLS-1$
 			else {
@@ -126,7 +131,7 @@ public class ArrayAllocationExpression extends Expression {
 			}
 			// allow new List<?>[5] - only check for generic array when no initializer, since also checked inside initializer resolution
 			if (referenceType != null && !referenceType.isReifiable()) {
-			    scope.problemReporter().illegalGenericArray(referenceType, this);
+				scope.problemReporter().illegalGenericArray(referenceType, this);
 			}
 		} else if (explicitDimIndex >= 0) {
 			scope.problemReporter().cannotDefineDimensionsAndInitializer(this);
@@ -157,6 +162,12 @@ public class ArrayAllocationExpression extends Expression {
 			}
 			if ((referenceType.tagBits & TagBits.HasMissingType) != 0) {
 				return null;
+			}
+		}
+		if (this.annotationsOnDimensions != null) {
+			for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
+				Annotation[] annotations = this.annotationsOnDimensions[i];
+				resolveAnnotations(scope, annotations, null);
 			}
 		}
 		return this.resolvedType;

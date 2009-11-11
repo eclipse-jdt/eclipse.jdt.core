@@ -17,16 +17,27 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 	int dimensions;
+	Annotation[][] annotationsOnDimensions;  // jsr308 style type annotations on dimensions
 
 	public ArrayQualifiedTypeReference(char[][] sources , int dim, long[] poss) {
 
 		super( sources , poss);
 		this.dimensions = dim ;
+		this.annotationsOnDimensions = null; 
+	}
+
+	public ArrayQualifiedTypeReference(char[][] sources, int dim, Annotation[][] annotationsOnDimensions, long[] poss) {
+		this(sources, dim, poss);
+		this.annotationsOnDimensions = annotationsOnDimensions;
 	}
 
 	public int dimensions() {
 
 		return this.dimensions;
+	}
+	
+	public Annotation[][] getAnnotationsOnDimensions() {
+		return this.annotationsOnDimensions;
 	}
 
 	/**
@@ -72,11 +83,23 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		super.printExpression(indent, output);
 		if ((this.bits & IsVarArgs) != 0) {
 			for (int i= 0 ; i < this.dimensions - 1; i++) {
+				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
+					output.append(" "); //$NON-NLS-1$
+					printAnnotations(this.annotationsOnDimensions[i], output);
+				}
 				output.append("[]"); //$NON-NLS-1$
+			}
+			if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[this.dimensions - 1] != null) {
+				output.append(" "); //$NON-NLS-1$
+				printAnnotations(this.annotationsOnDimensions[this.dimensions - 1], output);
 			}
 			output.append("..."); //$NON-NLS-1$
 		} else {
 			for (int i= 0 ; i < this.dimensions; i++) {
+				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
+					output.append(" "); //$NON-NLS-1$
+					printAnnotations(this.annotationsOnDimensions[i], output);
+				}
 				output.append("[]"); //$NON-NLS-1$
 			}
 		}
@@ -93,5 +116,15 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
+	}
+	
+	protected TypeBinding internalResolveType(Scope scope) {
+		if (this.annotationsOnDimensions != null) {
+			for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
+				Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
+				resolveAnnotations((BlockScope) scope, annotationsOnDimension, null);
+			}
+		}
+		return super.internalResolveType(scope);
 	}
 }

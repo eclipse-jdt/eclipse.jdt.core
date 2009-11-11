@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -213,45 +213,35 @@ protected void consumeCastExpressionLL1() {
 	super.consumeCastExpressionLL1();
 	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
-		if (castExpression.type instanceof TypeReference) {
-			this.patternLocator.match((TypeReference) castExpression.type, this.nodeSet);
-        }
+		this.patternLocator.match(castExpression.type, this.nodeSet);
 	}
 }
 protected void consumeCastExpressionWithGenericsArray() {
 	super.consumeCastExpressionWithGenericsArray();
 	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
-		if (castExpression.type instanceof Reference) {
-			this.patternLocator.match((Reference) castExpression.type, this.nodeSet);
-        }
+		this.patternLocator.match(castExpression.type, this.nodeSet);
 	}
 }
 protected void consumeCastExpressionWithNameArray() {
 	super.consumeCastExpressionWithNameArray();
 	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
-		if (castExpression.type instanceof Reference) {
-			this.patternLocator.match((Reference) castExpression.type, this.nodeSet);
-        }
-	}
+		this.patternLocator.match(castExpression.type, this.nodeSet);
+ 	}
 }
 protected void consumeCastExpressionWithPrimitiveType() {
 	super.consumeCastExpressionWithPrimitiveType();
 	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
-		if (castExpression.type instanceof Reference) {
-			this.patternLocator.match((Reference) castExpression.type, this.nodeSet);
-        }
+		this.patternLocator.match(castExpression.type, this.nodeSet);
 	}
 }
 protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	super.consumeCastExpressionWithQualifiedGenericsArray();
 	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
-		if (castExpression.type instanceof Reference) {
-			this.patternLocator.match((Reference) castExpression.type, this.nodeSet);
-        }
+		this.patternLocator.match(castExpression.type, this.nodeSet);
 	}
 }
 
@@ -729,8 +719,16 @@ protected TypeReference copyDims(TypeReference typeRef, int dim) {
 		this.nodeSet.addTrustedMatch(result, true);
 	return result;
 }
-protected TypeReference getTypeReference(int dim) {
-	TypeReference typeRef = super.getTypeReference(dim);
+protected TypeReference copyDims(TypeReference typeRef, int dim, Annotation [][] annotationsOnDimensions) {
+	TypeReference result = super.copyDims(typeRef, dim, annotationsOnDimensions);
+	 if (this.nodeSet.removePossibleMatch(typeRef) != null)
+		this.nodeSet.addPossibleMatch(result);
+	 else if (this.nodeSet.removeTrustedMatch(typeRef) != null)
+		this.nodeSet.addTrustedMatch(result, true);
+	return result;
+}
+protected TypeReference getUnannotatedTypeReference(int dim) {
+	TypeReference typeRef = super.getUnannotatedTypeReference(dim);
 	if (this.patternFineGrain == 0) {
 		this.patternLocator.match(typeRef, this.nodeSet); // NB: Don't check container since type reference can happen anywhere
 	}

@@ -35,6 +35,7 @@ public abstract class AbstractMethodDeclaration
 	public int modifiers;
 	public int modifiersSourceStart;
 	public Annotation[] annotations;
+	public Annotation[] receiverAnnotations;
 	public Argument[] arguments;
 	public TypeReference[] thrownExceptions;
 	public Statement[] statements;
@@ -359,6 +360,10 @@ public abstract class AbstractMethodDeclaration
 			}
 		}
 		output.append(')');
+		if (this.receiverAnnotations != null) {
+			output.append(" "); //$NON-NLS-1$
+			printAnnotations(this.receiverAnnotations, output);
+		}
 		if (this.thrownExceptions != null) {
 			output.append(" throws "); //$NON-NLS-1$
 			for (int i = 0; i < this.thrownExceptions.length; i++) {
@@ -403,6 +408,13 @@ public abstract class AbstractMethodDeclaration
 			bindThrownExceptions();
 			resolveJavadoc();
 			resolveAnnotations(this.scope, this.annotations, this.binding);
+			// jsr308
+			if (this.receiverAnnotations != null && this.scope.isStatic) {
+				int last = this.receiverAnnotations.length - 1;
+				this.scope.problemReporter().illegalReceiverAnnotations(this.receiverAnnotations[0],
+						                                                this.receiverAnnotations[last]);
+			}
+			resolveAnnotations(this.scope, this.receiverAnnotations, this.binding);
 			resolveStatements();
 			// check @Deprecated annotation presence
 			if (this.binding != null

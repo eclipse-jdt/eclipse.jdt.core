@@ -2527,20 +2527,17 @@ public void test32() {
 		"}\n";
 
 	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString;
-	if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
-		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+	
+	expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
 			"public class WB2 {\n" +
 			"  public WB2() {\n" +
 			"    super();\n" +
 			"  }\n" +
 			"  public void foo() {\n" +
-			"    java.util.Locale.java.util.Vector $missing$;\n" +
+			"    java.util.Locale $missing$;\n" + 
+			"    java.util.Locale java;\n" +
 			"  }\n" +
 			"}\n";
-	} else {
-		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
-			expectedDietPlusBodyUnitToString;
-	}
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -4649,14 +4646,12 @@ public void test75() {
 		"        super();\n" +
 		"      }\n" +
 		"      int hello() {\n" +
-		"        fo = $missing$;\n" +
 		"      }\n" +
 		"      int world() {\n" +
 		"      }\n" +
 		"      void foo() {\n" +
 		"      }\n" +
 		"    }\n" +
-		"    ba = $missing$;\n" +
 		"  }\n" +
 		"}\n";
 
@@ -4840,15 +4835,7 @@ public void test77() {
 		"  public Hanoi(int numberOfDisks) {\n" +
 		"  }\n" +
 		"  private void solve(int depth, Post start, Post free, Post end) {\n" +
-		"    if ((depth == 1))\n" +
-		"        moveDisk(start, end);\n" +
-		"    else\n" +
-		"        if ((depth > 1))\n" +
-		"            {\n" +
-		"              sol = $missing$;\n" +
-		"            }\n" +
-		"        else\n" +
-		"            ;\n" +
+		"    moveDisk(start, end);\n" +
 		"  }\n" +
 		"}\n";
 
@@ -6000,7 +5987,6 @@ public void test99() {
 		"    restricts breakpoint;\n" +
 		"    given thread;\n" +
 		"    any other;\n" +
-		"    specified = $missing$;\n" +
 		"  }\n" +
 		"  public void removeThreadFilter(IJavaThread thread) {\n" +
 		"    removes the;\n" +
@@ -6009,7 +5995,6 @@ public void test99() {
 		"    request as;\n" +
 		"    does not;\n" +
 		"    the removal;\n" +
-		"    thread = $missing$;\n" +
 		"  }\n" +
 		"  public IJavaThread[] getThreadFilters() {\n" +
 		"    return the;\n" +
@@ -7621,16 +7606,6 @@ public void test124() {
 			"    super();\n" +
 			"  }\n" +
 			"  void aMethod() {\n" +
-			"    m1();\n" +
-			"    {\n" +
-			"      int a;\n" +
-			"      int b;\n" +
-			"    }\n" +
-			"    m2();\n" +
-			"    {\n" +
-			"      int c;\n" +
-			"      int d;\n" +
-			"    }\n" +
 			"  }\n" +
 			"}\n";
 	} else {
@@ -7640,13 +7615,6 @@ public void test124() {
 			"    super();\n" +
 			"  }\n" +
 			"  void aMethod() {\n" +
-			"    public static @m1() enum $missing$ {\n" +
-			"      public $missing$() {\n" +
-			"        super();\n" +
-			"      }\n" +
-			"      <clinit>() {\n" +
-			"      }\n" +
-			"    }\n" +
 			"  }\n" +
 			"}\n";
 	}

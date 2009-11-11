@@ -942,8 +942,6 @@ public StringBuffer printStatement(int tab, StringBuffer output) {
 	return print(tab, output);
 }
 
-
-
 public void resolve() {
 	SourceTypeBinding sourceType = this.binding;
 	if (sourceType == null) {
@@ -955,9 +953,34 @@ public void resolve() {
 		try {
 			this.staticInitializerScope.insideTypeAnnotation = true;
 			resolveAnnotations(this.staticInitializerScope, this.annotations, sourceType);
+			if (this.superclass != null) {
+				Annotation[] superclassAnnotations = this.superclass.annotations;
+				if (superclassAnnotations != null) {
+					resolveAnnotations(this.staticInitializerScope, superclassAnnotations, this.superclass.resolvedType);
+				}
+			}
+			if (this.superInterfaces != null) {
+				for (int i = 0, max = this.superInterfaces.length; i < max; i++) {
+					TypeReference superinterface = this.superInterfaces[i];
+					Annotation[] superinterfaceAnnotations = superinterface.annotations;
+					if (superinterfaceAnnotations != null) {
+						resolveAnnotations(this.staticInitializerScope, superinterfaceAnnotations, superinterface.resolvedType);
+					}
+				}
+			}
+			if (this.typeParameters != null) {
+				for (int i = 0, max = this.typeParameters.length; i < max; i++) {
+					TypeParameter typeParameter = this.typeParameters[i];
+					Annotation[] typeParameterAnnotations = typeParameter.annotations;
+					if (typeParameterAnnotations != null) {
+						resolveAnnotations(this.staticInitializerScope, typeParameterAnnotations, typeParameter.binding);
+					}
+				}
+			}
 		} finally {
 			this.staticInitializerScope.insideTypeAnnotation = old;
 		}
+		
 		// check @Deprecated annotation
 		if ((sourceType.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
 				&& (sourceType.modifiers & ClassFileConstants.AccDeprecated) != 0

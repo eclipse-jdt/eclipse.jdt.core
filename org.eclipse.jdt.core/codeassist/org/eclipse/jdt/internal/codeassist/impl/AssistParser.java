@@ -889,13 +889,13 @@ protected void flushElementStack() {
 /*
  * Build specific type reference nodes in case the cursor is located inside the type reference
  */
-protected TypeReference getTypeReference(int dim) {
+protected TypeReference getUnannotatedTypeReference(int dim) {
 
 	int index;
 
 	/* no need to take action if not inside completed identifiers */
 	if ((index = indexOfAssistIdentifier(true)) < 0) {
-		return super.getTypeReference(dim);
+		return super.getUnannotatedTypeReference(dim);
 	}
 	int length = this.identifierLengthStack[this.identifierLengthPtr];
 	TypeReference reference;
@@ -1602,6 +1602,9 @@ protected boolean resumeAfterRecovery() {
 	this.astLengthPtr = -1;
 	this.expressionPtr = -1;
 	this.expressionLengthPtr = -1;
+	this.unattachedAnnotationPtr = -1;
+	this.typeAnnotationLengthPtr = -1;
+	this.typeAnnotationPtr = -1;
 	this.identifierPtr = -1;
 	this.identifierLengthPtr	= -1;
 	this.intPtr = -1;

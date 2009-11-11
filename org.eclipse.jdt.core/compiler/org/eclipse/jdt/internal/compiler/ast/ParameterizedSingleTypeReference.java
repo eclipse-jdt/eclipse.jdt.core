@@ -29,6 +29,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		this.originalSourceEnd = this.sourceEnd;
 		this.typeArguments = typeArguments;
 	}
+	public ParameterizedSingleTypeReference(char[] name, TypeReference[] typeArguments, int dim, Annotation[][] annotationsOnDimensions, long pos) {
+		this(name, typeArguments, dim, pos);
+		this.annotationsOnDimensions = annotationsOnDimensions;
+	}
 	public void checkBounds(Scope scope) {
 		if (this.resolvedType == null) return;
 
@@ -47,6 +51,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	 */
 	public TypeReference copyDims(int dim) {
 		return new ParameterizedSingleTypeReference(this.token, this.typeArguments, dim, (((long)this.sourceStart)<<32)+this.sourceEnd);
+	}
+	public TypeReference copyDims(int dim, Annotation [][] annotationsOnDims) {
+		return new ParameterizedSingleTypeReference(this.token, this.typeArguments, dim, annotationsOnDims, (((long)this.sourceStart)<<32)+this.sourceEnd);
 	}
 
 	/**
@@ -80,6 +87,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
      */
     protected TypeBinding getTypeBinding(Scope scope) {
         return null; // not supported here - combined with resolveType(...)
+    }
+    
+    public boolean isParametrizedTypeReference() {
+    	return true;
     }
 
     /*
@@ -252,6 +263,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){
+		if (this.annotations != null) {
+			printAnnotations(this.annotations, output);
+		}
 		output.append(this.token);
 		output.append("<"); //$NON-NLS-1$
 		int max = this.typeArguments.length - 1;
@@ -263,11 +277,23 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		output.append(">"); //$NON-NLS-1$
 		if ((this.bits & IsVarArgs) != 0) {
 			for (int i= 0 ; i < this.dimensions - 1; i++) {
+				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
+					output.append(" "); //$NON-NLS-1$
+					printAnnotations(this.annotationsOnDimensions[i], output);
+				}
 				output.append("[]"); //$NON-NLS-1$
+			}
+			if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[this.dimensions - 1] != null) {
+				output.append(" "); //$NON-NLS-1$
+				printAnnotations(this.annotationsOnDimensions[this.dimensions - 1], output);
 			}
 			output.append("..."); //$NON-NLS-1$
 		} else {
 			for (int i= 0 ; i < this.dimensions; i++) {
+				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
+					output.append(" "); //$NON-NLS-1$
+					printAnnotations(this.annotationsOnDimensions[i], output);
+				}
 				output.append("[]"); //$NON-NLS-1$
 			}
 		}

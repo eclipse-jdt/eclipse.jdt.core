@@ -552,6 +552,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidHighSurrogate", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidInput", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidLowSurrogate", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("InvalidLocationForModifiers", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidNullToSynchronized", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidOctal", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidOperator", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -568,7 +569,9 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidUsageOfAnnotations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUsageOfEnumDeclarations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUsageOfForeachStatements", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("InvalidUsageOfReceiverAnnotations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUsageOfStaticImports", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("InvalidUsageOfTypeAnnotations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUsageOfTypeArguments", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUsageOfTypeParameters", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUsageOfTypeParametersForAnnotationDeclaration", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -661,6 +664,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MethodRequiresBody", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MethodReturnsVoid", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MethodVarargsArgumentNeedCast", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("misplacedTypeAnnotations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("MissingArgumentsForParameterizedMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("MissingEnclosingInstance", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("MissingEnclosingInstanceForConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1184,6 +1188,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidHighSurrogate", SKIP);
 		expectedProblemAttributes.put("InvalidInput", SKIP);
 		expectedProblemAttributes.put("InvalidLowSurrogate", SKIP);
+		expectedProblemAttributes.put("InvalidLocationForModifiers", SKIP);
 		expectedProblemAttributes.put("InvalidNullToSynchronized", SKIP);
 		expectedProblemAttributes.put("InvalidOctal", SKIP);
 		expectedProblemAttributes.put("InvalidOperator", SKIP);
@@ -1200,7 +1205,9 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidUsageOfAnnotations", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfEnumDeclarations", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfForeachStatements", SKIP);
+		expectedProblemAttributes.put("InvalidUsageOfReceiverAnnotations", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfStaticImports", SKIP);
+		expectedProblemAttributes.put("InvalidUsageOfTypeAnnotations", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfTypeArguments", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfTypeParameters", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfTypeParametersForAnnotationDeclaration", SKIP);
@@ -1293,6 +1300,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MethodRequiresBody", SKIP);
 		expectedProblemAttributes.put("MethodReturnsVoid", SKIP);
 		expectedProblemAttributes.put("MethodVarargsArgumentNeedCast", new ProblemAttributes(JavaCore.COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST));
+		expectedProblemAttributes.put("misplacedTypeAnnotations", SKIP);
 		expectedProblemAttributes.put("MissingArgumentsForParameterizedMemberType", SKIP);
 		expectedProblemAttributes.put("MissingEnclosingInstance", SKIP);
 		expectedProblemAttributes.put("MissingEnclosingInstanceForConstructorCall", SKIP);
