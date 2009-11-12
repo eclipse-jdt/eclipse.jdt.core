@@ -70,7 +70,7 @@ abstract public FlowInfo addPotentialInitializationsFrom(FlowInfo otherInits);
  * unknown or else as being both potentially null and potentially non null,
  * then it won't ever be promoted as definitely null or definitely non null. (It
  * could still get promoted to definite unknown).
- * @param local the variable to ckeck
+ * @param local the variable to check
  * @return true iff this flow info prevents local from being promoted to
  *         definite non null or definite null against an enclosing flow info
  */
