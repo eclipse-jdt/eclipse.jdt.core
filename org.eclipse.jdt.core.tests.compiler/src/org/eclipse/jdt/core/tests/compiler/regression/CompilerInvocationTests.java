@@ -559,6 +559,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidParenthesizedExpression", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidTypeExpression", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidTypeForCollection", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("InvalidTypeForCollectionTarget14", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidTypeForStaticImport", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
 		expectedProblemAttributes.put("InvalidTypeToSynchronized", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidTypeVariableExceptionType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1191,6 +1192,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidParenthesizedExpression", SKIP);
 		expectedProblemAttributes.put("InvalidTypeExpression", SKIP);
 		expectedProblemAttributes.put("InvalidTypeForCollection", SKIP);
+		expectedProblemAttributes.put("InvalidTypeForCollectionTarget14", SKIP);
 		expectedProblemAttributes.put("InvalidTypeForStaticImport", SKIP);
 		expectedProblemAttributes.put("InvalidTypeToSynchronized", SKIP);
 		expectedProblemAttributes.put("InvalidTypeVariableExceptionType", SKIP);
