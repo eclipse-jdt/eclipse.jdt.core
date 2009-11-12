@@ -1309,10 +1309,12 @@ public class Util {
 	 * Return the java element corresponding to the given compiler binding.
 	 */
 	public static JavaElement getUnresolvedJavaElement(FieldBinding binding, WorkingCopyOwner workingCopyOwner, BindingsToNodesMap bindingsToNodes) {
-		if (binding.declaringClass == null) return null; // arraylength
-		IType declaringType = (IType) getUnresolvedJavaElement(binding.declaringClass, workingCopyOwner, bindingsToNodes);
-		if (declaringType == null) return null;
-		return (JavaElement) declaringType.getField(String.valueOf(binding.name));
+		if (binding.declaringClass == null) return null; // array length
+		JavaElement unresolvedJavaElement = getUnresolvedJavaElement(binding.declaringClass, workingCopyOwner, bindingsToNodes);
+		if (unresolvedJavaElement == null || unresolvedJavaElement.getElementType() != IJavaElement.TYPE) {
+			return null;
+		}
+		return (JavaElement) ((IType) unresolvedJavaElement).getField(String.valueOf(binding.name));
 	}
 
 	/**
@@ -1344,9 +1346,11 @@ public class Util {
 	 * Return the java element corresponding to the given compiler binding.
 	 */
 	public static JavaElement getUnresolvedJavaElement(MethodBinding methodBinding, WorkingCopyOwner workingCopyOwner, BindingsToNodesMap bindingsToNodes) {
-		IType declaringType = (IType) getUnresolvedJavaElement(methodBinding.declaringClass, workingCopyOwner, bindingsToNodes);
-
-		if (declaringType == null) return null;
+		JavaElement unresolvedJavaElement = getUnresolvedJavaElement(methodBinding.declaringClass, workingCopyOwner, bindingsToNodes);
+		if (unresolvedJavaElement == null || unresolvedJavaElement.getElementType() != IJavaElement.TYPE) {
+			return null;
+		}
+		IType declaringType = (IType) unresolvedJavaElement;
 
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = bindingsToNodes == null ? null : bindingsToNodes.get(methodBinding);
 		if (node != null && !declaringType.isBinary()) {
