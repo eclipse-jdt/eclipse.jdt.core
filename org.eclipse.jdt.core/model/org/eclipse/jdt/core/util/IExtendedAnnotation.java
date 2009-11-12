@@ -104,4 +104,13 @@ public interface IExtendedAnnotation extends IAnnotation {
 	 * @return the method type parameter bound index
 	 */
 	int getTypeParameterBoundIndex();
+
+	/**
+	 * Answer back the type argument index in the expression.
+	 * 
+	 * <p>The index is 0-based.</p>
+	 * 
+	 * @return the type argument index in the expression
+	 */
+	int getTypeIndex();
 }
