@@ -29,11 +29,28 @@ public interface IExtendedAnnotation extends IAnnotation {
 	/**
 	 * Answer back the offset.
 	 * 
-	 * <p>The offset within the bytecodes of the containing method of the <code>checkcast</code> 
+	 * For a target_type value equals to:
+	 * <table border="1">
+	 * <tr>
+	 * <th>target_type</th>
+	 * <th>offset description</th>
+	 * </tr>
+	 * <tr>
+	 * <td>0x00, 0x02, 0x04, 0x1E</td>
+	 * <td>The offset within the bytecodes of the containing method of the <code>checkcast</code> 
 	 * bytecode emitted for a typecast, the <code>instanceof</code> bytecode for the type tests, 
 	 * the <code>new</code> bytecode emitted for the object creation expression, the <code>ldc(_w)</code>
 	 * bytecode emitted for class literal, or the <code>getstatic</code> bytecode emitted for primitive
-	 * class literals.</p>
+	 * class literals.</td>
+	 * </tr>
+	 * <tr>
+	 * <td>0x18, 0x1A</td>
+	 * <td>The offset within the bytecodes of the containing method of the <code>new</code> 
+	 * bytecode emitted for a constructor call, or the <code>invoke{interface|special|static|virtual}</code>
+	 * bytecode emitted for a method invocation.</td>
+	 * </tr>
+	 * </table>
+	 * 
 	 * 
 	 * @return the offset
 	 */
