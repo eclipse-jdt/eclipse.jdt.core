@@ -1376,6 +1376,9 @@ public int getNextToken() throws InvalidInputException {
 						}
 
 						while (this.currentCharacter != '"') {
+							if (this.currentPosition >= this.eofPosition) {
+								throw new InvalidInputException(UNTERMINATED_STRING);
+							}
 							/**** \r and \n are not valid in string literals ****/
 							if ((this.currentCharacter == '\n') || (this.currentCharacter == '\r')) {
 								// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
@@ -1483,6 +1486,11 @@ public int getNextToken() throws InvalidInputException {
 								} //jump over the \\
 								boolean isUnicode = false;
 								while (this.currentCharacter != '\r' && this.currentCharacter != '\n') {
+									if (this.currentPosition >= this.eofPosition) {
+										this.currentPosition++;
+										// this avoids duplicating the code in the catch(IndexOutOfBoundsException e)
+										throw new IndexOutOfBoundsException();
+									}
 									this.lastCommentLinePosition = this.currentPosition;
 									//get the next char
 									isUnicode = false;
@@ -1501,16 +1509,16 @@ public int getNextToken() throws InvalidInputException {
 								 * We need to completely consume the line break
 								 */
 								if (this.currentCharacter == '\r'
-								   && this.eofPosition > this.currentPosition) {
-								   	if (this.source[this.currentPosition] == '\n') {
+										&& this.eofPosition > this.currentPosition) {
+									if (this.source[this.currentPosition] == '\n') {
 										this.currentPosition++;
 										this.currentCharacter = '\n';
-								   	} else if ((this.source[this.currentPosition] == '\\')
+									} else if ((this.source[this.currentPosition] == '\\')
 										&& (this.source[this.currentPosition + 1] == 'u')) {
 										getNextUnicodeChar();
 										isUnicode = true;
 									}
-							   	}
+								}
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
@@ -1598,6 +1606,9 @@ public int getNextToken() throws InvalidInputException {
 								//loop until end of comment */
 								int firstTag = 0;
 								while ((this.currentCharacter != '/') || (!star)) {
+									if (this.currentPosition >= this.eofPosition) {
+										throw new InvalidInputException(UNTERMINATED_COMMENT);
+									}
 									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 										if (this.recordLineSeparator) {
 											if (isUnicode) {
@@ -1862,13 +1873,16 @@ public final void jumpOverMethodBody() {
 								getNextUnicodeChar();
 							} else {
 								if (this.withoutUnicodePtr != 0) {
-								    unicodeStore();
+									unicodeStore();
 								}
 							}
 						} catch (InvalidInputException ex) {
 								// ignore
 						}
 						while (this.currentCharacter != '"') {
+							if (this.currentPosition >= this.eofPosition) {
+								return;
+							}
 							if (this.currentCharacter == '\r'){
 								if (this.source[this.currentPosition] == '\n') this.currentPosition++;
 								break NextToken; // the string cannot go further that the line
@@ -1932,6 +1946,11 @@ public final void jumpOverMethodBody() {
 								} //jump over the \\
 								boolean isUnicode = false;
 								while (this.currentCharacter != '\r' && this.currentCharacter != '\n') {
+									if (this.currentPosition >= this.eofPosition) {
+										this.currentPosition++;
+										// this avoids duplicating the code inside the catch(IndexOutOfBoundsException e) below
+										throw new IndexOutOfBoundsException();
+									}
 									this.lastCommentLinePosition = this.currentPosition;
 									//get the next char
 									isUnicode = false;
@@ -1950,16 +1969,16 @@ public final void jumpOverMethodBody() {
 								 * We need to completely consume the line break
 								 */
 								if (this.currentCharacter == '\r'
-								   && this.eofPosition > this.currentPosition) {
-								   	if (this.source[this.currentPosition] == '\n') {
+										&& this.eofPosition > this.currentPosition) {
+									if (this.source[this.currentPosition] == '\n') {
 										this.currentPosition++;
 										this.currentCharacter = '\n';
-								   	} else if ((this.source[this.currentPosition] == '\\')
+									} else if ((this.source[this.currentPosition] == '\\')
 											&& (this.source[this.currentPosition + 1] == 'u')) {
 										isUnicode = true;
 										getNextUnicodeChar();
 									}
-							   	}
+								}
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.recordLineSeparator
 									&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
@@ -2004,7 +2023,7 @@ public final void jumpOverMethodBody() {
 								} else {
 									isUnicode = false;
 									if (this.withoutUnicodePtr != 0) {
-    								    unicodeStore();
+										unicodeStore();
 									}
 								}
 
@@ -2042,6 +2061,9 @@ public final void jumpOverMethodBody() {
 								//loop until end of comment */
 								int firstTag = 0;
 								while ((this.currentCharacter != '/') || (!star)) {
+									if (this.currentPosition >= this.eofPosition) {
+										return;
+									}
 									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 										if (this.recordLineSeparator) {
 											if (isUnicode) {
