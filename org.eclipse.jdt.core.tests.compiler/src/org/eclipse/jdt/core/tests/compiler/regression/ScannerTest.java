@@ -31,7 +31,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 46 };
+//		TESTS_NUMBERS = new int[] { 52 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 
@@ -1015,6 +1015,116 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertEquals("Wrong token", ITerminalSymbols.TokenNameEOF, scanner.getNextToken());
 		} catch (InvalidInputException e) {
 			assertTrue("Wrong exception", false);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294529
+	public void test047() {
+		IScanner scanner = ToolFactory.createScanner(
+				true,
+				true,
+				true,
+				JavaCore.getOption(JavaCore.COMPILER_SOURCE),
+				JavaCore.getOption(JavaCore.COMPILER_COMPLIANCE));
+		final char[] source = "// a comment, longer than the offset".toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, 5);
+		try {
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameCOMMENT_LINE, scanner.getNextToken());
+			assertEquals("Wrong source", "// a c", new String(scanner.getCurrentTokenSource()));
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameEOF, scanner.getNextToken());
+		} catch (InvalidInputException e) {
+			assertTrue("Wrong exception", false);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294529
+	public void test048() {
+		IScanner scanner = ToolFactory.createScanner(
+				true,
+				true,
+				true,
+				JavaCore.getOption(JavaCore.COMPILER_SOURCE),
+				JavaCore.getOption(JavaCore.COMPILER_COMPLIANCE));
+		final char[] source = "/*a comment, longer\n than the\noffset*/".toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, 5);
+		try {
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameCOMMENT_BLOCK, scanner.getNextToken());
+			assertTrue("Should fail with InvalidInputException", false);
+		} catch (InvalidInputException e) {
+			assertEquals("Wrong source", "/*a co", new String(scanner.getCurrentTokenSource()));
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294529
+	public void test049() {
+		IScanner scanner = ToolFactory.createScanner(
+				true,
+				true,
+				true,
+				JavaCore.getOption(JavaCore.COMPILER_SOURCE),
+				JavaCore.getOption(JavaCore.COMPILER_COMPLIANCE));
+		final char[] source = "/*a coabstract, longer\n than the\noffset*/".toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(6, 13);
+		try {
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameabstract, scanner.getNextToken());
+			assertEquals("Wrong source", "abstract", new String(scanner.getCurrentTokenSource()));
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameEOF, scanner.getNextToken());
+		} catch (InvalidInputException e) {
+			assertTrue("Wrong exception", false);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294529
+	public void test050() {
+		IScanner scanner = ToolFactory.createScanner(
+				true,
+				true,
+				true,
+				JavaCore.getOption(JavaCore.COMPILER_SOURCE),
+				JavaCore.getOption(JavaCore.COMPILER_COMPLIANCE));
+		final char[] source = "\"a comment, longer\\n than the\\noffset \"".toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, 5);
+		try {
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameStringLiteral, scanner.getNextToken());
+			assertTrue("Should fail with InvalidInputException", false);
+		} catch (InvalidInputException e) {
+			assertEquals("Wrong source", "\"a com", new String(scanner.getCurrentTokenSource()));
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294529
+	public void test051() {
+		IScanner scanner = ToolFactory.createScanner(
+				true,
+				true,
+				true,
+				JavaCore.getOption(JavaCore.COMPILER_SOURCE),
+				JavaCore.getOption(JavaCore.COMPILER_COMPLIANCE));
+		final char[] source = "\"a co\\u00E9mment, longer\\n than the\\noffset \"".toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, 5);
+		try {
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameStringLiteral, scanner.getNextToken());
+			assertTrue("Should fail with InvalidInputException", false);
+		} catch (InvalidInputException e) {
+			assertEquals("Wrong source", "\"a co\\", new String(scanner.getCurrentTokenSource()));
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294529
+	public void test052() {
+		IScanner scanner = ToolFactory.createScanner(
+				true,
+				true,
+				true,
+				JavaCore.getOption(JavaCore.COMPILER_SOURCE),
+				JavaCore.getOption(JavaCore.COMPILER_COMPLIANCE));
+		final char[] source = "\"\\u00E9mment, longer\\n than the\\noffset \"".toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, 5);
+		try {
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameStringLiteral, scanner.getNextToken());
+			assertTrue("Should fail with InvalidInputException", false);
+		} catch (InvalidInputException e) {
+			assertEquals("Wrong source", "\"\\u00E", new String(scanner.getCurrentTokenSource()));
 		}
 	}
 }
