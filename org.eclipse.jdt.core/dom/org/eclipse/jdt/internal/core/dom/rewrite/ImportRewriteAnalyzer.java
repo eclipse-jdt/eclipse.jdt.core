@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
@@ -33,6 +34,7 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.text.edits.DeleteEdit;
@@ -168,9 +170,41 @@ public final class ImportRewriteAnalyzer {
 		}
 	}
 
-	private static String getQualifier(ImportDeclaration decl) {
-		String name= decl.getName().getFullyQualifiedName();
-		return decl.isOnDemand() ? name : Signature.getQualifier(name);
+	private String getQualifier(ImportDeclaration decl) {
+		String name = decl.getName().getFullyQualifiedName();
+		/*
+		 * If it's on demand import, return the fully qualified name. (e.g. pack1.Foo.* => pack.Foo, pack1.* => pack1)
+		 * This is because we need to have pack1.Foo.* and pack1.Bar under different qualifier groups.
+		 */
+		if (decl.isOnDemand()) {
+			return name;
+		}
+		return getQualifier(Signature.getQualifier(name), decl.isStatic());
+	}
+
+	private String getQualifier(String name, boolean isStatic) {
+		// For static imports, return the Type name as well as part of the qualifier
+		if (isStatic) {
+			return Signature.getQualifier(name);
+		}
+
+		int index = CharOperation.indexOf(Signature.C_DOT, name.toCharArray());
+		/* Stop at the last fragment */
+		if (index > 0) {
+			while (name.length() > index) {
+				IJavaElement fragment = null;
+				try {
+					fragment = ((JavaProject) this.compilationUnit.getJavaProject()).findPackageFragment(name);
+				} catch (JavaModelException e) {
+					return name;
+				}
+				if (fragment != null) {
+					return name;
+				}
+				name = Signature.getQualifier(name);
+			}
+		}
+		return name;
 	}
 
 	private static String getFullName(ImportDeclaration decl) {
@@ -401,13 +435,13 @@ public final class ImportRewriteAnalyzer {
 	}
 
 	public void addImport(String fullTypeName, boolean isStatic) {
-		String typeContainerName= Signature.getQualifier(fullTypeName);
+		String typeContainerName= getQualifier(fullTypeName, isStatic);
 		ImportDeclEntry decl= new ImportDeclEntry(fullTypeName, isStatic, null);
 		sortIn(typeContainerName, decl, isStatic);
 	}
 
 	public boolean removeImport(String qualifiedName, boolean isStatic) {
-		String containerName= Signature.getQualifier(qualifiedName);
+		String containerName= getQualifier(qualifiedName, isStatic);
 
 		int nPackages= this.packageEntries.size();
 		for (int i= 0; i < nPackages; i++) {
@@ -522,12 +556,12 @@ public final class ImportRewriteAnalyzer {
 			int nPackageEntries= this.packageEntries.size();
 			for (int i= 0; i < nPackageEntries; i++) {
 				PackageEntry pack= (PackageEntry) this.packageEntries.get(i);
-				int nImports= pack.getNumberOfImports();
 
 				if (this.filterImplicitImports && !pack.isStatic() && isImplicitImport(pack.getName(), this.compilationUnit)) {
-					pack.removeAllNew(onDemandConflicts);
-					nImports= pack.getNumberOfImports();
+					pack.filterImplicitImports();
 				}
+				int nImports= pack.getNumberOfImports();
+
 				if (nImports == 0) {
 					continue;
 				}
@@ -930,11 +964,12 @@ public final class ImportRewriteAnalyzer {
 			return false;
 		}
 
-		public void removeAllNew(Set onDemandConflicts) {
+		public void filterImplicitImports() {
 			int nInports= this.importEntries.size();
 			for (int i= nInports - 1; i >= 0; i--) {
 				ImportDeclEntry curr= getImportAt(i);
-				if (curr.isNew() /*&& (onDemandConflicts == null || onDemandConflicts.contains(curr.getSimpleName()))*/) {
+				boolean internalClassImport = curr.getElementName().lastIndexOf('.') > getName().length();
+				if (curr.isNew() && !internalClassImport) {
 					this.importEntries.remove(i);
 				}
 			}
