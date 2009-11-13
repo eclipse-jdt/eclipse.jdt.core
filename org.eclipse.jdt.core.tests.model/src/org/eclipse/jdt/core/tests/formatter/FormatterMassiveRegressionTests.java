@@ -466,26 +466,26 @@ private static void initDirectories(StringBuffer buffer) {
 
 	// Verify input directory
 	if (!INPUT_DIR.exists() && !INPUT_DIR.isDirectory()) {
-		throw new RuntimeException(INPUT_DIR+" does not exist or is not a directory!");
+		System.err.println(INPUT_DIR+" does not exist or is not a directory!");
+		System.exit(1);
 	}
 
 	// Get output dir and clean it if specified
 	String dir = System.getProperty("outputDir"); //$NON-NLS-1$
 	if (dir != null) {
-		int idx = dir.indexOf(',');
-		String outputDir;
-		if (idx < 0) {
-			outputDir = dir;
-		} else {
-			outputDir = dir.substring(0, idx);
-			if (dir.substring(idx+1).equals("clean")) {
+		StringTokenizer tokenizer = new StringTokenizer(dir, ",");
+		String outputDir = tokenizer.nextToken();
+		while (tokenizer.hasMoreTokens()) {
+			String token = tokenizer.nextToken();
+			if (token.equals("clean")) {
 				CLEAN = true;
 			}
 		}
 		setOutputDir(outputDir, buffer);
 		if (CLEAN) {
 			if (PATCH_BUG != null || JDT_CORE_HEAD) {
-				throw new RuntimeException("Reference can only be updated using a version (i.e. with a closed buildnotes_jdt-core.html)!");
+				System.err.println("Reference can only be updated using a version (i.e. with a closed buildnotes_jdt-core.html)!");
+				System.exit(1);
 			}
 			return;
 		} else if (!OUTPUT_DIR.exists()) {
