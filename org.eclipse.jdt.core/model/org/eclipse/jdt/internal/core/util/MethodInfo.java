@@ -114,6 +114,10 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 				this.attributes[attributesIndex++] = new RuntimeInvisibleParameterAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.ANNOTATION_DEFAULT)) {
 				this.attributes[attributesIndex++] = new AnnotationDefaultAttribute(classFileBytes, constantPool, offset + readOffset);
+			} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS)) {
+				this.attributes[attributesIndex++] = new RuntimeVisibleTypeAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
+			} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS)) {
+				this.attributes[attributesIndex++] = new RuntimeInvisibleTypeAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}

@@ -140,4 +140,16 @@ public interface IAttributeNamesConstants {
 	 * @since 3.2
 	 */
 	char[] STACK_MAP = "StackMap".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "RuntimeVisibleTypeAnnotations" attribute (added in jsr 308).
+	 * @since 3.6
+	 */
+	char[] RUNTIME_VISIBLE_TYPE_ANNOTATIONS = "RuntimeVisibleTypeAnnotations".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "RuntimeInvisibleTypeAnnotations" attribute (added in jsr 308).
+	 * @since 3.6
+	 */
+	char[] RUNTIME_INVISIBLE_TYPE_ANNOTATIONS = "RuntimeInvisibleTypeAnnotations".toCharArray(); //$NON-NLS-1$
 }

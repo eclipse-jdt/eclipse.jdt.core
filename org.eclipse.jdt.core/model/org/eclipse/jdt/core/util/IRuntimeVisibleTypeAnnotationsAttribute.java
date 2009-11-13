@@ -11,26 +11,26 @@
 package org.eclipse.jdt.core.util;
 
 /**
- * Description of a runtime invisible type annotations attribute as described in the JVM specifications
- * (added in JavaSE-1.7).
+ * Description of a runtime visible type annotations attribute as described in the JVM specifications
+ * (added in J2SE 1.5).
  *
  * This interface may be implemented by clients.
  *
- * @since 3.6
+ * @since 3.0
  */
-public interface IRuntimeInvisibleTypeAnnotationsAttribute extends IClassFileAttribute {
+public interface IRuntimeVisibleTypeAnnotationsAttribute extends IClassFileAttribute {
 
 	/**
-	 * Answer back the number of extended annotations as described in the JVM specifications.
+	 * Answer back the number of annotations as described in the JVM specifications.
 	 *
-	 * @return the number of extended annotations
+	 * @return the number of annotations
 	 */
 	int getExtendedAnnotationsNumber();
 
 	/**
 	 * Answer back the extended annotations. Answers an empty collection if none.
 	 *
-	 * @return the extended annotations
+	 * @return the extended annotations. Answers an empty collection if none.
 	 */
 	IExtendedAnnotation[] getExtendedAnnotations();
 }

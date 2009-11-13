@@ -1,0 +1,324 @@
+/*******************************************************************************
+ * Copyright (c) 2004, 2009 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.jdt.internal.core.util;
+
+import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.core.util.IAnnotationComponent;
+import org.eclipse.jdt.core.util.IConstantPool;
+import org.eclipse.jdt.core.util.IConstantPoolConstant;
+import org.eclipse.jdt.core.util.IConstantPoolEntry;
+import org.eclipse.jdt.core.util.IExtendedAnnotation;
+import org.eclipse.jdt.core.util.ILocalVariableReferenceInfo;
+
+/**
+ * Default implementation of IAnnotation
+ */
+public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnnotation {
+
+	private static final IAnnotationComponent[] NO_ENTRIES = new IAnnotationComponent[0];
+
+	private int typeIndex;
+	private char[] typeName;
+	private int componentsNumber;
+	private IAnnotationComponent[] components;
+	private int readOffset;
+	private int targetType;
+	private int annotationTypeIndex;
+	private int offset;
+	private int typeParameterIndex;
+	private int typeParameterBoundIndex;
+	private int parameterIndex;
+	private int wildcardLocationType;
+	private ILocalVariableReferenceInfo[] localVariableTable;
+	private int[] locations;
+	/**
+	 * Constructor for Annotation.
+	 *
+	 * @param classFileBytes
+	 * @param constantPool
+	 * @param offset
+	 * @throws ClassFormatException
+	 */
+	public ExtendedAnnotation(
+			byte[] classFileBytes,
+			IConstantPool constantPool,
+			int offset) throws ClassFormatException {
+
+		int index = u2At(classFileBytes, 0, offset);
+		this.typeIndex = index;
+		if (index != 0) {
+			IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(index);
+			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
+				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
+			}
+			this.typeName = constantPoolEntry.getUtf8Value();
+		} else {
+			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
+		}
+		final int length = u2At(classFileBytes, 2, offset);
+		this.componentsNumber = length;
+		this.readOffset = 4;
+		if (length != 0) {
+			this.components = new IAnnotationComponent[length];
+			for (int i = 0; i < length; i++) {
+				AnnotationComponent component = new AnnotationComponent(classFileBytes, constantPool, offset + this.readOffset);
+				this.components[i] = component;
+				this.readOffset += component.sizeInBytes();
+			}
+		} else {
+			this.components = NO_ENTRIES;
+		}
+		index = u1At(classFileBytes, this.readOffset, offset);
+		this.readOffset++;
+		this.targetType = index;
+		switch(index) {
+			case IExtendedAnnotation.CLASS_EXTENDS_IMPLEMENTS :
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				break;
+			case IExtendedAnnotation.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				int locationLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.locations = new int[locationLength];
+				for (int i = 0; i < locationLength; i++) {
+					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.readOffset++;
+				}
+				break;
+			case IExtendedAnnotation.TYPE_CAST :
+			case IExtendedAnnotation.TYPE_INSTANCEOF :
+			case IExtendedAnnotation.OBJECT_CREATION :
+			case IExtendedAnnotation.CLASS_LITERAL :
+				this.offset = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				break;
+			case IExtendedAnnotation.TYPE_CAST_GENERIC_OR_ARRAY :
+			case IExtendedAnnotation.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
+			case IExtendedAnnotation.OBJECT_CREATION_GENERIC_OR_ARRAY :
+			case IExtendedAnnotation.CLASS_LITERAL_GENERIC_OR_ARRAY :
+				this.offset = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.locations = new int[locationLength];
+				for (int i = 0; i < locationLength; i++) {
+					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.readOffset++;
+				}
+				break;
+			case IExtendedAnnotation.CLASS_TYPE_PARAMETER :
+			case IExtendedAnnotation.METHOD_TYPE_PARAMETER :
+				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				break;
+			case IExtendedAnnotation.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotation.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY :
+				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.locations = new int[locationLength];
+				for (int i = 0; i < locationLength; i++) {
+					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.readOffset++;
+				}
+				break;
+			case IExtendedAnnotation.METHOD_TYPE_PARAMETER_BOUND :
+			case IExtendedAnnotation.CLASS_TYPE_PARAMETER_BOUND :
+				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				this.typeParameterBoundIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				break;
+			case IExtendedAnnotation.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
+			case IExtendedAnnotation.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
+				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				this.typeParameterBoundIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.locations = new int[locationLength];
+				for (int i = 0; i < locationLength; i++) {
+					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.readOffset++;
+				}
+				break;
+			case IExtendedAnnotation.LOCAL_VARIABLE :
+				int tableLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.localVariableTable = new LocalVariableReferenceInfo[tableLength];
+				for (int i = 0; i < tableLength; i++) {
+					this.localVariableTable[i] = new LocalVariableReferenceInfo(classFileBytes, constantPool, this.readOffset);
+					this.readOffset += 6;
+				}
+				break;
+			case IExtendedAnnotation.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
+				tableLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.localVariableTable = new LocalVariableReferenceInfo[tableLength];
+				for (int i = 0; i < tableLength; i++) {
+					this.localVariableTable[i] = new LocalVariableReferenceInfo(classFileBytes, constantPool, this.readOffset);
+					this.readOffset += 6;
+				}
+				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.locations = new int[locationLength];
+				for (int i = 0; i < locationLength; i++) {
+					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.readOffset++;
+				}
+				break;
+			case IExtendedAnnotation.METHOD_PARAMETER :
+				this.parameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				break;
+			case IExtendedAnnotation.METHOD_PARAMETER_GENERIC_OR_ARRAY :
+				this.parameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.locations = new int[locationLength];
+				for (int i = 0; i < locationLength; i++) {
+					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.readOffset++;
+				}
+				break;
+			case IExtendedAnnotation.METHOD_RECEIVER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotation.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY :
+			case IExtendedAnnotation.FIELD_GENERIC_OR_ARRAY :
+				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.locations = new int[locationLength];
+				for (int i = 0; i < locationLength; i++) {
+					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.readOffset++;
+				}
+				break;
+			case IExtendedAnnotation.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
+			case IExtendedAnnotation.TYPE_ARGUMENT_METHOD_CALL :
+				this.offset = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				break;
+			case IExtendedAnnotation.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
+			case IExtendedAnnotation.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
+				this.offset = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.locations = new int[locationLength];
+				for (int i = 0; i < locationLength; i++) {
+					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.readOffset++;
+				}
+				break;
+			case IExtendedAnnotation.THROWS :
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				break;
+			case IExtendedAnnotation.THROWS_GENERIC_OR_ARRAY :
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.locations = new int[locationLength];
+				for (int i = 0; i < locationLength; i++) {
+					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.readOffset++;
+				}
+				break;
+			case IExtendedAnnotation.WILDCARD_BOUND :
+				this.wildcardLocationType = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				//  TODO (olivier) read the remaining part
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IAnnotation#getTypeIndex()
+	 */
+	public int getTypeIndex() {
+		return this.typeIndex;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IAnnotation#getComponentsNumber()
+	 */
+	public int getComponentsNumber() {
+		return this.componentsNumber;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IAnnotation#getComponents()
+	 */
+	public IAnnotationComponent[] getComponents() {
+		return this.components;
+	}
+
+	int sizeInBytes() {
+		return this.readOffset;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IAnnotation#getTypeName()
+	 */
+	public char[] getTypeName() {
+		return this.typeName;
+	}
+
+	public int getTargetType() {
+		return this.targetType;
+	}
+
+	public int getOffset() {
+		return this.offset;
+	}
+
+	public int getLocalVariableRefenceInfoLength() {
+		return this.localVariableTable != null ? this.localVariableTable.length : 0;
+	}
+
+	public ILocalVariableReferenceInfo[] getLocalVariableTable() {
+		return this.localVariableTable;
+	}
+
+	public int getParameterIndex() {
+		return this.parameterIndex;
+	}
+
+	public int getTypeParameterIndex() {
+		return this.typeParameterIndex;
+	}
+
+	public int getTypeParameterBoundIndex() {
+		return this.typeParameterBoundIndex;
+	}
+
+	public int getWildcardLocationType() {
+		return this.wildcardLocationType;
+	}
+
+	public int[] getWildcardLocations() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public int[] getLocations() {
+		return this.locations;
+	}
+
+	public int getAnnotationTypeIndex() {
+		return this.annotationTypeIndex;
+	}
+}

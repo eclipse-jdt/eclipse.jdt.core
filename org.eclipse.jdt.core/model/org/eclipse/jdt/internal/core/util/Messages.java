@@ -285,6 +285,22 @@ public final class Messages extends NLS {
 	public static String disassembler_annotationentrystart;
 	public static String disassembler_annotationentryend;
 	public static String disassembler_annotationcomponent;
+	// jsr308
+	public static String disassembler_extendedannotationentrystart;
+	public static String disassembler_extendedannotationentryend;
+	public static String disassembler_runtimevisibletypeannotationsattributeheader;
+	public static String disassembler_runtimeinvisibletypeannotationsattributeheader;
+	public static String disassembler_extendedannotation_classextendsimplements;
+	public static String disassembler_extendedannotation_locations;
+	public static String disassembler_extendedannotation_method_parameter;
+	public static String disassembler_extendedannotation_offset;
+	public static String disassembler_extendedannotation_throws;
+	public static String disassembler_extendedannotation_type_argument;
+	public static String disassembler_extendedannotation_type_parameter;
+	public static String disassembler_extendedannotation_type_parameter_with_bound;
+	public static String disassembler_extendedannotation_wildcardlocationtype;
+	public static String disassembler_extendedannotation_targetType;
+
 	public static String disassembler_runtimevisibleannotationsattributeheader;
 	public static String disassembler_runtimeinvisibleannotationsattributeheader;
 	public static String disassembler_runtimevisibleparameterannotationsattributeheader;
