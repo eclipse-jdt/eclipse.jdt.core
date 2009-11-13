@@ -6,3 +6,7 @@ To be done:
 - formatter
 - search (indexer)
 - DOM/AST
+
+
+Javac issues to double-check:
+- no attribute for class literals

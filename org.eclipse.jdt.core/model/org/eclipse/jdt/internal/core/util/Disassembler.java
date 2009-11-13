@@ -279,7 +279,14 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					Integer.toHexString(targetType),
 					getTargetType(targetType),
 				}));
-		writeNewLine(buffer, lineSeparator, tabNumber + 2);
+		switch(targetType) {
+			case IExtendedAnnotation.METHOD_RECEIVER :
+			case IExtendedAnnotation.METHOD_RETURN_TYPE :
+			case IExtendedAnnotation.FIELD :
+				break;
+			default:
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
+		}
 		switch(targetType) {
 			case IExtendedAnnotation.CLASS_EXTENDS_IMPLEMENTS :
 				buffer.append(
@@ -292,7 +299,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Messages.bind(Messages.disassembler_extendedannotation_classextendsimplements, new String[] {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
 							toString(extendedAnnotation.getLocations()),
@@ -315,7 +322,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
 							Integer.toString(extendedAnnotation.getOffset()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
 							toString(extendedAnnotation.getLocations()),
@@ -334,7 +341,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Messages.bind(Messages.disassembler_extendedannotation_type_parameter, new String[] {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
 							toString(extendedAnnotation.getLocations()),
@@ -355,7 +362,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
 							Integer.toString(extendedAnnotation.getTypeParameterBoundIndex()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
 							toString(extendedAnnotation.getLocations()),
@@ -366,7 +373,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				break;
 			case IExtendedAnnotation.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
 				// TODO (olivier) dump local variable reference info
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
 							toString(extendedAnnotation.getLocations()),
@@ -383,7 +390,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Messages.bind(Messages.disassembler_extendedannotation_method_parameter, new String[] {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
 							toString(extendedAnnotation.getLocations()),
@@ -403,7 +410,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
 							Integer.toString(extendedAnnotation.getOffset()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_type_argument, new String[] {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
@@ -415,12 +422,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
 							Integer.toString(extendedAnnotation.getOffset()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_type_argument, new String[] {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
 							toString(extendedAnnotation.getLocations()),
@@ -437,16 +444,18 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Messages.bind(Messages.disassembler_extendedannotation_throws, new String[] {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
 			case IExtendedAnnotation.WILDCARD_BOUND :
+				int wildcardLocationType = extendedAnnotation.getWildcardLocationType();
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_wildcardlocationtype, new String[] {
-							Integer.toString(extendedAnnotation.getWildcardLocationType()),
+							Integer.toString(wildcardLocationType),
+							getTargetType(wildcardLocationType),
 						}));
 				//  TODO (olivier) read the remaining part
 		}
@@ -737,6 +746,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		final ISignatureAttribute signatureAttribute = (ISignatureAttribute) Util.getAttribute(methodInfo, IAttributeNamesConstants.SIGNATURE);
 		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeVisibleTypeAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleTypeAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
 		final IClassFileAttribute runtimeVisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS);
 		final IClassFileAttribute runtimeInvisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS);
 		final IClassFileAttribute annotationDefaultAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.ANNOTATION_DEFAULT);
@@ -943,6 +954,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							&& attribute != annotationDefaultAttribute
 							&& attribute != runtimeInvisibleAnnotationsAttribute
 							&& attribute != runtimeVisibleAnnotationsAttribute
+							&& attribute != runtimeInvisibleTypeAnnotationsAttribute
+							&& attribute != runtimeVisibleTypeAnnotationsAttribute
 							&& attribute != runtimeInvisibleParameterAnnotationsAttribute
 							&& attribute != runtimeVisibleParameterAnnotationsAttribute
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
@@ -966,6 +979,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			if (runtimeInvisibleParameterAnnotationsAttribute != null) {
 				disassemble((IRuntimeInvisibleParameterAnnotationsAttribute) runtimeInvisibleParameterAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
+			}
+			if (runtimeVisibleTypeAnnotationsAttribute != null) {
+				disassemble((IRuntimeVisibleTypeAnnotationsAttribute) runtimeVisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
+			}
+			if (runtimeInvisibleTypeAnnotationsAttribute != null) {
+				disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			}
 		}
 	}
@@ -1773,6 +1792,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeVisibleTypeAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleTypeAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
 		if (checkMode(mode, DETAILED)) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
@@ -1859,6 +1880,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						&& attribute != signatureAttribute
 						&& attribute != runtimeInvisibleAnnotationsAttribute
 						&& attribute != runtimeVisibleAnnotationsAttribute
+						&& attribute != runtimeInvisibleTypeAnnotationsAttribute
+						&& attribute != runtimeVisibleTypeAnnotationsAttribute
 						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
 						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
 						disassemble(attribute, buffer, lineSeparator, tabNumber, mode);
@@ -1870,6 +1893,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			if (runtimeInvisibleAnnotationsAttribute != null) {
 				disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
+			}
+			if (runtimeVisibleTypeAnnotationsAttribute != null) {
+				disassemble((IRuntimeVisibleTypeAnnotationsAttribute) runtimeVisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
+			}
+			if (runtimeInvisibleTypeAnnotationsAttribute != null) {
+				disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			}
 		}
 	}
