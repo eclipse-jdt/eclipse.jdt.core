@@ -76,8 +76,8 @@ public interface TypeConstants {
 	char[] UPPER_ANNOTATION_TYPE = "ANNOTATION_TYPE".toCharArray(); //$NON-NLS-1$
 	char[] UPPER_PACKAGE = "PACKAGE".toCharArray(); //$NON-NLS-1$
 	// jsr308
-	char[] TYPE_USE = "TYPE_USE".toCharArray(); //$NON-NLS-1$
-	char[] TYPE_PARAMETER= "TYPE_PARAMETER".toCharArray(); //$NON-NLS-1$
+	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$
+	char[] TYPE_PARAMETER_TARGET = "TYPE_PARAMETER".toCharArray(); //$NON-NLS-1$
 
 	// Constant compound names
 	char[][] JAVA_LANG = {JAVA, LANG};

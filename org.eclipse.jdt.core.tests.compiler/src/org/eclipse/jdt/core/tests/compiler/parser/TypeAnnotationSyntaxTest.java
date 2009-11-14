@@ -66,6 +66,7 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 
 	static { 
 //		TESTS_NAMES = new String [] {"test0020"};
+		TESTS_NUMBERS = new int[] { 21 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationSyntaxTest.class;
@@ -1724,8 +1725,22 @@ public void test0020()  {
 		"    x = @Readonly int[] @Marker [][].class;\n" + 
 		"    x = @Readonly int.class;\n" + 
 		"  }\n" + 
-		"}\n"
-;
+		"}\n";
+	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+}
+//type class literal expression
+public void test0021()  {
+	String source = "public class X {\n" + 
+			"	<T extends Y<@A String @C[][]@B[]> & @B(3) Cloneable> void foo(T t) {}\n" + 
+			"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  <T extends Y<@A String @C [] [] @B []> & @B(3) Cloneable>void foo(T t) {\n" + 
+		"  }\n" + 
+		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 public void acceptImport(int declarationStart, int declarationEnd,

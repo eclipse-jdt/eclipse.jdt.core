@@ -43,7 +43,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	}
 
 	private void internalResolve(Scope scope, boolean staticContext) {
-	    // detect variable/type name collisions
+		// detect variable/type name collisions
 		if (this.binding != null) {
 			Binding existingType = scope.parent.getBinding(this.name, Binding.TYPE, this, false/*do not resolve hidden field*/);
 			if (existingType != null
@@ -52,6 +52,10 @@ public class TypeParameter extends AbstractVariableDeclaration {
 					&& (existingType.kind() != Binding.TYPE_PARAMETER || !staticContext)) {
 				scope.problemReporter().typeHiding(this, existingType);
 			}
+		}
+		Annotation[] typeAnnotations = this.type.annotations;
+		if (typeAnnotations != null) {
+			ASTNode.resolveAnnotations(scope.classScope(), typeAnnotations, this.binding);
 		}
 	}
 

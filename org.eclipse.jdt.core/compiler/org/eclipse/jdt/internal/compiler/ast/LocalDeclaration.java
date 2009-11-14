@@ -182,7 +182,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					this.initialization.computeConversion(scope, variableType, initializationType);
 				}
 			} else {
-			    this.initialization.setExpectedType(variableType);
+				this.initialization.setExpectedType(variableType);
 				TypeBinding initializationType = this.initialization.resolveType(scope);
 				if (initializationType != null) {
 					if (variableType != initializationType) // must call before computeConversion() and typeMismatchError()
@@ -225,6 +225,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		// only resolve annotation at the end, for constant to be positioned before (96991)
 		resolveAnnotations(scope, this.annotations, this.binding);
+		Annotation[] typeAnnotations = this.type.annotations;
+		if (typeAnnotations != null) {
+			ASTNode.resolveAnnotations(scope, typeAnnotations, variableType);
+		}
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

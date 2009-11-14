@@ -86,9 +86,9 @@ public abstract class Annotation extends Expression {
 			case 'T' :
 				if (CharOperation.equals(elementName, TypeConstants.TYPE))
 					return TagBits.AnnotationForType;
-				if (CharOperation.equals(elementName, TypeConstants.TYPE_USE))
+				if (CharOperation.equals(elementName, TypeConstants.TYPE_USE_TARGET))
 					return TagBits.AnnotationForTypeUse;
-				if (CharOperation.equals(elementName, TypeConstants.TYPE_PARAMETER))
+				if (CharOperation.equals(elementName, TypeConstants.TYPE_PARAMETER_TARGET))
 					return TagBits.AnnotationForTypeParameter;
 				break;
 		}
@@ -393,19 +393,35 @@ public abstract class Annotation extends Expression {
 						if (((MethodBinding)this.recipient).isConstructor()) {
 							if ((metaTagBits & TagBits.AnnotationForConstructor) != 0)
 								break checkTargetCompatibility;
-						} else if ((metaTagBits & TagBits.AnnotationForMethod) != 0)
+						} else if ((metaTagBits & TagBits.AnnotationForMethod) != 0) {
 							break checkTargetCompatibility;
+						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+							// jsr 308 - annotation on method return type
+							break checkTargetCompatibility;
+						}
 						break;
 					case Binding.FIELD :
-						if ((metaTagBits & TagBits.AnnotationForField) != 0)
+						if ((metaTagBits & TagBits.AnnotationForField) != 0) {
 							break checkTargetCompatibility;
+						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+							// jsr 308 - annotation on field type
+							break checkTargetCompatibility;
+						}
 						break;
 					case Binding.LOCAL :
 						if ((((LocalVariableBinding)this.recipient).tagBits & TagBits.IsArgument) != 0) {
-							if ((metaTagBits & TagBits.AnnotationForParameter) != 0)
+							if ((metaTagBits & TagBits.AnnotationForParameter) != 0) {
 								break checkTargetCompatibility;
-						} else if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0)
+							} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+								// jsr 308 - annotation on method parameter type
+								break checkTargetCompatibility;
+							}
+						} else if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0) {
 							break checkTargetCompatibility;
+						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+							// jsr 308 - annotation on local type
+							break checkTargetCompatibility;
+						}
 						break;
 					case Binding.TYPE_PARAMETER : // jsr308
 						if ((metaTagBits & TagBits.AnnotationForTypeParameter) != 0) {

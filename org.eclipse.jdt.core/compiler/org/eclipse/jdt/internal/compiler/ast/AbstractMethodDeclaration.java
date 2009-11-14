@@ -414,6 +414,7 @@ public abstract class AbstractMethodDeclaration
 				this.scope.problemReporter().illegalReceiverAnnotations(this.receiverAnnotations[0],
 						                                                this.receiverAnnotations[last]);
 			}
+			// jsr 308
 			resolveAnnotations(this.scope, this.receiverAnnotations, this.binding);
 			resolveStatements();
 			// check @Deprecated annotation presence

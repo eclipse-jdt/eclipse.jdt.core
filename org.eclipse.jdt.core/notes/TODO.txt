@@ -6,10 +6,13 @@ To be done:
 - formatter
 - search (indexer)
 - DOM/AST
-
+- check the recipient binding for annotations resolution on type reference.
+- type parameter generic or array ?
 
 Javac issues to double-check:
 - no attribute for class literals
 - no runtime type annotation on field type
 	@A("Hello, World!") I field;
-	A is seen as a regular annotation
+	A is seen as a regular annotatio
+- some locals are missing ranges see test25
+
