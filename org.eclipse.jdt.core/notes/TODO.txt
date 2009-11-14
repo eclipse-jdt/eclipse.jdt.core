@@ -8,6 +8,7 @@ To be done:
 - DOM/AST
 - check the recipient binding for annotations resolution on type reference.
 - type parameter generic or array ?
+- test21 in syntax test is failing
 
 Javac issues to double-check:
 - no attribute for class literals
