@@ -1799,4 +1799,181 @@ public void testBug294631() {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 295175: [formatter] Missing space before a string at the beginning of a javadoc comment
+ * @test Verify that space is well inserted before the leading string
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295175"
+ */
+public void testBug295175a() {
+	String source = 
+		"public class X {\n" + 
+		"/**\n" + 
+		" * <p>\n" + 
+		" * \"String\", this string may be not well formatted in certain circumstances,\n" + 
+		" * typically after bug 294529 has been fixed...\n" + 
+		" */\n" + 
+		"void foo() {}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * <p>\n" + 
+		"	 * \"String\", this string may be not well formatted in certain circumstances,\n" + 
+		"	 * typically after bug 294529 has been fixed...\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug295175b() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface X {\n" + 
+		"\n" + 
+		"    /**\n" + 
+		"     * <P>\n" + 
+		"     * <BR>\n" + 
+		"	 *<B>NOTE</B><BR>\n" + 
+		"	 * Formatter can miss a space before the previous B tag...\n" + 
+		"     **/\n" + 
+		"	void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <P>\n" + 
+		"	 * <BR>\n" + 
+		"	 * <B>NOTE</B><BR>\n" + 
+		"	 * Formatter can miss a space before the previous B tag...\n" + 
+		"	 **/\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug295175c() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface X {\n" + 
+		"\n" + 
+		"    /**\n" + 
+		"     * <P>Following p tag can miss a space before after formatting\n" + 
+		"     *<p>\n" + 
+		"     * end of comment.\n" + 
+		"     **/\n" + 
+		"	void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <P>\n" + 
+		"	 * Following p tag can miss a space before after formatting\n" + 
+		"	 * <p>\n" + 
+		"	 * end of comment.\n" + 
+		"	 **/\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug295175d() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface X {\n" + 
+		"\n" + 
+		"    /**\n" + 
+		"     * <p>Following p tag can miss a space before after formatting\n" + 
+		"     *\n" + 
+		"     *<p>\n" + 
+		"     * <BR>\n" + 
+		"	 *<B>NOTE</B><BR>\n" + 
+		"	 * Formatter can miss a space before the previous B tag...\n" + 
+		"     **/\n" + 
+		"	void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <p>\n" + 
+		"	 * Following p tag can miss a space before after formatting\n" + 
+		"	 * \n" + 
+		"	 * <p>\n" + 
+		"	 * <BR>\n" + 
+		"	 * <B>NOTE</B><BR>\n" + 
+		"	 * Formatter can miss a space before the previous B tag...\n" + 
+		"	 **/\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug295175e() {
+	String source = 
+		"package wksp3;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"    /** \n" + 
+		"     * In this peculiar config <code>true</code>, the comment is not___ \n" + 
+		"     * really well formatted. The problem is that the first_ code tag\n" + 
+		"     * here_______ <code>/*</code> and <code>*&#47;</code> go at the end of the previous line\n" + 
+		"     * instead of staying on the 3rd one... \n" + 
+		"     */\n" + 
+		"    void foo() {}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp3;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"	/**\n" + 
+		"	 * In this peculiar config <code>true</code>, the comment is not___ really\n" + 
+		"	 * well formatted. The problem is that the first_ code tag here_______\n" + 
+		"	 * <code>/*</code> and <code>*&#47;</code> go at the end of the previous\n" + 
+		"	 * line instead of staying on the 3rd one...\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug295175f() {
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Finds the deepest <code>IJavaElement</code> in the hierarchy of\n" + 
+		"	 * <code>elt</elt>'s children (including <code>elt</code> itself)\n" + 
+		"	 * which has a source range that encloses <code>position</code>\n" + 
+		"	 * according to <code>mapper</code>.\n" + 
+		"	 */\n" + 
+		"	void foo() {}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Finds the deepest <code>IJavaElement</code> in the hierarchy of\n" + 
+		"	 * <code>elt</elt>\'s children (including <code>elt</code> itself) which has\n" + 
+		"	 * a source range that encloses <code>position</code> according to\n" + 
+		"	 * <code>mapper</code>.\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
