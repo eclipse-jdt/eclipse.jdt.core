@@ -19,15 +19,10 @@ import java.util.Map;
 
 import junit.framework.*;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.text.edits.MalformedTreeException;
-import org.osgi.service.prefs.BackingStoreException;
 
 /**
  */
@@ -738,39 +733,4 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		tagAsSummary("DOM AST tree for project files (JLS3)", true); // put in fingerprint
 		runAstCreation(getProject("org.eclipse.search"));
 	}
-	
-	private void rewriteImport(ICompilationUnit cu, String[] order,
-			int normalThreshold, int staticThreshold,
-			boolean restoreExistingImports) throws CoreException,
-			BackingStoreException, MalformedTreeException, BadLocationException {
-
-		ImportRewrite rewrite = ImportRewrite
-				.create(cu, restoreExistingImports);
-		rewrite.setImportOrder(order);
-		rewrite.setOnDemandImportThreshold(normalThreshold);
-		rewrite.setStaticOnDemandImportThreshold(staticThreshold);
-		rewrite.rewriteImports(null);
-	}
-
-	public void testPerfImportRewrite() throws MalformedTreeException, CoreException, BackingStoreException, BadLocationException {
-		tagAsSummary("testPerfImportRewrite", false); // do NOT put in fingerprint
-
-		String[] order= new String[] {"org", "javax", "java"};
-		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.core", "JavaProject.java");
-		
-		int measures = MEASURES_COUNT;
-		int internalLoop = 10;
-		for (int i = 0; i < measures; i++) {
-			runGc();
-			startMeasuring();
-			for (int index = 0; index < internalLoop; index++ ) {
-				rewriteImport(unit, order, 99, 99, false);
-			}
-			stopMeasuring();
-		}
-		commitMeasurements();
-		assertPerformance();		
-	
-	}
-	
 }
