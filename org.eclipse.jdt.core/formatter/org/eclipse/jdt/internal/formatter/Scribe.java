@@ -2793,24 +2793,30 @@ public class Scribe implements IJavaDocTagConstants {
 			    	}
     				int lastColumn = this.column + length;
 	    			while (!this.scanner.atEnd()) {
-	    				int token = this.scanner.getNextToken();
-	    				switch (token) {
-	    					case TerminalTokens.TokenNameWHITESPACE:
-	    						if (CharOperation.indexOf('\n', this.scanner.source, this.scanner.startPosition, this.scanner.currentPosition) >= 0) {
-	    							return newLines;
-	    						}
-	    						length = 1;
-	    						break;
-	    					case TerminalTokens.TokenNameMULTIPLY:
-	    						if (newLine) {
-	    							newLine = false;
-	    							continue;
-	    						}
-	    						length = 1;
-	    						break;
-	    					default:
-				    			length = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
-	    						break;
+	    				try {
+		    				int token = this.scanner.getNextToken();
+		    				switch (token) {
+		    					case TerminalTokens.TokenNameWHITESPACE:
+		    						if (CharOperation.indexOf('\n', this.scanner.source, this.scanner.startPosition, this.scanner.currentPosition) >= 0) {
+		    							return newLines;
+		    						}
+		    						length = 1;
+		    						break;
+		    					case TerminalTokens.TokenNameMULTIPLY:
+		    						if (newLine) {
+		    							newLine = false;
+		    							continue;
+		    						}
+		    						length = 1;
+		    						break;
+		    					default:
+					    			length = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
+		    						break;
+		    				}
+	    				}
+	    				catch (InvalidInputException iie) {
+	    					// maybe an unterminated string or comment
+			    			length = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
 	    				}
 	    				lastColumn += length;
 	    				if (lastColumn > maxColumn) {
@@ -3008,7 +3014,8 @@ public class Scribe implements IJavaDocTagConstants {
 	    			}
 	    			textLength += (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
                 } catch (InvalidInputException e) {
-	                return textLength;
+   					// maybe an unterminated string or comment
+	    			textLength += (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
                 }
 			}
 			return textLength;
@@ -3167,6 +3174,7 @@ public class Scribe implements IJavaDocTagConstants {
 			int linePtr = this.scanner.linePtr;
 			int lineCount = 0;
 			int start = textStartPosition;
+			boolean endsOnMultiply = false;
 			while (!this.scanner.atEnd()) {
 				switch (this.scanner.getNextToken()) {
 					case TerminalTokens.TokenNameMULTIPLY:
@@ -3224,6 +3232,10 @@ public class Scribe implements IJavaDocTagConstants {
 						// next start is just after the current token
 						start = this.scanner.currentPosition;
 						linePtr = this.scanner.linePtr;
+						endsOnMultiply = true;
+						break;
+					default:
+						endsOnMultiply = false;
 						break;
 				}
 			}
@@ -3277,6 +3289,14 @@ public class Scribe implements IJavaDocTagConstants {
 					} else {
 						output.append(buffer);
 					}
+					this.needSpace = false;
+				} else if (endsOnMultiply) {
+					if (output == null) {
+						addInsertEdit(textEndPosition+1, " "); //$NON-NLS-1$
+					} else {
+						output.append(' ');
+					}
+					this.needSpace = false;
 				}
 				this.column++;
 			}
@@ -3427,7 +3447,7 @@ public class Scribe implements IJavaDocTagConstants {
 				}
 			} else {
 				if (idx > 0 && linesAfter > 0) {
-					printJavadocGapLines(previousEnd+1, nextStart, linesAfter, clearBlankLines, false, buffer);
+					printJavadocGapLines(previousEnd+1, nextStart-1, linesAfter, clearBlankLines, false, buffer);
 					textOnNewLine = true;
 				}
 				boolean needIndentation = textOnNewLine;
@@ -3506,9 +3526,11 @@ public class Scribe implements IJavaDocTagConstants {
 						// Format gap lines before code
 						int newLines = linesGap;
 						if (newLines == 0) newLines=1;
+						this.needSpace = needLeadingSpace;
 						printJavadocGapLines(end+1, nextStart-1, newLines, false/* clear first blank lines inside <pre> tag as done by old formatter */, false, null);
-						if (needLeadingSpace) {
+						if (this.needSpace) {
 							addInsertEdit(nextStart, " "); //$NON-NLS-1$
+							this.needSpace = false;
 						}
 						// Format the code
 						printCodeSnippet(nextStart, codeEnd);
