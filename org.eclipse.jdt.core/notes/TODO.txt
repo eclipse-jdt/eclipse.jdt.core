@@ -12,8 +12,4 @@ To be done:
 
 Javac issues to double-check:
 - no attribute for class literals
-- no runtime type annotation on field type
-	@A("Hello, World!") I field;
-	A is seen as a regular annotatio
 - some locals are missing ranges see test25
-

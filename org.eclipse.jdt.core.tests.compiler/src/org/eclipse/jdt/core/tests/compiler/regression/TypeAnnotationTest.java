@@ -182,6 +182,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		},
 		"");
 	}
+	// class literal
 	public void test008() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -237,6 +238,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		},
 		"");
 	}
+	// class literal generic and array
 	public void test009() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -835,6 +837,98 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"		}\n" + 
 				"		i = 4;\n" + 
 				"		System.out.println(-i + tab.length);\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+	}
+	// type argument constructor call
+	public void test026() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	<T> X(T t) {\n" + 
+				"	}\n" + 
+				"	public Object foo() {\n" + 
+				"		X x = new <@A @B(1) String>X(null);\n" + 
+				"		return x;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+	}
+	// type argument constructor call generic or array
+	public void test027() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	<T> X(T t) {\n" + 
+				"	}\n" + 
+				"	public Object foo() {\n" + 
+				"		X x = new <@A @B(1) String>X(null);\n" + 
+				"		return x;\n" + 
 				"	}\n" + 
 				"}",
 		},
