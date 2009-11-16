@@ -1561,6 +1561,7 @@ public class Scribe implements IJavaDocTagConstants {
 		boolean hasMultiLines = false;
 		boolean hasTokens = false;
 		boolean bufferHasTokens = false;
+		boolean bufferHasNewLine = false;
 		boolean lineHasTokens = false;
 		int hasTextOnFirstLine = 0;
 		boolean firstWord = true;
@@ -1595,6 +1596,7 @@ public class Scribe implements IJavaDocTagConstants {
 						this.column += tokensBuffer.length();
 						tokensBuffer.setLength(0);
 						bufferHasTokens = true;
+						bufferHasNewLine = false;
 					}
 					if (previousToken == -1) {
 						// do not remember the first whitespace
@@ -1710,6 +1712,7 @@ public class Scribe implements IJavaDocTagConstants {
 		    		this.column += BLOCK_LINE_PREFIX_LENGTH;
 		    		firstWord = true;
 					multiLines = true;
+					bufferHasNewLine = true;
 				}
 				insertSpace = insertSpace && linesGap == 0;
 			}
@@ -1744,8 +1747,10 @@ public class Scribe implements IJavaDocTagConstants {
 					buffer.append(tokensString);
 					this.column += tokensString.length();
 					tokensBuffer.setLength(0);
+					bufferHasNewLine = false;
+					bufferHasTokens = true;
 				}
-				if (bufferHasTokens) {
+				if (bufferHasTokens && !bufferHasNewLine) {
 			    	buffer.append(this.lineSeparator);
 			    	this.column = 1;
 			    	printIndentationIfNecessary(buffer);
@@ -1759,6 +1764,7 @@ public class Scribe implements IJavaDocTagConstants {
 		    	}
 				buffer.append(this.scanner.source, tokenStart, tokenLength);
 				bufferHasTokens = true;
+				bufferHasNewLine = false;
 				this.column += tokenLength;
 				multiLines = true;
 				hasTextOnFirstLine = -1;

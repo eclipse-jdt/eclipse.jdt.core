@@ -1976,4 +1976,137 @@ public void testBug295175f() {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 295238: [formatter] The comment formatter add an unexpected new line in block comment
+ * @test Verify that formatting a block comment with a tag does not add an unexpected new line
+ * 		when the 'Never join lines' option is set
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295238"
+ */
+public void testBug295238() {
+	this.formatterPrefs.join_lines_in_comments = false;
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public interface X03 {\n" + 
+		"	\n" + 
+		"	class Inner {\n" + 
+		"		\n" + 
+		"		/* (non-Javadoc)\n" + 
+		"		 * @see org.eclipse.jface.text.TextViewer#customizeDocumentCommand(org.eclipse.jface.text.DocumentCommand)\n" + 
+		"		 */\n" + 
+		"		protected void foo() {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public interface X03 {\n" + 
+		"\n" + 
+		"	class Inner {\n" + 
+		"\n" + 
+		"		/*\n" + 
+		"		 * (non-Javadoc)\n" + 
+		"		 * \n" + 
+		"		 * @see\n" + 
+		"		 * org.eclipse.jface.text.TextViewer#customizeDocumentCommand(org.eclipse\n" + 
+		"		 * .jface.text.DocumentCommand)\n" + 
+		"		 */\n" + 
+		"		protected void foo() {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// the following test already passed with v_A21, but failed with first version of the patch
+public void testBug295238b1() {
+	this.formatterPrefs.join_lines_in_comments = false;
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"/*		if ((operatorSignature & CompareMASK) == (alternateOperatorSignature & CompareMASK)) { // same promotions and result\n" + 
+		"			scope.problemReporter().unnecessaryCastForArgument((CastExpression)expression,  TypeBinding.wellKnownType(scope, expression.implicitConversion >> 4)); \n" + 
+		"		}\n" + 
+		"*/		\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		/*\n" + 
+		"		 * if ((operatorSignature & CompareMASK) == (alternateOperatorSignature\n" + 
+		"		 * & CompareMASK)) { // same promotions and result\n" + 
+		"		 * scope.problemReporter().unnecessaryCastForArgument((CastExpression)\n" + 
+		"		 * expression, TypeBinding.wellKnownType(scope,\n" + 
+		"		 * expression.implicitConversion >> 4));\n" + 
+		"		 * }\n" + 
+		"		 */\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// the following test failed with v_A21 and with the version v00 of the patch
+public void testBug295238b2() {
+	this.formatterPrefs.join_lines_in_comments = false;
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"/*			scope.problemReporter().unnecessaryCastForArgument((CastExpression)expression,  TypeBinding.wellKnownType(scope, expression.implicitConversion >> 4)); \n" + 
+		"*/		\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		/*\n" + 
+		"		 * scope.problemReporter().unnecessaryCastForArgument((CastExpression)\n" + 
+		"		 * expression, TypeBinding.wellKnownType(scope,\n" + 
+		"		 * expression.implicitConversion >> 4));\n" + 
+		"		 */\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// the following test failed with v_A21 and with the version v00 of the patch
+public void testBug295238b3() {
+	this.formatterPrefs.join_lines_in_comments = false;
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"/*\n" + 
+		"			scope.problemReporter().unnecessaryCastForArgument((CastExpression)expression,  TypeBinding.wellKnownType(scope, expression.implicitConversion >> 4)); \n" + 
+		"*/		\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		/*\n" + 
+		"		 * scope.problemReporter().unnecessaryCastForArgument((CastExpression)\n" + 
+		"		 * expression, TypeBinding.wellKnownType(scope,\n" + 
+		"		 * expression.implicitConversion >> 4));\n" + 
+		"		 */\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
