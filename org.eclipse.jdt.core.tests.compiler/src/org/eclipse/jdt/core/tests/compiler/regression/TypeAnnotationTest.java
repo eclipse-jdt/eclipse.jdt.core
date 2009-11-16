@@ -15,7 +15,7 @@ import junit.framework.Test;
 public class TypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 
-		TESTS_NUMBERS = new int [] { 25 };
+//		TESTS_NUMBERS = new int [] { 25 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationTest.class;
@@ -276,8 +276,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"interface J {}\n",
 				"X.java",
 				"public class X {\n" + 
-				"	public boolean foo(String s) {\n" + 
-				"		return (s instanceof @C('_') Object[]);\n" + 
+				"	public boolean foo(Object o) {\n" + 
+				"		return (o instanceof @C('_') Object[]);\n" + 
 				"	}\n" + 
 				"	public Object foo1(String s) {\n" + 
 				"		return new @B(3) @A(\"new Object\") Object[] {};\n" + 

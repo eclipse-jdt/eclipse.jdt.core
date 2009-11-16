@@ -53,9 +53,19 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				scope.problemReporter().typeHiding(this, existingType);
 			}
 		}
-		Annotation[] typeAnnotations = this.type.annotations;
-		if (typeAnnotations != null) {
-			ASTNode.resolveAnnotations(scope.classScope(), typeAnnotations, this.binding);
+		if (this.type != null) {
+			Annotation[] typeAnnotations = this.type.annotations;
+			if (typeAnnotations != null) {
+				ASTNode.resolveAnnotations(scope.classScope(), typeAnnotations, this.type.resolvedType);
+			}
+		}
+		if (this.bounds != null) {
+			for (int i = 0, max = this.bounds.length; i < max; i++) {
+				Annotation[] typeAnnotations = this.bounds[i].annotations;
+				if (typeAnnotations != null) {
+					ASTNode.resolveAnnotations(scope.classScope(), typeAnnotations, this.bounds[i].resolvedType);
+				}
+			}
 		}
 	}
 

@@ -66,7 +66,7 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 
 	static { 
 //		TESTS_NAMES = new String [] {"test0020"};
-		TESTS_NUMBERS = new int[] { 21 };
+//		TESTS_NUMBERS = new int[] { 22 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationSyntaxTest.class;
@@ -1668,7 +1668,7 @@ public void test0018()  {
 								  "}\n";
 	// indexing parser avoids creating lots of nodes, so parse tree comes out incorrectly.
 	// this is not bug, but intended behavior - see IndexingParser.newSingleNameReference(char[], long)
-	checkParse(CHECK_ALL & ~CHECK_INDEXING_PARSER, source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(CHECK_ALL & ~CHECK_INDEXING_PARSER, source.toCharArray(), null, "test0018", expectedUnitToString);
 }
 //assorted unclassified 
 public void test0019()  {
@@ -1680,7 +1680,7 @@ public void test0019()  {
 								  "}\n";
 	// indexing parser avoids creating lots of nodes, so parse tree comes out incorrectly.
 	// this is not bug, but intended behavior - see IndexingParser.newSingleNameReference(char[], long)
-	checkParse(CHECK_ALL & ~CHECK_INDEXING_PARSER, source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(CHECK_ALL & ~CHECK_INDEXING_PARSER, source.toCharArray(), null, "test019", expectedUnitToString);
 }
 //type class literal expression
 public void test0020()  {
@@ -1726,22 +1726,59 @@ public void test0020()  {
 		"    x = @Readonly int.class;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0020", expectedUnitToString);
 }
 //type class literal expression
 public void test0021()  {
 	String source = "public class X {\n" + 
-			"	<T extends Y<@A String @C[][]@B[]> & @B(3) Cloneable> void foo(T t) {}\n" + 
+			"	<T extends Y<@A String @C[][]@B[]> & Cloneable> void foo(T t) {}\n" + 
 			"}";
 	String expectedUnitToString = 
 		"public class X {\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  <T extends Y<@A String @C [] [] @B []> & @B(3) Cloneable>void foo(T t) {\n" + 
+		"  <T extends Y<@A String @C [][] @B []> & Cloneable>void foo(T t) {\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0021", expectedUnitToString);
+}
+//type class literal expression
+public void test0022()  {
+	String source = 
+	"public class X {\n" + 
+	"	public boolean foo(String s) {\n" + 
+	"		return (s instanceof @C('_') Object[]);\n" + 
+	"	}\n" + 
+	"	public Object foo1(String s) {\n" + 
+	"		return new @B(3) @A(\"new Object\") Object[] {};\n" + 
+	"	}\n" + 
+	"	public Class foo2(String s) {\n" + 
+	"		return @B(4) Object[].class;\n" + 
+	"	}\n" + 
+	"	public Class foo3(String s) {\n" + 
+	"		return @A(\"int class literal\")  @B(5) int[].class;\n" + 
+	"	}\n" + 
+	"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public boolean foo(String s) {\n" + 
+		"    return (s instanceof @C(\'_\') Object[]);\n" + 
+		"  }\n" + 
+		"  public Object foo1(String s) {\n" + 
+		"    return new @B(3) @A(\"new Object\") Object[]{};\n" + 
+		"  }\n" + 
+		"  public Class foo2(String s) {\n" + 
+		"    return @B(4) Object[].class;\n" + 
+		"  }\n" + 
+		"  public Class foo3(String s) {\n" + 
+		"    return @A(\"int class literal\") @B(5) int[].class;\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(source.toCharArray(), null, "test0022", expectedUnitToString);
 }
 public void acceptImport(int declarationStart, int declarationEnd,
 		int[] javaDocPositions, char[] name, int nameStartPosition,

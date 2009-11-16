@@ -164,7 +164,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	protected final static int GenericsStackIncrement = 10;
 
 	private final static String FILEPREFIX = "parser"; //$NON-NLS-1$
-    public static char in_symb[] = null;
+	public static char in_symb[] = null;
 	private static final String INVALID_CHARACTER = "Invalid Character" ; //$NON-NLS-1$
 	public static char lhs[] =  null;
 
@@ -5753,10 +5753,15 @@ protected void consumeAnnotatedType() {
 				this.typeAnnotationLengthPtr - dims + 3,
 				dims);
 		this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - dims + 1] = 0; // tag type as unannotated
-		this.typeAnnotationLengthPtr += 2;
 		int length = this.expressionLengthStack[this.expressionLengthPtr--];
+		this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - dims + 2] = length;
 		int typeAnnotationStackLength = this.typeAnnotationStack.length;
-		if (this.typeAnnotationPtr + length >= typeAnnotationStackLength) {
+		int counter = 0;
+		for (int i = 0; i < dims; i++) {
+			// we count existing dimensions
+			counter += this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - dims + 3 + i];
+		}
+		if (this.typeAnnotationPtr + counter + length >= typeAnnotationStackLength) {
 			System.arraycopy(
 					this.typeAnnotationStack,
 					0,
@@ -5764,24 +5769,51 @@ protected void consumeAnnotatedType() {
 					0,
 					typeAnnotationStackLength);
 		}
-		this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - dims + 2] = length;
-		int counter = 0;
-		for (int i = 0; i < dims; i++) {
-			counter += this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - dims + 2 + i];
+		switch(this.typeAnnotationPtr) {
+			case 0 :
+				System.arraycopy(
+						this.typeAnnotationStack,
+						this.typeAnnotationPtr,
+						this.typeAnnotationStack,
+						this.typeAnnotationPtr + length,
+						counter);
+				System.arraycopy(
+						this.expressionStack,
+						(this.expressionPtr -= length) + 1,
+						this.typeAnnotationStack,
+						this.typeAnnotationPtr,
+						length);
+				break;
+			case -1 :
+				System.arraycopy(
+						this.typeAnnotationStack,
+						this.typeAnnotationPtr + 1,
+						this.typeAnnotationStack,
+						this.typeAnnotationPtr + 1 + length,
+						counter);
+				System.arraycopy(
+						this.expressionStack,
+						(this.expressionPtr -= length) + 1,
+						this.typeAnnotationStack,
+						this.typeAnnotationPtr + 1,
+						length);
+				break;
+			default :
+				System.arraycopy(
+						this.typeAnnotationStack,
+						this.typeAnnotationPtr - 1,
+						this.typeAnnotationStack,
+						this.typeAnnotationPtr - 1 + length,
+						counter);
+				System.arraycopy(
+						this.expressionStack,
+						(this.expressionPtr -= length) + 1,
+						this.typeAnnotationStack,
+						this.typeAnnotationPtr - 1,
+						length);
 		}
-		System.arraycopy(
-				this.typeAnnotationStack,
-				this.typeAnnotationPtr,
-				this.typeAnnotationStack,
-				this.typeAnnotationPtr + length,
-				counter);
-		System.arraycopy(
-				this.expressionStack,
-				(this.expressionPtr -= length) + 1,
-				this.typeAnnotationStack,
-				this.typeAnnotationPtr,
-				length);
 		this.typeAnnotationPtr += length;
+		this.typeAnnotationLengthPtr += 2;
 	} else {
 		int length = this.expressionLengthStack[this.expressionLengthPtr--];
 		int typeAnnotationStackLength = this.typeAnnotationStack.length;
