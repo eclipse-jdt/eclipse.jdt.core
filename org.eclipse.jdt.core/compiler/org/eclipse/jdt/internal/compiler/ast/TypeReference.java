@@ -163,15 +163,6 @@ protected TypeBinding internalResolveType(Scope scope) {
 			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 		scope.problemReporter().rawTypeReference(this, type);
 	}
-	if (this.annotations != null) {
-		switch(scope.kind) {
-			case Scope.BLOCK_SCOPE :
-				resolveAnnotations((BlockScope) scope, this.annotations, null);
-				break;
-			case Scope.CLASS_SCOPE :
-				resolveAnnotations((ClassScope) scope, this.annotations, null);
-		}
-	}
 
 	if (hasError) {
 		// do not store the computed type, keep the problem type instead
