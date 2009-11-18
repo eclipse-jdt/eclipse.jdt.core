@@ -54,16 +54,18 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			}
 		}
 		if (this.type != null) {
-			Annotation[] typeAnnotations = this.type.annotations;
-			if (typeAnnotations != null) {
-				ASTNode.resolveAnnotations(scope.classScope(), typeAnnotations, this.type.resolvedType);
+			switch(scope.kind) {
+				case Scope.BLOCK_SCOPE :
+				case Scope.METHOD_SCOPE :
+					this.type.resolveAnnotations((BlockScope) scope);
 			}
 		}
 		if (this.bounds != null) {
 			for (int i = 0, max = this.bounds.length; i < max; i++) {
-				Annotation[] typeAnnotations = this.bounds[i].annotations;
-				if (typeAnnotations != null) {
-					ASTNode.resolveAnnotations(scope.classScope(), typeAnnotations, this.bounds[i].resolvedType);
+				switch(scope.kind) {
+					case Scope.BLOCK_SCOPE :
+					case Scope.METHOD_SCOPE :
+						this.bounds[i].resolveAnnotations((BlockScope) scope);
 				}
 			}
 		}

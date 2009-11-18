@@ -8,8 +8,8 @@ To be done:
 - DOM/AST
 - check the recipient binding for annotations resolution on type reference.
 - type parameter generic or array ?
-- test21 in syntax test is failing
+- add traverse method for all possible expression inside annotations (ClassScope vs BlockScope)
 
 Javac issues to double-check:
-- no attribute for class literals
 - some locals are missing ranges see test25
+- wrong offset for annotations on method calls

@@ -163,6 +163,15 @@ protected TypeBinding internalResolveType(Scope scope) {
 			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 		scope.problemReporter().rawTypeReference(this, type);
 	}
+	if (this.annotations != null) {
+		switch(scope.kind) {
+			case Scope.BLOCK_SCOPE :
+			case Scope.METHOD_SCOPE :
+				// TODO (olivier) we need something different from null
+				resolveAnnotations((BlockScope) scope, this.annotations, null);
+				break;
+		}
+	}
 
 	if (hasError) {
 		// do not store the computed type, keep the problem type instead
@@ -227,4 +236,11 @@ public TypeBinding resolveTypeArgument(ClassScope classScope, ReferenceBinding g
 public abstract void traverse(ASTVisitor visitor, BlockScope scope);
 
 public abstract void traverse(ASTVisitor visitor, ClassScope scope);
+
+protected void resolveAnnotations(BlockScope scope) {
+	if (this.annotations != null) {
+		// TODO (olivier) we need something different from null
+		resolveAnnotations(scope, this.annotations, null);
+	}
+}
 }

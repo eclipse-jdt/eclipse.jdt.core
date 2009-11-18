@@ -114,4 +114,30 @@ public class ArrayTypeReference extends SingleTypeReference {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
+
+	protected TypeBinding internalResolveType(Scope scope) {
+		TypeBinding internalResolveType = super.internalResolveType(scope);
+		if (this.annotationsOnDimensions != null) {
+			switch(scope.kind) {
+				case Scope.BLOCK_SCOPE :
+				case Scope.METHOD_SCOPE :
+					// TODO (olivier) we need something different from null
+					for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
+						Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
+						resolveAnnotations((BlockScope) scope, annotationsOnDimension, null);
+					}
+					break;
+			}
+		}
+		return internalResolveType;
+	}
+	protected void resolveAnnotations(BlockScope scope) {
+		super.resolveAnnotations(scope);
+		if (this.annotationsOnDimensions != null) {
+			for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
+				Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
+				resolveAnnotations(scope, annotationsOnDimension, null);
+			}
+		}
+	}
 }

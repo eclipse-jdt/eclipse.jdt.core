@@ -137,7 +137,13 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 		if (this.typeParameters != null) {
 			for (int i = 0, length = this.typeParameters.length; i < length; i++) {
-				this.typeParameters[i].resolve(this.scope);
+				TypeParameter typeParameter = this.typeParameters[i];
+				typeParameter.resolve(this.scope);
+				Annotation[] typeParameterAnnotations = typeParameter.annotations;
+				if (typeParameterAnnotations != null) {
+					// TODO (olivier) we need something different from null
+					resolveAnnotations(this.scope, typeParameterAnnotations, null);
+				}
 			}
 		}
 

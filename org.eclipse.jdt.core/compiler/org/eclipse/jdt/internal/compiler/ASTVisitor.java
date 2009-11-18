@@ -44,11 +44,14 @@ public abstract class ASTVisitor {
 		// do nothing by default
 	}
 	public void endVisit(
-    		ArrayAllocationExpression arrayAllocationExpression,
-    		BlockScope scope) {
+			ArrayAllocationExpression arrayAllocationExpression,
+			BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(ArrayInitializer arrayInitializer, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ArrayInitializer arrayInitializer, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(
@@ -277,6 +280,13 @@ public abstract class ASTVisitor {
 	public void endVisit(MemberValuePair pair, BlockScope scope) {
 		// do nothing by default
 	}
+	/**
+	 * @param pair
+	 * @param scope
+	 */
+	public void endVisit(MemberValuePair pair, ClassScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(MessageSend messageSend, BlockScope scope) {
 		// do nothing by default
 	}
@@ -481,6 +491,9 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(ArrayInitializer arrayInitializer, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ArrayInitializer arrayInitializer, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(
@@ -708,6 +721,14 @@ public abstract class ASTVisitor {
 	 * @since 3.1
 	 */
 	public boolean visit(MemberValuePair pair, BlockScope scope) {
+		return true;
+	}
+	/**
+	 * @param pair
+	 * @param scope
+	 * @since 3.1
+	 */
+	public boolean visit(MemberValuePair pair, ClassScope scope) {
 		return true;
 	}
 	public boolean visit(MessageSend messageSend, BlockScope scope) {

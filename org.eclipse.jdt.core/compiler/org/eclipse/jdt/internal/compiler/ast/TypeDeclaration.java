@@ -954,18 +954,12 @@ public void resolve() {
 			this.staticInitializerScope.insideTypeAnnotation = true;
 			resolveAnnotations(this.staticInitializerScope, this.annotations, sourceType);
 			if (this.superclass != null) {
-				Annotation[] superclassAnnotations = this.superclass.annotations;
-				if (superclassAnnotations != null) {
-					resolveAnnotations(this.staticInitializerScope, superclassAnnotations, this.superclass.resolvedType);
-				}
+				this.superclass.resolveAnnotations(this.staticInitializerScope);
 			}
 			if (this.superInterfaces != null) {
 				for (int i = 0, max = this.superInterfaces.length; i < max; i++) {
 					TypeReference superinterface = this.superInterfaces[i];
-					Annotation[] superinterfaceAnnotations = superinterface.annotations;
-					if (superinterfaceAnnotations != null) {
-						resolveAnnotations(this.staticInitializerScope, superinterfaceAnnotations, superinterface.resolvedType);
-					}
+					superinterface.resolveAnnotations(this.staticInitializerScope);
 				}
 			}
 			if (this.typeParameters != null) {
@@ -973,7 +967,8 @@ public void resolve() {
 					TypeParameter typeParameter = this.typeParameters[i];
 					Annotation[] typeParameterAnnotations = typeParameter.annotations;
 					if (typeParameterAnnotations != null) {
-						resolveAnnotations(this.staticInitializerScope, typeParameterAnnotations, typeParameter.binding);
+						// TODO (olivier) we need something different from null
+						resolveAnnotations(this.staticInitializerScope, typeParameterAnnotations, null);
 					}
 				}
 			}
@@ -1060,7 +1055,7 @@ public void resolve() {
 
 		if (this.typeParameters != null) {
 			for (int i = 0, count = this.typeParameters.length; i < count; i++) {
-				this.typeParameters[i].resolve(this.scope);
+				this.typeParameters[i].resolve(this.staticInitializerScope);
 			}
 		}
 		if (this.memberTypes != null) {

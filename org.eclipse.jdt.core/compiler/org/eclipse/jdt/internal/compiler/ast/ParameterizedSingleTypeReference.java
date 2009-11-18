@@ -262,6 +262,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		return this.resolvedType = type;
 	}
 
+	protected void resolveAnnotations(BlockScope scope) {
+		super.resolveAnnotations(scope);
+		for (int i = 0, length = this.typeArguments.length; i < length; i++) {
+			this.typeArguments[i].resolveAnnotations(scope);
+		}
+	}
 	public StringBuffer printExpression(int indent, StringBuffer output){
 		if (this.annotations != null) {
 			printAnnotations(this.annotations, output);

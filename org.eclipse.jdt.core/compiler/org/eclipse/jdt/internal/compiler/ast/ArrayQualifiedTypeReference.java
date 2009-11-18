@@ -117,14 +117,14 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
-	
-	protected TypeBinding internalResolveType(Scope scope) {
+
+	protected void resolveAnnotations(BlockScope scope) {
+		super.resolveAnnotations(scope);
 		if (this.annotationsOnDimensions != null) {
 			for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
 				Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
-				resolveAnnotations((BlockScope) scope, annotationsOnDimension, null);
+				resolveAnnotations(scope, annotationsOnDimension, null);
 			}
 		}
-		return super.internalResolveType(scope);
 	}
 }
