@@ -30,24 +30,6 @@ public abstract class Annotation extends Expression {
 			this.tagBits = 0L;
 			this.kind = kind;
 		}
-		public char[] constantPoolName() {
-			return null;
-		}
-		public PackageBinding getPackage() {
-			return null;
-		}
-		public boolean isCompatibleWith(TypeBinding right) {
-			return false;
-		}
-		public char[] qualifiedSourceName() {
-			return null;
-		}
-		public char[] sourceName() {
-			return null;
-		}
-		public char[] readableName() {
-			return null;
-		}
 		public int kind() {
 			return this.kind;
 		}
