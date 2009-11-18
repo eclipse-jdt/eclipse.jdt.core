@@ -415,8 +415,7 @@ public abstract class AbstractMethodDeclaration
 						                                                this.receiverAnnotations[last]);
 			}
 			// jsr 308
-			// TODO (olivier) we need something different from null
-			resolveAnnotations(this.scope, this.receiverAnnotations, null);
+			resolveAnnotations(this.scope, this.receiverAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 			resolveStatements();
 			// check @Deprecated annotation presence
 			if (this.binding != null

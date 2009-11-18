@@ -577,12 +577,21 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					break;
 				case Binding.TYPE_PARAMETER :
 					// jsr308
-					TypeVariableBinding typeVariableBinding = (TypeVariableBinding) recipient;
+					ReferenceBinding typeVariableBinding = (ReferenceBinding) recipient;
 					if ((typeVariableBinding.tagBits & TagBits.AnnotationResolved) != 0) return;
 					typeVariableBinding.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
 						typeVariableBinding.setAnnotations(annotations);
+					}
+					break;
+				case Binding.TYPE_USE :
+					ReferenceBinding typeUseBinding = (ReferenceBinding) recipient;
+					if ((typeUseBinding.tagBits & TagBits.AnnotationResolved) != 0) return;
+					typeUseBinding.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					if (length > 0) {
+						annotations = new AnnotationBinding[length];
+						typeUseBinding.setAnnotations(annotations);
 					}
 					break;
 				default :

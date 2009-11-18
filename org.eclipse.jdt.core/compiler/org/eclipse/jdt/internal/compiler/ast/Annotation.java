@@ -23,6 +23,36 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
  */
 public abstract class Annotation extends Expression {
 
+	// jsr 308
+	public static class TypeUseBinding extends ReferenceBinding {
+		private int kind;
+		public TypeUseBinding(int kind) {
+			this.tagBits = 0L;
+			this.kind = kind;
+		}
+		public char[] constantPoolName() {
+			return null;
+		}
+		public PackageBinding getPackage() {
+			return null;
+		}
+		public boolean isCompatibleWith(TypeBinding right) {
+			return false;
+		}
+		public char[] qualifiedSourceName() {
+			return null;
+		}
+		public char[] sourceName() {
+			return null;
+		}
+		public char[] readableName() {
+			return null;
+		}
+		public int kind() {
+			return this.kind;
+		}
+	}
+
 	final static MemberValuePair[] NoValuePairs = new MemberValuePair[0];
 	public int declarationSourceEnd;
 	public Binding recipient;
@@ -375,14 +405,18 @@ public abstract class Annotation extends Expression {
 						if ((metaTagBits & TagBits.AnnotationForPackage) != 0)
 							break checkTargetCompatibility;
 						break;
+					case Binding.TYPE_USE :
+						if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+							// jsr 308
+							break checkTargetCompatibility;
+						}
+						break;
 					case Binding.TYPE :
 					case Binding.GENERIC_TYPE :
 						if (((ReferenceBinding)this.recipient).isAnnotationType()) {
 							if ((metaTagBits & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType)) != 0)
 							break checkTargetCompatibility;
 						} else if ((metaTagBits & TagBits.AnnotationForType) != 0) {
-							break checkTargetCompatibility;
-						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) { // jsr 308
 							break checkTargetCompatibility;
 						} else if ((metaTagBits & TagBits.AnnotationForPackage) != 0) {
 							if (CharOperation.equals(((ReferenceBinding)this.recipient).sourceName, TypeConstants.PACKAGE_INFO_NAME))

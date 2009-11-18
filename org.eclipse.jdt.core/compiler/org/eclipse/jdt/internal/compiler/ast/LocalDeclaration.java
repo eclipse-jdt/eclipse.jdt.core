@@ -228,8 +228,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// jsr 308
 		Annotation[] typeAnnotations = this.type.annotations;
 		if (typeAnnotations != null) {
-			// TODO (olivier) we need something different from null
-			ASTNode.resolveAnnotations(scope, typeAnnotations, null);
+			ASTNode.resolveAnnotations(scope, typeAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 		}
 	}
 

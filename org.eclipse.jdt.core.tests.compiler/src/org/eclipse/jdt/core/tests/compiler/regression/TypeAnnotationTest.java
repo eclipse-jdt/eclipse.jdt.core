@@ -15,7 +15,7 @@ import junit.framework.Test;
 public class TypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 
-		TESTS_NUMBERS = new int [] { 7 };
+//		TESTS_NUMBERS = new int [] { 1 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationTest.class;
@@ -194,7 +194,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"@Target(TYPE_USE)\n" + 
 				"@Retention(RUNTIME)\n" + 
 				"@interface A {\n" + 
-				"	String id() default \"default\";\n" + 
+				"	String value() default \"default\";\n" + 
 				"}\n",
 				"B.java",
 				"import java.lang.annotation.Target;\n" + 
@@ -228,10 +228,10 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"	public Object foo1(String s) {\n" + 
 				"		return new @B(3) @A(\"new Object\") Object();\n" + 
 				"	}\n" + 
-				"	public Class foo2(String s) {\n" + 
+				"	public Class<?> foo2(String s) {\n" + 
 				"		return @B(4) Object.class;\n" + 
 				"	}\n" + 
-				"	public Class foo3(String s) {\n" + 
+				"	public Class<?> foo3(String s) {\n" + 
 				"		return @A(\"int class literal\")  @B(5) int.class;\n" + 
 				"	}\n" + 
 				"}",
@@ -250,7 +250,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"@Target(TYPE_USE)\n" + 
 				"@Retention(RUNTIME)\n" + 
 				"@interface A {\n" + 
-				"	String id() default \"default\";\n" + 
+				"	String value() default \"default\";\n" + 
 				"}\n",
 				"B.java",
 				"import java.lang.annotation.Target;\n" + 
@@ -284,10 +284,10 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"	public Object foo1(String s) {\n" + 
 				"		return new @B(3) @A(\"new Object\") Object[] {};\n" + 
 				"	}\n" + 
-				"	public Class foo2(String s) {\n" + 
+				"	public Class<?> foo2(String s) {\n" + 
 				"		return @B(4) Object[].class;\n" + 
 				"	}\n" + 
-				"	public Class foo3(String s) {\n" + 
+				"	public Class<?> foo3(String s) {\n" + 
 				"		return @A(\"int class literal\")  @B(5) int[].class;\n" + 
 				"	}\n" + 
 				"}",
@@ -401,12 +401,28 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
 				"E.java",
-				"class E extends RuntimeException {}\n",
+				"class E extends RuntimeException {\n" +
+				"	private static final long serialVersionUID = 1L;\n" +
+				"}\n",
 				"E1.java",
-				"class E1 extends RuntimeException {}\n",
+				"class E1 extends RuntimeException {\n" +
+				"	private static final long serialVersionUID = 1L;\n" +
+				"}\n",
 				"E2.java",
-				"class E2 extends RuntimeException {}\n",
+				"class E2 extends RuntimeException {\n" +
+				"	private static final long serialVersionUID = 1L;\n" +
+				"}\n",
 				"X.java",
 				"public class X {\n" +
 				"	void foo() throws @A(\"Hello, World!\") E, E1, @B @C('(') E2 {}\n" +
@@ -675,7 +691,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"import static java.lang.annotation.ElementType.*;\n" + 
 				"import java.lang.annotation.Retention;\n" + 
 				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
+				"@Target(TYPE_USE)\n" + 
 				"@Retention(RUNTIME)\n" + 
 				"@interface A {\n" + 
 				"	String value() default \"default\";\n" + 
@@ -685,13 +701,13 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"import static java.lang.annotation.ElementType.*;\n" + 
 				"import java.lang.annotation.Retention;\n" + 
 				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
+				"@Target(TYPE_USE)\n" + 
 				"@Retention(CLASS)\n" + 
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
 				"X.java",
-				"public class X<T extends @A String & @B(3) Cloneable>  {}",
+				"public class X<T extends @A String & @B(3) Cloneable> {}",
 		},
 		"");
 	}
@@ -704,7 +720,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"import static java.lang.annotation.ElementType.*;\n" + 
 				"import java.lang.annotation.Retention;\n" + 
 				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
+				"@Target(TYPE_USE)\n" + 
 				"@Retention(RUNTIME)\n" + 
 				"@interface A {\n" + 
 				"	String value() default \"default\";\n" + 
@@ -714,11 +730,21 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"import static java.lang.annotation.ElementType.*;\n" + 
 				"import java.lang.annotation.Retention;\n" + 
 				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
+				"@Target(TYPE_USE)\n" + 
 				"@Retention(CLASS)\n" + 
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
 				"Y.java",
 				"public class Y<T> {}",
 				"X.java",
@@ -735,7 +761,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"import static java.lang.annotation.ElementType.*;\n" + 
 				"import java.lang.annotation.Retention;\n" + 
 				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
+				"@Target(TYPE_USE)\n" + 
 				"@Retention(RUNTIME)\n" + 
 				"@interface A {\n" + 
 				"	String value() default \"default\";\n" + 
@@ -745,14 +771,16 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"import static java.lang.annotation.ElementType.*;\n" + 
 				"import java.lang.annotation.Retention;\n" + 
 				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
+				"@Target(TYPE_USE)\n" + 
 				"@Retention(CLASS)\n" + 
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
+				"Z.java",
+				"public class Z {}",
 				"X.java",
 				"public class X {\n" +
-				"	<T extends @A String & @B(3) Cloneable> void foo(T t) {}\n" +
+				"	<T extends @A Z & @B(3) Cloneable> void foo(T t) {}\n" +
 				"}",
 		},
 		"");
@@ -766,7 +794,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"import static java.lang.annotation.ElementType.*;\n" + 
 				"import java.lang.annotation.Retention;\n" + 
 				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
+				"@Target(TYPE_USE)\n" + 
 				"@Retention(RUNTIME)\n" + 
 				"@interface A {\n" + 
 				"	String value() default \"default\";\n" + 
@@ -776,16 +804,28 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"import static java.lang.annotation.ElementType.*;\n" + 
 				"import java.lang.annotation.Retention;\n" + 
 				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
+				"@Target(TYPE_USE)\n" + 
 				"@Retention(CLASS)\n" + 
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"Z.java",
+				"public class Z {}",
 				"Y.java",
 				"public class Y<T> {}",
 				"X.java",
 				"public class X {\n" +
-				"	<T extends Y<@A String @C[][]@B[]> & @B(3) Cloneable> void foo(T t) {}\n" +
+				"	<T extends Y<@A Z @C[][]@B[]> & @B(3) Cloneable> void foo(T t) {}\n" +
 				"}",
 		},
 		"");

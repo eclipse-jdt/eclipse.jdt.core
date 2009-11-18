@@ -967,8 +967,7 @@ public void resolve() {
 					TypeParameter typeParameter = this.typeParameters[i];
 					Annotation[] typeParameterAnnotations = typeParameter.annotations;
 					if (typeParameterAnnotations != null) {
-						// TODO (olivier) we need something different from null
-						resolveAnnotations(this.staticInitializerScope, typeParameterAnnotations, null);
+						resolveAnnotations(this.staticInitializerScope, typeParameterAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_PARAMETER));
 					}
 				}
 			}

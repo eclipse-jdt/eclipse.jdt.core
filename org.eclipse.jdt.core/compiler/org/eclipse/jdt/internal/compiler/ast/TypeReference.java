@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -167,8 +168,7 @@ protected TypeBinding internalResolveType(Scope scope) {
 		switch(scope.kind) {
 			case Scope.BLOCK_SCOPE :
 			case Scope.METHOD_SCOPE :
-				// TODO (olivier) we need something different from null
-				resolveAnnotations((BlockScope) scope, this.annotations, null);
+				resolveAnnotations((BlockScope) scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 				break;
 		}
 	}
@@ -239,8 +239,7 @@ public abstract void traverse(ASTVisitor visitor, ClassScope scope);
 
 protected void resolveAnnotations(BlockScope scope) {
 	if (this.annotations != null) {
-		// TODO (olivier) we need something different from null
-		resolveAnnotations(scope, this.annotations, null);
+		resolveAnnotations(scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 	}
 }
 }

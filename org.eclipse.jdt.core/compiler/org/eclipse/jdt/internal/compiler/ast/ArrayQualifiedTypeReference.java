@@ -123,7 +123,7 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		if (this.annotationsOnDimensions != null) {
 			for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
 				Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
-				resolveAnnotations(scope, annotationsOnDimension, null);
+				resolveAnnotations(scope, annotationsOnDimension, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 			}
 		}
 	}

@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -141,8 +142,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				typeParameter.resolve(this.scope);
 				Annotation[] typeParameterAnnotations = typeParameter.annotations;
 				if (typeParameterAnnotations != null) {
-					// TODO (olivier) we need something different from null
-					resolveAnnotations(this.scope, typeParameterAnnotations, null);
+					resolveAnnotations(this.scope, typeParameterAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_PARAMETER));
 				}
 			}
 		}

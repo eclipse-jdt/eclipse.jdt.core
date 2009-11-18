@@ -167,7 +167,7 @@ public class ArrayAllocationExpression extends Expression {
 		if (this.annotationsOnDimensions != null) {
 			for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
 				Annotation[] annotations = this.annotationsOnDimensions[i];
-				resolveAnnotations(scope, annotations, null);
+				resolveAnnotations(scope, annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 			}
 		}
 		return this.resolvedType;

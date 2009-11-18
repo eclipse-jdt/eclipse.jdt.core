@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -121,10 +122,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 			switch(scope.kind) {
 				case Scope.BLOCK_SCOPE :
 				case Scope.METHOD_SCOPE :
-					// TODO (olivier) we need something different from null
 					for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
 						Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
-						resolveAnnotations((BlockScope) scope, annotationsOnDimension, null);
+						resolveAnnotations((BlockScope) scope, annotationsOnDimension, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 					}
 					break;
 			}
@@ -136,7 +136,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 		if (this.annotationsOnDimensions != null) {
 			for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
 				Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
-				resolveAnnotations(scope, annotationsOnDimension, null);
+				resolveAnnotations(scope, annotationsOnDimension, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 			}
 		}
 	}

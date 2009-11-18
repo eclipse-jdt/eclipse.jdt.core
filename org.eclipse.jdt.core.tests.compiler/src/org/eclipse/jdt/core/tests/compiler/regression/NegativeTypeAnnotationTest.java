@@ -15,7 +15,7 @@ import junit.framework.Test;
 public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 
-		TESTS_NUMBERS = new int [] { 22 };
+//		TESTS_NUMBERS = new int [] { 22 };
 	}
 	public static Class testClass() {
 		return NegativeTypeAnnotationTest.class;
