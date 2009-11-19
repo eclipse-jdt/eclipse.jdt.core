@@ -2607,7 +2607,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions + extendedDimensions, annotationsOnAllDimensions, isVarArgs ? 1 : 0, isVarArgs ? new Annotation[][]{varArgsAnnotations} : null);
 			}
 			type = copyDims(type, typeDimensions, annotationsOnAllDimensions);
-			type.sourceEnd = type.isParametrizedTypeReference() ? this.endStatementPosition : this.endPosition;
+			type.sourceEnd = type.isParameterizedTypeReference() ? this.endStatementPosition : this.endPosition;
 		}
 		if (isVarArgs) {
 			if (extendedDimensions == 0) {

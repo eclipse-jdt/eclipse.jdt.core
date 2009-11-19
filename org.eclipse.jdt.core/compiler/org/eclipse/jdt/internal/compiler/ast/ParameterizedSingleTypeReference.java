@@ -89,7 +89,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
         return null; // not supported here - combined with resolveType(...)
     }
     
-    public boolean isParametrizedTypeReference() {
+    public boolean isParameterizedTypeReference() {
     	return true;
     }
 

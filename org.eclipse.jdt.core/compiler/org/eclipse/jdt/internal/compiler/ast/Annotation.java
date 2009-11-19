@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
@@ -25,6 +26,7 @@ public abstract class Annotation extends Expression {
 
 	// jsr 308
 	public static class TypeUseBinding extends ReferenceBinding {
+		public AnnotationContext context;
 		private int kind;
 		public TypeUseBinding(int kind) {
 			this.tagBits = 0L;

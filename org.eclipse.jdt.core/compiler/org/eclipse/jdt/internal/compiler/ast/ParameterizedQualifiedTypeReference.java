@@ -66,7 +66,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	public TypeReference copyDims(int dim, Annotation[][] dimensionAnnotations){
 		return new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, dim, dimensionAnnotations, this.sourcePositions);
 	}
-    public boolean isParametrizedTypeReference() {
+    public boolean isParameterizedTypeReference() {
     	return true;
     }
 

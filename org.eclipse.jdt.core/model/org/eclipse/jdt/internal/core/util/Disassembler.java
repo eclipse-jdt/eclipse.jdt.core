@@ -280,21 +280,21 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					getTargetType(targetType),
 				}));
 		switch(targetType) {
-			case IExtendedAnnotation.METHOD_RECEIVER :
-			case IExtendedAnnotation.METHOD_RETURN_TYPE :
-			case IExtendedAnnotation.FIELD :
+			case IExtendedAnnotationConstants.METHOD_RECEIVER :
+			case IExtendedAnnotationConstants.METHOD_RETURN_TYPE :
+			case IExtendedAnnotationConstants.FIELD :
 				break;
 			default:
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 		}
 		switch(targetType) {
-			case IExtendedAnnotation.CLASS_EXTENDS_IMPLEMENTS :
+			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS :
 				buffer.append(
 					Messages.bind(Messages.disassembler_extendedannotation_classextendsimplements, new String[] {
 						Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
 					}));
 				break;
-			case IExtendedAnnotation.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_classextendsimplements, new String[] {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
@@ -305,19 +305,19 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
-			case IExtendedAnnotation.TYPE_CAST :
-			case IExtendedAnnotation.TYPE_INSTANCEOF :
-			case IExtendedAnnotation.OBJECT_CREATION :
-			case IExtendedAnnotation.CLASS_LITERAL :
+			case IExtendedAnnotationConstants.TYPE_CAST :
+			case IExtendedAnnotationConstants.TYPE_INSTANCEOF :
+			case IExtendedAnnotationConstants.OBJECT_CREATION :
+			case IExtendedAnnotationConstants.CLASS_LITERAL :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
 							Integer.toString(extendedAnnotation.getOffset()),
 						}));
 				break;
-			case IExtendedAnnotation.TYPE_CAST_GENERIC_OR_ARRAY :
-			case IExtendedAnnotation.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
-			case IExtendedAnnotation.OBJECT_CREATION_GENERIC_OR_ARRAY :
-			case IExtendedAnnotation.CLASS_LITERAL_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.TYPE_CAST_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.OBJECT_CREATION_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.CLASS_LITERAL_GENERIC_OR_ARRAY :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
 							Integer.toString(extendedAnnotation.getOffset()),
@@ -328,15 +328,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
-			case IExtendedAnnotation.CLASS_TYPE_PARAMETER :
-			case IExtendedAnnotation.METHOD_TYPE_PARAMETER :
+			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER :
+			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_type_parameter, new String[] {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
 						}));
 				break;
-			case IExtendedAnnotation.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY :
-			case IExtendedAnnotation.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_type_parameter, new String[] {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
@@ -347,16 +347,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
-			case IExtendedAnnotation.METHOD_TYPE_PARAMETER_BOUND :
-			case IExtendedAnnotation.CLASS_TYPE_PARAMETER_BOUND :
+			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND :
+			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_type_parameter_with_bound, new String[] {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
 							Integer.toString(extendedAnnotation.getTypeParameterBoundIndex()),
 						}));
 				break;
-			case IExtendedAnnotation.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
-			case IExtendedAnnotation.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_type_parameter_with_bound, new String[] {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
@@ -368,10 +368,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
-			case IExtendedAnnotation.LOCAL_VARIABLE :
+			case IExtendedAnnotationConstants.LOCAL_VARIABLE :
 				// TODO (olivier) dump local variable reference info
 				break;
-			case IExtendedAnnotation.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
 				// TODO (olivier) dump local variable reference info
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
@@ -379,13 +379,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
-			case IExtendedAnnotation.METHOD_PARAMETER :
+			case IExtendedAnnotationConstants.METHOD_PARAMETER :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_method_parameter, new String[] {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
 						}));
 				break;
-			case IExtendedAnnotation.METHOD_PARAMETER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_method_parameter, new String[] {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
@@ -396,16 +396,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
-			case IExtendedAnnotation.METHOD_RECEIVER_GENERIC_OR_ARRAY :
-			case IExtendedAnnotation.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY :
-			case IExtendedAnnotation.FIELD_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.FIELD_GENERIC_OR_ARRAY :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
-			case IExtendedAnnotation.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
-			case IExtendedAnnotation.TYPE_ARGUMENT_METHOD_CALL :
+			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
+			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
 							Integer.toString(extendedAnnotation.getOffset()),
@@ -416,8 +416,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
 						}));
 				break;
-			case IExtendedAnnotation.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
-			case IExtendedAnnotation.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
 							Integer.toString(extendedAnnotation.getOffset()),
@@ -433,13 +433,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
-			case IExtendedAnnotation.THROWS :
+			case IExtendedAnnotationConstants.THROWS :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_throws, new String[] {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
 						}));
 				break;
-			case IExtendedAnnotation.THROWS_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.THROWS_GENERIC_OR_ARRAY :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_throws, new String[] {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
@@ -450,7 +450,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
-			case IExtendedAnnotation.WILDCARD_BOUND :
+			case IExtendedAnnotationConstants.WILDCARD_BOUND :
 				int wildcardLocationType = extendedAnnotation.getWildcardLocationType();
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_wildcardlocationtype, new String[] {
@@ -465,75 +465,75 @@ public class Disassembler extends ClassFileBytesDisassembler {
 
 	private String getTargetType(int targetType) {
 		switch(targetType) {
-			case IExtendedAnnotation.CLASS_EXTENDS_IMPLEMENTS :
+			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS :
 				return "CLASS_EXTENDS_IMPLEMENTS"; //$NON-NLS-1$
-			case IExtendedAnnotation.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
 				return "CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.TYPE_CAST :
+			case IExtendedAnnotationConstants.TYPE_CAST :
 				return "TYPE_CAST"; //$NON-NLS-1$
-			case IExtendedAnnotation.TYPE_INSTANCEOF :
+			case IExtendedAnnotationConstants.TYPE_INSTANCEOF :
 				return "TYPE_INSTANCEOF"; //$NON-NLS-1$
-			case IExtendedAnnotation.OBJECT_CREATION :
+			case IExtendedAnnotationConstants.OBJECT_CREATION :
 				return "OBJECT_CREATION"; //$NON-NLS-1$
-			case IExtendedAnnotation.CLASS_LITERAL :
+			case IExtendedAnnotationConstants.CLASS_LITERAL :
 				return "CLASS_LITERAL"; //$NON-NLS-1$
-			case IExtendedAnnotation.TYPE_CAST_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.TYPE_CAST_GENERIC_OR_ARRAY :
 				return "TYPE_CAST_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
 				return "TYPE_INSTANCEOF_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.OBJECT_CREATION_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.OBJECT_CREATION_GENERIC_OR_ARRAY :
 				return "OBJECT_CREATION_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.CLASS_LITERAL_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.CLASS_LITERAL_GENERIC_OR_ARRAY :
 				return "CLASS_LITERAL_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.CLASS_TYPE_PARAMETER :
+			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER :
 				return "CLASS_TYPE_PARAMETER"; //$NON-NLS-1$
-			case IExtendedAnnotation.METHOD_TYPE_PARAMETER :
+			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER :
 				return "METHOD_TYPE_PARAMETER"; //$NON-NLS-1$
-			case IExtendedAnnotation.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY :
 				return "CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY :
 				return "METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.METHOD_TYPE_PARAMETER_BOUND :
+			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND :
 				return "METHOD_TYPE_PARAMETER_BOUND"; //$NON-NLS-1$
-			case IExtendedAnnotation.CLASS_TYPE_PARAMETER_BOUND :
+			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND :
 				return "CLASS_TYPE_PARAMETER_BOUND"; //$NON-NLS-1$
-			case IExtendedAnnotation.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
 				return "METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
 				return "CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.LOCAL_VARIABLE :
+			case IExtendedAnnotationConstants.LOCAL_VARIABLE :
 				return "LOCAL_VARIABLE"; //$NON-NLS-1$
-			case IExtendedAnnotation.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
 				return "LOCAL_VARIABLE_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.METHOD_PARAMETER :
+			case IExtendedAnnotationConstants.METHOD_PARAMETER :
 				return "METHOD_PARAMETER"; //$NON-NLS-1$
-			case IExtendedAnnotation.METHOD_PARAMETER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY :
 				return "METHOD_PARAMETER_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.METHOD_RECEIVER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY :
 				return "METHOD_RECEIVER_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY :
 				return "METHOD_RETURN_TYPE_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.METHOD_RECEIVER :
+			case IExtendedAnnotationConstants.METHOD_RECEIVER :
 				return "METHOD_RECEIVER"; //$NON-NLS-1$
-			case IExtendedAnnotation.METHOD_RETURN_TYPE :
+			case IExtendedAnnotationConstants.METHOD_RETURN_TYPE :
 				return "METHOD_RETURN_TYPE"; //$NON-NLS-1$
-			case IExtendedAnnotation.FIELD :
+			case IExtendedAnnotationConstants.FIELD :
 				return "FIELD"; //$NON-NLS-1$
-			case IExtendedAnnotation.FIELD_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.FIELD_GENERIC_OR_ARRAY :
 				return "FIELD_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
+			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
 				return "TYPE_ARGUMENT_CONSTRUCTOR_CALL"; //$NON-NLS-1$
-			case IExtendedAnnotation.TYPE_ARGUMENT_METHOD_CALL :
+			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL :
 				return "TYPE_ARGUMENT_METHOD_CALL"; //$NON-NLS-1$
-			case IExtendedAnnotation.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
 				return "TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
 				return "TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.THROWS :
+			case IExtendedAnnotationConstants.THROWS :
 				return "THROWS"; //$NON-NLS-1$
-			case IExtendedAnnotation.THROWS_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.THROWS_GENERIC_OR_ARRAY :
 				return "THROWS_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotation.WILDCARD_BOUND :
+			case IExtendedAnnotationConstants.WILDCARD_BOUND :
 				return "WILDCARD_BOUND"; //$NON-NLS-1$
 			default:
 				return "UNKNOWN"; //$NON-NLS-1$

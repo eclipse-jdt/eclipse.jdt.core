@@ -96,6 +96,9 @@ public abstract TypeReference copyDims(int dim, Annotation[][] annotationsOnDime
 public int dimensions() {
 	return 0;
 }
+public Annotation[] getAllAnnotations() {
+	return null;
+}
 public Annotation[][] getAnnotationsOnDimensions() {
 	return null;
 }
@@ -183,7 +186,7 @@ public boolean isTypeReference() {
 	return true;
 }
 
-public boolean isParametrizedTypeReference() {
+public boolean isParameterizedTypeReference() {
 	return false;
 }
 protected void reportDeprecatedType(TypeBinding type, Scope scope, int index) {

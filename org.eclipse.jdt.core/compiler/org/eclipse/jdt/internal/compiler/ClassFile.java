@@ -37,7 +37,9 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
@@ -508,6 +510,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 			generateMissingTypesAttribute();
 			attributesNumber++;
 		}
+		
+		attributesNumber += generateTypeAnnotationAttributeForTypeDeclaration();
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
@@ -521,6 +525,71 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int constantPoolCount = this.constantPool.currentIndex;
 		this.header[this.constantPoolOffset++] = (byte) (constantPoolCount >> 8);
 		this.header[this.constantPoolOffset] = (byte) constantPoolCount;
+	}
+	private int generateTypeAnnotationAttributeForTypeDeclaration() {
+		int attributesNumber = 0;
+		int visibleTypeAnnotationsCounter = 0;
+		int invisibleTypeAnnotationsCounter = 0;
+		TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
+		TypeReference superclass = typeDeclaration.superclass;
+		List allTypeAnnotations = new ArrayList();
+		if (superclass != null) {
+			Annotation[] annotations = superclass.getAllAnnotations();
+			if (annotations != null) {
+				AnnotationContext context = null;
+				if (this.referenceBinding.superclass.isParameterizedType()) {
+					context = new AnnotationContext(0x15);
+				} else {
+					context = new AnnotationContext(0x14);
+				}
+				context.setTypeIndex(-1);
+				for (int i = 0, max = annotations.length; i < max; i++) {
+					Annotation annotation = annotations[i];
+					if (isRuntimeTypeInvisible(annotation)) {
+						invisibleTypeAnnotationsCounter++;
+						((Annotation.TypeUseBinding) annotation.recipient).context = context;
+						allTypeAnnotations.add(annotation);
+					} else if (isRuntimeTypeVisible(annotation)) {
+						visibleTypeAnnotationsCounter++;
+						((Annotation.TypeUseBinding) annotation.recipient).context = context;
+						allTypeAnnotations.add(annotation);
+					}
+				}
+			}
+		}
+		TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
+		if (superInterfaces != null) {
+			for (int i = 0; i < superInterfaces.length; i++) {
+				TypeReference superInterface = superInterfaces[i];
+				Annotation[] annotations = superInterface.getAllAnnotations();
+				if (annotations != null) {
+					AnnotationContext context = new AnnotationContext(0x14);
+					context.setTypeIndex(i);
+					for (int j = 0, max = annotations.length; j < max; j++) {
+						Annotation annotation = annotations[j];
+						if (isRuntimeTypeInvisible(annotation)) {
+							invisibleTypeAnnotationsCounter++;
+							((Annotation.TypeUseBinding) annotation.recipient).context = context;
+							allTypeAnnotations.add(annotation);
+						} else if (isRuntimeTypeVisible(annotation)) {
+							visibleTypeAnnotationsCounter++;
+							((Annotation.TypeUseBinding) annotation.recipient).context = context;
+							allTypeAnnotations.add(annotation);
+						}
+					}
+				}
+			}
+		}
+		int size = allTypeAnnotations.size();
+		if (size != 0) {
+			Annotation[] allTypeAnnotationsArray = new Annotation[size];
+			allTypeAnnotations.toArray(allTypeAnnotationsArray);
+			attributesNumber += generateRuntimeTypeAnnotations(
+					allTypeAnnotationsArray,
+					visibleTypeAnnotationsCounter,
+					invisibleTypeAnnotationsCounter);
+		}
+		return attributesNumber;
 	}
 
 	/**
@@ -5955,6 +6024,25 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 	}
 
+	private void generateTypeAnnotation(Annotation annotation, int currentOffset) {
+		// common part between type annotation and annotation
+		generateAnnotation(annotation, currentOffset);
+		AnnotationContext context = ((Annotation.TypeUseBinding) annotation.recipient).context;
+		this.contents[this.contentsOffset++] = (byte) context.targetType;
+		switch(context.targetType) {
+			case AnnotationContext.CLASS_EXTENDS_IMPLEMENTS :
+				this.contents[this.contentsOffset++] = (byte) (context.typeIndex >> 8);
+				this.contents[this.contentsOffset++] = (byte) context.typeIndex;
+				break;
+			case AnnotationContext.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
+				this.contents[this.contentsOffset++] = (byte) (context.typeIndex >> 8);
+				this.contents[this.contentsOffset++] = (byte) context.typeIndex;
+				this.contents[this.contentsOffset++] = 0;
+				this.contents[this.contentsOffset++] = 1;
+				this.contents[this.contentsOffset++] = 0;
+				break;
+		}
+	}
 	/**
 	 * INTERNAL USE-ONLY
 	 * That method generates the header of a code attribute.
@@ -6609,6 +6697,109 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return attributesNumber;
 	}
 
+	/**
+	 * @param annotations
+	 * @return the number of attributes created while dumping the annotations in the .class file
+	 */
+	private int generateRuntimeTypeAnnotations(final Annotation[] annotations, int visibleTypeAnnotationsCounter, int invisibleTypeAnnotationsCounter) {
+		int attributesNumber = 0;
+		final int length = annotations.length;
+
+		int annotationAttributeOffset = this.contentsOffset;
+		int constantPOffset = this.constantPool.currentOffset;
+		int constantPoolIndex = this.constantPool.currentIndex;
+		if (invisibleTypeAnnotationsCounter != 0) {
+			if (this.contentsOffset + 10 >= this.contents.length) {
+				resizeContents(10);
+			}
+			int runtimeInvisibleAnnotationsAttributeNameIndex =
+				this.constantPool.literalIndex(AttributeNamesConstants.RuntimeInvisibleTypeAnnotationsName);
+			this.contents[this.contentsOffset++] = (byte) (runtimeInvisibleAnnotationsAttributeNameIndex >> 8);
+			this.contents[this.contentsOffset++] = (byte) runtimeInvisibleAnnotationsAttributeNameIndex;
+			int attributeLengthOffset = this.contentsOffset;
+			this.contentsOffset += 4; // leave space for the attribute length
+
+			int annotationsLengthOffset = this.contentsOffset;
+			this.contentsOffset += 2; // leave space for the annotations length
+
+			int counter = 0;
+			loop: for (int i = 0; i < length; i++) {
+				if (invisibleTypeAnnotationsCounter == 0) break loop;
+				Annotation annotation = annotations[i];
+				if (isRuntimeTypeInvisible(annotation)) {
+					int currentAnnotationOffset = this.contentsOffset;
+					generateTypeAnnotation(annotation, currentAnnotationOffset);
+					invisibleTypeAnnotationsCounter--;
+					if (this.contentsOffset != currentAnnotationOffset) {
+						counter++;
+					}
+				}
+			}
+			if (counter != 0) {
+				this.contents[annotationsLengthOffset++] = (byte) (counter >> 8);
+				this.contents[annotationsLengthOffset++] = (byte) counter;
+
+				int attributeLength = this.contentsOffset - attributeLengthOffset - 4;
+				this.contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);
+				this.contents[attributeLengthOffset++] = (byte) (attributeLength >> 16);
+				this.contents[attributeLengthOffset++] = (byte) (attributeLength >> 8);
+				this.contents[attributeLengthOffset++] = (byte) attributeLength;
+				attributesNumber++;
+			} else {
+				this.contentsOffset = annotationAttributeOffset;
+				// reset the constant pool to its state before the clinit
+				this.constantPool.resetForAttributeName(AttributeNamesConstants.RuntimeInvisibleTypeAnnotationsName, constantPoolIndex, constantPOffset);
+			}
+		}
+
+		annotationAttributeOffset = this.contentsOffset;
+		constantPOffset = this.constantPool.currentOffset;
+		constantPoolIndex = this.constantPool.currentIndex;
+		if (visibleTypeAnnotationsCounter != 0) {
+			if (this.contentsOffset + 10 >= this.contents.length) {
+				resizeContents(10);
+			}
+			int runtimeVisibleAnnotationsAttributeNameIndex =
+				this.constantPool.literalIndex(AttributeNamesConstants.RuntimeVisibleTypeAnnotationsName);
+			this.contents[this.contentsOffset++] = (byte) (runtimeVisibleAnnotationsAttributeNameIndex >> 8);
+			this.contents[this.contentsOffset++] = (byte) runtimeVisibleAnnotationsAttributeNameIndex;
+			int attributeLengthOffset = this.contentsOffset;
+			this.contentsOffset += 4; // leave space for the attribute length
+
+			int annotationsLengthOffset = this.contentsOffset;
+			this.contentsOffset += 2; // leave space for the annotations length
+
+			int counter = 0;
+			loop: for (int i = 0; i < length; i++) {
+				if (visibleTypeAnnotationsCounter == 0) break loop;
+				Annotation annotation = annotations[i];
+				if (isRuntimeTypeVisible(annotation)) {
+					visibleTypeAnnotationsCounter--;
+					int currentAnnotationOffset = this.contentsOffset;
+					generateTypeAnnotation(annotation, currentAnnotationOffset);
+					if (this.contentsOffset != currentAnnotationOffset) {
+						counter++;
+					}
+				}
+			}
+			if (counter != 0) {
+				this.contents[annotationsLengthOffset++] = (byte) (counter >> 8);
+				this.contents[annotationsLengthOffset++] = (byte) counter;
+
+				int attributeLength = this.contentsOffset - attributeLengthOffset - 4;
+				this.contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);
+				this.contents[attributeLengthOffset++] = (byte) (attributeLength >> 16);
+				this.contents[attributeLengthOffset++] = (byte) (attributeLength >> 8);
+				this.contents[attributeLengthOffset++] = (byte) attributeLength;
+				attributesNumber++;
+			} else {
+				this.contentsOffset = annotationAttributeOffset;
+				this.constantPool.resetForAttributeName(AttributeNamesConstants.RuntimeVisibleTypeAnnotationsName, constantPoolIndex, constantPOffset);
+			}
+		}
+		return attributesNumber;
+	}
+
 	private int generateRuntimeAnnotationsForParameters(Argument[] arguments) {
 		final int argumentsLength = arguments.length;
 		final int VISIBLE_INDEX = 0;
@@ -7115,6 +7306,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
+		// jsr 308
+		// we need to filter out type use and type parameter annotations
+		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
+			return false;
+		}
+
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return true; // by default the retention is CLASS
 
@@ -7127,6 +7324,42 @@ public class ClassFile implements TypeConstants, TypeIds {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits();
+		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
+			return false;
+		}
+		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
+			return false; // by default the retention is CLASS
+
+		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationRuntimeRetention;
+	}
+
+	private boolean isRuntimeTypeInvisible(Annotation annotation) {
+		final TypeBinding annotationBinding = annotation.resolvedType;
+		if (annotationBinding == null) {
+			return false;
+		}
+		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
+		// jsr 308
+		// we need to filter out type use and type parameter annotations
+		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+			return false;
+		}
+
+		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
+			return true; // by default the retention is CLASS
+
+		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
+	}
+
+	private boolean isRuntimeTypeVisible(Annotation annotation) {
+		final TypeBinding annotationBinding = annotation.resolvedType;
+		if (annotationBinding == null) {
+			return false;
+		}
+		long metaTagBits = annotationBinding.getAnnotationTagBits();
+		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+			return false;
+		}
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return false; // by default the retention is CLASS
 
