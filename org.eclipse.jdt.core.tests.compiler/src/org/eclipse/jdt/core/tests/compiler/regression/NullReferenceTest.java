@@ -4313,8 +4313,8 @@ public void test0469_while_break() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=220788
-public void _test0470_while() {
-	this.runConformTest(
+public void test0470_while() {
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -4332,7 +4332,12 @@ public void _test0470_while() {
 			"  }\n" +
 			"}"
 		},
-		"ERROR: o cannot be null on first if");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (o != null && o.toString().equals(\"o\")) {\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
+		"----------\n");
 }
 // null analysis -- try/finally
 public void test0500_try_finally() {
@@ -10129,5 +10134,122 @@ public void test2020_flow_info() {
 		"	^^\n" +
 		"Potential null pointer access: The variable o1 may be null at this location\n" +
 		"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291418
+// Test to verify that redundant null checks are properly reported in all loops
+public void testBug291418a() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"class X {\n" +
+						"  void foo(int[] argArray) {\n" +
+						"    int[] array = {2};\n" +
+						"    int[] collectionVar = {1,2};\n" +
+						"	 if(argArray == null) return;" +
+						"    for(int x:collectionVar) {\n" +
+						"        if (collectionVar == null);\n" +	// collectionVar cannot be null here
+						"        if (array == null);\n" +				// array is not null here
+						"		 if (argArray == null);\n" +		// argArray cannot be null here
+						"    }\n" +
+						"	 int count = 0;\n" +
+						"    do {\n" +
+						"		 count++;\n" +
+						"        if (array == null);\n" +				// array is not null here
+						"		 if (argArray == null);\n" +		// argArray cannot be null here
+						"    } while (count<10);\n" +
+						"    for (int i=0; i<2; i++) {\n" +
+						"        if (array == null);\n" +				// array is not null here
+						"		 if (argArray == null);\n" +		// argArray cannot be null here
+						"    }\n" +
+						"    while (true) {\n" +
+						"        if (array == null);\n" +				// array is not null here
+						"		 if (argArray == null);\n" +		// argArray cannot be null here
+						"    }\n" +
+						"  }\n" +
+						"}"},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	if (collectionVar == null);\n" +
+				"	    ^^^^^^^^^^^^^\n" +
+				"Null comparison always yields false: The variable collectionVar cannot be null at this location\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	if (array == null);\n" +
+				"	    ^^^^^\n" +
+				"Null comparison always yields false: The variable array cannot be null at this location\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 8)\n" +
+				"	if (argArray == null);\n" +
+				"	    ^^^^^^^^\n" +
+				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 13)\n" +
+				"	if (array == null);\n" +
+				"	    ^^^^^\n" +
+				"Null comparison always yields false: The variable array cannot be null at this location\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 14)\n" +
+				"	if (argArray == null);\n" +
+				"	    ^^^^^^^^\n" +
+				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 17)\n" +
+				"	if (array == null);\n" +
+				"	    ^^^^^\n" +
+				"Null comparison always yields false: The variable array cannot be null at this location\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 18)\n" +
+				"	if (argArray == null);\n" +
+				"	    ^^^^^^^^\n" +
+				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
+				"----------\n" +
+				"8. ERROR in X.java (at line 21)\n" +
+				"	if (array == null);\n" +
+				"	    ^^^^^\n" +
+				"Null comparison always yields false: The variable array cannot be null at this location\n" +
+				"----------\n" +
+				"9. ERROR in X.java (at line 22)\n" +
+				"	if (argArray == null);\n" +
+				"	    ^^^^^^^^\n" +
+				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
+				"----------\n");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291418
+// Test to verify that redundant null checks are properly reported
+// in a loop in case the null status is modified downstream in the loop
+public void testBug291418b() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"class X {\n" +
+						"  void foo(int[] argArray) {\n" +
+						"    int[] array = {2};\n" +
+						"    int[] collectionVar = {1,2};\n" +
+						"	 if(argArray == null) return;" +
+						"    for(int x:collectionVar) {\n" +
+						"        if (collectionVar == null);\n" +	// collectionVar cannot be null here
+						"        if (array == null);\n" +		// array is not null in first iteration but assigned null later in the loop. So we keep quiet
+						"		 if (argArray == null);\n" +		// argArray cannot be null here
+						"		 array = null;\n" +
+						"    }\n" +
+						"  }\n" +
+						"}"},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	if (collectionVar == null);\n" + 
+				"	    ^^^^^^^^^^^^^\n" + 
+				"Null comparison always yields false: The variable collectionVar cannot be null at this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	if (argArray == null);\n" + 
+				"	    ^^^^^^^^\n" + 
+				"Null comparison always yields false: The variable argArray cannot be null at this location\n" + 
+				"----------\n");
+	}
 }
 }

@@ -405,6 +405,9 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				} else {
 					scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
 				}
+			} else if (this.upstreamNullFlowInfo.isDefinitelyNonNull(local) && !flowInfo.isPotentiallyNull(local)) {    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=291418
+				flowInfo.markAsDefinitelyNonNull(local);
+				recordNullReference(local, reference, checkType);
 			} else if (! flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
 				if (flowInfo.isPotentiallyNonNull(local)) {
 					recordNullReference(local, reference, CAN_ONLY_NON_NULL | checkType & CONTEXT_MASK);
