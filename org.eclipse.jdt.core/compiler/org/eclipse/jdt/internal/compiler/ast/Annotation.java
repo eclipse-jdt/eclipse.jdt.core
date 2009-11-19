@@ -256,7 +256,6 @@ public abstract class Annotation extends Expression {
 			scope.problemReporter().typeMismatchError(typeBinding, scope.getJavaLangAnnotationAnnotation(), this.type, null);
 			return null;
 		}
-
 		ReferenceBinding annotationType = (ReferenceBinding) this.resolvedType;
 		MethodBinding[] methods = annotationType.methods();
 		// clone valuePairs to keep track of unused ones
@@ -306,16 +305,19 @@ public abstract class Annotation extends Expression {
 					}
 				}
 			}
-			if (!foundValue &&
-					(method.modifiers & ClassFileConstants.AccAnnotationDefault) == 0 &&
-					(this.bits & IsRecovered) == 0) {
+			if (!foundValue
+					&& (method.modifiers & ClassFileConstants.AccAnnotationDefault) == 0
+					&& (this.bits & IsRecovered) == 0
+					&& annotationType.isValidBinding()) {
 				scope.problemReporter().missingValueForAnnotationMember(this, selector);
 			}
 		}
 		// check unused pairs
 		for (int i = 0; i < pairsLength; i++) {
 			if (pairs[i] != null) {
-				scope.problemReporter().undefinedAnnotationValue(annotationType, pairs[i]);
+				if (annotationType.isValidBinding()) {
+					scope.problemReporter().undefinedAnnotationValue(annotationType, pairs[i]);
+				}
 				pairs[i].resolveTypeExpecting(scope, null); // resilient
 			}
 		}
@@ -378,9 +380,22 @@ public abstract class Annotation extends Expression {
 			}
 			// check (meta)target compatibility
 			checkTargetCompatibility: {
-				long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
-				if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) // does not specify any target restriction
+				if (!annotationType.isValidBinding()) {
+					// no need to check annotation usage if missing
 					break checkTargetCompatibility;
+				}
+
+				long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
+				if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
+					// does not specify any target restriction - type parameter and type use target are never implicit
+					switch (this.recipient.kind()) {
+						case Binding.TYPE_PARAMETER :
+						case Binding.TYPE_USE :
+							break;
+						default:
+							break checkTargetCompatibility;
+					}
+				}
 
 				switch (this.recipient.kind()) {
 					case Binding.PACKAGE :

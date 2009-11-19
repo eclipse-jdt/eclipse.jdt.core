@@ -15,7 +15,7 @@ import junit.framework.Test;
 public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 
-//		TESTS_NUMBERS = new int [] { 22 };
+//		TESTS_NUMBERS = new int [] { 21, 22 };
 	}
 	public static Class testClass() {
 		return NegativeTypeAnnotationTest.class;
@@ -111,23 +111,13 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 1)\n" + 
 		"	public class X extends @A(id=\"Hello, World!\") @B @C(\'(\') Y {\n" + 
-		"	                          ^^\n" + 
-		"The attribute id is undefined for the annotation type A\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 1)\n" + 
-		"	public class X extends @A(id=\"Hello, World!\") @B @C(\'(\') Y {\n" + 
 		"	                                               ^\n" + 
 		"B cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 1)\n" + 
+		"3. ERROR in X.java (at line 1)\n" + 
 		"	public class X extends @A(id=\"Hello, World!\") @B @C(\'(\') Y {\n" + 
 		"	                                                  ^\n" + 
 		"C cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 1)\n" + 
-		"	public class X extends @A(id=\"Hello, World!\") @B @C(\'(\') Y {\n" + 
-		"	                                                    ^^^\n" + 
-		"The attribute value is undefined for the annotation type C\n" + 
 		"----------\n");
 	}
 	public void test007() throws Exception {
@@ -148,23 +138,13 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 1)\n" + 
 		"	public class X implements @A(id=\"Hello, World!\") I, @B @C(\'(\') J {}\n" + 
-		"	                             ^^\n" + 
-		"The attribute id is undefined for the annotation type A\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 1)\n" + 
-		"	public class X implements @A(id=\"Hello, World!\") I, @B @C(\'(\') J {}\n" + 
 		"	                                                     ^\n" + 
 		"B cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 1)\n" + 
+		"3. ERROR in X.java (at line 1)\n" + 
 		"	public class X implements @A(id=\"Hello, World!\") I, @B @C(\'(\') J {}\n" + 
 		"	                                                        ^\n" + 
 		"C cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 1)\n" + 
-		"	public class X implements @A(id=\"Hello, World!\") I, @B @C(\'(\') J {}\n" + 
-		"	                                                          ^^^\n" + 
-		"The attribute value is undefined for the annotation type C\n" + 
 		"----------\n");
 	}
 	// class literal
@@ -197,60 +177,30 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	                      ^\n" + 
 		"C cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	return (s instanceof @C(\'_\') Object);\n" + 
-		"	                        ^^^\n" + 
-		"The attribute value is undefined for the annotation type C\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 6)\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
 		"	return new @B(3) @A(\"new Object\") Object();\n" + 
 		"	            ^\n" + 
 		"B cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 6)\n" + 
-		"	return new @B(3) @A(\"new Object\") Object();\n" + 
-		"	              ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 6)\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
 		"	return new @B(3) @A(\"new Object\") Object();\n" + 
 		"	                  ^\n" + 
 		"A cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 6)\n" + 
-		"	return new @B(3) @A(\"new Object\") Object();\n" + 
-		"	                    ^^^^^^^^^^^^\n" + 
-		"The attribute value is undefined for the annotation type A\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 9)\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
 		"	return @B(4) Object.class;\n" + 
 		"	        ^\n" + 
 		"B cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"8. ERROR in X.java (at line 9)\n" + 
-		"	return @B(4) Object.class;\n" + 
-		"	          ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
-		"----------\n" + 
-		"9. ERROR in X.java (at line 12)\n" + 
+		"5. ERROR in X.java (at line 12)\n" + 
 		"	return @A(\"int class literal\")  @B(5) int.class;\n" + 
 		"	        ^\n" + 
 		"A cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"10. ERROR in X.java (at line 12)\n" + 
-		"	return @A(\"int class literal\")  @B(5) int.class;\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The attribute value is undefined for the annotation type A\n" + 
-		"----------\n" + 
-		"11. ERROR in X.java (at line 12)\n" + 
+		"6. ERROR in X.java (at line 12)\n" + 
 		"	return @A(\"int class literal\")  @B(5) int.class;\n" + 
 		"	                                 ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"12. ERROR in X.java (at line 12)\n" + 
-		"	return @A(\"int class literal\")  @B(5) int.class;\n" + 
-		"	                                   ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// class literal generic and array
@@ -283,60 +233,30 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	                      ^\n" + 
 		"C cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	return (o instanceof @C(\'_\') Object[]);\n" + 
-		"	                        ^^^\n" + 
-		"The attribute value is undefined for the annotation type C\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 6)\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
 		"	return new @B(3) @A(\"new Object\") Object[] {};\n" + 
 		"	            ^\n" + 
 		"B cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 6)\n" + 
-		"	return new @B(3) @A(\"new Object\") Object[] {};\n" + 
-		"	              ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 6)\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
 		"	return new @B(3) @A(\"new Object\") Object[] {};\n" + 
 		"	                  ^\n" + 
 		"A cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 6)\n" + 
-		"	return new @B(3) @A(\"new Object\") Object[] {};\n" + 
-		"	                    ^^^^^^^^^^^^\n" + 
-		"The attribute value is undefined for the annotation type A\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 9)\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
 		"	return @B(4) Object[].class;\n" + 
 		"	        ^\n" + 
 		"B cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"8. ERROR in X.java (at line 9)\n" + 
-		"	return @B(4) Object[].class;\n" + 
-		"	          ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
-		"----------\n" + 
-		"9. ERROR in X.java (at line 12)\n" + 
+		"5. ERROR in X.java (at line 12)\n" + 
 		"	return @A(\"int class literal\")  @B(5) int[].class;\n" + 
 		"	        ^\n" + 
 		"A cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"10. ERROR in X.java (at line 12)\n" + 
-		"	return @A(\"int class literal\")  @B(5) int[].class;\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The attribute value is undefined for the annotation type A\n" + 
-		"----------\n" + 
-		"11. ERROR in X.java (at line 12)\n" + 
+		"6. ERROR in X.java (at line 12)\n" + 
 		"	return @A(\"int class literal\")  @B(5) int[].class;\n" + 
 		"	                                 ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"12. ERROR in X.java (at line 12)\n" + 
-		"	return @A(\"int class literal\")  @B(5) int[].class;\n" + 
-		"	                                   ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	public void test010() throws Exception {
@@ -356,23 +276,13 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 1)\n" + 
 		"	public class X extends @A(\"Hello, World!\") Y<@B @C(\'(\') String> {\n" + 
-		"	                          ^^^^^^^^^^^^^^^\n" + 
-		"The attribute value is undefined for the annotation type A\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 1)\n" + 
-		"	public class X extends @A(\"Hello, World!\") Y<@B @C(\'(\') String> {\n" + 
 		"	                                              ^\n" + 
 		"B cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 1)\n" + 
+		"3. ERROR in X.java (at line 1)\n" + 
 		"	public class X extends @A(\"Hello, World!\") Y<@B @C(\'(\') String> {\n" + 
 		"	                                                 ^\n" + 
 		"C cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 1)\n" + 
-		"	public class X extends @A(\"Hello, World!\") Y<@B @C(\'(\') String> {\n" + 
-		"	                                                   ^^^\n" + 
-		"The attribute value is undefined for the annotation type C\n" + 
 		"----------\n");
 	}
 	public void test011() throws Exception {
@@ -393,23 +303,13 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 1)\n" + 
 		"	public class X implements I<@A(\"Hello, World!\") String>,  @B J<@C(\'(\') Integer> {}\n" + 
-		"	                               ^^^^^^^^^^^^^^^\n" + 
-		"The attribute value is undefined for the annotation type A\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 1)\n" + 
-		"	public class X implements I<@A(\"Hello, World!\") String>,  @B J<@C(\'(\') Integer> {}\n" + 
 		"	                                                           ^\n" + 
 		"B cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 1)\n" + 
+		"3. ERROR in X.java (at line 1)\n" + 
 		"	public class X implements I<@A(\"Hello, World!\") String>,  @B J<@C(\'(\') Integer> {}\n" + 
 		"	                                                                ^\n" + 
 		"C cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 1)\n" + 
-		"	public class X implements I<@A(\"Hello, World!\") String>,  @B J<@C(\'(\') Integer> {}\n" + 
-		"	                                                                  ^^^\n" + 
-		"The attribute value is undefined for the annotation type C\n" + 
 		"----------\n");
 	}
 	// throws
@@ -441,23 +341,13 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo() throws @A(\"Hello, World!\") E, E1, @B @C(\'(\') E2 {}\n" + 
-		"	                     ^^^^^^^^^^^^^^^\n" + 
-		"The attribute value is undefined for the annotation type A\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 2)\n" + 
-		"	void foo() throws @A(\"Hello, World!\") E, E1, @B @C(\'(\') E2 {}\n" + 
 		"	                                              ^\n" + 
 		"B cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 2)\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
 		"	void foo() throws @A(\"Hello, World!\") E, E1, @B @C(\'(\') E2 {}\n" + 
 		"	                                                 ^\n" + 
 		"C cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 2)\n" + 
-		"	void foo() throws @A(\"Hello, World!\") E, E1, @B @C(\'(\') E2 {}\n" + 
-		"	                                                   ^^^\n" + 
-		"The attribute value is undefined for the annotation type C\n" + 
 		"----------\n");
 	}
 	// method receiver
@@ -474,11 +364,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	void foo() @B(3) {}\n" + 
 		"	            ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	void foo() @B(3) {}\n" + 
-		"	              ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// method return type
@@ -497,11 +382,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	@B(3) int foo() {\n" + 
 		"	 ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	@B(3) int foo() {\n" + 
-		"	   ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// field type
@@ -518,11 +398,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	@B(3) int field;\n" + 
 		"	 ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	@B(3) int field;\n" + 
-		"	   ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// method parameter
@@ -541,11 +416,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	int foo(@B(3) String s) {\n" + 
 		"	         ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	int foo(@B(3) String s) {\n" + 
-		"	           ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// method parameter generic or array
@@ -564,11 +434,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	int foo(String @B(3) [] s) {\n" + 
 		"	                ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	int foo(String @B(3) [] s) {\n" + 
-		"	                  ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// field type generic or array
@@ -585,11 +450,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	int @B(3) [] field;\n" + 
 		"	     ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	int @B(3) [] field;\n" + 
-		"	       ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// class type parameter
@@ -609,11 +469,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	public class X<@A @B(3) T> {}\n" + 
 		"	                   ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 1)\n" + 
-		"	public class X<@A @B(3) T> {}\n" + 
-		"	                     ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// method type parameter
@@ -635,11 +490,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	<@A @B(3) T> void foo(T t) {}\n" + 
 		"	     ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 2)\n" + 
-		"	<@A @B(3) T> void foo(T t) {}\n" + 
-		"	       ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// class type parameter bound
@@ -661,11 +511,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	public class X<T extends @A Z & @B(3) Cloneable> {}\n" + 
 		"	                                 ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 1)\n" + 
-		"	public class X<T extends @A Z & @B(3) Cloneable> {}\n" + 
-		"	                                   ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// class type parameter bound generic or array
@@ -697,11 +542,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	public class X<T extends Y<@A String @C[][]@B[]> & @B(3) Cloneable> {}\n" + 
 		"	                                                    ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 1)\n" + 
-		"	public class X<T extends Y<@A String @C[][]@B[]> & @B(3) Cloneable> {}\n" + 
-		"	                                                      ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// method type parameter bound
@@ -725,11 +565,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	<T extends @A Z & @B(3) Cloneable> void foo(T t) {}\n" + 
 		"	                   ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 2)\n" + 
-		"	<T extends @A Z & @B(3) Cloneable> void foo(T t) {}\n" + 
-		"	                     ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// class type parameter bound generic or array
@@ -765,11 +600,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	<T extends Y<@A Z @C[][]@B[]> & @B(3) Cloneable> void foo(T t) {}\n" + 
 		"	                                 ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 2)\n" + 
-		"	<T extends Y<@A Z @C[][]@B[]> & @B(3) Cloneable> void foo(T t) {}\n" + 
-		"	                                   ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// local variable + generic or array
@@ -807,11 +637,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	@A String [] @B(3)[] tab = new String[][] {};\n" + 
 		"	              ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 4)\n" + 
-		"	@A String [] @B(3)[] tab = new String[][] {};\n" + 
-		"	                ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// type argument constructor call
@@ -838,11 +663,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	X x = new <@A @B(1) String>X(null);\n" + 
 		"	               ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 5)\n" + 
-		"	X x = new <@A @B(1) String>X(null);\n" + 
-		"	                 ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// type argument constructor call generic or array
@@ -869,11 +689,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"	X x = new <@A @B(1) String>X(null);\n" + 
 		"	               ^\n" + 
 		"B cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 5)\n" + 
-		"	X x = new <@A @B(1) String>X(null);\n" + 
-		"	                 ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
 		"----------\n");
 	}
 	// type argument method call and generic or array
@@ -904,18 +719,87 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n" + 
 		"3. ERROR in X.java (at line 7)\n" + 
 		"	System.out.println(X.<@A @B(1) String[], @C(\'-\') X>foo(new String[]{\"SUCCESS\"}, null)[0]);\n" + 
-		"	                            ^\n" + 
-		"The attribute value is undefined for the annotation type B\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 7)\n" + 
-		"	System.out.println(X.<@A @B(1) String[], @C(\'-\') X>foo(new String[]{\"SUCCESS\"}, null)[0]);\n" + 
 		"	                                          ^\n" + 
 		"C cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 7)\n" + 
-		"	System.out.println(X.<@A @B(1) String[], @C(\'-\') X>foo(new String[]{\"SUCCESS\"}, null)[0]);\n" + 
-		"	                                            ^^^\n" + 
-		"The attribute value is undefined for the annotation type C\n" + 
 		"----------\n");
+	}
+	public void test029() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X extends @Marker2 Object {}",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X extends @Marker2 Object {}\n" + 
+				"	                        ^^^^^^^\n" + 
+				"Marker2 cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	public void test030() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.io.Serializable;\n" +
+					"public class X implements @Marker2 Serializable {\n" +
+					"	private static final long serialVersionUID = 1L;\n" +
+					"}",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	public class X implements @Marker2 Serializable {\n" + 
+				"	                           ^^^^^^^\n" + 
+				"Marker2 cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	public void test031() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"Marker.java",
+					"import java.lang.annotation.Target;\n" + 
+					"import static java.lang.annotation.ElementType.*;\n" + 
+					"@Target(TYPE_USE)\n" + 
+					"@interface Marker {}",
+					"X.java",
+					"public class X<@Marker T> {}",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X<@Marker T> {}\n" + 
+				"	               ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n");
+	}
+	public void test032() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"Marker.java",
+					"@interface Marker {}",
+					"X.java",
+					"public class X<@Marker T> {}",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X<@Marker T> {}\n" + 
+				"	               ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n");
+	}
+	public void test033() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"Marker.java",
+					"@interface Marker {}",
+					"Y.java",
+					"public class Y {}",
+					"X.java",
+					"public class X extends @Marker Y {}",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X extends @Marker Y {}\n" + 
+				"	                       ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n");
 	}
 }

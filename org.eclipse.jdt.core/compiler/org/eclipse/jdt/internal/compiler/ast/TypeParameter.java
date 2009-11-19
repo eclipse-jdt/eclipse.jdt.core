@@ -53,22 +53,6 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				scope.problemReporter().typeHiding(this, existingType);
 			}
 		}
-		if (this.type != null) {
-			switch(scope.kind) {
-				case Scope.BLOCK_SCOPE :
-				case Scope.METHOD_SCOPE :
-					this.type.resolveAnnotations((BlockScope) scope);
-			}
-		}
-		if (this.bounds != null) {
-			for (int i = 0, max = this.bounds.length; i < max; i++) {
-				switch(scope.kind) {
-					case Scope.BLOCK_SCOPE :
-					case Scope.METHOD_SCOPE :
-						this.bounds[i].resolveAnnotations((BlockScope) scope);
-				}
-			}
-		}
 	}
 
 	public void resolve(BlockScope scope) {
@@ -79,6 +63,19 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		internalResolve(scope, scope.enclosingSourceType().isStatic());
 	}
 
+	public void resolveAnnotations(BlockScope scope) {
+		if (this.annotations != null) {
+			resolveAnnotations(scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_PARAMETER));
+		}
+		if (this.type != null) {
+			this.type.resolveAnnotations(scope);
+		}
+		if (this.bounds != null) {
+			for (int i = 0, max = this.bounds.length; i < max; i++) {
+				this.bounds[i].resolveAnnotations(scope);
+			}
+		}
+	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#print(int, java.lang.StringBuffer)
 	 */

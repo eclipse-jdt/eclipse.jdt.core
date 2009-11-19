@@ -958,17 +958,12 @@ public void resolve() {
 			}
 			if (this.superInterfaces != null) {
 				for (int i = 0, max = this.superInterfaces.length; i < max; i++) {
-					TypeReference superinterface = this.superInterfaces[i];
-					superinterface.resolveAnnotations(this.staticInitializerScope);
+					this.superInterfaces[i].resolveAnnotations(this.staticInitializerScope);
 				}
 			}
 			if (this.typeParameters != null) {
-				for (int i = 0, max = this.typeParameters.length; i < max; i++) {
-					TypeParameter typeParameter = this.typeParameters[i];
-					Annotation[] typeParameterAnnotations = typeParameter.annotations;
-					if (typeParameterAnnotations != null) {
-						resolveAnnotations(this.staticInitializerScope, typeParameterAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_PARAMETER));
-					}
+				for (int i = 0, count = this.typeParameters.length; i < count; i++) {
+					this.typeParameters[i].resolveAnnotations(this.staticInitializerScope);
 				}
 			}
 		} finally {
@@ -1054,7 +1049,7 @@ public void resolve() {
 
 		if (this.typeParameters != null) {
 			for (int i = 0, count = this.typeParameters.length; i < count; i++) {
-				this.typeParameters[i].resolve(this.staticInitializerScope);
+				this.typeParameters[i].resolve(this.scope);
 			}
 		}
 		if (this.memberTypes != null) {

@@ -27,35 +27,6 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		super(testName);
 	}
 	public void test001() throws Exception {
-		this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"public class X extends @Marker2 Object {}",
-				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 1)\n" + 
-				"	public class X extends @Marker2 Object {}\n" + 
-				"	                        ^^^^^^^\n" + 
-				"Marker2 cannot be resolved to a type\n" + 
-				"----------\n");
-	}
-	public void test002() throws Exception {
-		this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"import java.io.Serializable;\n" +
-					"public class X implements @Marker2 Serializable {\n" +
-					"	private static final long serialVersionUID = 1L;\n" +
-					"}",
-				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	public class X implements @Marker2 Serializable {\n" + 
-				"	                           ^^^^^^^\n" + 
-				"Marker2 cannot be resolved to a type\n" + 
-				"----------\n");
-	}
-	public void test003() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"Marker.java",
@@ -68,7 +39,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				},
 				"");
 	}
-	public void test004() throws Exception {
+	public void test002() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"Marker.java",
@@ -81,25 +52,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				},
 				"");
 	}
-	public void test005() throws Exception {
-		this.runNegativeTest(
-				new String[] {
-					"Marker.java",
-					"import java.lang.annotation.Target;\n" + 
-					"import static java.lang.annotation.ElementType.*;\n" + 
-					"@Target(TYPE_USE)\n" + 
-					"@interface Marker {}",
-					"X.java",
-					"public class X<@Marker T> {}",
-				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 1)\n" + 
-				"	public class X<@Marker T> {}\n" + 
-				"	               ^^^^^^^\n" + 
-				"The annotation @Marker is disallowed for this location\n" + 
-				"----------\n");
-	}
-	public void test006() throws Exception {
+	public void test003() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -140,7 +93,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		},
 		"");
 	}
-	public void test007() throws Exception {
+	public void test004() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -183,7 +136,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// class literal
-	public void test008() throws Exception {
+	public void test005() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -239,7 +192,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// class literal generic and array
-	public void test009() throws Exception {
+	public void test006() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -294,7 +247,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		},
 		"");
 	}
-	public void test010() throws Exception {
+	public void test007() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -335,7 +288,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		},
 		"");
 	}
-	public void test011() throws Exception {
+	public void test008() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -378,7 +331,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// throws
-	public void test012() throws Exception {
+	public void test009() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -431,7 +384,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// method receiver
-	public void test013() throws Exception {
+	public void test010() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -462,7 +415,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// method return type
-	public void test014() throws Exception {
+	public void test011() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -495,7 +448,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// field type
-	public void test015() throws Exception {
+	public void test012() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -526,7 +479,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// method parameter
-	public void test016() throws Exception {
+	public void test013() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -559,7 +512,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// method parameter generic or array
-	public void test017() throws Exception {
+	public void test014() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -592,7 +545,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// field type generic or array
-	public void test018() throws Exception {
+	public void test015() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -623,7 +576,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// class type parameter
-	public void test019() throws Exception {
+	public void test016() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -652,7 +605,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// method type parameter
-	public void test020() throws Exception {
+	public void test017() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -683,7 +636,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// class type parameter bound
-	public void test021() throws Exception {
+	public void test018() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -712,7 +665,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// class type parameter bound generic or array
-	public void test022() throws Exception {
+	public void test019() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -753,7 +706,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// method type parameter bound
-	public void test023() throws Exception {
+	public void test020() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -786,7 +739,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// class type parameter bound generic or array
-	public void test024() throws Exception {
+	public void test021() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -831,7 +784,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// local variable + generic or array
-	public void test025() throws Exception {
+	public void test022() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -883,7 +836,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// type argument constructor call
-	public void test026() throws Exception {
+	public void test023() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -929,7 +882,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// type argument constructor call generic or array
-	public void test027() throws Exception {
+	public void test024() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -975,7 +928,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 	}
 	// type argument method call and generic or array
-	public void test028() throws Exception {
+	public void test025() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
