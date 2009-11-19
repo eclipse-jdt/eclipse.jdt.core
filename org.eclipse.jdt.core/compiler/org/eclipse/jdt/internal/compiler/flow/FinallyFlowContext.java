@@ -192,7 +192,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						if (flowInfo.cannotBeNull(local)) {
 							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 								scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
-							} else {
+							} else if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL)) {
 								scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
 							}
 							return;
