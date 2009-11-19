@@ -899,8 +899,9 @@ public void testChangeExternalLibFolder2() throws CoreException {
 
 /*
  * Ensures that changing an external library folder referenced by a library entry and refreshing triggers the correct delta
+ * Disable as long as it is not more reliable see https://bugs.eclipse.org/bugs/show_bug.cgi?id=295619
  */
-public void testChangeExternalLibFolder3() throws CoreException {
+public void _testChangeExternalLibFolder3() throws CoreException {
 	try {
 		createExternalFolder("externalLib/p");
 		createExternalFile("externalLib/p/X.class", "");
