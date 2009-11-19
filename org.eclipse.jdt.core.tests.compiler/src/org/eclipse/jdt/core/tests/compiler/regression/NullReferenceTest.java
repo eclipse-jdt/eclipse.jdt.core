@@ -5352,6 +5352,29 @@ public void _test0534_try_finally() {
 		false /* skipJavac */);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=295260
+public void test0535_try_finally() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public void test3(String[] args) {\n" +
+				"		while (true) {\n" +
+				"			Object a = null;\n" +
+				"			try {\n" +
+				"				a = new Object();\n" +
+				"			} catch (Exception e) {\n" +
+				"			} finally {\n" +
+				"				if (a != null)\n" +
+				"					a = null;\n" +	// quiet
+				"			}\n" +
+				"		}\n" +
+				"	}\n"+
+				"}",
+			},
+			"");
+}
+
 // null analysis -- try/catch
 public void test0550_try_catch() {
 	this.runConformTest(
@@ -5862,6 +5885,59 @@ public void test0566_try_catch_unchecked_exception() {
 			"  }\n" +
 			"}"},
 		"");
+}
+
+// null analysis - try/catch for checked exceptions
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=295260
+public void test0567_try_catch_checked_exception() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.net.MalformedURLException;\n" +
+				"import java.net.URL;\n" +
+				"public class X {\n" +
+				"	public void test1(String[] args) {\n" +
+				"		URL[] urls = null;\n" +
+				"		try	{\n" +
+				"			urls = new URL[args.length];\n" +
+				"			for (int i = 0; i < args.length; i++)\n" +
+				"				urls[i] = new URL(\"http\", \"\", -1, args[i]);\n" +
+				"		}\n" +
+				"		catch (MalformedURLException mfex) {\n" +
+				"			urls = null;\n" +	// quiet
+				"		}\n" +
+				"	}\n" +
+				"}",
+			},
+			"");
+}
+
+// null analysis - try/catch for checked exceptions with finally block
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=295260
+public void test0568_try_catch_checked_exception() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.net.MalformedURLException;\n" +
+				"import java.net.URL;\n" +
+				"public class X {\n" +
+				"	public void test1(String[] args) {\n" +
+				"		URL[] urls = null;\n" +
+				"		try	{\n" +
+				"			urls = new URL[args.length];\n" +
+				"			for (int i = 0; i < args.length; i++)\n" +
+				"				urls[i] = new URL(\"http\", \"\", -1, args[i]);\n" +
+				"		}\n" +
+				"		catch (MalformedURLException mfex) {\n" +
+				"			urls = null;\n" +	// quiet
+				"		}\n" +
+				" 		finally{\n"+
+				"			System.out.println(\"complete\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"}",
+			},
+			"");
 }
 
 // null analysis - throw
