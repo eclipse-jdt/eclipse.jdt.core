@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1456 };
+//		TESTS_NUMBERS = new int[] { 1459 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -49943,5 +49943,25 @@ public void test1458() {
 			},
 			null,
 			null); // no specific success output string
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295698
+public void test1459() {
+	this.runConformTest(
+		new String[] {
+			"B.java",
+			"import java.util.Collection;\n" + 
+			"public class B extends X<Collection<?>> {\n" + 
+			"	public B(Collection<X<?>> c, I i) {\n" + 
+			"		super(c, i);\n" + 
+			"	}\n" + 
+			"}",
+			"I.java",
+			"public interface I<T>{}",
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public <V extends T> X(V v, I<T> i, Object... o) {}\n" + 
+			"}"
+		},
+		""); // no specific success output string
 }
 }
