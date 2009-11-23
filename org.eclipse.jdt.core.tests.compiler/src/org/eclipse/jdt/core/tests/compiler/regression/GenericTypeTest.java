@@ -49605,4 +49605,24 @@ public void test1453() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295698
+public void test1459() {
+	this.runConformTest(
+		new String[] {
+			"B.java",
+			"import java.util.Collection;\n" + 
+			"public class B extends X<Collection<?>> {\n" + 
+			"	public B(Collection<X<?>> c, I i) {\n" + 
+			"		super(c, i);\n" + 
+			"	}\n" + 
+			"}",
+			"I.java",
+			"public interface I<T>{}",
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public <V extends T> X(V v, I<T> i, Object... o) {}\n" + 
+			"}"
+		},
+		""); // no specific success output string
+}
 }
