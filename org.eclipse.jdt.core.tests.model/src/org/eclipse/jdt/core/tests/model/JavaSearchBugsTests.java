@@ -10962,7 +10962,7 @@ public void testBug286379c() throws CoreException {
 			"public class Xtorem {\n" +
 			"}"
 		);
-		
+
 		// Wait to be sure that indexes are ready after the resource creation
 		waitUntilIndexesReady();
 
@@ -10987,6 +10987,9 @@ public void testBug286379c() throws CoreException {
 			}
 			assertTrue("We should have got a resource event within a 10s delay!", counter++ < 100);
 		}
+
+		// Wait to be sure that indexes are ready after the new resource was added
+		waitUntilIndexesReady();
 
 		// Search for the new type with new extension
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
