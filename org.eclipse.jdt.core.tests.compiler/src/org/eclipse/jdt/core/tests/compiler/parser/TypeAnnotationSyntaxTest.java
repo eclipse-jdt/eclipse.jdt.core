@@ -64,9 +64,9 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
 
-	static { 
+	static {
 //		TESTS_NAMES = new String [] {"test0020"};
-//		TESTS_NUMBERS = new int[] { 22 };
+//		TESTS_NUMBERS = new int[] { 23 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationSyntaxTest.class;
@@ -1779,6 +1779,25 @@ public void test0022()  {
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test0022", expectedUnitToString);
+}
+//check locations
+public void test0023()  {
+	String source = 
+		"public class X {\n" + 
+		"	@H String @E[] @F[] @G[] field;\n" + 
+		"	@A Map<@B String, @C List<@D Object>> field2;\n" + 
+		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @H String @E [] @F [] @G [] field;\n" + 
+		"  @A Map<@B String, @C List<@D Object>> field2;\n" + 
+		"  @A Map<@B String, @E String @H [] @F [] @G []> field3;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(source.toCharArray(), null, "test0023", expectedUnitToString);
 }
 public void acceptImport(int declarationStart, int declarationEnd,
 		int[] javaDocPositions, char[] name, int nameStartPosition,

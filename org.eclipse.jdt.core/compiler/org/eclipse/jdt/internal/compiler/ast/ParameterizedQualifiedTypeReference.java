@@ -140,6 +140,14 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 		}
 		this.bits |= ASTNode.DidResolve;
+		if (this.annotations != null) {
+			switch(scope.kind) {
+				case Scope.BLOCK_SCOPE :
+				case Scope.METHOD_SCOPE :
+					resolveAnnotations((BlockScope) scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
+					break;
+			}
+		}
 		boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 		Binding binding = scope.getPackage(this.tokens);
 		if (binding != null && !binding.isValidBinding()) {
@@ -172,18 +180,18 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				reportInvalidType(scope);
 				// be resilient, still attempt resolving arguments
 				for (int j = i; j < max; j++) {
-				    TypeReference[] args = this.typeArguments[j];
-				    if (args != null) {
+					TypeReference[] args = this.typeArguments[j];
+					if (args != null) {
 						int argLength = args.length;
 						for (int k = 0; k < argLength; k++) {
-						    TypeReference typeArgument = args[k];
-						    if (isClassScope) {
-						    	typeArgument.resolveType((ClassScope) scope);
-						    } else {
-						    	typeArgument.resolveType((BlockScope) scope);
-						    }
+							TypeReference typeArgument = args[k];
+							if (isClassScope) {
+								typeArgument.resolveType((ClassScope) scope);
+							} else {
+								typeArgument.resolveType((BlockScope) scope);
+							}
 						}
-				    }
+					}
 				}
 				return null;
 			}
@@ -208,20 +216,20 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 
 			// check generic and arity
-		    TypeReference[] args = this.typeArguments[i];
-		    if (args != null) {
-			    TypeReference keep = null;
-			    if (isClassScope) {
-			    	keep = ((ClassScope) scope).superTypeReference;
-			    	((ClassScope) scope).superTypeReference = null;
-			    }
+			TypeReference[] args = this.typeArguments[i];
+			if (args != null) {
+				TypeReference keep = null;
+				if (isClassScope) {
+					keep = ((ClassScope) scope).superTypeReference;
+					((ClassScope) scope).superTypeReference = null;
+				}
 				int argLength = args.length;
 				TypeBinding[] argTypes = new TypeBinding[argLength];
 				boolean argHasError = false;
 				ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();
 				for (int j = 0; j < argLength; j++) {
-				    TypeReference arg = args[j];
-				    TypeBinding argType = isClassScope
+					TypeReference arg = args[j];
+					TypeBinding argType = isClassScope
 						? arg.resolveTypeArgument((ClassScope) scope, currentOriginal, j)
 						: arg.resolveTypeArgument((BlockScope) scope, currentOriginal, j);
 					if (argType == null) {
@@ -239,7 +247,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						return null;
 				}
 
-			    TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
+				TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 				if (typeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
 					if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // below 1.5, already reported as syntax error
 						scope.problemReporter().nonGenericTypeCannotBeParameterized(i, this, currentType, argTypes);
@@ -274,17 +282,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				else
 					scope.deferBoundCheck(this);
 				qualifyingType = parameterizedType;
-		    } else {
+			} else {
 				ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();
 				if (isClassScope)
 					if (((ClassScope) scope).detectHierarchyCycle(currentOriginal, this))
 						return null;
 				if (currentOriginal.isGenericType()) {
-	   			    if (typeIsConsistent && qualifyingType != null && qualifyingType.isParameterizedType()) {
+					if (typeIsConsistent && qualifyingType != null && qualifyingType.isParameterizedType()) {
 						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.environment().createParameterizedType(currentOriginal, null, qualifyingType), i);
 						typeIsConsistent = false;
 					}
-	   			    qualifyingType = scope.environment().createRawType(currentOriginal, qualifyingType); // raw type
+					qualifyingType = scope.environment().createRawType(currentOriginal, qualifyingType); // raw type
 				} else {
 					qualifyingType = (qualifyingType != null && qualifyingType.isParameterizedType())
 													? scope.environment().createParameterizedType(currentOriginal, null, qualifyingType)

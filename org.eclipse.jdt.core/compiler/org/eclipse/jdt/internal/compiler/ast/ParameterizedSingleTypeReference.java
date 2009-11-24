@@ -116,9 +116,17 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				}
 			}
 		}
+		this.bits |= ASTNode.DidResolve;
+		if (this.annotations != null) {
+			switch(scope.kind) {
+				case Scope.BLOCK_SCOPE :
+				case Scope.METHOD_SCOPE :
+					resolveAnnotations((BlockScope) scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
+					break;
+			}
+		}
 		boolean hasGenericError = false;
 		ReferenceBinding currentType;
-		this.bits |= ASTNode.DidResolve;
 		if (enclosingType == null) {
 			this.resolvedType = scope.getType(this.token);
 			if (this.resolvedType.isValidBinding()) {
@@ -174,32 +182,32 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 
 		// check generic and arity
-	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
-	    TypeReference keep = null;
-	    if (isClassScope) {
-	    	keep = ((ClassScope) scope).superTypeReference;
-	    	((ClassScope) scope).superTypeReference = null;
-	    }
+		boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
+		TypeReference keep = null;
+		if (isClassScope) {
+			keep = ((ClassScope) scope).superTypeReference;
+			((ClassScope) scope).superTypeReference = null;
+		}
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		boolean argHasError = false;
 		ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();
 		for (int i = 0; i < argLength; i++) {
-		    TypeReference typeArgument = this.typeArguments[i];
-		    TypeBinding argType = isClassScope
-				? typeArgument.resolveTypeArgument((ClassScope) scope, currentOriginal, i)
-				: typeArgument.resolveTypeArgument((BlockScope) scope, currentOriginal, i);
-		     if (argType == null) {
-		         argHasError = true;
-		     } else {
-			    argTypes[i] = argType;
-		     }
+			TypeReference typeArgument = this.typeArguments[i];
+			TypeBinding argType = isClassScope
+					? typeArgument.resolveTypeArgument((ClassScope) scope, currentOriginal, i)
+					: typeArgument.resolveTypeArgument((BlockScope) scope, currentOriginal, i);
+			if (argType == null) {
+				argHasError = true;
+			} else {
+				argTypes[i] = argType;
+			}
 		}
 		if (argHasError) {
 			return null;
 		}
 		if (isClassScope) {
-	    	((ClassScope) scope).superTypeReference = keep;
+			((ClassScope) scope).superTypeReference = keep;
 			if (((ClassScope) scope).detectHierarchyCycle(currentOriginal, this))
 				return null;
 		}
@@ -240,7 +248,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 		}
 
-    	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentOriginal, argTypes, enclosingType);
+		ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentOriginal, argTypes, enclosingType);
 		// check argument type compatibility
 		if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 			parameterizedType.boundCheck(scope, this.typeArguments);

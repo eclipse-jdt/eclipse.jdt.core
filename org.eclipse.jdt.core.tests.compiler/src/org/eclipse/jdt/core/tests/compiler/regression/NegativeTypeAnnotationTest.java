@@ -15,7 +15,7 @@ import junit.framework.Test;
 public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 
-//		TESTS_NUMBERS = new int [] { 21, 22 };
+//		TESTS_NUMBERS = new int [] { 34 };
 	}
 	public static Class testClass() {
 		return NegativeTypeAnnotationTest.class;
@@ -801,5 +801,90 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"	                       ^^^^^^^\n" + 
 				"The annotation @Marker is disallowed for this location\n" + 
 				"----------\n");
+	}
+	// check locations
+	public void test034() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Map;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" + 
+				"	@H String @E[] @F[] @G[] field;\n" + 
+				"	@A Map<@B String, @C List<@D Object>> field2;\n" + 
+				"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+				"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	@H String @E[] @F[] @G[] field;\n" + 
+		"	 ^\n" + 
+		"H cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	@H String @E[] @F[] @G[] field;\n" + 
+		"	           ^\n" + 
+		"E cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	@H String @E[] @F[] @G[] field;\n" + 
+		"	                ^\n" + 
+		"F cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	@H String @E[] @F[] @G[] field;\n" + 
+		"	                     ^\n" + 
+		"G cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 5)\n" + 
+		"	@A Map<@B String, @C List<@D Object>> field2;\n" + 
+		"	 ^\n" + 
+		"A cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 5)\n" + 
+		"	@A Map<@B String, @C List<@D Object>> field2;\n" + 
+		"	        ^\n" + 
+		"B cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 5)\n" + 
+		"	@A Map<@B String, @C List<@D Object>> field2;\n" + 
+		"	                   ^\n" + 
+		"C cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 5)\n" + 
+		"	@A Map<@B String, @C List<@D Object>> field2;\n" + 
+		"	                           ^\n" + 
+		"D cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 6)\n" + 
+		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+		"	 ^\n" + 
+		"A cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 6)\n" + 
+		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+		"	        ^\n" + 
+		"B cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"11. ERROR in X.java (at line 6)\n" + 
+		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+		"	                   ^\n" + 
+		"H cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 6)\n" + 
+		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+		"	                             ^\n" + 
+		"E cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 6)\n" + 
+		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+		"	                                  ^\n" + 
+		"F cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"14. ERROR in X.java (at line 6)\n" + 
+		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+		"	                                       ^\n" + 
+		"G cannot be resolved to a type\n" + 
+		"----------\n");
 	}
 }
