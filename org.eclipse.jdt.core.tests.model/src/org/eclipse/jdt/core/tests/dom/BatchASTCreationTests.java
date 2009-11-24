@@ -2208,4 +2208,79 @@ public void test082() throws CoreException, IOException {
 			},
 			"LA~B<LC;:1TV;LC;:1TE;>;");
 	}
+	
+	public void testIgnoreMethodBodies1() throws CoreException {
+		this.workingCopies = createWorkingCopies(new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  public int foo() {\n" +
+				"    int i = 0;\n" + 
+				"  }\n" +
+				"  public int bar() {\n" +
+				"    int i = 0;\n" + 
+				"    new X() /*start*/{\n" +
+				"    }/*end*/;" +
+				"  }\n" +
+				"}",
+			});
+			TestASTRequestor requestor = new TestASTRequestor();
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.ignoreMethodBodies();
+			parser.createASTs(this.workingCopies, new String[] {}, requestor, null);
+			// statement declaring i should not be in the AST
+			assertASTNodesEqual(
+					"package p1;\n" +
+					"public class X {\n" +
+					"  public int foo(){\n" +
+					"  }\n" +
+					"  public int bar(){\n" +
+					"    int i=0;\n" + 
+					"    new X(){\n" +
+					"    }\n" +
+					";\n" +
+					"  }\n" +
+					"}\n" +
+					"\n",
+					requestor.asts
+				);
+	}
+	public void testIgnoreMethodBodies2() throws CoreException {
+		this.workingCopies = createWorkingCopies(new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  public int foo() {\n" +
+				"    int i = 0;\n" + 
+				"  }\n" +
+				"  public int bar() {\n" +
+				"    int i = 0;\n" + 
+				"    new X() /*start*/{\n" +
+				"    }/*end*/;" +
+				"  }\n" +
+				"}",
+			});
+			TestASTRequestor requestor = new TestASTRequestor();
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.ignoreMethodBodies();
+			parser.setResolveBindings(true);
+			parser.setProject(getJavaProject("P"));
+			parser.createASTs(this.workingCopies, new String[] {}, requestor, null);
+			// statement declaring i should not be in the AST
+			assertASTNodesEqual(
+					"package p1;\n" +
+					"public class X {\n" +
+					"  public int foo(){\n" +
+					"  }\n" +
+					"  public int bar(){\n" +
+					"    int i=0;\n" + 
+					"    new X(){\n" +
+					"    }\n" +
+					";\n" +
+					"  }\n" +
+					"}\n" +
+					"\n",
+					requestor.asts
+				);
+	}
 }

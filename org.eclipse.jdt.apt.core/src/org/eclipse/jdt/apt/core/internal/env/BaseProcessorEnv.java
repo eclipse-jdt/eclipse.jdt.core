@@ -853,6 +853,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		p.setBindingsRecovery(true);
 		p.setProject( javaProject );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
+		p.ignoreMethodBodies();
 		p.createASTs( parseUnits, keys,  requestor, null);
 	}
 	

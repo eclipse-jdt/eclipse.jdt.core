@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -157,12 +157,21 @@ public class CompilationUnitProblemFinder extends Compiler {
 		try {
 			environment = new CancelableNameEnvironment(project, workingCopyOwner, monitor);
 			problemFactory = new CancelableProblemFactory(monitor);
+			CompilerOptions compilerOptions = getCompilerOptions(project.getOptions(true), creatingAST, ((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0));
+			boolean ignoreMethodBodies = (reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
+			compilerOptions.ignoreMethodBodies = ignoreMethodBodies;
 			problemFinder = new CompilationUnitProblemFinder(
 				environment,
 				getHandlingPolicy(),
-				getCompilerOptions(project.getOptions(true), creatingAST, ((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0)),
+				compilerOptions,
 				getRequestor(),
 				problemFactory);
+			boolean analyzeCode = true;
+			boolean generateCode = true;
+			if (ignoreMethodBodies) {
+				analyzeCode = false;
+				generateCode = false;
+			}
 			CompilationUnitDeclaration unit = null;
 			if (parser != null) {
 				problemFinder.parser = parser;
@@ -172,8 +181,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 						unit,
 						unitElement,
 						true, // verify methods
-						true, // analyze code
-						true); // generate code
+						analyzeCode, // analyze code
+						generateCode); // generate code
 				} catch (AbortCompilation e) {
 					problemFinder.handleInternalException(e, unit);
 				}
@@ -182,8 +191,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 					problemFinder.resolve(
 						unitElement,
 						true, // verify methods
-						true, // analyze code
-						true); // generate code
+						analyzeCode, // analyze code
+						generateCode); // generate code
 			}
 			CompilationResult unitResult = unit.compilationResult;
 			CategorizedProblem[] unitProblems = unitResult.getProblems();

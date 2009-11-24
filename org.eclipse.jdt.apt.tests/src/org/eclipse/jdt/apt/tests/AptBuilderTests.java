@@ -371,8 +371,8 @@ public class AptBuilderTests extends APTTestBase
 		// parse the source, parsing runs through the compiler, and this registers the 
 		// file a second time with the Compiler#DebugRequestor 
 		//
-		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.C", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.C", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.C", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.C", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//
 		// now make sure that p1.p2.p3.p4.C is not compiled when A uses NoOp Annotation
@@ -448,14 +448,14 @@ public class AptBuilderTests extends APTTestBase
 		
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		expectingCompiledClasses(new String[] {"p1.A", "p1.A", "generatedfilepackage.GeneratedFileTest"}); //$NON-NLS-1 //$NON_NLS-2$
+		expectingCompiledClasses(new String[] {"p1.A", "generatedfilepackage.GeneratedFileTest"}); //$NON-NLS-1 //$NON_NLS-2$
 		
 		// touch A - make sure its public shape changes.
 		env.addClass( srcRoot, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			modifiedCode );
 		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
-		expectingCompiledClasses(new String[]{"p1.A", "p1.A"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		expectingCompiledClasses(new String[]{"p1.A"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	/**

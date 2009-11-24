@@ -145,10 +145,12 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		// disable task tags checking to speed up parsing
 		options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
 	}
+	CompilerOptions compilerOptions = new CompilerOptions(options);
+	compilerOptions.ignoreMethodBodies = (reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
 	SourceElementParser parser = new SourceElementParser(
 		requestor,
 		problemFactory,
-		new CompilerOptions(options),
+		compilerOptions,
 		true/*report local declarations*/,
 		!createAST /*optimize string literals only if not creating a DOM AST*/);
 	parser.reportOnlyOneSyntaxError = !computeProblems;

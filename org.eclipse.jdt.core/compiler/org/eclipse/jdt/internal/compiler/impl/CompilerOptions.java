@@ -333,7 +333,7 @@ public class CompilerOptions {
 	public boolean reportMissingOverrideAnnotationForInterfaceMethodImplementation;
 	/** Indicate if annotation processing generates classfiles */
 	public boolean generateClassFiles;
-
+	public boolean ignoreMethodBodies;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -1028,7 +1028,9 @@ public class CompilerOptions {
 		
 		// dead code detection
 		this.reportDeadCodeInTrivialIfStatement = false;
-
+		
+		// ignore method bodies
+		this.ignoreMethodBodies = false;
 	}
 
 	public void set(Map optionsMap) {

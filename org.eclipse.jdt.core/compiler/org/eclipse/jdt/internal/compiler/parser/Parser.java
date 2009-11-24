@@ -9450,35 +9450,40 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, bo
 	int length;
 	if (this.astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		this.astPtr -= length;
-		if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall)
-			//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
-			{
-			System.arraycopy(
-				this.astStack,
-				this.astPtr + 2,
-				cd.statements = new Statement[length - 1],
-				0,
-				length - 1);
-			cd.constructorCall = (ExplicitConstructorCall) this.astStack[this.astPtr + 1];
-		} else { //need to add explicitly the super();
-			System.arraycopy(
-				this.astStack,
-				this.astPtr + 1,
-				cd.statements = new Statement[length],
-				0,
-				length);
-			cd.constructorCall = SuperReference.implicitSuperConstructorCall();
+		if ((cd.bits & ASTNode.HasLocalType) != 0 || !this.options.ignoreMethodBodies) {
+			if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall)
+				//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
+				{
+				System.arraycopy(
+					this.astStack,
+					this.astPtr + 2,
+					cd.statements = new Statement[length - 1],
+					0,
+					length - 1);
+				cd.constructorCall = (ExplicitConstructorCall) this.astStack[this.astPtr + 1];
+			} else { //need to add explicitly the super();
+				System.arraycopy(
+					this.astStack,
+					this.astPtr + 1,
+					cd.statements = new Statement[length],
+					0,
+					length);
+				cd.constructorCall = SuperReference.implicitSuperConstructorCall();
+			}
 		}
 	} else {
-		cd.constructorCall = SuperReference.implicitSuperConstructorCall();
+		if (!this.options.ignoreMethodBodies) {
+			cd.constructorCall = SuperReference.implicitSuperConstructorCall();
+		}
 		if (!containsComment(cd.bodyStart, cd.bodyEnd)) {
 			cd.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 	}
 
-	if (cd.constructorCall.sourceEnd == 0) {
-		cd.constructorCall.sourceEnd = cd.sourceEnd;
-		cd.constructorCall.sourceStart = cd.sourceStart;
+	ExplicitConstructorCall explicitConstructorCall = cd.constructorCall;
+	if (explicitConstructorCall != null && explicitConstructorCall.sourceEnd == 0) {
+		explicitConstructorCall.sourceEnd = cd.sourceEnd;
+		explicitConstructorCall.sourceStart = cd.sourceStart;
 	}
 }
 // A P I
@@ -9691,12 +9696,17 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 	md.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
 	int length;
 	if (this.astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		System.arraycopy(
-			this.astStack,
-			(this.astPtr -= length) + 1,
-			md.statements = new Statement[length],
-			0,
-			length);
+		if ((md.bits & ASTNode.HasLocalType) == 0 && this.options.ignoreMethodBodies) {
+			// ignore statements
+			this.astPtr -= length;
+		} else {
+			System.arraycopy(
+				this.astStack,
+				(this.astPtr -= length) + 1,
+				md.statements = new Statement[length],
+				0,
+				length);
+		}
 	} else {
 		if (!containsComment(md.bodyStart, md.bodyEnd)) {
 			md.bits |= ASTNode.UndocumentedEmptyBlock;
