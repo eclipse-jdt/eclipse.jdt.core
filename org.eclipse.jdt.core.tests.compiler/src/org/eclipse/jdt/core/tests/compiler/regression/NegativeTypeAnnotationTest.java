@@ -15,7 +15,7 @@ import junit.framework.Test;
 public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 
-//		TESTS_NUMBERS = new int [] { 34 };
+//		TESTS_NUMBERS = new int [] { 35 };
 	}
 	public static Class testClass() {
 		return NegativeTypeAnnotationTest.class;
@@ -884,6 +884,39 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"14. ERROR in X.java (at line 6)\n" + 
 		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
 		"	                                       ^\n" + 
+		"G cannot be resolved to a type\n" + 
+		"----------\n");
+	}
+	// check locations
+	public void test035() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Map;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" + 
+				"	@H java.lang.String @E[] @F[] @G[] field;\n" + 
+				"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	@H java.lang.String @E[] @F[] @G[] field;\n" + 
+		"	 ^\n" + 
+		"H cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	@H java.lang.String @E[] @F[] @G[] field;\n" + 
+		"	                     ^\n" + 
+		"E cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	@H java.lang.String @E[] @F[] @G[] field;\n" + 
+		"	                          ^\n" + 
+		"F cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	@H java.lang.String @E[] @F[] @G[] field;\n" + 
+		"	                               ^\n" + 
 		"G cannot be resolved to a type\n" + 
 		"----------\n");
 	}

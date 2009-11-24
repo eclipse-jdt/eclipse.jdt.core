@@ -378,6 +378,20 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+			if (this.annotationsOnDimensions != null) {
+				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
+					Annotation[] annotations2 = this.annotationsOnDimensions[i];
+					for (int j = 0, max2 = annotations2.length; j < max2; j++) {
+						Annotation annotation = annotations2[j];
+						annotation.traverse(visitor, scope);
+					}
+				}
+			}
 			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
 				if (this.typeArguments[i] != null) {
 					for (int j = 0, max2 = this.typeArguments[i].length; j < max2; j++) {
@@ -391,6 +405,20 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+			if (this.annotationsOnDimensions != null) {
+				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
+					Annotation[] annotations2 = this.annotationsOnDimensions[i];
+					for (int j = 0, max2 = annotations2.length; j < max2; j++) {
+						Annotation annotation = annotations2[j];
+						annotation.traverse(visitor, scope);
+					}
+				}
+			}
 			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
 				if (this.typeArguments[i] != null) {
 					for (int j = 0, max2 = this.typeArguments[i].length; j < max2; j++) {

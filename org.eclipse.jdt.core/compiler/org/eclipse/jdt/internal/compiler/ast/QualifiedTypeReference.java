@@ -139,14 +139,24 @@ public class QualifiedTypeReference extends TypeReference {
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-
-		visitor.visit(this, scope);
+		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+		}
 		visitor.endVisit(this, scope);
 	}
 
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
-
-		visitor.visit(this, scope);
+		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+		}
 		visitor.endVisit(this, scope);
 	}
 }

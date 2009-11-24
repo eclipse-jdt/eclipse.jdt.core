@@ -123,14 +123,42 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-
-		visitor.visit(this, scope);
+		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+			if (this.annotationsOnDimensions != null) {
+				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
+					Annotation[] annotations2 = this.annotationsOnDimensions[i];
+					for (int j = 0, max2 = annotations2.length; j < max2; j++) {
+						Annotation annotation = annotations2[j];
+						annotation.traverse(visitor, scope);
+					}
+				}
+			}
+		}
 		visitor.endVisit(this, scope);
 	}
 
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
-
-		visitor.visit(this, scope);
+		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+			if (this.annotationsOnDimensions != null) {
+				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
+					Annotation[] annotations2 = this.annotationsOnDimensions[i];
+					for (int j = 0, max2 = annotations2.length; j < max2; j++) {
+						Annotation annotation = annotations2[j];
+						annotation.traverse(visitor, scope);
+					}
+				}
+			}
+		}
 		visitor.endVisit(this, scope);
 	}
 
