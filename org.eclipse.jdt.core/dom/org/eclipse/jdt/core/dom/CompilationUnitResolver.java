@@ -340,6 +340,7 @@ class CompilationUnitResolver extends Compiler {
 	public static void parse(ICompilationUnit[] compilationUnits, ASTRequestor astRequestor, int apiLevel, Map options, int flags, IProgressMonitor monitor) {
 		try {
 			CompilerOptions compilerOptions = new CompilerOptions(options);
+			compilerOptions.ignoreMethodBodies = (flags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
 			Parser parser = new CommentRecorderParser(
 				new ProblemReporter(
 						DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -363,8 +364,9 @@ class CompilationUnitResolver extends Compiler {
 				//real parse of the method....
 				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 				if (types != null) {
-					for (int j = 0, typeLength = types.length; j < typeLength; j++)
+					for (int j = 0, typeLength = types.length; j < typeLength; j++) {
 						types[j].parseMethods(parser, compilationUnitDeclaration);
+					}
 				}
 
 				// convert AST
@@ -393,6 +395,7 @@ class CompilationUnitResolver extends Compiler {
 		boolean statementsRecovery = (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0;
 		compilerOptions.performMethodsFullRecovery = statementsRecovery;
 		compilerOptions.performStatementsRecovery = statementsRecovery;
+		compilerOptions.ignoreMethodBodies = (flags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
 		Parser parser = new CommentRecorderParser(
 			new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -435,13 +438,14 @@ class CompilationUnitResolver extends Compiler {
 				}
 			}
 		} else {
-			//fill the methods bodies in order for the code to be generated
-			//real parse of the method....
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
-			if (types != null) {
-				for (int i = 0, length = types.length; i < length; i++)
-					types[i].parseMethods(parser, compilationUnitDeclaration);
-			}
+				//fill the methods bodies in order for the code to be generated
+				//real parse of the method....			
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
+				if (types != null) {
+					for (int j = 0, typeLength = types.length; j < typeLength; j++) {
+						types[j].parseMethods(parser, compilationUnitDeclaration);
+					}
+				}
 		}
 		return compilationUnitDeclaration;
 	}
@@ -466,15 +470,16 @@ class CompilationUnitResolver extends Compiler {
 			}
 			environment = new CancelableNameEnvironment(((JavaProject) javaProject), owner, monitor);
 			problemFactory = new CancelableProblemFactory(monitor);
+			CompilerOptions compilerOptions = getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
+			compilerOptions.ignoreMethodBodies = (flags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
 			CompilationUnitResolver resolver =
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
-					getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0),
+					compilerOptions,
 					getRequestor(),
 					problemFactory,
 					monitor);
-
 			resolver.resolve(compilationUnits, bindingKeys, requestor, apiLevel, options, owner, flags);
 			if (NameLookup.VERBOSE) {
 				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
@@ -509,23 +514,31 @@ class CompilationUnitResolver extends Compiler {
 		try {
 			environment = new CancelableNameEnvironment(((JavaProject)javaProject), owner, monitor);
 			problemFactory = new CancelableProblemFactory(monitor);
+			CompilerOptions compilerOptions = getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
+			boolean ignoreMethodBodies = (flags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
+			compilerOptions.ignoreMethodBodies = ignoreMethodBodies;
 			resolver =
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
-					getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0),
+					compilerOptions,
 					getRequestor(),
 					problemFactory,
 					monitor);
-
+			boolean analyzeCode = true;
+			boolean generateCode = true;
+			if (ignoreMethodBodies) {
+				analyzeCode = false;
+				generateCode = false;
+			}
 			unit =
 				resolver.resolve(
 					null, // no existing compilation unit declaration
 					sourceUnit,
 					nodeSearcher,
 					true, // method verification
-					true, // analyze code
-					true); // generate code
+					analyzeCode, // analyze code
+					generateCode); // generate code
 			if (resolver.hasCompilationAborted) {
 				// the bindings could not be resolved due to missing types in name environment
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=86541
