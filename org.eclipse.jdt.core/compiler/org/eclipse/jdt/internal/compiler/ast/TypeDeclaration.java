@@ -393,8 +393,9 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 	}
 
 	//============BINDING UPDATE==========================
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=277643, align with javac on JLS 15.12.2.6
 	ReferenceBinding[] thrownExceptions = eraseThrownExceptions
-			? this.scope.environment().convertToRawTypes(inheritedConstructorBinding.original().thrownExceptions, true, true)
+			? this.scope.environment().convertToRawTypes(inheritedConstructorBinding.thrownExceptions, true, true)
 			: inheritedConstructorBinding.thrownExceptions;
 
 	SourceTypeBinding sourceType = this.binding;
