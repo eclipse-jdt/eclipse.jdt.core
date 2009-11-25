@@ -14009,7 +14009,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 16)\n" + 
 			"	return m_manager.getById(getClass(), new Integer(1));\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type ITest needs unchecked conversion to conform to ITest<C>\n" + 
+			"Type safety: The expression of type Test needs unchecked conversion to conform to ITest<C>\n" + 
 			"----------\n");
 	}
 
@@ -32985,17 +32985,12 @@ public void test1008() {
 		"	      ^^^^^^^^^\n" + 
 		"Type safety: Unchecked invocation bar(L, C<capture#1-of ? extends X>) of the generic method bar(L<T>, C<? extends T>) of type X\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 3)\n" + 
-		"	X x = bar(l, c);\n" + 
-		"	      ^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Object to X\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 3)\n" + 
+		"3. WARNING in X.java (at line 3)\n" + 
 		"	X x = bar(l, c);\n" + 
 		"	          ^\n" + 
 		"Type safety: The expression of type L needs unchecked conversion to conform to L<X>\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 6)\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
 		"	return zork;\n" + 
 		"	       ^^^^\n" + 
 		"zork cannot be resolved to a variable\n" + 
@@ -33142,47 +33137,42 @@ public void test1012() {
 		"	      ^^^^^^^^^^\n" + 
 		"Type safety: Unchecked invocation bar1(L, C<X>) of the generic method bar1(L<T>, C<T>) of type X\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 3)\n" + 
-		"	X x = bar1(l, c);\n" + 
-		"	      ^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Object to X\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 3)\n" + 
+		"3. WARNING in X.java (at line 3)\n" + 
 		"	X x = bar1(l, c);\n" + 
 		"	           ^\n" + 
 		"Type safety: The expression of type L needs unchecked conversion to conform to L<X>\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 4)\n" + 
+		"4. WARNING in X.java (at line 4)\n" + 
 		"	L<X> lx = bar2(l, c);\n" + 
 		"	          ^^^^^^^^^^\n" + 
 		"Type safety: Unchecked invocation bar2(L, C<X>) of the generic method bar2(L<T>, C<T>) of type X\n" + 
 		"----------\n" + 
-		"6. WARNING in X.java (at line 4)\n" + 
+		"5. WARNING in X.java (at line 4)\n" + 
 		"	L<X> lx = bar2(l, c);\n" + 
 		"	          ^^^^^^^^^^\n" + 
 		"Type safety: The expression of type L needs unchecked conversion to conform to L<X>\n" + 
 		"----------\n" + 
-		"7. WARNING in X.java (at line 4)\n" + 
+		"6. WARNING in X.java (at line 4)\n" + 
 		"	L<X> lx = bar2(l, c);\n" + 
 		"	               ^\n" + 
 		"Type safety: The expression of type L needs unchecked conversion to conform to L<X>\n" + 
 		"----------\n" + 
-		"8. WARNING in X.java (at line 5)\n" + 
+		"7. WARNING in X.java (at line 5)\n" + 
 		"	C<X> cx = bar3(l, c);\n" + 
 		"	          ^^^^^^^^^^\n" + 
 		"Type safety: Unchecked invocation bar3(L, C<X>) of the generic method bar3(L<T>, C<T>) of type X\n" + 
 		"----------\n" + 
-		"9. WARNING in X.java (at line 5)\n" + 
+		"8. WARNING in X.java (at line 5)\n" + 
 		"	C<X> cx = bar3(l, c);\n" + 
 		"	          ^^^^^^^^^^\n" + 
 		"Type safety: The expression of type C needs unchecked conversion to conform to C<X>\n" + 
 		"----------\n" + 
-		"10. WARNING in X.java (at line 5)\n" + 
+		"9. WARNING in X.java (at line 5)\n" + 
 		"	C<X> cx = bar3(l, c);\n" + 
 		"	               ^\n" + 
 		"Type safety: The expression of type L needs unchecked conversion to conform to L<X>\n" + 
 		"----------\n" + 
-		"11. ERROR in X.java (at line 14)\n" + 
+		"10. ERROR in X.java (at line 14)\n" + 
 		"	return zork;\n" + 
 		"	       ^^^^\n" + 
 		"zork cannot be resolved to a variable\n" + 
@@ -33205,7 +33195,7 @@ public void test1013() {
 			"		new X().foo(ls, lx);\n" +
 			"	}\n" +
 			"	void done() {\n" +
-			"		System.out.println(\"[done]\");\n" +
+			"		System.out.println(zork);\n" +
 			"	}\n" +
 			"	void foo(List l1, List<X> l2) {\n" +
 			"		X x = bar1(l1, l2);\n" +
@@ -33222,20 +33212,20 @@ public void test1013() {
 			"}\n", // =================
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 14)\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	System.out.println(zork);\n" + 
+		"	                   ^^^^\n" + 
+		"zork cannot be resolved to a variable\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 14)\n" + 
 		"	void foo(List l1, List<X> l2) {\n" + 
 		"	         ^^^^\n" + 
 		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 15)\n" + 
+		"3. WARNING in X.java (at line 15)\n" + 
 		"	X x = bar1(l1, l2);\n" + 
 		"	      ^^^^^^^^^^^^\n" + 
 		"Type safety: Unchecked invocation bar1(List, List<X>) of the generic method bar1(List<T>, List<T>) of type X\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 15)\n" + 
-		"	X x = bar1(l1, l2);\n" + 
-		"	      ^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Object to X\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 15)\n" + 
 		"	X x = bar1(l1, l2);\n" + 
@@ -45130,7 +45120,7 @@ public void test1323() {
 			"4. ERROR in X.java (at line 5)\n" + 
 			"	String s = x.doStuff2(Bob2.class, new Thingy());\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Bob to String\n" + 
+			"Type mismatch: cannot convert from Bob2 to String\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 5)\n" + 
 			"	String s = x.doStuff2(Bob2.class, new Thingy());\n" + 
@@ -45210,10 +45200,10 @@ public void test1325() {
 			"	                ^^^^^^\n" + 
 			"Type safety: Unchecked invocation foo(X) of the generic method foo(X<T>) of type X<E>\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 6)\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
 			"	X<String> xs2 = foo(x);\n" + 
 			"	                ^^^^^^\n" + 
-			"Type mismatch: cannot convert from Object to X<String>\n" + 
+			"Type safety: The expression of type X needs unchecked conversion to conform to X<String>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 6)\n" + 
 			"	X<String> xs2 = foo(x);\n" + 
@@ -48117,18 +48107,13 @@ public void test1406() {
 			"	Set testList = GenericTest.method1(new Class[] { ArrayList.class });\n" + 
 			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation method1(Class[]) of the generic method method1(Class<List>[]) of type GenericTest\n" + 
-			"----------\n" + 
-			"3. ERROR in GenericTest.java (at line 5)\n" + 
-			"	Set testList = GenericTest.method1(new Class[] { ArrayList.class });\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Object to Set\n" + 
-			"----------\n" + 
-			"4. WARNING in GenericTest.java (at line 5)\n" + 
+			"----------\n" +
+			"3. WARNING in GenericTest.java (at line 5)\n" + 
 			"	Set testList = GenericTest.method1(new Class[] { ArrayList.class });\n" + 
 			"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Class[] needs unchecked conversion to conform to Class<List>[]\n" + 
 			"----------\n" + 
-			"5. WARNING in GenericTest.java (at line 8)\n" + 
+			"4. WARNING in GenericTest.java (at line 8)\n" + 
 			"	public static <I> I method1(Class<List>[] params) {\n" + 
 			"	                                  ^^^^\n" + 
 			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
@@ -48151,17 +48136,12 @@ public void test1407() {
 			"	         ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation m1(Class) of the generic method m1(Class<Foo>) of type Foo\n" + 
 			"----------\n" + 
-			"2. ERROR in Foo.java (at line 4)\n" + 
-			"	Foo l1 = m1((Class)Foo.class);\n" + 
-			"	         ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Object to Foo\n" + 
-			"----------\n" + 
-			"3. WARNING in Foo.java (at line 4)\n" + 
+			"2. WARNING in Foo.java (at line 4)\n" + 
 			"	Foo l1 = m1((Class)Foo.class);\n" + 
 			"	            ^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Foo>\n" + 
 			"----------\n" + 
-			"4. WARNING in Foo.java (at line 4)\n" + 
+			"3. WARNING in Foo.java (at line 4)\n" + 
 			"	Foo l1 = m1((Class)Foo.class);\n" + 
 			"	             ^^^^^\n" + 
 			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
@@ -48837,7 +48817,7 @@ public void test1429() {
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	Integer i = m(new Foo<Foo<Integer>>(), new Foo());\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Object to Integer\n" + 
+			"Type mismatch: cannot convert from Foo to Integer\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 4)\n" + 
 			"	Integer i = m(new Foo<Foo<Integer>>(), new Foo());\n" + 
@@ -49008,22 +48988,17 @@ public void test1434() {
 			"	         ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation m2(Class) of the generic method m2(Class<I>) of type Foo\n" + 
 			"----------\n" + 
-			"2. ERROR in Foo.java (at line 4)\n" + 
-			"	Foo l2 = m2((Class)Foo.class);\n" + 
-			"	         ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Object to Foo\n" + 
-			"----------\n" + 
-			"3. WARNING in Foo.java (at line 4)\n" + 
+			"2. WARNING in Foo.java (at line 4)\n" + 
 			"	Foo l2 = m2((Class)Foo.class);\n" + 
 			"	            ^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Foo>\n" + 
 			"----------\n" + 
-			"4. WARNING in Foo.java (at line 4)\n" + 
+			"3. WARNING in Foo.java (at line 4)\n" + 
 			"	Foo l2 = m2((Class)Foo.class);\n" + 
 			"	            ^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Class<Foo> to Class\n" + 
 			"----------\n" + 
-			"5. WARNING in Foo.java (at line 4)\n" + 
+			"4. WARNING in Foo.java (at line 4)\n" + 
 			"	Foo l2 = m2((Class)Foo.class);\n" + 
 			"	             ^^^^^\n" + 
 			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
@@ -49081,13 +49056,8 @@ public void test1436() {
 			"	foo(l, iae);\n" + 
 			"	^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation foo(List, IllegalArgumentException) of the generic method foo(List<U>, T) of type X\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 8)\n" + 
-			"	foo(l, iae);\n" + 
-			"	^^^^^^^^^^^\n" + 
-			"Unhandled exception type Throwable\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 8)\n" + 
+			"----------\n" +
+			"3. WARNING in X.java (at line 8)\n" + 
 			"	foo(l, iae);\n" + 
 			"	    ^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n" + 
@@ -49121,13 +49091,8 @@ public void test1437() {
 			"	new X(l, iae);\n" + 
 			"	^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation X(List, IllegalArgumentException) of the generic constructor X(List<U>, T) of type X\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 8)\n" + 
-			"	new X(l, iae);\n" + 
-			"	^^^^^^^^^^^^^\n" + 
-			"Unhandled exception type Throwable\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 8)\n" + 
+			"----------\n" +
+			"3. WARNING in X.java (at line 8)\n" + 
 			"	new X(l, iae);\n" + 
 			"	      ^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n" + 
@@ -49161,13 +49126,8 @@ public void test1438() {
 			"	new X(l, iae){};\n" + 
 			"	^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation X(List, IllegalArgumentException) of the generic constructor X(List<U>, T) of type X\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 8)\n" + 
-			"	new X(l, iae){};\n" + 
-			"	^^^^^^^^^^^^^^^\n" + 
-			"Unhandled exception type Throwable\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 8)\n" + 
+			"----------\n" +
+			"3. WARNING in X.java (at line 8)\n" + 
 			"	new X(l, iae){};\n" + 
 			"	      ^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n" + 
@@ -49944,7 +49904,7 @@ public void test1458() {
 			null,
 			null); // no specific success output string
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295698
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=295698
 public void test1459() {
 	this.runConformTest(
 		new String[] {
@@ -49963,5 +49923,163 @@ public void test1459() {
 			"}"
 		},
 		""); // no specific success output string
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=277643
+public void test277643() {
+	this.runNegativeTest(
+		new String[] {
+	    "Test.java",
+	    "public class Test {\n" +
+	    "public final void addShortDescription(Object object, StringBuffer buf) {\n" +
+	    "	try {\n" +
+	    "		W_Description wdescription = get(W_Description.class, object);\n" +
+	    "	} catch (Exception e) {\n" +
+	    "	}\n" +
+	    "}\n" +
+	    "public abstract class W_Description<WRAPPED> extends WrapperLogic<WRAPPED> {}\n" +
+	    "public <T, W extends WrapperLogic<? super T>> W get(Class<W> wrapperClass, T entity) {\n" +
+	    "	return getLogicFactory().get(wrapperClass, entity);\n" +
+	    "}\n" +
+	    "private LogicFactory logicFactory;\n" +
+	    "public final LogicFactory getLogicFactory() {\n" +
+	    "	return logicFactory;\n" +
+	    "}\n" +
+	    "public interface LogicFactory {\n" +
+	    "	<LOGIC extends Logic> LOGIC get(Class<LOGIC> logicClass);\n" +
+	    "	<WRAPPED, WRAPPER_LOGIC extends WrapperLogic<? super WRAPPED>> WRAPPER_LOGIC get(Class<WRAPPER_LOGIC> wrapperLogicClass, WRAPPED entityToWrap);\n" +
+	    "}\n" +
+	    "public abstract class WrapperLogic<WRAPPED> extends AbstractLogic implements Wrapper<WRAPPED> {}\n" +
+	    "public abstract class AbstractLogic {}\n" +
+	    "public interface Wrapper<WRAPPED> {\n" +
+	    "	WRAPPED getWrapped();\n" +
+	    "}\n" +
+	    "public abstract class Logic extends AbstractLogic {}\n" +
+	    "}"
+		},
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 4)\n" + 
+		"	W_Description wdescription = get(W_Description.class, object);\n" + 
+		"	^^^^^^^^^^^^^\n" + 
+		"Test.W_Description is a raw type. References to generic type Test.W_Description<WRAPPED> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in Test.java (at line 4)\n" + 
+		"	W_Description wdescription = get(W_Description.class, object);\n" + 
+		"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation get(Class<Test.W_Description>, Object) of the generic method get(Class<W>, T) of type Test\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=280054
+public void test280054() {
+	this.runNegativeTest(
+		new String[] {
+	    "X.java",
+	    "public class X {\n" +
+	    "static class A<V> {\n" +
+	    "L l;\n" +
+	    "public Class<V> vtype() {\n" +
+	    "   return null;\n" +
+	    "}\n" +
+	    "public A<V> method1() {\n" +
+	    "   return l.get(vtype(), B.class);\n" +
+	    "}\n" +
+	    "}\n" +
+	    "static class L {\n" +
+	    "public <V,S extends A<V>> S get(Class<V> vtype, Class<S> stype) {\n" +
+	    "   return null;\n" +
+	    "}\n" +
+	    "}\n" +
+	    "static class B<V> extends A<V> {\n" +
+	    "public B<V> method2() {\n" +
+	    "   return l.get(vtype(), B.class);\n" +
+	    "}\n" +
+	    "}\n" +
+	    "}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	return l.get(vtype(), B.class);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation get(Class<V>, Class<X.B>) of the generic method get(Class<V>, Class<S>) of type X.L\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	return l.get(vtype(), B.class);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.B needs unchecked conversion to conform to X.A<V>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 18)\n" + 
+		"	return l.get(vtype(), B.class);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation get(Class<V>, Class<X.B>) of the generic method get(Class<V>, Class<S>) of type X.L\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 18)\n" + 
+		"	return l.get(vtype(), B.class);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.B needs unchecked conversion to conform to X.B<V>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=283306
+public void test283306() {
+	this.runNegativeTest(
+		new String[] {
+	    "Test.java",
+	    "public class Test {\n" +
+	    "    public WWorkflow<? extends Workflow> getMainWorkflow(){\n" +
+	    "        return get(WWorkflow.class, null);\n" +
+	    "    }\n" +
+	    "    public <T, W extends WrapperLogic<? super T>> W get(Class<W> wrapperClass, T entity) {\n" +
+	    "        return null;\n" +
+	    "    }\n" +
+	    "}\n" +
+	    "class Workflow {}\n" +
+	    "class WWorkflow<T extends Workflow> extends WrapperLogic<T> {}\n" +
+	    "abstract class WrapperLogic<WRAPPED> {}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 3)\n" + 
+		"	return get(WWorkflow.class, null);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation get(Class<WWorkflow>, null) of the generic method get(Class<W>, T) of type Test\n" + 
+		"----------\n" + 
+		"2. WARNING in Test.java (at line 3)\n" + 
+		"	return get(WWorkflow.class, null);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type WWorkflow needs unchecked conversion to conform to WWorkflow<? extends Workflow>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294724
+// Test extracted from bug submission code by kabir.khan@jboss.com (Kabir Khan)
+public void test294724() {
+	this.runNegativeTest(
+		new String[] {
+	    "SimpleExample.java",
+	    "import java.util.Collection;\n" +
+	    "import java.util.HashSet;\n" +
+	    "import java.util.Set;\n" +
+	    "public class SimpleExample {\n" +
+	    "  Set<Data> data;\n" +
+	    "  public void setData(Set<Data> data) {\n" +
+	    "     this.data = data;\n" +
+	    "  }\n" +
+	    "  public void copy(SimpleExample clone) {\n" +
+	    "     clone.setData(cloneCollection(data, HashSet.class, Data.class));\n" +
+	    "  }\n" +
+	    "	public static <U extends Interface, T extends Collection<U>> T cloneCollection(T collection, Class<? extends T> expectedClass, Class<U> componentType) {\n" +
+	    "   	return null;\n" +
+	    "   }\n" +
+	    "  private interface Interface {}\n" +
+	    "  private class Data implements Interface {}\n" +
+	    "}"
+	    },
+		"----------\n" + 
+		"1. WARNING in SimpleExample.java (at line 10)\n" + 
+		"	clone.setData(cloneCollection(data, HashSet.class, Data.class));\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation cloneCollection(Set<SimpleExample.Data>, Class<HashSet>, Class<SimpleExample.Data>) of the generic method cloneCollection(T, Class<? extends T>, Class<U>) of type SimpleExample\n" + 
+		"----------\n" + 
+		"2. WARNING in SimpleExample.java (at line 10)\n" + 
+		"	clone.setData(cloneCollection(data, HashSet.class, Data.class));\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Set needs unchecked conversion to conform to Set<SimpleExample.Data>\n" + 
+		"----------\n");
 }
 }
