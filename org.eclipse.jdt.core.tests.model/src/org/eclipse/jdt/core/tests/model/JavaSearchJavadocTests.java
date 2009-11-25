@@ -862,10 +862,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j6", "Bug54962.java").getPackageDeclaration("j6");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§] EXACT_MATCH INSIDE_JAVADOC\n" +
-				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§.BUG54962] EXACT_MATCH INSIDE_JAVADOC\n" +
-				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§.Bug54962] EXACT_MATCH INSIDE_JAVADOC\n" +
-				"src/j7/qua/li/fied/Bug54962a.java [import §|j6|§.Bug54962;] EXACT_MATCH OUTSIDE_JAVADOC",
+				"src/j6/Bug54962.java j6.Bug54962 [ * @see !|j6|!] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j6/Bug54962.java j6.Bug54962 [ * @see !|j6|!.BUG54962] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j6/Bug54962.java j6.Bug54962 [ * @see !|j6|!.Bug54962] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j7/qua/li/fied/Bug54962a.java [import !|j6|!.Bug54962;] EXACT_MATCH OUTSIDE_JAVADOC",
 			this.resultCollector);
 	}
 	//	TODO (frederic) should no longer get POTENTIAL after 196200 got fixed
@@ -876,9 +876,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j7.qua.li.fied", "Bug54962a.java").getPackageDeclaration("j7.qua.li.fied");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§] EXACT_MATCH INSIDE_JAVADOC\n" +
-				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§.BUG54962a] EXACT_MATCH INSIDE_JAVADOC\n" +
-				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§.Bug54962a] EXACT_MATCH INSIDE_JAVADOC",
+				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see !|j7.qua.li.fied|!] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see !|j7.qua.li.fied|!.BUG54962a] EXACT_MATCH INSIDE_JAVADOC\n" +
+				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see !|j7.qua.li.fied|!.Bug54962a] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
 	}
 

@@ -274,11 +274,11 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 								int lineStart2 = CharOperation.lastIndexOf('\r', contents, 0, start);
 								int lineStart = Math.max(lineStart1, lineStart2) + 1;
 								this.line.append(CharOperation.subarray(contents, lineStart, start));
-								this.line.append("§|");
+								this.line.append("!|");
 							}
 							this.line.append(CharOperation.subarray(contents, start, end));
 							if ((this.flags & SHOW_SELECTION) != 0) {
-								this.line.append("|§");
+								this.line.append("|!");
 								int lineEnd1 = CharOperation.indexOf('\n', contents, end);
 								int lineEnd2 = CharOperation.indexOf('\r', contents, end);
 								int lineEnd = lineEnd1 > 0 && lineEnd2 > 0 ? Math.min(lineEnd1, lineEnd2) : Math.max(lineEnd1, lineEnd2);
