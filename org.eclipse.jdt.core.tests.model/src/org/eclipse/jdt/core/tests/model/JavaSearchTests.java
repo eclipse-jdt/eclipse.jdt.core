@@ -3426,9 +3426,9 @@ public void testTypeReference26() throws CoreException { // was testInnacurateTy
 		}),
 		this.resultCollector);
 	assertSearchResults(
-			"src/b5/A.java b5.A.{} [    §|Zork|§[] zork = new Zork[0];] POTENTIAL_MATCH\n" +
-			"src/b5/A.java b5.A.{} [    Zork[] zork = new §|Zork|§[0];] POTENTIAL_MATCH\n" +
-			"src/b5/A.java b5.A.{} [    int i = §|Zork|§.foo;] POTENTIAL_MATCH",
+			"src/b5/A.java b5.A.{} [    !|Zork|![] zork = new Zork[0];] POTENTIAL_MATCH\n" +
+			"src/b5/A.java b5.A.{} [    Zork[] zork = new !|Zork|![0];] POTENTIAL_MATCH\n" +
+			"src/b5/A.java b5.A.{} [    int i = !|Zork|!.foo;] POTENTIAL_MATCH",
 		this.resultCollector);
 }
 /**
@@ -3613,7 +3613,7 @@ public void testTypeReference36() throws CoreException { // was testLocalTypeRef
 		scope,
 		this.resultCollector);
 	assertSearchResults(
-		"src/f2/X.java Object f2.X.foo1() [		return new §|Y|§();]",
+		"src/f2/X.java Object f2.X.foo1() [		return new !|Y|!();]",
 		this.resultCollector);
 }
 /*
@@ -3633,7 +3633,7 @@ public void testTypeReference37() throws CoreException { // was testLocalTypeRef
 		scope,
 		this.resultCollector);
 	assertSearchResults(
-		"src/f2/X.java Object f2.X.foo1() [		return new §|Y|§();]",
+		"src/f2/X.java Object f2.X.foo1() [		return new !|Y|!();]",
 		this.resultCollector);
 }
 /**
