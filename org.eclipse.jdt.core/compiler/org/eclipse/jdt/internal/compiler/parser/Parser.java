@@ -5769,49 +5769,18 @@ protected void consumeAnnotatedType() {
 					0,
 					typeAnnotationStackLength);
 		}
-		switch(this.typeAnnotationPtr) {
-			case 0 :
-				System.arraycopy(
-						this.typeAnnotationStack,
-						this.typeAnnotationPtr,
-						this.typeAnnotationStack,
-						this.typeAnnotationPtr + length,
-						counter);
-				System.arraycopy(
-						this.expressionStack,
-						(this.expressionPtr -= length) + 1,
-						this.typeAnnotationStack,
-						this.typeAnnotationPtr,
-						length);
-				break;
-			case -1 :
-				System.arraycopy(
-						this.typeAnnotationStack,
-						this.typeAnnotationPtr + 1,
-						this.typeAnnotationStack,
-						this.typeAnnotationPtr + 1 + length,
-						counter);
-				System.arraycopy(
-						this.expressionStack,
-						(this.expressionPtr -= length) + 1,
-						this.typeAnnotationStack,
-						this.typeAnnotationPtr + 1,
-						length);
-				break;
-			default :
-				System.arraycopy(
-						this.typeAnnotationStack,
-						this.typeAnnotationPtr - 1,
-						this.typeAnnotationStack,
-						this.typeAnnotationPtr - 1 + length,
-						counter);
-				System.arraycopy(
-						this.expressionStack,
-						(this.expressionPtr -= length) + 1,
-						this.typeAnnotationStack,
-						this.typeAnnotationPtr - 1,
-						length);
-		}
+		System.arraycopy(
+				this.typeAnnotationStack,
+				this.typeAnnotationPtr - counter + 1,
+				this.typeAnnotationStack,
+				this.typeAnnotationPtr -counter + 1 + length,
+				counter);
+		System.arraycopy(
+				this.expressionStack,
+				(this.expressionPtr -= length) + 1,
+				this.typeAnnotationStack,
+				this.typeAnnotationPtr - counter + 1,
+				length);
 		this.typeAnnotationPtr += length;
 		this.typeAnnotationLengthPtr += 2;
 	} else {

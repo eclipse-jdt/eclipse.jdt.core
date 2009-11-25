@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -24,6 +28,151 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
  */
 public abstract class Annotation extends Expression {
 
+	/**
+	 * Return the location for the corresponding annotation inside the type reference, <code>null</code> if none.
+	 */
+	public static int[] getLocations(final TypeReference reference, final Annotation[] primaryAnnotation, final Annotation annotation) {
+		class LocationCollector extends ASTVisitor {
+			List locations;
+			Annotation currentAnnotation;
+			boolean search = true;
+			
+			public LocationCollector(Annotation currentAnnotation) {
+				this.locations = new ArrayList();
+				this.currentAnnotation = currentAnnotation;
+			}
+			public boolean visit(ArrayTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				int index = -1;
+				if (annotationsOnDimensions != null) {
+					for (int i = 0; i < annotationsOnDimensions.length; i++) {
+						Annotation[] annotations = annotationsOnDimensions[i];
+						for (int j = 0; j < annotations.length; j++) {
+							Annotation current = annotations[j];
+							if (current == this.currentAnnotation) {
+								if (i == 0) {
+									return false;
+								} else {
+									this.locations.add(new Integer(index));
+									this.search = false;
+									return false;
+								}
+							}
+						}
+						index++;
+					}
+				}
+				Annotation[] annotations = typeReference.annotations;
+				if (annotations == null) {
+					annotations = primaryAnnotation;
+					if (annotations != null) {
+						for (int i = 0; i < annotations.length; i++) {
+							Annotation current = annotations[i];
+							if (current == this.currentAnnotation) {
+								this.locations.add(new Integer(index));
+								this.search = false;
+								return false;
+							}
+						}
+					}
+					this.search = false;
+					return false;
+				}
+				for (int i = 0; i < annotations.length; i++) {
+					Annotation current = annotations[i];
+					if (current == this.currentAnnotation) {
+						this.locations.add(new Integer(index));
+						this.search = false;
+						return false;
+					}
+				}
+				return false;
+			}
+			public boolean visit(SingleTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				Annotation[] annotations = typeReference.annotations;
+				if (annotations != null) {
+					for (int i = 0; i < annotations.length; i++) {
+						Annotation current = annotations[i];
+						if (current == this.currentAnnotation) {
+							this.search = false;
+							return false;
+						}
+					}
+				}
+				return false;
+			}
+			public boolean visit(QualifiedTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				Annotation[] annotations = typeReference.annotations;
+				if (annotations != null) {
+					for (int i = 0; i < annotations.length; i++) {
+						Annotation current = annotations[i];
+						if (current == this.currentAnnotation) {
+							this.search = false;
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+			public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				int index = -1;
+				if (annotationsOnDimensions != null) {
+					for (int i = 0; i < annotationsOnDimensions.length; i++) {
+						Annotation[] annotations = annotationsOnDimensions[i];
+						for (int j = 0; j < annotations.length; j++) {
+							Annotation current = annotations[j];
+							if (current == this.currentAnnotation) {
+								if (i == 0) {
+									return false;
+								} else {
+									this.locations.add(new Integer(index));
+									this.search = false;
+									return false;
+								}
+							}
+						}
+						index++;
+					}
+				}
+				TypeReference[] typeArguments = typeReference.typeArguments;
+				for (int i = 0, max = typeArguments.length; i < max; i++) {
+					// TODO to be continued
+				}
+				Annotation[] annotations = typeReference.annotations;
+				if (annotations == null) {
+					this.search = false;
+					return false;
+				}
+				for (int i = 0; i < annotations.length; i++) {
+					Annotation current = annotations[i];
+					if (current == this.currentAnnotation) {
+						this.locations.add(new Integer(index));
+						this.search = false;
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+		LocationCollector collector = new LocationCollector(annotation);
+		reference.traverse(collector, (BlockScope) null);
+		List locations = collector.locations;
+		int size = locations.size();
+		if (size == 0) {
+			return null;
+		}
+		int[] result = new int[size];
+		int index = 0;
+		for (Iterator iterator = locations.iterator(); iterator.hasNext();) {
+			result[index++] = ((Integer) iterator.next()).intValue();
+		}
+		return result;
+	}
 	// jsr 308
 	public static class TypeUseBinding extends ReferenceBinding {
 		public AnnotationContext context;

@@ -24,19 +24,26 @@ import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
 import org.eclipse.jdt.internal.codeassist.select.SelectionParser;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.DocumentElementParser;
 import org.eclipse.jdt.internal.compiler.IDocumentElementRequestor;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -46,6 +53,58 @@ import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 
 public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements IDocumentElementRequestor, ISourceElementRequestor {
 	
+	static final class LocationPrinterVisitor extends ASTVisitor {
+		Annotation[] primaryAnnotations;
+
+		public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
+			Annotation[] annotations = fieldDeclaration.annotations;
+			if (annotations != null) {
+				for (int i = 0; i < annotations.length; i++) {
+					Annotation annotation = annotations[i];
+					printLocations(annotation, Annotation.getLocations(fieldDeclaration.type, fieldDeclaration.annotations, annotation));
+				}
+			}
+			return true;
+		}
+
+		public void printLocations(Annotation annotation, int[] tab) {
+			if (tab == null) {
+				System.out.println(String.valueOf(annotation) + " no_locations");
+				return;
+			}
+			StringBuffer buffer = new StringBuffer(String.valueOf(annotation));
+			buffer.append(" {");
+			for (int i = 0, max = tab.length; i < max; i++) {
+				if (i > 0) {
+					buffer.append(',');
+				}
+				buffer.append(tab[i]);
+			}
+			buffer.append('}');
+			System.out.println(String.valueOf(buffer));
+		}
+
+		public boolean visit(ArrayTypeReference arrayReference, BlockScope scope) {
+			Annotation[] annotations = arrayReference.annotations;
+			if (annotations != null) {
+				for (int i = 0; i < annotations.length; i++) {
+					Annotation annotation = annotations[i];
+					printLocations(annotation, Annotation.getLocations(arrayReference, null, annotation));
+				}
+			}
+			Annotation[][] dimensionsAnnotations = arrayReference.annotationsOnDimensions;
+			if (dimensionsAnnotations != null) {
+				for (int i = 0, max = dimensionsAnnotations.length; i < max; i++) {
+					annotations = dimensionsAnnotations[i];
+					for (int j = 0; j < annotations.length; j++) {
+						Annotation annotation = annotations[j];
+						printLocations(annotation, Annotation.getLocations(arrayReference, null, annotation));
+					}
+				}
+			}
+			return false;
+		}
+	}
 	private static final int CHECK_PARSER = 0x1;
 	private static final int CHECK_COMPLETION_PARSER = 0x2;
 	private static final int CHECK_SELECTION_PARSER = 0x4;
@@ -66,7 +125,7 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 
 	static {
 //		TESTS_NAMES = new String [] {"test0020"};
-//		TESTS_NUMBERS = new int[] { 23 };
+		TESTS_NUMBERS = new int[] { 25 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationSyntaxTest.class;
@@ -81,10 +140,11 @@ public TypeAnnotationSyntaxTest(String testName){
 	super(testName);
 }
 public void checkParse(
-	int parserToCheck,	
-	char[] source,
-	String expectedSyntaxErrorDiagnosis,
-	String testName, String expectedUnitToString) {
+		int parserToCheck,	
+		char[] source,
+		String expectedSyntaxErrorDiagnosis,
+		String testName, String expectedUnitToString,
+		ASTVisitor visitor) {
 
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	options.complianceLevel = ClassFileConstants.JDK1_7;
@@ -109,6 +169,9 @@ public void checkParse(
 		parser1.getMethodBodies(unit);
 		assertDianosticEquals(expectedSyntaxErrorDiagnosis, testName, compilationResult);
 		assertParseTreeEquals(expectedUnitToString, unit.toString());
+		if (visitor != null) {
+			unit.traverse(visitor, (CompilationUnitScope) null);
+		}
 		parser1 = null;
 	}
 	
@@ -193,10 +256,24 @@ public void checkParse(
 	}
 }
 public void checkParse(
+		int parserToCheck,	
+		char[] source,
+		String expectedSyntaxErrorDiagnosis,
+		String testName, String expectedUnitToString) {
+	checkParse(parserToCheck, source, expectedSyntaxErrorDiagnosis, testName, expectedUnitToString, null);
+}
+public void checkParse(
 		char[] source,
 		String expectedSyntaxErrorDiagnosis,
 		String testName, String expectedUnitToString) {
 	checkParse(CHECK_ALL, source, expectedSyntaxErrorDiagnosis, testName, expectedUnitToString);
+}
+public void checkParse(
+		char[] source,
+		String expectedSyntaxErrorDiagnosis,
+		String testName, String expectedUnitToString,
+		ASTVisitor visitor) {
+	checkParse(CHECK_ALL, source, expectedSyntaxErrorDiagnosis, testName, expectedUnitToString, visitor);
 }
 private void assertParseTreeEquals(String expectedUnitToString, String computedUnitToString) {
 		if (expectedUnitToString == null) {  // just checking that we are able to digest.
@@ -1792,12 +1869,42 @@ public void test0023()  {
 		"public class X {\n" + 
 		"  @H String @E [] @F [] @G [] field;\n" + 
 		"  @A Map<@B String, @C List<@D Object>> field2;\n" + 
-		"  @A Map<@B String, @E String @H [] @F [] @G []> field3;\n" + 
+		"  @A Map<@B String, @H String @E [] @F [] @G []> field3;\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test0023", expectedUnitToString);
+}
+//check locations
+public void test0024()  {
+	String source = 
+		"public class X {\n" + 
+		"	@H String @E[] @F[] @G[] field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @H String @E [] @F [] @G [] field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(source.toCharArray(), null, "test0024", expectedUnitToString, new LocationPrinterVisitor());
+}
+//check locations
+public void test0025()  {
+	String source = 
+		"public class X {\n" + 
+		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A Map<@B String, @H String @E [] @F [] @G []> field3;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(source.toCharArray(), null, "test0025", expectedUnitToString, new LocationPrinterVisitor());
 }
 public void acceptImport(int declarationStart, int declarationEnd,
 		int[] javaDocPositions, char[] name, int nameStartPosition,
