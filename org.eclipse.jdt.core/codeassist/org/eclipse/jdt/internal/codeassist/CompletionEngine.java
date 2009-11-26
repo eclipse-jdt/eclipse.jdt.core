@@ -6038,7 +6038,7 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal(field);
-			if (fieldName != null) relevance += computeRelevanceForCaseMatching(fieldName, field.name);
+			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
 			relevance += computeRelevanceForExpectingType(field.type);
 			relevance += computeRelevanceForEnumConstant(field.type);
 			relevance += computeRelevanceForStatic(onlyStaticFields, field.isStatic());
@@ -7199,7 +7199,7 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal(field);
-			if (fieldName != null) relevance += computeRelevanceForCaseMatching(fieldName, field.name);
+			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
 			relevance += computeRelevanceForExpectingType(field.type);
 			relevance += computeRelevanceForEnumConstant(field.type);
 			relevance += computeRelevanceForStatic(true, true);
@@ -8338,7 +8338,7 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal();
-			if (methodName != null) relevance += computeRelevanceForCaseMatching(methodName, method.selector);
+			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 			relevance += computeRelevanceForExpectingType(method.returnType);
 			relevance += computeRelevanceForEnumConstant(method.returnType);
 			relevance += computeRelevanceForStatic(onlyStaticMethods, method.isStatic());
@@ -8597,7 +8597,7 @@ public final class CompletionEngine
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
 				relevance += computeRelevanceForInterestingProposal();
-				if (methodName != null) relevance += computeRelevanceForCaseMatching(methodName, method.selector);
+				relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 				relevance += computeRelevanceForExpectingType(method.returnType);
 				relevance += computeRelevanceForEnumConstant(method.returnType);
 				relevance += computeRelevanceForStatic(true, method.isStatic());
