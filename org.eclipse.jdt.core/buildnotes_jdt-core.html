@@ -48,6 +48,36 @@ Eclipse SDK 3.6M4 - %date% - 3.6.0 M4
 <br>Project org.eclipse.jdt.core v_A24
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A24">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>New API added to ignore method bodies inside AST tree. The new APIs are tagged as 3.5.2 as this code
+will be backported to 3.5.2:
+<pre>
+org.eclipse.jdt.core.dom.ASTParser:
+	/**
+	 * Requests an abstract syntax tree without method bodies. 
+	 * 
+	 * When ignore method bodies is enabled, all method bodies are discarded.
+	 * This has no impact on the binding resolution.
+	 *
+	 * If a method contains local types, its method body will be retained.
+	 * This settings is not used if the kind used in setKind(int) is either 
+	 * K_EXPRESSION or K_STATEMENTS.
+	 * @since 3.5.2
+	 */
+	public void setIgnoreMethodBodies(boolean enabled) {
+		this.ignoreMethodBodies = enabled;
+	}
+org.eclipse.jdt.core.ICompilationUnit:
+	/**
+	 * Constant indicating that a reconcile operation could ignore to parse the method bodies.
+	 * @see ASTParser#setIgnoreMethodBodies(boolean)
+	 * @since 3.5.2
+	 */
+	public static final int IGNORE_METHOD_BODIES = 0x08;
+
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=277643">277643</a>
