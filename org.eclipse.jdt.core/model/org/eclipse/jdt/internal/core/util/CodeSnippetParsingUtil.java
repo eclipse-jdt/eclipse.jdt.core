@@ -155,7 +155,7 @@ public class CodeSnippetParsingUtil {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		// don't set ignoreMethodBodies
+		// in this case we don't want to ignore method bodies since we are parsing only an expression
 		final ProblemReporter problemReporter = new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 					compilerOptions,
@@ -194,7 +194,7 @@ public class CodeSnippetParsingUtil {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		// don't set ignoreMethodBodies
+		// in this case we don't want to ignore method bodies since we are parsing only statements
 		final ProblemReporter problemReporter = new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 					compilerOptions,

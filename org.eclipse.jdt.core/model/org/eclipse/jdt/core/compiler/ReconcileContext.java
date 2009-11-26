@@ -94,8 +94,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit getAST3() throws JavaModelExcept
 		parser.setStatementsRecovery((this.operation.reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 		parser.setBindingsRecovery((this.operation.reconcileFlags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0);
 		parser.setSource(this.workingCopy);
-		if ((this.operation.reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0)
-			parser.ignoreMethodBodies();
+		parser.setIgnoreMethodBodies((this.operation.reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
 		return (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(this.operation.progressMonitor);
 	}
 	return this.operation.makeConsistent(this.workingCopy);

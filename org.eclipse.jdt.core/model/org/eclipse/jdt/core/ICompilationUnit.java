@@ -64,7 +64,7 @@ public static final int ENABLE_BINDINGS_RECOVERY = 0x04;
 
 /**
  * Constant indicating that a reconcile operation could ignore to parse the method bodies.
- * @see ASTParser#ignoreMethodBodies()
+ * @see ASTParser#setIgnoreMethodBodies(boolean)
  * @since 3.5.2
  */
 public static final int IGNORE_METHOD_BODIES = 0x08;

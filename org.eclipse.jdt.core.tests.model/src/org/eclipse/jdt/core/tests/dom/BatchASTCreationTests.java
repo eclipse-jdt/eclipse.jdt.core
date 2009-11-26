@@ -2226,7 +2226,7 @@ public void test082() throws CoreException, IOException {
 			});
 			TestASTRequestor requestor = new TestASTRequestor();
 			ASTParser parser = ASTParser.newParser(AST.JLS3);
-			parser.ignoreMethodBodies();
+			parser.setIgnoreMethodBodies(true);
 			parser.createASTs(this.workingCopies, new String[] {}, requestor, null);
 			// statement declaring i should not be in the AST
 			assertASTNodesEqual(
@@ -2262,7 +2262,7 @@ public void test082() throws CoreException, IOException {
 			});
 			TestASTRequestor requestor = new TestASTRequestor();
 			ASTParser parser = ASTParser.newParser(AST.JLS3);
-			parser.ignoreMethodBodies();
+			parser.setIgnoreMethodBodies(true);
 			parser.setResolveBindings(true);
 			parser.setProject(getJavaProject("P"));
 			parser.createASTs(this.workingCopies, new String[] {}, requestor, null);

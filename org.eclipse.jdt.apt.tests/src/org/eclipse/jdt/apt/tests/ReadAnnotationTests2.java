@@ -188,6 +188,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProj);
+		parser.setIgnoreMethodBodies(true);
 		parser.createASTs(NO_UNIT, new String[]{key}, requestor, null);
 		return requestor._result;
 	}

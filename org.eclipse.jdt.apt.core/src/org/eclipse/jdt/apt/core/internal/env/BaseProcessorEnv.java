@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems Inc. and others
+ * Copyright (c) 2005, 2009 BEA Systems Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -498,6 +498,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		parser.setResolveBindings(true);
 		parser.setBindingsRecovery(true);
 		parser.setProject(_javaProject);
+		parser.setIgnoreMethodBodies(true);
 		ICompilationUnit[] units = unit == null ? NO_UNIT : new ICompilationUnit[]{unit};
 		parser.createASTs(units, new String[]{key}, requestor, null);
 		final IBinding result = requestor._result;
@@ -708,6 +709,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
         		parser.setBindingsRecovery(true);
                 parser.setSource(unit);
 				parser.setFocalPosition(0);
+                parser.setIgnoreMethodBodies(true);
                 CompilationUnit resultUnit = (CompilationUnit)parser.createAST(null);
                 _modelCompUnit2astCompUnit.put(unit, resultUnit);
                 return resultUnit;
@@ -853,7 +855,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		p.setBindingsRecovery(true);
 		p.setProject( javaProject );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
-		p.ignoreMethodBodies();
+		p.setIgnoreMethodBodies(true);
 		p.createASTs( parseUnits, keys,  requestor, null);
 	}
 	
@@ -882,6 +884,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		p.setBindingsRecovery(true);
 		p.setProject( javaProject );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
+		p.setIgnoreMethodBodies(true);
 		p.createASTs( new ICompilationUnit[]{compilationUnit}, NO_KEYS,  requestor, null);
 		if( AptPlugin.DEBUG ){
 			AptPlugin.trace("created DOM AST for " + compilationUnit.getElementName() ); //$NON-NLS-1$

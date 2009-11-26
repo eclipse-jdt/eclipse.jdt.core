@@ -333,6 +333,7 @@ public class CompilerOptions {
 	public boolean reportMissingOverrideAnnotationForInterfaceMethodImplementation;
 	/** Indicate if annotation processing generates classfiles */
 	public boolean generateClassFiles;
+	/** Indicate if method bodies should be ignored */
 	public boolean ignoreMethodBodies;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant

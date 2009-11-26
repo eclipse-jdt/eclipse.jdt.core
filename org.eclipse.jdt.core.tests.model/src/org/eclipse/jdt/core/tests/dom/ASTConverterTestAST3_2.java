@@ -10433,7 +10433,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_STATEMENTS);
 		parser.setStatementsRecovery(true);
-		parser.ignoreMethodBodies();
+		parser.setIgnoreMethodBodies(true);
 		parser.setSource(source);
 		ASTNode root = parser.createAST(null);
 		assertEquals("Not a block", ASTNode.BLOCK, root.getNodeType());
@@ -10449,7 +10449,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		char[] source = src.toCharArray();
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind (ASTParser.K_STATEMENTS);
-		parser.ignoreMethodBodies();
+		parser.setIgnoreMethodBodies(true);
 		parser.setSource (source);
 		ASTNode result = parser.createAST (null);
 		assertNotNull("no result", result);
@@ -10482,7 +10482,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(false);
-		parser.ignoreMethodBodies();
+		parser.setIgnoreMethodBodies(true);
 		parser.setSource(source);
 		ASTNode root = parser.createAST(null);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, root.getNodeType());
