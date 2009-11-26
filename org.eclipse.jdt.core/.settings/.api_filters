@@ -4,7 +4,7 @@
         <filter id="1142947843">
             <message_arguments>
                 <message_argument value="3.5.2"/>
-                <message_argument value="ignoreMethodBodies()"/>
+                <message_argument value="setIgnoreMethodBodies(boolean)"/>
             </message_arguments>
         </filter>
     </resource>

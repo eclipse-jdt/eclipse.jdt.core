@@ -572,15 +572,17 @@ public class ASTParser {
 	
 	/**
 	 * Requests an abstract syntax tree without method bodies. 
-	 * If this functions is called, even the code analysis and generation are not done.
-	 * If the function has anonymous classes, the method bodies will be retained. 
-	 * This flag is honored only when the source is a compilation unit and the full 
-	 * AST is required.
+	 * 
+	 * <p>When ignore method bodies is enabled, all method bodies are discarded.
+	 * This has no impact on the binding resolution.</p>
 	 *
+	 * <p>If a method contains local types, its method body will be retained.</p>
+	 * <p>This settings is not used if the kind used in {@link #setKind(int)} is either 
+	 * {@link #K_EXPRESSION} or {@link #K_STATEMENTS}.
 	 * @since 3.5.2
 	 */
-	public void ignoreMethodBodies() {
-		this.ignoreMethodBodies = true;
+	public void setIgnoreMethodBodies(boolean enabled) {
+		this.ignoreMethodBodies = enabled;
 	}
 
     /**

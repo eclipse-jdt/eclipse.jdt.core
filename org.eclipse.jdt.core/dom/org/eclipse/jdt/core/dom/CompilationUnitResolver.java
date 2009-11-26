@@ -525,11 +525,9 @@ class CompilationUnitResolver extends Compiler {
 					getRequestor(),
 					problemFactory,
 					monitor);
-			boolean analyzeCode = true;
-			boolean generateCode = true;
+			boolean analyzeAndGenerateCode = true;
 			if (ignoreMethodBodies) {
-				analyzeCode = false;
-				generateCode = false;
+				analyzeAndGenerateCode = false;
 			}
 			unit =
 				resolver.resolve(
@@ -537,8 +535,8 @@ class CompilationUnitResolver extends Compiler {
 					sourceUnit,
 					nodeSearcher,
 					true, // method verification
-					analyzeCode, // analyze code
-					generateCode); // generate code
+					analyzeAndGenerateCode, // analyze code
+					analyzeAndGenerateCode); // generate code
 			if (resolver.hasCompilationAborted) {
 				// the bindings could not be resolved due to missing types in name environment
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=86541

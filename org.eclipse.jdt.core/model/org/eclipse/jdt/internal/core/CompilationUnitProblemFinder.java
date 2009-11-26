@@ -166,11 +166,9 @@ public class CompilationUnitProblemFinder extends Compiler {
 				compilerOptions,
 				getRequestor(),
 				problemFactory);
-			boolean analyzeCode = true;
-			boolean generateCode = true;
+			boolean analyzeAndGenerateCode = true;
 			if (ignoreMethodBodies) {
-				analyzeCode = false;
-				generateCode = false;
+				analyzeAndGenerateCode = false;
 			}
 			CompilationUnitDeclaration unit = null;
 			if (parser != null) {
@@ -181,8 +179,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 						unit,
 						unitElement,
 						true, // verify methods
-						analyzeCode, // analyze code
-						generateCode); // generate code
+						analyzeAndGenerateCode, // analyze code
+						analyzeAndGenerateCode); // generate code
 				} catch (AbortCompilation e) {
 					problemFinder.handleInternalException(e, unit);
 				}
@@ -191,8 +189,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 					problemFinder.resolve(
 						unitElement,
 						true, // verify methods
-						analyzeCode, // analyze code
-						generateCode); // generate code
+						analyzeAndGenerateCode, // analyze code
+						analyzeAndGenerateCode); // generate code
 			}
 			CompilationResult unitResult = unit.compilationResult;
 			CategorizedProblem[] unitProblems = unitResult.getProblems();
