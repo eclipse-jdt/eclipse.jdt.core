@@ -4381,10 +4381,6 @@ public void testIgnoreMethodBodies2() throws CoreException {
 			"  public void foo(){\n" +
 			"  }\n" +
 			"  public int bar(){\n" +
-			"    int i=0;\n" + 
-			"    new X(){\n" +
-			"    }\n" +
-			";\n" +
 			"  }\n" +
 			"}\n",
 			ast

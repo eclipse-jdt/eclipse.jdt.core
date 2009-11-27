@@ -525,10 +525,7 @@ class CompilationUnitResolver extends Compiler {
 					getRequestor(),
 					problemFactory,
 					monitor);
-			boolean analyzeAndGenerateCode = true;
-			if (ignoreMethodBodies) {
-				analyzeAndGenerateCode = false;
-			}
+			boolean analyzeAndGenerateCode = !ignoreMethodBodies;
 			unit =
 				resolver.resolve(
 					null, // no existing compilation unit declaration
