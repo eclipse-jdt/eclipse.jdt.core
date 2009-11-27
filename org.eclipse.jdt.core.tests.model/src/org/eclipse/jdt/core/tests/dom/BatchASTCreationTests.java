@@ -2235,10 +2235,6 @@ public void test082() throws CoreException, IOException {
 					"  public int foo(){\n" +
 					"  }\n" +
 					"  public int bar(){\n" +
-					"    int i=0;\n" + 
-					"    new X(){\n" +
-					"    }\n" +
-					";\n" +
 					"  }\n" +
 					"}\n" +
 					"\n",
@@ -2273,10 +2269,6 @@ public void test082() throws CoreException, IOException {
 					"  public int foo(){\n" +
 					"  }\n" +
 					"  public int bar(){\n" +
-					"    int i=0;\n" + 
-					"    new X(){\n" +
-					"    }\n" +
-					";\n" +
 					"  }\n" +
 					"}\n" +
 					"\n",

@@ -4326,7 +4326,7 @@ public void testFallthroughDiagnosis() throws CoreException, InterruptedExceptio
 /*
  * Ensure that the option ICompilationUnit.IGNORE_METHOD_BODIES is honored
  */
-public void testIgnoreMethodBodies1() throws CoreException {	
+public void testIgnoreMethodBodies1() throws CoreException {
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;" +
@@ -4357,7 +4357,7 @@ public void testIgnoreMethodBodies1() throws CoreException {
 			ast
 		);
 }
-public void testIgnoreMethodBodies2() throws CoreException {	
+public void testIgnoreMethodBodies2() throws CoreException {
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;" +
@@ -4381,10 +4381,6 @@ public void testIgnoreMethodBodies2() throws CoreException {
 			"  public void foo(){\n" +
 			"  }\n" +
 			"  public int bar(){\n" +
-			"    int i=0;\n" + 
-			"    new X(){\n" +
-			"    }\n" +
-			";\n" +
 			"  }\n" +
 			"}\n",
 			ast

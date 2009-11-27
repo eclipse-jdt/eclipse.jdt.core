@@ -2881,23 +2881,25 @@ protected void consumeConstructorDeclaration() {
 	Statement[] statements = null;
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		this.astPtr -= length;
-		if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall) {
-			//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
-			System.arraycopy(
-				this.astStack,
-				this.astPtr + 2,
-				statements = new Statement[length - 1],
-				0,
-				length - 1);
-			constructorCall = (ExplicitConstructorCall) this.astStack[this.astPtr + 1];
-		} else { //need to add explicitly the super();
-			System.arraycopy(
-				this.astStack,
-				this.astPtr + 1,
-				statements = new Statement[length],
-				0,
-				length);
-			constructorCall = SuperReference.implicitSuperConstructorCall();
+		if (!this.options.ignoreMethodBodies) {
+			if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall) {
+				//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
+				System.arraycopy(
+					this.astStack,
+					this.astPtr + 2,
+					statements = new Statement[length - 1],
+					0,
+					length - 1);
+				constructorCall = (ExplicitConstructorCall) this.astStack[this.astPtr + 1];
+			} else { //need to add explicitly the super();
+				System.arraycopy(
+					this.astStack,
+					this.astPtr + 1,
+					statements = new Statement[length],
+					0,
+					length);
+				constructorCall = SuperReference.implicitSuperConstructorCall();
+			}
 		}
 	} else {
 		boolean insideFieldInitializer = false;
@@ -2910,9 +2912,11 @@ protected void consumeConstructorDeclaration() {
 			}
 		}
 
-		if (!this.diet || insideFieldInitializer){
-			// add it only in non-diet mode, if diet_bodies, then constructor call will be added elsewhere.
-			constructorCall = SuperReference.implicitSuperConstructorCall();
+		if (!this.options.ignoreMethodBodies) {
+			if (!this.diet || insideFieldInitializer){
+				// add it only in non-diet mode, if diet_bodies, then constructor call will be added elsewhere.
+				constructorCall = SuperReference.implicitSuperConstructorCall();
+			}
 		}
 	}
 
@@ -4755,12 +4759,16 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 		//statements
 		explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
 		if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-			System.arraycopy(
-				this.astStack,
-				(this.astPtr -= length) + 1,
-				statements = new Statement[length],
-				0,
-				length);
+			if (this.options.ignoreMethodBodies) {
+				this.astPtr -= length;
+			} else {
+				System.arraycopy(
+					this.astStack,
+					(this.astPtr -= length) + 1,
+					statements = new Statement[length],
+					0,
+					length);
+			}
 		}
 	}
 
@@ -10449,7 +10457,7 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, bo
 	int length;
 	if (this.astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		this.astPtr -= length;
-		if ((cd.bits & ASTNode.HasLocalType) != 0 || !this.options.ignoreMethodBodies) {
+		if (!this.options.ignoreMethodBodies) {
 			if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall)
 				//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
 				{
@@ -10695,7 +10703,7 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 	md.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
 	int length;
 	if (this.astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		if ((md.bits & ASTNode.HasLocalType) == 0 && this.options.ignoreMethodBodies) {
+		if (this.options.ignoreMethodBodies) {
 			// ignore statements
 			this.astPtr -= length;
 		} else {
