@@ -166,10 +166,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 				compilerOptions,
 				getRequestor(),
 				problemFactory);
-			boolean analyzeAndGenerateCode = true;
-			if (ignoreMethodBodies) {
-				analyzeAndGenerateCode = false;
-			}
+			boolean analyzeAndGenerateCode = !ignoreMethodBodies;
 			CompilationUnitDeclaration unit = null;
 			if (parser != null) {
 				problemFinder.parser = parser;
