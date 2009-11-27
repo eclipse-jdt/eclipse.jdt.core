@@ -86,6 +86,53 @@ public abstract class Annotation extends Expression {
 				this.currentIndexes.pop();
 				return true;
 			}
+			public boolean visit(ArrayQualifiedTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				if (annotationsOnDimensions != null) {
+					// check if the annotation is located on the first dimension
+					Annotation[] annotations = annotationsOnDimensions[0];
+					if (annotations != null) {
+						for (int j = 0, max2 = annotations.length; j < max2; j++) {
+							Annotation current = annotations[j];
+							if (current == this.currentAnnotation) {
+								this.search = false;
+								return false;
+							}
+						}
+					}
+
+					this.currentIndexes.push(new Integer(0));
+					for (int i = 1, max = annotationsOnDimensions.length; i < max; i++) {
+						annotations = annotationsOnDimensions[i];
+						if (annotations != null) {
+							for (int j = 0, max2 = annotations.length; j < max2; j++) {
+								Annotation current = annotations[j];
+								if (current == this.currentAnnotation) {
+									this.search = false;
+									return false;
+								}
+							}
+						}
+						this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+					}
+				}
+				Annotation[] annotations = typeReference.annotations;
+				if (annotations == null) {
+					annotations = primaryAnnotation;
+				}
+				if (annotations != null) {
+					for (int i = 0; i < annotations.length; i++) {
+						Annotation current = annotations[i];
+						if (current == this.currentAnnotation) {
+							this.search = false;
+							return false;
+						}
+					}
+				}
+				this.currentIndexes.pop();
+				return true;
+			}
 			public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
 				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
@@ -140,6 +187,61 @@ public abstract class Annotation extends Expression {
 				this.currentIndexes.pop();
 				return true;
 			}
+			public boolean visit(ParameterizedQualifiedTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				if (annotationsOnDimensions != null) {
+					// check if the annotation is located on the first dimension
+					Annotation[] annotations = annotationsOnDimensions[0];
+					if (annotations != null) {
+						for (int j = 0, max2 = annotations.length; j < max2; j++) {
+							Annotation current = annotations[j];
+							if (current == this.currentAnnotation) {
+								this.search = false;
+								return false;
+							}
+						}
+					}
+
+					this.currentIndexes.push(new Integer(0));
+					for (int i = 1, max = annotationsOnDimensions.length; i < max; i++) {
+						annotations = annotationsOnDimensions[i];
+						if (annotations != null) {
+							for (int j = 0, max2 = annotations.length; j < max2; j++) {
+								Annotation current = annotations[j];
+								if (current == this.currentAnnotation) {
+									this.search = false;
+									return false;
+								}
+							}
+						}
+						this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+					}
+				}
+				Annotation[] annotations = typeReference.annotations;
+				if (annotations == null) {
+					annotations = primaryAnnotation;
+				}
+				if (annotations != null) {
+					for (int i = 0; i < annotations.length; i++) {
+						Annotation current = annotations[i];
+						if (current == this.currentAnnotation) {
+							this.search = false;
+							return false;
+						}
+					}
+				}
+				//TODO it is unclear how to manage annotations located in the first type arguments
+				TypeReference[] typeReferences = typeReference.typeArguments[typeReference.typeArguments.length - 1];
+				this.currentIndexes.push(new Integer(0));
+				for (int i = 0, max = typeReferences.length; i < max; i++) {
+					typeReferences[i].traverse(this, scope);
+					if (!this.search) return false;
+					this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+				}
+				this.currentIndexes.pop();
+				return true;
+			}
 			public boolean visit(SingleTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
 				Annotation[] annotations = typeReference.annotations;
@@ -153,6 +255,12 @@ public abstract class Annotation extends Expression {
 					}
 				}
 				return false;
+			}
+			public boolean visit(Wildcard typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				TypeReference bound = typeReference.bound;
+				bound.traverse(this, scope);
+				return true;
 			}
 			public boolean visit(QualifiedTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;

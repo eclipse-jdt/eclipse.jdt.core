@@ -535,6 +535,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				return "THROWS_GENERIC_OR_ARRAY"; //$NON-NLS-1$
 			case IExtendedAnnotationConstants.WILDCARD_BOUND :
 				return "WILDCARD_BOUND"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY :
+				return "WILDCARD_BOUND_GENERIC_OR_ARRAY"; //$NON-NLS-1$
 			default:
 				return "UNKNOWN"; //$NON-NLS-1$
 		}

@@ -34,12 +34,14 @@ import org.eclipse.jdt.internal.compiler.IDocumentElementRequestor;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
@@ -50,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -79,7 +82,36 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 			this.primaryAnnotations = annotations;
 			return true;
 		}
-
+		public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
+			this.primaryAnnotations = methodDeclaration.annotations;
+			TypeReference returnType = methodDeclaration.returnType;
+			if (returnType != null) {
+				this.enclosingReference = returnType;
+				returnType.traverse(this, scope);
+			}
+			if (methodDeclaration.thrownExceptions != null) {
+				int thrownExceptionsLength = methodDeclaration.thrownExceptions.length;
+				for (int i = 0; i < thrownExceptionsLength; i++) {
+					TypeReference typeReference = methodDeclaration.thrownExceptions[i];
+					this.enclosingReference = typeReference;
+					this.primaryAnnotations = null;
+					typeReference.traverse(this, scope);
+				}
+			}
+			return false;
+		}
+		public boolean visit(Argument argument, ClassScope scope) {
+			Annotation[] annotations = argument.annotations;
+			this.enclosingReference = argument.type;
+			this.primaryAnnotations = annotations;
+			return true;
+		}
+		public boolean visit(Argument argument, BlockScope scope) {
+			Annotation[] annotations = argument.annotations;
+			this.enclosingReference = argument.type;
+			this.primaryAnnotations = annotations;
+			return true;
+		}
 		public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
 				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
@@ -151,7 +183,7 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 
 	static {
 //		TESTS_NAMES = new String[] {"test0020"};
-//		TESTS_NUMBERS = new int[] { 34 };
+//		TESTS_NUMBERS = new int[] { 38 };
 //		TESTS_RANGE = new int[] { 24, -1 };
 	}
 	public static Class testClass() {
@@ -2172,6 +2204,98 @@ public void test0034() {
 	assertEquals("Wrong location", "{0,0,1}", locations.get("@F"));
 	assertEquals("Wrong location", "{1}", locations.get("@G"));
 	assertEquals("Wrong location", "{1,0}", locations.get("@H"));
+}
+//check locations
+public void test0036() {
+	String source = 
+		"public class X {\n" + 
+		"	@A java.util.Map<@B Comparable<@C Object @D[] @E[] @F[]>, @G List<@H Document>> field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A java.util.Map<@B Comparable<@C Object @D [] @E [] @F []>, @G List<@H Document>> field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0030", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 8, locations.size());
+	assertEquals("Wrong location", null, locations.get("@A"));
+	assertEquals("Wrong location", "{0}", locations.get("@B"));
+	assertEquals("Wrong location", "{0,0,2}", locations.get("@C"));
+	assertEquals("Wrong location", "{0,0}", locations.get("@D"));
+	assertEquals("Wrong location", "{0,0,0}", locations.get("@E"));
+	assertEquals("Wrong location", "{0,0,1}", locations.get("@F"));
+	assertEquals("Wrong location", "{1}", locations.get("@G"));
+	assertEquals("Wrong location", "{1,0}", locations.get("@H"));
+}
+//check locations
+public void test0035() {
+	String source = 
+		"public class X {\n" + 
+		"	@B Map<? extends Z, ? extends @A Z> field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @B Map<? extends Z, ? extends @A Z> field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0030", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 2, locations.size());
+	assertEquals("Wrong location", null, locations.get("@B"));
+	assertEquals("Wrong location", "{1}", locations.get("@A"));
+}
+//check locations
+public void test0037() {
+	String source = 
+		"public class X {\n" + 
+		"	@H java.lang.String @E[] @F[] @G[] field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @H java.lang.String @E [] @F [] @G [] field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0024", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 4, locations.size());
+	assertEquals("Wrong location", null, locations.get("@E"));
+	assertEquals("Wrong location", "{0}", locations.get("@F"));
+	assertEquals("Wrong location", "{1}", locations.get("@G"));
+	assertEquals("Wrong location", "{2}", locations.get("@H"));
+}
+//check locations
+public void test0038() {
+	String source = 
+		"public class X {\n" + 
+		"	@A Map<@B java.lang.String, @H java.lang.String @E[] @F[] @G[]> field3;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A Map<@B java.lang.String, @H java.lang.String @E [] @F [] @G []> field3;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0026", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 6, locations.size());
+	assertEquals("Wrong location", null, locations.get("@A"));
+	assertEquals("Wrong location", "{0}", locations.get("@B"));
+	assertEquals("Wrong location", "{1}", locations.get("@E"));
+	assertEquals("Wrong location", "{1,0}", locations.get("@F"));
+	assertEquals("Wrong location", "{1,1}", locations.get("@G"));
+	assertEquals("Wrong location", "{1,2}", locations.get("@H"));
 }
 public void acceptImport(int declarationStart, int declarationEnd,
 		int[] javaDocPositions, char[] name, int nameStartPosition,
