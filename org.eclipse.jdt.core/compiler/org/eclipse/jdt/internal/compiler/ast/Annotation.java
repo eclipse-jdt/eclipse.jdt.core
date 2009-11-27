@@ -83,6 +83,7 @@ public abstract class Annotation extends Expression {
 						}
 					}
 				}
+				this.currentIndexes.pop();
 				return true;
 			}
 			public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
@@ -136,6 +137,7 @@ public abstract class Annotation extends Expression {
 					if (!this.search) return false;
 					this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
 				}
+				this.currentIndexes.pop();
 				return true;
 			}
 			public boolean visit(SingleTypeReference typeReference, BlockScope scope) {

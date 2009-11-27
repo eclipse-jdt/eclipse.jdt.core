@@ -14,7 +14,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import junit.framework.Test;
 
@@ -62,7 +64,15 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 	static final class LocationPrinterVisitor extends ASTVisitor {
 		Annotation[] primaryAnnotations;
 		TypeReference enclosingReference;
+		Map locations;
 
+		public LocationPrinterVisitor() {
+			this.locations = new HashMap();
+		}
+		
+		public Map getLocations() {
+			return this.locations;
+		}
 		public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
 			Annotation[] annotations = fieldDeclaration.annotations;
 			this.enclosingReference = fieldDeclaration.type;
@@ -72,29 +82,32 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 
 		public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				printLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
 			}
 			return false;
 		}
 		public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				printLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
 			}
 			return false;
 		}
 		public boolean visit(NormalAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				printLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
 			}
 			return false;
 		}
-		public void printLocations(Annotation annotation, int[] tab) {
-			if (tab == null) {
-				System.out.println(String.valueOf(annotation) + " no_locations");
+		public void storeLocations(Annotation annotation, int[] tab) {
+			String key = String.valueOf(annotation);
+			if (this.locations.get(key) != null) {
 				return;
 			}
-			StringBuffer buffer = new StringBuffer(String.valueOf(annotation));
-			buffer.append(" {");
+			if (tab == null) {
+				this.locations.put(key, null);
+				return;
+			}
+			StringBuffer buffer = new StringBuffer("{");
 			for (int i = 0, max = tab.length; i < max; i++) {
 				if (i > 0) {
 					buffer.append(',');
@@ -102,7 +115,7 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 				buffer.append(tab[i]);
 			}
 			buffer.append('}');
-			System.out.println(String.valueOf(buffer));
+			this.locations.put(key, String.valueOf(buffer));
 		}
 
 		public boolean visit(ArrayTypeReference arrayReference, BlockScope scope) {
@@ -138,7 +151,8 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 
 	static {
 //		TESTS_NAMES = new String[] {"test0020"};
-//		TESTS_NUMBERS = new int[] { 29 };
+//		TESTS_NUMBERS = new int[] { 34 };
+//		TESTS_RANGE = new int[] { 24, -1 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationSyntaxTest.class;
@@ -389,7 +403,7 @@ public void test0001() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0001", expectedUnitToString);
 }
 public void test0001a() {
 	String source = "class A extends String {}\n;" +
@@ -424,7 +438,7 @@ public void test0001a() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0001a", expectedUnitToString);
 }
 public void test0002() {
 	String source = "@Marker class A implements Comparable, " +
@@ -647,7 +661,7 @@ public void test0007() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0007", expectedUnitToString);
 }
 // parameters
 public void test0008() {
@@ -663,7 +677,7 @@ public void test0008() {
 		"  public @Marker int[] @Marker [][][] @Marker [][] main(int[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0008", expectedUnitToString);
 }
 public void test0008a() {
 	String source = "public class A {\n" +
@@ -678,7 +692,7 @@ public void test0008a() {
 		"  public @Marker int[] @Marker [][][] @Marker [][] main(String[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0008a", expectedUnitToString);
 }
 public void test0008b() {
 	String source = "public class A {\n" +
@@ -693,7 +707,7 @@ public void test0008b() {
 		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0008b", expectedUnitToString);
 }
 public void test0008c() {
 	String source = "public class A {\n" +
@@ -708,7 +722,7 @@ public void test0008c() {
 		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>.Iterator[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0008c", expectedUnitToString);
 }
 // varargs annotation
 public void test0008d() {
@@ -724,7 +738,7 @@ public void test0008d() {
 		"  public @Marker int[] @Marker [][][] @Marker [][] main(int[] @SingleMember(10) [][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0008d", expectedUnitToString);
 }
 public void test0008e() {
 	String source = "public class A {\n" +
@@ -739,7 +753,7 @@ public void test0008e() {
 		"  public @Marker int[] @Marker [][][] @Marker [][] main(String[] @SingleMember(10) [][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0008e", expectedUnitToString);
 }
 public void test0008f() {
 	String source = "public class A {\n" +
@@ -754,7 +768,7 @@ public void test0008f() {
 		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<Integer, String>[] @SingleMember(10) [][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0008f", expectedUnitToString);
 }
 public void test0008g() {
 	String source = "public class A {\n" +
@@ -769,7 +783,7 @@ public void test0008g() {
 		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<Integer, String>.Iterator[] @SingleMember(10) [][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0008g", expectedUnitToString);
 }
 // local variables
 public void test0009() {
@@ -791,7 +805,7 @@ public void test0009() {
 		"    float[][] p;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0009", expectedUnitToString);
 }
 // type parameter
 public void test0010() {
@@ -807,7 +821,7 @@ public void test0010() {
 		"  public <Integer, @Positive Integer, @Negative Integer, Integer>void foo() {\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0010", expectedUnitToString);
 }
 // Type
 public void test0011() {
@@ -831,7 +845,7 @@ public void test0011() {
 		"    return 0;\n" +
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0011", expectedUnitToString);
 }
 // Type
 public void test0011a() {
@@ -855,7 +869,7 @@ public void test0011a() {
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0011a", expectedUnitToString);
 }
 //Type
 public void test0011b() {
@@ -879,7 +893,7 @@ public void test0011b() {
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0011b", expectedUnitToString);
 }
 // Type
 public void test0011c() {
@@ -903,7 +917,7 @@ public void test0011c() {
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0011c", expectedUnitToString);
 }
 //Type
 public void test0011d() {
@@ -927,7 +941,7 @@ public void test0011d() {
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0011d", expectedUnitToString);
 }
 //Type
 public void test0011e() {
@@ -951,7 +965,7 @@ public void test0011e() {
 		"    return 0;\n" +
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0011e", expectedUnitToString);
 }
 // Type
 public void test0011f() {
@@ -975,7 +989,7 @@ public void test0011f() {
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0011f", expectedUnitToString);
 }
 //Type
 public void test0011g() {
@@ -999,7 +1013,7 @@ public void test0011g() {
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0011g", expectedUnitToString);
 }
 // Type0 field declaration.
 public void test0012() {
@@ -1017,7 +1031,7 @@ public void test0012() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0012", expectedUnitToString);
 }
 //Type0 field declaration.
 public void test0012a() {
@@ -1035,7 +1049,7 @@ public void test0012a() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0012a", expectedUnitToString);
 }
 //Type0 field declaration.
 public void test0012b() {
@@ -1053,7 +1067,7 @@ public void test0012b() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0012b", expectedUnitToString);
 }
 //Type0 field declaration.
 public void test0012c() {
@@ -1071,7 +1085,7 @@ public void test0012c() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0012c", expectedUnitToString);
 }
 //Type0 field declaration.
 public void test0012d() {
@@ -1089,7 +1103,7 @@ public void test0012d() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0012d", expectedUnitToString);
 }
 //Type0 field declaration.
 public void test0012e() {
@@ -1107,7 +1121,7 @@ public void test0012e() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0012e", expectedUnitToString);
 }
 //Type0 field declaration.
 public void test0012f() {
@@ -1125,7 +1139,7 @@ public void test0012f() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0012f", expectedUnitToString);
 }
 //Type0 field declaration.
 public void test0012g() {
@@ -1143,7 +1157,7 @@ public void test0012g() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0012g", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
 public void test0013() {
@@ -1163,7 +1177,7 @@ public void test0013() {
 		"    return 0;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0013", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
 public void test0013a() {
@@ -1183,7 +1197,7 @@ public void test0013a() {
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0013a", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
 public void test0013b() {
@@ -1203,7 +1217,7 @@ public void test0013b() {
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0013b", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
 public void test0013c() {
@@ -1223,7 +1237,7 @@ public void test0013c() {
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0013c", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
 public void test0013d() {
@@ -1243,7 +1257,7 @@ public void test0013d() {
 		"    return 0;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0013d", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
 public void test0013e() {
@@ -1263,7 +1277,7 @@ public void test0013e() {
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0013e", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
 public void test0013f() {
@@ -1283,7 +1297,7 @@ public void test0013f() {
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0013f", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
 public void test0013g() {
@@ -1303,7 +1317,7 @@ public void test0013g() {
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0013g", expectedUnitToString);
 }
 //Type0 local variable declaration
 public void test0014() {
@@ -1323,7 +1337,7 @@ public void test0014() {
 		"    int q;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0014", expectedUnitToString);
 }
 //Type0 local variable declaration
 public void test0014a() {
@@ -1343,7 +1357,7 @@ public void test0014a() {
 		"    String q;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0014a", expectedUnitToString);
 }
 //Type0 local variable declaration
 public void test0014b() {
@@ -1363,7 +1377,7 @@ public void test0014b() {
 		"    HashMap<@Positive Integer, @Negative Integer> q;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0014b", expectedUnitToString);
 }
 //Type0 local variable declaration
 public void test0014c() {
@@ -1383,7 +1397,7 @@ public void test0014c() {
 		"    HashMap<@Positive Integer, @Negative Integer>.Iterator q;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0014c", expectedUnitToString);
 }
 //Type0 local variable declaration
 public void test0014d() {
@@ -1403,7 +1417,7 @@ public void test0014d() {
 		"    int[] @NonNull [] @NonEmpty [][] q;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0014d", expectedUnitToString);
 }
 //Type0 local variable declaration
 public void test0014e() {
@@ -1423,7 +1437,7 @@ public void test0014e() {
 		"    String[] @NonNull [] @NonEmpty [][] q;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0014e", expectedUnitToString);
 }
 //Type0 local variable declaration
 public void test0014f() {
@@ -1443,7 +1457,7 @@ public void test0014f() {
 		"    HashMap<@Positive Integer, @Negative Integer>[] @NonNull [] @NonEmpty [][] q;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0014f", expectedUnitToString);
 }
 //Type0 local variable declaration
 public void test0014g() {
@@ -1463,7 +1477,7 @@ public void test0014g() {
 		"    HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull [] @NonEmpty [][] q;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0014g", expectedUnitToString);
 }
 //Type0 foreach
 public void test0015() {
@@ -1489,7 +1503,7 @@ public void test0015() {
 		"      }\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0015", expectedUnitToString);
 }
 //Type0 foreach
 public void test0015a() {
@@ -1515,7 +1529,7 @@ public void test0015a() {
 		"      }\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0015a", expectedUnitToString);
 }
 // cast expression
 public void test0016() {
@@ -1559,7 +1573,7 @@ public void test0016() {
 		"    x = (Integer) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @SingleMember(0) [][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Marker [][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Normal(Value = 0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Marker [][]) (@Readonly Object) (@Readonly String[] @Normal(Value = 0) [][]) (@Readonly String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (@Readonly Object) (@Readonly int[] @Normal(Value = 0) [][]) (@Readonly int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>) (@Readonly Object) (@ReadOnly String) (@Readonly Object) (@Readonly int) 10;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0016", expectedUnitToString);
 }
 //cast expression
 public void test0016a() {
@@ -1603,7 +1617,7 @@ public void test0016a() {
 		"    x = (Integer) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) (HashMap<@Positive Integer, Integer>.Iterator[] @SingleMember(0) [][]) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Marker [][]) (Object) (@Readonly HashMap<@Positive Integer, Integer>[] @Normal(Value = 0) [][]) (HashMap<Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, Integer>[] @Marker [][]) (Object) (@Readonly String[] @Normal(Value = 0) [][]) (String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (Object) (@Readonly int[] @Normal(Value = 0) [][]) (int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator) (Object) (@Readonly HashMap<@Positive Integer, Integer>) (Object) (@ReadOnly String) (Object) (@Readonly int) 10;\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0016a", expectedUnitToString);
 }
 // instanceof checks 
 public void test0017() {
@@ -1903,7 +1917,14 @@ public void test0024() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test0024", expectedUnitToString, new LocationPrinterVisitor());
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0024", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 4, locations.size());
+	assertEquals("Wrong location", null, locations.get("@E"));
+	assertEquals("Wrong location", "{0}", locations.get("@F"));
+	assertEquals("Wrong location", "{1}", locations.get("@G"));
+	assertEquals("Wrong location", "{2}", locations.get("@H"));
 }
 //check locations
 public void test0025() {
@@ -1918,7 +1939,13 @@ public void test0025() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test0025", expectedUnitToString, new LocationPrinterVisitor());
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0025", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 3, locations.size());
+	assertEquals("Wrong location", null, locations.get("@A"));
+	assertEquals("Wrong location", "{0}", locations.get("@B"));
+	assertEquals("Wrong location", "{1}", locations.get("@H"));
 }
 //check locations
 public void test0026() {
@@ -1933,7 +1960,16 @@ public void test0026() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test0026", expectedUnitToString, new LocationPrinterVisitor());
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0026", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 6, locations.size());
+	assertEquals("Wrong location", null, locations.get("@A"));
+	assertEquals("Wrong location", "{0}", locations.get("@B"));
+	assertEquals("Wrong location", "{1}", locations.get("@E"));
+	assertEquals("Wrong location", "{1,0}", locations.get("@F"));
+	assertEquals("Wrong location", "{1,1}", locations.get("@G"));
+	assertEquals("Wrong location", "{1,2}", locations.get("@H"));
 }
 //check locations
 public void test0027() {
@@ -1948,7 +1984,16 @@ public void test0027() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test0027", expectedUnitToString, new LocationPrinterVisitor());
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0027", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 6, locations.size());
+	assertEquals("Wrong location", null, locations.get("@A"));
+	assertEquals("Wrong location", "{0}", locations.get("@B"));
+	assertEquals("Wrong location", "{1}", locations.get("@C"));
+	assertEquals("Wrong location", "{1,0,2}", locations.get("@H"));
+	assertEquals("Wrong location", "{1,0}", locations.get("@E"));
+	assertEquals("Wrong location", "{1,0,1}", locations.get("@G"));
 }
 //check locations
 public void test0028() {
@@ -1963,7 +2008,18 @@ public void test0028() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test0028", expectedUnitToString, new LocationPrinterVisitor());
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0028", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 8, locations.size());
+	assertEquals("Wrong location", "{0}", locations.get("@I"));
+	assertEquals("Wrong location", "{1}", locations.get("@J"));
+	assertEquals("Wrong location", "{2}", locations.get("@A"));
+	assertEquals("Wrong location", "{2,0}", locations.get("@B"));
+	assertEquals("Wrong location", "{2,1}", locations.get("@C"));
+	assertEquals("Wrong location", "{2,1,0,2}", locations.get("@H"));
+	assertEquals("Wrong location", "{2,1,0}", locations.get("@E"));
+	assertEquals("Wrong location", "{2,1,0,1}", locations.get("@G"));
 }
 //check locations
 public void test0029() {
@@ -1978,9 +2034,145 @@ public void test0029() {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test0028", expectedUnitToString, new LocationPrinterVisitor());
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0029", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 8, locations.size());
+	assertEquals("Wrong location", null, locations.get("@I"));
+	assertEquals("Wrong location", "{1}", locations.get("@J"));
+	assertEquals("Wrong location", "{2}", locations.get("@A"));
+	assertEquals("Wrong location", "{2,0}", locations.get("@B"));
+	assertEquals("Wrong location", "{2,1}", locations.get("@C"));
+	assertEquals("Wrong location", "{2,1,0,2}", locations.get("@H"));
+	assertEquals("Wrong location", "{2,1,0}", locations.get("@E"));
+	assertEquals("Wrong location", "{2,1,0,1}", locations.get("@G"));
 }
-
+//check locations
+public void test0030() {
+	String source = 
+		"public class X {\n" + 
+		"	@A Map<@C List<@H String @E[][] @G[]>, String @B[] @D[]> @I[] @F[] @J[] field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A Map<@C List<@H String @E [][] @G []>, String @B [] @D []> @I [] @F [] @J [] field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0030", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 10, locations.size());
+	assertEquals("Wrong location", null, locations.get("@I"));
+	assertEquals("Wrong location", "{0}", locations.get("@F"));
+	assertEquals("Wrong location", "{1}", locations.get("@J"));
+	assertEquals("Wrong location", "{2}", locations.get("@A"));
+	assertEquals("Wrong location", "{2,0}", locations.get("@C"));
+	assertEquals("Wrong location", "{2,0,0}", locations.get("@E"));
+	assertEquals("Wrong location", "{2,0,0,1}", locations.get("@G"));
+	assertEquals("Wrong location", "{2,0,0,2}", locations.get("@H"));
+	assertEquals("Wrong location", "{2,1,0}", locations.get("@D"));
+	assertEquals("Wrong location", "{2,1}", locations.get("@B"));
+}
+//check locations
+public void test0031() {
+	String source = 
+		"public class X {\n" + 
+		"	@A Map<@C List<@H String @E[][] @G[]>, @B List<String [] @D[]>> [] @I[] @F[] @J[] field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A Map<@C List<@H String @E [][] @G []>, @B List<String[] @D []>>[] @I [] @F [] @J [] field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0030", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 10, locations.size());
+	assertEquals("Wrong location", "{0}", locations.get("@I"));
+	assertEquals("Wrong location", "{1}", locations.get("@F"));
+	assertEquals("Wrong location", "{2}", locations.get("@J"));
+	assertEquals("Wrong location", "{3}", locations.get("@A"));
+	assertEquals("Wrong location", "{3,0}", locations.get("@C"));
+	assertEquals("Wrong location", "{3,0,0}", locations.get("@E"));
+	assertEquals("Wrong location", "{3,0,0,1}", locations.get("@G"));
+	assertEquals("Wrong location", "{3,0,0,2}", locations.get("@H"));
+	assertEquals("Wrong location", "{3,1}", locations.get("@B"));
+	assertEquals("Wrong location", "{3,1,0,0}", locations.get("@D"));
+}
+//check locations
+public void test0032() {
+	String source = 
+		"public class X {\n" + 
+		"	@A Map<@B String, @C List<@D Object>> field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A Map<@B String, @C List<@D Object>> field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0030", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 4, locations.size());
+	assertEquals("Wrong location", null, locations.get("@A"));
+	assertEquals("Wrong location", "{0}", locations.get("@B"));
+	assertEquals("Wrong location", "{1}", locations.get("@C"));
+	assertEquals("Wrong location", "{1,0}", locations.get("@D"));
+}
+//check locations
+public void test0033() {
+	String source = 
+		"public class X {\n" + 
+		"	@H String @E[] @F[] @G[] field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @H String @E [] @F [] @G [] field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0030", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 4, locations.size());
+	assertEquals("Wrong location", null, locations.get("@E"));
+	assertEquals("Wrong location", "{0}", locations.get("@F"));
+	assertEquals("Wrong location", "{1}", locations.get("@G"));
+	assertEquals("Wrong location", "{2}", locations.get("@H"));
+}
+//check locations
+public void test0034() {
+	String source = 
+		"public class X {\n" + 
+		"	@A Map<@B Comparable<@C Object @D[] @E[] @F[]>, @G List<@H Document>> field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A Map<@B Comparable<@C Object @D [] @E [] @F []>, @G List<@H Document>> field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
+	checkParse(source.toCharArray(), null, "test0030", expectedUnitToString, visitor);
+	Map locations = visitor.getLocations();
+	assertEquals("Wrong size", 8, locations.size());
+	assertEquals("Wrong location", null, locations.get("@A"));
+	assertEquals("Wrong location", "{0}", locations.get("@B"));
+	assertEquals("Wrong location", "{0,0,2}", locations.get("@C"));
+	assertEquals("Wrong location", "{0,0}", locations.get("@D"));
+	assertEquals("Wrong location", "{0,0,0}", locations.get("@E"));
+	assertEquals("Wrong location", "{0,0,1}", locations.get("@F"));
+	assertEquals("Wrong location", "{1}", locations.get("@G"));
+	assertEquals("Wrong location", "{1,0}", locations.get("@H"));
+}
 public void acceptImport(int declarationStart, int declarationEnd,
 		int[] javaDocPositions, char[] name, int nameStartPosition,
 		boolean onDemand, int modifiers) {
