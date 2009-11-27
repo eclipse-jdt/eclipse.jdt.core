@@ -279,6 +279,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	public StringBuffer printExpression(int indent, StringBuffer output){
 		if (this.annotations != null) {
 			printAnnotations(this.annotations, output);
+			output.append(' ');
 		}
 		output.append(this.token);
 		output.append("<"); //$NON-NLS-1$
@@ -294,12 +295,14 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
 					output.append(" "); //$NON-NLS-1$
 					printAnnotations(this.annotationsOnDimensions[i], output);
+					output.append(" "); //$NON-NLS-1$
 				}
 				output.append("[]"); //$NON-NLS-1$
 			}
 			if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[this.dimensions - 1] != null) {
 				output.append(" "); //$NON-NLS-1$
 				printAnnotations(this.annotationsOnDimensions[this.dimensions - 1], output);
+				output.append(" "); //$NON-NLS-1$
 			}
 			output.append("..."); //$NON-NLS-1$
 		} else {
@@ -307,6 +310,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
 					output.append(" "); //$NON-NLS-1$
 					printAnnotations(this.annotationsOnDimensions[i], output);
+					output.append(" "); //$NON-NLS-1$
 				}
 				output.append("[]"); //$NON-NLS-1$
 			}
@@ -336,9 +340,11 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			if (this.annotationsOnDimensions != null) {
 				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
 					Annotation[] annotations2 = this.annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
-						annotation.traverse(visitor, scope);
+					if (annotations2 != null) {
+						for (int j = 0, max2 = annotations2.length; j < max2; j++) {
+							Annotation annotation = annotations2[j];
+							annotation.traverse(visitor, scope);
+						}
 					}
 				}
 			}

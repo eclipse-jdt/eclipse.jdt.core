@@ -891,7 +891,10 @@ public StringBuffer printBody(int indent, StringBuffer output) {
 
 public StringBuffer printHeader(int indent, StringBuffer output) {
 	printModifiers(this.modifiers, output);
-	if (this.annotations != null) printAnnotations(this.annotations, output);
+	if (this.annotations != null) {
+		printAnnotations(this.annotations, output);
+		output.append(' ');
+	}
 
 	switch (kind(this.modifiers)) {
 		case TypeDeclaration.CLASS_DECL :

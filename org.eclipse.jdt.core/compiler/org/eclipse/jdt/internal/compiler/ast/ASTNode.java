@@ -482,13 +482,15 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static StringBuffer printAnnotations(Annotation[] annotations, StringBuffer output) {
 		int length = annotations.length;
 		for (int i = 0; i < length; i++) {
+			if (i > 0) {
+				output.append(" "); //$NON-NLS-1$
+			}
 			Annotation annotation2 = annotations[i];
 			if (annotation2 != null) {
 				annotation2.print(0, output);
 			} else {
 				output.append('?');
 			}
-			output.append(" "); //$NON-NLS-1$
 		}
 		return output;
 	}

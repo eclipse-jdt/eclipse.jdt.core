@@ -55,7 +55,10 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 
 		printIndent(tab, output);
 		printModifiers(this.modifiers, output);
-		if (this.annotations != null) printAnnotations(this.annotations, output);
+		if (this.annotations != null) {
+			printAnnotations(this.annotations, output);
+			output.append(' ');
+		}
 
 		TypeParameter[] typeParams = typeParameters();
 		if (typeParams != null) {

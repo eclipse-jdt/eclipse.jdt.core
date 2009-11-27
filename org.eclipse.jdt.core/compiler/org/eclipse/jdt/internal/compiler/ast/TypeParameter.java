@@ -82,6 +82,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 		if (this.annotations != null) {
 			printAnnotations(this.annotations, output);
+			output.append(' ');
 		}
 		output.append(this.name);
 		if (this.type != null) {

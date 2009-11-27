@@ -37,6 +37,12 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -55,18 +61,33 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 	
 	static final class LocationPrinterVisitor extends ASTVisitor {
 		Annotation[] primaryAnnotations;
+		TypeReference enclosingReference;
 
 		public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
 			Annotation[] annotations = fieldDeclaration.annotations;
-			if (annotations != null) {
-				for (int i = 0; i < annotations.length; i++) {
-					Annotation annotation = annotations[i];
-					printLocations(annotation, Annotation.getLocations(fieldDeclaration.type, fieldDeclaration.annotations, annotation));
-				}
-			}
+			this.enclosingReference = fieldDeclaration.type;
+			this.primaryAnnotations = annotations;
 			return true;
 		}
 
+		public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
+			if (this.enclosingReference != null) {
+				printLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
+			}
+			return false;
+		}
+		public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
+			if (this.enclosingReference != null) {
+				printLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
+			}
+			return false;
+		}
+		public boolean visit(NormalAnnotation annotation, BlockScope scope) {
+			if (this.enclosingReference != null) {
+				printLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
+			}
+			return false;
+		}
 		public void printLocations(Annotation annotation, int[] tab) {
 			if (tab == null) {
 				System.out.println(String.valueOf(annotation) + " no_locations");
@@ -85,24 +106,16 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 		}
 
 		public boolean visit(ArrayTypeReference arrayReference, BlockScope scope) {
-			Annotation[] annotations = arrayReference.annotations;
-			if (annotations != null) {
-				for (int i = 0; i < annotations.length; i++) {
-					Annotation annotation = annotations[i];
-					printLocations(annotation, Annotation.getLocations(arrayReference, null, annotation));
-				}
-			}
-			Annotation[][] dimensionsAnnotations = arrayReference.annotationsOnDimensions;
-			if (dimensionsAnnotations != null) {
-				for (int i = 0, max = dimensionsAnnotations.length; i < max; i++) {
-					annotations = dimensionsAnnotations[i];
-					for (int j = 0; j < annotations.length; j++) {
-						Annotation annotation = annotations[j];
-						printLocations(annotation, Annotation.getLocations(arrayReference, null, annotation));
-					}
-				}
-			}
-			return false;
+			if (this.enclosingReference == null) return false;
+			return true;
+		}
+		public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
+			if (this.enclosingReference == null) return false;
+			return true;
+		}
+		public boolean visit(SingleTypeReference typeReference, BlockScope scope) {
+			if (this.enclosingReference == null) return false;
+			return true;
 		}
 	}
 	private static final int CHECK_PARSER = 0x1;
@@ -124,8 +137,8 @@ public class TypeAnnotationSyntaxTest extends AbstractCompilerTest implements ID
 	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
 
 	static {
-//		TESTS_NAMES = new String [] {"test0020"};
-		TESTS_NUMBERS = new int[] { 25 };
+//		TESTS_NAMES = new String[] {"test0020"};
+//		TESTS_NUMBERS = new int[] { 29 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationSyntaxTest.class;
@@ -325,14 +338,14 @@ private String getCompilerMessages(CompilationResult compilationResult) {
 
 void traverse (File f) throws IOException {
 if (f.isDirectory()) {
-	File [] files = f.listFiles();
+	File[] files = f.listFiles();
 	for (int i = 0; i < files.length; i++) {
 		traverse(files[i]);
 	}
 } else {
 	if (f.getName().endsWith(".java")) {
 		System.out.println(f.getCanonicalPath());
-		char [] contents = new char[(int) f.length()];
+		char[] contents = new char[(int) f.length()];
 		FileInputStream fs = new FileInputStream(f);
 		InputStreamReader isr = new InputStreamReader(fs);
 		isr.read(contents);
@@ -343,7 +356,7 @@ if (f.isDirectory()) {
 public void _test000() throws IOException {
 traverse(new File("C:\\jsr308tests"));
 }
-public void test0001()  {
+public void test0001() {
 	String source = "@Marker class A extends String {}\n;" +
 					"@Marker class B extends @Marker String {}\n" +
 					"@Marker class C extends @Marker @SingleMember(0) String {}\n" +
@@ -378,7 +391,7 @@ public void test0001()  {
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
-public void test0001a()  {
+public void test0001a() {
 	String source = "class A extends String {}\n;" +
 					"class B extends @Marker String {}\n" +
 					"class C extends @Marker @SingleMember(0) String {}\n" +
@@ -413,10 +426,10 @@ public void test0001a()  {
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
-public void test0002()  {
+public void test0002() {
 	String source = "@Marker class A implements Comparable, " +
 					"                   @Marker Serializable," +
-					"                   Cloneable  {\n" +
+					"                   Cloneable {\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"@Marker class A implements Comparable, @Marker Serializable, Cloneable {\n" + 
@@ -424,12 +437,12 @@ public void test0002()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0002", expectedUnitToString);
 }
-public void test0002a()  {
+public void test0002a() {
 	String source = "@Marker class A implements Comparable, " +
 					"                   @Marker @SingleMember(0) Serializable," +
-					"                   Cloneable  {\n" +
+					"                   Cloneable {\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"@Marker class A implements Comparable, @Marker @SingleMember(0) Serializable, Cloneable {\n" + 
@@ -437,12 +450,12 @@ public void test0002a()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0002a", expectedUnitToString);
 }
-public void test0002b()  {
+public void test0002b() {
 	String source = "@Marker class A implements Comparable, " +
 					"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
-					"                   Cloneable  {\n" +
+					"                   Cloneable {\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"@Marker class A implements Comparable, @Marker @SingleMember(0) @Normal(Value = 0) Serializable, Cloneable {\n" +
@@ -450,12 +463,12 @@ public void test0002b()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0002b", expectedUnitToString);
 }
-public void test0002c()  {
+public void test0002c() {
 	String source = "@Marker class A implements @Marker Comparable, " +
 					"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
-					"                   @Marker Cloneable  {\n" +
+					"                   @Marker Cloneable {\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"@Marker class A implements @Marker Comparable, @Marker @SingleMember(0) @Normal(Value = 0) Serializable, @Marker Cloneable {\n" +
@@ -463,12 +476,12 @@ public void test0002c()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0002c", expectedUnitToString);
 }
-public void test0003()  {
+public void test0003() {
 	String source = "@Marker class A extends Object implements Comparable, " +
 					"                   @Marker @SingleMember(10) @Normal(Value=0) Serializable," +
-					"                   Cloneable  {\n" +
+					"                   Cloneable {\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"@Marker class A extends Object implements Comparable, @Marker @SingleMember(10) @Normal(Value = 0) Serializable, Cloneable {\n" +
@@ -476,12 +489,12 @@ public void test0003()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0003", expectedUnitToString);
 }
-public void test0003a()  {
+public void test0003a() {
 	String source = "@Marker class A extends @Marker Object implements Comparable, " +
 					"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
-					"                   Cloneable  {\n" +
+					"                   Cloneable {\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"@Marker class A extends @Marker Object implements Comparable, @Marker @SingleMember(0) @Normal(Value = 0) Serializable, Cloneable {\n" +
@@ -489,12 +502,12 @@ public void test0003a()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0003a", expectedUnitToString);
 }
-public void test0003b()  {
+public void test0003b() {
 	String source = "@Marker class A extends @Marker @SingleMember(0) Object implements Comparable, " +
 	"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
-	"                   Cloneable  {\n" +
+	"                   Cloneable {\n" +
 	"}\n";
 	String expectedUnitToString = 
 		"@Marker class A extends @Marker @SingleMember(0) Object implements Comparable, @Marker @SingleMember(0) @Normal(Value = 0) Serializable, Cloneable {\n" +
@@ -502,12 +515,12 @@ public void test0003b()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0003b", expectedUnitToString);
 }
-public void test0003c()  {
+public void test0003c() {
 	String source = "@Marker class A extends @Marker @SingleMember(0) @Normal(Value=0) Object implements Comparable, " +
 	"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
-	"                   Cloneable  {\n" +
+	"                   Cloneable {\n" +
 	"}\n";
 	String expectedUnitToString = 
 		"@Marker class A extends @Marker @SingleMember(0) @Normal(Value = 0) Object implements Comparable, @Marker @SingleMember(0) @Normal(Value = 0) Serializable, Cloneable {\n" +
@@ -515,13 +528,13 @@ public void test0003c()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0003c", expectedUnitToString);
 }
-public void test0004()  {
-	String source = "public class A  {\n" +
-					"    int [] f [];\n" +
-					"    @Marker String [] @Marker [] [] s [] @SingleMember(0) [] [] @Normal(Value = 0) [] [];\n" +
-					"    float [] p [];\n" +
+public void test0004() {
+	String source = "public class A {\n" +
+					"    int[] f[];\n" +
+					"    @Marker String[] @Marker[][] s[] @SingleMember(0)[][] @Normal(Value = 0)[][];\n" +
+					"    float[] p[];\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
@@ -532,15 +545,15 @@ public void test0004()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0004", expectedUnitToString);
 }
-public void test0005()  {
-	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable  {\n" +
-					"    int [] f [];\n" +
-					"    @English String [] @NonNull [] s [] @Nullable [] [];\n" +
-					"    float [] p [];\n" +
+public void test0005() {
+	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
+					"    int[] f[];\n" +
+					"    @English String[] @NonNull[] s[] @Nullable[][];\n" +
+					"    float[] p[];\n" +
 					"public static void main(String args[]) {\n" +
-					"    @Readonly String @Nullable [] @NonNull[] s;\n" +
+					"    @Readonly String @Nullable[] @NonNull[] s;\n" +
 					"    s = new @Readonly String @NonNull[5] @Nullable[];\n" +
 					"}\n" +
 					"}\n";
@@ -557,13 +570,13 @@ public void test0005()  {
 		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0005", expectedUnitToString);
 }
-public void test0005a()  {
-	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable  {\n" +
-					"    int [] f [];\n" +
-					"    @English String [] @NonNull [] s [] @Nullable [] [];\n" +
-					"    float [] p [];\n" +
+public void test0005a() {
+	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
+					"    int[] f[];\n" +
+					"    @English String[] @NonNull[] s[] @Nullable[][];\n" +
+					"    float[] p[];\n" +
 					"public static void main(String args[]) {\n" +
 					"    @Readonly String s;\n" +
 					"	 s = new @Readonly String @NonNull[] @Nullable[] { {\"Hello\"}, {\"World\"}} [0][0];\n" +
@@ -582,15 +595,15 @@ public void test0005a()  {
 		"    s = new @Readonly String @NonNull [] @Nullable []{{\"Hello\"}, {\"World\"}}[0][0];\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0005a", expectedUnitToString);
 }
-public void test0006()  {
-	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable  {\n" +
-					"    int [] f [];\n" +
-					"    @English String [] @NonNull [] s [] @Nullable [] [];\n" +
-					"    float [] p [];\n" +
-					"public static int main(String args[]) [] @Marker[] [] @Marker @SingleMember(0) @Normal(Value=0) [] [] @Marker {\n" +
-					"    @Readonly String @Nullable [] @NonNull[] s;\n" +
+public void test0006() {
+	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
+					"    int[] f[];\n" +
+					"    @English String[] @NonNull[] s[] @Nullable[][];\n" +
+					"    float[] p[];\n" +
+					"public static int main(String args[])[] @Marker[][] @Marker @SingleMember(0) @Normal(Value=0)[][] @Marker {\n" +
+					"    @Readonly String @Nullable[] @NonNull[] s;\n" +
 					"    s = new @Readonly String @NonNull[5] @Nullable[];\n" +
 					"}\n" +
 					"}\n";
@@ -602,20 +615,20 @@ public void test0006()  {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public static int[] @Marker [][] @Marker @SingleMember(0) @Normal(Value = 0) [][] main(String[] args) @Marker  {\n" +		"    @Readonly String @Nullable [] @NonNull [] s;\n" + 
+		"  public static int[] @Marker [][] @Marker @SingleMember(0) @Normal(Value = 0) [][] main(String[] args) @Marker {\n" +		"    @Readonly String @Nullable[] @NonNull[] s;\n" + 
 		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
+	checkParse(source.toCharArray(), null, "test0006", expectedUnitToString);
 
 }
-public void test0007()  {
-	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable  {\n" +
-					"    int [] f [];\n" +
-					"    @English String [] @NonNull [] s [] @Nullable [] [];\n" +
-					"    float [] p [];\n" +
-					"public static int main(String args[]) [] @Marker[] [] @Marker @SingleMember(0) @Normal(Value=0) [] [] @Marker {\n" +
-					"    @Readonly String @Nullable [] @NonNull[] s;\n" +
+public void test0007() {
+	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
+					"    int[] f[];\n" +
+					"    @English String[] @NonNull[] s[] @Nullable[][];\n" +
+					"    float[] p[];\n" +
+					"public static int main(String args[])[] @Marker[][] @Marker @SingleMember(0) @Normal(Value=0)[][] @Marker {\n" +
+					"    @Readonly String @Nullable[] @NonNull[] s;\n" +
 					"    s = new @Readonly String @NonNull[5] @Nullable[];\n" +
 					"}\n" +
 					"@Marker public A () @Marker @SingleMember(0) @Normal(Value=10) {}\n" +
@@ -623,22 +636,22 @@ public void test0007()  {
 	String expectedUnitToString = 
 		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" + 
 		"  int[][] f;\n" + 
-		"  @English String[] @NonNull [][] @Nullable [][] s;\n" + 
+		"  @English String[] @NonNull[][] @Nullable[][] s;\n" + 
 		"  float[][] p;\n" + 
-		"  public static int[] @Marker [][] @Marker @SingleMember(0) @Normal(Value = 0) [][] main(String[] args) @Marker  {\n" + 
-		"    @Readonly String @Nullable [] @NonNull [] s;\n" + 
+		"  public static int[] @Marker[][] @Marker @SingleMember(0) @Normal(Value = 0)[][] main(String[] args) @Marker {\n" + 
+		"    @Readonly String @Nullable[] @NonNull[] s;\n" + 
 		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" + 
 		"  }\n" + 
-		"  public @Marker A() @Marker @SingleMember(0) @Normal(Value = 10)  {\n" + 
+		"  public @Marker A() @Marker @SingleMember(0) @Normal(Value = 10) {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // parameters
-public void test0008()  {
+public void test0008() {
 	String source = "public class A {\n" +
-					"@Marker public int [] @Marker [] [] main(int [] @SingleMember(10) [] [] args [] @Normal(Value = 10)[] []) [] @Marker [] [] @Marker {\n" +
+					"@Marker public int[] @Marker[][] main(int[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] @Marker {\n" +
 					"}\n" +
 					"}";
 	String expectedUnitToString = 
@@ -646,14 +659,14 @@ public void test0008()  {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(int[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker  {\n" + 
+		"  public @Marker int[] @Marker[][][] @Marker[][] main(int[] @SingleMember(10)[][][] @Normal(Value = 10)[][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
-public void test0008a()  {
+public void test0008a() {
 	String source = "public class A {\n" +
-					"@Marker public int [] @Marker [] [] main(String [] @SingleMember(10) [] [] args [] @Normal(Value = 10)[] []) [] @Marker [] [] @Marker {\n" +
+					"@Marker public int[] @Marker[][] main(String[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] @Marker {\n" +
 					"}\n" +
 					"}";
 	String expectedUnitToString = 
@@ -661,14 +674,14 @@ public void test0008a()  {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(String[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker  {\n" + 
+		"  public @Marker int[] @Marker[][][] @Marker[][] main(String[] @SingleMember(10)[][][] @Normal(Value = 10)[][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
-public void test0008b()  {
+public void test0008b() {
 	String source = "public class A {\n" +
-					"@Marker public int [] @Marker [] [] main(HashMap<String, Object> [] @SingleMember(10) [] [] args [] @Normal(Value = 10)[] []) [] @Marker [] [] @Marker {\n" +
+					"@Marker public int[] @Marker[][] main(HashMap<String, Object>[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] @Marker {\n" +
 					"}\n" +
 					"}";
 	String expectedUnitToString = 
@@ -676,14 +689,14 @@ public void test0008b()  {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker  {\n" + 
+		"  public @Marker int[] @Marker[][][] @Marker[][] main(HashMap<String, Object>[] @SingleMember(10)[][][] @Normal(Value = 10)[][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
-public void test0008c()  {
+public void test0008c() {
 	String source = "public class A {\n" +
-					"@Marker public int [] @Marker [] [] main(HashMap<String, Object>.Iterator [] @SingleMember(10) [] [] args [] @Normal(Value = 10)[] []) [] @Marker [] [] @Marker {\n" +
+					"@Marker public int[] @Marker[][] main(HashMap<String, Object>.Iterator[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] @Marker {\n" +
 					"}\n" +
 					"}";
 	String expectedUnitToString = 
@@ -691,15 +704,15 @@ public void test0008c()  {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>.Iterator[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker  {\n" + 
+		"  public @Marker int[] @Marker[][][] @Marker[][] main(HashMap<String, Object>.Iterator[] @SingleMember(10)[][][] @Normal(Value = 10)[][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // varargs annotation
-public void test0008d()  {
+public void test0008d() {
 	String source = "public class A {\n" +
-					"@Marker public int [] @Marker [] [] main(int [] @SingleMember(10) [] [] @Marker ... args ) [] @Marker [] [] @Marker {\n" +
+					"@Marker public int[] @Marker[][] main(int[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] @Marker {\n" +
 					"}\n" +
 					"}";
 	String expectedUnitToString = 
@@ -707,14 +720,14 @@ public void test0008d()  {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(int[] @SingleMember(10) [][] @Marker ... args) @Marker  {\n" + 
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(int[] @SingleMember(10) [][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
-public void test0008e()  {
+public void test0008e() {
 	String source = "public class A {\n" +
-					"@Marker public int [] @Marker [] [] main(String [] @SingleMember(10) [] [] @Marker ... args ) [] @Marker [] [] @Marker {\n" +
+					"@Marker public int[] @Marker[][] main(String[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] @Marker {\n" +
 					"}\n" +
 					"}";
 	String expectedUnitToString = 
@@ -722,14 +735,14 @@ public void test0008e()  {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(String[] @SingleMember(10) [][] @Marker ... args) @Marker  {\n" + 
+		"  public @Marker int[] @Marker[][][] @Marker[][] main(String[] @SingleMember(10)[][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
-public void test0008f()  {
+public void test0008f() {
 	String source = "public class A {\n" +
-					"@Marker public int [] @Marker [] [] main(HashMap<Integer,String> [] @SingleMember(10) [] [] @Marker ... args ) [] @Marker [] [] @Marker {\n" +
+					"@Marker public int[] @Marker[][] main(HashMap<Integer,String>[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] @Marker {\n" +
 					"}\n" +
 					"}";
 	String expectedUnitToString = 
@@ -737,14 +750,14 @@ public void test0008f()  {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<Integer, String>[] @SingleMember(10) [][] @Marker ... args) @Marker  {\n" + 
+		"  public @Marker int[] @Marker[][][] @Marker[][] main(HashMap<Integer, String>[] @SingleMember(10)[][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
-public void test0008g()  {
+public void test0008g() {
 	String source = "public class A {\n" +
-					"@Marker public int [] @Marker [] [] main(HashMap<Integer,String>.Iterator [] @SingleMember(10) [] [] @Marker ... args ) [] @Marker [] [] @Marker {\n" +
+					"@Marker public int[] @Marker[][] main(HashMap<Integer,String>.Iterator[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] @Marker {\n" +
 					"}\n" +
 					"}";
 	String expectedUnitToString = 
@@ -752,18 +765,18 @@ public void test0008g()  {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<Integer, String>.Iterator[] @SingleMember(10) [][] @Marker ... args) @Marker  {\n" + 
+		"  public @Marker int[] @Marker[][][] @Marker[][] main(HashMap<Integer, String>.Iterator[] @SingleMember(10)[][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // local variables
-public void test0009()  {
-	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable  {\n" +
+public void test0009() {
+	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
 					"public static void main(String args[]) {\n" +
-					"    int [] f [];\n" +
-					"    @English String [] @NonNull [] s [] @Nullable [] [];\n" +
-					"    float [] p [];\n" +
+					"    int[] f[];\n" +
+					"    @English String[] @NonNull[] s[] @Nullable[][];\n" +
+					"    float[] p[];\n" +
 					"}\n" +
 					"}\n";
 	String expectedUnitToString = 
@@ -773,14 +786,14 @@ public void test0009()  {
 		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
 		"    int[][] f;\n" + 
-		"    @English String[] @NonNull [][] @Nullable [][] s;\n" + 
+		"    @English String[] @NonNull[][] @Nullable[][] s;\n" + 
 		"    float[][] p;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // type parameter
-public void test0010()  {
+public void test0010() {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> void foo() {\n" +
 					"}\n" +
@@ -796,7 +809,7 @@ public void test0010()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // Type
-public void test0011()  {
+public void test0011() {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker int foo() @Marker {\n" +
 					"    return 0;\n" +
@@ -810,17 +823,17 @@ public void test0011()  {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker int foo() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker int foo() @Marker {\n" + 
 		"    return 0;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>int bar() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>int bar() @Marker {\n" + 
 		"    return 0;\n" +
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // Type
-public void test0011a()  {
+public void test0011a() {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker String foo() @Marker {\n" +
 					"    return null;\n" +
@@ -834,17 +847,17 @@ public void test0011a()  {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker String foo() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker String foo() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>String bar() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>String bar() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type
-public void test0011b()  {
+public void test0011b() {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object> foo() @Marker {\n" +
 					"    return null;\n" +
@@ -858,17 +871,17 @@ public void test0011b()  {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker HashMap<@Readonly String, Object> foo() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker HashMap<@Readonly String, Object> foo() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object> bar() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object> bar() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // Type
-public void test0011c()  {
+public void test0011c() {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator foo() @Marker {\n" +
 					"    return null;\n" +
@@ -882,22 +895,22 @@ public void test0011c()  {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator foo() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator foo() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>.Iterator bar() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>.Iterator bar() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type
-public void test0011d()  {
+public void test0011d() {
 	String source = "class A {\n" +
-					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator [] @NonEmpty [] [] foo() @Marker {\n" +
+					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator[] @NonEmpty[][] foo() @Marker {\n" +
 					"    return null;\n" +
 					"}\n" +
-					"public <Integer, @Positive Integer, @Negative Integer, Integer> HashMap<String, @NonNull Object>.Iterator [] @NonEmpty [] [] bar () @Marker {\n" +
+					"public <Integer, @Positive Integer, @Negative Integer, Integer> HashMap<String, @NonNull Object>.Iterator[] @NonEmpty[][] bar () @Marker {\n" +
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
@@ -906,22 +919,22 @@ public void test0011d()  {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator[] @NonEmpty [][] foo() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator[] @NonEmpty[][] foo() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>.Iterator[] @NonEmpty [][] bar() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>.Iterator[] @NonEmpty[][] bar() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type
-public void test0011e()  {
+public void test0011e() {
 	String source = "class A {\n" +
-					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker int [] @NonEmpty[] [] foo() @Marker {\n" +
+					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker int[] @NonEmpty[][] foo() @Marker {\n" +
 					"    return 0;\n" +
 					"}\n" +
-					"public <Integer, @Positive Integer, @Negative Integer, Integer> int [] @NonEmpty [] [] bar() @Marker{\n" +
+					"public <Integer, @Positive Integer, @Negative Integer, Integer> int[] @NonEmpty[][] bar() @Marker{\n" +
 					"    return 0;\n" +
 					"}\n" +
 					"}\n";
@@ -930,22 +943,22 @@ public void test0011e()  {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker int[] @NonEmpty [][] foo() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker int[] @NonEmpty[][] foo() @Marker {\n" + 
 		"    return 0;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>int[] @NonEmpty [][] bar() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>int[] @NonEmpty[][] bar() @Marker {\n" + 
 		"    return 0;\n" +
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // Type
-public void test0011f()  {
+public void test0011f() {
 	String source = "class A {\n" +
-					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker String []@NonEmpty[][] foo() @Marker {\n" +
+					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker String[]@NonEmpty[][] foo() @Marker {\n" +
 					"    return null;\n" +
 					"}\n" +
-					"public <Integer, @Positive Integer, @Negative Integer, Integer> String []@NonEmpty[][] bar () @Marker {\n" +
+					"public <Integer, @Positive Integer, @Negative Integer, Integer> String[]@NonEmpty[][] bar () @Marker {\n" +
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
@@ -954,22 +967,22 @@ public void test0011f()  {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker String[] @NonEmpty [][] foo() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker String[] @NonEmpty[][] foo() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>String[] @NonEmpty [][] bar() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>String[] @NonEmpty[][] bar() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type
-public void test0011g()  {
+public void test0011g() {
 	String source = "class A {\n" +
-					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object> [] @NonEmpty [] [] foo() @Marker {\n" +
+					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>[] @NonEmpty[][] foo() @Marker {\n" +
 					"    return null;\n" +
 					"}\n" +
-					"public <Integer, @Positive Integer, @Negative Integer, Integer> HashMap<String, @NonNull Object> []@NonEmpty[][] bar () @Marker {\n" +
+					"public <Integer, @Positive Integer, @Negative Integer, Integer> HashMap<String, @NonNull Object>[]@NonEmpty[][] bar () @Marker {\n" +
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
@@ -978,21 +991,21 @@ public void test0011g()  {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker HashMap<@Readonly String, Object>[] @NonEmpty [][] foo() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker HashMap<@Readonly String, Object>[] @NonEmpty[][] foo() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>[] @NonEmpty [][] bar() @Marker  {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>[] @NonEmpty[][] bar() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // Type0 field declaration.
-public void test0012()  {
-	String source = "public class A  {\n" +
-					"    int [] f [];\n" +
+public void test0012() {
+	String source = "public class A {\n" +
+					"    int[] f[];\n" +
 					"    @Marker int k;\n" +
-					"    float [] p [];\n" +
+					"    float[] p[];\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
@@ -1006,11 +1019,11 @@ public void test0012()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 field declaration.
-public void test0012a()  {
-	String source = "public class A  {\n" +
-					"    int [] f [];\n" +
+public void test0012a() {
+	String source = "public class A {\n" +
+					"    int[] f[];\n" +
 					"    @Marker String k;\n" +
-					"    float [] p [];\n" +
+					"    float[] p[];\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
@@ -1024,11 +1037,11 @@ public void test0012a()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 field declaration.
-public void test0012b()  {
-	String source = "public class A  {\n" +
-					"    int [] f [];\n" +
+public void test0012b() {
+	String source = "public class A {\n" +
+					"    int[] f[];\n" +
 					"    @Marker HashMap<@Positive Integer, @Negative Integer> k;\n" +
-					"    float [] p [];\n" +
+					"    float[] p[];\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
@@ -1042,11 +1055,11 @@ public void test0012b()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 field declaration.
-public void test0012c()  {
-	String source = "public class A  {\n" +
-					"    int [] f [];\n" +
+public void test0012c() {
+	String source = "public class A {\n" +
+					"    int[] f[];\n" +
 					"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator k;\n" +
-					"    float [] p [];\n" +
+					"    float[] p[];\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
@@ -1060,16 +1073,16 @@ public void test0012c()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 field declaration.
-public void test0012d()  {
-	String source = "public class A  {\n" +
-					"    int [] f [];\n" +
-					"    @Marker int [] @NonEmpty[] [] k;\n" +
-					"    float [] p [];\n" +
+public void test0012d() {
+	String source = "public class A {\n" +
+					"    int[] f[];\n" +
+					"    @Marker int[] @NonEmpty[][] k;\n" +
+					"    float[] p[];\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  int[][] f;\n" + 
-		"  @Marker int[] @NonEmpty [][] k;\n" + 
+		"  @Marker int[] @NonEmpty[][] k;\n" + 
 		"  float[][] p;\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
@@ -1078,16 +1091,16 @@ public void test0012d()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 field declaration.
-public void test0012e()  {
-	String source = "public class A  {\n" +
-					"    int [] f [];\n" +
-					"    @Marker String [] @NonEmpty[] []k;\n" +
-					"    float [] p [];\n" +
+public void test0012e() {
+	String source = "public class A {\n" +
+					"    int[] f[];\n" +
+					"    @Marker String[] @NonEmpty[][]k;\n" +
+					"    float[] p[];\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  int[][] f;\n" + 
-		"  @Marker String[] @NonEmpty [][] k;\n" + 
+		"  @Marker String[] @NonEmpty[][] k;\n" + 
 		"  float[][] p;\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
@@ -1096,16 +1109,16 @@ public void test0012e()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 field declaration.
-public void test0012f()  {
-	String source = "public class A  {\n" +
-					"    int [] f [];\n" +
-					"    @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty[] [] k;\n" +
-					"    float [] p [];\n" +
+public void test0012f() {
+	String source = "public class A {\n" +
+					"    int[] f[];\n" +
+					"    @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty[][] k;\n" +
+					"    float[] p[];\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  int[][] f;\n" + 
-		"  @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] k;\n" + 
+		"  @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty[][] k;\n" + 
 		"  float[][] p;\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
@@ -1114,16 +1127,16 @@ public void test0012f()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 field declaration.
-public void test0012g()  {
-	String source = "public class A  {\n" +
-					"    int [] f [];\n" +
-					"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[] [] k;\n" +
-					"    float [] p [];\n" +
+public void test0012g() {
+	String source = "public class A {\n" +
+					"    int[] f[];\n" +
+					"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] k;\n" +
+					"    float[] p[];\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  int[][] f;\n" + 
-		"  @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] k;\n" + 
+		"  @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] k;\n" + 
 		"  float[][] p;\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
@@ -1132,8 +1145,8 @@ public void test0012g()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
-public void test0013()  {
-	String source = "public class A  {\n" +
+public void test0013() {
+	String source = "public class A {\n" +
 					"    public @Marker int foo() { return 0; }\n" +
 					"    public int bar() { return 0; }\n" +
 					"}\n";
@@ -1152,8 +1165,8 @@ public void test0013()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
-public void test0013a()  {
-	String source = "public class A  {\n" +
+public void test0013a() {
+	String source = "public class A {\n" +
 					"    public @Marker String foo() { return null; }\n" +
 					"    public String bar() { return null; }\n" +
 					"}\n";
@@ -1172,8 +1185,8 @@ public void test0013a()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
-public void test0013b()  {
-	String source = "public class A  {\n" +
+public void test0013b() {
+	String source = "public class A {\n" +
 					"    public @Marker HashMap<@Positive Integer, @Negative Integer> foo() { return null; }\n" +
 					"    public HashMap<@Positive Integer, @Negative Integer>  bar() { return null; }\n" +
 					"}\n";
@@ -1192,8 +1205,8 @@ public void test0013b()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
-public void test0013c()  {
-	String source = "public class A  {\n" +
+public void test0013c() {
+	String source = "public class A {\n" +
 					"    public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator foo() { return null; }\n" +
 					"    public HashMap<@Positive Integer, @Negative Integer>.Iterator  bar() { return null; }\n" +
 					"}\n";
@@ -1212,88 +1225,88 @@ public void test0013c()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
-public void test0013d()  {
-	String source = "public class A  {\n" +
-					"    public @Marker int [] foo() @NonEmpty [] [] { return 0; }\n" +
-					"    public int [] @NonEmpty [] [] bar() { return 0; }\n" +
+public void test0013d() {
+	String source = "public class A {\n" +
+					"    public @Marker int[] foo() @NonEmpty[][] { return 0; }\n" +
+					"    public int[] @NonEmpty[][] bar() { return 0; }\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @NonEmpty [][] foo() {\n" + 
+		"  public @Marker int[] @NonEmpty[][] foo() {\n" + 
 		"    return 0;\n" + 
 		"  }\n" + 
-		"  public int[] @NonEmpty [][] bar() {\n" + 
+		"  public int[] @NonEmpty[][] bar() {\n" + 
 		"    return 0;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
-public void test0013e()  {
-	String source = "public class A  {\n" +
-					"    public @Marker String []  foo() @NonEmpty [] [] { return null; }\n" +
-					"    public String [] @NonEmpty [] [] bar() { return null; }\n" +
+public void test0013e() {
+	String source = "public class A {\n" +
+					"    public @Marker String[]  foo() @NonEmpty[][] { return null; }\n" +
+					"    public String[] @NonEmpty[][] bar() { return null; }\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker String[] @NonEmpty [][] foo() {\n" + 
+		"  public @Marker String[] @NonEmpty[][] foo() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
-		"  public String[] @NonEmpty [][] bar() {\n" + 
+		"  public String[] @NonEmpty[][] bar() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
-public void test0013f()  {
-	String source = "public class A  {\n" +
-					"    public @Marker HashMap<@Positive Integer, @Negative Integer> [] foo() @NonEmpty [] [] { return null; }\n" +
-					"    public HashMap<@Positive Integer, @Negative Integer>  [] @NonEmpty [] [] bar() { return null; }\n" +
+public void test0013f() {
+	String source = "public class A {\n" +
+					"    public @Marker HashMap<@Positive Integer, @Negative Integer>[] foo() @NonEmpty[][] { return null; }\n" +
+					"    public HashMap<@Positive Integer, @Negative Integer> [] @NonEmpty[][] bar() { return null; }\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] foo() {\n" + 
+		"  public @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty[][] foo() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
-		"  public HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] bar() {\n" + 
+		"  public HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty[][] bar() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
-public void test0013g()  {
-	String source = "public class A  {\n" +
-					"    public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[]  foo() @NonEmpty [] [] { return null; }\n" +
-					"    public HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [] [] bar() { return null; }\n" +
+public void test0013g() {
+	String source = "public class A {\n" +
+					"    public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[]  foo() @NonEmpty[][] { return null; }\n" +
+					"    public HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] bar() { return null; }\n" +
 					"}\n";
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] foo() {\n" + 
+		"  public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] foo() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
-		"  public HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] bar() {\n" + 
+		"  public HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] bar() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 local variable declaration
-public void test0014()  {
-	String source = "public class A  {\n" +
+public void test0014() {
+	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker int p;\n" +
 					"        int q;\n" + 
@@ -1312,8 +1325,8 @@ public void test0014()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 local variable declaration
-public void test0014a()  {
-	String source = "public class A  {\n" +
+public void test0014a() {
+	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker String p;\n" +
 					"        String q;\n" + 
@@ -1332,8 +1345,8 @@ public void test0014a()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 local variable declaration
-public void test0014b()  {
-	String source = "public class A  {\n" +
+public void test0014b() {
+	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker HashMap<@Positive Integer, @Negative Integer> p;\n" +
 					"        HashMap<@Positive Integer, @Negative Integer> q;\n" + 
@@ -1352,8 +1365,8 @@ public void test0014b()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 local variable declaration
-public void test0014c()  {
-	String source = "public class A  {\n" +
+public void test0014c() {
+	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator p;\n" +
 					"        HashMap<@Positive Integer, @Negative Integer>.Iterator q;\n" + 
@@ -1372,11 +1385,11 @@ public void test0014c()  {
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 local variable declaration
-public void test0014d()  {
-	String source = "public class A  {\n" +
+public void test0014d() {
+	String source = "public class A {\n" +
 					"    public void foo() {\n" +
-					"        @Marker int [] @NonNull[] p @NonEmpty [] [];\n" +
-					"        int [] @NonNull[] q @NonEmpty [] [];\n" + 
+					"        @Marker int[] @NonNull[] p @NonEmpty[][];\n" +
+					"        int[] @NonNull[] q @NonEmpty[][];\n" + 
 					"    }\n" +
 					"}\n";
 	String expectedUnitToString = 
@@ -1385,18 +1398,18 @@ public void test0014d()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    @Marker int[] @NonNull [] @NonEmpty [][] p;\n" + 
-		"    int[] @NonNull [] @NonEmpty [][] q;\n" + 
+		"    @Marker int[] @NonNull[] @NonEmpty[][] p;\n" + 
+		"    int[] @NonNull[] @NonEmpty[][] q;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 local variable declaration
-public void test0014e()  {
-	String source = "public class A  {\n" +
+public void test0014e() {
+	String source = "public class A {\n" +
 					"    public void foo() {\n" +
-					"        @Marker String [] @NonNull[] p @NonEmpty [] [];\n" +
-					"        String [] @NonNull[] q @NonEmpty [] [];\n" + 
+					"        @Marker String[] @NonNull[] p @NonEmpty[][];\n" +
+					"        String[] @NonNull[] q @NonEmpty[][];\n" + 
 					"    }\n" +
 					"}\n";
 	String expectedUnitToString = 
@@ -1405,18 +1418,18 @@ public void test0014e()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    @Marker String[] @NonNull [] @NonEmpty [][] p;\n" + 
-		"    String[] @NonNull [] @NonEmpty [][] q;\n" + 
+		"    @Marker String[] @NonNull[] @NonEmpty[][] p;\n" + 
+		"    String[] @NonNull[] @NonEmpty[][] q;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 local variable declaration
-public void test0014f()  {
-	String source = "public class A  {\n" +
+public void test0014f() {
+	String source = "public class A {\n" +
 					"    public void foo() {\n" +
-					"        @Marker HashMap<@Positive Integer, @Negative Integer> [] @NonNull[] p @NonEmpty [] [];\n" +
-					"        HashMap<@Positive Integer, @Negative Integer> [] @NonNull[] q @NonEmpty [] [];\n" + 
+					"        @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonNull[] p @NonEmpty[][];\n" +
+					"        HashMap<@Positive Integer, @Negative Integer>[] @NonNull[] q @NonEmpty[][];\n" + 
 					"    }\n" +
 					"}\n";
 	String expectedUnitToString = 
@@ -1425,18 +1438,18 @@ public void test0014f()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonNull [] @NonEmpty [][] p;\n" + 
-		"    HashMap<@Positive Integer, @Negative Integer>[] @NonNull [] @NonEmpty [][] q;\n" + 
+		"    @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonNull[] @NonEmpty[][] p;\n" + 
+		"    HashMap<@Positive Integer, @Negative Integer>[] @NonNull[] @NonEmpty[][] q;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 local variable declaration
-public void test0014g()  {
-	String source = "public class A  {\n" +
+public void test0014g() {
+	String source = "public class A {\n" +
 					"    public void foo() {\n" +
-					"        @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator [] @NonNull[] p @NonEmpty [] [];\n" +
-					"        HashMap<@Positive Integer, @Negative Integer>.Iterator [] @NonNull[] @NonEmpty [] [] q;\n" + 
+					"        @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull[] p @NonEmpty[][];\n" +
+					"        HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull[] @NonEmpty[][] q;\n" + 
 					"    }\n" +
 					"}\n";
 	String expectedUnitToString = 
@@ -1445,19 +1458,19 @@ public void test0014g()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull [] @NonEmpty [][] p;\n" + 
-		"    HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull [] @NonEmpty [][] q;\n" + 
+		"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull[] @NonEmpty[][] p;\n" + 
+		"    HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull[] @NonEmpty[][] q;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 foreach
-public void test0015()  {
-	String source = "public class A  {\n" +
+public void test0015() {
+	String source = "public class A {\n" +
 					"    public void foo() {\n" +
-					"        String @NonNull [] @Marker [] s @Readonly [];\n" +
-					"    	 for (@Readonly String @NonNull [] si @Marker [] : s) {}\n" +
-					"    	 for (String @NonNull [] sii @Marker [] : s) {}\n" +
+					"        String @NonNull[] @Marker[] s @Readonly[];\n" +
+					"    	 for (@Readonly String @NonNull[] si @Marker[] : s) {}\n" +
+					"    	 for (String @NonNull[] sii @Marker[] : s) {}\n" +
 					"    }\n" +
 					"}\n";
 	String expectedUnitToString = 
@@ -1466,24 +1479,24 @@ public void test0015()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    String @NonNull [] @Marker [] @Readonly [] s;\n" + 
-		"    for (@Readonly String @NonNull [] @Marker [] si : s) \n" + 
-		"      {\n" + 
+		"    String @NonNull[] @Marker[] @Readonly[] s;\n" + 
+		"    for (@Readonly String @NonNull[] @Marker[] si : s) \n" + 
+		"     {\n" + 
 		"      }\n" + 
-		"    for (String @NonNull [] @Marker [] sii : s) \n" + 
-		"      {\n" + 
+		"    for (String @NonNull[] @Marker[] sii : s) \n" + 
+		"     {\n" + 
 		"      }\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //Type0 foreach
-public void test0015a()  {
-	String source = "public class A  {\n" +
+public void test0015a() {
+	String source = "public class A {\n" +
 					"    public void foo() {\n" +
-					"        int @NonNull [] @Marker [] s @Readonly [];\n" +
-					"    	 for (@Readonly int @NonNull [] si @Marker [] : s) {}\n" +
-					"    	 for (int @NonNull [] sii @Marker [] : s) {}\n" +
+					"        int @NonNull[] @Marker[] s @Readonly[];\n" +
+					"    	 for (@Readonly int @NonNull[] si @Marker[] : s) {}\n" +
+					"    	 for (int @NonNull[] sii @Marker[] : s) {}\n" +
 					"    }\n" +
 					"}\n";
 	String expectedUnitToString = 
@@ -1492,39 +1505,39 @@ public void test0015a()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    int @NonNull [] @Marker [] @Readonly [] s;\n" + 
-		"    for (@Readonly int @NonNull [] @Marker [] si : s) \n" + 
-		"      {\n" + 
+		"    int @NonNull[] @Marker[] @Readonly[] s;\n" + 
+		"    for (@Readonly int @NonNull[] @Marker[] si : s) \n" + 
+		"     {\n" + 
 		"      }\n" + 
-		"    for (int @NonNull [] @Marker [] sii : s) \n" + 
-		"      {\n" + 
+		"    for (int @NonNull[] @Marker[] sii : s) \n" + 
+		"     {\n" + 
 		"      }\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // cast expression
-public void test0016()  {
+public void test0016() {
 	String source = "public class Clazz {\n" +
-					"public static void main(String [] args) {\n" +
+					"public static void main(String[] args) {\n" +
 					"int x;\n" +
 					"x = (Integer)\n" +
 					"(@Readonly Object)\n" +
-					"(@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator [] @Normal(Value=0)[] [] )\n" +
-					"(@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator [] @SingleMember(0)[] [] )\n" +
-					"(@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator [] @Marker[] [] )\n" +
+					"(@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Normal(Value=0)[][] )\n" +
+					"(@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @SingleMember(0)[][] )\n" +
+					"(@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Marker[][] )\n" +
 					"(@Readonly Object)\n" +
-					"(@Readonly HashMap<@Positive Integer, @Negative Integer> [] @Normal(Value=0)[] [] )\n" +
-					"(@Readonly HashMap<@Positive Integer, @Negative Integer> [] @SingleMember(0)[] [] )\n" +
-					"(@Readonly HashMap<@Positive Integer, @Negative Integer> [] @Marker[] [] )\n" +
+					"(@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Normal(Value=0)[][] )\n" +
+					"(@Readonly HashMap<@Positive Integer, @Negative Integer>[] @SingleMember(0)[][] )\n" +
+					"(@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Marker[][] )\n" +
 					"(@Readonly Object)\n" +
-					"(@Readonly String [] @Normal(Value=0)[] [] )\n" +
-					"(@Readonly String [] @SingleMember(0)[] [] )\n" +
-					"(@Readonly String [] @Marker[] [] )\n" +
+					"(@Readonly String[] @Normal(Value=0)[][] )\n" +
+					"(@Readonly String[] @SingleMember(0)[][] )\n" +
+					"(@Readonly String[] @Marker[][] )\n" +
 					"(@Readonly Object)\n" +
-					"(@Readonly int [] @Normal(Value=0)[] [] )\n" +
-					"(@Readonly int [] @SingleMember(0)[] [] )\n" +
-					"(@Readonly int [] @Marker[] [] )\n" +
+					"(@Readonly int[] @Normal(Value=0)[][] )\n" +
+					"(@Readonly int[] @SingleMember(0)[][] )\n" +
+					"(@Readonly int[] @Marker[][] )\n" +
 					"(@Readonly Object)\n" +
 					"(@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator)\n" +
 					"(@Readonly Object)\n" +
@@ -1542,33 +1555,33 @@ public void test0016()  {
 		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
 		"    int x;\n" + 
-		"    x = (Integer) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @SingleMember(0) [][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Marker [][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Normal(Value = 0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Marker [][]) (@Readonly Object) (@Readonly String[] @Normal(Value = 0) [][]) (@Readonly String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (@Readonly Object) (@Readonly int[] @Normal(Value = 0) [][]) (@Readonly int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>) (@Readonly Object) (@ReadOnly String) (@Readonly Object) (@Readonly int) 10;\n" + 
+		"    x = (Integer) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Normal(Value = 0)[][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @SingleMember(0)[][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Marker[][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Normal(Value = 0)[][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @SingleMember(0)[][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Marker[][]) (@Readonly Object) (@Readonly String[] @Normal(Value = 0)[][]) (@Readonly String[] @SingleMember(0)[][]) (@Readonly String[] @Marker[][]) (@Readonly Object) (@Readonly int[] @Normal(Value = 0)[][]) (@Readonly int[] @SingleMember(0)[][]) (@Readonly int[] @Marker[][]) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>) (@Readonly Object) (@ReadOnly String) (@Readonly Object) (@Readonly int) 10;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 //cast expression
-public void test0016a()  {
+public void test0016a() {
 	String source = "public class Clazz {\n" +
-					"public static void main(String [] args) {\n" +
+					"public static void main(String[] args) {\n" +
 					"int x;\n" +
 					"x = (Integer)\n" +
 					"(Object)\n" +
-					"(@Readonly HashMap<Integer, @Negative Integer>.Iterator [] @Normal(Value=0)[] [] )\n" +
-					"(HashMap<@Positive Integer, Integer>.Iterator [] @SingleMember(0)[] [] )\n" +
-					"(@Readonly HashMap<Integer, @Negative Integer>.Iterator [] @Marker[] [] )\n" +
+					"(@Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Normal(Value=0)[][] )\n" +
+					"(HashMap<@Positive Integer, Integer>.Iterator[] @SingleMember(0)[][] )\n" +
+					"(@Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Marker[][] )\n" +
 					"(Object)\n" +
-					"(@Readonly HashMap<@Positive Integer, Integer> [] @Normal(Value=0)[] [] )\n" +
-					"(HashMap<Integer, @Negative Integer> [] @SingleMember(0)[] [] )\n" +
-					"(@Readonly HashMap<@Positive Integer, Integer> [] @Marker[] [] )\n" +
+					"(@Readonly HashMap<@Positive Integer, Integer>[] @Normal(Value=0)[][] )\n" +
+					"(HashMap<Integer, @Negative Integer>[] @SingleMember(0)[][] )\n" +
+					"(@Readonly HashMap<@Positive Integer, Integer>[] @Marker[][] )\n" +
 					"(Object)\n" +
-					"(@Readonly String [] @Normal(Value=0)[] [] )\n" +
-					"(String [] @SingleMember(0)[] [] )\n" +
-					"(@Readonly String [] @Marker[] [] )\n" +
+					"(@Readonly String[] @Normal(Value=0)[][] )\n" +
+					"(String[] @SingleMember(0)[][] )\n" +
+					"(@Readonly String[] @Marker[][] )\n" +
 					"(Object)\n" +
-					"(@Readonly int [] @Normal(Value=0)[] [] )\n" +
-					"(int [] @SingleMember(0)[] [] )\n" +
-					"(@Readonly int [] @Marker[] [] )\n" +
+					"(@Readonly int[] @Normal(Value=0)[][] )\n" +
+					"(int[] @SingleMember(0)[][] )\n" +
+					"(@Readonly int[] @Marker[][] )\n" +
 					"(Object)\n" +
 					"(@Readonly HashMap<Integer, @Negative Integer>.Iterator)\n" +
 					"(Object)\n" +
@@ -1586,20 +1599,20 @@ public void test0016a()  {
 		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
 		"    int x;\n" + 
-		"    x = (Integer) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) (HashMap<@Positive Integer, Integer>.Iterator[] @SingleMember(0) [][]) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Marker [][]) (Object) (@Readonly HashMap<@Positive Integer, Integer>[] @Normal(Value = 0) [][]) (HashMap<Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, Integer>[] @Marker [][]) (Object) (@Readonly String[] @Normal(Value = 0) [][]) (String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (Object) (@Readonly int[] @Normal(Value = 0) [][]) (int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator) (Object) (@Readonly HashMap<@Positive Integer, Integer>) (Object) (@ReadOnly String) (Object) (@Readonly int) 10;\n" + 
+		"    x = (Integer) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Normal(Value = 0)[][]) (HashMap<@Positive Integer, Integer>.Iterator[] @SingleMember(0)[][]) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Marker[][]) (Object) (@Readonly HashMap<@Positive Integer, Integer>[] @Normal(Value = 0)[][]) (HashMap<Integer, @Negative Integer>[] @SingleMember(0)[][]) (@Readonly HashMap<@Positive Integer, Integer>[] @Marker[][]) (Object) (@Readonly String[] @Normal(Value = 0)[][]) (String[] @SingleMember(0)[][]) (@Readonly String[] @Marker[][]) (Object) (@Readonly int[] @Normal(Value = 0)[][]) (int[] @SingleMember(0)[][]) (@Readonly int[] @Marker[][]) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator) (Object) (@Readonly HashMap<@Positive Integer, Integer>) (Object) (@ReadOnly String) (Object) (@Readonly int) 10;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 // instanceof checks 
-public void test0017()  {
+public void test0017() {
 	String source = "public class Clazz {\n" +
 					"public static void main(Object o) {\n" +
 					"if (o instanceof @Readonly String) {\n" +
-					"} else if (o instanceof @Readonly int [] @NonEmpty[] [] ) {\n" +
-					"} else if (o instanceof @Readonly String [] @NonEmpty[] [] ) {\n" +
-					"} else if (o instanceof @Readonly HashMap<?,?> [] @NonEmpty[] [] ) {\n" +
-					"} else if (o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator [] @NonEmpty[] [] ) {\n" +	
+					"} else if (o instanceof @Readonly int[] @NonEmpty[][] ) {\n" +
+					"} else if (o instanceof @Readonly String[] @NonEmpty[][] ) {\n" +
+					"} else if (o instanceof @Readonly HashMap<?,?>[] @NonEmpty[][] ) {\n" +
+					"} else if (o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] ) {\n" +	
 					"} else if (o instanceof @Readonly HashMap<?,?>) {\n" +
 					"} else if (o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) {\n" +
 					"}\n" +
@@ -1612,51 +1625,51 @@ public void test0017()  {
 		"  }\n" + 
 		"  public static void main(Object o) {\n" + 
 		"    if ((o instanceof @Readonly String))\n" + 
-		"        {\n" + 
+		"       {\n" + 
 		"        }\n" + 
 		"    else\n" + 
-		"        if ((o instanceof @Readonly int[] @NonEmpty [][]))\n" + 
-		"            {\n" + 
+		"        if ((o instanceof @Readonly int[] @NonEmpty[][]))\n" + 
+		"           {\n" + 
 		"            }\n" + 
 		"        else\n" + 
-		"            if ((o instanceof @Readonly String[] @NonEmpty [][]))\n" + 
-		"                {\n" + 
+		"            if ((o instanceof @Readonly String[] @NonEmpty[][]))\n" + 
+		"               {\n" + 
 		"                }\n" + 
 		"            else\n" + 
-		"                if ((o instanceof @Readonly HashMap<?, ?>[] @NonEmpty [][]))\n" + 
-		"                    {\n" + 
+		"                if ((o instanceof @Readonly HashMap<?, ?>[] @NonEmpty[][]))\n" + 
+		"                   {\n" + 
 		"                    }\n" + 
 		"                else\n" + 
-		"                    if ((o instanceof  @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][]))\n" + 
-		"                        {\n" + 
+		"                    if ((o instanceof  @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][]))\n" + 
+		"                       {\n" + 
 		"                        }\n" + 
 		"                    else\n" + 
 		"                        if ((o instanceof @Readonly HashMap<?, ?>))\n" + 
-		"                            {\n" + 
+		"                           {\n" + 
 		"                            }\n" + 
 		"                        else\n" + 
 		"                            if ((o instanceof  @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator))\n" + 
-		"                                {\n" + 
+		"                               {\n" + 
 		"                                }\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test0017", expectedUnitToString);
 }
 // assorted unclassified 
-public void test0018()  {
+public void test0018() {
 	String source = "import java.util.HashMap;\n" +
 					"import java.util.Map; \n" +  
 					"\n" +
 					"public class Clazz <@A M extends @B String, @C N extends @D Comparable> extends\n" +
 					"								@E Object implements @F Comparable <@G Object> {\n" +
 					"	\n" +
-					"  Clazz(char [] ...args) @H { \n" +   
+					"  Clazz(char[] ...args) @H { \n" +   
 					"   }\n" +
 					"   \n" +
 					"  int @I[] f @J[], g, h[], i@K[];\n" +
 					"  int @L[][]@M[] f2; \n" +
 					"   \n" +
-					"  Clazz (int @N [] @O... a) @Q {}\n" +
+					"  Clazz (int @N[] @O... a) @Q {}\n" +
 					" int @R[]@S[] aa() {}\n" +
 					" \n" +
 					" int @T[]@U[]@V[] a () @W[]@X[]@Y[] @Z { return null; }\n" +
@@ -1669,7 +1682,7 @@ public void test0018()  {
 					"      \n" +
 					"     char @H[]@I[] ch; ch = (@K char @L[]@M[])(@N char @O[]@P[]) null;\n" +
 					"      \n" +
-					"      int [] i; i = new @Q int @R[10];\n" +
+					"      int[] i; i = new @Q int @R[10];\n" +
 					"       \n" +
 					"      \n" +
 					"   Integer w; w = new X<@S String, @T Integer>().get(new @U Integer(12));\n" +
@@ -1697,28 +1710,28 @@ public void test0018()  {
 	String expectedUnitToString = "import java.util.HashMap;\n" + 
 								  "import java.util.Map;\n" + 
 								  "public class Clazz<@A M extends @B String, @C N extends @D Comparable> extends @E Object implements @F Comparable<@G Object> {\n" + 
-								  "  int @I [] @J [] f;\n" + 
-								  "  int @I [] g;\n" + 
-								  "  int @I [][] h;\n" + 
-								  "  int @I [] @K [] i;\n" + 
-								  "  int @L [][] @M [] f2;\n" + 
-								  "  Clazz(char[]... args) @H  {\n" + 
+								  "  int @I[] @J[] f;\n" + 
+								  "  int @I[] g;\n" + 
+								  "  int @I[][] h;\n" + 
+								  "  int @I[] @K[] i;\n" + 
+								  "  int @L[][] @M[] f2;\n" + 
+								  "  Clazz(char[]... args) @H {\n" + 
 								  "    super();\n" + 
 								  "  }\n" + 
-								  "  Clazz(int @N [] @O ... a) @Q  {\n" + 
+								  "  Clazz(int @N[] @O ... a) @Q {\n" + 
 								  "    super();\n" + 
 								  "  }\n" + 
-								  "  int @R [] @S [] aa() {\n" + 
+								  "  int @R[] @S[] aa() {\n" + 
 								  "  }\n" + 
-								  "  int @T [] @U [] @V [] @W [] @X [] @Y [] a() @Z  {\n" + 
+								  "  int @T[] @U[] @V[] @W[] @X[] @Y[] a() @Z {\n" + 
 								  "    return null;\n" + 
 								  "  }\n" + 
-								  "  public void main(String @A [] @B ... args) @C  throws @D Exception {\n" + 
+								  "  public void main(String @A[] @B ... args) @C  throws @D Exception {\n" + 
 								  "    HashMap<@E String, @F String> b1;\n" + 
 								  "    int b;\n" +
 								  "    b = (@G int) 10;\n" + 
-								  "    char @H [] @I [] ch;\n" +
-								  "    ch = (@K char @L [] @M []) (@N char @O [] @P []) null;\n" + 
+								  "    char @H[] @I[] ch;\n" +
+								  "    ch = (@K char @L[] @M[]) (@N char @O[] @P[]) null;\n" + 
 								  "    int[] i;\n" +
 								  "    i = new @Q int @R [10];\n" + 
 								  "    Integer w;\n" +
@@ -1748,7 +1761,7 @@ public void test0018()  {
 	checkParse(CHECK_ALL & ~CHECK_INDEXING_PARSER, source.toCharArray(), null, "test0018", expectedUnitToString);
 }
 //assorted unclassified 
-public void test0019()  {
+public void test0019() {
 	String source = "class X<T extends @E Object & @F Comparable<? super T>> {}\n";
 	String expectedUnitToString = "class X<T extends @E Object & @F Comparable<? super T>> {\n" + 
 								  "  X() {\n" + 
@@ -1760,23 +1773,23 @@ public void test0019()  {
 	checkParse(CHECK_ALL & ~CHECK_INDEXING_PARSER, source.toCharArray(), null, "test019", expectedUnitToString);
 }
 //type class literal expression
-public void test0020()  {
+public void test0020() {
 	String source = "public class Clazz {\n" +
-					"public static void main(String [] args) {\n" +
+					"public static void main(String[] args) {\n" +
 					"Class x;\n" +
 					"x = Integer.class;\n" +
 					"x = @Readonly Object.class;\n" +
-					"x = HashMap.Iterator [] @Normal(Value=0)[] [].class;\n" +
-					"x = @Readonly HashMap.Iterator [] @SingleMember(0)[] [].class;\n" +
+					"x = HashMap.Iterator[] @Normal(Value=0)[][].class;\n" +
+					"x = @Readonly HashMap.Iterator[] @SingleMember(0)[][].class;\n" +
 					"x = @Readonly HashMap.Iterator @Normal(Value=1)[] @Marker[] @Normal(Value=2)[].class;\n" +
 					"x = @Readonly Object.class;\n" +
-					"x = @Readonly String [] @Normal(Value=0)[] [].class;\n" +
-					"x = @Readonly String [] @SingleMember(0)[] [].class;\n" +
-					"x = @Readonly String [] @Marker[] [].class;\n" +
+					"x = @Readonly String[] @Normal(Value=0)[][].class;\n" +
+					"x = @Readonly String[] @SingleMember(0)[][].class;\n" +
+					"x = @Readonly String[] @Marker[][].class;\n" +
 					"x = @Readonly Object.class;\n" +
-					"x = @Readonly int [] [] @Normal(Value=0)[].class;\n" +
-					"x = @Readonly int @SingleMember(0)[] [] [].class;\n" +
-					"x = @Readonly int [] @Marker[] [].class;\n" +
+					"x = @Readonly int[][] @Normal(Value=0)[].class;\n" +
+					"x = @Readonly int @SingleMember(0)[][][].class;\n" +
+					"x = @Readonly int[] @Marker[][].class;\n" +
 					"x = @Readonly int.class;\n" +
 					"}\n" +
 					"}\n";
@@ -1806,7 +1819,7 @@ public void test0020()  {
 	checkParse(source.toCharArray(), null, "test0020", expectedUnitToString);
 }
 //type class literal expression
-public void test0021()  {
+public void test0021() {
 	String source = "public class X {\n" + 
 			"	<T extends Y<@A String @C[][]@B[]> & Cloneable> void foo(T t) {}\n" + 
 			"}";
@@ -1821,7 +1834,7 @@ public void test0021()  {
 	checkParse(source.toCharArray(), null, "test0021", expectedUnitToString);
 }
 //type class literal expression
-public void test0022()  {
+public void test0022() {
 	String source = 
 	"public class X {\n" + 
 	"	public boolean foo(String s) {\n" + 
@@ -1858,7 +1871,7 @@ public void test0022()  {
 	checkParse(source.toCharArray(), null, "test0022", expectedUnitToString);
 }
 //check locations
-public void test0023()  {
+public void test0023() {
 	String source = 
 		"public class X {\n" + 
 		"	@H String @E[] @F[] @G[] field;\n" + 
@@ -1877,7 +1890,7 @@ public void test0023()  {
 	checkParse(source.toCharArray(), null, "test0023", expectedUnitToString);
 }
 //check locations
-public void test0024()  {
+public void test0024() {
 	String source = 
 		"public class X {\n" + 
 		"	@H String @E[] @F[] @G[] field;\n" + 
@@ -1892,7 +1905,22 @@ public void test0024()  {
 	checkParse(source.toCharArray(), null, "test0024", expectedUnitToString, new LocationPrinterVisitor());
 }
 //check locations
-public void test0025()  {
+public void test0025() {
+	String source = 
+		"public class X {\n" + 
+		"	@A Map<@B String, @H String> field3;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A Map<@B String, @H String> field3;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(source.toCharArray(), null, "test0025", expectedUnitToString, new LocationPrinterVisitor());
+}
+//check locations
+public void test0026() {
 	String source = 
 		"public class X {\n" + 
 		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
@@ -1904,8 +1932,54 @@ public void test0025()  {
 		"    super();\n" + 
 		"  }\n" + 
 		"}\n";
-	checkParse(source.toCharArray(), null, "test0025", expectedUnitToString, new LocationPrinterVisitor());
+	checkParse(source.toCharArray(), null, "test0026", expectedUnitToString, new LocationPrinterVisitor());
 }
+//check locations
+public void test0027() {
+	String source = 
+		"public class X {\n" + 
+		"	@A Map<@B String, @C List<@H String @E[][] @G[]>> field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A Map<@B String, @C List<@H String @E [][] @G []>> field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(source.toCharArray(), null, "test0027", expectedUnitToString, new LocationPrinterVisitor());
+}
+//check locations
+public void test0028() {
+	String source = 
+		"public class X {\n" + 
+		"	@A Map<@B String, @C List<@H String @E[][] @G[]>>[] @I[] @J[] field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A Map<@B String, @C List<@H String @E [][] @G []>>[] @I [] @J [] field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(source.toCharArray(), null, "test0028", expectedUnitToString, new LocationPrinterVisitor());
+}
+//check locations
+public void test0029() {
+	String source = 
+		"public class X {\n" + 
+		"	@A Map<@B String, @C List<@H String @E[][] @G[]>> @I[][] @J[] field;\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  @A Map<@B String, @C List<@H String @E [][] @G []>> @I [][] @J [] field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(source.toCharArray(), null, "test0028", expectedUnitToString, new LocationPrinterVisitor());
+}
+
 public void acceptImport(int declarationStart, int declarationEnd,
 		int[] javaDocPositions, char[] name, int nameStartPosition,
 		boolean onDemand, int modifiers) {

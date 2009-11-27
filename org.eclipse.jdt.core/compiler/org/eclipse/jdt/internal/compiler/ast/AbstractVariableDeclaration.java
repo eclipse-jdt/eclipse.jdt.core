@@ -82,7 +82,10 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	public StringBuffer printAsExpression(int indent, StringBuffer output) {
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
-		if (this.annotations != null) printAnnotations(this.annotations, output);
+		if (this.annotations != null) {
+			printAnnotations(this.annotations, output);
+			output.append(' ');
+		}
 
 		if (this.type != null) {
 			this.type.print(0, output).append(' ');

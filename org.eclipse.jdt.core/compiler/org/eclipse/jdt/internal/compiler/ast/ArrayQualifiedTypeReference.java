@@ -100,14 +100,16 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		if ((this.bits & IsVarArgs) != 0) {
 			for (int i= 0 ; i < this.dimensions - 1; i++) {
 				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
-					output.append(" "); //$NON-NLS-1$
+					output.append(' ');
 					printAnnotations(this.annotationsOnDimensions[i], output);
+					output.append(' ');
 				}
 				output.append("[]"); //$NON-NLS-1$
 			}
 			if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[this.dimensions - 1] != null) {
-				output.append(" "); //$NON-NLS-1$
+				output.append(' ');
 				printAnnotations(this.annotationsOnDimensions[this.dimensions - 1], output);
+				output.append(' ');
 			}
 			output.append("..."); //$NON-NLS-1$
 		} else {
@@ -115,6 +117,7 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
 					output.append(" "); //$NON-NLS-1$
 					printAnnotations(this.annotationsOnDimensions[i], output);
+					output.append(" "); //$NON-NLS-1$
 				}
 				output.append("[]"); //$NON-NLS-1$
 			}

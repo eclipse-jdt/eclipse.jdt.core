@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Stack;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -33,61 +31,112 @@ public abstract class Annotation extends Expression {
 	 */
 	public static int[] getLocations(final TypeReference reference, final Annotation[] primaryAnnotation, final Annotation annotation) {
 		class LocationCollector extends ASTVisitor {
-			List locations;
+			Stack currentIndexes;
 			Annotation currentAnnotation;
 			boolean search = true;
 			
 			public LocationCollector(Annotation currentAnnotation) {
-				this.locations = new ArrayList();
+				this.currentIndexes = new Stack();
 				this.currentAnnotation = currentAnnotation;
 			}
 			public boolean visit(ArrayTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
 				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
-				int index = -1;
 				if (annotationsOnDimensions != null) {
-					for (int i = 0; i < annotationsOnDimensions.length; i++) {
-						Annotation[] annotations = annotationsOnDimensions[i];
-						for (int j = 0; j < annotations.length; j++) {
+					// check if the annotation is located on the first dimension
+					Annotation[] annotations = annotationsOnDimensions[0];
+					if (annotations != null) {
+						for (int j = 0, max2 = annotations.length; j < max2; j++) {
 							Annotation current = annotations[j];
 							if (current == this.currentAnnotation) {
-								if (i == 0) {
-									return false;
-								} else {
-									this.locations.add(new Integer(index));
-									this.search = false;
-									return false;
-								}
-							}
-						}
-						index++;
-					}
-				}
-				Annotation[] annotations = typeReference.annotations;
-				if (annotations == null) {
-					annotations = primaryAnnotation;
-					if (annotations != null) {
-						for (int i = 0; i < annotations.length; i++) {
-							Annotation current = annotations[i];
-							if (current == this.currentAnnotation) {
-								this.locations.add(new Integer(index));
 								this.search = false;
 								return false;
 							}
 						}
 					}
-					this.search = false;
-					return false;
-				}
-				for (int i = 0; i < annotations.length; i++) {
-					Annotation current = annotations[i];
-					if (current == this.currentAnnotation) {
-						this.locations.add(new Integer(index));
-						this.search = false;
-						return false;
+
+					this.currentIndexes.push(new Integer(0));
+					for (int i = 1, max = annotationsOnDimensions.length; i < max; i++) {
+						annotations = annotationsOnDimensions[i];
+						if (annotations != null) {
+							for (int j = 0, max2 = annotations.length; j < max2; j++) {
+								Annotation current = annotations[j];
+								if (current == this.currentAnnotation) {
+									this.search = false;
+									return false;
+								}
+							}
+						}
+						this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
 					}
 				}
-				return false;
+				Annotation[] annotations = typeReference.annotations;
+				if (annotations == null) {
+					annotations = primaryAnnotation;
+				}
+				if (annotations != null) {
+					for (int i = 0; i < annotations.length; i++) {
+						Annotation current = annotations[i];
+						if (current == this.currentAnnotation) {
+							this.search = false;
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+			public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				if (annotationsOnDimensions != null) {
+					// check if the annotation is located on the first dimension
+					Annotation[] annotations = annotationsOnDimensions[0];
+					if (annotations != null) {
+						for (int j = 0, max2 = annotations.length; j < max2; j++) {
+							Annotation current = annotations[j];
+							if (current == this.currentAnnotation) {
+								this.search = false;
+								return false;
+							}
+						}
+					}
+
+					this.currentIndexes.push(new Integer(0));
+					for (int i = 1, max = annotationsOnDimensions.length; i < max; i++) {
+						annotations = annotationsOnDimensions[i];
+						if (annotations != null) {
+							for (int j = 0, max2 = annotations.length; j < max2; j++) {
+								Annotation current = annotations[j];
+								if (current == this.currentAnnotation) {
+									this.search = false;
+									return false;
+								}
+							}
+						}
+						this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+					}
+				}
+				Annotation[] annotations = typeReference.annotations;
+				if (annotations == null) {
+					annotations = primaryAnnotation;
+				}
+				if (annotations != null) {
+					for (int i = 0; i < annotations.length; i++) {
+						Annotation current = annotations[i];
+						if (current == this.currentAnnotation) {
+							this.search = false;
+							return false;
+						}
+					}
+				}
+				TypeReference[] typeReferences = typeReference.typeArguments;
+				this.currentIndexes.push(new Integer(0));
+				for (int i = 0, max = typeReferences.length; i < max; i++) {
+					typeReferences[i].traverse(this, scope);
+					if (!this.search) return false;
+					this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+				}
+				return true;
 			}
 			public boolean visit(SingleTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
@@ -117,59 +166,25 @@ public abstract class Annotation extends Expression {
 				}
 				return true;
 			}
-			public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
-				if (!this.search) return false;
-				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
-				int index = -1;
-				if (annotationsOnDimensions != null) {
-					for (int i = 0; i < annotationsOnDimensions.length; i++) {
-						Annotation[] annotations = annotationsOnDimensions[i];
-						for (int j = 0; j < annotations.length; j++) {
-							Annotation current = annotations[j];
-							if (current == this.currentAnnotation) {
-								if (i == 0) {
-									return false;
-								} else {
-									this.locations.add(new Integer(index));
-									this.search = false;
-									return false;
-								}
-							}
-						}
-						index++;
-					}
-				}
-				TypeReference[] typeArguments = typeReference.typeArguments;
-				for (int i = 0, max = typeArguments.length; i < max; i++) {
-					// TODO to be continued
-				}
-				Annotation[] annotations = typeReference.annotations;
-				if (annotations == null) {
-					this.search = false;
-					return false;
-				}
-				for (int i = 0; i < annotations.length; i++) {
-					Annotation current = annotations[i];
-					if (current == this.currentAnnotation) {
-						this.locations.add(new Integer(index));
-						this.search = false;
-						return false;
-					}
-				}
-				return true;
+			public String toString() {
+				StringBuffer buffer = new StringBuffer();
+				buffer
+					.append("search location for ") //$NON-NLS-1$
+					.append(this.currentAnnotation)
+					.append("\ncurrent indexes : ") //$NON-NLS-1$
+					.append(this.currentIndexes);
+				return String.valueOf(buffer);
 			}
 		}
 		LocationCollector collector = new LocationCollector(annotation);
 		reference.traverse(collector, (BlockScope) null);
-		List locations = collector.locations;
-		int size = locations.size();
-		if (size == 0) {
+		if (collector.currentIndexes.isEmpty()) {
 			return null;
 		}
+		int size = collector.currentIndexes.size();
 		int[] result = new int[size];
-		int index = 0;
-		for (Iterator iterator = locations.iterator(); iterator.hasNext();) {
-			result[index++] = ((Integer) iterator.next()).intValue();
+		for (int i = 0; i < size; i++) {
+			result[size - i - 1] = ((Integer) collector.currentIndexes.pop()).intValue();
 		}
 		return result;
 	}

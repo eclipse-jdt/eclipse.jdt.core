@@ -81,8 +81,9 @@ public class ArrayAllocationExpression extends Expression {
 		this.type.print(0, output);
 		for (int i = 0; i < this.dimensions.length; i++) {
 			if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
-				output.append(" "); //$NON-NLS-1$
+				output.append(' ');
 				printAnnotations(this.annotationsOnDimensions[i], output);
+				output.append(' ');
 			}
 			if (this.dimensions[i] == null)
 				output.append("[]"); //$NON-NLS-1$

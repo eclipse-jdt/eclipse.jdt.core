@@ -316,6 +316,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		if (this.annotations != null) {
 			output.append(" "); //$NON-NLS-1$
 			printAnnotations(this.annotations, output);
+			output.append(' ');
 		}
 		int length = this.tokens.length;
 		for (int i = 0; i < length - 1; i++) {
@@ -350,12 +351,14 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
 					output.append(" "); //$NON-NLS-1$
 					printAnnotations(this.annotationsOnDimensions[i], output);
+					output.append(" "); //$NON-NLS-1$
 				}
 				output.append("[]"); //$NON-NLS-1$
 			}
 			if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[this.dimensions - 1] != null) {
 				output.append(" "); //$NON-NLS-1$
 				printAnnotations(this.annotationsOnDimensions[this.dimensions - 1], output);
+				output.append(" "); //$NON-NLS-1$
 			}
 			output.append("..."); //$NON-NLS-1$
 		} else {
@@ -363,6 +366,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
 					output.append(" "); //$NON-NLS-1$
 					printAnnotations(this.annotationsOnDimensions[i], output);
+					output.append(" "); //$NON-NLS-1$
 				}
 				output.append("[]"); //$NON-NLS-1$
 			}

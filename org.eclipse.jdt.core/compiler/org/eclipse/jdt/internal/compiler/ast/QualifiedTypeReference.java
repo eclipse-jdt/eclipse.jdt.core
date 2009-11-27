@@ -130,6 +130,7 @@ public class QualifiedTypeReference extends TypeReference {
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		if (this.annotations != null) {
 			printAnnotations(this.annotations, output);
+			output.append(' ');
 		}
 		for (int i = 0; i < this.tokens.length; i++) {
 			if (i > 0) output.append('.');

@@ -63,6 +63,7 @@ public class SingleTypeReference extends TypeReference {
 	public StringBuffer printExpression(int indent, StringBuffer output){
 		if (this.annotations != null) {
 			printAnnotations(this.annotations, output);
+			output.append(' ');
 		}
 		return output.append(this.token);
 	}
