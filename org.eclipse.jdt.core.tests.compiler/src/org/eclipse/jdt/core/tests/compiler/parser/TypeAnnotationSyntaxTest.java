@@ -615,7 +615,8 @@ public void test0006() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public static int[] @Marker [][] @Marker @SingleMember(0) @Normal(Value = 0) [][] main(String[] args) @Marker {\n" +		"    @Readonly String @Nullable[] @NonNull[] s;\n" + 
+		"  public static int[] @Marker [][] @Marker @SingleMember(0) @Normal(Value = 0) [][] main(String[] args) @Marker {\n" +
+		"    @Readonly String @Nullable [] @NonNull [] s;\n" + 
 		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" + 
 		"  }\n" + 
 		"}\n";
@@ -636,10 +637,10 @@ public void test0007() {
 	String expectedUnitToString = 
 		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" + 
 		"  int[][] f;\n" + 
-		"  @English String[] @NonNull[][] @Nullable[][] s;\n" + 
+		"  @English String[] @NonNull [][] @Nullable [][] s;\n" + 
 		"  float[][] p;\n" + 
-		"  public static int[] @Marker[][] @Marker @SingleMember(0) @Normal(Value = 0)[][] main(String[] args) @Marker {\n" + 
-		"    @Readonly String @Nullable[] @NonNull[] s;\n" + 
+		"  public static int[] @Marker [][] @Marker @SingleMember(0) @Normal(Value = 0) [][] main(String[] args) @Marker {\n" + 
+		"    @Readonly String @Nullable [] @NonNull [] s;\n" + 
 		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" + 
 		"  }\n" + 
 		"  public @Marker A() @Marker @SingleMember(0) @Normal(Value = 10) {\n" + 
@@ -659,7 +660,7 @@ public void test0008() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker[][][] @Marker[][] main(int[] @SingleMember(10)[][][] @Normal(Value = 10)[][] args) @Marker {\n" + 
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(int[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -674,7 +675,7 @@ public void test0008a() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker[][][] @Marker[][] main(String[] @SingleMember(10)[][][] @Normal(Value = 10)[][] args) @Marker {\n" + 
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(String[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -689,14 +690,14 @@ public void test0008b() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker[][][] @Marker[][] main(HashMap<String, Object>[] @SingleMember(10)[][][] @Normal(Value = 10)[][] args) @Marker {\n" + 
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
 }
 public void test0008c() {
 	String source = "public class A {\n" +
-					"@Marker public int[] @Marker[][] main(HashMap<String, Object>.Iterator[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] @Marker {\n" +
+					"@Marker public int[] @Marker [][] main(HashMap<String, Object>.Iterator[] @SingleMember(10) [][] args[] @Normal(Value = 10) [][])[] @Marker [][] @Marker {\n" +
 					"}\n" +
 					"}";
 	String expectedUnitToString = 
@@ -704,7 +705,7 @@ public void test0008c() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker[][][] @Marker[][] main(HashMap<String, Object>.Iterator[] @SingleMember(10)[][][] @Normal(Value = 10)[][] args) @Marker {\n" + 
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>.Iterator[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -735,7 +736,7 @@ public void test0008e() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker[][][] @Marker[][] main(String[] @SingleMember(10)[][] @Marker ... args) @Marker {\n" + 
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(String[] @SingleMember(10) [][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -750,7 +751,7 @@ public void test0008f() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker[][][] @Marker[][] main(HashMap<Integer, String>[] @SingleMember(10)[][] @Marker ... args) @Marker {\n" + 
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<Integer, String>[] @SingleMember(10) [][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -765,7 +766,7 @@ public void test0008g() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker[][][] @Marker[][] main(HashMap<Integer, String>.Iterator[] @SingleMember(10)[][] @Marker ... args) @Marker {\n" + 
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<Integer, String>.Iterator[] @SingleMember(10) [][] @Marker ... args) @Marker {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -786,7 +787,7 @@ public void test0009() {
 		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
 		"    int[][] f;\n" + 
-		"    @English String[] @NonNull[][] @Nullable[][] s;\n" + 
+		"    @English String[] @NonNull [][] @Nullable [][] s;\n" + 
 		"    float[][] p;\n" + 
 		"  }\n" + 
 		"}\n";
@@ -919,10 +920,10 @@ public void test0011d() {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator[] @NonEmpty[][] foo() @Marker {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator[] @NonEmpty [][] foo() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>.Iterator[] @NonEmpty[][] bar() @Marker {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>.Iterator[] @NonEmpty [][] bar() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
@@ -943,10 +944,10 @@ public void test0011e() {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker int[] @NonEmpty[][] foo() @Marker {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker int[] @NonEmpty [][] foo() @Marker {\n" + 
 		"    return 0;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>int[] @NonEmpty[][] bar() @Marker {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>int[] @NonEmpty [][] bar() @Marker {\n" + 
 		"    return 0;\n" +
 		"  }\n" + 
 		"}\n";
@@ -967,10 +968,10 @@ public void test0011f() {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker String[] @NonEmpty[][] foo() @Marker {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker String[] @NonEmpty [][] foo() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>String[] @NonEmpty[][] bar() @Marker {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>String[] @NonEmpty [][] bar() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
@@ -991,10 +992,10 @@ public void test0011g() {
 		"  A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker HashMap<@Readonly String, Object>[] @NonEmpty[][] foo() @Marker {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker HashMap<@Readonly String, Object>[] @NonEmpty [][] foo() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>[] @NonEmpty[][] bar() @Marker {\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>[] @NonEmpty [][] bar() @Marker {\n" + 
 		"    return null;\n" +
 		"  }\n" + 
 		"}\n";
@@ -1082,7 +1083,7 @@ public void test0012d() {
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  int[][] f;\n" + 
-		"  @Marker int[] @NonEmpty[][] k;\n" + 
+		"  @Marker int[] @NonEmpty [][] k;\n" + 
 		"  float[][] p;\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
@@ -1100,7 +1101,7 @@ public void test0012e() {
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  int[][] f;\n" + 
-		"  @Marker String[] @NonEmpty[][] k;\n" + 
+		"  @Marker String[] @NonEmpty [][] k;\n" + 
 		"  float[][] p;\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
@@ -1118,7 +1119,7 @@ public void test0012f() {
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  int[][] f;\n" + 
-		"  @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty[][] k;\n" + 
+		"  @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] k;\n" + 
 		"  float[][] p;\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
@@ -1136,7 +1137,7 @@ public void test0012g() {
 	String expectedUnitToString = 
 		"public class A {\n" + 
 		"  int[][] f;\n" + 
-		"  @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] k;\n" + 
+		"  @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] k;\n" + 
 		"  float[][] p;\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 
@@ -1235,10 +1236,10 @@ public void test0013d() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @NonEmpty[][] foo() {\n" + 
+		"  public @Marker int[] @NonEmpty [][] foo() {\n" + 
 		"    return 0;\n" + 
 		"  }\n" + 
-		"  public int[] @NonEmpty[][] bar() {\n" + 
+		"  public int[] @NonEmpty [][] bar() {\n" + 
 		"    return 0;\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1255,10 +1256,10 @@ public void test0013e() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker String[] @NonEmpty[][] foo() {\n" + 
+		"  public @Marker String[] @NonEmpty [][] foo() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
-		"  public String[] @NonEmpty[][] bar() {\n" + 
+		"  public String[] @NonEmpty [][] bar() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1275,10 +1276,10 @@ public void test0013f() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty[][] foo() {\n" + 
+		"  public @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] foo() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
-		"  public HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty[][] bar() {\n" + 
+		"  public HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] bar() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1295,10 +1296,10 @@ public void test0013g() {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] foo() {\n" + 
+		"  public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] foo() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
-		"  public HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] bar() {\n" + 
+		"  public HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] bar() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1398,8 +1399,8 @@ public void test0014d() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    @Marker int[] @NonNull[] @NonEmpty[][] p;\n" + 
-		"    int[] @NonNull[] @NonEmpty[][] q;\n" + 
+		"    @Marker int[] @NonNull [] @NonEmpty [][] p;\n" + 
+		"    int[] @NonNull [] @NonEmpty [][] q;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -1418,8 +1419,8 @@ public void test0014e() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    @Marker String[] @NonNull[] @NonEmpty[][] p;\n" + 
-		"    String[] @NonNull[] @NonEmpty[][] q;\n" + 
+		"    @Marker String[] @NonNull [] @NonEmpty [][] p;\n" + 
+		"    String[] @NonNull [] @NonEmpty [][] q;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -1438,8 +1439,8 @@ public void test0014f() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonNull[] @NonEmpty[][] p;\n" + 
-		"    HashMap<@Positive Integer, @Negative Integer>[] @NonNull[] @NonEmpty[][] q;\n" + 
+		"    @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonNull [] @NonEmpty [][] p;\n" + 
+		"    HashMap<@Positive Integer, @Negative Integer>[] @NonNull [] @NonEmpty [][] q;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -1458,8 +1459,8 @@ public void test0014g() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull[] @NonEmpty[][] p;\n" + 
-		"    HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull[] @NonEmpty[][] q;\n" + 
+		"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull [] @NonEmpty [][] p;\n" + 
+		"    HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull [] @NonEmpty [][] q;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -1479,12 +1480,12 @@ public void test0015() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    String @NonNull[] @Marker[] @Readonly[] s;\n" + 
-		"    for (@Readonly String @NonNull[] @Marker[] si : s) \n" + 
-		"     {\n" + 
+		"    String @NonNull [] @Marker [] @Readonly [] s;\n" + 
+		"    for (@Readonly String @NonNull [] @Marker [] si : s) \n" + 
+		"      {\n" + 
 		"      }\n" + 
-		"    for (String @NonNull[] @Marker[] sii : s) \n" + 
-		"     {\n" + 
+		"    for (String @NonNull [] @Marker [] sii : s) \n" + 
+		"      {\n" + 
 		"      }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1505,12 +1506,12 @@ public void test0015a() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    int @NonNull[] @Marker[] @Readonly[] s;\n" + 
-		"    for (@Readonly int @NonNull[] @Marker[] si : s) \n" + 
-		"     {\n" + 
+		"    int @NonNull [] @Marker [] @Readonly [] s;\n" + 
+		"    for (@Readonly int @NonNull [] @Marker [] si : s) \n" + 
+		"      {\n" + 
 		"      }\n" + 
-		"    for (int @NonNull[] @Marker[] sii : s) \n" + 
-		"     {\n" + 
+		"    for (int @NonNull [] @Marker [] sii : s) \n" + 
+		"      {\n" + 
 		"      }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1555,7 +1556,7 @@ public void test0016() {
 		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
 		"    int x;\n" + 
-		"    x = (Integer) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Normal(Value = 0)[][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @SingleMember(0)[][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Marker[][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Normal(Value = 0)[][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @SingleMember(0)[][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Marker[][]) (@Readonly Object) (@Readonly String[] @Normal(Value = 0)[][]) (@Readonly String[] @SingleMember(0)[][]) (@Readonly String[] @Marker[][]) (@Readonly Object) (@Readonly int[] @Normal(Value = 0)[][]) (@Readonly int[] @SingleMember(0)[][]) (@Readonly int[] @Marker[][]) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>) (@Readonly Object) (@ReadOnly String) (@Readonly Object) (@Readonly int) 10;\n" + 
+		"    x = (Integer) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @SingleMember(0) [][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Marker [][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Normal(Value = 0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Marker [][]) (@Readonly Object) (@Readonly String[] @Normal(Value = 0) [][]) (@Readonly String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (@Readonly Object) (@Readonly int[] @Normal(Value = 0) [][]) (@Readonly int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>) (@Readonly Object) (@ReadOnly String) (@Readonly Object) (@Readonly int) 10;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -1599,7 +1600,7 @@ public void test0016a() {
 		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
 		"    int x;\n" + 
-		"    x = (Integer) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Normal(Value = 0)[][]) (HashMap<@Positive Integer, Integer>.Iterator[] @SingleMember(0)[][]) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Marker[][]) (Object) (@Readonly HashMap<@Positive Integer, Integer>[] @Normal(Value = 0)[][]) (HashMap<Integer, @Negative Integer>[] @SingleMember(0)[][]) (@Readonly HashMap<@Positive Integer, Integer>[] @Marker[][]) (Object) (@Readonly String[] @Normal(Value = 0)[][]) (String[] @SingleMember(0)[][]) (@Readonly String[] @Marker[][]) (Object) (@Readonly int[] @Normal(Value = 0)[][]) (int[] @SingleMember(0)[][]) (@Readonly int[] @Marker[][]) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator) (Object) (@Readonly HashMap<@Positive Integer, Integer>) (Object) (@ReadOnly String) (Object) (@Readonly int) 10;\n" + 
+		"    x = (Integer) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) (HashMap<@Positive Integer, Integer>.Iterator[] @SingleMember(0) [][]) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Marker [][]) (Object) (@Readonly HashMap<@Positive Integer, Integer>[] @Normal(Value = 0) [][]) (HashMap<Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, Integer>[] @Marker [][]) (Object) (@Readonly String[] @Normal(Value = 0) [][]) (String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (Object) (@Readonly int[] @Normal(Value = 0) [][]) (int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator) (Object) (@Readonly HashMap<@Positive Integer, Integer>) (Object) (@ReadOnly String) (Object) (@Readonly int) 10;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(source.toCharArray(), null, "test001", expectedUnitToString);
@@ -1625,31 +1626,31 @@ public void test0017() {
 		"  }\n" + 
 		"  public static void main(Object o) {\n" + 
 		"    if ((o instanceof @Readonly String))\n" + 
-		"       {\n" + 
+		"        {\n" + 
 		"        }\n" + 
 		"    else\n" + 
-		"        if ((o instanceof @Readonly int[] @NonEmpty[][]))\n" + 
-		"           {\n" + 
+		"        if ((o instanceof @Readonly int[] @NonEmpty [][]))\n" + 
+		"            {\n" + 
 		"            }\n" + 
 		"        else\n" + 
-		"            if ((o instanceof @Readonly String[] @NonEmpty[][]))\n" + 
-		"               {\n" + 
+		"            if ((o instanceof @Readonly String[] @NonEmpty [][]))\n" + 
+		"                {\n" + 
 		"                }\n" + 
 		"            else\n" + 
-		"                if ((o instanceof @Readonly HashMap<?, ?>[] @NonEmpty[][]))\n" + 
-		"                   {\n" + 
+		"                if ((o instanceof @Readonly HashMap<?, ?>[] @NonEmpty [][]))\n" + 
+		"                    {\n" + 
 		"                    }\n" + 
 		"                else\n" + 
-		"                    if ((o instanceof  @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][]))\n" + 
-		"                       {\n" + 
+		"                    if ((o instanceof  @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][]))\n" + 
+		"                        {\n" + 
 		"                        }\n" + 
 		"                    else\n" + 
 		"                        if ((o instanceof @Readonly HashMap<?, ?>))\n" + 
-		"                           {\n" + 
+		"                            {\n" + 
 		"                            }\n" + 
 		"                        else\n" + 
 		"                            if ((o instanceof  @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator))\n" + 
-		"                               {\n" + 
+		"                                {\n" + 
 		"                                }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1710,28 +1711,28 @@ public void test0018() {
 	String expectedUnitToString = "import java.util.HashMap;\n" + 
 								  "import java.util.Map;\n" + 
 								  "public class Clazz<@A M extends @B String, @C N extends @D Comparable> extends @E Object implements @F Comparable<@G Object> {\n" + 
-								  "  int @I[] @J[] f;\n" + 
-								  "  int @I[] g;\n" + 
-								  "  int @I[][] h;\n" + 
-								  "  int @I[] @K[] i;\n" + 
-								  "  int @L[][] @M[] f2;\n" + 
+								  "  int @I [] @J [] f;\n" + 
+								  "  int @I [] g;\n" + 
+								  "  int @I [][] h;\n" + 
+								  "  int @I [] @K [] i;\n" + 
+								  "  int @L [][] @M [] f2;\n" + 
 								  "  Clazz(char[]... args) @H {\n" + 
 								  "    super();\n" + 
 								  "  }\n" + 
-								  "  Clazz(int @N[] @O ... a) @Q {\n" + 
+								  "  Clazz(int @N [] @O ... a) @Q {\n" + 
 								  "    super();\n" + 
 								  "  }\n" + 
-								  "  int @R[] @S[] aa() {\n" + 
+								  "  int @R [] @S [] aa() {\n" + 
 								  "  }\n" + 
-								  "  int @T[] @U[] @V[] @W[] @X[] @Y[] a() @Z {\n" + 
+								  "  int @T [] @U [] @V [] @W [] @X [] @Y [] a() @Z {\n" + 
 								  "    return null;\n" + 
 								  "  }\n" + 
-								  "  public void main(String @A[] @B ... args) @C  throws @D Exception {\n" + 
+								  "  public void main(String @A [] @B ... args) @C throws @D Exception {\n" + 
 								  "    HashMap<@E String, @F String> b1;\n" + 
 								  "    int b;\n" +
 								  "    b = (@G int) 10;\n" + 
-								  "    char @H[] @I[] ch;\n" +
-								  "    ch = (@K char @L[] @M[]) (@N char @O[] @P[]) null;\n" + 
+								  "    char @H [] @I [] ch;\n" +
+								  "    ch = (@K char @L [] @M []) (@N char @O [] @P []) null;\n" + 
 								  "    int[] i;\n" +
 								  "    i = new @Q int @R [10];\n" + 
 								  "    Integer w;\n" +
