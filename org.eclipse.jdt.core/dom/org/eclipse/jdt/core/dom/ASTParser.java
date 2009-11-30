@@ -576,7 +576,7 @@ public class ASTParser {
 	 * <p>When ignore method bodies is enabled, all method bodies are discarded.
 	 * This has no impact on the binding resolution.</p>
 	 *
-	 * <p>This settings is not used if the kind used in {@link #setKind(int)} is either 
+	 * <p>This setting is not used if the kind used in {@link #setKind(int)} is either 
 	 * {@link #K_EXPRESSION} or {@link #K_STATEMENTS}.
 	 * @since 3.5.2
 	 */
