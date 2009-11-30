@@ -577,7 +577,7 @@ public class ASTParser {
 	 * This has no impact on the binding resolution.</p>
 	 *
 	 * <p>This setting is not used if the kind used in {@link #setKind(int)} is either 
-	 * {@link #K_EXPRESSION} or {@link #K_STATEMENTS}.
+	 * {@link #K_EXPRESSION} or {@link #K_STATEMENTS}.</p>
 	 * @since 3.5.2
 	 */
 	public void setIgnoreMethodBodies(boolean enabled) {
