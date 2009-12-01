@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4092,5 +4092,68 @@ public void test1002() throws CoreException, InterruptedException, IOException {
 		deleteProject("P2");
 		deleteProject("P3");
 	}
+}
+/*
+ * Ensure that the option ICompilationUnit.IGNORE_METHOD_BODIES is honored
+ */
+public void testIgnoreMethodBodies1() throws CoreException {	
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;" +
+		"public class X {\n" +
+		"  public int foo() {\n" + // force an error by not returning
+		"    int i = 0;\n" + 
+		"  }\n" +
+		"}");
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, ICompilationUnit.IGNORE_METHOD_BODIES, null, null);
+	// X.foo() not returning any value should not be reported
+	assertProblems("Working copy should have problems:",
+			"----------\n" +
+			"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n"+
+			"	import p2.*;public class X {\n" +
+			"	       ^^\n" +
+			"The import p2 is never used\n"+
+			"----------\n"
+		);
+	// statement declaring i should not be in the AST
+	assertASTNodeEquals(
+			"Unexpected participant ast",
+			"package p1;\n" +
+			"import p2.*;\n" +
+			"public class X {\n" +
+			"  public int foo(){\n" +
+			"  }\n" +
+			"}\n",
+			ast
+		);
+}
+public void testIgnoreMethodBodies2() throws CoreException {	
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"    int i = 0;\n" + 
+		"  }\n" +
+		"  public int bar() {\n" +
+		"    int i = 0;\n" + 
+		"    new X() /*start*/{\n" +
+		"    }/*end*/;" +
+		"  }\n" +
+		"}");
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, ICompilationUnit.IGNORE_METHOD_BODIES, null, null);
+	// methods with anonymous classes should have their statements intact
+	assertASTNodeEquals(
+			"Unexpected ast",
+			"package p1;\n" +
+			"import p2.*;\n" +
+			"public class X {\n" +
+			"  public void foo(){\n" +
+			"  }\n" +
+			"  public int bar(){\n" +
+			"  }\n" +
+			"}\n",
+			ast
+		);
 }
 }

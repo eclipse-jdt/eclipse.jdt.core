@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2007 IBM Corporation and others.
+ * Copyright (c) 2004, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2179,5 +2179,70 @@ public void test082() throws CoreException, IOException {
 			"LA~B<LC;:1TV;LC;:1TE;>;");
 	}
 
-	
+	public void testIgnoreMethodBodies1() throws CoreException {
+		this.workingCopies = createWorkingCopies(new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  public int foo() {\n" +
+				"    int i = 0;\n" + 
+				"  }\n" +
+				"  public int bar() {\n" +
+				"    int i = 0;\n" + 
+				"    new X() /*start*/{\n" +
+				"    }/*end*/;" +
+				"  }\n" +
+				"}",
+			});
+			TestASTRequestor requestor = new TestASTRequestor();
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setIgnoreMethodBodies(true);
+			parser.createASTs(this.workingCopies, new String[] {}, requestor, null);
+			// statements should not be in the AST
+			assertASTNodesEqual(
+					"package p1;\n" +
+					"public class X {\n" +
+					"  public int foo(){\n" +
+					"  }\n" +
+					"  public int bar(){\n" +
+					"  }\n" +
+					"}\n" +
+					"\n",
+					requestor.asts
+				);
+	}
+	public void testIgnoreMethodBodies2() throws CoreException {
+		this.workingCopies = createWorkingCopies(new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  public int foo() {\n" +
+				"    int i = 0;\n" + 
+				"  }\n" +
+				"  public int bar() {\n" +
+				"    int i = 0;\n" + 
+				"    new X() /*start*/{\n" +
+				"    }/*end*/;" +
+				"  }\n" +
+				"}",
+			});
+			TestASTRequestor requestor = new TestASTRequestor();
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setIgnoreMethodBodies(true);
+			parser.setResolveBindings(true);
+			parser.setProject(getJavaProject("P"));
+			parser.createASTs(this.workingCopies, new String[] {}, requestor, null);
+			// statements should not be in the AST
+			assertASTNodesEqual(
+					"package p1;\n" +
+					"public class X {\n" +
+					"  public int foo(){\n" +
+					"  }\n" +
+					"  public int bar(){\n" +
+					"  }\n" +
+					"}\n" +
+					"\n",
+					requestor.asts
+				);
+	}
 }

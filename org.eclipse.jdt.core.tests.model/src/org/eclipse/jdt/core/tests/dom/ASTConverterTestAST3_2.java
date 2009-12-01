@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9721,5 +9721,77 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ISourceRange sourceRange = field.getNameRange();
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=288211
+	 */
+	public void test0715() throws JavaModelException {
+		final char[] source = ("System.out.println()\nint i;\n").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_STATEMENTS);
+		parser.setStatementsRecovery(true);
+		parser.setIgnoreMethodBodies(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a block", ASTNode.BLOCK, root.getNodeType());
+		Block block = (Block) root;
+		List statements = block.statements();
+		assertEquals("Wrong size", 2, statements.size());
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=288211
+	 */
+	public void test0716() {
+		String src = "switch (state) {case 4:double M0,M1;}";
+		char[] source = src.toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind (ASTParser.K_STATEMENTS);
+		parser.setIgnoreMethodBodies(true);
+		parser.setSource (source);
+		ASTNode result = parser.createAST (null);
+		assertNotNull("no result", result);
+		assertEquals("Wrong type", ASTNode.BLOCK, result.getNodeType());
+		Block block = (Block) result;
+		List statements = block.statements();
+		assertNotNull("No statements", statements);
+		assertEquals("Wrong size", 1, statements.size());
+		final ASTNode node = (ASTNode) statements.get(0);
+		assertEquals("Not a switch statement", ASTNode.SWITCH_STATEMENT, node.getNodeType());
+		SwitchStatement statement = (SwitchStatement) node;
+		statements = statement.statements();
+		assertEquals("wrong size", 2, statements.size());
+		assertEquals("Not a switch case", ASTNode.SWITCH_CASE, ((ASTNode) statements.get(0)).getNodeType());
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, ((ASTNode) statements.get(1)).getNodeType());
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=288211
+	 */
+	public void test0717() throws JavaModelException {
+		final char[] source = ("  class MyCommand extends CompoundCommand\n" + 
+				"  {\n" + 
+				"    public void execute()\n" + 
+				"    {\n" + 
+				"      // ...\n" + 
+				"      appendAndExecute(new AddCommand());\n" + 
+				"      if (condition) appendAndExecute(new AddCommand());\n" + 
+				"    }\n" + 
+				"  }").toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setStatementsRecovery(false);
+		parser.setIgnoreMethodBodies(true);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, root.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) root;
+		typeDeclaration.accept(new ASTVisitor() {
+			public boolean visit(MethodDeclaration node) {
+				Block body = node.getBody();
+				assertNotNull(body);
+				assertTrue(body.statements().size() == 0);
+				return true;
+			}
+		});
 	}
 }

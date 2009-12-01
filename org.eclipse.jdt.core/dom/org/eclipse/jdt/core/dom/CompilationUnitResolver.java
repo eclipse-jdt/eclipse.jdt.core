@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -336,6 +336,7 @@ class CompilationUnitResolver extends Compiler {
 	public static void parse(ICompilationUnit[] compilationUnits, ASTRequestor astRequestor, int apiLevel, Map options, int flags, IProgressMonitor monitor) {
 		try {
 			CompilerOptions compilerOptions = new CompilerOptions(options);
+			compilerOptions.ignoreMethodBodies = (flags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
 			Parser parser = new CommentRecorderParser(
 				new ProblemReporter(
 						DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -389,6 +390,7 @@ class CompilationUnitResolver extends Compiler {
 		boolean statementsRecovery = (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0;
 		compilerOptions.performMethodsFullRecovery = statementsRecovery;
 		compilerOptions.performStatementsRecovery = statementsRecovery;
+		compilerOptions.ignoreMethodBodies = (flags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
 		Parser parser = new CommentRecorderParser(
 			new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -462,11 +464,13 @@ class CompilationUnitResolver extends Compiler {
 			}
 			environment = new CancelableNameEnvironment(((JavaProject) javaProject), owner, monitor);
 			problemFactory = new CancelableProblemFactory(monitor);
+			CompilerOptions compilerOptions = getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
+			compilerOptions.ignoreMethodBodies = (flags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
 			CompilationUnitResolver resolver =
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
-					getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0),
+					compilerOptions,
 					getRequestor(),
 					problemFactory,
 					monitor);
@@ -505,23 +509,26 @@ class CompilationUnitResolver extends Compiler {
 		try {
 			environment = new CancelableNameEnvironment(((JavaProject)javaProject), owner, monitor);
 			problemFactory = new CancelableProblemFactory(monitor);
+			CompilerOptions compilerOptions = getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
+			boolean ignoreMethodBodies = (flags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
+			compilerOptions.ignoreMethodBodies = ignoreMethodBodies;
 			resolver =
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
-					getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0),
+					compilerOptions,
 					getRequestor(),
 					problemFactory,
 					monitor);
-
+			boolean analyzeAndGenerateCode = !ignoreMethodBodies;
 			unit =
 				resolver.resolve(
 					null, // no existing compilation unit declaration
 					sourceUnit,
 					nodeSearcher,
 					true, // method verification
-					true, // analyze code
-					true); // generate code
+					analyzeAndGenerateCode, // analyze code
+					analyzeAndGenerateCode); // generate code
 			if (resolver.hasCompilationAborted) {
 				// the bindings could not be resolved due to missing types in name environment
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=86541

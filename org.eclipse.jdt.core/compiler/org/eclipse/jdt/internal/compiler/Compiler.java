@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -745,14 +745,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		long analyzeStart = System.currentTimeMillis();
 		this.stats.resolveTime += analyzeStart - resolveStart;
 
-		// flow analysis
-		unit.analyseCode();
+		// no need to analyse or generate code if method bodies are to be ignored
+		if (!this.options.ignoreMethodBodies) unit.analyseCode(); // flow analysis
 
 		long generateStart = System.currentTimeMillis();
 		this.stats.analyzeTime += generateStart - analyzeStart;
 
-		// code generation
-		unit.generateCode();
+		if (!this.options.ignoreMethodBodies) unit.generateCode(); // code generation
 
 		// reference info
 		if (options.produceReferenceInfo && unit.scope != null)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,6 +61,13 @@ public static final int ENABLE_STATEMENTS_RECOVERY = 0x02;
  * @since 3.3
  */
 public static final int ENABLE_BINDINGS_RECOVERY = 0x04;
+
+/**
+ * Constant indicating that a reconcile operation could ignore to parse the method bodies.
+ * @see ASTParser#setIgnoreMethodBodies(boolean)
+ * @since 3.5.2
+ */
+public static final int IGNORE_METHOD_BODIES = 0x08;
 
 /**
  * Applies a text edit to the compilation unit's buffer. 

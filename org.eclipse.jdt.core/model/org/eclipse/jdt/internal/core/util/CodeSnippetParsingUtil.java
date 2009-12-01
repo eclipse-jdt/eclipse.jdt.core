@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002, 2008 IBM Corporation and others.
+ * Copyright (c) 2002, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,16 @@ public class CodeSnippetParsingUtil {
 
 	public RecordedParsingInformation recordedParsingInformation;
 
+	public boolean ignoreMethodBodies;
+	
+	public CodeSnippetParsingUtil(boolean ignoreMethodBodies) {
+		this.ignoreMethodBodies = ignoreMethodBodies;
+	}
+	
+	public CodeSnippetParsingUtil() {
+		this(false);
+	}
+	
 	private RecordedParsingInformation getRecordedParsingInformation(CompilationResult compilationResult, CommentRecorderParser parser) {
 		int problemsCount = compilationResult.problemCount;
 		CategorizedProblem[] problems = null;
@@ -56,6 +66,7 @@ public class CodeSnippetParsingUtil {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		compilerOptions.ignoreMethodBodies = this.ignoreMethodBodies;
 		final ProblemReporter problemReporter = new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
@@ -86,6 +97,7 @@ public class CodeSnippetParsingUtil {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		compilerOptions.ignoreMethodBodies = this.ignoreMethodBodies;
 		CommentRecorderParser parser =
 			new CommentRecorderParser(
 				new ProblemReporter(
@@ -137,7 +149,8 @@ public class CodeSnippetParsingUtil {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		CompilerOptions compilerOptions = new CompilerOptions(settings); 	
+		// in this case we don't want to ignore method bodies since we are parsing only an expression
 		final ProblemReporter problemReporter = new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
@@ -169,6 +182,7 @@ public class CodeSnippetParsingUtil {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		// in this case we don't want to ignore method bodies since we are parsing only statements
 		final ProblemReporter problemReporter = new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
