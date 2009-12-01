@@ -463,7 +463,20 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 				}
 
 				// return binary method
-				return createBinaryMethodHandle(type, method.selector, argumentTypeNames);
+				IMethod binaryMethod = createBinaryMethodHandle(type, method.selector, argumentTypeNames);
+				if (binaryMethod == null) {
+					// when first attempt fails, try with similar matches if any...
+					PossibleMatch similarMatch = this.currentPossibleMatch.getSimilarMatch();
+					while (similarMatch != null) {
+						type = ((ClassFile)similarMatch.openable).getType();
+						binaryMethod = createBinaryMethodHandle(type, method.selector, argumentTypeNames);
+						if (binaryMethod != null) {
+							return binaryMethod;
+						}
+						similarMatch = similarMatch.getSimilarMatch();
+					}
+				}
+				return binaryMethod;
 			}
 		}
 		return null;

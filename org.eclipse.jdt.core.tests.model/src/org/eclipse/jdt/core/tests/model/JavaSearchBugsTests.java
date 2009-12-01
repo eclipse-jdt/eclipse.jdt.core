@@ -11029,4 +11029,39 @@ public void testBug286379c() throws CoreException {
 		deleteProject("P");
 	}
 }
+
+/**
+ * @bug 288174: NullPointerException when searching for type references
+ * @test Ensure that no NPE occurs when searching for type references
+ * 		when a binary type has matches in several member or anonymous types
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=288174"
+ */
+public void testBug288174() throws Exception {
+	final String libPath = "/JavaSearchBugs/lib/b288174.jar";
+	addLibraryEntry(JAVA_PROJECT, libPath, false);
+	try {
+		IPackageFragmentRoot root = getPackageFragmentRoot(libPath);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { root });
+		search("*", TYPE, REFERENCES, scope);
+		assertSearchResults(
+			"lib/b288174.jar pack.<anonymous> EXACT_MATCH\n" + 
+			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" + 
+			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" + 
+			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" + 
+			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" + 
+			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" + 
+			"lib/b288174.jar void pack.Test.foo1() EXACT_MATCH\n" + 
+			"lib/b288174.jar pack.<anonymous> EXACT_MATCH\n" + 
+			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" + 
+			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" + 
+			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" + 
+			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" + 
+			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" + 
+			"lib/b288174.jar void pack.Test.foo2() EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, new Path(libPath));
+	}
+}
 }
