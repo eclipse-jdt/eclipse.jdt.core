@@ -331,6 +331,8 @@ public class CompilerOptions {
 	public boolean storeAnnotations;
 	/** Indicate if annotation processing generates classfiles */
 	public boolean generateClassFiles;
+	/** Indicate if method bodies should be ignored */
+	public boolean ignoreMethodBodies;
 
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
@@ -1040,6 +1042,8 @@ public class CompilerOptions {
 		// dead code detection
 		this.reportDeadCodeInTrivialIfStatement = false;
 
+		// ignore method bodies
+		this.ignoreMethodBodies = false;
 	}
 
 	public void set(Map optionsMap) {
