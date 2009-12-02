@@ -366,15 +366,26 @@ boolean checkInheritedReturnTypes(MethodBinding method, MethodBinding otherMetho
 void checkMethods() {
 	boolean mustImplementAbstractMethods = mustImplementAbstractMethods();
 	boolean skipInheritedMethods = mustImplementAbstractMethods && canSkipInheritedMethods(); // have a single concrete superclass so only check overridden methods
+	boolean isOrEnclosedByPrivateType = this.type.isOrEnclosedByPrivateType();
 	char[][] methodSelectors = this.inheritedMethods.keyTable;
 	nextSelector : for (int s = methodSelectors.length; --s >= 0;) {
 		if (methodSelectors[s] == null) continue nextSelector;
 
 		MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(methodSelectors[s]);
+		MethodBinding[] inherited = (MethodBinding[]) this.inheritedMethods.valueTable[s];
+		
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660, if current type is exposed,
+		// inherited methods of super classes are too. current != null case handled below.
+		if (current == null && !isOrEnclosedByPrivateType) {
+			int length = inherited.length;
+			for (int i = 0; i < length; i++){
+				inherited[i].original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+			}
+		}
+
 		if (current == null && skipInheritedMethods)
 			continue nextSelector;
 
-		MethodBinding[] inherited = (MethodBinding[]) this.inheritedMethods.valueTable[s];
 		if (inherited.length == 1 && current == null) { // handle the common case
 			if (mustImplementAbstractMethods && inherited[0].isAbstract())
 				checkAbstractMethod(inherited[0]);
@@ -420,9 +431,14 @@ void checkMethods() {
 		// either because they match the same currentMethod or match each other
 		boolean[] skip = new boolean[inheritedLength];
 		for (int i = 0; i < inheritedLength; i++) {
+			MethodBinding matchMethod = foundMatch[i];
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660, if current type is exposed,
+			// inherited methods of super classes are too. current == null case handled already.
+			if (!isOrEnclosedByPrivateType && matchMethod == null && current != null) {
+				inherited[i].original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;	
+			}
 			if (skip[i]) continue;
 			MethodBinding inheritedMethod = inherited[i];
-			MethodBinding matchMethod = foundMatch[i];
 			if (matchMethod == null)
 				matchingInherited[++index] = inheritedMethod;
 			for (int j = i + 1; j < inheritedLength; j++) {

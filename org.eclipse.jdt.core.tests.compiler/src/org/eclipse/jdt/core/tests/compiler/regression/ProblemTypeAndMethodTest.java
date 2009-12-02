@@ -4984,4 +4984,268 @@ public void test097() {
 		"TheFieldDeclaratation cannot be resolved to a type\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+public void test098() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    private class A {\n" +
+			"    	public void foo(int a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"    	}\n" +
+			"	    public void foo(float a) {\n" +
+			"   		System.out.println(\"Hello\");\n" + 
+			"   	}\n" +
+			"   	public void foo(boolean a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"      	public void foo(Integer a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   }\n" + 
+			"   private class B extends A {\n" +
+			"		public void foo(int a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"		public void foo(float a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   	public void foo(double a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   	public void foo(char a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	public void foo(int a) {\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	public void foo(float a) {\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"The method foo(float) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 9)\n" + 
+		"	public void foo(boolean a) {\n" + 
+		"	            ^^^^^^^^^^^^^^\n" + 
+		"The method foo(boolean) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 12)\n" + 
+		"	public void foo(Integer a) {\n" + 
+		"	            ^^^^^^^^^^^^^^\n" + 
+		"The method foo(Integer) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 16)\n" + 
+		"	private class B extends A {\n" + 
+		"	              ^\n" + 
+		"The type X.B is never used locally\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 16)\n" + 
+		"	private class B extends A {\n" + 
+		"	              ^\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 23)\n" + 
+		"	public void foo(double a) {\n" + 
+		"	            ^^^^^^^^^^^^^\n" + 
+		"The method foo(double) from the type X.B is never used locally\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 26)\n" + 
+		"	public void foo(char a) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method foo(char) from the type X.B is never used locally\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+public void test098b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    private class A {\n" +
+			"    	public void foo(int a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"    	}\n" +
+			"	    public void foo(float a) {\n" +
+			"   		System.out.println(\"Hello\");\n" + 
+			"   	}\n" +
+			"   	public void foo(boolean a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"      	public void foo(Integer a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   }\n" + 
+			"   private class B extends A {\n" +
+			"		public void foo(int a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"		public void foo(float a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   	public void foo(double a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   	public void foo(char a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   }\n" +
+			"   public class C extends B {\n" +
+		    "		public void foo(int a) {\n" +
+			"			System.out.println(\"Hello\");\n" +    
+			"		}\n" +
+		    "		public void foo(double a) {\n" +
+			"			System.out.println(\"Hello\");\n" +    
+			"		}\n" +
+			"		public void foo(boolean a) {\n" +
+			"			System.out.println(\"Hello\");\n" +    
+			"		}\n" +
+			"		public void foo(byte a) {\n" +
+			"			System.out.println(\"Hello\");\n" +     
+			"		}\n" +
+		    "   }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	public void foo(int a) {\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	public void foo(float a) {\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"The method foo(float) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 9)\n" + 
+		"	public void foo(boolean a) {\n" + 
+		"	            ^^^^^^^^^^^^^^\n" + 
+		"The method foo(boolean) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 16)\n" + 
+		"	private class B extends A {\n" + 
+		"	              ^\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 23)\n" + 
+		"	public void foo(double a) {\n" + 
+		"	            ^^^^^^^^^^^^^\n" + 
+		"The method foo(double) from the type X.B is never used locally\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 30)\n" + 
+		"	public class C extends B {\n" + 
+		"	             ^\n" + 
+		"Access to enclosing constructor X.B() is emulated by a synthetic accessor method\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+public void test098c() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    private class A {\n" +
+			"        public void foo() {}\n" +
+			"    }\n" +
+			"    public class B extends A {}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	public class B extends A {}\n" + 
+		"	             ^\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+public void test098d() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    private class A {\n" +
+			"        public void foo() {}\n" +
+			"        public void foo(int a) {}\n" +
+			"    }\n" +
+			"    public class B extends A {}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	public class B extends A {}\n" + 
+		"	             ^\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+public void test098e() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    private class A {\n" +
+			"        private void foo() {}\n" +
+			"        private void foo(int a) {}\n" +
+			"    }\n" +
+			"    public class B extends A {}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	private void foo() {}\n" + 
+		"	             ^^^^^\n" + 
+		"The method foo() from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	private void foo(int a) {}\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	public class B extends A {}\n" + 
+		"	             ^\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+public void test098f() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    private class A {\n" +
+			"        public void foo() {}\n" +
+			"        public void foo(int a) {}\n" +
+			"    }\n" +
+			"    private class B extends A {}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	public void foo() {}\n" + 
+		"	            ^^^^^\n" + 
+		"The method foo() from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	public void foo(int a) {}\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	private class B extends A {}\n" + 
+		"	              ^\n" + 
+		"The type X.B is never used locally\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 6)\n" + 
+		"	private class B extends A {}\n" + 
+		"	              ^\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n");
+}
 }
