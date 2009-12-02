@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 713, -1 };
-//		TESTS_NUMBERS =  new int[] { 710, 711 };
+//		TESTS_NUMBERS =  new int[] { 718 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -10495,5 +10495,34 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				return true;
 			}
 		});
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=296629
+	public void test0718() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			String contents =
+				"public class X {\n" + 
+				"	public void v() {\n" + 
+				"		class Test2 {}\n" + 
+				"		Test2 t = get();\n" + 
+				"		t.toString();\n" + 
+				"	}\n" + 
+				"	public Object get() {return null;}\n" + 
+				"}";
+	
+			CompilationUnit unit = (CompilationUnit) buildAST(
+					contents,
+					workingCopy,
+					false);
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) getASTNode(unit, 0, 0, 1);
+			ITypeBinding typeBinding = statement.getType().resolveBinding();
+			ITypeBinding typeBinding2 = ((VariableDeclarationFragment) statement.fragments().get(0)).getInitializer().resolveTypeBinding();
+			assertTrue("Is not cast compatible", typeBinding.isCastCompatible(typeBinding2));
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
 	}
 }
