@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 Walter Harley and others
+ * Copyright (c) 2008, 2009 Walter Harley and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -104,5 +104,52 @@ public class BuilderTests extends TestBase
 		assertTrue(elements.contains("Sub"));
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+	}
+	
+	/**
+	 * Deleting FooEvent caused the reference to FooEvent in 
+	 * FooImpl to appear as a package in one case and as a type in another,
+	 * in turn causing a null binding to be passed to APT.
+	 *
+	 * See <a href="http://bugs.eclipse.org/295948">Bug 295948</a>.
+	 */
+	public void testBug295948() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+		IPath root = projPath.append("src");
+		
+		env.addClass(root, "test295948", "FooEvent",
+				"package test295948;\n" +
+				"public class FooEvent {\n" + 
+				"    public interface Handler {\n" + 
+				"        void handle(FooEvent event);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n"
+		);
+		
+		IPath fooImplClass = env.addClass(root, "test295948", "FooImpl",
+				"package test295948;\n" +
+				"public class FooImpl implements FooEvent.Handler {\n" + 
+				"    @Override\n" + 
+				"    public void handle(FooEvent event) {\n" + 
+				"    }\n" + 
+				"}\n"
+		);
+		
+		AptConfig.setEnabled(jproj, true);
+		
+		fullBuild();
+		expectingNoProblems();
+		
+		// Delete FooEvent and recompile
+		proj.findMember("src/test295948/FooEvent.java").delete(false, null);
+		incrementalBuild();
+		expectingProblemsFor(fooImplClass,
+				"Problem : FooEvent cannot be resolved to a type [ resource : </" + _projectName + "/src/test295948/FooImpl.java> range : <108,116> category : <40> severity : <2>]\n" + 
+				"Problem : FooEvent cannot be resolved to a type [ resource : </" + _projectName + "/src/test295948/FooImpl.java> range : <52,60> category : <40> severity : <2>]");
 	}	
 }
