@@ -242,24 +242,24 @@ public class ASTParser {
 		this.compilerOptions = options;
 	}
 
-    /**
-     * Requests that the compiler should perform bindings recovery.
-     * When bindings recovery is enabled the compiler returns incomplete bindings.
-     * <p>
-     * Default to <code>false</code>.
-     * </p>
-     * <p>This should be set to true only if bindings are resolved. It has no effect if there is no binding
-     * resolution.</p>
-     *
-     * @param enabled <code>true</code> if incomplete bindings are expected,
-     *   and <code>false</code> if only complete bindings are expected.
-     *
-     * @see IBinding#isRecovered()
-     * @since 3.3
-     */
-    public void setBindingsRecovery(boolean enabled) {
-        this.bindingsRecovery = enabled;
-    }
+	/**
+	 * Requests that the compiler should perform bindings recovery.
+	 * When bindings recovery is enabled the compiler returns incomplete bindings.
+	 * <p>
+	 * Default to <code>false</code>.
+	 * </p>
+	 * <p>This should be set to true only if bindings are resolved. It has no effect if there is no binding
+	 * resolution.</p>
+	 *
+	 * @param enabled <code>true</code> if incomplete bindings are expected,
+	 *   and <code>false</code> if only complete bindings are expected.
+	 *
+	 * @see IBinding#isRecovered()
+	 * @since 3.3
+	 */
+	public void setBindingsRecovery(boolean enabled) {
+		this.bindingsRecovery = enabled;
+	}
 	/**
 	 * Sets the compiler options to be used when parsing.
 	 * <p>
@@ -350,14 +350,14 @@ public class ASTParser {
 	}
 
 	/**
-     * Requests an abridged abstract syntax tree.
-     * By default, complete ASTs are returned.
-     * <p>
-     * When <code>true</code> the resulting AST does not have nodes for
-     * the entire compilation unit. Rather, the AST is only fleshed out
-     * for the node that include the given source position. This kind of limited
-     * AST is sufficient for certain purposes but totally unsuitable for others.
-     * In places where it can be used, the limited AST offers the advantage of
+	 * Requests an abridged abstract syntax tree.
+	 * By default, complete ASTs are returned.
+	 * <p>
+	 * When <code>true</code> the resulting AST does not have nodes for
+	 * the entire compilation unit. Rather, the AST is only fleshed out
+	 * for the node that include the given source position. This kind of limited
+	 * AST is sufficient for certain purposes but totally unsuitable for others.
+	 * In places where it can be used, the limited AST offers the advantage of
      * being smaller and faster to construct.
 	 * </p>
 	 * <p>
@@ -383,6 +383,9 @@ public class ASTParser {
 	 * compilation unit.
 	 * </p>
 	 *
+	 * <p>This focal position is not used when the AST is built using 
+	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
+	 * 
 	 * @param position a position into the corresponding body declaration
 	 */
 	public void setFocalPosition(int position) {
@@ -392,7 +395,7 @@ public class ASTParser {
 
 	/**
 	 * Sets the kind of constructs to be parsed from the source.
-     * Defaults to an entire compilation unit.
+	 * Defaults to an entire compilation unit.
 	 * <p>
 	 * When the parse is successful the result returned includes the ASTs for the
 	 * requested source:
@@ -426,7 +429,7 @@ public class ASTParser {
 	 * </ul>
 	 * The contrived nodes do not have source positions. Other aspects of the
 	 * {@link CompilationUnit CompilationUnit} node are unspecified, including
-	 * the exact arrangment of intervening nodes.
+	 * the exact arrangement of intervening nodes.
 	 * </p>
 	 * <p>
 	 * Lexical or syntax errors detected while parsing can result in
@@ -453,9 +456,12 @@ public class ASTParser {
 	 * </p>
 	 * <p>
 	 * Binding information is only computed when <code>kind</code> is
-     * <code>K_COMPILATION_UNIT</code>.
+	 * <code>K_COMPILATION_UNIT</code>.
 	 * </p>
-	 *
+	 * 
+	 * <p>This kind is not used the AST is built using
+	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
+	 * 
 	 * @param kind the kind of construct to parse: one of
 	 * {@link #K_COMPILATION_UNIT},
 	 * {@link #K_CLASS_BODY_DECLARATIONS},
@@ -473,11 +479,14 @@ public class ASTParser {
 	}
 
 	/**
-     * Sets the source code to be parsed.
-     *
+	 * Sets the source code to be parsed.
+	 *
+	 * <p>This source is not used the AST is built using 
+	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
+	 *
 	 * @param source the source string to be parsed,
-     * or <code>null</code> if none
-     */
+	 * or <code>null</code> if none
+	 */
 	public void setSource(char[] source) {
 		this.rawSource = source;
 		// clear the type root
@@ -485,29 +494,35 @@ public class ASTParser {
 	}
 
 	/**
-     * Sets the source code to be parsed.
-     * This method automatically sets the project (and compiler
-     * options) based on the given compilation unit, in a manner
-     * equivalent to <code>setProject(source.getJavaProject())</code>
-     *
+	 * Sets the source code to be parsed.
+	 * This method automatically sets the project (and compiler
+	 * options) based on the given compilation unit, in a manner
+	 * equivalent to <code>setProject(source.getJavaProject())</code>
+	 *
+	 * <p>This source is not used the AST is built using 
+	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
+	 * 
 	 * @param source the Java model compilation unit whose source code
-     * is to be parsed, or <code>null</code> if none
-      */
+	 * is to be parsed, or <code>null</code> if none
+	 */
 	public void setSource(ICompilationUnit source) {
 		setSource((ITypeRoot)source);
 	}
 
 	/**
-     * Sets the source code to be parsed.
-     * <p>This method automatically sets the project (and compiler
-     * options) based on the given compilation unit, in a manner
-     * equivalent to <code>setProject(source.getJavaProject())</code>.</p>
-     * <p>If the given class file has  no source attachment, the creation of the
-     * ast will fail with an IllegalStateException.</p>
-     *
+	 * Sets the source code to be parsed.
+	 * <p>This method automatically sets the project (and compiler
+	 * options) based on the given compilation unit, in a manner
+	 * equivalent to <code>setProject(source.getJavaProject())</code>.</p>
+	 * <p>If the given class file has  no source attachment, the creation of the
+	 * ast will fail with an IllegalStateException.</p>
+	 *
+	 * <p>This source is not used the AST is built using 
+	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
+	 * 
 	 * @param source the Java model class file whose corresponding source code
-     * is to be parsed, or <code>null</code> if none
-     */
+	 * is to be parsed, or <code>null</code> if none
+	 */
 	public void setSource(IClassFile source) {
 		setSource((ITypeRoot)source);
 	}
@@ -519,6 +534,9 @@ public class ASTParser {
 	 * equivalent to <code>setProject(source.getJavaProject())</code>.</p>
 	 * <p>If the source is a class file without source attachment, the creation of the
 	 * ast will fail with an IllegalStateException.</p>
+	 *
+	 * <p>This source is not used the AST is built using 
+	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
 	 *
 	 * @param source the Java model compilation unit or class file whose corresponding source code
 	 * is to be parsed, or <code>null</code> if none
@@ -540,6 +558,9 @@ public class ASTParser {
      * Sets the subrange of the source code to be parsed.
      * By default, the entire source string will be parsed
      * (<code>offset</code> 0 and <code>length</code> -1).
+     *
+	 * <p>This range is not used the AST is built using 
+	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
      *
      * @param offset the index of the first character to parse
      * @param length the number of characters to parse, or -1 if
@@ -600,10 +621,10 @@ public class ASTParser {
 	}
 
 	/**
-     * Sets the name of the compilation unit that would hypothetically contains
-     * the source string. This is used in conjunction with {@link #setSource(char[])}
-     * and {@link #setProject(IJavaProject) } to locate the compilation unit relative to a Java project.
-     * Defaults to none (<code>null</code>).
+	 * Sets the name of the compilation unit that would hypothetically contains
+	 * the source string. This is used in conjunction with {@link #setSource(char[])}
+	 * and {@link #setProject(IJavaProject) } to locate the compilation unit relative to a Java project.
+	 * Defaults to none (<code>null</code>).
 	 * <p>
 	 * The name of the compilation unit must be supplied for resolving bindings.
 	 * This name should be suffixed by a dot ('.') followed by one of the
@@ -615,10 +636,13 @@ public class ASTParser {
 	 * of the compilation unit must be "/P/Foo.java".
 	 * If the source declares a public class name "Bar" in a package "p1.p2" in a project "P" in a source folder "src",
 	 * the name of the compilation unit must be "/P/src/p1/p2/Bar.java".</p>
-     *
+	 *
+	 * <p>This source is not used the AST is built using 
+	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
+	 *
 	 * @param unitName the name of the compilation unit that would contain the source
 	 *    string, or <code>null</code> if none
-     */
+	 */
 	public void setUnitName(String unitName) {
 		this.unitName = unitName;
 	}
