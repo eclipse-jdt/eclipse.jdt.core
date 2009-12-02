@@ -2663,9 +2663,16 @@ public abstract class Scope {
 		if (foundType == null) {
 			char[][] qName = new char[][] { name };
 			ReferenceBinding closestMatch = null;
-			if ((mask & Binding.PACKAGE) != 0 || unitScope.environment.getTopLevelPackage(name) == null) {
+			if ((mask & Binding.PACKAGE) != 0) {
 				if (needResolve) {
 					closestMatch = environment().createMissingType(unitScope.fPackage, qName);
+				}
+			} else {
+				PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
+				if (packageBinding == null || !packageBinding.isValidBinding()) {
+					if (needResolve) {
+						closestMatch = environment().createMissingType(unitScope.fPackage, qName);
+					}
 				}
 			}
 			foundType = new ProblemReferenceBinding(qName, closestMatch, ProblemReasons.NotFound);
