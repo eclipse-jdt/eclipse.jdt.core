@@ -854,18 +854,22 @@ public boolean isReifiable() {
 			case Binding.INTERSECTION_TYPE:
 			case Binding.GENERIC_TYPE:
 				return false;
-				case Binding.PARAMETERIZED_TYPE:
+			case Binding.PARAMETERIZED_TYPE:
 				if (current.isBoundParameterizedType())
 					return false;
 				break;
 			case Binding.RAW_TYPE:
 				return true;
 		}
-		if (current.isStatic())
+		if (current.isStatic()) {
 			return true;
+		}
 		if (current.isLocalType()) {
-			NestedTypeBinding nestedType = (NestedTypeBinding) current.erasure();
-			if (nestedType.scope.methodScope().isStatic) return true;
+			LocalTypeBinding localTypeBinding = (LocalTypeBinding) current.erasure();
+			MethodBinding enclosingMethod = localTypeBinding.enclosingMethod;
+			if (enclosingMethod != null && enclosingMethod.isStatic()) {
+				return true;
+			}
 		}
 	} while ((current = current.enclosingType()) != null);
 	return true;
