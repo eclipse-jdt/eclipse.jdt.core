@@ -459,7 +459,7 @@ public class ASTParser {
 	 * <code>K_COMPILATION_UNIT</code>.
 	 * </p>
 	 * 
-	 * <p>This kind is not used the AST is built using
+	 * <p>This kind is not used when the AST is built using
 	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
 	 * 
 	 * @param kind the kind of construct to parse: one of
@@ -481,7 +481,7 @@ public class ASTParser {
 	/**
 	 * Sets the source code to be parsed.
 	 *
-	 * <p>This source is not used the AST is built using 
+	 * <p>This source is not used when the AST is built using 
 	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
 	 *
 	 * @param source the source string to be parsed,
@@ -499,7 +499,7 @@ public class ASTParser {
 	 * options) based on the given compilation unit, in a manner
 	 * equivalent to <code>setProject(source.getJavaProject())</code>
 	 *
-	 * <p>This source is not used the AST is built using 
+	 * <p>This source is not used when the AST is built using 
 	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
 	 * 
 	 * @param source the Java model compilation unit whose source code
@@ -517,7 +517,7 @@ public class ASTParser {
 	 * <p>If the given class file has  no source attachment, the creation of the
 	 * ast will fail with an IllegalStateException.</p>
 	 *
-	 * <p>This source is not used the AST is built using 
+	 * <p>This source is not used when the AST is built using 
 	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
 	 * 
 	 * @param source the Java model class file whose corresponding source code
@@ -535,7 +535,7 @@ public class ASTParser {
 	 * <p>If the source is a class file without source attachment, the creation of the
 	 * ast will fail with an IllegalStateException.</p>
 	 *
-	 * <p>This source is not used the AST is built using 
+	 * <p>This source is not used when the AST is built using 
 	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
 	 *
 	 * @param source the Java model compilation unit or class file whose corresponding source code
@@ -559,7 +559,7 @@ public class ASTParser {
      * By default, the entire source string will be parsed
      * (<code>offset</code> 0 and <code>length</code> -1).
      *
-	 * <p>This range is not used the AST is built using 
+	 * <p>This range is not used when the AST is built using 
 	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
      *
      * @param offset the index of the first character to parse
@@ -597,7 +597,7 @@ public class ASTParser {
 	 * <p>When ignore method bodies is enabled, all method bodies are discarded.
 	 * This has no impact on the binding resolution.</p>
 	 *
-	 * <p>This setting is not used if the kind used in {@link #setKind(int)} is either 
+	 * <p>This setting is not used when the kind used in {@link #setKind(int)} is either 
 	 * {@link #K_EXPRESSION} or {@link #K_STATEMENTS}.</p>
 	 * @since 3.5.2
 	 */
@@ -637,7 +637,7 @@ public class ASTParser {
 	 * If the source declares a public class name "Bar" in a package "p1.p2" in a project "P" in a source folder "src",
 	 * the name of the compilation unit must be "/P/src/p1/p2/Bar.java".</p>
 	 *
-	 * <p>This source is not used the AST is built using 
+	 * <p>This unit name is not used when the AST is built using 
 	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
 	 *
 	 * @param unitName the name of the compilation unit that would contain the source
