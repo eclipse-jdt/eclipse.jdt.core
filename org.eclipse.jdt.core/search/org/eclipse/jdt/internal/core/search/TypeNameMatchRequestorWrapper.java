@@ -12,6 +12,7 @@
 package org.eclipse.jdt.internal.core.search;
 
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -20,6 +21,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
@@ -80,6 +82,8 @@ public TypeNameMatchRequestorWrapper(TypeNameMatchRequestor requestor, IJavaSear
  * @see org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor#acceptType(int, char[], char[], char[][], java.lang.String, org.eclipse.jdt.internal.compiler.env.AccessRestriction)
  */
 public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
+
+	// Get type
 	try {
 		IType type = null;
 		if (this.handleFactory != null) {
@@ -108,10 +112,29 @@ public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName,
 				? createTypeFromPath(path, new String(simpleTypeName), enclosingTypeNames)
 				: createTypeFromJar(path, separatorIndex);
 		}
+
+		// Accept match if the type has been found
 		if (type != null) {
 			// hierarchy scopes require one more check:
 			if (!(this.scope instanceof HierarchyScope) || ((HierarchyScope)this.scope).enclosesFineGrained(type)) {
-				this.requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, modifiers));
+
+				// Create the match
+				final JavaSearchTypeNameMatch match = new JavaSearchTypeNameMatch(type, modifiers);
+
+				// Update match accessibility
+				if(access != null) {
+					switch (access.getProblemId()) {
+						case IProblem.ForbiddenReference:
+							match.setAccessibility(IAccessRule.K_NON_ACCESSIBLE);
+							break;
+						case IProblem.DiscouragedReference:
+							match.setAccessibility(IAccessRule.K_DISCOURAGED);
+							break;
+					}
+				}
+
+				// Accept match
+				this.requestor.acceptTypeNameMatch(match);
 			}
 		}
 	} catch (JavaModelException e) {
