@@ -48,9 +48,31 @@ Eclipse SDK 3.6M4 - %date% - 3.6.0 M4
 <br>Project org.eclipse.jdt.core v_A25
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A25">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Match result can now report the access rules through a new API added on <code>TypeNameMatch</code>:
+<pre>
+/**
+ * Returns the accessibility of the type name match
+ *
+ * @see IAccessRule
+ *
+ * @return the accessibility of the type name which may be
+ * 		{@link IAccessRule#K_ACCESSIBLE}, {@link IAccessRule#K_DISCOURAGED}
+ * 		or {@link IAccessRule#K_NON_ACCESSIBLE}.
+ * 		The default returned value is {@link IAccessRule#K_ACCESSIBLE}.
+ *
+ * @since 3.6
+ */
+public abstract int getAccessibility();
+</pre>
+See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=296277">296277</a> for more details.
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=296708">296708</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=296277">296277</a>
+[search] SearchEngine#searchAllTypeNames(.., TypeNameMatchRequestor,..) should report access rules
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=296708">296708</a>
 [DOM/AST] clarify setters when createASTs(..) is used
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=296629">296629</a>
 [quick fix] Cast quick fix not offered for method-local classes

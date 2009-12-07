@@ -16,4 +16,11 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="search/org/eclipse/jdt/core/search/TypeNameMatch.java" type="org.eclipse.jdt.core.search.TypeNameMatch">
+        <filter id="336744520">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.search.TypeNameMatch"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>
