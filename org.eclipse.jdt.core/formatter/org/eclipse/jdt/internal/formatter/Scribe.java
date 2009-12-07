@@ -106,12 +106,23 @@ public class Scribe implements IJavaDocTagConstants {
 	private static final int INCLUDE_LINE_COMMENTS = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_SINGLE_LINE_COMMENT;
 	private static final int SKIP_FIRST_WHITESPACE_TOKEN = -2;
 	private static final int INVALID_TOKEN = 2000;
-	static final int NO_TRAILING_COMMENT = 0;
-	static final int BASIC_TRAILING_COMMENT = 1;
-	static final int IMPORT_TRAILING_COMMENT = 2;
+	static final int NO_TRAILING_COMMENT = 0x0000;
+	static final int BASIC_TRAILING_COMMENT = 0x0100;
+	static final int COMPLEX_TRAILING_COMMENT = 0x0200;
+	static final int IMPORT_TRAILING_COMMENT = COMPLEX_TRAILING_COMMENT | 0x0001;
+	static final int UNMODIFIABLE_TRAILING_COMMENT = 0x0400;
 	private int formatComments = 0;
 	private int headerEndPosition = -1;
 	String commentIndentation; // indentation requested in comments (usually in javadoc root tags description)
+	// Class to store previous line comment information
+	class LineComment {
+		boolean contiguous = false;
+		int currentColumn, indentation;
+		int lines;
+		char[] leadingSpaces;
+	}
+	final LineComment lastLineComment = new LineComment();
+
 
 	// New way to format javadoc
 	private FormatterCommentParser formatterCommentParser; // specialized parser to format comments
@@ -787,10 +798,10 @@ public class Scribe implements IJavaDocTagConstants {
 		return null;
 	}
 
-	private int getCurrentCommentOffset(int start) {
+	private int getCurrentCommentColumn(int start) {
 		int linePtr = -Arrays.binarySearch(this.lineEnds, start);
-		int offset = 0;
-		int beginningOfLine = getLineEnd(linePtr - 1);
+		int commentColumn = 1;
+		int beginningOfLine = getLineEnd(linePtr - 1)+1;
 		if (beginningOfLine == -1) {
 			beginningOfLine = 0;
 		}
@@ -800,35 +811,70 @@ public class Scribe implements IJavaDocTagConstants {
 		// find the position of the beginning of the line containing the comment
 		while (beginningOfLine > currentStartPosition) {
 			if (linePtr > 0) {
-				beginningOfLine = getLineEnd(--linePtr);
+				beginningOfLine = getLineEnd(--linePtr)+1;
 			} else {
 				beginningOfLine = 0;
 				break;
 			}
 		}
-		for (int i = currentStartPosition - 1; i >= beginningOfLine ; i--) {
+		for (int i=beginningOfLine; i < currentStartPosition ; i++) {
 			char currentCharacter = source[i];
 			switch (currentCharacter) {
 				case '\t' :
-					offset += this.tabLength;
+					if (this.tabLength != 0) {
+						int reminder = commentColumn % this.tabLength;
+						if (reminder == 0) {
+							commentColumn += this.tabLength;
+						} else {
+							commentColumn = ((commentColumn / this.tabLength) + 1) * this.tabLength + 1;
+						}
+					}
 					break;
 				case '\r' :
 				case '\n' :
+					commentColumn = 0;
 					break;
 				default:
-					offset++;
+					commentColumn++;
 					break;
 			}
 		}
-		return offset;
+		return commentColumn;
 	}
 
-	int getCurrentIndentation(int start) {
+	int getCurrentColumn(char[] whitespaces) {
+		int length = whitespaces.length;
+		if (this.tabLength == 0) return length;
+		int currentColumn = 1;
+		for (int i=0; i<length; i++) {
+			char ch = whitespaces[i];
+			switch (ch) {
+				case '\t' :
+					int reminder = (currentColumn-1) % this.tabLength;
+					if (reminder == 0) {
+						currentColumn += this.tabLength;
+					} else {
+						currentColumn = ((currentColumn / this.tabLength) + 1) * this.tabLength + 1;
+					}
+					break;
+				case '\r' :
+				case '\n' :
+					currentColumn = 0;
+					break;
+				default:
+					currentColumn++;
+					break;
+			}
+		}
+		return currentColumn;
+	}
+
+	int getCurrentColumn(int start) {
 		int linePtr = Arrays.binarySearch(this.lineEnds, start);
 		if (linePtr < 0) {
 			linePtr = -linePtr - 1;
 		}
-		int offset = 0;
+		int currentColumn = 1;
 		int beginningOfLine = getLineEnd(linePtr)+1;
 		if (beginningOfLine == -1) {
 			beginningOfLine = 0;
@@ -839,19 +885,27 @@ public class Scribe implements IJavaDocTagConstants {
 			char currentCharacter = source[i];
 			switch (currentCharacter) {
 				case '\t' :
-					offset += this.tabLength;
+					if (this.tabLength != 0) {
+						int reminder = (currentColumn-1) % this.tabLength;
+						if (reminder == 0) {
+							currentColumn += this.tabLength;
+						} else {
+							currentColumn = ((currentColumn / this.tabLength) + 1) * this.tabLength + 1;
+						}
+					}
 					break;
 				case '\r' :
 				case '\n' :
+					currentColumn = 0;
 					break;
 				case ' ':
-					offset++;
+					currentColumn++;
 					break;
 				default:
-					return offset;
+					return currentColumn;
 			}
 		}
-		return offset;
+		return currentColumn;
 	}
 
 	public String getEmptyLines(int linesNumber) {
@@ -1009,7 +1063,7 @@ public class Scribe implements IJavaDocTagConstants {
 					StringBuffer buffer = new StringBuffer(getNewLine());
 					
 					// Look for current indentation
-					int currentColumn = getCurrentIndentation(this.scanner.currentPosition);
+					int currentIndentation = getCurrentColumn(this.scanner.currentPosition) - 1;
 					
 					// Determine whether the alignment indentation can be used or not
 					// So far, the best algorithm is to use it when
@@ -1036,14 +1090,14 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 					
 					// Use the current indentation if over the computed indentation
-					if (this.indentationLevel < currentColumn) {
-						this.indentationLevel = currentColumn;
+					if (this.indentationLevel < currentIndentation) {
+						this.indentationLevel = currentIndentation;
 					}
 					
 					// Debug
 					if (DefaultCodeFormatter.DEBUG) {
 						System.out.println(" - format brace = "+this.formatBrace); //$NON-NLS-1$
-						System.out.println(" - current column = "+currentColumn); //$NON-NLS-1$
+						System.out.println(" - current column = "+(currentIndentation+1)); //$NON-NLS-1$
 						System.out.println(" - current position = "+this.scanner.currentPosition); //$NON-NLS-1$
 						System.out.print(" - current line = "); //$NON-NLS-1$
 						int linePtr = Arrays.binarySearch(this.lineEnds, this.scanner.currentPosition);
@@ -1387,7 +1441,7 @@ public class Scribe implements IJavaDocTagConstants {
 		if ((commentColumn-1) > this.indentationLevel) {
 			this.indentationLevel = commentColumn-1;
 		}
-		int currentCommentOffset = onFirstColumn ? 0 : getCurrentCommentOffset(start);
+		int currentCommentIndentation = onFirstColumn ? 0 : getCurrentCommentColumn(start) - 1;
 		boolean formatComment = (isJavadoc && (this.formatComments & CodeFormatter.K_JAVA_DOC) != 0) || (!isJavadoc && (this.formatComments & CodeFormatter.K_MULTI_LINE_COMMENT) != 0);
 
 		try {
@@ -1441,19 +1495,26 @@ public class Scribe implements IJavaDocTagConstants {
 							} else {
 								if (ScannerHelper.isWhitespace((char) currentCharacter)) {
 									int previousStartPosition = this.scanner.currentPosition;
-									int count = 0;
+									int currentIndentation = 0;
 									loop: while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
-										if (count >= currentCommentOffset) {
+										if (currentIndentation >= currentCommentIndentation) {
 											break loop;
 										}
 										previousStart = nextCharacterStart;
 										previousStartPosition = this.scanner.currentPosition;
 										switch(currentCharacter) {
 											case '\t' :
-												count += this.tabLength;
+												if (this.tabLength != 0) {
+													int reminder = currentIndentation % this.tabLength;
+													if (reminder == 0) {
+														currentIndentation += this.tabLength;
+													} else {
+														currentIndentation = ((currentIndentation / this.tabLength) + 1) * this.tabLength;
+													}
+												}
 												break;
 											default :
-												count ++;
+												currentIndentation ++;
 										}
 										currentCharacter = this.scanner.getNextChar();
 										nextCharacterStart = this.scanner.currentPosition;
@@ -2108,27 +2169,59 @@ public class Scribe implements IJavaDocTagConstants {
 						// If following token is a line comment on the same line or the line just after,
 						// then it might be not really formatted as a trailing comment
 						boolean realTrailing = trailing > NO_TRAILING_COMMENT;
-						if (trailing == IMPORT_TRAILING_COMMENT && this.scanner.currentCharacter == '/' && lines <= 1) {
-							int currentPosition = this.scanner.currentPosition;
-							if (this.scanner.getNextToken() == TerminalTokens.TokenNameCOMMENT_LINE) {
-								int token = this.scanner.getNextToken();
-								while (token == TerminalTokens.TokenNameCOMMENT_LINE) {
-									token = this.scanner.getNextToken();
-								}
-								if (token == TerminalTokens.TokenNameWHITESPACE) {
-									char[] secondWhiteSpaces = this.scanner.getCurrentTokenSource();
-									loop: for (int i = 0, max = secondWhiteSpaces.length; i < max; i++) {
-										switch(secondWhiteSpaces[i]) {
-											case '\r' :
-											case '\n' :
-												realTrailing = false;
-												break loop;
-										}
+						if (realTrailing && this.scanner.currentCharacter == '/' && (lines == 0 || (lines == 1 && !hasLineComment && trailing == IMPORT_TRAILING_COMMENT))) {
+							// sometimes changing the trailing may not be the best idea
+							// for complex trailing comment, it's basically a good idea
+							boolean canChangeTrailing = (trailing & COMPLEX_TRAILING_COMMENT) != 0;
+							// for basic trailing comment preceded by a line comment, then it depends on the comments relative position
+							// when following comment column (after having been rounded) is below the preceding one,
+							// then it becomes not a good idea to change the trailing flag
+							if (trailing == BASIC_TRAILING_COMMENT && hasLineComment) {
+								int currentCommentColumn = getCurrentColumn(whiteSpaces);
+								int lastCommentColumn = this.lastLineComment.currentColumn;
+								if (this.tabLength > 0) {
+									if ((currentCommentColumn % this.tabLength) == 0) {
+										lastCommentColumn = (lastCommentColumn / this.tabLength) * this.tabLength;
+									} else {
+										currentCommentColumn = ((currentCommentColumn / this.tabLength) + 1) * this.tabLength;
 									}
 								}
+								canChangeTrailing = currentCommentColumn >= lastCommentColumn;
 							}
-							this.scanner.resetTo(currentPosition, this.scanner.eofPosition - 1);
+							// if the trailing can be change, then look at the following tokens
+							if (canChangeTrailing) {
+								int currentPosition = this.scanner.currentPosition;
+								if (this.scanner.getNextToken() == TerminalTokens.TokenNameCOMMENT_LINE) {
+									realTrailing = !hasLineComment;
+									switch (this.scanner.getNextToken()) {
+										case TerminalTokens.TokenNameCOMMENT_LINE:
+											// at least two contiguous line comments
+											// the formatter should not consider comments as trailing ones
+											realTrailing = false;
+											break;
+										case TerminalTokens.TokenNameWHITESPACE:
+											if (this.scanner.getNextToken() == TerminalTokens.TokenNameCOMMENT_LINE) {
+												// at least two contiguous line comments
+												// the formatter should not consider comments as trailing ones
+												realTrailing = false;
+											}
+											break;
+									}
+								}
+								this.scanner.resetTo(currentPosition, this.scanner.eofPosition - 1);
+							}
 						}
+						// Look whether comments line may be contiguous or not
+						// Note that when preceding token is a comment line, then only one line
+						// is enough to have an empty line as the line end is included in the comment line...
+						// If comments are contiguous, store the white spaces to be able to compute the current comment indentation
+						if (lines > 1 || (lines == 1 && hasLineComment)) {
+							this.lastLineComment.contiguous = false;
+						}
+						this.lastLineComment.leadingSpaces = whiteSpaces;
+						this.lastLineComment.lines = lines;
+						// Strategy to consume spaces and eventually leave at this stage
+						// depends on the fact that a trailing comment is expected or not
 						if (realTrailing) {
 							// if a line comment is consumed, no other comment can be on the same line after
 							if (hasLineComment) {
@@ -2200,6 +2293,7 @@ public class Scribe implements IJavaDocTagConstants {
 							this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
 							return;
 						}
+						this.lastLineComment.contiguous = false;
 						if (rejectBlockComment) break;
 						if (lines >= 1) {
 							if (lines > 1) {
@@ -2223,6 +2317,7 @@ public class Scribe implements IJavaDocTagConstants {
 							this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
 							return;
 						}
+						this.lastLineComment.contiguous = false;
 						if (rejectJavadocComment) break;
 						if (lines >= 1) {
 							if (lines > 1) {
@@ -2246,6 +2341,7 @@ public class Scribe implements IJavaDocTagConstants {
 						lines = 0;
 						break;
 					default :
+						this.lastLineComment.contiguous = false;
 						// step back one token
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;
@@ -2300,12 +2396,64 @@ public class Scribe implements IJavaDocTagConstants {
     	int start = currentTokenStartPosition;
     	int nextCharacterStart = currentTokenStartPosition;
 
-    	if (this.indentationLevel != 0) {
-    		if (!this.formatter.preferences.never_indent_line_comments_on_first_column
-    				|| !isOnFirstColumn(start)) {
-    			printIndentationIfNecessary();
+    	// Print comment line indentation
+    	int commentIndentationLevel;
+    	if (this.indentationLevel == 0) {
+    		commentIndentationLevel = this.column - 1;
+    	} else {
+    		if (this.formatter.preferences.never_indent_line_comments_on_first_column &&
+    			isOnFirstColumn(start)) {
+	   			commentIndentationLevel = this.column - 1;
+    		} else {
+    			// Indentation may be specific for contiguous comment
+    			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=293300
+				if (this.lastLineComment.contiguous) {
+					// The leading spaces have been set while looping in the printComment(int) method
+					int currentCommentIndentation = getCurrentColumn(this.lastLineComment.leadingSpaces);
+					// Keep the current comment indentation when over the previous contiguous line comment
+					// and the previous comment has not been reindented
+					int lastCommentColumn = this.lastLineComment.currentColumn;
+					if (this.tabLength > 0) {
+						if ((currentCommentIndentation % this.tabLength) == 0) {
+							lastCommentColumn = (lastCommentColumn / this.tabLength) * this.tabLength;
+						} else {
+							currentCommentIndentation = ((currentCommentIndentation / this.tabLength) + 1) * this.tabLength;
+						}
+					}
+					if (currentCommentIndentation >= lastCommentColumn && this.lastLineComment.indentation != this.indentationLevel) {
+						int currentIndentationLevel = this.indentationLevel;
+						this.indentationLevel = this.lastLineComment.indentation ;
+						printIndentationIfNecessary();
+						this.indentationLevel = currentIndentationLevel;
+			   			commentIndentationLevel = this.lastLineComment.indentation ;
+					} else {
+						printIndentationIfNecessary();
+			   			commentIndentationLevel = this.column - 1;
+					}
+				} else {
+					if (this.currentAlignment != null && this.currentAlignment.name.equals("array_initializer") && //$NON-NLS-1$
+						this.indentationLevel < this.currentAlignment.breakIndentationLevel &&
+						this.lastLineComment.lines > 0)
+					{
+						int currentIndentationLevel = this.indentationLevel;
+						this.indentationLevel = this.currentAlignment.breakIndentationLevel;
+		    			printIndentationIfNecessary();
+						this.indentationLevel = currentIndentationLevel;
+			   			commentIndentationLevel = this.currentAlignment.breakIndentationLevel;
+					} else {
+		    			printIndentationIfNecessary();
+			   			commentIndentationLevel = this.column - 1;
+					}
+				}
     		}
     	}
+    	
+    	// Store line comment information
+   		this.lastLineComment.contiguous = true;
+		this.lastLineComment.currentColumn = getCurrentCommentColumn(currentTokenStartPosition);
+		this.lastLineComment.indentation = commentIndentationLevel;
+		
+		// Add pending space if necessary
     	if (this.pendingSpace) {
     		addInsertEdit(currentTokenStartPosition, " "); //$NON-NLS-1$
     	}
@@ -3983,6 +4131,7 @@ public class Scribe implements IJavaDocTagConstants {
 		this.needSpace = false;
 		this.pendingSpace = false;
 		this.preserveLineBreakIndentation = false;
+		this.lastLineComment.contiguous = false;
 	}
 
 	public void printNextToken(int expectedTokenType){
