@@ -60,7 +60,7 @@ public class Util {
 
     private static final boolean DEBUG = false;
     /**
-     * Initially, output directory was located in System.getProperty("user.home")+"\comptest".
+     * Initially, output directory was located in System.getProperty("java.io.tmpdir")+"\comptest".
      * To allow user to run several compiler tests at the same time, main output directory
      * is now located in a sub-directory of "comptest" which name is "run."+<code>System.currentMilliseconds</code>.
      *
@@ -97,10 +97,10 @@ public class Util {
         // Get output directory root from system properties
         String container = System.getProperty("jdt.test.output_directory");
         if (container == null){
-            container = System.getProperty("user.home");
+            container = System.getProperty("java.io.tmpdir");
         }
         if (container == null) {
-            container = ".";	// use current directory
+            container = "."; // use current directory
         }
 
         // Get file for root directory
@@ -130,8 +130,14 @@ public class Util {
 
         // Computed test run directory name based on current time
         File dateDir = new File(dir, "run."+System.currentTimeMillis());
-        OUTPUT_DIRECTORY = dateDir.getPath();
-    }
+        String pathDir = null;
+        try {
+        	pathDir = dateDir.getCanonicalPath();
+		} catch (IOException e) {
+			pathDir = dateDir.getAbsolutePath();
+		}
+		OUTPUT_DIRECTORY = pathDir;
+   }
 
 public static void appendProblem(StringBuffer problems, IProblem problem, char[] source, int problemCount) {
     problems.append(problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
