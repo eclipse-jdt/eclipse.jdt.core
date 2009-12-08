@@ -3465,4 +3465,34 @@ public void testBug295238b3() {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 297225: [formatter] Indentation may be still wrong in certain circumstances after formatting
+ * @test Verify that comment indentation is correct when there's a mix of tab and spaces in
+ * 		existing indentation and all comments formatting is off.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297225"
+ */
+public void testBug297225() {
+	this.formatterPrefs.comment_format_line_comment = false;
+	this.formatterPrefs.comment_format_block_comment = false;
+	this.formatterPrefs.comment_format_javadoc_comment = false;
+	String source = 
+		"public class X01 {\n" + 
+		"   	\n" + 
+		"   	/**\n" + 
+		"   	 * The foo method\n" + 
+		"   	 */\n" + 
+		"	void foo() {}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * The foo method\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
