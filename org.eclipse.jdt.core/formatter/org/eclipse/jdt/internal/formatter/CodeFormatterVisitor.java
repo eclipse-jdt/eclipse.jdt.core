@@ -1868,7 +1868,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.indent();
 			}
 			this.scribe.printNextToken(TerminalTokens.TokenNameLBRACE, insertSpaceBeforeBrace);
-			this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
+			this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.UNMODIFIABLE_TRAILING_COMMENT);
 	}
 	private void formatStatements(BlockScope scope, final Statement[] statements, boolean insertNewLineAfterLastStatement) {
 		int statementsLength = statements.length;
@@ -4254,7 +4254,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		} else {
 			// no method body
 			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-			this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
+			this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.COMPLEX_TRAILING_COMMENT);
 		}
 		return false;
 	}
@@ -4951,12 +4951,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						this.scribe.unIndent();
 					}
 					statement.traverse(this, scope);
-					this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
 					wasACase = true;
 					wasAStatement = false;
 					if (this.preferences.indent_switchstatements_compare_to_cases) {
 						this.scribe.indent();
 					}
+					this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.COMPLEX_TRAILING_COMMENT);
 				} else if (statement instanceof BreakStatement) {
 					if (this.preferences.indent_breaks_compare_to_cases) {
 						if (wasAStatement && !this.preferences.indent_switchstatements_compare_to_cases) {

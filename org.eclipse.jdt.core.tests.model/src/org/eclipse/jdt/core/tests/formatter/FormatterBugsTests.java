@@ -334,7 +334,15 @@ public void testBug199265b() throws JavaModelException {
 		"\n" + 
 		"public class X02 {\n" + 
 		"}\n";
-	formatSource(source);
+	formatSource(source,
+		"import java.util.List;\n" + 
+		"import java.util.Set;\n" + 
+		"\n" + 
+		"//import java.util.HashMap;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"}\n"
+	);
 }
 public void testBug199265c1() throws JavaModelException {
 	String source =
@@ -378,6 +386,58 @@ public void testBug199265c3() throws JavaModelException {
 		"	List field;\n" + 
 		"}\n";
 	formatSource(source);
+}
+public void testBug199265d1() throws JavaModelException {
+	String source =
+		"import java.util.Set; // trailing comment\n" + 
+		"// line comment\n" + 
+		"import java.util.Map; // trailing comment\n" + 
+		"// line comment\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"import java.util.Set; // trailing comment\n" + 
+		"// line comment\n" + 
+		"import java.util.Map; // trailing comment\n" + 
+		"// line comment\n" + 
+		"\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug199265d2() throws JavaModelException {
+	String source =
+		"import java.util.Set; // trailing comment\n" + 
+		"// line comment\n" + 
+		"import java.util.Map; // trailing comment\n" + 
+		"// line comment\n" + 
+		"\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug199265d3() throws JavaModelException {
+	String source =
+		"import java.util.Set; // trailing comment\n" + 
+		"	// line comment\n" + 
+		"import java.util.Map; // trailing comment\n" + 
+		"	// line comment\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"import java.util.Set; // trailing comment\n" + 
+		"// line comment\n" + 
+		"import java.util.Map; // trailing comment\n" + 
+		"// line comment\n" + 
+		"\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"}\n"
+	);
 }
 public void testBug199265_wksp1a() throws JavaModelException {
 	String source =
@@ -837,7 +897,7 @@ public void testBug286601g() {
 	String source =
 		"package massive;\n" +
 		"\n" +
-		"public class X05b\n" +
+		"public class X05\n" +
 		"{\n" +
 		"\n" +
 		"    public void foo() throws NullPointerException {\n" +
@@ -859,7 +919,7 @@ public void testBug286601g() {
 	formatSource(source,
 		"package massive;\n" +
 		"\n" +
-		"public class X05b {\n" +
+		"public class X05 {\n" +
 		"\n" +
 		"	public void foo() throws NullPointerException {\n" +
 		"\n" +
@@ -888,7 +948,7 @@ public void testBug286601h() {
 	String source =
 		"package massive;\n" +
 		"\n" +
-		"public class X05b\n" +
+		"public class X05\n" +
 		"{\n" +
 		"\n" +
 		"    public void foo() throws NullPointerException {\n" +
@@ -910,7 +970,7 @@ public void testBug286601h() {
 	formatSource(source,
 		"package massive;\n" +
 		"\n" +
-		"public class X05b\n" +
+		"public class X05\n" +
 		"{\n" +
 		"\n" +
 		"	public void foo() throws NullPointerException\n" +
@@ -1550,6 +1610,1302 @@ public void testBug293240() {
 		"    public Object[] bar() {\n" +
 		"        return new Object[] { null };\n" +
 		"    }\n" +
+		"}\n"
+	);
+}
+
+/**
+ * @bug 293300: [formatter] The formatter is still unstable in certain circumstances
+ * @test Verify that formatting twice a compilation unit does not produce different output
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=293300"
+ */
+public void testBug293300_wksp1_01() {
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	boolean foo(int test, int value) {\n" + 
+		"		// This comment may also be impacted after having been split in several lines. Furthermore, it\'s also important to verify that the algorithm works when the comment is split into several lines. It\'s a common use case that it may works for 1, 2 but not for 3 iterations...\n" + 
+		"		if (test == 0) {\n" + 
+		"			// skip\n" + 
+		"		} else if (Math.sqrt(Math.pow(test, 2)) > 10) // This is the offending comment after having been split into several lines\n" + 
+		"			return false;\n" + 
+		"		return true;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	boolean foo(int test, int value) {\n" + 
+		"		// This comment may also be impacted after having been split in several\n" + 
+		"		// lines. Furthermore, it\'s also important to verify that the algorithm\n" + 
+		"		// works when the comment is split into several lines. It\'s a common use\n" + 
+		"		// case that it may works for 1, 2 but not for 3 iterations...\n" + 
+		"		if (test == 0) {\n" + 
+		"			// skip\n" + 
+		"		} else if (Math.sqrt(Math.pow(test, 2)) > 10) // This is the offending\n" + 
+		"														// comment after having\n" + 
+		"														// been split into\n" + 
+		"														// several lines\n" + 
+		"			return false;\n" + 
+		"		return true;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wkps1_02() {
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"	String field;\n" + 
+		"	 public X02(String test) {\n" + 
+		"		field= test.toLowerCase();\n" + 
+		"		try {\n" + 
+		"			testWhetherItWorksOrNot(test); // This comment will be split and should not involve instability\n" + 
+		"		} catch (Exception e) {\n" + 
+		"			return;\n" + 
+		"		}\n" + 
+		"	 }\n" + 
+		"	private void testWhetherItWorksOrNot(String test) {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"	String field;\n" + 
+		"\n" + 
+		"	public X02(String test) {\n" + 
+		"		field = test.toLowerCase();\n" + 
+		"		try {\n" + 
+		"			testWhetherItWorksOrNot(test); // This comment will be split and\n" + 
+		"											// should not involve instability\n" + 
+		"		} catch (Exception e) {\n" + 
+		"			return;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	private void testWhetherItWorksOrNot(String test) {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wkps1_03() {
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X03 {\n" + 
+		"public static final native int foo(\n" + 
+		"	int firstParameter,\n" + 
+		"	int secondParameter,\n" + 
+		"	int[] param3);        //When a long comment is placed here with at least one line to follow,\n" + 
+		"						  //    the second line may be difficult to be formatted correctly\n" + 
+		"public static final native int bar();\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X03 {\n" + 
+		"	public static final native int foo(int firstParameter, int secondParameter,\n" + 
+		"			int[] param3); // When a long comment is placed here with at least\n" + 
+		"							// one line to follow,\n" + 
+		"							// the second line may be difficult to be formatted\n" + 
+		"							// correctly\n" + 
+		"\n" + 
+		"	public static final native int bar();\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wkps1_04() {
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"interface Y04_____________________________ {\n" + 
+		"}\n" + 
+		"\n" + 
+		"public interface X04 extends Y04_____________________________ { // modifier constant\n" + 
+		"	// those constants are depending upon ClassFileConstants (relying that classfiles only use the 16 lower bits)\n" + 
+		"	final int AccDefault = 0;\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"interface Y04_____________________________ {\n" + 
+		"}\n" + 
+		"\n" + 
+		"public interface X04 extends Y04_____________________________ { // modifier\n" + 
+		"																// constant\n" + 
+		"	// those constants are depending upon ClassFileConstants (relying that\n" + 
+		"	// classfiles only use the 16 lower bits)\n" + 
+		"	final int AccDefault = 0;\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wkps1_05() {
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	private final static String[] TEST_BUG = {\"a\", //$NON-NLS-1$\n" + 
+		"			\"b\", //$NON-NLS-1$\n" + 
+		"			\"c\", //$NON-NLS-1$\n" + 
+		"	};\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	private final static String[] TEST_BUG = { \"a\", //$NON-NLS-1$\n" + 
+		"			\"b\", //$NON-NLS-1$\n" + 
+		"			\"c\", //$NON-NLS-1$\n" + 
+		"	};\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wkps1_05_JoinLinesComments_BracesNextLine() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	private final static String[] TEST_BUG = {\"a\", //$NON-NLS-1$\n" + 
+		"			\"b\", //$NON-NLS-1$\n" + 
+		"			\"c\", //$NON-NLS-1$\n" + 
+		"	};\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X05\n" + 
+		"{\n" + 
+		"	private final static String[] TEST_BUG =\n" + 
+		"	{ \"a\", //$NON-NLS-1$\n" + 
+		"			\"b\", //$NON-NLS-1$\n" + 
+		"			\"c\", //$NON-NLS-1$\n" + 
+		"	};\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_01() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	protected String foo(String[] tests) {\n" + 
+		"		String result = null;\n" + 
+		"		for (int i = 0; i < tests.length; i++) {\n" + 
+		"			String test = tests[i];\n" + 
+		"			if (test.startsWith(\"test\")) { //$NON-NLS-1$\n" + 
+		"				//we got the malformed tree exception here\n" + 
+		"				result = test;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		return result;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	protected String foo(String[] tests) {\n" + 
+		"		String result = null;\n" + 
+		"		for (int i = 0; i < tests.length; i++) {\n" + 
+		"			String test = tests[i];\n" + 
+		"			if (test.startsWith(\"test\")) { //$NON-NLS-1$\n" + 
+		"				// we got the malformed tree exception here\n" + 
+		"				result = test;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		return result;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_02() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"\n" + 
+		"	public void foo(int kind) {\n" + 
+		"		switch (kind) {\n" + 
+		"			case 0 :\n" + 
+		"				break;\n" + 
+		"			case 1 :\n" + 
+		"				//the first formatting looks strange on this already splitted\n" + 
+		"				// comment\n" + 
+		"				if (true)\n" + 
+		"					return;\n" + 
+		"			//fall through\n" + 
+		"			default:\n" + 
+		"				if (kind < 0)\n" + 
+		"					return;\n" + 
+		"				break;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	public void foo(int kind) {\n" + 
+		"		switch (kind) {\n" + 
+		"		case 0:\n" + 
+		"			break;\n" + 
+		"		case 1:\n" + 
+		"			// the first formatting looks strange on this already splitted\n" + 
+		"			// comment\n" + 
+		"			if (true)\n" + 
+		"				return;\n" + 
+		"			// fall through\n" + 
+		"		default:\n" + 
+		"			if (kind < 0)\n" + 
+		"				return;\n" + 
+		"			break;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_03() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X03 {\n" + 
+		"	public byte[] foo(byte value) {\n" + 
+		"		byte[] result = new byte[10];\n" + 
+		"		int valTest = 0;\n" + 
+		"		switch (value) {\n" + 
+		"			case 1 :\n" + 
+		"				for (int j = 10; j >= 0; j--) {\n" + 
+		"					result[j] = (byte) (valTest & 0xff); // Bottom 8\n" + 
+		"					// bits\n" + 
+		"					valTest = valTest >>> 2;\n" + 
+		"				}\n" + 
+		"				break;\n" + 
+		"		}\n" + 
+		"		return result;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X03 {\n" + 
+		"	public byte[] foo(byte value) {\n" + 
+		"		byte[] result = new byte[10];\n" + 
+		"		int valTest = 0;\n" + 
+		"		switch (value) {\n" + 
+		"		case 1:\n" + 
+		"			for (int j = 10; j >= 0; j--) {\n" + 
+		"				result[j] = (byte) (valTest & 0xff); // Bottom 8\n" + 
+		"				// bits\n" + 
+		"				valTest = valTest >>> 2;\n" + 
+		"			}\n" + 
+		"			break;\n" + 
+		"		}\n" + 
+		"		return result;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_04() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		int lastDiagonal[]= new int[1000000 + 1]; // this line comments configuration\n" + 
+		"		// may screw up the formatter to know which one\n" + 
+		"		int origin= 1000000 / 2; // needs to stay at its current indentation or not\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		int lastDiagonal[] = new int[1000000 + 1]; // this line comments\n" + 
+		"													// configuration\n" + 
+		"		// may screw up the formatter to know which one\n" + 
+		"		int origin = 1000000 / 2; // needs to stay at its current indentation or\n" + 
+		"									// not\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+private static final String EXPECTED_OUTPUT_WKSP2E1 =
+	"package wksp2;\n" + 
+	"\n" + 
+	"public class X05 {\n" + 
+	"	void foo(int val) {\n" + 
+	"		try {\n" + 
+	"			loop: for (int i = 0; i < 10; i++) {\n" + 
+	"				switch (val) {\n" + 
+	"				case 1:\n" + 
+	"					if (i == 0) {\n" + 
+	"						if (true) {\n" + 
+	"							val++;\n" + 
+	"						} // these comments\n" + 
+	"							// may be wrongly\n" + 
+	"							// realigned\n" + 
+	"							// by the formatter\n" + 
+	"\n" + 
+	"						// other comment\n" + 
+	"						val--;\n" + 
+	"						continue loop;\n" + 
+	"					}\n" + 
+	"				default:\n" + 
+	"					throw new IllegalArgumentException();\n" + 
+	"				}\n" + 
+	"			}\n" + 
+	"		} finally {\n" + 
+	"		}\n" + 
+	"	}\n" + 
+	"}\n";
+public void testBug293300_wksp2_05() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	void foo(int val) {\n" + 
+		"		try {\n" + 
+		"			loop: for (int i=0; i<10; i++) {\n" + 
+		"				switch (val) {\n" + 
+		"					case 1 :\n" + 
+		"						if (i==0) {\n" + 
+		"							if (true) {\n" + 
+		"								val++;\n" + 
+		"							} //these comments\n" + 
+		"							// may be wrongly\n" + 
+		"							// realigned\n" + 
+		"							// by the formatter\n" + 
+		"\n" + 
+		"							// other comment\n" + 
+		"							val--;\n" + 
+		"							continue loop;\n" + 
+		"						}\n" + 
+		"					default :\n" + 
+		"						throw new IllegalArgumentException();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		finally {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, EXPECTED_OUTPUT_WKSP2E1);
+}
+public void testBug293300_wksp2_05b() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	void foo(int val) {\n" + 
+		"		try {\n" + 
+		"			loop: for (int i=0; i<10; i++) {\n" + 
+		"				switch (val) {\n" + 
+		"					case 1 :\n" + 
+		"						if (i==0) {\n" + 
+		"							if (true) {\n" + 
+		"								val++;\n" + 
+		"							} //these comments\n" + 
+		"							 // may be wrongly\n" + 
+		"							 // realigned\n" + 
+		"							 // by the formatter\n" + 
+		"\n" + 
+		"							// other comment\n" + 
+		"							val--;\n" + 
+		"							continue loop;\n" + 
+		"						}\n" + 
+		"					default :\n" + 
+		"						throw new IllegalArgumentException();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		finally {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, EXPECTED_OUTPUT_WKSP2E1);
+}
+private static final String EXPECTED_OUTPUT_WKSP2E3 =
+	"package wksp2;\n" + 
+	"\n" + 
+	"public class X05 {\n" + 
+	"	void foo(int val) {\n" + 
+	"		try {\n" + 
+	"			loop: for (int i = 0; i < 10; i++) {\n" + 
+	"				switch (val) {\n" + 
+	"				case 1:\n" + 
+	"					if (i == 0) {\n" + 
+	"						if (true) {\n" + 
+	"							val++;\n" + 
+	"						} // these comments\n" + 
+	"							// may be wrongly\n" + 
+	"							// realigned\n" + 
+	"							// by the formatter\n" + 
+	"\n" + 
+	"						// other comment\n" + 
+	"						val--;\n" + 
+	"						continue loop;\n" + 
+	"					}\n" + 
+	"				default:\n" + 
+	"					throw new IllegalArgumentException();\n" + 
+	"				}\n" + 
+	"			}\n" + 
+	"		} finally {\n" + 
+	"		}\n" + 
+	"	}\n" + 
+	"}\n";
+public void testBug293300_wksp2_05c() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	void foo(int val) {\n" + 
+		"		try {\n" + 
+		"			loop: for (int i=0; i<10; i++) {\n" + 
+		"				switch (val) {\n" + 
+		"					case 1 :\n" + 
+		"						if (i==0) {\n" + 
+		"							if (true) {\n" + 
+		"								val++;\n" + 
+		"							} //these comments\n" + 
+		"							  // may be wrongly\n" + 
+		"							  // realigned\n" + 
+		"							  // by the formatter\n" + 
+		"\n" + 
+		"							// other comment\n" + 
+		"							val--;\n" + 
+		"							continue loop;\n" + 
+		"						}\n" + 
+		"					default :\n" + 
+		"						throw new IllegalArgumentException();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		finally {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, EXPECTED_OUTPUT_WKSP2E3);
+}
+public void testBug293300_wksp2_05d() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	void foo(int val) {\n" + 
+		"		try {\n" + 
+		"			loop: for (int i=0; i<10; i++) {\n" + 
+		"				switch (val) {\n" + 
+		"					case 1 :\n" + 
+		"						if (i==0) {\n" + 
+		"							if (true) {\n" + 
+		"								val++;\n" + 
+		"							} //these comments\n" + 
+		"							   // may be wrongly\n" + 
+		"							   // realigned\n" + 
+		"							   // by the formatter\n" + 
+		"\n" + 
+		"							// other comment\n" + 
+		"							val--;\n" + 
+		"							continue loop;\n" + 
+		"						}\n" + 
+		"					default :\n" + 
+		"						throw new IllegalArgumentException();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		finally {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, EXPECTED_OUTPUT_WKSP2E3);
+}
+public void testBug293300_wksp2_05e() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	void foo(int val) {\n" + 
+		"		try {\n" + 
+		"			loop: for (int i=0; i<10; i++) {\n" + 
+		"				switch (val) {\n" + 
+		"					case 1 :\n" + 
+		"						if (i==0) {\n" + 
+		"							if (true) {\n" + 
+		"								val++;\n" + 
+		"							} //these comments\n" + 
+		"								// may be wrongly\n" + 
+		"								// realigned\n" + 
+		"								// by the formatter\n" + 
+		"\n" + 
+		"							// other comment\n" + 
+		"							val--;\n" + 
+		"							continue loop;\n" + 
+		"						}\n" + 
+		"					default :\n" + 
+		"						throw new IllegalArgumentException();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		finally {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, EXPECTED_OUTPUT_WKSP2E3);
+}
+private static final String EXPECTED_OUTPUT_WKSP2E1_SPACES =
+	"package wksp2;\n" + 
+	"\n" + 
+	"public class X05 {\n" + 
+	"    void foo(int val) {\n" + 
+	"        try {\n" + 
+	"            loop: for (int i = 0; i < 10; i++) {\n" + 
+	"                switch (val) {\n" + 
+	"                case 1:\n" + 
+	"                    if (i == 0) {\n" + 
+	"                        if (true) {\n" + 
+	"                            val++;\n" + 
+	"                        } // these comments\n" + 
+	"                          // may be wrongly\n" + 
+	"                          // realigned\n" + 
+	"                          // by the formatter\n" + 
+	"\n" + 
+	"                        // other comment\n" + 
+	"                        val--;\n" + 
+	"                        continue loop;\n" + 
+	"                    }\n" + 
+	"                default:\n" + 
+	"                    throw new IllegalArgumentException();\n" + 
+	"                }\n" + 
+	"            }\n" + 
+	"        } finally {\n" + 
+	"        }\n" + 
+	"    }\n" + 
+	"}\n";
+public void testBug293300_wksp2_05_spaces() {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	void foo(int val) {\n" + 
+		"		try {\n" + 
+		"			loop: for (int i=0; i<10; i++) {\n" + 
+		"				switch (val) {\n" + 
+		"					case 1 :\n" + 
+		"						if (i==0) {\n" + 
+		"							if (true) {\n" + 
+		"								val++;\n" + 
+		"							} //these comments\n" + 
+		"							// may be wrongly\n" + 
+		"							// realigned\n" + 
+		"							// by the formatter\n" + 
+		"\n" + 
+		"							// other comment\n" + 
+		"							val--;\n" + 
+		"							continue loop;\n" + 
+		"						}\n" + 
+		"					default :\n" + 
+		"						throw new IllegalArgumentException();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		finally {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, EXPECTED_OUTPUT_WKSP2E1_SPACES);
+}
+public void testBug293300_wksp2_05b_spaces() {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	void foo(int val) {\n" + 
+		"		try {\n" + 
+		"			loop: for (int i=0; i<10; i++) {\n" + 
+		"				switch (val) {\n" + 
+		"					case 1 :\n" + 
+		"						if (i==0) {\n" + 
+		"							if (true) {\n" + 
+		"								val++;\n" + 
+		"							} //these comments\n" + 
+		"							 // may be wrongly\n" + 
+		"							 // realigned\n" + 
+		"							 // by the formatter\n" + 
+		"\n" + 
+		"							// other comment\n" + 
+		"							val--;\n" + 
+		"							continue loop;\n" + 
+		"						}\n" + 
+		"					default :\n" + 
+		"						throw new IllegalArgumentException();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		finally {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, EXPECTED_OUTPUT_WKSP2E1_SPACES);
+}
+private static final String EXPECTED_OUTPUT_WKSP2E3_SPACES =
+	"package wksp2;\n" + 
+	"\n" + 
+	"public class X05 {\n" + 
+	"    void foo(int val) {\n" + 
+	"        try {\n" + 
+	"            loop: for (int i = 0; i < 10; i++) {\n" + 
+	"                switch (val) {\n" + 
+	"                case 1:\n" + 
+	"                    if (i == 0) {\n" + 
+	"                        if (true) {\n" + 
+	"                            val++;\n" + 
+	"                        } // these comments\n" + 
+	"                          // may be wrongly\n" + 
+	"                          // realigned\n" + 
+	"                          // by the formatter\n" + 
+	"\n" + 
+	"                        // other comment\n" + 
+	"                        val--;\n" + 
+	"                        continue loop;\n" + 
+	"                    }\n" + 
+	"                default:\n" + 
+	"                    throw new IllegalArgumentException();\n" + 
+	"                }\n" + 
+	"            }\n" + 
+	"        } finally {\n" + 
+	"        }\n" + 
+	"    }\n" + 
+	"}\n";
+public void testBug293300_wksp2_05c_spaces() {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	void foo(int val) {\n" + 
+		"		try {\n" + 
+		"			loop: for (int i=0; i<10; i++) {\n" + 
+		"				switch (val) {\n" + 
+		"					case 1 :\n" + 
+		"						if (i==0) {\n" + 
+		"							if (true) {\n" + 
+		"								val++;\n" + 
+		"							} //these comments\n" + 
+		"							  // may be wrongly\n" + 
+		"							  // realigned\n" + 
+		"							  // by the formatter\n" + 
+		"\n" + 
+		"							// other comment\n" + 
+		"							val--;\n" + 
+		"							continue loop;\n" + 
+		"						}\n" + 
+		"					default :\n" + 
+		"						throw new IllegalArgumentException();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		finally {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, EXPECTED_OUTPUT_WKSP2E3_SPACES);
+}
+public void testBug293300_wksp2_05d_spaces() {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	void foo(int val) {\n" + 
+		"		try {\n" + 
+		"			loop: for (int i=0; i<10; i++) {\n" + 
+		"				switch (val) {\n" + 
+		"					case 1 :\n" + 
+		"						if (i==0) {\n" + 
+		"							if (true) {\n" + 
+		"								val++;\n" + 
+		"							} //these comments\n" + 
+		"							   // may be wrongly\n" + 
+		"							   // realigned\n" + 
+		"							   // by the formatter\n" + 
+		"\n" + 
+		"							// other comment\n" + 
+		"							val--;\n" + 
+		"							continue loop;\n" + 
+		"						}\n" + 
+		"					default :\n" + 
+		"						throw new IllegalArgumentException();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		finally {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, EXPECTED_OUTPUT_WKSP2E3_SPACES);
+}
+public void testBug293300_wksp2_05e_spaces() {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"	void foo(int val) {\n" + 
+		"		try {\n" + 
+		"			loop: for (int i=0; i<10; i++) {\n" + 
+		"				switch (val) {\n" + 
+		"					case 1 :\n" + 
+		"						if (i==0) {\n" + 
+		"							if (true) {\n" + 
+		"								val++;\n" + 
+		"							} //these comments\n" + 
+		"								// may be wrongly\n" + 
+		"								// realigned\n" + 
+		"								// by the formatter\n" + 
+		"\n" + 
+		"							// other comment\n" + 
+		"							val--;\n" + 
+		"							continue loop;\n" + 
+		"						}\n" + 
+		"					default :\n" + 
+		"						throw new IllegalArgumentException();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		finally {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source, EXPECTED_OUTPUT_WKSP2E3_SPACES);
+}
+public void testBug293300_wksp_06() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X06 {\n" + 
+		"public static final native int foo(\n" + 
+		"	String field,        //First field\n" + 
+		"	int[] array);        //This comment may cause trouble for the formatter, especially if there\'s another\n" + 
+		"						  //    line below  \n" + 
+		"public static final native int bar();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X06 {\n" + 
+		"	public static final native int foo(String field, // First field\n" + 
+		"			int[] array); // This comment may cause trouble for the formatter,\n" + 
+		"							// especially if there\'s another\n" + 
+		"							// line below\n" + 
+		"\n" + 
+		"	public static final native int bar();\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp_07() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X07 {\n" + 
+		"	void foo(boolean test) {\n" + 
+		"		if (test) {\n" + 
+		"			while (true) {\n" + 
+		"				try {\n" + 
+		"					try {\n" + 
+		"					} finally {\n" + 
+		"						if (true) {\n" + 
+		"							try {\n" + 
+		"								toString();\n" + 
+		"							} catch (Exception e) {\n" + 
+		"							} // nothing\n" + 
+		"						}\n" + 
+		"					} // first comment which does not move\n" + 
+		"\n" + 
+		"					// second comment which should not move\n" + 
+		"					toString();\n" + 
+		"				} catch (Exception e) {\n" + 
+		"				}\n" + 
+		"\n" + 
+		"			} // last comment\n" + 
+		"\n" + 
+		"		}\n" + 
+		"\n" + 
+		"		return;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug293300_wksp2_08() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X08 {\n" + 
+		"int foo(int x) {\n" + 
+		"    while (x < 0) {\n" + 
+		"        switch (x) {\n" + 
+		"        \n" + 
+		"        }\n" + 
+		"    } // end while\n" + 
+		"\n" + 
+		"        // fill in output parameter\n" + 
+		"    if(x > 10)\n" + 
+		"        x = 1;\n" + 
+		"\n" + 
+		"        // return the value\n" + 
+		"    return x;\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X08 {\n" + 
+		"	int foo(int x) {\n" + 
+		"		while (x < 0) {\n" + 
+		"			switch (x) {\n" + 
+		"\n" + 
+		"			}\n" + 
+		"		} // end while\n" + 
+		"\n" + 
+		"		// fill in output parameter\n" + 
+		"		if (x > 10)\n" + 
+		"			x = 1;\n" + 
+		"\n" + 
+		"		// return the value\n" + 
+		"		return x;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_08b() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X08 {\n" + 
+		"int foo(int x) {\n" + 
+		"    while (x < 0) {\n" + 
+		"        switch (x) {\n" + 
+		"        \n" + 
+		"        }\n" + 
+		"    } /* end while */\n" + 
+		"\n" + 
+		"        // fill in output parameter\n" + 
+		"    if(x > 10)\n" + 
+		"        x = 1;\n" + 
+		"\n" + 
+		"        // return the value\n" + 
+		"    return x;\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X08 {\n" + 
+		"	int foo(int x) {\n" + 
+		"		while (x < 0) {\n" + 
+		"			switch (x) {\n" + 
+		"\n" + 
+		"			}\n" + 
+		"		} /* end while */\n" + 
+		"\n" + 
+		"		// fill in output parameter\n" + 
+		"		if (x > 10)\n" + 
+		"			x = 1;\n" + 
+		"\n" + 
+		"		// return the value\n" + 
+		"		return x;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_08c() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X08 {\n" + 
+		"int foo(int x) {\n" + 
+		"    while (x < 0) {\n" + 
+		"        switch (x) {\n" + 
+		"        \n" + 
+		"        }\n" + 
+		"    } /** end while */\n" + 
+		"\n" + 
+		"        // fill in output parameter\n" + 
+		"    if(x > 10)\n" + 
+		"        x = 1;\n" + 
+		"\n" + 
+		"        // return the value\n" + 
+		"    return x;\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X08 {\n" + 
+		"	int foo(int x) {\n" + 
+		"		while (x < 0) {\n" + 
+		"			switch (x) {\n" + 
+		"\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		/** end while */\n" + 
+		"\n" + 
+		"		// fill in output parameter\n" + 
+		"		if (x > 10)\n" + 
+		"			x = 1;\n" + 
+		"\n" + 
+		"		// return the value\n" + 
+		"		return x;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_09() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X09 {\n" + 
+		"void foo(int param) {\n" + 
+		"        int local = param - 10000; // first comment\n" + 
+		"                                    // on several lines\n" + 
+		"        // following unrelated comment\n" + 
+		"        // also on several lines\n" + 
+		"        int value = param + 10000;\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X09 {\n" + 
+		"	void foo(int param) {\n" + 
+		"		int local = param - 10000; // first comment\n" + 
+		"									// on several lines\n" + 
+		"		// following unrelated comment\n" + 
+		"		// also on several lines\n" + 
+		"		int value = param + 10000;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_10() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X10 {\n" + 
+		"\n" + 
+		"    private  String           field;          //  Trailing comment of the field\n" + 
+		"                                               //  This comment was not well formatted\n" + 
+		"                                               //  as an unexpected line was inserted after the first one\n" + 
+		"\n" + 
+		"    // -------------------------------\n" + 
+		"    X10()  {}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X10 {\n" + 
+		"\n" + 
+		"	private String field; // Trailing comment of the field\n" + 
+		"							// This comment was not well formatted\n" + 
+		"							// as an unexpected line was inserted after the\n" + 
+		"							// first one\n" + 
+		"\n" + 
+		"	// -------------------------------\n" + 
+		"	X10() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_11() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public abstract class X11 {\n" + 
+		"\n" + 
+		"    // [NEW] \n" + 
+		"    /**\n" + 
+		"     * Comment foo\n" + 
+		"     */\n" + 
+		"    public abstract StringBuffer foo();\n" + 
+		"//#if defined(TEST)\n" + 
+		"//#else\n" + 
+		"//#endif\n" + 
+		"\n" + 
+		"    // [NEW]\n" + 
+		"    /**\n" + 
+		"     * Comment foo2\n" + 
+		"     */\n" + 
+		"    public abstract StringBuffer foo2();\n" + 
+		"    // [NEW]\n" + 
+		"    /**\n" + 
+		"     * Comment foo3\n" + 
+		"     */\n" + 
+		"    public abstract StringBuffer foo3();\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public abstract class X11 {\n" + 
+		"\n" + 
+		"	// [NEW]\n" + 
+		"	/**\n" + 
+		"	 * Comment foo\n" + 
+		"	 */\n" + 
+		"	public abstract StringBuffer foo();\n" + 
+		"\n" + 
+		"	// #if defined(TEST)\n" + 
+		"	// #else\n" + 
+		"	// #endif\n" + 
+		"\n" + 
+		"	// [NEW]\n" + 
+		"	/**\n" + 
+		"	 * Comment foo2\n" + 
+		"	 */\n" + 
+		"	public abstract StringBuffer foo2();\n" + 
+		"\n" + 
+		"	// [NEW]\n" + 
+		"	/**\n" + 
+		"	 * Comment foo3\n" + 
+		"	 */\n" + 
+		"	public abstract StringBuffer foo3();\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_12a() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X12 {\n" + 
+		"\n" + 
+		"\n" + 
+		"	private boolean sampleField = false;   //trailing comment of the field which\n" + 
+		" 	                                      //was wrongly formatted in previous\n" + 
+		"	                                      //version as an unexpected empty lines was\n" + 
+		"	                                      //inserted after the second comment line...\n" + 
+		"\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	    Javadoc comment\n" + 
+		"	*/\n" + 
+		"	public X12() {}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X12 {\n" + 
+		"\n" + 
+		"	private boolean sampleField = false; // trailing comment of the field which\n" + 
+		"											// was wrongly formatted in previous\n" + 
+		"											// version as an unexpected empty\n" + 
+		"											// lines was\n" + 
+		"											// inserted after the second comment\n" + 
+		"											// line...\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Javadoc comment\n" + 
+		"	 */\n" + 
+		"	public X12() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_12b() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X12 {\n" + 
+		"\n" + 
+		"\n" + 
+		"	private boolean sampleField = false;   //trailing comment of the field which\n" + 
+		" 	                                       //was wrongly formatted in previous\n" + 
+		"	                                       //version as an unexpected empty lines was\n" + 
+		"	                                       //inserted after the second comment line...\n" + 
+		"\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	    Javadoc comment\n" + 
+		"	*/\n" + 
+		"	public X12() {}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X12 {\n" + 
+		"\n" + 
+		"	private boolean sampleField = false; // trailing comment of the field which\n" + 
+		"											// was wrongly formatted in previous\n" + 
+		"											// version as an unexpected empty\n" + 
+		"											// lines was\n" + 
+		"											// inserted after the second comment\n" + 
+		"											// line...\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Javadoc comment\n" + 
+		"	 */\n" + 
+		"	public X12() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_13() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X13 {\n" + 
+		"void foo(int x) {\n" + 
+		"	switch (x) {\n" + 
+		"		default : // regular object ref\n" + 
+		"//				if (compileTimeType.isRawType() && runtimeTimeType.isBoundParameterizedType()) {\n" + 
+		"//				    scope.problemReporter().unsafeRawExpression(this, compileTimeType, runtimeTimeType);\n" + 
+		"//				}\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X13 {\n" + 
+		"	void foo(int x) {\n" + 
+		"		switch (x) {\n" + 
+		"		default: // regular object ref\n" + 
+		"			// if (compileTimeType.isRawType() &&\n" + 
+		"			// runtimeTimeType.isBoundParameterizedType()) {\n" + 
+		"			// scope.problemReporter().unsafeRawExpression(this,\n" + 
+		"			// compileTimeType, runtimeTimeType);\n" + 
+		"			// }\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_14() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface X14 {\n" + 
+		"void foo();\n" + 
+		"// line 1\n" + 
+		"// line 2\n" + 
+		"void bar();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface X14 {\n" + 
+		"	void foo();\n" + 
+		"\n" + 
+		"	// line 1\n" + 
+		"	// line 2\n" + 
+		"	void bar();\n" + 
+		"}\n"
+	);
+}
+// TODO (frederic) try to fix the formatter instability in the following test case
+public void _testBug293300_wksp2_15a() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X15 {\n" + 
+		"	void foo(int[] params) {\n" + 
+		"		if (params.length > 0) { // trailing comment formatted in several lines...\n" + 
+		"//			int length = params == null ? : 0 params.length; // this commented lined causes troubles for the formatter but only if the comment starts at column 1...\n" + 
+		"			for (int i=0; i<params.length; i++) {\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"\n" + 
+		"public class X15 {\n" + 
+		"	void foo(int[] params) {\n" + 
+		"		if (params.length > 0) { // trailing comment formatted in several\n" + 
+		"									// lines...\n" + 
+		"			// int length = params == null ? : 0 params.length; // this\n" + 
+		"			// commented\n" + 
+		"			// lined causes troubles for the formatter but only if the comment\n" + 
+		"			// starts at column 1...\n" + 
+		"			for (int i = 0; i < params.length; i++) {\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp2_15b() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X15 {\n" + 
+		"	void foo(int[] params) {\n" + 
+		"		if (params.length > 0) { // trailing comment formatted in several lines...\n" + 
+		"			// int length = params == null ? : 0 params.length; // this commented lined does not cause troubles for the formatter when the comments is not on column 1...\n" + 
+		"			for (int i=0; i<params.length; i++) {\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X15 {\n" + 
+		"	void foo(int[] params) {\n" + 
+		"		if (params.length > 0) { // trailing comment formatted in several\n" + 
+		"									// lines...\n" + 
+		"			// int length = params == null ? : 0 params.length; // this\n" + 
+		"			// commented lined does not cause troubles for the formatter when\n" + 
+		"			// the comments is not on column 1...\n" + 
+		"			for (int i = 0; i < params.length; i++) {\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug293300_wksp3_01() {
+	String source = 
+		"package wksp3;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"static String[] constant = {\n" + 
+		"// comment\n" + 
+		"\"first\",\n" + 
+		"// comment\n" + 
+		"\"second\",\n" + 
+		"};\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp3;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"	static String[] constant = {\n" + 
+		"			// comment\n" + 
+		"			\"first\",\n" + 
+		"			// comment\n" + 
+		"			\"second\", };\n" + 
 		"}\n"
 	);
 }

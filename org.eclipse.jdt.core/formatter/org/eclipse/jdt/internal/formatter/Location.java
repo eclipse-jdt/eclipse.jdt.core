@@ -43,7 +43,7 @@ public class Location {
 		this.outputColumn = scribe.column;
 		this.outputLine = scribe.line;
 		this.inputOffset = sourceRestart;
-		this.inputColumn = scribe.getCurrentIndentation(sourceRestart);
+		this.inputColumn = scribe.getCurrentColumn(sourceRestart);
 		this.outputIndentationLevel = scribe.indentationLevel;
 		this.lastNumberOfNewLines = scribe.lastNumberOfNewLines;
 		this.needSpace = scribe.needSpace;

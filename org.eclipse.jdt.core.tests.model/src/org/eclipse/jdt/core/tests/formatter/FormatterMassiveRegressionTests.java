@@ -273,6 +273,7 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private static String ECLIPSE_MILESTONE;
 	private static String JDT_CORE_VERSION;
 	private static String PATCH_BUG, PATCH_VERSION;
+	private static String TEMP_OUTPUT;
 	private static boolean JDT_CORE_HEAD;
 	private final static IPath[] EXPECTED_FAILURES = INPUT_DIR.getPath().indexOf("v34") < 0
 		? new IPath[] {
@@ -542,6 +543,9 @@ private static void setLogDir(StringBuffer buffer) throws CoreException {
 	if (PATCH_BUG != null) {
 		logDir = new File(logDir, "tests");
 		logDir = new File(logDir, PATCH_BUG);
+		if (TEMP_OUTPUT != null) {
+			logDir = new File(logDir, "tmp");
+		}
 		logDir = new File(logDir, PATCH_VERSION);
 //		folder = folder.getFolder("tests");
 //		if (!folder.exists()) folder.create(true, true, null);
@@ -634,6 +638,11 @@ private static void setOutputDir(String dir, StringBuffer buffer) {
 	}
 	if (OUTPUT_DIR.getName().equals(ECLIPSE_VERSION)) {
 		OUTPUT_DIR = OUTPUT_DIR.getParentFile();
+	}
+	
+	// Add the temporary output if any
+	if (TEMP_OUTPUT != null) {
+		OUTPUT_DIR = new File(OUTPUT_DIR, TEMP_OUTPUT);
 	}
 
 	// Compute output sub-directories depending on profiles

@@ -3664,36 +3664,26 @@ public String toString() {
 	if (this.currentPosition <= 0)
 		return "NOT started!\n\n"+ new String(this.source); //$NON-NLS-1$
 
-	char front[] = new char[this.startPosition];
-	System.arraycopy(this.source, 0, front, 0, this.startPosition);
-
-	int middleLength = (this.currentPosition - 1) - this.startPosition + 1;
-	char middle[];
-	if (middleLength > -1) {
-		middle = new char[middleLength];
-		System.arraycopy(
-			this.source,
-			this.startPosition,
-			middle,
-			0,
-			middleLength);
+	StringBuffer buffer = new StringBuffer();
+	if (this.startPosition < 1000) {
+		buffer.append(this.source, 0, this.startPosition);
 	} else {
-		middle = CharOperation.NO_CHAR;
+		buffer.append("<source beginning>\n...\n"); //$NON-NLS-1$
+		int line = Util.getLineNumber(this.startPosition-1000, this.lineEnds, 0, this.lineEnds.length);
+		int lineStart = getLineStart(line);
+		buffer.append(this.source, lineStart, this.startPosition-lineStart);
 	}
 
-	char end[] = new char[this.eofPosition - (this.currentPosition - 1)];
-	System.arraycopy(
-		this.source,
-		(this.currentPosition - 1) + 1,
-		end,
-		0,
-		this.eofPosition - (this.currentPosition - 1) - 1);
+	buffer.append("\n===============================\nStarts here -->"); //$NON-NLS-1$
+	int middleLength = (this.currentPosition - 1) - this.startPosition + 1;
+	if (middleLength > -1) {
+		buffer.append(this.source, this.startPosition, middleLength);
+	}
+	buffer.append("<-- Ends here\n===============================\n"); //$NON-NLS-1$
 
-	return new String(front)
-		+ "\n===============================\nStarts here -->" //$NON-NLS-1$
-		+ new String(middle)
-		+ "<-- Ends here\n===============================\n" //$NON-NLS-1$
-		+ new String(end);
+	buffer.append(this.source, (this.currentPosition - 1) + 1, this.eofPosition - (this.currentPosition - 1) - 1);
+
+	return buffer.toString();
 }
 public String toStringAction(int act) {
 	switch (act) {
