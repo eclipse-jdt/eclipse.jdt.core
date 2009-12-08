@@ -10962,7 +10962,7 @@ public void testBug286379c() throws CoreException {
 			"public class Xtorem {\n" +
 			"}"
 		);
-		
+
 		// Wait to be sure that indexes are ready after the resource creation
 		waitUntilIndexesReady();
 
@@ -10988,6 +10988,14 @@ public void testBug286379c() throws CoreException {
 			assertTrue("We should have got a resource event within a 10s delay!", counter++ < 100);
 		}
 
+		// Wait to be sure that indexes are ready after the new resource was added
+		waitUntilIndexesReady();
+
+		// Restart to let the indexes to be refreshed
+		simulateExit();
+		simulateRestart();		
+		waitUntilIndexesReady();
+
 		// Search for the new type with new extension
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
@@ -10998,8 +11006,9 @@ public void testBug286379c() throws CoreException {
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
 		assertSearchResults("Unexpected search results!",
-			"Xtorem (not open) [in Xtorem.torem [in p [in <project root> [in P]]]]",
-			collector);
+				"Xtorem (not open) [in Xtorem.torem [in p [in <project root> [in P]]]]",
+				collector,
+				false /*only assume*/);
 		
 		// Delete the file specification
 		javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
