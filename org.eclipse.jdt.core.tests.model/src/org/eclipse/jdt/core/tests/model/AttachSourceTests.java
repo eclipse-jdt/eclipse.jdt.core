@@ -160,6 +160,10 @@ private void setUpInnerClassesJar() throws IOException, CoreException {
 		"    V(String s) {\n" +
 		"    }\n" +
 		"  }\n" +
+		"  class Inner {\n" +
+		"    Inner() {\n" +
+		"    }\n" +
+		"  }\n" +
 		"}"
 	};
 	addLibrary("innerClasses.jar", "innerClassessrc.zip", pathAndContents, JavaCore.VERSION_1_4);
@@ -672,6 +676,17 @@ public void testGetNameRange03() throws JavaModelException {
 	IMethod constructor = classFile.getType().getMethod("V", new String[] {"Linner.X;", "Ljava.lang.String;"});
 	assertSourceEquals("Unexpected name source", "V", getNameSource(classFile.getSource(), constructor));
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108784
+public void testGetNameRange04() throws JavaModelException {
+	IClassFile classFile = this.innerClasses.getClassFile("X$Inner.class");
+	IMethod[] methods = classFile.getType().getMethods();
+	for (int i = 0; i < methods.length; i++) {
+		IMethod iMethod = methods[i];
+		ISourceRange nameRange = iMethod.getNameRange();
+		assertTrue("Unexpected name range", nameRange.getOffset() != -1);
+		assertTrue("Unexpected name range", nameRange.getLength() != 0);
+	}
+}
 /**
  * Retrieves the source attachment paths for jar root.
  */
@@ -732,6 +747,10 @@ public void testInnerClass1() throws JavaModelException {
 		"    V(String s) {\n" +
 		"    }\n" +
 		"  }\n" +
+		"  class Inner {\n" + 
+		"    Inner() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
 		"}",
 		type.getSource());
 }
