@@ -7529,50 +7529,6 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
-	/**
-	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129589
-	 * TODO (david) enable once fixed
-	 */
-	public void _test0640() throws JavaModelException {
-		ICompilationUnit workingCopy = null;
-		try {
-			String contents =
-				"public class X {\n" +
-				"    protected void primExecute() {\n" +
-				"        String temp= this.toString();\n" +
-				"    }\n" +
-				"        if (image != null) {\n" +
-				"            Object loc = null;\n" +
-				"        }\n" +
-				"}";
-			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
-			ASTNode node = buildAST(
-				contents,
-				workingCopy,
-				false,
-				true);
-			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(unit, 2, "Syntax error on token \"}\", { expected after this token\n" +
-					"Syntax error, insert \"}\" to complete ClassBody");
-			node = getASTNode(unit, 0, 0);
-			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
-			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-			assertFalse("A recovered node", isRecovered(methodDeclaration));
-			assertFalse("A malformed node", isMalformed(methodDeclaration));
-			assertFalse("A recovered node", isRecovered(methodDeclaration.getBody()));
-			assertFalse("A malformed node", isMalformed(methodDeclaration.getBody()));
-			node = getASTNode(unit, 0, 1);
-			assertEquals("Not an initializer", ASTNode.INITIALIZER, node.getNodeType());
-			Initializer initializer = (Initializer) node;
-			assertTrue("Not a recovered node", isRecovered(initializer));
-			assertTrue("Not a malformed node", isMalformed(initializer));
-		} finally {
-			if (workingCopy != null)
-				workingCopy.discardWorkingCopy();
-		}
-	}
-
 	/*
 	 * Ensures that 2 type bindings (one from .class file, the other from attache source) are "isEqualTo(...)".
 	 * (regression test for bug 130317 ASTParser with IClassFile as source creates type bindings that are not isEqualTo(..) binary bindings)
@@ -8074,9 +8030,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=150409
-	 * TODO (olivier) renable if the bindings are available
 	 */
-	public void _test0653() throws JavaModelException {
+	public void test0653() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0653", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
