@@ -702,23 +702,27 @@ public class SourceMapper
 			IType currentType = this.types[this.typeDepth];
 			int currenTypeModifiers = this.typeModifiers[this.typeDepth];
 			char[][] parameterTypes = methodInfo.parameterTypes;
-			if (parameterTypes != null && methodInfo.isConstructor && currentType.getDeclaringType() != null && !Flags.isStatic(currenTypeModifiers)) {
+			if (methodInfo.isConstructor && currentType.getDeclaringType() != null && !Flags.isStatic(currenTypeModifiers)) {
 				IType declaringType = currentType.getDeclaringType();
 				String declaringTypeName = declaringType.getElementName();
 				if (declaringTypeName.length() == 0) {
 					IClassFile classFile = declaringType.getClassFile();
-					int length = parameterTypes.length;
+					int length = parameterTypes != null ? parameterTypes.length : 0;
 					char[][] newParameterTypes = new char[length+1][];
 					declaringTypeName = classFile.getElementName();
 					declaringTypeName = declaringTypeName.substring(0, declaringTypeName.indexOf('.'));
 					newParameterTypes[0] = declaringTypeName.toCharArray();
-					System.arraycopy(parameterTypes, 0, newParameterTypes, 1, length);
+					if (length != 0) {
+						System.arraycopy(parameterTypes, 0, newParameterTypes, 1, length);
+					}
 					this.methodParameterTypes[this.typeDepth] = newParameterTypes;
 				} else {
-					int length = parameterTypes.length;
+					int length = parameterTypes != null ? parameterTypes.length : 0;
 					char[][] newParameterTypes = new char[length+1][];
 					newParameterTypes[0] = declaringTypeName.toCharArray();
-					System.arraycopy(parameterTypes, 0, newParameterTypes, 1, length);
+					if (length != 0) {
+						System.arraycopy(parameterTypes, 0, newParameterTypes, 1, length);
+					}
 					this.methodParameterTypes[this.typeDepth] = newParameterTypes;
 				}
 			} else {
