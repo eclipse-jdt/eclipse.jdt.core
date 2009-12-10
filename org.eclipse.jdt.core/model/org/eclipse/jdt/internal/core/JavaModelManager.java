@@ -1802,7 +1802,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		if (container == null) {
 			if (batchContainerInitializations()) {
-				// avoid deep recursion while initializaing container on workspace restart
+				// avoid deep recursion while initializing container on workspace restart
 				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=60437)
 				try {
 					container = initializeAllContainers(project, containerPath);
