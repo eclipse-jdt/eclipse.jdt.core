@@ -44,7 +44,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "testCreateBindings19" };
+//		TESTS_NAMES = new String[] { "testCreateBindings23" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -660,6 +660,58 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;.foo(ILjava/lang/String;)V\n" +
 			"LI;.BAR)I\n" +
 			"LY$50;",
+			bindings);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=297757
+	 */
+	public void testCreateBindings23() throws JavaModelException {
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setProject(getJavaProject("P"));
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/p/IScriptRunnable.java",
+			"package p;\n" +
+			"public interface IScriptRunnable<V, E extends Exception> {\n" + 
+			"	public V run(Object cx, Object scope) throws E;\n" + 
+			"}",
+			owner
+		);
+		this.workingCopies[1] = getWorkingCopy(
+			"/P/src/p/Environment.java",
+			"package p;\n" +
+			"public interface Environment {\n" +
+			"	public <V, E extends Exception> V execute(IScriptRunnable<V, E> code) throws E;\n" + 
+			"}",
+			owner
+		);
+		this.workingCopies[2] = getWorkingCopy(
+			"/P/src/X.java",
+			"import p.*;\n" +
+			"public class X {\n" +
+			"	p.Environment env;\n" +
+			"	private void test() {\n" + 
+			"		env.execute(new IScriptRunnable<Object, RuntimeException>() {\n" + 
+			"			public Object run(Object cx, Object scope) throws RuntimeException {\n" + 
+			"				return null;\n" + 
+			"			}\n" + 
+			"		});\n" + 
+			"	}\n" + 
+			"}",
+			owner
+		);
+		IJavaElement[] elements = new IJavaElement[] {
+			this.workingCopies[0].getType("IScriptRunnable"),
+			this.workingCopies[1].getType("Environment"),
+			this.workingCopies[2].getType("X").getMethod("test", new String[0]).getType("", 1)
+		};
+		IBinding[] bindings = parser.createBindings(elements, null);
+		assertBindingsEqual(
+			"Lp/IScriptRunnable<TV;TE;>;\n" + 
+			"Lp/Environment;\n" + 
+			"LX$90;",
 			bindings);
 	}
 
