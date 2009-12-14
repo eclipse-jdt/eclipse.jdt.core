@@ -981,16 +981,22 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			// Report problem
 			this.currentTokenType = -1;
 			if (isCompletionParser) return false;
-			end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
-			while ((token=readToken()) != TerminalTokens.TokenNameWHITESPACE && token != TerminalTokens.TokenNameEOF) {
-				this.currentTokenType = -1;
+			if (this.reportProblems) {
+				// we only need end if we report problems
 				end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
-			}
-			if (this.reportProblems)
+				try {
+					while ((token=readToken()) != TerminalTokens.TokenNameWHITESPACE && token != TerminalTokens.TokenNameEOF) {
+						this.currentTokenType = -1;
+						end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
+					}
+				} catch (InvalidInputException e) {
+					end = this.lineEnd;
+				}
 				if (mayBeGeneric && isTypeParam)
 					this.sourceParser.problemReporter().javadocInvalidParamTypeParameter(start, end);
 				else
 					this.sourceParser.problemReporter().javadocInvalidParamTagName(start, end);
+			}
 			this.scanner.currentPosition = start;
 			this.index = start;
 			this.currentTokenType = -1;
