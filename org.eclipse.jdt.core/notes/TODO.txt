@@ -1,0 +1,18 @@
+To be done:
+- check that all wrong usages of modifiers are properly reported
+- implement recovery, code assist and selection parsers
+- code generation
+- disassembler
+- formatter
+- search (indexer)
+- DOM/AST
+- type parameter generic or array ?
+
+Javac issues to double-check:
+- some locals are missing ranges see test25
+- wrong offset for annotations on method calls
+
+- wrong locations for I in:
+	@A Map<@B String, @C List<@H String @E[] [] @G[]>> @I[] [] @J[] field;
+	@A Map<@B String, @C List<@H String @E[] [] @G[]>> [] @I[] @J[] field;
+I has the same location in both cases
