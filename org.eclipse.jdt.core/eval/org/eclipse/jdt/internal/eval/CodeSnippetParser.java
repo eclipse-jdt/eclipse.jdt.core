@@ -84,6 +84,59 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		this.astLengthPtr--;
 	}
 }
+protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
+	// ClassInstanceCreationExpression ::= 'new' TypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
+	AllocationExpression alloc;
+	int length;
+	if (((length = this.astLengthStack[this.astLengthPtr--]) == 1)
+		&& (this.astStack[this.astPtr] == null)) {
+		//NO ClassBody
+		this.astPtr--;
+		alloc = new CodeSnippetAllocationExpression(this.evaluationContext);
+		alloc.sourceEnd = this.endPosition; //the position has been stored explicitly
+
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			this.expressionPtr -= length;
+			System.arraycopy(
+				this.expressionStack,
+				this.expressionPtr + 1,
+				alloc.arguments = new Expression[length],
+				0,
+				length);
+		}
+		alloc.type = getTypeReference(0);
+
+		length = this.genericsLengthStack[this.genericsLengthPtr--];
+		this.genericsPtr -= length;
+		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
+		this.intPtr--;
+
+		//the default constructor with the correct number of argument
+		//will be created and added by the TC (see createsInternalConstructorWithBinding)
+		alloc.sourceStart = this.intStack[this.intPtr--];
+		pushOnExpressionStack(alloc);
+	} else {
+		dispatchDeclarationInto(length);
+		TypeDeclaration anonymousTypeDeclaration = (TypeDeclaration)this.astStack[this.astPtr];
+		anonymousTypeDeclaration.declarationSourceEnd = this.endStatementPosition;
+		anonymousTypeDeclaration.bodyEnd = this.endStatementPosition;
+		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
+			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlock;
+		}
+		this.astPtr--;
+		this.astLengthPtr--;
+
+		QualifiedAllocationExpression allocationExpression = anonymousTypeDeclaration.allocation;
+		if (allocationExpression != null) {
+			allocationExpression.sourceEnd = this.endStatementPosition;
+			// handle type arguments
+			length = this.genericsLengthStack[this.genericsLengthPtr--];
+			this.genericsPtr -= length;
+			System.arraycopy(this.genericsStack, this.genericsPtr + 1, allocationExpression.typeArguments = new TypeReference[length], 0, length);
+			allocationExpression.sourceStart = this.intStack[this.intPtr--];
+		}
+	}
+}
 protected void consumeClassDeclaration() {
 	super.consumeClassDeclaration();
 	/* recovery */
@@ -370,7 +423,35 @@ protected void consumeMethodInvocationName() {
 		super.consumeMethodInvocationName();
 	}
 }
+protected void consumeMethodInvocationNameWithTypeArguments() {
+	// MethodInvocation ::= Name '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
 
+	// when the name is only an identifier...we have a message send to "this" (implicit)
+	if (this.scanner.startPosition >= this.codeSnippetStart
+			&& this.scanner.startPosition <= this.codeSnippetEnd + 1 + this.lineSeparatorLength // 14838
+			&& isTopLevelType()) {
+
+	
+		MessageSend m = newMessageSendWithTypeArguments();
+		m.sourceEnd = this.rParenPos;
+		m.sourceStart =
+			(int) ((m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr]) >>> 32);
+		m.selector = this.identifierStack[this.identifierPtr--];
+		this.identifierLengthPtr--;
+	
+		// handle type arguments
+		int length = this.genericsLengthStack[this.genericsLengthPtr--];
+		this.genericsPtr -= length;
+		System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+		this.intPtr--;
+	
+		m.receiver = getUnspecifiedReference();
+		m.sourceStart = m.receiver.sourceStart;
+		pushOnExpressionStack(m);
+	} else {
+		super.consumeMethodInvocationNameWithTypeArguments();
+	}
+}
 protected void consumeMethodInvocationSuper() {
 	// MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
 
@@ -380,6 +461,25 @@ protected void consumeMethodInvocationSuper() {
 	m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr];
 	m.selector = this.identifierStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
+	m.receiver = new CodeSnippetSuperReference(m.sourceStart, this.endPosition);
+	pushOnExpressionStack(m);
+}
+protected void consumeMethodInvocationSuperWithTypeArguments() {
+	// MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+
+	MessageSend m = newMessageSendWithTypeArguments();
+	this.intPtr--; // start position of the typeArguments
+	m.sourceEnd = this.rParenPos;
+	m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr];
+	m.selector = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+
+	// handle type arguments
+	int length = this.genericsLengthStack[this.genericsLengthPtr--];
+	this.genericsPtr -= length;
+	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+	m.sourceStart = this.intStack[this.intPtr--]; // start position of the super keyword
+
 	m.receiver = new CodeSnippetSuperReference(m.sourceStart, this.endPosition);
 	pushOnExpressionStack(m);
 }
@@ -666,6 +766,22 @@ protected MessageSend newMessageSend() {
 	// '(' ArgumentListopt ')'
 	// the arguments are on the expression stack
 
+	CodeSnippetMessageSend m = new CodeSnippetMessageSend(this.evaluationContext);
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		this.expressionPtr -= length;
+		System.arraycopy(
+			this.expressionStack,
+			this.expressionPtr + 1,
+			m.arguments = new Expression[length],
+			0,
+			length);
+	}
+	return m;
+}
+protected MessageSend newMessageSendWithTypeArguments() {
+	// '(' ArgumentListopt ')'
+	// the arguments are on the expression stack
 	CodeSnippetMessageSend m = new CodeSnippetMessageSend(this.evaluationContext);
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
