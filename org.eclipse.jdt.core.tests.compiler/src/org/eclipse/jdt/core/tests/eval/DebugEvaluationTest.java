@@ -2782,6 +2782,163 @@ public void test063() throws Exception {
 		removeTempClass("A62");
 	}
 }
+public void test065() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	try {
+		String sourceA65 =
+			"public class A65<T> {\n"
+				+ "\tprivate int i;\n"
+				+ "\tpublic <U>A65() {;\n"
+				+ "\t}\n"
+				+ "\tprivate <U>A65(int i) {;\n"
+				+ "\t\tthis.i = i;\n"
+				+ "\t}\n"               
+				+ "\tpublic void bar() {\n"
+				+ "\t}\n"
+				+ "}";
+		compileAndDeploy15(sourceA65, "A65");
+
+		String userCode = "new <Object>A65<Object>().bar();";
+		JDIStackFrame stackFrame =
+			new JDIStackFrame(this.jdiVM, this, userCode, "A65", "bar", -1);
+
+		DebugRequestor requestor = new DebugRequestor();
+		char[] snippet = "return new <Object>A65<Object>(3).i;".toCharArray();
+		try {
+			this.context.evaluate(
+				snippet,
+				stackFrame.localVariableTypeNames(),
+				stackFrame.localVariableNames(),
+				stackFrame.localVariableModifiers(),
+				stackFrame.declaringTypeName(),
+				stackFrame.isStatic(),
+				stackFrame.isConstructorCall(),
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
+				getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("No targetException " + e.getMessage(), false);
+		}
+		assertTrue(
+			"Should get one result but got " + (requestor.resultIndex + 1),
+			requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		assertTrue("Code snippet should not have problems", !result.hasProblems());
+		assertTrue("Result should have a value", result.hasValue());
+		assertEquals("Value", "3".toCharArray(), result.getValueDisplayString());
+		assertEquals("Type", "int".toCharArray(), result.getValueTypeName());
+	} finally {
+		removeTempClass("A65");
+	}
+}
+public void test066() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	try {
+		String sourceA66 =
+			"public class A66 {\n"
+				+ "\tprivate int i;\n"
+				+ "\tpublic A66() {;\n"
+				+ "\t}\n"
+				+ "\tprivate <U> int foo(int i) {;\n"
+				+ "\t\treturn i;\n"    
+				+ "\t}\n"               
+				+ "\tpublic void bar() {\n"
+				+ "\t}\n"
+				+ "}";
+		compileAndDeploy15(sourceA66, "A66");
+
+		String userCode = "new A66().bar();";
+		JDIStackFrame stackFrame =
+			new JDIStackFrame(this.jdiVM, this, userCode, "A66", "bar", -1);
+
+		DebugRequestor requestor = new DebugRequestor();
+		char[] snippet = "return this.<Object>foo(3);".toCharArray();
+		try {
+			this.context.evaluate(
+				snippet,
+				stackFrame.localVariableTypeNames(),
+				stackFrame.localVariableNames(),
+				stackFrame.localVariableModifiers(),
+				stackFrame.declaringTypeName(),
+				stackFrame.isStatic(),
+				stackFrame.isConstructorCall(),
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
+				getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("No targetException " + e.getMessage(), false);
+		}
+		assertTrue(
+			"Should get one result but got " + (requestor.resultIndex + 1),
+			requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		assertTrue("Code snippet should not have problems", !result.hasProblems());
+		assertTrue("Result should have a value", result.hasValue());
+		assertEquals("Value", "3".toCharArray(), result.getValueDisplayString());
+		assertEquals("Type", "int".toCharArray(), result.getValueTypeName());
+	} finally {
+		removeTempClass("A66");
+	}
+}
+public void test067() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	try {
+		String sourceA67 =
+			"import java.util.List;\n" +
+			"public class A67<T> {\n" +
+			"	public static String toString(List<?> list) {\n" +
+			"		StringBuilder builder = new StringBuilder(\"{\");\n" +
+			"		for (Object o : list) {" +
+			"			builder.append(o);\n" +
+			"		}\n" +
+			"		builder.append(\"}\");\n" +
+			"		return String.valueOf(builder);\n" +
+			"	}\n" +
+			"	public void bar() {\n" +
+			"	}\n" +
+			"}";
+		compileAndDeploy15(sourceA67, "A67");
+
+		String userCode = "new A67<Object>().bar();";
+		JDIStackFrame stackFrame =
+			new JDIStackFrame(this.jdiVM, this, userCode, "A67", "bar", -1);
+
+		DebugRequestor requestor = new DebugRequestor();
+		char[] snippet = ("java.util.ArrayList<String> list = new java.util.ArrayList<String>();\n" +
+				"list.add(\"Test\");\n" +
+				"list.add(\"Hello\");\n" +
+				"list.add(\"World\");\n" +
+				"return A67.toString(list);").toCharArray();
+		try {
+			this.context.evaluate(
+				snippet,
+				stackFrame.localVariableTypeNames(),
+				stackFrame.localVariableNames(),
+				stackFrame.localVariableModifiers(),
+				stackFrame.declaringTypeName(),
+				stackFrame.isStatic(),
+				stackFrame.isConstructorCall(),
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
+				getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("No targetException " + e.getMessage(), false);
+		}
+		assertTrue(
+			"Should get one result but got " + (requestor.resultIndex + 1),
+			requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		assertTrue("Code snippet should not have problems", !result.hasProblems());
+		assertTrue("Result should have a value", result.hasValue());
+		assertEquals("Value", "{TestHelloWorld}".toCharArray(), result.getValueDisplayString());
+		assertEquals("Type", "java.lang.String".toCharArray(), result.getValueTypeName());
+	} finally {
+		removeTempClass("A67");
+	}
+}
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=178861
  */
