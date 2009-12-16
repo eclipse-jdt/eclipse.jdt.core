@@ -997,7 +997,7 @@ public void test030() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
 public void test031() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"class Y {\n" +
@@ -1017,13 +1017,7 @@ public void test031() {
 			"	}\n" +
 			"}\n", // =================
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 13)\n" +
-		"	X() {\n" +
-		"	^^^\n" +
-		"The blank final field blank may not have been initialized\n" +
-		"----------\n",
-		JavacTestOptions.EclipseHasABug.EclipseBug235781);
+		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
 public void test032() {
@@ -1521,7 +1515,7 @@ public void test049() {
 		true /* skipJavac */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
-public void _test050_definite_assigment_and_if_true() {
+public void test050_definite_assigment_and_if_true() {
 	runConformTest(
 		// test directory preparation
 		new String[] { /* test files */
