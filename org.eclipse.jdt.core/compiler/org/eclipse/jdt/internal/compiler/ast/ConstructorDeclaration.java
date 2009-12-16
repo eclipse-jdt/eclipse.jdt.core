@@ -161,7 +161,9 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		}
 
 		// reuse the initial reach mode for diagnosing missing blank finals
-		flowInfo.setReachMode(initialReachMode);
+		// no, we should use the updated reach mode for diagnosing uninitialized blank finals.
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
+		// flowInfo.setReachMode(initialReachMode);
 
 		// check missing blank final field initializations
 		if ((this.constructorCall != null)

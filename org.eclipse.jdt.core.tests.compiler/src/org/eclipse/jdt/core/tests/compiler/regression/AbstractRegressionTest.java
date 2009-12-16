@@ -336,8 +336,6 @@ protected static class JavacTestOptions {
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug235550 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235550
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
-			EclipseBug235781 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
-				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug235809 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235809
 				new EclipseHasABug(MismatchType.StandardOutputMismatch) : null,
 			EclipseBug236217 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236217
