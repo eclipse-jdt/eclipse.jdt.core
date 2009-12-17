@@ -545,6 +545,42 @@ public void testBug208541() throws JavaModelException {
 }
 
 /**
+ * @bug 252556: [formatter] Spaces removed before formatted region of a compilation unit.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=252556"
+ */
+// TODO Fix the bug... this test currently verifies that the problem still occurs!
+public void testBug252556() {
+	String source =
+		"package a;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"	private int field;\n" + 
+		"	\n" + 
+		"	[#/**\n" + 
+		"	 * fds \n" + 
+		"	 */#]\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package a;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"	private int field;\n" + 
+//		"	\n" + // this is the expected untouched line
+		"\n" + // instead the tab is removed although it is outside the selection...
+		"	/**\n" + 
+		"	 * fds\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 283467: [formatter] wrong indentation with 'Never join lines' selected
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=283467"
  */
