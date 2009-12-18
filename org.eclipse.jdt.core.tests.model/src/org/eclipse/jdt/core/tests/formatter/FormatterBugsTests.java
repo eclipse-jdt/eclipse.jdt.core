@@ -3531,4 +3531,49 @@ public void testBug297225() {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 297546: [formatter] Formatter removes blank after @see if reference is wrapped
+ * @test Verify that space after the @see tag is not removed while formatting
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297546"
+ */
+public void testBug297546() {
+	String source = 
+		"package org.eclipse.jdt.core;\n" + 
+		"public class TestClass implements TestInterface {\n" + 
+		"\n" + 
+		"	/* (non-Javadoc)\n" + 
+		"	 * @see org.eclipse.jdt.core.TestInterface#testMethod(org.eclipse.jdt.core.TestInterface)\n" + 
+		"	 */\n" + 
+		"	public void testMethod(TestInterface aLongNameForAParam) {\n" + 
+		"		// do nothing\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	\n" + 
+		"}\n" + 
+		"interface TestInterface {\n" + 
+		"	void testMethod(TestInterface aLongNameForAParam);\n" + 
+		"}\n";
+	formatSource(source,
+		"package org.eclipse.jdt.core;\n" + 
+		"\n" + 
+		"public class TestClass implements TestInterface {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	 * (non-Javadoc)\n" + 
+		"	 * \n" + 
+		"	 * @see org.eclipse.jdt.core.TestInterface#testMethod(org.eclipse.jdt.core.\n" + 
+		"	 * TestInterface)\n" + 
+		"	 */\n" + 
+		"	public void testMethod(TestInterface aLongNameForAParam) {\n" + 
+		"		// do nothing\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n" + 
+		"\n" + 
+		"interface TestInterface {\n" + 
+		"	void testMethod(TestInterface aLongNameForAParam);\n" + 
+		"}\n"
+	);
+}
 }
