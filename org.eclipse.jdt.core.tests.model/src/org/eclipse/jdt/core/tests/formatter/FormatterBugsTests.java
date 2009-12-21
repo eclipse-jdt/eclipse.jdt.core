@@ -3576,4 +3576,27 @@ public void testBug297546() {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 298243: [formatter] Removing empty lines between import groups
+ * @test Verify that space after the @see tag is not removed while formatting
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=298243"
+ */
+public void testBug298243() {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 0;
+	String source = 
+		"package test;\n" + 
+		"\n" + 
+		"import java.util.concurrent.atomic.AtomicInteger;\n" + 
+		"\n" + 
+		"import org.xml.sax.SAXException;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		SAXException e;\n" + 
+		"		AtomicInteger w;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source);
+}
 }

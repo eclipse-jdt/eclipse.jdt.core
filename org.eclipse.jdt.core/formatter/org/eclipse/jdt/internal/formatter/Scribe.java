@@ -2263,7 +2263,7 @@ public class Scribe implements IJavaDocTagConstants {
 									preserveEmptyLines(lines - 1, whitespacesStartPosition);
 								}
 								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
-							} else if (lines != 0 && (!this.formatter.preferences.join_wrapped_lines || this.formatter.preferences.number_of_empty_lines_to_preserve != 0)) {
+							} else if (lines != 0 && (!this.formatter.preferences.join_wrapped_lines || this.formatter.preferences.number_of_empty_lines_to_preserve != 0 || this.blank_lines_between_import_groups > 0)) {
 								addReplaceEdit(whitespacesStartPosition, whitespacesEndPosition, getPreserveEmptyLines(lines-1));
 							} else {
 								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
