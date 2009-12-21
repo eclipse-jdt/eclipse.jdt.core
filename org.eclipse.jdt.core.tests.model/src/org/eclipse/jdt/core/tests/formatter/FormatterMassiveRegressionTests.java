@@ -212,6 +212,20 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private final static boolean NO_COMMENTS = System.getProperty("no_comments", "false").equals("true");
 	private static String JOIN_LINES = System.getProperty("join_lines", null);
 	private static String BRACES = System.getProperty("braces", null);
+	private final static int PRESERVED_LINES;
+	static {
+		String str = System.getProperty("preserved_lines", null);
+		int value = -1;
+		if (str != null) {
+			try {
+				value = Integer.parseInt(str);
+			}
+			catch (NumberFormatException nfe) {
+				// skip
+			}
+		}
+		PRESERVED_LINES = value;
+	}
 	
 	// Time measuring
 	static class TimeMeasuring {
@@ -388,7 +402,12 @@ public static Test suite() {
 				buffer.append("Compare vs: ");
 				File versionFile = new File(OUTPUT_DIR, "version.txt");
 				if (versionFile.exists()) {
-					buffer.append(Util.fileContent(versionFile.getAbsolutePath()));
+					String fileContent = Util.fileContent(versionFile.getAbsolutePath());
+					if (TEMP_OUTPUT != null) {
+						buffer.append(TEMP_OUTPUT);
+						buffer.append(" on top of ");
+					}
+					buffer.append(fileContent);
 				} else {
 					buffer.append("???");
 				}
@@ -426,7 +445,7 @@ public static Test suite() {
 }
 
 private static void initProfiles(StringBuffer buffer) {
-	boolean profile = NO_COMMENTS;
+	boolean profile = NO_COMMENTS || PRESERVED_LINES != -1;
 	if (JOIN_LINES != null) {
 	 	if (!JOIN_LINES.equals("never") &&
 	 		!JOIN_LINES.equals("only_comments") &&
@@ -458,6 +477,11 @@ private static void initProfiles(StringBuffer buffer) {
 		}
 		if (BRACES != null) {
 			buffer.append(separator+"braces="+BRACES);
+			separator = ", ";
+		}
+		if (PRESERVED_LINES != -1) {
+			buffer.append(separator+"preserved_lines="+PRESERVED_LINES);
+			separator = ", ";
 		}
 		buffer.append(LINE_SEPARATOR);
 	}
@@ -481,12 +505,14 @@ private static void initDirectories(StringBuffer buffer) {
 			if (token.equals("clean")) {
 				CLEAN = true;
 			} else if (token.equals("tmp")) {
-				TEMP_OUTPUT = PATCH_BUG;
+				if (JDT_CORE_HEAD) {
+					TEMP_OUTPUT = "HEAD";
+				}
 			}
 		}
 		setOutputDir(outputDir, buffer);
 		if (CLEAN) {
-			if (TEMP_OUTPUT == null && (PATCH_BUG != null || JDT_CORE_HEAD)) {
+			if (PATCH_BUG != null || (TEMP_OUTPUT == null && JDT_CORE_HEAD)) {
 				System.err.println("Reference can only be updated using a version (i.e. with a closed buildnotes_jdt-core.html)!");
 				System.exit(1);
 			}
@@ -527,9 +553,6 @@ private static void initDirectories(StringBuffer buffer) {
 private static void setLogDir(StringBuffer buffer) throws CoreException {
 
 	// Compute log dir
-//	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-//	IProject project = root.getProject("Bugs");
-//	IFolder rootFolder = project.getFolder("Formatter");
 	File logDir = new File(System.getProperty("logDir"));
 	if (!logDir.exists()) {
 		if (!logDir.mkdirs()) {
@@ -540,55 +563,29 @@ private static void setLogDir(StringBuffer buffer) throws CoreException {
 
 	// Compute log sub-directories depending on profiles
 	logDir = new File(logDir, ECLIPSE_VERSION);
-//	IFolder folder = rootFolder.getFolder(ECLIPSE_VERSION);
-//	if (!folder.exists()) folder.create(true, true, null);
 	if (PATCH_BUG != null) {
 		logDir = new File(logDir, "tests");
 		logDir = new File(logDir, PATCH_BUG);
-		if (TEMP_OUTPUT != null) {
-			logDir = new File(logDir, "tmp");
-		}
 		logDir = new File(logDir, PATCH_VERSION);
-//		folder = folder.getFolder("tests");
-//		if (!folder.exists()) folder.create(true, true, null);
-//		folder = folder.getFolder(PATCH_BUG);
-//		if (!folder.exists()) folder.create(true, true, null);
-//		folder = folder.getFolder(PATCH_VERSION);
-//		if (!folder.exists()) folder.create(true, true, null);
 	} else if (JDT_CORE_HEAD) {
 		logDir = new File(logDir, "HEAD");
-//		folder = folder.getFolder("HEAD");
-//		if (!folder.exists()) folder.create(true, true, null);
 	} else {
 		logDir = new File(logDir, ECLIPSE_MILESTONE);
 		logDir = new File(logDir, JDT_CORE_VERSION);
-//		folder = folder.getFolder(ECLIPSE_MILESTONE);
-//		if (!folder.exists()) folder.create(true, true, null);
-//		folder = folder.getFolder(JDT_CORE_VERSION);
-//		if (!folder.exists()) folder.create(true, true, null);
 	}
-	if (NO_COMMENTS || BRACES != null || JOIN_LINES != null) {
+	if (NO_COMMENTS || BRACES != null || JOIN_LINES != null || PRESERVED_LINES != -1) {
 		logDir = new File(logDir, "profiles");
-//		folder = folder.getFolder("profiles");
-//		if (!folder.exists()) folder.create(true, true, null);
 		if (JOIN_LINES != null) {
 			logDir = new File(new File(logDir, "join_lines"), JOIN_LINES);
-//			folder = folder.getFolder("join_lines");
-//			if (!folder.exists()) folder.create(true, true, null);
-//			folder = folder.getFolder(JOIN_LINES);
-//			if (!folder.exists()) folder.create(true, true, null);
 		}
 		if (NO_COMMENTS) {
 			logDir = new File(logDir, "no_comments");
-//			folder = folder.getFolder("no_comments");
-//			if (!folder.exists()) folder.create(true, true, null);
 		}
 		if (BRACES != null) {
 			logDir = new File(new File(logDir, "braces"), BRACES);
-//			folder = folder.getFolder("braces");
-//			if (!folder.exists()) folder.create(true, true, null);
-//			folder = folder.getFolder(BRACES);
-//			if (!folder.exists()) folder.create(true, true, null);
+		}
+		if (PRESERVED_LINES != -1) {
+			logDir = new File(new File(logDir, "preserved_lines"), Integer.toString(PRESERVED_LINES));
 		}
 	}
 	
@@ -658,6 +655,9 @@ private static void setOutputDir(String dir, StringBuffer buffer) {
 		}
 		if (BRACES != null) {
 			OUTPUT_DIR = new File(new File(OUTPUT_DIR, "braces"), BRACES);
+		}
+		if (PRESERVED_LINES != -1) {
+			OUTPUT_DIR = new File(new File(OUTPUT_DIR, "preserved_lines"), Integer.toString(PRESERVED_LINES));
 		}
 	}
 
@@ -850,6 +850,9 @@ public void setUp() throws Exception {
 		this.preferences.brace_position_for_method_declaration = BRACES;
 		this.preferences.brace_position_for_switch = BRACES;
 		this.preferences.brace_position_for_type_declaration = BRACES;
+	}
+	if (PRESERVED_LINES != -1) {
+		this.preferences.number_of_empty_lines_to_preserve = PRESERVED_LINES;
 	}
 }
 
