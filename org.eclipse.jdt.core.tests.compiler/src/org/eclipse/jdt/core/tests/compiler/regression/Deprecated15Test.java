@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -110,6 +110,7 @@ public void test001() {
 public void test002() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		true,
 		new String[] {

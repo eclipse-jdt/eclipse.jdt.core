@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1909,6 +1909,7 @@ public void test066() {
 			"		if ((i = 3) != i) {\n" + 
 			"			System.out.println(\"The second warning is just.\");\n" + 
 			"		}\n" + 
+			"		return false;\n" + 
 			"	}\n" +
 			"}"
 		},
@@ -1939,6 +1940,7 @@ public void test067() {
 			"		if ((s = \"\") != s) {\n" + 
 			"			System.out.println(\"The second warning is just.\");\n" + 
 			"		}\n" + 
+			"		return false;\n" + 
 			"	}\n" +
 			"}"
 		},

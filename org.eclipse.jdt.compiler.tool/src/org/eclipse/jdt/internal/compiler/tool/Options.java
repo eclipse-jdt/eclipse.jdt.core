@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2009 IBM Corporation and others.
+ * Copyright (c) 2006, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ public final class Options {
 		ZERO_ARGUMENT_OPTIONS = new HashSet<String>();
 		Options.ZERO_ARGUMENT_OPTIONS.add("-progress");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-proceedOnError");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-proceedOnError:Fatal");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-time");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-v");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-version");//$NON-NLS-1$

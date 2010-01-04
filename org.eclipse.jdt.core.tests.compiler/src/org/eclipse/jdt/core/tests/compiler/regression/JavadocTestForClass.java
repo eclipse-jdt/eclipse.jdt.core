@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1014,7 +1014,7 @@ public class JavadocTestForClass extends JavadocTest {
 						" * </ul>\n" + 
 						" */\n" + 
 						"public interface X extends Map {\n" + 
-						"	int i;\n" +
+						"	int i = 0;\n" +
 						"}\n",
 						},
 						"----------\n" + 
@@ -1086,7 +1086,7 @@ public class JavadocTestForClass extends JavadocTest {
 						" * </ul>\n" + 
 						" */\n" + 
 						"public interface X extends Map {\n" + 
-						"	Entry e;\n" + 
+						"	Entry e = null;\n" + 
 						"}\n",
 						},
 						"----------\n" + 
