@@ -357,7 +357,11 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		// local variable attributes
 		codeStream.exitUserScope(this.scope);
 		codeStream.recordPositionsFrom(0, this.bodyEnd);
-		classFile.completeCodeAttribute(codeAttributeOffset);
+		try {
+			classFile.completeCodeAttribute(codeAttributeOffset);
+		} catch(NegativeArraySizeException e) {
+			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
+		}
 		attributeNumber++;
 		if ((codeStream instanceof StackMapFrameCodeStream)
 				&& needFieldInitializations

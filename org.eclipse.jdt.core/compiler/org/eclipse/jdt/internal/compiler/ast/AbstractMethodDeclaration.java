@@ -241,7 +241,11 @@ public abstract class AbstractMethodDeclaration
 			// local variable attributes
 			codeStream.exitUserScope(this.scope);
 			codeStream.recordPositionsFrom(0, this.declarationSourceEnd);
-			classFile.completeCodeAttribute(codeAttributeOffset);
+			try {
+				classFile.completeCodeAttribute(codeAttributeOffset);
+			} catch(NegativeArraySizeException e) {
+				throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
+			}
 			attributeNumber++;
 		} else {
 			checkArgumentsSize();
