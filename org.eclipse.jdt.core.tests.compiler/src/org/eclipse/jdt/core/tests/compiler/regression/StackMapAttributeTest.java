@@ -11,8 +11,11 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.Map;
+
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -31,7 +34,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 44 };
+//		TESTS_NUMBERS = new int[] { 46 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
@@ -6471,5 +6474,42 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"        [pc: 22, append: {int}]\n" + 
 			"        [pc: 30, same]\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	// 298250
+	public void test046() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\r\n" + 
+				"	class E1 extends RuntimeException {\r\n" + 
+				"		private static final long serialVersionUID = 1L;\r\n" + 
+				"	}\r\n" + 
+				"	static Object bar() {\r\n" + 
+				"		return new Object() {\r\n" + 
+				"			public void foo() {\r\n" + 
+				"				if (condition())\r\n" + 
+				"					throw new E1();\r\n" + 
+				"			}\r\n" + 
+				"		};\r\n" + 
+				"	}\r\n" + 
+				"	static boolean condition() {\r\n" + 
+				"		return false;\r\n" + 
+				"	}\r\n" + 
+				"	public static void main(String[] args) {\r\n" + 
+				"	}\r\n" + 
+				"}\r\n" + 
+				"",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	throw new E1();\n" + 
+			"	      ^^^^^^^^\n" + 
+			"No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
 	}
 }
