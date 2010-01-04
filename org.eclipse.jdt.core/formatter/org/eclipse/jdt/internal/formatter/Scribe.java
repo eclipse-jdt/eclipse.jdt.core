@@ -1798,15 +1798,16 @@ public class Scribe implements IJavaDocTagConstants {
     		// Append next token inserting a new line if max line is reached
 			if (lineHasTokens && !firstWord && lastColumn > maxColumn) {
 		    	String tokensString = tokensBuffer.toString().trim();
+		    	int tokensStringLength = tokensString.length();
 				// not enough space on the line
 				if (hasTextOnFirstLine == 1) {
 					printBlockCommentHeaderLine(buffer);
 				}
-				if ((this.indentationLevel+tokensString.length()+tokenLength) > maxColumn) {
+				if ((this.indentationLevel+tokensStringLength+tokenLength) > maxColumn) {
 					// there won't be enough room even if we break the line before the buffered tokens
 					// So add the buffered tokens now
-					buffer.append(tokensString);
-					this.column += tokensString.length();
+					buffer.append(tokensBuffer);
+					this.column += tokensBuffer.length();
 					tokensBuffer.setLength(0);
 					bufferHasNewLine = false;
 					bufferHasTokens = true;
@@ -1820,7 +1821,7 @@ public class Scribe implements IJavaDocTagConstants {
 				}
 		    	if (tokensBuffer.length() > 0) {
 					buffer.append(tokensString);
-					this.column += tokensString.length();
+					this.column += tokensStringLength;
 					tokensBuffer.setLength(0);
 		    	}
 				buffer.append(this.scanner.source, tokenStart, tokenLength);
