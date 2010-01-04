@@ -1584,8 +1584,10 @@ public void test012(){
         "                       default)\n" +
         "    -log <file>        log to a file. If the file extension is ''.xml'', then\n" +
         "                       the log will be a xml file.\n" +
-        "    -proceedOnError    do not stop at first error, dumping class files with\n" +
-        "                       problem methods\n" +
+        "    -proceedOnError[:Fatal]\n" + 
+        "                       do not stop at first error, dumping class files with\n" + 
+        "                       problem methods\n" + 
+        "                       With \":Fatal\", all optional errors are treated as fatal\n" + 
         "    -verbose           enable verbose output\n" +
         "    -referenceInfo     compute reference info\n" +
         "    -progress          show progress (only in -log mode)\n" +
@@ -1796,7 +1798,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fallthroughCase\" value=\"ignore\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fatalOptionalError\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fatalOptionalError\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fieldHiding\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finalParameterBound\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally\" value=\"warning\"/>\n" +

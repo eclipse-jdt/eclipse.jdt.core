@@ -8084,7 +8084,7 @@ public void testBug254825b() {
 			"X.java",
 			"class X {\n" + 
 			"  /** @see #o */\n" + 
-			"  public Object foo(Object o) {}\n" + 
+			"  public Object foo(Object o) { return null; }\n" + 
 			"}\n"
 		},
 		"----------\n" + 

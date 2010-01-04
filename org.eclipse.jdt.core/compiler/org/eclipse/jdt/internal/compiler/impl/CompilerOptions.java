@@ -1006,8 +1006,8 @@ public class CompilerOptions {
 		// suppress warning annotation
 		this.suppressWarnings = true;
 
-		// treat optional error as fatal or just like warning?
-		this.treatOptionalErrorAsFatal = true;
+		// treat optional error as non fatal
+		this.treatOptionalErrorAsFatal = false;
 
 		// parser perform statements recovery
 		this.performMethodsFullRecovery = true;

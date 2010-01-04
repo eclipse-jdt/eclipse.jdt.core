@@ -531,6 +531,7 @@ public void test015() {
 public void test016() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runNegativeTest(
 		// test directory preparation
 		true /* flush output directory */,

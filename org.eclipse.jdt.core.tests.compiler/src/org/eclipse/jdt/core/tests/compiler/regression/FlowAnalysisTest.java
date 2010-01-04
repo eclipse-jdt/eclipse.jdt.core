@@ -669,6 +669,7 @@ public void test021() {
 public void test022() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
 	runNegativeTest(
 		// test directory preparation
 		true /* flush output directory */,

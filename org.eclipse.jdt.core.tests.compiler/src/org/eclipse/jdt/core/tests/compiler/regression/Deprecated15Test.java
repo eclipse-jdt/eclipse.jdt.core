@@ -110,6 +110,7 @@ public void test001() {
 public void test002() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		true,
 		new String[] {

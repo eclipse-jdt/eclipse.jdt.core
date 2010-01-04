@@ -563,6 +563,7 @@ public void test014() {
 public void test015() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
 	runNegativeTest(
 		// test directory preparation
 		true /* flush output directory */,
@@ -614,6 +615,7 @@ public void test015() {
 public void test016() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
 	runNegativeTest(
 		// test directory preparation
 		true /* flush output directory */,
@@ -699,6 +701,7 @@ public void test018() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
 	this.runConformTest(
 		new String[] {
 			"a/N1.java",

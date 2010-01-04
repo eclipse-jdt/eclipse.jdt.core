@@ -109,6 +109,7 @@ public class CompilerToolTests extends TestCase {
 		"-X",
 		"-O",
 		"-proceedOnError",
+		"-proceedOnError:Fatal",
 		"-verbose",
 		"-referenceInfo",
 		"-progress",

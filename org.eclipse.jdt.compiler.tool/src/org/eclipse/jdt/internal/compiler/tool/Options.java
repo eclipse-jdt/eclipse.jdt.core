@@ -25,6 +25,7 @@ public final class Options {
 		ZERO_ARGUMENT_OPTIONS = new HashSet<String>();
 		Options.ZERO_ARGUMENT_OPTIONS.add("-progress");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-proceedOnError");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-proceedOnError:Fatal");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-time");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-v");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-version");//$NON-NLS-1$

@@ -1014,7 +1014,7 @@ public class JavadocTestForClass extends JavadocTest {
 						" * </ul>\n" + 
 						" */\n" + 
 						"public interface X extends Map {\n" + 
-						"	int i;\n" +
+						"	int i = 0;\n" +
 						"}\n",
 						},
 						"----------\n" + 
@@ -1086,7 +1086,7 @@ public class JavadocTestForClass extends JavadocTest {
 						" * </ul>\n" + 
 						" */\n" + 
 						"public interface X extends Map {\n" + 
-						"	Entry e;\n" + 
+						"	Entry e = null;\n" + 
 						"}\n",
 						},
 						"----------\n" + 

@@ -2023,8 +2023,19 @@ public void configure(String[] argv) {
 					this.showProgress = true;
 					continue;
 				}
-				if (currentArg.equals("-proceedOnError")) { //$NON-NLS-1$
+				if (currentArg.startsWith("-proceedOnError")) { //$NON-NLS-1$
 					mode = DEFAULT;
+					int length = currentArg.length();
+					if (length > 15) {
+						if (currentArg.equals("-proceedOnError:Fatal")) { //$NON-NLS-1$
+							this.options.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.ENABLED);
+						} else {
+							throw new IllegalArgumentException(
+									this.bind("configure.invalidWarningConfiguration", currentArg)); //$NON-NLS-1$
+						}
+					} else {
+						this.options.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
+					}
 					this.proceedOnError = true;
 					continue;
 				}

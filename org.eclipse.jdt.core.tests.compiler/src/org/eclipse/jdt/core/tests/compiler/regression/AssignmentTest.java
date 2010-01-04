@@ -1909,6 +1909,7 @@ public void test066() {
 			"		if ((i = 3) != i) {\n" + 
 			"			System.out.println(\"The second warning is just.\");\n" + 
 			"		}\n" + 
+			"		return false;\n" + 
 			"	}\n" +
 			"}"
 		},
@@ -1939,6 +1940,7 @@ public void test067() {
 			"		if ((s = \"\") != s) {\n" + 
 			"			System.out.println(\"The second warning is just.\");\n" + 
 			"		}\n" + 
+			"		return false;\n" + 
 			"	}\n" +
 			"}"
 		},

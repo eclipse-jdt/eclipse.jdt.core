@@ -230,9 +230,10 @@ public void test002() throws CoreException {
 		String src =
 			"package p;\n" +
 			"public class Y extends X2 {\n" +
-			"	void foobar() {\n" +
+			"	int foobar() {\n" +
 			"		int l1 = m1; // accesses X1.m1, should trigger an error\n" +
 			"		char l2 = m2; // accesses X2.m2, OK\n" +
+			"		return l1 + l2;\n" +
 			"	}\n" +
 			"}";
 		this.problemRequestor = new ProblemRequestor(src);
@@ -321,10 +322,11 @@ public void test003() throws CoreException {
 			"	   }\n" +
 			"	}\n" +
 			"	class C3c extends C2 implements I2 {}\n" +
-			"	void foobar() {\n" +
+			"	String foobar() {\n" +
 			"		C1 m1 =                 // error\n" +
 			"		        new C1(0);      // error\n" +
 			"		C2 m2 = new C2();\n" +
+			"		return m1.toString() + m2.toString();\n" +
 			"	}\n" +
 			"}";
 		this.problemRequestor = new ProblemRequestor(src);
@@ -865,9 +867,10 @@ public void test009() throws CoreException {
 		String src =
 			"package p;\n" +
 			"public class Y extends X2 {\n" +
-			"	void foobar() {\n" +
+			"	int foobar() {\n" +
 			"		int l1 = m1; // accesses X1.m1, should trigger an error\n" +
 			"		char l2 = m2; // accesses X2.m2, OK\n" +
+			"		return l1 + l2;\n" +
 			"	}\n" +
 			"}";
 		this.problemRequestor = new ProblemRequestor(src);
@@ -963,10 +966,11 @@ public void test010() throws CoreException {
 			"	   }\n" +
 			"	}\n" +
 			"	class C3c extends C2 implements I2 {}\n" +
-			"	void foobar() {\n" +
+			"	String foobar() {\n" +
 			"		C1 m1 =                 // error\n" +
 			"		        new C1(0);      // error\n" +
 			"		C2 m2 = new C2();\n" +
+			"		return m1.toString() + m2.toString();\n" +
 			"	}\n" +
 			"}";
 		this.problemRequestor = new ProblemRequestor(src);
