@@ -113,7 +113,7 @@ public StackMapFrame duplicate() {
 	result.pc = this.pc;
 	result.numberOfStackItems = this.numberOfStackItems;
 
-	if (length >= 0) {
+	if (length != 0) {
 		result.locals = new VerificationTypeInfo[length];
 		for (int i = 0; i < length; i++) {
 			final VerificationTypeInfo verificationTypeInfo = this.locals[i];
@@ -123,7 +123,7 @@ public StackMapFrame duplicate() {
 		}
 	}
 	length = this.numberOfStackItems;
-	if (length >= 0) {
+	if (length != 0) {
 		result.stackItems = new VerificationTypeInfo[length];
 		for (int i = 0; i < length; i++) {
 			result.stackItems[i] = this.stackItems[i].duplicate();

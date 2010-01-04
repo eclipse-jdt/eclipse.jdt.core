@@ -6476,7 +6476,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// 298250
-	public void test046() {
+	public void _test046() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
 		this.runNegativeTest(
