@@ -1395,6 +1395,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.enterAlignment(cascadingMessageSendAlignment);
 		boolean ok = false;
 		do {
+			if (startingPositionInCascade == 1) {
+				cascadingMessageSendAlignment.startingColumn = this.scribe.column;
+			}
 			try {
 				this.scribe.alignFragment(cascadingMessageSendAlignment, 0);
 				this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
@@ -1468,6 +1471,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					if (numberOfParens > 0) {
 						manageClosingParenthesizedExpression(currentMessageSend, numberOfParens);
 					}
+					cascadingMessageSendAlignment.startingColumn = -1;
 					if (i < size - 1) {
 						this.scribe.alignFragment(cascadingMessageSendAlignment, i);
 						this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
@@ -1664,6 +1668,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (messageAlignment != null) {
 			this.scribe.alignFragment(messageAlignment, 0);
 			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+			messageAlignment.startingColumn = -1;
 		}
 		TypeReference[] typeArguments = messageSend.typeArguments;
 		if (typeArguments != null) {
@@ -4086,6 +4091,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.enterAlignment(messageAlignment);
 				boolean ok = false;
 				do {
+					messageAlignment.startingColumn = this.scribe.column;
 					try {
 						formatMessageSend(messageSend, scope, messageAlignment);
 						ok = true;

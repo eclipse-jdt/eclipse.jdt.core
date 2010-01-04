@@ -3503,6 +3503,335 @@ public void testBug295238b3() {
 }
 
 /**
+ * @bug 264112: [Formatter] Wrap when necessary too aggressive on short qualifiers
+ * @test 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=264112"
+ */
+// Max line width = 24
+public void testBug264112_w24_S1() {
+	this.formatterPrefs.page_width = 24;
+	String source = 
+		"class Sample1 {void foo() {Other.bar( 100,\n" + 
+		"200,\n" + 
+		"300,\n" + 
+		"400,\n" + 
+		"500,\n" + 
+		"600,\n" + 
+		"700,\n" + 
+		"800,\n" + 
+		"900 );}}\n";
+	formatSource(source,
+		"class Sample1 {\n" + 
+		"	void foo() {\n" + 
+		"		Other.bar(100,\n" + 
+		"				200,\n" + 
+		"				300,\n" + 
+		"				400,\n" + 
+		"				500,\n" + 
+		"				600,\n" + 
+		"				700,\n" + 
+		"				800,\n" + 
+		"				900);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug264112_w24_S2() {
+	this.formatterPrefs.page_width = 24;
+	String source = 
+		"class Sample2 {int foo(Some a) {return a.getFirst();}}\n";
+	formatSource(source,
+		"class Sample2 {\n" + 
+		"	int foo(Some a) {\n" + 
+		"		return a.getFirst();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Max line width = 25
+public void testBug264112_w25_S1() {
+	this.formatterPrefs.page_width = 25;
+	String source = 
+		"class Sample1 {void foo() {Other.bar( 100,\n" + 
+		"200,\n" + 
+		"300,\n" + 
+		"400,\n" + 
+		"500,\n" + 
+		"600,\n" + 
+		"700,\n" + 
+		"800,\n" + 
+		"900 );}}\n";
+	formatSource(source,
+		"class Sample1 {\n" + 
+		"	void foo() {\n" + 
+		"		Other.bar(100,\n" + 
+		"				200,\n" + 
+		"				300,\n" + 
+		"				400,\n" + 
+		"				500,\n" + 
+		"				600,\n" + 
+		"				700,\n" + 
+		"				800, 900);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug264112_w25_S2() {
+	this.formatterPrefs.page_width = 25;
+	String source = 
+		"class Sample2 {int foo(Some a) {return a.getFirst();}}\n";
+	formatSource(source,
+		"class Sample2 {\n" + 
+		"	int foo(Some a) {\n" + 
+		"		return a.getFirst();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Max line width = 26
+public void testBug264112_w26_S1() {
+	this.formatterPrefs.page_width = 26;
+	String source = 
+		"class Sample1 {void foo() {Other.bar( 100,\n" + 
+		"200,\n" + 
+		"300,\n" + 
+		"400,\n" + 
+		"500,\n" + 
+		"600,\n" + 
+		"700,\n" + 
+		"800,\n" + 
+		"900 );}}\n";
+	formatSource(source,
+		"class Sample1 {\n" + 
+		"	void foo() {\n" + 
+		"		Other.bar(100,\n" + 
+		"				200, 300,\n" + 
+		"				400, 500,\n" + 
+		"				600, 700,\n" + 
+		"				800, 900);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug264112_w26_S2() {
+	this.formatterPrefs.page_width = 26;
+	String source = 
+		"class Sample2 {int foo(Some a) {return a.getFirst();}}\n";
+	formatSource(source,
+		"class Sample2 {\n" + 
+		"	int foo(Some a) {\n" + 
+		"		return a.getFirst();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug264112_wksp1_01() {
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	public Object foo(Object scope) {\n" + 
+		"		if (scope != null) {\n" + 
+		"			if (true) {\n" + 
+		"				for (int i = 0; i < 10; i++) {\n" + 
+		"					if (i == 0) {\n" + 
+		"					} else if (i < 5) {\n" + 
+		"					} else {\n" + 
+		"						scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, expressionTb, expectedElementsTb);\n" + 
+		"						return null;\n" + 
+		"					}\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"			return null;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	public Object foo(Object scope) {\n" + 
+		"		if (scope != null) {\n" + 
+		"			if (true) {\n" + 
+		"				for (int i = 0; i < 10; i++) {\n" + 
+		"					if (i == 0) {\n" + 
+		"					} else if (i < 5) {\n" + 
+		"					} else {\n" + 
+		"						scope.problemReporter()\n" + 
+		"								.typeMismatchErrorActualTypeExpectedType(\n" + 
+		"										expression, expressionTb,\n" + 
+		"										expectedElementsTb);\n" + 
+		"						return null;\n" + 
+		"					}\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"			return null;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug264112_wksp1_02() {
+	String source = 
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	public String toString() {\n" + 
+		"		StringBuffer buffer = new StringBuffer();\n" + 
+		"		if (true) {\n" + 
+		"			buffer.append(\"- possible values:	[\"); //$NON-NLS-1$ \n" + 
+		"			buffer.append(\"]\\n\"); //$NON-NLS-1$ \n" + 
+		"			buffer.append(\"- curr. val. index:	\").append(currentValueIndex).append(\"\\n\"); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"		}\n" + 
+		"		buffer.append(\"- description:		\").append(description).append(\"\\n\"); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"		return buffer.toString();\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	public String toString() {\n" + 
+		"		StringBuffer buffer = new StringBuffer();\n" + 
+		"		if (true) {\n" + 
+		"			buffer.append(\"- possible values:	[\"); //$NON-NLS-1$ \n" + 
+		"			buffer.append(\"]\\n\"); //$NON-NLS-1$ \n" + 
+		"			buffer.append(\"- curr. val. index:	\").append(currentValueIndex).append(\"\\n\"); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"		}\n" + 
+		"		buffer.append(\"- description:		\").append(description).append(\"\\n\"); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"		return buffer.toString();\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug264112_wksp2_01() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"    private static final String PATH_SMOOTH_QUAD_TO = \"SMOOTH\";\n" + 
+		"    private static final String XML_SPACE = \" \";\n" + 
+		"    private static final String PATH_CLOSE = \"CLOSE\";\n" + 
+		"\n" + 
+		"	String foo(Point point, Point point_plus1) {\n" + 
+		"        StringBuffer sb = new StringBuffer();\n" + 
+		"        while (true) {\n" + 
+		"            if (point != null) {\n" + 
+		"                // Following message send was unnecessarily split\n" + 
+		"                sb.append(PATH_SMOOTH_QUAD_TO)\n" + 
+		"                .append(String.valueOf(midValue(point.x, point_plus1.x)))\n" + 
+		"                .append(XML_SPACE)\n" + 
+		"                .append(String.valueOf(midValue(point.y, point_plus1.y)));\n" + 
+		"            } else {\n" + 
+		"                break;\n" + 
+		"            }\n" + 
+		"        }\n" + 
+		"        sb.append(PATH_CLOSE);\n" + 
+		"\n" + 
+		"        return sb.toString();\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    private int midValue(int x1, int x2) {\n" + 
+		"        return (x1 + x2) / 2;\n" + 
+		"    }\n" + 
+		"\n" + 
+		"}\n" + 
+		"class Point {\n" + 
+		"	int x,y;\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	private static final String PATH_SMOOTH_QUAD_TO = \"SMOOTH\";\n" + 
+		"	private static final String XML_SPACE = \" \";\n" + 
+		"	private static final String PATH_CLOSE = \"CLOSE\";\n" + 
+		"\n" + 
+		"	String foo(Point point, Point point_plus1) {\n" + 
+		"		StringBuffer sb = new StringBuffer();\n" + 
+		"		while (true) {\n" + 
+		"			if (point != null) {\n" + 
+		"				// Following message send was unnecessarily split\n" + 
+		"				sb.append(PATH_SMOOTH_QUAD_TO)\n" + 
+		"						.append(\n" + 
+		"								String.valueOf(midValue(point.x, point_plus1.x)))\n" + 
+		"						.append(XML_SPACE)\n" + 
+		"						.append(\n" + 
+		"								String.valueOf(midValue(point.y, point_plus1.y)));\n" + 
+		"			} else {\n" + 
+		"				break;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		sb.append(PATH_CLOSE);\n" + 
+		"\n" + 
+		"		return sb.toString();\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	private int midValue(int x1, int x2) {\n" + 
+		"		return (x1 + x2) / 2;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n" + 
+		"\n" + 
+		"class Point {\n" + 
+		"	int x, y;\n" + 
+		"}\n"
+	);
+}
+public void testBug264112_wksp2_02() {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"	\n" + 
+		"	void test(X02 indexsc) {\n" + 
+		"		if (indexsc == null) {\n" + 
+		"		} else {\n" + 
+		"\n" + 
+		"			indexsc.reopenScan(\n" + 
+		"						searchRow,                      	// startKeyValue\n" + 
+		"						ScanController.GE,            		// startSearchOp\n" + 
+		"						null,                         		// qualifier\n" + 
+		"						null, 		                        // stopKeyValue\n" + 
+		"						ScanController.GT             		// stopSearchOp \n" + 
+		"						);\n" + 
+		"		}\n" + 
+		"		\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	void test(X02 indexsc) {\n" + 
+		"		if (indexsc == null) {\n" + 
+		"		} else {\n" + 
+		"\n" + 
+		"			indexsc.reopenScan(searchRow, // startKeyValue\n" + 
+		"					ScanController.GE, // startSearchOp\n" + 
+		"					null, // qualifier\n" + 
+		"					null, // stopKeyValue\n" + 
+		"					ScanController.GT // stopSearchOp\n" + 
+		"					);\n" + 
+		"		}\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 297225: [formatter] Indentation may be still wrong in certain circumstances after formatting
  * @test Verify that comment indentation is correct when there's a mix of tab and spaces in
  * 		existing indentation and all comments formatting is off.

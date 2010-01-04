@@ -120,6 +120,7 @@ public class Alignment {
 	public static final int R_OUTERMOST = 1;
 	public static final int R_INNERMOST = 2;
 	public int tieBreakRule;
+	public int startingColumn = -1;
 
 	// alignment effects on a per fragment basis
 	public static final int NONE = 0;
@@ -351,11 +352,14 @@ public class Alignment {
 			}
 		}
 
-		if (this.fragmentBreaks[this.fragmentIndex] == BREAK) {
-			this.scribe.printNewLine();
-		}
-		if (this.fragmentIndentations[this.fragmentIndex] > 0) {
-			this.scribe.indentationLevel = this.fragmentIndentations[this.fragmentIndex];
+		int fragmentIndentation = this.fragmentIndentations[this.fragmentIndex];
+		if (this.startingColumn < 0 || (fragmentIndentation+1) < this.startingColumn) {
+			if (this.fragmentBreaks[this.fragmentIndex] == BREAK) {
+				this.scribe.printNewLine();
+			}
+			if (fragmentIndentation > 0) {
+				this.scribe.indentationLevel = fragmentIndentation;
+			}
 		}
 	}
 

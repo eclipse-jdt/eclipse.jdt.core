@@ -240,8 +240,7 @@ public class RemotePublication extends Publication {
 					.append(_localFilename).append(documentCount)
 					.append(EXTENTION)).toString();
 			if (log.isDebugEnabled()) {
-				log
-						.debug("File already exists. Check to see if we need rename existing file");
+				log.debug("File already exists. Check to see if we need rename existing file");
 			}
 			if (documentCount == 1) {
 				File backupPdfFile = new File(newFilename);
