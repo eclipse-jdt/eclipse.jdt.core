@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11070,4 +11070,74 @@ public void testBug288174() throws Exception {
 		removeClasspathEntry(JAVA_PROJECT, new Path(libPath));
 	}
 }
+/**
+ * @bug 293861: Problem with refactoring when existing jar with invalid package names
+ * @test Ensure that the search doesn't return classes with invalid package names
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=293861"
+ */
+public void testBug293861a() throws CoreException {
+	try 
+	{
+		IJavaProject project = createJavaProject("P");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b293861.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+				
+		search("b293861TestFunc", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope);
+		assertSearchResults("No search results expected", "", this.resultCollector);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * SearchEngine#searchAllTypeNames should also not return classes with invalid package names
+ */
+public void testBug293861b() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b293861.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+				null,
+				new char[][] {"b293861Test".toCharArray()},
+				scope,
+				collector,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+		assertSearchResults("No search results expected", "", collector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * enum is a valid package name in Java1.4 and those classes should be returned by search
+ */
+public void testBug293861c() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b293861.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+				null,
+				new char[][] {"InEnumPackage".toCharArray()},
+				scope,
+				collector,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+		assertSearchResults("Unexpected search results!", "InEnumPackage (not open) [in InEnumPackage.class [in enum [in /JavaSearchBugs/lib/b293861.jar [in P]]]]", collector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
 }
