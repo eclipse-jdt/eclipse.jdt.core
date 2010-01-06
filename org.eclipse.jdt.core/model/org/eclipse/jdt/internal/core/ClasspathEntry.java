@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1811,8 +1811,6 @@ public class ClasspathEntry implements IClasspathEntry {
 									|| kind == IClasspathEntry.CPE_SOURCE
 									|| kind == IClasspathEntry.CPE_VARIABLE
 									|| kind == IClasspathEntry.CPE_CONTAINER){
-										String description = container.getDescription();
-										if (description == null) description = path.makeRelative().toString();
 										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY, project, path);
 								}
 								IJavaModelStatus containerEntryStatus = validateClasspathEntry(project, containerEntry, container, checkSourceAttachment, true/*referred by container*/);

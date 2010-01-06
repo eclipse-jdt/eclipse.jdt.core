@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,13 +62,17 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 	 * @see Object#equals
 	 */
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o instanceof ExternalPackageFragmentRoot) {
-			ExternalPackageFragmentRoot other= (ExternalPackageFragmentRoot) o;
-			return this.externalPath.equals(other.externalPath);
 		}
-		return false;
+		if (o == null) {
+			return false;
+		}
+		if (getClass() != o.getClass()) {
+			return false;
+		}
+		ExternalPackageFragmentRoot other= (ExternalPackageFragmentRoot) o;
+		return this.externalPath.equals(other.externalPath);
 	}
 	public String getElementName() {
 		return this.externalPath.lastSegment();

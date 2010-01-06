@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -444,7 +444,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 						// ( TYPE_PARAMETER ) CLASS
 						match = expressionType.findSuperTypeOriginatingFrom(castType);
 						if (match == null) {
-							checkUnsafeCast(scope, castType, expressionType, match, true);
+							checkUnsafeCast(scope, castType, expressionType, null, true);
 						}
 						// recurse on the type variable upper bound
 						return checkCastTypesCompatibility(scope, ((TypeVariableBinding)castType).upperBound(), expressionType, expression);
