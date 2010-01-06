@@ -44,7 +44,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 	protected ProblemRequestor problemRequestor;
 
 	/* A problem requestor that auto-cancels on first problem */
-	class CancelingProblemRequestor extends ProblemRequestor {
+	static class CancelingProblemRequestor extends ProblemRequestor {
 		IProgressMonitor progressMonitor = new IProgressMonitor() {
 			boolean isCanceled = false;
 			public void beginTask(String name, int totalWork) {}
@@ -68,7 +68,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		}
 	}
 
-	class ReconcileParticipant extends CompilationParticipant {
+	static class ReconcileParticipant extends CompilationParticipant {
 		IJavaElementDelta delta;
 		org.eclipse.jdt.core.dom.CompilationUnit ast;
 		ReconcileParticipant() {
@@ -81,6 +81,48 @@ public class ReconcilerTests extends ModifyingResourceTests {
 			this.delta = context.getDelta();
 			try {
 				this.ast = context.getAST3();
+			} catch (JavaModelException e) {
+				assertNull("Unexpected exception", e);
+			}
+		}
+	}
+
+	static class ReconcileParticipant2 extends CompilationParticipant {
+		IJavaElementDelta delta;
+		org.eclipse.jdt.core.dom.CompilationUnit ast;
+		ReconcileParticipant2() {
+			TestCompilationParticipant.PARTICIPANT = this;
+		}
+		public boolean isActive(IJavaProject project) {
+			return true;
+		}
+		public void reconcile(ReconcileContext context) {
+			this.delta = context.getDelta();
+			try {
+				this.ast = context.getAST3();
+				assertTrue("Context should have statement recovery enabled", context.hasStatementRecovery());
+				assertTrue("Context should have ignore method body enabled", context.hasIgnoreMethodBodies());
+			} catch (JavaModelException e) {
+				assertNull("Unexpected exception", e);
+			}
+		}
+	}
+
+	static class ReconcileParticipant3 extends CompilationParticipant {
+		IJavaElementDelta delta;
+		org.eclipse.jdt.core.dom.CompilationUnit ast;
+		ReconcileParticipant3() {
+			TestCompilationParticipant.PARTICIPANT = this;
+		}
+		public boolean isActive(IJavaProject project) {
+			return true;
+		}
+		public void reconcile(ReconcileContext context) {
+			this.delta = context.getDelta();
+			try {
+				this.ast = context.getAST3();
+				assertFalse("Context should have statement recovery enabled", context.hasStatementRecovery());
+				assertTrue("Context should have ignore method body enabled", context.hasIgnoreMethodBodies());
 			} catch (JavaModelException e) {
 				assertNull("Unexpected exception", e);
 			}
@@ -4357,7 +4399,7 @@ public void testIgnoreMethodBodies1() throws CoreException {
 			ast
 		);
 }
-public void testIgnoreMethodBodies2() throws CoreException {	
+public void testIgnoreMethodBodies2() throws CoreException {
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;" +
@@ -4372,6 +4414,74 @@ public void testIgnoreMethodBodies2() throws CoreException {
 		"  }\n" +
 		"}");
 	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, ICompilationUnit.IGNORE_METHOD_BODIES, null, null);
+	// methods with anonymous classes should have their statements intact
+	assertASTNodeEquals(
+			"Unexpected ast",
+			"package p1;\n" +
+			"import p2.*;\n" +
+			"public class X {\n" +
+			"  public void foo(){\n" +
+			"  }\n" +
+			"  public int bar(){\n" +
+			"  }\n" +
+			"}\n",
+			ast
+		);
+}
+public void testIgnoreMethodBodies3() throws CoreException {
+	new ReconcileParticipant2();
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"    int i = 0;\n" + 
+		"  }\n" +
+		"  public int bar() {\n" +
+		"    int i = 0;\n" + 
+		"    new X() /*start*/{\n" +
+		"    }/*end*/;" +
+		"  }\n" +
+		"}");
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(
+			AST.JLS3,
+			ICompilationUnit.IGNORE_METHOD_BODIES | ICompilationUnit.ENABLE_STATEMENTS_RECOVERY,
+			null,
+			null);
+	// methods with anonymous classes should have their statements intact
+	assertASTNodeEquals(
+			"Unexpected ast",
+			"package p1;\n" +
+			"import p2.*;\n" +
+			"public class X {\n" +
+			"  public void foo(){\n" +
+			"  }\n" +
+			"  public int bar(){\n" +
+			"  }\n" +
+			"}\n",
+			ast
+		);
+}
+public void testIgnoreMethodBodies4() throws CoreException {
+	new ReconcileParticipant3();
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"    int i = 0;\n" + 
+		"  }\n" +
+		"  public int bar() {\n" +
+		"    int i = 0;\n" + 
+		"    new X() /*start*/{\n" +
+		"    }/*end*/;" +
+		"  }\n" +
+		"}");
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(
+			AST.JLS3,
+			ICompilationUnit.IGNORE_METHOD_BODIES,
+			null,
+			null);
 	// methods with anonymous classes should have their statements intact
 	assertASTNodeEquals(
 			"Unexpected ast",
