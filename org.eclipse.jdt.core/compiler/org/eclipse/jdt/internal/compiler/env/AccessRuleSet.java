@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,12 +42,20 @@ public AccessRuleSet(AccessRule[] accessRules, byte classpathEntryType, String c
 public boolean equals(Object object) {
 	if (this == object)
 		return true;
-	if (!(object instanceof AccessRuleSet))
+	if (object == null) {
 		return false;
+	}
+	if (getClass() != object.getClass()) {
+		return false;
+	}
 	AccessRuleSet otherRuleSet = (AccessRuleSet) object;
-	if (this.classpathEntryType != otherRuleSet.classpathEntryType ||
-			this.classpathEntryName == null && otherRuleSet.classpathEntryName != null ||
-			! this.classpathEntryName.equals(otherRuleSet.classpathEntryName)) {
+	if (this.classpathEntryType != otherRuleSet.classpathEntryType)
+		return false;
+	if (this.classpathEntryName == null) {
+		if (otherRuleSet.classpathEntryName != null) {
+			return false;
+		}
+	} else if (!this.classpathEntryName.equals(otherRuleSet.classpathEntryName)) {
 		return false;
 	}
 	int rulesLength = this.accessRules.length;

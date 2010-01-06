@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,28 @@ package org.eclipse.jdt.internal.compiler.impl;
 
 public class CompilerStats implements Comparable {
 
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (this.endTime ^ (this.endTime >>> 32));
+		result = prime * result + (int) (this.startTime ^ (this.startTime >>> 32));
+		return result;
+	}
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		CompilerStats other = (CompilerStats) obj;
+		long time1 = elapsedTime();
+		long time2 = other.elapsedTime();
+		return time1 == time2;
+	}
 	// overall
 	public long startTime;
 	public long endTime;
@@ -30,7 +52,6 @@ public class CompilerStats implements Comparable {
 public long elapsedTime() {
 	return this.endTime - this.startTime;
 }
-
 /**
  * @see java.lang.Comparable#compareTo(java.lang.Object)
  */
