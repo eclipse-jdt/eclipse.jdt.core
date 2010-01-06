@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1758,6 +1758,7 @@ public final class CompletionEngine
 					} catch (CompletionNodeFound e) {
 						//					completionNodeFound = true;
 						if (e.astNode != null) {
+							// if null then we found a problem in the completion node
 							if(DEBUG) {
 								System.out.print("COMPLETION - Completion node : "); //$NON-NLS-1$
 								System.out.println(e.astNode.toString());
@@ -1766,7 +1767,7 @@ public final class CompletionEngine
 									System.out.println(this.parser.assistNodeParent);
 								}
 							}
-							// if null then we found a problem in the completion node
+							this.lookupEnvironment.unitBeingCompleted = parsedUnit; // better resilient to further error reporting
 							contextAccepted = complete(e.astNode, this.parser.assistNodeParent, e.qualifiedBinding, e.scope, e.insideTypeAnnotation);
 						}
 					}

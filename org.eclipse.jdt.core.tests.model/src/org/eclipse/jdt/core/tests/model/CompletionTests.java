@@ -2732,6 +2732,7 @@ public void testCompletionUnresolvedReturnType() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
+		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED + R_EXACT_NAME) + "\n" +
 		"element:barPlus    completion:barPlus()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
@@ -2746,6 +2747,7 @@ public void testCompletionUnresolvedParameterType() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
+		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED + R_EXACT_NAME)  + "\n" +
 		"element:barPlus    completion:barPlus()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
@@ -2760,6 +2762,7 @@ public void testCompletionUnresolvedFieldType() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
+		"element:bar    completion:bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED + R_EXACT_NAME)  + "\n" +
 		"element:barPlus    completion:barPlus()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
@@ -12447,6 +12450,48 @@ public void testLabel6() throws JavaModelException {
 
 	assertResults(
 			"label2[LABEL_REF]{label2, null, null, label2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void testCompletionUnresolvedSuperclass() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  public void foo(pack.Bin4 b) {\n" + 
+		"    b.bar\n" + 
+		"  }\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"barPlus[METHOD_REF]{barPlus(), Lpack.Bin4;, ()V, barPlus, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void testCompletionUnresolvedSuperinteface() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  public void foo(pack.Bin5 b) {\n" + 
+		"    b.bar\n" + 
+		"  }\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"barPlus[METHOD_REF]{barPlus(), Lpack.Bin5;, ()V, barPlus, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 }
