@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1037,7 +1037,7 @@ public final class JavaCore extends Plugin {
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>	
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
 	 * </dl>
 	 * @since 3.5
 	 * @category CompilerOptionID
@@ -1275,7 +1275,7 @@ public final class JavaCore extends Plugin {
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.fatalOptionalError"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"enabled"</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
 	 * </dl>
 	 * @since 3.2
 	 * @category CompilerOptionID
