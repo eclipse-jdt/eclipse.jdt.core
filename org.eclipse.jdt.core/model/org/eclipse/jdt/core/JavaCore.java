@@ -1271,7 +1271,7 @@ public final class JavaCore extends Plugin {
 	 * <p>When enabled, optional errors (i.e. optional problems which severity is set to <code>"error"</code>) will be treated as standard
 	 *    compiler errors, yielding problem methods/types preventing from running offending code until the issue got resolved.
 	 * <p>When disabled, optional errors are only considered as warnings, still carrying an error indication to make them more
-	 *    severe. Note that by default, errors are fatal, whether they are optional or not.
+	 *    severe. Note that by default, non optional errors are fatal.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.fatalOptionalError"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
