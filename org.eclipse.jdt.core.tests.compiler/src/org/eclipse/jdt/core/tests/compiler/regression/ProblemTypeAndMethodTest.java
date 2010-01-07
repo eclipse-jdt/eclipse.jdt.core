@@ -31,7 +31,7 @@ public ProblemTypeAndMethodTest(String name) {
 // All specified tests which does not belong to the class are skipped...
 static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 5 };
+//		TESTS_NUMBERS = new int[] { 104 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 }
 
@@ -42,7 +42,6 @@ public static Test suite() {
 public static Class testClass() {
 	return ProblemTypeAndMethodTest.class;
 }
-
 public void test001() {
 	this.runNegativeTest(
 		new String[] {
@@ -5063,7 +5062,7 @@ public void test098() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
-public void test098b() {
+public void test099() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -5145,7 +5144,7 @@ public void test098b() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
-public void test098c() {
+public void test100() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -5164,7 +5163,7 @@ public void test098c() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
-public void test098d() {
+public void test101() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -5184,7 +5183,7 @@ public void test098d() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
-public void test098e() {
+public void test102() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -5214,7 +5213,7 @@ public void test098e() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
-public void test098f() {
+public void test103() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -5247,5 +5246,44 @@ public void test098f() {
 		"	              ^\n" + 
 		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
 		"----------\n");
+}
+public void test104() {
+	this.runNegativeTest(
+		new String[] {
+			"p/Bar.java", //-----------------------------------------------------------------------
+			"package p;\n" +
+			"import q.Zork;\n" +
+			"public abstract class Bar {\n" + 
+			"	protected abstract boolean isBaz();\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in p\\Bar.java (at line 2)\n" + 
+		"	import q.Zork;\n" + 
+		"	       ^\n" + 
+		"The import q cannot be resolved\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* no custom options */,
+		true /* do not generate output */,
+		false /* do not show category */,
+		false /* do not show warning token */,
+		false  /* do not skip javac for this peculiar test */,
+		false  /* do not perform statements recovery */);
+	this.runConformTest(
+		new String[] {
+			"X.java", //-----------------------------------------------------------------------
+			"import p.Bar;\n" +
+			"public class X extends Bar {\n" + 
+			"	protected boolean isBaz() {\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"",
+		null,
+		false,
+		null);
 }
 }
