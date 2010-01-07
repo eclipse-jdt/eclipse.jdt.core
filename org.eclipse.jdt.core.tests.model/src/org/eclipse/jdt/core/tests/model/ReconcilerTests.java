@@ -87,7 +87,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		}
 	}
 
-	static class ReconcileParticipant2 extends CompilationParticipant {
+/*	static class ReconcileParticipant2 extends CompilationParticipant {
 		IJavaElementDelta delta;
 		org.eclipse.jdt.core.dom.CompilationUnit ast;
 		ReconcileParticipant2() {
@@ -100,8 +100,8 @@ public class ReconcilerTests extends ModifyingResourceTests {
 			this.delta = context.getDelta();
 			try {
 				this.ast = context.getAST3();
-				assertTrue("Context should have statement recovery enabled", (context.getReconcileFlags() & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
-				assertTrue("Context should have ignore method body enabled", (context.getReconcileFlags() & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
+				assertTrue("Context should have statement recovery enabled", context.hasStatementRecovery());
+				assertTrue("Context should have ignore method body enabled", context.hasIgnoreMethodBodies());
 			} catch (JavaModelException e) {
 				assertNull("Unexpected exception", e);
 			}
@@ -121,13 +121,13 @@ public class ReconcilerTests extends ModifyingResourceTests {
 			this.delta = context.getDelta();
 			try {
 				this.ast = context.getAST3();
-				assertFalse("Context should have statement recovery enabled", (context.getReconcileFlags() & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
-				assertTrue("Context should have ignore method body enabled", (context.getReconcileFlags() & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
+				assertFalse("Context should have statement recovery enabled", context.hasStatementRecovery());
+				assertTrue("Context should have ignore method body enabled", context.hasIgnoreMethodBodies());
 			} catch (JavaModelException e) {
 				assertNull("Unexpected exception", e);
 			}
 		}
-	}
+	}*/
 /**
  */
 public ReconcilerTests(String name) {
@@ -4428,8 +4428,7 @@ public void testIgnoreMethodBodies2() throws CoreException {
 			ast
 		);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130000
-public void testIgnoreMethodBodies3() throws CoreException {
+/*public void testIgnoreMethodBodies3() throws CoreException {
 	new ReconcileParticipant2();
 	setWorkingCopyContents(
 		"package p1;\n" +
@@ -4463,7 +4462,6 @@ public void testIgnoreMethodBodies3() throws CoreException {
 			ast
 		);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130000
 public void testIgnoreMethodBodies4() throws CoreException {
 	new ReconcileParticipant3();
 	setWorkingCopyContents(
@@ -4497,5 +4495,5 @@ public void testIgnoreMethodBodies4() throws CoreException {
 			"}\n",
 			ast
 		);
-}
+}*/
 }
