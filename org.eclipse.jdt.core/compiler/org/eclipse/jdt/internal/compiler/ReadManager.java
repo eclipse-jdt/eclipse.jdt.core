@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,6 @@
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler;
-
-import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
@@ -45,12 +43,7 @@ public ReadManager(ICompilationUnit[] files, int length) {
 			else if (threadCount > CACHE_SIZE)
 				threadCount = CACHE_SIZE;
 		}
-	} catch (IllegalAccessException ignored) { // ignored
-	} catch (ClassNotFoundException e) { // ignored
-	} catch (SecurityException e) { // ignored
-	} catch (NoSuchMethodException e) { // ignored
-	} catch (IllegalArgumentException e) { // ignored
-	} catch (InvocationTargetException e) { // ignored
+	} catch (Exception ignored) { // ignored
 	}
 
 	if (threadCount > 0) {

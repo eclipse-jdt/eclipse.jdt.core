@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
@@ -548,6 +549,7 @@ public final class CompletionEngine
 	int javadocTagPosition; // Position of previous tag while completing in javadoc
 	HashtableOfObject knownPkgs = new HashtableOfObject(10);
 	HashtableOfObject knownTypes = new HashtableOfObject(10);
+	Scanner nameScanner;
 	
  	/*
 		static final char[][] mainDeclarations =
@@ -661,6 +663,15 @@ public final class CompletionEngine
 			new LookupEnvironment(this, this.compilerOptions, this.problemReporter, nameEnvironment);
 		this.parser =
 			new CompletionParser(this.problemReporter, this.requestor.isExtendedContextRequired());
+		this.nameScanner =
+			new Scanner(
+				false /*comment*/,
+				false /*whitespace*/,
+				false /*nls*/,
+				this.compilerOptions.sourceLevel,
+				null /*taskTags*/,
+				null/*taskPriorities*/,
+				true/*taskCaseSensitive*/);
 		this.owner = owner;
 		this.monitor = monitor;
 	}
@@ -746,10 +757,7 @@ public final class CompletionEngine
 		
 		HashtableOfObject onDemandFound = new HashtableOfObject();
 		
-		ArrayList deferredProposals = null;
-		if (DEFER_QUALIFIED_PROPOSALS) {
-			deferredProposals = new ArrayList();
-		}
+		ArrayList deferredProposals = new ArrayList();
 		
 		try {
 			next : for (int i = 0; i < length; i++) {

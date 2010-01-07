@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -748,11 +748,13 @@ public final class ImportRewriteAnalyzer {
 			}
 			int firstTypePos= getFirstTypeBeginPos(root);
 			if (firstTypePos != -1 && firstTypePos <= afterPackageStatementPos) {
-				this.flags|= F_NEEDS_TRAILING_DELIM;
-				if (firstTypePos == afterPackageStatementPos) {
-					this.flags|= F_NEEDS_LEADING_DELIM;
+				if (firstTypePos <= afterPackageStatementPos) {
+					this.flags|= F_NEEDS_TRAILING_DELIM;
+					if (firstTypePos == afterPackageStatementPos) {
+						this.flags|= F_NEEDS_LEADING_DELIM;
+					}
+					return firstTypePos;
 				}
-				return firstTypePos;
 			}
 			this.flags|= F_NEEDS_LEADING_DELIM;
 			return afterPackageStatementPos; // insert a line after after package statement
