@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
@@ -42,6 +43,7 @@ import org.eclipse.jdt.internal.core.index.DiskIndex;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.search.indexing.IndexRequest;
 import org.eclipse.jdt.internal.core.search.matching.AndPattern;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
@@ -11138,6 +11140,58 @@ public void testBug293861c() throws CoreException {
 	} finally {
 		deleteProject("P");
 	}
+}
+
+/**
+ * @bug 296343: OOM error caused by java indexing referencing classloader from threadLocal
+ * @test Ensure that indexing thread context class loader is not the application class loader
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=296343"
+ */
+public void testBug296343() throws Exception {
+	simulateExit();
+	class TestClassLoader extends ClassLoader {
+		TestClassLoader(ClassLoader parent) {
+			super(parent);
+		}
+	}
+	TestClassLoader tcl = new TestClassLoader(this.getClass().getClassLoader());
+	ClassLoader cl = Thread.currentThread().getContextClassLoader();
+	try {
+		// set the thread context class loader
+		Thread.currentThread().setContextClassLoader(tcl);
+		simulateRestart();
+		
+		// get the indexing thread
+		class TestIndexRequest extends IndexRequest {
+			public Thread indexingThread = null;
+			public boolean executed = false;
+			public boolean execute(IProgressMonitor progressMonitor) {
+				this.indexingThread = Thread.currentThread();
+				this.executed = true;
+				return true;
+			}
+			TestIndexRequest(Path containerPath, IndexManager indexManager) {
+				super(containerPath, indexManager);
+			}
+		}
+		IndexManager indexManager = JavaModelManager.getIndexManager();
+		TestIndexRequest tir = new TestIndexRequest(new Path(""), indexManager );
+		indexManager.request(tir);
+		int counter = 0;
+		// wait until the Index request gets executed
+		while (!tir.executed) {
+			try {
+				Thread.sleep(100);
+			}
+			catch (InterruptedException ie) {
+				// skip
+			}
+			assertTrue("Index request should have got executed within a 10s delay!", counter++ < 100);
+		}
+		assertFalse(tir.indexingThread.getContextClassLoader() == tcl);
+	} finally {
+		Thread.currentThread().setContextClassLoader(cl);
+	}	
 }
 
 }
