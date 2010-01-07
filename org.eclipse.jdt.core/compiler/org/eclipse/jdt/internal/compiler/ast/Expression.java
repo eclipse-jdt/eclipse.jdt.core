@@ -444,7 +444,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 						// ( TYPE_PARAMETER ) CLASS
 						match = expressionType.findSuperTypeOriginatingFrom(castType);
 						if (match == null) {
-							checkUnsafeCast(scope, castType, expressionType, match, true);
+							checkUnsafeCast(scope, castType, expressionType, null, true);
 						}
 						// recurse on the type variable upper bound
 						return checkCastTypesCompatibility(scope, ((TypeVariableBinding)castType).upperBound(), expressionType, expression);

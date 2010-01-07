@@ -132,7 +132,6 @@ protected int matchLevelForTokens(char[][] tokens) {
 			break;
 
 		case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
-			packageName = CharOperation.concatWith(tokens, '.');
 			if (CharOperation.camelCaseMatch(this.pattern.pkgName, CharOperation.concatWith(tokens, '.'), true)) {
 				return POSSIBLE_MATCH;
 			}

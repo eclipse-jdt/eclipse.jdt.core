@@ -56,7 +56,6 @@ class CodeSnippetToCuMapper implements EvaluationConstants {
 	// Mapping of external local variables
 	char[][] localVarNames;
 	char[][] localVarTypeNames;
-	int[] localVarModifiers;
 
 /**
  * Rebuild source in presence of external local variables
@@ -69,7 +68,6 @@ class CodeSnippetToCuMapper implements EvaluationConstants {
 	this.snippetVarClassName = varClassName;
 	this.localVarNames = localVarNames;
 	this.localVarTypeNames = localVarTypeNames;
-	this.localVarModifiers = localVarModifiers;
 	this.snippetDeclaringTypeName = declaringTypeName;
 	buildCUSource(lineSeparator);
 }

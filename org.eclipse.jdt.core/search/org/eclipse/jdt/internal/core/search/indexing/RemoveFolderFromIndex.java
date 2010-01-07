@@ -24,14 +24,12 @@ class RemoveFolderFromIndex extends IndexRequest {
 	IPath folderPath;
 	char[][] inclusionPatterns;
 	char[][] exclusionPatterns;
-	IProject project;
 
 	public RemoveFolderFromIndex(IPath folderPath, char[][] inclusionPatterns, char[][] exclusionPatterns, IProject project, IndexManager manager) {
 		super(project.getFullPath(), manager);
 		this.folderPath = folderPath;
 		this.inclusionPatterns = inclusionPatterns;
 		this.exclusionPatterns = exclusionPatterns;
-		this.project = project;
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 

@@ -81,7 +81,6 @@ public class InternalExtendedCompletionContext {
 	private ObjectVector visibleMethods;
 
 	private boolean hasComputedEnclosingJavaElements;
-	Map bindingsToNodes;
 	private Map bindingsToHandles;
 	private Map nodesWithProblemsToHandles;
 	private ICompilationUnit compilationUnit;
@@ -167,7 +166,6 @@ public class InternalExtendedCompletionContext {
 			this.visibleLocalVariables = new ObjectVector();
 			this.visibleFields = new ObjectVector();
 			this.visibleMethods = new ObjectVector();
-			this.bindingsToNodes = new HashMap();
 	
 			ReferenceContext referenceContext = scope.referenceContext();
 			if (referenceContext instanceof AbstractMethodDeclaration) {

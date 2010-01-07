@@ -61,7 +61,7 @@ import org.eclipse.jdt.internal.core.util.HashSetOfCharArrayArray;
  */
 public final class SelectionEngine extends Engine implements ISearchRequestor {
 	
-	private class SelectionTypeNameMatchRequestorWrapper extends TypeNameMatchRequestorWrapper {
+	private static class SelectionTypeNameMatchRequestorWrapper extends TypeNameMatchRequestorWrapper {
 		
 		class AcceptedType {
 			public int modifiers;

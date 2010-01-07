@@ -273,7 +273,7 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 	    }
 	    
 	    // Looking for tag closing
-	    switch (token = readTokenAndConsume()) {
+	    switch (readTokenAndConsume()) {
 	    	case TerminalTokens.TokenNameLESS:
 	    	case TerminalTokens.TokenNameLESS_EQUAL:
 	    		// consider that the closing '>' is missing

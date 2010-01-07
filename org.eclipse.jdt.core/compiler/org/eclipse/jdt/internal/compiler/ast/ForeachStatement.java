@@ -482,9 +482,7 @@ public class ForeachStatement extends Statement {
 						}
 					} else {
 						if (this.collectionElementType.isBaseType()) {
-							int boxedID = this.scope.environment().computeBoxingType(this.collectionElementType).id;
 							this.elementVariableImplicitWidening = BOXING | (compileTimeTypeID << 4) | compileTimeTypeID; // use primitive type in implicit conversion
-							compileTimeTypeID = boxedID;
 						}
 					}
 				}

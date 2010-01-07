@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -118,7 +119,9 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 				return new NameEnvironmentAnswer(
 						reader,
 						fetchAccessRestriction(qualifiedBinaryFileName));
-		} catch (Exception e) {
+		} catch (IOException e) {
+			// treat as if file is missing
+		} catch (ClassFormatException e) {
 			// treat as if file is missing
 		}
 	}

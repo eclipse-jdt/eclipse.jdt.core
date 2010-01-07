@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.internal.compiler;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
 public class ReadManager implements Runnable {
@@ -43,7 +45,12 @@ public ReadManager(ICompilationUnit[] files, int length) {
 			else if (threadCount > CACHE_SIZE)
 				threadCount = CACHE_SIZE;
 		}
-	} catch (Exception ignored) { // ignored
+	} catch (IllegalAccessException ignored) { // ignored
+	} catch (ClassNotFoundException e) { // ignored
+	} catch (SecurityException e) { // ignored
+	} catch (NoSuchMethodException e) { // ignored
+	} catch (IllegalArgumentException e) { // ignored
+	} catch (InvocationTargetException e) { // ignored
 	}
 
 	if (threadCount > 0) {

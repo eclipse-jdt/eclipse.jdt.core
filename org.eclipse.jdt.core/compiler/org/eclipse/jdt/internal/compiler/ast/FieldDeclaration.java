@@ -150,14 +150,11 @@ public void resolve(MethodScope initializationScope) {
 			SourceTypeBinding declaringType = classScope.enclosingSourceType();
 			checkHidingSuperField: {
 				if (declaringType.superclass == null) break checkHidingSuperField;
-				Binding existingVariable = classScope.findField(declaringType.superclass, this.name, this,  false /*do not resolve hidden field*/);
+				FieldBinding existingVariable = classScope.findField(declaringType.superclass, this.name, this,  false /*do not resolve hidden field*/);
 				if (existingVariable == null) break checkHidingSuperField; // keep checking outer scenario
 				if (!existingVariable.isValidBinding())  break checkHidingSuperField; // keep checking outer scenario
-				if (existingVariable instanceof FieldBinding) {
-					FieldBinding existingField = (FieldBinding) existingVariable;
-					if (existingField.original() == this.binding) break checkHidingSuperField; // keep checking outer scenario
-					if (!existingField.canBeSeenBy(declaringType, this, initializationScope)) break checkHidingSuperField; // keep checking outer scenario
-				}
+				if (existingVariable.original() == this.binding) break checkHidingSuperField; // keep checking outer scenario
+				if (!existingVariable.canBeSeenBy(declaringType, this, initializationScope)) break checkHidingSuperField; // keep checking outer scenario
 				// collision with supertype field
 				initializationScope.problemReporter().fieldHiding(this, existingVariable);
 				break checkHiding; // already found a matching field

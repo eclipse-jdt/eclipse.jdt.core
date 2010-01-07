@@ -748,13 +748,11 @@ public final class ImportRewriteAnalyzer {
 			}
 			int firstTypePos= getFirstTypeBeginPos(root);
 			if (firstTypePos != -1 && firstTypePos <= afterPackageStatementPos) {
-				if (firstTypePos <= afterPackageStatementPos) {
-					this.flags|= F_NEEDS_TRAILING_DELIM;
-					if (firstTypePos == afterPackageStatementPos) {
-						this.flags|= F_NEEDS_LEADING_DELIM;
-					}
-					return firstTypePos;
+				this.flags|= F_NEEDS_TRAILING_DELIM;
+				if (firstTypePos == afterPackageStatementPos) {
+					this.flags|= F_NEEDS_LEADING_DELIM;
 				}
+				return firstTypePos;
 			}
 			this.flags|= F_NEEDS_LEADING_DELIM;
 			return afterPackageStatementPos; // insert a line after after package statement

@@ -1811,8 +1811,6 @@ public class ClasspathEntry implements IClasspathEntry {
 									|| kind == IClasspathEntry.CPE_SOURCE
 									|| kind == IClasspathEntry.CPE_VARIABLE
 									|| kind == IClasspathEntry.CPE_CONTAINER){
-										String description = container.getDescription();
-										if (description == null) description = path.makeRelative().toString();
 										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY, project, path);
 								}
 								IJavaModelStatus containerEntryStatus = validateClasspathEntry(project, containerEntry, container, checkSourceAttachment, true/*referred by container*/);

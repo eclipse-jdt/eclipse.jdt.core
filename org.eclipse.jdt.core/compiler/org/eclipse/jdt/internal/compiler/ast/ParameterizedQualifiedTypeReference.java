@@ -112,19 +112,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		this.constant = Constant.NotAConstant;
 		if ((this.bits & ASTNode.DidResolve) != 0) { // is a shared type reference which was already resolved
 			if (this.resolvedType != null) { // is a shared type reference which was already resolved
-				if (this.resolvedType != null) { // is a shared type reference which was already resolved
-					if (this.resolvedType.isValidBinding()) {
-						return this.resolvedType;
-					} else {
-						switch (this.resolvedType.problemId()) {
-							case ProblemReasons.NotFound :
-							case ProblemReasons.NotVisible :
-							case ProblemReasons.InheritedNameHidesEnclosingName :
-								TypeBinding type = this.resolvedType.closestMatch();
-								return type;
-							default :
-								return null;
-						}
+				if (this.resolvedType.isValidBinding()) {
+					return this.resolvedType;
+				} else {
+					switch (this.resolvedType.problemId()) {
+						case ProblemReasons.NotFound :
+						case ProblemReasons.NotVisible :
+						case ProblemReasons.InheritedNameHidesEnclosingName :
+							TypeBinding type = this.resolvedType.closestMatch();
+							return type;
+						default :
+							return null;
 					}
 				}
 			}

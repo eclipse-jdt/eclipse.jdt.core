@@ -42,7 +42,6 @@ protected IType declaringType;
 
 // Signatures and arguments for generic search
 char[][] returnTypeSignatures;
-char[][][] returnTypeArguments;
 char[][][] parametersTypeSignatures;
 char[][][][] parametersTypeArguments;
 boolean methodParameters = false;
@@ -177,7 +176,6 @@ public MethodPattern(
 	// Store type signatures and arguments for return type
 	if (returnSignature != null) {
 		this.returnTypeSignatures = Util.splitTypeLevelsSignature(returnSignature);
-		this.returnTypeArguments = Util.getAllTypeArguments(this.returnTypeSignatures);
 	}
 
 	// Store type signatures and arguments for method parameters type
@@ -235,7 +233,6 @@ public MethodPattern(
 	// Store type signatures and arguments for return type
 	if (returnSignature != null) {
 		this.returnTypeSignatures = Util.splitTypeLevelsSignature(returnSignature);
-		this.returnTypeArguments = Util.getAllTypeArguments(this.returnTypeSignatures);
 	}
 
 	// Store type signatures and arguments for method parameters type

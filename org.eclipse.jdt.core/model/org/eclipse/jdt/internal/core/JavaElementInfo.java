@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.IJavaElement;
  * Holds cached structure and properties for a Java element.
  * Subclassed to carry properties for specific kinds of elements.
  */
-public class JavaElementInfo {
+public class JavaElementInfo implements Cloneable {
 
 	/**
 	 * Shared empty collection used for efficiency.
