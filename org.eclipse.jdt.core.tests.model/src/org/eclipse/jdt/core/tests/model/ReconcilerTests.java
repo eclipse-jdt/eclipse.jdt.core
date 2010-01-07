@@ -4441,7 +4441,7 @@ public void testIgnoreMethodBodies3() throws CoreException {
 		"  public int bar() {\n" +
 		"    int i = 0;\n" + 
 		"    new X() {\n" +
-		"    }/;" +
+		"    };" +
 		"  }\n" +
 		"}");
 	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(
