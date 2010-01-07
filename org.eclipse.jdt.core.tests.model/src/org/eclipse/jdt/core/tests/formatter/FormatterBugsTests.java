@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.formatter;
 
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 import junit.framework.Test;
@@ -25,6 +26,30 @@ public FormatterBugsTests(String name) {
 	super(name);
 }
 
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#setUp()
+ */
+private void setUpBracesPreferences(String braces) {
+	if (braces != null) {
+	 	assertTrue("Invalid value for braces preferences: "+braces,
+			braces.equals(DefaultCodeFormatterConstants.END_OF_LINE) ||
+	 		braces.equals(DefaultCodeFormatterConstants.NEXT_LINE) ||
+	 		braces.equals(DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP) ||
+	 		braces.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED));
+		this.formatterPrefs.brace_position_for_annotation_type_declaration = braces;
+		this.formatterPrefs.brace_position_for_anonymous_type_declaration = braces;
+		this.formatterPrefs.brace_position_for_array_initializer = braces;
+		this.formatterPrefs.brace_position_for_block = braces;
+		this.formatterPrefs.brace_position_for_block_in_case = braces;
+		this.formatterPrefs.brace_position_for_constructor_declaration = braces;
+		this.formatterPrefs.brace_position_for_enum_constant = braces;
+		this.formatterPrefs.brace_position_for_enum_declaration = braces;
+		this.formatterPrefs.brace_position_for_method_declaration = braces;
+		this.formatterPrefs.brace_position_for_switch = braces;
+		this.formatterPrefs.brace_position_for_type_declaration = braces;
+	}
+}
+
 /**
  * Create project and set the jar placeholder.
  */
@@ -34,6 +59,7 @@ public void setUpSuite() throws Exception {
 	}
 	super.setUpSuite();
 }
+
 /**
  * @bug 198074: [formatter] the code formatter doesn't respect my new lines
  * @test Ensure that the formatter keep line breaks wrapping set by users in the code
@@ -41,224 +67,1139 @@ public void setUpSuite() throws Exception {
  */
 public void testBug198074() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"String x = \"select x \"\n" + 
-		"         + \"from y \"\n" + 
-		"         + \"where z=a\";\n" + 
-		"	}\n" + 
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"String x = \"select x \"\n" +
+		"         + \"from y \"\n" +
+		"         + \"where z=a\";\n" +
+		"	}\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"		String x = \"select x \"\n" + 
-		"				+ \"from y \"\n" + 
-		"				+ \"where z=a\";\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		String x = \"select x \"\n" +
+		"				+ \"from y \"\n" +
+		"				+ \"where z=a\";\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug198074b() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"String x = \"select x \"\n" +
+		"         + \"from y \"\n" +
+		"         + \"where z=a\";\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"    void foo() {\n" +
+		"        String x = \"select x \"\n" +
+		"                + \"from y \"\n" +
+		"                + \"where z=a\";\n" +
+		"    }\n" +
 		"}\n"
 	);
 }
 // another test case put in bug's comment 1
 public void testBug198074_c1() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"	String foo(boolean enabled) {\n" + 
-		"if (enabled)\n" + 
-		"{\n" + 
-		"   // we need x\n" + 
-		"   // we need a select\n" + 
-		"   return \"select x \"\n" + 
-		"   + \"from X\";}\n" + 
-		"	return null;}\n" + 
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	String foo(boolean enabled) {\n" +
+		"if (enabled)\n" +
+		"{\n" +
+		"   // we need x\n" +
+		"   // we need a select\n" +
+		"   return \"select x \"\n" +
+		"   + \"from X\";}\n" +
+		"	return null;}\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	String foo(boolean enabled) {\n" + 
-		"		if (enabled) {\n" + 
-		"			// we need x\n" + 
-		"			// we need a select\n" + 
-		"			return \"select x \"\n" + 
-		"					+ \"from X\";\n" + 
-		"		}\n" + 
-		"		return null;\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"\n" +
+		"	String foo(boolean enabled) {\n" +
+		"		if (enabled) {\n" +
+		"			// we need x\n" +
+		"			// we need a select\n" +
+		"			return \"select x \"\n" +
+		"					+ \"from X\";\n" +
+		"		}\n" +
+		"		return null;\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug198074_c1b() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	String foo(boolean enabled) {\n" +
+		"if (enabled)\n" +
+		"{\n" +
+		"   // we need x\n" +
+		"   // we need a select\n" +
+		"   return \"select x \"\n" +
+		"        + \"from X\";}\n" +
+		"	return null;}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"    String foo(boolean enabled) {\n" +
+		"        if (enabled) {\n" +
+		"            // we need x\n" +
+		"            // we need a select\n" +
+		"            return \"select x \"\n" +
+		"                    + \"from X\";\n" +
+		"        }\n" +
+		"        return null;\n" +
+		"    }\n" +
 		"}\n"
 	);
 }
 // another test case put in bug's comment 3
 public void testBug198074_c3() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"public String toString() {\n" + 
-		"        return \"YAD01: \"\n" + 
-		"        + \" nommbr=\'\"+getName()+\"\'\"\n" + 
-		"        + \" nomgrp=\'\"+getService().getArgtbl()+\"\'\"\n" + 
-		"        + \" typmbr=\'\"+getMemberType().getArgument()+\"\'\"\n" + 
-		"        + \" srcpat=\'\"+getPhysicalPath()+\"\'\"\n" + 
-		"        + \" nommdl=\'\"+getModel()+\"\'\"\n" + 
-		"        ;\n" + 
-		"}\n" + 
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"public String toString() {\n" +
+		"        return \"YAD01: \"\n" +
+		"        + \" nommbr=\'\"+getName()+\"\'\"\n" +
+		"        + \" nomgrp=\'\"+getService().getArgtbl()+\"\'\"\n" +
+		"        + \" typmbr=\'\"+getMemberType().getArgument()+\"\'\"\n" +
+		"        + \" srcpat=\'\"+getPhysicalPath()+\"\'\"\n" +
+		"        + \" nommdl=\'\"+getModel()+\"\'\"\n" +
+		"        ;\n" +
+		"}\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	public String toString() {\n" + 
-		"		return \"YAD01: \"\n" + 
-		"				+ \" nommbr=\'\" + getName() + \"\'\"\n" + 
-		"				+ \" nomgrp=\'\" + getService().getArgtbl() + \"\'\"\n" + 
-		"				+ \" typmbr=\'\" + getMemberType().getArgument() + \"\'\"\n" + 
-		"				+ \" srcpat=\'\" + getPhysicalPath() + \"\'\"\n" + 
-		"				+ \" nommdl=\'\" + getModel() + \"\'\";\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"\n" +
+		"	public String toString() {\n" +
+		"		return \"YAD01: \"\n" +
+		"				+ \" nommbr=\'\" + getName() + \"\'\"\n" +
+		"				+ \" nomgrp=\'\" + getService().getArgtbl() + \"\'\"\n" +
+		"				+ \" typmbr=\'\" + getMemberType().getArgument() + \"\'\"\n" +
+		"				+ \" srcpat=\'\" + getPhysicalPath() + \"\'\"\n" +
+		"				+ \" nommdl=\'\" + getModel() + \"\'\";\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug198074_c3b() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"public String toString() {\n" +
+		"        return \"YAD01: \"\n" +
+		"                + \" nommbr=\'\"+getName()+\"\'\"\n" +
+		"                + \" nomgrp=\'\"+getService().getArgtbl()+\"\'\"\n" +
+		"                + \" typmbr=\'\"+getMemberType().getArgument()+\"\'\"\n" +
+		"                + \" srcpat=\'\"+getPhysicalPath()+\"\'\"\n" +
+		"                + \" nommdl=\'\"+getModel()+\"\'\"\n" +
+		"        ;\n" +
+		"}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"    public String toString() {\n" +
+		"        return \"YAD01: \"\n" +
+		"                + \" nommbr=\'\" + getName() + \"\'\"\n" +
+		"                + \" nomgrp=\'\" + getService().getArgtbl() + \"\'\"\n" +
+		"                + \" typmbr=\'\" + getMemberType().getArgument() + \"\'\"\n" +
+		"                + \" srcpat=\'\" + getPhysicalPath() + \"\'\"\n" +
+		"                + \" nommdl=\'\" + getModel() + \"\'\";\n" +
+		"    }\n" +
 		"}\n"
 	);
 }
 public void testBug198074_comments() throws JavaModelException {
 	this.formatterPrefs.join_lines_in_comments = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"String x = \"select x \"\n" + 
-		"         + \"from y \"\n" + 
-		"         + \"where z=a\";\n" + 
-		"	}\n" + 
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"String x = \"select x \"\n" +
+		"         + \"from y \"\n" +
+		"         + \"where z=a\";\n" +
+		"	}\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"		String x = \"select x \" + \"from y \" + \"where z=a\";\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		String x = \"select x \" + \"from y \" + \"where z=a\";\n" +
+		"	}\n" +
 		"}\n"
 	);
 }
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=201022
-public void testBug201022() throws JavaModelException {
+// see also bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=287462
+public void testBug198074_dup201022() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"    String sQuery =\n" + 
-		"        \"select * \" +\n" + 
-		"        \"from person p, address a \" +\n" + 
-		"        \"where p.person_id = a.person_id \" +\n" + 
-		"        \"and p.person_id = ?\";\n" + 
-		"	}\n" + 
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"    String sQuery =\n" +
+		"        \"select * \" +\n" +
+		"        \"from person p, address a \" +\n" +
+		"        \"where p.person_id = a.person_id \" +\n" +
+		"        \"and p.person_id = ?\";\n" +
+		"	}\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"		String sQuery =\n" + 
-		"				\"select * \" +\n" + 
-		"				\"from person p, address a \" +\n" + 
-		"				\"where p.person_id = a.person_id \" +\n" + 
-		"				\"and p.person_id = ?\";\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-}
-// duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
-public void testBug208541() throws JavaModelException {
-	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class MyTest {\n" + 
-		"\n" + 
-		"    public void testname() throws Exception {\n" + 
-		"        int i = 5, j = 6, k = 7;\n" + 
-		"        if (new String().length() != 0 &&\n" + 
-		"                (i < j && j < k)) {\n" + 
-		"\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"}\n";
-	formatSource(source,
-		"public class MyTest {\n" + 
-		"\n" + 
-		"	public void testname() throws Exception {\n" + 
-		"		int i = 5, j = 6, k = 7;\n" + 
-		"		if (new String().length() != 0 &&\n" + 
-		"				(i < j && j < k)) {\n" + 
-		"\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		String sQuery =\n" +
+		"				\"select * \" +\n" +
+		"						\"from person p, address a \" +\n" +
+		"						\"where p.person_id = a.person_id \" +\n" +
+		"						\"and p.person_id = ?\";\n" +
+		"	}\n" +
 		"}\n"
 	);
 }
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=213700
-public void testBug213700() throws JavaModelException {
+public void testBug198074_dup213700() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"		int a=0, b=0, c=0, d=0, e=0, f=0, g=0, h=0, i=0;\n" + 
-		"if( (a == b && b == c) &&\n" + 
-		"    (d == e) &&\n" + 
-		"    (f == g && h == i) \n" + 
-		"    ){\n" + 
-		"}\n" + 
-		"	}\n" + 
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		int a=0, b=0, c=0, d=0, e=0, f=0, g=0, h=0, i=0;\n" +
+		"if( (a == b && b == c) &&\n" +
+		"    (d == e) &&\n" +
+		"    (f == g && h == i) \n" +
+		"    ){\n" +
+		"}\n" +
+		"	}\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" + 
-		"\n" + 
-		"	void foo() {\n" + 
-		"		int a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0, i = 0;\n" + 
-		"		if ((a == b && b == c) &&\n" + 
-		"				(d == e) &&\n" + 
-		"				(f == g && h == i)) {\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		int a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0, i = 0;\n" +
+		"		if ((a == b && b == c) &&\n" +
+		"				(d == e) &&\n" +
+		"				(f == g && h == i)) {\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=283467
-public void testBug283467() throws JavaModelException {
+
+/**
+ * @bug 208541: [formatter] Formatter does not format whole region/selection
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541"
+ */
+public void testBug208541() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	String source = 
-		"public class TestFormatter {\n" + 
-		"\n" + 
-		"        public static void main(String[] args) {\n" + 
-		"                int variable = TestFormatter.doInCallback(new Runnable() {\n" + 
-		"                        public void run() {\n" + 
-		"                                // Some comments or code here\n" + 
-		"                        }\n" + 
-		"                });\n" + 
-		"                System.out.println(variable);\n" + 
-		"        }\n" + 
-		"\n" + 
-		"        public static int doInCallback(Runnable r) {\n" + 
-		"                return 0;\n" + 
-		"        }\n" + 
+	String source =
+		"public class MyTest {\n" +
+		"\n" +
+		"    public void testname() throws Exception {\n" +
+		"        int i = 5, j = 6, k = 7;\n" +
+		"        if (new String().length() != 0 &&\n" +
+		"                (i < j && j < k)) {\n" +
+		"\n" +
+		"        }\n" +
+		"    }\n" +
 		"}\n";
 	formatSource(source,
-		"public class TestFormatter {\n" + 
-		"\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		int variable = TestFormatter.doInCallback(new Runnable() {\n" + 
-		"			public void run() {\n" + 
-		"				// Some comments or code here\n" + 
-		"			}\n" + 
-		"		});\n" + 
-		"		System.out.println(variable);\n" + 
-		"	}\n" + 
-		"\n" + 
-		"	public static int doInCallback(Runnable r) {\n" + 
-		"		return 0;\n" + 
-		"	}\n" + 
+		"public class MyTest {\n" +
+		"\n" +
+		"	public void testname() throws Exception {\n" +
+		"		int i = 5, j = 6, k = 7;\n" +
+		"		if (new String().length() != 0 &&\n" +
+		"				(i < j && j < k)) {\n" +
+		"\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
+}
+
+/**
+ * @bug 279359: [formatter] Formatter with 'never join lines' produces extra level of indent
+ * @test Ensure that no extra indentation is produced at the end of a body when
+ * 	'never join lines' preference is set.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=279359"
+ */
+public void testBug279359() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Formatter {\n" +
+		"\n" +
+		"        public static void main(String[] args) {\n" +
+		"\n" +
+		"                Executors.newCachedThreadPool().execute(new Runnable() {\n" +
+		"\n" +
+		"                        public void run() {\n" +
+		"                                throw new UnsupportedOperationException(\"stub\");\n" +
+		"                        }\n" +
+		"\n" +
+		"                });\n" +
+		"\n" +
+		"        }\n" +
+		"}\n";
+	formatSource(source,
+		"public class Formatter {\n" +
+		"\n" +
+		"	public static void main(String[] args) {\n" +
+		"\n" +
+		"		Executors.newCachedThreadPool().execute(new Runnable() {\n" +
+		"\n" +
+		"			public void run() {\n" +
+		"				throw new UnsupportedOperationException(\"stub\");\n" +
+		"			}\n" +
+		"\n" +
+		"		});\n" +
+		"\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+
+/**
+ * @bug 283467: [formatter] wrong indentation with 'Never join lines' selected
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=283467"
+ */
+public void testBug283467() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class TestFormatter {\n" +
+		"\n" +
+		"        public static void main(String[] args) {\n" +
+		"                int variable = TestFormatter.doInCallback(new Runnable() {\n" +
+		"                        public void run() {\n" +
+		"                                // Some comments or code here\n" +
+		"                        }\n" +
+		"                });\n" +
+		"                System.out.println(variable);\n" +
+		"        }\n" +
+		"\n" +
+		"        public static int doInCallback(Runnable r) {\n" +
+		"                return 0;\n" +
+		"        }\n" +
+		"}\n";
+	formatSource(source,
+		"public class TestFormatter {\n" +
+		"\n" +
+		"	public static void main(String[] args) {\n" +
+		"		int variable = TestFormatter.doInCallback(new Runnable() {\n" +
+		"			public void run() {\n" +
+		"				// Some comments or code here\n" +
+		"			}\n" +
+		"		});\n" +
+		"		System.out.println(variable);\n" +
+		"	}\n" +
+		"\n" +
+		"	public static int doInCallback(Runnable r) {\n" +
+		"		return 0;\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+
+/**
+ * @bug 285565: [formatter] wrong indentation with 'Never join lines' selected
+ * @test Even if the complete fix is not released into R3_5_maintenance stream,
+ * 	verify that using an indentation and tab sizes equal to zero does not raise
+ * 	any exception.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=285565"
+ */
+public void testBug285565b() {
+	this.formatterPrefs.indentation_size = 0;
+	this.formatterPrefs.tab_size = 0;
+	String source = "public class test {\n"
+			+ "    public static void main(String[] args) {\n"
+			+ "        int B= 12;\n"
+			+ "        int C= B - 1;\n"
+			+ "        int K= 99;\n"
+			+ "        int f1= K - 1 - C;\n"
+			+ "        int f2= K - C - C - C;\n"
+			+ "    }\n" + "}\n";
+	formatSource(source, "public class test {\n"
+			+ "public static void main(String[] args) {\n"
+			+ "int B = 12;\n"
+			+ "int C = B - 1;\n"
+			+ "int K = 99;\n"
+			+ "int f1 = K - 1 - C;\n"
+			+ "int f2 = K - C - C - C;\n"
+			+ "}\n"
+			+ "}\n");
+}
+
+/**
+ * @bug 286601: [formatter] Code formatter formats anonymous inner classes wrongly when 'Never join lines' is on
+ * @test Test to make sure that indentation is correct in anonymous inner class
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=286601"
+ */
+public void testBug286601() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test\n" +
+		"{\n" +
+		"    public void aMethod()\n" +
+		"    {\n" +
+		"        Object anObject = new Object()\n" +
+		"        {\n" +
+		"            boolean aVariable;\n" +
+		"        };\n" +
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"	public void aMethod() {\n" +
+		"		Object anObject = new Object()\n" +
+		"		{\n" +
+		"			boolean aVariable;\n" +
+		"		};\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286601b() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"long x1 = 100000000\n" +
+		"        + 200000000\n" +
+		"        + 300000000;\n" +
+		"long x2 = 100000000\n" +
+		"        + 200000000\n" +
+		"        + 300000000\n" +
+		"        + 400000000;\n" +
+		"long x3 = 100000000\n" +
+		"        + 200000000\n" +
+		"        + 300000000\n" +
+		"        + 400000000\n" +
+		"        + 500000000;\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		long x1 = 100000000\n" +
+		"				+ 200000000\n" +
+		"				+ 300000000;\n" +
+		"		long x2 = 100000000\n" +
+		"				+ 200000000\n" +
+		"				+ 300000000\n" +
+		"				+ 400000000;\n" +
+		"		long x3 = 100000000\n" +
+		"				+ 200000000\n" +
+		"				+ 300000000\n" +
+		"				+ 400000000\n" +
+		"				+ 500000000;\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286601c() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.brace_position_for_anonymous_type_declaration= DefaultCodeFormatterConstants.NEXT_LINE;
+	String source =
+		"public class Test\n" +
+		"{\n" +
+		"    public void aMethod()\n" +
+		"    {\n" +
+		"        Object anObject = new Object()\n" +
+		"        {\n" +
+		"            boolean aVariable;\n" +
+		"            void foo()\n" +
+		"            {\n" +
+		"            }\n" +
+		"        };\n" +
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"	public void aMethod() {\n" +
+		"		Object anObject = new Object()\n" +
+		"		{\n" +
+		"			boolean aVariable;\n" +
+		"\n" +
+		"			void foo()\n" +
+		"			{\n" +
+		"			}\n" +
+		"		};\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286601d() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.brace_position_for_anonymous_type_declaration= DefaultCodeFormatterConstants.NEXT_LINE;
+	String source =
+		"public class Test\n" +
+		"{\n" +
+		"    public void aMethod()\n" +
+		"    {\n" +
+		"        Object anObject = new Object() /* comment */\n" +
+		"        {\n" +
+		"            boolean aVariable;\n" +
+		"            void foo() /* comment */ \n" +
+		"            {\n" +
+		"            }\n" +
+		"        };\n" +
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"	public void aMethod() {\n" +
+		"		Object anObject = new Object() /* comment */\n" +
+		"		{\n" +
+		"			boolean aVariable;\n" +
+		"\n" +
+		"			void foo() /* comment */\n" +
+		"			{\n" +
+		"			}\n" +
+		"		};\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286601e() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"public class Test\n" +
+		"{\n" +
+		"    public void build(String href) {\n" +
+		"        // set the href on the related topic\n" +
+		"        if (href == null)\n" +
+		"            setHref(\"\"); //$NON-NLS-1$\n" +
+		"        else {\n" +
+		"            if (!href.equals(\"\") // no empty link //$NON-NLS-1$\n" +
+		"                    && !href.startsWith(\"/\") // no help url //$NON-NLS-1$\n" +
+		"                    && href.indexOf(\':\') == -1) // no other protocols\n" +
+		"            {\n" +
+		"                setHref(\"/test/\" + href); //$NON-NLS-1$ //$NON-NLS-2$\n" +
+		"            }\n" +
+		"        }\n" +
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test\n" +
+		"{\n" +
+		"	public void build(String href)\n" +
+		"	{\n" +
+		"		// set the href on the related topic\n" +
+		"		if (href == null)\n" +
+		"			setHref(\"\"); //$NON-NLS-1$\n" +
+		"		else\n" +
+		"		{\n" +
+		"			if (!href.equals(\"\") // no empty link //$NON-NLS-1$\n" +
+		"					&& !href.startsWith(\"/\") // no help url //$NON-NLS-1$\n" +
+		"					&& href.indexOf(\':\') == -1) // no other protocols\n" +
+		"			{\n" +
+		"				setHref(\"/test/\" + href); //$NON-NLS-1$ //$NON-NLS-2$\n" +
+		"			}\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286601f() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"public class Test\n" +
+		"{\n" +
+		"    \n" +
+		"    private AntModel getAntModel(final File buildFile) {\n" +
+		"        AntModel model= new AntModel(XMLCore.getDefault(), doc, null, new LocationProvider(null) {\n" +
+		"            /* (non-Javadoc)\n" +
+		"             * @see org.eclipse.ant.internal.ui.editor.outline.ILocationProvider#getLocation()\n" +
+		"             */\n" +
+		"            public IPath getLocation() {\n" +
+		"                return new Path(buildFile.getAbsolutePath());\n" +
+		"            }\n" +
+		"        });\n" +
+		"        model.reconcile(null);\n" +
+		"        return model;\n" +
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test\n" +
+		"{\n" +
+		"\n" +
+		"	private AntModel getAntModel(final File buildFile)\n" +
+		"	{\n" +
+		"		AntModel model = new AntModel(XMLCore.getDefault(), doc, null,\n" +
+		"				new LocationProvider(null)\n" +
+		"				{\n" +
+		"					/*\n" +
+		"					 * (non-Javadoc)\n" +
+		"					 * \n" +
+		"					 * @see\n" +
+		"					 * org.eclipse.ant.internal.ui.editor.outline.ILocationProvider\n" +
+		"					 * #getLocation()\n" +
+		"					 */\n" +
+		"					public IPath getLocation()\n" +
+		"					{\n" +
+		"						return new Path(buildFile.getAbsolutePath());\n" +
+		"					}\n" +
+		"				});\n" +
+		"		model.reconcile(null);\n" +
+		"		return model;\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286601g() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package massive;\n" +
+		"\n" +
+		"public class X05\n" +
+		"{\n" +
+		"\n" +
+		"    public void foo() throws NullPointerException {\n" +
+		"\n" +
+		"        Object body = new Object() {\n" +
+		"            public void run(StringBuffer monitor) throws IllegalArgumentException {\n" +
+		"                IResourceVisitor visitor = new IResourceVisitor() {\n" +
+		"                    public boolean visit(String resource) throws IllegalArgumentException {\n" +
+		"                        return true;\n" +
+		"                    }\n" +
+		"                };\n" +
+		"            }\n" +
+		"        };\n" +
+		"    }\n" +
+		"\n" +
+		"}\n" +
+		"interface IResourceVisitor {\n" +
+		"}\n";
+	formatSource(source,
+		"package massive;\n" +
+		"\n" +
+		"public class X05 {\n" +
+		"\n" +
+		"	public void foo() throws NullPointerException {\n" +
+		"\n" +
+		"		Object body = new Object() {\n" +
+		"			public void run(StringBuffer monitor)\n" +
+		"					throws IllegalArgumentException {\n" +
+		"				IResourceVisitor visitor = new IResourceVisitor() {\n" +
+		"					public boolean visit(String resource)\n" +
+		"							throws IllegalArgumentException {\n" +
+		"						return true;\n" +
+		"					}\n" +
+		"				};\n" +
+		"			}\n" +
+		"		};\n" +
+		"	}\n" +
+		"\n" +
+		"}\n" +
+		"\n" +
+		"interface IResourceVisitor {\n" +
+		"}\n"
+	);
+}
+public void testBug286601h() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" +
+		"\n" +
+		"public class X05\n" +
+		"{\n" +
+		"\n" +
+		"    public void foo() throws NullPointerException {\n" +
+		"\n" +
+		"        Object body = new Object() {\n" +
+		"            public void run(StringBuffer monitor) throws IllegalArgumentException {\n" +
+		"                IResourceVisitor visitor = new IResourceVisitor() {\n" +
+		"                    public boolean visit(String resource) throws IllegalArgumentException {\n" +
+		"                        return true;\n" +
+		"                    }\n" +
+		"                };\n" +
+		"            }\n" +
+		"        };\n" +
+		"    }\n" +
+		"\n" +
+		"}\n" +
+		"interface IResourceVisitor {\n" +
+		"}\n";
+	formatSource(source,
+		"package massive;\n" +
+		"\n" +
+		"public class X05\n" +
+		"{\n" +
+		"\n" +
+		"	public void foo() throws NullPointerException\n" +
+		"	{\n" +
+		"\n" +
+		"		Object body = new Object()\n" +
+		"		{\n" +
+		"			public void run(StringBuffer monitor)\n" +
+		"					throws IllegalArgumentException\n" +
+		"			{\n" +
+		"				IResourceVisitor visitor = new IResourceVisitor()\n" +
+		"				{\n" +
+		"					public boolean visit(String resource)\n" +
+		"							throws IllegalArgumentException\n" +
+		"					{\n" +
+		"						return true;\n" +
+		"					}\n" +
+		"				};\n" +
+		"			}\n" +
+		"		};\n" +
+		"	}\n" +
+		"\n" +
+		"}\n" +
+		"\n" +
+		"interface IResourceVisitor\n" +
+		"{\n" +
+		"}\n"
+	);
+}
+public void testBug286601i1() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" +
+		"\n" +
+		"public class X06a {\n" +
+		"\n" +
+		"    \n" +
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" +
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" +
+		"    /* Comment 1 */\n" +
+		"    /* Comment 2 */ { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
+		"    /* Comment 3 */ { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
+		"    };\n" +
+		"\n" +
+		"}\n";
+	formatSource(source,
+		"package massive;\n" +
+		"\n" +
+		"public class X06a\n" +
+		"{\n" +
+		"\n" +
+		"	// Table to merge access modes for condition statements (e.g branch[x] ||\n" +
+		"	// branch[y]).\n" +
+		"	private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" +
+		"	{\n" +
+		"		/* Comment 1 */\n" +
+		"		/* Comment 2 */{ \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
+		"		/* Comment 3 */{ \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
+		"	};\n" +
+		"\n" +
+		"}\n"
+	);
+}
+public void testBug286601i2() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" +
+		"\n" +
+		"public class X06a {\n" +
+		"\n" +
+		"    \n" +
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" +
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" +
+		"    /* Comment 1 */\n" +
+		"    /* Comment 2 */ { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
+		"    /* Comment 3 */ { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
+		"    };\n" +
+		"\n" +
+		"}\n";
+	formatSource(source,
+		"package massive;\n" +
+		"\n" +
+		"public class X06a\n" +
+		"{\n" +
+		"\n" +
+		"    // Table to merge access modes for condition statements (e.g branch[x] ||\n" +
+		"    // branch[y]).\n" +
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" +
+		"    {\n" +
+		"     /* Comment 1 */\n" +
+		"     /* Comment 2 */{ \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
+		"     /* Comment 3 */{ \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
+		"    };\n" +
+		"\n" +
+		"}\n"
+	);
+}
+public void testBug286601j1() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" +
+		"\n" +
+		"public class X06b {\n" +
+		"\n" +
+		"    \n" +
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" +
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" +
+		"    { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
+		"    { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
+		"    };\n" +
+		"\n" +
+		"}\n";
+	formatSource(source,
+		"package massive;\n" +
+		"\n" +
+		"public class X06b\n" +
+		"{\n" +
+		"\n" +
+		"	// Table to merge access modes for condition statements (e.g branch[x] ||\n" +
+		"	// branch[y]).\n" +
+		"	private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" +
+		"	{\n" +
+		"		{ \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
+		"		{ \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
+		"	};\n" +
+		"\n" +
+		"}\n"
+	);
+}
+public void testBug286601j2() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" +
+		"\n" +
+		"public class X06b {\n" +
+		"\n" +
+		"    \n" +
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" +
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" +
+		"    { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
+		"    { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
+		"    };\n" +
+		"\n" +
+		"}\n";
+	formatSource(source,
+		"package massive;\n" +
+		"\n" +
+		"public class X06b\n" +
+		"{\n" +
+		"\n" +
+		"    // Table to merge access modes for condition statements (e.g branch[x] ||\n" +
+		"    // branch[y]).\n" +
+		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" +
+		"    {\n" +
+		"     { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
+		"     { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
+		"    };\n" +
+		"\n" +
+		"}\n"
+	);
+}
+public void testBug286601k() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package massive;\n" +
+		"\n" +
+		"public class X07 {\n" +
+		"    private MinimizedFileSystemElement selectFiles(final Object rootFileSystemObject, final IImportStructureProvider structureProvider) {\n" +
+		"\n" +
+		"        BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {\n" +
+		"            public void run() {\n" +
+		"                //Create the root element from the supplied file system object\n" +
+		"            }\n" +
+		"        });\n" +
+		"\n" +
+		"        return null;\n" +
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"package massive;\n" +
+		"\n" +
+		"public class X07\n" +
+		"{\n" +
+		"    private MinimizedFileSystemElement selectFiles(\n" +
+		"            final Object rootFileSystemObject,\n" +
+		"            final IImportStructureProvider structureProvider)\n" +
+		"    {\n" +
+		"\n" +
+		"        BusyIndicator.showWhile(getShell().getDisplay(), new Runnable()\n" +
+		"        {\n" +
+		"            public void run()\n" +
+		"            {\n" +
+		"                // Create the root element from the supplied file system object\n" +
+		"            }\n" +
+		"        });\n" +
+		"\n" +
+		"        return null;\n" +
+		"    }\n" +
+		"}\n"
+	);
+}
+
+/**
+ * @bug 286668: [formatter] 'Never Join Lines' joins lines that are split on method invocation
+ * @test Test to make sure that lines are joined when using 'Never Join Lines' preference
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=286668"
+ */
+public void testBug286668() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\").append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"		.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\").append(\"ghi\").append(\"jkl\").append(\n" +
+		"				\"mno\")\n" +
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286668b() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\")\n" +
+		"		.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"		.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\")\n" +
+		"				.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286668c() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\")\n" +
+		"		.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"		.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" +
+		"		.append(\"yz\");\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\")\n" +
+		"				.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" +
+		"				.append(\"yz\");\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286668_40w() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.page_width = 40;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\").append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"		.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\n" +
+		"				\"def\").append(\"ghi\")\n" +
+		"				.append(\"jkl\").append(\n" +
+		"						\"mno\")\n" +
+		"				.append(\"pqr\").append(\n" +
+		"						\"stu\").append(\n" +
+		"						\"vwx\").append(\n" +
+		"						\"yz\");\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286668b_40w() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.page_width = 40;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\")\n" +
+		"		.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"		.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\n" +
+		"				\"def\")\n" +
+		"				.append(\"ghi\").append(\n" +
+		"						\"jkl\").append(\n" +
+		"						\"mno\")\n" +
+		"				.append(\"pqr\").append(\n" +
+		"						\"stu\").append(\n" +
+		"						\"vwx\").append(\n" +
+		"						\"yz\");\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286668c_40w() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.page_width = 40;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\")\n" +
+		"		.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"		.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" +
+		"		.append(\"yz\");\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\n" +
+		"				\"def\")\n" +
+		"				.append(\"ghi\").append(\n" +
+		"						\"jkl\").append(\n" +
+		"						\"mno\")\n" +
+		"				.append(\"pqr\").append(\n" +
+		"						\"stu\").append(\n" +
+		"						\"vwx\")\n" +
+		"				.append(\"yz\");\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286668_60w() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.page_width = 60;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\").append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"		.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\").append(\"ghi\")\n" +
+		"				.append(\"jkl\").append(\"mno\")\n" +
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" +
+		"				.append(\"yz\");\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286668b_60w() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.page_width = 60;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\")\n" +
+		"		.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"		.append(\"pqr\").append(\"stu\").append(\"vwx\").append(\"yz\");\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\")\n" +
+		"				.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" +
+		"				.append(\"yz\");\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+public void testBug286668c_60w() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.page_width = 60;
+	String source =
+		"public class Test {\n" +
+		"\n" +
+		"	void foo() {\n" +
+		"		StringBuilder builder = new StringBuilder();\n" +
+		"		builder.append(\"abc\").append(\"def\")\n" +
+		"				.append(\"ghi\").append(\"jkl\").append(\"mno\")\n" +
+		"				.append(\"pqr\").append(\"stu\").append(\"vwx\")\n" +
+		"				.append(\"yz\");\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source);
 }
 
 /**
@@ -273,24 +1214,24 @@ public void testBug290905a() throws JavaModelException {
 	this.formatterPrefs.tab_size = 0;
 	this.formatterPrefs.indentation_size = 2;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
-	String source = 
-		"/**\n" + 
-		" * Test mixed, tab size = 0, indent size = 2, use tabs to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"void foo() throws Exception { if (true) return; else throw new Exception(); }\n" + 
+	String source =
+		"/**\n" +
+		" * Test mixed, tab size = 0, indent size = 2, use tabs to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"void foo() throws Exception { if (true) return; else throw new Exception(); }\n" +
 		"}\n";
 	formatSource(source,
-		"/**\n" + 
-		" * Test mixed, tab size = 0, indent size = 2, use tabs to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"  void foo() throws Exception {\n" + 
-		"    if (true)\n" + 
-		"      return;\n" + 
-		"    else\n" + 
-		"      throw new Exception();\n" + 
-		"  }\n" + 
+		"/**\n" +
+		" * Test mixed, tab size = 0, indent size = 2, use tabs to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"  void foo() throws Exception {\n" +
+		"    if (true)\n" +
+		"      return;\n" +
+		"    else\n" +
+		"      throw new Exception();\n" +
+		"  }\n" +
 		"}\n"
 	);
 }
@@ -299,24 +1240,24 @@ public void testBug290905b() throws JavaModelException {
 	this.formatterPrefs.tab_size = 0;
 	this.formatterPrefs.indentation_size = 2;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
-	String source = 
-		"/**\n" + 
-		" * Test mixed, tab size = 0, indent size = 2, use spaces to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"void foo() throws Exception { if (true) return; else throw new Exception(); }\n" + 
+	String source =
+		"/**\n" +
+		" * Test mixed, tab size = 0, indent size = 2, use spaces to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"void foo() throws Exception { if (true) return; else throw new Exception(); }\n" +
 		"}\n";
 	formatSource(source,
-		"/**\n" + 
-		" * Test mixed, tab size = 0, indent size = 2, use spaces to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"  void foo() throws Exception {\n" + 
-		"    if (true)\n" + 
-		"      return;\n" + 
-		"    else\n" + 
-		"      throw new Exception();\n" + 
-		"  }\n" + 
+		"/**\n" +
+		" * Test mixed, tab size = 0, indent size = 2, use spaces to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"  void foo() throws Exception {\n" +
+		"    if (true)\n" +
+		"      return;\n" +
+		"    else\n" +
+		"      throw new Exception();\n" +
+		"  }\n" +
 		"}\n"
 	);
 }
@@ -325,20 +1266,20 @@ public void testBug290905c() throws JavaModelException {
 	this.formatterPrefs.tab_size = 0;
 	this.formatterPrefs.indentation_size = 0;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
-	String source = 
-		"/**\n" + 
-		" * Test mixed, tab size = 0, indent size = 0, use tabs to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"int i; // this is a long comment which should be split into two lines as the format line comment preference is activated\n" + 
+	String source =
+		"/**\n" +
+		" * Test mixed, tab size = 0, indent size = 0, use tabs to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"int i; // this is a long comment which should be split into two lines as the format line comment preference is activated\n" +
 		"}\n";
 	formatSource(source,
-		"/**\n" + 
-		" * Test mixed, tab size = 0, indent size = 0, use tabs to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"int i; // this is a long comment which should be split into two lines as the\n" + 
-		"       // format line comment preference is activated\n" + 
+		"/**\n" +
+		" * Test mixed, tab size = 0, indent size = 0, use tabs to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"int i; // this is a long comment which should be split into two lines as the\n" +
+		"       // format line comment preference is activated\n" +
 		"}\n",
 		false /* do not repeat */
 	);
@@ -348,20 +1289,20 @@ public void testBug290905d() throws JavaModelException {
 	this.formatterPrefs.tab_size = 0;
 	this.formatterPrefs.indentation_size = 0;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
-	String source = 
-		"/**\n" + 
-		" * Test mixed, tab size = 0, indent size = 0, use spaces to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"int i; // this is a long comment which should be split into two lines as the format line comment preference is activated\n" + 
+	String source =
+		"/**\n" +
+		" * Test mixed, tab size = 0, indent size = 0, use spaces to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"int i; // this is a long comment which should be split into two lines as the format line comment preference is activated\n" +
 		"}\n";
 	formatSource(source,
-		"/**\n" + 
-		" * Test mixed, tab size = 0, indent size = 0, use spaces to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"int i; // this is a long comment which should be split into two lines as the\n" + 
-		"       // format line comment preference is activated\n" + 
+		"/**\n" +
+		" * Test mixed, tab size = 0, indent size = 0, use spaces to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"int i; // this is a long comment which should be split into two lines as the\n" +
+		"       // format line comment preference is activated\n" +
 		"}\n",
 		false /* do not repeat */
 	);
@@ -371,20 +1312,20 @@ public void testBug290905e() throws JavaModelException {
 	this.formatterPrefs.tab_size = 0;
 	this.formatterPrefs.indentation_size = 0;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
-	String source = 
-		"/**\n" + 
-		" * Test tab char = TAB, tab size = 0, indent size = 0, use tabs to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"int i; // this is a long comment which should be split into two lines as the format line comment preference is activated\n" + 
+	String source =
+		"/**\n" +
+		" * Test tab char = TAB, tab size = 0, indent size = 0, use tabs to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"int i; // this is a long comment which should be split into two lines as the format line comment preference is activated\n" +
 		"}\n";
 	formatSource(source,
-		"/**\n" + 
-		" * Test tab char = TAB, tab size = 0, indent size = 0, use tabs to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"int i; // this is a long comment which should be split into two lines as the\n" + 
-		"       // format line comment preference is activated\n" + 
+		"/**\n" +
+		" * Test tab char = TAB, tab size = 0, indent size = 0, use tabs to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"int i; // this is a long comment which should be split into two lines as the\n" +
+		"       // format line comment preference is activated\n" +
 		"}\n",
 		false /* do not repeat */
 	);
@@ -394,20 +1335,20 @@ public void testBug290905f() throws JavaModelException {
 	this.formatterPrefs.tab_size = 0;
 	this.formatterPrefs.indentation_size = 0;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
-	String source = 
-		"/**\n" + 
-		" * Test tab char = TAB, tab size = 0, indent size = 0, use spaces to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"int i; // this is a long comment which should be split into two lines as the format line comment preference is activated\n" + 
+	String source =
+		"/**\n" +
+		" * Test tab char = TAB, tab size = 0, indent size = 0, use spaces to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"int i; // this is a long comment which should be split into two lines as the format line comment preference is activated\n" +
 		"}\n";
 	formatSource(source,
-		"/**\n" + 
-		" * Test tab char = TAB, tab size = 0, indent size = 0, use spaces to indent\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"int i; // this is a long comment which should be split into two lines as the\n" + 
-		"// format line comment preference is activated\n" + 
+		"/**\n" +
+		" * Test tab char = TAB, tab size = 0, indent size = 0, use spaces to indent\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"int i; // this is a long comment which should be split into two lines as the\n" +
+		"// format line comment preference is activated\n" +
 		"}\n",
 		false /* do not repeat */
 	);
