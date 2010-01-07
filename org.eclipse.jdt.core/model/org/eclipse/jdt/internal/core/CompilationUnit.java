@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -497,15 +497,9 @@ public void discardWorkingCopy() throws JavaModelException {
  * @see Object#equals(java.lang.Object)
  */
 public boolean equals(Object obj) {
-	if (this == obj) return true;
-	if (obj == null) return false;
-	if (getClass() != obj.getClass()) return false;
+	if (!(obj instanceof CompilationUnit)) return false;
 	CompilationUnit other = (CompilationUnit)obj;
 	return this.owner.equals(other.owner) && super.equals(obj);
-}
-public int hashCode() {
-	if (this.owner == null) return super.hashCode();
-	return this.owner.hashCode() + super.hashCode();
 }
 /**
  * @see ICompilationUnit#findElements(IJavaElement)

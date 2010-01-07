@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,15 +38,9 @@ ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[]
 }
 
 public boolean equals(Object o) {
-	if (this == o) {
-		return true;
-	}
-	if (o == null) {
-		return false;
-	}
-	if (getClass() != o.getClass()) {
-		return false;
-	}
+	if (this == o) return true;
+	if (!(o instanceof ClasspathMultiDirectory)) return false;
+
 	ClasspathMultiDirectory md = (ClasspathMultiDirectory) o;
 	return this.sourceFolder.equals(md.sourceFolder) && this.binaryFolder.equals(md.binaryFolder)
 		&& CharOperation.equals(this.inclusionPatterns, md.inclusionPatterns)

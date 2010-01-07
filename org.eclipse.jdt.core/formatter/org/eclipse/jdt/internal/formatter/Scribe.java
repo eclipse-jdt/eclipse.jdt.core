@@ -115,7 +115,7 @@ public class Scribe implements IJavaDocTagConstants {
 	private int headerEndPosition = -1;
 	String commentIndentation; // indentation requested in comments (usually in javadoc root tags description)
 	// Class to store previous line comment information
-	static class LineComment {
+	class LineComment {
 		boolean contiguous = false;
 		int currentIndentation, indentation;
 		int lines;
