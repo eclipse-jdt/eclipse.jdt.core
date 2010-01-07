@@ -118,24 +118,7 @@ public int getASTLevel() {
 public boolean isResolvingBindings() {
 	return this.operation.resolveBindings;
 }
-/**
- * Returns whether the reconcile operation has statement recovery enabled.
- *
- * @return whether the reconcile operation has statement recovery enabled
- * @since 3.6
- */
-public boolean hasStatementRecovery() {
-	return (this.operation.reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0;
-}
-/**
- * Returns whether the reconcile operation has ignore method bodies enabled.
- *
- * @return whether the reconcile operation has ignore method bodies enabled
- * @since 3.6
- */
-public boolean hasIgnoreMethodBodies() {
-	return (this.operation.reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
-}
+
 /**
  * Returns the delta describing the change to the working copy being reconciled.
  * Returns <code>null</code> if there is no change.

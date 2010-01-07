@@ -87,7 +87,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		}
 	}
 
-	static class ReconcileParticipant2 extends CompilationParticipant {
+/*	static class ReconcileParticipant2 extends CompilationParticipant {
 		IJavaElementDelta delta;
 		org.eclipse.jdt.core.dom.CompilationUnit ast;
 		ReconcileParticipant2() {
@@ -127,7 +127,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 				assertNull("Unexpected exception", e);
 			}
 		}
-	}
+	}*/
 /**
  */
 public ReconcilerTests(String name) {
@@ -4428,7 +4428,7 @@ public void testIgnoreMethodBodies2() throws CoreException {
 			ast
 		);
 }
-public void testIgnoreMethodBodies3() throws CoreException {
+/*public void testIgnoreMethodBodies3() throws CoreException {
 	new ReconcileParticipant2();
 	setWorkingCopyContents(
 		"package p1;\n" +
@@ -4439,8 +4439,8 @@ public void testIgnoreMethodBodies3() throws CoreException {
 		"  }\n" +
 		"  public int bar() {\n" +
 		"    int i = 0;\n" + 
-		"    new X() /*start*/{\n" +
-		"    }/*end*/;" +
+		"    new X() {\n" +
+		"    }/;" +
 		"  }\n" +
 		"}");
 	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(
@@ -4473,8 +4473,8 @@ public void testIgnoreMethodBodies4() throws CoreException {
 		"  }\n" +
 		"  public int bar() {\n" +
 		"    int i = 0;\n" + 
-		"    new X() /*start*/{\n" +
-		"    }/*end*/;" +
+		"    new X() {\n" +
+		"    };" +
 		"  }\n" +
 		"}");
 	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(
@@ -4495,5 +4495,5 @@ public void testIgnoreMethodBodies4() throws CoreException {
 			"}\n",
 			ast
 		);
-}
+}*/
 }
