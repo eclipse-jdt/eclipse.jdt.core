@@ -560,6 +560,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidParenthesizedExpression", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidTypeExpression", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidTypeForCollection", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("InvalidTypeForCollectionTarget14", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidTypeForStaticImport", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
 		expectedProblemAttributes.put("InvalidTypeToSynchronized", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidTypeVariableExceptionType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -664,7 +665,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MethodRequiresBody", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MethodReturnsVoid", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MethodVarargsArgumentNeedCast", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
-		expectedProblemAttributes.put("misplacedTypeAnnotations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("MisplacedTypeAnnotations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("MissingArgumentsForParameterizedMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("MissingEnclosingInstance", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("MissingEnclosingInstanceForConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1196,6 +1197,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidParenthesizedExpression", SKIP);
 		expectedProblemAttributes.put("InvalidTypeExpression", SKIP);
 		expectedProblemAttributes.put("InvalidTypeForCollection", SKIP);
+		expectedProblemAttributes.put("InvalidTypeForCollectionTarget14", SKIP);
 		expectedProblemAttributes.put("InvalidTypeForStaticImport", SKIP);
 		expectedProblemAttributes.put("InvalidTypeToSynchronized", SKIP);
 		expectedProblemAttributes.put("InvalidTypeVariableExceptionType", SKIP);
@@ -1300,7 +1302,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MethodRequiresBody", SKIP);
 		expectedProblemAttributes.put("MethodReturnsVoid", SKIP);
 		expectedProblemAttributes.put("MethodVarargsArgumentNeedCast", new ProblemAttributes(JavaCore.COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST));
-		expectedProblemAttributes.put("misplacedTypeAnnotations", SKIP);
+		expectedProblemAttributes.put("MisplacedTypeAnnotations", SKIP);
 		expectedProblemAttributes.put("MissingArgumentsForParameterizedMemberType", SKIP);
 		expectedProblemAttributes.put("MissingEnclosingInstance", SKIP);
 		expectedProblemAttributes.put("MissingEnclosingInstanceForConstructorCall", SKIP);
