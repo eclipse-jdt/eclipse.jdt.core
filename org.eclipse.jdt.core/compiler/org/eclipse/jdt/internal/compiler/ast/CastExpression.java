@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -115,31 +115,17 @@ public static void checkNeedForArgumentCast(BlockScope scope, int operator, int 
 	if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 
 	// check need for left operand cast
-	int alternateLeftTypeId = expressionTypeId;
 	if ((expression.bits & ASTNode.UnnecessaryCast) == 0 && expression.resolvedType.isBaseType()) {
 		// narrowing conversion on base type may change value, thus necessary
 		return;
-	} else  {
+	} else {
 		TypeBinding alternateLeftType = ((CastExpression)expression).expression.resolvedType;
 		if (alternateLeftType == null) return; // cannot do better
-		if ((alternateLeftTypeId = alternateLeftType.id) == expressionTypeId) { // obvious identity cast
+		if (alternateLeftType.id == expressionTypeId) { // obvious identity cast
 			scope.problemReporter().unnecessaryCast((CastExpression)expression);
-			return;
-		} else if (alternateLeftTypeId == TypeIds.T_null) {
-			alternateLeftTypeId = expressionTypeId;  // tolerate null argument cast
 			return;
 		}
 	}
-/*		tolerate widening cast in unary expressions, as may be used when combined in binary expressions (41680)
-		int alternateOperatorSignature = OperatorExpression.OperatorSignatures[operator][(alternateLeftTypeId << 4) + alternateLeftTypeId];
-		// (cast)  left   Op (cast)  right --> result
-		//  1111   0000       1111   0000     1111
-		//  <<16   <<12       <<8    <<4       <<0
-		final int CompareMASK = (0xF<<16) + (0xF<<8) + 0xF; // mask hiding compile-time types
-		if ((operatorSignature & CompareMASK) == (alternateOperatorSignature & CompareMASK)) { // same promotions and result
-			scope.problemReporter().unnecessaryCastForArgument((CastExpression)expression,  TypeBinding.wellKnownType(scope, expression.implicitConversion >> 4));
-		}
-*/
 }
 
 /**
