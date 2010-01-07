@@ -51,7 +51,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static final String IN = "_in";
 	public static final String OUT = "_out";
 	public static final boolean DEBUG = false;
-	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	protected static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	private long time;
 
 	DefaultCodeFormatterOptions formatterPrefs;
@@ -122,7 +122,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator, boolean repeat) {
 //		long time = System.currentTimeMillis();
-		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
+		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);
 //		System.out.println((System.currentTimeMillis() - time) + " ms");
 		if (edit == null) return null;
 //		System.out.println(edit.getChildrenSize() + " edits");
@@ -130,7 +130,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 		if (repeat && length == source.length()) {
 //			time = System.currentTimeMillis();
-			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
+			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);
 //			System.out.println((System.currentTimeMillis() - time) + " ms");
 			if (edit == null) return null;
 //			assertEquals("Should not have edits", 0, edit.getChildren().length);
@@ -144,13 +144,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, IRegion[] regions, String lineSeparator) {
 //		long time = System.currentTimeMillis();
-		TextEdit edit = codeFormatter.format(kind, source, regions, indentationLevel, lineSeparator);//$NON-NLS-1$
+		TextEdit edit = codeFormatter.format(kind, source, regions, indentationLevel, lineSeparator);
 //		System.out.println((System.currentTimeMillis() - time) + " ms");
 		if (edit == null) return null;
 
 		return org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 	}
-	
+
 	/**
 	 * Init formatter preferences with Eclipse default settings.
 	 */
@@ -186,7 +186,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * Reset the jar placeholder and delete project.
 	 */
 	public void tearDownSuite() throws Exception {
-		deleteProject(JAVA_PROJECT); //$NON-NLS-1$
+		deleteProject(JAVA_PROJECT); 
 		JAVA_PROJECT = null;
 		if (DEBUG) {
 			System.out.println("Time spent = " + (System.currentTimeMillis() - this.time));//$NON-NLS-1$
@@ -224,7 +224,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.formatterPrefs, this.formatterOptions);
 		return codeFormatter;
 	}
-	
+
 	void assertLineEquals(String actualContents, String originalSource, String expectedContents) {
 		String outputSource = expectedContents == null ? originalSource : expectedContents;
 		assertLineEquals(actualContents, originalSource, outputSource, false /* do not check null */);
@@ -238,11 +238,11 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	void formatSource(String source, String formattedOutput) {
 		formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, true /*repeat formatting twice*/);
 	}
-	
+
 	void formatSource(String source, String formattedOutput, boolean repeat) {
 		formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, repeat);
 	}
-	
+
 	void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean repeat) {
 		int regionStart = source.indexOf("[#");
 		if (regionStart != -1) {
@@ -275,7 +275,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			formatSource(source, formattedOutput, kind, indentationLevel, false, 0, -1, null, repeat);
 		}
 	}
-	
+
 	void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator, boolean repeat) {
 		DefaultCodeFormatter codeFormatter = codeFormatter();
 		String result;
@@ -8732,32 +8732,32 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test608", "A.java", CodeFormatter.K_JAVA_DOC, false);//$NON-NLS-1$ //$NON-NLS-2$
 		*/
-		String source = 
-			"/**\r\n" + 
-			" * Mensagens SMTP tem o seguinte formato:\r\n" + 
-			" * <pre>\r\n" + 
-			" * resposta de uma linha só:\r\n" + 
-			" *  nnn [SP] lalalal [CR] [LF]\r\n" + 
-			" * resposta de várias linhas:\r\n" + 
-			" *  nnn [-] lalalalal [CR] [LF]\r\n" + 
-			" *  nnn [-] lalalalal [CR] [LF]\r\n" + 
-			" *  ...\r\n" + 
-			" *  nnn [SP] lalalalal [CR] [LF]\r\n" + 
-			" * </pre>\r\n" + 
+		String source =
+			"/**\r\n" +
+			" * Mensagens SMTP tem o seguinte formato:\r\n" +
+			" * <pre>\r\n" +
+			" * resposta de uma linha só:\r\n" +
+			" *  nnn [SP] lalalal [CR] [LF]\r\n" +
+			" * resposta de várias linhas:\r\n" +
+			" *  nnn [-] lalalalal [CR] [LF]\r\n" +
+			" *  nnn [-] lalalalal [CR] [LF]\r\n" +
+			" *  ...\r\n" +
+			" *  nnn [SP] lalalalal [CR] [LF]\r\n" +
+			" * </pre>\r\n" +
 			" * */";
 		formatSource(source,
-			"/**\n" + 
-			" * Mensagens SMTP tem o seguinte formato:\n" + 
-			" * \n" + 
-			" * <pre>\n" + 
-			" * resposta de uma linha só:\n" + 
-			" *  nnn [SP] lalalal [CR] [LF]\n" + 
-			" * resposta de várias linhas:\n" + 
-			" *  nnn [-] lalalalal [CR] [LF]\n" + 
-			" *  nnn [-] lalalalal [CR] [LF]\n" + 
-			" *  ...\n" + 
-			" *  nnn [SP] lalalalal [CR] [LF]\n" + 
-			" * </pre>\n" + 
+			"/**\n" +
+			" * Mensagens SMTP tem o seguinte formato:\n" +
+			" * \n" +
+			" * <pre>\n" +
+			" * resposta de uma linha só:\n" +
+			" *  nnn [SP] lalalal [CR] [LF]\n" +
+			" * resposta de várias linhas:\n" +
+			" *  nnn [-] lalalalal [CR] [LF]\n" +
+			" *  nnn [-] lalalalal [CR] [LF]\n" +
+			" *  ...\n" +
+			" *  nnn [SP] lalalalal [CR] [LF]\n" +
+			" * </pre>\n" +
 			" * */",
 			CodeFormatter.K_JAVA_DOC,
 			0 /*no indentation*/,
@@ -9584,21 +9584,21 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test671", "A.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
-		String source = 
-			"public class A {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"[#		int a     =     1;#]\n" + 
-			"		int b     =     2;\n" + 
-			"[#		int c     =     3;#]\n" + 
-			"	}\n" + 
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"[#		int a     =     1;#]\n" +
+			"		int b     =     2;\n" +
+			"[#		int c     =     3;#]\n" +
+			"	}\n" +
 			"}\n";
 		formatSource(source,
-			"public class A {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		int a = 1;\n" + 
-			"		int b     =     2;\n" + 
-			"		int c = 3;\n" + 
-			"	}\n" + 
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int a = 1;\n" +
+			"		int b     =     2;\n" +
+			"		int c = 3;\n" +
+			"	}\n" +
 			"}\n",
 			CodeFormatter.K_COMPILATION_UNIT,
 			0 /*no indentation*/,
@@ -9642,58 +9642,58 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test674", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
-		String source = 
-			"public class A {\n" + 
-			"	\n" + 
-			"	\n" + 
-			"	private class Inner1 {[#\n" + 
-			"	    	 \n" + 
-			"	    	 \n" + 
-			"	    	      void    bar () {   }\n" + 
-			"	    	      \n" + 
-			"	    	   void    i()\n" + 
-			"	    	   {\n" + 
-			"	    		   \n" + 
-			"	    	      }\n" + 
-			"	     #]}\n" + 
-			"	     \n" + 
-			"	     \n" + 
-			"	private class Inner2 {\n" + 
-			"	    	     void    xy()  {\n" + 
-			"	    	    	 \n" + 
-			"	    }\n" + 
-			"	     }\n" + 
-			"}\n" + 
-			"class B {[#\n" + 
-			"	     private      void foo() {\n" + 
-			"	    	 \n" + 
-			"	          }\n" + 
+		String source =
+			"public class A {\n" +
+			"	\n" +
+			"	\n" +
+			"	private class Inner1 {[#\n" +
+			"	    	 \n" +
+			"	    	 \n" +
+			"	    	      void    bar () {   }\n" +
+			"	    	      \n" +
+			"	    	   void    i()\n" +
+			"	    	   {\n" +
+			"	    		   \n" +
+			"	    	      }\n" +
+			"	     #]}\n" +
+			"	     \n" +
+			"	     \n" +
+			"	private class Inner2 {\n" +
+			"	    	     void    xy()  {\n" +
+			"	    	    	 \n" +
+			"	    }\n" +
+			"	     }\n" +
+			"}\n" +
+			"class B {[#\n" +
+			"	     private      void foo() {\n" +
+			"	    	 \n" +
+			"	          }\n" +
 			"#]}\n";
 		formatSource(source,
-			"public class A {\n" + 
-			"	\n" + 
-			"	\n" + 
-			"	private class Inner1 {\n" + 
-			"\n" + 
-			"		void bar() {\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		void i() {\n" + 
-			"\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	     \n" + 
-			"	     \n" + 
-			"	private class Inner2 {\n" + 
-			"	    	     void    xy()  {\n" + 
-			"	    	    	 \n" + 
-			"	    }\n" + 
-			"	     }\n" + 
-			"}\n" + 
-			"class B {\n" + 
-			"	private void foo() {\n" + 
-			"\n" + 
-			"	}\n" + 
+			"public class A {\n" +
+			"	\n" +
+			"	\n" +
+			"	private class Inner1 {\n" +
+			"\n" +
+			"		void bar() {\n" +
+			"		}\n" +
+			"\n" +
+			"		void i() {\n" +
+			"\n" +
+			"		}\n" +
+			"	}\n" +
+			"	     \n" +
+			"	     \n" +
+			"	private class Inner2 {\n" +
+			"	    	     void    xy()  {\n" +
+			"	    	    	 \n" +
+			"	    }\n" +
+			"	     }\n" +
+			"}\n" +
+			"class B {\n" +
+			"	private void foo() {\n" +
+			"\n" +
+			"	}\n" +
 			"}\n",
 			CodeFormatter.K_CLASS_BODY_DECLARATIONS,
 			0 /*no indentation*/,
@@ -9839,16 +9839,16 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test685", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
-		String source = 
-			"public class A {\n" + 
-			" [#                       int i=1;    #]           \n" + 
+		String source =
+			"public class A {\n" +
+			" [#                       int i=1;    #]           \n" +
 			"}\n";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"public class A {\n" + 
-			" 	int i = 1;           \n" + 
+			"public class A {\n" +
+			" 	int i = 1;           \n" +
 			"}\n",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
@@ -9886,16 +9886,16 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test688", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
-		String source = 
-			"public class A {\n" + 
-			" [#                       int i=1;               \n" + 
+		String source =
+			"public class A {\n" +
+			" [#                       int i=1;               \n" +
 			"}#]\n";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"public class A {\n" + 
-			" 	int i = 1;\n" + 
+			"public class A {\n" +
+			" 	int i = 1;\n" +
 			"}\n",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
@@ -9913,16 +9913,16 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test688", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
-		String source = 
-			"public class A {\n" + 
-			" [#                       int i=1;               \n" + 
+		String source =
+			"public class A {\n" +
+			" [#                       int i=1;               \n" +
 			"}\n#]";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"public class A {\n" + 
-			" 	int i = 1;\n" + 
+			"public class A {\n" +
+			" 	int i = 1;\n" +
 			"}\n"
 		);
 	}
@@ -9952,20 +9952,20 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test689", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\r");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
 		this.formatterPrefs.line_separator = "\r";//$NON-NLS-1$
-		String source = 
-			"package pkg1;\n" + 
-			"public class A {\n" + 
-			"[#        int i = 1;     #]\n" + 
-			"\n" + 
+		String source =
+			"package pkg1;\n" +
+			"public class A {\n" +
+			"[#        int i = 1;     #]\n" +
+			"\n" +
 			"}\n";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"package pkg1;\n" + 
-			"public class A {\n" + 
-			"	int i = 1;\n" + 
-			"\n" + 
+			"package pkg1;\n" +
+			"public class A {\n" +
+			"	int i = 1;\n" +
+			"\n" +
 			"}\n",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
@@ -9986,20 +9986,20 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test689", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\r\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
 		this.formatterPrefs.line_separator = "\r\n";//$NON-NLS-1$
-		String source = 
-			"package pkg1;\n" + 
-			"public class A {\n" + 
-			"[#        int i = 1;    #] \n" + 
-			"\n" + 
+		String source =
+			"package pkg1;\n" +
+			"public class A {\n" +
+			"[#        int i = 1;    #] \n" +
+			"\n" +
 			"}\n";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"package pkg1;\n" + 
-			"public class A {\n" + 
-			"	int i = 1; \n" + 
-			"\n" + 
+			"package pkg1;\n" +
+			"public class A {\n" +
+			"	int i = 1; \n" +
+			"\n" +
 			"}\n",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
@@ -10065,7 +10065,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=213284
 	public void test695() {
-		/* old version 
+		/* old version
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\n";//$NON-NLS-1$
@@ -10075,23 +10075,23 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test695", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
-		String source = 
-			"package test1;\n" + 
-			"public class A {\n" + 
-			"\n" + 
-			"        public int field;\n" + 
-			"[#\n#]" + 
-			"\n" + 
+		String source =
+			"package test1;\n" +
+			"public class A {\n" +
+			"\n" +
+			"        public int field;\n" +
+			"[#\n#]" +
+			"\n" +
 			"}\r\n";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"package test1;\n" + 
-			"public class A {\n" + 
-			"\n" + 
-			"        public int field;\n" + 
-			"\n" + 
+			"package test1;\n" +
+			"public class A {\n" +
+			"\n" +
+			"        public int field;\n" +
+			"\n" +
 			"}\r\n",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
@@ -10135,27 +10135,27 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test697", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
-		String source = 
-			"public class A {\n" + 
-			"[#	\n" + 
-			"	\n" + 
-			"	\n" + 
-			"                        int i = 1;               #]\n" + 
-			"\n" + 
-			"\n" + 
-			"\n" + 
-			"}\n" + 
+		String source =
+			"public class A {\n" +
+			"[#	\n" +
+			"	\n" +
+			"	\n" +
+			"                        int i = 1;               #]\n" +
+			"\n" +
+			"\n" +
+			"\n" +
+			"}\n" +
 			"";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"public class A {\n" + 
-			"\n" + 
-			"	int i = 1;\n" + 
-			"\n" + 
-			"\n" + 
-			"\n" + 
+			"public class A {\n" +
+			"\n" +
+			"	int i = 1;\n" +
+			"\n" +
+			"\n" +
+			"\n" +
 			"}\n",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
@@ -10175,26 +10175,26 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test697", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
-		String source = 
-			"public class A {\n" + 
-			"[#	\n" + 
-			"	\n" + 
-			"	\n" + 
-			"                        int i = 1;               \n" + 
-			"#]\n" + 
-			"\n" + 
-			"\n" + 
-			"}\n" + 
+		String source =
+			"public class A {\n" +
+			"[#	\n" +
+			"	\n" +
+			"	\n" +
+			"                        int i = 1;               \n" +
+			"#]\n" +
+			"\n" +
+			"\n" +
+			"}\n" +
 			"";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"public class A {\n" + 
-			"\n" + 
-			"	int i = 1;\n" + 
-			"\n" + 
-			"\n" + 
+			"public class A {\n" +
+			"\n" +
+			"	int i = 1;\n" +
+			"\n" +
+			"\n" +
 			"}\n",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
@@ -10504,24 +10504,24 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test713", "A.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 76, 27);//$NON-NLS-1$ //$NON-NLS-2$
 		*/
 		this.formatterPrefs = new DefaultCodeFormatterOptions(options);
-		String source = 
-			"package pack;\n" + 
-			"\n" + 
-			"public class A {\n" + 
-			"    /**\n" + 
-			"         * @see A.Inner\n" + 
-			"         */\n" + 
-			"[#    public class Inner { }\n" + 
+		String source =
+			"package pack;\n" +
+			"\n" +
+			"public class A {\n" +
+			"    /**\n" +
+			"         * @see A.Inner\n" +
+			"         */\n" +
+			"[#    public class Inner { }\n" +
 			"#]}";
 		formatSource(source,
-			"package pack;\n" + 
-			"\n" + 
-			"public class A {\n" + 
-			"    /**\n" + 
-			"         * @see A.Inner\n" + 
-			"         */\n" + 
-			"	public class Inner {\n" + 
-			"	}\n" + 
+			"package pack;\n" +
+			"\n" +
+			"public class A {\n" +
+			"    /**\n" +
+			"         * @see A.Inner\n" +
+			"         */\n" +
+			"	public class Inner {\n" +
+			"	}\n" +
 			"}"
 		);
 	}

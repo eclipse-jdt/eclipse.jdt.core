@@ -1575,15 +1575,21 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
     private void formatLeftCurlyBrace(final int line, final String bracePosition) {
+		this.scribe.formatBrace = true;
         /*
          * deal with (quite unexpected) comments right before lcurly
          */
-        this.scribe.printComment();
-        if (DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP.equals(bracePosition)
-                && (this.scribe.line > line || this.scribe.column >= this.preferences.page_width))
-        {
-            this.scribe.printNewLine();
-        }
+		try {
+	        this.scribe.printComment();
+	        if (DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP.equals(bracePosition)
+	                && (this.scribe.line > line || this.scribe.column >= this.preferences.page_width))
+	        {
+	            this.scribe.printNewLine();
+	        }
+		}
+		finally {
+			this.scribe.formatBrace = false;
+		}
     }
 
 	private void formatLocalDeclaration(LocalDeclaration localDeclaration, BlockScope scope, boolean insertSpaceBeforeComma, boolean insertSpaceAfterComma) {

@@ -10,33 +10,44 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.ModelTestsUtil;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
+import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.text.edits.TextEdit;
@@ -140,34 +151,103 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 
 	final File file;
 	final IPath path;
-	boolean hasSpaceFailure;
 	private DefaultCodeFormatterOptions preferences;
 
 	// Directories
 	private final static File INPUT_DIR = new File(System.getProperty("inputDir"));
 	private static File OUTPUT_DIR; // use static to minimize data consumption
 	private static File WRITE_DIR;
+	
+	// Files
+	final static String FILES_FILTER = System.getProperty("filesFilter");
+	final static int FILES_FILTER_KIND;
+	static {
+		int kind = 0; // No filter
+		if (FILES_FILTER != null) {
+			int length = FILES_FILTER.length();
+			int idxQM = FILES_FILTER.indexOf('?');
+			int idxS = FILES_FILTER.indexOf('*');
+			if (idxQM >= 0 && idxS >= 0) {
+				kind = 4; // Pure pattern match
+			} else if (idxQM >= 0) {
+				while (idxQM < length && FILES_FILTER.charAt(idxQM) == '?') {
+					idxQM++;
+				}
+				if (idxQM == length) {
+					kind = 3; // Starts with + same length
+				} else {
+					kind = 4; // Pure pattern match
+				}
+			} else if (idxS >= 0) {
+				while (idxS < length && FILES_FILTER.charAt(idxQM) == '*') {
+					idxS++;
+				}
+				if (idxS == length) {
+					kind = 2; // Starts with
+				} else {
+					kind = 4; // Pure pattern match
+				}
+			} else {
+				kind = 1; // Equals
+			}
+		}
+		FILES_FILTER_KIND = kind;
+	}
+
+	// Log
+	private static File LOG_FILE;
+	private static PrintStream LOG_STREAM;
 
 	// Comparison
+	private static boolean CLEAN = false;
 	private static boolean CAN_COMPARE = true;
 	private final boolean canCompare;
+	private final int testIndex;
 
 	// Cleaning
-	private final File[] inputFiles;
+	private static int MAX_FILES, MAX_DIGITS;
 
 	// Formatting behavior
-	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2"));
+	final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2"));
 	private final static boolean NO_COMMENTS = System.getProperty("no_comments", "false").equals("true");
+	private static String JOIN_LINES = System.getProperty("join_lines", null);
+	private static String BRACES = System.getProperty("braces", null);
+	private final static int PRESERVED_LINES;
+	static {
+		String str = System.getProperty("preserved_lines", null);
+		int value = -1;
+		if (str != null) {
+			try {
+				value = Integer.parseInt(str);
+			}
+			catch (NumberFormatException nfe) {
+				// skip
+			}
+		}
+		PRESERVED_LINES = value;
+	}
+	
+	// Time measuring
+	static class TimeMeasuring {
+		long[] formatting = new long[FORMAT_REPEAT];
+		int [] occurences = new int[FORMAT_REPEAT];
+		int [] null_output = new int[FORMAT_REPEAT];
+	}
+	private static TimeMeasuring TIME_MEASURES = new TimeMeasuring();
+	private static final int ONE_MINUTE = 60000;
+	private static final long ONE_HOUR = 3600000L;
 
 	// Failures management
 	int failureIndex;
 	final static int UNEXPECTED_FAILURE = 0;
 	final static int NO_OUTPUT_FAILURE = 1;
-	final static int COMPARISON_FAILURE = 2;
-	final static int REFORMATTING_FAILURE = 3;
-	final static int REFORMATTING_LEADING_FAILURE = 5;
-	final static int REFORMATTING_WHITESPACES_FAILURE = 6;
-	final static int REFORMATTING_EXPECTED_FAILURE = 4;
+	final static int COMPILATION_ERRORS_FAILURE = 2;
+	final static int FILE_NOT_FOUND_FAILURE = 3;
+	final static int COMPARISON_FAILURE = 4;
+	final static int REFORMATTING_FAILURE = 5;
+	final static int REFORMATTING_EXPECTED_FAILURE = 6;
+	final static int REFORMATTING_LEADING_FAILURE = 7;
+	final static int REFORMATTING_WHITESPACES_FAILURE = 8;
 	static class FormattingFailure {
 		String msg;
 		int kind;
@@ -179,12 +259,19 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 			this(kind);
 	        this.msg = msg;
         }
+		int size() {
+			return this.failures.size();
+		}
 		public String toString() {
 			switch (this.kind) {
 				case  UNEXPECTED_FAILURE:
 					return "unexpected failure while formatting";
 				case  NO_OUTPUT_FAILURE:
 					return "no output while formatting";
+				case  COMPILATION_ERRORS_FAILURE:
+					return "compilation errors which prevent the formatter to proceed";
+				case  FILE_NOT_FOUND_FAILURE:
+					return "no formatted output to compare with";
 				case  COMPARISON_FAILURE:
 					return "different output while comparing with previous version";
 				default:
@@ -196,6 +283,12 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	static FormattingFailure[] FAILURES;
 	private static final int MAX_FAILURES = Integer.parseInt(System.getProperty("maxFailures", "100")); // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = MAX_FAILURES > 0;
+	private static String ECLIPSE_VERSION;
+	private static String ECLIPSE_MILESTONE;
+	private static String JDT_CORE_VERSION;
+	private static String PATCH_BUG, PATCH_VERSION;
+	private static String TEMP_OUTPUT;
+	private static boolean JDT_CORE_HEAD;
 	private final static IPath[] EXPECTED_FAILURES = INPUT_DIR.getPath().indexOf("v34") < 0
 		? new IPath[] {
 			new Path("org/eclipse/jdt/internal/compiler/ast/QualifiedNameReference.java"),
@@ -236,29 +329,114 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	};
 
 public static Test suite() {
+
 	TestSuite suite = new Suite(FormatterMassiveRegressionTests.class.getName());
 	try {
-		initVersion();
-		FileFilter filter = new FileFilter() {
-			public boolean accept(File pathname) {
-	            return pathname.isDirectory() || pathname.getPath().endsWith(".java");
-            }
-		};
+		// Init version
+		StringBuffer buffer = new StringBuffer();
+		initVersion(buffer);
+		
+		// Init profiles
+		initProfiles(buffer);
+
+		// Log date of test
 		long start = System.currentTimeMillis();
 		SimpleDateFormat format = new SimpleDateFormat();
 		Date now = new Date(start);
-		System.out.println("Test date : "+format.format(now));
-		System.out.println("Input dir : "+INPUT_DIR);
+		buffer.append("Test date : ");
+		buffer.append(format.format(now));
+		buffer.append(LINE_SEPARATOR);
+
+		// Get input dir
+		buffer.append("Input dir : ");
+		buffer.append(INPUT_DIR);
+
+		// Output to console to show startup
+		String firstBuffer = buffer.toString();
+		System.out.println(firstBuffer);
+		buffer.setLength(0);
+
+		// Get files from input dir
+		FileFilter filter = new FileFilter() {
+			public boolean accept(File pathname) {
+				String path = pathname.getPath();
+				if (pathname.isDirectory()) {
+					String dirName = path.substring(path.lastIndexOf(File.separatorChar)+1);
+					return !dirName.equals("bin");
+				}
+				if (path.endsWith(".java")) {
+					if (FILES_FILTER_KIND > 0) {
+						String fileName = path.substring(path.lastIndexOf(File.separatorChar)+1);
+						switch (FILES_FILTER_KIND) {
+							case 1: // Equals
+								return fileName.equals(FILES_FILTER);
+							case 2: // Starts with
+								return fileName.startsWith(FILES_FILTER);
+							case 3: // Starts with + same length
+								return fileName.startsWith(FILES_FILTER) && fileName.length() == FILES_FILTER.length();
+							case 4: // Pattern
+								return fileName.matches(FILES_FILTER);
+						}
+					} else {
+						return true;
+					}
+				}
+				return false;
+            }
+		};
 		File[] allFiles = ModelTestsUtil.getAllFiles(INPUT_DIR, filter);
-		int length = allFiles.length;
-		System.out.println("            "+length+" java files found");
-		boolean clean = initDirectories();
-		System.out.println("Comparison: "+CAN_COMPARE);
-		if (clean) {
-			suite.addTest(new FormatterMassiveRegressionTests(allFiles));
+		MAX_FILES = allFiles.length;
+		MAX_DIGITS = (int) (Math.log(MAX_FILES)/Math.log(10));
+		buffer.append("            ");
+		buffer.append(MAX_FILES);
+		buffer.append(" java files found");
+		buffer.append(LINE_SEPARATOR);
+
+		// Init directories
+		initDirectories(buffer);
+//		buffer.append("Compare vs: ");
+		if (CAN_COMPARE) {
+			if (CLEAN) {
+//				buffer.append(JDT_CORE_VERSION);
+			} else {
+				buffer.append("Compare vs: ");
+				File versionFile = new File(OUTPUT_DIR, "version.txt");
+				if (versionFile.exists()) {
+					String fileContent = Util.fileContent(versionFile.getAbsolutePath());
+					if (TEMP_OUTPUT != null) {
+						buffer.append(TEMP_OUTPUT);
+						buffer.append(" on top of ");
+					}
+					buffer.append(fileContent);
+				} else {
+					buffer.append("???");
+				}
+			}
+		} else {
+			buffer.append("Compare vs: none");
 		}
-		for (int i=0; i<length; i++) {
-			suite.addTest(new FormatterMassiveRegressionTests(allFiles[i], CAN_COMPARE));
+
+		// Write logs
+		System.out.println(buffer.toString());
+		if (LOG_STREAM != null) {
+			LOG_STREAM.println(firstBuffer);
+			LOG_STREAM.println(buffer.toString());
+			LOG_STREAM.flush();
+		}
+		
+		// Add tests to clean the output directory and rebuild the references
+		if (CLEAN) {
+			suite.addTest(new FormatterMassiveRegressionTests());
+//			suite.addTest(new FormatterMassiveRegressionTests(allFiles));
+		}
+		
+		// Add one test per found file
+		for (int i=0; i<MAX_FILES; i++) {
+			if (CLEAN) {
+				suite.addTest(new FormatterMassiveRegressionTests(allFiles[i], i, false/*do not compare while cleaning*/));
+			} else {
+				suite.addTest(new FormatterMassiveRegressionTests(allFiles[i], i, CAN_COMPARE));
+			}
 		}
     } catch (Exception e) {
     	// skip
@@ -266,24 +444,80 @@ public static Test suite() {
 	return suite;
 }
 
-private static boolean initDirectories() {
+private static void initProfiles(StringBuffer buffer) {
+	boolean profile = NO_COMMENTS || PRESERVED_LINES != -1;
+	if (JOIN_LINES != null) {
+	 	if (!JOIN_LINES.equals("never") &&
+	 		!JOIN_LINES.equals("only_comments") &&
+	 		!JOIN_LINES.equals("only_code")) {
+	 		JOIN_LINES = null;
+	 	} else {
+	 		profile = true;
+	 	}
+	}
+	if (BRACES != null) {
+	 	if (!BRACES.equals(DefaultCodeFormatterConstants.NEXT_LINE) &&
+	 		!BRACES.equals(DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP) &&
+	 		!BRACES.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
+	 		BRACES = null;
+	 	} else {
+	 		profile = true;
+	 	}
+	}
+	if (profile) {
+		buffer.append("Profiles  : ");
+		String separator = "";
+		if (JOIN_LINES != null) {
+			buffer.append("join_lines="+JOIN_LINES);
+			separator = ", ";
+		}
+		if (NO_COMMENTS) {
+			buffer.append(separator+"no_comments");
+			separator = ", ";
+		}
+		if (BRACES != null) {
+			buffer.append(separator+"braces="+BRACES);
+			separator = ", ";
+		}
+		if (PRESERVED_LINES != -1) {
+			buffer.append(separator+"preserved_lines="+PRESERVED_LINES);
+			separator = ", ";
+		}
+		buffer.append(LINE_SEPARATOR);
+	}
+}
+
+private static void initDirectories(StringBuffer buffer) {
+
+	// Verify input directory
+	if (!INPUT_DIR.exists() && !INPUT_DIR.isDirectory()) {
+		System.err.println(INPUT_DIR+" does not exist or is not a directory!");
+		System.exit(1);
+	}
 
 	// Get output dir and clean it if specified
-	boolean clean = false;
 	String dir = System.getProperty("outputDir"); //$NON-NLS-1$
 	if (dir != null) {
-		int idx = dir.indexOf(',');
-		if (idx < 0) {
-			OUTPUT_DIR = new File(dir);
-			System.out.println("Output dir: "+OUTPUT_DIR);
-		} else {
-			OUTPUT_DIR = new File(dir.substring(0, idx));
-			System.out.println("Output dir: "+OUTPUT_DIR);
-			if (dir.substring(idx+1).equals("clean")) {
-				clean = true;
+		StringTokenizer tokenizer = new StringTokenizer(dir, ",");
+		String outputDir = tokenizer.nextToken();
+		while (tokenizer.hasMoreTokens()) {
+			String token = tokenizer.nextToken();
+			if (token.equals("clean")) {
+				CLEAN = true;
+			} else if (token.equals("tmp")) {
+				if (JDT_CORE_HEAD) {
+					TEMP_OUTPUT = "HEAD";
+				}
 			}
 		}
-		if (!OUTPUT_DIR.exists() && !clean) {
+		setOutputDir(outputDir, buffer);
+		if (CLEAN) {
+			if (PATCH_BUG != null || (TEMP_OUTPUT == null && JDT_CORE_HEAD)) {
+				System.err.println("Reference can only be updated using a version (i.e. with a closed buildnotes_jdt-core.html)!");
+				System.exit(1);
+			}
+			return;
+		} else if (!OUTPUT_DIR.exists()) {
 			System.err.println("            WARNING: The output directory "+OUTPUT_DIR+" does not exist...");
 			System.err.println("            => NO comparison could be done!");
 			CAN_COMPARE = false;
@@ -295,6 +529,13 @@ private static boolean initDirectories() {
         }
 	}
 
+	// Get log dir
+	try {
+		setLogDir(buffer);
+	} catch (CoreException e) {
+		e.printStackTrace();
+	}
+
 	// Get write dir
 	String wdir = System.getProperty("writeDir"); //$NON-NLS-1$
 	if (wdir != null) {
@@ -303,11 +544,132 @@ private static boolean initDirectories() {
 			Util.delete(WRITE_DIR);
 		}
 		WRITE_DIR.mkdirs();
-		System.out.println("Write dir : "+WRITE_DIR);
+		buffer.append("Write dir : ");
+		buffer.append(WRITE_DIR);
+		buffer.append(LINE_SEPARATOR);
+	}
+}
+
+private static void setLogDir(StringBuffer buffer) throws CoreException {
+
+	// Compute log dir
+	File logDir = new File(System.getProperty("logDir"));
+	if (!logDir.exists()) {
+		if (!logDir.mkdirs()) {
+			System.err.println("Cannot create specified log directory: "+logDir+"!!!");
+			return;
+		}
 	}
 
-	// Return
-	return clean;
+	// Compute log sub-directories depending on profiles
+	logDir = new File(logDir, ECLIPSE_VERSION);
+	if (PATCH_BUG != null) {
+		logDir = new File(logDir, "tests");
+		logDir = new File(logDir, PATCH_BUG);
+		logDir = new File(logDir, PATCH_VERSION);
+	} else if (JDT_CORE_HEAD) {
+		logDir = new File(logDir, "HEAD");
+	} else {
+		logDir = new File(logDir, ECLIPSE_MILESTONE);
+		logDir = new File(logDir, JDT_CORE_VERSION);
+	}
+	if (NO_COMMENTS || BRACES != null || JOIN_LINES != null || PRESERVED_LINES != -1) {
+		logDir = new File(logDir, "profiles");
+		if (JOIN_LINES != null) {
+			logDir = new File(new File(logDir, "join_lines"), JOIN_LINES);
+		}
+		if (NO_COMMENTS) {
+			logDir = new File(logDir, "no_comments");
+		}
+		if (BRACES != null) {
+			logDir = new File(new File(logDir, "braces"), BRACES);
+		}
+		if (PRESERVED_LINES != -1) {
+			logDir = new File(new File(logDir, "preserved_lines"), Integer.toString(PRESERVED_LINES));
+		}
+	}
+	
+	if (FILES_FILTER_KIND > 0) {
+		logDir = new File(new File(logDir, "filter"), FILES_FILTER.replace('?', '_').replace('*', '%'));
+	}
+
+	// Create log stream
+	logDir.mkdirs();
+	String filePrefix = INPUT_DIR.getName().replaceAll("\\.", "");
+	String logFileName = filePrefix+".txt";
+	LOG_FILE = new File(logDir, logFileName);
+	if (LOG_FILE.exists()) {
+		File saveDir = new File(logDir, "save");
+		saveDir.mkdir();
+		int i=0;
+		while (true) {
+			String newFileName = filePrefix+"_";
+			if (i<10) newFileName += "0";
+			newFileName += i+".txt";
+			File renamedFile = new File(saveDir, newFileName);
+			if (LOG_FILE.renameTo(renamedFile)) break;
+			i++;
+		}
+	}
+//	LOG_RESOURCE = folder.getFile(logFileName);
+	buffer.append("Log file  : ");
+	buffer.append(LOG_FILE);
+//	buffer.append(LOG_RESOURCE.getFullPath());
+	buffer.append(LINE_SEPARATOR);
+	try {
+		LOG_STREAM = new PrintStream(new BufferedOutputStream(new FileOutputStream(LOG_FILE)));
+		LOG_STREAM.flush();
+	}
+	catch (FileNotFoundException fnfe) {
+		System.err.println("Can't create log file"+LOG_FILE); //$NON-NLS-1$
+	}
+//	if (LOG_RESOURCE.exists()) {
+//		Util.delete(LOG_RESOURCE);
+//	}
+//	LOG_BUFFER = new StringBuffer();
+}
+private static void setOutputDir(String dir, StringBuffer buffer) {
+
+	// Find the root of the output directory
+	OUTPUT_DIR = new File(dir);
+	if (OUTPUT_DIR.getName().equals(INPUT_DIR.getName())) {
+		OUTPUT_DIR = OUTPUT_DIR.getParentFile();
+	}
+	if (OUTPUT_DIR.getName().equals(ECLIPSE_VERSION)) {
+		OUTPUT_DIR = OUTPUT_DIR.getParentFile();
+	}
+	
+	// Add the temporary output if any
+	if (TEMP_OUTPUT != null) {
+		OUTPUT_DIR = new File(OUTPUT_DIR, TEMP_OUTPUT);
+	}
+
+	// Compute output sub-directories depending on profiles
+	if (NO_COMMENTS || BRACES != null || JOIN_LINES != null) {
+		OUTPUT_DIR = new File(OUTPUT_DIR, "profiles");
+		if (JOIN_LINES != null) {
+			OUTPUT_DIR = new File(new File(OUTPUT_DIR, "join_lines"), JOIN_LINES);
+		}
+		if (NO_COMMENTS) {
+			OUTPUT_DIR = new File(OUTPUT_DIR, "no_comments");
+		}
+		if (BRACES != null) {
+			OUTPUT_DIR = new File(new File(OUTPUT_DIR, "braces"), BRACES);
+		}
+		if (PRESERVED_LINES != -1) {
+			OUTPUT_DIR = new File(new File(OUTPUT_DIR, "preserved_lines"), Integer.toString(PRESERVED_LINES));
+		}
+	}
+
+	// Compute the final output dir
+	OUTPUT_DIR = new File(new File(OUTPUT_DIR, ECLIPSE_VERSION), INPUT_DIR.getName());
+	buffer.append("Output dir: ");
+	buffer.append(OUTPUT_DIR);
+	buffer.append(LINE_SEPARATOR);
+	if (CLEAN) {
+		buffer.append("            CLEANED");
+		buffer.append(LINE_SEPARATOR);
+	}
 }
 
 private static void initFailures() {
@@ -324,7 +686,7 @@ private static void initFailures() {
 /*
  * Read JDT/Core build notes file to see what version is currently running.
  */
-private static void initVersion() {
+private static void initVersion(StringBuffer buffer) {
 	BufferedReader buildnotesReader;
     try {
 		URL platformURL = Platform.getBundle("org.eclipse.jdt.core").getEntry("/");
@@ -335,23 +697,50 @@ private static void initVersion() {
 	    return;
     }
 	String line;
-	String version = null;
-	String patch = null;
-	boolean closed = false;
+	String patch_line = null;
+	JDT_CORE_HEAD = true;
 	try {
 		while ((line = buildnotesReader.readLine()) != null) {
 			if (line.startsWith("<a name=\"")) {
-				boolean first = version == null;
-				version = line.substring(line.indexOf('"')+1, line.lastIndexOf('"'));
+				boolean first = JDT_CORE_VERSION == null;
+				JDT_CORE_VERSION = line.substring(line.indexOf('"')+1, line.lastIndexOf('"'));
 				if (!first) break;
-			} else if (line.startsWith("Eclipse SDK")) {
-				closed = line.indexOf("%date%") < 0;
+			} else if (line.startsWith("Eclipse SDK ")) {
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				tokenizer.nextToken(); // 'Eclipse'
+				tokenizer.nextToken(); // 'SDK'
+				String milestone = tokenizer.nextToken();
+				ECLIPSE_VERSION = "v"+milestone.charAt(0)+milestone.charAt(2);
+				ECLIPSE_MILESTONE = milestone.substring(3);
+				tokenizer.nextToken(); // '-'
+				JDT_CORE_HEAD = tokenizer.nextToken().equals("%date%");
 			} else if (line.startsWith("<h2>What's new")) {
 				line = buildnotesReader.readLine();
 				if (line.startsWith("Patch")) {
-					patch = line;
+					patch_line = line;
+					StringTokenizer tokenizer = new StringTokenizer(line);
+					tokenizer.nextToken(); // 'Patch'
+					PATCH_VERSION = tokenizer.nextToken();
+					while (tokenizer.hasMoreTokens()) {
+						PATCH_BUG = tokenizer.nextToken();
+					}
+					try {
+						Integer.parseInt(PATCH_BUG);
+					}
+					catch (NumberFormatException nfe) {
+						// try to split
+						StringTokenizer bugTokenizer = new StringTokenizer(PATCH_BUG, "+");
+						try {
+							while (bugTokenizer.hasMoreTokens()) {
+								Integer.parseInt(bugTokenizer.nextToken());
+							}
+						}
+						catch (NumberFormatException nfe2) {
+							System.err.println("Invalid patch bug number noticed in JDT/Core buildnotes: "+PATCH_BUG);
+						}
+					}
 				}
-				if (closed) break;
+				if (!JDT_CORE_HEAD) break;
 			}
 		}
 	} catch (Exception e) {
@@ -361,36 +750,55 @@ private static void initVersion() {
 	        ioe.printStackTrace();
         }
 	}
-	System.out.print("Version   : ");
-	if (patch != null) {
-		System.out.print(patch);
-		System.out.print(" applied on ");
+
+	// Log version info
+	buffer.append("Version   : ");
+	if (PATCH_BUG != null) {
+		buffer.append('\'');
+		buffer.append(patch_line);
+		buffer.append("' applied on ");
 	}
-	if (!closed) {
-		System.out.print("HEAD on top of ");
+	if (JDT_CORE_HEAD) {
+		buffer.append("HEAD on top of ");
 	}
-	System.out.println(version);
+	buffer.append(JDT_CORE_VERSION);
+	buffer.append(LINE_SEPARATOR);
 }
 
 /*
  * Constructor used to clean the output directory.
  */
+public FormatterMassiveRegressionTests() {
+	super("testDeleteOutputDir");
+	this.canCompare = false;
+	this.file = null;
+//	this.inputFiles = null;
+	this.testIndex = -1;
+	this.path = new Path(OUTPUT_DIR.getPath());
+}
+
+/*
+ * Constructor used to dump references in the output directory.
+ *
 public FormatterMassiveRegressionTests(File[] files) {
-	super("testClean");
+	super("testMakeReferences");
+	assertNotNull("This test needs some files to proceed!", files);
 	this.canCompare = false;
 	this.file = null;
 	this.inputFiles = files;
+	this.testIndex = -1;
 	this.path = new Path(OUTPUT_DIR.getPath());
 }
 
 /*
  * Contructor used to compare outputs.
  */
-public FormatterMassiveRegressionTests(File file, boolean compare) {
-	super("testCompare");
+public FormatterMassiveRegressionTests(File file, int index, boolean compare) {
+	super(CLEAN ? "testReference" : "testCompare");
 	this.canCompare = compare;
 	this.file = file;
-	this.inputFiles = null;
+//	this.inputFiles = null;
+	this.testIndex = index;
 	this.path = new Path(file.getPath().substring(INPUT_DIR.getPath().length()+1));
 }
 
@@ -399,6 +807,13 @@ public FormatterMassiveRegressionTests(File file, boolean compare) {
  */
 public String getName() {
 	StringBuffer name = new StringBuffer(super.getName());
+	if (this.testIndex >= 0) {
+		int n = this.testIndex == 0 ? 0 : (int) (Math.log(this.testIndex)/Math.log(10));
+		for (int i=n; i<MAX_DIGITS; i++) {
+			name.append('0');
+		}
+		name.append(this.testIndex);
+	}
 	name.append(" - ");
 	name.append(this.path);
 	return name.toString();
@@ -409,12 +824,35 @@ public String getName() {
  */
 public void setUp() throws Exception {
 	super.setUp();
-	this.hasSpaceFailure = false;
 	this.preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
 	if (NO_COMMENTS) {
 		this.preferences.comment_format_javadoc_comment = false;
 		this.preferences.comment_format_block_comment = false;
 		this.preferences.comment_format_line_comment = false;
+	}
+	if (JOIN_LINES != null) {
+		if (!JOIN_LINES.equals("only_comments")) {
+			this.preferences.join_lines_in_comments = false;
+		}
+		if (!JOIN_LINES.equals("only_code")) {
+			this.preferences.join_wrapped_lines = false;
+		}
+	}
+	if (BRACES != null) {
+		this.preferences.brace_position_for_annotation_type_declaration = BRACES;
+		this.preferences.brace_position_for_anonymous_type_declaration = BRACES;
+		this.preferences.brace_position_for_array_initializer = BRACES;
+		this.preferences.brace_position_for_block = BRACES;
+		this.preferences.brace_position_for_block_in_case = BRACES;
+		this.preferences.brace_position_for_constructor_declaration = BRACES;
+		this.preferences.brace_position_for_enum_constant = BRACES;
+		this.preferences.brace_position_for_enum_declaration = BRACES;
+		this.preferences.brace_position_for_method_declaration = BRACES;
+		this.preferences.brace_position_for_switch = BRACES;
+		this.preferences.brace_position_for_type_declaration = BRACES;
+	}
+	if (PRESERVED_LINES != -1) {
+		this.preferences.number_of_empty_lines_to_preserve = PRESERVED_LINES;
 	}
 }
 
@@ -429,7 +867,10 @@ public void setUpSuite() throws Exception {
  * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#tearDown()
  */
 public void tearDown() throws Exception {
-	// skip standard model tear down
+	// verify whether the max failures has been reached or not
+	if (ASSERT_EQUALS_STRINGS && FAILURES != null) {
+		ASSERT_EQUALS_STRINGS = FAILURES[COMPARISON_FAILURE].size() < MAX_FAILURES;
+	}
 }
 
 /* (non-Javadoc)
@@ -437,35 +878,85 @@ public void tearDown() throws Exception {
  */
 public void tearDownSuite() throws Exception {
 
+	// Display time measures
+	StringBuffer buffer1 = new StringBuffer();
+	if (CLEAN) {
+//		buffer1.append(" cannot be done as the directory was cleaned!");
+//		buffer1.append(LINE_SEPARATOR);
+		return;
+	} else {
+		buffer1.append("Time measures:");
+		buffer1.append(LINE_SEPARATOR);
+		for (int i=0; i<FORMAT_REPEAT; i++) {
+			buffer1.append("	- "+counterToString(i+1)).append(" format:").append(LINE_SEPARATOR);
+			buffer1.append("		+ elapsed = "+timeString(TIME_MEASURES.formatting[i])).append(LINE_SEPARATOR);
+			buffer1.append("		+ occurrences = "+TIME_MEASURES.occurences[i]).append(LINE_SEPARATOR);
+			buffer1.append("		+ null output = "+TIME_MEASURES.null_output[i]).append(LINE_SEPARATOR);
+		}
+	}
+	buffer1.append(LINE_SEPARATOR);
+
 	// Display stored failures
-	System.out.println();
 	int max = FAILURES.length;
 	for (int i=0; i<max; i++) {
 		List failures = FAILURES[i].failures;
 		int size = failures.size();
 		if (size > 0) {
-			System.out.print(size);
-			System.out.print(" file");
+			buffer1.append(size);
+			buffer1.append(" file");
 			if (size == 1) {
-				System.out.print(" has ");
+				buffer1.append(" has ");
 			} else {
-				System.out.print("s have ");
+				buffer1.append("s have ");
 			}
-			System.out.print(FAILURES[i]);
-			System.out.println('!');
+			buffer1.append(FAILURES[i]);
+			buffer1.append('!');
+			buffer1.append(LINE_SEPARATOR);
 		}
 	}
-	System.out.println();
+	buffer1.append(LINE_SEPARATOR);
+	StringBuffer buffer2 = new StringBuffer(LINE_SEPARATOR);
 	for (int i=0; i<max; i++) {
 		List failures = FAILURES[i].failures;
 		int size = failures.size();
 		if (size > 0) {
-			System.out.println("List of file(s) with "+FAILURES[i]+":");
+			buffer2.append("List of file(s) with ");
+			buffer2.append(FAILURES[i]);
+			buffer2.append(':');
+			buffer2.append(LINE_SEPARATOR);
 			for (int j=0; j<size; j++) {
-				System.out.println("	- "+failures.get(j));
+				buffer2.append("	- ");
+				buffer2.append(failures.get(j));
+				buffer2.append(LINE_SEPARATOR);
 			}
 		}
 	}
+
+	// Log failures
+	System.out.println(buffer1.toString());
+	if (LOG_STREAM == null) {
+		System.out.println(buffer2.toString());
+	} else {
+		LOG_STREAM.print(buffer1.toString());
+		LOG_STREAM.print(buffer2.toString());
+		LOG_STREAM.close();
+	}
+//	LOG_BUFFER.append(buffer1.toString());
+//	LOG_BUFFER.append(buffer2.toString());
+//	InputStream stream= new InputStream() {
+//		private Reader reader= new StringReader(LOG_BUFFER.toString());
+//		public int read() throws IOException {
+//			return this.reader.read();
+//		}
+//	};
+//	if (LOG_RESOURCE.exists()) {
+//		LOG_RESOURCE.setContents(
+//			stream,
+//			IResource.FORCE | IResource.KEEP_HISTORY,
+//			null);
+//	} else {
+//		LOG_RESOURCE.create(stream, IResource.FORCE, null);
+//	}
 }
 
 /*
@@ -505,10 +996,15 @@ void compareFormattedSource() throws IOException, Exception {
 
 		// Look for output to compare with
 		File outputFile = new Path(OUTPUT_DIR.getPath()).append(this.path).toFile();
-		if (FAILURES != null && this.canCompare) {
-			String expectedResult = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(outputFile, null));
+		if (actualResult != null && FAILURES != null && this.canCompare) {
 			try {
+				String expectedResult = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(outputFile, null));
 				assertSourceEquals("Unexpected format output!", expectedResult, actualResult);
+			}
+			catch (FileNotFoundException fnfe) {
+				this.failureIndex = FILE_NOT_FOUND_FAILURE;
+				FAILURES[FILE_NOT_FOUND_FAILURE].failures.add(this.path);
+				return;
 			}
 			catch (ComparisonFailure cf) {
 				this.failureIndex = COMPARISON_FAILURE;
@@ -658,19 +1154,51 @@ private boolean runFormatterWithoutComments(CodeFormatter codeFormatter, String 
 }
 */
 
+private boolean sourceHasCompilationErrors(String source) {
+	CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
+	codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
+	if (codeSnippetParsingUtil.recordedParsingInformation != null) {
+		CategorizedProblem[] problems = codeSnippetParsingUtil.recordedParsingInformation.problems;
+		int length = problems == null ? 0 : problems.length;
+		for (int i=0; i<length; i++) {
+			if (((DefaultProblem)problems[i]).isError()) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator, boolean repeat) {
+	long timeStart = System.currentTimeMillis();
 	TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);
+	if (FAILURES != null) { // Comparison has started
+		TIME_MEASURES.formatting[0] += System.currentTimeMillis() - timeStart;
+		TIME_MEASURES.occurences[0]++;
+		if (edit == null) TIME_MEASURES.null_output[0]++;
+	}
 	if (edit == null) {
+		if (sourceHasCompilationErrors(source)) {
+			this.failureIndex = COMPILATION_ERRORS_FAILURE;
+			FAILURES[COMPILATION_ERRORS_FAILURE].failures.add(this.path);
+			return null;
+		}
 		this.failureIndex = NO_OUTPUT_FAILURE;
 		throw new AssertionFailedError("Formatted source should not be null!");
 	}
 	String initialResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 
-	int count = 1;
+	int count = 0;
 	String result = initialResult;
 	String previousResult = result;
-	while (count++ < FORMAT_REPEAT) {
+	while (++count < FORMAT_REPEAT) {
+		timeStart = System.currentTimeMillis();
 		edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);
+		if (FAILURES != null) { // Comparison has started
+			TIME_MEASURES.formatting[count] += System.currentTimeMillis() - timeStart;
+			TIME_MEASURES.occurences[count]++;
+			if (edit == null) TIME_MEASURES.null_output[count]++;
+		}
 		if (edit == null) return null;
 		previousResult = result;
 		result = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
@@ -684,7 +1212,6 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 			if (trimmedExpected.equals(trimmedActual)) {
 				this.failureIndex = REFORMATTING_LEADING_FAILURE;
 				FAILURES[REFORMATTING_LEADING_FAILURE].failures.add(this.path);
-				this.hasSpaceFailure = true;
 				return initialResult;
 			}
 
@@ -692,7 +1219,6 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 			if (ModelTestsUtil.removeWhiteSpace(previousResult).equals(ModelTestsUtil.removeWhiteSpace(result))) {
 				this.failureIndex = REFORMATTING_WHITESPACES_FAILURE;
 				FAILURES[REFORMATTING_WHITESPACES_FAILURE].failures.add(this.path);
-				this.hasSpaceFailure = true;
 				return initialResult;
 			}
 		}
@@ -708,7 +1234,7 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 		assertSourceEquals(counterString+" formatting is different from first one!", previousResult, result);
 		*/
 		if (!isExpectedFailure()) {
-			String counterString = counterToString(count-1);
+			String counterString = counterToString(count);
 			try {
 				assertSourceEquals(counterString+" formatting is different from first one!", previousResult, result);
 			}
@@ -725,34 +1251,79 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 	return initialResult;
 }
 
-/*
- * Test to clean the output directory.
+/**
+ * Returns a string to display the given time as a duration
+ * formatted as:
+ *	<ul>
+ *	<li>"XXXms" if the duration is less than 0.1s (e.g. "543ms")</li>
+ *	<li>"X.YYs" if the duration is less than 1s (e.g. "5.43s")</li>
+ *	<li>"XX.Ys" if the duration is less than 1mn (e.g. "54.3s")</li>
+ *	<li>"XXmn XXs" if the duration is less than 1h (e.g. "54mn 3s")</li>
+ *	<li>"XXh XXmn XXs" if the duration is over than 1h (e.g. "5h 4mn 3s")</li>
+ *	</ul>
+ *
+ * @param time The time to format as a long.
+ * @return The formatted string.
  */
-public void testClean() throws IOException, Exception {
+public String timeString(long time) {
+	NumberFormat format = NumberFormat.getInstance();
+	format.setMaximumFractionDigits(3);
+	StringBuffer buffer = new StringBuffer();
+	if (time == 0) {
+		// print nothing
+	} else {
+		long h = time / ONE_HOUR;
+		if (h > 0) buffer.append(h).append("h "); //$NON-NLS-1$
+		long remaining = time % ONE_HOUR;
+		long m = remaining / ONE_MINUTE;
+		if (h > 0 || m > 0) buffer.append(m).append("mn "); //$NON-NLS-1$
+		remaining = remaining % ONE_MINUTE;
+		if ((remaining % 1000) == 0) {
+			buffer.append(remaining/1000);
+		} else {
+			buffer.append(format.format(remaining/1000.0));
+		}
+		buffer.append("s"); //$NON-NLS-1$
+	}
+	return buffer.toString();
+}
 
-	// Delete the output directory
+/*
+ * Test to delete the output directory.
+ */
+public void testDeleteOutputDir() throws IOException, Exception {
 	Util.delete(OUTPUT_DIR);
+}
 
-	// Format each file of the input dir and write the result to the output directory
-	assertNotNull("We should have got input files from "+INPUT_DIR, this.inputFiles);
-	DefaultCodeFormatter codeFormatter = codeFormatter();
-	int length = this.inputFiles.length;
-	for (int i=0; i<length; i++) {
+/*
+ * Test to fill the output directory with reference.
+ */
+public void testReference() throws IOException, Exception {
 
-		// Get the source from file
-		String source = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.inputFiles[i], null));
+	// Dump the version
+	if (this.testIndex == 0) {
+		File versionFile = new Path(OUTPUT_DIR.getPath()).append("version.txt").toFile();
+		OUTPUT_DIR.mkdirs();
+		Util.writeToFile(JDT_CORE_VERSION, versionFile.getAbsolutePath());
+	}
 
+	// Get the source from file
+	String source = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.file, null));
+	try {
 		// Format the source
-		TextEdit edit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, source, 0, source.length(), 0, null);
+		TextEdit edit = codeFormatter().format(CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, source, 0, source.length(), 0, null);
 
 		// Write the result
 		if (edit != null) {
 			String formatResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
-			String inputPath = this.inputFiles[i].getPath().substring(INPUT_DIR.getPath().length()+1);
+			String inputPath = this.file.getPath().substring(INPUT_DIR.getPath().length()+1);
 			File writtenFile = new Path(OUTPUT_DIR.getPath()).append(inputPath).toFile();
 			writtenFile.getParentFile().mkdirs();
 			Util.writeToFile(formatResult, writtenFile.getAbsolutePath());
 		}
+	}
+	catch (Exception ex) {
+		// skip silently
 	}
 }
 

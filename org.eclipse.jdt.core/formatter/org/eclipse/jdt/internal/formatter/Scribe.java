@@ -72,6 +72,8 @@ public class Scribe implements IJavaDocTagConstants {
 	public CodeFormatterVisitor formatter;
 	public int indentationLevel;
 	public int lastNumberOfNewLines;
+	private boolean preserveLineBreakIndentation = false;
+	boolean formatBrace;
 	public int line;
 
 	private int[] lineEnds;
@@ -212,7 +214,7 @@ public class Scribe implements IJavaDocTagConstants {
 
 	/*
 	 * Adapt edits to regions.
-	 * 
+	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583"
 	 * 	for more details
 	 */
@@ -257,7 +259,7 @@ public class Scribe implements IJavaDocTagConstants {
      * Search whether a region overlap edit(s) at its start and/or at its end.
      * If so, modify the concerned edits to keep only the modifications which are
      * inside the given region.
-     * 
+     *
      * The edit modification is done as follow:
      * 1) start it from the region start if it overlaps the region's start
      * 2) end it at the region end if it overlaps the region's end
@@ -274,8 +276,8 @@ public class Scribe implements IJavaDocTagConstants {
     	OptimizedReplaceEdit edit = null;
     	int overlapIndex = -1;
         int linesOutside= -1;
-    	
-    	// Look for an edit overlapping the region start 
+
+    	// Look for an edit overlapping the region start
     	while (bottom <= top) {
     		i = bottom + (top - bottom) /2;
     		edit = sortedEdits[i];
@@ -300,7 +302,7 @@ public class Scribe implements IJavaDocTagConstants {
                     		if (before) linesOutside++;
                     	}
                     }
-					
+
 					// Restart the edit at the beginning of the line where the region start
 					edit.offset = regionStart;
 					edit.length -= edit.offset - editStart;
@@ -352,8 +354,8 @@ public class Scribe implements IJavaDocTagConstants {
 				}
 			}
     	}
-    	
-    	// Look for an edit overlapping the region end 
+
+    	// Look for an edit overlapping the region end
     	if (overlapIndex != -1) bottom = overlapIndex;
     	while (bottom <= topEnd) {
     		i = bottom + (topEnd - bottom) /2;
@@ -817,6 +819,37 @@ public class Scribe implements IJavaDocTagConstants {
 		return offset;
 	}
 
+	int getCurrentIndentation(int start) {
+		int linePtr = Arrays.binarySearch(this.lineEnds, start);
+		if (linePtr < 0) {
+			linePtr = -linePtr - 1;
+		}
+		int offset = 0;
+		int beginningOfLine = getLineEnd(linePtr)+1;
+		if (beginningOfLine == -1) {
+			beginningOfLine = 0;
+		}
+		char[] source = this.scanner.source;
+
+		for (int i=beginningOfLine; i<start; i++) {
+			char currentCharacter = source[i];
+			switch (currentCharacter) {
+				case '\t' :
+					offset += this.tabLength;
+					break;
+				case '\r' :
+				case '\n' :
+					break;
+				case ' ':
+					offset++;
+					break;
+				default:
+					return offset;
+			}
+		}
+		return offset;
+	}
+
 	public String getEmptyLines(int linesNumber) {
 		if (this.nlsTagCounter > 0) {
 			return Util.EMPTY_STRING;
@@ -944,14 +977,86 @@ public class Scribe implements IJavaDocTagConstants {
 			// preserve line breaks in wrapping if specified
 			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=198074
 			if (this.currentAlignment != null && !this.formatter.preferences.join_wrapped_lines) {
-				// insert a new line only if it has not been already done before
-				// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=283476
-				if (this.lastNumberOfNewLines == 0) {
+				// Insert a new line only if it has not been already done before
+				// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=283476)
+				// or when there's no direct member alignment
+				// (additional fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=286601)
+				if (this.lastNumberOfNewLines == 0 || this.memberAlignment == null || this.memberAlignment.location.inputOffset < this.currentAlignment.location.inputOffset) {
+
+					// Debug
+					if (DefaultCodeFormatter.DEBUG) {
+						System.out.println("Preserve empty lines:"); //$NON-NLS-1$
+						System.out.println(" - indentation level = "+this.indentationLevel); //$NON-NLS-1$
+						System.out.println(" - current alignment: "); //$NON-NLS-1$
+						System.out.print(this.currentAlignment.toString(new StringBuffer(), 1));
+						if (this.memberAlignment != null) {
+							System.out.println(" - member alignment: "); //$NON-NLS-1$
+							System.out.print(this.memberAlignment.toString(new StringBuffer(), 1));
+						}
+					}
+
+					// Reset indentation level to the location output
+					this.indentationLevel = this.currentAlignment.location.outputIndentationLevel;
+
+					// Create new line
 					StringBuffer buffer = new StringBuffer(getNewLine());
-					int savedIndentation = this.indentationLevel;
-					this.indentationLevel = this.currentAlignment.breakIndentationLevel;
+
+					// Look for current indentation
+					int currentColumn = getCurrentIndentation(this.scanner.currentPosition);
+
+					// Determine whether the alignment indentation can be used or not
+					// So far, the best algorithm is to use it when
+					// 1. this is not the opening brace of a local declaration assignment
+					// 2. this is not the first opening brace
+					//     or this is an array initializer alignment
+					//     or this is an binary expression alignment
+					// 3. the indentation level is below the alignment break indentation
+					int currentTokenStartPosition = this.scanner.currentPosition;
+					int nextToken = -1;
+					try {
+						nextToken = this.scanner.getNextToken();
+					} catch (InvalidInputException e) {
+						// skip
+					}
+					this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+					boolean canUseAlignmentIndentation = (nextToken != TerminalTokens.TokenNameLBRACE || !this.currentAlignment.name.equals("localDeclarationAssignmentAlignment")); //$NON-NLS-1$
+					if (canUseAlignmentIndentation &&
+							(!this.formatBrace ||
+									this.currentAlignment.name.equals("array_initializer") || //$NON-NLS-1$
+									this.currentAlignment.name.equals("binaryExpressionAlignment")) && //$NON-NLS-1$
+							this.indentationLevel < this.currentAlignment.breakIndentationLevel) {
+						this.indentationLevel = this.currentAlignment.breakIndentationLevel;
+					}
+
+					// Use the current indentation if over the computed indentation
+					if (this.indentationLevel < currentColumn) {
+						this.indentationLevel = currentColumn;
+					}
+
+					// Debug
+					if (DefaultCodeFormatter.DEBUG) {
+						System.out.println(" - format brace = "+this.formatBrace); //$NON-NLS-1$
+						System.out.println(" - current column = "+currentColumn); //$NON-NLS-1$
+						System.out.println(" - current position = "+this.scanner.currentPosition); //$NON-NLS-1$
+						System.out.print(" - current line = "); //$NON-NLS-1$
+						int linePtr = Arrays.binarySearch(this.lineEnds, this.scanner.currentPosition);
+						if (linePtr < 0) {
+							linePtr = -linePtr - 1;
+						}
+						int i = getLineEnd(linePtr)+1;
+						while (this.scanner.source[i] != '\r') {
+							System.out.print(this.scanner.source[i++]);
+						}
+						System.out.println();
+						System.out.println(" - indentation level = "+this.indentationLevel); //$NON-NLS-1$
+						System.out.println();
+					}
+
+					// Set the flag to indicate that a specific indentation is currently in used
+					this.preserveLineBreakIndentation = true;
+
+					// Print the computed indentation in the buffer
 					printIndentationIfNecessary(buffer);
-					this.indentationLevel = savedIndentation;
 					return buffer.toString();
 				}
 			}
@@ -1276,7 +1381,7 @@ public class Scribe implements IJavaDocTagConstants {
 		try {
 			while (nextCharacterStart <= currentTokenEndPosition && (currentCharacter = this.scanner.getNextChar()) != -1) {
 				nextCharacterStart = this.scanner.currentPosition;
-	
+
 				switch(currentCharacter) {
 					case '\r' :
 						start = previousStart;
@@ -1296,7 +1401,7 @@ public class Scribe implements IJavaDocTagConstants {
 							this.column = 1;
 							this.line++;
 							isNewLine = false;
-	
+
 							StringBuffer buffer = new StringBuffer();
 							if (onFirstColumn) {
 								// simply insert indentation if necessary
@@ -2325,7 +2430,7 @@ public class Scribe implements IJavaDocTagConstants {
 				break;
 			}
 		}
-		
+
 		// Delete leading whitespaces if any
 		if (previousToken != -1 && lastTokenEndPosition != commentStart && spaceEndPosition > lastTokenEndPosition) {
 			addDeleteEdit(lastTokenEndPosition, spaceEndPosition-1);
@@ -3750,7 +3855,12 @@ public class Scribe implements IJavaDocTagConstants {
 			return;
 		}
 		if (this.lastNumberOfNewLines >= 1) {
-			this.column = 1; // ensure that the scribe is at the beginning of a new line
+			// ensure that the scribe is at the beginning of a new line
+			// only if no specific indentation has been previously set
+			if (!this.preserveLineBreakIndentation) {
+				this.column = 1;
+			}
+			this.preserveLineBreakIndentation = false;
 			return;
 		}
 		addInsertEdit(insertPosition, this.lineSeparator);
@@ -3759,6 +3869,7 @@ public class Scribe implements IJavaDocTagConstants {
 		this.column = 1;
 		this.needSpace = false;
 		this.pendingSpace = false;
+		this.preserveLineBreakIndentation = false;
 	}
 
 	public void printNextToken(int expectedTokenType){
@@ -3766,15 +3877,31 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	public void printNextToken(int expectedTokenType, boolean considerSpaceIfAny){
-		printComment(CodeFormatter.K_UNKNOWN);
+		// Set brace flag, it's useful for the scribe while preserving line breaks
+		switch (expectedTokenType) {
+			case TerminalTokens.TokenNameRBRACE:
+			case TerminalTokens.TokenNameLBRACE:
+				this.formatBrace = true;
+		}
 		try {
-			this.currentToken = this.scanner.getNextToken();
-			if (expectedTokenType != this.currentToken) {
-				throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
+			printComment(CodeFormatter.K_UNKNOWN);
+			try {
+				this.currentToken = this.scanner.getNextToken();
+				if (expectedTokenType != this.currentToken) {
+					throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
+				}
+				print(this.scanner.currentPosition - this.scanner.startPosition, considerSpaceIfAny);
+			} catch (InvalidInputException e) {
+				throw new AbortFormatting(e);
 			}
-			print(this.scanner.currentPosition - this.scanner.startPosition, considerSpaceIfAny);
-		} catch (InvalidInputException e) {
-			throw new AbortFormatting(e);
+		}
+		finally {
+			// Flush brace flag
+			switch (expectedTokenType) {
+				case TerminalTokens.TokenNameRBRACE:
+				case TerminalTokens.TokenNameLBRACE:
+					this.formatBrace = false;
+			}
 		}
 	}
 
