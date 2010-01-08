@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -274,6 +274,14 @@ public abstract class ASTVisitor {
 		// do nothing by default
 	}
 	/**
+	 * @param annotation
+	 * @param scope
+	 * @since 3.1
+	 */
+	public void endVisit(MarkerAnnotation annotation, ClassScope scope) {
+		// do nothing by default
+	}
+	/**
 	 * @param pair
 	 * @param scope
 	 */
@@ -302,6 +310,9 @@ public abstract class ASTVisitor {
 	 * @since 3.1
 	 */
 	public void endVisit(NormalAnnotation annotation, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(NormalAnnotation annotation, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(NullLiteral nullLiteral, BlockScope scope) {
@@ -382,6 +393,14 @@ public abstract class ASTVisitor {
 	 * @since 3.1
 	 */
 	public void endVisit(SingleMemberAnnotation annotation, BlockScope scope) {
+		// do nothing by default
+	}
+	/**
+	 * @param annotation
+	 * @param scope
+	 * @since 3.1
+	 */
+	public void endVisit(SingleMemberAnnotation annotation, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(
@@ -716,6 +735,14 @@ public abstract class ASTVisitor {
 		return true;
 	}
 	/**
+	 * @param annotation
+	 * @param scope
+	 * @since 3.1
+	 */
+	public boolean visit(MarkerAnnotation annotation, ClassScope scope) {
+		return true;
+	}
+	/**
 	 * @param pair
 	 * @param scope
 	 * @since 3.1
@@ -748,6 +775,14 @@ public abstract class ASTVisitor {
 	 * @since 3.1
 	 */
 	public boolean visit(NormalAnnotation annotation, BlockScope scope) {
+		return true;
+	}
+	/**
+	 * @param annotation
+	 * @param scope
+	 * @since 3.1
+	 */
+	public boolean visit(NormalAnnotation annotation, ClassScope scope) {
 		return true;
 	}
 	public boolean visit(NullLiteral nullLiteral, BlockScope scope) {
@@ -828,6 +863,14 @@ public abstract class ASTVisitor {
 	 * @since 3.1
 	 */
 	public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
+		return true;
+	}
+	/**
+	 * @param annotation
+	 * @param scope
+	 * @since 3.1
+	 */
+	public boolean visit(SingleMemberAnnotation annotation, ClassScope scope) {
 		return true;
 	}
 	public boolean visit(

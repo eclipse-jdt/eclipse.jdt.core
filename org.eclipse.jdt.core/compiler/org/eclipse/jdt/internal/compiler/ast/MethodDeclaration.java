@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,7 +77,9 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			// tag parameters as being set
 			if (this.arguments != null) {
 				for (int i = 0, count = this.arguments.length; i < count; i++) {
-					flowInfo.markAsDefinitelyAssigned(this.arguments[i].binding);
+					Argument argument = this.arguments[i];
+					this.bits |= (argument.bits & ASTNode.HasTypeAnnotations);
+					flowInfo.markAsDefinitelyAssigned(argument.binding);
 				}
 			}
 			// propagate to statements
@@ -138,6 +140,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		if (this.typeParameters != null) {
 			for (int i = 0, length = this.typeParameters.length; i < length; i++) {
 				TypeParameter typeParameter = this.typeParameters[i];
+				this.bits |= (typeParameter.bits & ASTNode.HasTypeAnnotations);
 				typeParameter.resolve(this.scope);
 				typeParameter.resolveAnnotations(this.scope);
 			}

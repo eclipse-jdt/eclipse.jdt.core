@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ import java.util.Stack;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
@@ -300,7 +299,6 @@ public abstract class Annotation extends Expression {
 	}
 	// jsr 308
 	public static class TypeUseBinding extends ReferenceBinding {
-		public AnnotationContext context;
 		private int kind;
 		public TypeUseBinding(int kind) {
 			this.tagBits = 0L;
@@ -743,4 +741,5 @@ public abstract class Annotation extends Expression {
 
 	public abstract void traverse(ASTVisitor visitor, BlockScope scope);
 
+	public abstract void traverse(ASTVisitor visitor, ClassScope scope);
 }

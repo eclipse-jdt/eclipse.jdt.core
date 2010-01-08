@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
@@ -524,32 +525,27 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.header[this.constantPoolOffset] = (byte) constantPoolCount;
 	}
 	private int generateTypeAnnotationAttributeForTypeDeclaration() {
+		TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
 		int attributesNumber = 0;
+		if ((typeDeclaration.bits & ASTNode.HasTypeAnnotations) == 0) {
+			return attributesNumber;
+		}
 		int visibleTypeAnnotationsCounter = 0;
 		int invisibleTypeAnnotationsCounter = 0;
-		TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
 		TypeReference superclass = typeDeclaration.superclass;
-		List allTypeAnnotations = new ArrayList();
+		List allTypeAnnotationContexts = new ArrayList();
 		if (superclass != null) {
-			Annotation[] annotations = superclass.getAllAnnotations();
-			if (annotations != null) {
-				AnnotationContext context = null;
-				if (this.referenceBinding.superclass.isParameterizedType()) {
-					context = new AnnotationContext(0x15);
-				} else {
-					context = new AnnotationContext(0x14);
-				}
-				context.setTypeIndex(-1);
-				for (int i = 0, max = annotations.length; i < max; i++) {
-					Annotation annotation = annotations[i];
-					if (isRuntimeTypeInvisible(annotation)) {
+			AnnotationContext[] annotationContexts = superclass.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS);
+			if (annotationContexts != null) {
+				for (int i = 0, max = annotationContexts.length; i < max; i++) {
+					AnnotationContext annotationContext = annotationContexts[i];
+					annotationContext.typeIndex = -1;
+					if (isRuntimeTypeInvisible(annotationContext.annotation)) {
 						invisibleTypeAnnotationsCounter++;
-						((Annotation.TypeUseBinding) annotation.recipient).context = context;
-						allTypeAnnotations.add(annotation);
-					} else if (isRuntimeTypeVisible(annotation)) {
+						allTypeAnnotationContexts.add(annotationContext);
+					} else if (isRuntimeTypeVisible(annotationContext.annotation)) {
 						visibleTypeAnnotationsCounter++;
-						((Annotation.TypeUseBinding) annotation.recipient).context = context;
-						allTypeAnnotations.add(annotation);
+						allTypeAnnotationContexts.add(annotationContext);
 					}
 				}
 			}
@@ -558,31 +554,28 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (superInterfaces != null) {
 			for (int i = 0; i < superInterfaces.length; i++) {
 				TypeReference superInterface = superInterfaces[i];
-				Annotation[] annotations = superInterface.getAllAnnotations();
-				if (annotations != null) {
-					AnnotationContext context = new AnnotationContext(0x14);
-					context.setTypeIndex(i);
-					for (int j = 0, max = annotations.length; j < max; j++) {
-						Annotation annotation = annotations[j];
-						if (isRuntimeTypeInvisible(annotation)) {
+				AnnotationContext[] annotationContexts = superInterface.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS);
+				if (annotationContexts != null) {
+					for (int j = 0, max = annotationContexts.length; j < max; j++) {
+						AnnotationContext annotationContext = annotationContexts[j];
+						annotationContext.typeIndex = i;
+						if (isRuntimeTypeInvisible(annotationContext.annotation)) {
 							invisibleTypeAnnotationsCounter++;
-							((Annotation.TypeUseBinding) annotation.recipient).context = context;
-							allTypeAnnotations.add(annotation);
-						} else if (isRuntimeTypeVisible(annotation)) {
+							allTypeAnnotationContexts.add(annotationContext);
+						} else if (isRuntimeTypeVisible(annotationContext.annotation)) {
 							visibleTypeAnnotationsCounter++;
-							((Annotation.TypeUseBinding) annotation.recipient).context = context;
-							allTypeAnnotations.add(annotation);
+							allTypeAnnotationContexts.add(annotationContext);
 						}
 					}
 				}
 			}
 		}
-		int size = allTypeAnnotations.size();
+		int size = allTypeAnnotationContexts.size();
 		if (size != 0) {
-			Annotation[] allTypeAnnotationsArray = new Annotation[size];
-			allTypeAnnotations.toArray(allTypeAnnotationsArray);
+			AnnotationContext[] allTypeAnnotationContextsArray = new AnnotationContext[size];
+			allTypeAnnotationContexts.toArray(allTypeAnnotationContextsArray);
 			attributesNumber += generateRuntimeTypeAnnotations(
-					allTypeAnnotationsArray,
+					allTypeAnnotationContextsArray,
 					visibleTypeAnnotationsCounter,
 					invisibleTypeAnnotationsCounter);
 		}
@@ -6021,22 +6014,38 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 	}
 
-	private void generateTypeAnnotation(Annotation annotation, int currentOffset) {
+	private void generateTypeAnnotation(AnnotationContext annotationContext, int currentOffset) {
 		// common part between type annotation and annotation
-		generateAnnotation(annotation, currentOffset);
-		AnnotationContext context = ((Annotation.TypeUseBinding) annotation.recipient).context;
-		this.contents[this.contentsOffset++] = (byte) context.targetType;
-		switch(context.targetType) {
-			case AnnotationContext.CLASS_EXTENDS_IMPLEMENTS :
-				this.contents[this.contentsOffset++] = (byte) (context.typeIndex >> 8);
-				this.contents[this.contentsOffset++] = (byte) context.typeIndex;
+		generateAnnotation(annotationContext.annotation, currentOffset);
+		if (this.contentsOffset == currentOffset) {
+			// error occurred while generating the annotation
+			return;
+		}
+		int[] locations = Annotation.getLocations(annotationContext.typeReference, null, annotationContext.annotation);
+		int targetType = annotationContext.targetType;
+		if (locations != null) {
+			// convert to GENERIC_OR_ARRAY type
+			switch(targetType) {
+				case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS :
+					targetType = AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY;
+					break;
+			}
+		}
+		this.contents[this.contentsOffset++] = (byte) targetType;
+		switch(targetType) {
+			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS :
+				this.contents[this.contentsOffset++] = (byte) (annotationContext.typeIndex >> 8);
+				this.contents[this.contentsOffset++] = (byte) annotationContext.typeIndex;
 				break;
-			case AnnotationContext.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
-				this.contents[this.contentsOffset++] = (byte) (context.typeIndex >> 8);
-				this.contents[this.contentsOffset++] = (byte) context.typeIndex;
-				this.contents[this.contentsOffset++] = 0;
-				this.contents[this.contentsOffset++] = 1;
-				this.contents[this.contentsOffset++] = 0;
+			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
+				this.contents[this.contentsOffset++] = (byte) (annotationContext.typeIndex >> 8);
+				this.contents[this.contentsOffset++] = (byte) annotationContext.typeIndex;
+				int length = locations.length;
+				this.contents[this.contentsOffset++] = (byte) (length >> 8);
+				this.contents[this.contentsOffset++] = (byte) length;
+				for (int i = 0; i < length; i++) {
+					this.contents[this.contentsOffset++] = (byte) locations[i];
+				}
 				break;
 		}
 	}
@@ -6695,13 +6704,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 
 	/**
-	 * @param annotations
+	 * @param annotationContexts the given annotation contexts
+	 * @param visibleTypeAnnotationsNumber the given number of visible type annotations
+	 * @param invisibleTypeAnnotationsNumber the given number of invisible type annotations
 	 * @return the number of attributes created while dumping the annotations in the .class file
 	 */
-	private int generateRuntimeTypeAnnotations(final Annotation[] annotations, int visibleTypeAnnotationsCounter, int invisibleTypeAnnotationsCounter) {
+	private int generateRuntimeTypeAnnotations(final AnnotationContext[] annotationContexts, int visibleTypeAnnotationsNumber, int invisibleTypeAnnotationsNumber) {
 		int attributesNumber = 0;
-		final int length = annotations.length;
+		final int length = annotationContexts.length;
 
+		int visibleTypeAnnotationsCounter = visibleTypeAnnotationsNumber;
+		int invisibleTypeAnnotationsCounter = invisibleTypeAnnotationsNumber;
 		int annotationAttributeOffset = this.contentsOffset;
 		int constantPOffset = this.constantPool.currentOffset;
 		int constantPoolIndex = this.constantPool.currentIndex;
@@ -6722,10 +6735,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int counter = 0;
 			loop: for (int i = 0; i < length; i++) {
 				if (invisibleTypeAnnotationsCounter == 0) break loop;
-				Annotation annotation = annotations[i];
-				if (isRuntimeTypeInvisible(annotation)) {
+				AnnotationContext annotationContext = annotationContexts[i];
+				if (isRuntimeTypeInvisible(annotationContext.annotation)) {
 					int currentAnnotationOffset = this.contentsOffset;
-					generateTypeAnnotation(annotation, currentAnnotationOffset);
+					generateTypeAnnotation(annotationContext, currentAnnotationOffset);
 					invisibleTypeAnnotationsCounter--;
 					if (this.contentsOffset != currentAnnotationOffset) {
 						counter++;
@@ -6769,11 +6782,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int counter = 0;
 			loop: for (int i = 0; i < length; i++) {
 				if (visibleTypeAnnotationsCounter == 0) break loop;
-				Annotation annotation = annotations[i];
-				if (isRuntimeTypeVisible(annotation)) {
+				AnnotationContext annotationContext = annotationContexts[i];
+				if (isRuntimeTypeVisible(annotationContext.annotation)) {
 					visibleTypeAnnotationsCounter--;
 					int currentAnnotationOffset = this.contentsOffset;
-					generateTypeAnnotation(annotation, currentAnnotationOffset);
+					generateTypeAnnotation(annotationContext, currentAnnotationOffset);
 					if (this.contentsOffset != currentAnnotationOffset) {
 						counter++;
 					}

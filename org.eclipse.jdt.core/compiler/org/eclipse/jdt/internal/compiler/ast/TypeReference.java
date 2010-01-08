@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -28,7 +32,33 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public abstract class TypeReference extends Expression {
-
+static class AnnotationCollector extends ASTVisitor {
+	List annotationContexts;
+	TypeReference typeReference;
+	int targetType;
+	
+	public AnnotationCollector(TypeReference typeReference, int targetType) {
+		this.annotationContexts = new ArrayList();
+		this.typeReference = typeReference;
+		this.targetType = targetType;
+	}
+	public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
+		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType));
+		return true;
+	}
+	public boolean visit(NormalAnnotation annotation, BlockScope scope) {
+		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType));
+		return true;
+	}
+	public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
+		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType));
+		return true;
+	}
+	
+	public AnnotationContext[] getAnnotationContexts() {
+		return (AnnotationContext[]) this.annotationContexts.toArray(new AnnotationContext[this.annotationContexts.size()]);
+	}
+}
 /*
  * Answer a base type reference (can be an array of base type).
  */
@@ -96,8 +126,10 @@ public abstract TypeReference copyDims(int dim, Annotation[][] annotationsOnDime
 public int dimensions() {
 	return 0;
 }
-public Annotation[] getAllAnnotations() {
-	return null;
+public AnnotationContext[] getAllAnnotationContexts(int targetType) {
+	AnnotationCollector collector = new AnnotationCollector(this, targetType);
+	this.traverse(collector, (BlockScope) null);
+	return collector.getAnnotationContexts();
 }
 public Annotation[][] getAnnotationsOnDimensions() {
 	return null;

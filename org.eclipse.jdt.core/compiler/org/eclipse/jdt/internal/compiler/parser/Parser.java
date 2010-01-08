@@ -151,7 +151,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 
 	public static short check_table[] = null;
 	public static final int CurlyBracket = 2;
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final boolean DEBUG_AUTOMATON = false;
 	private static final String EOF_TOKEN = "$eof" ; //$NON-NLS-1$
 	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
@@ -1373,6 +1373,7 @@ protected ParameterizedQualifiedTypeReference computeQualifiedGenericsFromRightS
 			0,
 			length);
 		typeRef.sourceStart = typeRef.annotations[0].sourceStart;
+		typeRef.bits |= ASTNode.HasTypeAnnotations;
 	}
 	return typeRef;
 }
@@ -2188,6 +2189,7 @@ protected void consumeCastExpressionLL1WithTypeAnnotations() {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
 		typeReference.sourceStart = typeReferenceSourceStart;
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 	}
 	Expression cast;
 	pushOnExpressionStack(cast = new CastExpression(expression, typeReference));
@@ -2242,6 +2244,7 @@ protected void consumeCastExpressionWithGenericsArrayWithTypeAnnotations() {
 		if (this.modifiersSourceStart < typeReferenceSourceStart) {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 		typeReference.sourceStart = typeReferenceSourceStart;
 	}
 	Expression cast;
@@ -2301,6 +2304,7 @@ protected void consumeCastExpressionWithNameArrayWithTypeAnnotations() {
 		if (this.modifiersSourceStart < typeReferenceSourceStart) {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 		typeReference.sourceStart = typeReferenceSourceStart;
 	}
 	Expression cast;
@@ -2355,6 +2359,7 @@ protected void consumeCastExpressionWithPrimitiveTypeWithTypeAnnotations() {
 		if (this.modifiersSourceStart < typeReferenceSourceStart) {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 		typeReference.sourceStart = typeReferenceSourceStart;
 	}
 	
@@ -2414,6 +2419,7 @@ protected void consumeCastExpressionWithQualifiedGenericsArrayWithTypeAnnotation
 		if (this.modifiersSourceStart < typeReferenceSourceStart) {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 		typeReference.sourceStart = typeReferenceSourceStart;
 	}
 	Expression cast;
@@ -2559,6 +2565,7 @@ protected void consumeClassHeaderExtends() {
 	TypeReference superClass = getTypeReference(0);
 	// There is a class declaration on the top of stack
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+	typeDecl.bits |= (superClass.bits & ASTNode.HasTypeAnnotations);
 	typeDecl.superclass = superClass;
 	superClass.bits |= ASTNode.IsSuperType;
 	typeDecl.bodyStart = typeDecl.superclass.sourceEnd + 1;
@@ -2580,8 +2587,11 @@ protected void consumeClassHeaderImplements() {
 		typeDecl.superInterfaces = new TypeReference[length],
 		0,
 		length);
-	for (int i = 0, max = typeDecl.superInterfaces.length; i < max; i++) {
-		typeDecl.superInterfaces[i].bits |= ASTNode.IsSuperType;
+	TypeReference[] superinterfaces = typeDecl.superInterfaces;
+	for (int i = 0, max = superinterfaces.length; i < max; i++) {
+		TypeReference typeReference = superinterfaces[i];
+		typeDecl.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations);
+		typeReference.bits |= ASTNode.IsSuperType;
 	}
 	typeDecl.bodyStart = typeDecl.superInterfaces[length-1].sourceEnd + 1;
 	this.listLength = 0; // reset after having read super-interfaces
@@ -2959,9 +2969,9 @@ protected void consumeConstructorHeader() {
 				method.receiverAnnotations = new Annotation[length],
 				0,
 				length);
+		method.bits |= ASTNode.HasTypeAnnotations;
 	}
-	
-	
+
 	if (this.currentToken == TokenNameLBRACE){
 		method.bodyStart = this.scanner.currentPosition;
 	}
@@ -3332,6 +3342,7 @@ protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 		localDeclaration.declarationSourceStart = type.sourceStart;
 	}
 	localDeclaration.type = type;
+	localDeclaration.bits |= (type.bits & ASTNode.HasTypeAnnotations);
 
 	ForeachStatement iteratorForStatement =
 		new ForeachStatement(
@@ -3498,12 +3509,14 @@ protected void consumeEnterVariable() {
 
 	if (extendedDimension == 0) {
 		declaration.type = type;
+		declaration.bits |= (type.bits & ASTNode.HasTypeAnnotations);
 	} else {
 		int dimension = typeDim + extendedDimension;
 		Annotation [][] annotationsOnAllDimensions = null;
 		Annotation[][] annotationsOnDimensions = type.getAnnotationsOnDimensions();
 		if (annotationsOnDimensions != null || annotationsOnExtendedDimensions != null) {
 			annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(typeDim, annotationsOnDimensions, extendedDimension, annotationsOnExtendedDimensions); 
+			declaration.bits |= (type.bits & ASTNode.HasTypeAnnotations);
 		}
 		declaration.type = copyDims(type, dimension, annotationsOnAllDimensions);
 	}
@@ -4199,6 +4212,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			type,
 			this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
 	arg.declarationSourceStart = modifierPositions;
+	arg.bits |= (type.bits & ASTNode.HasTypeAnnotations);
 	// consume annotations
 	
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -4397,8 +4411,11 @@ protected void consumeInterfaceHeaderExtends() {
 		typeDecl.superInterfaces = new TypeReference[length],
 		0,
 		length);
-	for (int i = 0, max = typeDecl.superInterfaces.length; i < max; i++) {
-		typeDecl.superInterfaces[i].bits |= ASTNode.IsSuperType;
+	TypeReference[] superinterfaces = typeDecl.superInterfaces;
+	for (int i = 0, max = superinterfaces.length; i < max; i++) {
+		TypeReference typeReference = superinterfaces[i];
+		typeDecl.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations);
+		typeReference.bits |= ASTNode.IsSuperType;
 	}
 	typeDecl.bodyStart = typeDecl.superInterfaces[length-1].sourceEnd + 1;
 	this.listLength = 0; // reset after having read super-interfaces
@@ -4863,6 +4880,7 @@ protected void consumeMethodHeaderExtendedDims() {
 			md.receiverAnnotations = new Annotation[length],
 			0,
 			length);
+		md.bits |= ASTNode.HasTypeAnnotations;
 	}
 	int extendedDims = this.intStack[this.intPtr--];
 	if(md.isAnnotationMethod()) {
@@ -4962,7 +4980,9 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 	//type
-	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
+	TypeReference returnType = getTypeReference(this.intStack[this.intPtr--]);
+	md.returnType = returnType;
+	md.bits |= (returnType.bits & ASTNode.HasTypeAnnotations);
 
 	// consume type parameters
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
@@ -5477,6 +5497,7 @@ protected void consumePrimaryNoNewArrayArrayTypeWithTypeAnnotations() {
 		if (this.modifiersSourceStart < typeReferenceSourceStart) {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 		typeReference.sourceStart = typeReferenceSourceStart;
 	}
 	pushOnExpressionStack(new ClassLiteralAccess(classTokenSourceEnd, typeReference));
@@ -5517,6 +5538,7 @@ protected void consumePrimaryNoNewArrayNameWithTypeAnnotations() {
 		if (this.modifiersSourceStart < typeReferenceSourceStart) {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 		typeReference.sourceStart = typeReferenceSourceStart;
 	}
 
@@ -5577,6 +5599,7 @@ protected void consumePrimaryNoNewArrayPrimitiveArrayTypeWithTypeAnnotations() {
 		if (this.modifiersSourceStart < typeReferenceSourceStart) {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 		typeReference.sourceStart = typeReferenceSourceStart;
 	}
 	pushOnExpressionStack(new ClassLiteralAccess(classTokeSourceEnd, typeReference));
@@ -5608,6 +5631,7 @@ protected void consumePrimaryNoNewArrayPrimitiveTypeWithTypeAnnotations() {
 		if (this.modifiersSourceStart < typeReferenceSourceStart) {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 		typeReference.sourceStart = typeReferenceSourceStart;
 	}
 	pushOnExpressionStack(new ClassLiteralAccess(classTokenSourceEnd, typeReference));
@@ -8624,6 +8648,7 @@ protected void consumeTypeArgumentReferenceType1WithTypeAnnotations() {
 		if (this.modifiersSourceStart < typeReferenceSourceStart) {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 		typeReference.sourceStart = typeReferenceSourceStart;
 	}
 	pushOnGenericsStack(typeReference);
@@ -8656,6 +8681,7 @@ protected void consumeTypeArgumentReferenceType2WithTypeAnnotations() {
 		if (this.modifiersSourceStart < typeReferenceSourceStart) {
 			typeReferenceSourceStart = this.modifiersSourceStart;
 		}
+		typeReference.bits |= ASTNode.HasTypeAnnotations;
 		typeReference.sourceStart = typeReferenceSourceStart;
 	}
 	pushOnGenericsStack(typeReference);
@@ -8745,6 +8771,7 @@ protected void consumeTypeParameter1WithExtends() {
 	typeParameter.declarationSourceEnd = superType.sourceEnd;
 	typeParameter.type = superType;
 	superType.bits |= ASTNode.IsSuperType;
+	typeParameter.bits |= (superType.bits & ASTNode.HasTypeAnnotations);
 	this.genericsStack[this.genericsPtr] = typeParameter;
 }
 protected void consumeTypeParameter1WithExtendsAndBounds() {
@@ -8757,10 +8784,13 @@ protected void consumeTypeParameter1WithExtendsAndBounds() {
 	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 	typeParameter.declarationSourceEnd = bounds[additionalBoundsLength - 1].sourceEnd;
 	typeParameter.type = superType;
+	typeParameter.bits |= (superType.bits & ASTNode.HasTypeAnnotations);
 	superType.bits |= ASTNode.IsSuperType;
 	typeParameter.bounds = bounds;
 	for (int i = 0, max = bounds.length; i < max; i++) {
-		bounds[i].bits |= ASTNode.IsSuperType;
+		TypeReference bound = bounds[i];
+		bound.bits |= ASTNode.IsSuperType;
+		typeParameter.bits |= (bound.bits & ASTNode.HasTypeAnnotations);
 	}
 }
 protected void consumeTypeParameterHeader() {
@@ -8826,6 +8856,7 @@ protected void consumeTypeParameterWithExtends() {
 	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 	typeParameter.declarationSourceEnd = superType.sourceEnd;
 	typeParameter.type = superType;
+	typeParameter.bits |= (superType.bits & ASTNode.HasTypeAnnotations);
 	superType.bits |= ASTNode.IsSuperType;
 }
 protected void consumeTypeParameterWithExtendsAndBounds() {
@@ -8837,11 +8868,14 @@ protected void consumeTypeParameterWithExtendsAndBounds() {
 	TypeReference superType = getTypeReference(this.intStack[this.intPtr--]);
 	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 	typeParameter.type = superType;
+	typeParameter.bits |= (superType.bits & ASTNode.HasTypeAnnotations);
 	superType.bits |= ASTNode.IsSuperType;
 	typeParameter.bounds = bounds;
 	typeParameter.declarationSourceEnd = bounds[additionalBoundsLength - 1].sourceEnd;
 	for (int i = 0, max = bounds.length; i < max; i++) {
-		bounds[i].bits |= ASTNode.IsSuperType;
+		TypeReference bound = bounds[i];
+		bound.bits |= ASTNode.IsSuperType;
+		typeParameter.bits |= (bound.bits & ASTNode.HasTypeAnnotations);
 	}
 }
 protected void consumeUnaryExpression(int op) {
@@ -9570,6 +9604,7 @@ protected TypeReference getTypeReference(int dim) {
 				0,
 				length);
 		ref.sourceStart = ref.annotations[0].sourceStart;
+		ref.bits |= ASTNode.HasTypeAnnotations;
 	}
 	return ref;
 }
@@ -9614,6 +9649,7 @@ protected TypeReference getUnannotatedTypeReference(int dim) {
 						annotationsOnDimensions,
 						this.identifierPositionStack[this.identifierPtr--]);
 				ref.sourceEnd = this.endPosition;
+				ref.bits |= ASTNode.HasTypeAnnotations;
 			}
 		} else {
 			this.genericsLengthPtr--;
@@ -9634,6 +9670,7 @@ protected TypeReference getUnannotatedTypeReference(int dim) {
 				annotationsOnDimensions = getAnnotationsOnDimensions(dim);
 				ref = new ArrayQualifiedTypeReference(tokens, dim, annotationsOnDimensions, positions);
 				ref.sourceEnd = this.endPosition;
+				ref.bits |= ASTNode.HasTypeAnnotations;
 			}
 		}
 	}

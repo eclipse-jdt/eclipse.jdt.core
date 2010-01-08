@@ -32,7 +32,7 @@ public TypeAnnotationSyntaxTest(String testName){
 
 static {
 //	TESTS_NAMES = new String[] { "test0038", "test0039", "test0040a" };
-//	TESTS_NUMBERS = new int[] { 561 };
+	TESTS_NUMBERS = new int[] { 61 };
 }
 
 public void test0001() throws IOException {
@@ -3410,5 +3410,17 @@ public void test0060() throws IOException {
 		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_INDEXING_PARSER, source.toCharArray(), null, "test001", expectedUnitToString );
+}
+//To test type annotations on static class member access in a declaration
+public void test0061() throws IOException {
+	String source =
+		"public class X extends @A(\"Hello, World!\") Y<@B @C('(') String[] @D[]> {}";
+	String expectedUnitToString =
+		"public class X extends @A(\"Hello, World!\") Y<@B @C(\'(\') String[] @D []> {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test001", expectedUnitToString );
 }
 }

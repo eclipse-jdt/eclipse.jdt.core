@@ -35,6 +35,7 @@ public abstract class AbstractMethodDeclaration
 	public int modifiers;
 	public int modifiersSourceStart;
 	public Annotation[] annotations;
+	// jsr 308
 	public Annotation[] receiverAnnotations;
 	public Argument[] arguments;
 	public TypeReference[] thrownExceptions;
