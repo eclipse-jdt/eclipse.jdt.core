@@ -299,13 +299,16 @@ public class ClassScope extends Scope {
 			methodBindings[1] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUEOF); // add <EnumType> valueOf()
 		}
 		// create bindings for source methods
+		boolean hasNativeMethods = false;
 		if (sourceType.isAbstract()) {
 			for (int i = 0; i < size; i++) {
 				if (i != clinitIndex) {
 					MethodScope scope = new MethodScope(this, methods[i], false);
 					MethodBinding methodBinding = scope.createMethod(methods[i]);
-					if (methodBinding != null) // is null if binding could not be created
+					if (methodBinding != null) { // is null if binding could not be created
 						methodBindings[count++] = methodBinding;
+						hasNativeMethods = hasNativeMethods || methodBinding.isNative();
+					}
 				}
 			}
 		} else {
@@ -317,6 +320,7 @@ public class ClassScope extends Scope {
 					if (methodBinding != null) { // is null if binding could not be created
 						methodBindings[count++] = methodBinding;
 						hasAbstractMethods = hasAbstractMethods || methodBinding.isAbstract();
+						hasNativeMethods = hasNativeMethods || methodBinding.isNative();
 					}
 				}
 			}
@@ -327,6 +331,17 @@ public class ClassScope extends Scope {
 			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);
 		sourceType.tagBits &= ~(TagBits.AreMethodsSorted|TagBits.AreMethodsComplete); // in case some static imports reached already into this type
 		sourceType.setMethods(methodBindings);
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=243917, conservatively tag all methods and fields as
+		// being in use if there is a native method in the class.
+		if (hasNativeMethods) {
+			for (int i = 0; i < methodBindings.length; i++) {
+				methodBindings[i].modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+			}
+			FieldBinding[] fields = sourceType.fields();
+			for (int i = 0; i < fields.length; i++) {
+				fields[i].modifiers |= ExtraCompilerModifiers.AccLocallyUsed;	
+			}
+		}
 	}
 
 	SourceTypeBinding buildType(SourceTypeBinding enclosingType, PackageBinding packageBinding, AccessRestriction accessRestriction) {

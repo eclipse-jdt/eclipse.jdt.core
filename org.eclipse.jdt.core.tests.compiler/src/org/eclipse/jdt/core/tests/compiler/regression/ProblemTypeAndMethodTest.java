@@ -5286,4 +5286,24 @@ public void test104() {
 		false,
 		null);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=243917
+public void test105() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    static {\n" +
+			"        System.loadLibrary(\"tpbrooktrout\");\n" +
+			"    }\n" +
+			"    private final int time;\n" +
+			"    private int foo() { return 0;}\n" +
+			"    private class Inner {}\n" +
+			"    public X(int delay) {\n" +
+			"        time = delay;\n" +
+			"    }\n" +
+			"    public native void run(Inner i);\n" +
+			"}\n"
+		},
+		"");
+}
 }
