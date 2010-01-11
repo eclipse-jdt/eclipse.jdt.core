@@ -151,7 +151,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 
 	public static short check_table[] = null;
 	public static final int CurlyBracket = 2;
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final boolean DEBUG_AUTOMATON = false;
 	private static final String EOF_TOKEN = "$eof" ; //$NON-NLS-1$
 	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
@@ -5778,21 +5778,20 @@ protected void consumeAnnotatedType() {
 	*/
 	int dims = this.intStack[this.intPtr];
 	if (dims != 0) {
+		int counter = 0;
+		for (int i = 0; i < dims; i++) {
+			// we count existing dimensions with annotations
+			counter += this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - dims + 1 + i];
+		}
 		System.arraycopy(
 				this.typeAnnotationLengthStack,
 				this.typeAnnotationLengthPtr - dims + 1,
 				this.typeAnnotationLengthStack,
-				this.typeAnnotationLengthPtr - dims + 3,
+				this.typeAnnotationLengthPtr - dims + 2,
 				dims);
-		this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - dims + 1] = 0; // tag type as unannotated
 		int length = this.expressionLengthStack[this.expressionLengthPtr--];
-		this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - dims + 2] = length;
+		this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - dims + 1] = length;
 		int typeAnnotationStackLength = this.typeAnnotationStack.length;
-		int counter = 0;
-		for (int i = 0; i < dims; i++) {
-			// we count existing dimensions
-			counter += this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - dims + 3 + i];
-		}
 		if (this.typeAnnotationPtr + counter + length >= typeAnnotationStackLength) {
 			System.arraycopy(
 					this.typeAnnotationStack,
@@ -5805,7 +5804,7 @@ protected void consumeAnnotatedType() {
 				this.typeAnnotationStack,
 				this.typeAnnotationPtr - counter + 1,
 				this.typeAnnotationStack,
-				this.typeAnnotationPtr -counter + 1 + length,
+				this.typeAnnotationPtr - counter + 1 + length,
 				counter);
 		System.arraycopy(
 				this.expressionStack,
@@ -5814,7 +5813,7 @@ protected void consumeAnnotatedType() {
 				this.typeAnnotationPtr - counter + 1,
 				length);
 		this.typeAnnotationPtr += length;
-		this.typeAnnotationLengthPtr += 2;
+		this.typeAnnotationLengthPtr++;
 	} else {
 		int length = this.expressionLengthStack[this.expressionLengthPtr--];
 		int typeAnnotationStackLength = this.typeAnnotationStack.length;
@@ -9342,7 +9341,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 	} else if (this.currentElement != null){
 		if (VERBOSE_RECOVERY){
 			System.out.print(Messages.parser_syntaxRecovery);
-			System.out.println("--------------------------");		 //$NON-NLS-1$
+			System.out.println("--------------------------"); //$NON-NLS-1$
 			System.out.println(this.compilationUnit);
 			System.out.println("----------------------------------"); //$NON-NLS-1$
 		}

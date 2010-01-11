@@ -220,6 +220,7 @@ public void checkParse(
 		String testName, String expectedUnitToString,
 		ASTVisitor visitor) throws IOException {
 
+	System.out.println("START " + testName);
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	options.complianceLevel = ClassFileConstants.JDK1_7;
 	options.sourceLevel = ClassFileConstants.JDK1_7;
@@ -349,6 +350,7 @@ public void checkParse(
 		assertParseTreeEquals(expectedUnitToString, unit.toString());
 		parser7 = null;
 	}
+	System.out.println("END " + testName);
 }
 public void checkParse(
 		int parserToCheck,
