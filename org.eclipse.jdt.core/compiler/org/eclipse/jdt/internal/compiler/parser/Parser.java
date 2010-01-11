@@ -4280,15 +4280,15 @@ protected void consumeFormalParameterListopt() {
 }
 protected void consumeGenericType() {
 	// nothing to do
-	// Will be consume by a getTypeRefence call
+	// Will be consume by a getTypeReference call
 }
 protected void consumeGenericTypeArrayType() {
 	// nothing to do
-	// Will be consume by a getTypeRefence call
+	// Will be consume by a getTypeReference call
 }
 protected void consumeGenericTypeNameArrayType() {
 	// nothing to do
-	// Will be consume by a getTypeRefence call
+	// Will be consume by a getTypeReference call
 }
 protected void consumeImportDeclaration() {
 	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
