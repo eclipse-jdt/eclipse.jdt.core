@@ -247,6 +247,9 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 				this.readOffset++;
 				//  TODO (olivier) read the remaining part
 		}
+		if (this.annotationTypeIndex == 0xFFFF) {
+			this.annotationTypeIndex = -1;
+		}
 	}
 
 	/* (non-Javadoc)
