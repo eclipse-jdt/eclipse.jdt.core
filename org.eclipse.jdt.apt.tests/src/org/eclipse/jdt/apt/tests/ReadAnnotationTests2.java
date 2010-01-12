@@ -7,7 +7,6 @@
  * 
  * Contributors:
  *     tyeung@bea.com - initial API and implementation
- *     Satyam Kandula - IBM Corporation and others
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests;
 
