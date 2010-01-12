@@ -19,30 +19,17 @@ public class AnnotationContext {
 	}
 
 	public String toString() {
-		return "AnnotationContext [annotation="
-				+ annotation
-				+ ", typeReference="
-				+ typeReference
-				+ ", targetType="
-				+ targetType
-				+ ", typeIndex="
-				+ typeIndex
-				+ ", offset="
-				+ offset
-				+ ", boundIndex="
-				+ boundIndex + ", paramIndex=" + paramIndex + "]";
-	}
-
-	private String arrayToString(Object array, int len) {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("[");
-		for (int i = 0; i < len; i++) {
-			if (i > 0)
-				buffer.append(", ");
-			if (array instanceof int[])
-				buffer.append(((int[]) array)[i]);
-		}
-		buffer.append("]");
-		return buffer.toString();
+		return "AnnotationContext [annotation=" //$NON-NLS-1$
+				+ this.annotation
+				+ ", typeReference=" //$NON-NLS-1$
+				+ this.typeReference
+				+ ", targetType=" //$NON-NLS-1$
+				+ this.targetType
+				+ ", typeIndex=" //$NON-NLS-1$
+				+ this.typeIndex
+				+ ", offset=" //$NON-NLS-1$
+				+ this.offset
+				+ ", boundIndex=" //$NON-NLS-1$
+				+ this.boundIndex + ", paramIndex=" + this.paramIndex + "]"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
