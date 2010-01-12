@@ -251,11 +251,11 @@ public class CompilerOptions {
 	
 	/** Classfile debug information, may contain source file name, line numbers, local variable tables, etc... */
 	public int produceDebugAttributes; 
-	/** Compliance level for the compiler, refers to a JDK version, e.g. {lnk {@link ClassFileConstants#JDK1_4} */
+	/** Compliance level for the compiler, refers to a JDK version, e.g. {link {@link ClassFileConstants#JDK1_4} */
 	public long complianceLevel;
-	/** Java source level, refers to a JDK version, e.g. {lnk {@link ClassFileConstants#JDK1_4} */
+	/** Java source level, refers to a JDK version, e.g. {link {@link ClassFileConstants#JDK1_4} */
 	public long sourceLevel;
-	/** VM target level, refers to a JDK version, e.g. {lnk {@link ClassFileConstants#JDK1_4} */
+	/** VM target level, refers to a JDK version, e.g. {link {@link ClassFileConstants#JDK1_4} */
 	public long targetJDK;
 	/** Source encoding format */
 	public String defaultEncoding;
