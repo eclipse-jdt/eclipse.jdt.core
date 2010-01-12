@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 BEA Systems, Inc.
+ * Copyright (c) 2005, 2010 BEA Systems, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     tyeung@bea.com - initial API and implementation
+ *     Satyam Kandula - IBM Corporation and others
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests;
 
