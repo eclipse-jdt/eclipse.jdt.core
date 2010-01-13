@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
+ *     Stephan Herrmann  - Contribution for bug 236385
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1703,9 +1704,10 @@ public void test012b(){
         "      unchecked          + unchecked type operation\n" +
         "      unnecessaryElse      unnecessary else clause\n" +
         "      unqualifiedField     unqualified reference to field\n" +
-        "      unused               macro for unusedArgument, unusedImport, unusedLabel,\n" +
-        "                               unusedLocal, unusedPrivate, unusedThrown,\n" +
-        "                               and unusedTypeArgs\n" +
+        "      unused               macro for unusedAllocation, unusedArgument,\n" +
+        "                               unusedImport, unusedLabel, unusedLocal,\n" +
+        "                               unusedPrivate, unusedThrown, and unusedTypeArgs\n" +
+        "      unusedAllocation     allocating an object that is not used\n" +
         "      unusedArgument       unread method parameter\n" +
         "      unusedImport       + unused import declaration\n" +
         "      unusedLabel        + unused label\n" +
@@ -1858,6 +1860,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedImport\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLabel\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLocal\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameter\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocCommentReference\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract\" value=\"disabled\"/>\n" +

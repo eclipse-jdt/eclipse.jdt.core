@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
+ *     Stephan Herrmann  - Contribution for bug 236385
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -414,6 +415,9 @@ public static int getIrritant(int problemID) {
 			
 		case IProblem.Task :
 			return CompilerOptions.Tasks;
+
+		case IProblem.UnusedObjectAllocation:
+			return CompilerOptions.UnusedObjectAllocation;
 	}
 	return 0;
 }
@@ -484,6 +488,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnusedWarningToken :
 			case CompilerOptions.UnusedLabel :
 			case CompilerOptions.RedundantSuperinterface :	
+			case CompilerOptions.UnusedObjectAllocation :
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;
 
 			case CompilerOptions.UsingDeprecatedAPI :
@@ -7123,6 +7128,14 @@ public void unusedLocalVariable(LocalDeclaration localDecl) {
 		severity,
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
+}
+public void unusedObjectAllocation(AllocationExpression allocationExpression) {
+	this.handle(
+		IProblem.UnusedObjectAllocation, 
+		NoArgument, 
+		NoArgument, 
+		allocationExpression.sourceStart, 
+		allocationExpression.sourceEnd);
 }
 public void unusedPrivateConstructor(ConstructorDeclaration constructorDecl) {
 

@@ -81,7 +81,9 @@
  *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE
  *     IBM Corporation - added getOptionForConfigurableSeverity(int)
  *     Benjamin Muskalla - added COMPILER_PB_MISSING_SYNCHRONIZED_ON_INHERITED_METHOD
+ *     Stephan Herrmann  - added COMPILER_PB_UNUSED_OBJECT_ALLOCATION
  *******************************************************************************/
+
 package org.eclipse.jdt.core;
 
 import java.util.ArrayList;
@@ -1541,6 +1543,19 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_MISSING_SYNCHRONIZED_ON_INHERITED_METHOD = PLUGIN_ID + ".compiler.problem.missingSynchronizedOnInheritedMethod"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Reporting Allocation of an Unused Object.
+	 * <p>When enabled, the compiler will issue an error or a warning if an object is allocated but never used,
+	 * neither by holding a reference nor by invoking one of the object's methods.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
+	 * </dl>
+	 * @since 3.6
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_UNUSED_OBJECT_ALLOCATION = PLUGIN_ID + ".compiler.problem.unusedObjectAllocation";  //$NON-NLS-1$
 	/**
 	 * Core option ID: Computing Project Build Order.
 	 * <p>Indicate whether JavaCore should enforce the project build order to be based on

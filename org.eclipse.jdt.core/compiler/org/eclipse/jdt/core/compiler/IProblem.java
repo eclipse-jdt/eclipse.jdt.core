@@ -115,7 +115,8 @@
  *								   RedundantSuperinterface
  *		Benjamin Muskalla - added the following constants
  *									MissingSynchronizedModifierInInheritedMethod
- *									
+ *		Stephan Herrmann  - added the following constants
+ *									UnusedObjectAllocation									
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -428,6 +429,8 @@ void setSourceStart(int sourceStart);
 	int UnhandledExceptionInImplicitConstructorCall = TypeRelated + 147;
 
 	// expressions
+	/** @since 3.6 */
+	int UnusedObjectAllocation = Internal + 148;
 	/** @since 3.5 */
 	int DeadCode = Internal + 149;
 	int ArrayReferenceRequired = Internal + 150;
