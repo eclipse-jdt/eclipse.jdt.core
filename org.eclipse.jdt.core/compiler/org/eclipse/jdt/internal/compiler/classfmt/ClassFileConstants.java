@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -120,4 +120,5 @@ public interface ClassFileConstants {
 	int ATTR_VARS = 0x4; // LocalVariableTableAttribute
 	int ATTR_STACK_MAP_TABLE = 0x8; // Stack map table attribute
 	int ATTR_STACK_MAP = 0x10; // Stack map attribute: cldc
+	int ATTR_TYPE_ANNOTATION = 0x20; // annotation type annotation (jsr 308)
 }

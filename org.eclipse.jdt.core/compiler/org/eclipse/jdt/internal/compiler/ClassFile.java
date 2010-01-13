@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
@@ -251,6 +252,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
 			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
 			this.codeStream = new StackMapFrameCodeStream(this);
+			if (this.targetJDK >= ClassFileConstants.JDK1_7) {
+				this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
+			}
 		} else if (this.targetJDK == ClassFileConstants.CLDC_1_1) {
 			this.targetJDK = ClassFileConstants.JDK1_1; // put back 45.3
 			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
@@ -542,9 +546,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 					annotationContext.typeIndex = -1;
 					if (isRuntimeTypeInvisible(annotationContext.annotation)) {
 						invisibleTypeAnnotationsCounter++;
+						annotationContext.visibility = AnnotationContext.INVISIBLE;
 						allTypeAnnotationContexts.add(annotationContext);
 					} else if (isRuntimeTypeVisible(annotationContext.annotation)) {
 						visibleTypeAnnotationsCounter++;
+						annotationContext.visibility = AnnotationContext.VISIBLE;
 						allTypeAnnotationContexts.add(annotationContext);
 					}
 				}
@@ -1456,7 +1462,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
-		int attributeNumber = 0;
+		int attributesNumber = 0;
 		// leave two bytes for the attribute_length
 		localContentsOffset += 2;
 		if (localContentsOffset + 2 >= this.contents.length) {
@@ -1507,7 +1513,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.contents[lineNumberTableOffset++] = (byte) lineNumberAttr_length;
 				this.contents[lineNumberTableOffset++] = (byte) (numberOfEntries >> 8);
 				this.contents[lineNumberTableOffset++] = (byte) numberOfEntries;
-				attributeNumber++;
+				attributesNumber++;
 			}
 		}
 		// then we do the local variable attribute
@@ -1558,17 +1564,19 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 			for (int i = 0, max = this.codeStream.allLocalsCounter; i < max; i++) {
 				LocalVariableBinding localVariable = this.codeStream.locals[i];
+				int initializationCount = localVariable.initializationCount;
+				if (initializationCount == 0) continue;
 				if (localVariable.declaration == null) continue;
 				final TypeBinding localVariableTypeBinding = localVariable.type;
 				boolean isParameterizedType = localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable();
-				if (localVariable.initializationCount != 0 && isParameterizedType) {
+				if (isParameterizedType) {
 					if (genericLocalVariables == null) {
 						// we cannot have more than max locals
 						genericLocalVariables = new LocalVariableBinding[max];
 					}
 					genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
 				}
-				for (int j = 0; j < localVariable.initializationCount; j++) {
+				for (int j = 0; j < initializationCount; j++) {
 					int startPC = localVariable.initializationPCs[j << 1];
 					int endPC = localVariable.initializationPCs[(j << 1) + 1];
 					if (startPC != endPC) { // only entries for non zero length
@@ -1606,7 +1614,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localVariableTableOffset++] = (byte) value;
 			this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
 			this.contents[localVariableTableOffset] = (byte) numberOfEntries;
-			attributeNumber++;
+			attributesNumber++;
 
 			final boolean currentInstanceIsGeneric =
 				!methodDeclarationIsStatic
@@ -1671,7 +1679,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						}
 					}
 				}
-				attributeNumber++;
+				attributesNumber++;
 			}
 		}
 
@@ -2016,7 +2024,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						this.contents[stackMapTableAttributeLengthOffset++] = (byte) (attributeLength >> 16);
 						this.contents[stackMapTableAttributeLengthOffset++] = (byte) (attributeLength >> 8);
 						this.contents[stackMapTableAttributeLengthOffset] = (byte) attributeLength;
-						attributeNumber++;
+						attributesNumber++;
 					} else {
 						localContentsOffset = stackMapTableAttributeOffset;
 					}
@@ -2184,16 +2192,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 						this.contents[stackMapAttributeLengthOffset++] = (byte) (attributeLength >> 16);
 						this.contents[stackMapAttributeLengthOffset++] = (byte) (attributeLength >> 8);
 						this.contents[stackMapAttributeLengthOffset] = (byte) attributeLength;
-						attributeNumber++;
+						attributesNumber++;
 					} else {
 						localContentsOffset = stackMapTableAttributeOffset;
 					}
 				}
 			}
 		}
-
-		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
-		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
+		this.contents[codeAttributeAttributeOffset++] = (byte) (attributesNumber >> 8);
+		this.contents[codeAttributeAttributeOffset] = (byte) attributesNumber;
 
 		// update the attribute length
 		int codeAttributeLength = localContentsOffset - (codeAttributeOffset + 6);
@@ -2383,17 +2390,19 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 				for (int i = 0, max = this.codeStream.allLocalsCounter; i < max; i++) {
 					LocalVariableBinding localVariable = this.codeStream.locals[i];
+					int initializationCount = localVariable.initializationCount;
+					if (initializationCount == 0) continue;
 					if (localVariable.declaration == null) continue;
 					final TypeBinding localVariableTypeBinding = localVariable.type;
 					boolean isParameterizedType = localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable();
-					if (localVariable.initializationCount != 0 && isParameterizedType) {
+					if (isParameterizedType) {
 						if (genericLocalVariables == null) {
 							// we cannot have more than max locals
 							genericLocalVariables = new LocalVariableBinding[max];
 						}
 						genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
 					}
-					for (int j = 0; j < localVariable.initializationCount; j++) {
+					for (int j = 0; j < initializationCount; j++) {
 						int startPC = localVariable.initializationPCs[j << 1];
 						int endPC = localVariable.initializationPCs[(j << 1) + 1];
 						if (startPC != endPC) { // only entries for non zero length
@@ -5255,17 +5264,19 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 			for (int i = 0, max = this.codeStream.allLocalsCounter; i < max; i++) {
 				LocalVariableBinding localVariable = this.codeStream.locals[i];
+				int initializationCount = localVariable.initializationCount;
+				if (initializationCount == 0) continue;
 				if (localVariable.declaration == null) continue;
 				final TypeBinding localVariableTypeBinding = localVariable.type;
 				boolean isParameterizedType = localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable();
-				if (localVariable.initializationCount != 0 && isParameterizedType) {
+				if (isParameterizedType) {
 					if (genericLocalVariables == null) {
 						// we cannot have more than max locals
 						genericLocalVariables = new LocalVariableBinding[max];
 					}
 					genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
 				}
-				for (int j = 0; j < localVariable.initializationCount; j++) {
+				for (int j = 0; j < initializationCount; j++) {
 					int startPC = localVariable.initializationPCs[j << 1];
 					int endPC = localVariable.initializationPCs[(j << 1) + 1];
 					if (startPC != endPC) { // only entries for non zero length
@@ -5919,14 +5930,56 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 * Complete the creation of a method info by setting up the number of attributes at the right offset.
 	 *
 	 * @param methodAttributeOffset <CODE>int</CODE>
-	 * @param attributeNumber <CODE>int</CODE>
+	 * @param attributesNumber <CODE>int</CODE>
 	 */
 	public void completeMethodInfo(
 		int methodAttributeOffset,
-		int attributeNumber) {
+		int attributesNumber) {
+
+		if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
+			List allTypeAnnotationContexts = new ArrayList();
+			int invisibleTypeAnnotationsCounter = 0;
+			int visibleTypeAnnotationsCounter = 0;
+			for (int i = 0, max = this.codeStream.allLocalsCounter; i < max; i++) {
+				LocalVariableBinding localVariable = this.codeStream.locals[i];
+				LocalDeclaration declaration = localVariable.declaration;
+				if (declaration == null
+						|| (localVariable.initializationCount == 0)
+						|| ((declaration.bits & ASTNode.HasTypeAnnotations) == 0)) {
+					continue;
+				}
+				AnnotationContext[] annotationContexts = declaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.LOCAL_VARIABLE);
+				if (annotationContexts != null && annotationContexts.length != 0) {
+					for (int j = 0, max2 = annotationContexts.length; j < max2; j++) {
+						AnnotationContext annotationContext = annotationContexts[j];
+						if (isRuntimeTypeInvisible(annotationContext.annotation)) {
+							annotationContext.visibility = AnnotationContext.INVISIBLE;
+							annotationContext.variableBinding = localVariable;
+							invisibleTypeAnnotationsCounter++;
+							allTypeAnnotationContexts.add(annotationContext);
+						} else if (isRuntimeTypeVisible(annotationContext.annotation)) {
+							annotationContext.visibility = AnnotationContext.VISIBLE;
+							annotationContext.variableBinding = localVariable;
+							allTypeAnnotationContexts.add(annotationContext);
+							visibleTypeAnnotationsCounter++;
+						}
+					}
+				}
+			}
+			int size = allTypeAnnotationContexts.size();
+			if (size != 0) {
+				AnnotationContext[] allTypeAnnotationContextsArray = new AnnotationContext[size];
+				allTypeAnnotationContexts.toArray(allTypeAnnotationContextsArray);
+				attributesNumber += generateRuntimeTypeAnnotations(
+						allTypeAnnotationContextsArray,
+						visibleTypeAnnotationsCounter,
+						invisibleTypeAnnotationsCounter);
+			}
+		}
+
 		// update the number of attributes
-		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
-		this.contents[methodAttributeOffset] = (byte) attributeNumber;
+		this.contents[methodAttributeOffset++] = (byte) (attributesNumber >> 8);
+		this.contents[methodAttributeOffset] = (byte) attributesNumber;
 	}
 
 	/**
@@ -6021,7 +6074,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			// error occurred while generating the annotation
 			return;
 		}
-		int[] locations = Annotation.getLocations(annotationContext.typeReference, null, annotationContext.annotation);
+		int[] locations = Annotation.getLocations(annotationContext.typeReference, annotationContext.primaryAnnotations, annotationContext.annotation);
 		int targetType = annotationContext.targetType;
 		if (locations != null) {
 			// convert to GENERIC_OR_ARRAY type
@@ -6029,7 +6082,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS :
 					targetType = AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY;
 					break;
+				case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
+					targetType = AnnotationTargetTypeConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY;
 			}
+		}
+		// reserve enough space
+		if (this.contentsOffset + 3 >= this.contents.length) {
+			resizeContents(3);
 		}
 		this.contents[this.contentsOffset++] = (byte) targetType;
 		switch(targetType) {
@@ -6041,12 +6100,87 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.contents[this.contentsOffset++] = (byte) (annotationContext.typeIndex >> 8);
 				this.contents[this.contentsOffset++] = (byte) annotationContext.typeIndex;
 				int length = locations.length;
+				int actualSize = 2 + length;
+				if (this.contentsOffset + actualSize >= this.contents.length) {
+					resizeContents(actualSize);
+				}
 				this.contents[this.contentsOffset++] = (byte) (length >> 8);
 				this.contents[this.contentsOffset++] = (byte) length;
 				for (int i = 0; i < length; i++) {
 					this.contents[this.contentsOffset++] = (byte) locations[i];
 				}
 				break;
+			case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
+				int localVariableTableOffset = this.contentsOffset;
+				LocalVariableBinding localVariable = annotationContext.variableBinding;
+				actualSize = 0;
+				int initializationCount = localVariable.initializationCount;
+				actualSize += 6 * initializationCount;
+				// reserve enough space
+				if (this.contentsOffset + actualSize >= this.contents.length) {
+					resizeContents(actualSize);
+				}
+				this.contentsOffset += 2;
+				int numberOfEntries = 0;
+				for (int j = 0; j < initializationCount; j++) {
+					int startPC = localVariable.initializationPCs[j << 1];
+					int endPC = localVariable.initializationPCs[(j << 1) + 1];
+					if (startPC != endPC) { // only entries for non zero length
+						// now we can safely add the local entry
+						numberOfEntries++;
+						this.contents[this.contentsOffset++] = (byte) (startPC >> 8);
+						this.contents[this.contentsOffset++] = (byte) startPC;
+						length = endPC - startPC;
+						this.contents[this.contentsOffset++] = (byte) (length >> 8);
+						this.contents[this.contentsOffset++] = (byte) length;
+						int resolvedPosition = localVariable.resolvedPosition;
+						this.contents[this.contentsOffset++] = (byte) (resolvedPosition >> 8);
+						this.contents[this.contentsOffset++] = (byte) resolvedPosition;
+					}
+				}
+				this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
+				this.contents[localVariableTableOffset] = (byte) numberOfEntries;
+				break;
+			case AnnotationTargetTypeConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
+				localVariableTableOffset = this.contentsOffset;
+				localVariable = annotationContext.variableBinding;
+				actualSize = 0;
+				initializationCount = localVariable.initializationCount;
+				actualSize += 6 * initializationCount;
+				// reserve enough space
+				if (this.contentsOffset + actualSize >= this.contents.length) {
+					resizeContents(actualSize);
+				}
+				this.contentsOffset += 2;
+				numberOfEntries = 0;
+				for (int j = 0; j < initializationCount; j++) {
+					int startPC = localVariable.initializationPCs[j << 1];
+					int endPC = localVariable.initializationPCs[(j << 1) + 1];
+					if (startPC != endPC) { // only entries for non zero length
+						// now we can safely add the local entry
+						numberOfEntries++;
+						this.contents[this.contentsOffset++] = (byte) (startPC >> 8);
+						this.contents[this.contentsOffset++] = (byte) startPC;
+						length = endPC - startPC;
+						this.contents[this.contentsOffset++] = (byte) (length >> 8);
+						this.contents[this.contentsOffset++] = (byte) length;
+						int resolvedPosition = localVariable.resolvedPosition;
+						this.contents[this.contentsOffset++] = (byte) (resolvedPosition >> 8);
+						this.contents[this.contentsOffset++] = (byte) resolvedPosition;
+					}
+				}
+				this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
+				this.contents[localVariableTableOffset] = (byte) numberOfEntries;
+				length = locations.length;
+				actualSize = 2 + length;
+				if (this.contentsOffset + actualSize >= this.contents.length) {
+					resizeContents(actualSize);
+				}
+				this.contents[this.contentsOffset++] = (byte) (length >> 8);
+				this.contents[this.contentsOffset++] = (byte) length;
+				for (int i = 0; i < length; i++) {
+					this.contents[this.contentsOffset++] = (byte) locations[i];
+				}
 		}
 	}
 	/**
@@ -6736,7 +6870,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			loop: for (int i = 0; i < length; i++) {
 				if (invisibleTypeAnnotationsCounter == 0) break loop;
 				AnnotationContext annotationContext = annotationContexts[i];
-				if (isRuntimeTypeInvisible(annotationContext.annotation)) {
+				if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
 					int currentAnnotationOffset = this.contentsOffset;
 					generateTypeAnnotation(annotationContext, currentAnnotationOffset);
 					invisibleTypeAnnotationsCounter--;
@@ -6783,7 +6917,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			loop: for (int i = 0; i < length; i++) {
 				if (visibleTypeAnnotationsCounter == 0) break loop;
 				AnnotationContext annotationContext = annotationContexts[i];
-				if (isRuntimeTypeVisible(annotationContext.annotation)) {
+				if ((annotationContext.visibility & AnnotationContext.VISIBLE) != 0) {
 					visibleTypeAnnotationsCounter--;
 					int currentAnnotationOffset = this.contentsOffset;
 					generateTypeAnnotation(annotationContext, currentAnnotationOffset);
@@ -7412,6 +7546,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.produceAttributes = options.produceDebugAttributes;
 		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
 			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
+			if (this.targetJDK >= ClassFileConstants.JDK1_7) {
+				this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
+			}
 		} else if (this.targetJDK == ClassFileConstants.CLDC_1_1) {
 			this.targetJDK = ClassFileConstants.JDK1_1; // put back 45.3
 			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;

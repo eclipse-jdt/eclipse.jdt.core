@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
@@ -132,6 +133,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		return LOCAL_VARIABLE;
 	}
 
+	public AnnotationContext[] getAllAnnotationContexts(int targetType) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType);
+		this.traverse(collector, (BlockScope) null);
+		return collector.getAnnotationContexts();
+	}
+	
 	public void resolve(BlockScope scope) {
 
 		// create a binding and add it to the scope

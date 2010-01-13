@@ -3334,6 +3334,7 @@ protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 			localDeclaration.annotations = new Annotation[length],
 			0,
 			length);
+		localDeclaration.bits |= ASTNode.HasTypeAnnotations;
 	}
 	if (hasModifiers) {
 		localDeclaration.declarationSourceStart = declarationSourceStart;
@@ -3466,6 +3467,7 @@ protected void consumeEnterVariable() {
 					declaration.annotations = new Annotation[length],
 					0,
 					length);
+				declaration.bits |= ASTNode.HasTypeAnnotations;
 			}
 			type = getTypeReference(typeDim = this.intStack[this.intPtr--]); // type dimension
 			if (declaration.declarationSourceStart == -1) {
@@ -3674,16 +3676,17 @@ protected void consumeEnumConstantHeaderName() {
 	}
 
 	// consume annotations
-   int length;
-   if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
-      System.arraycopy(
-         this.expressionStack,
-         (this.expressionPtr -= length) + 1,
-         enumConstant.annotations = new Annotation[length],
-         0,
-         length);
-   }
-   pushOnAstStack(enumConstant);
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+				this.expressionStack,
+				(this.expressionPtr -= length) + 1,
+				enumConstant.annotations = new Annotation[length],
+				0,
+				length);
+		enumConstant.bits |= ASTNode.HasTypeAnnotations;
+	}
+	pushOnAstStack(enumConstant);
 	if (this.currentElement != null){
 		this.lastCheckPoint = enumConstant.sourceEnd + 1;
 		this.currentElement = this.currentElement.add(enumConstant, 0);
@@ -4222,6 +4225,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			arg.annotations = new Annotation[length],
 			0,
 			length);
+		arg.bits |= ASTNode.HasTypeAnnotations;
 	}
 	pushOnAstStack(arg);
 
@@ -8803,6 +8807,7 @@ protected void consumeTypeParameterHeader() {
 				typeParameter.annotations = new Annotation[length],
 				0,
 				length);
+		typeParameter.bits |= ASTNode.HasTypeAnnotations;
 	}
 	long pos = this.identifierPositionStack[this.identifierPtr];
 	final int end = (int) pos;

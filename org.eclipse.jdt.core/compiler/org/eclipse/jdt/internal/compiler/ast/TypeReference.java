@@ -36,22 +36,30 @@ static class AnnotationCollector extends ASTVisitor {
 	List annotationContexts;
 	TypeReference typeReference;
 	int targetType;
-	
+	Annotation[] primaryAnnotations;
+
+	public AnnotationCollector(LocalDeclaration localDeclaration, int targetType) {
+		this.annotationContexts = new ArrayList();
+		this.typeReference = localDeclaration.type;
+		this.targetType = targetType;
+		this.primaryAnnotations = localDeclaration.annotations;
+	}
+
 	public AnnotationCollector(TypeReference typeReference, int targetType) {
 		this.annotationContexts = new ArrayList();
 		this.typeReference = typeReference;
 		this.targetType = targetType;
 	}
 	public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
-		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType));
+		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations));
 		return true;
 	}
 	public boolean visit(NormalAnnotation annotation, BlockScope scope) {
-		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType));
+		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations));
 		return true;
 	}
 	public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
-		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType));
+		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations));
 		return true;
 	}
 	
