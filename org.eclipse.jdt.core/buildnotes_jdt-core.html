@@ -49,6 +49,37 @@ Eclipse SDK 3.6M5 - %date% - 3.6.0 M5
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A31">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>New API to fix bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=295894">295894</a>. See the bug for details.
+<pre>
+/**
+ * Returns a Java search scope limited to the hierarchy of the given type and to a given project.
+ * The Java elements resulting from a search with this scope will be types in this hierarchy.
+ *
+ * Unlike the createHierarchyScope methods, this method creates strict
+ * scopes that only contain types that actually span the hierarchy of the focus
+ * type, but do not include additional enclosing or member types.
+ *
+ *
+ * By default, hierarchy scopes include all direct and indirect supertypes and subtypes of the
+ * focus type. This method, however, allows to restrict the hierarchy to true subtypes,
+ * not including supertypes. Also inclusion of the focus type itself is controled by a parameter. 
+ *
+ * 
+ * @param project the project to which to constrain the search, or null if
+ *        search should consider all types in the workspace 
+ * @param type the focus of the hierarchy scope
+ * @param onlySubtypes if true only subtypes of type are considered
+ * @param includeFocusType if true the focus type type is included in the resulting scope, 
+ * 		  otherwise it is excluded
+ * @param owner the owner of working copies that take precedence over original compilation units, 
+ *        or null if the primary working copy owner should be used
+ * @return a new hierarchy scope
+ * @exception JavaModelException if the hierarchy could not be computed on the given type
+ * @since 3.6
+ */
+public static IJavaSearchScope createStrictHierarchyScope(IJavaProject project, IType type, boolean onlySubtypes, boolean includeFocusType, WorkingCopyOwner owner) throws JavaModelException;
+</pre>
+</li>
 <li>New API added to report a compiler warning when object allocations are unused:
 <pre>
 org.eclipse.jdt.core.compiler.IProblem.UnusedObjectAllocation
@@ -61,7 +92,7 @@ org.eclipse.jdt.core.compiler.IProblem.UnusedObjectAllocation
  * Option id:"org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation"
  * Possible values:{ "error", "warning", "ignore" }
  * Default:"ignore"
- * </dl>
+ *
  * @since 3.6
  * @category CompilerOptionID
  */
@@ -71,7 +102,9 @@ public static final String COMPILER_PB_UNUSED_OBJECT_ALLOCATION = PLUGIN_ID + ".
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385">236385</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=295894">295894</a>
+[search] Search shows focus type implementation for nested types even though the scope is restricted to subtypes.
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385">236385</a>
 [compiler] Warn for potential programming problem if an object is created but not used
 
 <a name="v_A30"></a>
