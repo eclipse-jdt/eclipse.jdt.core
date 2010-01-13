@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 215139
+ *     Stephan Herrmann - Contributions for bug 215139 and bug 295894
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
@@ -43,7 +43,8 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 
 	private HashSet subTypes = null; // null means: don't filter for subTypes
 	private IJavaProject javaProject = null; // null means: don't constrain the search to a project
-	private boolean allowMemberTypes = true;
+	private boolean allowMemberAndEnclosingTypes = true;
+	private boolean includeFocusType = true;
 
 	/* (non-Javadoc)
 	 * Adds the given resource to this search scope.
@@ -61,22 +62,26 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	}
 
 	/**
-	 * Creates a new hierarchy scope for the given type.
+	 * Creates a new hierarchy scope for the given type with the given configuration options.
 	 * @param project      constrain the search result to this project, 
 	 *                     or <code>null</code> if search should consider all types in the workspace 
 	 * @param type         the focus type of the hierarchy
 	 * @param owner 	   the owner of working copies that take precedence over original compilation units, 
 	 *                     or <code>null</code> if the primary working copy owner should be used
-	 * @param onlySubtypes if true search only subtypes of 'type' (not including 'type')
-	 * @param noMemberTypes if true do not consider member or enclosing types of types in the given type hierarchy.
+	 * @param onlySubtypes if true search only subtypes of 'type'
+	 * @param noMembersOrEnclosingTypes if true the hierarchy is strict, 
+	 * 					   i.e., no additional member types or enclosing types of types spanning the hierarchy are included,
+	 * 					   otherwise all member and enclosing types of types in the hierarchy are included.
+	 * @param includeFocusType if true the focus type <code>type</code> is included in the resulting scope, otherwise it is excluded
 	 */
-	public HierarchyScope(IJavaProject project, IType type, WorkingCopyOwner owner, boolean onlySubtypes, boolean noMemberTypes) throws JavaModelException {
+	public HierarchyScope(IJavaProject project, IType type, WorkingCopyOwner owner, boolean onlySubtypes, boolean noMembersOrEnclosingTypes, boolean includeFocusType) throws JavaModelException {
 		this(type, owner);
 		this.javaProject = project;
 		if (onlySubtypes) {
 			this.subTypes = new HashSet();
 		}
-		this.allowMemberTypes = !noMemberTypes;
+		this.includeFocusType = includeFocusType;
+		this.allowMemberAndEnclosingTypes = !noMembersOrEnclosingTypes;
 	}
 
 	/* (non-Javadoc)
@@ -293,7 +298,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	 *         (regarding subtypes and members) is requested
 	 */
 	public boolean enclosesFineGrained(IJavaElement element) {
-		if ((this.subTypes == null) && this.allowMemberTypes) 
+		if ((this.subTypes == null) && this.allowMemberAndEnclosingTypes) 
 			return true; // no fine grained checking requested
 		return encloses(element);
 	}
@@ -302,7 +307,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	 */
 	public boolean encloses(IJavaElement element) {
 		if (this.hierarchy == null) {
-			if (this.subTypes == null && this.focusType.equals(element.getAncestor(IJavaElement.TYPE))) {
+			if (this.includeFocusType && this.focusType.equals(element.getAncestor(IJavaElement.TYPE))) {
 				return true;
 			} else {
 				if (this.needsRefresh) {
@@ -332,11 +337,13 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 			type = ((IMember) element).getDeclaringType();
 		}
 		if (type != null) {
+			if (this.focusType.equals(type))
+				return this.includeFocusType;
 			// potentially allow travelling in:
-			if (enclosesType(type, this.allowMemberTypes)) {
+			if (enclosesType(type, this.allowMemberAndEnclosingTypes)) {
 				return true;
 			}
-			if (this.allowMemberTypes) {
+			if (this.allowMemberAndEnclosingTypes) {
 				// travel out: queried type is enclosed in this scope if its (indirect) declaring type is:
 				IType enclosing = type.getDeclaringType();
 				while (enclosing != null) {
