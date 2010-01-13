@@ -177,8 +177,8 @@ Goal ::= '--' MethodBody
 Goal ::= '>>' StaticInitializer
 Goal ::= '>>' Initializer
 -- error recovery
-Goal ::= '>>>' Header1
-Goal ::= '!' Header2
+Goal ::= '>>>' Header1 RecoveryExitHeader
+Goal ::= '!' Header2 RecoveryExitHeader
 Goal ::= '*' BlockStatements
 Goal ::= '*' CatchHeader
 -- JDOM
@@ -198,6 +198,9 @@ Goal ::= '||' MemberValue
 -- syntax diagnosis
 Goal ::= '?' AnnotationTypeMemberDeclaration
 /:$readableName Goal:/
+
+RecoveryExitHeader ::= $empty
+RecoveryExitHeader ::= '...'
 
 Literal -> IntegerLiteral
 Literal -> LongLiteral
@@ -418,8 +421,12 @@ Header1 -> ConstructorHeader
 /:$readableName Header1:/
 
 Header2 -> Header
-Header2 -> EnumConstantHeader
+Header2 -> EnumConstantHeader RecoveryEnumConstantSeparatoropt
 /:$readableName Header2:/
+
+RecoveryEnumConstantSeparatoropt ::= $empty
+RecoveryEnumConstantSeparatoropt ::= ','
+RecoveryEnumConstantSeparatoropt ::= ';'
 
 CatchHeader ::= 'catch' '(' FormalParameter ')' '{'
 /.$putCase consumeCatchHeader(); $break ./

@@ -2238,7 +2238,7 @@ public void test0049() {
 		"2. ERROR in X.java (at line 6)\n" +
 		"	public @MyAnn(\"\",\"\") class Test {		\n" +
 		"	                ^\n" +
-		"Syntax error on token \",\", < expected\n" +
+		"Syntax error on token \",\", > expected\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 6)\n" +
 		"	public @MyAnn(\"\",\"\") class Test {		\n" +
