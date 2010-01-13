@@ -26,7 +26,9 @@ public class Argument extends LocalDeclaration {
 		this.declarationSourceEnd = (int) posNom;
 		this.modifiers = modifiers;
 		this.type = tr;
-		this.bits |= (tr.bits & ASTNode.HasTypeAnnotations);
+		if (tr != null) {
+			this.bits |= (tr.bits & ASTNode.HasTypeAnnotations);
+		}
 		this.bits |= IsLocalDeclarationReachable;
 	}
 
