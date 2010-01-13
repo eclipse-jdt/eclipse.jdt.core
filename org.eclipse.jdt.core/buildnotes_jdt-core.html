@@ -48,6 +48,27 @@ Eclipse SDK 3.6M5 - %date% - 3.6.0 M5
 <br>Project org.eclipse.jdt.core v_A31
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A31">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>New API added to report a compiler warning when object allocations are unused:
+<pre>
+org.eclipse.jdt.core.compiler.IProblem.UnusedObjectAllocation
+
+/**
+ * Compiler option ID: Reporting Allocation of an Unused Object.
+ * When enabled, the compiler will issue an error or a warning if an object is allocated but never used,
+ * neither by holding a reference nor by invoking one of the object's methods.
+ *
+ * Option id:"org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation"
+ * Possible values:{ "error", "warning", "ignore" }
+ * Default:"ignore"
+ * </dl>
+ * @since 3.6
+ * @category CompilerOptionID
+ */
+public static final String COMPILER_PB_UNUSED_OBJECT_ALLOCATION = PLUGIN_ID + ".compiler.problem.unusedObjectAllocation";
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385">236385</a>

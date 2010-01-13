@@ -27,7 +27,9 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class FlowAnalysisTest extends AbstractRegressionTest {
-
+static {
+//	TESTS_NUMBERS = new int[] { 69 };
+}
 public FlowAnalysisTest(String name) {
 	super(name);
 }
@@ -2069,7 +2071,6 @@ public void test064() {
 		true /* shouldFlushOutputDirectory */,
 		compilerOptions);
 }
-
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
 // warning suppressed
 public void test065() {
@@ -2160,7 +2161,32 @@ public void test068() {
 		compilerOptions /* customOptions */,
 		null /* clientRequestor */);
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
+//anonymous type
+public void test069() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   boolean bar() { return false; } \n" +
+			"	public void foo() {" +
+			"		if (bar())\n" +
+			"			new Object() {};\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	new Object() {};\n" + 
+		"	^^^^^^^^^^^^^^^\n" + 
+		"The allocated object is never used\n" + 
+		"----------\n",
+		null /* classLibraries */,
+		true /* shouldFlushOutputDirectory */,
+		compilerOptions);
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
