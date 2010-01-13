@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 236385
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2016,6 +2017,150 @@ public void test062() {
 		"Unreachable code\n" + 
 		"----------\n");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
+public void test063() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   boolean bar() { return false; } \n" +
+			"	public void foo() {" +
+			"		if (bar())\n" +
+			"			new IllegalArgumentException(\"You must not bar!\");\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	new IllegalArgumentException(\"You must not bar!\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The allocated object is never used\n" + 
+		"----------\n",
+		null /* classLibraries */,
+		true /* shouldFlushOutputDirectory */,
+		compilerOptions);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
+// non-throwable type
+public void test064() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   boolean bar() { return false; } \n" +
+			"	public void foo() {" +
+			"		if (bar())\n" +
+			"			new String(\"You must not bar!\");\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	new String(\"You must not bar!\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The allocated object is never used\n" + 
+		"----------\n",
+		null /* classLibraries */,
+		true /* shouldFlushOutputDirectory */,
+		compilerOptions);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
+// warning suppressed
+public void test065() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.WARNING);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   boolean bar() { return false; }\n" +
+			"   @SuppressWarnings(\"unused\")\n" +
+			"	public void foo() {" +
+			"		if (bar())\n" +
+			"			new IllegalArgumentException(\"You must not bar!\");\n" +
+			"	}\n" +
+			"}",
+		},
+		"" /* expectedOutputString */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		compilerOptions /* customOptions */,
+		null /* clientRequestor */);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
+// warning ignored (default)
+public void test066() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   boolean bar() { return false; }\n" +
+			"	public void foo() {" +
+			"		if (bar())\n" +
+			"			new IllegalArgumentException(\"You must not bar!\");\n" +
+			"	}\n" +
+			"}",
+		},
+		"" /* expectedOutputString */);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
+// instance is assigned
+public void test067() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   boolean bar() { return false; }\n" +
+			"   Throwable t;\n" +
+			"	public void foo() {" +
+			"		t = new IllegalArgumentException(\"You must not bar!\");\n" +
+			"	}\n" +
+			"}",
+		},
+		"" /* expectedOutputString */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		compilerOptions /* customOptions */,
+		null /* clientRequestor */);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
+// method invoked
+public void test068() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   boolean bar() { return false; }\n" +
+			"	public void foo() {" +
+			"		if (bar())\n" +
+			"			new IllegalArgumentException(\"You must not bar!\").printStackTrace();\n" +
+			"	}\n" +
+			"}",
+		},
+		"" /* expectedOutputString */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		compilerOptions /* customOptions */,
+		null /* clientRequestor */);
+}
+
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }

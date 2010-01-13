@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2009 IBM Corporation and others.
+ * Copyright (c) 2006, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
+ *     Stephan Herrmann  - Contribution for bug 236385
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -843,6 +844,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UnusedImport", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnusedLabel", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnusedMethodDeclaredThrownException", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
+		expectedProblemAttributes.put("UnusedObjectAllocation", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnusedPrivateConstructor", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnusedPrivateField", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnusedPrivateMethod", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
@@ -1475,6 +1477,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UnusedImport", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_IMPORT));
 		expectedProblemAttributes.put("UnusedLabel", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_LABEL));
 		expectedProblemAttributes.put("UnusedMethodDeclaredThrownException", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING));
+		expectedProblemAttributes.put("UnusedObjectAllocation", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_OBJECT_ALLOCATION));
 		expectedProblemAttributes.put("UnusedPrivateConstructor", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER));
 		expectedProblemAttributes.put("UnusedPrivateField", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER));
 		expectedProblemAttributes.put("UnusedPrivateMethod", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER));

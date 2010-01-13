@@ -10,6 +10,7 @@
  *     Tom Tromey - Contribution for bug 125961
  *     Tom Tromey - Contribution for bug 159641
  *     Benjamin Muskalla - Contribution for bug 239066
+ *     Stephan Herrmann  - Contribution for bug 236385
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -3449,6 +3450,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				return;
 			} else if (token.equals("unusedImport") || token.equals("unusedImports")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 				setSeverity(CompilerOptions.OPTION_ReportUnusedImport, severity, isEnabling);
+				return;
+			} else if (token.equals("unusedAllocation")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportUnusedObjectAllocation, severity, isEnabling);
 				return;
 			} else if (token.equals("unusedPrivate")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnusedPrivateMember, severity, isEnabling);

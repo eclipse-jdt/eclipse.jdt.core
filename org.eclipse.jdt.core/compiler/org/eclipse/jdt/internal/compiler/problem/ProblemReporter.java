@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -414,6 +414,9 @@ public static int getIrritant(int problemID) {
 			
 		case IProblem.Task :
 			return CompilerOptions.Tasks;
+
+		case IProblem.UnusedObjectAllocation:
+			return CompilerOptions.UnusedObjectAllocation;
 	}
 	return 0;
 }
@@ -484,6 +487,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnusedWarningToken :
 			case CompilerOptions.UnusedLabel :
 			case CompilerOptions.RedundantSuperinterface :	
+			case CompilerOptions.UnusedObjectAllocation :
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;
 
 			case CompilerOptions.UsingDeprecatedAPI :
@@ -7123,6 +7127,14 @@ public void unusedLocalVariable(LocalDeclaration localDecl) {
 		severity,
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
+}
+public void unusedObjectAllocation(AllocationExpression allocationExpression) {
+	this.handle(
+		IProblem.UnusedObjectAllocation, 
+		NoArgument, 
+		NoArgument, 
+		allocationExpression.sourceStart, 
+		allocationExpression.sourceEnd);
 }
 public void unusedPrivateConstructor(ConstructorDeclaration constructorDecl) {
 

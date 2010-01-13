@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
+ *     Stephan Herrmann  - Contribution for bug 236385
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
@@ -127,6 +128,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportDeadCode =  "org.eclipse.jdt.core.compiler.problem.deadCode"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeadCodeInTrivialIfStatement =  "org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement"; //$NON-NLS-1$
 	public static final String OPTION_ReportTasks = "org.eclipse.jdt.core.compiler.problem.tasks"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedObjectAllocation = "org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation";  //$NON-NLS-1$
 
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -232,6 +234,7 @@ public class CompilerOptions {
 	public static final int ShouldImplementHashcode = IrritantSet.GROUP2 | ASTNode.Bit1;
 	public static final int DeadCode = IrritantSet.GROUP2 | ASTNode.Bit2;
 	public static final int Tasks = IrritantSet.GROUP2 | ASTNode.Bit3;
+	public static final int UnusedObjectAllocation = IrritantSet.GROUP2 | ASTNode.Bit4;
 
 	// Severity level for handlers
 	/** 
@@ -515,6 +518,8 @@ public class CompilerOptions {
 				return OPTION_ReportMissingHashCodeMethod;
 			case DeadCode :
 				return OPTION_ReportDeadCode;
+			case UnusedObjectAllocation:
+				return OPTION_ReportUnusedObjectAllocation;
 		}
 		return null;
 	}
@@ -641,6 +646,7 @@ public class CompilerOptions {
 			OPTION_ReportUnusedDeclaredThrownException,
 			OPTION_ReportUnusedImport,
 			OPTION_ReportUnusedLocal,
+			OPTION_ReportUnusedObjectAllocation,
 			OPTION_ReportUnusedParameter,
 			OPTION_ReportUnusedPrivateMember,
 			OPTION_ReportVarargsArgumentNeedCast,
@@ -701,6 +707,7 @@ public class CompilerOptions {
 			case UnusedPrivateMember :
 			case UnusedDeclaredThrownException :
 			case DeadCode :
+			case UnusedObjectAllocation :
 				return "unused"; //$NON-NLS-1$
 			case DiscouragedReference :
 			case ForbiddenReference :
@@ -891,6 +898,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportDeadCode, getSeverityString(DeadCode));
 		optionsMap.put(OPTION_ReportDeadCodeInTrivialIfStatement, this.reportDeadCodeInTrivialIfStatement ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportTasks, getSeverityString(Tasks));
+		optionsMap.put(OPTION_ReportUnusedObjectAllocation, getSeverityString(UnusedObjectAllocation));
 		return optionsMap;
 	}
 
@@ -1287,6 +1295,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingHashCodeMethod)) != null) updateSeverity(ShouldImplementHashcode, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeadCode)) != null) updateSeverity(DeadCode, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportTasks)) != null) updateSeverity(Tasks, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedObjectAllocation)) != null) updateSeverity(UnusedObjectAllocation, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -1488,6 +1497,7 @@ public class CompilerOptions {
 		buf.append("\n\t- dead code: ").append(getSeverityString(DeadCode)); //$NON-NLS-1$
 		buf.append("\n\t- dead code in trivial if statement: ").append(this.reportDeadCodeInTrivialIfStatement ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- tasks severity: ").append(getSeverityString(Tasks)); //$NON-NLS-1$
+		buf.append("\n\t- unused object allocation: ").append(getSeverityString(UnusedObjectAllocation)); //$NON-NLS-1$
 		return buf.toString();
 	}
 	
