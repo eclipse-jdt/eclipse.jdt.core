@@ -468,6 +468,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.MissingSynchronizedModifierInInheritedMethod :
 			case CompilerOptions.ShouldImplementHashcode :
 			case CompilerOptions.DeadCode :
+			case CompilerOptions.UnusedObjectAllocation :
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -488,7 +489,6 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnusedWarningToken :
 			case CompilerOptions.UnusedLabel :
 			case CompilerOptions.RedundantSuperinterface :	
-			case CompilerOptions.UnusedObjectAllocation :
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;
 
 			case CompilerOptions.UsingDeprecatedAPI :
