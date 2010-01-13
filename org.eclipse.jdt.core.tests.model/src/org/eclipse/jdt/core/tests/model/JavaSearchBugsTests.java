@@ -11039,6 +11039,104 @@ public void testBug286379c() throws CoreException {
 }
 
 /**
+ * @bug 295894: Search shows focus type implementation for nested types even though the scope is restricted to subtypes.
+ * @test using the hierarchy with the old API includes the focus type. 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295894"
+ */
+public void testBug295894() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"    void test() {\n" + 
+		"        Test t = new Test();\n" + 
+		"        t.foo();\n" + 
+		"    }\n" + 
+		"    public void foo() {\n" + 
+		"    }\n" + 
+		"    public class Sub extends Test {\n" + 
+		"        public void foo() {}\n" + 
+		"    }\n" + 
+		"}\n" + 
+		""
+	);
+	search(
+		"foo",
+		METHOD,
+		DECLARATIONS,
+		SearchEngine.createHierarchyScope(this.workingCopies[0].findPrimaryType()),
+		this.resultCollector);
+	assertSearchResults(
+		"src/Test.java void Test.foo() [foo] EXACT_MATCH\n" + 
+		"src/Test.java void Test$Sub.foo() [foo] EXACT_MATCH"
+	);
+}
+/**
+ * @bug 295894: Search shows focus type implementation for nested types even though the scope is restricted to subtypes.
+ * @test explicitly excluding the focus type
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295894"
+ */
+public void testBug295894a() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"    void test() {\n" + 
+		"        Test t = new Test();\n" + 
+		"        t.foo();\n" + 
+		"    }\n" + 
+		"    public void foo() {\n" + 
+		"    }\n" + 
+		"    public class Sub extends Test {\n" + 
+		"        public void foo() {}\n" + 
+		"    }\n" + 
+		"}\n" + 
+		""
+	);
+	search(
+		"foo",
+		METHOD,
+		DECLARATIONS,
+		SearchEngine.createStrictHierarchyScope(null, this.workingCopies[0].findPrimaryType(), true, false, null),
+		this.resultCollector);
+	// Test$Sub is a true sub type, not affected by filtering member types
+	assertSearchResults(
+		"src/Test.java void Test$Sub.foo() [foo] EXACT_MATCH"
+	);
+}
+/**
+ * @bug 295894: Search shows focus type implementation for nested types even though the scope is restricted to subtypes.
+ * @test explicitly including the focus type
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295894"
+ */
+public void testBug295894b() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"    void test() {\n" + 
+		"        Test t = new Test();\n" + 
+		"        t.foo();\n" + 
+		"    }\n" + 
+		"    public void foo() {\n" + 
+		"    }\n" + 
+		"    public class Sub extends Test {\n" + 
+		"        public void foo() {}\n" + 
+		"    }\n" + 
+		"}\n" + 
+		""
+	);
+	search(
+		"foo",
+		METHOD,
+		DECLARATIONS,
+		SearchEngine.createStrictHierarchyScope(null, this.workingCopies[0].findPrimaryType(), false, true, null),
+		this.resultCollector);
+	// Same results as with the old API
+	assertSearchResults(
+		"src/Test.java void Test.foo() [foo] EXACT_MATCH\n" + 
+		"src/Test.java void Test$Sub.foo() [foo] EXACT_MATCH"
+	);
+}
+
+/**
  * @bug 288174: NullPointerException when searching for type references
  * @test Ensure that no NPE occurs when searching for type references
  * 		when a binary type has matches in several member or anonymous types

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 215139
+ *     Stephan Herrmann - Contributions for bug 215139 and bug 295894
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
@@ -110,9 +110,17 @@ public class BasicSearchEngine {
 
 	/**
 	 * @see SearchEngine#createHierarchyScope(IJavaProject,IType,boolean,boolean,WorkingCopyOwner) for detailed comment.
+	 * @deprecated Will be removed shortly before 3.6M5. Use {@link #createHierarchyScope(IJavaProject, IType, boolean, boolean, WorkingCopyOwner)} instead.
 	 */
 	public static IJavaSearchScope createHierarchyScope(IJavaProject project, IType type, boolean onlySubtypes, boolean noMemberTypes, WorkingCopyOwner owner) throws JavaModelException {
-		return new HierarchyScope(project, type, owner, onlySubtypes, noMemberTypes);
+		return new HierarchyScope(project, type, owner, onlySubtypes, noMemberTypes, !onlySubtypes);
+	}
+
+	/**
+	 * @see SearchEngine#createStrictHierarchyScope(IJavaProject,IType,boolean,boolean,WorkingCopyOwner) for detailed comment.
+	 */
+	public static IJavaSearchScope createStrictHierarchyScope(IJavaProject project, IType type, boolean onlySubtypes, boolean includeFocusType, WorkingCopyOwner owner) throws JavaModelException {
+		return new HierarchyScope(project, type, owner, onlySubtypes, true, includeFocusType);
 	}
 
 	/**
