@@ -11137,6 +11137,167 @@ public void testBug295894b() throws Exception {
 }
 
 /**
+ * @bug 295894: Search shows focus type implementation for nested types even though the scope is restricted to subtypes.
+ * @test explicitly including the focus type, which has no subtypes.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295894"
+ */
+public void testBug295894c() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/A.java",
+		"public class A {\n" + 
+		"    void test() {\n" + 
+		"        A a= new A();\n" + 
+		"        a.toString();\n" + 
+		"    }\n" + 
+		"    @Override\n" +
+		"    public String toString() {\n" +
+		"        return \"\";\n" + 
+		"    }\n" + 
+		"}\n" + 
+		""
+	);
+	search(
+		"toString",
+		METHOD,
+		DECLARATIONS,
+		SearchEngine.createStrictHierarchyScope(null, this.workingCopies[0].findPrimaryType(), true, true, null),
+		this.resultCollector);
+	assertSearchResults(
+		"src/A.java String A.toString() [toString] EXACT_MATCH"
+	);
+}
+//Failing test while working with a compilation unit instead of working copy
+public void testBug295894c2() throws Exception {
+	try {
+		createJavaProject("P");
+		createFile(
+			"/P/A.java",
+			"public class A {\n" + 
+			"    void test() {\n" + 
+			"        A a= new A();\n" + 
+			"        a.toString();\n" + 
+			"    }\n" + 
+			"    @Override\n" +
+			"    public String toString() {\n" +
+			"        return \"\";\n" + 
+			"    }\n" + 
+			"}\n"
+		);
+		final ICompilationUnit cu = getCompilationUnit("/P/A.java");
+		IMethod method = selectMethod(cu, "toString");
+		search(method,
+			DECLARATIONS|IGNORE_RETURN_TYPE,
+			SearchEngine.createStrictHierarchyScope(null, cu.findPrimaryType(), true, true, null),
+			this.resultCollector);
+		assertSearchResults(
+			"A.java String A.toString() [toString] EXACT_MATCH"
+		);
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+// Similar test passing when the focus type has a subclass
+public void testBug295894c3() throws Exception {
+	try {
+		createJavaProject("P");
+		createFile(
+			"/P/A.java",
+			"public class A {\n" + 
+			"    void test() {\n" + 
+			"        A a= new A();\n" + 
+			"        a.toString();\n" + 
+			"    }\n" + 
+			"    @Override\n" +
+			"    public String toString() {\n" +
+			"        return \"\";\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class B extends A {\n" + 
+			"}\n"
+		);
+		final ICompilationUnit cu = getCompilationUnit("/P/A.java");
+		IMethod method = selectMethod(cu, "toString");
+		search(method,
+			DECLARATIONS|IGNORE_RETURN_TYPE,
+			SearchEngine.createStrictHierarchyScope(null, cu.findPrimaryType(), true, true, null),
+			this.resultCollector);
+		assertSearchResults(
+			"A.java String A.toString() [toString] EXACT_MATCH"
+		);
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+// similar test using older API in SearchEngine:
+public void testBug295894c4() throws Exception {
+	try {
+		createJavaProject("P");
+		createFile(
+			"/P/A.java",
+			"public class A {\n" + 
+			"    void test() {\n" + 
+			"        A a= new A();\n" + 
+			"        a.toString();\n" + 
+			"    }\n" + 
+			"    @Override\n" +
+			"    public String toString() {\n" +
+			"        return \"\";\n" + 
+			"    }\n" + 
+			"}\n"
+		);
+		final ICompilationUnit cu = getCompilationUnit("/P/A.java");
+		IMethod method = selectMethod(cu, "toString");
+		search(method,
+			DECLARATIONS|IGNORE_RETURN_TYPE,
+			SearchEngine.createHierarchyScope(cu.findPrimaryType(), null),
+			this.resultCollector);
+		assertSearchResults(
+			"A.java String A.toString() [toString] EXACT_MATCH"
+		);
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+//Similar test to testBug295894c3 but using separate files for types
+public void testBug295894c5() throws Exception {
+	try {
+		createJavaProject("P");
+		createFile(
+			"/P/A.java",
+			"public class A {\n" + 
+			"    void test() {\n" + 
+			"        A a= new A();\n" + 
+			"        a.toString();\n" + 
+			"    }\n" + 
+			"    @Override\n" +
+			"    public String toString() {\n" +
+			"        return \"\";\n" + 
+			"    }\n" + 
+			"}"
+		);
+		createFile(
+			"/P/B.java",
+			"class B extends A {\n" + 
+			"}\n"
+		);
+		final ICompilationUnit cu = getCompilationUnit("/P/A.java");
+		IMethod method = selectMethod(cu, "toString");
+		search(method,
+			DECLARATIONS|IGNORE_RETURN_TYPE,
+			SearchEngine.createStrictHierarchyScope(null, cu.findPrimaryType(), true, true, null),
+			this.resultCollector);
+		assertSearchResults(
+			"A.java String A.toString() [toString] EXACT_MATCH"
+		);
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+/**
  * @bug 288174: NullPointerException when searching for type references
  * @test Ensure that no NPE occurs when searching for type references
  * 		when a binary type has matches in several member or anonymous types
