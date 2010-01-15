@@ -128,6 +128,11 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		IType[] types = null;
 		if (this.subTypes != null) {
 			types = this.hierarchy.getAllSubtypes(this.focusType);
+			if (this.includeFocusType) {
+				int len = types.length;
+				System.arraycopy(types, 0, types=new IType[len+1], 0, len);
+				types[len] = this.focusType;
+			}
 		} else {
 			types = this.hierarchy.getAllTypes();
 		}
