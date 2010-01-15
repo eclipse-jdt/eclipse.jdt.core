@@ -13,11 +13,14 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -110,6 +113,15 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		} catch (AbortMethod e) {
 			this.ignoreFurtherInvestigation = true;
 		}
+	}
+
+	public AnnotationContext[] getAllAnnotationContexts(int targetType) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType);
+		for (int i = 0, max = this.annotations.length; i < max; i++) {
+			Annotation annotation = this.annotations[i];
+			annotation.traverse(collector, (BlockScope) null);
+		}
+		return collector.getAnnotationContexts();
 	}
 
 	public boolean isMethod() {

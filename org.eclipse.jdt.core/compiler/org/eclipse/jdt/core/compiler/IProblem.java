@@ -1241,6 +1241,8 @@ void setSourceStart(int sourceStart);
     int MisplacedTypeAnnotations = Syntax + Internal + 639;
     /** @since 3.6 */
     int InvalidLocationForModifiers = Syntax + Internal + 640;
+    /** @since 3.6 */
+    int IllegalUsageOfTypeAnnotations = Internal + MethodRelated + 641;
 	/**
 	 * More problems in generics
 	 */

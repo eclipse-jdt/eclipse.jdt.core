@@ -7476,7 +7476,6 @@ public void invalidUsageOfTypeAnnotations(Annotation annotation) {
 			annotation.sourceStart,
 			annotation.sourceEnd);
 }
-
 public void illegalReceiverAnnotations(Annotation first, Annotation last) {
 	this.handle(
 			IProblem.InvalidUsageOfReceiverAnnotations,
@@ -7485,7 +7484,6 @@ public void illegalReceiverAnnotations(Annotation first, Annotation last) {
 			first.sourceStart,
 			last.sourceEnd);	
 }
-
 public void misplacedTypeAnnotations(Annotation first, Annotation last) {
 	this.handle(
 			IProblem.MisplacedTypeAnnotations,
@@ -7493,5 +7491,13 @@ public void misplacedTypeAnnotations(Annotation first, Annotation last) {
 			NoArgument,
 			first.sourceStart,
 			last.sourceEnd);	
+}
+public void illegalUsageOfTypeAnnotations(Annotation annotation) {
+	this.handle(
+			IProblem.IllegalUsageOfTypeAnnotations,
+			NoArgument,
+			NoArgument,
+			annotation.sourceStart,
+			annotation.sourceEnd);	
 }
 }

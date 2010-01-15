@@ -138,7 +138,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.traverse(collector, (BlockScope) null);
 		return collector.getAnnotationContexts();
 	}
-	
+	public boolean isArgument() {
+		return false;
+	}
 	public void resolve(BlockScope scope) {
 
 		// create a binding and add it to the scope

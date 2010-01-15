@@ -79,7 +79,9 @@ public class Argument extends LocalDeclaration {
 	public int getKind() {
 		return PARAMETER;
 	}
-
+	public boolean isArgument() {
+		return true;
+	}
 	public boolean isVarArgs() {
 		return this.type != null &&  (this.type.bits & IsVarArgs) != 0;
 	}

@@ -32,11 +32,13 @@ public class AnnotationContext {
 			Annotation annotation,
 			TypeReference typeReference,
 			int targetType,
-			Annotation[] primaryAnnotations) {
+			Annotation[] primaryAnnotations,
+			int visibility) {
 		this.annotation = annotation;
 		this.typeReference = typeReference;
 		this.targetType = targetType;
 		this.primaryAnnotations = primaryAnnotations;
+		this.visibility = visibility;
 	}
 
 	public String toString() {

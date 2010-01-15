@@ -285,6 +285,7 @@ public abstract class Annotation extends Expression {
 				return String.valueOf(buffer);
 			}
 		}
+		if (reference == null) return null;
 		LocationCollector collector = new LocationCollector(annotation);
 		reference.traverse(collector, (BlockScope) null);
 		if (collector.currentIndexes.isEmpty()) {
@@ -457,6 +458,72 @@ public abstract class Annotation extends Expression {
 
 	public AnnotationBinding getCompilerAnnotation() {
 		return this.compilerAnnotation;
+	}
+
+	public boolean isRuntimeInvisible() {
+		final TypeBinding annotationBinding = this.resolvedType;
+		if (annotationBinding == null) {
+			return false;
+		}
+		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
+		// jsr 308
+		// we need to filter out type use and type parameter annotations
+		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
+			return false;
+		}
+
+		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
+			return true; // by default the retention is CLASS
+
+		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
+	}
+
+	public boolean isRuntimeTypeInvisible() {
+		final TypeBinding annotationBinding = this.resolvedType;
+		if (annotationBinding == null) {
+			return false;
+		}
+		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
+		// jsr 308
+		// we need to filter out type use and type parameter annotations
+		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+			return false;
+		}
+
+		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
+			return true; // by default the retention is CLASS
+
+		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
+	}
+
+	public boolean isRuntimeTypeVisible() {
+		final TypeBinding annotationBinding = this.resolvedType;
+		if (annotationBinding == null) {
+			return false;
+		}
+		long metaTagBits = annotationBinding.getAnnotationTagBits();
+		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+			return false;
+		}
+		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
+			return false; // by default the retention is CLASS
+
+		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationRuntimeRetention;
+	}
+
+	public boolean isRuntimeVisible() {
+		final TypeBinding annotationBinding = this.resolvedType;
+		if (annotationBinding == null) {
+			return false;
+		}
+		long metaTagBits = annotationBinding.getAnnotationTagBits();
+		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
+			return false;
+		}
+		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
+			return false; // by default the retention is CLASS
+
+		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationRuntimeRetention;
 	}
 
 	public abstract MemberValuePair[] memberValuePairs();
@@ -695,13 +762,17 @@ public abstract class Annotation extends Expression {
 						}
 						break;
 					case Binding.METHOD :
-						if (((MethodBinding)this.recipient).isConstructor()) {
+						MethodBinding methodBinding = (MethodBinding) this.recipient;
+						if (methodBinding.isConstructor()) {
 							if ((metaTagBits & TagBits.AnnotationForConstructor) != 0)
 								break checkTargetCompatibility;
 						} else if ((metaTagBits & TagBits.AnnotationForMethod) != 0) {
 							break checkTargetCompatibility;
 						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
 							// jsr 308 - annotation on method return type
+							if (methodBinding.returnType != null && methodBinding.returnType.id == T_void) {
+								scope.problemReporter().illegalUsageOfTypeAnnotations(this);
+							}
 							break checkTargetCompatibility;
 						}
 						break;

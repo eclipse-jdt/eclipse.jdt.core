@@ -369,7 +369,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			((StackMapFrameCodeStream) codeStream).resetSecretLocals();
 		}
 	}
-	classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
+	classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
 }
 
 public boolean isConstructor() {

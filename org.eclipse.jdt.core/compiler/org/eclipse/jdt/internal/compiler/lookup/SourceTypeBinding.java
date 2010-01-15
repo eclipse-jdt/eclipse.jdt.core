@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1250,10 +1250,6 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 	if ((method.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return method;
 
-	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-		if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
-			method.modifiers |= ClassFileConstants.AccDeprecated;
-	}
 	if (isViewedAsDeprecated() && !method.isDeprecated())
 		method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 	if (hasRestrictedAccess())
@@ -1359,6 +1355,10 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 			}
 		}
+	}
+	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+		if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
+			method.modifiers |= ClassFileConstants.AccDeprecated;
 	}
 	if (foundArgProblem) {
 		methodDecl.binding = null;

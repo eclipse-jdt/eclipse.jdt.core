@@ -45,21 +45,52 @@ static class AnnotationCollector extends ASTVisitor {
 		this.primaryAnnotations = localDeclaration.annotations;
 	}
 
+	public AnnotationCollector(MethodDeclaration methodDeclaration, int targetType) {
+		this.annotationContexts = new ArrayList();
+		this.typeReference = methodDeclaration.returnType;
+		this.targetType = targetType;
+		this.primaryAnnotations = methodDeclaration.annotations;
+	}
+
 	public AnnotationCollector(TypeReference typeReference, int targetType) {
 		this.annotationContexts = new ArrayList();
 		this.typeReference = typeReference;
 		this.targetType = targetType;
 	}
 	public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
-		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations));
+		AnnotationContext annotationContext = null;
+		if (annotation.isRuntimeTypeInvisible()) {
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.INVISIBLE);
+		} else if (annotation.isRuntimeTypeVisible()) {
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE);
+		}
+		if (annotationContext != null) {
+			this.annotationContexts.add(annotationContext);
+		}
 		return true;
 	}
 	public boolean visit(NormalAnnotation annotation, BlockScope scope) {
-		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations));
+		AnnotationContext annotationContext = null;
+		if (annotation.isRuntimeTypeInvisible()) {
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.INVISIBLE);
+		} else if (annotation.isRuntimeTypeVisible()) {
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE);
+		}
+		if (annotationContext != null) {
+			this.annotationContexts.add(annotationContext);
+		}
 		return true;
 	}
 	public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
-		this.annotationContexts.add(new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations));
+		AnnotationContext annotationContext = null;
+		if (annotation.isRuntimeTypeInvisible()) {
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.INVISIBLE);
+		} else if (annotation.isRuntimeTypeVisible()) {
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE);
+		}
+		if (annotationContext != null) {
+			this.annotationContexts.add(annotationContext);
+		}
 		return true;
 	}
 	
