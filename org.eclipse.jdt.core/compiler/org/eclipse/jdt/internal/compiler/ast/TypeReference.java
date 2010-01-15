@@ -52,6 +52,13 @@ static class AnnotationCollector extends ASTVisitor {
 		this.primaryAnnotations = methodDeclaration.annotations;
 	}
 
+	public AnnotationCollector(FieldDeclaration fieldDeclaration, int targetType) {
+		this.annotationContexts = new ArrayList();
+		this.typeReference = fieldDeclaration.type;
+		this.targetType = targetType;
+		this.primaryAnnotations = fieldDeclaration.annotations;
+	}
+
 	public AnnotationCollector(TypeReference typeReference, int targetType) {
 		this.annotationContexts = new ArrayList();
 		this.typeReference = typeReference;

@@ -32,7 +32,7 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 	public void generateCode(ClassFile classFile) {
 		classFile.generateMethodInfoHeader(this.binding);
 		int methodAttributeOffset = classFile.contentsOffset;
-		int attributeNumber = classFile.generateMethodInfoAttribute(this.binding, this);
+		int attributeNumber = classFile.generateMethodInfoAttributes(this.binding, this);
 		classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
 	}
 

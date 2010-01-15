@@ -3489,6 +3489,7 @@ protected void consumeEnterVariable() {
 					declaration.annotations = new Annotation[length],
 					0,
 					length);
+				declaration.bits |= ASTNode.HasTypeAnnotations;
 			}
 			// Store javadoc only on first declaration as it is the same for all ones
 			FieldDeclaration fieldDeclaration = (FieldDeclaration) declaration;
@@ -3506,6 +3507,7 @@ protected void consumeEnterVariable() {
 		if (annotations != null) {
 			final int annotationsLength = annotations.length;
 			System.arraycopy(annotations, 0, declaration.annotations = new Annotation[annotationsLength], 0, annotationsLength);
+			declaration.bits |= ASTNode.HasTypeAnnotations;
 		}
 	}
 

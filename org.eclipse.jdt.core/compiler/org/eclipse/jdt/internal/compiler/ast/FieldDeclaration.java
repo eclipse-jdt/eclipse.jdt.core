@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
@@ -41,7 +42,7 @@ public FieldDeclaration() {
 	// for subtypes or conversion
 }
 
-public FieldDeclaration(	char[] name, int sourceStart, int sourceEnd) {
+public FieldDeclaration(char[] name, int sourceStart, int sourceEnd) {
 	this.name = name;
 	//due to some declaration like
 	// int x, y = 3, z , x ;
@@ -109,7 +110,14 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
-
+public AnnotationContext[] getAllAnnotationContexts(int targetType) {
+	AnnotationCollector collector = new AnnotationCollector(this, targetType);
+	for (int i = 0, max = this.annotations.length; i < max; i++) {
+		Annotation annotation = this.annotations[i];
+		annotation.traverse(collector, (BlockScope) null);
+	}
+	return collector.getAnnotationContexts();
+}
 /**
  * @see org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration#getKind()
  */

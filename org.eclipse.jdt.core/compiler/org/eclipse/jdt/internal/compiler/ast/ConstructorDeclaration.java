@@ -267,7 +267,7 @@ public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodS
 private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 	classFile.generateMethodInfoHeader(this.binding);
 	int methodAttributeOffset = classFile.contentsOffset;
-	int attributeNumber = classFile.generateMethodInfoAttribute(this.binding);
+	int attributeNumber = classFile.generateMethodInfoAttributes(this.binding);
 	if ((!this.binding.isNative()) && (!this.binding.isAbstract())) {
 
 		TypeDeclaration declaringType = classScope.referenceContext;

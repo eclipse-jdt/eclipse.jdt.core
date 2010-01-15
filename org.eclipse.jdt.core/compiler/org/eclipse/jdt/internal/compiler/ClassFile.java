@@ -277,7 +277,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		this.generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = this.contentsOffset;
-		int attributeNumber = this.generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = this.generateMethodInfoAttributes(methodBinding);
 		completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
 	}
 
@@ -394,7 +394,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			MethodBinding methodBinding = defaultAbstractMethods[i];
 			generateMethodInfoHeader(methodBinding);
 			int methodAttributeOffset = this.contentsOffset;
-			int attributeNumber = generateMethodInfoAttribute(methodBinding);
+			int attributeNumber = generateMethodInfoAttributes(methodBinding);
 			completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
 		}
 	}
@@ -422,8 +422,64 @@ public class ClassFile implements TypeConstants, TypeIds {
 			FieldDeclaration fieldDeclaration = fieldBinding.sourceField();
 			if (fieldDeclaration != null) {
 				Annotation[] annotations = fieldDeclaration.annotations;
+				List allTypeAnnotationContexts = null;
+				int invisibleTypeAnnotationsCounter = 0;
+				int visibleTypeAnnotationsCounter = 0;
 				if (annotations != null) {
 					attributesNumber += generateRuntimeAnnotations(annotations);
+					if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
+						if ((fieldDeclaration.bits & ASTNode.HasTypeAnnotations) != 0) {
+							AnnotationContext[] annotationContexts = fieldDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.FIELD);
+							if (annotationContexts != null) {
+								for (int i = 0, max = annotationContexts.length; i < max; i++) {
+									AnnotationContext annotationContext = annotationContexts[i];
+									if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
+										invisibleTypeAnnotationsCounter++;
+										if (allTypeAnnotationContexts == null) {
+											allTypeAnnotationContexts = new ArrayList();
+										}
+										allTypeAnnotationContexts.add(annotationContext);
+									} else {
+										visibleTypeAnnotationsCounter++;
+										if (allTypeAnnotationContexts == null) {
+											allTypeAnnotationContexts = new ArrayList();
+										}
+										allTypeAnnotationContexts.add(annotationContext);
+									}
+								}
+							}
+						}
+					}
+				}
+				if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
+					AnnotationContext[] annotationContexts = fieldDeclaration.type.getAllAnnotationContexts(AnnotationTargetTypeConstants.FIELD);
+					if (annotationContexts != null) {
+						for (int i = 0, max = annotationContexts.length; i < max; i++) {
+							AnnotationContext annotationContext = annotationContexts[i];
+							if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
+								invisibleTypeAnnotationsCounter++;
+								if (allTypeAnnotationContexts == null) {
+									allTypeAnnotationContexts = new ArrayList();
+								}
+								allTypeAnnotationContexts.add(annotationContext);
+							} else {
+								visibleTypeAnnotationsCounter++;
+								if (allTypeAnnotationContexts == null) {
+									allTypeAnnotationContexts = new ArrayList();
+								}
+								allTypeAnnotationContexts.add(annotationContext);
+							}
+						}
+					}
+				}
+				int size = allTypeAnnotationContexts == null ? 0 : allTypeAnnotationContexts.size();
+				if (size != 0) {
+					AnnotationContext[] allTypeAnnotationContextsArray = new AnnotationContext[size];
+					allTypeAnnotationContexts.toArray(allTypeAnnotationContextsArray);
+					attributesNumber += generateRuntimeTypeAnnotations(
+							allTypeAnnotationContextsArray,
+							visibleTypeAnnotationsCounter,
+							invisibleTypeAnnotationsCounter);
 				}
 			}
 		}
@@ -518,7 +574,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
 		int methodAttributeOffset = this.contentsOffset;
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
 
 		// Code attribute
 		attributeNumber++;
@@ -617,10 +673,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
 		int methodAttributeOffset = this.contentsOffset;
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributesNumber = generateMethodInfoAttributes(methodBinding);
 
 		// Code attribute
-		attributeNumber++;
+		attributesNumber++;
 		int codeAttributeOffset = this.contentsOffset;
 		generateCodeAttributeHeader();
 		this.codeStream.reset(method, this);
@@ -660,7 +716,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				.compilationResult
 				.getLineSeparatorPositions(),
 			problemLine);
-		completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
+		completeMethodInfo(methodBinding, methodAttributeOffset, attributesNumber);
 	}
 	/**
 	 * INTERNAL USE-ONLY
@@ -700,10 +756,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
 		int methodAttributeOffset = this.contentsOffset;
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributesNumber = generateMethodInfoAttributes(methodBinding);
 
 		// Code attribute
-		attributeNumber++;
+		attributesNumber++;
 
 		int codeAttributeOffset = this.contentsOffset;
 		generateCodeAttributeHeader();
@@ -748,7 +804,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				.compilationResult
 				.getLineSeparatorPositions(),
 			problemLine);
-		completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
+		completeMethodInfo(methodBinding, methodAttributeOffset, attributesNumber);
 	}
 
 	/**
@@ -791,7 +847,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			MethodBinding methodBinding = defaultAbstractMethods[i];
 			generateMethodInfoHeader(methodBinding);
 			int methodAttributeOffset = this.contentsOffset;
-			int attributeNumber = generateMethodInfoAttribute(methodBinding);
+			int attributeNumber = generateMethodInfoAttributes(methodBinding);
 			completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
 		}
 		// add synthetic methods infos
@@ -848,7 +904,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = this.contentsOffset;
 		// this will add exception attribute, synthetic attribute, deprecated attribute,...
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = this.contentsOffset;
 		attributeNumber++; // add code attribute
@@ -878,7 +934,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = this.contentsOffset;
 		// this will add exception attribute, synthetic attribute, deprecated attribute,...
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = this.contentsOffset;
 		attributeNumber++; // add code attribute
@@ -908,7 +964,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = this.contentsOffset;
 		// this will add exception attribute, synthetic attribute, deprecated attribute,...
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = this.contentsOffset;
 		attributeNumber++; // add code attribute
@@ -939,7 +995,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = this.contentsOffset;
 		// this will add exception attribute, synthetic attribute, deprecated attribute,...
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = this.contentsOffset;
 		attributeNumber++; // add code attribute
@@ -970,7 +1026,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = this.contentsOffset;
 		// this will add exception attribute, synthetic attribute, deprecated attribute,...
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = this.contentsOffset;
 		attributeNumber++; // add code attribute
@@ -1000,7 +1056,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = this.contentsOffset;
 		// this will add exception attribute, synthetic attribute, deprecated attribute,...
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = this.contentsOffset;
 		attributeNumber++; // add code attribute
@@ -1024,7 +1080,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = this.contentsOffset;
 		// this will add exception attribute, synthetic attribute, deprecated attribute,...
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = this.contentsOffset;
 		attributeNumber++; // add code attribute
@@ -1365,7 +1421,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
-		int attributeNumber = 0; // leave two bytes for the attribute_length
+		int attributesNumber = 0; // leave two bytes for the attribute_length
 		localContentsOffset += 2; // first we handle the linenumber attribute
 		if (localContentsOffset + 2 >= this.contents.length) {
 			resizeContents(2);
@@ -1374,7 +1430,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contentsOffset = localContentsOffset;
 		// first we handle the linenumber attribute
 		if ((this.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
-			attributeNumber += generateLineNumberAttribute(problemLine);
+			attributesNumber += generateLineNumberAttribute(problemLine);
 		}
 		localContentsOffset = this.contentsOffset;
 		// then we do the local variable attribute
@@ -1392,17 +1448,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = 2;
 			this.contents[localContentsOffset++] = 0;
 			this.contents[localContentsOffset++] = 0;
-			attributeNumber++;
+			attributesNumber++;
 		}
 
 		this.contentsOffset = localContentsOffset;
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP_TABLE) != 0) {
-			attributeNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, true);
+			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, true);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			attributeNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, true);
+			attributesNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, true);
 		}
 
 		// update the number of attributes
@@ -1410,8 +1466,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
 		}
-		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
-		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
+		this.contents[codeAttributeAttributeOffset++] = (byte) (attributesNumber >> 8);
+		this.contents[codeAttributeAttributeOffset] = (byte) attributesNumber;
 		// update the attribute length
 		int codeAttributeLength = this.contentsOffset - (codeAttributeOffset + 6);
 		this.contents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
@@ -1452,7 +1508,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = 0;
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
-		int attributeNumber = 0; // leave two bytes for the attribute_length
+		int attributesNumber = 0; // leave two bytes for the attribute_length
 		localContentsOffset += 2; // first we handle the linenumber attribute
 		if (localContentsOffset + 2 >= this.contents.length) {
 			resizeContents(2);
@@ -1463,15 +1519,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (problemLine == 0) {
 				problemLine = Util.getLineNumber(binding.sourceStart(), startLineIndexes, 0, startLineIndexes.length-1);
 			}
-			attributeNumber += generateLineNumberAttribute(problemLine);
+			attributesNumber += generateLineNumberAttribute(problemLine);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP_TABLE) != 0) {
-			attributeNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			attributeNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, false);
 		}
 
 		// then we do the local variable attribute
@@ -1479,8 +1535,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
 		}
-		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
-		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
+		this.contents[codeAttributeAttributeOffset++] = (byte) (attributesNumber >> 8);
+		this.contents[codeAttributeAttributeOffset] = (byte) attributesNumber;
 		// update the attribute length
 		int codeAttributeLength = this.contentsOffset - (codeAttributeOffset + 6);
 		this.contents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
@@ -1532,7 +1588,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = 0;
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
-		int attributeNumber = 0; // leave two bytes for the attribute_length
+		int attributesNumber = 0; // leave two bytes for the attribute_length
 		localContentsOffset += 2; // first we handle the linenumber attribute
 		if (localContentsOffset + 2 >= this.contents.length) {
 			resizeContents(2);
@@ -1543,29 +1599,29 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (problemLine == 0) {
 				problemLine = Util.getLineNumber(binding.sourceStart(), startLineIndexes, 0, startLineIndexes.length-1);
 			}
-			attributeNumber += generateLineNumberAttribute(problemLine);
+			attributesNumber += generateLineNumberAttribute(problemLine);
 		}
 
 		// then we do the local variable attribute
 		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 			final boolean methodDeclarationIsStatic = this.codeStream.methodDeclaration.isStatic();
-			attributeNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic);
+			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP_TABLE) != 0) {
-			attributeNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			attributeNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, false);
 		}
 
 		// update the number of attributes// ensure first that there is enough space available inside the localContents array
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
 		}
-		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
-		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
+		this.contents[codeAttributeAttributeOffset++] = (byte) (attributesNumber >> 8);
+		this.contents[codeAttributeAttributeOffset] = (byte) attributesNumber;
 		// update the attribute length
 		int codeAttributeLength = this.contentsOffset - (codeAttributeOffset + 6);
 		this.contents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
@@ -1685,7 +1741,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
-		int attributeNumber = 0;
+		int attributesNumber = 0;
 		// leave two bytes for the attribute_length
 		localContentsOffset += 2;
 		if (localContentsOffset + 2 >= this.contents.length) {
@@ -1696,19 +1752,19 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// first we handle the linenumber attribute
 		if ((this.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 			int lineNumber = Util.getLineNumber(binding.sourceStart, startLineIndexes, 0, startLineIndexes.length-1);
-			attributeNumber += generateLineNumberAttribute(lineNumber);
+			attributesNumber += generateLineNumberAttribute(lineNumber);
 		}
 		// then we do the local variable attribute
 		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 			final boolean methodDeclarationIsStatic = binding.isStatic();
-			attributeNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic);
+			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic);
 		}
 		if (addStackMaps) {
-			attributeNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			attributeNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, false);
 		}
 
 		// update the number of attributes
@@ -1716,8 +1772,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
 		}
-		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
-		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
+		this.contents[codeAttributeAttributeOffset++] = (byte) (attributesNumber >> 8);
+		this.contents[codeAttributeAttributeOffset] = (byte) attributesNumber;
 
 		// update the attribute length
 		int codeAttributeLength = this.contentsOffset - (codeAttributeOffset + 6);
@@ -1993,7 +2049,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	
 	private int generateConstantValueAttribute(Constant fieldConstant, FieldBinding fieldBinding, int fieldAttributeOffset) {
 		int localContentsOffset = this.contentsOffset;
-		int attributeNumber = 1;
+		int attributesNumber = 1;
 		if (localContentsOffset + 8 >= this.contents.length) {
 			resizeContents(8);
 		}
@@ -2061,7 +2117,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					} else {
 						// already inside a problem type creation : no constant for this field
 						this.contentsOffset = fieldAttributeOffset;
-						attributeNumber = 0;
+						attributesNumber = 0;
 					}
 				} else {
 					this.contents[localContentsOffset++] = (byte) (stringValueIndex >> 8);
@@ -2069,7 +2125,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				}
 		}
 		this.contentsOffset = localContentsOffset;
-		return attributeNumber;
+		return attributesNumber;
 	}
 	private int generateDeprecatedAttribute() {
 		int localContentsOffset = this.contentsOffset;
@@ -2667,7 +2723,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding
 	 * @return <CODE>int</CODE>
 	 */
-	public int generateMethodInfoAttribute(MethodBinding methodBinding) {
+	public int generateMethodInfoAttributes(MethodBinding methodBinding) {
 		// leave two bytes for the attribute_number
 		this.contentsOffset += 2;
 		if (this.contentsOffset + 2 >= this.contents.length) {
@@ -2725,8 +2781,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		return attributesNumber;
 	}
-	public int generateMethodInfoAttribute(MethodBinding methodBinding, AnnotationMethodDeclaration declaration) {
-		int attributesNumber = generateMethodInfoAttribute(methodBinding);
+	public int generateMethodInfoAttributes(MethodBinding methodBinding, AnnotationMethodDeclaration declaration) {
+		int attributesNumber = generateMethodInfoAttributes(methodBinding);
 		int attributeOffset = this.contentsOffset;
 		if ((declaration.modifiers & ClassFileConstants.AccAnnotationDefault) != 0) {
 			// add an annotation default attribute
@@ -3870,6 +3926,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case AnnotationTargetTypeConstants.METHOD_RECEIVER :
 					// should not happen - possible extension
 					targetType = AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY;
+					break;
+				case AnnotationTargetTypeConstants.FIELD :
+					// should not happen - possible extension
+					targetType = AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY;
 			}
 		}
 		// reserve enough space
@@ -3922,6 +3982,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			// nothing to do
 			// case AnnotationTargetTypeConstants.METHOD_RECEIVER :
 			// case AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY :
+			//	break;
+			// case AnnotationTargetTypeConstants.FIELD :
+			// case AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY :
 			//	break;
 		}
 		if (locations != null) {

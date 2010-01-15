@@ -65,11 +65,13 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		return new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, dim, this.sourcePositions);
 	}
 	public TypeReference copyDims(int dim, Annotation[][] dimensionAnnotations){
-		return new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, dim, dimensionAnnotations, this.sourcePositions);
+		ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, dim, dimensionAnnotations, this.sourcePositions);
+		parameterizedQualifiedTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
+		return parameterizedQualifiedTypeReference;
 	}
-    public boolean isParameterizedTypeReference() {
-    	return true;
-    }
+	public boolean isParameterizedTypeReference() {
+		return true;
+	}
 
 	/**
 	 * @return char[][]

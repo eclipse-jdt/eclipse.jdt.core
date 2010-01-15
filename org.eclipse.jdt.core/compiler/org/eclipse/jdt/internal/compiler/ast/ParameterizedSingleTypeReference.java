@@ -54,7 +54,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		return new ParameterizedSingleTypeReference(this.token, this.typeArguments, dim, (((long)this.sourceStart)<<32)+this.sourceEnd);
 	}
 	public TypeReference copyDims(int dim, Annotation [][] annotationsOnDims) {
-		return new ParameterizedSingleTypeReference(this.token, this.typeArguments, dim, annotationsOnDims, (((long)this.sourceStart)<<32)+this.sourceEnd);
+		ParameterizedSingleTypeReference parameterizedSingleTypeReference = new ParameterizedSingleTypeReference(this.token, this.typeArguments, dim, annotationsOnDims, (((long)this.sourceStart)<<32)+this.sourceEnd);
+		parameterizedSingleTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
+		return parameterizedSingleTypeReference;
 	}
 
 	/**
