@@ -9106,6 +9106,7 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	m.explicitDeclarations = c.explicitDeclarations;
 	m.returnType = null;
 	m.javadoc = c.javadoc;
+	m.bits = c.bits;
 	return m;
 }
 

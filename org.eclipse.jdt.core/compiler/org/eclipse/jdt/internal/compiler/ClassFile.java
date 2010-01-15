@@ -1849,57 +1849,79 @@ public class ClassFile implements TypeConstants, TypeIds {
 				}
 			}
 			AbstractMethodDeclaration methodDeclaration = binding.sourceMethod();
-			if (methodDeclaration != null && (methodDeclaration.bits & ASTNode.HasTypeAnnotations) != 0) {
-				Argument[] arguments = methodDeclaration.arguments;
-				if (arguments != null) {
-					for (int i = 0, max = arguments.length; i < max; i++) {
-						Argument argument = arguments[i];
-						if ((argument.bits & ASTNode.HasTypeAnnotations) != 0) {
-							AnnotationContext[] annotationContexts = argument.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_PARAMETER);
-							if (annotationContexts != null && annotationContexts.length != 0) {
-								for (int j = 0, max2 = annotationContexts.length; j < max2; j++) {
-									AnnotationContext annotationContext = annotationContexts[j];
-									annotationContext.paramIndex = i;
-									allTypeAnnotationContexts.add(annotationContext);
-									if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
-										invisibleTypeAnnotationsCounter++;
-									} else {
-										visibleTypeAnnotationsCounter++;
+			if (methodDeclaration != null) {
+				if ((methodDeclaration.bits & ASTNode.HasTypeAnnotations) != 0) {
+					Argument[] arguments = methodDeclaration.arguments;
+					if (arguments != null) {
+						for (int i = 0, max = arguments.length; i < max; i++) {
+							Argument argument = arguments[i];
+							if ((argument.bits & ASTNode.HasTypeAnnotations) != 0) {
+								AnnotationContext[] annotationContexts = argument.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_PARAMETER);
+								if (annotationContexts != null && annotationContexts.length != 0) {
+									for (int j = 0, max2 = annotationContexts.length; j < max2; j++) {
+										AnnotationContext annotationContext = annotationContexts[j];
+										annotationContext.paramIndex = i;
+										allTypeAnnotationContexts.add(annotationContext);
+										if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
+											invisibleTypeAnnotationsCounter++;
+										} else {
+											visibleTypeAnnotationsCounter++;
+										}
 									}
 								}
 							}
 						}
 					}
-				}
-				Annotation[] annotations = methodDeclaration.receiverAnnotations;
-				if (annotations != null) {
-					for (int i = 0, max = annotations.length; i < max; i++) {
-						Annotation annotation = annotations[i];
-						AnnotationContext annotationContext = null;
-						if (annotation.isRuntimeTypeInvisible()) {
-							annotationContext = new AnnotationContext(annotation, null, AnnotationTargetTypeConstants.METHOD_RECEIVER, null, AnnotationContext.INVISIBLE);
-							invisibleTypeAnnotationsCounter++;
-						} else if (annotation.isRuntimeTypeVisible()) {
-							annotationContext = new AnnotationContext(annotation, null, AnnotationTargetTypeConstants.METHOD_RECEIVER, null, AnnotationContext.VISIBLE);
-							visibleTypeAnnotationsCounter++;
+					Annotation[] annotations = methodDeclaration.receiverAnnotations;
+					if (annotations != null) {
+						for (int i = 0, max = annotations.length; i < max; i++) {
+							Annotation annotation = annotations[i];
+							AnnotationContext annotationContext = null;
+							if (annotation.isRuntimeTypeInvisible()) {
+								annotationContext = new AnnotationContext(annotation, null, AnnotationTargetTypeConstants.METHOD_RECEIVER, null, AnnotationContext.INVISIBLE);
+								invisibleTypeAnnotationsCounter++;
+							} else if (annotation.isRuntimeTypeVisible()) {
+								annotationContext = new AnnotationContext(annotation, null, AnnotationTargetTypeConstants.METHOD_RECEIVER, null, AnnotationContext.VISIBLE);
+								visibleTypeAnnotationsCounter++;
+							}
+							if (annotationContext != null) {
+								allTypeAnnotationContexts.add(annotationContext);
+							}
 						}
-						if (annotationContext != null) {
-							allTypeAnnotationContexts.add(annotationContext);
+					}
+					annotations = methodDeclaration.annotations;
+					if (annotations != null) {
+						AnnotationContext[] annotationContexts = methodDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN_TYPE);
+						if (annotationContexts != null) {
+							for (int i = 0, max = annotationContexts.length; i < max; i++) {
+								AnnotationContext annotationContext = annotationContexts[i];
+								if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
+									invisibleTypeAnnotationsCounter++;
+									allTypeAnnotationContexts.add(annotationContext);
+								} else {
+									visibleTypeAnnotationsCounter++;
+									allTypeAnnotationContexts.add(annotationContext);
+								}
+							}
 						}
 					}
 				}
-				annotations = methodDeclaration.annotations;
-				if (annotations != null) {
-					AnnotationContext[] annotationContexts = methodDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN_TYPE);
-					if (annotationContexts != null) {
-						for (int i = 0, max = annotationContexts.length; i < max; i++) {
-							AnnotationContext annotationContext = annotationContexts[i];
-							if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
-								invisibleTypeAnnotationsCounter++;
-								allTypeAnnotationContexts.add(annotationContext);
-							} else {
-								visibleTypeAnnotationsCounter++;
-								allTypeAnnotationContexts.add(annotationContext);
+				TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;
+				if (thrownExceptions != null) {
+					for (int i = 0, max = thrownExceptions.length; i < max; i++) {
+						TypeReference thrownException = thrownExceptions[i];
+						AnnotationContext[] annotationContexts = thrownException.getAllAnnotationContexts(AnnotationTargetTypeConstants.THROWS);
+						if (annotationContexts != null) {
+							for (int j = 0, max2 = annotationContexts.length; j < max2; j++) {
+								AnnotationContext annotationContext = annotationContexts[j];
+								annotationContext.typeIndex = i;
+								if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
+									invisibleTypeAnnotationsCounter++;
+									allTypeAnnotationContexts.add(annotationContext);
+								} else {
+									visibleTypeAnnotationsCounter++;
+									allTypeAnnotationContexts.add(annotationContext);
+								}
 							}
 						}
 					}
@@ -3938,6 +3960,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		this.contents[this.contentsOffset++] = (byte) targetType;
 		switch(targetType) {
+			case AnnotationTargetTypeConstants.THROWS :
 			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS :
 			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
 				this.contents[this.contentsOffset++] = (byte) (annotationContext.typeIndex >> 8);
