@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,9 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -42,6 +45,39 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		}
 	}
 
+	public AnnotationContext[] getAllAnnotationContexts(int targetType, int typeParameterIndex) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType, typeParameterIndex);
+		if (this.annotations != null) {
+			int annotationsLength = this.annotations.length;
+			for (int i = 0; i < annotationsLength; i++)
+				this.annotations[i].traverse(collector, (BlockScope) null);
+		}
+		switch(collector.targetType) {
+			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
+				collector.targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND;
+				break;
+			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
+				collector.targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND;
+		}
+		if (this.type != null && ((this.type.bits & ASTNode.HasTypeAnnotations) != 0)) {
+			collector.typeParameterBoundIndex = 0;
+			this.type.traverse(collector, (BlockScope) null);
+			collector.typeParameterBoundIndex = -1;
+		}
+		if (this.bounds != null) {
+			int boundsLength = this.bounds.length;
+			for (int i = 0; i < boundsLength; i++) {
+				TypeReference bound = this.bounds[i];
+				if ((bound.bits & ASTNode.HasTypeAnnotations) == 0) {
+					continue;
+				}
+				collector.typeParameterBoundIndex = i + 1;
+				bound.traverse(collector, (BlockScope) null);
+				collector.typeParameterBoundIndex = -1;
+			}
+		}
+		return collector.getAnnotationContexts();
+	}
 	private void internalResolve(Scope scope, boolean staticContext) {
 		// detect variable/type name collisions
 		if (this.binding != null) {
@@ -99,11 +135,16 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-	    // nothing to do
+		// nothing to do
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
 			if (this.type != null) {
 				this.type.traverse(visitor, scope);
 			}
@@ -119,6 +160,11 @@ public class TypeParameter extends AbstractVariableDeclaration {
 
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
 			if (this.type != null) {
 				this.type.traverse(visitor, scope);
 			}

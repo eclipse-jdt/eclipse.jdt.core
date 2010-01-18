@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
@@ -1921,6 +1922,27 @@ public class ClassFile implements TypeConstants, TypeIds {
 								} else {
 									visibleTypeAnnotationsCounter++;
 									allTypeAnnotationContexts.add(annotationContext);
+								}
+							}
+						}
+					}
+				}
+				TypeParameter[] typeParameters = methodDeclaration.typeParameters();
+				if (typeParameters != null) {
+					for (int i = 0, max = typeParameters.length; i < max; i++) {
+						TypeParameter typeParameter = typeParameters[i];
+						if ((typeParameter.bits & ASTNode.HasTypeAnnotations) != 0) {
+							AnnotationContext[] annotationContexts = typeParameter.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER, i);
+							if (annotationContexts != null) {
+								for (int j = 0, max2 = annotationContexts.length; j < max2; j++) {
+									AnnotationContext annotationContext = annotationContexts[j];
+									if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
+										invisibleTypeAnnotationsCounter++;
+										allTypeAnnotationContexts.add(annotationContext);
+									} else {
+										visibleTypeAnnotationsCounter++;
+										allTypeAnnotationContexts.add(annotationContext);
+									}
 								}
 							}
 						}
@@ -3945,13 +3967,31 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case AnnotationTargetTypeConstants.METHOD_PARAMETER :
 					targetType = AnnotationTargetTypeConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY;
 					break;
-				case AnnotationTargetTypeConstants.METHOD_RECEIVER :
-					// should not happen - possible extension
-					targetType = AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY;
-					break;
 				case AnnotationTargetTypeConstants.FIELD :
-					// should not happen - possible extension
 					targetType = AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY;
+					break;
+//					case AnnotationTargetTypeConstants.METHOD_RECEIVER :
+//					// should not happen - possible extension
+//					targetType = AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY;
+//					break;
+//				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
+//					// should not happen - possible extension
+//					targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY;
+//					break;
+//				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
+//					// should not happen - possible extension
+//					targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
+//					break;
+//				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
+//					// should not happen - possible extension
+//					targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY;
+//					break;
+//				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
+//					// should not happen - possible extension
+//					targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
+//					break;
+//				case AnnotationTargetTypeConstants.THROWS :
+//					targetType = AnnotationTargetTypeConstants.THROWS_GENERIC_OR_ARRAY;
 			}
 		}
 		// reserve enough space
@@ -4009,6 +4049,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 			// case AnnotationTargetTypeConstants.FIELD :
 			// case AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY :
 			//	break;
+			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
+			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
+				this.contents[this.contentsOffset++] = (byte) annotationContext.paramIndex;
+				break;
+			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
+			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
+				this.contents[this.contentsOffset++] = (byte) annotationContext.paramIndex;
+				this.contents[this.contentsOffset++] = (byte) annotationContext.boundIndex;
+				break;
 		}
 		if (locations != null) {
 			int length = locations.length;
@@ -4026,15 +4075,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 	private int generateTypeAnnotationAttributeForTypeDeclaration() {
 		TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
-		int attributesNumber = 0;
 		if ((typeDeclaration.bits & ASTNode.HasTypeAnnotations) == 0) {
-			return attributesNumber;
+			return 0;
 		}
+		int attributesNumber = 0;
 		int visibleTypeAnnotationsCounter = 0;
 		int invisibleTypeAnnotationsCounter = 0;
 		TypeReference superclass = typeDeclaration.superclass;
 		List allTypeAnnotationContexts = new ArrayList();
-		if (superclass != null) {
+		if (superclass != null && (superclass.bits & ASTNode.HasTypeAnnotations) != 0) {
 			AnnotationContext[] annotationContexts = superclass.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS);
 			if (annotationContexts != null) {
 				for (int i = 0, max = annotationContexts.length; i < max; i++) {
@@ -4054,6 +4103,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (superInterfaces != null) {
 			for (int i = 0; i < superInterfaces.length; i++) {
 				TypeReference superInterface = superInterfaces[i];
+				if ((superInterface.bits & ASTNode.HasTypeAnnotations) == 0) {
+					continue;
+				}
 				AnnotationContext[] annotationContexts = superInterface.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS);
 				if (annotationContexts != null) {
 					for (int j = 0, max = annotationContexts.length; j < max; j++) {
@@ -4065,6 +4117,27 @@ public class ClassFile implements TypeConstants, TypeIds {
 						} else {
 							visibleTypeAnnotationsCounter++;
 							allTypeAnnotationContexts.add(annotationContext);
+						}
+					}
+				}
+			}
+		}
+		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
+		if (typeParameters != null) {
+			for (int i = 0, max = typeParameters.length; i < max; i++) {
+				TypeParameter typeParameter = typeParameters[i];
+				if ((typeParameter.bits & ASTNode.HasTypeAnnotations) != 0) {
+					AnnotationContext[] annotationContexts = typeParameter.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER, i);
+					if (annotationContexts != null) {
+						for (int j = 0, max2 = annotationContexts.length; j < max2; j++) {
+							AnnotationContext annotationContext = annotationContexts[j];
+							if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
+								invisibleTypeAnnotationsCounter++;
+								allTypeAnnotationContexts.add(annotationContext);
+							} else {
+								visibleTypeAnnotationsCounter++;
+								allTypeAnnotationContexts.add(annotationContext);
+							}
 						}
 					}
 				}

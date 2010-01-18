@@ -37,6 +37,16 @@ static class AnnotationCollector extends ASTVisitor {
 	TypeReference typeReference;
 	int targetType;
 	Annotation[] primaryAnnotations;
+	int typeParameterIndex = -1;
+	int typeParameterBoundIndex = -1;
+
+	public AnnotationCollector(TypeParameter typeParameter, int targetType, int typeParameterIndex) {
+		this.annotationContexts = new ArrayList();
+		this.typeReference = typeParameter.type;
+		this.targetType = targetType;
+		this.primaryAnnotations = typeParameter.annotations;
+		this.typeParameterIndex = typeParameterIndex;
+	}
 
 	public AnnotationCollector(LocalDeclaration localDeclaration, int targetType) {
 		this.annotationContexts = new ArrayList();
@@ -72,6 +82,12 @@ static class AnnotationCollector extends ASTVisitor {
 			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE);
 		}
 		if (annotationContext != null) {
+			if (this.typeParameterBoundIndex != -1) {
+				annotationContext.boundIndex = this.typeParameterBoundIndex;
+				annotationContext.paramIndex = this.typeParameterIndex;
+			} else if (this.typeParameterIndex != -1) {
+				annotationContext.paramIndex = this.typeParameterIndex;
+			}
 			this.annotationContexts.add(annotationContext);
 		}
 		return true;
@@ -84,6 +100,12 @@ static class AnnotationCollector extends ASTVisitor {
 			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE);
 		}
 		if (annotationContext != null) {
+			if (this.typeParameterBoundIndex != -1) {
+				annotationContext.boundIndex = this.typeParameterBoundIndex;
+				annotationContext.paramIndex = this.typeParameterIndex;
+			} else if (this.typeParameterIndex != -1) {
+				annotationContext.paramIndex = this.typeParameterIndex;
+			}
 			this.annotationContexts.add(annotationContext);
 		}
 		return true;
@@ -96,6 +118,12 @@ static class AnnotationCollector extends ASTVisitor {
 			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE);
 		}
 		if (annotationContext != null) {
+			if (this.typeParameterBoundIndex != -1) {
+				annotationContext.boundIndex = this.typeParameterBoundIndex;
+				annotationContext.paramIndex = this.typeParameterIndex;
+			} else if (this.typeParameterIndex != -1) {
+				annotationContext.paramIndex = this.typeParameterIndex;
+			}
 			this.annotationContexts.add(annotationContext);
 		}
 		return true;

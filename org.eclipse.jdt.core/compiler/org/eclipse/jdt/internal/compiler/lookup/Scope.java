@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -712,6 +712,25 @@ public abstract class Scope {
 			parameterBinding.fPackage = unitPackage;
 			typeParameter.binding = parameterBinding;
 
+			if ((typeParameter.bits & ASTNode.HasTypeAnnotations) != 0) {
+				switch(declaringElement.kind()) {
+					case Binding.METHOD :
+						MethodBinding methodBinding = (MethodBinding) declaringElement;
+						AbstractMethodDeclaration sourceMethod = methodBinding.sourceMethod();
+						if (sourceMethod != null) {
+							sourceMethod.bits |= (typeParameter.bits & ASTNode.HasTypeAnnotations);
+						}
+						break;
+					case Binding.TYPE :
+						if (declaringElement instanceof SourceTypeBinding) {
+							SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) declaringElement;
+							TypeDeclaration typeDeclaration = sourceTypeBinding.scope.referenceContext;
+							if (typeDeclaration != null) {
+								typeDeclaration.bits |= (typeParameter.bits & ASTNode.HasTypeAnnotations);
+							}
+						}
+				}
+			}
 			// detect duplicates, but keep each variable to reduce secondary errors with instantiating this generic type (assume number of variables is correct)
 			for (int j = 0; j < count; j++) {
 				TypeVariableBinding knownVar = typeVariableBindings[j];
