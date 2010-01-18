@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7409,7 +7409,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		checkSourceRange(name, "j", source); //$NON-NLS-1$
 		IBinding binding = name.resolveBinding();
 		ASTNode declaringNode = compilationUnit.findDeclaringNode(binding);
-		assertNull("No declaring node is available", declaringNode); //$NON-NLS-1$
+		assertNotNull("No declaring node is available", declaringNode); //$NON-NLS-1$
 	}
 
 	/**
