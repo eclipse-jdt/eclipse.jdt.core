@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -541,7 +542,15 @@ public TypeBinding resolveType(BlockScope scope) {
 			// problem already got signaled on receiver, do not report secondary problem
 			return null;
 		}
-		scope.problemReporter().invalidField(this, this.actualReceiverType);
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=245007 avoid secondary errors in case of
+		// missing super type for anonymous classes ... 
+		ReferenceBinding declaringClass = fieldBinding.declaringClass;
+		boolean avoidSecondary = declaringClass != null &&
+								 declaringClass.isAnonymousType() &&
+								 declaringClass.superclass() instanceof MissingTypeBinding;
+		if (!avoidSecondary) {
+			scope.problemReporter().invalidField(this, this.actualReceiverType);
+		}
 		return null;
 	}
 	// handle indirect inheritance thru variable secondary bound

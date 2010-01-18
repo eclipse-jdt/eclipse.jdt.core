@@ -352,8 +352,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 							}
 						}
 					}
-				} else {
-					return null;
 				}
 				if (this.anonymousType != null) {
 					// insert anonymous type in scope (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=210070)
