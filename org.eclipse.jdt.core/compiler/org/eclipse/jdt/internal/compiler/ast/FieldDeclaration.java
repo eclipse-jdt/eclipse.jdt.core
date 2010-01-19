@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -110,13 +112,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
-public AnnotationContext[] getAllAnnotationContexts(int targetType) {
-	AnnotationCollector collector = new AnnotationCollector(this, targetType);
+public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
+	AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
 	for (int i = 0, max = this.annotations.length; i < max; i++) {
 		Annotation annotation = this.annotations[i];
 		annotation.traverse(collector, (BlockScope) null);
 	}
-	return collector.getAnnotationContexts();
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration#getKind()

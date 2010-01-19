@@ -56,6 +56,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	public TypeReference copyDims(int dim, Annotation [][] annotationsOnDims) {
 		ParameterizedSingleTypeReference parameterizedSingleTypeReference = new ParameterizedSingleTypeReference(this.token, this.typeArguments, dim, annotationsOnDims, (((long)this.sourceStart)<<32)+this.sourceEnd);
 		parameterizedSingleTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
+		if (annotationsOnDims != null) {
+			parameterizedSingleTypeReference.bits |= ASTNode.HasTypeAnnotations;
+		}
 		return parameterizedSingleTypeReference;
 	}
 

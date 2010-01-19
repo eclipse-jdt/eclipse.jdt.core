@@ -16,9 +16,11 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -627,8 +629,10 @@ public void checkcast(int baseId) {
 			writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangBooleanConstantPoolName));
 	}
 }
-
 public void checkcast(TypeBinding typeBinding) {
+	this.checkcast(null, typeBinding);
+}
+public void checkcast(TypeReference typeReference, TypeBinding typeBinding) {
 	this.countLabels = 0;
 	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -637,7 +641,6 @@ public void checkcast(TypeBinding typeBinding) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_checkcast;
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 }
-
 public void d2f() {
 	this.countLabels = 0;
 	this.stackDepth--;
@@ -1686,11 +1689,13 @@ public void generateBoxingConversion(int unboxedTypeID) {
             }
     }
 }
-
+public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
+	this.generateClassLiteralAccessForType(null, accessedType, syntheticFieldBinding);
+}
 /**
  * Macro for building a class descriptor object
  */
-public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
+public void generateClassLiteralAccessForType(TypeReference typeReference, TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
 	if (accessedType.isBaseType() && accessedType != TypeBinding.NULL) {
 		getTYPE(accessedType.id);
 		return;
@@ -1843,7 +1848,7 @@ public void generateEmulationForConstructor(Scope scope, MethodBinding methodBin
 	invokeClassForName();
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	newArray(scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
+	newArray(null, scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
 	if (paramLength > 0) {
 		dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -1899,7 +1904,7 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 	this.ldc(String.valueOf(methodBinding.selector));
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	newArray(scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
+	newArray(null, scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
 	if (paramLength > 0) {
 		dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -2409,7 +2414,7 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBinding) {
 	initializeMaxLocals(methodBinding);
 	final ReferenceBinding declaringClass = methodBinding.declaringClass;
-	generateClassLiteralAccessForType(declaringClass, null);
+	generateClassLiteralAccessForType(null, declaringClass, null);
 	aload_0();
 	invokeJavaLangEnumvalueOf(declaringClass);
 	this.checkcast(declaringClass);
@@ -2435,7 +2440,7 @@ public void generateSyntheticBodyForEnumValues(SyntheticMethodBinding methodBind
 	arraylength();
 	dup();
 	istore_1();
-	newArray((ArrayBinding) enumArray);
+	newArray(null, (ArrayBinding) enumArray);
 	dup();
 	astore_2();
 	iconst_0();
@@ -3789,12 +3794,14 @@ public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel targetLabe
 	}
 	return (chaining & (L_OPTIMIZABLE|L_CANNOT_OPTIMIZE)) == L_OPTIMIZABLE; // check was some standards, and no case/recursive
 }
-
+public void instance_of(TypeBinding typeBinding) {
+	this.instance_of(null, typeBinding);
+}
 /**
  * We didn't call it instanceof because there is a conflit with the
  * instanceof keyword
  */
-public void instance_of(TypeBinding typeBinding) {
+public void instance_of(TypeReference typeReference, TypeBinding typeBinding) {
 	this.countLabels = 0;
 	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 		resizeByteArray();
@@ -5502,8 +5509,14 @@ public void monitorexit() {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_monitorexit;
 }
-
 public void multianewarray(TypeBinding typeBinding, int dimensions) {
+	this.multianewarray(null, typeBinding, dimensions, null);
+}
+public void multianewarray(
+		TypeReference typeReference,
+		TypeBinding typeBinding,
+		int dimensions,
+		Annotation [][] annotationsOnDimensions) {
 	this.countLabels = 0;
 	this.stackDepth += (1 - dimensions);
 	if (this.classFileOffset + 3 >= this.bCodeStream.length) {
@@ -5514,9 +5527,11 @@ public void multianewarray(TypeBinding typeBinding, int dimensions) {
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 	this.bCodeStream[this.classFileOffset++] = (byte) dimensions;
 }
-
-// We didn't call it new, because there is a conflit with the new keyword
 public void new_(TypeBinding typeBinding) {
+	this.new_(null, typeBinding);
+}
+// We didn't call it new, because there is a conflit with the new keyword
+public void new_(TypeReference typeReference, TypeBinding typeBinding) {
 	this.countLabels = 0;
 	this.stackDepth++;
 	if (this.stackDepth > this.stackMax)
@@ -5538,8 +5553,10 @@ public void newarray(int array_Type) {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_newarray;
 	this.bCodeStream[this.classFileOffset++] = (byte) array_Type;
 }
-
 public void newArray(ArrayBinding arrayBinding) {
+	this.newArray(null, arrayBinding);
+}
+public void newArray(TypeReference typeReference, ArrayBinding arrayBinding) {
 	TypeBinding component = arrayBinding.elementsType();
 	switch (component.id) {
 		case TypeIds.T_int :

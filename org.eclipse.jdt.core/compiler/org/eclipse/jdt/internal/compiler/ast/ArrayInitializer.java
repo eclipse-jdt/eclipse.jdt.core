@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,7 +48,7 @@ public class ArrayInitializer extends Expression {
 		int pc = codeStream.position;
 		int expressionLength = (this.expressions == null) ? 0: this.expressions.length;
 		codeStream.generateInlinedValue(expressionLength);
-		codeStream.newArray(this.binding);
+		codeStream.newArray(null, this.binding);
 		if (this.expressions != null) {
 			// binding is an ArrayType, so I can just deal with the dimension
 			int elementsTypeID = this.binding.dimensions > 1 ? -1 : this.binding.leafComponentType.id;

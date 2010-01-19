@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -106,7 +106,7 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 			// called with (argLength - lastIndex) elements : foo(1, 2) or foo(1, 2, 3, 4)
 			// need to gen elements into an array, then gen each remaining element into created array
 			codeStream.generateInlinedValue(argLength - varArgIndex);
-			codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
+			codeStream.newArray(null, codeGenVarArgsType); // create a mono-dimensional array
 			for (int i = varArgIndex; i < argLength; i++) {
 				codeStream.dup();
 				codeStream.generateInlinedValue(i - varArgIndex);
@@ -125,7 +125,7 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 				// right number but not directly compatible or too many arguments - wrap extra into array
 				// need to gen elements into an array, then gen each remaining element into created array
 				codeStream.generateInlinedValue(1);
-				codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
+				codeStream.newArray(null, codeGenVarArgsType); // create a mono-dimensional array
 				codeStream.dup();
 				codeStream.generateInlinedValue(0);
 				arguments[varArgIndex].generateCode(currentScope, codeStream, true);
@@ -135,7 +135,7 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 			// scenario: foo(1) --> foo(1, new int[0])
 			// generate code for an empty array of parameterType
 			codeStream.generateInlinedValue(0);
-			codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
+			codeStream.newArray(null, codeGenVarArgsType); // create a mono-dimensional array
 		}
 	} else if (arguments != null) { // standard generation for method arguments
 		for (int i = 0, max = arguments.length; i < max; i++)

@@ -1726,7 +1726,11 @@ protected void consumeArrayCreationExpressionWithInitializer() {
 		arrayAllocation.dimensions = new Expression[length],
 		0,
 		length);
-	arrayAllocation.annotationsOnDimensions = getAnnotationsOnDimensions(length);
+	Annotation[][] annotationsOnDimensions = getAnnotationsOnDimensions(length);
+	arrayAllocation.annotationsOnDimensions = annotationsOnDimensions;
+	if (annotationsOnDimensions != null) {
+		arrayAllocation.bits |= ASTNode.HasTypeAnnotations;
+	}
 	arrayAllocation.type = getTypeReference(0);
 	arrayAllocation.type.bits |= ASTNode.IgnoreRawTypeCheck; // no need to worry about raw type usage
 
@@ -1752,7 +1756,11 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 		arrayAllocation.dimensions = new Expression[length],
 		0,
 		length);
-	arrayAllocation.annotationsOnDimensions = getAnnotationsOnDimensions(length);
+	Annotation[][] annotationsOnDimensions = getAnnotationsOnDimensions(length);
+	arrayAllocation.annotationsOnDimensions = annotationsOnDimensions;
+	if (annotationsOnDimensions != null) {
+		arrayAllocation.bits |= ASTNode.HasTypeAnnotations;
+	}
 	arrayAllocation.type = getTypeReference(0);
 	arrayAllocation.type.bits |= ASTNode.IgnoreRawTypeCheck; // no need to worry about raw type usage
 	arrayAllocation.sourceStart = this.intStack[this.intPtr--];
@@ -4901,7 +4909,7 @@ protected void consumeMethodHeaderExtendedDims() {
 		Annotation [][] annotationsOnAllDimensions = null;
 		if (annotationsOnDimensions != null || annotationsOnExtendedDimensions != null) {
 			annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(returnType.dimensions(), annotationsOnDimensions, extendedDims, annotationsOnExtendedDimensions);
-		}	
+		}
 		md.returnType = copyDims(returnType, dims, annotationsOnAllDimensions);
 		if (this.currentToken == TokenNameLBRACE){
 			md.bodyStart = this.endPosition + 1;
@@ -9656,7 +9664,9 @@ protected TypeReference getUnannotatedTypeReference(int dim) {
 						annotationsOnDimensions,
 						this.identifierPositionStack[this.identifierPtr--]);
 				ref.sourceEnd = this.endPosition;
-				ref.bits |= ASTNode.HasTypeAnnotations;
+				if (annotationsOnDimensions != null) {
+					ref.bits |= ASTNode.HasTypeAnnotations;
+				}
 			}
 		} else {
 			this.genericsLengthPtr--;

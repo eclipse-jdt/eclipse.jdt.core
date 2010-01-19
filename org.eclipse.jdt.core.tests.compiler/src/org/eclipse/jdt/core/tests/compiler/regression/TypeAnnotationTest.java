@@ -15,7 +15,7 @@ import junit.framework.Test;
 public class TypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 
-//		TESTS_NUMBERS = new int [] { 26, 27 };
+//		TESTS_NUMBERS = new int [] { 28 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationTest.class;
@@ -1117,6 +1117,57 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"@interface H {\n" + 
 				"	char value() default '-';\n" + 
 				"}\n",
+		},
+		"");
+	}
+	// cast
+	public void test028() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n",
+				"J.java",
+				"interface J {}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(Object o) {\n" + 
+				"		if (o instanceof String[][]) {\n" +
+				"			String[][] tab = (@C('_') @B(3) String[] @A[]) o;\n" +
+				"			System.out.println(tab.length);\n" +
+				"		}\n" + 
+				"		System.out.println(o);\n" +
+				"	}\n" + 
+				"}",
 		},
 		"");
 	}

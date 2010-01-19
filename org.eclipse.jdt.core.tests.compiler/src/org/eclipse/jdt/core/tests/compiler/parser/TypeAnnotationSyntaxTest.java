@@ -32,7 +32,7 @@ public TypeAnnotationSyntaxTest(String testName){
 
 static {
 //	TESTS_NAMES = new String[] { "test0038", "test0039", "test0040a" };
-//	TESTS_NUMBERS = new int[] { 125 };
+//	TESTS_NUMBERS = new int[] { 131, 132 };
 }
 
 public void test0001() throws IOException {
@@ -3493,5 +3493,61 @@ public void test0130() throws IOException {
 		"  }\n" + 
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
+}
+//cast
+public void test0131() throws IOException {
+	String source =
+		"public class X {\n" + 
+		"	public void foo(Object o) {\n" + 
+		"		if (o instanceof String[][]) {\n" +
+		"			String[][] tab = (@C('_') @B(3) String[] @A[]) o;\n" +
+		"			System.out.println(tab.length);\n" +
+		"		}\n" + 
+		"		System.out.println(o);\n" +
+		"	}\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo(Object o) {\n" + 
+		"    if ((o instanceof String[][]))\n" + 
+		"        {\n" + 
+		"          String[][] tab = (@C(\'_\') @B(3) String[] @A []) o;\n" + 
+		"          System.out.println(tab.length);\n" + 
+		"        }\n" + 
+		"    System.out.println(o);\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
+}
+//cast
+public void test0132() throws IOException {
+	String source =
+		"public class X {\n" + 
+		"	public void foo(Object o) {\n" + 
+		"		if (o instanceof String[][]) {\n" +
+		"			String[][] tab = (@C('_') @B(3) String@D[] @A[]) o;\n" +
+		"			System.out.println(tab.length);\n" +
+		"		}\n" + 
+		"		System.out.println(o);\n" +
+		"	}\n" + 
+		"}";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo(Object o) {\n" + 
+		"    if ((o instanceof String[][]))\n" + 
+		"        {\n" + 
+		"          String[][] tab = (@C(\'_\') @B(3) String @D [] @A []) o;\n" + 
+		"          System.out.println(tab.length);\n" + 
+		"        }\n" + 
+		"    System.out.println(o);\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
 }

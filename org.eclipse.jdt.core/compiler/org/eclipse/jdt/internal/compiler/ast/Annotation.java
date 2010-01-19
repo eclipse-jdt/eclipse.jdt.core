@@ -28,7 +28,11 @@ public abstract class Annotation extends Expression {
 	/**
 	 * Return the location for the corresponding annotation inside the type reference, <code>null</code> if none.
 	 */
-	public static int[] getLocations(final TypeReference reference, final Annotation[] primaryAnnotation, final Annotation annotation) {
+	public static int[] getLocations(
+			final TypeReference reference,
+			final Annotation[] primaryAnnotation,
+			final Annotation annotation,
+			final Annotation[][] annotationsOnDimensionsOnExpression) {
 		class LocationCollector extends ASTVisitor {
 			Stack currentIndexes;
 			Annotation currentAnnotation;
@@ -243,6 +247,35 @@ public abstract class Annotation extends Expression {
 			}
 			public boolean visit(SingleTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
+				Annotation[][] annotationsOnDimensions = annotationsOnDimensionsOnExpression;
+				if (annotationsOnDimensions != null) {
+					// check if the annotation is located on the first dimension
+					Annotation[] annotations = annotationsOnDimensions[0];
+					if (annotations != null) {
+						for (int j = 0, max2 = annotations.length; j < max2; j++) {
+							Annotation current = annotations[j];
+							if (current == this.currentAnnotation) {
+								this.search = false;
+								return false;
+							}
+						}
+					}
+
+					this.currentIndexes.push(new Integer(0));
+					for (int i = 1, max = annotationsOnDimensions.length; i < max; i++) {
+						annotations = annotationsOnDimensions[i];
+						if (annotations != null) {
+							for (int j = 0, max2 = annotations.length; j < max2; j++) {
+								Annotation current = annotations[j];
+								if (current == this.currentAnnotation) {
+									this.search = false;
+									return false;
+								}
+							}
+						}
+						this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+					}
+				}
 				Annotation[] annotations = typeReference.annotations;
 				if (annotations != null) {
 					for (int i = 0; i < annotations.length; i++) {

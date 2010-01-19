@@ -16,3 +16,6 @@ Javac issues to double-check:
 	@A Map<@B String, @C List<@H String @E[] [] @G[]>> @I[] [] @J[] field;
 	@A Map<@B String, @C List<@H String @E[] [] @G[]>> [] @I[] @J[] field;
 I has the same location in both cases
+
+- Initialize allTypeAnnotationContexts for TypeAnnotationCodStream only if needed
+- Fix usage of annotation on dimensions for allocation expression

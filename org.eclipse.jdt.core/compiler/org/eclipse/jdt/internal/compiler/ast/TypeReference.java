@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -23,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -37,100 +39,135 @@ static class AnnotationCollector extends ASTVisitor {
 	TypeReference typeReference;
 	int targetType;
 	Annotation[] primaryAnnotations;
-	int typeParameterIndex = -1;
-	int typeParameterBoundIndex = -1;
+	int info = -1;
+	int boundIndex = -1;
+	LocalVariableBinding localVariable;
+	Annotation[][] annotationsOnDimensions;
 
-	public AnnotationCollector(TypeParameter typeParameter, int targetType, int typeParameterIndex) {
-		this.annotationContexts = new ArrayList();
+	public AnnotationCollector(
+			TypeParameter typeParameter,
+			int targetType,
+			int typeParameterIndex,
+			List annotationContexts) {
+		this.annotationContexts = annotationContexts;
 		this.typeReference = typeParameter.type;
 		this.targetType = targetType;
 		this.primaryAnnotations = typeParameter.annotations;
-		this.typeParameterIndex = typeParameterIndex;
+		this.info = typeParameterIndex;
 	}
 
-	public AnnotationCollector(LocalDeclaration localDeclaration, int targetType) {
-		this.annotationContexts = new ArrayList();
+	public AnnotationCollector(
+			LocalDeclaration localDeclaration,
+			int targetType,
+			LocalVariableBinding localVariable,
+			List annotationContexts) {
+		this.annotationContexts = annotationContexts;
 		this.typeReference = localDeclaration.type;
 		this.targetType = targetType;
 		this.primaryAnnotations = localDeclaration.annotations;
+		this.localVariable = localVariable;
 	}
 
-	public AnnotationCollector(MethodDeclaration methodDeclaration, int targetType) {
-		this.annotationContexts = new ArrayList();
+	public AnnotationCollector(
+			LocalDeclaration localDeclaration,
+			int targetType,
+			int parameterIndex,
+			List annotationContexts) {
+		this.annotationContexts = annotationContexts;
+		this.typeReference = localDeclaration.type;
+		this.targetType = targetType;
+		this.primaryAnnotations = localDeclaration.annotations;
+		this.info = parameterIndex;
+	}
+
+	public AnnotationCollector(
+			MethodDeclaration methodDeclaration,
+			int targetType,
+			List annotationContexts) {
+		this.annotationContexts = annotationContexts;
 		this.typeReference = methodDeclaration.returnType;
 		this.targetType = targetType;
 		this.primaryAnnotations = methodDeclaration.annotations;
 	}
 
-	public AnnotationCollector(FieldDeclaration fieldDeclaration, int targetType) {
-		this.annotationContexts = new ArrayList();
+	public AnnotationCollector(
+			FieldDeclaration fieldDeclaration,
+			int targetType,
+			List annotationContexts) {
+		this.annotationContexts = annotationContexts;
 		this.typeReference = fieldDeclaration.type;
 		this.targetType = targetType;
 		this.primaryAnnotations = fieldDeclaration.annotations;
 	}
-
-	public AnnotationCollector(TypeReference typeReference, int targetType) {
-		this.annotationContexts = new ArrayList();
+	public AnnotationCollector(
+			TypeReference typeReference,
+			int targetType,
+			List annotationContexts) {
+		this.annotationContexts = annotationContexts;
 		this.typeReference = typeReference;
 		this.targetType = targetType;
 	}
-	public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
+	public AnnotationCollector(
+			TypeReference typeReference,
+			int targetType,
+			int info,
+			List annotationContexts) {
+		this.annotationContexts = annotationContexts;
+		this.typeReference = typeReference;
+		this.info = info;
+		this.targetType = targetType;
+	}
+	public AnnotationCollector(
+			TypeReference typeReference,
+			int targetType,
+			int info,
+			List annotationContexts,
+			Annotation[][] annotationsOnDimensions) {
+		this.annotationContexts = annotationContexts;
+		this.typeReference = typeReference;
+		this.info = info;
+		this.targetType = targetType;
+		this.annotationsOnDimensions = annotationsOnDimensions;
+	}
+	private boolean internalVisit(Annotation annotation) {
 		AnnotationContext annotationContext = null;
 		if (annotation.isRuntimeTypeInvisible()) {
-			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.INVISIBLE);
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.INVISIBLE, this.annotationsOnDimensions);
 		} else if (annotation.isRuntimeTypeVisible()) {
-			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE);
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE, this.annotationsOnDimensions);
 		}
 		if (annotationContext != null) {
-			if (this.typeParameterBoundIndex != -1) {
-				annotationContext.boundIndex = this.typeParameterBoundIndex;
-				annotationContext.paramIndex = this.typeParameterIndex;
-			} else if (this.typeParameterIndex != -1) {
-				annotationContext.paramIndex = this.typeParameterIndex;
+			switch(this.targetType) {
+				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
+				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
+				case AnnotationTargetTypeConstants.METHOD_PARAMETER :
+				case AnnotationTargetTypeConstants.TYPE_CAST :
+				case AnnotationTargetTypeConstants.TYPE_INSTANCEOF :
+				case AnnotationTargetTypeConstants.OBJECT_CREATION :
+				case AnnotationTargetTypeConstants.CLASS_LITERAL :
+					annotationContext.info = this.info;
+					break;
+				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
+				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
+					annotationContext.boundIndex = this.boundIndex;
+					annotationContext.info = this.info;
+					break;
+				case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
+					annotationContext.variableBinding = this.localVariable;
+					break;
 			}
 			this.annotationContexts.add(annotationContext);
 		}
 		return true;
+	}
+	public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
+		return internalVisit(annotation);
 	}
 	public boolean visit(NormalAnnotation annotation, BlockScope scope) {
-		AnnotationContext annotationContext = null;
-		if (annotation.isRuntimeTypeInvisible()) {
-			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.INVISIBLE);
-		} else if (annotation.isRuntimeTypeVisible()) {
-			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE);
-		}
-		if (annotationContext != null) {
-			if (this.typeParameterBoundIndex != -1) {
-				annotationContext.boundIndex = this.typeParameterBoundIndex;
-				annotationContext.paramIndex = this.typeParameterIndex;
-			} else if (this.typeParameterIndex != -1) {
-				annotationContext.paramIndex = this.typeParameterIndex;
-			}
-			this.annotationContexts.add(annotationContext);
-		}
-		return true;
+		return internalVisit(annotation);
 	}
 	public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
-		AnnotationContext annotationContext = null;
-		if (annotation.isRuntimeTypeInvisible()) {
-			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.INVISIBLE);
-		} else if (annotation.isRuntimeTypeVisible()) {
-			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE);
-		}
-		if (annotationContext != null) {
-			if (this.typeParameterBoundIndex != -1) {
-				annotationContext.boundIndex = this.typeParameterBoundIndex;
-				annotationContext.paramIndex = this.typeParameterIndex;
-			} else if (this.typeParameterIndex != -1) {
-				annotationContext.paramIndex = this.typeParameterIndex;
-			}
-			this.annotationContexts.add(annotationContext);
-		}
-		return true;
-	}
-	
-	public AnnotationContext[] getAnnotationContexts() {
-		return (AnnotationContext[]) this.annotationContexts.toArray(new AnnotationContext[this.annotationContexts.size()]);
+		return internalVisit(annotation);
 	}
 }
 /*
@@ -201,9 +238,44 @@ public int dimensions() {
 	return 0;
 }
 public AnnotationContext[] getAllAnnotationContexts(int targetType) {
-	AnnotationCollector collector = new AnnotationCollector(this, targetType);
+	List allAnnotationContexts = new ArrayList();
+	AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
 	this.traverse(collector, (BlockScope) null);
-	return collector.getAnnotationContexts();
+	return (AnnotationContext[]) allAnnotationContexts.toArray(new AnnotationContext[allAnnotationContexts.size()]);
+}
+/**
+ * info can be either a type index (superclass/superinterfaces) or a pc into the bytecode
+ * @param targetType
+ * @param info
+ * @param allAnnotationContexts
+ */
+public void getAllAnnotationContexts(int targetType, int info, List allAnnotationContexts) {
+	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allAnnotationContexts);
+	this.traverse(collector, (BlockScope) null);
+}
+/**
+ * info can be either a type index (superclass/superinterfaces) or a pc into the bytecode
+ * @param targetType
+ * @param info
+ * @param allAnnotationContexts
+ */
+public void getAllAnnotationContexts(int targetType, int info, List allAnnotationContexts, Annotation[][] annotationsOnDimensions) {
+	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allAnnotationContexts, annotationsOnDimensions);
+	this.traverse(collector, (BlockScope) null);
+	if (annotationsOnDimensions != null) {
+		for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
+			Annotation[] annotationsOnDimension = annotationsOnDimensions[i];
+			if (annotationsOnDimension != null) {
+				for (int j = 0, max2 = annotationsOnDimension.length; j< max2; j++) {
+					annotationsOnDimension[j].traverse(collector, (BlockScope) null);
+				}
+			}
+		}
+	}
+}
+public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
+	AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
+	this.traverse(collector, (BlockScope) null);
 }
 public Annotation[][] getAnnotationsOnDimensions() {
 	return null;

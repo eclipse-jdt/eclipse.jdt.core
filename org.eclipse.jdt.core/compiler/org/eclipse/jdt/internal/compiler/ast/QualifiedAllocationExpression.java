@@ -109,7 +109,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		int pc = codeStream.position;
 		MethodBinding codegenBinding = this.binding.original();
 		ReferenceBinding allocatedType = codegenBinding.declaringClass;
-		codeStream.new_(allocatedType);
+		codeStream.new_(this.type, allocatedType);
 		boolean isUnboxing = (this.implicitConversion & TypeIds.UNBOXING) != 0;
 		if (valueRequired || isUnboxing) {
 			codeStream.dup();

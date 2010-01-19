@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
-import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -45,8 +46,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		}
 	}
 
-	public AnnotationContext[] getAllAnnotationContexts(int targetType, int typeParameterIndex) {
-		AnnotationCollector collector = new AnnotationCollector(this, targetType, typeParameterIndex);
+	public void getAllAnnotationContexts(int targetType, int typeParameterIndex, List allAnnotationContexts) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType, typeParameterIndex, allAnnotationContexts);
 		if (this.annotations != null) {
 			int annotationsLength = this.annotations.length;
 			for (int i = 0; i < annotationsLength; i++)
@@ -60,9 +61,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				collector.targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND;
 		}
 		if (this.type != null && ((this.type.bits & ASTNode.HasTypeAnnotations) != 0)) {
-			collector.typeParameterBoundIndex = 0;
+			collector.boundIndex = 0;
 			this.type.traverse(collector, (BlockScope) null);
-			collector.typeParameterBoundIndex = -1;
 		}
 		if (this.bounds != null) {
 			int boundsLength = this.bounds.length;
@@ -71,12 +71,10 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				if ((bound.bits & ASTNode.HasTypeAnnotations) == 0) {
 					continue;
 				}
-				collector.typeParameterBoundIndex = i + 1;
+				collector.boundIndex = i + 1;
 				bound.traverse(collector, (BlockScope) null);
-				collector.typeParameterBoundIndex = -1;
 			}
 		}
-		return collector.getAnnotationContexts();
 	}
 	private void internalResolve(Scope scope, boolean staticContext) {
 		// detect variable/type name collisions

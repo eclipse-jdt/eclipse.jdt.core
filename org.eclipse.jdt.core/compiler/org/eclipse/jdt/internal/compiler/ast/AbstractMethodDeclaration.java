@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -17,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
@@ -275,8 +276,8 @@ public abstract class AbstractMethodDeclaration
 		classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
 	}
 
-	public AnnotationContext[] getAllAnnotationContexts(int targetType) {
-		return null;
+	public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
+		// do nothing
 	}
 
 	private void checkArgumentsSize() {

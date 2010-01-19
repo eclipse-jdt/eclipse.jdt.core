@@ -39,6 +39,9 @@ public class QualifiedTypeReference extends TypeReference {
 		//warning : the new type ref has a null binding
 		ArrayQualifiedTypeReference arrayQualifiedTypeReference = new ArrayQualifiedTypeReference(this.tokens, dim, annotationsOnDimensions, this.sourcePositions);
 		arrayQualifiedTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
+		if (annotationsOnDimensions != null) {
+			arrayQualifiedTypeReference.bits |= ASTNode.HasTypeAnnotations;
+		}
 		return arrayQualifiedTypeReference;
 	}
 

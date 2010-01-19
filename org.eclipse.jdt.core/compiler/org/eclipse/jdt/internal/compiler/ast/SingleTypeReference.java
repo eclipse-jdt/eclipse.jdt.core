@@ -39,6 +39,9 @@ public class SingleTypeReference extends TypeReference {
 		//warning : the new type ref has a null binding
 		ArrayTypeReference arrayTypeReference = new ArrayTypeReference(this.token, dim, annotationsOnDimensions, (((long)this.sourceStart)<<32)+this.sourceEnd);
 		arrayTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
+		if (annotationsOnDimensions != null) {
+			arrayTypeReference.bits |= ASTNode.HasTypeAnnotations;
+		}
 		return arrayTypeReference;
 	}
 

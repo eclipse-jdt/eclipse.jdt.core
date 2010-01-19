@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
@@ -115,13 +116,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 	}
 
-	public AnnotationContext[] getAllAnnotationContexts(int targetType) {
-		AnnotationCollector collector = new AnnotationCollector(this, targetType);
+	public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
 		for (int i = 0, max = this.annotations.length; i < max; i++) {
 			Annotation annotation = this.annotations[i];
 			annotation.traverse(collector, (BlockScope) null);
 		}
-		return collector.getAnnotationContexts();
 	}
 
 	public boolean isMethod() {

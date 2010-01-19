@@ -114,19 +114,19 @@ public abstract class AbstractTypeAnnotationSyntaxTest extends AbstractCompilerT
 		}
 		public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null));
 			}
 			return false;
 		}
 		public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null));
 			}
 			return false;
 		}
 		public boolean visit(NormalAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null));
 			}
 			return false;
 		}

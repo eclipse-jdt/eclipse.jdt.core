@@ -67,6 +67,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	public TypeReference copyDims(int dim, Annotation[][] dimensionAnnotations){
 		ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, dim, dimensionAnnotations, this.sourcePositions);
 		parameterizedQualifiedTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
+		if (dimensionAnnotations != null) {
+			parameterizedQualifiedTypeReference.bits |= ASTNode.HasTypeAnnotations;
+		}
 		return parameterizedQualifiedTypeReference;
 	}
 	public boolean isParameterizedTypeReference() {

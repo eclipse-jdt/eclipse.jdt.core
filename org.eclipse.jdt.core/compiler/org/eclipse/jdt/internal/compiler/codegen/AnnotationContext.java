@@ -20,25 +20,26 @@ public class AnnotationContext {
 	public Annotation annotation;
 	public TypeReference typeReference;
 	public int targetType;
-	public int typeIndex;
-	public int offset;
+	public int info;
 	public int boundIndex;
-	public int paramIndex;
 	public int visibility;
 	public Annotation[] primaryAnnotations;
 	public LocalVariableBinding variableBinding;
+	public Annotation[][] annotationsOnDimensions;
 
 	public AnnotationContext(
 			Annotation annotation,
 			TypeReference typeReference,
 			int targetType,
 			Annotation[] primaryAnnotations,
-			int visibility) {
+			int visibility,
+			Annotation[][] annotationsOnDimensions) {
 		this.annotation = annotation;
 		this.typeReference = typeReference;
 		this.targetType = targetType;
 		this.primaryAnnotations = primaryAnnotations;
 		this.visibility = visibility;
+		this.annotationsOnDimensions = annotationsOnDimensions;
 	}
 
 	public String toString() {
@@ -48,11 +49,10 @@ public class AnnotationContext {
 				+ this.typeReference
 				+ ", targetType=" //$NON-NLS-1$
 				+ this.targetType
-				+ ", typeIndex=" //$NON-NLS-1$
-				+ this.typeIndex
-				+ ", offset=" //$NON-NLS-1$
-				+ this.offset
+				+ ", info =" //$NON-NLS-1$
+				+ this.info
 				+ ", boundIndex=" //$NON-NLS-1$
-				+ this.boundIndex + ", paramIndex=" + this.paramIndex + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+				+ this.boundIndex
+				+ "]"; //$NON-NLS-1$
 	}
 }

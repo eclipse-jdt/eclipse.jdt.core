@@ -39,7 +39,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 
 	public ArrayTypeReference(char[] source, int dimensions, Annotation[][] annotationsOnDimensions, long pos) {
 		this(source, dimensions, pos);
-		this.bits |= ASTNode.HasTypeAnnotations;
+		if (annotationsOnDimensions != null) {
+			this.bits |= ASTNode.HasTypeAnnotations;
+		}
 		this.annotationsOnDimensions = annotationsOnDimensions;
 	}
 

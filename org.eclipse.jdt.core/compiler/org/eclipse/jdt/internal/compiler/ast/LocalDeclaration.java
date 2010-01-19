@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
@@ -133,10 +135,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		return LOCAL_VARIABLE;
 	}
 
-	public AnnotationContext[] getAllAnnotationContexts(int targetType) {
-		AnnotationCollector collector = new AnnotationCollector(this, targetType);
+	// for local variables
+	public void getAllAnnotationContexts(int targetType, LocalVariableBinding localVariable, List allAnnotationContexts) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType, localVariable, allAnnotationContexts);
 		this.traverse(collector, (BlockScope) null);
-		return collector.getAnnotationContexts();
+	}
+	// for arguments
+	public void getAllAnnotationContexts(int targetType, int parameterIndex, List allAnnotationContexts) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType, parameterIndex, allAnnotationContexts);
+		this.traverse(collector, (BlockScope) null);
 	}
 	public boolean isArgument() {
 		return false;
