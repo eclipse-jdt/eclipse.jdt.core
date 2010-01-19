@@ -7578,7 +7578,11 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(unit, 1, "Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration");
+			assertProblemsSize(
+					unit,
+					2,
+					"p cannot be resolved to a type\n" + 
+					"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration");
 			node = getASTNode(unit, 0, 0, 0);
 			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 			assertTrue("Not recovered", isRecovered(node));
@@ -7687,7 +7691,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			CompilationUnit unit = (CompilationUnit) node;
 			assertProblemsSize(
 					unit,
-					1,
+					2,
+					"Object.equ cannot be resolved to a type\n" + 
 					"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration");
 			node = getASTNode(unit, 0, 0);
 			assertEquals("Not a field declaration statement", ASTNode.INITIALIZER, node.getNodeType());
@@ -8308,18 +8313,20 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Not a block", ASTNode.BLOCK, result.getNodeType());
 		Block block = (Block) result;
 		List statements = block.statements();
-		assertEquals("Should be empty", 4, statements.size());
+		assertEquals("Should have 6 statements", 6, statements.size());
 		assertTrue("Not recovered", isRecovered(block));
 		ASTNode root = block.getRoot();
 		assertNotNull("No root", root);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, root.getNodeType());
 		CompilationUnit unit = (CompilationUnit) root;
 		String errors =
-			"Syntax error on token(s), misplaced construct(s)\n" +
-			"Syntax error, insert \";\" to complete BlockStatements\n" +
-			"Syntax error on token(s), misplaced construct(s)\n" +
+			"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" + 
+			"Syntax error, insert \";\" to complete BlockStatements\n" + 
+			"Syntax error, insert \";\" to complete Statement\n" + 
+			"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" + 
+			"Syntax error, insert \";\" to complete LocalVariableDeclarationStatement\n" + 
 			"Syntax error, insert \";\" to complete Statement";
-		assertProblemsSize(unit, 4, errors);
+		assertProblemsSize(unit, 6, errors);
 	}
 
 	public void test0659() throws CoreException, JavaModelException {

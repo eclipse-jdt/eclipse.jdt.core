@@ -634,6 +634,7 @@ VariableDeclarators -> VariableDeclarator
 VariableDeclarators ::= VariableDeclarators ',' VariableDeclarator
 /.$putCase consumeVariableDeclarators(); $break ./
 /:$readableName VariableDeclarators:/
+/:$recovery_template Identifier:/
 
 VariableDeclarator ::= VariableDeclaratorId EnterVariable ExitVariableWithoutInitialization
 VariableDeclarator ::= VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization

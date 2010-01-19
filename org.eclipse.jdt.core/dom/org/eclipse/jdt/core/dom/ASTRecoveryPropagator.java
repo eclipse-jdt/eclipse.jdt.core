@@ -126,6 +126,52 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 	}
 
 	public void endVisit(Block node) {
+		int level = node.getAST().apiLevel;
+		
+		List statements = node.statements();
+		next : for (int i = 0, max = statements.size(); i < max; i++) {
+			ASTNode statement = (ASTNode) statements.get(i);
+			if (statement.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT) {
+				VariableDeclarationStatement variableDeclarationStatement =  (VariableDeclarationStatement) statement;
+				
+				if (level == AST.JLS2_INTERNAL) {
+					if (variableDeclarationStatement.getModifiers() != Modifier.NONE) {
+						continue next;
+					}
+				} else if (level >= AST.JLS3) {
+					if (variableDeclarationStatement.modifiers().size() != 0) {
+						continue next;
+					}
+				}
+				
+				Type type = variableDeclarationStatement.getType();
+				if (type.getNodeType() != ASTNode.SIMPLE_TYPE) {
+					continue next;
+				}
+				
+				List fragments = variableDeclarationStatement.fragments();
+				if (fragments.size() == 1) {
+					VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+					
+					SimpleName simpleName = fragment.getName();
+					if (CharOperation.equals(RecoveryScanner.FAKE_IDENTIFIER, simpleName.getIdentifier().toCharArray())) {
+						SimpleType simpleType = (SimpleType) type;
+						Name name = simpleType.getName();
+						name.setParent(null, null);
+						name.setFlags(name.getFlags() | ASTNode.RECOVERED);
+						
+						final ExpressionStatement stmt = new ExpressionStatement(name.getAST());
+						stmt.setExpression(name);
+						stmt.setSourceRange(variableDeclarationStatement.getStartPosition(), variableDeclarationStatement.getLength());
+						stmt.setFlags(stmt.getFlags() | ASTNode.RECOVERED);
+						
+						statements.add(i, stmt);
+						statements.remove(variableDeclarationStatement);
+					}
+				}
+			}
+		}
+		
 		this.blockDepth--;
 		if(this.blockDepth <= 0) {
 			flagNodeWithInsertedTokens();
