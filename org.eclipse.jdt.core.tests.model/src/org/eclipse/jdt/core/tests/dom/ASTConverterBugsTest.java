@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -859,7 +859,11 @@ public void testBug218824a() throws JavaModelException {
 			"8. ERROR in /Converter15/src/a/X.java (at line 16)\n" +
 			"	}takeParam((int) c);\n" +
 			"	^\n" +
-			"Syntax error, insert \";\" to complete Statement\n",
+			"Syntax error, insert \";\" to complete Statement\n" + 
+			"9. ERROR in /Converter15/src/a/X.java (at line 16)\n" + 
+			"	}takeParam((int) c);\n" + 
+			"	 ^^^^^^^^^^\n" + 
+			"Return type for the method is missing\n",
 			result);
 }
 /**

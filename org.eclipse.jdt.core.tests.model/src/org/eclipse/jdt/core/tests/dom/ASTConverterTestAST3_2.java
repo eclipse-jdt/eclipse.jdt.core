@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8018,17 +8018,37 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"CharsetDecoder cannot be resolved to a type\n" + 
 				"10. ERROR in /Converter/src/TestCharset.java (at line 10)\n" + 
 				"	CharsetDecoder(CharSet\n" + 
-				"	               ^^^^^^^\n" + 
-				"Syntax error, insert \"VariableDeclaratorId\" to complete FormalParameter\n" + 
+				"	^^^^^^^^^^^^^^^\n" + 
+				"Return type for the method is missing\n" + 
 				"11. ERROR in /Converter/src/TestCharset.java (at line 10)\n" + 
 				"	CharsetDecoder(CharSet\n" + 
 				"	               ^^^^^^^\n" + 
-				"Syntax error, insert \")\" to complete ConstructorDeclaration\n" + 
+				"Syntax error, insert \"VariableDeclaratorId\" to complete FormalParameter\n" + 
 				"12. ERROR in /Converter/src/TestCharset.java (at line 10)\n" + 
 				"	CharsetDecoder(CharSet\n" + 
 				"	               ^^^^^^^\n" + 
+				"Syntax error, insert \")\" to complete ConstructorDeclaration\n" + 
+				"13. ERROR in /Converter/src/TestCharset.java (at line 10)\n" + 
+				"	CharsetDecoder(CharSet\n" + 
+				"	               ^^^^^^^\n" + 
 				"Syntax error, insert \";\" to complete ClassBodyDeclarations\n" + 
-				"13. ERROR in /Converter/src/TestCharset.java (at line 17)\n" + 
+				"14. ERROR in /Converter/src/TestCharset.java (at line 10)\n" + 
+				"	CharsetDecoder(CharSet\n" + 
+				"	               ^^^^^^^\n" + 
+				"CharSet cannot be resolved to a type\n" + 
+				"15. ERROR in /Converter/src/TestCharset.java (at line 11)\n" + 
+				"	protected CoderResult decodeLoop(ByteBuffer in,\n" + 
+				"	          ^^^^^^^^^^^\n" + 
+				"CoderResult cannot be resolved to a type\n" + 
+				"16. ERROR in /Converter/src/TestCharset.java (at line 11)\n" + 
+				"	protected CoderResult decodeLoop(ByteBuffer in,\n" + 
+				"	                                 ^^^^^^^^^^\n" + 
+				"ByteBuffer cannot be resolved to a type\n" + 
+				"17. ERROR in /Converter/src/TestCharset.java (at line 12)\n" + 
+				"	CharBuffer out) {\n" + 
+				"	^^^^^^^^^^\n" + 
+				"CharBuffer cannot be resolved to a type\n" + 
+				"18. ERROR in /Converter/src/TestCharset.java (at line 17)\n" + 
 				"	public CharsetEncoder newEncoder() {\n" + 
 				"	       ^^^^^^^^^^^^^^\n" + 
 				"CharsetEncoder cannot be resolved to a type\n",

@@ -5306,4 +5306,32 @@ public void test105() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=245007
+public void test106() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Listener() {\n" +
+			"			  void foo(int a) { }\n" +
+			"		}.bar();\n" +
+			"       new Listener() {\n" +
+			"			  void foo(int a) { }\n" +
+			"		}.field = 10;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	new Listener() {\n" + 
+		"	    ^^^^^^^^\n" + 
+		"Listener cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	new Listener() {\n" + 
+		"	    ^^^^^^^^\n" + 
+		"Listener cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
