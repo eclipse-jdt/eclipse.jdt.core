@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,7 +63,7 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 		codeStream.aconst_null();
 
 		// void.class
-		codeStream.generateClassLiteralAccessForType(TypeBinding.VOID, null);
+		codeStream.generateClassLiteralAccessForType(null, TypeBinding.VOID, null);
 	} else {
 		// swap with expression
 		int valueTypeID = this.expression.resolvedType.id;
@@ -80,7 +80,7 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 		}
 
 		// generate the expression type
-		codeStream.generateClassLiteralAccessForType(this.expression.resolvedType, null);
+		codeStream.generateClassLiteralAccessForType(null, this.expression.resolvedType, null);
 	}
 
 	// generate the invoke virtual to "setResult(Object,Class)"

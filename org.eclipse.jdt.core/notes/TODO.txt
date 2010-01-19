@@ -18,4 +18,3 @@ Javac issues to double-check:
 I has the same location in both cases
 
 - Initialize allTypeAnnotationContexts for TypeAnnotationCodStream only if needed
-- Fix usage of annotation on dimensions for allocation expression
