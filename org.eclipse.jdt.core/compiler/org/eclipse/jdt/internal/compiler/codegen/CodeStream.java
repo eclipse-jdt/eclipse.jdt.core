@@ -3839,8 +3839,7 @@ protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, 
 		this.stackMax = this.stackDepth;
 	}
 }
-
-public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declaringClass) {
+public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declaringClass, TypeReference[] typeArguments) {
 	if (declaringClass == null) declaringClass = methodBinding.declaringClass;
 	if ((declaringClass.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 		Util.recordNestedType(this.classFile, declaringClass);
@@ -3874,7 +3873,7 @@ public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declari
 								default: 
 									receiverAndArgsSize++;
 									break;
-							}    						
+							}
 						}
 					}
 				}
@@ -3920,6 +3919,9 @@ public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declari
 			declaringClass.constantPoolName(), 
 			methodBinding.selector, 
 			methodBinding.signature(this.classFile));
+}
+public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declaringClass) {
+	this.invoke(opcode, methodBinding, declaringClass, null);
 }
 
 protected void invokeAccessibleObjectSetAccessible() {

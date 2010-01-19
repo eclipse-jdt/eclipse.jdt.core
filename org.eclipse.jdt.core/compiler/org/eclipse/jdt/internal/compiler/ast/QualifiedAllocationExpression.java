@@ -142,7 +142,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		// invoke constructor
 		if (this.syntheticAccessor == null) {
-			codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */);
+			codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
 		} else {
 			// synthetic accessor got some extra arguments appended to its signature, which need values
 			for (int i = 0,

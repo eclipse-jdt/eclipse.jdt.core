@@ -40,7 +40,7 @@ static class AnnotationCollector extends ASTVisitor {
 	int targetType;
 	Annotation[] primaryAnnotations;
 	int info = -1;
-	int boundIndex = -1;
+	int info2 = -1;
 	LocalVariableBinding localVariable;
 	Annotation[][] annotationsOnDimensions;
 
@@ -121,6 +121,18 @@ static class AnnotationCollector extends ASTVisitor {
 			TypeReference typeReference,
 			int targetType,
 			int info,
+			int typeIndex,
+			List annotationContexts) {
+		this.annotationContexts = annotationContexts;
+		this.typeReference = typeReference;
+		this.info = info;
+		this.targetType = targetType;
+		this.info2 = typeIndex;
+	}
+	public AnnotationCollector(
+			TypeReference typeReference,
+			int targetType,
+			int info,
 			List annotationContexts,
 			Annotation[][] annotationsOnDimensions) {
 		this.annotationContexts = annotationContexts;
@@ -149,7 +161,7 @@ static class AnnotationCollector extends ASTVisitor {
 					break;
 				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
 				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
-					annotationContext.boundIndex = this.boundIndex;
+					annotationContext.info2 = this.info2;
 					annotationContext.info = this.info;
 					break;
 				case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
@@ -272,6 +284,10 @@ public void getAllAnnotationContexts(int targetType, int info, List allAnnotatio
 			}
 		}
 	}
+}
+public void getAllAnnotationContexts(int targetType, int info, int typeIndex, List allAnnotationContexts) {
+	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, typeIndex, allAnnotationContexts);
+	this.traverse(collector, (BlockScope) null);
 }
 public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
 	AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);

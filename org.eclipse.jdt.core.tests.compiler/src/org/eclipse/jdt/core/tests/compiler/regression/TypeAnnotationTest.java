@@ -15,7 +15,7 @@ import junit.framework.Test;
 public class TypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 
-//		TESTS_NUMBERS = new int [] { 28 };
+//		TESTS_NUMBERS = new int [] { 29 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationTest.class;
@@ -1166,6 +1166,63 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"			System.out.println(tab.length);\n" +
 				"		}\n" + 
 				"		System.out.println(o);\n" +
+				"	}\n" + 
+				"}",
+		},
+		"");
+	}
+	// qualified allocation expression with type arguments
+	public void test029() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"D.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface D {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	class Y {\n" + 
+				"		<T, U> Y(T t, U u) {}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Y y = new X().new <@D() @A(value = \"hello\") String, @B X> Y(\"SUCCESS\", null);\n" + 
+				"		System.out.println(y);\n" + 
 				"	}\n" + 
 				"}",
 		},

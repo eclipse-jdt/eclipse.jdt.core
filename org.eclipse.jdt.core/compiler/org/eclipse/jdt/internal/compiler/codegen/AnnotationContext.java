@@ -21,7 +21,7 @@ public class AnnotationContext {
 	public TypeReference typeReference;
 	public int targetType;
 	public int info;
-	public int boundIndex;
+	public int info2;
 	public int visibility;
 	public Annotation[] primaryAnnotations;
 	public LocalVariableBinding variableBinding;
@@ -52,7 +52,7 @@ public class AnnotationContext {
 				+ ", info =" //$NON-NLS-1$
 				+ this.info
 				+ ", boundIndex=" //$NON-NLS-1$
-				+ this.boundIndex
+				+ this.info2
 				+ "]"; //$NON-NLS-1$
 	}
 }

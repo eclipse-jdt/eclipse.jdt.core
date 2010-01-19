@@ -3931,6 +3931,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case AnnotationTargetTypeConstants.TYPE_CAST:
 					targetType = AnnotationTargetTypeConstants.TYPE_CAST_GENERIC_OR_ARRAY;
 					break;
+				case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL :
+					targetType = AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY;
+					break;
+				case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
+					targetType = AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY;
 			}
 		}
 		// reserve enough space
@@ -4003,8 +4008,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
 			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
 				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
-				this.contents[this.contentsOffset++] = (byte) annotationContext.boundIndex;
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
 				break;
+			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL :
+			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
+			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
+			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
+				// offset
+				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				// type index
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
 		}
 		if (locations != null) {
 			int length = locations.length;

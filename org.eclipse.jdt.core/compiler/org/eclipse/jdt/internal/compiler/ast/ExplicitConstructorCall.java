@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -155,7 +155,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				}
 				codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */);
 			} else {
-				codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */);
+				codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {

@@ -61,7 +61,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				collector.targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND;
 		}
 		if (this.type != null && ((this.type.bits & ASTNode.HasTypeAnnotations) != 0)) {
-			collector.boundIndex = 0;
+			collector.info2 = 0;
 			this.type.traverse(collector, (BlockScope) null);
 		}
 		if (this.bounds != null) {
@@ -71,7 +71,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				if ((bound.bits & ASTNode.HasTypeAnnotations) == 0) {
 					continue;
 				}
-				collector.boundIndex = i + 1;
+				collector.info2 = i + 1;
 				bound.traverse(collector, (BlockScope) null);
 			}
 		}

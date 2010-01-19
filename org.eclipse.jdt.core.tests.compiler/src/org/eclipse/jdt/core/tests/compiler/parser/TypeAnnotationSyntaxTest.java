@@ -32,7 +32,7 @@ public TypeAnnotationSyntaxTest(String testName){
 
 static {
 //	TESTS_NAMES = new String[] { "test0038", "test0039", "test0040a" };
-//	TESTS_NUMBERS = new int[] { 131, 132 };
+//	TESTS_NUMBERS = new int[] { 133, 134, 135 };
 }
 
 public void test0001() throws IOException {
@@ -3546,6 +3546,82 @@ public void test0132() throws IOException {
 		"          System.out.println(tab.length);\n" + 
 		"        }\n" + 
 		"    System.out.println(o);\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
+}
+//generic type arguments in a generic method invocation
+public void test0133() throws IOException {
+	String source =
+		"public class X {\n" +
+		"	static <T, U> T foo(T t, U u) {\n" +
+		"		return t;\n" +
+		"	}\n" +
+		"	public static void main(String[] args) {\n" +
+		"		System.out.println(X.<@D() @A(value = \"hello\") String, @B X>foo(\"SUCCESS\", null));\n" +
+		"	}\n" +
+		"}\n";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  static <T, U>T foo(T t, U u) {\n" + 
+		"    return t;\n" + 
+		"  }\n" + 
+		"  public static void main(String[] args) {\n" + 
+		"    System.out.println(X.<@D() @A(value = \"hello\") String, @B X>foo(\"SUCCESS\", null));\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
+}
+//generic type arguments in a generic method invocation
+public void test0134() throws IOException {
+	String source =
+		"public class X {\n" +
+		"\n" +
+		"	<T, U> T foo(T t, U u) {\n" +
+		"		return t;\n" +
+		"	}\n" +
+		"	public static void main(String[] args) {\n" +
+		"		X x = new X();\n" +
+		"		System.out.println(x.<@D() @A(value = \"hello\") String, @B X>foo(\"SUCCESS\", null));\n" +
+		"	}\n" +
+		"}\n";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  <T, U>T foo(T t, U u) {\n" + 
+		"    return t;\n" + 
+		"  }\n" + 
+		"  public static void main(String[] args) {\n" +
+		"    X x = new X();\n" +
+		"    System.out.println(x.<@D() @A(value = \"hello\") String, @B X>foo(\"SUCCESS\", null));\n" + 
+		"  }\n" + 
+		"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
+}
+//generic type arguments in a generic constructor invocation
+public void test0135() throws IOException {
+	String source =
+		"public class X {\n" +
+		"	<T, U> X(T t, U u) {\n" +
+		"	}\n" +
+		"	public static void main(String[] args) {\n" +
+		"		X x = new <@D() @A(value = \"hello\") String, @B X> X();\n" +
+		"		System.out.println(x);\n" +
+		"	}\n" +
+		"}\n";
+	String expectedUnitToString = 
+		"public class X {\n" + 
+		"  <T, U>X(T t, U u) {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public static void main(String[] args) {\n" + 
+		"    X x = new <@D() @A(value = \"hello\") String, @B X>X();\n" + 
+		"    System.out.println(x);\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);

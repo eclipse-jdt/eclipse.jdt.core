@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
@@ -41,6 +42,12 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 //			this.allTypeAnnotationContexts = new ArrayList();
 //		}
 		typeReference.getAllAnnotationContexts(targetType, info, this.allTypeAnnotationContexts);
+	}
+	private void addAnnotationContext(TypeReference typeReference, int info, int typeIndex, int targetType) {
+//		if (this.allTypeAnnotationContexts == null) {
+//			this.allTypeAnnotationContexts = new ArrayList();
+//		}
+		typeReference.getAllAnnotationContexts(targetType, info, typeIndex, this.allTypeAnnotationContexts);
 	}
 	public void instance_of(TypeReference typeReference, TypeBinding typeBinding) {
 		if (typeReference != null && (typeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
@@ -89,5 +96,17 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 	public void init(ClassFile targetClassFile) {
 		super.init(targetClassFile);
 		this.allTypeAnnotationContexts = new ArrayList();
+	}
+	public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declaringClass, TypeReference[] typeArguments) {
+		if (typeArguments != null) {
+			int targetType = methodBinding.isConstructor()
+					? AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL
+					: AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL;
+			for (int i = 0, max = typeArguments.length; i < max; i++) {
+				TypeReference typeArgument = typeArguments[i];
+				addAnnotationContext(typeArgument, this.position, i, targetType);
+			}
+		}
+		super.invoke(opcode, methodBinding, declaringClass, typeArguments);
 	}
 }
