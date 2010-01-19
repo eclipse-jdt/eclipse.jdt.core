@@ -40,6 +40,7 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 	private int wildcardLocationType;
 	private ILocalVariableReferenceInfo[] localVariableTable;
 	private int[] locations;
+	private int[] wildcardLocations;
 	/**
 	 * Constructor for Annotation.
 	 *
@@ -81,18 +82,49 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 		this.readOffset++;
 		this.targetType = index;
 		switch(index) {
+			case IExtendedAnnotationConstants.WILDCARD_BOUND :
+				this.wildcardLocationType = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				internalDecoding(this.wildcardLocationType, classFileBytes, constantPool, offset);
+				break;
+			case IExtendedAnnotationConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY :
+				this.wildcardLocationType = u1At(classFileBytes, this.readOffset, offset);
+				this.readOffset++;
+				internalDecoding(this.wildcardLocationType, classFileBytes, constantPool, offset);
+				int locationLength = u2At(classFileBytes, this.readOffset, offset);
+				this.readOffset += 2;
+				this.wildcardLocations = new int[locationLength];
+				for (int i = 0; i < locationLength; i++) {
+					this.wildcardLocations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.readOffset++;
+				}
+				break;
+			default:
+				internalDecoding(index, classFileBytes, constantPool, offset);
+		}
+		if (this.annotationTypeIndex == 0xFFFF) {
+			this.annotationTypeIndex = -1;
+		}
+	}
+	
+	private void internalDecoding(
+			int localTargetType,
+			byte[] classFileBytes,
+			IConstantPool constantPool,
+			int localOffset) throws ClassFormatException {
+		switch(localTargetType) {
 			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS :
-				this.annotationTypeIndex = u2At(classFileBytes, this.readOffset, offset);
+				this.annotationTypeIndex = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset+=2;
 				break;
 			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
-				this.annotationTypeIndex = u2At(classFileBytes, this.readOffset, offset);
+				this.annotationTypeIndex = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset+=2;
-				int locationLength = u2At(classFileBytes, this.readOffset, offset);
+				int locationLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.locations = new int[locationLength];
 				for (int i = 0; i < locationLength; i++) {
-					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.locations[i] = u1At(classFileBytes, this.readOffset, localOffset);
 					this.readOffset++;
 				}
 				break;
@@ -100,63 +132,63 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 			case IExtendedAnnotationConstants.TYPE_INSTANCEOF :
 			case IExtendedAnnotationConstants.OBJECT_CREATION :
 			case IExtendedAnnotationConstants.CLASS_LITERAL :
-				this.offset = u2At(classFileBytes, this.readOffset, offset);
+				this.offset = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				break;
 			case IExtendedAnnotationConstants.TYPE_CAST_GENERIC_OR_ARRAY :
 			case IExtendedAnnotationConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
 			case IExtendedAnnotationConstants.OBJECT_CREATION_GENERIC_OR_ARRAY :
 			case IExtendedAnnotationConstants.CLASS_LITERAL_GENERIC_OR_ARRAY :
-				this.offset = u2At(classFileBytes, this.readOffset, offset);
+				this.offset = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
-				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				locationLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.locations = new int[locationLength];
 				for (int i = 0; i < locationLength; i++) {
-					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.locations[i] = u1At(classFileBytes, this.readOffset, localOffset);
 					this.readOffset++;
 				}
 				break;
 			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER :
 			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER :
-				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
 				break;
 			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY :
 			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY :
-				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
-				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				locationLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.locations = new int[locationLength];
 				for (int i = 0; i < locationLength; i++) {
-					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.locations[i] = u1At(classFileBytes, this.readOffset, localOffset);
 					this.readOffset++;
 				}
 				break;
 			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND :
 			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND :
-				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
-				this.typeParameterBoundIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.typeParameterBoundIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
 				break;
 			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
 			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
-				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.typeParameterIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
-				this.typeParameterBoundIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.typeParameterBoundIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
-				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				locationLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.locations = new int[locationLength];
 				for (int i = 0; i < locationLength; i++) {
-					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.locations[i] = u1At(classFileBytes, this.readOffset, localOffset);
 					this.readOffset++;
 				}
 				break;
 			case IExtendedAnnotationConstants.LOCAL_VARIABLE :
-				int tableLength = u2At(classFileBytes, this.readOffset, offset);
+				int tableLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.localVariableTable = new LocalVariableReferenceInfo[tableLength];
 				for (int i = 0; i < tableLength; i++) {
@@ -165,90 +197,83 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 				}
 				break;
 			case IExtendedAnnotationConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
-				tableLength = u2At(classFileBytes, this.readOffset, offset);
+				tableLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.localVariableTable = new LocalVariableReferenceInfo[tableLength];
 				for (int i = 0; i < tableLength; i++) {
 					this.localVariableTable[i] = new LocalVariableReferenceInfo(classFileBytes, constantPool, this.readOffset);
 					this.readOffset += 6;
 				}
-				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				locationLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.locations = new int[locationLength];
 				for (int i = 0; i < locationLength; i++) {
-					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.locations[i] = u1At(classFileBytes, this.readOffset, localOffset);
 					this.readOffset++;
 				}
 				break;
 			case IExtendedAnnotationConstants.METHOD_PARAMETER :
-				this.parameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.parameterIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
 				break;
 			case IExtendedAnnotationConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY :
-				this.parameterIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.parameterIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
-				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				locationLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.locations = new int[locationLength];
 				for (int i = 0; i < locationLength; i++) {
-					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.locations[i] = u1At(classFileBytes, this.readOffset, localOffset);
 					this.readOffset++;
 				}
 				break;
 			case IExtendedAnnotationConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY :
 			case IExtendedAnnotationConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY :
 			case IExtendedAnnotationConstants.FIELD_GENERIC_OR_ARRAY :
-				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				locationLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.locations = new int[locationLength];
 				for (int i = 0; i < locationLength; i++) {
-					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.locations[i] = u1At(classFileBytes, this.readOffset, localOffset);
 					this.readOffset++;
 				}
 				break;
 			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
 			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL :
-				this.offset = u2At(classFileBytes, this.readOffset, offset);
+				this.offset = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
-				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
 				break;
 			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
 			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
-				this.offset = u2At(classFileBytes, this.readOffset, offset);
+				this.offset = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
-				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
-				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				locationLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.locations = new int[locationLength];
 				for (int i = 0; i < locationLength; i++) {
-					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.locations[i] = u1At(classFileBytes, this.readOffset, localOffset);
 					this.readOffset++;
 				}
 				break;
 			case IExtendedAnnotationConstants.THROWS :
-				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
 				break;
 			case IExtendedAnnotationConstants.THROWS_GENERIC_OR_ARRAY :
-				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, offset);
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset++;
-				locationLength = u2At(classFileBytes, this.readOffset, offset);
+				locationLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.locations = new int[locationLength];
 				for (int i = 0; i < locationLength; i++) {
-					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.locations[i] = u1At(classFileBytes, this.readOffset, localOffset);
 					this.readOffset++;
 				}
 				break;
-			case IExtendedAnnotationConstants.WILDCARD_BOUND :
-				this.wildcardLocationType = u1At(classFileBytes, this.readOffset, offset);
-				this.readOffset++;
-				//  TODO (olivier) read the remaining part
-		}
-		if (this.annotationTypeIndex == 0xFFFF) {
-			this.annotationTypeIndex = -1;
 		}
 	}
 
@@ -314,8 +339,7 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 	}
 
 	public int[] getWildcardLocations() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.wildcardLocations;
 	}
 
 	public int[] getLocations() {

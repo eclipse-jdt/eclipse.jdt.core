@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -287,6 +287,41 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			default:
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 		}
+		
+		switch(targetType) {
+			case IExtendedAnnotationConstants.WILDCARD_BOUND :
+				int wildcardLocationType = extendedAnnotation.getWildcardLocationType();
+				buffer.append(
+						Messages.bind(Messages.disassembler_extendedannotation_wildcardlocationtype, new String[] {
+							Integer.toString(wildcardLocationType),
+							getTargetType(wildcardLocationType),
+						}));
+				writeNewLine(buffer, lineSeparator, tabNumber + 3);
+				disassembleTargetTypeContents(wildcardLocationType, extendedAnnotation, buffer, lineSeparator, tabNumber + 3, mode);
+				break;
+			case IExtendedAnnotationConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY :
+				wildcardLocationType = extendedAnnotation.getWildcardLocationType();
+				buffer.append(
+						Messages.bind(Messages.disassembler_extendedannotation_wildcardlocationtype, new String[] {
+							Integer.toString(wildcardLocationType),
+							getTargetType(wildcardLocationType),
+						}));
+				writeNewLine(buffer, lineSeparator, tabNumber + 3);
+				disassembleTargetTypeContents(wildcardLocationType, extendedAnnotation, buffer, lineSeparator, tabNumber + 3, mode);
+				writeNewLine(buffer, lineSeparator, tabNumber + 2);
+				buffer.append(
+						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+							toString(extendedAnnotation.getWildcardLocations()),
+						}));
+				break;
+			default:
+				disassembleTargetTypeContents(targetType, extendedAnnotation, buffer, lineSeparator, tabNumber, mode);
+		}
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer.append(Messages.disassembler_extendedannotationentryend);
+	}
+
+	private void disassembleTargetTypeContents(int targetType, IExtendedAnnotation extendedAnnotation, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		switch(targetType) {
 			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS :
 				buffer.append(
@@ -450,19 +485,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
-			case IExtendedAnnotationConstants.WILDCARD_BOUND :
-				int wildcardLocationType = extendedAnnotation.getWildcardLocationType();
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_wildcardlocationtype, new String[] {
-							Integer.toString(wildcardLocationType),
-							getTargetType(wildcardLocationType),
-						}));
-				//  TODO (olivier) read the remaining part
 		}
-		writeNewLine(buffer, lineSeparator, tabNumber + 1);
-		buffer.append(Messages.disassembler_extendedannotationentryend);
 	}
-
 	private String getTargetType(int targetType) {
 		switch(targetType) {
 			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS :
