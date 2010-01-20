@@ -1196,7 +1196,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// then we do the local variable attribute
 		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 			final boolean methodDeclarationIsStatic = this.codeStream.methodDeclaration.isStatic();
-			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic);
+			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic, false);
 		}
 
 		if (addStackMaps) {
@@ -1331,7 +1331,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		// then we do the local variable attribute
 		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
-			attributesNumber += generateLocalVariableTableAttribute(code_length, true);
+			attributesNumber += generateLocalVariableTableAttribute(code_length, true, false);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP_TABLE) != 0) {
@@ -1586,7 +1586,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// then we do the local variable attribute
 		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 			final boolean methodDeclarationIsStatic = this.codeStream.methodDeclaration.isStatic();
-			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic);
+			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic, false);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP_TABLE) != 0) {
@@ -1738,7 +1738,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// then we do the local variable attribute
 		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
 			final boolean methodDeclarationIsStatic = binding.isStatic();
-			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic);
+			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic, true);
 		}
 		if (addStackMaps) {
 			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
@@ -2512,7 +2512,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return 1;
 	}
 	
-	private int generateLocalVariableTableAttribute(int code_length, boolean methodDeclarationIsStatic) {
+	private int generateLocalVariableTableAttribute(int code_length, boolean methodDeclarationIsStatic, boolean isSynthetic) {
 		int attributesNumber = 0;
 		int localContentsOffset = this.contentsOffset;
 		int numberOfEntries = 0;
@@ -2535,7 +2535,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int nameIndex;
 		int descriptorIndex;
 		SourceTypeBinding declaringClassBinding = null;
-		if (!methodDeclarationIsStatic) {
+		if (!methodDeclarationIsStatic && !isSynthetic) {
 			numberOfEntries++;
 			this.contents[localContentsOffset++] = 0; // the startPC for this is always 0
 			this.contents[localContentsOffset++] = 0;

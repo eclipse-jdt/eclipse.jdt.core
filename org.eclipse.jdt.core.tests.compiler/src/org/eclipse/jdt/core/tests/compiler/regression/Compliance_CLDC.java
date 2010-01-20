@@ -44,7 +44,7 @@ public static Class testClass() {
 // All specified tests which does not belong to the class are skipped...
 static {
 //		TESTS_NAMES = new String[] { "Bug58069" };
-//		TESTS_NUMBERS = new int[] { 104 };
+//		TESTS_NUMBERS = new int[] { 2 };
 //		TESTS_RANGE = new int[] { 76, -1 };
 }
 public void test001() {
@@ -69,7 +69,7 @@ public void test001() {
 			"	}\n" +
 			"	\n" +
 			"	public static void main(String[] args) {\n" +
-			"			System.out.println(\"OK\");\n" +
+			"		System.out.println(\"OK\");\n" +
 			"	}\n" +
 			"}",
 		},
@@ -80,12 +80,11 @@ public void test002() throws Exception {
 		new String[] {
 			"X.java",
 			"public class X {\n" +
-			"\n" +
 			"	public static void main(String[] args) {\n" +
-			"			System.out.print(X.class != null);\n" +
-			"			System.out.print(String.class != null);\n" +
-			"			System.out.print(Object.class != null);\n" +
-			"			System.out.print(X.class != null);\n" +
+			"		System.out.print(X.class != null);\n" +
+			"		System.out.print(String.class != null);\n" +
+			"		System.out.print(Object.class != null);\n" +
+			"		System.out.print(X.class != null);\n" +
 			"	}\n" +
 			"}",
 		},
@@ -186,11 +185,11 @@ public void test002() throws Exception {
 		"        [pc: 103, pc: 108] -> 115 when : java.lang.ClassNotFoundException\n" +
 		"        [pc: 149, pc: 154] -> 161 when : java.lang.ClassNotFoundException\n" +
 		"      Line numbers:\n" +
-		"        [pc: 0, line: 4]\n" +
-		"        [pc: 46, line: 5]\n" +
-		"        [pc: 92, line: 6]\n" +
-		"        [pc: 138, line: 7]\n" +
-		"        [pc: 184, line: 8]\n" +
+		"        [pc: 0, line: 3]\n" +
+		"        [pc: 46, line: 4]\n" +
+		"        [pc: 92, line: 5]\n" +
+		"        [pc: 138, line: 6]\n" +
+		"        [pc: 184, line: 7]\n" +
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 185] local: args index: 0 type: java.lang.String[]\n" +
 		"      Stack map : number of frames 16\n" +
@@ -217,9 +216,8 @@ public void test003() throws Exception {
 		new String[] {
 			"X.java",
 			"public class X {\n" +
-			"\n" +
 			"	public static void main(String[] args) {\n" +
-			"			System.out.print(int.class != null);\n" +
+			"		System.out.print(int.class != null);\n" +
 			"	}\n" +
 			"}",
 		},
@@ -252,8 +250,8 @@ public void test003() throws Exception {
 		"    14  invokevirtual java.io.PrintStream.print(boolean) : void [28]\n" +
 		"    17  return\n" +
 		"      Line numbers:\n" +
-		"        [pc: 0, line: 4]\n" +
-		"        [pc: 17, line: 5]\n" +
+		"        [pc: 0, line: 3]\n" +
+		"        [pc: 17, line: 4]\n" +
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 18] local: args index: 0 type: java.lang.String[]\n" +
 		"      Stack map : number of frames 2\n" +
@@ -267,10 +265,8 @@ public void test004() {
 		new String[] {
 			"X.java",
 			"import java.io.InputStream;\n" +
-			"\n" +
 			"public class X {\n" +
 			"	private static final Y[] A = new Y[1];\n" +
-			"\n" +
 			"	public static void x() {\n" +
 			"		for (int i = 0; i < 0; i++) {\n" +
 			"			try {\n" +
@@ -279,13 +275,9 @@ public void test004() {
 			"			}\n" +
 			"		}\n" +
 			"	}\n" +
-			"\n" +
 			"	public static boolean a = false;\n" +
-			"\n" +
 			"	private static int b = -1;\n" +
-			"\n" +
 			"	private static int C = 0;\n" +
-			"\n" +
 			"	public static void z(int c) {\n" +
 			"		if (!a || (b == c && A[c].foo() == C)) {\n" +
 			"			return;\n" +
@@ -297,10 +289,8 @@ public void test004() {
 			"		} catch (Throwable e) {\n" +
 			"		}\n" +
 			"	}\n" +
-			"\n" +
 			"	public static void y() {\n" +
 			"	}\n" +
-			"\n" +
 			"	static Y foo(InputStream stream, String s) {\n" +
 			"		return null;\n" +
 			"	}\n" +
