@@ -399,7 +399,6 @@ public void test11() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=80339
 public void test12() {
-
 	String s =
 		"package a;										\n"+
 		"public interface Test {						\n"+
@@ -407,18 +406,24 @@ public void test12() {
 		"    System.out.println();						\n"+
 		"}												\n";
 
-	String expectedSyntaxErrorDiagnosis =
-		"----------\n"+
-		"1. ERROR in <test> (at line 3)\n"+
-		"	public void myMethod()						\n"+
-		"	                     ^\n"+
-		"Syntax error on token \")\", { expected after this token\n"+
-		"----------\n"+
-		"2. ERROR in <test> (at line 5)\n"+
-		"	}												\n"+
-		"	^\n"+
-		"Syntax error, insert \"}\" to complete InterfaceBody\n"+
-		"----------\n";
+	String expectedSyntaxErrorDiagnosis = this.complianceLevel < ClassFileConstants.JDK1_7
+		? 	"----------\n"+
+			"1. ERROR in <test> (at line 3)\n"+
+			"	public void myMethod()						\n"+
+			"	                     ^\n"+
+			"Syntax error on token \")\", { expected after this token\n"+
+			"----------\n"+
+			"2. ERROR in <test> (at line 5)\n"+
+			"	}												\n"+
+			"	^\n"+
+			"Syntax error, insert \"}\" to complete InterfaceBody\n"+
+			"----------\n"
+		: 	"----------\n" + 
+			"1. ERROR in <test> (at line 3)\n"+
+			"	public void myMethod()						\n"+
+			"	                     ^\n"+
+			"Syntax error on token \")\", @ expected after this token\n"+
+			"----------\n";
 
 	String testName = "<test>";
 	checkParse(

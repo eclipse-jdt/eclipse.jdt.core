@@ -2373,6 +2373,7 @@ AnnotationName ::= '@' Name
 /.$putCase consumeAnnotationName() ; $break ./
 /:$readableName AnnotationName:/
 /:$compliance 1.5:/
+/:$recovery_template @ Identifier:/
 
 NormalAnnotation ::= AnnotationName '(' MemberValuePairsopt ')'
 /.$putCase consumeNormalAnnotation() ; $break ./
