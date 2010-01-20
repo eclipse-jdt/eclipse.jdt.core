@@ -30291,6 +30291,29 @@ public void test0931() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119238 - variation
 public void test0932() {
+	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_7
+		? 	"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	X<String>.Method();\n" + 
+			"	^^^^^^^^^^\n" + 
+			"Syntax error on token(s), misplaced construct(s)\n" + 
+			"----------\n"
+		: 	"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	X<String>.Method();\n" + 
+			"	         ^\n" + 
+			"Syntax error on token \".\", @ expected\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	X<String>.Method();\n" + 
+			"	                 ^\n" + 
+			"Syntax error, insert \"[ ]\" to complete Dimensions\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	X<String>.Method();\n" + 
+			"	                 ^\n" + 
+			"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" + 
+			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 		"X.java",
@@ -30304,12 +30327,7 @@ public void test0932() {
 		"        }\n" +
 		"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	X<String>.Method();\n" +
-		"	^^^^^^^^^^\n" +
-		"Syntax error on token(s), misplaced construct(s)\n" +
-		"----------\n");
+		expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128063
 public void test0933() {

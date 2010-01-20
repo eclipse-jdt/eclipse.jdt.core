@@ -2501,111 +2501,126 @@ public class JavadocTest_1_3 extends JavadocTest {
 				"	}\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in E.java (at line 1)\n" +
-			"	public enum E {\n" +
-			"	       ^^^^\n" +
-			"Syntax error on token \"enum\", interface expected\n" +
-			"----------\n" +
-			"2. ERROR in E.java (at line 1)\n" +
-			"	public enum E {\n" +
-			"	              ^\n" +
-			"Syntax error on token \"{\", extends expected\n" +
-			"----------\n" +
-			"3. ERROR in E.java (at line 5)\n" +
-			"	};\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n" +
-			"4. ERROR in E.java (at line 5)\n" +
-			"	};\n" +
-			"	E() {}\n" +
-			"	public void foo() {}\n" +
-			"	private enum Epriv {\n" +
-			"		Apriv,\n" +
-			"		Cpriv {\n" +
-			"	 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Syntax error on token(s), misplaced construct(s)\n" +
-			"----------\n" +
-			"5. WARNING in E.java (at line 8)\n" +
-			"	private enum Epriv {\n" +
-			"	        ^^^^\n" +
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
-			"----------\n" +
-			"6. ERROR in E.java (at line 8)\n" +
-			"	private enum Epriv {\n" +
-			"	             ^^^^^\n" +
-			"Syntax error on token \"Epriv\", = expected after this token\n" +
-			"----------\n" +
-			"7. ERROR in E.java (at line 12)\n" +
-			"	};\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n" +
-			"8. WARNING in E.java (at line 16)\n" +
-			"	enum Edef {\n" +
-			"	^^^^\n" +
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
-			"----------\n" +
-			"9. ERROR in E.java (at line 16)\n" +
-			"	enum Edef {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"enum\", interface expected\n" +
-			"----------\n" +
-			"10. ERROR in E.java (at line 16)\n" +
-			"	enum Edef {\n" +
-			"	          ^\n" +
-			"Syntax error on token \"{\", extends expected\n" +
-			"----------\n" +
-			"11. ERROR in E.java (at line 20)\n" +
-			"	};\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n" +
-			"12. WARNING in E.java (at line 24)\n" +
-			"	protected enum Epro {\n" +
-			"	          ^^^^\n" +
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
-			"----------\n" +
-			"13. ERROR in E.java (at line 24)\n" +
-			"	protected enum Epro {\n" +
-			"	          ^^^^\n" +
-			"Syntax error on token \"enum\", interface expected\n" +
-			"----------\n" +
-			"14. ERROR in E.java (at line 24)\n" +
-			"	protected enum Epro {\n" +
-			"	                    ^\n" +
-			"Syntax error on token \"{\", extends expected\n" +
-			"----------\n" +
-			"15. ERROR in E.java (at line 28)\n" +
-			"	};\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n" +
-			"16. WARNING in E.java (at line 32)\n" +
-			"	public enum Epub {\n" +
-			"	       ^^^^\n" +
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
-			"----------\n" +
-			"17. ERROR in E.java (at line 32)\n" +
-			"	public enum Epub {\n" +
-			"	       ^^^^\n" +
-			"Syntax error on token \"enum\", interface expected\n" +
-			"----------\n" +
-			"18. ERROR in E.java (at line 32)\n" +
-			"	public enum Epub {\n" +
-			"	                 ^\n" +
-			"Syntax error on token \"{\", extends expected\n" +
-			"----------\n" +
-			"19. ERROR in E.java (at line 36)\n" +
-			"	};\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n" +
-			"20. ERROR in E.java (at line 40)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
+			"----------\n" + 
+			"1. ERROR in E.java (at line 1)\n" + 
+			"	public enum E {\n" + 
+			"	       ^^^^\n" + 
+			"Syntax error on token \"enum\", interface expected\n" + 
+			"----------\n" + 
+			"2. ERROR in E.java (at line 1)\n" + 
+			"	public enum E {\n" + 
+			"	              ^\n" + 
+			"Syntax error on token \"{\", extends expected\n" + 
+			"----------\n" + 
+			"3. ERROR in E.java (at line 5)\n" + 
+			"	};\n" + 
+			"	^\n" + 
+			"Syntax error on token \"}\", delete this token\n" + 
+			"----------\n" + 
+			"4. WARNING in E.java (at line 8)\n" + 
+			"	private enum Epriv {\n" + 
+			"	        ^^^^\n" + 
+			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
+			"----------\n" + 
+			"5. ERROR in E.java (at line 8)\n" + 
+			"	private enum Epriv {\n" + 
+			"	             ^^^^^\n" + 
+			"Syntax error on token \"Epriv\", = expected after this token\n" + 
+			"----------\n" + 
+			"6. ERROR in E.java (at line 10)\n" + 
+			"	Cpriv {\n" + 
+			"	^^^^^\n" + 
+			"Syntax error on token(s), misplaced construct(s)\n" + 
+			"----------\n" + 
+			"7. ERROR in E.java (at line 11)\n" + 
+			"	public void foo() {}\n" + 
+			"	^^^^^^\n" + 
+			"Syntax error, insert \"PrimitiveType . class\" to complete Expression\n" + 
+			"----------\n" + 
+			"8. ERROR in E.java (at line 11)\n" + 
+			"	public void foo() {}\n" + 
+			"	^^^^^^\n" + 
+			"Syntax error, insert \"}\" to complete ArrayInitializer\n" + 
+			"----------\n" + 
+			"9. ERROR in E.java (at line 11)\n" + 
+			"	public void foo() {}\n" + 
+			"	^^^^^^\n" + 
+			"Syntax error, insert \"}\" to complete ArrayInitializer\n" + 
+			"----------\n" + 
+			"10. ERROR in E.java (at line 11)\n" + 
+			"	public void foo() {}\n" + 
+			"	^^^^^^\n" + 
+			"Syntax error, insert \";\" to complete FieldDeclaration\n" + 
+			"----------\n" + 
+			"11. ERROR in E.java (at line 12)\n" + 
+			"	};\n" + 
+			"	^\n" + 
+			"Syntax error on token \"}\", delete this token\n" + 
+			"----------\n" + 
+			"12. WARNING in E.java (at line 16)\n" + 
+			"	enum Edef {\n" + 
+			"	^^^^\n" + 
+			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
+			"----------\n" + 
+			"13. ERROR in E.java (at line 16)\n" + 
+			"	enum Edef {\n" + 
+			"	^^^^\n" + 
+			"Syntax error on token \"enum\", interface expected\n" + 
+			"----------\n" + 
+			"14. ERROR in E.java (at line 16)\n" + 
+			"	enum Edef {\n" + 
+			"	          ^\n" + 
+			"Syntax error on token \"{\", extends expected\n" + 
+			"----------\n" + 
+			"15. ERROR in E.java (at line 20)\n" + 
+			"	};\n" + 
+			"	^\n" + 
+			"Syntax error on token \"}\", delete this token\n" + 
+			"----------\n" + 
+			"16. WARNING in E.java (at line 24)\n" + 
+			"	protected enum Epro {\n" + 
+			"	          ^^^^\n" + 
+			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
+			"----------\n" + 
+			"17. ERROR in E.java (at line 24)\n" + 
+			"	protected enum Epro {\n" + 
+			"	          ^^^^\n" + 
+			"Syntax error on token \"enum\", interface expected\n" + 
+			"----------\n" + 
+			"18. ERROR in E.java (at line 24)\n" + 
+			"	protected enum Epro {\n" + 
+			"	                    ^\n" + 
+			"Syntax error on token \"{\", extends expected\n" + 
+			"----------\n" + 
+			"19. ERROR in E.java (at line 28)\n" + 
+			"	};\n" + 
+			"	^\n" + 
+			"Syntax error on token \"}\", delete this token\n" + 
+			"----------\n" + 
+			"20. WARNING in E.java (at line 32)\n" + 
+			"	public enum Epub {\n" + 
+			"	       ^^^^\n" + 
+			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
+			"----------\n" + 
+			"21. ERROR in E.java (at line 32)\n" + 
+			"	public enum Epub {\n" + 
+			"	       ^^^^\n" + 
+			"Syntax error on token \"enum\", interface expected\n" + 
+			"----------\n" + 
+			"22. ERROR in E.java (at line 32)\n" + 
+			"	public enum Epub {\n" + 
+			"	                 ^\n" + 
+			"Syntax error on token \"{\", extends expected\n" + 
+			"----------\n" + 
+			"23. ERROR in E.java (at line 36)\n" + 
+			"	};\n" + 
+			"	^\n" + 
+			"Syntax error on token \"}\", delete this token\n" + 
+			"----------\n" + 
+			"24. ERROR in E.java (at line 40)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error on token \"}\", delete this token\n" + 
 			"----------\n"
 		);
 	}

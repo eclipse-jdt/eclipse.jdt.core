@@ -166,17 +166,17 @@ public void test03() {
 		"1. ERROR in <parenthesis mismatch> (at line 3)\n" +
 		"	[ arg1, 						\n" +
 		"	^\n" +
-		"Syntax error on token \"[\", invalid Name\n" +
+		"Syntax error on token \"[\", float expected\n" +
 		"----------\n" +
 		"2. ERROR in <parenthesis mismatch> (at line 4)\n" +
 		"	{ arg2, ]						\n" +
 		"	^\n" +
-		"Syntax error on token \"{\", invalid Name\n" +
+		"Syntax error on token \"{\", float expected\n" +
 		"----------\n" +
 		"3. ERROR in <parenthesis mismatch> (at line 4)\n" +
 		"	{ arg2, ]						\n" +
 		"	        ^\n" +
-		"Syntax error on token \"]\", invalid Name\n" +
+		"Syntax error on token \"]\", float expected\n" +
 		"----------\n" +
 		"4. ERROR in <parenthesis mismatch> (at line 5)\n" +
 		"	arg3, 						\n" +

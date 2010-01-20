@@ -1039,7 +1039,7 @@ public void testBug130778x() throws JavaModelException {
 			"1. ERROR in /Converter15/src/a/X.java (at line 2)\n" +
 			"	@AnAnnotation(\"a\", \"b\")\n" +
 			"	                 ^\n" +
-			"Syntax error on token \",\", < expected\n",
+			"Syntax error on token \",\", > expected\n",
 			result);
 }
 }

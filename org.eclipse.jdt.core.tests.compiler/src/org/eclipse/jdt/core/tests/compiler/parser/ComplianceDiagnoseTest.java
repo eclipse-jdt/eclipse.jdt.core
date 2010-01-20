@@ -33,16 +33,35 @@ public static Class testClass() {
 	return ComplianceDiagnoseTest.class;
 }
 public void runComplianceParserTest(
-	String[] testFiles,
-	String expected13ProblemLog,
-	String expected14ProblemLog,
-	String expected15ProblemLog){
+		String[] testFiles,
+		String expected13ProblemLog,
+		String expected14ProblemLog,
+		String expected15ProblemLog){
+	runComplianceParserTest(
+			testFiles,
+			expected13ProblemLog,
+			expected14ProblemLog,
+			expected15ProblemLog,
+			expected15ProblemLog,
+			expected15ProblemLog);
+}
+public void runComplianceParserTest(
+		String[] testFiles,
+		String expected13ProblemLog,
+		String expected14ProblemLog,
+		String expected15ProblemLog,
+		String expected16ProblemLog,
+		String expected17ProblemLog){
 	if(this.complianceLevel == ClassFileConstants.JDK1_3) {
 		this.runNegativeTest(testFiles, expected13ProblemLog);
 	} else if(this.complianceLevel == ClassFileConstants.JDK1_4) {
 		this.runNegativeTest(testFiles, expected14ProblemLog);
-	} else if(this.complianceLevel >= ClassFileConstants.JDK1_5) {
+	} else if(this.complianceLevel == ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(testFiles, expected15ProblemLog);
+	} else if(this.complianceLevel == ClassFileConstants.JDK1_6) {
+		this.runNegativeTest(testFiles, expected16ProblemLog);
+	} else if(this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(testFiles, expected17ProblemLog);
 	}
 }
 public void test0001() {
@@ -1733,12 +1752,25 @@ public void test0038() {
 		"	                          ^^\n" +
 		"Syntax error on token \"T2\", delete this token\n" +
 		"----------\n";
+	
+	String expected16ProblemLog =
+		expected15ProblemLog;
+	
+	String expected17ProblemLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public <T1 extends String T2> int foo(){\n" + 
+		"	                   ^^^^^^\n" + 
+		"Syntax error on token \"String\", strictfp expected\n" + 
+		"----------\n";
 
 	runComplianceParserTest(
 		testFiles,
 		expected13ProblemLog,
 		expected14ProblemLog,
-		expected15ProblemLog
+		expected15ProblemLog,
+		expected16ProblemLog,
+		expected17ProblemLog
 	);
 }
 public void test0039() {
@@ -1852,12 +1884,25 @@ public void test0041() {
 		"	       ^^^\n" +
 		"Syntax error on token \"for\", delete this token\n" +
 		"----------\n";
-
+	
+	String expected16ProblemLog =
+		expected15ProblemLog;
+	
+	String expected17ProblemLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	Z <Y1, for Y2> var;\n" + 
+		"	       ^^^\n" + 
+		"Syntax error on token \"for\", final expected\n" + 
+		"----------\n";
+		
 	runComplianceParserTest(
 		testFiles,
 		expected13ProblemLog,
 		expected14ProblemLog,
-		expected15ProblemLog
+		expected15ProblemLog,
+		expected16ProblemLog,
+		expected17ProblemLog
 	);
 }
 public void test0042() {
