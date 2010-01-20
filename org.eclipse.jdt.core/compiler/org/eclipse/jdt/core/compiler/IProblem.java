@@ -1242,7 +1242,7 @@ void setSourceStart(int sourceStart);
     /** @since 3.6 */
     int InvalidLocationForModifiers = Syntax + Internal + 640;
     /** @since 3.6 */
-    int IllegalUsageOfTypeAnnotations = Internal + MethodRelated + 641;
+    int IllegalUsageOfTypeAnnotations = Internal + Syntax + 641;
 	/**
 	 * More problems in generics
 	 */
