@@ -437,8 +437,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 						}
 					}
 				}
-				if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
-					fieldDeclaration.type.getAllAnnotationContexts(AnnotationTargetTypeConstants.FIELD, allTypeAnnotationContexts);
+				TypeReference fieldType = fieldDeclaration.type;
+				if (fieldType != null 
+						&& ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0)
+						&& ((fieldType.bits & ASTNode.HasTypeAnnotations) != 0)) {
+					fieldType.getAllAnnotationContexts(AnnotationTargetTypeConstants.FIELD, allTypeAnnotationContexts);
 				}
 				int size = allTypeAnnotationContexts.size();
 				if (size != 0) {
