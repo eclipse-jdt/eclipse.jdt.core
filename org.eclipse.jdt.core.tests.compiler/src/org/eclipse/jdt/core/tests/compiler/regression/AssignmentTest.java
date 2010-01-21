@@ -23,6 +23,7 @@ public AssignmentTest(String name) {
 }
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
@@ -975,15 +976,8 @@ public void test041() {
 		null /* no class libraries */,
 		options /* custom options */,
 		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	if (false) {\n" + 
-		"      b = false;\n" + 
-		"    }\n" + 
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
 		"	b = false;\n" + 
 		"	^\n" + 
 		"The parameter b should not be assigned\n" + 
@@ -1016,12 +1010,7 @@ public void test042() {
 		options /* custom options */,
 		// compiler results
 		"----------\n" + /* expected compiler log */
-		"1. WARNING in X.java (at line 6)\n" + 
-		"	b = false;\n" + 
-		"	^^^^^^^^^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
 		"	b = false;\n" + 
 		"	^\n" + 
 		"The parameter b should not be assigned\n" + 
@@ -1046,15 +1035,8 @@ public void test043() {
 			"  }\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	if (false) {\n" + 
-		"      b = false;\n" + 
-		"    }\n" + 
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
 		"	b = false;\n" + 
 		"	^\n" + 
 		"The final local variable b cannot be assigned. It must be blank and not using a compound assignment\n" + 
@@ -1371,19 +1353,10 @@ public void test055_definite_unassignment_try_catch() {
 			"class MyException extends Exception {\n" +
 			"  private static final long serialVersionUID = 1L;\n" +
 			"}"
-	 	},
+		},
 		// compiler results
-	 	"----------\n" + /* expected compiler log */
-		"1. WARNING in X.java (at line 5)\n" + 
-		"	if (false) {\n" + 
-		"            i = 0;\n" + 
-		"            System.out.println(i);\n" + 
-		"            throw new MyException();\n" + 
-		"      }\n" + 
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java (at line 11)\n" + 
 		"	i = 1;\n" + 
 		"	^\n" + 
 		"The final local variable i may already have been assigned\n" + 

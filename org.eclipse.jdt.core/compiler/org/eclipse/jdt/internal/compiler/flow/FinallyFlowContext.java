@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -192,8 +192,10 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						if (flowInfo.cannotBeNull(local)) {
 							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 								scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+								flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 							} else if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL)) {
 								scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+								flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 							}
 							return;
 						}
@@ -201,9 +203,11 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
 									scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+									flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 									return;
 								case FlowContext.IN_COMPARISON_NON_NULL:
 									scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+									flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 									return;
 								case FlowContext.IN_ASSIGNMENT:
 									scope.problemReporter().localVariableRedundantNullAssignment(local, reference);
@@ -234,8 +238,10 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						if (flowInfo.isDefinitelyNonNull(local)) {
 							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 								scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+								flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 							} else {
 								scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+								flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);	
 							}
 							return;
 						}
@@ -248,9 +254,11 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
 									scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+									flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 									return;
 								case FlowContext.IN_COMPARISON_NON_NULL:
 									scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+									flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 									return;
 								case FlowContext.IN_ASSIGNMENT:
 									scope.problemReporter().localVariableRedundantNullAssignment(local, reference);

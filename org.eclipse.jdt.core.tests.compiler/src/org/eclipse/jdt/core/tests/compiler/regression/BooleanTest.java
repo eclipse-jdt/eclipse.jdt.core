@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2266,20 +2266,17 @@ public void test047() throws Exception {
 		"  X(boolean b1);\n" +
 		"     0  aload_0 [this]\n" +
 		"     1  invokespecial java.lang.Object() [8]\n" +
-		"     4  iload_1 [b1]\n" +
-		"     5  ifeq 8\n" +
-		"     8  getstatic java.lang.System.out : java.io.PrintStream [11]\n" +
-		"    11  iload_1 [b1]\n" +
-		"    12  invokevirtual java.io.PrintStream.println(boolean) : void [17]\n" +
-		"    15  return\n" +
+		"     4  getstatic java.lang.System.out : java.io.PrintStream [11]\n" +
+		"     7  iload_1 [b1]\n" +
+		"     8  invokevirtual java.io.PrintStream.println(boolean) : void [17]\n" +
+		"    11  return\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 2]\n" +
-		"        [pc: 4, line: 4]\n" +
-		"        [pc: 8, line: 5]\n" +
-		"        [pc: 15, line: 7]\n" +
+		"        [pc: 4, line: 5]\n" +
+		"        [pc: 11, line: 7]\n" +
 		"      Local variable table:\n" +
-		"        [pc: 0, pc: 16] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 16] local: b1 index: 1 type: boolean\n";
+		"        [pc: 0, pc: 12] local: this index: 0 type: X\n" +
+		"        [pc: 0, pc: 12] local: b1 index: 1 type: boolean\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -2362,21 +2359,19 @@ public void test049() throws Exception {
 		"     0  aload_0 [this]\n" +
 		"     1  invokespecial java.lang.Object() [8]\n" +
 		"     4  iload_1 [b1]\n" +
-		"     5  ifeq 12\n" +
-		"     8  iload_1 [b1]\n" +
-		"     9  ifeq 12\n" +
-		"    12  getstatic java.lang.System.out : java.io.PrintStream [11]\n" +
-		"    15  iload_1 [b1]\n" +
-		"    16  invokevirtual java.io.PrintStream.println(boolean) : void [17]\n" +
-		"    19  return\n" +
+		"     5  ifeq 8\n" +
+		"     8  getstatic java.lang.System.out : java.io.PrintStream [11]\n" +
+		"    11  iload_1 [b1]\n" +
+		"    12  invokevirtual java.io.PrintStream.println(boolean) : void [17]\n" +
+		"    15  return\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 2]\n" +
 		"        [pc: 4, line: 4]\n" +
-		"        [pc: 12, line: 5]\n" +
-		"        [pc: 19, line: 7]\n" +
+		"        [pc: 8, line: 5]\n" +
+		"        [pc: 15, line: 7]\n" +
 		"      Local variable table:\n" +
-		"        [pc: 0, pc: 20] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 20] local: b1 index: 1 type: boolean\n";
+		"        [pc: 0, pc: 16] local: this index: 0 type: X\n" +
+		"        [pc: 0, pc: 16] local: b1 index: 1 type: boolean\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);

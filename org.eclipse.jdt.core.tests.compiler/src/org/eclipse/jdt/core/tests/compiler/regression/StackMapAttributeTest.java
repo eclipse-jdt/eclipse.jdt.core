@@ -6142,8 +6142,11 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"		int b = 1;\n" + 
 				"	};\n" + 
 				"\n" + 
+				"	private Object bar2() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
 				"	private Object bar() {\n" + 
-				"		Object o = null;\n" + 
+				"		Object o = bar2();\n" + 
 				"		if (o != null) {\n" + 
 				"			o.toString();\n" + 
 				"		}\n" + 
@@ -6154,27 +6157,29 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			},
 		"");
 		String expectedOutput =
+			"  // Method descriptor #23 ()Ljava/lang/Object;\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  private java.lang.Object bar();\n" + 
-			"     0  aconst_null\n" + 
-			"     1  astore_1 [o]\n" + 
-			"     2  aload_1 [o]\n" + 
-			"     3  ifnull 11\n" + 
-			"     6  aload_1 [o]\n" + 
-			"     7  invokevirtual java.lang.Object.toString() : java.lang.String [24]\n" + 
-			"    10  pop\n" + 
-			"    11  aconst_null\n" + 
-			"    12  areturn\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  invokespecial X.bar2() : java.lang.Object [25]\n" + 
+			"     4  astore_1 [o]\n" + 
+			"     5  aload_1 [o]\n" + 
+			"     6  ifnull 14\n" + 
+			"     9  aload_1 [o]\n" + 
+			"    10  invokevirtual java.lang.Object.toString() : java.lang.String [27]\n" + 
+			"    13  pop\n" + 
+			"    14  aconst_null\n" + 
+			"    15  areturn\n" + 
 			"      Line numbers:\n" + 
-			"        [pc: 0, line: 8]\n" + 
-			"        [pc: 2, line: 9]\n" + 
-			"        [pc: 6, line: 10]\n" + 
-			"        [pc: 11, line: 12]\n" + 
+			"        [pc: 0, line: 11]\n" + 
+			"        [pc: 5, line: 12]\n" + 
+			"        [pc: 9, line: 13]\n" + 
+			"        [pc: 14, line: 15]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
-			"        [pc: 2, pc: 13] local: o index: 1 type: java.lang.Object\n" + 
+			"        [pc: 0, pc: 16] local: this index: 0 type: X\n" + 
+			"        [pc: 5, pc: 16] local: o index: 1 type: java.lang.Object\n" + 
 			"      Stack map table: number of frames 1\n" + 
-			"        [pc: 11, append: {java.lang.Object}]\n";
+			"        [pc: 14, append: {java.lang.Object}]\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=251539
@@ -6203,8 +6208,11 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"		int b = 1;\n" + 
 				"		int c = 2;\n" + 
 				"	};\n" +
+				"	private Object bar2() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
 				"	private Object bar() {\n" + 
-				"		Object o = null;\n" + 
+				"		Object o = bar2();\n" + 
 				"		if (o != null) {\n" + 
 				"			o.toString();\n" + 
 				"		}\n" + 
@@ -6215,27 +6223,29 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		"");
 	
 		String expectedOutput =
+			"  // Method descriptor #29 ()Ljava/lang/Object;\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  private java.lang.Object bar();\n" + 
-			"     0  aconst_null\n" + 
-			"     1  astore_1 [o]\n" + 
-			"     2  aload_1 [o]\n" + 
-			"     3  ifnull 11\n" + 
-			"     6  aload_1 [o]\n" + 
-			"     7  invokevirtual java.lang.Object.toString() : java.lang.String [30]\n" + 
-			"    10  pop\n" + 
-			"    11  aconst_null\n" + 
-			"    12  areturn\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  invokespecial X.bar2() : java.lang.Object [31]\n" + 
+			"     4  astore_1 [o]\n" + 
+			"     5  aload_1 [o]\n" + 
+			"     6  ifnull 14\n" + 
+			"     9  aload_1 [o]\n" + 
+			"    10  invokevirtual java.lang.Object.toString() : java.lang.String [33]\n" + 
+			"    13  pop\n" + 
+			"    14  aconst_null\n" + 
+			"    15  areturn\n" + 
 			"      Line numbers:\n" + 
-			"        [pc: 0, line: 12]\n" + 
-			"        [pc: 2, line: 13]\n" + 
-			"        [pc: 6, line: 14]\n" + 
-			"        [pc: 11, line: 16]\n" + 
+			"        [pc: 0, line: 15]\n" + 
+			"        [pc: 5, line: 16]\n" + 
+			"        [pc: 9, line: 17]\n" + 
+			"        [pc: 14, line: 19]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
-			"        [pc: 2, pc: 13] local: o index: 1 type: java.lang.Object\n" + 
+			"        [pc: 0, pc: 16] local: this index: 0 type: X\n" + 
+			"        [pc: 5, pc: 16] local: o index: 1 type: java.lang.Object\n" + 
 			"      Stack map table: number of frames 1\n" + 
-			"        [pc: 11, append: {java.lang.Object}]\n";
+			"        [pc: 14, append: {java.lang.Object}]\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=260031
