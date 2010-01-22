@@ -297,7 +297,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							getTargetType(wildcardLocationType),
 						}));
 				writeNewLine(buffer, lineSeparator, tabNumber + 3);
-				disassembleTargetTypeContents(wildcardLocationType, extendedAnnotation, buffer, lineSeparator, tabNumber + 3, mode);
+				disassembleTargetTypeContents(true, wildcardLocationType, extendedAnnotation, buffer, lineSeparator, tabNumber + 3, mode);
 				break;
 			case IExtendedAnnotationConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY :
 				wildcardLocationType = extendedAnnotation.getWildcardLocationType();
@@ -307,21 +307,21 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							getTargetType(wildcardLocationType),
 						}));
 				writeNewLine(buffer, lineSeparator, tabNumber + 3);
-				disassembleTargetTypeContents(wildcardLocationType, extendedAnnotation, buffer, lineSeparator, tabNumber + 3, mode);
+				disassembleTargetTypeContents(true, wildcardLocationType, extendedAnnotation, buffer, lineSeparator, tabNumber + 3, mode);
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
-							toString(extendedAnnotation.getWildcardLocations()),
+						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+							toString(extendedAnnotation.getLocations()),
 						}));
 				break;
 			default:
-				disassembleTargetTypeContents(targetType, extendedAnnotation, buffer, lineSeparator, tabNumber, mode);
+				disassembleTargetTypeContents(false, targetType, extendedAnnotation, buffer, lineSeparator, tabNumber, mode);
 		}
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_extendedannotationentryend);
 	}
 
-	private void disassembleTargetTypeContents(int targetType, IExtendedAnnotation extendedAnnotation, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+	private void disassembleTargetTypeContents(boolean insideWildcard, int targetType, IExtendedAnnotation extendedAnnotation, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		switch(targetType) {
 			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS :
 				buffer.append(
@@ -335,10 +335,17 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
 						}));
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-							toString(extendedAnnotation.getLocations()),
-						}));
+				if (insideWildcard) {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
+								toString(extendedAnnotation.getWildcardLocations()),
+							}));
+				} else {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+								toString(extendedAnnotation.getLocations()),
+							}));
+				}
 				break;
 			case IExtendedAnnotationConstants.TYPE_CAST :
 			case IExtendedAnnotationConstants.TYPE_INSTANCEOF :
@@ -358,10 +365,17 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(extendedAnnotation.getOffset()),
 						}));
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-							toString(extendedAnnotation.getLocations()),
-						}));
+				if (insideWildcard) {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
+								toString(extendedAnnotation.getWildcardLocations()),
+							}));
+				} else {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+								toString(extendedAnnotation.getLocations()),
+							}));
+				}
 				break;
 			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER :
 			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER :
@@ -377,10 +391,17 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
 						}));
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-							toString(extendedAnnotation.getLocations()),
-						}));
+				if (insideWildcard) {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
+								toString(extendedAnnotation.getWildcardLocations()),
+							}));
+				} else {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+								toString(extendedAnnotation.getLocations()),
+							}));
+				}
 				break;
 			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND :
 			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND :
@@ -398,10 +419,17 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(extendedAnnotation.getTypeParameterBoundIndex()),
 						}));
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-							toString(extendedAnnotation.getLocations()),
-						}));
+				if (insideWildcard) {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
+								toString(extendedAnnotation.getWildcardLocations()),
+							}));
+				} else {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+								toString(extendedAnnotation.getLocations()),
+							}));
+				}
 				break;
 			case IExtendedAnnotationConstants.LOCAL_VARIABLE :
 				// TODO (olivier) dump local variable reference info
@@ -409,10 +437,17 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			case IExtendedAnnotationConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
 				// TODO (olivier) dump local variable reference info
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-							toString(extendedAnnotation.getLocations()),
-						}));
+				if (insideWildcard) {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
+								toString(extendedAnnotation.getWildcardLocations()),
+							}));
+				} else {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+								toString(extendedAnnotation.getLocations()),
+							}));
+				}
 				break;
 			case IExtendedAnnotationConstants.METHOD_PARAMETER :
 				buffer.append(
@@ -426,18 +461,32 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
 						}));
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-							toString(extendedAnnotation.getLocations()),
-						}));
+				if (insideWildcard) {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
+								toString(extendedAnnotation.getWildcardLocations()),
+							}));
+				} else {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+								toString(extendedAnnotation.getLocations()),
+							}));
+				}
 				break;
 			case IExtendedAnnotationConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY :
 			case IExtendedAnnotationConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY :
 			case IExtendedAnnotationConstants.FIELD_GENERIC_OR_ARRAY :
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-							toString(extendedAnnotation.getLocations()),
-						}));
+				if (insideWildcard) {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
+								toString(extendedAnnotation.getWildcardLocations()),
+							}));
+				} else {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+								toString(extendedAnnotation.getLocations()),
+							}));
+				}
 				break;
 			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
 			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL :
@@ -463,10 +512,17 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
 						}));
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-							toString(extendedAnnotation.getLocations()),
-						}));
+				if (insideWildcard) {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
+								toString(extendedAnnotation.getWildcardLocations()),
+							}));
+				} else {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+								toString(extendedAnnotation.getLocations()),
+							}));
+				}
 				break;
 			case IExtendedAnnotationConstants.THROWS :
 				buffer.append(
@@ -480,10 +536,17 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
 						}));
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-							toString(extendedAnnotation.getLocations()),
-						}));
+				if (insideWildcard) {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
+								toString(extendedAnnotation.getWildcardLocations()),
+							}));
+				} else {
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+								toString(extendedAnnotation.getLocations()),
+							}));
+				}
 				break;
 		}
 	}

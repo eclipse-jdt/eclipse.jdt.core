@@ -86,18 +86,24 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 				this.wildcardLocationType = u1At(classFileBytes, this.readOffset, offset);
 				this.readOffset++;
 				internalDecoding(this.wildcardLocationType, classFileBytes, constantPool, offset);
+				// copy the location back into the wildcard location
+				int size = this.locations.length;
+				System.arraycopy(this.locations, 0, (this.wildcardLocations = new int[size]), 0, size);
+				this.locations = null;
 				break;
 			case IExtendedAnnotationConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY :
 				this.wildcardLocationType = u1At(classFileBytes, this.readOffset, offset);
 				this.readOffset++;
+				internalDecoding(this.wildcardLocationType, classFileBytes, constantPool, offset);
+				size = this.locations.length;
+				System.arraycopy(this.locations, 0, (this.wildcardLocations = new int[size]), 0, size);
 				int locationLength = u2At(classFileBytes, this.readOffset, offset);
 				this.readOffset += 2;
-				this.wildcardLocations = new int[locationLength];
+				this.locations = new int[locationLength];
 				for (int i = 0; i < locationLength; i++) {
-					this.wildcardLocations[i] = u1At(classFileBytes, this.readOffset, offset);
+					this.locations[i] = u1At(classFileBytes, this.readOffset, offset);
 					this.readOffset++;
 				}
-				internalDecoding(this.wildcardLocationType, classFileBytes, constantPool, offset);
 				break;
 			default:
 				internalDecoding(index, classFileBytes, constantPool, offset);
