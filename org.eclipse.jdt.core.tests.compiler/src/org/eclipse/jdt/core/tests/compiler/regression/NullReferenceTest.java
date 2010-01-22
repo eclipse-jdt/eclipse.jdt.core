@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,9 +12,10 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import junit.framework.Test;
 
 /* See also NullReferenceImplTests for low level, implementation dependent
  * tests. */
@@ -178,6 +179,11 @@ public void test0006_final_local() {
 		"	if (o != null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o can only be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o != null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -849,6 +855,11 @@ public void test0042_autoboxing_literal() {
 			"	if (i == null) {};\n" +
 			"	    ^\n" +
 			"Null comparison always yields false: The variable i cannot be null at this location\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	if (i == null) {};\n" + 
+			"	               ^^\n" + 
+			"Dead code\n" + 
 			"----------\n",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -911,6 +922,11 @@ public void test0045_autoboxing_operator() {
 			"	if (i == null) {}\n" +
 			"	    ^\n" +
 			"Null comparison always yields false: The variable i cannot be null at this location\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	if (i == null) {}\n" + 
+			"	               ^^\n" + 
+			"Dead code\n" + 
 			"----------\n",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -996,6 +1012,11 @@ public void test0061_method_call_guard() {
 		"	if (o == null) {};\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o == null) {};\n" + 
+		"	               ^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -1062,6 +1083,11 @@ public void test0064_method_call_isolation() {
 		"	if (o == null) {/* empty */}\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o == null) {/* empty */}\n" + 
+		"	               ^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -1116,6 +1142,11 @@ public void test0067_method_call_invocation_target() {
 		"	if (o == null)  { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o == null)  { /* */ }\n" + 
+		"	                ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -1153,6 +1184,11 @@ public void test0070_type_reference() {
 		"	if (c == null) {};\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable c cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (c == null) {};\n" + 
+		"	               ^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -1216,6 +1252,11 @@ public void test0082_shortcut_boolean_expression() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -1243,6 +1284,11 @@ public void test0083_shortcut_boolean_expression() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -1415,6 +1461,11 @@ public void test0093_instanceof() {
 		"	if (x == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable x cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (x == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -1776,6 +1827,13 @@ public void test0306_if_else() {
 		"	if (o == null) {\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o == null) {\n" + 
+		"        // do nothing\n" + 
+		"      }\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -1918,10 +1976,15 @@ public void test0312_if_else() {
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
+		"2. WARNING in X.java (at line 5)\n" +
+		"	if (o == null) { /* */ }\n" +
+		"	               ^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 6)\n" +
+		"	if (o != null) { /* */ }\n" +
+		"	    ^\n" +
+		"Redundant null check: The variable o cannot be null at this location\n" +
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -1945,6 +2008,11 @@ public void test0313_if_else() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -2083,6 +2151,11 @@ public void test0320_if_else() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -2121,6 +2194,11 @@ public void test0322_if_else() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -2402,7 +2480,7 @@ public void test0334_if_else() {
 			"      o.toString();\n" +
 			"    }\n" +
 			"    else {\n" +
-			"      o.toString();\n" + // must complain anyway (could be quite distant from the if test)
+			"      o.toString();\n" +
 			"    }\n" +
 			"    o.toString();\n" + // quiet
 			"  }\n" +
@@ -2413,19 +2491,21 @@ public void test0334_if_else() {
 		"	    ^\n" +
 		"Redundant null check: The variable o cannot be null at this location\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
+		"2. WARNING in X.java (at line 7)\n" +
+		"	else {\n" + 
+		"      o.toString();\n" + 
+		"    }\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
-// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=129581
-// this is a limit of the fix for bug 128014 - calls for a nuance
-// between potential null and tainted null
-public void _test0335_if_else() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=129581
+// Test that no false null reference warning is issued for a variable
+// that has been wrongly tainted by a redundant null check upstream.
+public void test0335_if_else() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2473,10 +2553,12 @@ public void test0336_if_else() {
 		"	    ^\n" +
 		"Redundant null check: The variable o cannot be null at this location\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	else {\n" + 
+		"        o.toString();\n" + 
+		"      }\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -3147,6 +3229,11 @@ public void test0422_while() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -3172,6 +3259,11 @@ public void test0423_while() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -3241,6 +3333,11 @@ public void test0426_while() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -4492,6 +4589,11 @@ public void test0506_try_finally() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -4517,6 +4619,13 @@ public void test0507_try_finally() {
 		"	if (o == null) {\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	if (o == null) {\n" + 
+		"      o = new Object();\n" + 
+		"    }\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -5810,6 +5919,12 @@ public void test0563_try_catch() {
 		"	if (ex == null) {\n" +
 		"	    ^^\n" +
 		"Null comparison always yields false: The variable ex cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 20)\n" + 
+		"	if (ex == null) {\n" + 
+		"    }\n" + 
+		"	                ^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -7587,6 +7702,11 @@ public void test0801_switch() {
 		"	if(o == null) { /* */ }\n" +
 		"	   ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	if(o == null) { /* */ }\n" + 
+		"	              ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -7962,7 +8082,12 @@ public void test0953_assert_combined() {
 			"	    ^^\n" +
 			"Null comparison always yields false: The variable o1 cannot be null at this location\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	if (o1 == null) { };\n" + 
+			"	                ^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" +
 			"	if (o2 == null) { };\n" +
 			"	    ^^\n" +
 			"Redundant null check: The variable o2 can only be null at this location\n" +
@@ -8011,6 +8136,11 @@ public void test0955_assert_combined() {
 		"	if (o == null) { };\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o == null) { };\n" + 
+		"	               ^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -8040,6 +8170,11 @@ public void test0956_assert_combined() {
 		"	if (o == null) { };\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	if (o == null) { };\n" + 
+		"	               ^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -8208,20 +8343,17 @@ public void test1004() {
 		"	    ^\n" +
 		"Null comparison always yields false: The variable x cannot be null at this location\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 6)\n" +
-		"	x.foo(null); // 3\n" +
-		"	^\n" +
-		"Null pointer access: The variable x can only be null at this location\n" +
+		"3. WARNING in X.java (at line 5)\n" +
+		"	if (x == null) { // 2\n" +
+		"        x.foo(null); // 3\n" +
+		"      } else if (x instanceof X) { // 4\n" +
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 9)\n" +
 		"	} else if (x != null) { // 6\n" +
 		"	           ^\n" +
 		"Redundant null check: The variable x cannot be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 12)\n" +
-		"	x.foo(null); // 8\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable x may be null at this location\n" +
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -8375,6 +8507,17 @@ public void test1011() {
 		"	if (other != null) {\n" +
 		"	    ^^^^^\n" +
 		"Redundant null check: The variable other cannot be null at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	if (other == null) {\n" + 
+		"	    ^^^^^\n" + 
+		"Null comparison always yields false: The variable other cannot be null at this location\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 11)\n" + 
+		"	if (other == null) {\n" + 
+		"      }\n" + 
+		"	                   ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -8428,10 +8571,12 @@ public void test1013() {
 		"	    ^\n" +
 		"Null comparison always yields false: The variable x cannot be null at this location\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	x.foo(this);\n" +
-		"	^\n" +
-		"Null pointer access: The variable x can only be null at this location\n" +
+		"2. WARNING in X.java (at line 4)\n" +
+		"	if (x == null) {\n" +
+		"        x.foo(this);\n" +
+		"      }\n" +
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -8680,6 +8825,11 @@ public void test1023() {
 		"	if (o == null) return;\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	if (o == null) return;\n" + 
+		"	               ^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -8739,6 +8889,11 @@ public void test1025() {
 		"	if (o == null) return;\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	if (o == null) return;\n" + 
+		"	               ^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -8890,6 +9045,13 @@ public void test1031() {
 		"	if (a == null) {\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable a cannot be null at this location\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 13)\n" + 
+		"	if (a == null) {\n" + 
+		"      System.out.println();\n" + 
+		"    }\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -8947,6 +9109,11 @@ public void test1033() {
 		"	if(a!=null)\n" +
 		"	   ^\n" +
 		"Null comparison always yields false: The variable a can only be null at this location\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 9)\n" + 
+		"	{ /* */ }\n" + 
+		"	^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -9043,7 +9210,14 @@ public void test1050_options_all_default() {
 				  "}\n"
 				  } /* testFiles */,
 			"----------\n" +
-			"1. WARNING in X.java (at line 8)\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	if (o != null) {\n" +
+			"       o = null;\n" +
+			"    }\n" +
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 8)\n" +
 			"	o.toString();\n" +
 			"	^\n" +
 			"Null pointer access: The variable o can only be null at this location\n" +
@@ -9105,18 +9279,25 @@ public void test1052_options_all_error() {
 			  "  }\n" +
 			  "}\n"},
 		"----------\n" +
-		"1. ERROR in X.java (at line 4)\r\n" +
-		"	if (o != null) {\r\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	if (o != null) {\n" +
 		"	    ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n" +
-		"2. ERROR in X.java (at line 8)\r\n" +
-		"	o.toString();\r\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o != null) {\n" + 
+		"       o = null;\n" + 
+		"    }\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" +
+		"3. ERROR in X.java (at line 8)\n" +
+		"	o.toString();\n" +
 		"	^\n" +
 		"Null pointer access: The variable o can only be null at this location\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 9)\r\n" +
-		"	p.toString();\r\n" +
+		"4. ERROR in X.java (at line 9)\n" +
+		"	p.toString();\n" +
 		"	^\n" +
 		"Potential null pointer access: The variable p may be null at this location\n" +
 		"----------\n",
@@ -9152,8 +9333,15 @@ public void test1053_options_mix() {
 		customOptions /* custom options */,
 		// compiler results
 		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 8)\r\n" +
-		"	o.toString();\r\n" +
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (o != null) {\n" + 
+		"       o = null;\n" + 
+		"    }\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	o.toString();\n" +
 		"	^\n" +
 		"Null pointer access: The variable o can only be null at this location\n" +
 		"----------\n",
@@ -9190,13 +9378,20 @@ public void test1054_options_mix() {
 		customOptions /* custom options */,
 		// compiler results
 		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 4)\r\n" +
-		"	if (o != null) {\r\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	if (o != null) {\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o can only be null at this location\n" +
 		"----------\n" +
-		"2. WARNING in X.java (at line 8)\r\n" +
-		"	o.toString();\r\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o != null) {\n" + 
+		"       o = null;\n" + 
+		"    }\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" +
+		"3. WARNING in X.java (at line 8)\n" +
+		"	o.toString();\n" +
 		"	^\n" +
 		"Null pointer access: The variable o can only be null at this location\n" +
 		"----------\n",
@@ -9233,13 +9428,20 @@ public void test1055_options_mix() {
 		customOptions /* custom options */,
 		// compiler results
 		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 4)\r\n" +
-		"	if (o != null) {\r\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	if (o != null) {\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o can only be null at this location\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 9)\r\n" +
-		"	p.toString();\r\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o != null) {\n" + 
+		"       o = null;\n" + 
+		"    }\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" +
+		"3. ERROR in X.java (at line 9)\n" +
+		"	p.toString();\n" +
 		"	^\n" +
 		"Potential null pointer access: The variable p may be null at this location\n" +
 		"----------\n",
@@ -9278,8 +9480,15 @@ public void test1056_options_mix_with_SuppressWarnings() {
 			customOptions /* custom options */,
 			// compiler results
 			"----------\n" +  /* expected compiler log */
-			"1. ERROR in X.java (at line 9)\r\n" +
-			"	o.toString();\r\n" +
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	if (o != null) {\n" + 
+			"       o = null;\n" + 
+			"    }\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	o.toString();\n" +
 			"	^\n" +
 			"Null pointer access: The variable o can only be null at this location\n" +
 			"----------\n",
@@ -9489,6 +9698,16 @@ public void test2000_flow_info() {
 		"	if (o65 == null) { /* */ }\n" +
 		"	    ^^^\n" +
 		"Null comparison always yields false: The variable o65 cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 18)\n" + 
+		"	if (o65 == null) { /* */ }\n" + 
+		"	                 ^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 19)\n" + 
+		"	if (o65 != null) { /* */ }\n" + 
+		"	    ^^^\n" + 
+		"Redundant null check: The variable o65 cannot be null at this location\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -9746,6 +9965,11 @@ public void test2009_flow_info() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 20)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -9783,6 +10007,11 @@ public void test2010_flow_info() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 21)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -9823,6 +10052,11 @@ public void test2011_flow_info() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 24)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -9863,6 +10097,11 @@ public void test2012_flow_info() {
 		"	if (o == null) { /* */ }\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 24)\n" + 
+		"	if (o == null) { /* */ }\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -10327,5 +10566,135 @@ public void testBug291418b() {
 				"Null comparison always yields false: The variable argArray cannot be null at this location\n" + 
 				"----------\n");
 	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=293917
+// Test that a redundant null check doesn't affect the null status of
+// a variable downstream.
+public void testBug293917a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo(){\n" +
+			"		String x = null, y = null;\n" +
+			"		if (x == null) x = \"foo\";\n" +
+			"		if (x != null) y = \"bar\";\n" +
+			"		x.length();\n" +   // shouldn't warn here    
+			"		y.length();\n" +   // shouldn't warn here
+			"	}\n" +
+			"}\n"},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (x == null) x = \"foo\";\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable x can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	if (x != null) y = \"bar\";\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable x cannot be null at this location\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=293917
+// Test that a redundant null check doesn't affect the null status of
+// a variable downstream in a loop.
+public void testBug293917b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo(){\n" +
+			"		String x = null, y = null;" +
+			"		while(true) {\n" +
+			"			if (x == null) x = \"foo\";\n" +
+			"			if (x != null) y = \"bar\";\n" +
+			"			x.length();\n" +   // shouldn't warn here    
+			"			y.length();\n" +   // shouldn't warn here
+			"		}\n" +
+			"	}\n" +
+			"}\n"},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (x != null) y = \"bar\";\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable x cannot be null at this location\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=293917
+// Test that a redundant null check doesn't affect the null status of
+// a variable downstream in a finally block.
+public void testBug293917c() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo(){\n" +
+			"		String x = null, y = null;" +
+			"		try {}\n" +
+			"		finally {\n" +
+			"			if (x == null) x = \"foo\";\n" +
+			"			if (x != null) y = \"bar\";\n" +
+			"			x.length();\n" +   // shouldn't warn here    
+			"			y.length();\n" +   // shouldn't warn here
+			"		}\n" +
+			"	}\n" +
+			"}\n"},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (x == null) x = \"foo\";\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable x can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	if (x != null) y = \"bar\";\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable x cannot be null at this location\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=190623
+// Test that a redundant null check doesn't affect the null status of
+// a variable downstream.
+public void testBug190623() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        Number n = getNumber();\n" +
+			"        if (n instanceof Double) {\n" +
+			"            Double d= (Double) n;\n" +
+			"            if (d != null && d.isNaN()) {\n" +
+			"                System.out.println(\"outside loop\");\n" +
+			"            }\n" +
+			"            for (int i= 0; i < 10; i++) {\n" +
+			"                if (d != null && d.isNaN()) {\n" +
+			"                    System.out.println(\"inside loop\");\n" +
+			"                }\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" +
+			"    private static Number getNumber() {\n" +
+			"        return new Double(Math.sqrt(-1));\n" +
+			"    }\n" +
+			"}\n"},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (d != null && d.isNaN()) {\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable d cannot be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	if (d != null && d.isNaN()) {\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable d cannot be null at this location\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 }

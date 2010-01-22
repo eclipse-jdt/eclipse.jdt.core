@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -396,14 +396,18 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 			if (flowInfo.isDefinitelyNonNull(local)) {
 				if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 					scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+					flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 				} else {
 					scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+					flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 				}
 			} else if (flowInfo.isDefinitelyNull(local)) {
 				if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL)) {
 					scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+					flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 				} else {
 					scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+					flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 				}
 			} else if (this.upstreamNullFlowInfo.isDefinitelyNonNull(local) && !flowInfo.isPotentiallyNull(local)) {    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=291418
 				flowInfo.markAsDefinitelyNonNull(local);
@@ -428,9 +432,11 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				switch(checkType & CONTEXT_MASK) {
 					case FlowContext.IN_COMPARISON_NULL:
 						scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 						return;
 					case FlowContext.IN_COMPARISON_NON_NULL:
 						scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 						return;
 					case FlowContext.IN_ASSIGNMENT:
 						scope.problemReporter().localVariableRedundantNullAssignment(local, reference);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,6 +58,12 @@ public class EqualExpression extends BinaryExpression {
 							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
 				}
 				break;
+		}
+		// set the optimize constant to optimize code gen
+		if ((initsWhenTrue.tagBits & FlowInfo.UNREACHABLE) != 0) {
+			this.optimizedBooleanConstant = BooleanConstant.fromValue(false);
+		} else if ((initsWhenFalse.tagBits & FlowInfo.UNREACHABLE) != 0) {
+			this.optimizedBooleanConstant = BooleanConstant.fromValue(true);
 		}
 		// we do not impact enclosing try context because this kind of protection
 		// does not preclude the variable from being null in an enclosing scope

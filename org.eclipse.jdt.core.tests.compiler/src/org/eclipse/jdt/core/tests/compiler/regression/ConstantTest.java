@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2008 IBM Corporation and others.
+ * Copyright (c) 2003, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -382,17 +382,15 @@ public void test009() throws Exception {
 		"    66  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
 		"    69  aconst_null\n" +
 		"    70  astore_2 [s]\n" +
-		"    71  aload_2 [s]\n" +
-		"    72  ifnonnull 83\n" +
-		"    75  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    78  ldc <String \"4\"> [55]\n" +
-		"    80  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"    83  ldc <String \"aaa\"> [57]\n" +
-		"    85  astore_3 [s2]\n" +
-		"    86  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    89  ldc <String \"5\"> [59]\n" +
-		"    91  invokevirtual java.io.PrintStream.println(java.lang.String) : void [61]\n" +
-		"    94  return\n" +
+		"    71  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+		"    74  ldc <String \"4\"> [55]\n" +
+		"    76  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
+		"    79  ldc <String \"aaa\"> [57]\n" +
+		"    81  astore_3 [s2]\n" +
+		"    82  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+		"    85  ldc <String \"5\"> [59]\n" +
+		"    87  invokevirtual java.io.PrintStream.println(java.lang.String) : void [61]\n" +
+		"    90  return\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 3]\n" +
 		"        [pc: 8, line: 4]\n" +
@@ -401,14 +399,14 @@ public void test009() throws Exception {
 		"        [pc: 61, line: 7]\n" +
 		"        [pc: 69, line: 8]\n" +
 		"        [pc: 71, line: 9]\n" +
-		"        [pc: 83, line: 10]\n" +
-		"        [pc: 86, line: 11]\n" +
-		"        [pc: 94, line: 12]\n" +
+		"        [pc: 79, line: 10]\n" +
+		"        [pc: 82, line: 11]\n" +
+		"        [pc: 90, line: 12]\n" +
 		"      Local variable table:\n" +
-		"        [pc: 0, pc: 95] local: args index: 0 type: java.lang.String[]\n" +
-		"        [pc: 61, pc: 95] local: b index: 1 type: boolean\n" +
-		"        [pc: 71, pc: 95] local: s index: 2 type: java.lang.String\n" +
-		"        [pc: 86, pc: 95] local: s2 index: 3 type: java.lang.String\n";
+		"        [pc: 0, pc: 91] local: args index: 0 type: java.lang.String[]\n" +
+		"        [pc: 61, pc: 91] local: b index: 1 type: boolean\n" +
+		"        [pc: 71, pc: 91] local: s index: 2 type: java.lang.String\n" +
+		"        [pc: 82, pc: 91] local: s2 index: 3 type: java.lang.String\n";
 
 	String expectedOutput15 =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
@@ -447,17 +445,15 @@ public void test009() throws Exception {
 		"    66  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
 		"    69  aconst_null\n" +
 		"    70  astore_2 [s]\n" +
-		"    71  aload_2 [s]\n" +
-		"    72  ifnonnull 83\n" +
-		"    75  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    78  ldc <String \"4\"> [55]\n" +
-		"    80  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"    83  ldc <String \"aaa\"> [57]\n" +
-		"    85  astore_3 [s2]\n" +
-		"    86  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    89  ldc <String \"5\"> [59]\n" +
-		"    91  invokevirtual java.io.PrintStream.println(java.lang.String) : void [61]\n" +
-		"    94  return\n" +
+		"    71  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+		"    74  ldc <String \"4\"> [55]\n" +
+		"    76  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
+		"    79  ldc <String \"aaa\"> [57]\n" +
+		"    81  astore_3 [s2]\n" +
+		"    82  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+		"    85  ldc <String \"5\"> [59]\n" +
+		"    87  invokevirtual java.io.PrintStream.println(java.lang.String) : void [61]\n" +
+		"    90  return\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 3]\n" +
 		"        [pc: 8, line: 4]\n" +
@@ -466,14 +462,14 @@ public void test009() throws Exception {
 		"        [pc: 61, line: 7]\n" +
 		"        [pc: 69, line: 8]\n" +
 		"        [pc: 71, line: 9]\n" +
-		"        [pc: 83, line: 10]\n" +
-		"        [pc: 86, line: 11]\n" +
-		"        [pc: 94, line: 12]\n" +
+		"        [pc: 79, line: 10]\n" +
+		"        [pc: 82, line: 11]\n" +
+		"        [pc: 90, line: 12]\n" +
 		"      Local variable table:\n" +
-		"        [pc: 0, pc: 95] local: args index: 0 type: java.lang.String[]\n" +
-		"        [pc: 61, pc: 95] local: b index: 1 type: boolean\n" +
-		"        [pc: 71, pc: 95] local: s index: 2 type: java.lang.String\n" +
-		"        [pc: 86, pc: 95] local: s2 index: 3 type: java.lang.String\n";
+		"        [pc: 0, pc: 91] local: args index: 0 type: java.lang.String[]\n" +
+		"        [pc: 61, pc: 91] local: b index: 1 type: boolean\n" +
+		"        [pc: 71, pc: 91] local: s index: 2 type: java.lang.String\n" +
+		"        [pc: 82, pc: 91] local: s2 index: 3 type: java.lang.String\n";
 
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		int index = actualOutput.indexOf(expectedOutput15);

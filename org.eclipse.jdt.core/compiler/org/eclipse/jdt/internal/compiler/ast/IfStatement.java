@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -138,13 +138,19 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			|| this.elseStatement.isEmptyBlock());
 	if (hasThenPart) {
 		BranchLabel falseLabel = null;
-		// generate boolean condition
-		this.condition.generateOptimizedBoolean(
-			currentScope,
-			codeStream,
-			null,
-			hasElsePart ? (falseLabel = new BranchLabel(codeStream)) : endifLabel,
-			true/*cst == Constant.NotAConstant*/);
+		// generate boolean condition only if needed
+		if (cst != Constant.NotAConstant && cst.booleanValue() == true) {
+			// No need to generate if condition statement when we know that only the then action
+			// will be executed
+			this.condition.generateCode(currentScope, codeStream, false);
+		} else {
+			this.condition.generateOptimizedBoolean(
+				currentScope,
+				codeStream,
+				null,
+				hasElsePart ? (falseLabel = new BranchLabel(codeStream)) : endifLabel,
+				true/*cst == Constant.NotAConstant*/);
+		}
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (this.thenInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex);
@@ -173,13 +179,19 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			this.elseStatement.generateCode(currentScope, codeStream);
 		}
 	} else if (hasElsePart) {
-		// generate boolean condition
-		this.condition.generateOptimizedBoolean(
-			currentScope,
-			codeStream,
-			endifLabel,
-			null,
-			true/*cst == Constant.NotAConstant*/);
+		// generate boolean condition only if needed
+		if (cst != Constant.NotAConstant && cst.booleanValue() == false) {
+			// No need to generate if condition statement when we know that only the else action
+			// will be executed
+			this.condition.generateCode(currentScope, codeStream, false);
+		} else {
+			this.condition.generateOptimizedBoolean(
+				currentScope,
+				codeStream,
+				endifLabel,
+				null,
+				true/*cst == Constant.NotAConstant*/);
+		}
 		// generate else statement
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (this.elseInitStateIndex != -1) {
