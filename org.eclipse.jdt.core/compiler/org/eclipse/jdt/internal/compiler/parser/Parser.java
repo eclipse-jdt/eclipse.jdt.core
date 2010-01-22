@@ -3196,6 +3196,8 @@ protected void consumeEnumConstantHeader() {
       anonymousType.modifiers = 0;
       anonymousType.bodyStart = this.scanner.currentPosition;
       markEnclosingMemberWithLocalType();
+      consumeNestedType();
+      this.variablesCounter[this.nestedType]++;
       pushOnAstStack(anonymousType);
       QualifiedAllocationExpression allocationExpression = new QualifiedAllocationExpression(anonymousType);
       allocationExpression.enumConstant = enumConstant;
@@ -3316,6 +3318,8 @@ protected void consumeEnumConstantWithClassBody() {
    fieldDeclaration.declarationEnd = this.endStatementPosition;
    fieldDeclaration.declarationSourceEnd = anonymousType.declarationSourceEnd;
    this.intPtr --; // remove end position of the arguments
+   this.variablesCounter[this.nestedType] = 0;
+   this.nestedType--;
 }
 protected void consumeEnumDeclaration() {
 	// EnumDeclaration ::= EnumHeader ClassHeaderImplementsopt EnumBody
