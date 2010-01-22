@@ -310,7 +310,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				disassembleTargetTypeContents(wildcardLocationType, extendedAnnotation, buffer, lineSeparator, tabNumber + 3, mode);
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
+						Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
 							toString(extendedAnnotation.getWildcardLocations()),
 						}));
 				break;

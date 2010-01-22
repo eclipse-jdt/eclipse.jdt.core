@@ -90,7 +90,6 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 			case IExtendedAnnotationConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY :
 				this.wildcardLocationType = u1At(classFileBytes, this.readOffset, offset);
 				this.readOffset++;
-				internalDecoding(this.wildcardLocationType, classFileBytes, constantPool, offset);
 				int locationLength = u2At(classFileBytes, this.readOffset, offset);
 				this.readOffset += 2;
 				this.wildcardLocations = new int[locationLength];
@@ -98,6 +97,7 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 					this.wildcardLocations[i] = u1At(classFileBytes, this.readOffset, offset);
 					this.readOffset++;
 				}
+				internalDecoding(this.wildcardLocationType, classFileBytes, constantPool, offset);
 				break;
 			default:
 				internalDecoding(index, classFileBytes, constantPool, offset);
