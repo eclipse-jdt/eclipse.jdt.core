@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,9 @@
 package org.eclipse.jdt.core.dom.rewrite;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -122,6 +124,7 @@ public final class ImportRewrite {
 
 	private final boolean restoreExistingImports;
 	private final List existingImports;
+	private final Map importsKindMap;
 
 	private String[] importOrder;
 	private int importOnDemandThreshold;
@@ -232,6 +235,8 @@ public final class ImportRewrite {
 		this.importOrder= CharOperation.NO_STRINGS;
 		this.importOnDemandThreshold= 99;
 		this.staticImportOnDemandThreshold= 99;
+		
+		this.importsKindMap = new HashMap();
 	}
 
 
@@ -345,7 +350,13 @@ public final class ImportRewrite {
 			int res= compareImport(prefix, qualifier, name, curr);
 			if (res != ImportRewriteContext.RES_NAME_UNKNOWN) {
 				if (!allowAmbiguity || res == ImportRewriteContext.RES_NAME_FOUND) {
-					return res;
+					if (prefix != STATIC_PREFIX) {
+						return res;
+					}
+					Object currKind = this.importsKindMap.get(curr.substring(1));
+					if (currKind != null && currKind.equals(this.importsKindMap.get(qualifier + '.' + name))) {
+						return res;
+					}
 				}
 			}
 		}
@@ -832,19 +843,21 @@ public final class ImportRewrite {
 	 * an import conflict prevented the import.
 	 */
 	public String addStaticImport(String declaringTypeName, String simpleName, boolean isField, ImportRewriteContext context) {
+		String key = declaringTypeName + '.' + simpleName;
 		if (declaringTypeName.indexOf('.') == -1) {
-			return declaringTypeName + '.' + simpleName;
+			return key;
 		}
 		if (context == null) {
 			context= this.defaultContext;
 		}
 		int kind= isField ? ImportRewriteContext.KIND_STATIC_FIELD : ImportRewriteContext.KIND_STATIC_METHOD;
+		this.importsKindMap.put(key, new Integer(kind));
 		int res= context.findInContext(declaringTypeName, simpleName, kind);
 		if (res == ImportRewriteContext.RES_NAME_CONFLICT) {
-			return declaringTypeName + '.' + simpleName;
+			return key;
 		}
 		if (res == ImportRewriteContext.RES_NAME_UNKNOWN) {
-			addEntry(STATIC_PREFIX + declaringTypeName + '.' + simpleName);
+			addEntry(STATIC_PREFIX + key);
 		}
 		return simpleName;
 	}

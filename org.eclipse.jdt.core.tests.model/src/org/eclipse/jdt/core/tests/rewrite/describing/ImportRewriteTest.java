@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -922,6 +922,63 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		assertEqualString(cu.getSource(), buf.toString());
 	}
 
+	public void testBug252379() throws CoreException, BackingStoreException,
+			MalformedTreeException, BadLocationException {
+		
+
+		ICompilationUnit[] units = new ICompilationUnit[3];
+		
+		IPackageFragment pack1 = this.sourceFolder.createPackageFragment(
+				"bug", false, null);
+
+		StringBuffer buf = new StringBuffer();
+		buf.append("package bug;\n");
+		buf.append("\n");
+		buf.append("enum CaseType {\n");
+		buf.append("\tone;\n");
+		buf.append("\tstatic CaseType[] all(){return null;}\n");
+		buf.append("}\n");
+		
+		units[0] = pack1.createCompilationUnit("CaseType.java", buf.toString(), false, null);
+		
+		buf = new StringBuffer();
+		buf.append("package bug;\n");
+		buf.append("enum ShareLevel{all})\n");
+		
+		units[1] = pack1.createCompilationUnit("ShareLevel.java", buf.toString(), false, null);
+		
+		buf = new StringBuffer();
+		buf.append("package bug;\n");
+		buf.append("class Bug {\n");
+		buf.append("public ShareLevel createControl() {\n");
+		buf.append("for (CaseType cat : all())\n");
+		buf.append("cat.hashCode();\n");
+		buf.append("ShareLevel temp = all;\n");
+		buf.append("return temp;\n");
+		buf.append("};\n");
+		buf.append("}\n");
+		units[2] = pack1.createCompilationUnit("Bug.java", buf.toString(), false, null);
+
+		ImportRewrite imports = newImportsRewrite(units[2], new String[] {}, 99, 99, false);
+		imports.addStaticImport("bug.CaseType", "all", false);
+		imports.addStaticImport("bug.ShareLevel", "all", true);
+
+		apply(imports);
+
+		buf = new StringBuffer();
+		buf.append("package bug;\n\n");
+		buf.append("import static bug.CaseType.all;\n");
+		buf.append("import static bug.ShareLevel.all;\n\n");
+		buf.append("class Bug {\n");
+		buf.append("public ShareLevel createControl() {\n");
+		buf.append("for (CaseType cat : all())\n");
+		buf.append("cat.hashCode();\n");
+		buf.append("ShareLevel temp = all;\n");
+		buf.append("return temp;\n");
+		buf.append("};\n");
+		buf.append("}\n");
+		assertEqualString(units[2].getSource(), buf.toString());
+	}
 
 	private void assertAddedAndRemoved(ImportRewrite imports, String[] expectedAdded, String[] expectedRemoved, String[] expectedAddedStatic, String[] expectedRemovedStatic) {
 		assertEqualStringsIgnoreOrder(imports.getAddedImports(), expectedAdded);
