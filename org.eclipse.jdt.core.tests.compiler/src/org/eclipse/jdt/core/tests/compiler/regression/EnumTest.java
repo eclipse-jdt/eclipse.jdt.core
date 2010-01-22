@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 180 };
+//		TESTS_NUMBERS = new int[] { 181 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -6523,5 +6523,30 @@ public void test180() {
 		"class test180.Test",
 		"",
 		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=300133
+public void test181() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	A {\n" + 
+				"		@Override\n" + 
+				"		public Object foo(final String s) {\n" + 
+				"			class Local {\n" + 
+				"				public String toString() {\n" + 
+				"					return s;\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"			return new Local();\n" + 
+				"		}\n" + 
+				"	};\n" + 
+				"	public abstract Object foo(String s);\n" + 
+				"	public static void main(String... args) {\n" + 
+				"		 System.out.println(A.foo(\"SUCCESS\"));\n" + 
+				"	}\n" + 
+				"}"
+		},
+		"SUCCESS");
 }
 }
