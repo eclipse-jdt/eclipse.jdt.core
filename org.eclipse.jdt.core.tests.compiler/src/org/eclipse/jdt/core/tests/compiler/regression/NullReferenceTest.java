@@ -10697,4 +10697,60 @@ public void testBug190623() {
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=299900
+//Test to verify that null checks are properly reported for the variable(s)	 
+//in the right expression of an OR condition statement.
+public void testBug299900a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" +
+			"  void foo(Object foo, Object bar) {\n" +
+			"    if(foo == null || bar == null) {\n" +
+			"	 	System.out.println(foo.toString());\n" +
+			"	 	System.out.println(bar.toString());\n" +
+			"    }\n" +
+			"  }\n" +
+			"}"},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	System.out.println(foo.toString());\n" +
+		"	                   ^^^\n" +
+		"Potential null pointer access: The variable foo may be null at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	System.out.println(bar.toString());\n" +
+		"	                   ^^^\n" +
+		"Potential null pointer access: The variable bar may be null at this location\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=299900
+//Test to verify that null checks are properly reported for the variable(s)	 
+//in the right expression of an OR condition statement.
+public void testBug299900b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" +
+			"  void foo(Object foo, Object bar) {\n" +
+			"    if(foo == null || bar == null) {\n" +
+			"    }\n" +
+			"	 System.out.println(foo.toString());\n" +
+			"	 System.out.println(bar.toString());\n" +
+			"  }\n" +
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" +
+		"	System.out.println(foo.toString());\n" +
+		"	                   ^^^\n" +
+		"Potential null pointer access: The variable foo may be null at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	System.out.println(bar.toString());\n" +
+		"	                   ^^^\n" +
+		"Potential null pointer access: The variable bar may be null at this location\n" + 
+		"----------\n");
+}
 }
