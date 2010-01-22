@@ -301,6 +301,8 @@ public final class Messages extends NLS {
 	public static String disassembler_extendedannotation_wildcardlocationtype;
 	public static String disassembler_extendedannotation_targetType;
 	public static String disassembler_extendedannotation_wildcardlocations;
+	public static String disassembler_localvariabletargetheader;
+	public static String classfileformat_localvariablereferenceinfoentry;
 
 	public static String disassembler_runtimevisibleannotationsattributeheader;
 	public static String disassembler_runtimeinvisibleannotationsattributeheader;

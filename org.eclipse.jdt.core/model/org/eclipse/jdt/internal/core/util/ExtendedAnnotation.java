@@ -198,7 +198,7 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 				this.readOffset += 2;
 				this.localVariableTable = new LocalVariableReferenceInfo[tableLength];
 				for (int i = 0; i < tableLength; i++) {
-					this.localVariableTable[i] = new LocalVariableReferenceInfo(classFileBytes, constantPool, this.readOffset);
+					this.localVariableTable[i] = new LocalVariableReferenceInfo(classFileBytes, constantPool, this.readOffset + localOffset);
 					this.readOffset += 6;
 				}
 				break;
@@ -207,7 +207,7 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 				this.readOffset += 2;
 				this.localVariableTable = new LocalVariableReferenceInfo[tableLength];
 				for (int i = 0; i < tableLength; i++) {
-					this.localVariableTable[i] = new LocalVariableReferenceInfo(classFileBytes, constantPool, this.readOffset);
+					this.localVariableTable[i] = new LocalVariableReferenceInfo(classFileBytes, constantPool, this.readOffset + localOffset);
 					this.readOffset += 6;
 				}
 				locationLength = u2At(classFileBytes, this.readOffset, localOffset);

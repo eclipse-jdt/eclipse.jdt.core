@@ -432,10 +432,46 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}
 				break;
 			case IExtendedAnnotationConstants.LOCAL_VARIABLE :
-				// TODO (olivier) dump local variable reference info
+				buffer.append(Messages.disassembler_localvariabletargetheader);
+				writeNewLine(buffer, lineSeparator, tabNumber + 3);
+				int localVariableTableSize = extendedAnnotation.getLocalVariableRefenceInfoLength();
+				ILocalVariableReferenceInfo[] localVariableTable = extendedAnnotation.getLocalVariableTable();
+				for (int i = 0; i < localVariableTableSize; i++) {
+					if (i != 0) {
+						writeNewLine(buffer, lineSeparator, tabNumber + 3);
+					}
+					ILocalVariableReferenceInfo info = localVariableTable[i];
+					int index= info.getIndex();
+					int startPC = info.getStartPC();
+					int length  = info.getLength();
+					buffer.append(Messages.bind(Messages.classfileformat_localvariablereferenceinfoentry,
+						new String[] {
+							Integer.toString(startPC),
+							Integer.toString(startPC + length),
+							Integer.toString(index),
+						}));
+				}
 				break;
 			case IExtendedAnnotationConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
-				// TODO (olivier) dump local variable reference info
+				buffer.append(Messages.disassembler_localvariabletargetheader);
+				writeNewLine(buffer, lineSeparator, tabNumber + 3);
+				localVariableTableSize = extendedAnnotation.getLocalVariableRefenceInfoLength();
+				localVariableTable = extendedAnnotation.getLocalVariableTable();
+				for (int i = 0; i < localVariableTableSize; i++) {
+					if (i != 0) {
+						writeNewLine(buffer, lineSeparator, tabNumber + 3);
+					}
+					ILocalVariableReferenceInfo info = localVariableTable[i];
+					int index= info.getIndex();
+					int startPC = info.getStartPC();
+					int length  = info.getLength();
+					buffer.append(Messages.bind(Messages.classfileformat_localvariablereferenceinfoentry,
+						new String[] {
+							Integer.toString(startPC),
+							Integer.toString(startPC + length),
+							Integer.toString(index),
+						}));
+				}
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 				if (insideWildcard) {
 					buffer.append(
