@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -34,12 +35,15 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
@@ -59,6 +63,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -232,6 +237,74 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public static ClassFile getNewInstance(SourceTypeBinding typeBinding) {
 		LookupEnvironment env = typeBinding.scope.environment();
 		return env.classFilePool.acquire(typeBinding);
+	}
+
+	/**
+	 * Return the location for the corresponding annotation inside the type reference, <code>null</code> if none.
+	 */
+	private static int[] getWildcardLocations(TypeReference reference, Wildcard wildcard) {
+		class LocationCollector extends ASTVisitor {
+			Stack currentIndexes;
+			boolean search = true;
+			Wildcard currentWildcard;
+			
+			public LocationCollector(Wildcard currentWildcard) {
+				this.currentIndexes = new Stack();
+				this.currentWildcard = currentWildcard;
+			}
+			public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				TypeReference[] typeReferences = typeReference.typeArguments;
+				this.currentIndexes.push(new Integer(0));
+				for (int i = 0, max = typeReferences.length; i < max; i++) {
+					typeReferences[i].traverse(this, scope);
+					if (!this.search) return false;
+					this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+				}
+				this.currentIndexes.pop();
+				return true;
+			}
+			public boolean visit(ParameterizedQualifiedTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				TypeReference[] typeReferences = typeReference.typeArguments[typeReference.typeArguments.length - 1];
+				this.currentIndexes.push(new Integer(0));
+				for (int i = 0, max = typeReferences.length; i < max; i++) {
+					typeReferences[i].traverse(this, scope);
+					if (!this.search) return false;
+					this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+				}
+				this.currentIndexes.pop();
+				return true;
+			}
+			public boolean visit(Wildcard typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				if (typeReference.equals(this.currentWildcard)) {
+					this.search = false;
+				}
+				return true;
+			}
+			public String toString() {
+				StringBuffer buffer = new StringBuffer();
+				buffer
+					.append("search location for ") //$NON-NLS-1$
+					.append(this.currentWildcard)
+					.append("\ncurrent indexes : ") //$NON-NLS-1$
+					.append(this.currentIndexes);
+				return String.valueOf(buffer);
+			}
+		}
+		if (reference == null) return null;
+		LocationCollector collector = new LocationCollector(wildcard);
+		reference.traverse(collector, (BlockScope) null);
+		if (collector.currentIndexes.isEmpty()) {
+			return null;
+		}
+		int size = collector.currentIndexes.size();
+		int[] result = new int[size];
+		for (int i = 0; i < size; i++) {
+			result[size - i - 1] = ((Integer) collector.currentIndexes.pop()).intValue();
+		}
+		return result;
 	}
 
 	/**
@@ -1849,6 +1922,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 					if (annotations != null) {
 						methodDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN_TYPE, allTypeAnnotationContexts);
 					}
+					if (!methodDeclaration.isConstructor() && !methodDeclaration.isClinit()) {
+						MethodDeclaration declaration = (MethodDeclaration) methodDeclaration;
+						TypeReference typeReference = declaration.returnType;
+						if ((typeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
+							typeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN_TYPE, allTypeAnnotationContexts);
+						}
+					}
 				}
 				TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;
 				if (thrownExceptions != null) {
@@ -1889,6 +1969,100 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// update the number of attributes
 		this.contents[methodAttributeOffset++] = (byte) (attributesNumber >> 8);
 		this.contents[methodAttributeOffset] = (byte) attributesNumber;
+	}
+
+	private void dumpLocations(int[] locations) {
+		if (locations != null) {
+			int length = locations.length;
+			int actualSize = 2 + length;
+			if (this.contentsOffset + actualSize >= this.contents.length) {
+				resizeContents(actualSize);
+			}
+			this.contents[this.contentsOffset++] = (byte) (length >> 8);
+			this.contents[this.contentsOffset++] = (byte) length;
+			for (int i = 0; i < length; i++) {
+				this.contents[this.contentsOffset++] = (byte) locations[i];
+			}
+		}
+	}
+	private void dumpTargetTypeContents(int targetType, AnnotationContext annotationContext) {
+		switch(targetType) {
+			case AnnotationTargetTypeConstants.THROWS :
+			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS :
+			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
+			case AnnotationTargetTypeConstants.OBJECT_CREATION :
+			case AnnotationTargetTypeConstants.OBJECT_CREATION_GENERIC_OR_ARRAY :
+			case AnnotationTargetTypeConstants.CLASS_LITERAL :
+			case AnnotationTargetTypeConstants.CLASS_LITERAL_GENERIC_OR_ARRAY :
+			case AnnotationTargetTypeConstants.TYPE_INSTANCEOF :
+			case AnnotationTargetTypeConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
+			case AnnotationTargetTypeConstants.TYPE_CAST :
+			case AnnotationTargetTypeConstants.TYPE_CAST_GENERIC_OR_ARRAY :
+				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				break;
+			case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
+			case AnnotationTargetTypeConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
+				int localVariableTableOffset = this.contentsOffset;
+				LocalVariableBinding localVariable = annotationContext.variableBinding;
+				int actualSize = 0;
+				int initializationCount = localVariable.initializationCount;
+				actualSize += 6 * initializationCount;
+				// reserve enough space
+				if (this.contentsOffset + actualSize >= this.contents.length) {
+					resizeContents(actualSize);
+				}
+				this.contentsOffset += 2;
+				int numberOfEntries = 0;
+				for (int j = 0; j < initializationCount; j++) {
+					int startPC = localVariable.initializationPCs[j << 1];
+					int endPC = localVariable.initializationPCs[(j << 1) + 1];
+					if (startPC != endPC) { // only entries for non zero length
+						// now we can safely add the local entry
+						numberOfEntries++;
+						this.contents[this.contentsOffset++] = (byte) (startPC >> 8);
+						this.contents[this.contentsOffset++] = (byte) startPC;
+						int length = endPC - startPC;
+						this.contents[this.contentsOffset++] = (byte) (length >> 8);
+						this.contents[this.contentsOffset++] = (byte) length;
+						int resolvedPosition = localVariable.resolvedPosition;
+						this.contents[this.contentsOffset++] = (byte) (resolvedPosition >> 8);
+						this.contents[this.contentsOffset++] = (byte) resolvedPosition;
+					}
+				}
+				this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
+				this.contents[localVariableTableOffset] = (byte) numberOfEntries;
+				break;
+			case AnnotationTargetTypeConstants.METHOD_PARAMETER :
+			case AnnotationTargetTypeConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY :
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				break;
+			// nothing to do
+			// case AnnotationTargetTypeConstants.METHOD_RECEIVER :
+			// case AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY :
+			//	break;
+			// case AnnotationTargetTypeConstants.FIELD :
+			// case AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY :
+			//	break;
+			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
+			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				break;
+			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
+			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
+				break;
+			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL :
+			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
+			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
+			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
+				// offset
+				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				// type index
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
+		}
 	}
 
 	/**
@@ -3873,6 +4047,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 
 	private void generateTypeAnnotation(AnnotationContext annotationContext, int currentOffset) {
+		if (annotationContext.wildcard != null) {
+			generateWilcardTypeAnnotation(annotationContext, currentOffset);
+			return;
+		}
 		// common part between type annotation and annotation
 		generateAnnotation(annotationContext.annotation, currentOffset);
 		if (this.contentsOffset == currentOffset) {
@@ -3880,10 +4058,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 			return;
 		}
 		int[] locations = Annotation.getLocations(
-				annotationContext.typeReference,
-				annotationContext.primaryAnnotations,
-				annotationContext.annotation,
-				annotationContext.annotationsOnDimensions);
+			annotationContext.typeReference,
+			annotationContext.primaryAnnotations,
+			annotationContext.annotation,
+			annotationContext.annotationsOnDimensions);
 		int targetType = annotationContext.targetType;
 		if (locations != null) {
 			// convert to GENERIC_OR_ARRAY type
@@ -3939,104 +4117,103 @@ public class ClassFile implements TypeConstants, TypeIds {
 					break;
 				case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
 					targetType = AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY;
+					break;
+				case AnnotationTargetTypeConstants.METHOD_RETURN_TYPE :
+					targetType = AnnotationTargetTypeConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY;
 			}
 		}
 		// reserve enough space
-		if (this.contentsOffset + 3 >= this.contents.length) {
-			resizeContents(3);
+		if (this.contentsOffset + 5 >= this.contents.length) {
+			resizeContents(5);
 		}
 		this.contents[this.contentsOffset++] = (byte) targetType;
-		switch(targetType) {
-			case AnnotationTargetTypeConstants.THROWS :
-			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS :
-			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.OBJECT_CREATION :
-			case AnnotationTargetTypeConstants.OBJECT_CREATION_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.CLASS_LITERAL :
-			case AnnotationTargetTypeConstants.CLASS_LITERAL_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.TYPE_INSTANCEOF :
-			case AnnotationTargetTypeConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.TYPE_CAST :
-			case AnnotationTargetTypeConstants.TYPE_CAST_GENERIC_OR_ARRAY :
-				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
-				break;
-			case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
-			case AnnotationTargetTypeConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
-				int localVariableTableOffset = this.contentsOffset;
-				LocalVariableBinding localVariable = annotationContext.variableBinding;
-				int actualSize = 0;
-				int initializationCount = localVariable.initializationCount;
-				actualSize += 6 * initializationCount;
-				// reserve enough space
-				if (this.contentsOffset + actualSize >= this.contents.length) {
-					resizeContents(actualSize);
-				}
-				this.contentsOffset += 2;
-				int numberOfEntries = 0;
-				for (int j = 0; j < initializationCount; j++) {
-					int startPC = localVariable.initializationPCs[j << 1];
-					int endPC = localVariable.initializationPCs[(j << 1) + 1];
-					if (startPC != endPC) { // only entries for non zero length
-						// now we can safely add the local entry
-						numberOfEntries++;
-						this.contents[this.contentsOffset++] = (byte) (startPC >> 8);
-						this.contents[this.contentsOffset++] = (byte) startPC;
-						int length = endPC - startPC;
-						this.contents[this.contentsOffset++] = (byte) (length >> 8);
-						this.contents[this.contentsOffset++] = (byte) length;
-						int resolvedPosition = localVariable.resolvedPosition;
-						this.contents[this.contentsOffset++] = (byte) (resolvedPosition >> 8);
-						this.contents[this.contentsOffset++] = (byte) resolvedPosition;
-					}
-				}
-				this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
-				this.contents[localVariableTableOffset] = (byte) numberOfEntries;
-				break;
-			case AnnotationTargetTypeConstants.METHOD_PARAMETER :
-			case AnnotationTargetTypeConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY :
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
-				break;
-			// nothing to do
-			// case AnnotationTargetTypeConstants.METHOD_RECEIVER :
-			// case AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY :
-			//	break;
-			// case AnnotationTargetTypeConstants.FIELD :
-			// case AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY :
-			//	break;
-			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
-			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
-				break;
-			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
-			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
-				break;
-			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL :
-			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
-			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
-				// offset
-				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
-				// type index
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
-		}
-		if (locations != null) {
-			int length = locations.length;
-			int actualSize = 2 + length;
-			if (this.contentsOffset + actualSize >= this.contents.length) {
-				resizeContents(actualSize);
-			}
-			this.contents[this.contentsOffset++] = (byte) (length >> 8);
-			this.contents[this.contentsOffset++] = (byte) length;
-			for (int i = 0; i < length; i++) {
-				this.contents[this.contentsOffset++] = (byte) locations[i];
-			}
-		}
+		dumpTargetTypeContents(targetType, annotationContext);
+		dumpLocations(locations);
 	}
 
+	private void generateWilcardTypeAnnotation(AnnotationContext annotationContext, int currentOffset) {
+		// common part between type annotation and annotation
+		generateAnnotation(annotationContext.annotation, currentOffset);
+		if (this.contentsOffset == currentOffset) {
+			// error occurred while generating the annotation
+			return;
+		}
+		int[] wildcardLocations = getWildcardLocations(annotationContext.typeReference, annotationContext.wildcard);
+		int targetType = annotationContext.targetType;
+		switch(targetType) {
+			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS :
+				targetType = AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY;
+				break;
+			case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
+				targetType = AnnotationTargetTypeConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY;
+				break;
+			case AnnotationTargetTypeConstants.METHOD_PARAMETER :
+				targetType = AnnotationTargetTypeConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY;
+				break;
+			case AnnotationTargetTypeConstants.FIELD :
+				targetType = AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY;
+				break;
+//				case AnnotationTargetTypeConstants.METHOD_RECEIVER :
+//				// should not happen - possible extension
+//				targetType = AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY;
+//				break;
+//			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
+//				// should not happen - possible extension
+//				targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY;
+//				break;
+//			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
+//				// should not happen - possible extension
+//				targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
+//				break;
+//			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
+//				// should not happen - possible extension
+//				targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY;
+//				break;
+//			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
+//				// should not happen - possible extension
+//				targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
+//				break;
+//			case AnnotationTargetTypeConstants.THROWS :
+//				targetType = AnnotationTargetTypeConstants.THROWS_GENERIC_OR_ARRAY;
+			case AnnotationTargetTypeConstants.TYPE_INSTANCEOF:
+				targetType = AnnotationTargetTypeConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY;
+				break;
+			case AnnotationTargetTypeConstants.CLASS_LITERAL:
+				targetType = AnnotationTargetTypeConstants.CLASS_LITERAL_GENERIC_OR_ARRAY;
+				break;
+			case AnnotationTargetTypeConstants.OBJECT_CREATION:
+				targetType = AnnotationTargetTypeConstants.OBJECT_CREATION_GENERIC_OR_ARRAY;
+				break;
+			case AnnotationTargetTypeConstants.TYPE_CAST:
+				targetType = AnnotationTargetTypeConstants.TYPE_CAST_GENERIC_OR_ARRAY;
+				break;
+			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL :
+				targetType = AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY;
+				break;
+			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
+				targetType = AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY;
+				break;
+			case AnnotationTargetTypeConstants.METHOD_RETURN_TYPE :
+				targetType = AnnotationTargetTypeConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY;
+		}
+		int[] locations = Annotation.getLocations(
+				annotationContext.wildcard.bound,
+				null,
+				annotationContext.annotation,
+				null);
+		// reserve enough space
+		if (this.contentsOffset + 5 >= this.contents.length) {
+			resizeContents(5);
+		}
+		this.contents[this.contentsOffset++] =
+			(byte) (locations != null ?
+					AnnotationTargetTypeConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY :
+					AnnotationTargetTypeConstants.WILDCARD_BOUND);
+		this.contents[this.contentsOffset++] = (byte) targetType;
+		dumpTargetTypeContents(targetType, annotationContext);
+		dumpLocations(wildcardLocations);
+		dumpLocations(locations);
+	}
 	private int generateTypeAnnotationAttributeForTypeDeclaration() {
 		TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
 		if ((typeDeclaration.bits & ASTNode.HasTypeAnnotations) == 0) {

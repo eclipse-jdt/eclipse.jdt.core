@@ -141,6 +141,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	public void resolveStatements() {
 		// ========= abort on fatal error =============
 		if (this.returnType != null && this.binding != null) {
+			this.bits |= (this.returnType.bits & ASTNode.HasTypeAnnotations);
 			this.returnType.resolvedType = this.binding.returnType;
 			// record the return type binding
 		}

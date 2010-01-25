@@ -37,7 +37,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	public ParameterizedQualifiedTypeReference(char[][] tokens, TypeReference[][] typeArguments, int dim, Annotation[][] annotationsOnDimensions, long[] positions) {
 		this(tokens, typeArguments, dim, positions);
 		this.annotationsOnDimensions = annotationsOnDimensions;
-		this.bits |= ASTNode.HasTypeAnnotations;
+		if (annotationsOnDimensions != null) {
+			this.bits |= ASTNode.HasTypeAnnotations;
+		}
 	}
 	public void checkBounds(Scope scope) {
 		if (this.resolvedType == null) return;

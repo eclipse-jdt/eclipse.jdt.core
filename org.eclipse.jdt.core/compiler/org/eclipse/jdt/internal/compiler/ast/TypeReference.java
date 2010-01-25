@@ -43,6 +43,7 @@ static class AnnotationCollector extends ASTVisitor {
 	int info2 = -1;
 	LocalVariableBinding localVariable;
 	Annotation[][] annotationsOnDimensions;
+	Wildcard currentWildcard;
 
 	public AnnotationCollector(
 			TypeParameter typeParameter,
@@ -149,6 +150,7 @@ static class AnnotationCollector extends ASTVisitor {
 			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE, this.annotationsOnDimensions);
 		}
 		if (annotationContext != null) {
+			annotationContext.wildcard = this.currentWildcard;
 			switch(this.targetType) {
 				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
 				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
@@ -180,6 +182,13 @@ static class AnnotationCollector extends ASTVisitor {
 	}
 	public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
 		return internalVisit(annotation);
+	}
+	public boolean visit(Wildcard wildcard, BlockScope scope) {
+		this.currentWildcard = wildcard;
+		return true;
+	}
+	public void endVisit(Wildcard wildcard, BlockScope scope) {
+		this.currentWildcard = null;
 	}
 }
 /*

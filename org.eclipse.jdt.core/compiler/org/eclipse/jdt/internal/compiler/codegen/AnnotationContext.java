@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.codegen;
 
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
 public class AnnotationContext {
@@ -26,6 +27,7 @@ public class AnnotationContext {
 	public Annotation[] primaryAnnotations;
 	public LocalVariableBinding variableBinding;
 	public Annotation[][] annotationsOnDimensions;
+	public Wildcard wildcard;
 
 	public AnnotationContext(
 			Annotation annotation,

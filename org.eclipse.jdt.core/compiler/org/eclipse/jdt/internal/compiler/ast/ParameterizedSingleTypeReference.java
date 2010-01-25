@@ -32,7 +32,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	public ParameterizedSingleTypeReference(char[] name, TypeReference[] typeArguments, int dim, Annotation[][] annotationsOnDimensions, long pos) {
 		this(name, typeArguments, dim, pos);
 		this.annotationsOnDimensions = annotationsOnDimensions;
-		this.bits |= ASTNode.HasTypeAnnotations;
+		if (annotationsOnDimensions != null) {
+			this.bits |= ASTNode.HasTypeAnnotations;
+		}
 	}
 	public void checkBounds(Scope scope) {
 		if (this.resolvedType == null) return;
@@ -203,6 +205,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			TypeBinding argType = isClassScope
 					? typeArgument.resolveTypeArgument((ClassScope) scope, currentOriginal, i)
 					: typeArgument.resolveTypeArgument((BlockScope) scope, currentOriginal, i);
+			this.bits |= (typeArgument.bits & ASTNode.HasTypeAnnotations);
 			if (argType == null) {
 				argHasError = true;
 			} else {
