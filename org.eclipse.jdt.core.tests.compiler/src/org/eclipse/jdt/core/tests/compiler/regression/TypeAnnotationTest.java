@@ -18,8 +18,8 @@ import junit.framework.Test;
 
 public class TypeAnnotationTest extends AbstractRegressionTest {
 
-	static { 
-//		TESTS_NUMBERS = new int [] { 9 };
+	static {
+//		TESTS_NUMBERS = new int [] { 32 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationTest.class;
@@ -580,6 +580,13 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #16 @B(\n" + 
+			"        #17 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x6 METHOD_RECEIVER\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// method return type
 	public void test011() throws Exception {
@@ -607,12 +614,24 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 				"X.java",
 				"public class X {\n" + 
-				"	@B(3) int foo() {\n" +
+				"	@B(3) @A(value=\"test\") int foo() {\n" +
 				"		return 1;\n" +
 				"	}\n" + 
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #21 @A(\n" + 
+			"        #18 value=\"test\" (constant type)\n" + 
+			"        target type = 0xa METHOD_RETURN_TYPE\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #17 @B(\n" + 
+			"        #18 value=(int) 3 (constant type)\n" + 
+			"        target type = 0xa METHOD_RETURN_TYPE\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// field type
 	public void test012() throws Exception {
@@ -640,25 +659,26 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 				"X.java",
 				"public class X {\n" + 
-				"	@B(3) int field;\n" +
+				"	@B(3) @A int field;\n" +
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #12 @A(\n" + 
+			"        target type = 0xe FIELD\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #8 @B(\n" + 
+			"        #9 value=(int) 3 (constant type)\n" + 
+			"        target type = 0xe FIELD\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// method parameter
 	public void test013() throws Exception {
 		this.runConformTest(
 			new String[] {
-				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface A {\n" + 
-				"	String value() default \"default\";\n" + 
-				"}\n",
 				"B.java",
 				"import java.lang.annotation.Target;\n" + 
 				"import static java.lang.annotation.ElementType.*;\n" + 
@@ -677,6 +697,14 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #25 @B(\n" + 
+			"        #26 value=(int) 3 (constant type)\n" + 
+			"        target type = 0xc METHOD_PARAMETER\n" + 
+			"        method parameter index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// method parameter generic or array
 	public void test014() throws Exception {
@@ -704,12 +732,26 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 				"X.java",
 				"public class X {\n" + 
-				"	int foo(String @B(3) [] s) {\n" +
+				"	int foo(String @A [] @B(3) [] s) {\n" +
 				"		return s.length;\n" +
 				"	}\n" + 
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #23 @A(\n" + 
+			"        target type = 0xc METHOD_PARAMETER\n" + 
+			"        method parameter index = 0\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #19 @B(\n" + 
+			"        #20 value=(int) 3 (constant type)\n" + 
+			"        target type = 0xd METHOD_PARAMETER_GENERIC_OR_ARRAY\n" + 
+			"        method parameter index = 0\n" + 
+			"        locations = {0}\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// field type generic or array
 	public void test015() throws Exception {
@@ -737,10 +779,23 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 				"X.java",
 				"public class X {\n" + 
-				"	int @B(3) [] field;\n" +
+				"	@A int [] @B(3) [] field;\n" +
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #12 @A(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {1}\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #8 @B(\n" + 
+			"        #9 value=(int) 3 (constant type)\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {0}\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// class type parameter
 	public void test016() throws Exception {
@@ -770,6 +825,19 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"public class X<@A @B(3) T> {}",
 		},
 		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #25 @A(\n" + 
+			"      target type = 0x22 CLASS_TYPE_PARAMETER\n" + 
+			"      type parameter index = 0\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #21 @B(\n" + 
+			"      #22 value=(int) 3 (constant type)\n" + 
+			"      target type = 0x22 CLASS_TYPE_PARAMETER\n" + 
+			"      type parameter index = 0\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// method type parameter
 	public void test017() throws Exception {
@@ -801,6 +869,19 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #27 @A(\n" + 
+			"        target type = 0x20 METHOD_TYPE_PARAMETER\n" + 
+			"        type parameter index = 0\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #23 @B(\n" + 
+			"        #24 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x20 METHOD_TYPE_PARAMETER\n" + 
+			"        type parameter index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// class type parameter bound
 	public void test018() throws Exception {
@@ -830,6 +911,19 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"public class X<T extends @A String & @B(3) Cloneable> {}",
 		},
 		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #25 @A(\n" + 
+			"      target type = 0x10 CLASS_TYPE_PARAMETER_BOUND\n" + 
+			"      type parameter index = 0 type parameter bound index = 0\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #21 @B(\n" + 
+			"      #22 value=(int) 3 (constant type)\n" + 
+			"      target type = 0x10 CLASS_TYPE_PARAMETER_BOUND\n" + 
+			"      type parameter index = 0 type parameter bound index = 1\n" + 
+			"    )\n" ;
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// class type parameter bound generic or array
 	public void test019() throws Exception {
@@ -868,9 +962,33 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"Y.java",
 				"public class Y<T> {}",
 				"X.java",
-				"public class X<T extends Y<@A String @C[][]@B[]> & @B(3) Cloneable> {}",
+				"public class X<U, T extends Y<@A String @C[][]@B[]> & @B(3) Cloneable> {}",
 		},
 		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #25 @A(\n" + 
+			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"      type parameter index = 1 type parameter bound index = 0\n" + 
+			"      locations = {0,2}\n" + 
+			"    )\n" + 
+			"    #26 @C(\n" + 
+			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"      type parameter index = 1 type parameter bound index = 0\n" + 
+			"      locations = {0}\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #21 @B(\n" + 
+			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"      type parameter index = 1 type parameter bound index = 0\n" + 
+			"      locations = {0,1}\n" + 
+			"    )\n" + 
+			"    #21 @B(\n" + 
+			"      #22 value=(int) 3 (constant type)\n" + 
+			"      target type = 0x10 CLASS_TYPE_PARAMETER_BOUND\n" + 
+			"      type parameter index = 1 type parameter bound index = 1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// method type parameter bound
 	public void test020() throws Exception {
@@ -904,6 +1022,19 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #27 @A(\n" + 
+			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+			"        type parameter index = 0 type parameter bound index = 0\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #23 @B(\n" + 
+			"        #24 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+			"        type parameter index = 0 type parameter bound index = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// class type parameter bound generic or array
 	public void test021() throws Exception {
@@ -949,6 +1080,30 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #27 @A(\n" + 
+			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        type parameter index = 0 type parameter bound index = 0\n" + 
+			"        locations = {0,2}\n" + 
+			"      )\n" + 
+			"      #28 @C(\n" + 
+			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        type parameter index = 0 type parameter bound index = 0\n" + 
+			"        locations = {0}\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #23 @B(\n" + 
+			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        type parameter index = 0 type parameter bound index = 0\n" + 
+			"        locations = {0,1}\n" + 
+			"      )\n" + 
+			"      #23 @B(\n" + 
+			"        #24 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+			"        type parameter index = 0 type parameter bound index = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// local variable + generic or array
 	public void test022() throws Exception {
@@ -986,9 +1141,12 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}\n",
 				"X.java",
 				"public class X {\n" + 
+				"	String[][] bar() {\n" + 
+				"		return new String[][] {};" +
+				"	}\n" + 
 				"	void foo(String s) {\n" + 
 				"		@C int i;\n" + 
-				"		@A String [] @B(3)[] tab = new String[][] {};\n" + 
+				"		@A String [] @B(3)[] tab = bar();\n" + 
 				"		if (tab != null) {\n" + 
 				"			i = 0;\n" + 
 				"			System.out.println(i + tab.length);\n" + 
@@ -1001,6 +1159,29 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #49 @C(\n" + 
+			"        target type = 0x8 LOCAL_VARIABLE\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 11, pc: 24] index: 2\n" + 
+			"          [pc: 34, pc: 46] index: 2\n" + 
+			"      )\n" + 
+			"      #50 @A(\n" + 
+			"        target type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 5, pc: 46] index: 3\n" + 
+			"        locations = {1}\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #45 @B(\n" + 
+			"        #46 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 5, pc: 46] index: 3\n" + 
+			"        locations = {0}\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// type argument constructor call
 	public void test023() throws Exception {
@@ -1026,16 +1207,6 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
-				"C.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface C {\n" + 
-				"	char value() default '-';\n" + 
-				"}\n",
 				"X.java",
 				"public class X {\n" + 
 				"	<T> X(T t) {\n" + 
@@ -1047,6 +1218,21 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #31 @A(\n" + 
+			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
+			"        offset = 5\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #27 @B(\n" + 
+			"        #28 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
+			"        offset = 5\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// type argument constructor call generic or array
 	public void test024() throws Exception {
@@ -1084,17 +1270,44 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}\n",
 				"X.java",
 				"public class X {\n" + 
-				"	<T> X(T t) {\n" + 
+				"	<T, U> X(T t, U u) {\n" + 
 				"	}\n" + 
 				"	public Object foo() {\n" + 
-				"		X x = new <@A @B(1) String>X(null);\n" + 
+				"		X x = new <@A Integer, @A String @C [] @B(1)[]>X(null, null);\n" + 
 				"		return x;\n" + 
 				"	}\n" + 
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #33 @A(\n" + 
+			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
+			"        offset = 6\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n" + 
+			"      #33 @A(\n" + 
+			"        target type = 0x19 TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY\n" + 
+			"        offset = 6\n" + 
+			"        type argument index = 1\n" + 
+			"        locations = {1}\n" + 
+			"      )\n" + 
+			"      #34 @C(\n" + 
+			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
+			"        offset = 6\n" + 
+			"        type argument index = 1\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #29 @B(\n" + 
+			"        #30 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x19 TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY\n" + 
+			"        offset = 6\n" + 
+			"        type argument index = 1\n" + 
+			"        locations = {0}\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// type argument method call and generic or array
+	// type argument method call
 	public void test025() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1140,6 +1353,27 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}\n",
 		},
 		"SUCCESS");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #52 @A(\n" + 
+			"        target type = 0x1a TYPE_ARGUMENT_METHOD_CALL\n" + 
+			"        offset = 13\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n" + 
+			"      #53 @C(\n" + 
+			"        #49 value=\'-\' (constant type)\n" + 
+			"        target type = 0x1a TYPE_ARGUMENT_METHOD_CALL\n" + 
+			"        offset = 13\n" + 
+			"        type argument index = 1\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #48 @B(\n" + 
+			"        #49 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x1a TYPE_ARGUMENT_METHOD_CALL\n" + 
+			"        offset = 13\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// check locations
 	public void test026() throws Exception {
@@ -1235,6 +1469,77 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}\n",
 		},
 		"");
+		String expectedOutput =
+			"  // Field descriptor #6 [[[Ljava/lang/String;\n" + 
+			"  java.lang.String[][][] field;\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #11 @H(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {2}\n" + 
+			"      )\n" + 
+			"      #12 @F(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {0}\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #8 @E(\n" + 
+			"        target type = 0xe FIELD\n" + 
+			"      )\n" + 
+			"      #9 @G(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {1}\n" + 
+			"      )\n" + 
+			"  \n" + 
+			"  // Field descriptor #14 Ljava/util/Map;\n" + 
+			"  // Signature: Ljava/util/Map<Ljava/lang/String;Ljava/util/List<Ljava/lang/Object;>;>;\n" + 
+			"  java.util.Map field2;\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #18 @A(\n" + 
+			"        target type = 0xe FIELD\n" + 
+			"      )\n" + 
+			"      #19 @C(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {1}\n" + 
+			"      )\n" + 
+			"      #20 @D(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {1,0}\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #17 @B(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {0}\n" + 
+			"      )\n" + 
+			"  \n" + 
+			"  // Field descriptor #14 Ljava/util/Map;\n" + 
+			"  // Signature: Ljava/util/Map<Ljava/lang/String;[[[Ljava/lang/String;>;\n" + 
+			"  java.util.Map field3;\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #18 @A(\n" + 
+			"        target type = 0xe FIELD\n" + 
+			"      )\n" + 
+			"      #11 @H(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {1,2}\n" + 
+			"      )\n" + 
+			"      #12 @F(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {1,0}\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #17 @B(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {0}\n" + 
+			"      )\n" + 
+			"      #8 @E(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {1}\n" + 
+			"      )\n" + 
+			"      #9 @G(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {1,1}\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// check locations
 	public void test027() throws Exception {
@@ -1286,6 +1591,25 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}\n",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #11 @H(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {2}\n" + 
+			"      )\n" + 
+			"      #12 @F(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {0}\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #8 @E(\n" + 
+			"        target type = 0xe FIELD\n" + 
+			"      )\n" + 
+			"      #9 @G(\n" + 
+			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
+			"        locations = {1}\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// cast
 	public void test028() throws Exception {
@@ -1337,6 +1661,27 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #41 @C(\n" + 
+			"        #38 value=\'_\' (constant type)\n" + 
+			"        target type = 0x1 TYPE_CAST_GENERIC_OR_ARRAY\n" + 
+			"        offset = 8\n" + 
+			"        locations = {1}\n" + 
+			"      )\n" + 
+			"      #43 @A(\n" + 
+			"        target type = 0x1 TYPE_CAST_GENERIC_OR_ARRAY\n" + 
+			"        offset = 8\n" + 
+			"        locations = {0}\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #37 @B(\n" + 
+			"        #38 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x1 TYPE_CAST_GENERIC_OR_ARRAY\n" + 
+			"        offset = 8\n" + 
+			"        locations = {1}\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// qualified allocation expression with type arguments
 	public void test029() throws Exception {
@@ -1394,6 +1739,26 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #47 @D(\n" + 
+			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
+			"        offset = 19\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n" + 
+			"      #48 @A(\n" + 
+			"        #49 value=\"hello\" (constant type)\n" + 
+			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
+			"        offset = 19\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #45 @B(\n" + 
+			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
+			"        offset = 19\n" + 
+			"        type argument index = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// local + wildcard
 	// qualified allocation expression with type arguments
@@ -1459,5 +1824,193 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #46 @A(\n" + 
+			"        target type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 6, pc: 16] index: 2\n" + 
+			"          [pc: 32, pc: 34] index: 2\n" + 
+			"        locations = {0}\n" + 
+			"      )\n" + 
+			"      #47 @C(\n" + 
+			"        target type = 0x1c WILDCARD_BOUND\n" + 
+			"        wildcard location type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
+			"          local variable entries:\n" + 
+			"                [pc: 6, pc: 16] index: 2\n" + 
+			"                [pc: 32, pc: 34] index: 2\n" + 
+			"              wildcard locations = {1}\n" + 
+			"      )\n" + 
+			"      #48 @D(\n" + 
+			"        target type = 0x1d WILDCARD_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        wildcard location type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
+			"          local variable entries:\n" + 
+			"                [pc: 6, pc: 16] index: 2\n" + 
+			"                [pc: 32, pc: 34] index: 2\n" + 
+			"              wildcard locations = {1}\n" + 
+			"        locations = {1}\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #44 @B(\n" + 
+			"        target type = 0x1d WILDCARD_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        wildcard location type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
+			"          local variable entries:\n" + 
+			"                [pc: 6, pc: 16] index: 2\n" + 
+			"                [pc: 32, pc: 34] index: 2\n" + 
+			"              wildcard locations = {1}\n" + 
+			"        locations = {0}\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// method type parameter bound generic or array
+	public void test031() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface C {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"D.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_PARAMETER)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface D {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"Z.java",
+				"public class Z<T> {}",
+				"X.java",
+				"public class X {\n" +
+				"	<@D U, T extends Z<@A String @C[][]@B[]> & @B(3) Cloneable> void foo(U u, T t) {}\n" +
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #31 @D(\n" + 
+			"        target type = 0x20 METHOD_TYPE_PARAMETER\n" + 
+			"        type parameter index = 0\n" + 
+			"      )\n" + 
+			"      #32 @A(\n" + 
+			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        type parameter index = 1 type parameter bound index = 0\n" + 
+			"        locations = {0,2}\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #26 @C(\n" + 
+			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        type parameter index = 1 type parameter bound index = 0\n" + 
+			"        locations = {0}\n" + 
+			"      )\n" + 
+			"      #27 @B(\n" + 
+			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        type parameter index = 1 type parameter bound index = 0\n" + 
+			"        locations = {0,1}\n" + 
+			"      )\n" + 
+			"      #27 @B(\n" + 
+			"        #28 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+			"        type parameter index = 1 type parameter bound index = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// type argument method call and generic or array
+	public void test032() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"\n" +
+				"	static <T, U> T foo(T t, U u) {\n" +
+				"		return t;\n" +
+				"	}\n" +
+				"	public static void bar() {\n" +
+				"		System.out.println(X.<@A String[] @B(1) [], @C('-') X>foo(new String[][]{{\"SUCCESS\"}}, null)[0]);\n" +
+				"	}\n" +
+				"}\n",
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #52 @A(\n" + 
+			"        target type = 0x1b TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY\n" + 
+			"        offset = 20\n" + 
+			"        type argument index = 0\n" + 
+			"        locations = {1}\n" + 
+			"      )\n" + 
+			"      #53 @C(\n" + 
+			"        #49 value=\'-\' (constant type)\n" + 
+			"        target type = 0x1a TYPE_ARGUMENT_METHOD_CALL\n" + 
+			"        offset = 20\n" + 
+			"        type argument index = 1\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #48 @B(\n" + 
+			"        #49 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x1b TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY\n" + 
+			"        offset = 20\n" + 
+			"        type argument index = 0\n" + 
+			"        locations = {0}\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 }

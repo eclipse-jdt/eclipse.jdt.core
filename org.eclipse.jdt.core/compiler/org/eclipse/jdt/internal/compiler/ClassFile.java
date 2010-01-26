@@ -1918,16 +1918,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 							}
 						}
 					}
-					annotations = methodDeclaration.annotations;
-					if (annotations != null) {
-						methodDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN_TYPE, allTypeAnnotationContexts);
-					}
-					if (!methodDeclaration.isConstructor() && !methodDeclaration.isClinit()) {
-						MethodDeclaration declaration = (MethodDeclaration) methodDeclaration;
-						TypeReference typeReference = declaration.returnType;
-						if ((typeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
-							typeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN_TYPE, allTypeAnnotationContexts);
-						}
+				}
+				Annotation[] annotations = methodDeclaration.annotations;
+				if (annotations != null) {
+					methodDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN_TYPE, allTypeAnnotationContexts);
+				}
+				if (!methodDeclaration.isConstructor() && !methodDeclaration.isClinit()) {
+					MethodDeclaration declaration = (MethodDeclaration) methodDeclaration;
+					TypeReference typeReference = declaration.returnType;
+					if ((typeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
+						typeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN_TYPE, allTypeAnnotationContexts);
 					}
 				}
 				TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;
@@ -2050,6 +2050,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				break;
 			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
 			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
+			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
+			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
 				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
 				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
 				break;
@@ -4086,18 +4088,18 @@ public class ClassFile implements TypeConstants, TypeIds {
 //					// should not happen - possible extension
 //					targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY;
 //					break;
-//				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
-//					// should not happen - possible extension
-//					targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
-//					break;
+				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
+					// should not happen - possible extension
+					targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
+					break;
 //				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
 //					// should not happen - possible extension
 //					targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY;
 //					break;
-//				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
-//					// should not happen - possible extension
-//					targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
-//					break;
+				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
+					// should not happen - possible extension
+					targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
+					break;
 //				case AnnotationTargetTypeConstants.THROWS :
 //					targetType = AnnotationTargetTypeConstants.THROWS_GENERIC_OR_ARRAY;
 				case AnnotationTargetTypeConstants.TYPE_INSTANCEOF:

@@ -171,6 +171,10 @@ static class AnnotationCollector extends ASTVisitor {
 				case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
 					annotationContext.variableBinding = this.localVariable;
 					break;
+				case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL :
+				case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
+					annotationContext.info2 = this.info2;
+					annotationContext.info = this.info;
 			}
 			this.annotationContexts.add(annotationContext);
 		}
