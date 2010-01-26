@@ -266,12 +266,12 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 				}
 				break;
 			case IExtendedAnnotationConstants.THROWS :
-				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, localOffset);
-				this.readOffset++;
+				this.annotationTypeIndex = u2At(classFileBytes, this.readOffset, localOffset);
+				this.readOffset+=2;
 				break;
 			case IExtendedAnnotationConstants.THROWS_GENERIC_OR_ARRAY :
-				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, localOffset);
-				this.readOffset++;
+				this.annotationTypeIndex = u2At(classFileBytes, this.readOffset, localOffset);
+				this.readOffset+=2;
 				locationLength = u2At(classFileBytes, this.readOffset, localOffset);
 				this.readOffset += 2;
 				this.locations = new int[locationLength];

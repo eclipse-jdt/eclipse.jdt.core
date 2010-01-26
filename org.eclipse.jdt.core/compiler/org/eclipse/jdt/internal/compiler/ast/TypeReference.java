@@ -152,6 +152,7 @@ static class AnnotationCollector extends ASTVisitor {
 		if (annotationContext != null) {
 			annotationContext.wildcard = this.currentWildcard;
 			switch(this.targetType) {
+				case AnnotationTargetTypeConstants.THROWS :
 				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
 				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
 				case AnnotationTargetTypeConstants.METHOD_PARAMETER :
@@ -159,6 +160,7 @@ static class AnnotationCollector extends ASTVisitor {
 				case AnnotationTargetTypeConstants.TYPE_INSTANCEOF :
 				case AnnotationTargetTypeConstants.OBJECT_CREATION :
 				case AnnotationTargetTypeConstants.CLASS_LITERAL :
+				case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS:
 					annotationContext.info = this.info;
 					break;
 				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :

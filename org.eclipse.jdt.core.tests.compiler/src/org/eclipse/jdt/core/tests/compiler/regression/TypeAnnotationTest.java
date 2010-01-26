@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+
 import junit.framework.Test;
 
 public class TypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 
-//		TESTS_NUMBERS = new int [] { 29 };
+//		TESTS_NUMBERS = new int [] { 9 };
 	}
 	public static Class testClass() {
 		return TypeAnnotationTest.class;
@@ -26,6 +30,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	public TypeAnnotationTest(String testName){
 		super(testName);
 	}
+	// superclass
 	public void test001() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -38,7 +43,15 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"public class X extends @Marker Object {}",
 				},
 				"");
+		String expectedOutput =
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #17 @Marker(\n" + 
+			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
+			"      type index = -1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	// type parameter
 	public void test002() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -51,7 +64,15 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"public class X<@Marker T> {}",
 				},
 				"");
+		String expectedOutput =
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #21 @Marker(\n" + 
+			"      target type = 0x22 CLASS_TYPE_PARAMETER\n" + 
+			"      type parameter index = 0\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	// superclass
 	public void test003() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -92,7 +113,26 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #19 @A(\n" + 
+			"      #20 id=\"Hello, World!\" (constant type)\n" + 
+			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
+			"      type index = -1\n" + 
+			"    )\n" + 
+			"    #22 @C(\n" + 
+			"      #23 value=\'(\' (constant type)\n" + 
+			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
+			"      type index = -1\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #17 @B(\n" + 
+			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
+			"      type index = -1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	// super interfaces
 	public void test004() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -134,6 +174,24 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"public class X implements @A(id=\"Hello, World!\") I, @B @C('(') J {}",
 		},
 		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #23 @A(\n" + 
+			"      #24 id=\"Hello, World!\" (constant type)\n" + 
+			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
+			"      type index = 0\n" + 
+			"    )\n" + 
+			"    #26 @C(\n" + 
+			"      #27 value=\'(\' (constant type)\n" + 
+			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
+			"      type index = 1\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #21 @B(\n" + 
+			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
+			"      type index = 1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// class literal
 	public void test005() throws Exception {
@@ -176,20 +234,50 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"X.java",
 				"public class X {\n" + 
 				"	public boolean foo(String s) {\n" + 
-				"		return (s instanceof @C('_') Object);\n" + 
-				"	}\n" + 
-				"	public Object foo1(String s) {\n" + 
-				"		return new @B(3) @A(\"new Object\") Object();\n" + 
-				"	}\n" + 
-				"	public Class<?> foo2(String s) {\n" + 
-				"		return @B(4) Object.class;\n" + 
-				"	}\n" + 
-				"	public Class<?> foo3(String s) {\n" + 
-				"		return @A(\"int class literal\")  @B(5) int.class;\n" + 
+				"		boolean b = (s instanceof @C('_') Object);\n" + 
+				"		Object o = new @B(3) @A(\"new Object\") Object();\n" + 
+				"		Class<?> c = @B(4) Object.class;\n" + 
+				"		Class<?> c2 = @A(\"int class literal\")  @B(5) int.class;\n" + 
+				"		System.out.println(o.toString() + c.toString() + c2.toString());\n" + 
+				"		return b;\n" + 
 				"	}\n" + 
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #73 @C(\n" + 
+			"        #68 value=\'_\' (constant type)\n" + 
+			"        target type = 0x2 TYPE_INSTANCEOF\n" + 
+			"        offset = 1\n" + 
+			"      )\n" + 
+			"      #75 @A(\n" + 
+			"        #68 value=\"new Object\" (constant type)\n" + 
+			"        target type = 0x4 OBJECT_CREATION\n" + 
+			"        offset = 5\n" + 
+			"      )\n" + 
+			"      #75 @A(\n" + 
+			"        #68 value=\"int class literal\" (constant type)\n" + 
+			"        target type = 0x1e CLASS_LITERAL\n" + 
+			"        offset = 17\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #67 @B(\n" + 
+			"        #68 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x4 OBJECT_CREATION\n" + 
+			"        offset = 5\n" + 
+			"      )\n" + 
+			"      #67 @B(\n" + 
+			"        #68 value=(int) 4 (constant type)\n" + 
+			"        target type = 0x1e CLASS_LITERAL\n" + 
+			"        offset = 13\n" + 
+			"      )\n" + 
+			"      #67 @B(\n" + 
+			"        #68 value=(int) 5 (constant type)\n" + 
+			"        target type = 0x1e CLASS_LITERAL\n" + 
+			"        offset = 17\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// class literal generic and array
 	public void test006() throws Exception {
@@ -232,21 +320,42 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"X.java",
 				"public class X {\n" + 
 				"	public boolean foo(Object o) {\n" + 
-				"		return (o instanceof @C('_') Object[]);\n" + 
-				"	}\n" + 
-				"	public Object foo1(String s) {\n" + 
-				"		return new @B(3) @A(\"new Object\") Object[] {};\n" + 
-				"	}\n" + 
-				"	public Class<?> foo2(String s) {\n" + 
-				"		return @B(4) Object[].class;\n" + 
-				"	}\n" + 
-				"	public Class<?> foo3(String s) {\n" + 
-				"		return @A(\"int class literal\")  @B(5) int[].class;\n" + 
+				"		boolean b = (o instanceof @C('_') Object[]);\n" + 
+				"		Object o1 = new @B(3) @A(\"new Object\") Object[] {};\n" + 
+				"		Class<?> c = @B(4) Object[].class;\n" + 
+				"		Class<?> c2 = @A(\"int class literal\")  @B(5) int[].class;\n" + 
+				"		System.out.println(o1.toString() + c.toString() + c2.toString());\n" + 
+				"		return b;\n" + 
 				"	}\n" + 
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #70 @C(\n" + 
+			"        #66 value=\'_\' (constant type)\n" + 
+			"        target type = 0x2 TYPE_INSTANCEOF\n" + 
+			"        offset = 1\n" + 
+			"      )\n" + 
+			"      #72 @A(\n" + 
+			"        #66 value=\"int class literal\" (constant type)\n" + 
+			"        target type = 0x1e CLASS_LITERAL\n" + 
+			"        offset = 14\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #65 @B(\n" + 
+			"        #66 value=(int) 4 (constant type)\n" + 
+			"        target type = 0x1e CLASS_LITERAL\n" + 
+			"        offset = 10\n" + 
+			"      )\n" + 
+			"      #65 @B(\n" + 
+			"        #66 value=(int) 5 (constant type)\n" + 
+			"        target type = 0x1e CLASS_LITERAL\n" + 
+			"        offset = 14\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	// parameterized superclass
 	public void test007() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -287,6 +396,26 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #21 @A(\n" + 
+			"      #22 value=\"Hello, World!\" (constant type)\n" + 
+			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
+			"      type index = -1\n" + 
+			"    )\n" + 
+			"    #24 @C(\n" + 
+			"      #22 value=\'(\' (constant type)\n" + 
+			"      target type = 0x15 CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY\n" + 
+			"      type index = -1\n" + 
+			"      locations = {0}\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #19 @B(\n" + 
+			"      target type = 0x15 CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY\n" + 
+			"      type index = -1\n" + 
+			"      locations = {0}\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test008() throws Exception {
 		this.runConformTest(
@@ -324,11 +453,31 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"I.java",
 				"interface I<T> {}\n",
 				"J.java",
-				"interface J<T> {}\n",
+				"interface J<U,T> {}\n",
 				"X.java",
-				"public class X implements I<@A(\"Hello, World!\") String>,  @B J<@C('(') Integer> {}",
+				"public class X implements I<@A(\"Hello, World!\") String>, @B J<String, @C('(') Integer> {}",
 		},
 		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #25 @A(\n" + 
+			"      #26 value=\"Hello, World!\" (constant type)\n" + 
+			"      target type = 0x15 CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY\n" + 
+			"      type index = 0\n" + 
+			"      locations = {0}\n" + 
+			"    )\n" + 
+			"    #28 @C(\n" + 
+			"      #26 value=\'(\' (constant type)\n" + 
+			"      target type = 0x15 CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY\n" + 
+			"      type index = 1\n" + 
+			"      locations = {1}\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #23 @B(\n" + 
+			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
+			"      type index = 1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// throws
 	public void test009() throws Exception {
@@ -382,6 +531,24 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #25 @A(\n" + 
+			"        #26 value=\"Hello, World!\" (constant type)\n" + 
+			"        target type = 0x16 THROWS\n" + 
+			"        throws index = 0\n" + 
+			"      )\n" + 
+			"      #28 @C(\n" + 
+			"        #26 value=\'(\' (constant type)\n" + 
+			"        target type = 0x16 THROWS\n" + 
+			"        throws index = 2\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #23 @B(\n" + 
+			"        target type = 0x16 THROWS\n" + 
+			"        throws index = 2\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// method receiver
 	public void test010() throws Exception {
@@ -1224,6 +1391,71 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"		Y y = new X().new <@D() @A(value = \"hello\") String, @B X> Y(\"SUCCESS\", null);\n" + 
 				"		System.out.println(y);\n" + 
 				"	}\n" + 
+				"}",
+		},
+		"");
+	}
+	// local + wildcard
+	// qualified allocation expression with type arguments
+	public void test030() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"D.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface D {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"X.java",
+				"import java.util.Map;\n" +
+				"import java.util.HashMap;\n" +
+				"@SuppressWarnings({\"unchecked\",\"rawtypes\"})\n" + 
+				"public class X {\n" + 
+				"	Object newMap(Object o) {\n" + 
+				"		Map<@A Object, ? super @C Map<@B String, @D Comparable>> map;\n" + 
+				"		if (o == null) {\n" + 
+				"			map = null;\n" + 
+				"			System.out.println(map);\n" + 
+				"		} else {\n" + 
+				"			System.out.println(\"No map yet\");\n" + 
+				"		}\n" + 
+				"		map = new HashMap();\n" + 
+				"		return map;\n" + 
+				"	} \n" + 
 				"}",
 		},
 		"");
