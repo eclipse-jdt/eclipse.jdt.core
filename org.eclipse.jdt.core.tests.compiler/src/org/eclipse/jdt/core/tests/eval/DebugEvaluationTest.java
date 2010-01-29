@@ -21,6 +21,7 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
@@ -772,7 +773,7 @@ public void test018() throws Exception {
  * Access to super reference
  */
 // disabled since result has problem: Pb(422) super cannot be used in the code snippet code
-public void _test019() throws Exception {
+public void test019() throws Exception {
   try {
 		String sourceA019 =
 			"public class A019 {\n" +
@@ -798,10 +799,10 @@ public void _test019() throws Exception {
 		evaluate(stackFrame, requestor, snippet);
 		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
-		assertTrue("Code snippet should not have problems", !result.hasProblems());
-		assertTrue("Result should have a value", result.hasValue());
-		assertEquals("Value", "true".toCharArray(), result.getValueDisplayString());
-		assertEquals("Type", "boolean".toCharArray(), result.getValueTypeName());
+		assertTrue("Code snippet should have problems", result.hasProblems());
+		assertTrue("Code snippet should have problems", result.hasProblems());
+		assertEquals("Wrong size", 1, result.getProblems().length);
+		assertEquals("Wrong pb", 422, result.getProblems()[0].getID() & IProblem.IgnoreCategoriesMask);
 	} finally {
 		removeTempClass("A019");
 	}
@@ -2937,6 +2938,121 @@ public void test067() {
 		assertEquals("Type", "java.lang.String".toCharArray(), result.getValueTypeName());
 	} finally {
 		removeTempClass("A67");
+	}
+}
+public void test068() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	try {
+		String sourceSuperA68 =
+			"public class SuperA68 {\n"
+				+ "\tprivate int i;\n"
+				+ "\tpublic SuperA68() {\n"
+				+ "\t}\n"
+				+ "\tpublic <U> int foo(int i) {;\n"
+				+ "\t\treturn i;\n"    
+				+ "\t}\n"
+				+ "}";
+		compileAndDeploy15(sourceSuperA68, "SuperA68");
+		String sourceA68 =
+			"public class A68 extends SuperA68 {\n"
+				+ "\tprivate int i;\n"
+				+ "\tpublic A68() {\n"
+				+ "\t}\n"
+				+ "\tpublic <U> int foo(int i) {\n"
+				+ "\t\treturn i;\n"    
+				+ "\t}\n"               
+				+ "\tpublic void bar() {\n"
+				+ "\t}\n"
+				+ "}";
+		compileAndDeploy15(sourceA68, "A68");
+
+		String userCode = "new A68().bar();";
+		JDIStackFrame stackFrame =
+			new JDIStackFrame(this.jdiVM, this, userCode, "A68", "bar", -1);
+
+		DebugRequestor requestor = new DebugRequestor();
+		char[] snippet = "return super.<Object>foo(3);".toCharArray();
+		try {
+			this.context.evaluate(
+				snippet,
+				stackFrame.localVariableTypeNames(),
+				stackFrame.localVariableNames(),
+				stackFrame.localVariableModifiers(),
+				stackFrame.declaringTypeName(),
+				stackFrame.isStatic(),
+				stackFrame.isConstructorCall(),
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
+				getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("No targetException " + e.getMessage(), false);
+		}
+		assertTrue(
+			"Should get one result but got " + (requestor.resultIndex + 1),
+			requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		assertTrue("Code snippet should have problems", result.hasProblems());
+		assertEquals("Wrong size", 1, result.getProblems().length);
+		assertEquals("Wrong pb", 422, result.getProblems()[0].getID() & IProblem.IgnoreCategoriesMask);
+	} finally {
+		removeTempClass("A68");
+		removeTempClass("SuperA68");
+	}
+}
+public void test069() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	try {
+		String sourceA69 =
+			"public enum A69 {\n"
+				+ "\tA(2), B(1);\n"
+				+ "\tprivate int i;\n"
+				+ "\tprivate A69(int i) {\n"
+				+ "\t\tthis.i = i;\n"
+				+ "\t}\n"
+				+ "\tpublic String toString() {\n"
+				+ "\t\treturn String.valueOf(this.i);\n"
+				+ "\t}\n"
+				+ "\tpublic static void bar() {\n"
+				+ "\t}\n"
+				+ "}";
+		compileAndDeploy15(sourceA69, "A69");
+
+		String userCode = "A69.bar();";
+		JDIStackFrame stackFrame =
+			new JDIStackFrame(this.jdiVM, this, userCode, "A69", "bar", -1);
+
+		DebugRequestor requestor = new DebugRequestor();
+		char[] snippet = "enum E { C }; return String.toString(E.C.getName());".toCharArray();
+		try {
+			this.context.evaluate(
+				snippet,
+				stackFrame.localVariableTypeNames(),
+				stackFrame.localVariableNames(),
+				stackFrame.localVariableModifiers(),
+				stackFrame.declaringTypeName(),
+				stackFrame.isStatic(),
+				stackFrame.isConstructorCall(),
+				getEnv(),
+				getCompilerOptions(),
+				requestor,
+				getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("No targetException " + e.getMessage(), false);
+		}
+		assertTrue(
+			"Should get two results but got " + (requestor.resultIndex + 1),
+			requestor.resultIndex == 1);
+		EvaluationResult result = requestor.results[0];
+		assertTrue("Code snippet should not have problems", result.hasProblems());
+		assertEquals("Wrong size", 1, result.getProblems().length);
+		assertEquals("Wrong pb", 31, result.getProblems()[0].getID() & IProblem.IgnoreCategoriesMask);
+		result = requestor.results[1];
+		assertTrue("Code snippet should not have problems", result.hasProblems());
+		assertEquals("Wrong size", 1, result.getProblems().length);
+		assertEquals("Wrong pb", 50, result.getProblems()[0].getID() & IProblem.IgnoreCategoriesMask);
+	} finally {
+		removeTempClass("A69");
 	}
 }
 /**
