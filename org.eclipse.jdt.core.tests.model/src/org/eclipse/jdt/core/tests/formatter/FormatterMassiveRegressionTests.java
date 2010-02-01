@@ -206,7 +206,8 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private final int testIndex;
 
 	// Cleaning
-	private static int MAX_FILES, MAX_DIGITS;
+	private static int MAX_DIGITS;
+	private final static Map MAX_FILES = new HashMap();
 
 	// Formatting behavior
 	final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2"));
@@ -398,8 +399,10 @@ protected static Test suite(File inputDir, String profile, Map directories) {
 			directories.put(inputDir, allFiles);
 			System.out.println("done");
 		}
-		MAX_FILES = allFiles.length;
-		MAX_DIGITS = (int) (Math.log(MAX_FILES)/Math.log(10));
+		int[] maxFiles = new int[2];
+		maxFiles[0] = allFiles.length;
+		maxFiles[1] = (int) (Math.log(maxFiles[0])/Math.log(10));
+		MAX_FILES.put(inputDir, maxFiles);
 
 		// Add tests to clean the output directory and rebuild the references
 //		if (CLEAN) {
@@ -407,7 +410,7 @@ protected static Test suite(File inputDir, String profile, Map directories) {
 //		}
 
 		// Add one test per found file
-		for (int i=0; i<MAX_FILES; i++) {
+		for (int i=0; i<maxFiles[0]; i++) {
 			if (CLEAN) {
 				suite.addTest(new FormatterMassiveRegressionTests(inputDir, allFiles[i], i, profiles, false/*do not compare while cleaning*/));
 			} else {
@@ -1048,12 +1051,15 @@ private void print() {
 	} else {
 		buffer.append("Compare vs: none");
 	}
+	buffer.append(LINE_SEPARATOR);
 
 	// Files
 	buffer.append("            ");
-	buffer.append(MAX_FILES);
-	buffer.append(" java files found");
+	int[] maxFiles = (int[]) MAX_FILES.get(this.inputDir);
+	buffer.append(maxFiles[0]);
+	buffer.append(" java files to format...");
 	buffer.append(LINE_SEPARATOR);
+	MAX_DIGITS = maxFiles[1];
 
 	// Write logs
 	System.out.println(buffer.toString());
