@@ -647,31 +647,33 @@ private static File createMemLogFile() {
 	}
 	// Get file (create if necessary)
 	File logFile = new File(MEM_LOG_DIR, STORE_MEMORY+".log");
+	PrintStream stream = null;
 	try {
 		boolean fileExist = logFile.exists();
-		PrintStream stream = new PrintStream(new FileOutputStream(logFile, true));
-		if (stream != null) {
-			if (fileExist) {
-				stream.println();
-			}
-			// Log date and time
-			Date date = new Date(System.currentTimeMillis());
-			stream.println("Tests:\t" + STORE_MEMORY);
-			stream.println("Date:\t" + DateFormat.getDateInstance(3).format(date));
-			stream.println("Time:\t" + DateFormat.getTimeInstance(3).format(date));
-			// Log columns title
-			stream.print("Class");
-			if (ALL_TESTS_LOG) stream.print("\tTest");
-			stream.print("\tUsed\tTotal\tMax");
+		stream = new PrintStream(new FileOutputStream(logFile, true));
+		if (fileExist) {
 			stream.println();
-			stream.close();
-			System.out.println("Log file " + logFile.getPath() + " opened.");
-			return logFile;
-		} else {
-			System.err.println("Cannot open file " + logFile.getPath());
 		}
+		// Log date and time
+		Date date = new Date(System.currentTimeMillis());
+		stream.println("Tests:\t" + STORE_MEMORY);
+		stream.println("Date:\t" + DateFormat.getDateInstance(3).format(date));
+		stream.println("Time:\t" + DateFormat.getTimeInstance(3).format(date));
+		// Log columns title
+		stream.print("Class");
+		if (ALL_TESTS_LOG) stream.print("\tTest");
+		stream.print("\tUsed\tTotal\tMax");
+		stream.println();
+		stream.close();
+		System.out.println("Log file " + logFile.getPath() + " opened.");
+		return logFile;
 	} catch (FileNotFoundException e) {
 		// no log available for this statistic
+		System.err.println("Cannot open file " + logFile.getPath());
+	} finally {
+		if (stream != null) {
+			stream.close();
+		}
 	}
 	return null;
 }
