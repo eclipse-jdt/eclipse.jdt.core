@@ -732,6 +732,9 @@ private static void appendProfiles(int profiles, StringBuffer buffer) {
 		buffer.append(lines);
 		first = false;
 	}
+	if (first) {
+		buffer.append("none!");
+	}
 }
 
 private static void setOutputDir(File inputDir, String dir, int profiles) {
@@ -1004,6 +1007,14 @@ private void print() {
 	buffer.append("Input dir : ");
 	buffer.append(this.inputDir);
 
+	// Files
+	buffer.append("            ");
+	int[] maxFiles = (int[]) MAX_FILES.get(this.inputDir);
+	buffer.append(maxFiles[0]);
+	buffer.append(" java files to format...");
+	buffer.append(LINE_SEPARATOR);
+	MAX_DIGITS = maxFiles[1];
+
 	// Flush to console to show startup
 	String firstBuffer = buffer.toString();
 	System.out.println(firstBuffer);
@@ -1052,14 +1063,6 @@ private void print() {
 		buffer.append("Compare vs: none");
 	}
 	buffer.append(LINE_SEPARATOR);
-
-	// Files
-	buffer.append("            ");
-	int[] maxFiles = (int[]) MAX_FILES.get(this.inputDir);
-	buffer.append(maxFiles[0]);
-	buffer.append(" java files to format...");
-	buffer.append(LINE_SEPARATOR);
-	MAX_DIGITS = maxFiles[1];
 
 	// Write logs
 	System.out.println(buffer.toString());
