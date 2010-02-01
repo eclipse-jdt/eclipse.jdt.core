@@ -29,7 +29,7 @@ public class RunFormatterMassiveTests extends junit.framework.TestCase {
 	private final static File INPUT_DIR = new File(System.getProperty("inputDir"));
 	private final static String PROFILE = System.getProperty("profiles");
 	private final static String[] SUPPORTED_WORKSPACES = {
-		"full-src-3.0",
+		"full-src-30",
 		"galileo",
 		"JDKs",
 	};
