@@ -1006,6 +1006,7 @@ private void print() {
 	// Input dir
 	buffer.append("Input dir : ");
 	buffer.append(this.inputDir);
+	buffer.append(LINE_SEPARATOR);
 
 	// Files
 	buffer.append("            ");
