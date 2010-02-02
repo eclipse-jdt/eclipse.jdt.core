@@ -6025,7 +6025,8 @@ public void testBug300136() throws Exception {
  * 
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=300136"
  */
-public void testBug300136a() throws Exception {
+// TODO (Jay) Enable when bug 301529 will be fixed
+public void _testBug300136a() throws Exception {
 	boolean autoBuild = getWorkspace().isAutoBuilding();
 	IWorkspaceDescription preferences = getWorkspace().getDescription();
 	try {
