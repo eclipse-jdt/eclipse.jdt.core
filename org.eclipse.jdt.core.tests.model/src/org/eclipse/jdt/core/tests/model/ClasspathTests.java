@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5970,6 +5970,91 @@ public void testBug248661() throws Exception {
 		}
 		this.deleteProject("P");
 	}
+}
+/**
+ * @bug 300136:classpathentry OPTIONAL attribute not honored for var entries
+ * 
+ * Test that classpath entries (CPE_LIB, CPE_CONTAINER and CPE_VARIABLE) that are marked as optional 
+ * in the .classpath file are not reported for errors.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=300136"
+ */
+public void testBug300136() throws Exception {
+	boolean autoBuild = getWorkspace().isAutoBuilding();
+	IWorkspaceDescription preferences = getWorkspace().getDescription();
+	try {
+		preferences.setAutoBuilding(false);
+		IJavaProject project = createJavaProject("P");
+		StringBuffer buffer = new StringBuffer(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<classpath>\n" +
+				"   <classpathentry  kind=\"var\" path=\"TEST_LIB\">\n" +
+				"    	<attributes>\n" + 
+				"   	 <attribute name=\"optional\" value=\"true\"/>" +
+				"    	</attributes>\n" +
+				"	</classpathentry>\n" +
+				"   <classpathentry  kind=\"var\" path=\"UNBOUND_VAR\">\n" +
+				"    	<attributes>\n" + 
+				"   	 <attribute name=\"optional\" value=\"true\"/>" +
+				"    	</attributes>\n" +
+				"	</classpathentry>\n" +
+				"   <classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\">\n" +
+				"    	<attributes>\n" + 
+				"   	 <attribute name=\"optional\" value=\"true\"/>" +
+				"    	</attributes>\n" +
+				"	</classpathentry>\n" +
+				"   <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+				"</classpath>"
+				);
+		editFile(
+			"/P/.classpath",
+			buffer.toString()
+		);
+		assertMarkers(
+				"Unexpected markers",
+				"",
+				project);
+	} finally {
+		preferences.setAutoBuilding(autoBuild);
+		deleteProject("P");
+	}	
+}
+/**
+ * Additional test for bug 300136 - Test that the the errors are reported when the 
+ * optional attribute is not used.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=300136"
+ */
+public void testBug300136a() throws Exception {
+	boolean autoBuild = getWorkspace().isAutoBuilding();
+	IWorkspaceDescription preferences = getWorkspace().getDescription();
+	try {
+		preferences.setAutoBuilding(false);
+		IJavaProject project = createJavaProject("P");
+		StringBuffer buffer = new StringBuffer(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<classpath>\n" +
+				"    <classpathentry  kind=\"var\" path=\"TEST_LIB\" />\n" +
+				"    <classpathentry  kind=\"var\" path=\"UNBOUND_VAR\" />\n" +
+				"    <classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\">\n" +
+				"	</classpathentry>\n" +
+				"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+				"</classpath>"
+				);
+		editFile(
+			"/P/.classpath",
+			buffer.toString()
+		);
+		assertMarkers(
+				"Unexpected markers",
+				"Project \'P\' is missing required library: \'\\lib\\tmp.jar\'\n" + 
+				"Unbound classpath container: \'org.eclipse.jdt.core.tests.model.TEST_CONTAINER\' in project \'P\'\n" + 
+				"Unbound classpath variable: \'UNBOUND_VAR\' in project \'P\'",
+				project);
+	} finally {
+		preferences.setAutoBuilding(autoBuild);
+		deleteProject("P");
+	}	
 }
 
 }

@@ -1758,8 +1758,14 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment, boolean referredByContainer){
 		IJavaModelStatus status = validateClasspathEntry(project, entry, null, checkSourceAttachment, referredByContainer);
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171136, ignore class path errors from optional entries.
-		if (status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH && ((ClasspathEntry) entry).isOptional())
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171136 and https://bugs.eclipse.org/bugs/show_bug.cgi?id=300136
+		// Ignore class path errors from optional entries.
+		int statusCode = status.getCode();
+		if ( (statusCode == IJavaModelStatusConstants.INVALID_CLASSPATH || 
+				statusCode == IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND ||
+				statusCode == IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND ||
+				statusCode == IJavaModelStatusConstants.INVALID_PATH) &&
+				((ClasspathEntry) entry).isOptional())
 			return JavaModelStatus.VERIFIED_OK;
 		return status;
 	}
