@@ -22,6 +22,7 @@ public class AllTests extends TestCase {
 	// run all tests
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
+		suite.addTestSuite(FileManagerTests.class);
 		suite.addTestSuite(BatchDispatchTests.class);
 		suite.addTestSuite(ModelTests.class);
 		suite.addTestSuite(MessagerTests.class);
