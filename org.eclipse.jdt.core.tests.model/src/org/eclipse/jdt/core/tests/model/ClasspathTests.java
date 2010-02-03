@@ -5985,10 +5985,15 @@ public void testBug300136() throws Exception {
 	try {
 		preferences.setAutoBuilding(false);
 		IJavaProject project = createJavaProject("P");
+		JavaCore.setClasspathVariables(
+				new String[] {"INVALID_LIB",},
+				new IPath[] {new Path("/lib/tmp.jar")},
+				null);
+		
 		StringBuffer buffer = new StringBuffer(
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<classpath>\n" +
-				"   <classpathentry  kind=\"var\" path=\"TEST_LIB\">\n" +
+				"   <classpathentry  kind=\"var\" path=\"INVALID_LIB\">\n" +
 				"    	<attributes>\n" + 
 				"   	 <attribute name=\"optional\" value=\"true\"/>" +
 				"    	</attributes>\n" +
@@ -6017,6 +6022,7 @@ public void testBug300136() throws Exception {
 	} finally {
 		preferences.setAutoBuilding(autoBuild);
 		deleteProject("P");
+		JavaCore.removeClasspathVariable("INVALID_LIB", null);
 	}	
 }
 /**
@@ -6025,17 +6031,22 @@ public void testBug300136() throws Exception {
  * 
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=300136"
  */
-// TODO (Jay) Enable when bug 301529 will be fixed
-public void _testBug300136a() throws Exception {
+public void testBug300136a() throws Exception {
 	boolean autoBuild = getWorkspace().isAutoBuilding();
 	IWorkspaceDescription preferences = getWorkspace().getDescription();
 	try {
 		preferences.setAutoBuilding(false);
 		IJavaProject project = createJavaProject("P");
+		IPath libPath = new Path("/lib/tmp.jar");
+		JavaCore.setClasspathVariables(
+				new String[] {"INVALID_LIB",},
+				new IPath[] {libPath},
+				null);
+		
 		StringBuffer buffer = new StringBuffer(
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<classpath>\n" +
-				"    <classpathentry  kind=\"var\" path=\"TEST_LIB\" />\n" +
+				"    <classpathentry  kind=\"var\" path=\"INVALID_LIB\" />\n" +
 				"    <classpathentry  kind=\"var\" path=\"UNBOUND_VAR\" />\n" +
 				"    <classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\">\n" +
 				"	</classpathentry>\n" +
@@ -6048,13 +6059,14 @@ public void _testBug300136a() throws Exception {
 		);
 		assertMarkers(
 				"Unexpected markers",
-				"Project \'P\' is missing required library: \'\\lib\\tmp.jar\'\n" + 
+				"Project \'P\' is missing required library: \'" + libPath.toOSString() + "'\n" + 
 				"Unbound classpath container: \'org.eclipse.jdt.core.tests.model.TEST_CONTAINER\' in project \'P\'\n" + 
 				"Unbound classpath variable: \'UNBOUND_VAR\' in project \'P\'",
 				project);
 	} finally {
 		preferences.setAutoBuilding(autoBuild);
 		deleteProject("P");
+		JavaCore.removeClasspathVariable("INVALID_LIB", null);
 	}	
 }
 
