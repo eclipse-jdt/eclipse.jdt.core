@@ -1560,7 +1560,7 @@ public String toString() {
 	return buffer.toString();
 }
 public TypeVariableBinding[] typeVariables() {
-	return this.typeVariables;
+	return this.typeVariables != null ? this.typeVariables : Binding.NO_TYPE_VARIABLES;
 }
 void verifyMethods(MethodVerifier verifier) {
 	verifier.verify(this);
