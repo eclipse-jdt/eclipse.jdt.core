@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1073,6 +1073,13 @@ public final boolean isFinal() {
  */
 public boolean isHierarchyBeingConnected() {
 	return (this.tagBits & TagBits.EndHierarchyCheck) == 0 && (this.tagBits & TagBits.BeginHierarchyCheck) != 0;
+}
+/**
+ * Returns true if the type hierarchy is being connected "actively" i.e not paused momentatrily, 
+ * while resolving type arguments. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=294057
+ */
+public boolean isHierarchyBeingActivelyConnected() {
+	return (this.tagBits & TagBits.EndHierarchyCheck) == 0 && (this.tagBits & TagBits.BeginHierarchyCheck) != 0 && (this.tagBits & TagBits.PauseHierarchyCheck) == 0;
 }
 
 /**

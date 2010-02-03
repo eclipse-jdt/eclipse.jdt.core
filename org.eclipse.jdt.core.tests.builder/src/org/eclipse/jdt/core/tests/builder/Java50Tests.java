@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -310,6 +310,70 @@ public class Java50Tests extends BuilderTests {
 			usePath,
 			"Problem : Unhandled exception type Exception [ resource : </Project/p/Use.java> range : <92,132> category : <40> severity : <2>]"
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294057
+	public void testHierarchyNonCycle() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "");
+
+		env.addClass(projectPath, "superint", "SuperInterface",
+				"package superint;\n" +
+				"public interface SuperInterface<G extends SuperInterface.SuperInterfaceGetter,\n" +
+				"								 S extends SuperInterface.SuperInterfaceSetter> {\n" +
+				"    public interface SuperInterfaceGetter {}\n" +
+				"    public interface SuperInterfaceSetter {}\n" +
+				"}\n"
+		);
+		env.addClass(projectPath, "subint", "SubInterface",
+				"package subint;\n" +
+				"import superint.SuperInterface;\n" +
+				"public interface SubInterface extends\n" +
+				"    SuperInterface<SubInterface.SubInterfaceGetter,\n" +
+				"                   SubInterface.SubInterfaceSetter> {\n" +
+				"        public interface SubInterfaceGetter extends SuperInterfaceGetter {}\n" +
+				"        public interface SubInterfaceSetter extends SuperInterfaceSetter {}\n" +
+				"}\n"
+		);
+
+		fullBuild(projectPath);
+		expectingProblemsFor(
+				projectPath,
+				"Problem : Bound mismatch: The type SubInterface.SubInterfaceGetter is not a valid substitute for the bounded parameter <G extends SuperInterface.SuperInterfaceGetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <105,136> category : <40> severity : <2>]\n" + 
+				"Problem : Bound mismatch: The type SubInterface.SubInterfaceSetter is not a valid substitute for the bounded parameter <S extends SuperInterface.SuperInterfaceSetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <157,188> category : <40> severity : <2>]\n" + 
+				"Problem : SuperInterfaceGetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <244,264> category : <40> severity : <2>]\n" + 
+				"Problem : SuperInterfaceSetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <320,340> category : <40> severity : <2>]"
+			);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294057 (variation)
+	public void testHierarchyNonCycle2() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "");
+
+		env.addClass(projectPath, "superint", "SuperInterface",
+				"package superint;\n" +
+				"public interface SuperInterface<G extends SuperInterface.SuperInterfaceGetter,\n" +
+				"								 S extends SuperInterface.SuperInterfaceSetter> {\n" +
+				"    public interface SuperInterfaceGetter {}\n" +
+				"    public interface SuperInterfaceSetter {}\n" +
+				"}\n"
+		);
+		env.addClass(projectPath, "subint", "SubInterface",
+				"package subint;\n" +
+				"import superint.SuperInterface;\n" +
+				"import superint.SuperInterface.SuperInterfaceGetter;\n" +
+				"import superint.SuperInterface.SuperInterfaceSetter;\n" +
+				"public interface SubInterface extends\n" +
+				"    SuperInterface<SubInterface.SubInterfaceGetter,\n" +
+				"                   SubInterface.SubInterfaceSetter> {\n" +
+				"        public interface SubInterfaceGetter extends SuperInterfaceGetter {}\n" +
+				"        public interface SubInterfaceSetter extends SuperInterfaceSetter {}\n" +
+				"}\n"
+		);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
 	}
 
 }
