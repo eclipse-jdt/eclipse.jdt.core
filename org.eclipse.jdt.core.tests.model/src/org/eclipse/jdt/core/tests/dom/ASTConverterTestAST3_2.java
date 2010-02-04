@@ -5287,7 +5287,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		String source = "public class A {public boolean foo() {}}";
 		parser.setSource(source.toCharArray());
 		parser.setProject(getJavaProject("Converter"));
-		parser.setUnitName("A");
+		parser.setUnitName("A.java");
 		parser.setResolveBindings(true);
 		ASTNode node = parser.createAST(null);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType()); //$NON-NLS-1$
