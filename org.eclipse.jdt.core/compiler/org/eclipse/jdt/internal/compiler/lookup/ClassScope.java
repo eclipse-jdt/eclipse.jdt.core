@@ -337,7 +337,7 @@ public class ClassScope extends Scope {
 			for (int i = 0; i < methodBindings.length; i++) {
 				methodBindings[i].modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 			}
-			FieldBinding[] fields = sourceType.fields();
+			FieldBinding[] fields = sourceType.unResolvedFields(); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=301683
 			for (int i = 0; i < fields.length; i++) {
 				fields[i].modifiers |= ExtraCompilerModifiers.AccLocallyUsed;	
 			}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9273,6 +9273,31 @@ public void test278() {
 		"	protected void paintComponent(Graphics g) {   }\n" +
 		"	                              ^^^^^^^^\n" +
 		"Graphics cannot be resolved to a type\n" +
+		"----------\n";
+	this.runNegativeTest(
+			testString,
+			expectedOutput,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=301683
+public void test279() {
+	String testString [] = new String[] {
+			"A.java",
+			"public class A {\n" +
+			"    public @interface Inline {\n" +
+			"        String value();\n" +
+			"    }\n" +
+			"    @Inline(\"foo\")\n" +
+			"    public Zork test;\n" +
+			"    public native void method();\n" +
+			"}"
+			};
+	String expectedOutput =
+		"----------\n" + 
+		"1. ERROR in A.java (at line 6)\n" + 
+		"	public Zork test;\n" + 
+		"	       ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" +
 		"----------\n";
 	this.runNegativeTest(
 			testString,
