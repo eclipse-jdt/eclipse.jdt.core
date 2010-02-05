@@ -96,9 +96,13 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 				case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
 					if (flowInfo.isDefinitelyNonNull(local)) {
 						if (this.nullCheckTypes[i] == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
-							scope.problemReporter().localVariableRedundantCheckOnNonNull(local, expression);
+							if (!this.hideNullComparisonWarnings) {
+								scope.problemReporter().localVariableRedundantCheckOnNonNull(local, expression);
+							}
 						} else {
-							scope.problemReporter().localVariableNonNullComparedToNull(local, expression);
+							if (!this.hideNullComparisonWarnings) {
+								scope.problemReporter().localVariableNonNullComparedToNull(local, expression);
+							}
 						}
 						continue;
 					}
@@ -110,10 +114,14 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					if (flowInfo.isDefinitelyNull(local)) {
 						switch(this.nullCheckTypes[i] & CONTEXT_MASK) {
 							case FlowContext.IN_COMPARISON_NULL:
-								scope.problemReporter().localVariableRedundantCheckOnNull(local, expression);
+								if (!this.hideNullComparisonWarnings) {
+									scope.problemReporter().localVariableRedundantCheckOnNull(local, expression);
+								}
 								continue;
 							case FlowContext.IN_COMPARISON_NON_NULL:
-								scope.problemReporter().localVariableNullComparedToNonNull(local, expression);
+								if (!this.hideNullComparisonWarnings) {
+									scope.problemReporter().localVariableNullComparedToNonNull(local, expression);
+								}
 								continue;
 							case FlowContext.IN_ASSIGNMENT:
 								scope.problemReporter().localVariableRedundantNullAssignment(local, expression);
@@ -191,10 +199,14 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					case CAN_ONLY_NULL | IN_INSTANCEOF:
 						if (flowInfo.cannotBeNull(local)) {
 							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
-								scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+								if (!this.hideNullComparisonWarnings) {
+									scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+								}
 								flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 							} else if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL)) {
-								scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+								if (!this.hideNullComparisonWarnings) {
+									scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+								}
 								flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 							}
 							return;
@@ -202,11 +214,15 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						if (flowInfo.canOnlyBeNull(local)) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
-									scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+									if (!this.hideNullComparisonWarnings) {
+										scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+									}
 									flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 									return;
 								case FlowContext.IN_COMPARISON_NON_NULL:
-									scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+									if (!this.hideNullComparisonWarnings) {
+										scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+									}
 									flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 									return;
 								case FlowContext.IN_ASSIGNMENT:
@@ -237,10 +253,14 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
 						if (flowInfo.isDefinitelyNonNull(local)) {
 							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
-								scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+								if (!this.hideNullComparisonWarnings) {
+									scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+								}
 								flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 							} else {
-								scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+								if (!this.hideNullComparisonWarnings) {
+									scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+								}
 								flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);	
 							}
 							return;
@@ -253,11 +273,15 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						if (flowInfo.isDefinitelyNull(local)) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
-									scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+									if (!this.hideNullComparisonWarnings) {
+										scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+									}
 									flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 									return;
 								case FlowContext.IN_COMPARISON_NON_NULL:
-									scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+									if (!this.hideNullComparisonWarnings) {
+										scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+									}
 									flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 									return;
 								case FlowContext.IN_ASSIGNMENT:
@@ -286,7 +310,13 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						// never happens
 				}
 			}
-			recordNullReference(local, reference, checkType);
+			// if the contention is inside assert statement, we want to avoid null warnings only in case of
+			// comparisons and not in case of assignment, instanceof, or may be null.
+			if(!this.hideNullComparisonWarnings || checkType == MAY_NULL
+					|| (checkType & CONTEXT_MASK) == FlowContext.IN_ASSIGNMENT
+					|| (checkType & CONTEXT_MASK) == FlowContext.IN_INSTANCEOF) {
+				recordNullReference(local, reference, checkType);
+			}
 			// prepare to re-check with try/catch flow info
 		}
 	}

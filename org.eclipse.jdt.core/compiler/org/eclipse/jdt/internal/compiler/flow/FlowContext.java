@@ -44,6 +44,10 @@ public class FlowContext implements TypeConstants {
 		// any null related operation happening within the try block
 
 boolean deferNullDiagnostic, preemptNullDiagnostic;
+/**
+ * used to hide null comparison related warnings inside assert statements 
+ */
+public boolean hideNullComparisonWarnings = false;
 
 public static final int
   CAN_ONLY_NULL_NON_NULL = 0x0000,
@@ -542,10 +546,14 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 		case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
 			if (flowInfo.isDefinitelyNonNull(local)) {
 				if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
-					scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+					if (!this.hideNullComparisonWarnings) {
+						scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+					}
 					flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 				} else {
-					scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+					if (!this.hideNullComparisonWarnings) {
+						scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+					}
 					flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 				}
 				return;
@@ -561,11 +569,15 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 			if (flowInfo.isDefinitelyNull(local)) {
 				switch(checkType & CONTEXT_MASK) {
 					case FlowContext.IN_COMPARISON_NULL:
-						scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+						if (!this.hideNullComparisonWarnings) {
+							scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+						}
 						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 						return;
 					case FlowContext.IN_COMPARISON_NON_NULL:
-						scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+						if (!this.hideNullComparisonWarnings) {
+							scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+						}
 						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
 						return;
 					case FlowContext.IN_ASSIGNMENT:
