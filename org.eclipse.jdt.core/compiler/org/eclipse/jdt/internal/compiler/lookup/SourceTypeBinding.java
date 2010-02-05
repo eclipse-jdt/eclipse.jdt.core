@@ -1568,4 +1568,8 @@ void verifyMethods(MethodVerifier verifier) {
 	for (int i = this.memberTypes.length; --i >= 0;)
 		 ((SourceTypeBinding) this.memberTypes[i]).verifyMethods(verifier);
 }
+
+public FieldBinding[] unResolvedFields() {
+	return this.fields;
+}
 }
