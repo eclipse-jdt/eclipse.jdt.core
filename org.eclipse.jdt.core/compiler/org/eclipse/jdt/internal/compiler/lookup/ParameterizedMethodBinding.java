@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.lang.ref.WeakReference;
+import java.util.Map;
+import java.util.WeakHashMap;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
@@ -20,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  */
 public class ParameterizedMethodBinding extends MethodBinding {
 
+	private static Map getClassMethodBindingCache; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
 	protected MethodBinding originalMethod;
 
 	/**
@@ -249,7 +253,17 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	 * The type of x.getClass() is substituted from 'Class<? extends Object>' into: 'Class<? extends raw(X)>
 	 */
 	public static ParameterizedMethodBinding instantiateGetClass(TypeBinding receiverType, MethodBinding originalMethod, Scope scope) {
-		ParameterizedMethodBinding method = new ParameterizedMethodBinding();
+		ParameterizedMethodBinding method;
+		if (getClassMethodBindingCache != null) {
+			WeakReference w = (WeakReference) getClassMethodBindingCache.get(receiverType);
+			if (w != null) {
+				method = (ParameterizedMethodBinding) w.get();
+				if (method != null) {
+					return method;
+				}
+			}
+		}
+		method = new ParameterizedMethodBinding();
 		method.modifiers = originalMethod.modifiers;
 		method.selector = originalMethod.selector;
 		method.declaringClass = originalMethod.declaringClass;
@@ -268,6 +282,10 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		if ((method.returnType.tagBits & TagBits.HasMissingType) != 0) {
 			method.tagBits |=  TagBits.HasMissingType;
 		}
+		if (getClassMethodBindingCache == null) {
+			getClassMethodBindingCache = new WeakHashMap();
+		}
+		getClassMethodBindingCache.put(receiverType, new WeakReference(method));  // method refers back to key
 		return method;
 	}
 
