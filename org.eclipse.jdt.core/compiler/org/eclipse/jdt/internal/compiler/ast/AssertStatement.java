@@ -44,8 +44,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	Constant cst = this.assertExpression.optimizedBooleanConstant();
 	boolean isOptimizedTrueAssertion = cst != Constant.NotAConstant && cst.booleanValue() == true;
 	boolean isOptimizedFalseAssertion = cst != Constant.NotAConstant && cst.booleanValue() == false;
-
+	
+	flowContext.hideNullComparisonWarnings = true;
 	FlowInfo conditionFlowInfo = this.assertExpression.analyseCode(currentScope, flowContext, flowInfo.copy());
+	flowContext.hideNullComparisonWarnings = false;
 	UnconditionalFlowInfo assertWhenTrueInfo = conditionFlowInfo.initsWhenTrue().unconditionalInits();
 	FlowInfo assertInfo = conditionFlowInfo.initsWhenFalse();
 	if (isOptimizedTrueAssertion) {
