@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 340 };
+//		TESTS_NUMBERS = new int[] { 341 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10914,5 +10914,26 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List tags = javadoc.tags();
 		assertEquals("Wrong size", "@goto", ((TagElement) tags.get(1)).getTagName());
 		checkSourceRange((TagElement) tags.get(1), "@goto new position", contents);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
+	public void test341() throws JavaModelException {
+		String contents =
+			"public class Bug300734 {\n" +
+			"	public void foo(String x) {\n" +
+			"		x.getClass();\n" +
+			"       x.getClass();\n" +
+			"	}\n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/Bug300734.java", true/*resolve*/);
+		CompilationUnit unit= (CompilationUnit) buildAST(
+			contents,
+			this.workingCopy,
+			true,
+			false,
+			true);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+		IMethodBinding methodBinding1 = ((MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(0)).getExpression()).resolveMethodBinding();
+		IMethodBinding methodBinding2 = ((MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(1)).getExpression()).resolveMethodBinding();
+		assertTrue("Bindings differ", methodBinding1 == methodBinding2);
 	}
 }
