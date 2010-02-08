@@ -147,25 +147,19 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			if (File.separatorChar == '/') {
 				if (!path.endsWith(normalizedPackageName)) return;
 			} else if (!path.endsWith(normalizedPackageName.replace('/', File.separatorChar))) return;
-   			File[] files = currentFile.listFiles();
-   			if (files != null) {
-   				// this was a directory
-   				for (File f : files) {
-   					if (f.isDirectory() && recurse) {
-   						collectAllMatchingFiles(file, normalizedPackageName + '/' + f.getName(), kinds, recurse, collector);
-   					} else {
-   						final Kind kind = getKind(f);
-   						if (kinds.contains(kind)) {
-   							collector.add(new EclipseFileObject(normalizedPackageName + currentFile.getName(), currentFile.toURI(), kind, this.charset));
-   						}
-   					}
-   				}
-   			}
-			// currentFile is not a directory
-			// check if it matches the criteria
-			final Kind kind = getKind(file);
-			if (kinds.contains(kind)) {
-				collector.add(new EclipseFileObject(normalizedPackageName + currentFile.getName(), currentFile.toURI(), kind, this.charset));
+			File[] files = currentFile.listFiles();
+			if (files != null) {
+				// this was a directory
+				for (File f : files) {
+					if (f.isDirectory() && recurse) {
+						collectAllMatchingFiles(file, normalizedPackageName + '/' + f.getName(), kinds, recurse, collector);
+					} else {
+						final Kind kind = getKind(f);
+						if (kinds.contains(kind)) {
+							collector.add(new EclipseFileObject(normalizedPackageName + f.getName(), f.toURI(), kind, this.charset));
+						}
+					}
+				}
 			}
 		} else {
 			Archive archive = this.getArchive(file);
@@ -180,10 +174,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						ArrayList<String> types = archive.getTypes(packageName);
 						if (types != null) {
 							for (String typeName : types) {
-		   						final Kind kind = getKind(getExtension(typeName));
-		   						if (kinds.contains(kind)) {
-		   							collector.add(archive.getArchiveFileObject(packageName + typeName, this.charset));
-		   						}
+								final Kind kind = getKind(getExtension(typeName));
+								if (kinds.contains(kind)) {
+									collector.add(archive.getArchiveFileObject(packageName + typeName, this.charset));
+								}
 							}
 						}
 					}
@@ -192,10 +186,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				ArrayList<String> types = archive.getTypes(key);
 				if (types != null) {
 					for (String typeName : types) {
-   						final Kind kind = getKind(typeName);
-   						if (kinds.contains(kind)) {
-   							collector.add(archive.getArchiveFileObject(normalizedPackageName + typeName, this.charset));
-   						}
+						final Kind kind = getKind(typeName);
+						if (kinds.contains(kind)) {
+							collector.add(archive.getArchiveFileObject(normalizedPackageName + typeName, this.charset));
+						}
 					}
 				}
 			}
