@@ -230,53 +230,6 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		this.expressionStack[this.expressionPtr] = fr;
 	}
 }
-protected void consumeInterfaceHeaderName1() {
-	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
-	TypeDeclaration typeDecl;
-	if (this.nestedMethod[this.nestedType] == 0) {
-		if (this.nestedType != 0) {
-			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
-			typeDecl.bits |= ASTNode.IsMemberType;
-		} else {
-			typeDecl = new CodeSnippetTypeDeclaration(this.compilationUnit.compilationResult);
-		}
-	} else {
-		// Record that the block has a declaration for local types
-		typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
-		typeDecl.bits |= ASTNode.IsLocalType;
-		markEnclosingMemberWithLocalType();
-		blockReal();
-	}
-
-	//highlight the name of the type
-	long pos = this.identifierPositionStack[this.identifierPtr];
-	typeDecl.sourceEnd = (int) pos;
-	typeDecl.sourceStart = (int) (pos >>> 32);
-	typeDecl.name = this.identifierStack[this.identifierPtr--];
-	this.identifierLengthPtr--;
-
-	//compute the declaration source too
-	typeDecl.declarationSourceStart = this.intStack[this.intPtr--];
-	this.intPtr--;
-	// 'class' and 'interface' push an int position
-	typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
-	typeDecl.modifiers = this.intStack[this.intPtr--];
-	if (typeDecl.modifiersSourceStart >= 0) {
-		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart;
-	}
-	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
-	pushOnAstStack(typeDecl);
-	this.listLength = 0; // will be updated when reading super-interfaces
-	// recovery
-	if (this.currentElement != null){ // is recovering
-		this.lastCheckPoint = typeDecl.bodyStart;
-		this.currentElement = this.currentElement.add(typeDecl, 0);
-		this.lastIgnoredToken = -1;
-	}
-	// javadoc
-	typeDecl.javadoc = this.javadoc;
-	this.javadoc = null;
-}
 protected void consumeInternalCompilationUnit() {
 	// InternalCompilationUnit ::= PackageDeclaration
 	// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports
