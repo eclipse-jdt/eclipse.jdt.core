@@ -416,7 +416,8 @@ protected boolean parseTag(int previousPosition) throws InvalidInputException {
 		int ptr = this.htmlTagsPtr;
    		while (ptr >= 0) {
 			if (getHtmlTagIndex(this.htmlTags[ptr--]) == JAVADOC_CODE_TAGS_ID) {
-				if (this.textStart == -1) this.textStart = previousPosition;
+				if (this.textStart == -1) this.textStart = this.inlineTagStarted ? this.inlineTagStart : previousPosition;
+				this.inlineTagStarted = false;
 				return true;
 			}
 		}

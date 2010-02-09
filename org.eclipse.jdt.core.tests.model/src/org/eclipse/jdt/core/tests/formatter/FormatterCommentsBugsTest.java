@@ -4934,4 +4934,63 @@ public void testBug287833c() {
 	    "}\n");
 }
 
+/**
+ * @bug 300379: [formatter] Fup of bug 287833
+ * @test Verify that the leading '{' is not deleted while formatting
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=300379"
+ */
+public void testBug300379() {
+	String source = 
+		"public class X {\n" + 
+		"    /**\n" + 
+		"     * <pre>   {@code\n" + 
+		"     * \n" + 
+		"     *   public class X {\n" + 
+		"     *   }}</pre>\n" + 
+		"     */\n" + 
+		"    public void foo() {}\n" + 
+	    "}\n";
+	    
+	formatSource(source, 
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 * {\n" + 
+		"	 * 	&#064;code\n" + 
+		"	 * 	public class X {\n" + 
+		"	 * 	}\n" + 
+		"	 * }\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+	    "}\n");
+}
+public void testBug300379b() {
+	String source = 
+		"public class X {\n" + 
+		"    /**\n" + 
+		"     * <pre>   {@code\n" + 
+		"     * \n" + 
+		"     *   public class X {}}</pre>\n" + 
+		"     */\n" + 
+		"    public void foo() {}\n" + 
+	    "}\n";
+	    
+	formatSource(source, 
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 * {\n" + 
+		"	 * 	&#064;code\n" + 
+		"	 * 	public class X {\n" + 
+		"	 * 	}\n" + 
+		"	 * }\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+	    "}\n");
+}
+
 }
