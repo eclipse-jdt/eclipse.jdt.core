@@ -1013,7 +1013,6 @@ private void print() {
 	int[] maxFiles = (int[]) MAX_FILES.get(this.inputDir);
 	buffer.append(maxFiles[0]);
 	buffer.append(" java files to format...");
-	buffer.append(LINE_SEPARATOR);
 	MAX_DIGITS = maxFiles[1];
 
 	// Flush to console to show startup
