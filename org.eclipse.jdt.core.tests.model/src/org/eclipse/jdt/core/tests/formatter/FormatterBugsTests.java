@@ -3928,4 +3928,94 @@ public void testBug298243() {
 		"}\n";
 	formatSource(source);
 }
+
+/**
+ * @bug 302123: [formatter] AssertionFailedException occurs while formatting a source containing the specific javadoc comment...
+ * @test Verify that no exception occurs while formatting source including the specific comment
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=302123"
+ */
+public void testBug302123() {
+	String source = 
+		"package test;\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		String s=\"X\"+/** ***/\"Y\";\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		String s = \"X\" + /** ***/\n" + 
+		"		\"Y\";\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug302123b() {
+	String source = 
+		"package test;\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		String s=\"X\"+/**    XXX   ***/\"Y\";\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		String s = \"X\" + /** XXX ***/\n" + 
+		"		\"Y\";\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug302123c() {
+	String source = 
+		"package test;\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		String s=\"X\"+/**    **  XXX  **    ***/\"Y\";\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		String s = \"X\" + /** ** XXX ** ***/\n" + 
+		"		\"Y\";\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug302123d() {
+	String source = 
+		"package test;\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		String s=\"X\"+/**AAA   *** BBB ***   CCC***/\"Y\";\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		String s = \"X\" + /** AAA *** BBB *** CCC ***/\n" + 
+		"		\"Y\";\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
 }
