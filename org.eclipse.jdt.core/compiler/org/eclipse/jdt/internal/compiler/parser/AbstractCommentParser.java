@@ -147,6 +147,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			boolean verifText = (this.kind & TEXT_VERIF) != 0;
 			boolean isDomParser = (this.kind & DOM_PARSER) != 0;
 			boolean isFormatterParser = (this.kind & FORMATTER_COMMENT_PARSER) != 0;
+			int lastStarPosition = -1;
 
 			// Init scanner position
 			this.linePtr = getLineNumber(this.firstTagPosition);
@@ -325,6 +326,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						break;
 					case '*' :
 						// Store the star position as text start while formatting
+						lastStarPosition = previousPosition;
 						if (previousChar != '*') {
 							this.starPosition = previousPosition;
 							if (isDomParser || isFormatterParser) {
@@ -401,7 +403,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				}
 				refreshInlineTagPosition(textEndPosition);
 				setInlineTagStarted(false);
-			} else if (this.lineStarted && this.textStart != -1 && this.textStart <= textEndPosition) {
+			} else if (this.lineStarted && this.textStart != -1 && this.textStart <= textEndPosition && (this.textStart < this.starPosition || this.starPosition == lastStarPosition)) {
 				pushText(this.textStart, textEndPosition);
 			}
 			updateDocComment();
