@@ -206,7 +206,6 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private final int testIndex;
 
 	// Cleaning
-	private static int MAX_DIGITS;
 	private final static Map MAX_FILES = new HashMap();
 
 	// Formatting behavior
@@ -362,7 +361,7 @@ protected static Test suite(File inputDir, String profile, Map directories) {
 		int profiles = initProfiles(profile);
 
 		// Init directories
-		initDirectories(inputDir, profiles);
+		initDirectories(inputDir, profiles, true);
 
 		// Get files from input dir
 		FileFilter filter = new FileFilter() {
@@ -516,7 +515,7 @@ private static int initProfiles(String profile) {
 	return profiles;
 }
 
-private static void initDirectories(File inputDir, int profiles) {
+private static void initDirectories(File inputDir, int profiles, boolean verify) {
 
 	// Verify input directory
 	if (!inputDir.exists() && !inputDir.isDirectory()) {
@@ -560,7 +559,7 @@ private static void initDirectories(File inputDir, int profiles) {
 
 	// Get log dir
 	try {
-		setLogDir(inputDir, profiles);
+		setLogDir(inputDir, profiles, verify);
 	} catch (CoreException e) {
 		e.printStackTrace();
 	}
@@ -576,7 +575,7 @@ private static void initDirectories(File inputDir, int profiles) {
 	}
 }
 
-private static void setLogDir(File inputDir, int profiles) throws CoreException {
+private static void setLogDir(File inputDir, int profiles, boolean verify) throws CoreException {
 
 	// Compute log dir
 	File logDir = new File(System.getProperty("logDir"));
@@ -615,7 +614,7 @@ private static void setLogDir(File inputDir, int profiles) throws CoreException 
 	String filePrefix = inputDir.getName().replaceAll("\\.", "");
 	String logFileName = filePrefix+".txt";
 	LOG_FILE = new File(logDir, logFileName);
-	if (LOG_FILE.exists()) {
+	if (verify && LOG_FILE.exists()) {
 		File saveDir = new File(logDir, "save");
 		saveDir.mkdir();
 		int i=0;
@@ -889,7 +888,8 @@ public String getName() {
 	StringBuffer name = new StringBuffer(super.getName());
 	if (this.testIndex >= 0) {
 		int n = this.testIndex == 0 ? 0 : (int) (Math.log(this.testIndex)/Math.log(10));
-		for (int i=n; i<MAX_DIGITS; i++) {
+		int max = ((int[])MAX_FILES.get(this.inputDir))[1];
+		for (int i=n; i<max; i++) {
 			name.append('0');
 		}
 		name.append(this.testIndex);
@@ -908,35 +908,70 @@ public String getName() {
  */
 public void setUp() throws Exception {
 	super.setUp();
+
+	// Setup preferences
 	this.preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
-	if (NO_COMMENTS) {
+
+	// Setup no comments profile
+	if ((this.profiles & PROFILE_NO_COMMENTS) != 0) {
 		this.preferences.comment_format_javadoc_comment = false;
 		this.preferences.comment_format_block_comment = false;
 		this.preferences.comment_format_line_comment = false;
 	}
-	if (JOIN_LINES != null) {
-		if (!JOIN_LINES.equals("only_comments")) {
+
+	// Setup join lines profile
+	String joinLines = null;
+	switch (this.profiles & PROFILE_JOIN_LINES_MASK) {
+		case PROFILE_NEVER_JOIN_LINES:
+			joinLines = "never";
+			break;
+		case PROFILE_JOIN_LINES_ONLY_COMMENTS:
+			joinLines = "only_comments";
+			break;
+		case PROFILE_JOIN_LINES_ONLY_CODE:
+			joinLines = "only_code";
+			break;
+	}
+	if (joinLines != null) {
+		if (!joinLines.equals("only_comments")) {
 			this.preferences.join_lines_in_comments = false;
 		}
-		if (!JOIN_LINES.equals("only_code")) {
+		if (!joinLines.equals("only_code")) {
 			this.preferences.join_wrapped_lines = false;
 		}
 	}
-	if (BRACES != null) {
-		this.preferences.brace_position_for_annotation_type_declaration = BRACES;
-		this.preferences.brace_position_for_anonymous_type_declaration = BRACES;
-		this.preferences.brace_position_for_array_initializer = BRACES;
-		this.preferences.brace_position_for_block = BRACES;
-		this.preferences.brace_position_for_block_in_case = BRACES;
-		this.preferences.brace_position_for_constructor_declaration = BRACES;
-		this.preferences.brace_position_for_enum_constant = BRACES;
-		this.preferences.brace_position_for_enum_declaration = BRACES;
-		this.preferences.brace_position_for_method_declaration = BRACES;
-		this.preferences.brace_position_for_switch = BRACES;
-		this.preferences.brace_position_for_type_declaration = BRACES;
+
+	// Setup braces profile
+	String braces = null;
+	switch (this.profiles & PROFILE_BRACES_MASK) {
+		case PROFILE_BRACES_NEXT_LINE:
+			braces = DefaultCodeFormatterConstants.NEXT_LINE;
+			break;
+		case PROFILE_BRACES_NEXT_LINE_ON_WRAP:
+			braces = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP;
+			break;
+		case PROFILE_BRACES_NEXT_LINE_SHIFTED:
+			braces = DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED;
+			break;
 	}
-	if (PRESERVED_LINES != -1) {
-		this.preferences.number_of_empty_lines_to_preserve = PRESERVED_LINES;
+	if (braces != null) {
+		this.preferences.brace_position_for_annotation_type_declaration = braces;
+		this.preferences.brace_position_for_anonymous_type_declaration = braces;
+		this.preferences.brace_position_for_array_initializer = braces;
+		this.preferences.brace_position_for_block = braces;
+		this.preferences.brace_position_for_block_in_case = braces;
+		this.preferences.brace_position_for_constructor_declaration = braces;
+		this.preferences.brace_position_for_enum_constant = braces;
+		this.preferences.brace_position_for_enum_declaration = braces;
+		this.preferences.brace_position_for_method_declaration = braces;
+		this.preferences.brace_position_for_switch = braces;
+		this.preferences.brace_position_for_type_declaration = braces;
+	}
+
+	// Setup preserved lines profile
+	if ((this.profiles & PROFILE_PRESERVED_LINES_MASK) != 0) {
+		int lines = (this.profiles & PROFILE_PRESERVED_LINES_MASK) >> 5;
+		this.preferences.number_of_empty_lines_to_preserve = lines;
 	}
 }
 
@@ -946,7 +981,7 @@ public void setUp() throws Exception {
 public void setUpSuite() throws Exception {
 
 	// Init directories
-	initDirectories(this.inputDir, this.profiles);
+	initDirectories(this.inputDir, this.profiles, false);
 
 	// Delete output dir before compute reference
 	if (CLEAN) {
@@ -1013,7 +1048,6 @@ private void print() {
 	int[] maxFiles = (int[]) MAX_FILES.get(this.inputDir);
 	buffer.append(maxFiles[0]);
 	buffer.append(" java files to format...");
-	MAX_DIGITS = maxFiles[1];
 
 	// Flush to console to show startup
 	String firstBuffer = buffer.toString();
