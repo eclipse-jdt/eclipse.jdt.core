@@ -925,7 +925,7 @@ public abstract class Scope {
 				if (argumentTypes == Binding.NO_PARAMETERS
 				    && CharOperation.equals(selector, TypeConstants.GETCLASS)
 				    && exactMethod.returnType.isParameterizedType()/*1.5*/) {
-						return ParameterizedMethodBinding.instantiateGetClass(receiverType, exactMethod, this);
+						return environment().createGetClassMethod(receiverType, exactMethod, this);
 			    }
 				// targeting a generic method could find an exact match with variable return type
 				if (invocationSite.genericTypeArguments() != null) {
@@ -1476,7 +1476,7 @@ public abstract class Scope {
 			            break;
 			        case 'g':
 			            if (CharOperation.equals(selector, TypeConstants.GETCLASS) && methodBinding.returnType.isParameterizedType()/*1.5*/) {
-							return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
+							return environment().createGetClassMethod(receiverType, methodBinding, this);
 			            }
 			            break;
 			    }
@@ -2006,7 +2006,7 @@ public abstract class Scope {
 										if (argumentTypes == Binding.NO_PARAMETERS
 										    && CharOperation.equals(selector, TypeConstants.GETCLASS)
 										    && methodBinding.returnType.isParameterizedType()/*1.5*/) {
-												return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
+												return environment().createGetClassMethod(receiverType, methodBinding, this);
 										}
 										return methodBinding;
 									}
@@ -2266,7 +2266,7 @@ public abstract class Scope {
 			if (argumentTypes == Binding.NO_PARAMETERS
 			    && CharOperation.equals(selector, TypeConstants.GETCLASS)
 			    && methodBinding.returnType.isParameterizedType()/*1.5*/) {
-					return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
+					return environment().createGetClassMethod(receiverType, methodBinding, this);
 		    }
 			return methodBinding;
 		} catch (AbortCompilation e) {
