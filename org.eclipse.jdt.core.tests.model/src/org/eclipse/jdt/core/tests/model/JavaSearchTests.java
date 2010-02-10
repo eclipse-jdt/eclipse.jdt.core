@@ -661,6 +661,7 @@ public void testZIPArchive1() throws Exception {
 			getExternalResourcePath("externalLib.abc"));
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
+		waitUntilIndexesReady();
 
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")});
 		search("foo", METHOD, DECLARATIONS, scope);
@@ -688,6 +689,7 @@ public void testZIPArchive2() throws Exception {
 			},
 			getExternalResourcePath("externalLib.abc"));
 		refreshExternalArchives(p);
+		waitUntilIndexesReady();
 
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine(this.workingCopies).searchAllTypeNames(
