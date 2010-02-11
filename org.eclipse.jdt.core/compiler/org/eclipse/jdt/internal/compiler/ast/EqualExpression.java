@@ -59,12 +59,6 @@ public class EqualExpression extends BinaryExpression {
 				}
 				break;
 		}
-		// set the optimize constant to optimize code gen
-		if ((initsWhenTrue.tagBits & FlowInfo.UNREACHABLE) != 0) {
-			this.optimizedBooleanConstant = BooleanConstant.fromValue(false);
-		} else if ((initsWhenFalse.tagBits & FlowInfo.UNREACHABLE) != 0) {
-			this.optimizedBooleanConstant = BooleanConstant.fromValue(true);
-		}
 		// we do not impact enclosing try context because this kind of protection
 		// does not preclude the variable from being null in an enclosing scope
 	}
