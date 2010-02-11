@@ -151,5 +151,35 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 		assertPerformance();
 
 	}
+	
+	// Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=301438
+	public void testPerSuperTypes() throws CoreException {
+		tagAsSummary("Type hierarchy", true); // put in fingerprint
+		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
+		assertNotNull("Parser not found!", unit);
+
+		// Warm up
+		for (int i=0; i<WARMUP_COUNT; i++) {
+			IType[] types = unit.getType("Parser").newSupertypeHierarchy(null).getAllClasses();
+			if (i==0) {
+				System.out.println("  - "+INT_FORMAT.format(types.length)+" all classes found in hierarchy.");
+			}
+		}
+
+		// Clean memory
+		runGc();
+
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			runGc();
+			startMeasuring();
+			unit.getType("Parser").newSupertypeHierarchy(null).getAllClasses();
+			stopMeasuring();
+		}
+
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+	}
 
 }
