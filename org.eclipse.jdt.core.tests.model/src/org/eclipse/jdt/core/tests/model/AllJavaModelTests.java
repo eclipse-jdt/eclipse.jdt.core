@@ -180,6 +180,9 @@ private static Class[] getAllTestClasses() {
 
 		// Creation of imports
 		CreateImportsTests.class,
+		
+		// Util tests
+		UtilTests.class,
 	};
 
 	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();

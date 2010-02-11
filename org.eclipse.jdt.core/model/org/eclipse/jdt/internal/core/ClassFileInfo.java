@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -139,7 +139,7 @@ private IMemberValuePair[] getTargetElementTypes(long tagBits) {
 	final Object value;
 	if (values.size() == 0) {
 		if ((tagBits & TagBits.AnnotationTarget) != 0)
-			value = new String[0];
+			value = CharOperation.NO_STRINGS;
 		else
 			return Annotation.NO_MEMBER_VALUE_PAIRS;
 	} else if (values.size() == 1) {
