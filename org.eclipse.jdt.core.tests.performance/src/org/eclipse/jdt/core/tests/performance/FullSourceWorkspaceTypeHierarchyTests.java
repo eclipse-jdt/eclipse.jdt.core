@@ -40,7 +40,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	}
 
 	static {
-		TESTS_NAMES = new String[] { "testPerSuperTypes" };
+//		TESTS_NAMES = new String[] { "testPerSuperTypes" };
 	}
 	public static Test suite() {
         Test suite = buildSuite(testClass());
