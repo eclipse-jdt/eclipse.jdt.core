@@ -56,6 +56,17 @@ public boolean isText() {
 	return false;
 }
 
+/**
+ * Returns whether the node is immutable or not. If <code>true</code>, then
+ * the formatter will leave it contents unchanged.
+ *
+ * @return <code>true</code> if the node is immutable, <code>false</code>
+ * 	otherwise.
+ */
+public boolean isImmutable() {
+	return false;
+}
+
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	toString(buffer);

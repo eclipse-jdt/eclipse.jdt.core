@@ -356,6 +356,7 @@ protected boolean parseIdentifierTag(boolean report) {
 		this.scanner.resetTo(this.index, this.javadocEnd);
 		return true;
 	}
+	this.tagValue = TAG_OTHERS_VALUE; // tag is invalid, do not keep the parsed tag value
 	return false;
 }
 
@@ -382,6 +383,7 @@ protected boolean parseParam() throws InvalidInputException {
 			}
 			this.scanner.resetTo(this.tagSourceEnd+1, this.javadocEnd);
 		}
+		this.tagValue = TAG_OTHERS_VALUE; // tag is invalid, do not keep the parsed tag value
 	}
 	return valid;
 }
@@ -394,6 +396,7 @@ protected boolean parseReference() throws InvalidInputException {
 	if (!valid) {
 		this.scanner.resetTo(this.tagSourceEnd+1, this.javadocEnd);
 		this.index = this.tagSourceEnd+1;
+		this.tagValue = TAG_OTHERS_VALUE; // tag is invalid, do not keep the parsed tag value
 	}
 	return valid;
 }
@@ -506,7 +509,7 @@ protected boolean parseTag(int previousPosition) throws InvalidInputException {
 			if (length == TAG_LINK_LENGTH && CharOperation.equals(TAG_LINK, tagName)) {
 				this.tagValue = TAG_LINK_VALUE;
 				if (this.inlineTagStarted || (this.kind & COMPLETION_PARSER) != 0) {
-					valid= parseReference();
+					valid = parseReference();
 				} else {
 					// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
 					// Cannot have @link outside inline comment
@@ -605,7 +608,6 @@ protected boolean parseTag(int previousPosition) throws InvalidInputException {
 	} else if (this.invalidTagName) {
 		this.textStart = previousPosition;
 	} else if (this.astPtr == ptr) {
-		this.tagValue = TAG_OTHERS_VALUE; // tag is invalid, do not keep the parsed tag value
 		createTag();
 	}
 	return true;
@@ -620,6 +622,7 @@ protected boolean parseThrows() {
 		// If invalid, restart from the end tag position
 		this.scanner.resetTo(this.tagSourceEnd+1, this.javadocEnd);
 		this.index = this.tagSourceEnd+1;
+		this.tagValue = TAG_OTHERS_VALUE; // tag is invalid, do not keep the parsed tag value
 	}
 	return valid;
 }

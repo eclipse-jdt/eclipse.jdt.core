@@ -2866,7 +2866,7 @@ public class Scribe implements IJavaDocTagConstants {
 							if (newLines > 0)  newLines = 1;
 						}
 					}
-					if (newLines == 0) {
+					if (newLines == 0 && (!node.isImmutable() || block.reference != null)) {
 						newLines = printJavadocBlockNodesNewLines(block, node, previousEnd);
 					}
 					printJavadocGapLines(previousEnd+1, nodeStart-1, newLines, clearBlankLines, false, null);
@@ -2898,18 +2898,16 @@ public class Scribe implements IJavaDocTagConstants {
 			// Print node
 			if (node.isText()) {
 				FormatJavadocText text = (FormatJavadocText) node;
-				if (text.isHtmlTag()) {
-					if (text.isImmutableHtmlTag()) {
-						// Indent if new line was added
-						if (newLines > 0 && this.commentIndentation != null) {
-					    	addInsertEdit(node.sourceStart, this.commentIndentation);
-					    	this.column += this.commentIndentation.length();
-						}
-						printJavadocHtmlImmutableTag(text, block, newLines > 0);
-						this.column += getTextLength(block, text);
-					} else {
-						printJavadocHtmlTag(text, block, newLines>0);
+				if (text.isImmutable()) {
+					// Indent if new line was added
+					if (newLines > 0 && this.commentIndentation != null) {
+				    	addInsertEdit(node.sourceStart, this.commentIndentation);
+				    	this.column += this.commentIndentation.length();
 					}
+					printJavadocImmutableText(text, block, newLines > 0);
+					this.column += getTextLength(block, text);
+				} else if (text.isHtmlTag()) {
+					printJavadocHtmlTag(text, block, newLines>0);
 				} else {
 					printJavadocText(text, block, newLines>0);
 				}
@@ -2934,15 +2932,29 @@ public class Scribe implements IJavaDocTagConstants {
  	    try {
 			this.scanner.resetTo(nodeStart , node.sourceEnd);
 	    	int length = 0;
-	    	int newLines = 0;
 	    	boolean newLine = false;
 			boolean headerLine = block.isHeaderLine() && this.lastNumberOfNewLines == 0;
 			int firstColumn = 1 + this.indentationLevel + BLOCK_LINE_PREFIX_LENGTH;
 			if (this.commentIndentation != null) firstColumn += this.commentIndentation.length();
 			if (headerLine) maxColumn++;
-	    	if (node.isText()) {
-	    		FormatJavadocText text = (FormatJavadocText)node;
-    			if (text.isImmutableHtmlTag()) {
+			FormatJavadocText text = null;
+			boolean isImmutableNode = node.isImmutable();
+			boolean nodeIsText = node.isText();
+			if (nodeIsText) {
+	    		text = (FormatJavadocText)node;
+			} else {
+				FormatJavadocBlock inlinedBlock = (FormatJavadocBlock)node;
+				if (isImmutableNode) {
+					text = (FormatJavadocText) inlinedBlock.getLastNode();
+		    		length += inlinedBlock.tagEnd - inlinedBlock.sourceStart + 1;  // tag length
+			    	if (nodeStart > (previousEnd+1)) {
+			    		length++; // include space between nodes
+			    	}
+					this.scanner.resetTo(text.sourceStart , node.sourceEnd);
+				}
+			}
+	    	if (text != null) {
+    			if (isImmutableNode) {
 			    	if (nodeStart > (previousEnd+1)) {
 			    		length++; // include space between nodes
 			    	}
@@ -2952,8 +2964,10 @@ public class Scribe implements IJavaDocTagConstants {
 		    				int token = this.scanner.getNextToken();
 		    				switch (token) {
 		    					case TerminalTokens.TokenNameWHITESPACE:
-		    						if (CharOperation.indexOf('\n', this.scanner.source, this.scanner.startPosition, this.scanner.currentPosition) >= 0) {
-		    							return newLines;
+		    						if (nodeIsText) {
+			    						if (CharOperation.indexOf('\n', this.scanner.source, this.scanner.startPosition, this.scanner.currentPosition) >= 0) {
+			    							return 0;
+			    						}
 		    						}
 		    						length = 1;
 		    						break;
@@ -2975,15 +2989,10 @@ public class Scribe implements IJavaDocTagConstants {
 	    				}
 	    				lastColumn += length;
 	    				if (lastColumn > maxColumn) {
-							newLines++;
-				    		if (headerLine) {
-								maxColumn--;
-								headerLine = false;
-			    			}
-							lastColumn = firstColumn;
+	    					return 1;
 						}
 	    			}
-	    			return newLines;
+	    			return 0;
     			}
     			if (text.isHtmlTag()) {
     				if (text.getHtmlTagID() == JAVADOC_SINGLE_BREAK_TAG_ID) {
@@ -3146,7 +3155,7 @@ public class Scribe implements IJavaDocTagConstants {
 	private int getTextLength(FormatJavadocBlock block, FormatJavadocText text) {
 
 		// Special case for immutable tags
-		if (text.isImmutableHtmlTag()) {
+		if (text.isImmutable()) {
 			this.scanner.resetTo(text.sourceStart , text.sourceEnd);
 			int textLength = 0;
 			while (!this.scanner.atEnd()) {
@@ -3468,23 +3477,16 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 	}
 
-	private void printJavadocHtmlImmutableTag(FormatJavadocText text, FormatJavadocBlock block, boolean textOnNewLine) {
+	private void printJavadocImmutableText(FormatJavadocText text, FormatJavadocBlock block, boolean textOnNewLine) {
 
 		try {
 			// Iterate on text line separators
 			int lineNumber = text.lineStart;
 			this.scanner.tokenizeWhiteSpace = false;
 			StringBuffer buffer = null;
-			for (int idx=1, max=text.separatorsPtr; idx<max ; idx++) {
+			for (int idx=0, max=text.separatorsPtr; idx<=max ; idx++) {
 				int start = (int) text.separators[idx];
-				int lineStart = Util.getLineNumber(start, this.lineEnds, lineNumber, this.maxLines);
-				if (buffer == null) {
-					buffer = new StringBuffer();
-					this.column = 1;
-					printIndentationIfNecessary(buffer);
-					buffer.append(BLOCK_LINE_PREFIX);
-					this.column += BLOCK_LINE_PREFIX_LENGTH;
-				}
+				int lineStart = Util.getLineNumber(start, this.lineEnds, lineNumber-1, this.maxLines);
 				while (lineNumber < lineStart) {
 					int end = this.lineEnds[lineNumber-1];
 					this.scanner.resetTo(end, start);
@@ -3498,6 +3500,13 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 					if (this.scanner.currentCharacter == ' ') {
 						this.scanner.getNextChar();
+					}
+					if (buffer == null) {
+						buffer = new StringBuffer();
+						this.column = 1;
+						printIndentationIfNecessary(buffer);
+						buffer.append(BLOCK_LINE_PREFIX);
+						this.column += BLOCK_LINE_PREFIX_LENGTH;
 					}
 					addReplaceEdit(end+1, this.scanner.getCurrentTokenEndPosition(), buffer.toString());
 					lineNumber++;
@@ -3562,7 +3571,7 @@ public class Scribe implements IJavaDocTagConstants {
 				if (textStart < previousEnd) {
 					addReplaceEdit(textStart, previousEnd, buffer.toString());
 				}
-				boolean immutable = htmlTag == null ? false : htmlTag.isImmutableHtmlTag();
+				boolean immutable = node.isImmutable();
 				if (newLines == 0) {
 					newLines = printJavadocBlockNodesNewLines(block, node, previousEnd);
 				}
@@ -3579,7 +3588,7 @@ public class Scribe implements IJavaDocTagConstants {
 					    	addInsertEdit(node.sourceStart, this.commentIndentation);
 					    	this.column += this.commentIndentation.length();
 						}
-						printJavadocHtmlImmutableTag(htmlTag, block, textOnNewLine);
+						printJavadocImmutableText(htmlTag, block, textOnNewLine);
 						this.column += getTextLength(block, htmlTag);
 						linesAfter = 0;
 					} else {

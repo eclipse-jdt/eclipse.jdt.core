@@ -4071,8 +4071,7 @@ public void testBug260011_07() throws JavaModelException {
 		"\n" + 
 		"	/**\n" + 
 		"	 * Returns the change directly associated with this change element or <code\n" + 
-		"	 * null</code>\n" + 
-		"	 * if the element isn\'t associated with a change.\n" + 
+		"	 * null</code> if the element isn\'t associated with a change.\n" + 
 		"	 * \n" + 
 		"	 * @return the change or <code>null</code>\n" + 
 		"	 */\n" + 
@@ -4393,6 +4392,695 @@ public void testBug260276c() throws JavaModelException {
 		"	/*\n" + 
 		"	 * a comment\n" + 
 		"	 */\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 260381: [formatter] Javadoc formatter breaks {@code ...} tags.
+ * @test Ensure that the @code tag is similar to <code> HTML tag
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260381"
+ */
+public void testBug260381() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" * @version {@code $Revision: 1.2 $ $Date: 2009/01/07 12:27:50 $ $Author:myself $ $Source: /projects/cvs/module/project/src/com/foo/Main.java,v $}\n" + 
+		" */\n" + 
+		"public class X01 {\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug260381b() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" * @version <code>$Revision: 1.2 $ $Date: 2009/01/07 12:27:50 $ $Author:myself $ $Source: /projects/cvs/module/project/src/com/foo/Main.java,v $</code>\n" + 
+		" */\n" + 
+		"public class X01b {\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug260381c() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" * @version\n" + 
+		" *          <code>3.0 xxxxxxxxxxxxxx xwxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>\n" + 
+		" */\n" + 
+		"public class X01c {\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" * @version <code>3.0 xxxxxxxxxxxxxx xwxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>\n" + 
+		" */\n" + 
+		"public class X01c {\n" + 
+		"}\n"
+	);
+}
+public void testBug260381d() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" *  @see Object <code>$Revision: 1.2 $ $Date: 2009/01/07 12:27:50 $ $Author:myself $ $Source: /projects/cvs/module/project/src/com/foo/Main.java,v $</code>\n" + 
+		" */\n" + 
+		"public class X02 {\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" * @see Object\n" + 
+		" *      <code>$Revision: 1.2 $ $Date: 2009/01/07 12:27:50 $ $Author:myself $ $Source: /projects/cvs/module/project/src/com/foo/Main.java,v $</code>\n" + 
+		" */\n" + 
+		"public class X02 {\n" + 
+		"}\n"
+	);
+}
+public void testBug260381e() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * {@code $Revision: 1.2 $ $Date: 2009/01/07 12:27:50 $ $Author:myself $\n" + 
+		" * $Source: /projects/cvs/module/project/src/com/foo/Main.java,v $}\n" + 
+		" */\n" + 
+		"public class X03 {\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug260381f() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Literal inline tag should also be untouched by the formatter\n" + 
+		" * \n" + 
+		" * @version {@literal $Revision: 1.2 $ $Date: 2009/01/07 12:27:50 $ $Author:myself $ $Source: /projects/cvs/module/project/src/com/foo/Main.java,v $}\n" + 
+		" */\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug260381_wksp1_01() throws JavaModelException {
+	String source =
+		"package wksp1;\n" +
+		"\n" +
+		"public interface I01 {\n" +
+		"\n" +
+		"	/**\n" +
+		"	 * Returns all configured content types for the given source viewer. This list\n" +
+		"	 * tells the caller which content types must be configured for the given source \n" +
+		"	 * viewer, i.e. for which content types the given source viewer\'s functionalities\n" +
+		"	 * must be specified. This implementation always returns <code>\n" +
+		"	 * new String[] { IDocument.DEFAULT_CONTENT_TYPE }</code>.\n" +
+		"	 *\n" +
+		"	 * @param source the source viewer to be configured by this configuration\n" +
+		"	 * @return the configured content types for the given viewer\n" +
+		"	 */\n" +
+		"	public String[] getConfiguredContentTypes(String source);\n" +
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" +
+		"\n" +
+		"public interface I01 {\n" +
+		"\n" +
+		"	/**\n" +
+		"	 * Returns all configured content types for the given source viewer. This\n" +
+		"	 * list tells the caller which content types must be configured for the\n" +
+		"	 * given source viewer, i.e. for which content types the given source\n" +
+		"	 * viewer\'s functionalities must be specified. This implementation always\n" +
+		"	 * returns <code>\n" +
+		"	 * new String[] { IDocument.DEFAULT_CONTENT_TYPE }</code>.\n" +
+		"	 * \n" +
+		"	 * @param source\n" +
+		"	 *            the source viewer to be configured by this configuration\n" +
+		"	 * @return the configured content types for the given viewer\n" +
+		"	 */\n" +
+		"	public String[] getConfiguredContentTypes(String source);\n" +
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_01() throws JavaModelException {
+	String source = 
+		"package wksp2;\n" + 
+		"public interface I01 {\n" + 
+		"	/**\n" + 
+		"	 * Returns the composition of two functions. For {@code f: A->B} and\n" + 
+		"	 * {@code g: B->C}, composition is defined as the function h such that\n" + 
+		"	 * {@code h(a) == g(f(a))} for each {@code a}.\n" + 
+		"	 *\n" + 
+		"	 * @see <a href=\"//en.wikipedia.org/wiki/Function_composition\">\n" + 
+		"	 * function composition</a>\n" + 
+		"	 *\n" + 
+		"	 * @param g the second function to apply\n" + 
+		"	 * @param f the first function to apply\n" + 
+		"	 * @return the composition of {@code f} and {@code g}\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I01 {\n" + 
+		"	/**\n" + 
+		"	 * Returns the composition of two functions. For {@code f: A->B} and\n" + 
+		"	 * {@code g: B->C}, composition is defined as the function h such that\n" + 
+		"	 * {@code h(a) == g(f(a))} for each {@code a}.\n" + 
+		"	 * \n" + 
+		"	 * @see <a href=\"//en.wikipedia.org/wiki/Function_composition\"> function\n" + 
+		"	 *      composition</a>\n" + 
+		"	 * \n" + 
+		"	 * @param g\n" + 
+		"	 *            the second function to apply\n" + 
+		"	 * @param f\n" + 
+		"	 *            the first function to apply\n" + 
+		"	 * @return the composition of {@code f} and {@code g}\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_01b() throws JavaModelException {
+	String source = 
+		"package wksp2;\n" + 
+		"public interface I01b {\n" + 
+		"  /**\n" + 
+		"   * Returns the composition of two functions. For <code> f: A->B</code> and\n" + 
+		"   * <code> g: B->C</code>, composition is defined as the function h such that\n" + 
+		"   * <code> h(a) == g(f(a))</code> for each <code> a</code>.\n" + 
+		"   *\n" + 
+		"   * @see <a href=\"//en.wikipedia.org/wiki/Function_composition\">\n" + 
+		"   * function composition</a>\n" + 
+		"   *\n" + 
+		"   * @param g the second function to apply\n" + 
+		"   * @param f the first function to apply\n" + 
+		"   * @return the composition of <code> f</code> and <code> g</code>\n" + 
+		"   */\n" + 
+		"  void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I01b {\n" + 
+		"	/**\n" + 
+		"	 * Returns the composition of two functions. For <code> f: A->B</code> and\n" + 
+		"	 * <code> g: B->C</code>, composition is defined as the function h such that\n" + 
+		"	 * <code> h(a) == g(f(a))</code> for each <code> a</code>.\n" + 
+		"	 * \n" + 
+		"	 * @see <a href=\"//en.wikipedia.org/wiki/Function_composition\"> function\n" + 
+		"	 *      composition</a>\n" + 
+		"	 * \n" + 
+		"	 * @param g\n" + 
+		"	 *            the second function to apply\n" + 
+		"	 * @param f\n" + 
+		"	 *            the first function to apply\n" + 
+		"	 * @return the composition of <code> f</code> and <code> g</code>\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_01c() throws JavaModelException {
+	String source = 
+		"package wksp2;\n" + 
+		"public interface I01c {\n" + 
+		"  /**\n" + 
+		"   * Returns the composition of two functions. For <code> f: A->B</code> and\n" + 
+		"   * <code>\n" + 
+		"   * g: B->C\n" + 
+		"   * </code>,\n" + 
+		"   * composition is defined as the function h such that\n" + 
+		"   * <code>\n" + 
+		"   *  h(a) == g(f(a))\n" + 
+		"   *  </code>\n" + 
+		"   *  for each\n" + 
+		"   *  <code>\n" + 
+		"   *  a\n" + 
+		"   *  </code>.\n" + 
+		"   *\n" + 
+		"   * @see <a href=\"//en.wikipedia.org/wiki/Function_composition\">\n" + 
+		"   * function composition</a>\n" + 
+		"   *\n" + 
+		"   * @param g the second function to apply\n" + 
+		"   * @param f the first function to apply\n" + 
+		"   * @return the composition of <code> f</code> and <code> g</code>\n" + 
+		"   */\n" + 
+		"  void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I01c {\n" + 
+		"	/**\n" + 
+		"	 * Returns the composition of two functions. For <code> f: A->B</code> and\n" + 
+		"	 * <code>\n" + 
+		"	 * g: B->C\n" + 
+		"	 * </code>, composition is defined as the function h such that <code>\n" + 
+		"	 *  h(a) == g(f(a))\n" + 
+		"	 *  </code> for each <code>\n" + 
+		"	 *  a\n" + 
+		"	 *  </code>.\n" + 
+		"	 * \n" + 
+		"	 * @see <a href=\"//en.wikipedia.org/wiki/Function_composition\"> function\n" + 
+		"	 *      composition</a>\n" + 
+		"	 * \n" + 
+		"	 * @param g\n" + 
+		"	 *            the second function to apply\n" + 
+		"	 * @param f\n" + 
+		"	 *            the first function to apply\n" + 
+		"	 * @return the composition of <code> f</code> and <code> g</code>\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_02() throws JavaModelException {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I02 {\n" + 
+		"\n" + 
+		"  /**\n" + 
+		"   * Implementations of {@code computeNext} <b>must</b> invoke this method when\n" + 
+		"   * there are no elements left in the iteration.\n" + 
+		"   *\n" + 
+		"   * @return {@code null}; a convenience so your {@link #computeNext}\n" + 
+		"   *     implementation can use the simple statement {@code return endOfData();}\n" + 
+		"   */\n" + 
+		"  void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I02 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Implementations of {@code computeNext} <b>must</b> invoke this method\n" + 
+		"	 * when there are no elements left in the iteration.\n" + 
+		"	 * \n" + 
+		"	 * @return {@code null}; a convenience so your {@link #computeNext}\n" + 
+		"	 *         implementation can use the simple statement\n" + 
+		"	 *         {@code return endOfData();}\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_03() throws JavaModelException {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I03 {\n" + 
+		"  /**\n" + 
+		"   * A builder for creating immutable bimap instances, especially {@code public\n" + 
+		"   * static final} bimaps (\"constant bimaps\"). Example: <pre>   {@code\n" + 
+		"   *\n" + 
+		"   *   static final ImmutableBiMap<String, Integer> WORD_TO_INT =\n" + 
+		"   *       new ImmutableBiMap.Builder<String, Integer>()\n" + 
+		"   *           .put(\"one\", 1)\n" + 
+		"   *           .put(\"two\", 2)\n" + 
+		"   *           .put(\"three\", 3)\n" + 
+		"   *           .build();}</pre>\n" + 
+		"   *\n" + 
+		"   * For <i>small</i> immutable bimaps, the {@code ImmutableBiMap.of()} methods\n" + 
+		"   * are even more convenient.\n" + 
+		"   *\n" + 
+		"   * <p>Builder instances can be reused - it is safe to call {@link #build}\n" + 
+		"   * multiple times to build multiple bimaps in series. Each bimap is a superset\n" + 
+		"   * of the bimaps created before it.\n" + 
+		"   */\n" + 
+		"  void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I03 {\n" + 
+		"	/**\n" + 
+		"	 * A builder for creating immutable bimap instances, especially\n" + 
+		"	 * {@code public static final} bimaps (\"constant bimaps\"). Example:\n" + 
+		"	 * \n" + 
+		"	 * <pre>\n" + 
+		"	 * {\n" + 
+		"	 * 	&#064;code\n" + 
+		"	 * 	static final ImmutableBiMap&lt;String, Integer&gt; WORD_TO_INT = new ImmutableBiMap.Builder&lt;String, Integer&gt;()\n" + 
+		"	 * 			.put(&quot;one&quot;, 1).put(&quot;two&quot;, 2).put(&quot;three&quot;, 3).build();\n" + 
+		"	 * }\n" + 
+		"	 * </pre>\n" + 
+		"	 * \n" + 
+		"	 * For <i>small</i> immutable bimaps, the {@code ImmutableBiMap.of()}\n" + 
+		"	 * methods are even more convenient.\n" + 
+		"	 * \n" + 
+		"	 * <p>\n" + 
+		"	 * Builder instances can be reused - it is safe to call {@link #build}\n" + 
+		"	 * multiple times to build multiple bimaps in series. Each bimap is a\n" + 
+		"	 * superset of the bimaps created before it.\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_04() throws JavaModelException {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I04 {\n" + 
+		"\n" + 
+		"  /**\n" + 
+		"   * Returns an immutable multiset containing the given elements.\n" + 
+		"   * \n" + 
+		"   * <p>The multiset is ordered by the first occurrence of each element. For\n" + 
+		"   * example, {@code ImmutableMultiset.copyOf(Arrays.asList(2, 3, 1, 3))} yields\n" + 
+		"   * a multiset with elements in the order {@code 2, 3, 3, 1}.\n" + 
+		"   *\n" + 
+		"   * <p>Note that if {@code c} is a {@code Collection<String>}, then {@code\n" + 
+		"   * ImmutableMultiset.copyOf(c)} returns an {@code ImmutableMultiset<String>}\n" + 
+		"   * containing each of the strings in {@code c}, while\n" + 
+		"   * {@code ImmutableMultiset.of(c)} returns an\n" + 
+		"   * {@code ImmutableMultiset<Collection<String>>} containing one element (the\n" + 
+		"   * given collection itself).\n" + 
+		"   *\n" + 
+		"   * <p><b>Note:</b> Despite what the method name suggests, if {@code elements}\n" + 
+		"   * is an {@code ImmutableMultiset}, no copy will actually be performed, and\n" + 
+		"   * the given multiset itself will be returned.\n" + 
+		"   *\n" + 
+		"   * @throws NullPointerException if any of {@code elements} is null\n" + 
+		"   */\n" + 
+		"  void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I04 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Returns an immutable multiset containing the given elements.\n" + 
+		"	 * \n" + 
+		"	 * <p>\n" + 
+		"	 * The multiset is ordered by the first occurrence of each element. For\n" + 
+		"	 * example, {@code ImmutableMultiset.copyOf(Arrays.asList(2, 3, 1, 3))}\n" + 
+		"	 * yields a multiset with elements in the order {@code 2, 3, 3, 1}.\n" + 
+		"	 * \n" + 
+		"	 * <p>\n" + 
+		"	 * Note that if {@code c} is a {@code Collection<String>}, then\n" + 
+		"	 * {@code ImmutableMultiset.copyOf(c)} returns an\n" + 
+		"	 * {@code ImmutableMultiset<String>} containing each of the strings in\n" + 
+		"	 * {@code c}, while {@code ImmutableMultiset.of(c)} returns an\n" + 
+		"	 * {@code ImmutableMultiset<Collection<String>>} containing one element (the\n" + 
+		"	 * given collection itself).\n" + 
+		"	 * \n" + 
+		"	 * <p>\n" + 
+		"	 * <b>Note:</b> Despite what the method name suggests, if {@code elements}\n" + 
+		"	 * is an {@code ImmutableMultiset}, no copy will actually be performed, and\n" + 
+		"	 * the given multiset itself will be returned.\n" + 
+		"	 * \n" + 
+		"	 * @throws NullPointerException\n" + 
+		"	 *             if any of {@code elements} is null\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_05() throws JavaModelException {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I05 {\n" + 
+		"\n" + 
+		"  /**\n" + 
+		"   * Indexes the specified values into a {@code Multimap} by applying a\n" + 
+		"   * specified function to each item in an {@code Iterable} of values. Each\n" + 
+		"   * value will be stored as a value in the specified multimap. The key used to\n" + 
+		"   * store that value in the multimap will be the result of calling the function\n" + 
+		"   * on that value. Depending on the multimap implementation, duplicate entries\n" + 
+		"   * (equal keys and equal values) may be collapsed.\n" + 
+		"   *\n" + 
+		"   * <p>For example,\n" + 
+		"   *\n" + 
+		"   * <pre class=\"code\">\n" + 
+		"   * List&lt;String> badGuys =\n" + 
+		"   *   Arrays.asList(\"Inky\", \"Blinky\", \"Pinky\", \"Pinky\", \"Clyde\");\n" + 
+		"   * Function&lt;String, Integer> stringLengthFunction = ...;\n" + 
+		"   * Multimap&lt;Integer, String> index = Multimaps.newHashMultimap();\n" + 
+		"   * Multimaps.index(badGuys, stringLengthFunction, index);\n" + 
+		"   * System.out.println(index); </pre>\n" + 
+		"   *\n" + 
+		"   * prints\n" + 
+		"   *\n" + 
+		"   * <pre class=\"code\">\n" + 
+		"   * {4=[Inky], 5=[Pinky, Clyde], 6=[Blinky]} </pre>\n" + 
+		"   *\n" + 
+		"   * The {@link HashMultimap} collapses the duplicate occurrence of\n" + 
+		"   * {@code (5, \"Pinky\")}.\n" + 
+		"   *\n" + 
+		"   * @param values the values to add to the multimap\n" + 
+		"   * @param keyFunction the function used to produce the key for each value\n" + 
+		"   * @param multimap the multimap to store the key value pairs\n" + 
+		"   */\n" + 
+		"  void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I05 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Indexes the specified values into a {@code Multimap} by applying a\n" + 
+		"	 * specified function to each item in an {@code Iterable} of values. Each\n" + 
+		"	 * value will be stored as a value in the specified multimap. The key used\n" + 
+		"	 * to store that value in the multimap will be the result of calling the\n" + 
+		"	 * function on that value. Depending on the multimap implementation,\n" + 
+		"	 * duplicate entries (equal keys and equal values) may be collapsed.\n" + 
+		"	 * \n" + 
+		"	 * <p>\n" + 
+		"	 * For example,\n" + 
+		"	 * \n" + 
+		"	 * <pre class=\"code\">\n" + 
+		"	 * List&lt;String> badGuys =\n" + 
+		"	 *   Arrays.asList(\"Inky\", \"Blinky\", \"Pinky\", \"Pinky\", \"Clyde\");\n" + 
+		"	 * Function&lt;String, Integer> stringLengthFunction = ...;\n" + 
+		"	 * Multimap&lt;Integer, String> index = Multimaps.newHashMultimap();\n" + 
+		"	 * Multimaps.index(badGuys, stringLengthFunction, index);\n" + 
+		"	 * System.out.println(index);\n" + 
+		"	 * </pre>\n" + 
+		"	 * \n" + 
+		"	 * prints\n" + 
+		"	 * \n" + 
+		"	 * <pre class=\"code\">\n" + 
+		"	 * {4=[Inky], 5=[Pinky, Clyde], 6=[Blinky]}\n" + 
+		"	 * </pre>\n" + 
+		"	 * \n" + 
+		"	 * The {@link HashMultimap} collapses the duplicate occurrence of\n" + 
+		"	 * {@code (5, \"Pinky\")}.\n" + 
+		"	 * \n" + 
+		"	 * @param values\n" + 
+		"	 *            the values to add to the multimap\n" + 
+		"	 * @param keyFunction\n" + 
+		"	 *            the function used to produce the key for each value\n" + 
+		"	 * @param multimap\n" + 
+		"	 *            the multimap to store the key value pairs\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_06() throws JavaModelException {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I06 {\n" + 
+		"\n" + 
+		"  /**\n" + 
+		"   * Adds a number of occurrences of an element to this multiset. Note that if\n" + 
+		"   * {@code occurrences == 1}, this method has the identical effect to {@link\n" + 
+		"   * #add(Object)}. This method is functionally equivalent (except in the case\n" + 
+		"   * of overflow) to the call {@code addAll(Collections.nCopies(element,\n" + 
+		"   * occurrences))}, which would presumably perform much more poorly.\n" + 
+		"   *\n" + 
+		"   * @param element the element to add occurrences of; may be {@code null} only\n" + 
+		"   *     if explicitly allowed by the implementation\n" + 
+		"   * @param occurrences the number of occurrences of this element to add. May\n" + 
+		"   *     be zero, in which case no change will be made.\n" + 
+		"   * @return the previous count of this element before the operation; possibly\n" + 
+		"   *     zero - TODO: make this the actual behavior!\n" + 
+		"   * @throws IllegalArgumentException if {@code occurrences} is negative, or if\n" + 
+		"   *     this operation would result in more than {@link Integer#MAX_VALUE}\n" + 
+		"   *     occurrences of the element \n" + 
+		"   * @throws NullPointerException if {@code element} is null and this\n" + 
+		"   *     implementation does not permit null elements. Note that if {@code\n" + 
+		"   *     occurrences} is zero, the implementation may opt to return normally.\n" + 
+		"   */\n" + 
+		"  boolean /*int*/ add(E element, int occurrences);\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I06 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Adds a number of occurrences of an element to this multiset. Note that if\n" + 
+		"	 * {@code occurrences == 1}, this method has the identical effect to\n" + 
+		"	 * {@link #add(Object)}. This method is functionally equivalent (except in\n" + 
+		"	 * the case of overflow) to the call\n" + 
+		"	 * {@code addAll(Collections.nCopies(element, occurrences))}, which would\n" + 
+		"	 * presumably perform much more poorly.\n" + 
+		"	 * \n" + 
+		"	 * @param element\n" + 
+		"	 *            the element to add occurrences of; may be {@code null} only if\n" + 
+		"	 *            explicitly allowed by the implementation\n" + 
+		"	 * @param occurrences\n" + 
+		"	 *            the number of occurrences of this element to add. May be zero,\n" + 
+		"	 *            in which case no change will be made.\n" + 
+		"	 * @return the previous count of this element before the operation; possibly\n" + 
+		"	 *         zero - TODO: make this the actual behavior!\n" + 
+		"	 * @throws IllegalArgumentException\n" + 
+		"	 *             if {@code occurrences} is negative, or if this operation\n" + 
+		"	 *             would result in more than {@link Integer#MAX_VALUE}\n" + 
+		"	 *             occurrences of the element\n" + 
+		"	 * @throws NullPointerException\n" + 
+		"	 *             if {@code element} is null and this implementation does not\n" + 
+		"	 *             permit null elements. Note that if {@code occurrences} is\n" + 
+		"	 *             zero, the implementation may opt to return normally.\n" + 
+		"	 */\n" + 
+		"	boolean /* int */add(E element, int occurrences);\n" + 
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_07() throws JavaModelException {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I07 {\n" + 
+		"\n" + 
+		"  /**\n" + 
+		"   * Constructs a new, empty multiset, sorted according to the specified\n" + 
+		"   * comparator. All elements inserted into the multiset must be <i>mutually\n" + 
+		"   * comparable</i> by the specified comparator: {@code comparator.compare(e1,\n" + 
+		"   * e2)} must not throw a {@code ClassCastException} for any elements {@code\n" + 
+		"   * e1} and {@code e2} in the multiset. If the user attempts to add an element\n" + 
+		"   * to the multiset that violates this constraint, the {@code add(Object)} call\n" + 
+		"   * will throw a {@code ClassCastException}.\n" + 
+		"   *\n" + 
+		"   * @param comparator the comparator that will be used to sort this multiset. A\n" + 
+		"   *     null value indicates that the elements\' <i>natural ordering</i> should\n" + 
+		"   *     be used.\n" + 
+		"   */\n" + 
+		"  void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I07 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Constructs a new, empty multiset, sorted according to the specified\n" + 
+		"	 * comparator. All elements inserted into the multiset must be <i>mutually\n" + 
+		"	 * comparable</i> by the specified comparator:\n" + 
+		"	 * {@code comparator.compare(e1, e2)} must not throw a\n" + 
+		"	 * {@code ClassCastException} for any elements {@code e1} and {@code e2} in\n" + 
+		"	 * the multiset. If the user attempts to add an element to the multiset that\n" + 
+		"	 * violates this constraint, the {@code add(Object)} call will throw a\n" + 
+		"	 * {@code ClassCastException}.\n" + 
+		"	 * \n" + 
+		"	 * @param comparator\n" + 
+		"	 *            the comparator that will be used to sort this multiset. A null\n" + 
+		"	 *            value indicates that the elements\' <i>natural ordering</i>\n" + 
+		"	 *            should be used.\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_08() throws JavaModelException {
+	String source =
+		"package wksp2;\n" +
+		"\n" +
+		"public interface I08 {\n" +
+		"\n" +
+		"	  /**\n" +
+		"	   * Returns the composition of a function and a predicate. For every {@code x},\n" +
+		"	   * the generated predicate returns {@code predicate(function(x))}.\n" +
+		"	   *\n" +
+		"	   * @return the composition of the provided function and predicate\n" +
+		"	   */\n" +
+		"	void foo();\n" +
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" +
+		"\n" +
+		"public interface I08 {\n" +
+		"\n" +
+		"	/**\n" +
+		"	 * Returns the composition of a function and a predicate. For every\n" +
+		"	 * {@code x}, the generated predicate returns {@code predicate(function(x))}\n" +
+		"	 * .\n" +
+		"	 * \n" +
+		"	 * @return the composition of the provided function and predicate\n" +
+		"	 */\n" +
+		"	void foo();\n" +
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_09() throws JavaModelException {
+	String source =
+		"package wksp2;\n" +
+		"\n" +
+		"/**\n" +
+		"	A Conditional represents an if/then/else block.\n" +
+		"	When this is created the code  will already have\n" +
+		"	the conditional check code. The code is optimized for branch\n" +
+		"	offsets that fit in 2 bytes, though will handle 4 byte offsets.\n" +
+		"<code>\n" +
+		"     if condition\n" +
+		"	 then code\n" +
+		"	 else code\n" +
+		"</code>\n" +
+		"     what actually gets built is\n" +
+		"<code>\n" +
+		"     if !condition branch to eb:\n" +
+		"	  then code\n" +
+		"	  goto end:  // skip else\n" +
+		"	 eb:\n" +
+		"	  else code\n" +
+		"	 end:\n" +
+		"</code>\n" +
+		"*/\n" +
+		"public class X09 {\n" +
+		"\n" +
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" +
+		"\n" +
+		"/**\n" +
+		" * A Conditional represents an if/then/else block. When this is created the code\n" +
+		" * will already have the conditional check code. The code is optimized for\n" +
+		" * branch offsets that fit in 2 bytes, though will handle 4 byte offsets. <code>\n" +
+		"     if condition\n" +
+		"	 then code\n" +
+		"	 else code\n" +
+		"</code>\n" +
+		" * what actually gets built is <code>\n" +
+		"     if !condition branch to eb:\n" +
+		"	  then code\n" +
+		"	  goto end:  // skip else\n" +
+		"	 eb:\n" +
+		"	  else code\n" +
+		"	 end:\n" +
+		"</code>\n" +
+		" */\n" +
+		"public class X09 {\n" +
+		"\n" +
 		"}\n"
 	);
 }

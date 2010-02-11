@@ -31,6 +31,7 @@ public class FormatJavadocText extends FormatJavadocNode implements IJavaDocTagC
 	long[] separators;
 	int separatorsPtr = -1;
 	private int htmlTagIndex = -1;
+	boolean immutable = false;
 	FormatJavadocNode[] htmlNodes;
 	int[] htmlIndexes;
 	int htmlNodesPtr = -1;
@@ -49,6 +50,7 @@ public FormatJavadocText(int start, int end, int line, int htmlIndex, int htmlDe
  * child node.
  */
 void appendText(FormatJavadocText text) {
+	this.immutable = text.immutable;
 	if (this.depth == text.depth) {
 		addSeparator(text);
 		this.sourceEnd = text.sourceEnd;
@@ -167,9 +169,25 @@ public boolean isHtmlTag() {
  *
  * @return <code>true</code> if the node is an immutable tag,
  *		<code>false</code> otherwise.
+ *@deprecated Use {@link #isImmutable()} instead
  */
 public boolean isImmutableHtmlTag() {
 	return this.htmlTagIndex != -1 && (this.htmlTagIndex & JAVADOC_TAGS_ID_MASK) == JAVADOC_IMMUTABLE_TAGS_ID;
+
+}
+
+/**
+ * Returns whether the text is immutable or not.
+ * <p>
+ * A text in considered as immutable when it  belongs to an immutable block
+ * or when it's an immutable html tag.
+ * </p>
+ *
+ * @return <code>true</code> if the node is an immutable tag,
+ *		<code>false</code> otherwise.
+ */
+public boolean isImmutable() {
+	return this.immutable || (this.htmlTagIndex != -1 && (this.htmlTagIndex & JAVADOC_TAGS_ID_MASK) == JAVADOC_IMMUTABLE_TAGS_ID);
 
 }
 

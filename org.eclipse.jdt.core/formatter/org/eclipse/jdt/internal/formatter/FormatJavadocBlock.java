@@ -31,6 +31,7 @@ public class FormatJavadocBlock extends FormatJavadocNode implements IJavaDocTag
 	final static int PARAM_TAG = 0x0020;
 	final static int IN_PARAM_TAG = 0x0040;
 	final static int IN_DESCRIPTION = 0x0080;
+	final static int IMMUTABLE = 0x0100;
 
 	// constants
 	final static int MAX_TAG_HIERARCHY = 10;
@@ -53,6 +54,11 @@ public FormatJavadocBlock(int start, int end, int line, int value) {
 		case TAG_THROWS_VALUE:
 		case TAG_EXCEPTION_VALUE:
 			this.flags |= PARAM_TAG;
+			break;
+		case TAG_CODE_VALUE:
+		case TAG_LITERAL_VALUE:
+			this.flags |= IMMUTABLE;
+			break;
 	}
 }
 
@@ -141,6 +147,9 @@ void addText(FormatJavadocText text) {
 		}
 	}
 	addNode(text);
+	if (isImmutable()) {
+		text.immutable = true;
+	}
 }
 
 void clean() {
@@ -322,6 +331,19 @@ public boolean isParamTag() {
 	return (this.flags & PARAM_TAG) == PARAM_TAG;
 }
 
+/**
+ * Returns whether the block is immutable or not.
+ * <p>
+ * Currently, only {@code} and {@literal} inline tags block are considered as
+ * immutable.
+ * </p>
+ * @return <code>true</code> if the block is immutable,
+ * 	<code>false</code> otherwise.
+ */
+public boolean isImmutable() {
+	return (this.flags & IMMUTABLE) == IMMUTABLE;
+}
+
 void setHeaderLine(int javadocLineStart) {
 	if (javadocLineStart == this.lineStart) {
 		this.flags |= ON_HEADER_LINE;
@@ -332,9 +354,10 @@ void setHeaderLine(int javadocLineStart) {
 }
 
 protected void toString(StringBuffer buffer) {
-	if ((this.flags & INLINED) != 0) buffer.append('{');
+	boolean inlined = (this.flags & INLINED) != 0;
+	if (inlined) buffer.append("	{"); //$NON-NLS-1$
 	buffer.append('@');
-	buffer.append(this.tagValue);
+	buffer.append(TAG_NAMES[this.tagValue]);
 	super.toString(buffer);
 	if (this.reference == null) {
 		buffer.append('\n');
@@ -345,6 +368,7 @@ protected void toString(StringBuffer buffer) {
 	}
 	if (this.nodesPtr > -1) {
 		for (int i = 0; i <= this.nodesPtr; i++) {
+			if (inlined) buffer.append('\t');
 			this.nodes[i].toString(buffer);
 		}
 	}
