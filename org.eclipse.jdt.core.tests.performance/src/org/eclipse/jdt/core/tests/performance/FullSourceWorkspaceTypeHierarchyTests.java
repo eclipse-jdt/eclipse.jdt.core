@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,7 +40,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	}
 
 	static {
-//		TESTS_NAMES = new String[] { "testPerfClassWithPotentialSubinterfaces" };
+		TESTS_NAMES = new String[] { "testPerSuperTypes" };
 	}
 	public static Test suite() {
         Test suite = buildSuite(testClass());
@@ -150,6 +150,36 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 		commitMeasurements();
 		assertPerformance();
 
+	}
+	
+	// Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=301438
+	public void testPerSuperTypes() throws CoreException {
+		tagAsSummary("Type hierarchy", true); // put in fingerprint
+		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
+		assertNotNull("Parser not found!", unit);
+
+		// Warm up
+		for (int i=0; i<WARMUP_COUNT; i++) {
+			IType[] types = unit.getType("Parser").newSupertypeHierarchy(null).getAllClasses();
+			if (i==0) {
+				System.out.println("  - "+INT_FORMAT.format(types.length)+" all classes found in hierarchy.");
+			}
+		}
+
+		// Clean memory
+		runGc();
+
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			runGc();
+			startMeasuring();
+			unit.getType("Parser").newSupertypeHierarchy(null).getAllClasses();
+			stopMeasuring();
+		}
+
+		// Commit
+		commitMeasurements();
+		assertPerformance();
 	}
 
 }
