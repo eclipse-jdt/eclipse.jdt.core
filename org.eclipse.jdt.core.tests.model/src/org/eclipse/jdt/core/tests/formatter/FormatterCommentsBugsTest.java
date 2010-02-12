@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4407,7 +4407,7 @@ public void testBug260381() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" * @version {@code $Revision: 1.49 $ $Date: 2010/02/11 12:18:55 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
+		" * @version {@code $Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
 		" */\n" + 
 		"public class X01 {\n" + 
 		"}\n";
@@ -4419,7 +4419,7 @@ public void testBug260381b() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" * @version <code>$Revision: 1.49 $ $Date: 2010/02/11 12:18:55 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
+		" * @version <code>$Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
 		" */\n" + 
 		"public class X01b {\n" + 
 		"}\n";
@@ -4453,7 +4453,7 @@ public void testBug260381d() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" *  @see Object <code>$Revision: 1.49 $ $Date: 2010/02/11 12:18:55 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
+		" *  @see Object <code>$Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
 		" */\n" + 
 		"public class X02 {\n" + 
 		"}\n";
@@ -4463,7 +4463,7 @@ public void testBug260381d() throws JavaModelException {
 		" * \n" + 
 		" * @author Myself\n" + 
 		" * @see Object\n" + 
-		" *      <code>$Revision: 1.49 $ $Date: 2010/02/11 12:18:55 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
+		" *      <code>$Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
 		" */\n" + 
 		"public class X02 {\n" + 
 		"}\n"
@@ -4475,7 +4475,7 @@ public void _testBug260381e() throws JavaModelException {
 		"/**\n" + 
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
-		" * {@code $Revision: 1.49 $ $Date: 2010/02/11 12:18:55 $ $Author: ffusier $\n" + 
+		" * {@code $Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $\n" + 
 		" * $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
 		" */\n" + 
 		"public class X03 {\n" + 
@@ -4487,7 +4487,7 @@ public void testBug260381f() throws JavaModelException {
 		"/**\n" + 
 		" * Literal inline tag should also be untouched by the formatter\n" + 
 		" * \n" + 
-		" * @version {@literal $Revision: 1.49 $ $Date: 2010/02/11 12:18:55 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
+		" * @version {@literal $Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
 		" */\n" + 
 		"public class X04 {\n" + 
 		"\n" + 
