@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.core.dom.rewrite.ImportRewriteAnalyzer;
 import org.eclipse.jdt.internal.core.util.Messages;
+import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
@@ -328,16 +329,21 @@ public final class ImportRewrite {
 	}
 
 	/**
-	 * Sets whether a context should be used to properly filter implicit imports.
-	 * <p>
-	 * By default, the option is disabled to preserve existing behavior.
-	 * </p>
-	 * 
-	 * @param useContextToFilterImplicitImports the given setting
-	 * 
-	 * @see #setFilterImplicitImports(boolean)
-	 * @since 3.6
-	 */
+	* Sets whether a context should be used to properly filter implicit imports.
+	* <p>
+	* By default, the option is disabled to preserve pre-3.6 behavior.
+	* </p>
+	* <p>
+	* When this option is set, the context passed to the <code>addImport*(...)</code> methods is used to determine
+	* whether an import can be filtered because the type is implicitly visible. Note that too many imports
+	* may be kept if this option is set and <code>addImport*(...)</code> methods are called without a context.
+	* </p>
+	* 
+	* @param useContextToFilterImplicitImports the given setting
+	* 
+	* @see #setFilterImplicitImports(boolean)
+	* @since 3.6
+	*/
 	public void setUseContextToFilterImplicitImports(boolean useContextToFilterImplicitImports) {
 		this.useContextToFilterImplicitImports = useContextToFilterImplicitImports;
 	}
@@ -393,27 +399,13 @@ public final class ImportRewrite {
 		if (this.filterImplicitImports && this.useContextToFilterImplicitImports) {
 			String fPackageName= this.compilationUnit.getParent().getElementName();
 			String mainTypeSimpleName= JavaCore.removeJavaLikeExtension(this.compilationUnit.getElementName());
-			String fMainTypeName= concatenateName(fPackageName, mainTypeSimpleName);
+			String fMainTypeName= Util.concatenateName(fPackageName, mainTypeSimpleName, '.');
 			if (kind == ImportRewriteContext.KIND_TYPE
 					&& (qualifier.equals(fPackageName)
-							|| fMainTypeName.equals(concatenateName(qualifier, name))))
+							|| fMainTypeName.equals(Util.concatenateName(qualifier, name, '.'))))
 				return ImportRewriteContext.RES_NAME_FOUND;
 		}
 		return ImportRewriteContext.RES_NAME_UNKNOWN;
-	}
-
-	private static String concatenateName(String name1, String name2) {
-		StringBuffer buf= new StringBuffer();
-		if (name1 != null && name1.length() > 0) {
-			buf.append(name1);
-		}
-		if (name2 != null && name2.length() > 0) {
-			if (buf.length() > 0) {
-				buf.append('.');
-			}
-			buf.append(name2);
-		}
-		return buf.toString();
 	}
 	/**
 	 * Adds a new import to the rewriter's record and returns a {@link Type} node that can be used

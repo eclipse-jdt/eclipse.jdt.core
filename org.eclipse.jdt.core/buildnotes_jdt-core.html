@@ -48,6 +48,30 @@ Eclipse SDK 3.6M6 - %date% - 3.6.0 M6
 <br>Project org.eclipse.jdt.core v_A35
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A35">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>In order to fix bugs <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=235253">235253</a> and
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=194358">194358</a>, a new API was added to preserve the existing pre-3.6 behavior for existing clients:<br>
+<pre>
+	/**
+	 * Sets whether a context should be used to properly filter implicit imports.
+	 *
+	 * By default, the option is disabled to preserve pre-3.6 behavior.
+	 *
+	 *
+	 * When this option is set, the context passed to the addImport*(...) methods is used to determine
+	 * whether an import can be filtered because the type is implicitly visible. Note that too many imports
+	 * may be kept if this option is set and addImport*(...) methods are called without a context.
+	 *
+	 * 
+	 * @param useContextToFilterImplicitImports the given setting
+	 * 
+	 * @see #setFilterImplicitImports(boolean)
+	 * @since 3.6
+	 */
+	public void setUseContextToFilterImplicitImports(boolean useContextToFilterImplicitImports);
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=302552">302552</a>
