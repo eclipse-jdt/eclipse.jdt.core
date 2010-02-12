@@ -942,24 +942,24 @@ public void test021_output_streams() throws IOException {
 	assertTrue(errBuffer.toString().isEmpty());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236814
-public void _test022_output_streams() throws IOException {
+public void test022_output_streams() throws IOException {
 	ByteArrayOutputStream 
-			outBuffer = new ByteArrayOutputStream(),
-			errBuffer = new ByteArrayOutputStream();
+	outBuffer = new ByteArrayOutputStream(),
+	errBuffer = new ByteArrayOutputStream();
 	PrintStream 
-		systemOut = System.out,
-		systemErr = System.err;
+	systemOut = System.out,
+	systemErr = System.err;
 	System.setOut(new PrintStream(outBuffer));
 	System.setErr(new PrintStream(errBuffer));
 	CompilationTask task = COMPILER.getTask(
-		null, 
-		JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */), 
-		new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)), 
-		Arrays.asList("-v"), null, null);
+			null, 
+			JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */), 
+			new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)), 
+			Arrays.asList("-v"), null, null);
 	try {
-	assertTrue(task.call());
-	assertTrue(outBuffer.toString().isEmpty());
-	assertTrue(errBuffer.toString().startsWith("Eclipse Java Compiler"));
+		assertTrue(task.call());
+		assertTrue(outBuffer.toString().isEmpty());
+		assertTrue(errBuffer.toString().startsWith("Eclipse Compiler for Java"));
 	} finally {
 		System.setOut(systemOut);
 		System.setErr(systemErr);
