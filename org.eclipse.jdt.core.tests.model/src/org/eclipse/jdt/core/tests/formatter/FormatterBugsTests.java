@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
+import org.eclipse.jdt.internal.formatter.align.Alignment;
 
 public class FormatterBugsTests extends FormatterRegressionTests {
 
@@ -4018,4 +4019,92 @@ public void testBug302123d() {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 302552: [Formatter] Wrap when necessary too aggressive on short qualifiers
+ * @test 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=302552"
+ */
+public void testBug302552_LW0() {
+	this.formatterPrefs.page_width = 20;
+	this.formatterPrefs.alignment_for_selector_in_method_invocation = Alignment.M_NO_ALIGNMENT;
+	String source = 
+		"class Sample2 {int foo(Some a) {return a.getFirst();}}\n";
+	formatSource(source,
+		"class Sample2 {\n" + 
+		"	int foo(Some a) {\n" + 
+		"		return a.getFirst();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug302552_LW1() {
+	this.formatterPrefs.page_width = 20;
+	this.formatterPrefs.alignment_for_selector_in_method_invocation = Alignment.M_COMPACT_SPLIT;
+	String source = 
+		"class Sample2 {int foo(Some a) {return a.getFirst();}}\n";
+	formatSource(source,
+		"class Sample2 {\n" + 
+		"	int foo(Some a) {\n" + 
+		"		return a.getFirst();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug302552_LW2() {
+	this.formatterPrefs.page_width = 20;
+	this.formatterPrefs.alignment_for_selector_in_method_invocation = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	String source = 
+		"class Sample2 {int foo(Some a) {return a.getFirst();}}\n";
+	formatSource(source,
+		"class Sample2 {\n" + 
+		"	int foo(Some a) {\n" + 
+		"		return a\n" + 
+		"				.getFirst();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug302552_LW3() {
+	this.formatterPrefs.page_width = 20;
+	this.formatterPrefs.alignment_for_selector_in_method_invocation = Alignment.M_ONE_PER_LINE_SPLIT;
+	String source = 
+		"class Sample2 {int foo(Some a) {return a.getFirst();}}\n";
+	formatSource(source,
+		"class Sample2 {\n" + 
+		"	int foo(Some a) {\n" + 
+		"		return a\n" + 
+		"				.getFirst();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug302552_LW4() {
+	this.formatterPrefs.page_width = 20;
+	this.formatterPrefs.alignment_for_selector_in_method_invocation = Alignment.M_NEXT_SHIFTED_SPLIT;
+	String source = 
+		"class Sample2 {int foo(Some a) {return a.getFirst();}}\n";
+	formatSource(source,
+		"class Sample2 {\n" + 
+		"	int foo(Some a) {\n" + 
+		"		return a\n" + 
+		"				.getFirst();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug302552_LW5() {
+	this.formatterPrefs.page_width = 20;
+	this.formatterPrefs.alignment_for_selector_in_method_invocation = Alignment.M_NEXT_PER_LINE_SPLIT;
+	String source = 
+		"class Sample2 {int foo(Some a) {return a.getFirst();}}\n";
+	formatSource(source,
+		"class Sample2 {\n" + 
+		"	int foo(Some a) {\n" + 
+		"		return a.getFirst();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
 }

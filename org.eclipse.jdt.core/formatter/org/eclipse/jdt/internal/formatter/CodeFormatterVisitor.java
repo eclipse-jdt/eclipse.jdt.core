@@ -1394,8 +1394,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.scanner.currentPosition);
 		this.scribe.enterAlignment(cascadingMessageSendAlignment);
 		boolean ok = false;
+		boolean setStartingColumn = startingPositionInCascade == 1;
+		switch (this.preferences.alignment_for_arguments_in_method_invocation) {
+			case Alignment.M_COMPACT_FIRST_BREAK_SPLIT:
+			case Alignment.M_NEXT_SHIFTED_SPLIT:
+			case Alignment.M_ONE_PER_LINE_SPLIT:
+				setStartingColumn = false;
+				break;
+		}
 		do {
-			if (startingPositionInCascade == 1) {
+			if (setStartingColumn) {
 				cascadingMessageSendAlignment.startingColumn = this.scribe.column;
 			}
 			try {
@@ -4083,15 +4091,21 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			Alignment messageAlignment = null;
 			if (!messageSend.receiver.isImplicitThis()) {
 				messageSend.receiver.traverse(this, scope);
+				int alignmentMode = this.preferences.alignment_for_selector_in_method_invocation;
 				messageAlignment = this.scribe.createAlignment(
 						"messageAlignment", //$NON-NLS-1$
-						this.preferences.alignment_for_selector_in_method_invocation,
+						alignmentMode,
 						1,
 						this.scribe.scanner.currentPosition);
 				this.scribe.enterAlignment(messageAlignment);
 				boolean ok = false;
 				do {
-					messageAlignment.startingColumn = this.scribe.column;
+					switch (alignmentMode) {
+						case Alignment.M_COMPACT_SPLIT:
+						case Alignment.M_NEXT_PER_LINE_SPLIT:
+							messageAlignment.startingColumn = this.scribe.column;
+							break;
+					}
 					try {
 						formatMessageSend(messageSend, scope, messageAlignment);
 						ok = true;
