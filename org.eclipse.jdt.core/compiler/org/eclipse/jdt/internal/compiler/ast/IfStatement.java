@@ -30,7 +30,7 @@ public class IfStatement extends Statement {
 	int elseInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
 
-public IfStatement(Expression condition, Statement thenStatement, 	int sourceStart, int sourceEnd) {
+public IfStatement(Expression condition, Statement thenStatement, int sourceStart, int sourceEnd) {
 	this.condition = condition;
 	this.thenStatement = thenStatement;
 	// remember useful empty statement
@@ -69,12 +69,27 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (isConditionOptimizedTrue) {
 		elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
 	}
+	if (((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) && 
+			((thenFlowInfo.tagBits & FlowInfo.UNREACHABLE) != 0)) {
+		// Mark then block as unreachable
+		// No need if the whole if-else construct itself lies in unreachable code
+		this.bits |= ASTNode.IsThenStatementUnreachable;
+	} else if (((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) &&
+			((elseFlowInfo.tagBits & FlowInfo.UNREACHABLE) != 0)) {
+		// Mark else block as unreachable
+		// No need if the whole if-else construct itself lies in unreachable code
+		this.bits |= ASTNode.IsElseStatementUnreachable;
+	}
 	if (this.thenStatement != null) {
 		// Save info for code gen
 		this.thenInitStateIndex = currentScope.methodScope().recordInitializationStates(thenFlowInfo);
-		if (isConditionOptimizedFalse) {
+		if (isConditionOptimizedFalse || ((this.bits & ASTNode.IsThenStatementUnreachable) != 0)) {
 			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
 				this.thenStatement.complainIfUnreachable(thenFlowInfo, currentScope, initialComplaintLevel);
+			} else {
+				// its a known coding pattern which should be tolerated by dead code analysis
+				// according to isKnowDeadCodePattern()
+				this.bits &= ~ASTNode.IsThenStatementUnreachable;
 			}
 		}
 		thenFlowInfo = this.thenStatement.analyseCode(currentScope, flowContext, thenFlowInfo);
@@ -86,28 +101,33 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	// process the ELSE part
 	if (this.elseStatement != null) {
-	    // signal else clause unnecessarily nested, tolerate else-if code pattern
-	    if (thenFlowInfo == FlowInfo.DEAD_END
-	            && (this.bits & IsElseIfStatement) == 0 	// else of an else-if
-	            && !(this.elseStatement instanceof IfStatement)) {
-	        currentScope.problemReporter().unnecessaryElse(this.elseStatement);
-	    }
+		// signal else clause unnecessarily nested, tolerate else-if code pattern
+		if (thenFlowInfo == FlowInfo.DEAD_END
+				&& (this.bits & IsElseIfStatement) == 0 	// else of an else-if
+				&& !(this.elseStatement instanceof IfStatement)) {
+			currentScope.problemReporter().unnecessaryElse(this.elseStatement);
+		}
 		// Save info for code gen
 		this.elseInitStateIndex = currentScope.methodScope().recordInitializationStates(elseFlowInfo);
-		if (isConditionOptimizedTrue) {
+		if (isConditionOptimizedTrue || ((this.bits & ASTNode.IsElseStatementUnreachable) != 0)) {
 			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
 				this.elseStatement.complainIfUnreachable(elseFlowInfo, currentScope, initialComplaintLevel);
+			} else {
+				// its a known coding pattern which should be tolerated by dead code analysis
+				// according to isKnowDeadCodePattern()
+				this.bits &= ~ASTNode.IsElseStatementUnreachable;
 			}
 		}
 		elseFlowInfo = this.elseStatement.analyseCode(currentScope, flowContext, elseFlowInfo);
 	}
 	// merge THEN & ELSE initializations
-	FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
+	FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranchesIfElse(
 		thenFlowInfo,
 		isConditionOptimizedTrue,
 		elseFlowInfo,
 		isConditionOptimizedFalse,
-		true /*if(true){ return; }  fake-reachable(); */);
+		true /*if(true){ return; }  fake-reachable(); */,
+		flowInfo);
 	this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 	return mergedInfo;
 }
@@ -139,7 +159,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (hasThenPart) {
 		BranchLabel falseLabel = null;
 		// generate boolean condition only if needed
-		if (cst != Constant.NotAConstant && cst.booleanValue() == true) {
+		if (((this.bits & ASTNode.IsElseStatementUnreachable) != 0) ||
+				(cst != Constant.NotAConstant && cst.booleanValue() == true)) {
 			// No need to generate if condition statement when we know that only the then action
 			// will be executed
 			this.condition.generateCode(currentScope, codeStream, false);
@@ -180,7 +201,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 	} else if (hasElsePart) {
 		// generate boolean condition only if needed
-		if (cst != Constant.NotAConstant && cst.booleanValue() == false) {
+		if (((this.bits & ASTNode.IsThenStatementUnreachable) != 0) ||
+				(cst != Constant.NotAConstant && cst.booleanValue() == false)) {
 			// No need to generate if condition statement when we know that only the else action
 			// will be executed
 			this.condition.generateCode(currentScope, codeStream, false);

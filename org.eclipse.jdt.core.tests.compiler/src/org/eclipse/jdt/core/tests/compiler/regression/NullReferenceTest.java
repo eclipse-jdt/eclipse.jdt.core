@@ -26,18 +26,18 @@ public NullReferenceTest(String name) {
 }
 
 	// Static initializer to specify tests subset using TESTS_* static variables
-  	// All specified tests which does not belong to the class are skipped...
-  	// Only the highest compliance level is run; add the VM argument
-  	// -Dcompliance=1.4 (for example) to lower it if needed
-  	static {
-//    	TESTS_NAMES = new String[] { "test011" };
+// All specified tests which does not belong to the class are skipped...
+// Only the highest compliance level is run; add the VM argument
+// -Dcompliance=1.4 (for example) to lower it if needed
+static {
+//	TESTS_NAMES = new String[] { "test0572_if_statement" };
 //    	TESTS_NUMBERS = new int[] { 561 };
 //    	TESTS_NUMBERS = new int[] { 2999 };
 //    	TESTS_RANGE = new int[] { 2050, -1 };
 //  	TESTS_RANGE = new int[] { 1, 2049 };
 //  	TESTS_RANGE = new int[] { 449, 451 };
 //    	TESTS_RANGE = new int[] { 900, 999 };
-  	}
+}
 
 public static Test suite() {
     return buildAllCompliancesTestSuite(testClass());
@@ -4133,8 +4133,8 @@ public void test0459_while_nested() {
 			"  }\n" +
 			"}\n"},
 		"----------\n" +
-		"1. ERROR in X.java (at line 11)\r\n" +
-		"	while (o == null) {\r\n" +
+		"1. ERROR in X.java (at line 11)\n" +
+		"	while (o == null) {\n" +
 		"	       ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
 		"----------\n",
@@ -5177,8 +5177,8 @@ public void test0525_try_finally_unchecked_exception() {
 			"  }\n" +
 			"}"},
 		"----------\n" +
-		"1. ERROR in X.java (at line 13)\r\n" +
-		"	o.toString();\r\n" +
+		"1. ERROR in X.java (at line 13)\n" +
+		"	o.toString();\n" +
 		"	^\n" +
 		"Potential null pointer access: The variable o may be null at this location\n" +
 		"----------\n",
@@ -6054,7 +6054,157 @@ public void test0568_try_catch_checked_exception() {
 			},
 			"");
 }
-
+// null analysis -- try/catch
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
+public void test0569_try_catch() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object o = null;\n" +
+			"	 int i;\n" +
+			"	 if (o == null)\n" +	// redundant check
+			"	 	i = 0;\n" +
+			"    try {\n" +
+			"      System.out.println(i);\n" +  // might throw a runtime exception
+			"      o = new Object();\n" +
+			"	   throw new Exception(\"Exception thrown from try block\");\n" +
+			"    }\n" +
+			"    catch (Throwable t) {\n" + // catches everything
+			"      return;\n" +             // gets out
+			"    }\n" +
+			"  }\n" +
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (o == null)\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	System.out.println(i);\n" + 
+		"	                   ^\n" + 
+		"The local variable i may not have been initialized\n" + 
+		"----------\n");
+}
+// null analysis -- try/catch
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
+public void test0570_try_catch() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object o = null;\n" +
+			"	 int i;\n" +
+			"	 if (o == null)\n" +	// redundant check
+			"	 	i = 0;\n" +
+			"    try {\n" +
+			"      System.out.println();\n" +  // might throw a runtime exception
+			"      o = new Object();\n" +
+			"	   if (o != null)\n" +		// redundant check
+			"			i = 1\n;" +
+			"		throw new Exception(\"Exception thrown from try block\");\n" +
+			"    }\n" +
+			"    catch (Exception e) {\n" +
+			"      if(i == 0)\n" +
+			"			System.out.println(\"o was initialised\");\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (o == null)\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	if (o != null)\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 15)\n" + 
+		"	if(i == 0)\n" + 
+		"	   ^\n" + 
+		"The local variable i may not have been initialized\n" + 
+		"----------\n");
+}
+//null analysis -- try/catch
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
+public void test0571_try_catch_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object o = null;\n" +
+			"	 int i;\n" +
+			"	 if (o == null)\n" +	// redundant check
+			"	 	i = 0;\n" +
+			"    try {\n" +
+			"      o = new Object();\n" +
+			"	   i = 1\n;" +
+			"	   throw new Exception(\"Exception thrown from try block\");\n" +
+			"    }\n" +
+			"    catch (Exception e) {\n" +
+			"      if(o == null)\n" +
+			"			o = new Object();\n" +
+			"	   i = 1;\n" +
+			"    }\n" +
+			"	 finally {\n" +
+			"		if (i==1) {\n" +
+			"	 		System.out.println(\"Method ended with o being initialised\");\n" +
+			"		System.out.println(o.toString());\n" +	// may be null
+			"		} \n" +
+			"	 }\n" +
+			"  }\n" +
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (o == null)\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 18)\n" + 
+		"	if (i==1) {\n" + 
+		"	    ^\n" + 
+		"The local variable i may not have been initialized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 20)\n" + 
+		"	System.out.println(o.toString());\n" + 
+		"	                   ^\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
+		"----------\n");
+}
+//null analysis -- if statement
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
+public void test0572_if_statement() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		Object o = null;\n" + 
+			"		int i;\n" + 
+			"		if (o == null) // redundant check\n" + 
+			"			i = 0;\n" + 
+			"		System.out.println(i);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			""},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (o == null) // redundant check\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	System.out.println(i);\n" + 
+		"	                   ^\n" + 
+		"The local variable i may not have been initialized\n" + 
+		"----------\n");
+}
 // null analysis - throw
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
 public void test0595_throw() {
@@ -8975,17 +9125,17 @@ public void test1018() {
 			"  }\n" +
 			"}"},
 		"----------\n" +
-		"1. ERROR in X.java (at line 6)\r\n" +
-		"	if (o != null) return;\r\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	if (o != null) return;\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o can only be null at this location\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 7)\r\n" +
-		"	o = null;\r\n" +
+		"2. ERROR in X.java (at line 7)\n" +
+		"	o = null;\n" +
 		"	^\n" +
 		"Redundant assignment: The variable o can only be null at this location\n" +
 		"----------\n",
-	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1019() {
