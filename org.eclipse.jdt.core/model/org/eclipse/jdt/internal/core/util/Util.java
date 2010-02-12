@@ -267,44 +267,6 @@ public class Util {
 		}
 		return len1 - len2;
 	}
-
-	/**
-	 * Concatenate two strings with a char in between.
-	 * @see #concat(String, String)
-	 */
-	public static String concat(String s1, char c, String s2) {
-		if (s1 == null) s1 = "null"; //$NON-NLS-1$
-		if (s2 == null) s2 = "null"; //$NON-NLS-1$
-		int l1 = s1.length();
-		int l2 = s2.length();
-		char[] buf = new char[l1 + 1 + l2];
-		s1.getChars(0, l1, buf, 0);
-		buf[l1] = c;
-		s2.getChars(0, l2, buf, l1 + 1);
-		return new String(buf);
-	}
-
-	/**
-	 * Concatenate two strings.
-	 * Much faster than using +, which:
-	 * 		- creates a StringBuffer,
-	 * 		- which is synchronized,
-	 * 		- of default size, so the resulting char array is
-	 *        often larger than needed.
-	 * This implementation creates an extra char array, since the
-	 * String constructor copies its argument, but there's no way around this.
-	 */
-	public static String concat(String s1, String s2) {
-		if (s1 == null) s1 = "null"; //$NON-NLS-1$
-		if (s2 == null) s2 = "null"; //$NON-NLS-1$
-		int l1 = s1.length();
-		int l2 = s2.length();
-		char[] buf = new char[l1 + l2];
-		s1.getChars(0, l1, buf, 0);
-		s2.getChars(0, l2, buf, l1);
-		return new String(buf);
-	}
-
 	/**
 	 * Concatenate a String[] compound name to a continuous char[].
 	 */
@@ -327,7 +289,19 @@ public class Util {
 		}
 		return compoundChars;
 	}
-
+	public static String concatenateName(String name1, String name2, char separator) {
+		StringBuffer buf= new StringBuffer();
+		if (name1 != null && name1.length() > 0) {
+			buf.append(name1);
+		}
+		if (name2 != null && name2.length() > 0) {
+			if (buf.length() > 0) {
+				buf.append(separator);
+			}
+			buf.append(name2);
+		}
+		return buf.toString();
+	}
 	/**
 	 * Returns the concatenation of the given array parts using the given separator between each part.
 	 * <br>
@@ -411,25 +385,6 @@ public class Util {
 		return buffer.toString();
 
 	}
-
-	/**
-	 * Concatenate three strings.
-	 * @see #concat(String, String)
-	 */
-	public static String concat(String s1, String s2, String s3) {
-		if (s1 == null) s1 = "null"; //$NON-NLS-1$
-		if (s2 == null) s2 = "null"; //$NON-NLS-1$
-		if (s3 == null) s3 = "null"; //$NON-NLS-1$
-		int l1 = s1.length();
-		int l2 = s2.length();
-		int l3 = s3.length();
-		char[] buf = new char[l1 + l2 + l3];
-		s1.getChars(0, l1, buf, 0);
-		s2.getChars(0, l2, buf, l1);
-		s3.getChars(0, l3, buf, l1 + l2);
-		return new String(buf);
-	}
-
 	/**
 	 * Converts a type signature from the IBinaryType representation to the DC representation.
 	 */
