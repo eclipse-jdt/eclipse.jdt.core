@@ -4407,9 +4407,22 @@ public void testBug260381() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" * @version {@code $Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
+		" * @version {@code            The  			  text		here     should     not			be   		    			     formatted....   	   }\n" + 
 		" */\n" + 
 		"public class X01 {\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug260381a() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" * @version {@code          " +
+		" *            The  			  text		here     should     not			be   		    			     formatted....   	   }\n" + 
+		" */\n" + 
+		"public class X01a {\n" + 
 		"}\n";
 	formatSource(source);
 }
@@ -4419,11 +4432,21 @@ public void testBug260381b() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" * @version <code>$Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
+		" *  @version {@code\n" + 
+		" * The  			  text		here     should     not			be   		    			     formatted....   	   }\n" + 
 		" */\n" + 
 		"public class X01b {\n" + 
 		"}\n";
-	formatSource(source);
+	formatSource(source,
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" * @version {@code The  			  text		here     should     not			be   		    			     formatted....   	   }\n" + 
+		" */\n" + 
+		"public class X01b {\n" + 
+		"}\n"
+	);
 }
 public void testBug260381c() throws JavaModelException {
 	String source = 
@@ -4431,8 +4454,10 @@ public void testBug260381c() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" * @version\n" + 
-		" *          <code>3.0 xxxxxxxxxxxxxx xwxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>\n" + 
+		" *  @version {@code     \n" + 
+		" *          \n" + 
+		"            \n" + 
+		" *          The  			  text		here     should     not			be   		    			     formatted....   	   }\n" + 
 		" */\n" + 
 		"public class X01c {\n" + 
 		"}\n";
@@ -4441,7 +4466,10 @@ public void testBug260381c() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" * @version <code>3.0 xxxxxxxxxxxxxx xwxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>\n" + 
+		" * @version {@code     \n" + 
+		" *          \n" + 
+		" *          \n" + 
+		" *          The  			  text		here     should     not			be   		    			     formatted....   	   }\n" + 
 		" */\n" + 
 		"public class X01c {\n" + 
 		"}\n"
@@ -4453,9 +4481,43 @@ public void testBug260381d() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" *  @see Object <code>$Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
+		" * @version <code>            The  			  text		here     should     not			be   		    			formatted....   	   </code>\n" + 
 		" */\n" + 
 		"public class X02 {\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug260381e() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" * @version\n" + 
+		" *          <code>            The  			  text		here     should     not			be   		    			formatted....   	   </code>\n" + 
+		" */\n" + 
+		"public class X02b {\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" * @version <code>            The  			  text		here     should     not			be   		    			formatted....   	   </code>\n" + 
+		" */\n" + 
+		"public class X02b {\n" + 
+		"}\n"
+	);
+}
+public void testBug260381f() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * @author Myself\n" + 
+		" *  @see Object <code>            The  			  text		here     should     not			be   		    			formatted....   	   </code>\n" + 
+		" */\n" + 
+		"public class X02c {\n" + 
 		"}\n";
 	formatSource(source,
 		"/**\n" + 
@@ -4463,31 +4525,87 @@ public void testBug260381d() throws JavaModelException {
 		" * \n" + 
 		" * @author Myself\n" + 
 		" * @see Object\n" + 
-		" *      <code>$Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
+		" *      <code>            The  			  text		here     should     not			be   		    			formatted....   	   </code>\n" + 
 		" */\n" + 
-		"public class X02 {\n" + 
+		"public class X02c {\n" + 
 		"}\n"
 	);
 }
-// TODO (frederic) Disabled as it fails with HEAD...
-public void _testBug260381e() throws JavaModelException {
+public void testBug260381g() throws JavaModelException {
 	String source = 
 		"/**\n" + 
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
-		" * {@code $Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $\n" + 
-		" * $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
+		" * {@code            The  			  text		here     should     not			be   		    			formatted....   	   }\n" + 
 		" */\n" + 
 		"public class X03 {\n" + 
 		"}\n";
 	formatSource(source);
 }
-public void testBug260381f() throws JavaModelException {
+public void testBug260381h() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * <code>            The  			  text		here     should     \n" + 
+		" * not			be   		    			formatted....   	   </code>\n" + 
+		" */\n" + 
+		"public class X03b {\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug260381i() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * {@code            The  			  text		here     should\n" + 
+		" * not			be   		    			formatted....   	   }\n" + 
+		" */\n" + 
+		"public class X03c {\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * {@code            The  			  text		here     should\n" + 
+		" * not			be   		    			formatted....   	   }\n" + 
+		" */\n" + 
+		"public class X03c {\n" + 
+		"}\n"
+	);
+}
+public void testBug260381j() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * {@code      \n" + 
+		" *       The  			  text		here     should\n" + 
+		" *       not			\n" + 
+		" *       be   		    			formatted....   	   }\n" + 
+		" */\n" + 
+		"public class X03d {\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Comments that can be formated in several lines...\n" + 
+		" * \n" + 
+		" * {@code      \n" + 
+		" *       The  			  text		here     should\n" + 
+		" *       not			\n" + 
+		" *       be   		    			formatted....   	   }\n" + 
+		" */\n" + 
+		"public class X03d {\n" + 
+		"}\n"
+	);
+}
+public void testBug260381k() throws JavaModelException {
 	String source = 
 		"/**\n" + 
 		" * Literal inline tag should also be untouched by the formatter\n" + 
 		" * \n" + 
-		" * @version {@literal $Revision: 1.50 $ $Date: 2010/02/11 13:57:40 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
+		" * @version {@literal            The  			  text		here     should     not			be   		    			     formatted....   	   }\n" + 
 		" */\n" + 
 		"public class X04 {\n" + 
 		"\n" + 
@@ -4730,7 +4848,8 @@ public void testBug260381_wksp2_03() throws JavaModelException {
 		"public interface I03 {\n" + 
 		"	/**\n" + 
 		"	 * A builder for creating immutable bimap instances, especially\n" + 
-		"	 * {@code public static final} bimaps (\"constant bimaps\"). Example:\n" + 
+		"	 * {@code public\n" + 
+		"	 * static final} bimaps (\"constant bimaps\"). Example:\n" + 
 		"	 * \n" + 
 		"	 * <pre>\n" + 
 		"	 * {\n" + 
@@ -4747,6 +4866,29 @@ public void testBug260381_wksp2_03() throws JavaModelException {
 		"	 * Builder instances can be reused - it is safe to call {@link #build}\n" + 
 		"	 * multiple times to build multiple bimaps in series. Each bimap is a\n" + 
 		"	 * superset of the bimaps created before it.\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug260381_wksp2_03b() throws JavaModelException {
+	String source = 
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I03b {\n" + 
+		"	/**\n" + 
+		"	 * A builder for creating immutable bimap instances, xxxxxxxx {@code public\n" + 
+		"	 * static final} bimaps (\"constant bimaps\").\n" + 
+		"	 */\n" + 
+		"	void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public interface I03b {\n" + 
+		"	/**\n" + 
+		"	 * A builder for creating immutable bimap instances, xxxxxxxx {@code public\n" + 
+		"	 * static final} bimaps (\"constant bimaps\").\n" + 
 		"	 */\n" + 
 		"	void foo();\n" + 
 		"}\n"
@@ -4769,8 +4911,8 @@ public void testBug260381_wksp2_04() throws JavaModelException {
 		"   * ImmutableMultiset.copyOf(c)} returns an {@code ImmutableMultiset<String>}\n" + 
 		"   * containing each of the strings in {@code c}, while\n" + 
 		"   * {@code ImmutableMultiset.of(c)} returns an\n" + 
-		"   * {@code ImmutableMultiset<Collection<String>>} containing one element (the\n" + 
-		"   * given collection itself).\n" + 
+		"   * {@code ImmutableMultiset<Collection<String>>} containing one element\n" + 
+		"   * (the given collection itself).\n" + 
 		"   *\n" + 
 		"   * <p><b>Note:</b> Despite what the method name suggests, if {@code elements}\n" + 
 		"   * is an {@code ImmutableMultiset}, no copy will actually be performed, and\n" + 
@@ -4934,8 +5076,8 @@ public void testBug260381_wksp2_06() throws JavaModelException {
 		"	 * {@code occurrences == 1}, this method has the identical effect to\n" + 
 		"	 * {@link #add(Object)}. This method is functionally equivalent (except in\n" + 
 		"	 * the case of overflow) to the call\n" + 
-		"	 * {@code addAll(Collections.nCopies(element, occurrences))}, which would\n" + 
-		"	 * presumably perform much more poorly.\n" + 
+		"	 * {@code addAll(Collections.nCopies(element,\n" + 
+		"	 * occurrences))}, which would presumably perform much more poorly.\n" + 
 		"	 * \n" + 
 		"	 * @param element\n" + 
 		"	 *            the element to add occurrences of; may be {@code null} only if\n" + 
@@ -4987,12 +5129,11 @@ public void testBug260381_wksp2_07() throws JavaModelException {
 		"	/**\n" + 
 		"	 * Constructs a new, empty multiset, sorted according to the specified\n" + 
 		"	 * comparator. All elements inserted into the multiset must be <i>mutually\n" + 
-		"	 * comparable</i> by the specified comparator:\n" + 
-		"	 * {@code comparator.compare(e1, e2)} must not throw a\n" + 
-		"	 * {@code ClassCastException} for any elements {@code e1} and {@code e2} in\n" + 
-		"	 * the multiset. If the user attempts to add an element to the multiset that\n" + 
-		"	 * violates this constraint, the {@code add(Object)} call will throw a\n" + 
-		"	 * {@code ClassCastException}.\n" + 
+		"	 * comparable</i> by the specified comparator: {@code comparator.compare(e1,\n" + 
+		"	 * e2)} must not throw a {@code ClassCastException} for any elements\n" + 
+		"	 * {@code e1} and {@code e2} in the multiset. If the user attempts to add an\n" + 
+		"	 * element to the multiset that violates this constraint, the\n" + 
+		"	 * {@code add(Object)} call will throw a {@code ClassCastException}.\n" + 
 		"	 * \n" + 
 		"	 * @param comparator\n" + 
 		"	 *            the comparator that will be used to sort this multiset. A null\n" + 
