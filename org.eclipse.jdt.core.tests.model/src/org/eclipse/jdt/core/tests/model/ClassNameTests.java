@@ -16,6 +16,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -1241,6 +1243,49 @@ public void testBug152841() throws Exception{
 		assertNotNull(type);
 	}
 	finally {
+		deleteProject("P");
+	}
+}
+
+/**
+ * @bug 302455: java.lang.ClassCastException in secondary types removal
+ * @test Ensure that no invalid entries are put in the secondary types caches
+ * 		when a file extension spec is removed from the workspace as the CCE
+ * 		does no longer occur...
+ * 		Also verify that secondary types from the removed file extension are not
+ * 		kept in the projects caches as the secondary type is no longer in the
+ * 		cache at the end of the test...
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=302455"
+ */
+public void testBug302455() throws CoreException, InterruptedException {
+	IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
+	try {
+		// Create project and file
+		assertNotNull("We should have got a Java Source content type!", javaContentType);
+		javaContentType.addFileSpec("b302455", IContentType.FILE_EXTENSION_SPEC);
+		IJavaProject javaProject = createJavaProject("P");
+		createFolder("/P/p");			
+		String filePath = "/P/p/Bug.b302455";
+		createFile(
+			filePath,
+			"package p;\n" +
+			"public class Bug {}\n" +
+			"class Secondary {}\n" +
+			""
+		);
+		waitUntilIndexesReady();
+		
+		// Get the secondary type
+		IType type = javaProject.findType("p.Secondary", new NullProgressMonitor());
+		assertNotNull("We should have found the secondary type!", type);
+		
+		// Remove file extension
+		javaContentType.removeFileSpec("b302455", IContentType.FILE_EXTENSION_SPEC);
+		
+		// As there's no specific event fo
+		type = javaProject.findType("p.Secondary", new NullProgressMonitor());
+		assertNull("We should have not found the secondary type!", type);
+	} finally {
 		deleteProject("P");
 	}
 }
