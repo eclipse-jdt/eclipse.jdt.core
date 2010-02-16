@@ -4021,8 +4021,8 @@ public void testBug302123d() {
 }
 
 /**
- * @bug 302552: [Formatter] Wrap when necessary too aggressive on short qualifiers
- * @test 
+ * @bug 302552: [formatter] Formatting qualified invocations can be broken when the Line Wrapping policy forces element to be on a new line
+ * @test Verify that wrapping policies forcing the first element to be on a new line are working again...
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=302552"
  */
 public void testBug302552_LW0() {
