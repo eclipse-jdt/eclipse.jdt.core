@@ -4323,6 +4323,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					ICompilationUnit unit = JavaModelManager.createCompilationUnitFrom(file, null);
 					IType type = unit.getType(typeName);
 					types.put(typeName, type); // replace stored path with type itself
+				} else {
+					types.remove(typeName);
 				}
 			}
 		}
@@ -4828,6 +4830,20 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void contentTypeChanged(ContentTypeChangeEvent event) {
 		Util.resetJavaLikeExtensions();
 
+		// Walk through projects to reset their secondary types cache
+		IJavaProject[] projects;
+		try {
+			projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+		} catch (JavaModelException e) {
+			return;
+		}
+		for (int i = 0, length = projects.length; i < length; i++) {
+			IJavaProject project = projects[i];
+			final PerProjectInfo projectInfo = getPerProjectInfo(project.getProject(), false /* don't create info */);
+			if (projectInfo != null) {
+				projectInfo.secondaryTypes = null;
+			}
+		}
 	}
 
 	public synchronized String cacheToString(String prefix) {
