@@ -2818,13 +2818,23 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return result;
 	}
 	protected void touch(File f) {
-		int time = 1000;
+		final int time = 1000;
 		long lastModified = f.lastModified();
 		f.setLastModified(lastModified + time);
 		org.eclipse.jdt.core.tests.util.Util.waitAtLeast(time);
-		// Assertion to track the reason of unexpected failures with tests on external resources
+		// Loop until the last modified time has really changed on the file
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=295619
-		assertEquals("The file "+f.getAbsolutePath()+" was not touched!", lastModified+time, f.lastModified());
+		int n = 1;
+		while (n < 10) { // retry 9 times more if necessary
+			if (f.lastModified() != lastModified) {
+				// We can leave the loop as the file has been really touched
+				return;
+			}
+			f.setLastModified(lastModified + n*time);
+			org.eclipse.jdt.core.tests.util.Util.waitAtLeast(time);
+			n++;
+		}
+		assertFalse("The file "+f.getAbsolutePath()+" was not touched!", lastModified == f.lastModified());
 	}
 
 	protected String toString(String[] strings) {
