@@ -1037,9 +1037,16 @@ public final class ImportRewrite {
 				usedAstRoot= (CompilationUnit) parser.createAST(new SubProgressMonitor(monitor, 1));
 			}
 
-			ImportRewriteAnalyzer computer= new ImportRewriteAnalyzer(this.compilationUnit, usedAstRoot, this.importOrder, this.importOnDemandThreshold, this.staticImportOnDemandThreshold, this.restoreExistingImports);
+			ImportRewriteAnalyzer computer=
+				new ImportRewriteAnalyzer(
+						this.compilationUnit,
+						usedAstRoot,
+						this.importOrder,
+						this.importOnDemandThreshold,
+						this.staticImportOnDemandThreshold,
+						this.restoreExistingImports,
+						this.useContextToFilterImplicitImports);
 			computer.setFilterImplicitImports(this.filterImplicitImports);
-			computer.setUseContextToFilterImplicitImports(this.useContextToFilterImplicitImports);
 
 			if (this.addedImports != null) {
 				for (int i= 0; i < this.addedImports.size(); i++) {
