@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Brock Janiczak - Contribution for bug 150741
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -10621,5 +10622,28 @@ public void test723() {
 	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 	runTest(codeFormatter, "test723", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=150741
+public void test724() {
+	this.formatterPrefs.insert_new_line_after_label = true;
+	String source =
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		LABEL:for (int i = 0; i < 10; i++) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n" + 
+		"";
+	formatSource(source,
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		LABEL:\n" + 
+		"		for (int i = 0; i < 10; i++) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
 }
 }

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Brock Janiczak - Contribution for bug 150741
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -4011,6 +4012,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printNextToken(TerminalTokens.TokenNameCOLON, this.preferences.insert_space_before_colon_in_labeled_statement);
 		if (this.preferences.insert_space_after_colon_in_labeled_statement) {
 			this.scribe.space();
+		}
+		if (this.preferences.insert_new_line_after_label) {
+			this.scribe.printNewLine();
 		}
 		final Statement statement = labeledStatement.statement;
 		statement.traverse(this, scope);
