@@ -4012,6 +4012,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (this.preferences.insert_space_after_colon_in_labeled_statement) {
 			this.scribe.space();
 		}
+		if (this.preferences.insert_new_line_after_label) {
+			this.scribe.printNewLine();
+		}
 		final Statement statement = labeledStatement.statement;
 		statement.traverse(this, scope);
 		if (statement instanceof Expression) {

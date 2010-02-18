@@ -10622,4 +10622,27 @@ public void test723() {
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 	runTest(codeFormatter, "test723", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=150741
+public void test724() {
+	this.formatterPrefs.insert_new_line_after_label = true;
+	String source =
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		LABEL:for (int i = 0; i < 10; i++) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n" + 
+		"";
+	formatSource(source,
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		LABEL:\n" + 
+		"		for (int i = 0; i < 10; i++) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
 }

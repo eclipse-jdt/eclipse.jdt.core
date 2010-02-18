@@ -48,9 +48,52 @@ Eclipse SDK 3.6M6 - %date% - 3.6.0 M6
 <br>Project org.eclipse.jdt.core v_A36
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A36">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>
+Added a new formatter preferences to insert a new line after a label.
+<p>
+This new preference is controlled with the option:<br>
+<code>DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_LABEL</code>
+<pre>
+/**
+ * FORMATTER / Option to insert a new line after a label
+ *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_label"
+ *     - possible values:   { INSERT, DO_NOT_INSERT }
+ *     - default:           INSERT
+ *
+ * @see JavaCore#INSERT
+ * @see JavaCore#DO_NOT_INSERT
+ * @since 3.6
+ */
+</pre>
+</p>
+For example, the following snippet:
+<pre>
+public class X {
+	void foo() {
+		LABEL:for (int i = 0; i < 10; i++) {
+		}
+	}
+}
+</pre>
+formatted with this preference activated, will produce the following output:
+<pre>
+public class X {
+	void foo() {
+		LABEL:
+		for (int i = 0; i < 10; i++) {
+		}
+	}
+}
+</pre>
+See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=150741">150741</a> for more details.
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=287939">287939</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=150741">150741</a>
+[formatter] Add  option: &quot;add new line after label&quot;
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=287939">287939</a>
 [code assist] The instanceof and the auto cast feature should also work for an assignment
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=303108">303108</a>
 [import rewrite] ImportRewrite#removeImport(String) does not work with setUseContextToFilterImplicitImports(true)

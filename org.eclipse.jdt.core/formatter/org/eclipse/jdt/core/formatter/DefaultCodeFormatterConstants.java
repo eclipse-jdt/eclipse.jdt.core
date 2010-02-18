@@ -1155,6 +1155,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_in_empty_type_declaration";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a new line after a label
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_label"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.6
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_LABEL = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_label";	//$NON-NLS-1$	
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space after and in wilcard
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_and_in_type_parameter"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
