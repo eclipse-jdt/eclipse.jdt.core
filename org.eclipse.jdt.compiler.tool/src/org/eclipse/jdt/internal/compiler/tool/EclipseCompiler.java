@@ -92,7 +92,7 @@ public class EclipseCompiler implements JavaCompiler {
 		PrintWriter writerOut = null;
 		PrintWriter writerErr = null;
 		if (out == null) {
-			writerOut = new PrintWriter(System.out);
+			writerOut = new PrintWriter(System.err);
 			writerErr = new PrintWriter(System.err);
 		} else {
 			writerOut = new PrintWriter(out);

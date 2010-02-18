@@ -942,7 +942,7 @@ public void test021_output_streams() throws IOException {
 	assertTrue(errBuffer.toString().isEmpty());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236814
-public void _test022_output_streams() throws IOException {
+public void test022_output_streams() throws IOException {
 	ByteArrayOutputStream 
 			outBuffer = new ByteArrayOutputStream(),
 			errBuffer = new ByteArrayOutputStream();
