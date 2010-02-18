@@ -65,13 +65,20 @@ public final class ImportRewriteAnalyzer {
 
 	private static final String JAVA_LANG= "java.lang"; //$NON-NLS-1$
 
-	public ImportRewriteAnalyzer(ICompilationUnit cu, CompilationUnit root, String[] importOrder, int threshold, int staticThreshold, boolean restoreExistingImports) {
+	public ImportRewriteAnalyzer(
+			ICompilationUnit cu,
+			CompilationUnit root,
+			String[] importOrder,
+			int threshold,
+			int staticThreshold,
+			boolean restoreExistingImports,
+			boolean useContextToFilterImplicitImports) {
 		this.compilationUnit= cu;
 		this.importOnDemandThreshold= threshold;
 		this.staticImportOnDemandThreshold= staticThreshold;
+		this.useContextToFilterImplicitImports = useContextToFilterImplicitImports;
 
 		this.filterImplicitImports= true;
-		this.useContextToFilterImplicitImports= false;
 		this.findAmbiguousImports= true; //!restoreExistingImports;
 
 		this.packageEntries= new ArrayList(20);
@@ -295,34 +302,18 @@ public final class ImportRewriteAnalyzer {
 	 * The filter is enabled by default.
 	 * </p>
 	 * <p>
-	 * Note: {@link #setUseContextToFilterImplicitImports(boolean)} can be used to filter implicit imports
-	 * when a context is used.
+	 * Note: {@link #ImportRewriteAnalyzer(ICompilationUnit, CompilationUnit, String[], int, int, boolean, boolean)} with true as the last
+	 * parameter can be used to filter implicit imports when a context is used.
 	 * </p>
 	 * 
 	 * @param filterImplicitImports
 	 *            if <code>true</code>, implicit imports will be filtered
 	 * 
-	 * @see #setUseContextToFilterImplicitImports(boolean)
+	 * @see #ImportRewriteAnalyzer(ICompilationUnit, CompilationUnit, String[], int, int, boolean, boolean)
 	 */
 	public void setFilterImplicitImports(boolean filterImplicitImports) {
 		this.filterImplicitImports= filterImplicitImports;
 	}
-
-	/**
-	 * Sets whether a context should be used to properly filter implicit imports.
-	 * <p>
-	 * By default, the option is disabled.
-	 * </p>
-	 *
-	 * @param useContextToFilterImplicitImports the given setting
-	 * 
-	 * @see #setFilterImplicitImports(boolean)
-	 * @since 3.6
-	 */
-	public void setUseContextToFilterImplicitImports(boolean useContextToFilterImplicitImports) {
-		this.useContextToFilterImplicitImports = useContextToFilterImplicitImports;
-	}
-
 	/**
 	 * When set searches for imports that can not be folded into on-demand
 	 * imports but must be specified explicitly

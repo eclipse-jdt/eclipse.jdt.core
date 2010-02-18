@@ -26,6 +26,8 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
@@ -446,6 +448,57 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		assertEqualString(cu.getSource(), buf.toString());
 	}
 
+	public void testRemoveImports3() throws Exception {
+		IPackageFragment pack= this.sourceFolder.createPackageFragment("pack", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack;\n");
+		buf.append("\n");
+		buf.append("public class A {\n");
+		buf.append("    public class Inner {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		pack.createCompilationUnit("A.java", buf.toString(), false, null);
+		
+		IPackageFragment test1= this.sourceFolder.createPackageFragment("test1", false, null);
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("\n");
+		buf.append("import pack.A;\n");
+		buf.append("import pack.A.Inner;\n");
+		buf.append("import pack.A.NotThere;\n");
+		buf.append("import pack.B;\n");
+		buf.append("import pack.B.Inner;\n");
+		buf.append("import pack.B.NotThere;\n");
+		buf.append("\n");
+		buf.append("public class T {\n");
+		buf.append("}\n");
+		ICompilationUnit cuT= test1.createCompilationUnit("T.java", buf.toString(), false, null);
+		
+		ASTParser parser= ASTParser.newParser(AST.JLS3);
+		parser.setSource(cuT);
+		parser.setResolveBindings(true);
+		CompilationUnit astRoot= (CompilationUnit) parser.createAST(null);
+		
+		ImportRewrite imports= newImportsRewrite(astRoot, new String[0], 99, 99, true);
+		imports.setUseContextToFilterImplicitImports(true);
+		
+		imports.removeImport("pack.A.Inner");
+		imports.removeImport("pack.A.NotThere");
+		imports.removeImport("pack.B.Inner");
+		imports.removeImport("pack.B.NotThere");
+		
+		apply(imports);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("\n");
+		buf.append("import pack.A;\n");
+		buf.append("import pack.B;\n");
+		buf.append("\n");
+		buf.append("public class T {\n");
+		buf.append("}\n");
+		assertEqualString(cuT.getSource(), buf.toString());
+	}
 
 	public void testAddImports_bug23078() throws Exception {
 
@@ -1139,6 +1192,14 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	private ImportRewrite newImportsRewrite(ICompilationUnit cu, String[] order, int normalThreshold, int staticThreshold, boolean restoreExistingImports) throws CoreException, BackingStoreException {
+		ImportRewrite rewrite= ImportRewrite.create(cu, restoreExistingImports);
+		rewrite.setImportOrder(order);
+		rewrite.setOnDemandImportThreshold(normalThreshold);
+		rewrite.setStaticOnDemandImportThreshold(staticThreshold);
+		return rewrite;
+	}
+
+	protected ImportRewrite newImportsRewrite(CompilationUnit cu, String[] order, int normalThreshold, int staticThreshold, boolean restoreExistingImports) {
 		ImportRewrite rewrite= ImportRewrite.create(cu, restoreExistingImports);
 		rewrite.setImportOrder(order);
 		rewrite.setOnDemandImportThreshold(normalThreshold);
