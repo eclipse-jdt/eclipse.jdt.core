@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20600,4 +20600,170 @@ public void test276526d() throws JavaModelException {
 			requestor.getResults());
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=287939
+// To verify that auto complete works after instance of expression when content assist is requested on a field
+// Code assist requested in a local variable declaration statement
+public void testBug287939a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int returnZero(){ return 0;}\n" +
+		"	public Object a;\n" +
+		"	void bar(){\n" +
+		"		if (this.a instanceof CompletionAfterInstanceOf) {\n" +
+		"			int i =  this.a.r\n" +
+		"       	int j = 0;\n" +
+		"       	int k = 2;\n" +
+		"       	int p = 12;\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "this.a.r";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+	int start1 = str.lastIndexOf("r") + "".length();
+	int end1 = start1 + "r".length();
+	int start2 = str.lastIndexOf("this.a.r");
+	int end2 = start2 + "this.a.r".length();
+	int start3 = str.lastIndexOf("this.a.");
+	int end3 = start3 + "this.a".length();
+	
+	assertResults(
+			"expectedTypesSignatures={I}\n" +
+			"expectedTypesKeys={I}",
+			requestor.getContext());
+	assertResults(
+			"returnZero[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)this.a).returnZero(), Ltest.CompletionAfterInstanceOf;, ()I, Ltest.CompletionAfterInstanceOf;, returnZero, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=287939
+// To verify that auto complete works after instance of expression when content assist is requested on a field
+// Code assist requested in an assignment statement
+public void testBug287939b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int returnZero(){ return 0;}\n" +
+		"	public Object a;\n" +
+		"	void bar(){\n" +
+		"       int i;\n" +
+		"		if (this.a instanceof CompletionAfterInstanceOf) {\n" +
+		"			i =  this.a.r\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "this.a.r";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+	int start1 = str.lastIndexOf("r") + "".length();
+	int end1 = start1 + "r".length();
+	int start2 = str.lastIndexOf("this.a.r");
+	int end2 = start2 + "this.a.r".length();
+	int start3 = str.lastIndexOf("this.a.");
+	int end3 = start3 + "this.a".length();
+	
+	assertResults(
+			"expectedTypesSignatures={I}\n" +
+			"expectedTypesKeys={I}",
+			requestor.getContext());
+	assertResults(
+			"returnZero[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)this.a).returnZero(), Ltest.CompletionAfterInstanceOf;, ()I, Ltest.CompletionAfterInstanceOf;, returnZero, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=287939
+// To verify that auto complete works after instance of expression when content assist is requested on a local variable
+// Code assist requested in an assignment statement
+public void testBug287939c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int returnZero(){ return 0;}\n" +
+		"	void bar(Object a){\n" +
+		"       int i;\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {" +
+		"				i =  a.r\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "a.r";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+	int start1 = str.lastIndexOf("r") + "".length();
+	int end1 = start1 + "r".length();
+	int start2 = str.lastIndexOf("a.r");
+	int end2 = start2 + "a.r".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	
+	assertResults(
+			"expectedTypesSignatures={I}\n" +
+			"expectedTypesKeys={I}",
+			requestor.getContext());
+	assertResults(
+			"returnZero[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).returnZero(), Ltest.CompletionAfterInstanceOf;, ()I, Ltest.CompletionAfterInstanceOf;, returnZero, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=287939
+// To verify that auto complete works after instance of expression when content assist is requested on a local variable
+// Code assist requested in a local variable declaration statement
+public void testBug287939d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int returnZero(){ return 0;}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {" +
+		"				int i =  a.r\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "a.r";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+	int start1 = str.lastIndexOf("r") + "".length();
+	int end1 = start1 + "r".length();
+	int start2 = str.lastIndexOf("a.r");
+	int end2 = start2 + "a.r".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	
+	assertResults(
+			"expectedTypesSignatures={I}\n" +
+			"expectedTypesKeys={I}",
+			requestor.getContext());
+	assertResults(
+			"returnZero[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).returnZero(), Ltest.CompletionAfterInstanceOf;, ()I, Ltest.CompletionAfterInstanceOf;, returnZero, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
 }
