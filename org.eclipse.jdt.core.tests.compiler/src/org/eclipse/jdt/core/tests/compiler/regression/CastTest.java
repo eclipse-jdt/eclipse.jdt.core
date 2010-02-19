@@ -1782,6 +1782,93 @@ public void test047() {
 		"----------\n"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=302919
+public void test048() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	if (options.sourceLevel < ClassFileConstants.JDK1_5) return;
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A<T> extends D<T> {\n" +
+			"    public class A1 extends D1 {\n" +
+			"    }\n" +
+			"    void m1(A<T> tree) {\n" +
+			"        A.A1 v = ((A.A1) tree.root);\n" +
+			"    }\n" +
+			"    Zork z;\n" +
+			"}\n" +
+			"class D<T> {\n" +
+			"    protected D1 root;\n" +
+			"    protected class D1 {\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 7)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=302919
+public void test049() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	if (options.sourceLevel < ClassFileConstants.JDK1_5) return;
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" +
+			"	void foo(Other2<?>.Member2<?> om2) {\n" +
+			"		Other<?>.Member m = (Other<?>.Member) om2;\n" +
+			"		m = om2;\n" +
+			"	}\n" +
+			"}\n" +
+			"class Other<T> {\n" +
+			"	class Member {}\n" +
+			"}\n" +
+			"class Other2<T> extends Other<T> {\n" +
+			"	class Member2<U> extends Other<U>.Member {\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in A.java (at line 3)\n" + 
+		"	Other<?>.Member m = (Other<?>.Member) om2;\n" + 
+		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from Other2<?>.Member2<capture#1-of ?> to Other<?>.Member\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=302919
+public void test050() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	if (options.sourceLevel < ClassFileConstants.JDK1_5) return;
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A<T> extends D<T> {\n" +
+			"    public class A1 extends D.D1 {\n" +
+			"    }\n" +
+			"    void m1(A<T> tree) {\n" +
+			"        A.A1 v = ((A.A1) tree.root);\n" +
+			"    }\n" +
+			"    Zork z;\n" +
+			"}\n" +
+			"class D<T> {\n" +
+			"    protected D1 root;\n" +
+			"    protected class D1 {\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 7)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return CastTest.class;
 }
