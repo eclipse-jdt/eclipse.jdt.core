@@ -45577,11 +45577,11 @@ public void test1336() {
 				"	}\n" +
 				"}\n", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	Other<String>.Member m = (Other<String>.Member) om2;\n" +
-			"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot cast from Other2<?>.Member2<capture#1-of ?> to Other<String>.Member\n" +
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Other<String>.Member m = (Other<String>.Member) om2;\n" + 
+			"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from Other2<?>.Member2<capture#1-of ?> to Other<String>.Member\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=233800 - variation
@@ -45602,11 +45602,11 @@ public void test1337() {
 				"	}\n" +
 				"}\n", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	Other<String>.Member m = (Other<String>.Member) om2;\n" +
-			"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot cast from Other2.Member2<capture#1-of ?> to Other<String>.Member\n" +
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Other<String>.Member m = (Other<String>.Member) om2;\n" + 
+			"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from Other2.Member2<capture#1-of ?> to Other<String>.Member\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=234619
