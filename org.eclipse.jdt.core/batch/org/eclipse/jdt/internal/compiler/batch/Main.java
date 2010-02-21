@@ -2837,12 +2837,7 @@ public IErrorHandlingPolicy getHandlingPolicy() {
 public File getJavaHome() {
 	if (!this.javaHomeChecked) {
 		this.javaHomeChecked = true;
-		String javaHome = System.getProperty("java.home");//$NON-NLS-1$
-		if (javaHome != null) {
-			this.javaHomeCache = new File(javaHome);
-			if (!this.javaHomeCache.exists())
-				this.javaHomeCache = null;
-		}
+		this.javaHomeCache = Util.getJavaHome();
 	}
 	return this.javaHomeCache;
 }
@@ -2872,74 +2867,13 @@ protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customE
 				paths[i], customEncoding, false, true);
 		}
 	} else {
-	 	bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-		/* no bootclasspath specified
-		 * we can try to retrieve the default librairies of the VM used to run
-		 * the batch compiler
-		 */
-		 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
-		 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
+		bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		try {
+			Util.collectRunningVMBootclasspath(bootclasspaths);
+		} catch(IllegalStateException e) {
 			this.logger.logWrongJDK();
 			this.proceed = false;
 			return null;
-		 }
-
-	 	/*
-	 	 * Handle >= JDK 1.2.2 settings: retrieve the bootclasspath
-	 	 */
-		// check bootclasspath properties for Sun, JRockit and Harmony VMs
-		String bootclasspathProperty = System.getProperty("sun.boot.class.path"); //$NON-NLS-1$
-		if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
-			// IBM J9 VMs
-			bootclasspathProperty = System.getProperty("vm.boot.class.path"); //$NON-NLS-1$
-			if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
-				// Harmony using IBM VME
-				bootclasspathProperty = System.getProperty("org.apache.harmony.boot.class.path"); //$NON-NLS-1$
-			}
-		}
-		if ((bootclasspathProperty != null) && (bootclasspathProperty.length() != 0)) {
-			StringTokenizer tokenizer = new StringTokenizer(bootclasspathProperty, File.pathSeparator);
-			String token;
-			while (tokenizer.hasMoreTokens()) {
-				token = tokenizer.nextToken();
-				FileSystem.Classpath currentClasspath = FileSystem
-						.getClasspath(token, customEncoding, null);
-				if (currentClasspath != null) {
-					bootclasspaths.add(currentClasspath);
-				}
-			}
-		} else {
-			// try to get all jars inside the lib folder of the java home
-			final File javaHome = getJavaHome();
-			if (javaHome != null) {
-				File[] directoriesToCheck = null;
-				if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
-					directoriesToCheck = new File[] {
-						new File(javaHome, "../Classes"), //$NON-NLS-1$
-					};
-				} else {
-					// fall back to try to retrieve them out of the lib directory
-					directoriesToCheck = new File[] {
-						new File(javaHome, "lib") //$NON-NLS-1$
-					};
-				}
-				File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
-				if (systemLibrariesJars != null) {
-					for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
-						File[] current = systemLibrariesJars[i];
-						if (current != null) {
-							for (int j = 0, max2 = current.length; j < max2; j++) {
-								FileSystem.Classpath classpath =
-									FileSystem.getClasspath(current[j].getAbsolutePath(),
-										null, false, null, null);
-								if (classpath != null) {
-									bootclasspaths.add(classpath);
-								}
-							}
-						}
-					}
-				}
-			}
 		}
 	}
 	return bootclasspaths;

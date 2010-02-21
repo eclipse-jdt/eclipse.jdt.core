@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2009 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,9 @@ package org.eclipse.jdt.core.dom;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,6 +30,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
@@ -132,31 +135,7 @@ public class ASTParser {
 	 * Compiler options. Defaults to JavaCore.getOptions().
 	 */
 	private Map compilerOptions;
-
-	/**
-	 * Request for bindings. Defaults to <code>false</code>.
-     */
-	private boolean resolveBindings;
-
-	/**
-	 * Request for a partial AST. Defaults to <code>false</code>.
-     */
-	private boolean partial = false;
-
-	/**
-	 * Request for a statements recovery. Defaults to <code>false</code>.
-     */
-	private boolean statementsRecovery;
-
-	/**
-	 * Request to ignore parsing the method bodies. Defaults to <code>false</code>.
-     */
-	private boolean ignoreMethodBodies;
-	/**
-     * Request for a bindings recovery. Defaults to <code>false</code>.
-     */
-    private boolean bindingsRecovery;
-
+	
     /**
 	 * The focal point for a partial AST request.
      * Only used when <code>partial</code> is <code>true</code>.
@@ -203,15 +182,35 @@ public class ASTParser {
 	 * <code>null</code> if none. Defaults to none.
      */
 	private String unitName = null;
+	
+	/**
+	 * Classpath entries to use to resolve bindings when no java project are available.
+	 */
+	private String[] classpaths;
 
- 	/**
+	/**
+	 * Sourcepath entries to use to resolve bindings when no java project are available.
+	 */
+	private String[] sourcepaths;
+	
+	/**
+	 * Encoding of the given sourcepaths entries.
+	 */
+	private String[] sourcepathsEncodings;
+	
+	/**
+	 * Bits used to set the different values from CompilationUnitResolver values.
+	 */
+	private int bits;
+
+	/**
 	 * Creates a new AST parser for the given API level.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
 	 *
 	 * @param level the API level; one of the LEVEL constants
-     * declared on <code>AST</code>
+	 * declared on <code>AST</code>
 	 */
 	ASTParser(int level) {
 		if ((level != AST.JLS2_INTERNAL)
@@ -219,9 +218,40 @@ public class ASTParser {
 			throw new IllegalArgumentException();
 		}
 		this.apiLevel = level;
-	   	initializeDefaults();
+		initializeDefaults();
 	}
 
+	private List getClasspath() throws IllegalStateException {
+		Main main = new Main(new PrintWriter(System.out), new PrintWriter(System.err), false/*systemExit*/, null/*options*/, null/*progress*/);
+		ArrayList allClasspaths = new ArrayList();
+		try {
+			if ((this.bits & CompilationUnitResolver.INCLUDE_RUNNING_VM_BOOTCLASSPATH) != 0) {
+				org.eclipse.jdt.internal.compiler.util.Util.collectRunningVMBootclasspath(allClasspaths);
+			}
+			if (this.sourcepaths != null) {
+				for (int i = 0, max = this.sourcepaths.length; i < max; i++) {
+					String encoding = this.sourcepathsEncodings == null ? null : this.sourcepathsEncodings[i];
+					main.processPathEntries(
+							Main.DEFAULT_SIZE_CLASSPATH,
+							allClasspaths, this.sourcepaths[i], encoding, true, false);
+				}
+			}
+			if (this.classpaths != null) {
+				for (int i = 0, max = this.classpaths.length; i < max; i++) {
+					main.processPathEntries(
+							Main.DEFAULT_SIZE_CLASSPATH,
+							allClasspaths, this.classpaths[i], null, false, false);
+				}
+			}
+			ArrayList pendingErrors = main.pendingErrors;
+			if (pendingErrors != null && pendingErrors.size() != 0) {
+				throw new IllegalStateException("invalid environment settings"); //$NON-NLS-1$
+			}
+		} catch (IllegalArgumentException e) {
+			throw new IllegalStateException("invalid environment settings"); //$NON-NLS-1$
+		}
+		return allClasspaths;
+	}
 	/**
 	 * Sets all the setting to their default values.
 	 */
@@ -229,14 +259,15 @@ public class ASTParser {
 		this.astKind = K_COMPILATION_UNIT;
 		this.rawSource = null;
 		this.typeRoot = null;
-		this.resolveBindings = false;
-		this.ignoreMethodBodies = false;
+		this.bits = 0;
 		this.sourceLength = -1;
 		this.sourceOffset = 0;
 		this.workingCopyOwner = DefaultWorkingCopyOwner.PRIMARY;
 		this.unitName = null;
 		this.project = null;
-		this.partial = false;
+		this.classpaths = null;
+		this.sourcepaths = null;
+		this.sourcepathsEncodings = null;
 		Map options = JavaCore.getOptions();
 		options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
 		this.compilerOptions = options;
@@ -258,7 +289,44 @@ public class ASTParser {
 	 * @since 3.3
 	 */
 	public void setBindingsRecovery(boolean enabled) {
-		this.bindingsRecovery = enabled;
+		if (enabled) {
+			this.bits |= CompilationUnitResolver.BINDING_RECOVERY;
+		} else {
+			this.bits &= ~CompilationUnitResolver.BINDING_RECOVERY;
+		}
+	}
+	
+	/**
+	 * Set the environment that can be used when no IJavaProject are available.
+	 * 
+	 * <p>The user has to be sure to include all required types on the classpaths for binary types
+	 * or on the sourcepaths for source types to resolve the given source code.</p>
+	 * <p>All classpath and sourcepath entries are absolute paths.</p>
+	 * <p>If sourcepaths contain units using a specific encoding (not the platform encoding), then the
+	 * given <code>encodings</code> must be set. If the given <code>encodings</code> is set, its length must
+	 * match the length of the sourcepaths parameter or an IllegalArgumentException will be thrown.</p>
+	 * <p>If <code>encodings</code> is not <code>null</code>, the given <code>sourcepathEntries</code> must not be <code>null</code>.</p>
+	 * 
+	 * @param classpathEntries the given classpath entries to be used to resolve bindings
+	 * @param sourcepathEntries the given sourcepath entries to be used to resolve bindings
+	 * @param encodings the encodings of the corresponding sourcepath entries or <code>null</code> if the plafform encoding
+	 * can be used.
+	 * @param includeRunningVMBootclasspath <code>true</code> if the bootclasspath of the running VM must be prepended to the
+	 * given classpath and <code>false</code> if the bootclasspath of the running VM should be ignored.
+	 * @throws IllegalArgumentException if the size of the given encodings is not equals to the size of the given <code>
+	 * sourcepathEntries</code>
+	 * @since 3.6
+	 */
+	public void setEnvironment(String[] classpathEntries, String[] sourcepathEntries, String[] encodings, boolean includeRunningVMBootclasspath) {
+		this.classpaths = classpathEntries;
+		this.sourcepaths = sourcepathEntries;
+		this.sourcepathsEncodings = encodings;
+		if (encodings != null) {
+			if (sourcepathEntries == null || sourcepathEntries.length != encodings.length) {
+				throw new IllegalArgumentException(); 
+			}
+		}
+		this.bits |= CompilationUnitResolver.INCLUDE_RUNNING_VM_BOOTCLASSPATH;
 	}
 	/**
 	 * Sets the compiler options to be used when parsing.
@@ -298,12 +366,12 @@ public class ASTParser {
 
 	/**
 	 * Requests that the compiler should provide binding information for
-     * the AST nodes it creates.
-     * <p>
-     * Default to <code>false</code> (no bindings).
-     * </p>
+	 * the AST nodes it creates.
 	 * <p>
-	 * If <code>setResolveBindings(true)</code>, the various names
+	 * Default to <code>false</code> (no bindings).
+	 * </p>
+	 * <p>
+	 * If {@link #setResolveBindings(boolean) setResolveBindings(true)}, the various names
 	 * and types appearing in the AST can be resolved to "bindings"
 	 * by calling the <code>resolveBinding</code> methods. These bindings
 	 * draw connections between the different parts of a program, and
@@ -318,10 +386,9 @@ public class ASTParser {
 	 * <code>resolveBinding</code> methods in any way; these methods return the
 	 * same binding as before the AST was modified (including modifications
 	 * that rearrange subtrees by reparenting nodes).
-	 * If <code>setResolveBindings(false)</code> (the default), the analysis
+	 * If {@link #setResolveBindings(boolean) setResolveBindings(false)}, (the default), the analysis
 	 * does not go beyond parsing and building the tree, and all
-	 * <code>resolveBinding</code> methods return <code>null</code> from the
-	 * outset.
+	 * <code>resolveBinding</code> methods return <code>null</code> from the outset.
 	 * </p>
 	 * <p>
 	 * When bindings are requested, instead of considering compilation units on disk only
@@ -329,24 +396,31 @@ public class ASTParser {
 	 * by this owner take precedence over the underlying compilation units when looking
 	 * up names and drawing the connections.
 	 * </p>
+	 * <p>Note that working copy owner are used only if the <code>org.eclipse.jdt.core</code>
+	 * bundle is initialized.</p>
 	 * <p>
-     * Binding information is obtained from the Java model.
-     * This means that the compilation unit must be located relative to the
-     * Java model. This happens automatically when the source code comes from
-     * either {@link #setSource(ICompilationUnit) setSource(ICompilationUnit)}
-     * or {@link #setSource(IClassFile) setSource(IClassFile)}.
-     * When source is supplied by {@link #setSource(char[]) setSource(char[])},
-     * the location must be extablished explicitly by calling
-     * {@link #setProject(IJavaProject)} and  {@link #setUnitName(String)}.
+	 * Binding information is obtained from the Java model.
+	 * This means that the compilation unit must be located relative to the
+	 * Java model. This happens automatically when the source code comes from
+	 * either {@link #setSource(ICompilationUnit) setSource(ICompilationUnit)}
+	 * or {@link #setSource(IClassFile) setSource(IClassFile)}.
+	 * When source is supplied by {@link #setSource(char[]) setSource(char[])},
+	 * the location must be established explicitly by setting an environment using
+	 * {@link #setProject(IJavaProject)} or {@link #setEnvironment(String[], String[], String[], boolean)} 
+	 * and a unit name {@link #setUnitName(String)}.
 	 * Note that the compiler options that affect doc comment checking may also
 	 * affect whether any bindings are resolved for nodes within doc comments.
 	 * </p>
 	 *
-	 * @param bindings <code>true</code> if bindings are wanted,
+	 * @param enabled <code>true</code> if bindings are wanted,
 	 *   and <code>false</code> if bindings are not of interest
 	 */
-	public void setResolveBindings(boolean bindings) {
-	  this.resolveBindings = bindings;
+	public void setResolveBindings(boolean enabled) {
+		if (enabled) {
+			this.bits |= CompilationUnitResolver.RESOLVE_BINDING;
+		} else {
+			this.bits &= ~CompilationUnitResolver.RESOLVE_BINDING;
+		}
 	}
 
 	/**
@@ -389,7 +463,7 @@ public class ASTParser {
 	 * @param position a position into the corresponding body declaration
 	 */
 	public void setFocalPosition(int position) {
-		this.partial = true;
+		this.bits |= CompilationUnitResolver.PARTIAL;
 		this.focalPointPosition = position;
 	}
 
@@ -588,7 +662,11 @@ public class ASTParser {
 	 * @since 3.2
 	 */
 	public void setStatementsRecovery(boolean enabled) {
-		this.statementsRecovery = enabled;
+		if (enabled) {
+			this.bits |= CompilationUnitResolver.STATEMENT_RECOVERY;
+		} else {
+			this.bits &= ~CompilationUnitResolver.STATEMENT_RECOVERY;
+		}
 	}
 	
 	/**
@@ -602,7 +680,11 @@ public class ASTParser {
 	 * @since 3.5.2
 	 */
 	public void setIgnoreMethodBodies(boolean enabled) {
-		this.ignoreMethodBodies = enabled;
+		if (enabled) {
+			this.bits |= CompilationUnitResolver.IGNORE_METHOD_BODIES;
+		} else {
+			this.bits &= ~CompilationUnitResolver.IGNORE_METHOD_BODIES;
+		}
 	}
 
     /**
@@ -682,55 +764,54 @@ public class ASTParser {
      * default values so the object is ready to be reused.
      * </p>
      *
-	 * @param monitor the progress monitor used to report progress and request cancelation,
+	 * @param monitor the progress monitor used to report progress and request cancellation,
 	 *   or <code>null</code> if none
 	 * @return an AST node whose type depends on the kind of parse
 	 *  requested, with a fallback to a <code>CompilationUnit</code>
 	 *  in the case of severe parsing errors
 	 * @exception IllegalStateException if the settings provided
 	 * are insufficient, contradictory, or otherwise unsupported
-     */
+	 */
 	public ASTNode createAST(IProgressMonitor monitor) {
-	   ASTNode result = null;
-	   if (monitor != null) monitor.beginTask("", 1); //$NON-NLS-1$
+		ASTNode result = null;
+		if (monitor != null) monitor.beginTask("", 1); //$NON-NLS-1$
 		try {
 			if (this.rawSource == null && this.typeRoot == null) {
-		   	  throw new IllegalStateException("source not specified"); //$NON-NLS-1$
-		   }
-	   		result = internalCreateAST(monitor);
+				throw new IllegalStateException("source not specified"); //$NON-NLS-1$
+			}
+			result = internalCreateAST(monitor);
 		} finally {
-	   	   // re-init defaults to allow reuse (and avoid leaking)
-	   	   initializeDefaults();
-	   	   if (monitor != null) monitor.done();
+			// reset to defaults to allow reuse (and avoid leaking)
+			initializeDefaults();
+			if (monitor != null) monitor.done();
 		}
-   	   return result;
+		return result;
 	}
 
 	/**
-     * Creates ASTs for a batch of compilation units.
-     * When bindings are being resolved, processing a
-     * batch of compilation units is more efficient because much
-     * of the work involved in resolving bindings can be shared.
-     * <p>
-     * When bindings are being resolved, all compilation units must
-     * come from the same Java project, which must be set beforehand
-     * with <code>setProject</code>.
-     * The compilation units are processed one at a time in no
-     * specified order. For each of the compilation units in turn,
+	 * Creates ASTs for a batch of compilation units.
+	 * <p>When bindings are being resolved, processing a
+	 * batch of compilation units is more efficient because much
+	 * of the work involved in resolving bindings can be shared.</p>
+	 * <p>
+	 * When bindings are being resolved, all compilation units must
+	 * come from the same Java project, which must be set beforehand
+	 * with {@link #setProject(IJavaProject) setProject}.</p>
+	 * <p>The compilation units are processed one at a time in no
+	 * specified order. For each of the compilation units in turn,</p>
 	 * <ul>
-	 * <li><code>ASTParser.createAST</code> is called to parse it
+	 * <li>{@link #createAST(IProgressMonitor) ASTParser.createAST} is called to parse it
 	 * and create a corresponding AST. The calls to
-	 * <code>ASTParser.createAST</code> all employ the same settings.</li>
-	 * <li><code>ASTRequestor.acceptAST</code> is called passing
-	 * the compilation unit and the corresponding AST to
-	 * <code>requestor</code>.
+	 * {@link #createAST(IProgressMonitor) ASTParser.createAST} all employ the same settings.</li>
+	 * <li>{@link ASTRequestor#acceptAST(ICompilationUnit, CompilationUnit) ASTRequestor.acceptAST}
+	 * is called passing the compilation unit and the corresponding AST to <code>requestor</code>.
 	 * </li>
 	 * </ul>
-     * Note only ASTs from the given compilation units are reported
-     * to the requestor. If additional compilation units are required to
-     * resolve the original ones, the corresponding ASTs are <b>not</b>
-     * reported to the requestor.
-     * </p>
+	 * Note only ASTs from the given compilation units are reported
+	 * to the requestor. If additional compilation units are required to
+	 * resolve the original ones, the corresponding ASTs are <b>not</b>
+	 * reported to the requestor.
+	 * </p>
 	 * <p>
 	 * Note also the following parser parameters are used, regardless of what
 	 * may have been specified:
@@ -740,61 +821,161 @@ public class ASTParser {
 	 * <li>The {@linkplain #setFocalPosition(int) focal position} is not set</li>
 	 * </ul>
 	 * </p>
-     * <p>
-     * The <code>bindingKeys</code> parameter specifies bindings keys
-     * ({@link IBinding#getKey()}) that are to be looked up. These keys may
-     * be for elements either inside or outside the set of compilation
-     * units being processed. When bindings are being resolved,
-     * the keys and corresponding bindings (or <code>null</code> if none) are
-     * passed to <code>ASTRequestor.acceptBinding</code>. Note that binding keys
-     * for elements outside the set of compilation units being processed are looked up
-     * after all <code>ASTRequestor.acceptAST</code> callbacks have been made.
-     * Binding keys for elements inside the set of compilation units being processed
-     * are looked up and reported right after the corresponding
-     * <code>ASTRequestor.acceptAST</code> callback has been made.
-     * No <code>ASTRequestor.acceptBinding</code> callbacks are made unless
-     * bindings are being resolved.
-     * </p>
-     * <p>
-     * A successful call to this method returns all settings to their
-     * default values so the object is ready to be reused.
-     * </p>
-     *
-     * @param compilationUnits the compilation units to create ASTs for
-     * @param bindingKeys the binding keys to create bindings for
-     * @param requestor the AST requestor that collects abstract syntax trees and bindings
+	 * <p>
+	 * The <code>bindingKeys</code> parameter specifies bindings keys
+	 * ({@link IBinding#getKey()}) that are to be looked up. These keys may
+	 * be for elements either inside or outside the set of compilation
+	 * units being processed. When bindings are being resolved,
+	 * the keys and corresponding bindings (or <code>null</code> if none) are
+	 * passed to {@link ASTRequestor#acceptBinding(String, IBinding) ASTRequestor.acceptBinding}.
+	 * Note that binding keys for elements outside the set of compilation units being processed
+	 * are looked up after all {@link ASTRequestor#acceptAST(ICompilationUnit, CompilationUnit) ASTRequestor.acceptAST}
+	 * callbacks have been made.
+	 * Binding keys for elements inside the set of compilation units being processed
+	 * are looked up and reported right after the corresponding
+	 * {@link ASTRequestor#acceptAST(ICompilationUnit, CompilationUnit) ASTRequestor.acceptAST} callback has been made.
+	 * No {@link ASTRequestor#acceptBinding(String, IBinding) ASTRequestor.acceptBinding} callbacks are made unless
+	 * bindings are being resolved.
+	 * </p>
+	 * <p>
+	 * A successful call to this method returns all settings to their
+	 * default values so the object is ready to be reused.
+	 * </p>
+	 *
+	 * @param compilationUnits the compilation units to create ASTs for
+	 * @param bindingKeys the binding keys to create bindings for
+	 * @param requestor the AST requestor that collects abstract syntax trees and bindings
 	 * @param monitor the progress monitor used to report progress and request cancellation,
 	 *   or <code>null</code> if none
 	 * @exception IllegalStateException if the settings provided
 	 * are insufficient, contradictory, or otherwise unsupported
 	 * @since 3.1
-     */
+	 */
 	public void createASTs(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor requestor, IProgressMonitor monitor) {
 		try {
 			int flags = 0;
-			if (this.statementsRecovery) flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
-			if (this.ignoreMethodBodies) flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
-			if (this.resolveBindings) {
+			if ((this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0) {
+				flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+			}
+			if ((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0) {
+				flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
+			}
+			if ((this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0) {
 				if (this.project == null)
 					throw new IllegalStateException("project not specified"); //$NON-NLS-1$
-				if (this.bindingsRecovery) flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+				if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
+					flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+				}
 				CompilationUnitResolver.resolve(compilationUnits, bindingKeys, requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
 			} else {
 				CompilationUnitResolver.parse(compilationUnits, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
 			}
 		} finally {
-			// re-init defaults to allow reuse (and avoid leaking)
+			// reset to defaults to allow reuse (and avoid leaking)
 			initializeDefaults();
 		}
 	}
 
+	/**
+	 * Creates ASTs for a batch of compilation units.
+	 * When bindings are being resolved, processing a
+	 * batch of compilation units is more efficient because much
+	 * of the work involved in resolving bindings can be shared.
+	 * <p>
+	 * When bindings are being resolved, all compilation units are resolved using
+	 * the same environment, which must be set beforehand
+	 * with {@link #setEnvironment(String[], String[], String[], boolean) setEnvironment}.
+	 * The compilation units are processed one at a time in no
+	 * specified order. For each of the compilation units in turn,
+	 * <ul>
+	 * <li>{@link ASTParser#createAST(IProgressMonitor) ASTParser.createAST} is called to parse it
+	 * and create a corresponding AST. The calls to
+	 * {@link ASTParser#createAST(IProgressMonitor) ASTParser.createAST} all employ the same settings.</li>
+	 * <li>{@link FileASTRequestor#acceptAST(String, CompilationUnit) FileASTRequestor.acceptAST} is called passing
+	 * the compilation unit path and the corresponding AST to <code>requestor</code>. The compilation unit path is the same
+	 * path that is passed into the given <code>sourceFilePaths</code> parameter.
+	 * </li>
+	 * </ul>
+	 * Note only ASTs from the given compilation units are reported
+	 * to the requestor. If additional compilation units are required to
+	 * resolve the original ones, the corresponding ASTs are <b>not</b>
+	 * reported to the requestor.
+	 * </p>
+	 * <p>
+	 * Note also the following parser parameters are used, regardless of what
+	 * may have been specified:
+	 * <ul>
+	 * <li>The {@linkplain #setKind(int) parser kind} is <code>K_COMPILATION_UNIT</code></li>
+	 * <li>The {@linkplain #setSourceRange(int,int) source range} is <code>(0, -1)</code></li>
+	 * <li>The {@linkplain #setFocalPosition(int) focal position} is not set</li>
+	 * </ul>
+	 * </p>
+	 * <p>
+	 * The <code>bindingKeys</code> parameter specifies bindings keys
+	 * ({@link IBinding#getKey()}) that are to be looked up. These keys may
+	 * be for elements either inside or outside the set of compilation
+	 * units being processed. When bindings are being resolved,
+	 * the keys and corresponding bindings (or <code>null</code> if none) are
+	 * passed to {@link FileASTRequestor#acceptBinding(String, IBinding) FileASTRequestor.acceptBinding}. Note that binding keys
+	 * for elements outside the set of compilation units being processed are looked up
+	 * after all {@link FileASTRequestor#acceptAST(String, CompilationUnit) ASTRequestor.acceptAST}
+	 * callbacks have been made.
+	 * Binding keys for elements inside the set of compilation units being processed
+	 * are looked up and reported right after the corresponding
+	 * {@link FileASTRequestor#acceptAST(String, CompilationUnit) FileASTRequestor.acceptAST} callback has been made.
+	 * No {@link FileASTRequestor#acceptBinding(String, IBinding) FileASTRequestor.acceptBinding} callbacks are made unless
+	 * bindings are being resolved.
+	 * </p>
+	 * <p>
+	 * A successful call to this method returns all settings to their
+	 * default values so the object is ready to be reused.
+	 * </p>
+	 * <p>The given <code>encodings</code> are used to properly parse the given source units. If the platform encoding is sufficient,
+	 * then the given encodings can be set to <code>null</code>.</p>
+	 *
+	 * @param sourceFilePaths the compilation units to create ASTs for
+	 * @param encodings the given encoding for the source units
+	 * @param bindingKeys the binding keys to create bindings for
+	 * @param requestor the AST requestor that collects abstract syntax trees and bindings
+	 * @param monitor the progress monitor used to report progress and request cancellation,
+	 *   or <code>null</code> if none
+	 * @exception IllegalStateException if the settings provided
+	 * are insufficient, contradictory, or otherwise unsupported
+	 * @since 3.6
+	 */
+	public void createASTs(String[] sourceFilePaths, String[] encodings, String[] bindingKeys,
+			FileASTRequestor requestor, IProgressMonitor monitor) {
+		try {
+			int flags = 0;
+			if ((this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0) {
+				flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+			}
+			if ((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0) {
+				flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
+			}
+			if ((this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0) {
+				if (this.classpaths == null && this.sourcepaths == null && ((this.bits & CompilationUnitResolver.INCLUDE_RUNNING_VM_BOOTCLASSPATH) == 0)) {
+					throw new IllegalStateException("no environment is specified"); //$NON-NLS-1$
+				}
+				if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
+					flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+				}
+				CompilationUnitResolver.resolve(sourceFilePaths, encodings, bindingKeys, requestor, this.apiLevel, this.compilerOptions, getClasspath(), flags, monitor);
+			} else {
+				CompilationUnitResolver.parse(sourceFilePaths, encodings, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
+			}
+		} finally {
+			// reset to defaults to allow reuse (and avoid leaking)
+			initializeDefaults();
+		}
+	}
 	/**
 	 * Creates bindings for a batch of Java elements. These elements are either
 	 * enclosed in {@link ICompilationUnit}s or in {@link IClassFile}s.
 	 * <p>
 	 * All enclosing compilation units and class files must
 	 * come from the same Java project, which must be set beforehand
-	 * with <code>setProject</code>.
+	 * with {@link #setProject(IJavaProject) setProject}.
 	 * </p>
 	 * <p>
 	 * All elements must exist. If one doesn't exist, an <code>IllegalStateException</code>
@@ -830,20 +1011,26 @@ public class ASTParser {
 	public IBinding[] createBindings(IJavaElement[] elements, IProgressMonitor monitor) {
 		try {
 			if (this.project == null)
-				throw new IllegalStateException("project not specified"); //$NON-NLS-1$
+				throw new IllegalStateException("project or classpath not specified"); //$NON-NLS-1$
 			int flags = 0;
-			if (this.statementsRecovery) flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
-			if (this.bindingsRecovery)  flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
-			if (this.ignoreMethodBodies) flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
+			if ((this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0) {
+				flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+			}
+			if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
+				flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+			}
+			if ((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0) {
+				flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
+			}
 			return CompilationUnitResolver.resolve(elements, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
 		} finally {
-			// re-init defaults to allow reuse (and avoid leaking)
+			// reset to defaults to allow reuse (and avoid leaking)
 			initializeDefaults();
 		}
 	}
 
 	private ASTNode internalCreateAST(IProgressMonitor monitor) {
-		boolean needToResolveBindings = this.resolveBindings;
+		boolean needToResolveBindings = (this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0;
 		switch(this.astKind) {
 			case K_CLASS_BODY_DECLARATIONS :
 			case K_EXPRESSION :
@@ -935,25 +1122,39 @@ public class ASTParser {
 							throw new IllegalStateException(String.valueOf(stringWriter.getBuffer()));
 						}
 					} else if (this.rawSource != null) {
-						needToResolveBindings = this.resolveBindings && this.unitName != null && this.project != null && this.compilerOptions != null;
+						needToResolveBindings = 
+							((this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0)
+							&& this.unitName != null
+							&& (this.project != null
+									|| this.classpaths != null
+									|| this.sourcepaths != null
+									|| ((this.bits & CompilationUnitResolver.INCLUDE_RUNNING_VM_BOOTCLASSPATH) != 0))
+							&& this.compilerOptions != null;
 						sourceUnit = new BasicCompilationUnit(this.rawSource, null, this.unitName == null ? "" : this.unitName, this.project); //$NON-NLS-1$
 					} else {
 						throw new IllegalStateException();
 					}
-					if (this.partial) {
+					if ((this.bits & CompilationUnitResolver.PARTIAL) != 0) {
 						searcher = new NodeSearcher(this.focalPointPosition);
 					}
 					int flags = 0;
-					if (this.statementsRecovery) flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
-					if (searcher == null && this.ignoreMethodBodies) flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
+					if ((this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0) {
+						flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+					}
+					if (searcher == null && ((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0)) {
+						flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
+					}
 					if (needToResolveBindings) {
-						if (this.bindingsRecovery) flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+						if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
+							flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+						}
 						try {
 							// parse and resolve
 							compilationUnitDeclaration =
 								CompilationUnitResolver.resolve(
 									sourceUnit,
 									this.project,
+									getClasspath(),
 									searcher,
 									this.compilerOptions,
 									this.workingCopyOwner,
@@ -985,11 +1186,13 @@ public class ASTParser {
 						wcOwner,
 						needToResolveBindings ? new DefaultBindingResolver.BindingTables() : null,
 						flags,
-						monitor);
+						monitor,
+						this.project != null);
 					result.setTypeRoot(this.typeRoot);
 					return result;
 				} finally {
-					if (compilationUnitDeclaration != null && this.resolveBindings) {
+					if (compilationUnitDeclaration != null
+							&& ((this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0)) {
 						compilationUnitDeclaration.cleanUp();
 					}
 				}
@@ -1076,18 +1279,24 @@ public class ASTParser {
 		AST ast = AST.newAST(this.apiLevel);
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		ast.setBindingResolver(new BindingResolver());
-		if (this.statementsRecovery) {
+		if ((this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0) {
 			ast.setFlag(ICompilationUnit.ENABLE_STATEMENTS_RECOVERY);
 		}
 		converter.setAST(ast);
-		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil(this.ignoreMethodBodies);
+		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0);
 		CompilationUnit compilationUnit = ast.newCompilationUnit();
 		if (this.sourceLength == -1) {
 			this.sourceLength = this.rawSource.length;
 		}
 		switch(this.astKind) {
 			case K_STATEMENTS :
-				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(this.rawSource, this.sourceOffset, this.sourceLength, this.compilerOptions, true, this.statementsRecovery);
+				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(
+						this.rawSource,
+						this.sourceOffset,
+						this.sourceLength,
+						this.compilerOptions,
+						true,
+						(this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0);
 				RecoveryScannerData data = constructorDeclaration.compilationResult.recoveryScannerData;
 				if(data != null) {
 					Scanner scanner = converter.scanner;
@@ -1147,7 +1356,14 @@ public class ASTParser {
 					return compilationUnit;
 				}
 			case K_CLASS_BODY_DECLARATIONS :
-				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = codeSnippetParsingUtil.parseClassBodyDeclarations(this.rawSource, this.sourceOffset, this.sourceLength, this.compilerOptions, true, this.statementsRecovery);
+				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes =
+					codeSnippetParsingUtil.parseClassBodyDeclarations(
+							this.rawSource,
+							this.sourceOffset,
+							this.sourceLength,
+							this.compilerOptions,
+							true,
+							(this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0);
 				recordedParsingInformation = codeSnippetParsingUtil.recordedParsingInformation;
 				comments = recordedParsingInformation.commentPositions;
 				if (comments != null) {
