@@ -216,15 +216,15 @@ public void test006() {
 			"}"
 		},
 		"----------\n" +
-		"1. WARNING in p1\\A.java (at line 3)\n" +
-		"	private static String success = \"SUCCESS\";	\n" +
-		"	                      ^^^^^^^\n" +
-		"The field A.success is never read locally\n" +
-		"----------\n" +
-		"2. ERROR in p1\\A.java (at line 7)\n" +
+		"1. ERROR in p1\\A.java (at line 7)\n" +
 		"	public void aTask() {System.out.println(this.success);}\n" +
 		"	                                             ^^^^^^^\n" +
 		"The field A.success is not visible\n" +
+		"----------\n" +
+		"2. WARNING in p1\\A.java (at line 7)\n" +
+		"	public void aTask() {System.out.println(this.success);}\n" +
+		"	                                             ^^^^^^^\n" +
+		"The static field A.success should be accessed in a static way\n" +
 		"----------\n");
 }
 /**
@@ -308,12 +308,7 @@ public void test009() {
 			"}"
 		},
 		"----------\n" +
-		"1. WARNING in p1\\A.java (at line 3)\n" +
-		"	private String success = \"SUCCESS\";			\n" +
-		"	               ^^^^^^^\n" +
-		"The field A.success is never read locally\n" +
-		"----------\n" +
-		"2. ERROR in p1\\A.java (at line 7)\n" +
+		"1. ERROR in p1\\A.java (at line 7)\n" +
 		"	public void aTask() {System.out.println(this.success);}\n" +
 		"	                                             ^^^^^^^\n" +
 		"The field A.success is not visible\n" +

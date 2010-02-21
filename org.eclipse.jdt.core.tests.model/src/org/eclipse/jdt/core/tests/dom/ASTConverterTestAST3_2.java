@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 713, -1 };
-//		TESTS_NUMBERS =  new int[] { 718 };
+//		TESTS_NUMBERS =  new int[] { 653 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8067,6 +8067,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		FieldAccess fieldAccess = (FieldAccess) expression;
 		IVariableBinding variableBinding = fieldAccess.resolveFieldBinding();
 		assertNotNull("No variable binding", variableBinding);
+		IMethodBinding resolveMethodBinding = invocation.resolveMethodBinding();
+		assertNotNull("No binding", resolveMethodBinding);
 	}
 
 

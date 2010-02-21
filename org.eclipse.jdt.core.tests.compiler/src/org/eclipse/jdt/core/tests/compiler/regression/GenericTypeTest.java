@@ -14397,52 +14397,57 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   } \n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. WARNING in test\\Foo.java (at line 4)\n" +
-			"	private R dosomething(){ return s; } \n" +
-			"	          ^^^^^^^^^^^^^\n" +
-			"The method dosomething() from the type Foo<R> is never used locally\n" +
-			"----------\n" +
-			"2. WARNING in test\\Foo.java (at line 5)\n" +
-			"	private class Bar {} \n" +
-			"	              ^^^\n" +
-			"The type Foo<R>.Bar is never used locally\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in test02\\FooBar.java (at line 6)\n" +
-			"	f.s = \"foo\"; \n" +
-			"	  ^\n" +
-			"The field Foo<String>.s is not visible\n" +
-			"----------\n" +
-			"2. ERROR in test02\\FooBar.java (at line 7)\n" +
-			"	this.s = \"foo\";\n" +
-			"	     ^\n" +
-			"The field Foo<R>.s is not visible\n" +
-			"----------\n" +
-			"3. ERROR in test02\\FooBar.java (at line 8)\n" +
-			"	f.dosomething(); \n" +
-			"	  ^^^^^^^^^^^\n" +
-			"The method dosomething() from the type Foo<String> is not visible\n" +
-			"----------\n" +
-			"4. ERROR in test02\\FooBar.java (at line 9)\n" +
-			"	this.dosomething();  \n" +
-			"	     ^^^^^^^^^^^\n" +
-			"The method dosomething() from the type Foo<R> is not visible\n" +
-			"----------\n" +
-			"5. ERROR in test02\\FooBar.java (at line 10)\n" +
-			"	Bar b1; \n" +
-			"	^^^\n" +
-			"The type Bar is not visible\n" +
-			"----------\n" +
-			"6. ERROR in test02\\FooBar.java (at line 11)\n" +
-			"	FooBar<String>.Bar b2; \n" +
-			"	^^^^^^^^^^^^^^^^^^\n" +
-			"The type FooBar.Bar is not visible\n" +
-			"----------\n" +
-			"7. ERROR in test02\\FooBar.java (at line 12)\n" +
-			"	Foo<String>.Bar b3; \n" +
-			"	^^^^^^^^^^^^^^^\n" +
-			"The type Foo.Bar is not visible\n" +
+			"----------\n" + 
+			"1. WARNING in test\\Foo.java (at line 4)\n" + 
+			"	private R dosomething(){ return s; } \n" + 
+			"	          ^^^^^^^^^^^^^\n" + 
+			"The method dosomething() from the type Foo<R> is never used locally\n" + 
+			"----------\n" + 
+			"2. WARNING in test\\Foo.java (at line 5)\n" + 
+			"	private class Bar {} \n" + 
+			"	              ^^^\n" + 
+			"The type Foo<R>.Bar is never used locally\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in test02\\FooBar.java (at line 6)\n" + 
+			"	f.s = \"foo\"; \n" + 
+			"	  ^\n" + 
+			"The field Foo<String>.s is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in test02\\FooBar.java (at line 7)\n" + 
+			"	this.s = \"foo\";\n" + 
+			"	     ^\n" + 
+			"The field Foo<R>.s is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in test02\\FooBar.java (at line 7)\n" + 
+			"	this.s = \"foo\";\n" + 
+			"	         ^^^^^\n" + 
+			"Type mismatch: cannot convert from String to R\n" + 
+			"----------\n" + 
+			"4. ERROR in test02\\FooBar.java (at line 8)\n" + 
+			"	f.dosomething(); \n" + 
+			"	  ^^^^^^^^^^^\n" + 
+			"The method dosomething() from the type Foo<String> is not visible\n" + 
+			"----------\n" + 
+			"5. ERROR in test02\\FooBar.java (at line 9)\n" + 
+			"	this.dosomething();  \n" + 
+			"	     ^^^^^^^^^^^\n" + 
+			"The method dosomething() from the type Foo<R> is not visible\n" + 
+			"----------\n" + 
+			"6. ERROR in test02\\FooBar.java (at line 10)\n" + 
+			"	Bar b1; \n" + 
+			"	^^^\n" + 
+			"The type Bar is not visible\n" + 
+			"----------\n" + 
+			"7. ERROR in test02\\FooBar.java (at line 11)\n" + 
+			"	FooBar<String>.Bar b2; \n" + 
+			"	^^^^^^^^^^^^^^^^^^\n" + 
+			"The type FooBar.Bar is not visible\n" + 
+			"----------\n" + 
+			"8. ERROR in test02\\FooBar.java (at line 12)\n" + 
+			"	Foo<String>.Bar b3; \n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"The type Foo.Bar is not visible\n" + 
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81594
