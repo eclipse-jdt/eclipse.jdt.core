@@ -17,18 +17,14 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
-import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
-
 public class MultiLineTestCase extends CommentTestCase {
 	static {
 //		TESTS_NAMES = new String[] { "test170580" } ;
 	}
-	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
 
-	protected static final String POSTFIX= MultiCommentLine.MULTI_COMMENT_END_PREFIX;
-
-	protected static final String PREFIX= MultiCommentLine.MULTI_COMMENT_START_PREFIX;
+	protected static final String INFIX= " * "; //$NON-NLS-1$
+	protected static final String POSTFIX= " */"; //$NON-NLS-1$
+	protected static final String PREFIX= "/* "; //$NON-NLS-1$
 
 	public static Test suite() {
 		return buildTestSuite(MultiLineTestCase.class);
@@ -116,13 +112,9 @@ public class MultiLineTestCase extends CommentTestCase {
 				" * Member comment\n" +//$NON-NLS-1$
 				" */";//$NON-NLS-1$
 		String result= testFormat(input, 0, input.length(), CodeFormatter.K_MULTI_LINE_COMMENT , 2);
-		String expectedOutput = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT
-			?	"/**\n" +
-				" * Member comment\n" +
-				" */"
-			:	"/***********************************************************************\n" +
-				"	 * Member comment\n" +
-				"	 */";
+		String expectedOutput = "/**\n" +
+			" * Member comment\n" +
+			" */";
 		assertEquals("Different output", expectedOutput, result);
 	}
 
