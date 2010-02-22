@@ -5558,6 +5558,133 @@ public void testBug267658b() throws JavaModelException {
 }
 
 /**
+ * @bug 270209: [format] Condensed block comment formatting
+ * @test Verify that block and javadoc comments are formatted in condensed
+ * 		mode when the corresponding preferences is set
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=270209"
+ */
+public void testBug270209_Block01() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_block_comment = true;
+	String source = 
+		"public interface X01 {\n" + 
+		"\n" + 
+		"/* Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space. */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X01 {\n" + 
+		"\n" + 
+		"	/* Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug270209_Block02() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_block_comment = true;
+	String source = 
+		"public interface X02 {\n" + 
+		"\n" + 
+		"/*\n" + 
+		" * Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space.\n" + 
+		" */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X02 {\n" + 
+		"\n" + 
+		"	/* Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug270209_Block03() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_block_comment = true;
+	String source = 
+		"public interface X03 {\n" + 
+		"\n" + 
+		"/*\n" + 
+		" * \n" + 
+		" * Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space.\n" + 
+		" * \n" + 
+		" */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X03 {\n" + 
+		"\n" + 
+		"	/* Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug270209_Javadoc01() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_javadoc_comment = true;
+	String source = 
+		"public interface X01 {\n" + 
+		"\n" + 
+		"/** Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space. */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X01 {\n" + 
+		"\n" + 
+		"	/** Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug270209_Javadoc02() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_javadoc_comment = true;
+	String source = 
+		"public interface X02 {\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space.\n" + 
+		" */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X02 {\n" + 
+		"\n" + 
+		"	/** Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug270209_Javadoc03() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_javadoc_comment = true;
+	String source = 
+		"public interface X03 {\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * \n" + 
+		" * Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space.\n" + 
+		" * \n" + 
+		" */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X03 {\n" + 
+		"\n" + 
+		"	/** Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 273619: [formatter] Formatting repeats *} in javadoc
  * @test Ensure that *} is not repeated while formatting
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=273619"

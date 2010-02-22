@@ -50,6 +50,69 @@ Eclipse SDK 3.6M6 - %date% - 3.6.0 M6
 <h2>What's new in this drop</h2>
 <ul>
 <li>
+Added two new formatter preferences to condense block and javadoc comments.
+<p>
+These new preferences are controlled respectively with the options:</p>
+<code>DefaultCodeFormatterConstants.FORMATTER_COMMENT_CONDENSED_BLOCK_COMMENT</code><br>
+<code>DefaultCodeFormatterConstants.FORMATTER_COMMENT_CONDENSED_JAVADOC_COMMENT</code>
+<pre>
+/**
+ * FORMATTER / Option to control whether block comments are condensed or not
+ *     - option id:         "org.eclipse.jdt.core.formatter.comment.condensed_block_comment"
+ *     - possible values:   { TRUE, FALSE }
+ *     - default:           FALSE
+ * 
+ * @see #TRUE
+ * @see #FALSE
+ * @since 3.6
+ */
+
+/**
+ * FORMATTER / Option to control whether javadoc comments are condensed or not
+ *     - option id:         "org.eclipse.jdt.core.formatter.comment.condensed_javadoc_comment"
+ *     - possible values:   { TRUE, FALSE }
+ *     - default:           FALSE
+ * 
+ * @see #TRUE
+ * @see #FALSE
+ * @since 3.6
+ */
+ </pre>
+<p>For example, when both of these options are used, the following snippet:</p>
+<pre>
+public class X {
+	/*
+	 * This block comment after formatting will no longer use a new line
+	 * at the beginning and at the end of the comment...
+	 */
+	void foo() {
+	}
+	/**
+	 * This javadoc comment after formatting will no longer use a new line
+	 * at the beginning and at the end of the comment...
+	 */
+	void bar() {
+	}
+}
+</pre>
+formatted with this preference activated, will produce the following output:
+<pre>
+public class X {
+	/* This block comment after formatting will no longer use a new line at the
+	 * beginning and at the end of the comment... */
+	void foo() {
+	}
+
+	/** This javadoc comment after formatting will no longer use a new line at
+	 * the beginning and at the end of the comment... */
+	void bar() {
+	}
+	}
+}
+</pre>
+See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=270209">270209</a> for more details.
+</li>
+<li>
 The <code>CodeFormatter.F_INCLUDE_COMMENT</code> flag now works for all kind
 of snippet while using the formatter.<br>
 See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=236406">236406</a> for more details.
